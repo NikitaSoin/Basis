@@ -10,3 +10,4 @@ bcrypt==5.0.0
 pytest==9.0.3
 httpx==0.28.1
 anthropic==0.100.0
+email-validator
