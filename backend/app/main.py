@@ -10,7 +10,12 @@ app = FastAPI(title="Investment Platform API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://inbasis.ru",
+        "https://www.inbasis.ru",
+        "https://nikitasoin-basis-a279.twc1.net",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
