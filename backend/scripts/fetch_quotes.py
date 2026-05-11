@@ -25,7 +25,7 @@ MOEX_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/securities/"
     "{ticker}.json?iss.meta=off&iss.only=marketdata,securities"
     "&marketdata.columns=SECID,LAST,OPEN,HIGH,LOW,VOLRUR"
-    "&securities.columns=SECID,PREVPRICE,PREVDATE"
+    "&securities.columns=SECID,PREVPRICE,PREVLEGALCLOSEPRICE,PREVDATE"
 )
 
 
@@ -58,6 +58,17 @@ def fetch_moex(ticker: str) -> dict | None:
     if not last_price:
         return None
 
+    prev_close = sec.get("PREVLEGALCLOSEPRICE") or sec.get("PREVPRICE")
+
+    change_abs = None
+    change_pct = None
+    if last_price and prev_close:
+        try:
+            change_abs = round(float(last_price) - float(prev_close), 4)
+            change_pct = round((float(last_price) / float(prev_close) - 1) * 100, 4)
+        except (TypeError, ZeroDivisionError):
+            pass
+
     prev_date_str = sec.get("PREVDATE")
     try:
         quote_date = datetime.strptime(prev_date_str, "%Y-%m-%d").date() if prev_date_str else date.today()
@@ -71,6 +82,9 @@ def fetch_moex(ticker: str) -> dict | None:
         "high": md.get("HIGH") or last_price,
         "low": md.get("LOW") or last_price,
         "volume": int(md.get("VOLRUR") or 0),
+        "prev_close": prev_close,
+        "change_abs": change_abs,
+        "change_pct": change_pct,
     }
 
 
@@ -104,8 +118,12 @@ def main():
                 existing.high = quote_data["high"]
                 existing.low = quote_data["low"]
                 existing.volume = quote_data["volume"]
+                existing.prev_close = quote_data["prev_close"]
+                existing.change_abs = quote_data["change_abs"]
+                existing.change_pct = quote_data["change_pct"]
                 skipped += 1
-                print(f"обновлено ({quote_data['close']} ₽)")
+                chg = f"{quote_data['change_pct']:+.2f}%" if quote_data["change_pct"] else ""
+                print(f"обновлено ({quote_data['close']} ₽ {chg})")
             else:
                 db.add(Quote(
                     company_id=company.id,
@@ -115,6 +133,9 @@ def main():
                     high=quote_data["high"],
                     low=quote_data["low"],
                     volume=quote_data["volume"],
+                    prev_close=quote_data["prev_close"],
+                    change_abs=quote_data["change_abs"],
+                    change_pct=quote_data["change_pct"],
                 ))
                 loaded += 1
                 print(f"загружено ({quote_data['close']} ₽)")

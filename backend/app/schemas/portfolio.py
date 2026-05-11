@@ -21,7 +21,7 @@ class PositionResponse(BaseModel):
 
 
 class PortfolioCreate(BaseModel):
-    user_id: int
+    user_id: int = 1
     name: str
     description: str | None = None
 
