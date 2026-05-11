@@ -13,7 +13,13 @@ def _get_client() -> Anthropic:
         key = os.environ.get("ANTHROPIC_API_KEY")
         if not key:
             raise RuntimeError("ANTHROPIC_API_KEY не задан")
-        _client = Anthropic(api_key=key)
+
+        proxy_url = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+        if proxy_url:
+            import httpx
+            _client = Anthropic(api_key=key, http_client=httpx.Client(proxy=proxy_url))
+        else:
+            _client = Anthropic(api_key=key)
     return _client
 
 
