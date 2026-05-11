@@ -27,6 +27,11 @@ def update_all_quotes() -> None:
                 .first()
             )
             if existing:
+                # Don't overwrite real change data with weekend/holiday zeros
+                new_chg = quote_data.get("change_pct") or 0
+                if new_chg == 0 and existing.change_pct and float(existing.change_pct) != 0:
+                    logger.info("Scheduler: %s — пропуск (weekend data, сохраняем %s)", company.ticker, existing.change_pct)
+                    continue
                 existing.close = quote_data["close"]
                 existing.open = quote_data["open"]
                 existing.high = quote_data["high"]
