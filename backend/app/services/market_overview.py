@@ -47,30 +47,23 @@ def generate_market_overview(overview_type: str) -> MarketOverview:
     prompt = _PROMPTS.get(overview_type, _PROMPTS["express"])
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    with client.messages.stream(
+    response = client.messages.create(
         model="claude-opus-4-7",
         max_tokens=4096,
-        thinking={"type": "adaptive"},
         tools=[{"type": "web_search_20250305", "name": "web_search"}],
-        system=[{
-            "type": "text",
-            "text": (
-                "Ты — старший аналитик инвестиционной платформы. "
-                "Используй web_search для поиска актуальных новостей. "
-                "Отвечай только на русском языке."
-            ),
-            "cache_control": {"type": "ephemeral"},
-        }],
+        system=(
+            "Ты — старший аналитик инвестиционной платформы. "
+            "Используй web_search для поиска актуальных новостей российского рынка. "
+            "Отвечай только на русском языке."
+        ),
         messages=[{"role": "user", "content": f"Дата: {today}. {prompt}"}],
         betas=["web-search-2025-03-05"],
-    ) as stream:
-        response = stream.get_final_message()
+    )
 
     content = ""
     for block in response.content:
-        if block.type == "text":
+        if hasattr(block, "text") and block.text:
             content = block.text
-            break
 
     db = SessionLocal()
     try:
