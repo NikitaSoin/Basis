@@ -18,6 +18,8 @@ class CompanyResponse(BaseModel):
     description: str | None
     created_at: datetime
     last_price: Decimal | None = None
+    change_pct: Decimal | None = None
+    change_abs: Decimal | None = None
 
     model_config = {"from_attributes": True}
 

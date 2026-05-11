@@ -17,13 +17,20 @@ def get_company_by_ticker(db: Session, ticker: str) -> Company | None:
 
 def _attach_last_price(db: Session, company: Company) -> None:
     latest = (
-        db.query(Quote.close)
+        db.query(Quote)
         .filter(Quote.company_id == company.id)
         .order_by(Quote.date.desc())
         .limit(1)
-        .scalar()
+        .first()
     )
-    company.last_price = latest
+    if latest:
+        company.last_price = latest.close
+        company.change_pct = latest.change_pct
+        company.change_abs = latest.change_abs
+    else:
+        company.last_price = None
+        company.change_pct = None
+        company.change_abs = None
 
 
 def get_all_companies(db: Session) -> list[Company]:
@@ -36,14 +43,17 @@ def get_all_companies(db: Session) -> list[Company]:
         .group_by(Quote.company_id)
         .subquery()
     )
-    price_rows = (
-        db.query(Quote.company_id, Quote.close)
+    quote_rows = (
+        db.query(Quote.company_id, Quote.close, Quote.change_pct, Quote.change_abs)
         .join(latest_sq, (Quote.company_id == latest_sq.c.company_id) & (Quote.date == latest_sq.c.max_date))
         .all()
     )
-    price_map = {row.company_id: row.close for row in price_rows}
+    quote_map = {r.company_id: r for r in quote_rows}
     for c in companies:
-        c.last_price = price_map.get(c.id)
+        row = quote_map.get(c.id)
+        c.last_price = row.close if row else None
+        c.change_pct = row.change_pct if row else None
+        c.change_abs = row.change_abs if row else None
     return companies
 
 
