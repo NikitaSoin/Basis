@@ -43,3 +43,9 @@ def generate_overview_endpoint(type: OverviewType = OverviewType.express):
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ошибка генерации: {e}")
+
+
+@router.get("/market/health/anthropic")
+def anthropic_health_endpoint():
+    from app.services.market_overview import check_anthropic_connectivity
+    return check_anthropic_connectivity()

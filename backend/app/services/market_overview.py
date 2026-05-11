@@ -1,8 +1,11 @@
 import os
+import logging
 from datetime import datetime, timezone
 from anthropic import Anthropic
 from app.db.session import SessionLocal
 from app.models.market import MarketOverview, OverviewType
+
+logger = logging.getLogger(__name__)
 
 _client = None
 
@@ -17,10 +20,44 @@ def _get_client() -> Anthropic:
         proxy_url = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
         if proxy_url:
             import httpx
-            _client = Anthropic(api_key=key, http_client=httpx.Client(proxy=proxy_url))
+            logger.info("Anthropic client: используем прокси %s", proxy_url.split("@")[-1])
+            transport = httpx.HTTPTransport(proxy=proxy_url)
+            http_client = httpx.Client(transport=transport, timeout=httpx.Timeout(120.0))
+            _client = Anthropic(api_key=key, http_client=http_client)
         else:
+            logger.warning("Anthropic client: прокси не задан, прямое подключение")
             _client = Anthropic(api_key=key)
     return _client
+
+
+def check_anthropic_connectivity() -> dict:
+    """Проверяет доступность Anthropic API — используется в диагностическом endpoint."""
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    proxy_url = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    result = {
+        "api_key_set": bool(key),
+        "proxy_set": bool(proxy_url),
+        "proxy_host": proxy_url.split("@")[-1] if proxy_url else None,
+        "status": "unknown",
+        "error": None,
+    }
+    if not key:
+        result["status"] = "error"
+        result["error"] = "ANTHROPIC_API_KEY не задан"
+        return result
+    try:
+        client = _get_client()
+        # Минимальный запрос для проверки доступности
+        client.messages.create(
+            model="claude-haiku-4-5",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "ping"}],
+        )
+        result["status"] = "ok"
+    except Exception as e:
+        result["status"] = "error"
+        result["error"] = str(e)
+    return result
 
 
 _PROMPTS = {
