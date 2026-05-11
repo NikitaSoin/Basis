@@ -1341,6 +1341,8 @@ const CompanyList = ({ onSelectCompany }) => {
               const mock = MOCK_COMPANIES.find((m) => m.ticker === apiC.ticker);
               const base = mock ? { ...mock, ...apiC } : { ...apiC, sector: apiC.sector || "Прочее" };
               if (apiC.last_price != null) base.price = parseFloat(apiC.last_price);
+              if (apiC.change_pct != null) base.change = parseFloat(apiC.change_pct);
+              if (apiC.change_abs != null) base.changeAbs = parseFloat(apiC.change_abs);
               return base;
             })
             .sort((a, b) => (a.sector || "").localeCompare(b.sector || "", "ru"));

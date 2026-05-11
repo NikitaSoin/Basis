@@ -28,7 +28,7 @@ class PortfolioCreate(BaseModel):
 
 class PortfolioResponse(BaseModel):
     id: int
-    user_id: int
+    user_id: int | None
     name: str
     description: str | None
     created_at: datetime
