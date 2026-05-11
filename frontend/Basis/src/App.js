@@ -1745,18 +1745,30 @@ const CompanyCard = ({ company, onBack }) => {
       if (!val) return null;
       if (typeof val === "string") return val;
       if (val.text) return val.text;
-      return JSON.stringify(val, null, 2);
+      return null;
     };
 
-    const apiSections = analysis
-      ? deepSections.map((s) => ({ label: s.label, content: getContent(analysis[s.key]) }))
-      : null;
+    const sectorLabel = company.sector || "данного сектора";
+    const companyName = company.name || company.ticker;
 
-    const mockSections = data.deepDive
-      ? data.deepDive.map((d) => ({ label: d.category, content: d.details }))
-      : null;
+    const placeholders = {
+      business_model: `${companyName} работает в секторе ${sectorLabel}. Подробный разбор бизнес-модели, источников выручки и конкурентных преимуществ появится в ближайшем обновлении.`,
+      financials: `Анализ ключевых финансовых метрик ${companyName}: выручка, EBITDA, чистая прибыль, долговая нагрузка и рентабельность. Данные будут добавлены в ближайшем обновлении.`,
+      competitors: `Обзор конкурентной среды и рыночной доли ${companyName} в секторе ${sectorLabel}. Сравнительный анализ с ключевыми игроками будет добавлен в ближайшем обновлении.`,
+      macro_economy: `Чувствительность ${companyName} к изменениям ключевой ставки ЦБ, инфляции и динамике ВВП России. Макроэкономический анализ будет добавлен в ближайшем обновлении.`,
+      global_economy: `Влияние мировой конъюнктуры на ${companyName}: глобальные цены на сырьё, спрос на экспортных рынках, курсы валют. Анализ будет добавлен в ближайшем обновлении.`,
+      geopolitics: `Геополитические риски и возможности для ${companyName} в текущих условиях. Разбор санкционного давления и альтернативных рынков сбыта будет добавлен в ближайшем обновлении.`,
+      technical_analysis: `Технический анализ ${companyName}: уровни поддержки и сопротивления, тренды, объёмы торгов и ключевые технические сигналы. Данные будут добавлены в ближайшем обновлении.`,
+    };
 
-    const sections = apiSections || mockSections;
+    const sections = deepSections.map((s) => {
+      const apiContent = getContent(analysis?.[s.key]);
+      return {
+        label: s.label,
+        content: apiContent || placeholders[s.key],
+        isPlaceholder: !apiContent,
+      };
+    });
 
     return (
       <div className="space-y-4">
@@ -1774,17 +1786,15 @@ const CompanyCard = ({ company, onBack }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {(sections || deepSections.map((s) => ({ label: s.label, content: null }))).map((s, i) => (
+            {sections.map((s, i) => (
               <div key={i} className="bg-slate-800 p-5 rounded-xl border border-slate-700">
                 <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
                   <Layers size={16} className="text-indigo-400" />
                   {s.label}
                 </h4>
-                {s.content ? (
-                  <p className="text-slate-300 text-sm leading-relaxed">{s.content}</p>
-                ) : (
-                  <p className="text-slate-500 text-sm italic">В разработке</p>
-                )}
+                <p className={`text-sm leading-relaxed ${s.isPlaceholder ? "text-slate-500 italic" : "text-slate-300"}`}>
+                  {s.content}
+                </p>
               </div>
             ))}
           </div>
