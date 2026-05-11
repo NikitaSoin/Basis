@@ -13,20 +13,19 @@ _client = None
 def _get_client() -> Anthropic:
     global _client
     if _client is None:
+        import httpx
         key = os.environ.get("ANTHROPIC_API_KEY")
         if not key:
             raise RuntimeError("ANTHROPIC_API_KEY не задан")
 
         proxy_url = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
-        if proxy_url:
-            import httpx
-            logger.info("Anthropic client: используем прокси %s", proxy_url.split("@")[-1])
-            transport = httpx.HTTPTransport(proxy=proxy_url)
-            http_client = httpx.Client(transport=transport, timeout=httpx.Timeout(120.0))
-            _client = Anthropic(api_key=key, http_client=http_client)
-        else:
-            logger.warning("Anthropic client: прокси не задан, прямое подключение")
-            _client = Anthropic(api_key=key)
+        logger.info("Anthropic client init: proxy=%s", proxy_url.split("@")[-1] if proxy_url else "не задан")
+
+        http_client = httpx.Client(
+            proxy=proxy_url,
+            timeout=httpx.Timeout(120.0),
+        )
+        _client = Anthropic(api_key=key, http_client=http_client)
     return _client
 
 
