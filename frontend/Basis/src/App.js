@@ -2080,6 +2080,165 @@ const MOCK_CORRELATION = [
 // PORTFOLIO
 // =========================
 
+const PortfolioImportModal = ({ onClose, onSuccess }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [name, setName] = useState("Мой портфель");
+  const [rows, setRows] = useState([
+    { ticker: "", quantity: "", avgPrice: "" },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const addRow = () =>
+    setRows((r) => [...r, { ticker: "", quantity: "", avgPrice: "" }]);
+
+  const removeRow = (i) =>
+    setRows((r) => r.filter((_, idx) => idx !== i));
+
+  const updateRow = (i, field, val) =>
+    setRows((r) => r.map((row, idx) => (idx === i ? { ...row, [field]: val } : row)));
+
+  const handleImport = async () => {
+    setError(null);
+    const validRows = rows.filter(
+      (r) => r.ticker.trim() && r.quantity && r.avgPrice
+    );
+    if (!validRows.length) {
+      setError("Добавь хотя бы одну позицию с тикером, количеством и ценой.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Загружаем список компаний для маппинга ticker → company_id
+      const companies = await fetch(`${apiUrl}/api/companies`).then((r) => r.json());
+      const tickerMap = {};
+      if (Array.isArray(companies)) {
+        companies.forEach((c) => { tickerMap[c.ticker.toUpperCase()] = c; });
+      }
+
+      // 2. Создаём портфель
+      const portfolio = await fetch(`${apiUrl}/api/portfolios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }).then((r) => r.json());
+
+      if (!portfolio.id) throw new Error("Ошибка создания портфеля");
+
+      // 3. Добавляем позиции
+      const errors = [];
+      for (const row of validRows) {
+        const company = tickerMap[row.ticker.trim().toUpperCase()];
+        if (!company) {
+          errors.push(`Тикер ${row.ticker} не найден`);
+          continue;
+        }
+        await fetch(`${apiUrl}/api/portfolios/${portfolio.id}/positions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            company_id: company.id,
+            quantity: parseFloat(row.quantity),
+            avg_buy_price: parseFloat(row.avgPrice),
+          }),
+        });
+      }
+
+      if (errors.length) setError(errors.join("; "));
+      else onSuccess(portfolio);
+    } catch (e) {
+      setError(e.message || "Ошибка импорта");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl relative flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <h3 className="text-xl font-bold text-white">Импорт портфеля</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-xl">✕</button>
+        </div>
+
+        <div className="overflow-y-auto p-6 space-y-4">
+          <div>
+            <label className="text-slate-400 text-sm mb-1 block">Название портфеля</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500"
+              placeholder="Мой портфель"
+            />
+          </div>
+
+          <div>
+            <label className="text-slate-400 text-sm mb-2 block">Позиции</label>
+            <div className="space-y-2">
+              <div className="grid grid-cols-[1fr_100px_120px_32px] gap-2 text-xs text-slate-500 px-1">
+                <span>Тикер</span><span>Кол-во</span><span>Средняя цена ₽</span><span></span>
+              </div>
+              {rows.map((row, i) => (
+                <div key={i} className="grid grid-cols-[1fr_100px_120px_32px] gap-2 items-center">
+                  <input
+                    value={row.ticker}
+                    onChange={(e) => updateRow(i, "ticker", e.target.value.toUpperCase())}
+                    placeholder="SBER"
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 uppercase"
+                  />
+                  <input
+                    type="number"
+                    value={row.quantity}
+                    onChange={(e) => updateRow(i, "quantity", e.target.value)}
+                    placeholder="100"
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <input
+                    type="number"
+                    value={row.avgPrice}
+                    onChange={(e) => updateRow(i, "avgPrice", e.target.value)}
+                    placeholder="280.50"
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    onClick={() => removeRow(i)}
+                    className="text-slate-600 hover:text-red-400 text-lg leading-none"
+                  >✕</button>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={addRow}
+              className="mt-2 text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1"
+            >
+              <Plus size={14} /> Добавить строку
+            </button>
+          </div>
+
+          {error && (
+            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</p>
+          )}
+        </div>
+
+        <div className="p-6 border-t border-slate-700">
+          <button
+            onClick={handleImport}
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <span className="animate-pulse">Загружаем...</span>
+            ) : (
+              <><Upload size={16} /> Загрузить портфель</>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PortfolioView = () => {
   const [tab, setTab] = useState("holdings");
   const [stressScenario, setStressScenario] = useState("black_swan");
@@ -2691,41 +2850,14 @@ const PortfolioView = () => {
       </div>
 
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl max-w-md w-full relative">
-            <button
-              onClick={() => setShowUploadModal(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-white"
-            >
-              ✕
-            </button>
-
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Импорт активов
-            </h3>
-
-            <div className="space-y-4">
-              <div className="p-4 border-2 border-dashed border-slate-700 rounded-xl text-center hover:border-indigo-500 transition-colors cursor-pointer group">
-                <Upload
-                  size={32}
-                  className="mx-auto text-slate-600 mb-2 group-hover:text-indigo-500"
-                />
-                <p className="text-slate-400 text-sm">
-                  Перетащите скриншот из брокера
-                </p>
-              </div>
-
-              <textarea
-                placeholder="Или введите текст: SBER 100 280.50..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-indigo-500 h-24"
-              />
-
-              <button className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">
-                Загрузить
-              </button>
-            </div>
-          </div>
-        </div>
+        <PortfolioImportModal
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={(newPortfolio) => {
+            setPortfolio(newPortfolio);
+            setShowUploadModal(false);
+            window.location.reload();
+          }}
+        />
       )}
     </div>
   );
@@ -2877,15 +3009,28 @@ function MarketView() {
   const [overviewType, setOverviewType] = useState("express");
   const [overviews, setOverviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
-  useEffect(() => {
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  const loadOverviews = () => {
     setLoading(true);
     fetch(`${apiUrl}/api/market/overviews?type=${overviewType}`)
       .then((r) => r.ok ? r.json() : [])
       .then((d) => { setOverviews(d); setLoading(false); })
       .catch(() => { setOverviews([]); setLoading(false); });
-  }, [overviewType]);
+  };
+
+  useEffect(() => { loadOverviews(); }, [overviewType]);
+
+  const handleGenerate = () => {
+    setGenerating(true);
+    fetch(`${apiUrl}/api/market/overviews/generate?type=${overviewType}`, { method: "POST" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) loadOverviews(); })
+      .catch(() => {})
+      .finally(() => setGenerating(false));
+  };
 
   const FILTER_TABS = [
     { id: "express", label: "Экспресс", icon: Zap },
@@ -2902,7 +3047,7 @@ function MarketView() {
         <p className="text-slate-400">Контекстное понимание рыночного фона</p>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {FILTER_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -2917,6 +3062,15 @@ function MarketView() {
             {tab.label}
           </button>
         ))}
+
+        <button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-600/30 transition-all disabled:opacity-50"
+        >
+          <Zap size={14} />
+          {generating ? "Генерируем..." : "Сгенерировать обзор"}
+        </button>
       </div>
 
       {loading ? (

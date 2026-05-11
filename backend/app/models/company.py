@@ -64,5 +64,8 @@ class Quote(Base):
     high: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     low: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
     volume: Mapped[int | None] = mapped_column(BigInteger)
+    prev_close: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
+    change_abs: Mapped[Decimal | None] = mapped_column(Numeric(12, 4))
+    change_pct: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))
 
     company: Mapped["Company"] = relationship(back_populates="quotes")
