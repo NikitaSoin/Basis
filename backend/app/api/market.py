@@ -1,5 +1,7 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from anthropic import Anthropic
 from app.db.session import get_db
 from app.models.market import OverviewType
 from app.schemas.market import (
@@ -49,3 +51,18 @@ def generate_overview_endpoint(type: OverviewType = OverviewType.express):
 def anthropic_health_endpoint():
     from app.services.market_overview import check_anthropic_connectivity
     return check_anthropic_connectivity()
+
+
+@router.get("/health/anthropic")
+async def health_anthropic():
+    """Проверить соединение с Anthropic через прокси"""
+    try:
+        client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        response = client.messages.create(
+            model="claude-opus-4-7",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "test"}]
+        )
+        return {"status": "ok", "model": response.model}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
