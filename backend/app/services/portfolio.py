@@ -7,6 +7,15 @@ def get_all_portfolios(db: Session) -> list[Portfolio]:
     return db.query(Portfolio).order_by(Portfolio.created_at.desc()).all()
 
 
+def get_portfolios_by_user(db: Session, user_id: int) -> list[Portfolio]:
+    return (
+        db.query(Portfolio)
+        .filter(Portfolio.user_id == user_id)
+        .order_by(Portfolio.created_at.desc())
+        .all()
+    )
+
+
 def get_portfolio_by_id(db: Session, portfolio_id: int) -> Portfolio | None:
     return (
         db.query(Portfolio)

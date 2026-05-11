@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.api.health import router as health_router
 from app.api.users import router as users_router
+from app.api.auth import router as auth_router
 from app.api.companies import router as companies_router
 from app.api.portfolios import router as portfolios_router
 from app.api.market import router as market_router
@@ -48,6 +49,7 @@ app.add_middleware(
 
 app.include_router(health_router, prefix="/api")
 app.include_router(users_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 app.include_router(companies_router, prefix="/api")
 app.include_router(portfolios_router, prefix="/api")
 app.include_router(market_router, prefix="/api")

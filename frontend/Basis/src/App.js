@@ -2082,8 +2082,9 @@ const MOCK_CORRELATION = [
 // PORTFOLIO
 // =========================
 
-const PortfolioImportModal = ({ onClose, onSuccess }) => {
+const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
   const [name, setName] = useState("Мой портфель");
   const [rows, setRows] = useState([
     { ticker: "", quantity: "", avgPrice: "" },
@@ -2123,7 +2124,7 @@ const PortfolioImportModal = ({ onClose, onSuccess }) => {
       // 2. Создаём портфель
       const portfolioResp = await fetch(`${apiUrl}/api/portfolios`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ name }),
       });
       const portfolioData = await portfolioResp.json();
@@ -2145,7 +2146,7 @@ const PortfolioImportModal = ({ onClose, onSuccess }) => {
         if (!company) continue;
         const posResp = await fetch(`${apiUrl}/api/portfolios/${portfolio.id}/positions`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders },
           body: JSON.stringify({
             company_id: company.id,
             quantity: parseFloat(row.quantity),
@@ -2252,7 +2253,9 @@ const PortfolioImportModal = ({ onClose, onSuccess }) => {
   );
 };
 
-const PortfolioView = () => {
+const PortfolioView = ({ token, onAuthRequired }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
   const [tab, setTab] = useState("holdings");
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -2261,13 +2264,13 @@ const PortfolioView = () => {
   const [portfolioLoading, setPortfolioLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-    fetch(`${apiUrl}/api/portfolios`)
+    if (!token) { setPortfolioLoading(false); return; }
+    fetch(`${apiUrl}/api/portfolios`, { headers: authHeaders })
       .then(r => r.ok ? r.json() : [])
       .then(async (list) => {
         if (list.length > 0) {
           setPortfolio(list[0]);
-          const detail = await fetch(`${apiUrl}/api/portfolios/${list[0].id}`).then(r => r.json());
+          const detail = await fetch(`${apiUrl}/api/portfolios/${list[0].id}`, { headers: authHeaders }).then(r => r.json());
           if (detail.positions) {
             const companiesResp = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
             const companyMap = {};
@@ -2297,7 +2300,7 @@ const PortfolioView = () => {
         setPortfolioLoading(false);
       })
       .catch(() => setPortfolioLoading(false));
-  }, []);
+  }, [token]);
 
   const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO;
 
@@ -2777,13 +2780,23 @@ const PortfolioView = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowUploadModal(true)}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Начать импорт
-        </button>
+        {token ? (
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2"
+          >
+            <Plus size={18} />
+            Начать импорт
+          </button>
+        ) : (
+          <button
+            onClick={onAuthRequired}
+            className="bg-slate-700 hover:bg-indigo-600 text-slate-300 hover:text-white px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2"
+          >
+            <User size={18} />
+            Войти для импорта
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -2864,6 +2877,7 @@ const PortfolioView = () => {
 
       {showUploadModal && (
         <PortfolioImportModal
+          token={token}
           onClose={() => setShowUploadModal(false)}
           onSuccess={(newPortfolio) => {
             setPortfolio(newPortfolio);
@@ -2880,145 +2894,323 @@ const PortfolioView = () => {
 // PROFILE
 // =========================
 
-const ProfileView = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div className="lg:col-span-1 space-y-6">
-      <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-        <div className="flex flex-col items-center text-center">
-          <div className="w-24 h-24 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-full flex items-center justify-center mb-4 border-4 border-slate-900 shadow-xl">
-            <User size={48} className="text-white" />
+// =========================
+// AUTH MODAL
+// =========================
+
+const AuthModal = ({ onClose, onSuccess }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
+      const resp = await fetch(`${apiUrl}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || "Ошибка авторизации");
+      localStorage.setItem("basis_token", data.access_token);
+      localStorage.setItem("basis_user", JSON.stringify(data.user));
+      onSuccess(data.user, data.access_token);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <div className="flex gap-1 bg-slate-800 rounded-lg p-1">
+            {["login", "register"].map((m) => (
+              <button
+                key={m}
+                onClick={() => { setMode(m); setError(null); }}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === m ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"}`}
+              >
+                {m === "login" ? "Войти" : "Регистрация"}
+              </button>
+            ))}
           </div>
-          <h3 className="text-xl font-bold text-white">Александр Инвестор</h3>
-          <p className="text-slate-500 text-sm">ID: 4829-BS-2026</p>
-          <div className="mt-4 flex gap-2">
-            <span className="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold flex items-center gap-1">
-              <ShieldCheck size={12} />
-              Верифицирован
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-xl">✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="text-slate-400 text-sm mb-1 block">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="text-slate-400 text-sm mb-1 block">Пароль</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          {error && (
+            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold transition-all"
+          >
+            {loading ? "Загружаем..." : mode === "login" ? "Войти в систему" : "Создать аккаунт"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// =========================
+// SUBSCRIPTION VIEW
+// =========================
+
+const SubscriptionView = ({ user, onClose }) => {
+  const isPremium = user?.subscription_type === "premium";
+
+  const freeFeatures = [
+    "Экспресс-обзор рынка",
+    "Просмотр карточек компаний",
+    "Портфель до 5 позиций",
+    "Базовая аналитика",
+  ];
+
+  const premiumFeatures = [
+    "Все типы обзоров рынка (детальный, глубокий)",
+    "Безлимитный портфель",
+    "AI-анализ компаний",
+    "Стресс-тестирование",
+    "Приоритетные обновления",
+    "Ранний доступ к новым функциям",
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-1">Тарифные планы</h2>
+        <p className="text-slate-400">Выберите план, который подходит вам</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Free */}
+        <div className={`bg-slate-800 border rounded-2xl p-6 ${!isPremium ? "border-indigo-500 ring-1 ring-indigo-500/50" : "border-slate-700"}`}>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-white">Базовый</h3>
+              <p className="text-slate-400 text-sm">Для начинающих инвесторов</p>
+            </div>
+            {!isPremium && <span className="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">Текущий</span>}
+          </div>
+          <div className="mb-6">
+            <span className="text-3xl font-bold text-white">Бесплатно</span>
+          </div>
+          <ul className="space-y-2.5">
+            {freeFeatures.map((f, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                <div className="w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+                </div>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Premium */}
+        <div className={`border rounded-2xl p-6 relative overflow-hidden ${isPremium ? "bg-gradient-to-br from-amber-900/40 to-slate-800 border-amber-500/60 ring-1 ring-amber-500/30" : "bg-slate-800 border-amber-500/40"}`}>
+          <div className="absolute top-0 right-0 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl">PREMIUM</div>
+          <div className="flex justify-between items-start mb-4 pr-16">
+            <div>
+              <h3 className="text-lg font-bold text-white">Максимум</h3>
+              <p className="text-slate-400 text-sm">Полный арсенал аналитика</p>
+            </div>
+            {isPremium && <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">Активен</span>}
+          </div>
+          <div className="mb-6">
+            <span className="text-3xl font-bold text-white">990 ₽</span>
+            <span className="text-slate-400 text-sm ml-1">/мес</span>
+          </div>
+          <ul className="space-y-2.5 mb-6">
+            {premiumFeatures.map((f, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                <div className="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0">
+                  <div className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
+                </div>
+                {f}
+              </li>
+            ))}
+          </ul>
+          {!isPremium && (
+            <button className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-all">
+              Перейти на Premium
+            </button>
+          )}
+          {isPremium && (
+            <div className="text-center text-amber-400 text-sm font-medium py-2">
+              ✓ Подписка активна
+              {user?.subscription_expires_at && (
+                <span className="text-slate-400 ml-1">
+                  до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =========================
+// PROFILE VIEW (dynamic)
+// =========================
+
+const ProfileView = ({ user, onLogout, onShowSubscription }) => {
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
+        <div className="w-20 h-20 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center">
+          <User size={40} className="text-slate-500" />
+        </div>
+        <h2 className="text-xl font-bold text-white">Войдите в аккаунт</h2>
+        <p className="text-slate-400 max-w-sm">Для доступа к профилю необходимо авторизоваться</p>
+      </div>
+    );
+  }
+
+  const isPremium = user.subscription_type === "premium";
+  const initials = user.email.slice(0, 2).toUpperCase();
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-1 space-y-6">
+        <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-full flex items-center justify-center mb-4 text-white font-bold text-2xl">
+              {initials}
+            </div>
+            <h3 className="text-lg font-bold text-white break-all">{user.email}</h3>
+            <p className="text-slate-500 text-xs mt-1">
+              В системе с {new Date(user.created_at).toLocaleDateString("ru-RU")}
+            </p>
+            <div className="mt-3">
+              {isPremium ? (
+                <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
+                  ★ Premium
+                </span>
+              ) : (
+                <span className="px-3 py-1 bg-slate-700 text-slate-400 border border-slate-600 rounded-full text-xs font-bold">
+                  Базовый тариф
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-6 rounded-2xl border ${isPremium ? "bg-gradient-to-br from-amber-900/30 to-slate-800 border-amber-500/40" : "bg-slate-800 border-slate-700"}`}>
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-2">
+              <CreditCard size={18} className={isPremium ? "text-amber-400" : "text-slate-400"} />
+              <span className="text-sm font-semibold text-white">Тариф</span>
+            </div>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${isPremium ? "bg-amber-500/20 text-amber-300" : "bg-slate-700 text-slate-400"}`}>
+              {isPremium ? "PREMIUM" : "FREE"}
             </span>
           </div>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-6 rounded-2xl text-white shadow-xl">
-        <div className="flex justify-between items-start mb-6">
-          <div className="p-2 bg-white/20 rounded-lg">
-            <CreditCard size={24} />
-          </div>
-          <span className="text-xs bg-white/20 px-2 py-1 rounded uppercase font-bold tracking-widest">
-            Premium
-          </span>
-        </div>
-
-        <div className="mb-6">
-          <p className="text-indigo-100 text-xs uppercase tracking-wider mb-1">
-            План подписки
-          </p>
-          <h4 className="text-2xl font-bold">Базис.Максимум</h4>
+          {isPremium && user.subscription_expires_at && (
+            <p className="text-slate-400 text-xs mb-3">
+              Активен до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
+            </p>
+          )}
+          <button
+            onClick={onShowSubscription}
+            className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all ${isPremium ? "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30" : "bg-indigo-600 hover:bg-indigo-500 text-white"}`}
+          >
+            {isPremium ? "Управлять подпиской" : "Перейти на Premium →"}
+          </button>
         </div>
 
-        <div className="space-y-2 text-sm text-indigo-100">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-            Безлимитный DCF-анализ
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-            Карта рынка (Real-time)
-          </div>
-        </div>
-
-        <button className="w-full mt-6 bg-white text-indigo-600 py-2.5 rounded-xl font-bold hover:bg-indigo-50 transition-colors">
-          Управлять подпиской
+        <button
+          onClick={onLogout}
+          className="w-full bg-slate-800 hover:bg-red-500/10 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 py-3 rounded-xl font-medium text-sm transition-all"
+        >
+          Выйти из аккаунта
         </button>
       </div>
-    </div>
 
-    <div className="lg:col-span-2 space-y-6">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
-        <div className="p-6 border-b border-slate-700">
-          <h3 className="text-xl font-bold text-white">Настройки платформы</h3>
-        </div>
-
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <label className="block">
-              <span className="text-slate-400 text-sm">Валюта отображения</span>
-              <select className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option>RUB (₽)</option>
-                <option>USD ($)</option>
-                <option>CNY (¥)</option>
-              </select>
-            </label>
-
-            <label className="block">
-              <span className="text-slate-400 text-sm">Источник данных</span>
-              <select className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option>MOEX ISS API</option>
-                <option>Refinitiv (Beta)</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded-xl border border-slate-700">
-              <span className="text-slate-300 text-sm">
-                Уведомления о гэпах
-              </span>
-              <div className="w-10 h-5 bg-indigo-600 rounded-full relative">
-                <div className="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5 shadow"></div>
+      <div className="lg:col-span-2 space-y-6">
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+          <h3 className="text-lg font-bold text-white mb-4">Данные аккаунта</h3>
+          <div className="space-y-3">
+            {[
+              { label: "Email", value: user.email },
+              { label: "Тариф", value: isPremium ? "Premium (Максимум)" : "Базовый (Free)" },
+              { label: "Дата регистрации", value: new Date(user.created_at).toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" }) },
+              { label: "Статус аккаунта", value: user.is_active ? "Активен" : "Заблокирован" },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-center py-3 border-b border-slate-700 last:border-0">
+                <span className="text-slate-400 text-sm">{label}</span>
+                <span className="text-white text-sm font-medium">{value}</span>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="flex items-center justify-between p-3 bg-slate-900/50 rounded-xl border border-slate-700">
-              <span className="text-slate-300 text-sm">Публичный профиль</span>
-              <div className="w-10 h-5 bg-slate-700 rounded-full relative">
-                <div className="w-4 h-4 bg-white rounded-full absolute left-0.5 top-0.5 shadow"></div>
+        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6">
+          <h3 className="text-lg font-bold text-white mb-4">Возможности вашего тарифа</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              { label: "Экспресс-обзор рынка", ok: true },
+              { label: "Детальный и глубокий обзор", ok: isPremium },
+              { label: "Портфель (до 5 позиций)", ok: true },
+              { label: "Безлимитный портфель", ok: isPremium },
+              { label: "AI-анализ компаний", ok: isPremium },
+              { label: "Стресс-тестирование", ok: isPremium },
+            ].map(({ label, ok }) => (
+              <div key={label} className={`flex items-center gap-2 p-3 rounded-xl border text-sm ${ok ? "border-indigo-500/20 bg-indigo-500/5 text-slate-300" : "border-slate-700 bg-slate-900/30 text-slate-500"}`}>
+                <span className={ok ? "text-indigo-400" : "text-slate-600"}>{ok ? "✓" : "✕"}</span>
+                {label}
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
-            <Layout size={20} />
-          </div>
-          <h3 className="text-xl font-bold text-white">
-            Планирование (Estate Plan)
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-indigo-500 transition-colors cursor-pointer group">
-            <h4 className="text-white font-semibold mb-1 group-hover:text-indigo-400">
-              Наследование
-            </h4>
-            <p className="text-slate-500 text-xs leading-relaxed">
-              Настройте автоматическую передачу прав доступа к аналитике и
-              портфелям.
-            </p>
-          </div>
-
-          <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-xl hover:border-indigo-500 transition-colors cursor-pointer group">
-            <h4 className="text-white font-semibold mb-1 group-hover:text-indigo-400">
-              Налоговая оптимизация
-            </h4>
-            <p className="text-slate-500 text-xs leading-relaxed">
-              Календарь ЛДВ (льгота на долгосрочное владение) и расчет НДФЛ.
-            </p>
+            ))}
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // =========================
 // APP
 // =========================
 
-function MarketView() {
+function MarketView({ token }) {
   const [overviewType, setOverviewType] = useState("express");
   const [overviews, setOverviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -3026,6 +3218,7 @@ function MarketView() {
   const [generateError, setGenerateError] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   const loadOverviews = () => {
     setLoading(true);
@@ -3040,7 +3233,7 @@ function MarketView() {
   const handleGenerate = () => {
     setGenerating(true);
     setGenerateError(null);
-    fetch(`${apiUrl}/api/market/overviews/generate?type=${overviewType}`, { method: "POST" })
+    fetch(`${apiUrl}/api/market/overviews/generate?type=${overviewType}`, { method: "POST", headers: authHeaders })
       .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
       .then(({ ok, data }) => {
         if (ok) loadOverviews();
@@ -3151,40 +3344,70 @@ function MarketView() {
 }
 
 export default function App() {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [activeTab, setActiveTab] = useState("market");
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [user, setUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("basis_user")); } catch { return null; }
+  });
+  const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+
+  // Verify token on mount
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${apiUrl}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => {
+        if (u) { setUser(u); localStorage.setItem("basis_user", JSON.stringify(u)); }
+        else { handleLogout(); }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleLogin = (newUser, newToken) => {
+    setUser(newUser);
+    setToken(newToken);
+    setShowAuthModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("basis_token");
+    localStorage.removeItem("basis_user");
+    setUser(null);
+    setToken(null);
+    setActiveTab("market");
+  };
+
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   const renderContent = () => {
     if (selectedCompany) {
-      return (
-        <CompanyCard
-          company={selectedCompany}
-          onBack={() => setSelectedCompany(null)}
-        />
-      );
+      return <CompanyCard company={selectedCompany} onBack={() => setSelectedCompany(null)} />;
+    }
+
+    if (showSubscription) {
+      return <SubscriptionView user={user} onClose={() => setShowSubscription(false)} />;
     }
 
     switch (activeTab) {
       case "market":
-        return <MarketView />;
-
+        return <MarketView token={token} />;
       case "screener":
         return <CompanyList onSelectCompany={setSelectedCompany} />;
-
       case "portfolio":
-        return <PortfolioView />;
-
+        return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "profile":
-        return <ProfileView />;
-
-      default:
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white">
-              Обозреватель рынка
-            </h2>
-          </div>
+          <ProfileView
+            user={user}
+            onLogout={handleLogout}
+            onShowSubscription={() => setShowSubscription(true)}
+          />
         );
+      default:
+        return <MarketView token={token} />;
     }
   };
 
@@ -3194,54 +3417,64 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div
             className="flex items-center gap-2 text-indigo-400 font-bold text-xl cursor-pointer"
-            onClick={() => {
-              setActiveTab("market");
-              setSelectedCompany(null);
-            }}
+            onClick={() => { setActiveTab("market"); setSelectedCompany(null); setShowSubscription(false); }}
           >
             <Activity size={28} />
             <span className="tracking-tight uppercase">Базис</span>
           </div>
 
-          <nav className="flex bg-slate-800 rounded-lg p-1">
-            {[
-              { id: "market", icon: Globe, label: "Обозреватель" },
-              { id: "screener", icon: Search, label: "Компании" },
-              { id: "portfolio", icon: Briefcase, label: "Портфель" },
-              { id: "profile", icon: User, label: "Профиль" },
-            ].map((tab) => (
+          <div className="flex items-center gap-2">
+            <nav className="flex bg-slate-800 rounded-lg p-1">
+              {[
+                { id: "market", icon: Globe, label: "Обозреватель" },
+                { id: "screener", icon: Search, label: "Компании" },
+                { id: "portfolio", icon: Briefcase, label: "Портфель" },
+                { id: "profile", icon: User, label: "Профиль" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); setSelectedCompany(null); setShowSubscription(false); }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                    activeTab === tab.id && !showSubscription
+                      ? "bg-indigo-600 text-white shadow-lg"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
+                  }`}
+                >
+                  <tab.icon size={18} />
+                  <span className="hidden md:inline font-medium text-sm">{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+
+            {user ? (
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
+                <span className="text-xs text-slate-400 hidden md:block max-w-[120px] truncate">{user.email}</span>
+                {user.subscription_type === "premium" && (
+                  <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">★</span>
+                )}
+              </div>
+            ) : (
               <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setSelectedCompany(null);
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                  activeTab === tab.id
-                    ? "bg-indigo-600 text-white shadow-lg"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-                }`}
+                onClick={() => setShowAuthModal(true)}
+                className="ml-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
               >
-                <tab.icon size={18} />
-                <span className="hidden md:inline font-medium text-sm">
-                  {tab.label}
-                </span>
+                Войти
               </button>
-            ))}
-          </nav>
+            )}
+          </div>
         </div>
       </header>
+
       <main className="max-w-7xl mx-auto p-4 md:p-8">{renderContent()}</main>
 
       <footer className="mt-20 border-t border-slate-900 p-8 text-center text-slate-600 text-sm">
-        <p>
-          © 2026 Платформа Базис — Профессиональная аналитика для частных
-          инвесторов.
-        </p>
-        <p className="mt-2 text-slate-700">
-          Не является индивидуальной инвестиционной рекомендацией.
-        </p>
+        <p>© 2026 Платформа Базис — Профессиональная аналитика для частных инвесторов.</p>
+        <p className="mt-2 text-slate-700">Не является индивидуальной инвестиционной рекомендацией.</p>
       </footer>
+
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
+      )}
     </div>
   );
 }
