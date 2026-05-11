@@ -53,8 +53,8 @@ def fetch_moex(ticker: str) -> dict | None:
     md = dict(zip(md_columns, md_rows[0]))
     sec = dict(zip(sec_columns, sec_rows[0]))
 
-    # Determine price: prefer last trade price, fall back to prev close
-    last_price = md.get("LAST") or sec.get("PREVPRICE")
+    # Only use actual traded price — skip when market is closed (LAST is None on weekends/holidays)
+    last_price = md.get("LAST")
     if not last_price:
         return None
 
@@ -113,6 +113,12 @@ def main():
                 .first()
             )
             if existing:
+                # Don't overwrite a record that already has real change data with weekend/holiday zeros
+                new_chg = quote_data.get("change_pct") or 0
+                if new_chg == 0 and existing.change_pct and float(existing.change_pct) != 0:
+                    print(f"пропущено (данные выходного дня, сохраняем {existing.close} ₽ {existing.change_pct:+.2f}%)")
+                    skipped += 1
+                    continue
                 existing.open = quote_data["open"]
                 existing.close = quote_data["close"]
                 existing.high = quote_data["high"]

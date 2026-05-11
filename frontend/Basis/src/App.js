@@ -2113,30 +2113,37 @@ const PortfolioImportModal = ({ onClose, onSuccess }) => {
     setLoading(true);
     try {
       // 1. Загружаем список компаний для маппинга ticker → company_id
-      const companies = await fetch(`${apiUrl}/api/companies`).then((r) => r.json());
+      const companiesResp = await fetch(`${apiUrl}/api/companies`);
+      const companies = companiesResp.ok ? await companiesResp.json() : [];
       const tickerMap = {};
       if (Array.isArray(companies)) {
         companies.forEach((c) => { tickerMap[c.ticker.toUpperCase()] = c; });
       }
 
       // 2. Создаём портфель
-      const portfolio = await fetch(`${apiUrl}/api/portfolios`, {
+      const portfolioResp = await fetch(`${apiUrl}/api/portfolios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
-      }).then((r) => r.json());
-
-      if (!portfolio.id) throw new Error("Ошибка создания портфеля");
+      });
+      const portfolioData = await portfolioResp.json();
+      if (!portfolioResp.ok) throw new Error(portfolioData.detail || "Ошибка создания портфеля");
+      const portfolio = portfolioData;
 
       // 3. Добавляем позиции
       const errors = [];
+      const unknownTickers = validRows
+        .filter((r) => !tickerMap[r.ticker.trim().toUpperCase()])
+        .map((r) => r.ticker.trim());
+
+      if (unknownTickers.length) {
+        errors.push(`Тикеры не найдены в базе: ${unknownTickers.join(", ")}. Доступные: ${Object.keys(tickerMap).join(", ")}`);
+      }
+
       for (const row of validRows) {
         const company = tickerMap[row.ticker.trim().toUpperCase()];
-        if (!company) {
-          errors.push(`Тикер ${row.ticker} не найден`);
-          continue;
-        }
-        await fetch(`${apiUrl}/api/portfolios/${portfolio.id}/positions`, {
+        if (!company) continue;
+        const posResp = await fetch(`${apiUrl}/api/portfolios/${portfolio.id}/positions`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -2145,9 +2152,13 @@ const PortfolioImportModal = ({ onClose, onSuccess }) => {
             avg_buy_price: parseFloat(row.avgPrice),
           }),
         });
+        if (!posResp.ok) {
+          const posErr = await posResp.json().catch(() => ({}));
+          errors.push(`${row.ticker}: ${posErr.detail || "ошибка добавления позиции"}`);
+        }
       }
 
-      if (errors.length) setError(errors.join("; "));
+      if (errors.length) setError(errors.join("\n"));
       else onSuccess(portfolio);
     } catch (e) {
       setError(e.message || "Ошибка импорта");
@@ -3012,6 +3023,7 @@ function MarketView() {
   const [overviews, setOverviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -3027,10 +3039,14 @@ function MarketView() {
 
   const handleGenerate = () => {
     setGenerating(true);
+    setGenerateError(null);
     fetch(`${apiUrl}/api/market/overviews/generate?type=${overviewType}`, { method: "POST" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d) loadOverviews(); })
-      .catch(() => {})
+      .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
+      .then(({ ok, data }) => {
+        if (ok) loadOverviews();
+        else setGenerateError(data.detail || "Ошибка генерации обзора");
+      })
+      .catch((e) => setGenerateError(e.message || "Сетевая ошибка"))
       .finally(() => setGenerating(false));
   };
 
@@ -3074,6 +3090,12 @@ function MarketView() {
           {generating ? "Генерируем..." : "Сгенерировать обзор"}
         </button>
       </div>
+
+      {generateError && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2 text-red-400 text-sm">
+          {generateError}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
