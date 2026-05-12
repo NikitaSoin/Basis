@@ -1986,62 +1986,87 @@ const CompanyCard = ({ company, onBack }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 mb-2">
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
         <button
           onClick={onBack}
-          className="text-slate-400 hover:text-white transition-colors bg-slate-800 p-2 rounded-full border border-slate-700"
+          style={{
+            background: "var(--bg-surface)", border: "1px solid var(--border-mid)",
+            borderRadius: "50%", width: 36, height: 36,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: "var(--text-2)", flexShrink: 0, marginTop: 4,
+          }}
         >
-          <ChevronRight className="rotate-180" size={20} />
+          <ChevronRight className="rotate-180" size={18} />
         </button>
 
-        <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            {company.name}
-            <span className="text-slate-500 text-lg font-normal">
+        {/* Colored ticker avatar */}
+        <div style={{
+          width: 52, height: 52, borderRadius: 12,
+          background: "var(--accent-fade)",
+          border: "1px solid rgba(79,70,229,0.25)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "monospace", fontWeight: 800, fontSize: 13,
+          color: "var(--accent-text)", flexShrink: 0,
+          letterSpacing: "-0.03em",
+        }}>
+          {company.ticker.slice(0, 4)}
+        </div>
+
+        <div style={{ flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-1)", margin: 0 }}>
+              {company.name}
+            </h2>
+            <span style={{ fontSize: 13, color: "var(--text-3)", fontFamily: "monospace" }}>
               {company.ticker}
             </span>
-          </h2>
-          <div className="flex items-center gap-3 text-sm mt-1">
-            <span className="text-slate-400">{company.sector}</span>
-
-            <span className="text-white font-mono font-medium">
-              {company.price == null
-                ? "Цена не загружена"
-                : formatCurrency(company.price)}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2, marginBottom: 8 }}>
+            {company.sector}
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+            <span style={{ fontSize: 22, fontWeight: 700, color: "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>
+              {company.price == null ? "—" : `${company.price.toLocaleString("ru-RU")} ₽`}
             </span>
-
-            <span
-              className={`font-medium ${
-                company.change == null
-                  ? "text-slate-500"
-                  : company.change >= 0
-                  ? "text-green-400"
-                  : "text-red-400"
-              }`}
-            >
-              {company.change == null
-                ? "—"
-                : `${company.change > 0 ? "+" : ""}${company.change}%`}
-            </span>
+            {company.change != null && (
+              <span style={{
+                fontSize: 14, fontWeight: 600,
+                color: company.change >= 0 ? "var(--positive)" : "var(--negative)",
+                display: "flex", alignItems: "center", gap: 3,
+              }}>
+                {company.change >= 0
+                  ? <TrendingUp size={14} />
+                  : <TrendingDown size={14} />}
+                {company.change > 0 ? "+" : ""}{company.change}%
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex bg-slate-800 p-1 rounded-lg overflow-x-auto">
+      {/* Tab bar */}
+      <div style={{
+        display: "flex", gap: 4,
+        background: "var(--bg-surface)", padding: 4, borderRadius: 12,
+        overflowX: "auto",
+      }}>
         {[
-          { id: "overview", label: "1. Обзор" },
-          { id: "deep", label: "2. Глубокий разбор" },
-          { id: "consilium", label: "3. Консилиум" },
-          { id: "stress", label: "4. Стресс-тест" },
+          { id: "overview", label: "Обзор" },
+          { id: "deep", label: "Глубокий разбор" },
+          { id: "consilium", label: "Консилиум" },
+          { id: "stress", label: "Стресс-тест" },
         ].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`whitespace-nowrap px-4 py-2 text-sm font-medium rounded-md transition-colors flex-1 ${
-              tab === t.id
-                ? "bg-indigo-600 text-white shadow"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-            }`}
+            style={{
+              flex: 1, whiteSpace: "nowrap", padding: "8px 16px",
+              borderRadius: 8, border: "none", cursor: "pointer",
+              fontSize: 13, fontWeight: 600, transition: "all 0.15s",
+              background: tab === t.id ? "var(--accent)" : "transparent",
+              color: tab === t.id ? "#fff" : "var(--text-2)",
+            }}
           >
             {t.label}
           </button>
@@ -2795,53 +2820,51 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <div className="text-slate-500 text-xs mb-1 uppercase">Стоимость</div>
-          <div className="text-2xl font-bold text-white font-mono">
-            {formatCurrency(stats.totalValue)}
+      {/* Stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12 }}>
+        {[
+          { label: "Стоимость", value: formatCurrency(stats.totalValue), color: "var(--text-1)" },
+          {
+            label: "Прибыль",
+            value: (stats.totalProfit >= 0 ? "+" : "") + formatCurrency(stats.totalProfit),
+            sub: formatPercent(stats.profitPct, 2),
+            color: stats.totalProfit >= 0 ? "var(--positive)" : "var(--negative)",
+          },
+          { label: "Beta (Риск)", value: stats.avgBeta.toFixed(2), color: "var(--accent-text)" },
+          { label: "Див. доходность", value: stats.avgYield.toFixed(1) + "%", color: "var(--gold)" },
+        ].map(({ label, value, sub, color }) => (
+          <div key={label} className="card card-sm">
+            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 6 }}>
+              {label}
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color, fontVariantNumeric: "tabular-nums" }}>{value}</div>
+            {sub && <div style={{ fontSize: 12, color, marginTop: 2, opacity: 0.8 }}>{sub}</div>}
           </div>
-        </div>
-
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <div className="text-slate-500 text-xs mb-1 uppercase">Прибыль</div>
-          <div
-            className={`text-2xl font-bold font-mono ${
-              stats.totalProfit >= 0 ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {stats.totalProfit >= 0 ? "+" : ""}
-            {formatCurrency(stats.totalProfit)}
-          </div>
-          <div
-            className={`text-xs mt-1 ${
-              stats.profitPct >= 0 ? "text-green-500" : "text-red-500"
-            }`}
-          >
-            {formatPercent(stats.profitPct, 2)}
-          </div>
-        </div>
-
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <div className="text-slate-500 text-xs mb-1 uppercase">
-            Beta (Риск)
-          </div>
-          <div className="text-2xl font-bold text-indigo-400 font-mono">
-            {stats.avgBeta.toFixed(2)}
-          </div>
-        </div>
-
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <div className="text-slate-500 text-xs mb-1 uppercase">
-            Див. доходность
-          </div>
-          <div className="text-2xl font-bold text-amber-400 font-mono">
-            {stats.avgYield.toFixed(1)}%
-          </div>
-        </div>
+        ))}
       </div>
 
-      <div className="flex bg-slate-800 border-b border-slate-700 overflow-x-auto">
+      {/* Health Score */}
+      <div className="card">
+        <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)", marginBottom: 16 }}>
+          Здоровье портфеля — {portfolioScore}/100
+        </div>
+        {[
+          { label: "Диверсификация", value: 72, color: "var(--accent)" },
+          { label: "Доходность", value: 65, color: "var(--positive)" },
+          { label: "Риск", value: 58, color: "var(--negative)" },
+          { label: "Концентрация", value: 70, color: "var(--warning)" },
+        ].map(({ label, value, color }) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+            <span style={{ fontSize: 13, color: "var(--text-2)", width: 120, flexShrink: 0 }}>{label}</span>
+            <div style={{ flex: 1, height: 6, background: "var(--bg-hover)", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: `${value}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.6s" }} />
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 600, color, width: 36, textAlign: "right" }}>{value}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 4, background: "var(--bg-surface)", padding: 4, borderRadius: 12, overflowX: "auto" }}>
         {[
           { id: "holdings", label: "Состав" },
           { id: "metrics", label: "Агрегирующая таблица" },
@@ -2852,18 +2875,19 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
-              tab === t.id
-                ? "border-indigo-500 text-indigo-400 bg-slate-800/50"
-                : "border-transparent text-slate-400 hover:text-slate-200"
-            }`}
+            style={{
+              padding: "8px 16px", borderRadius: 8, border: "none", cursor: "pointer",
+              fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", transition: "all 0.15s",
+              background: tab === t.id ? "var(--accent)" : "transparent",
+              color: tab === t.id ? "#fff" : "var(--text-2)",
+            }}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 p-1 min-h-[400px]">
+      <div className="card" style={{ minHeight: 400, padding: 4 }}>
         {tab === "holdings" && renderHoldings()}
         {tab === "metrics" && renderAggregate()}
         {tab === "correlation" && renderCorrelation()}
@@ -2985,6 +3009,270 @@ const AuthModal = ({ onClose, onSuccess }) => {
 };
 
 // =========================
+// LANDING VIEW
+// =========================
+
+const LandingView = ({ onNavigate, onShowAuth, user }) => {
+  const features = [
+    {
+      icon: BarChart2,
+      color: "#4f46e5",
+      bg: "rgba(79,70,229,0.12)",
+      title: "AI-анализ компаний",
+      desc: "Глубокий разбор 45 российских акций через Claude: бизнес-модель, риски, справедливая цена.",
+    },
+    {
+      icon: Activity,
+      color: "#3fb950",
+      bg: "rgba(63,185,80,0.12)",
+      title: "Котировки MOEX",
+      desc: "Данные Московской биржи с автоматическим обновлением. Цена, динамика, исторические данные.",
+    },
+    {
+      icon: Briefcase,
+      color: "#f59e0b",
+      bg: "rgba(245,158,11,0.12)",
+      title: "Портфельная аналитика",
+      desc: "Оценка здоровья портфеля, матрица корреляций, структура рисков и диверсификация.",
+    },
+    {
+      icon: ShieldAlert,
+      color: "#f85149",
+      bg: "rgba(248,81,73,0.12)",
+      title: "Стресс-тестирование",
+      desc: "Сценарии кризиса: что будет с портфелем при обвале нефти, росте ставки или чёрном лебеде.",
+    },
+    {
+      icon: Globe,
+      color: "#a5b4fc",
+      bg: "rgba(165,180,252,0.10)",
+      title: "Обозреватель рынка",
+      desc: "Экспресс, детальный и глубокий AI-обзор рыночного фона — всегда актуальный контекст.",
+    },
+    {
+      icon: Users,
+      color: "#34d399",
+      bg: "rgba(52,211,153,0.10)",
+      title: "Консилиум аналитиков",
+      desc: "Сводка рекомендаций брокеров с целевыми ценами и собственной позицией платформы.",
+    },
+  ];
+
+  return (
+    <div style={{ maxWidth: 880, margin: "0 auto" }}>
+      {/* Hero */}
+      <div style={{ textAlign: "center", padding: "64px 0 52px" }}>
+        <div style={{
+          width: 64, height: 64,
+          background: "var(--accent-fade)",
+          borderRadius: 16,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 20px",
+          color: "var(--accent-text)",
+        }}>
+          <Activity size={32} />
+        </div>
+        <h1 style={{ fontSize: 40, fontWeight: 800, color: "var(--text-1)", margin: "0 0 12px", letterSpacing: "-0.02em" }}>
+          Базис
+        </h1>
+        <p style={{ fontSize: 18, color: "var(--text-2)", margin: "0 0 36px", lineHeight: 1.5 }}>
+          Профессиональная аналитика российского рынка
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            className="btn btn-primary"
+            style={{ padding: "12px 28px", fontSize: 15 }}
+            onClick={() => onNavigate("companies")}
+          >
+            Смотреть компании →
+          </button>
+          {!user && (
+            <button
+              className="btn btn-ghost"
+              style={{ padding: "12px 28px", fontSize: 15 }}
+              onClick={onShowAuth}
+            >
+              Войти
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Feature cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
+        {features.map(({ icon: Icon, color, bg, title, desc }) => (
+          <div key={title} className="card" style={{ display: "flex", gap: 16, alignItems: "flex-start", cursor: "default" }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: bg, color,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <Icon size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>{title}</div>
+              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>{desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer note */}
+      <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-3)", marginTop: 48, marginBottom: 8 }}>
+        © 2026 Платформа Базис · Не является индивидуальной инвестиционной рекомендацией
+      </p>
+    </div>
+  );
+};
+
+// =========================
+// PROFILE VIEW (full page)
+// =========================
+
+const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
+  if (!user) {
+    return (
+      <div style={{ maxWidth: 440, margin: "80px auto", textAlign: "center" }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: "50%",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-mid)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 20px",
+        }}>
+          <User size={36} style={{ color: "var(--text-3)" }} />
+        </div>
+        <h2 style={{ color: "var(--text-1)", fontSize: 22, fontWeight: 700, marginBottom: 8 }}>Войдите в аккаунт</h2>
+        <p style={{ color: "var(--text-2)", marginBottom: 24 }}>Для доступа к профилю необходимо авторизоваться</p>
+        <button className="btn btn-primary" style={{ justifyContent: "center", width: "100%", padding: "12px" }} onClick={onShowAuth}>
+          Войти / Регистрация
+        </button>
+      </div>
+    );
+  }
+
+  const isPremium = user.subscription_type === "premium";
+  const initials = user.email.slice(0, 2).toUpperCase();
+
+  const capabilities = [
+    { label: "Экспресс-обзор рынка", ok: true },
+    { label: "Детальный и глубокий обзор", ok: isPremium },
+    { label: "Портфель (до 5 позиций)", ok: true },
+    { label: "Безлимитный портфель", ok: isPremium },
+    { label: "AI-анализ компаний", ok: isPremium },
+    { label: "Стресс-тестирование", ok: isPremium },
+  ];
+
+  return (
+    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      <div className="view-header">
+        <h1 className="view-title">Профиль</h1>
+        <p className="view-subtitle">Настройки аккаунта и тарифный план</p>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, alignItems: "start" }}>
+        {/* Left column: avatar + tier */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="card" style={{ textAlign: "center", padding: 28 }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--accent), #6366f1)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 16px",
+              fontSize: 24, fontWeight: 800, color: "#fff",
+            }}>
+              {initials}
+            </div>
+            <div style={{ fontWeight: 700, color: "var(--text-1)", marginBottom: 4, wordBreak: "break-all" }}>
+              {user.email}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 14 }}>
+              В системе с {new Date(user.created_at).toLocaleDateString("ru-RU")}
+            </div>
+            {isPremium ? (
+              <span className="badge badge-gold">★ Premium</span>
+            ) : (
+              <span className="badge badge-neu">Базовый тариф</span>
+            )}
+          </div>
+
+          <div className="card" style={{
+            background: isPremium ? "linear-gradient(135deg, rgba(245,158,11,0.08), var(--bg-card))" : undefined,
+            borderColor: isPremium ? "rgba(245,158,11,0.3)" : undefined,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14 }}>Тариф</span>
+              <span className={isPremium ? "badge badge-gold" : "badge badge-neu"}>{isPremium ? "PREMIUM" : "FREE"}</span>
+            </div>
+            {isPremium && user.subscription_expires_at && (
+              <p style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 12 }}>
+                Активен до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
+              </p>
+            )}
+            <button
+              className={`btn w-full ${isPremium ? "btn-gold" : "btn-primary"}`}
+              style={{ justifyContent: "center" }}
+              onClick={() => onNavigate("pricing")}
+            >
+              {isPremium ? "Управлять подпиской" : "Перейти на Premium →"}
+            </button>
+          </div>
+
+          <button
+            className="btn btn-ghost"
+            style={{ justifyContent: "center", color: "var(--negative)", borderColor: "var(--neg-fade)" }}
+            onClick={onLogout}
+          >
+            <LogOut size={15} />
+            Выйти из аккаунта
+          </button>
+        </div>
+
+        {/* Right column: info + capabilities */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="card">
+            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)", marginBottom: 16 }}>Данные аккаунта</div>
+            {[
+              { label: "Email", value: user.email },
+              { label: "Тариф", value: isPremium ? "Premium (Максимум)" : "Базовый (Free)" },
+              { label: "Дата регистрации", value: new Date(user.created_at).toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" }) },
+              { label: "Статус", value: user.is_active ? "Активен" : "Заблокирован" },
+            ].map(({ label, value }) => (
+              <div key={label} style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "12px 0", borderBottom: "1px solid var(--border)",
+              }}>
+                <span style={{ color: "var(--text-2)", fontSize: 13 }}>{label}</span>
+                <span style={{ color: "var(--text-1)", fontSize: 13, fontWeight: 500 }}>{value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="card">
+            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)", marginBottom: 16 }}>Возможности тарифа</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {capabilities.map(({ label, ok }) => (
+                <div key={label} style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "10px 12px", borderRadius: 10,
+                  background: ok ? "var(--accent-fade)" : "var(--bg-surface)",
+                  border: `1px solid ${ok ? "rgba(79,70,229,0.2)" : "var(--border)"}`,
+                  fontSize: 13, color: ok ? "var(--text-1)" : "var(--text-3)",
+                }}>
+                  <span style={{ color: ok ? "var(--accent-text)" : "var(--text-3)" }}>{ok ? "✓" : "✕"}</span>
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =========================
 // PRICING VIEW
 // =========================
 
@@ -3081,62 +3369,6 @@ const PricingView = ({ user, onShowAuth }) => {
 
 // =========================
 // PROFILE PANEL (sidebar popup)
-// =========================
-
-const ProfilePanel = ({ user, onLogout, onShowPricing, onClose, onShowAuth }) => {
-  if (!user) {
-    return (
-      <>
-        <div className="profile-panel-backdrop" onClick={onClose} />
-        <div className="profile-panel">
-          <div className="profile-panel-body">
-            <div style={{ textAlign: "center", padding: "20px 0 12px" }}>
-              <User size={36} style={{ color: "var(--text-3)", margin: "0 auto 12px" }} />
-              <p style={{ color: "var(--text-1)", fontWeight: 600, marginBottom: 4 }}>Войдите в аккаунт</p>
-              <p style={{ color: "var(--text-2)", fontSize: 12, marginBottom: 16 }}>Чтобы использовать все возможности платформы</p>
-              <button className="btn btn-primary w-full" style={{ justifyContent: "center" }} onClick={() => { onClose(); onShowAuth(); }}>
-                Войти / Регистрация
-              </button>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  const isPremium = user.subscription_type === "premium";
-  const initials = user.email.slice(0, 2).toUpperCase();
-
-  return (
-    <>
-      <div className="profile-panel-backdrop" onClick={onClose} />
-      <div className="profile-panel">
-        <div className="profile-panel-header">
-          <div className="profile-panel-avatar">{initials}</div>
-          <div>
-            <div className="profile-panel-email">{user.email}</div>
-            <div className="profile-panel-tier">
-              {isPremium ? (
-                <span style={{ color: "var(--gold)" }}>★ Premium</span>
-              ) : "Базовый тариф"}
-            </div>
-          </div>
-        </div>
-        <div className="profile-panel-body">
-          <button className="profile-panel-btn" onClick={() => { onClose(); onShowPricing(); }}>
-            <CreditCard size={15} />
-            {isPremium ? "Управлять подпиской" : "Перейти на Premium"}
-          </button>
-          <button className="profile-panel-btn danger" onClick={() => { onClose(); onLogout(); }}>
-            <LogOut size={15} />
-            Выйти из аккаунта
-          </button>
-        </div>
-      </div>
-    </>
-  );
-};
-
 // =========================
 // OVERVIEW VIEW (Обозреватель)
 // =========================
@@ -3281,7 +3513,7 @@ function OverviewView({ token }) {
 // SIDEBAR
 // =========================
 
-const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileClick }) => {
+const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   const NAV = [
     { id: "companies", icon: BarChart2, label: "Компании" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
@@ -3291,7 +3523,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileC
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo" onClick={() => setActiveTab("companies")} title="Базис">
+      <div className="sidebar-logo" onClick={() => setActiveTab("landing")} title="На главную">
         <Activity size={20} />
       </div>
 
@@ -3310,16 +3542,16 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileC
 
       <div className="sidebar-spacer" />
 
-      <button
-        className="sidebar-btn"
-        onClick={toggleTheme}
-        title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
-      >
+      <button className="sidebar-btn" onClick={toggleTheme}>
         {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         <span className="sidebar-tooltip">{theme === "dark" ? "Светлая тема" : "Тёмная тема"}</span>
       </button>
 
-      <button className="sidebar-btn" onClick={onProfileClick} style={{ marginBottom: 4 }}>
+      <button
+        className={`sidebar-btn ${activeTab === "profile" ? "active" : ""}`}
+        onClick={() => setActiveTab("profile")}
+        style={{ marginBottom: 4 }}
+      >
         {user ? (
           <div className="sidebar-avatar">
             {user.email.slice(0, 2).toUpperCase()}
@@ -3327,7 +3559,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileC
         ) : (
           <User size={20} />
         )}
-        <span className="sidebar-tooltip">{user ? user.email : "Войти"}</span>
+        <span className="sidebar-tooltip">{user ? "Профиль" : "Войти"}</span>
       </button>
     </aside>
   );
@@ -3340,7 +3572,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileC
 export default function App() {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-  const [activeTab, setActiveTab] = useState("companies");
+  const [activeTab, setActiveTab] = useState("landing");
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem("basis_theme") || "dark");
 
@@ -3348,9 +3580,7 @@ export default function App() {
     try { return JSON.parse(localStorage.getItem("basis_user")); } catch { return null; }
   });
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
-
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showProfilePanel, setShowProfilePanel] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -3379,13 +3609,12 @@ export default function App() {
     localStorage.removeItem("basis_user");
     setUser(null);
     setToken(null);
-    setActiveTab("companies");
+    setActiveTab("landing");
   };
 
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
-    setShowProfilePanel(false);
   };
 
   const renderView = () => {
@@ -3393,6 +3622,8 @@ export default function App() {
       return <CompanyCard company={selectedCompany} onBack={() => setSelectedCompany(null)} />;
     }
     switch (activeTab) {
+      case "landing":
+        return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
       case "companies":
         return <CompaniesView onSelectCompany={setSelectedCompany} />;
       case "overview":
@@ -3401,8 +3632,18 @@ export default function App() {
         return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "pricing":
         return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
+      case "profile":
+        return (
+          <ProfileView
+            user={user}
+            token={token}
+            onLogout={handleLogout}
+            onNavigate={navigate}
+            onShowAuth={() => setShowAuthModal(true)}
+          />
+        );
       default:
-        return <CompaniesView onSelectCompany={setSelectedCompany} />;
+        return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
     }
   };
 
@@ -3414,22 +3655,11 @@ export default function App() {
         theme={theme}
         toggleTheme={() => setTheme(t => t === "dark" ? "light" : "dark")}
         user={user}
-        onProfileClick={() => setShowProfilePanel(p => !p)}
       />
 
       <main className="app-main">
         {renderView()}
       </main>
-
-      {showProfilePanel && (
-        <ProfilePanel
-          user={user}
-          onClose={() => setShowProfilePanel(false)}
-          onLogout={handleLogout}
-          onShowPricing={() => navigate("pricing")}
-          onShowAuth={() => { setShowProfilePanel(false); setShowAuthModal(true); }}
-        />
-      )}
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
