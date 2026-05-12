@@ -2004,7 +2004,7 @@ const CompanyCard = ({ company, onBack }) => {
         <div style={{
           width: 52, height: 52, borderRadius: 12,
           background: "var(--accent-fade)",
-          border: "1px solid rgba(79,70,229,0.25)",
+          border: "1px solid var(--accent-border)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontFamily: "monospace", fontWeight: 800, fontSize: 13,
           color: "var(--accent-text)", flexShrink: 0,
@@ -2190,83 +2190,217 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl relative flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
-          <h3 className="text-xl font-bold text-white">Импорт портфеля</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-white text-xl">✕</button>
+    <div className="modal-backdrop">
+      <div className="modal-box" style={{ maxWidth: 520, width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 16px", borderBottom: "1px solid var(--border)" }}>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "var(--text-1)" }}>Импорт портфеля</h3>
+          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "4px 8px", minWidth: 0 }}>
+            <X size={16} />
+          </button>
         </div>
 
-        <div className="overflow-y-auto p-6 space-y-4">
+        <div style={{ overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label className="text-slate-400 text-sm mb-1 block">Название портфеля</label>
+            <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Название портфеля</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500"
+              style={{
+                width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 14,
+                outline: "none", boxSizing: "border-box",
+              }}
               placeholder="Мой портфель"
             />
           </div>
 
           <div>
-            <label className="text-slate-400 text-sm mb-2 block">Позиции</label>
-            <div className="space-y-2">
-              <div className="grid grid-cols-[1fr_100px_120px_32px] gap-2 text-xs text-slate-500 px-1">
-                <span>Тикер</span><span>Кол-во</span><span>Средняя цена ₽</span><span></span>
-              </div>
+            <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 8 }}>Позиции</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 28px", gap: 6, marginBottom: 4, padding: "0 2px" }}>
+              {["Тикер", "Кол-во", "Цена ₽", ""].map((h) => (
+                <span key={h} style={{ fontSize: 11, color: "var(--text-3)" }}>{h}</span>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {rows.map((row, i) => (
-                <div key={i} className="grid grid-cols-[1fr_100px_120px_32px] gap-2 items-center">
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 28px", gap: 6, alignItems: "center" }}>
                   <input
                     value={row.ticker}
                     onChange={(e) => updateRow(i, "ticker", e.target.value.toUpperCase())}
                     placeholder="SBER"
-                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 uppercase"
+                    style={{
+                      background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
+                      padding: "8px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", textTransform: "uppercase",
+                    }}
                   />
                   <input
                     type="number"
                     value={row.quantity}
                     onChange={(e) => updateRow(i, "quantity", e.target.value)}
                     placeholder="100"
-                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                    style={{
+                      background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
+                      padding: "8px 10px", color: "var(--text-1)", fontSize: 13, outline: "none",
+                    }}
                   />
                   <input
                     type="number"
                     value={row.avgPrice}
                     onChange={(e) => updateRow(i, "avgPrice", e.target.value)}
                     placeholder="280.50"
-                    className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+                    style={{
+                      background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
+                      padding: "8px 10px", color: "var(--text-1)", fontSize: 13, outline: "none",
+                    }}
                   />
                   <button
                     onClick={() => removeRow(i)}
-                    className="text-slate-600 hover:text-red-400 text-lg leading-none"
-                  >✕</button>
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", fontSize: 16, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+                  >
+                    <X size={14} />
+                  </button>
                 </div>
               ))}
             </div>
             <button
               onClick={addRow}
-              className="mt-2 text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-1"
+              className="btn btn-ghost"
+              style={{ marginTop: 8, padding: "6px 10px", fontSize: 13, color: "var(--accent-text)" }}
             >
-              <Plus size={14} /> Добавить строку
+              <Plus size={13} /> Добавить строку
             </button>
           </div>
 
           {error && (
-            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</p>
+            <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
+              {error}
+            </p>
           )}
         </div>
 
-        <div className="p-6 border-t border-slate-700">
+        <div style={{ padding: "16px 24px", borderTop: "1px solid var(--border)" }}>
           <button
             onClick={handleImport}
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
+            className="btn btn-primary"
+            style={{ width: "100%", justifyContent: "center", padding: "10px 20px", opacity: loading ? 0.6 : 1 }}
           >
-            {loading ? (
-              <span className="animate-pulse">Загружаем...</span>
-            ) : (
-              <><Upload size={16} /> Загрузить портфель</>
-            )}
+            {loading ? "Загружаем..." : <><Upload size={15} /> Загрузить портфель</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =========================
+// ADD POSITION MODAL
+// =========================
+
+const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSuccess }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const [ticker, setTicker] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [price, setPrice] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = async () => {
+    setError(null);
+    if (!ticker.trim() || !quantity || !price) {
+      setError("Заполни все поля");
+      return;
+    }
+    const qty = parseFloat(quantity);
+    const prc = parseFloat(price);
+    if (qty <= 0 || prc <= 0) { setError("Количество и цена должны быть больше нуля"); return; }
+
+    setLoading(true);
+    try {
+      // resolve ticker → company_id
+      const companies = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
+      const company = Array.isArray(companies)
+        ? companies.find(c => c.ticker.toUpperCase() === ticker.trim().toUpperCase())
+        : null;
+      if (!company) throw new Error(`Тикер «${ticker.trim().toUpperCase()}» не найден в базе`);
+
+      // check for existing position with same company_id to merge (weighted average)
+      const existing = existingPositions.find(p => p.company_id === company.id);
+      if (existing) {
+        // weighted average
+        const newQty = existing.quantity + qty;
+        const newAvg = (existing.quantity * existing.avg_buy_price + qty * prc) / newQty;
+        // delete old position then create merged one
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, {
+          method: "DELETE",
+          headers: authHeaders,
+        });
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) }),
+        });
+      } else {
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
+          method: "POST",
+          headers: authHeaders,
+          body: JSON.stringify({ company_id: company.id, quantity: qty, avg_buy_price: prc }),
+        });
+      }
+      onSuccess();
+    } catch (e) {
+      setError(e.message || "Ошибка добавления");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-box" style={{ maxWidth: 420, width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 16px", borderBottom: "1px solid var(--border)" }}>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "var(--text-1)" }}>Добавить сделку</h3>
+          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "4px 8px", minWidth: 0 }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+          {[
+            { label: "Тикер", value: ticker, onChange: e => setTicker(e.target.value.toUpperCase()), placeholder: "SBER" },
+            { label: "Количество (лотов/акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100", type: "number" },
+            { label: "Средняя цена покупки ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50", type: "number" },
+          ].map(({ label, value, onChange, placeholder, type }) => (
+            <div key={label}>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+              <input
+                type={type || "text"}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                style={{
+                  width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 14,
+                  outline: "none", boxSizing: "border-box", textTransform: type ? "none" : "uppercase",
+                }}
+              />
+            </div>
+          ))}
+
+          {error && (
+            <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="btn btn-primary"
+            style={{ width: "100%", justifyContent: "center", padding: "10px 20px", marginTop: 4, opacity: loading ? 0.6 : 1 }}
+          >
+            {loading ? "Сохраняем..." : <><Plus size={15} /> Добавить позицию</>}
           </button>
         </div>
       </div>
@@ -2280,9 +2414,14 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [tab, setTab] = useState("holdings");
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [portfolio, setPortfolio] = useState(null);
   const [positions, setPositions] = useState([]);
+  const [rawPositions, setRawPositions] = useState([]);
   const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
 
   useEffect(() => {
     if (!token) { setPortfolioLoading(false); return; }
@@ -2293,6 +2432,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           setPortfolio(list[0]);
           const detail = await fetch(`${apiUrl}/api/portfolios/${list[0].id}`, { headers: authHeaders }).then(r => r.json());
           if (detail.positions) {
+            setRawPositions(detail.positions);
             const companiesResp = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
             const companyMap = {};
             if (Array.isArray(companiesResp)) {
@@ -2321,7 +2461,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         setPortfolioLoading(false);
       })
       .catch(() => setPortfolioLoading(false));
-  }, [token]);
+  }, [token, reloadKey]);
 
   const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO;
 
@@ -2397,13 +2537,17 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const renderHoldings = () => (
     <div className="space-y-8 p-4">
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-        <div className="p-4 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
-          <h4 className="text-white font-semibold">
+      <div style={{ background: "var(--bg-surface)", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden" }}>
+        <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontWeight: 600, color: "var(--text-1)" }}>
             {portfolioLoading ? "Загружаем портфель..." : portfolio ? portfolio.name : "Демо-портфель"}
-          </h4>
-          <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-sm transition-colors">
-            + Добавить сделку
+          </span>
+          <button
+            className="btn btn-ghost"
+            style={{ padding: "6px 12px", fontSize: 13, border: "0.5px solid var(--border)", color: "var(--text-1)" }}
+            onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}
+          >
+            <Plus size={14} /> Добавить сделку
           </button>
         </div>
 
@@ -2788,34 +2932,33 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-indigo-600/10 border border-indigo-500/30 p-6 rounded-2xl">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-500/20">
-            <Upload size={24} />
+      <div style={{
+        display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center",
+        gap: 16, background: "var(--accent-fade)", border: "1px solid var(--accent-border)",
+        padding: "20px 24px", borderRadius: 16,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{
+            padding: 10, background: "var(--accent)", color: "var(--on-accent)",
+            borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Upload size={22} />
           </div>
           <div>
-            <h3 className="text-white font-bold text-lg">Загрузить портфель</h3>
-            <p className="text-indigo-200/70 text-sm">
+            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>Загрузить портфель</div>
+            <div style={{ fontSize: 13, color: "var(--text-2)", marginTop: 2 }}>
               Импортируйте данные через текст или фото отчета брокера
-            </p>
+            </div>
           </div>
         </div>
 
         {token ? (
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2"
-          >
-            <Plus size={18} />
-            Начать импорт
+          <button className="btn btn-primary" style={{ padding: "10px 20px" }} onClick={() => setShowUploadModal(true)}>
+            <Plus size={16} /> Начать импорт
           </button>
         ) : (
-          <button
-            onClick={onAuthRequired}
-            className="bg-slate-700 hover:bg-indigo-600 text-slate-300 hover:text-white px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2"
-          >
-            <User size={18} />
-            Войти для импорта
+          <button className="btn btn-ghost" style={{ padding: "10px 20px" }} onClick={onAuthRequired}>
+            <User size={16} /> Войти для импорта
           </button>
         )}
       </div>
@@ -2904,6 +3047,16 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             setShowUploadModal(false);
             window.location.reload();
           }}
+        />
+      )}
+
+      {showAddModal && portfolio && (
+        <AddPositionModal
+          portfolioId={portfolio.id}
+          existingPositions={rawPositions}
+          token={token}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={reloadPortfolio}
         />
       )}
     </div>
@@ -3016,43 +3169,43 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
   const features = [
     {
       icon: BarChart2,
-      color: "#4f46e5",
-      bg: "rgba(79,70,229,0.12)",
+      color: "var(--accent)",
+      bg: "var(--accent-fade)",
       title: "AI-анализ компаний",
       desc: "Глубокий разбор 45 российских акций через Claude: бизнес-модель, риски, справедливая цена.",
     },
     {
       icon: Activity,
-      color: "#3fb950",
-      bg: "rgba(63,185,80,0.12)",
+      color: "var(--positive)",
+      bg: "var(--pos-fade)",
       title: "Котировки MOEX",
       desc: "Данные Московской биржи с автоматическим обновлением. Цена, динамика, исторические данные.",
     },
     {
       icon: Briefcase,
-      color: "#f59e0b",
-      bg: "rgba(245,158,11,0.12)",
+      color: "var(--gold)",
+      bg: "var(--gold-fade)",
       title: "Портфельная аналитика",
       desc: "Оценка здоровья портфеля, матрица корреляций, структура рисков и диверсификация.",
     },
     {
       icon: ShieldAlert,
-      color: "#f85149",
-      bg: "rgba(248,81,73,0.12)",
+      color: "var(--negative)",
+      bg: "var(--neg-fade)",
       title: "Стресс-тестирование",
       desc: "Сценарии кризиса: что будет с портфелем при обвале нефти, росте ставки или чёрном лебеде.",
     },
     {
       icon: Globe,
-      color: "#a5b4fc",
-      bg: "rgba(165,180,252,0.10)",
+      color: "var(--accent-text)",
+      bg: "var(--accent-fade)",
       title: "Обозреватель рынка",
       desc: "Экспресс, детальный и глубокий AI-обзор рыночного фона — всегда актуальный контекст.",
     },
     {
       icon: Users,
-      color: "#34d399",
-      bg: "rgba(52,211,153,0.10)",
+      color: "var(--teal)",
+      bg: "var(--teal-fade)",
       title: "Консилиум аналитиков",
       desc: "Сводка рекомендаций брокеров с целевыми ценами и собственной позицией платформы.",
     },
@@ -3078,18 +3231,32 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         <p style={{ fontSize: 18, color: "var(--text-2)", margin: "0 0 36px", lineHeight: 1.5 }}>
           Профессиональная аналитика российского рынка
         </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <button
             className="btn btn-primary"
-            style={{ padding: "12px 28px", fontSize: 15 }}
+            style={{ padding: "11px 24px", fontSize: 14 }}
             onClick={() => onNavigate("companies")}
           >
-            Смотреть компании →
+            <BarChart2 size={15} /> Компании
+          </button>
+          <button
+            className="btn btn-ghost"
+            style={{ padding: "11px 24px", fontSize: 14 }}
+            onClick={() => onNavigate("overview")}
+          >
+            <Globe size={15} /> Обозреватель
+          </button>
+          <button
+            className="btn btn-ghost"
+            style={{ padding: "11px 24px", fontSize: 14 }}
+            onClick={() => onNavigate("portfolio")}
+          >
+            <Briefcase size={15} /> Аналитика портфеля
           </button>
           {!user && (
             <button
               className="btn btn-ghost"
-              style={{ padding: "12px 28px", fontSize: 15 }}
+              style={{ padding: "11px 24px", fontSize: 14 }}
               onClick={onShowAuth}
             >
               Войти
@@ -3177,10 +3344,10 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
           <div className="card" style={{ textAlign: "center", padding: 28 }}>
             <div style={{
               width: 72, height: 72, borderRadius: "50%",
-              background: "linear-gradient(135deg, var(--accent), #6366f1)",
+              background: "linear-gradient(135deg, var(--accent), var(--accent-h))",
               display: "flex", alignItems: "center", justifyContent: "center",
               margin: "0 auto 16px",
-              fontSize: 24, fontWeight: 800, color: "#fff",
+              fontSize: 24, fontWeight: 800, color: "var(--on-accent)",
             }}>
               {initials}
             </div>
@@ -3198,8 +3365,8 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
           </div>
 
           <div className="card" style={{
-            background: isPremium ? "linear-gradient(135deg, rgba(245,158,11,0.08), var(--bg-card))" : undefined,
-            borderColor: isPremium ? "rgba(245,158,11,0.3)" : undefined,
+            background: isPremium ? "linear-gradient(135deg, var(--gold-fade), var(--bg-card))" : undefined,
+            borderColor: isPremium ? "var(--gold-border)" : undefined,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 14 }}>Тариф</span>
@@ -3257,7 +3424,7 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
                   display: "flex", alignItems: "center", gap: 8,
                   padding: "10px 12px", borderRadius: 10,
                   background: ok ? "var(--accent-fade)" : "var(--bg-surface)",
-                  border: `1px solid ${ok ? "rgba(79,70,229,0.2)" : "var(--border)"}`,
+                  border: `1px solid ${ok ? "var(--accent-border)" : "var(--border)"}`,
                   fontSize: 13, color: ok ? "var(--text-1)" : "var(--text-3)",
                 }}>
                   <span style={{ color: ok ? "var(--accent-text)" : "var(--text-3)" }}>{ok ? "✓" : "✕"}</span>
