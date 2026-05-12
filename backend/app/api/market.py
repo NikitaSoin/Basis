@@ -42,13 +42,6 @@ def generate_overview_endpoint(
     type: OverviewType = OverviewType.express,
     current_user=Depends(get_current_user_optional),
 ):
-    if type != OverviewType.express:
-        from app.models.user import SubscriptionType
-        if not current_user or current_user.subscription_type != SubscriptionType.premium:
-            raise HTTPException(
-                status_code=403,
-                detail="Детальный и глубокий обзор доступен только на Premium-тарифе",
-            )
     try:
         from app.services.market_overview import generate_market_overview
         return generate_market_overview(type.value)

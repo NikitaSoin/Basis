@@ -2300,6 +2300,7 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
 const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const [side, setSide] = useState("buy");
   const [ticker, setTicker] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
@@ -2308,49 +2309,53 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
 
   const handleSubmit = async () => {
     setError(null);
-    if (!ticker.trim() || !quantity || !price) {
-      setError("Заполни все поля");
-      return;
-    }
+    if (!ticker.trim() || !quantity || !price) { setError("Заполни все поля"); return; }
     const qty = parseFloat(quantity);
     const prc = parseFloat(price);
     if (qty <= 0 || prc <= 0) { setError("Количество и цена должны быть больше нуля"); return; }
 
     setLoading(true);
     try {
-      // resolve ticker → company_id
       const companies = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
       const company = Array.isArray(companies)
         ? companies.find(c => c.ticker.toUpperCase() === ticker.trim().toUpperCase())
         : null;
       if (!company) throw new Error(`Тикер «${ticker.trim().toUpperCase()}» не найден в базе`);
 
-      // check for existing position with same company_id to merge (weighted average)
       const existing = existingPositions.find(p => p.company_id === company.id);
-      if (existing) {
-        // weighted average
-        const newQty = existing.quantity + qty;
-        const newAvg = (existing.quantity * existing.avg_buy_price + qty * prc) / newQty;
-        // delete old position then create merged one
-        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, {
-          method: "DELETE",
-          headers: authHeaders,
-        });
-        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
-          method: "POST",
-          headers: authHeaders,
-          body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) }),
-        });
+
+      if (side === "sell") {
+        if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
+        if (qty > existing.quantity) throw new Error(`Нельзя продать больше чем есть (${existing.quantity} шт.)`);
+        if (qty === existing.quantity) {
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
+        } else {
+          const newQty = existing.quantity - qty;
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
+            method: "POST", headers: authHeaders,
+            body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: existing.avg_buy_price }),
+          });
+        }
       } else {
-        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
-          method: "POST",
-          headers: authHeaders,
-          body: JSON.stringify({ company_id: company.id, quantity: qty, avg_buy_price: prc }),
-        });
+        if (existing) {
+          const newQty = existing.quantity + qty;
+          const newAvg = (existing.quantity * existing.avg_buy_price + qty * prc) / newQty;
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
+            method: "POST", headers: authHeaders,
+            body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) }),
+          });
+        } else {
+          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
+            method: "POST", headers: authHeaders,
+            body: JSON.stringify({ company_id: company.id, quantity: qty, avg_buy_price: prc }),
+          });
+        }
       }
       onSuccess();
     } catch (e) {
-      setError(e.message || "Ошибка добавления");
+      setError(e.message || "Ошибка");
     } finally {
       setLoading(false);
     }
@@ -2361,16 +2366,30 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
       <div className="modal-box" style={{ maxWidth: 420, width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 16px", borderBottom: "1px solid var(--border)" }}>
           <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "var(--text-1)" }}>Добавить сделку</h3>
-          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "4px 8px", minWidth: 0 }}>
-            <X size={16} />
-          </button>
+          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "4px 8px", minWidth: 0 }}><X size={16} /></button>
         </div>
 
         <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+          {/* Buy / Sell toggle */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, background: "var(--bg-surface)", borderRadius: 10, padding: 4 }}>
+            {[{ id: "buy", label: "🟢 Покупка" }, { id: "sell", label: "🔴 Продажа" }].map(s => (
+              <button
+                key={s.id}
+                onClick={() => setSide(s.id)}
+                style={{
+                  padding: "8px 0", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                  background: side === s.id ? (s.id === "buy" ? "var(--positive)" : "var(--negative)") : "transparent",
+                  color: side === s.id ? "var(--on-accent)" : "var(--text-2)",
+                  transition: "all 0.15s",
+                }}
+              >{s.label}</button>
+            ))}
+          </div>
+
           {[
             { label: "Тикер", value: ticker, onChange: e => setTicker(e.target.value.toUpperCase()), placeholder: "SBER" },
-            { label: "Количество (лотов/акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100", type: "number" },
-            { label: "Средняя цена покупки ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50", type: "number" },
+            { label: "Количество (акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100", type: "number" },
+            { label: side === "buy" ? "Цена покупки ₽" : "Цена продажи ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50", type: "number" },
           ].map(({ label, value, onChange, placeholder, type }) => (
             <div key={label}>
               <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
@@ -2397,10 +2416,13 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="btn btn-primary"
-            style={{ width: "100%", justifyContent: "center", padding: "10px 20px", marginTop: 4, opacity: loading ? 0.6 : 1 }}
+            className={`btn ${side === "buy" ? "btn-primary" : ""}`}
+            style={{
+              width: "100%", justifyContent: "center", padding: "10px 20px", marginTop: 4, opacity: loading ? 0.6 : 1,
+              ...(side === "sell" ? { background: "var(--negative)", color: "var(--on-accent)", border: "none" } : {}),
+            }}
           >
-            {loading ? "Сохраняем..." : <><Plus size={15} /> Добавить позицию</>}
+            {loading ? "Сохраняем..." : side === "buy" ? <><Plus size={15} /> Купить</> : <><TrendingDown size={15} /> Продать</>}
           </button>
         </div>
       </div>
@@ -2415,100 +2437,107 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showNewPortfolioInput, setShowNewPortfolioInput] = useState(false);
+  const [newPortfolioName, setNewPortfolioName] = useState("");
+  const [portfolioList, setPortfolioList] = useState([]);
+  const [activePortfolioId, setActivePortfolioId] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
   const [positions, setPositions] = useState([]);
   const [rawPositions, setRawPositions] = useState([]);
+  const [quotes, setQuotes] = useState({});
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
 
+  const handleCreatePortfolio = async () => {
+    const name = newPortfolioName.trim() || "Новый портфель";
+    const resp = await fetch(`${apiUrl}/api/portfolios`, {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ name, user_id: 0 }),
+    });
+    if (resp.ok) {
+      const p = await resp.json();
+      setShowNewPortfolioInput(false);
+      setNewPortfolioName("");
+      setActivePortfolioId(p.id);
+      setReloadKey(k => k + 1);
+    }
+  };
+
   useEffect(() => {
     if (!token) { setPortfolioLoading(false); return; }
-    fetch(`${apiUrl}/api/portfolios`, { headers: authHeaders })
-      .then(r => r.ok ? r.json() : [])
-      .then(async (list) => {
+
+    const loadData = async () => {
+      try {
+        const [list, latestQuotes] = await Promise.all([
+          fetch(`${apiUrl}/api/portfolios`, { headers: authHeaders }).then(r => r.ok ? r.json() : []),
+          fetch(`${apiUrl}/api/quotes/latest`).then(r => r.ok ? r.json() : {}),
+        ]);
+        setQuotes(latestQuotes || {});
+
         if (list.length > 0) {
-          setPortfolio(list[0]);
-          const detail = await fetch(`${apiUrl}/api/portfolios/${list[0].id}`, { headers: authHeaders }).then(r => r.json());
+          setPortfolioList(list);
+          const targetId = activePortfolioId && list.find(p => p.id === activePortfolioId)
+            ? activePortfolioId
+            : list[0].id;
+          if (!activePortfolioId) setActivePortfolioId(targetId);
+
+          const active = list.find(p => p.id === targetId) || list[0];
+          setPortfolio(active);
+
+          const detail = await fetch(`${apiUrl}/api/portfolios/${active.id}`, { headers: authHeaders }).then(r => r.json());
           if (detail.positions) {
             setRawPositions(detail.positions);
             const companiesResp = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
             const companyMap = {};
-            if (Array.isArray(companiesResp)) {
-              companiesResp.forEach(c => { companyMap[c.id] = c; });
-            }
+            if (Array.isArray(companiesResp)) companiesResp.forEach(c => { companyMap[c.id] = c; });
+
             const mapped = detail.positions.map(pos => {
               const c = companyMap[pos.company_id] || {};
-              const mock = MOCK_PORTFOLIO.find(m => m.ticker === c.ticker) || {};
+              const currentPrice = latestQuotes[c.ticker] || parseFloat(pos.avg_buy_price) || 0;
               return {
+                id: pos.id,
+                company_id: pos.company_id,
                 ticker: c.ticker || "—",
                 name: c.name || "—",
                 shares: parseFloat(pos.quantity) || 0,
                 avgPrice: parseFloat(pos.avg_buy_price) || 0,
-                currentPrice: mock.currentPrice || parseFloat(pos.avg_buy_price) || 0,
-                beta: mock.beta || 1.0,
-                divYield: mock.divYield || 0,
-                expReturn: mock.expReturn || 10,
-                stdDev: mock.stdDev || 20,
-                pe: mock.pe || 0,
-                pe_hist: mock.pe_hist || 0,
+                currentPrice,
               };
             });
             setPositions(mapped);
+          } else {
+            setPositions([]);
+            setRawPositions([]);
           }
+        } else {
+          setPortfolioList([]);
+          setPortfolio(null);
+          setPositions([]);
+          setRawPositions([]);
         }
+      } finally {
         setPortfolioLoading(false);
-      })
-      .catch(() => setPortfolioLoading(false));
-  }, [token, reloadKey]);
+      }
+    };
 
-  const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO;
+    loadData();
+  }, [token, reloadKey, activePortfolioId]);
+
+  const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO.map(p => ({
+    ...p, currentPrice: quotes[p.ticker] || p.currentPrice,
+  }));
 
   const stats = useMemo(() => {
-    const totalValue = MOCK_PORTFOLIO.reduce(
-      (acc, p) => acc + p.shares * p.currentPrice,
-      0
-    );
-    const totalCost = MOCK_PORTFOLIO.reduce(
-      (acc, p) => acc + p.shares * p.avgPrice,
-      0
-    );
+    const src = displayPositions;
+    const totalValue = src.reduce((a, p) => a + p.shares * p.currentPrice, 0);
+    const totalCost  = src.reduce((a, p) => a + p.shares * p.avgPrice, 0);
     const totalProfit = totalValue - totalCost;
-    const profitPct = (totalProfit / totalCost) * 100;
-
-    const avgBeta = MOCK_PORTFOLIO.reduce(
-      (acc, p) => acc + p.beta * ((p.shares * p.currentPrice) / totalValue),
-      0
-    );
-
-    const avgYield = MOCK_PORTFOLIO.reduce(
-      (acc, p) => acc + p.divYield * ((p.shares * p.currentPrice) / totalValue),
-      0
-    );
-
-    const portExp = MOCK_PORTFOLIO.reduce(
-      (acc, p) =>
-        acc + p.expReturn * ((p.shares * p.currentPrice) / totalValue),
-      0
-    );
-
-    const portStd = MOCK_PORTFOLIO.reduce(
-      (acc, p) => acc + p.stdDev * ((p.shares * p.currentPrice) / totalValue),
-      0
-    );
-
-    return {
-      totalValue,
-      totalCost,
-      totalProfit,
-      profitPct,
-      avgBeta,
-      avgYield,
-      portExp,
-      portStd,
-    };
-  }, []);
+    const profitPct  = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+    return { totalValue, totalCost, totalProfit, profitPct, avgBeta: 0, avgYield: 0, portExp: 0, portStd: 0 };
+  }, [displayPositions]);
 
   const portfolioScore = 68;
 
@@ -2535,80 +2564,118 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const currentStress = stressMap[stressScenario];
 
+  const TICKER_COLORS = ["#4f46e5","#3fb950","#f59e0b","#f85149","#a78bfa","#34d399","#fb923c","#38bdf8"];
+  const tickerColor = (t) => TICKER_COLORS[(t.charCodeAt(0) + (t.charCodeAt(1) || 0)) % TICKER_COLORS.length];
+
   const renderHoldings = () => (
-    <div className="space-y-8 p-4">
-      <div style={{ background: "var(--bg-surface)", borderRadius: 14, border: "1px solid var(--border)", overflow: "hidden" }}>
-        <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontWeight: 600, color: "var(--text-1)" }}>
-            {portfolioLoading ? "Загружаем портфель..." : portfolio ? portfolio.name : "Демо-портфель"}
-          </span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 4 }}>
+      {/* Portfolio switcher */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        {portfolioList.map(p => (
+          <button
+            key={p.id}
+            onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
+            className={`filter-pill ${activePortfolioId === p.id ? "active" : ""}`}
+          >
+            {p.name}
+          </button>
+        ))}
+        {!showNewPortfolioInput ? (
           <button
             className="btn btn-ghost"
-            style={{ padding: "6px 12px", fontSize: 13, border: "0.5px solid var(--border)", color: "var(--text-1)" }}
-            onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}
+            style={{ padding: "5px 12px", fontSize: 12 }}
+            onClick={() => token ? setShowNewPortfolioInput(true) : onAuthRequired()}
           >
-            <Plus size={14} /> Добавить сделку
+            <Plus size={12} /> Новый портфель
           </button>
-        </div>
+        ) : (
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <input
+              autoFocus
+              value={newPortfolioName}
+              onChange={e => setNewPortfolioName(e.target.value)}
+              placeholder="Название"
+              onKeyDown={e => e.key === "Enter" && handleCreatePortfolio()}
+              style={{
+                background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
+                padding: "5px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", width: 140,
+              }}
+            />
+            <button className="btn btn-primary" style={{ padding: "5px 12px", fontSize: 12 }} onClick={handleCreatePortfolio}>Создать</button>
+            <button className="btn btn-ghost" style={{ padding: "5px 8px" }} onClick={() => setShowNewPortfolioInput(false)}><X size={13} /></button>
+          </div>
+        )}
+        <button
+          className="btn btn-ghost"
+          style={{ padding: "5px 12px", fontSize: 12, border: "0.5px solid var(--border)", marginLeft: "auto" }}
+          onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}
+        >
+          <Plus size={12} /> Добавить сделку
+        </button>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-900/50">
-              <tr>
-                <th className="px-6 py-4">Актив</th>
-                <th className="px-6 py-4 text-right">Кол-во</th>
-                <th className="px-6 py-4 text-right">Средняя</th>
-                <th className="px-6 py-4 text-right">Текущая</th>
-                <th className="px-6 py-4 text-right">Доля</th>
-                <th className="px-6 py-4 text-right">Результат</th>
+      {/* Positions table */}
+      <div style={{ background: "var(--bg-surface)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: "0.5px solid var(--border)" }}>
+                {["Актив", "Кол-во", "Средняя", "Текущая", "Доля", "Результат ₽", "Результат %"].map((h, i) => (
+                  <th key={h} style={{
+                    padding: "10px 14px", fontSize: 11, fontWeight: 600, textTransform: "uppercase",
+                    letterSpacing: "0.05em", color: "var(--text-3)",
+                    textAlign: i === 0 ? "left" : "right", whiteSpace: "nowrap",
+                  }}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700">
+            <tbody>
               {displayPositions.map((p) => {
-                const value = p.shares * p.currentPrice;
-                const weight = (value / stats.totalValue) * 100;
-                const profit = p.shares * (p.currentPrice - p.avgPrice);
-                const pPct = (p.currentPrice / p.avgPrice - 1) * 100;
+                const value  = p.shares * p.currentPrice;
+                const weight = stats.totalValue > 0 ? (value / stats.totalValue) * 100 : 0;
+                const profitRub = p.shares * (p.currentPrice - p.avgPrice);
+                const profitPct = p.avgPrice > 0 ? (p.currentPrice / p.avgPrice - 1) * 100 : 0;
+                const posColor = profitRub >= 0 ? "var(--positive)" : "var(--negative)";
+                const tcolor = tickerColor(p.ticker);
 
                 return (
-                  <tr key={p.ticker}>
-                    <td className="px-6 py-4 font-bold text-white">
-                      {p.ticker}
-                      <span className="block text-xs text-slate-500 font-normal">
-                        {p.name}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right text-slate-300">
-                      {p.shares}
-                    </td>
-                    <td className="px-6 py-4 text-right text-slate-400">
-                      {formatCurrency(p.avgPrice)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-white font-mono">
-                      {formatCurrency(p.currentPrice)}
-                    </td>
-                    <td className="px-6 py-4 text-right text-slate-300">
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="font-mono">{weight.toFixed(1)}%</span>
-                        <div className="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-indigo-500"
-                            style={{ width: `${weight}%` }}
-                          />
+                  <tr key={p.ticker} style={{ borderBottom: "0.5px solid var(--border)", transition: "background 0.12s" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <td style={{ padding: "10px 14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{
+                          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                          background: tcolor + "22", border: `1px solid ${tcolor}44`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontFamily: "monospace", fontWeight: 800, fontSize: 10, color: tcolor,
+                          letterSpacing: "-0.03em",
+                        }}>
+                          {p.ticker.slice(0, 4)}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, color: "var(--text-1)" }}>{p.ticker}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-3)" }}>{p.name}</div>
                         </div>
                       </div>
                     </td>
-                    <td
-                      className={`px-6 py-4 text-right font-bold ${
-                        profit >= 0 ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {profit >= 0 ? "+" : ""}
-                      {formatCurrency(profit)}
-                      <span className="block text-xs font-normal">
-                        {pPct >= 0 ? "+" : ""}
-                        {pPct.toFixed(1)}%
-                      </span>
+                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-2)" }}>{p.shares}</td>
+                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{formatCurrency(p.avgPrice)}</td>
+                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-1)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{formatCurrency(p.currentPrice)}</td>
+                    <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
+                        <span style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{weight.toFixed(1)}%</span>
+                        <div style={{ width: 40, height: 4, background: "var(--bg-hover)", borderRadius: 2, overflow: "hidden" }}>
+                          <div style={{ width: `${Math.min(weight, 100)}%`, height: "100%", background: "var(--accent)", borderRadius: 2 }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: posColor, fontVariantNumeric: "tabular-nums" }}>
+                      {profitRub >= 0 ? "+" : ""}{formatCurrency(profitRub)}
+                    </td>
+                    <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: posColor }}>
+                      {profitPct >= 0 ? "+" : ""}{profitPct.toFixed(1)}%
                     </td>
                   </tr>
                 );
@@ -2973,8 +3040,8 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             sub: formatPercent(stats.profitPct, 2),
             color: stats.totalProfit >= 0 ? "var(--positive)" : "var(--negative)",
           },
-          { label: "Beta (Риск)", value: stats.avgBeta.toFixed(2), color: "var(--accent-text)" },
-          { label: "Див. доходность", value: stats.avgYield.toFixed(1) + "%", color: "var(--gold)" },
+          { label: "Beta (Риск)", value: "—", color: "var(--accent-text)" },
+          { label: "Див. доходность", value: "—", color: "var(--gold)" },
         ].map(({ label, value, sub, color }) => (
           <div key={label} className="card card-sm">
             <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 6 }}>
