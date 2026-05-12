@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.db.session import get_db
 from app.schemas.company import (
     CompanyCreate, CompanyResponse,
@@ -12,6 +13,21 @@ from app.services.company import (
 )
 
 router = APIRouter()
+
+
+@router.get("/quotes/latest")
+def latest_quotes_endpoint(db: Session = Depends(get_db)):
+    """Возвращает последнюю цену закрытия для всех компаний: {ticker: close}"""
+    rows = db.execute(text("""
+        SELECT DISTINCT ON (q.company_id)
+            c.ticker,
+            q.close
+        FROM quotes q
+        JOIN companies c ON c.id = q.company_id
+        WHERE q.close IS NOT NULL
+        ORDER BY q.company_id, q.date DESC
+    """)).fetchall()
+    return {row.ticker: float(row.close) for row in rows}
 
 
 @router.post("/companies", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
