@@ -26,6 +26,10 @@ import {
   BookOpen,
   FileText,
   Settings,
+  Sun,
+  Moon,
+  LogOut,
+  X,
 } from "lucide-react";
 
 // =========================
@@ -1325,8 +1329,9 @@ const MOCK_COMPANIES = [
 // COMPANY LIST
 // =========================
 
-const CompanyList = ({ onSelectCompany }) => {
+const CompaniesView = ({ onSelectCompany }) => {
   const [search, setSearch] = useState("");
+  const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -1353,23 +1358,21 @@ const CompanyList = ({ onSelectCompany }) => {
       .catch(() => setLoading(false));
   }, []);
 
+  const sectors = useMemo(() => {
+    const s = new Set(companies.map((c) => c.sector || "Прочее"));
+    return ["Все", ...Array.from(s).sort((a, b) => a.localeCompare(b, "ru"))];
+  }, [companies]);
+
   const filtered = useMemo(() => {
-    if (!search) return companies;
-    return companies.filter(
+    let list = companies;
+    if (activeSector !== "Все") list = list.filter((c) => c.sector === activeSector);
+    if (search) list = list.filter(
       (c) =>
         c.name.toLowerCase().includes(search.toLowerCase()) ||
         c.ticker.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search, companies]);
-
-  const sectors = useMemo(() => {
-    const grouped = {};
-    filtered.forEach((c) => {
-      if (!grouped[c.sector]) grouped[c.sector] = [];
-      grouped[c.sector].push(c);
-    });
-    return grouped;
-  }, [filtered]);
+    return list;
+  }, [search, activeSector, companies]);
 
   if (loading) {
     return (
@@ -1380,83 +1383,76 @@ const CompanyList = ({ onSelectCompany }) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="relative">
-        <Search className="absolute left-4 top-3.5 text-slate-500" size={20} />
-        <input
-          type="text"
-          placeholder="Поиск компании по названию или тикеру..."
-          className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div>
+      <div className="view-header">
+        <h1 className="view-title">Компании</h1>
+        <p className="view-subtitle">Карточки и аналитика по российскому рынку</p>
       </div>
 
-      {Object.entries(sectors).map(([sector, comps]) => (
-        <div key={sector} className="space-y-4">
-          <h3 className="text-xl font-semibold text-slate-300 border-b border-slate-700 pb-2">
-            {sector}
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {comps.map((c) => (
-              <div
-                key={c.ticker}
-                onClick={() => onSelectCompany(c)}
-                className="bg-slate-800 border border-slate-700 hover:border-indigo-500/50 p-4 rounded-xl cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 group"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="font-bold text-white text-lg group-hover:text-indigo-400 transition-colors">
-                      {c.ticker}
-                    </div>
-                    <div className="text-slate-400 text-sm truncate max-w-[150px]">
-                      {c.name}
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-white font-medium">
-                      {c.price == null
-                        ? "—"
-                        : `${c.price.toLocaleString("ru-RU")} ₽`}
-                    </div>
-
-                    <div
-                      className={`flex items-center justify-end text-sm font-medium ${
-                        c.change == null
-                          ? "text-slate-500"
-                          : c.change >= 0
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {c.change == null ? (
-                        "—"
-                      ) : c.change >= 0 ? (
-                        <>
-                          <TrendingUp size={14} className="mr-1" />+{c.change}%
-                        </>
-                      ) : (
-                        <>
-                          <TrendingDown size={14} className="mr-1" />
-                          {c.change}%
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end mt-4">
-                  <span className="text-xs text-indigo-400 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    Открыть карточку <ChevronRight size={14} />
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="filter-row" style={{ marginBottom: 16 }}>
+        <div className="search-wrap">
+          <Search className="search-icon" size={16} />
+          <input
+            className="search-input"
+            placeholder="Поиск по тикеру или названию..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
-      ))}
+      </div>
+
+      <div className="filter-row">
+        {sectors.map((s) => (
+          <button
+            key={s}
+            onClick={() => setActiveSector(s)}
+            className={`filter-pill ${activeSector === s ? "active" : ""}`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="flex items-center justify-center py-16 text-slate-400">
+          Компании не найдены
+        </div>
+      ) : (
+        <div className="company-grid">
+          {filtered.map((c) => (
+            <div
+              key={c.ticker}
+              className="company-card"
+              onClick={() => onSelectCompany(c)}
+            >
+              <div className="company-card-ticker">{c.ticker}</div>
+              <div className="company-card-name">{c.name}</div>
+              <div className="company-card-sector">{c.sector}</div>
+
+              {c.price != null ? (
+                <>
+                  <div className="company-card-price">
+                    {c.price.toLocaleString("ru-RU")} ₽
+                  </div>
+                  <div className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
+                    style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
+                  >
+                    {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
+                  </div>
+                </>
+              ) : (
+                <div className="company-card-nodata">нет данных котировки</div>
+              )}
+
+              <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+                <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
+                  Открыть <ChevronRight size={12} />
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -2989,98 +2985,93 @@ const AuthModal = ({ onClose, onSuccess }) => {
 };
 
 // =========================
-// SUBSCRIPTION VIEW
+// PRICING VIEW
 // =========================
 
-const SubscriptionView = ({ user, onClose }) => {
+const PricingView = ({ user, onShowAuth }) => {
   const isPremium = user?.subscription_type === "premium";
 
   const freeFeatures = [
     "Экспресс-обзор рынка",
-    "Просмотр карточек компаний",
+    "Карточки всех компаний",
     "Портфель до 5 позиций",
     "Базовая аналитика",
   ];
 
   const premiumFeatures = [
-    "Все типы обзоров рынка (детальный, глубокий)",
+    "Детальный и глубокий обзор рынка",
     "Безлимитный портфель",
-    "AI-анализ компаний",
+    "AI-анализ компаний (Claude)",
     "Стресс-тестирование",
     "Приоритетные обновления",
     "Ранний доступ к новым функциям",
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-1">Тарифные планы</h2>
-        <p className="text-slate-400">Выберите план, который подходит вам</p>
+    <div>
+      <div className="view-header">
+        <h1 className="view-title">Тарифные планы</h1>
+        <p className="view-subtitle">Выберите уровень доступа, который вам подходит</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Free */}
-        <div className={`bg-slate-800 border rounded-2xl p-6 ${!isPremium ? "border-indigo-500 ring-1 ring-indigo-500/50" : "border-slate-700"}`}>
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-lg font-bold text-white">Базовый</h3>
-              <p className="text-slate-400 text-sm">Для начинающих инвесторов</p>
-            </div>
-            {!isPremium && <span className="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-medium">Текущий</span>}
+      <div className="pricing-grid">
+        {/* FREE */}
+        <div className={`pricing-card ${!isPremium && user ? "active-plan" : ""}`}>
+          <p className="pricing-card-name">Базовый</p>
+          <p className="pricing-card-desc">Для начинающих инвесторов</p>
+          {!isPremium && user && (
+            <span className="badge badge-accent" style={{ marginBottom: 16, display: "inline-flex" }}>Текущий план</span>
+          )}
+          <div className="pricing-card-price" style={{ marginBottom: 20 }}>
+            Бесплатно
           </div>
-          <div className="mb-6">
-            <span className="text-3xl font-bold text-white">Бесплатно</span>
-          </div>
-          <ul className="space-y-2.5">
+          <ul className="pricing-feature-list">
             {freeFeatures.map((f, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
-                <div className="w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center flex-shrink-0">
-                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
-                </div>
+              <li key={i} className="pricing-feature-item">
+                <span className="pricing-feature-dot accent">
+                  <span style={{ width: 6, height: 6, background: "var(--accent-text)", borderRadius: "50%", display: "block" }} />
+                </span>
                 {f}
               </li>
             ))}
           </ul>
+          {!user && (
+            <button className="btn btn-primary w-full" style={{ justifyContent: "center", marginTop: 8 }} onClick={onShowAuth}>
+              Начать бесплатно
+            </button>
+          )}
         </div>
 
-        {/* Premium */}
-        <div className={`border rounded-2xl p-6 relative overflow-hidden ${isPremium ? "bg-gradient-to-br from-amber-900/40 to-slate-800 border-amber-500/60 ring-1 ring-amber-500/30" : "bg-slate-800 border-amber-500/40"}`}>
-          <div className="absolute top-0 right-0 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-bl-xl">PREMIUM</div>
-          <div className="flex justify-between items-start mb-4 pr-16">
-            <div>
-              <h3 className="text-lg font-bold text-white">Максимум</h3>
-              <p className="text-slate-400 text-sm">Полный арсенал аналитика</p>
-            </div>
-            {isPremium && <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">Активен</span>}
+        {/* PREMIUM */}
+        <div className={`pricing-card premium ${isPremium ? "active-plan" : ""}`}>
+          <div className="pricing-card-badge">PREMIUM</div>
+          <p className="pricing-card-name" style={{ paddingRight: 80 }}>Максимум</p>
+          <p className="pricing-card-desc">Полный арсенал аналитика</p>
+          {isPremium && (
+            <span className="badge badge-gold" style={{ marginBottom: 16, display: "inline-flex" }}>Активен</span>
+          )}
+          <div className="pricing-card-price" style={{ marginBottom: 20 }}>
+            990 ₽ <span>/мес</span>
           </div>
-          <div className="mb-6">
-            <span className="text-3xl font-bold text-white">990 ₽</span>
-            <span className="text-slate-400 text-sm ml-1">/мес</span>
-          </div>
-          <ul className="space-y-2.5 mb-6">
+          <ul className="pricing-feature-list">
             {premiumFeatures.map((f, i) => (
-              <li key={i} className="flex items-center gap-2 text-sm text-slate-300">
-                <div className="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0">
-                  <div className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
-                </div>
+              <li key={i} className="pricing-feature-item">
+                <span className="pricing-feature-dot gold">
+                  <span style={{ width: 6, height: 6, background: "var(--gold)", borderRadius: "50%", display: "block" }} />
+                </span>
                 {f}
               </li>
             ))}
           </ul>
           {!isPremium && (
-            <button className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-all">
-              Перейти на Premium
+            <button className="btn btn-gold w-full" style={{ justifyContent: "center", marginTop: 8 }}>
+              Перейти на Premium →
             </button>
           )}
-          {isPremium && (
-            <div className="text-center text-amber-400 text-sm font-medium py-2">
-              ✓ Подписка активна
-              {user?.subscription_expires_at && (
-                <span className="text-slate-400 ml-1">
-                  до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
-                </span>
-              )}
-            </div>
+          {isPremium && user?.subscription_expires_at && (
+            <p style={{ fontSize: 13, color: "var(--gold)", marginTop: 8 }}>
+              ✓ Подписка активна до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
+            </p>
           )}
         </div>
       </div>
@@ -3089,19 +3080,27 @@ const SubscriptionView = ({ user, onClose }) => {
 };
 
 // =========================
-// PROFILE VIEW (dynamic)
+// PROFILE PANEL (sidebar popup)
 // =========================
 
-const ProfileView = ({ user, onLogout, onShowSubscription }) => {
+const ProfilePanel = ({ user, onLogout, onShowPricing, onClose, onShowAuth }) => {
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
-        <div className="w-20 h-20 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center">
-          <User size={40} className="text-slate-500" />
+      <>
+        <div className="profile-panel-backdrop" onClick={onClose} />
+        <div className="profile-panel">
+          <div className="profile-panel-body">
+            <div style={{ textAlign: "center", padding: "20px 0 12px" }}>
+              <User size={36} style={{ color: "var(--text-3)", margin: "0 auto 12px" }} />
+              <p style={{ color: "var(--text-1)", fontWeight: 600, marginBottom: 4 }}>Войдите в аккаунт</p>
+              <p style={{ color: "var(--text-2)", fontSize: 12, marginBottom: 16 }}>Чтобы использовать все возможности платформы</p>
+              <button className="btn btn-primary w-full" style={{ justifyContent: "center" }} onClick={() => { onClose(); onShowAuth(); }}>
+                Войти / Регистрация
+              </button>
+            </div>
+          </div>
         </div>
-        <h2 className="text-xl font-bold text-white">Войдите в аккаунт</h2>
-        <p className="text-slate-400 max-w-sm">Для доступа к профилю необходимо авторизоваться</p>
-      </div>
+      </>
     );
   }
 
@@ -3109,108 +3108,40 @@ const ProfileView = ({ user, onLogout, onShowSubscription }) => {
   const initials = user.email.slice(0, 2).toUpperCase();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-1 space-y-6">
-        <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-full flex items-center justify-center mb-4 text-white font-bold text-2xl">
-              {initials}
-            </div>
-            <h3 className="text-lg font-bold text-white break-all">{user.email}</h3>
-            <p className="text-slate-500 text-xs mt-1">
-              В системе с {new Date(user.created_at).toLocaleDateString("ru-RU")}
-            </p>
-            <div className="mt-3">
+    <>
+      <div className="profile-panel-backdrop" onClick={onClose} />
+      <div className="profile-panel">
+        <div className="profile-panel-header">
+          <div className="profile-panel-avatar">{initials}</div>
+          <div>
+            <div className="profile-panel-email">{user.email}</div>
+            <div className="profile-panel-tier">
               {isPremium ? (
-                <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full text-xs font-bold">
-                  ★ Premium
-                </span>
-              ) : (
-                <span className="px-3 py-1 bg-slate-700 text-slate-400 border border-slate-600 rounded-full text-xs font-bold">
-                  Базовый тариф
-                </span>
-              )}
+                <span style={{ color: "var(--gold)" }}>★ Premium</span>
+              ) : "Базовый тариф"}
             </div>
           </div>
         </div>
-
-        <div className={`p-6 rounded-2xl border ${isPremium ? "bg-gradient-to-br from-amber-900/30 to-slate-800 border-amber-500/40" : "bg-slate-800 border-slate-700"}`}>
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-2">
-              <CreditCard size={18} className={isPremium ? "text-amber-400" : "text-slate-400"} />
-              <span className="text-sm font-semibold text-white">Тариф</span>
-            </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${isPremium ? "bg-amber-500/20 text-amber-300" : "bg-slate-700 text-slate-400"}`}>
-              {isPremium ? "PREMIUM" : "FREE"}
-            </span>
-          </div>
-          {isPremium && user.subscription_expires_at && (
-            <p className="text-slate-400 text-xs mb-3">
-              Активен до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
-            </p>
-          )}
-          <button
-            onClick={onShowSubscription}
-            className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all ${isPremium ? "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30" : "bg-indigo-600 hover:bg-indigo-500 text-white"}`}
-          >
-            {isPremium ? "Управлять подпиской" : "Перейти на Premium →"}
+        <div className="profile-panel-body">
+          <button className="profile-panel-btn" onClick={() => { onClose(); onShowPricing(); }}>
+            <CreditCard size={15} />
+            {isPremium ? "Управлять подпиской" : "Перейти на Premium"}
+          </button>
+          <button className="profile-panel-btn danger" onClick={() => { onClose(); onLogout(); }}>
+            <LogOut size={15} />
+            Выйти из аккаунта
           </button>
         </div>
-
-        <button
-          onClick={onLogout}
-          className="w-full bg-slate-800 hover:bg-red-500/10 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 py-3 rounded-xl font-medium text-sm transition-all"
-        >
-          Выйти из аккаунта
-        </button>
       </div>
-
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Данные аккаунта</h3>
-          <div className="space-y-3">
-            {[
-              { label: "Email", value: user.email },
-              { label: "Тариф", value: isPremium ? "Premium (Максимум)" : "Базовый (Free)" },
-              { label: "Дата регистрации", value: new Date(user.created_at).toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" }) },
-              { label: "Статус аккаунта", value: user.is_active ? "Активен" : "Заблокирован" },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-center py-3 border-b border-slate-700 last:border-0">
-                <span className="text-slate-400 text-sm">{label}</span>
-                <span className="text-white text-sm font-medium">{value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-white mb-4">Возможности вашего тарифа</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {[
-              { label: "Экспресс-обзор рынка", ok: true },
-              { label: "Детальный и глубокий обзор", ok: isPremium },
-              { label: "Портфель (до 5 позиций)", ok: true },
-              { label: "Безлимитный портфель", ok: isPremium },
-              { label: "AI-анализ компаний", ok: isPremium },
-              { label: "Стресс-тестирование", ok: isPremium },
-            ].map(({ label, ok }) => (
-              <div key={label} className={`flex items-center gap-2 p-3 rounded-xl border text-sm ${ok ? "border-indigo-500/20 bg-indigo-500/5 text-slate-300" : "border-slate-700 bg-slate-900/30 text-slate-500"}`}>
-                <span className={ok ? "text-indigo-400" : "text-slate-600"}>{ok ? "✓" : "✕"}</span>
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
 // =========================
-// APP
+// OVERVIEW VIEW (Обозреватель)
 // =========================
 
-function MarketView({ token }) {
+function OverviewView({ token }) {
   const [overviewType, setOverviewType] = useState("express");
   const [overviews, setOverviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -3243,33 +3174,34 @@ function MarketView({ token }) {
       .finally(() => setGenerating(false));
   };
 
-  const FILTER_TABS = [
+  const TABS = [
     { id: "express", label: "Экспресс", icon: Zap },
     { id: "detailed", label: "Детальный", icon: FileText },
     { id: "deep", label: "Глубокий", icon: BookOpen },
   ];
 
   const mockFallback = MOCK_MARKET_NEWS[overviewType] || [];
+  const typeColors = {
+    express: { bg: "var(--accent-fade)", color: "var(--accent-text)" },
+    detailed: { bg: "var(--warn-fade)", color: "var(--warning)" },
+    deep: { bg: "var(--pos-fade)", color: "var(--positive)" },
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Обозреватель рынка</h2>
-        <p className="text-slate-400">Контекстное понимание рыночного фона</p>
+    <div>
+      <div className="view-header">
+        <h1 className="view-title">Обозреватель рынка</h1>
+        <p className="view-subtitle">Контекстное понимание рыночного фона</p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {FILTER_TABS.map((tab) => (
+      <div className="filter-row">
+        {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setOverviewType(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              overviewType === tab.id
-                ? "bg-indigo-600 text-white shadow-lg"
-                : "bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700 border border-slate-700"
-            }`}
+            className={`filter-pill ${overviewType === tab.id ? "active" : ""}`}
           >
-            <tab.icon size={15} />
+            <tab.icon size={13} style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
             {tab.label}
           </button>
         ))}
@@ -3277,7 +3209,8 @@ function MarketView({ token }) {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-600/30 transition-all disabled:opacity-50"
+          className="btn btn-success"
+          style={{ marginLeft: "auto" }}
         >
           <Zap size={14} />
           {generating ? "Генерируем..." : "Сгенерировать обзор"}
@@ -3285,52 +3218,53 @@ function MarketView({ token }) {
       </div>
 
       {generateError && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2 text-red-400 text-sm">
+        <div className="alert alert-error" style={{ marginBottom: 16 }}>
           {generateError}
         </div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="text-slate-400 animate-pulse">Загружаем обзор...</div>
+          <div style={{ color: "var(--text-2)" }} className="animate-pulse">Загружаем обзор...</div>
         </div>
       ) : overviews.length > 0 ? (
         <div className="space-y-4">
-          {overviews.map((item) => (
-            <div key={item.id} className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-slate-500 font-mono">{item.period}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  item.overview_type === "express"
-                    ? "bg-indigo-500/20 text-indigo-300"
-                    : item.overview_type === "detailed"
-                    ? "bg-amber-500/20 text-amber-300"
-                    : "bg-emerald-500/20 text-emerald-300"
-                }`}>
-                  {item.overview_type}
-                </span>
+          {overviews.map((item) => {
+            const tc = typeColors[item.overview_type] || typeColors.express;
+            return (
+              <div key={item.id} className="overview-card">
+                <div className="overview-card-header">
+                  <span className="overview-card-period">{item.period}</span>
+                  <span className="badge" style={{ background: tc.bg, color: tc.color }}>
+                    {item.overview_type}
+                  </span>
+                </div>
+                <p className="overview-card-text">{item.content}</p>
               </div>
-              <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-line">{item.content}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="space-y-4">
-          <p className="text-slate-500 text-xs italic mb-2">Данных из API нет — показываем тестовые данные</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p style={{ color: "var(--text-3)", fontSize: 12, fontStyle: "italic", marginBottom: 8 }}>
+            Данных из API нет — показываем тестовые данные
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 12 }}>
             {mockFallback.map((news, i) => (
-              <div key={i} className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                <div className="flex items-start gap-3">
-                  <Zap size={18} className="text-indigo-400 mt-1" />
+              <div key={i} className="overview-card">
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Zap size={16} style={{ color: "var(--accent-text)", flexShrink: 0, marginTop: 2 }} />
                   <div>
                     {news.time && (
-                      <div className="text-xs text-slate-500 font-mono mb-1">{news.time}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-3)", fontFamily: "monospace", marginBottom: 4 }}>
+                        {news.time}
+                      </div>
                     )}
-                    <p className="text-slate-200 text-sm leading-relaxed">
+                    <p className="overview-card-text" style={{ fontSize: 13 }}>
                       {news.text || news.title}
                     </p>
                     {news.desc && (
-                      <p className="text-slate-400 text-xs mt-2">{news.desc}</p>
+                      <p style={{ fontSize: 12, color: "var(--text-2)", marginTop: 6 }}>{news.desc}</p>
                     )}
                   </div>
                 </div>
@@ -3343,25 +3277,93 @@ function MarketView({ token }) {
   );
 }
 
+// =========================
+// SIDEBAR
+// =========================
+
+const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user, onProfileClick }) => {
+  const NAV = [
+    { id: "companies", icon: BarChart2, label: "Компании" },
+    { id: "overview",  icon: Globe,     label: "Обозреватель" },
+    { id: "portfolio", icon: Briefcase, label: "Портфель" },
+    { id: "pricing",   icon: CreditCard, label: "Тарифы" },
+  ];
+
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-logo" onClick={() => setActiveTab("companies")} title="Базис">
+        <Activity size={20} />
+      </div>
+
+      <div className="sidebar-divider" />
+
+      {NAV.map(({ id, icon: Icon, label }) => (
+        <button
+          key={id}
+          className={`sidebar-btn ${activeTab === id ? "active" : ""}`}
+          onClick={() => setActiveTab(id)}
+        >
+          <Icon size={20} />
+          <span className="sidebar-tooltip">{label}</span>
+        </button>
+      ))}
+
+      <div className="sidebar-spacer" />
+
+      <button
+        className="sidebar-btn"
+        onClick={toggleTheme}
+        title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+      >
+        {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        <span className="sidebar-tooltip">{theme === "dark" ? "Светлая тема" : "Тёмная тема"}</span>
+      </button>
+
+      <button className="sidebar-btn" onClick={onProfileClick} style={{ marginBottom: 4 }}>
+        {user ? (
+          <div className="sidebar-avatar">
+            {user.email.slice(0, 2).toUpperCase()}
+          </div>
+        ) : (
+          <User size={20} />
+        )}
+        <span className="sidebar-tooltip">{user ? user.email : "Войти"}</span>
+      </button>
+    </aside>
+  );
+};
+
+// =========================
+// APP
+// =========================
+
 export default function App() {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const [activeTab, setActiveTab] = useState("market");
+
+  const [activeTab, setActiveTab] = useState("companies");
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem("basis_theme") || "dark");
+
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("basis_user")); } catch { return null; }
   });
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showSubscription, setShowSubscription] = useState(false);
 
-  // Verify token on mount
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showProfilePanel, setShowProfilePanel] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("basis_theme", theme);
+  }, [theme]);
+
   useEffect(() => {
     if (!token) return;
     fetch(`${apiUrl}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
       .then(u => {
         if (u) { setUser(u); localStorage.setItem("basis_user", JSON.stringify(u)); }
-        else { handleLogout(); }
+        else handleLogout();
       })
       .catch(() => {});
   }, []);
@@ -3377,100 +3379,57 @@ export default function App() {
     localStorage.removeItem("basis_user");
     setUser(null);
     setToken(null);
-    setActiveTab("market");
+    setActiveTab("companies");
   };
 
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  const navigate = (tab) => {
+    setActiveTab(tab);
+    setSelectedCompany(null);
+    setShowProfilePanel(false);
+  };
 
-  const renderContent = () => {
+  const renderView = () => {
     if (selectedCompany) {
       return <CompanyCard company={selectedCompany} onBack={() => setSelectedCompany(null)} />;
     }
-
-    if (showSubscription) {
-      return <SubscriptionView user={user} onClose={() => setShowSubscription(false)} />;
-    }
-
     switch (activeTab) {
-      case "market":
-        return <MarketView token={token} />;
-      case "screener":
-        return <CompanyList onSelectCompany={setSelectedCompany} />;
+      case "companies":
+        return <CompaniesView onSelectCompany={setSelectedCompany} />;
+      case "overview":
+        return <OverviewView token={token} />;
       case "portfolio":
         return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} />;
-      case "profile":
-        return (
-          <ProfileView
-            user={user}
-            onLogout={handleLogout}
-            onShowSubscription={() => setShowSubscription(true)}
-          />
-        );
+      case "pricing":
+        return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
       default:
-        return <MarketView token={token} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
-      <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/95 p-4 backdrop-blur">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div
-            className="flex items-center gap-2 text-indigo-400 font-bold text-xl cursor-pointer"
-            onClick={() => { setActiveTab("market"); setSelectedCompany(null); setShowSubscription(false); }}
-          >
-            <Activity size={28} />
-            <span className="tracking-tight uppercase">Базис</span>
-          </div>
+    <div data-theme={theme} className="app-layout">
+      <Sidebar
+        activeTab={selectedCompany ? null : activeTab}
+        setActiveTab={navigate}
+        theme={theme}
+        toggleTheme={() => setTheme(t => t === "dark" ? "light" : "dark")}
+        user={user}
+        onProfileClick={() => setShowProfilePanel(p => !p)}
+      />
 
-          <div className="flex items-center gap-2">
-            <nav className="flex bg-slate-800 rounded-lg p-1">
-              {[
-                { id: "market", icon: Globe, label: "Обозреватель" },
-                { id: "screener", icon: Search, label: "Компании" },
-                { id: "portfolio", icon: Briefcase, label: "Портфель" },
-                { id: "profile", icon: User, label: "Профиль" },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => { setActiveTab(tab.id); setSelectedCompany(null); setShowSubscription(false); }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                    activeTab === tab.id && !showSubscription
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-                  }`}
-                >
-                  <tab.icon size={18} />
-                  <span className="hidden md:inline font-medium text-sm">{tab.label}</span>
-                </button>
-              ))}
-            </nav>
+      <main className="app-main">
+        {renderView()}
+      </main>
 
-            {user ? (
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
-                <span className="text-xs text-slate-400 hidden md:block max-w-[120px] truncate">{user.email}</span>
-                {user.subscription_type === "premium" && (
-                  <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">★</span>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="ml-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
-              >
-                Войти
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto p-4 md:p-8">{renderContent()}</main>
-
-      <footer className="mt-20 border-t border-slate-900 p-8 text-center text-slate-600 text-sm">
-        <p>© 2026 Платформа Базис — Профессиональная аналитика для частных инвесторов.</p>
-        <p className="mt-2 text-slate-700">Не является индивидуальной инвестиционной рекомендацией.</p>
-      </footer>
+      {showProfilePanel && (
+        <ProfilePanel
+          user={user}
+          onClose={() => setShowProfilePanel(false)}
+          onLogout={handleLogout}
+          onShowPricing={() => navigate("pricing")}
+          onShowAuth={() => { setShowProfilePanel(false); setShowAuthModal(true); }}
+        />
+      )}
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
