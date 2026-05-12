@@ -19,24 +19,25 @@ def _get_client() -> Anthropic:
             raise RuntimeError("ANTHROPIC_API_KEY не задан")
 
         proxy_url = os.environ.get("ANTHROPIC_PROXY_URL")
-        logger.info("Anthropic client init: proxy=%s", proxy_url.split("@")[-1] if proxy_url else "не задан")
+        logger.info("Anthropic client init: base_url=%s", proxy_url or "не задан (прямой)")
 
-        http_client = httpx.Client(
-            proxy=proxy_url,
-            timeout=httpx.Timeout(120.0),
-        )
-        _client = Anthropic(api_key=key, http_client=http_client)
+        http_client = httpx.Client(timeout=httpx.Timeout(120.0))
+        kwargs = dict(api_key=key, http_client=http_client)
+        if proxy_url:
+            # Cloudflare Worker — это URL-прокси, не SOCKS/HTTP. Используем base_url.
+            kwargs["base_url"] = proxy_url
+        _client = Anthropic(**kwargs)
     return _client
 
 
 def check_anthropic_connectivity() -> dict:
     """Проверяет доступность Anthropic API — используется в диагностическом endpoint."""
     key = os.environ.get("ANTHROPIC_API_KEY")
-    proxy_url = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    proxy_url = os.environ.get("ANTHROPIC_PROXY_URL")
     result = {
         "api_key_set": bool(key),
         "proxy_set": bool(proxy_url),
-        "proxy_host": proxy_url.split("@")[-1] if proxy_url else None,
+        "proxy_host": proxy_url if proxy_url else None,
         "status": "unknown",
         "error": None,
     }
