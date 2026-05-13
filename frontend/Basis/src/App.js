@@ -1358,6 +1358,8 @@ const CompaniesView = ({ onSelectCompany }) => {
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [liveQuotes, setLiveQuotes] = useState({});
+  const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -1381,6 +1383,30 @@ const CompaniesView = ({ onSelectCompany }) => {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const inTradingHours = () => {
+      const now = new Date();
+      const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+      const day = msk.getDay();
+      if (day === 0 || day === 6) return false;
+      const t = msk.getHours() * 60 + msk.getMinutes();
+      return t >= 10 * 60 && t <= 18 * 60 + 50;
+    };
+    let timer;
+    const poll = () => {
+      const live = inTradingHours();
+      setIsLive(live);
+      fetch(`${apiUrl}/api/quotes/realtime`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data) setLiveQuotes(data); })
+        .catch(() => {});
+      timer = setTimeout(poll, live ? 30000 : 300000);
+    };
+    poll();
+    return () => clearTimeout(timer);
   }, []);
 
   const sectors = useMemo(() => {
@@ -1412,7 +1438,14 @@ const CompaniesView = ({ onSelectCompany }) => {
   return (
     <div>
       <div className="view-header">
-        <h1 className="view-title">Рынок</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <h1 className="view-title">Рынок</h1>
+          {isLive && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--positive)", background: "rgba(52,199,89,0.12)", borderRadius: 6, padding: "2px 8px", letterSpacing: "0.05em" }}>
+              ● LIVE
+            </span>
+          )}
+        </div>
         <p className="view-subtitle">Котировки и аналитика российского фондового рынка</p>
       </div>
 
@@ -1464,20 +1497,22 @@ const CompaniesView = ({ onSelectCompany }) => {
                 <div className="company-card-name">{c.name}</div>
                 <div className="company-card-sector">{c.sector}</div>
 
-                {c.price != null ? (
-                  <>
-                    <div className="company-card-price">
-                      {c.price.toLocaleString("ru-RU")} ₽
-                    </div>
-                    <div className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
-                      style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
-                    >
-                      {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
-                    </div>
-                  </>
-                ) : (
-                  <div className="company-card-nodata">нет данных котировки</div>
-                )}
+                {(() => {
+                  const lq = liveQuotes[c.ticker];
+                  const price = lq ? lq.price : c.price;
+                  const change = lq ? lq.change_pct : c.change;
+                  return price != null ? (
+                    <>
+                      <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
+                      <div className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
+                        style={{ color: change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)" }}>
+                        {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="company-card-nodata">нет данных котировки</div>
+                  );
+                })()}
                 {formatMarketCap(c.market_cap) && (
                   <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
                     Кап: {formatMarketCap(c.market_cap)}
@@ -1517,19 +1552,22 @@ const CompaniesView = ({ onSelectCompany }) => {
                       <div className="company-card-ticker">{c.ticker}</div>
                       <div className="company-card-name">{c.name}</div>
                       <div className="company-card-sector">{c.sector}</div>
-                      {c.price != null ? (
-                        <>
-                          <div className="company-card-price">{c.price.toLocaleString("ru-RU")} ₽</div>
-                          <div
-                            className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
-                            style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
-                          >
-                            {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="company-card-nodata">нет данных котировки</div>
-                      )}
+                      {(() => {
+                        const lq = liveQuotes[c.ticker];
+                        const price = lq ? lq.price : c.price;
+                        const change = lq ? lq.change_pct : c.change;
+                        return price != null ? (
+                          <>
+                            <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
+                            <div className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
+                              style={{ color: change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)" }}>
+                              {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="company-card-nodata">нет данных котировки</div>
+                        );
+                      })()}
                       {formatMarketCap(c.market_cap) && (
                         <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
                           Кап: {formatMarketCap(c.market_cap)}
