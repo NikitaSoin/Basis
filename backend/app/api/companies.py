@@ -38,8 +38,12 @@ def create_company_endpoint(data: CompanyCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/companies", response_model=list[CompanyResponse])
-def list_companies_endpoint(db: Session = Depends(get_db)):
-    return get_all_companies(db)
+def list_companies_endpoint(search: str | None = None, db: Session = Depends(get_db)):
+    companies = get_all_companies(db)
+    if search and len(search) >= 2:
+        q = search.upper()
+        companies = [c for c in companies if q in c.ticker.upper() or q in c.name.upper()]
+    return companies
 
 
 @router.get("/companies/{company_id}", response_model=CompanyResponse)

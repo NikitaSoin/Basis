@@ -30,6 +30,7 @@ import {
   Moon,
   LogOut,
   X,
+  Trash2,
 } from "lucide-react";
 
 // =========================
@@ -1329,6 +1330,19 @@ const MOCK_COMPANIES = [
 // COMPANY LIST
 // =========================
 
+const SECTOR_MAP = {
+  "Нефтегазовый": "Нефть и газ", "Нефтегаз": "Нефть и газ",
+  "Финансовый": "Финансы",
+  "Металлургия": "Металлы", "Золото": "Металлы", "Добыча": "Металлы",
+  "IT и Телеком": "Технологии", "IT и Кибербезопасность": "Технологии", "E-commerce": "Технологии",
+  "Телеком": "Телеком",
+  "Ритейл": "Потребительский",
+  "Энергетика": "Электроэнергетика",
+  "Химия и удобрения": "Химия",
+  "Девелопмент": "Девелопмент",
+};
+const SECTOR_ORDER = ["Нефть и газ", "Финансы", "Металлы", "Технологии", "Потребительский", "Телеком", "Электроэнергетика", "Химия", "Девелопмент"];
+
 const CompaniesView = ({ onSelectCompany }) => {
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
@@ -1344,11 +1358,12 @@ const CompaniesView = ({ onSelectCompany }) => {
           const merged = data
             .map((apiC) => {
               const mock = MOCK_COMPANIES.find((m) => m.ticker === apiC.ticker);
-              const base = mock ? { ...mock, ...apiC } : { ...apiC, sector: apiC.sector || "Прочее" };
-              if (apiC.last_price != null) base.price = parseFloat(apiC.last_price);
-              if (apiC.change_pct != null) base.change = parseFloat(apiC.change_pct);
-              if (apiC.change_abs != null) base.changeAbs = parseFloat(apiC.change_abs);
-              return base;
+              const raw = mock ? { ...mock, ...apiC } : { ...apiC, sector: apiC.sector || "Прочее" };
+              if (apiC.last_price != null) raw.price = parseFloat(apiC.last_price);
+              if (apiC.change_pct != null) raw.change = parseFloat(apiC.change_pct);
+              if (apiC.change_abs != null) raw.changeAbs = parseFloat(apiC.change_abs);
+              raw.sector = SECTOR_MAP[raw.sector] || raw.sector || "Прочее";
+              return raw;
             })
             .sort((a, b) => (a.sector || "").localeCompare(b.sector || "", "ru"));
           setCompanies(merged);
@@ -1359,8 +1374,10 @@ const CompaniesView = ({ onSelectCompany }) => {
   }, []);
 
   const sectors = useMemo(() => {
-    const s = new Set(companies.map((c) => c.sector || "Прочее"));
-    return ["Все", ...Array.from(s).sort((a, b) => a.localeCompare(b, "ru"))];
+    const present = new Set(companies.map((c) => c.sector));
+    const ordered = SECTOR_ORDER.filter(s => present.has(s));
+    const rest = [...present].filter(s => !SECTOR_ORDER.includes(s)).sort((a, b) => a.localeCompare(b, "ru"));
+    return ["Все", ...ordered, ...rest];
   }, [companies]);
 
   const filtered = useMemo(() => {
@@ -1385,8 +1402,8 @@ const CompaniesView = ({ onSelectCompany }) => {
   return (
     <div>
       <div className="view-header">
-        <h1 className="view-title">Компании</h1>
-        <p className="view-subtitle">Карточки и аналитика по российскому рынку</p>
+        <h1 className="view-title">Рынок</h1>
+        <p className="view-subtitle">Котировки и аналитика российского фондового рынка</p>
       </div>
 
       <div className="filter-row" style={{ marginBottom: 16 }}>
@@ -2223,15 +2240,11 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {rows.map((row, i) => (
-                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 28px", gap: 6, alignItems: "center" }}>
-                  <input
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 28px", gap: 6, alignItems: "start" }}>
+                  <TickerInput
                     value={row.ticker}
-                    onChange={(e) => updateRow(i, "ticker", e.target.value.toUpperCase())}
+                    onChange={(v) => updateRow(i, "ticker", v)}
                     placeholder="SBER"
-                    style={{
-                      background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
-                      padding: "8px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", textTransform: "uppercase",
-                    }}
                   />
                   <input
                     type="number"
@@ -2289,6 +2302,90 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+// =========================
+// TICKER AUTOCOMPLETE INPUT
+// =========================
+
+const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [suggestions, setSuggestions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef(null);
+  const TICKER_COLORS_AC = ["#4f46e5","#3fb950","#f59e0b","#f85149","#a78bfa","#34d399","#fb923c","#38bdf8"];
+  const tcolor = (t) => TICKER_COLORS_AC[(t.charCodeAt(0) + (t.charCodeAt(1) || 0)) % TICKER_COLORS_AC.length];
+
+  useEffect(() => {
+    if (value.length < 2) { setSuggestions([]); setOpen(false); return; }
+    const timer = setTimeout(() => {
+      fetch(`${apiUrl}/api/companies?search=${encodeURIComponent(value)}`)
+        .then(r => r.ok ? r.json() : [])
+        .then(data => {
+          const exact = data.find(c => c.ticker.toUpperCase() === value.toUpperCase());
+          if (exact) { setSuggestions([]); setOpen(false); return; }
+          setSuggestions(data.slice(0, 6));
+          setOpen(data.length > 0);
+        })
+        .catch(() => setSuggestions([]));
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [value]);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <input
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value.toUpperCase())}
+        placeholder={placeholder}
+        autoComplete="off"
+        style={{
+          width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+          borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+          outline: "none", boxSizing: "border-box", textTransform: "uppercase",
+        }}
+      />
+      {open && suggestions.length > 0 && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+          background: "var(--bg-card)", border: "1px solid var(--border-mid)",
+          borderRadius: 10, boxShadow: "0 8px 24px var(--shadow-xl, rgba(0,0,0,0.3))",
+          zIndex: 9999, overflow: "hidden",
+        }}>
+          {suggestions.map(c => (
+            <div
+              key={c.ticker}
+              onMouseDown={() => { onChange(c.ticker); setOpen(false); setSuggestions([]); }}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "9px 12px",
+                cursor: "pointer", transition: "background 0.1s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <div style={{
+                width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                background: tcolor(c.ticker) + "22", border: `1px solid ${tcolor(c.ticker)}44`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "monospace", fontWeight: 800, fontSize: 9, color: tcolor(c.ticker),
+              }}>{c.ticker.slice(0, 4)}</div>
+              <div>
+                <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{c.ticker}</span>
+                <span style={{ fontSize: 12, color: "var(--text-2)", marginLeft: 6 }}>{c.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -2386,22 +2483,25 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
             ))}
           </div>
 
+          <div>
+            <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Тикер</label>
+            <TickerInput value={ticker} onChange={setTicker} placeholder="SBER" />
+          </div>
           {[
-            { label: "Тикер", value: ticker, onChange: e => setTicker(e.target.value.toUpperCase()), placeholder: "SBER" },
-            { label: "Количество (акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100", type: "number" },
-            { label: side === "buy" ? "Цена покупки ₽" : "Цена продажи ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50", type: "number" },
-          ].map(({ label, value, onChange, placeholder, type }) => (
+            { label: "Количество (акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100" },
+            { label: side === "buy" ? "Цена покупки ₽" : "Цена продажи ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50" },
+          ].map(({ label, value, onChange, placeholder }) => (
             <div key={label}>
               <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
               <input
-                type={type || "text"}
+                type="number"
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
                 style={{
                   width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
-                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 14,
-                  outline: "none", boxSizing: "border-box", textTransform: type ? "none" : "uppercase",
+                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+                  outline: "none", boxSizing: "border-box",
                 }}
               />
             </div>
@@ -2439,6 +2539,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNewPortfolioInput, setShowNewPortfolioInput] = useState(false);
   const [newPortfolioName, setNewPortfolioName] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [portfolioList, setPortfolioList] = useState([]);
   const [activePortfolioId, setActivePortfolioId] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
@@ -2449,6 +2550,13 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [reloadKey, setReloadKey] = useState(0);
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
+
+  const handleDeletePortfolio = async (id) => {
+    await fetch(`${apiUrl}/api/portfolios/${id}`, { method: "DELETE", headers: authHeaders });
+    setConfirmDeleteId(null);
+    if (activePortfolioId === id) setActivePortfolioId(null);
+    setReloadKey(k => k + 1);
+  };
 
   const handleCreatePortfolio = async () => {
     const name = newPortfolioName.trim() || "Новый портфель";
@@ -2572,13 +2680,21 @@ const PortfolioView = ({ token, onAuthRequired }) => {
       {/* Portfolio switcher */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         {portfolioList.map(p => (
-          <button
-            key={p.id}
-            onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
-            className={`filter-pill ${activePortfolioId === p.id ? "active" : ""}`}
-          >
-            {p.name}
-          </button>
+          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <button
+              onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
+              className={`filter-pill ${activePortfolioId === p.id ? "active" : ""}`}
+            >
+              {p.name}
+            </button>
+            <button
+              onClick={() => setConfirmDeleteId(p.id)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", padding: "4px 5px", borderRadius: 6, display: "flex", alignItems: "center" }}
+              title="Удалить портфель"
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
         ))}
         {!showNewPortfolioInput ? (
           <button
@@ -2997,8 +3113,64 @@ const PortfolioView = ({ token, onAuthRequired }) => {
     </div>
   );
 
+  // Empty states
+  if (!token) {
+    return (
+      <div>
+        <div className="view-header">
+          <h1 className="view-title">Аналитика портфеля</h1>
+          <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: "var(--accent-fade)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+            <Briefcase size={32} style={{ color: "var(--accent-text)" }} />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-1)", margin: "0 0 8px" }}>Аналитика портфеля</h2>
+          <p style={{ fontSize: 14, color: "var(--text-2)", margin: "0 0 28px", maxWidth: 340, lineHeight: 1.6 }}>
+            Войдите в аккаунт, чтобы загружать портфели и отслеживать результаты
+          </p>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button className="btn btn-primary" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Войти</button>
+            <button className="btn btn-ghost" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Зарегистрироваться</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!portfolioLoading && portfolioList.length === 0) {
+    return (
+      <div>
+        <div className="view-header">
+          <h1 className="view-title">Аналитика портфеля</h1>
+          <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center" }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: "var(--accent-fade)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+            <Upload size={32} style={{ color: "var(--accent-text)" }} />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-1)", margin: "0 0 8px" }}>Загрузите первый портфель</h2>
+          <p style={{ fontSize: 14, color: "var(--text-2)", margin: "0 0 28px", maxWidth: 340, lineHeight: 1.6 }}>
+            Добавьте свои позиции, чтобы начать отслеживать результаты
+          </p>
+          <button className="btn btn-primary" style={{ padding: "13px 32px", fontSize: 15 }} onClick={() => setShowUploadModal(true)}>
+            <Upload size={16} /> Загрузить портфель
+          </button>
+        </div>
+        {showUploadModal && (
+          <PortfolioImportModal token={token} onClose={() => setShowUploadModal(false)} onSuccess={() => { setShowUploadModal(false); setReloadKey(k => k + 1); }} />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <div className="view-header">
+        <h1 className="view-title">Аналитика портфеля</h1>
+        <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
+      </div>
+
       <div style={{
         display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center",
         gap: 16, background: "var(--accent-fade)", border: "1px solid var(--accent-border)",
@@ -3125,6 +3297,36 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           onClose={() => setShowAddModal(false)}
           onSuccess={reloadPortfolio}
         />
+      )}
+
+      {confirmDeleteId && (
+        <div className="modal-backdrop">
+          <div className="modal-box" style={{ maxWidth: 400 }}>
+            <div style={{ padding: 28, textAlign: "center" }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: "var(--neg-fade)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <Trash2 size={24} style={{ color: "var(--negative)" }} />
+              </div>
+              <h3 style={{ margin: "0 0 8px", fontSize: 17, fontWeight: 700, color: "var(--text-1)" }}>
+                Удалить портфель?
+              </h3>
+              <p style={{ margin: "0 0 24px", fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+                Все позиции будут удалены безвозвратно.
+              </p>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn btn-ghost" style={{ flex: 1, justifyContent: "center" }} onClick={() => setConfirmDeleteId(null)}>
+                  Отмена
+                </button>
+                <button
+                  className="btn"
+                  style={{ flex: 1, justifyContent: "center", background: "var(--negative)", color: "var(--on-accent)", border: "none" }}
+                  onClick={() => handleDeletePortfolio(confirmDeleteId)}
+                >
+                  Удалить
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -3405,7 +3607,7 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
         <p className="view-subtitle">Настройки аккаунта и тарифный план</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, alignItems: "start" }}>
+      <div className="profile-grid" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, alignItems: "start" }}>
         {/* Left column: avatar + tier */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="card" style={{ textAlign: "center", padding: 28 }}>
@@ -3749,7 +3951,7 @@ function OverviewView({ token }) {
 
 const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   const NAV = [
-    { id: "companies", icon: BarChart2, label: "Компании" },
+    { id: "companies", icon: BarChart2, label: "Рынок" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
     { id: "portfolio", icon: Briefcase, label: "Портфель" },
     { id: "pricing",   icon: CreditCard, label: "Тарифы" },
