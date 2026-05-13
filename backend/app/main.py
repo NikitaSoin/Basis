@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import asyncio
 import logging
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -22,12 +23,56 @@ async def _quotes_job():
         logger.exception("Ошибка планировщика котировок: %s", e)
 
 
+async def _tinkoff_warmup():
+    """Прогревает Tinkoff: загружает инструменты и первичные цены."""
+    if not os.environ.get("TINKOFF_API_TOKEN"):
+        logger.info("Tinkoff: токен не задан, используем MOEX ISS")
+        return
+    try:
+        import sys
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+        from fetch_quotes import fetch_moex_bulk
+        from app.services import tinkoff_quotes
+        from app.db.session import SessionLocal
+        from app.models.company import Company
+
+        loop = asyncio.get_event_loop()
+
+        # Получаем prev_close с MOEX ISS (не time-sensitive — вчерашнее закрытие)
+        def _get_prev_close():
+            bulk = fetch_moex_bulk()
+            bulk.pop("_moex_time", None)
+            bulk.pop("_fetched_at", None)
+            db = SessionLocal()
+            try:
+                tickers = [c.ticker for c in db.query(Company).all()]
+            finally:
+                db.close()
+            return {t: (bulk.get(t) or {}).get("prev_close") for t in tickers}
+
+        prev_close_map = await loop.run_in_executor(None, _get_prev_close)
+
+        # Первичное обновление цен с Tinkoff
+        ok = await loop.run_in_executor(
+            None, lambda: tinkoff_quotes.refresh_prices(prev_close_map)
+        )
+        if ok:
+            logger.info("Tinkoff: прогрев завершён, %d цен загружено", len(tinkoff_quotes.get_all_prices()))
+        else:
+            logger.warning("Tinkoff: прогрев не удался — fallback на MOEX ISS")
+    except Exception as e:
+        logger.exception("Tinkoff: ошибка прогрева: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал)")
+
+    asyncio.create_task(_tinkoff_warmup())
+
     yield
     scheduler.shutdown()
 

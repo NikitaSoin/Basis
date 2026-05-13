@@ -53,6 +53,67 @@ def update_all_quotes() -> None:
     if not _should_update():
         return
 
+    from app.services import tinkoff_quotes
+
+    if tinkoff_quotes.is_available():
+        _update_from_tinkoff()
+    else:
+        _update_from_moex()
+
+
+def _update_from_tinkoff() -> None:
+    """Обновляем БД ценами из Tinkoff in-memory кэша."""
+    global _last_update
+    from datetime import date
+    from app.services import tinkoff_quotes
+
+    # Обновляем кэш перед записью в БД
+    tinkoff_quotes.refresh_prices()
+
+    prices = tinkoff_quotes.get_all_prices()
+    today = date.today()
+
+    db = SessionLocal()
+    try:
+        companies = db.query(Company).all()
+        updated = 0
+        for company in companies:
+            q = prices.get(company.ticker)
+            if not q or q["price"] is None:
+                continue
+            existing = (
+                db.query(Quote)
+                .filter(Quote.company_id == company.id, Quote.date == today)
+                .first()
+            )
+            if existing:
+                existing.close = q["price"]
+                existing.change_abs = q["change_abs"]
+                existing.change_pct = q["change_pct"]
+            else:
+                db.add(Quote(
+                    company_id=company.id, date=today,
+                    open=q["price"], close=q["price"],
+                    high=q["price"], low=q["price"],
+                    volume=0,
+                    prev_close=tinkoff_quotes._prices.get(company.ticker, {}).get("prev_close"),
+                    change_abs=q["change_abs"],
+                    change_pct=q["change_pct"],
+                ))
+            updated += 1
+        db.commit()
+        _last_update = datetime.now(timezone.utc)
+        logger.info("Scheduler: Tinkoff обновил %d котировок (МСК %s)",
+                    updated, datetime.now(MSK).strftime("%H:%M"))
+    except Exception as e:
+        logger.exception("Scheduler: ошибка Tinkoff обновления: %s", e)
+        db.rollback()
+    finally:
+        db.close()
+
+
+def _update_from_moex() -> None:
+    """Оригинальный MOEX ISS код — не тронут."""
     global _last_update
     import sys, os
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
