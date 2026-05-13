@@ -180,12 +180,8 @@ def is_configured() -> bool:
 
 
 def is_available() -> bool:
-    """True если токен задан, инструменты загружены и данные свежие (<60с)."""
-    if not TINKOFF_TOKEN:
-        return False
-    if not _prices:
-        return False
-    return (time.time() - _last_success_ts) < 60
+    """True если токен задан и в кэше есть цены (>100 инструментов)."""
+    return bool(TINKOFF_TOKEN) and len(_prices) > 100
 
 
 def get_all_prices() -> dict[str, dict]:
