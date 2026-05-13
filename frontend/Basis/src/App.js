@@ -1333,15 +1333,16 @@ const MOCK_COMPANIES = [
 const SECTOR_MAP = {
   "Нефтегазовый": "Нефть и газ", "Нефтегаз": "Нефть и газ",
   "Финансовый": "Финансы",
-  "Металлургия": "Металлы", "Золото": "Металлы", "Добыча": "Металлы",
-  "IT и Телеком": "Технологии", "IT и Кибербезопасность": "Технологии", "E-commerce": "Технологии",
+  "Металлы": "Металлургия", "Золото": "Металлургия", "Добыча": "Металлургия", "Лесопромышленный сектор": "Металлургия",
+  "IT и Телеком": "IT-сектор", "IT и Кибербезопасность": "IT-сектор", "E-commerce": "IT-сектор", "Технологии": "IT-сектор",
   "Телеком": "Телеком",
-  "Ритейл": "Потребительский",
+  "Ритейл": "Потребительский сектор", "Потребительский": "Потребительский сектор",
   "Энергетика": "Электроэнергетика",
   "Химия и удобрения": "Химия",
   "Девелопмент": "Девелопмент",
+  "Транспорт": "Транспорт и логистика",
 };
-const SECTOR_ORDER = ["Нефть и газ", "Финансы", "Металлы", "Технологии", "Потребительский", "Телеком", "Электроэнергетика", "Химия", "Девелопмент"];
+const SECTOR_ORDER = ["Нефть и газ", "Финансы", "Металлургия", "IT-сектор", "Потребительский сектор", "Телеком", "Электроэнергетика", "Химия", "Девелопмент", "Транспорт и логистика"];
 
 const CompaniesView = ({ onSelectCompany }) => {
   const [search, setSearch] = useState("");
@@ -1434,7 +1435,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         <div className="flex items-center justify-center py-16 text-slate-400">
           Компании не найдены
         </div>
-      ) : (
+      ) : activeSector !== "Все" ? (
         <div className="company-grid">
           {filtered.map((c) => (
             <div
@@ -1468,6 +1469,55 @@ const CompaniesView = ({ onSelectCompany }) => {
               </div>
             </div>
           ))}
+        </div>
+      ) : (
+        <div>
+          {sectors.filter(s => s !== "Все").map(sector => {
+            const sectorCards = filtered.filter(c => c.sector === sector);
+            if (sectorCards.length === 0) return null;
+            return (
+              <div key={sector} style={{ marginBottom: 28 }}>
+                <div style={{
+                  fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em",
+                  color: "var(--text-3)", borderBottom: "0.5px solid var(--border)",
+                  paddingBottom: 6, marginBottom: 14,
+                }}>
+                  {sector}
+                </div>
+                <div className="company-grid">
+                  {sectorCards.map((c) => (
+                    <div
+                      key={c.ticker}
+                      className="company-card"
+                      onClick={() => onSelectCompany(c)}
+                    >
+                      <div className="company-card-ticker">{c.ticker}</div>
+                      <div className="company-card-name">{c.name}</div>
+                      <div className="company-card-sector">{c.sector}</div>
+                      {c.price != null ? (
+                        <>
+                          <div className="company-card-price">{c.price.toLocaleString("ru-RU")} ₽</div>
+                          <div
+                            className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
+                            style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
+                          >
+                            {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="company-card-nodata">нет данных котировки</div>
+                      )}
+                      <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+                        <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
+                          Открыть <ChevronRight size={12} />
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
@@ -2539,6 +2589,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showNewPortfolioInput, setShowNewPortfolioInput] = useState(false);
   const [newPortfolioName, setNewPortfolioName] = useState("");
+  const [newPortfolioNameError, setNewPortfolioNameError] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [portfolioList, setPortfolioList] = useState([]);
   const [activePortfolioId, setActivePortfolioId] = useState(null);
@@ -2560,6 +2611,12 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const handleCreatePortfolio = async () => {
     const name = newPortfolioName.trim() || "Новый портфель";
+    const duplicate = portfolioList.some(p => p.name.trim().toLowerCase() === name.toLowerCase());
+    if (duplicate) {
+      setNewPortfolioNameError("Портфель с таким названием уже существует");
+      return;
+    }
+    setNewPortfolioNameError("");
     const resp = await fetch(`${apiUrl}/api/portfolios`, {
       method: "POST",
       headers: { ...authHeaders, "Content-Type": "application/json" },
@@ -2705,20 +2762,25 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             <Plus size={12} /> Новый портфель
           </button>
         ) : (
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <input
-              autoFocus
-              value={newPortfolioName}
-              onChange={e => setNewPortfolioName(e.target.value)}
-              placeholder="Название"
-              onKeyDown={e => e.key === "Enter" && handleCreatePortfolio()}
-              style={{
-                background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 8,
-                padding: "5px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", width: 140,
-              }}
-            />
-            <button className="btn btn-primary" style={{ padding: "5px 12px", fontSize: 12 }} onClick={handleCreatePortfolio}>Создать</button>
-            <button className="btn btn-ghost" style={{ padding: "5px 8px" }} onClick={() => setShowNewPortfolioInput(false)}><X size={13} /></button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+              <input
+                autoFocus
+                value={newPortfolioName}
+                onChange={e => { setNewPortfolioName(e.target.value); setNewPortfolioNameError(""); }}
+                placeholder="Название"
+                onKeyDown={e => e.key === "Enter" && handleCreatePortfolio()}
+                style={{
+                  background: "var(--bg-surface)", border: `1px solid ${newPortfolioNameError ? "var(--negative)" : "var(--border)"}`, borderRadius: 8,
+                  padding: "5px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", width: 140,
+                }}
+              />
+              <button className="btn btn-primary" style={{ padding: "5px 12px", fontSize: 12 }} onClick={handleCreatePortfolio}>Создать</button>
+              <button className="btn btn-ghost" style={{ padding: "5px 8px" }} onClick={() => { setShowNewPortfolioInput(false); setNewPortfolioNameError(""); }}><X size={13} /></button>
+            </div>
+            {newPortfolioNameError && (
+              <div style={{ fontSize: 11, color: "var(--negative)", paddingLeft: 2 }}>{newPortfolioNameError}</div>
+            )}
           </div>
         )}
         <button
