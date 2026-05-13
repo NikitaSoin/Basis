@@ -75,11 +75,14 @@ def _load_instruments() -> bool:
     try:
         resp = _post(
             "tinkoff.public.invest.api.contract.v1.InstrumentsService/Shares",
-            {"instrumentStatus": "INSTRUMENT_STATUS_BASE"},
+            {"instrumentStatus": "INSTRUMENT_STATUS_ALL"},
         )
+        all_instruments = resp.get("instruments", [])
+        print(f"[Tinkoff] Всего инструментов от API: {len(all_instruments)}", flush=True)
+
         count = 0
-        for share in resp.get("instruments", []):
-            # TQBR — основной рынок акций MOEX (classCode в JSON = camelCase)
+        for share in all_instruments:
+            # TQBR — основной режим торгов MOEX
             class_code = share.get("classCode") or share.get("class_code", "")
             if class_code != "TQBR":
                 continue
@@ -91,7 +94,8 @@ def _load_instruments() -> bool:
                 count += 1
 
         _instruments_ts = time.time()
-        logger.info("Tinkoff: загружено %d инструментов MOEX", count)
+        print(f"[Tinkoff] TQBR инструментов загружено: {count}", flush=True)
+        logger.info("Tinkoff: загружено %d TQBR инструментов", count)
         return count > 0
 
     except Exception as e:
