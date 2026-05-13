@@ -22,7 +22,7 @@ _ssl_ctx.verify_mode = ssl.CERT_NONE
 BULK_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
     "?iss.meta=off&iss.only=marketdata,securities"
-    "&marketdata.columns=SECID,LAST,CHANGE,LASTTOPREVPRICE,OPEN,HIGH,LOW,VOLRUR"
+    "&marketdata.columns=SECID,LAST,CHANGE,LASTTOPREVPRICE,OPEN,HIGH,LOW,VOLRUR,SYSTIME"
     "&securities.columns=SECID,PREVPRICE,PREVDATE"
 )
 
@@ -42,6 +42,19 @@ def fetch_moex_bulk() -> dict[str, dict]:
         r[sec_cols.index("SECID")]: dict(zip(sec_cols, r))
         for r in sec_rows
     }
+
+    # Логируем SYSTIME первой строки — показывает насколько свежие данные MOEX
+    if md_rows and "SYSTIME" in md_cols:
+        sample = dict(zip(md_cols, md_rows[0]))
+        systime = sample.get("SYSTIME")
+        from datetime import datetime as _dt
+        if systime:
+            try:
+                moex_time = _dt.fromisoformat(systime)
+                delay_sec = (_dt.now() - moex_time).total_seconds()
+                print(f"[MOEX] SYSTIME={systime}  delay={delay_sec:.0f}s")
+            except Exception:
+                print(f"[MOEX] SYSTIME={systime}")
 
     result: dict[str, dict] = {}
     today = date.today()
