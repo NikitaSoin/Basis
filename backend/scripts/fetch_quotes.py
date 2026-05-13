@@ -9,10 +9,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
+import logging
 import urllib.request
 import ssl
 import json
-from datetime import date
+from datetime import date, datetime
+
+logger = logging.getLogger(__name__)
 
 _ssl_ctx = ssl.create_default_context()
 _ssl_ctx.check_hostname = False
@@ -28,8 +31,15 @@ BULK_URL = (
 
 
 def fetch_moex_bulk() -> dict[str, dict]:
-    """Возвращает {ticker: {price, change_abs, change_pct, open, high, low, prev_close, date}}"""
-    req = urllib.request.Request(BULK_URL, headers={"User-Agent": "Mozilla/5.0"})
+    """Возвращает {ticker: {...}, '_moex_time': str, '_fetched_at': str}"""
+    import time as _time
+    # _ts cache-buster — исключает кэширование на прокси/CDN
+    url = BULK_URL + f"&_ts={int(_time.time())}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Cache-Control": "no-cache",
+    })
     with urllib.request.urlopen(req, timeout=15, context=_ssl_ctx) as resp:
         data = json.loads(resp.read())
 
@@ -43,18 +53,19 @@ def fetch_moex_bulk() -> dict[str, dict]:
         for r in sec_rows
     }
 
-    # Логируем SYSTIME первой строки — показывает насколько свежие данные MOEX
+    # Извлекаем SYSTIME — метка времени данных на сервере MOEX
+    moex_systime = None
     if md_rows and "SYSTIME" in md_cols:
         sample = dict(zip(md_cols, md_rows[0]))
-        systime = sample.get("SYSTIME")
-        from datetime import datetime as _dt
-        if systime:
+        moex_systime = sample.get("SYSTIME")
+        if moex_systime:
             try:
-                moex_time = _dt.fromisoformat(systime)
+                from datetime import datetime as _dt
+                moex_time = _dt.fromisoformat(moex_systime)
                 delay_sec = (_dt.now() - moex_time).total_seconds()
-                print(f"[MOEX] SYSTIME={systime}  delay={delay_sec:.0f}s")
+                logger.info("[MOEX] SYSTIME=%s  delay=%.0fs", moex_systime, delay_sec)
             except Exception:
-                print(f"[MOEX] SYSTIME={systime}")
+                logger.info("[MOEX] SYSTIME=%s", moex_systime)
 
     result: dict[str, dict] = {}
     today = date.today()
@@ -90,6 +101,8 @@ def fetch_moex_bulk() -> dict[str, dict]:
             "change_pct": round(float(change_pct), 4) if change_pct is not None else None,
         }
 
+    result["_moex_time"] = moex_systime
+    result["_fetched_at"] = datetime.now().isoformat(timespec="seconds")
     return result
 
 

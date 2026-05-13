@@ -1360,6 +1360,7 @@ const CompaniesView = ({ onSelectCompany }) => {
   const [loading, setLoading] = useState(true);
   const [liveQuotes, setLiveQuotes] = useState({});
   const [isLive, setIsLive] = useState(false);
+  const [moexTime, setMoexTime] = useState(null);
 
   useEffect(() => {
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -1401,7 +1402,13 @@ const CompaniesView = ({ onSelectCompany }) => {
       setIsLive(live);
       fetch(`${apiUrl}/api/quotes/realtime`)
         .then(r => r.ok ? r.json() : null)
-        .then(data => { if (data) setLiveQuotes(data); })
+        .then(data => {
+          if (data) {
+            setMoexTime(data._moex_time || null);
+            const { _moex_time, _fetched_at, ...quotes } = data;
+            setLiveQuotes(quotes);
+          }
+        })
         .catch(() => {});
       timer = setTimeout(poll, live ? 5000 : 300000);
     };
@@ -1438,11 +1445,16 @@ const CompaniesView = ({ onSelectCompany }) => {
   return (
     <div>
       <div className="view-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <h1 className="view-title">Рынок</h1>
           {isLive && (
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--positive)", background: "rgba(52,199,89,0.12)", borderRadius: 6, padding: "2px 8px", letterSpacing: "0.05em" }}>
               ● LIVE
+            </span>
+          )}
+          {moexTime && (
+            <span style={{ fontSize: 11, color: "var(--text-3)" }}>
+              MOEX: {moexTime.slice(11, 19)} МСК
             </span>
           )}
         </div>
