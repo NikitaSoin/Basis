@@ -34,7 +34,7 @@ def _attach_last_price(db: Session, company: Company) -> None:
 
 
 def get_all_companies(db: Session) -> list[Company]:
-    companies = db.query(Company).order_by(Company.ticker).all()
+    companies = db.query(Company).order_by(Company.market_cap.desc().nulls_last()).all()
     if not companies:
         return companies
 

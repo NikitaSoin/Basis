@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import csv
+import re
 from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation
 from collections import defaultdict
@@ -117,6 +118,30 @@ def parse_russian_float(s: str) -> float | None:
         return None
 
 
+def clean_company_name(name: str, is_preferred: bool = False) -> str:
+    s = name.strip()
+    leading = [
+        r'международная\s+компания\s+публичное\s+акционерное\s+общество',
+        r'международная\s+компания',
+        r'публичное\s+акционерное\s+общество',
+        r'акционерный\s+коммерческий\s+банк',
+        r'акционерная\s+компания',
+        r'открытое\s+акционерное\s+общество',
+        r'закрытое\s+акционерное\s+общество',
+        r'акционерное\s+общество',
+        r'мкпао', r'пао', r'оао', r'зао', r'ао\b', r'ак\b', r'мк\b',
+    ]
+    for p in leading:
+        s = re.sub(r'(?i)^\s*' + p + r'[\s"«]*', '', s)
+    s = re.sub(r'(?i)[\s,]+(?:ао|ап|пао|оао|зао)\.?\s*$', '', s)
+    s = re.sub(r'(?i)\s+(?:пао|оао|зао|ао)(?=[\s,»"–-]|$)', '', s)
+    s = s.replace('«', '').replace('»', '').replace('"', '').replace('"', '').replace('"', '')
+    s = re.sub(r'\s{2,}', ' ', s).strip()
+    if is_preferred:
+        s += ' (привилегированные)'
+    return s
+
+
 def main():
     csv_path = sys.argv[1] if len(sys.argv) > 1 else None
     candidates = [
@@ -178,18 +203,24 @@ def main():
 
             emitent = row[idx["EMITENTNAME"]].strip()
             short = row[idx["SHORTNAME"]].strip()
-            name = row[idx["NAME"]].strip() or short or ticker
+            raw_name = row[idx["NAME"]].strip() or short or ticker
             price_raw = row[idx["PRICE"]].strip()
             price = parse_russian_float(price_raw)
 
-            sector = classify_sector(emitent or name)
+            is_preferred = "привилегированные" in typename
+            name = clean_company_name(raw_name, is_preferred=is_preferred)
+
+            cap_raw = row[idx["SECURITYCAPITALIZATION"]].strip() if "SECURITYCAPITALIZATION" in idx else ""
+            market_cap = parse_russian_float(cap_raw)
+
+            sector = classify_sector(emitent or raw_name)
 
             try:
                 # Upsert company (ON CONFLICT DO NOTHING)
                 result = session.execute(
                     text("""
-                        INSERT INTO companies (ticker, name, sector, created_at)
-                        VALUES (:ticker, :name, :sector, :now)
+                        INSERT INTO companies (ticker, name, sector, market_cap, created_at)
+                        VALUES (:ticker, :name, :sector, :market_cap, :now)
                         ON CONFLICT (ticker) DO NOTHING
                         RETURNING id
                     """),
@@ -197,6 +228,7 @@ def main():
                         "ticker": ticker,
                         "name": name,
                         "sector": sector,
+                        "market_cap": market_cap,
                         "now": datetime.now(timezone.utc),
                     },
                 )
