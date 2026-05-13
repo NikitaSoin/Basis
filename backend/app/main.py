@@ -25,9 +25,9 @@ async def _quotes_job():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    scheduler.add_job(_quotes_job, "interval", hours=1, id="quotes_update")
+    scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
     scheduler.start()
-    logger.info("Планировщик котировок запущен (каждый час)")
+    logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал)")
     yield
     scheduler.shutdown()
 

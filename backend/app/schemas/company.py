@@ -8,6 +8,7 @@ class CompanyCreate(BaseModel):
     name: str
     sector: str | None = None
     description: str | None = None
+    market_cap: Decimal | None = None
 
 
 class CompanyResponse(BaseModel):
@@ -16,6 +17,7 @@ class CompanyResponse(BaseModel):
     name: str
     sector: str | None
     description: str | None
+    market_cap: Decimal | None = None
     created_at: datetime
     last_price: Decimal | None = None
     change_pct: Decimal | None = None

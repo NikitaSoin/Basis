@@ -48,6 +48,15 @@ const formatCurrency = (val) =>
 const formatPercent = (val, digits = 1) =>
   `${val > 0 ? "+" : ""}${Number(val).toFixed(digits)}%`;
 
+const formatMarketCap = (cap) => {
+  if (!cap) return null;
+  const n = parseFloat(cap);
+  if (n >= 1_000_000_000_000) return `${(n / 1_000_000_000_000).toFixed(1)} трлн ₽`;
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)} млрд ₽`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} млн ₽`;
+  return null;
+};
+
 const badgeClass = (impact) => {
   if (impact === "positive")
     return "text-green-400 bg-green-500/10 border-green-500/20";
@@ -1363,10 +1372,10 @@ const CompaniesView = ({ onSelectCompany }) => {
               if (apiC.last_price != null) raw.price = parseFloat(apiC.last_price);
               if (apiC.change_pct != null) raw.change = parseFloat(apiC.change_pct);
               if (apiC.change_abs != null) raw.changeAbs = parseFloat(apiC.change_abs);
+              if (apiC.market_cap != null) raw.market_cap = parseFloat(apiC.market_cap);
               raw.sector = SECTOR_MAP[raw.sector] || raw.sector || "Прочее";
               return raw;
-            })
-            .sort((a, b) => (a.sector || "").localeCompare(b.sector || "", "ru"));
+            });
           setCompanies(merged);
         }
         setLoading(false);
@@ -1469,6 +1478,11 @@ const CompaniesView = ({ onSelectCompany }) => {
                 ) : (
                   <div className="company-card-nodata">нет данных котировки</div>
                 )}
+                {formatMarketCap(c.market_cap) && (
+                  <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
+                    Кап: {formatMarketCap(c.market_cap)}
+                  </div>
+                )}
 
                 <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
                   <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
@@ -1515,6 +1529,11 @@ const CompaniesView = ({ onSelectCompany }) => {
                         </>
                       ) : (
                         <div className="company-card-nodata">нет данных котировки</div>
+                      )}
+                      {formatMarketCap(c.market_cap) && (
+                        <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
+                          Кап: {formatMarketCap(c.market_cap)}
+                        </div>
                       )}
                       <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
                         <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
