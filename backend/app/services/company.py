@@ -8,7 +8,17 @@ def get_company_by_id(db: Session, company_id: int) -> Company | None:
     company = db.get(Company, company_id)
     if company:
         _attach_last_price(db, company)
+        _attach_combined_cap(db, company)
     return company
+
+
+def _attach_combined_cap(db: Session, company: Company) -> None:
+    if company.paired_ticker and company.market_cap is not None:
+        partner = db.query(Company).filter(Company.ticker == company.paired_ticker).first()
+        if partner and partner.market_cap is not None:
+            company.combined_market_cap = company.market_cap + partner.market_cap
+            return
+    company.combined_market_cap = company.market_cap
 
 
 def get_company_by_ticker(db: Session, ticker: str) -> Company | None:
@@ -49,11 +59,21 @@ def get_all_companies(db: Session) -> list[Company]:
         .all()
     )
     quote_map = {r.company_id: r for r in quote_rows}
+
+    cap_by_ticker = {c.ticker: c.market_cap for c in companies if c.market_cap is not None}
+
     for c in companies:
         row = quote_map.get(c.id)
         c.last_price = row.close if row else None
         c.change_pct = row.change_pct if row else None
         c.change_abs = row.change_abs if row else None
+
+        if c.paired_ticker and c.market_cap is not None:
+            partner_cap = cap_by_ticker.get(c.paired_ticker)
+            c.combined_market_cap = c.market_cap + partner_cap if partner_cap is not None else c.market_cap
+        else:
+            c.combined_market_cap = c.market_cap
+
     return companies
 
 
