@@ -79,8 +79,9 @@ def _load_instruments() -> bool:
         )
         count = 0
         for share in resp.get("instruments", []):
-            exchange = share.get("exchange", "")
-            if "MOEX" not in exchange:
+            # TQBR — основной рынок акций MOEX (classCode в JSON = camelCase)
+            class_code = share.get("classCode") or share.get("class_code", "")
+            if class_code != "TQBR":
                 continue
             ticker = share.get("ticker", "")
             uid = share.get("uid", "") or share.get("figi", "")
