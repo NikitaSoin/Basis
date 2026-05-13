@@ -16,6 +16,96 @@ from app.services.company import (
 router = APIRouter()
 
 
+@router.get("/debug/tinkoff")
+def debug_tinkoff_endpoint():
+    """Диагностика Tinkoff API — показывает raw ответ и распределение полей."""
+    import os, json, ssl, urllib.request
+    token = os.environ.get("TINKOFF_API_TOKEN", "")
+    if not token:
+        return {"error": "TINKOFF_API_TOKEN не задан"}
+
+    ctx = ssl.create_default_context()
+    base = "https://invest-public-api.tinkoff.ru/rest"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    def post(path, body=None):
+        url = f"{base}/{path}"
+        data = json.dumps(body or {}).encode()
+        req = urllib.request.Request(url, data=data, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=15, context=ctx) as r:
+                return json.loads(r.read()), None
+        except urllib.error.HTTPError as e:
+            return None, f"HTTP {e.code}: {e.read().decode()[:500]}"
+        except Exception as e:
+            return None, str(e)
+
+    # 1. Попробуем получить инструменты
+    resp, err = post(
+        "tinkoff.public.invest.api.contract.v1.InstrumentsService/Shares",
+        {"instrumentStatus": "INSTRUMENT_STATUS_ALL"},
+    )
+    if err:
+        # Попробуем с числовым enum
+        resp, err2 = post(
+            "tinkoff.public.invest.api.contract.v1.InstrumentsService/Shares",
+            {"instrumentStatus": 2},
+        )
+        if err2:
+            return {"error_string_enum": err, "error_int_enum": err2}
+
+    instruments = resp.get("instruments", []) if resp else []
+
+    # Статистика по exchange полю
+    exchange_counts: dict[str, int] = {}
+    for ins in instruments:
+        ex = ins.get("exchange", "<empty>")
+        exchange_counts[ex] = exchange_counts.get(ex, 0) + 1
+
+    # Первые 3 с любым exchange
+    sample_all = [
+        {k: v for k, v in ins.items()
+         if k in ("figi", "ticker", "exchange", "name", "uid", "classCode", "class_code")}
+        for ins in instruments[:3]
+    ]
+
+    # Первые 3 где MOEX в exchange
+    sample_moex = [
+        {k: v for k, v in ins.items()
+         if k in ("figi", "ticker", "exchange", "name", "uid", "classCode")}
+        for ins in instruments
+        if "MOEX" in (ins.get("exchange", "").upper())
+    ][:3]
+
+    # 2. Проверим GetLastPrices с одним FIGI (Сбер)
+    sber_figi = "BBG004730N88"
+    prices_resp, prices_err = post(
+        "tinkoff.public.invest.api.contract.v1.MarketDataService/GetLastPrices",
+        {"figi": [sber_figi]},
+    )
+    if prices_err:
+        prices_resp, prices_err = post(
+            "tinkoff.public.invest.api.contract.v1.MarketDataService/GetLastPrices",
+            {"instrumentId": [sber_figi]},
+        )
+
+    return {
+        "token_length": len(token),
+        "total_instruments": len(instruments),
+        "exchange_distribution": exchange_counts,
+        "sample_first_3": sample_all,
+        "sample_moex_3": sample_moex,
+        "sber_price_test": {
+            "response": prices_resp,
+            "error": prices_err,
+        },
+    }
+
+
 @router.get("/quotes/latest")
 def latest_quotes_endpoint(db: Session = Depends(get_db)):
     """Последняя цена закрытия из БД: {ticker: close}"""
