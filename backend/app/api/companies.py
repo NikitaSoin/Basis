@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.db.session import get_db
@@ -32,14 +33,16 @@ def latest_quotes_endpoint(db: Session = Depends(get_db)):
 
 @router.get("/quotes/realtime")
 def realtime_quotes_endpoint():
-    """Котировки в реальном времени напрямую с MOEX ISS (без БД).
-    Возвращает {ticker: {price, change_abs, change_pct}}"""
+    """Котировки напрямую с MOEX ISS (без БД).
+    Возвращает {ticker: {price, change_abs, change_pct}, _moex_time, _fetched_at}"""
     try:
         import sys, os
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
         from fetch_quotes import fetch_moex_bulk
         bulk = fetch_moex_bulk()
-        return {
+        moex_time = bulk.pop("_moex_time", None)
+        fetched_at = bulk.pop("_fetched_at", None)
+        payload = {
             ticker: {
                 "price": q["close"],
                 "change_abs": q["change_abs"],
@@ -47,6 +50,12 @@ def realtime_quotes_endpoint():
             }
             for ticker, q in bulk.items()
         }
+        payload["_moex_time"] = moex_time
+        payload["_fetched_at"] = fetched_at
+        return JSONResponse(
+            content=payload,
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"},
+        )
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"MOEX недоступен: {e}")
 

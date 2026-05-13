@@ -61,6 +61,8 @@ def update_all_quotes() -> None:
     db = SessionLocal()
     try:
         bulk = fetch_moex_bulk()
+        bulk.pop("_moex_time", None)
+        bulk.pop("_fetched_at", None)
         companies = db.query(Company).order_by(Company.ticker).all()
         logger.info("Scheduler: bulk MOEX %d котировок, компаний в БД %d", len(bulk), len(companies))
         updated = 0
