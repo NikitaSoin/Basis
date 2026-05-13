@@ -69,6 +69,19 @@ def add_position_endpoint(
     return add_position(db, portfolio_id, data)
 
 
+@router.delete("/portfolios/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_portfolio_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    db.delete(portfolio)
+    db.commit()
+
+
 @router.delete("/portfolios/{portfolio_id}/positions/{position_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_position_endpoint(
     portfolio_id: int,
