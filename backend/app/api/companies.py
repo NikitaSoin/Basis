@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/quotes/latest")
 def latest_quotes_endpoint(db: Session = Depends(get_db)):
-    """Возвращает последнюю цену закрытия для всех компаний: {ticker: close}"""
+    """Последняя цена закрытия из БД: {ticker: close}"""
     rows = db.execute(text("""
         SELECT DISTINCT ON (q.company_id)
             c.ticker,
@@ -28,6 +28,27 @@ def latest_quotes_endpoint(db: Session = Depends(get_db)):
         ORDER BY q.company_id, q.date DESC
     """)).fetchall()
     return {row.ticker: float(row.close) for row in rows}
+
+
+@router.get("/quotes/realtime")
+def realtime_quotes_endpoint():
+    """Котировки в реальном времени напрямую с MOEX ISS (без БД).
+    Возвращает {ticker: {price, change_abs, change_pct}}"""
+    try:
+        import sys, os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
+        from fetch_quotes import fetch_moex_bulk
+        bulk = fetch_moex_bulk()
+        return {
+            ticker: {
+                "price": q["close"],
+                "change_abs": q["change_abs"],
+                "change_pct": q["change_pct"],
+            }
+            for ticker, q in bulk.items()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"MOEX недоступен: {e}")
 
 
 @router.post("/companies", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)

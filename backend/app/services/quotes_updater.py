@@ -56,15 +56,16 @@ def update_all_quotes() -> None:
     global _last_update
     import sys, os
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
-    from fetch_quotes import fetch_moex
+    from fetch_quotes import fetch_moex_bulk
 
     db = SessionLocal()
     try:
+        bulk = fetch_moex_bulk()
         companies = db.query(Company).order_by(Company.ticker).all()
-        logger.info("Scheduler: обновляю котировки для %d компаний", len(companies))
+        logger.info("Scheduler: bulk MOEX %d котировок, компаний в БД %d", len(bulk), len(companies))
         updated = 0
         for company in companies:
-            quote_data = fetch_moex(company.ticker)
+            quote_data = bulk.get(company.ticker)
             if not quote_data:
                 continue
             existing = (
@@ -73,9 +74,6 @@ def update_all_quotes() -> None:
                 .first()
             )
             if existing:
-                new_chg = quote_data.get("change_pct") or 0
-                if new_chg == 0 and existing.change_pct and float(existing.change_pct) != 0:
-                    continue
                 existing.close = quote_data["close"]
                 existing.open = quote_data["open"]
                 existing.high = quote_data["high"]
