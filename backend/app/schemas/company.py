@@ -18,6 +18,8 @@ class CompanyResponse(BaseModel):
     sector: str | None
     description: str | None
     market_cap: Decimal | None = None
+    paired_ticker: str | None = None
+    combined_market_cap: Decimal | None = None
     created_at: datetime
     last_price: Decimal | None = None
     change_pct: Decimal | None = None

@@ -1375,7 +1375,8 @@ const CompaniesView = ({ onSelectCompany }) => {
               if (apiC.last_price != null) raw.price = parseFloat(apiC.last_price);
               if (apiC.change_pct != null) raw.change = parseFloat(apiC.change_pct);
               if (apiC.change_abs != null) raw.changeAbs = parseFloat(apiC.change_abs);
-              if (apiC.market_cap != null) raw.market_cap = parseFloat(apiC.market_cap);
+              if (apiC.combined_market_cap != null) raw.market_cap = parseFloat(apiC.combined_market_cap);
+              else if (apiC.market_cap != null) raw.market_cap = parseFloat(apiC.market_cap);
               raw.sector = SECTOR_MAP[raw.sector] || raw.sector || "Прочее";
               return raw;
             });
