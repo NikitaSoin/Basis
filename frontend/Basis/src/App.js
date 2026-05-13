@@ -1617,8 +1617,40 @@ const CompanyCard = ({ company, onBack }) => {
   const [stressScenario, setStressScenario] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [livePrice, setLivePrice] = useState(null);
+  const [liveChange, setLiveChange] = useState(null);
+  const [liveChangeAbs, setLiveChangeAbs] = useState(null);
 
   const data = company.overview ? company : MOCK_COMPANIES[0];
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const inTradingHours = () => {
+      const now = new Date();
+      const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+      const day = msk.getDay();
+      if (day === 0 || day === 6) return false;
+      const t = msk.getHours() * 60 + msk.getMinutes();
+      return t >= 10 * 60 && t <= 18 * 60 + 50;
+    };
+    let timer;
+    const poll = () => {
+      fetch(`${apiUrl}/api/quotes/realtime`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data[company.ticker]) {
+            const q = data[company.ticker];
+            setLivePrice(q.price);
+            setLiveChange(q.change_pct);
+            setLiveChangeAbs(q.change_abs);
+          }
+        })
+        .catch(() => {});
+      timer = setTimeout(poll, inTradingHours() ? 5000 : 300000);
+    };
+    poll();
+    return () => clearTimeout(timer);
+  }, [company.ticker]);
 
   useEffect(() => {
     if (!company.id) { setAnalysisLoading(false); return; }
@@ -2176,23 +2208,28 @@ const CompanyCard = ({ company, onBack }) => {
           <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2, marginBottom: 8 }}>
             {company.sector}
           </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>
-              {company.price == null ? "—" : `${company.price.toLocaleString("ru-RU")} ₽`}
-            </span>
-            {company.change != null && (
-              <span style={{
-                fontSize: 14, fontWeight: 600,
-                color: company.change >= 0 ? "var(--positive)" : "var(--negative)",
-                display: "flex", alignItems: "center", gap: 3,
-              }}>
-                {company.change >= 0
-                  ? <TrendingUp size={14} />
-                  : <TrendingDown size={14} />}
-                {company.change > 0 ? "+" : ""}{company.change}%
-              </span>
-            )}
-          </div>
+          {(() => {
+            const price = livePrice ?? company.price;
+            const change = liveChange ?? company.change;
+            const changeAbs = liveChangeAbs ?? company.changeAbs;
+            const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
+            return (
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 22, fontWeight: 700, color: "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>
+                  {price == null ? "—" : `${price.toLocaleString("ru-RU")} ₽`}
+                </span>
+                {change != null && (
+                  <span style={{ fontSize: 14, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3 }}>
+                    {change >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    {changeAbs != null && (
+                      <span>{changeAbs >= 0 ? "+" : ""}{changeAbs.toFixed(2)} ₽</span>
+                    )}
+                    <span>{change > 0 ? "+" : ""}{change.toFixed(2)}%</span>
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -2711,11 +2748,14 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
     const loadData = async () => {
       try {
-        const [list, latestQuotes] = await Promise.all([
+        const [list, realtimeResp] = await Promise.all([
           fetch(`${apiUrl}/api/portfolios`, { headers: authHeaders }).then(r => r.ok ? r.json() : []),
-          fetch(`${apiUrl}/api/quotes/latest`).then(r => r.ok ? r.json() : {}),
+          fetch(`${apiUrl}/api/quotes/realtime`).then(r => r.ok ? r.json() : {}),
         ]);
-        setQuotes(latestQuotes || {});
+        const latestQuotes = Object.fromEntries(
+          Object.entries(realtimeResp || {}).map(([t, q]) => [t, q.price])
+        );
+        setQuotes(latestQuotes);
 
         if (list.length > 0) {
           setPortfolioList(list);
@@ -2765,6 +2805,37 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
     loadData();
   }, [token, reloadKey, activePortfolioId]);
+
+  useEffect(() => {
+    if (!token) return;
+    const inTradingHours = () => {
+      const now = new Date();
+      const msk = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+      const day = msk.getDay();
+      if (day === 0 || day === 6) return false;
+      const t = msk.getHours() * 60 + msk.getMinutes();
+      return t >= 10 * 60 && t <= 18 * 60 + 50;
+    };
+    let timer;
+    const pollPrices = () => {
+      fetch(`${apiUrl}/api/quotes/realtime`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) {
+            const priceMap = Object.fromEntries(Object.entries(data).map(([t, q]) => [t, q.price]));
+            setQuotes(priceMap);
+            setPositions(prev => prev.map(p => ({
+              ...p,
+              currentPrice: priceMap[p.ticker] ?? p.currentPrice,
+            })));
+          }
+        })
+        .catch(() => {});
+      timer = setTimeout(pollPrices, inTradingHours() ? 5000 : 300000);
+    };
+    timer = setTimeout(pollPrices, inTradingHours() ? 5000 : 300000);
+    return () => clearTimeout(timer);
+  }, [token, apiUrl]);
 
   const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO.map(p => ({
     ...p, currentPrice: quotes[p.ticker] || p.currentPrice,
