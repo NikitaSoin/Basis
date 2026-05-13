@@ -31,10 +31,31 @@ def latest_quotes_endpoint(db: Session = Depends(get_db)):
     return {row.ticker: float(row.close) for row in rows}
 
 
+@router.get("/quotes/source")
+def quotes_source_endpoint():
+    """Диагностика: какой источник котировок активен."""
+    from app.services import tinkoff_quotes
+    return tinkoff_quotes.status() | {
+        "active_source": "tinkoff" if tinkoff_quotes.is_available() else "moex_iss",
+    }
+
+
 @router.get("/quotes/realtime")
 def realtime_quotes_endpoint():
-    """Котировки напрямую с MOEX ISS (без БД).
-    Возвращает {ticker: {price, change_abs, change_pct}, _moex_time, _fetched_at}"""
+    """Котировки в реальном времени. Primary: Tinkoff. Fallback: MOEX ISS."""
+    no_cache = {"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
+
+    # ── Tinkoff (primary) ───────────────────────────────────────────────────
+    from app.services import tinkoff_quotes
+    if tinkoff_quotes.is_available():
+        tinkoff_quotes.refresh_prices()
+        prices = tinkoff_quotes.get_all_prices()
+        payload = {ticker: q for ticker, q in prices.items()}
+        payload["_source"] = "tinkoff"
+        payload["_fetched_at"] = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+        return JSONResponse(content=payload, headers=no_cache)
+
+    # ── MOEX ISS (fallback) ─────────────────────────────────────────────────
     try:
         import sys, os
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "scripts"))
@@ -50,14 +71,12 @@ def realtime_quotes_endpoint():
             }
             for ticker, q in bulk.items()
         }
+        payload["_source"] = "moex_iss"
         payload["_moex_time"] = moex_time
         payload["_fetched_at"] = fetched_at
-        return JSONResponse(
-            content=payload,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"},
-        )
+        return JSONResponse(content=payload, headers=no_cache)
     except Exception as e:
-        raise HTTPException(status_code=503, detail=f"MOEX недоступен: {e}")
+        raise HTTPException(status_code=503, detail=f"Котировки недоступны: {e}")
 
 
 @router.post("/companies", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
