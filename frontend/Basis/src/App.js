@@ -1403,7 +1403,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         .then(r => r.ok ? r.json() : null)
         .then(data => { if (data) setLiveQuotes(data); })
         .catch(() => {});
-      timer = setTimeout(poll, live ? 30000 : 300000);
+      timer = setTimeout(poll, live ? 5000 : 300000);
     };
     poll();
     return () => clearTimeout(timer);
@@ -1501,12 +1501,21 @@ const CompaniesView = ({ onSelectCompany }) => {
                   const lq = liveQuotes[c.ticker];
                   const price = lq ? lq.price : c.price;
                   const change = lq ? lq.change_pct : c.change;
+                  const changeAbs = lq ? lq.change_abs : c.changeAbs;
+                  const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
                   return price != null ? (
                     <>
                       <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
-                      <div className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
-                        style={{ color: change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)" }}>
-                        {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                      <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
+                        {changeAbs != null && (
+                          <span style={{ fontSize: 12, color, fontWeight: 500 }}>
+                            {changeAbs >= 0 ? `+${changeAbs.toFixed(2)}` : changeAbs.toFixed(2)} ₽
+                          </span>
+                        )}
+                        <span className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
+                          style={{ color }}>
+                          {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                        </span>
                       </div>
                     </>
                   ) : (
@@ -1556,12 +1565,21 @@ const CompaniesView = ({ onSelectCompany }) => {
                         const lq = liveQuotes[c.ticker];
                         const price = lq ? lq.price : c.price;
                         const change = lq ? lq.change_pct : c.change;
+                        const changeAbs = lq ? lq.change_abs : c.changeAbs;
+                        const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
                         return price != null ? (
                           <>
                             <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
-                            <div className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
-                              style={{ color: change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)" }}>
-                              {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                            <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
+                              {changeAbs != null && (
+                                <span style={{ fontSize: 12, color, fontWeight: 500 }}>
+                                  {changeAbs >= 0 ? `+${changeAbs.toFixed(2)}` : changeAbs.toFixed(2)} ₽
+                                </span>
+                              )}
+                              <span className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
+                                style={{ color }}>
+                                {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
+                              </span>
                             </div>
                           </>
                         ) : (
