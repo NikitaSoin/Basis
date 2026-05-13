@@ -1436,39 +1436,48 @@ const CompaniesView = ({ onSelectCompany }) => {
           Компании не найдены
         </div>
       ) : activeSector !== "Все" ? (
-        <div className="company-grid">
-          {filtered.map((c) => (
-            <div
-              key={c.ticker}
-              className="company-card"
-              onClick={() => onSelectCompany(c)}
-            >
-              <div className="company-card-ticker">{c.ticker}</div>
-              <div className="company-card-name">{c.name}</div>
-              <div className="company-card-sector">{c.sector}</div>
+        <div>
+          <div style={{
+            fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em",
+            color: "var(--text-3)", borderBottom: "0.5px solid var(--border)",
+            paddingBottom: 6, marginBottom: 14,
+          }}>
+            {activeSector}
+          </div>
+          <div className="company-grid">
+            {filtered.map((c) => (
+              <div
+                key={c.ticker}
+                className="company-card"
+                onClick={() => onSelectCompany(c)}
+              >
+                <div className="company-card-ticker">{c.ticker}</div>
+                <div className="company-card-name">{c.name}</div>
+                <div className="company-card-sector">{c.sector}</div>
 
-              {c.price != null ? (
-                <>
-                  <div className="company-card-price">
-                    {c.price.toLocaleString("ru-RU")} ₽
-                  </div>
-                  <div className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
-                    style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
-                  >
-                    {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
-                  </div>
-                </>
-              ) : (
-                <div className="company-card-nodata">нет данных котировки</div>
-              )}
+                {c.price != null ? (
+                  <>
+                    <div className="company-card-price">
+                      {c.price.toLocaleString("ru-RU")} ₽
+                    </div>
+                    <div className={`company-card-change ${c.change == null ? "neu" : c.change >= 0 ? "pos" : "neg"}`}
+                      style={{ color: c.change == null ? "var(--text-3)" : c.change >= 0 ? "var(--positive)" : "var(--negative)" }}
+                    >
+                      {c.change == null ? "—" : c.change >= 0 ? `+${c.change}%` : `${c.change}%`}
+                    </div>
+                  </>
+                ) : (
+                  <div className="company-card-nodata">нет данных котировки</div>
+                )}
 
-              <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
-                <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
-                  Открыть <ChevronRight size={12} />
-                </span>
+                <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+                  <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
+                    Открыть <ChevronRight size={12} />
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <div>
@@ -2170,10 +2179,11 @@ const MOCK_CORRELATION = [
 // PORTFOLIO
 // =========================
 
-const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
+const PortfolioImportModal = ({ onClose, onSuccess, token, existingNames = [] }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
   const [name, setName] = useState("Мой портфель");
+  const [nameError, setNameError] = useState("");
   const [rows, setRows] = useState([
     { ticker: "", quantity: "", avgPrice: "" },
   ]);
@@ -2191,22 +2201,28 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
 
   const handleImport = async () => {
     setError(null);
-    const validRows = rows.filter(
-      (r) => r.ticker.trim() && r.quantity && r.avgPrice
-    );
-    if (!validRows.length) {
-      setError("Добавь хотя бы одну позицию с тикером, количеством и ценой.");
+    setNameError("");
+    const trimmedName = name.trim() || "Мой портфель";
+    const duplicate = existingNames.some(n => n.trim().toLowerCase() === trimmedName.toLowerCase());
+    if (duplicate) {
+      setNameError("Портфель с таким названием уже существует");
       return;
     }
 
+    const validRows = rows.filter(
+      (r) => r.ticker.trim() && r.quantity && r.avgPrice
+    );
+
     setLoading(true);
     try {
-      // 1. Загружаем список компаний для маппинга ticker → company_id
-      const companiesResp = await fetch(`${apiUrl}/api/companies`);
-      const companies = companiesResp.ok ? await companiesResp.json() : [];
+      // 1. Загружаем список компаний для маппинга ticker → company_id (только если есть позиции)
       const tickerMap = {};
-      if (Array.isArray(companies)) {
-        companies.forEach((c) => { tickerMap[c.ticker.toUpperCase()] = c; });
+      if (validRows.length > 0) {
+        const companiesResp = await fetch(`${apiUrl}/api/companies`);
+        const companies = companiesResp.ok ? await companiesResp.json() : [];
+        if (Array.isArray(companies)) {
+          companies.forEach((c) => { tickerMap[c.ticker.toUpperCase()] = c; });
+        }
       }
 
       // 2. Создаём портфель
@@ -2219,7 +2235,12 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
       if (!portfolioResp.ok) throw new Error(portfolioData.detail || "Ошибка создания портфеля");
       const portfolio = portfolioData;
 
-      // 3. Добавляем позиции
+      // 3. Добавляем позиции (только если были введены)
+      if (validRows.length === 0) {
+        onSuccess(portfolio);
+        return;
+      }
+
       const errors = [];
       const unknownTickers = validRows
         .filter((r) => !tickerMap[r.ticker.trim().toUpperCase()])
@@ -2271,14 +2292,18 @@ const PortfolioImportModal = ({ onClose, onSuccess, token }) => {
             <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Название портфеля</label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); setNameError(""); }}
               style={{
-                width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                width: "100%", background: "var(--bg-surface)",
+                border: `1px solid ${nameError ? "var(--negative)" : "var(--border)"}`,
                 borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 14,
                 outline: "none", boxSizing: "border-box",
               }}
               placeholder="Мой портфель"
             />
+            {nameError && (
+              <div style={{ fontSize: 12, color: "var(--negative)", marginTop: 5 }}>{nameError}</div>
+            )}
           </div>
 
           <div>
@@ -2587,9 +2612,6 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showNewPortfolioInput, setShowNewPortfolioInput] = useState(false);
-  const [newPortfolioName, setNewPortfolioName] = useState("");
-  const [newPortfolioNameError, setNewPortfolioNameError] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [portfolioList, setPortfolioList] = useState([]);
   const [activePortfolioId, setActivePortfolioId] = useState(null);
@@ -2607,28 +2629,6 @@ const PortfolioView = ({ token, onAuthRequired }) => {
     setConfirmDeleteId(null);
     if (activePortfolioId === id) setActivePortfolioId(null);
     setReloadKey(k => k + 1);
-  };
-
-  const handleCreatePortfolio = async () => {
-    const name = newPortfolioName.trim() || "Новый портфель";
-    const duplicate = portfolioList.some(p => p.name.trim().toLowerCase() === name.toLowerCase());
-    if (duplicate) {
-      setNewPortfolioNameError("Портфель с таким названием уже существует");
-      return;
-    }
-    setNewPortfolioNameError("");
-    const resp = await fetch(`${apiUrl}/api/portfolios`, {
-      method: "POST",
-      headers: { ...authHeaders, "Content-Type": "application/json" },
-      body: JSON.stringify({ name, user_id: 0 }),
-    });
-    if (resp.ok) {
-      const p = await resp.json();
-      setShowNewPortfolioInput(false);
-      setNewPortfolioName("");
-      setActivePortfolioId(p.id);
-      setReloadKey(k => k + 1);
-    }
   };
 
   useEffect(() => {
@@ -2753,36 +2753,13 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             </button>
           </div>
         ))}
-        {!showNewPortfolioInput ? (
-          <button
-            className="btn btn-ghost"
-            style={{ padding: "5px 12px", fontSize: 12 }}
-            onClick={() => token ? setShowNewPortfolioInput(true) : onAuthRequired()}
-          >
-            <Plus size={12} /> Новый портфель
-          </button>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <input
-                autoFocus
-                value={newPortfolioName}
-                onChange={e => { setNewPortfolioName(e.target.value); setNewPortfolioNameError(""); }}
-                placeholder="Название"
-                onKeyDown={e => e.key === "Enter" && handleCreatePortfolio()}
-                style={{
-                  background: "var(--bg-surface)", border: `1px solid ${newPortfolioNameError ? "var(--negative)" : "var(--border)"}`, borderRadius: 8,
-                  padding: "5px 10px", color: "var(--text-1)", fontSize: 13, outline: "none", width: 140,
-                }}
-              />
-              <button className="btn btn-primary" style={{ padding: "5px 12px", fontSize: 12 }} onClick={handleCreatePortfolio}>Создать</button>
-              <button className="btn btn-ghost" style={{ padding: "5px 8px" }} onClick={() => { setShowNewPortfolioInput(false); setNewPortfolioNameError(""); }}><X size={13} /></button>
-            </div>
-            {newPortfolioNameError && (
-              <div style={{ fontSize: 11, color: "var(--negative)", paddingLeft: 2 }}>{newPortfolioNameError}</div>
-            )}
-          </div>
-        )}
+        <button
+          className="btn btn-ghost"
+          style={{ padding: "5px 12px", fontSize: 12 }}
+          onClick={() => token ? setShowUploadModal(true) : onAuthRequired()}
+        >
+          <Plus size={12} /> Новый портфель
+        </button>
         <button
           className="btn btn-ghost"
           style={{ padding: "5px 12px", fontSize: 12, border: "0.5px solid var(--border)", marginLeft: "auto" }}
@@ -3220,7 +3197,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           </button>
         </div>
         {showUploadModal && (
-          <PortfolioImportModal token={token} onClose={() => setShowUploadModal(false)} onSuccess={() => { setShowUploadModal(false); setReloadKey(k => k + 1); }} />
+          <PortfolioImportModal token={token} existingNames={portfolioList.map(p => p.name)} onClose={() => setShowUploadModal(false)} onSuccess={() => { setShowUploadModal(false); setReloadKey(k => k + 1); }} />
         )}
       </div>
     );
@@ -3342,6 +3319,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
       {showUploadModal && (
         <PortfolioImportModal
           token={token}
+          existingNames={portfolioList.map(p => p.name)}
           onClose={() => setShowUploadModal(false)}
           onSuccess={(newPortfolio) => {
             setPortfolio(newPortfolio);
