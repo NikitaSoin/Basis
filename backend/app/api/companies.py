@@ -137,8 +137,9 @@ def realtime_quotes_endpoint():
 
     # ── Tinkoff (primary) ───────────────────────────────────────────────────
     from app.services import tinkoff_quotes
-    if tinkoff_quotes.is_available():
+    if tinkoff_quotes.is_configured():
         tinkoff_quotes.refresh_prices()
+    if tinkoff_quotes.is_available():
         prices = tinkoff_quotes.get_all_prices()
         payload = {ticker: q for ticker, q in prices.items()}
         payload["_source"] = "tinkoff"
