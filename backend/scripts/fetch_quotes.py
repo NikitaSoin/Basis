@@ -2,6 +2,11 @@
 Загружает котировки с MOEX ISS API (bulk TQBR endpoint) для всех компаний в БД.
 Один запрос = все акции. Работает и во время торгов, и после закрытия.
 Запуск: cd backend && python -m scripts.fetch_quotes
+
+Авторизация:
+  Для real-time данных (без 15-мин задержки) задай MOEX_USERNAME и MOEX_PASSWORD в .env.
+  Аккаунт бесплатный: https://www.moex.com/ru/registration/
+  После регистрации нужно принять соглашение об использовании данных в профиле.
 """
 import sys
 import os
@@ -9,7 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
+import base64
+import http.cookiejar
 import logging
+import time
 import urllib.request
 import ssl
 import json
@@ -21,7 +29,6 @@ _ssl_ctx = ssl.create_default_context()
 _ssl_ctx.check_hostname = False
 _ssl_ctx.verify_mode = ssl.CERT_NONE
 
-# Один запрос — все акции основного режима TQBR
 BULK_URL = (
     "https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
     "?iss.meta=off&iss.only=marketdata,securities"
@@ -29,17 +36,66 @@ BULK_URL = (
     "&securities.columns=SECID,PREVPRICE,PREVDATE"
 )
 
+AUTH_URL = "https://passport.moex.com/authenticate"
+
+# Кэшируем сессионную куку — переаутентифицируемся раз в 6 часов
+_session_cookie: str | None = None
+_session_ts: float = 0
+
+
+def _get_moex_cookie() -> str | None:
+    """Авторизуется в MOEX Passport и возвращает значение куки MicexPassportCert."""
+    global _session_cookie, _session_ts
+
+    if _session_cookie and (time.time() - _session_ts) < 6 * 3600:
+        return _session_cookie
+
+    username = os.environ.get("MOEX_USERNAME", "").strip()
+    password = os.environ.get("MOEX_PASSWORD", "").strip()
+    if not username or not password:
+        return None
+
+    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+    cookie_jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(
+        urllib.request.HTTPSHandler(context=_ssl_ctx),
+        urllib.request.HTTPCookieProcessor(cookie_jar),
+    )
+    req = urllib.request.Request(
+        AUTH_URL,
+        headers={
+            "Authorization": f"Basic {auth}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+    )
+    try:
+        with opener.open(req, timeout=10):
+            pass
+        for cookie in cookie_jar:
+            if cookie.name == "MicexPassportCert":
+                _session_cookie = cookie.value
+                _session_ts = time.time()
+                logger.info("MOEX: авторизация успешна (real-time режим)")
+                return _session_cookie
+        logger.warning("MOEX: авторизация не вернула куку — проверь логин/пароль")
+    except Exception as e:
+        logger.warning("MOEX: ошибка авторизации: %s", e)
+    return None
+
 
 def fetch_moex_bulk() -> dict[str, dict]:
     """Возвращает {ticker: {...}, '_moex_time': str, '_fetched_at': str}"""
-    import time as _time
-    # _ts cache-buster — исключает кэширование на прокси/CDN
-    url = BULK_URL + f"&_ts={int(_time.time())}"
-    req = urllib.request.Request(url, headers={
+    url = BULK_URL + f"&_ts={int(time.time())}"
+    headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json",
         "Cache-Control": "no-cache",
-    })
+    }
+    cookie = _get_moex_cookie()
+    if cookie:
+        headers["Cookie"] = f"MicexPassportCert={cookie}"
+
+    req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=15, context=_ssl_ctx) as resp:
         data = json.loads(resp.read())
 
@@ -53,19 +109,18 @@ def fetch_moex_bulk() -> dict[str, dict]:
         for r in sec_rows
     }
 
-    # Извлекаем SYSTIME — метка времени данных на сервере MOEX
     moex_systime = None
     if md_rows and "SYSTIME" in md_cols:
         sample = dict(zip(md_cols, md_rows[0]))
         moex_systime = sample.get("SYSTIME")
         if moex_systime:
             try:
-                from datetime import datetime as _dt
-                moex_time = _dt.fromisoformat(moex_systime)
-                delay_sec = (_dt.now() - moex_time).total_seconds()
-                logger.info("[MOEX] SYSTIME=%s  delay=%.0fs", moex_systime, delay_sec)
+                moex_time = datetime.fromisoformat(moex_systime)
+                delay_sec = (datetime.now() - moex_time).total_seconds()
+                logger.info("MOEX SYSTIME=%s  delay=%.0fs  auth=%s",
+                            moex_systime, delay_sec, "yes" if cookie else "no")
             except Exception:
-                logger.info("[MOEX] SYSTIME=%s", moex_systime)
+                pass
 
     result: dict[str, dict] = {}
     today = date.today()
@@ -75,7 +130,6 @@ def fetch_moex_bulk() -> dict[str, dict]:
         ticker = md["SECID"]
         sec = sec_map.get(ticker, {})
 
-        # Берём LAST (внутри дня) или PREVPRICE (последняя цена закрытия)
         price = md.get("LAST") or sec.get("PREVPRICE")
         if not price:
             continue
@@ -84,7 +138,6 @@ def fetch_moex_bulk() -> dict[str, dict]:
         change_abs = md.get("CHANGE")
         change_pct = md.get("LASTTOPREVPRICE")
 
-        # Если LAST=None (после закрытия), изменение = 0 (относительно самого себя)
         if md.get("LAST") is None:
             change_abs = 0.0
             change_pct = 0.0
@@ -125,6 +178,8 @@ def main():
     try:
         print("Загружаем bulk-данные с MOEX...")
         bulk = fetch_moex_bulk()
+        bulk.pop("_moex_time", None)
+        bulk.pop("_fetched_at", None)
         print(f"  Получено котировок: {len(bulk)}")
 
         companies = db.query(Company).order_by(Company.ticker).all()
