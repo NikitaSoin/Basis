@@ -83,29 +83,43 @@ def debug_tinkoff():
 
     # ── 2. Анализ загруженных инструментов ──────────────────────────────────
     if instruments:
-        # Распределение по exchange (без фильтра)
+        result["total_instruments"] = len(instruments)
+
+        # Все ключи первого инструмента — чтобы видеть точные имена полей
+        result["instrument_field_names"] = list(instruments[0].keys()) if instruments else []
+
+        # Распределение по exchange
         exchange_dist: dict[str, int] = {}
         for ins in instruments:
             ex = str(ins.get("exchange", "<пусто>"))
             exchange_dist[ex] = exchange_dist.get(ex, 0) + 1
+        result["exchange_distribution"] = dict(sorted(exchange_dist.items(), key=lambda x: -x[1])[:15])
 
-        result["exchange_distribution"] = exchange_dist
-        result["total_instruments"] = len(instruments)
+        # Распределение по classCode (все варианты написания)
+        class_dist: dict[str, int] = {}
+        for ins in instruments:
+            cc = str(ins.get("classCode") or ins.get("class_code") or "<пусто>")
+            class_dist[cc] = class_dist.get(cc, 0) + 1
+        result["class_code_distribution"] = dict(sorted(class_dist.items(), key=lambda x: -x[1])[:20])
 
-        # Первые 5 инструментов — все строковые поля
+        # Считаем TQBR по обоим вариантам имени поля
+        tqbr_camel = [ins for ins in instruments if ins.get("classCode") == "TQBR"]
+        tqbr_snake = [ins for ins in instruments if ins.get("class_code") == "TQBR"]
+        result["tqbr_count_classCode"] = len(tqbr_camel)
+        result["tqbr_count_class_code"] = len(tqbr_snake)
+
+        # Первые 5 инструментов — все скалярные поля
         result["sample_first_5"] = [
             {k: v for k, v in ins.items() if isinstance(v, (str, int, bool, float))}
             for ins in instruments[:5]
         ]
 
-        # Первые 5 где exchange содержит MOEX
-        moex_sample = [
+        # Первые 5 TQBR инструментов
+        tqbr_list = tqbr_camel or tqbr_snake
+        result["sample_tqbr_5"] = [
             {k: v for k, v in ins.items() if isinstance(v, (str, int, bool, float))}
-            for ins in instruments
-            if "MOEX" in str(ins.get("exchange", "")).upper()
-        ][:5]
-        result["sample_moex_5"] = moex_sample
-        result["moex_count"] = sum(1 for ins in instruments if "MOEX" in str(ins.get("exchange", "")).upper())
+            for ins in tqbr_list[:5]
+        ]
 
     # ── 3. Тест цены Сбера (FIGI известен) ──────────────────────────────────
     sber_figi = "BBG004730N88"
