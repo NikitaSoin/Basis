@@ -37,7 +37,7 @@ async def _tinkoff_warmup():
         from app.db.session import SessionLocal
         from app.models.company import Company
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
 
         # Получаем prev_close с MOEX ISS (не time-sensitive — вчерашнее закрытие)
         def _get_prev_close():
