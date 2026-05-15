@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import select, text
+from sqlalchemy import text
 from app.db.session import get_db
 from app.models.company_profile import CompanyProfile
 from app.schemas.company import (
@@ -224,19 +224,10 @@ def list_quotes_endpoint(company_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/companies/by-ticker/{ticker}/profile")
-def get_company_profile_endpoint(ticker: str, db: Session = Depends(get_db)):
-    """Возвращает бизнес-профиль компании по тикеру."""
-    ticker = ticker.upper()
-    row = db.execute(
-        select(CompanyProfile).where(CompanyProfile.ticker == ticker)
-    ).scalar_one_or_none()
-    if row is None:
-        raise HTTPException(status_code=404, detail=f"Profile not found for {ticker}")
-    return {
-        "ticker": row.ticker,
-        "data_quality": row.data_quality,
-        "completeness_pct": row.completeness_pct,
-        "version": row.version,
-        "updated_at": row.updated_at,
-        "profile": row.profile_json,
-    }
+async def get_company_profile(ticker: str, db: Session = Depends(get_db)):
+    profile = db.query(CompanyProfile).filter(
+        CompanyProfile.ticker == ticker.upper()
+    ).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile.profile_json
