@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "SBER",
+    "status": "ok",
+    "completeness_pct": 100,
+    "data_quality": "high",
+    "fields_missing": [],
+    "sources_found": 7,
+    "timestamp": "2026-05-14T23:24:48.406892",
+    "error": null
+  },
+  {
+    "ticker": "LKOH",
+    "status": "ok",
+    "completeness_pct": 100,
+    "data_quality": "high",
+    "fields_missing": [],
+    "sources_found": 12,
+    "timestamp": "2026-05-14T23:15:56.187886",
+    "error": null
+  },
+  {
+    "ticker": "YDEX",
+    "status": "ok",
+    "completeness_pct": 100,
+    "data_quality": "high",
+    "fields_missing": [],
+    "sources_found": 14,
+    "timestamp": "2026-05-14T23:26:58.175515",
+    "error": null
+  },
+  {
+    "ticker": "GMKN",
+    "status": "ok",
+    "completeness_pct": 100,
+    "data_quality": "high",
+    "fields_missing": [],
+    "sources_found": 10,
+    "timestamp": "2026-05-14T23:20:21.129900",
+    "error": null
+  }
+]
