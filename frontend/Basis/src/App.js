@@ -1630,6 +1630,8 @@ const CompanyCard = ({ company, onBack }) => {
   const [stressScenario, setStressScenario] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -1673,6 +1675,15 @@ const CompanyCard = ({ company, onBack }) => {
       .then(d => { setAnalysis(Array.isArray(d) && d.length > 0 ? d[0] : null); setAnalysisLoading(false); })
       .catch(() => setAnalysisLoading(false));
   }, [company.id]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setProfileLoading(true);
+    fetch(`${apiUrl}/api/companies/by-ticker/${company.ticker}/profile`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { setProfile(d); setProfileLoading(false); })
+      .catch(() => setProfileLoading(false));
+  }, [company.ticker]);
 
   const renderComingSoon = (label) => (
     <div className="bg-slate-800 p-10 text-center rounded-xl border border-slate-700">
@@ -2180,6 +2191,220 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  const renderBusinessProfile = () => {
+    if (profileLoading) return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-slate-400 animate-pulse">Загружаем профиль...</div>
+      </div>
+    );
+    if (!profile) return renderComingSoon("Бизнес-модель");
+
+    const meta = profile.meta || {};
+    const desc = profile.description || {};
+    const be = profile.business_essence || {};
+    const rs = profile.revenue_streams || [];
+    const cp = profile.competitive_position || {};
+    const ms = profile.macro_sensitivities || [];
+    const km = profile.key_metrics_to_watch || [];
+    const cs = profile.cost_structure || {};
+
+    const dirColor = (d) => d === "positive" ? "text-green-400" : d === "negative" ? "text-red-400" : "text-amber-400";
+    const strengthBadge = (s) => {
+      const cls = s === "high" ? "bg-red-500/20 text-red-400" : s === "medium" ? "bg-amber-500/20 text-amber-400" : "bg-slate-600 text-slate-400";
+      return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{s === "high" ? "сильно" : s === "medium" ? "умеренно" : "слабо"}</span>;
+    };
+    const trendIcon = (t) => t === "growing" ? "↑" : t === "declining" ? "↓" : "→";
+    const trendColor = (t) => t === "growing" ? "text-green-400" : t === "declining" ? "text-red-400" : "text-slate-400";
+
+    return (
+      <div className="space-y-5">
+        {/* Суть бизнеса */}
+        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h4 className="text-indigo-400 font-semibold flex items-center gap-2">
+              <Briefcase size={16} />
+              Суть бизнеса
+            </h4>
+            {meta.data_as_of && (
+              <span className="text-xs bg-slate-700 text-slate-400 px-3 py-1 rounded-full">
+                Данные: {meta.data_as_of}
+              </span>
+            )}
+          </div>
+          {desc.short && <p className="text-slate-300 text-sm leading-relaxed mb-3">{desc.short}</p>}
+          {be.what_company_does && (
+            <p className="text-slate-400 text-xs leading-relaxed border-t border-slate-700/50 pt-3">{be.what_company_does}</p>
+          )}
+          {be.value_proposition && (
+            <p className="text-slate-400 text-xs leading-relaxed mt-2">
+              <span className="text-slate-500 font-medium">Ценность для клиентов: </span>{be.value_proposition}
+            </p>
+          )}
+        </div>
+
+        {/* Структура выручки */}
+        {rs.length > 0 && (
+          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+              <PieChart size={16} />
+              Структура выручки
+            </h4>
+            <div className="space-y-4">
+              {rs.map((s, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-slate-300 text-sm flex items-center gap-2">
+                      <span className={`font-mono text-xs ${trendColor(s.trend)}`}>{trendIcon(s.trend)}</span>
+                      {s.segment}
+                    </span>
+                    <span className="text-white font-mono text-sm font-bold">{s.share_pct}%</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-1.5">
+                    <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min(s.share_pct, 100)}%` }} />
+                  </div>
+                  {s.description && (
+                    <p className="text-slate-500 text-xs mt-1.5 leading-relaxed">{s.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+            {rs[0]?.year && (
+              <p className="text-slate-600 text-xs mt-4">Источник: FY{rs[0].year}</p>
+            )}
+          </div>
+        )}
+
+        {/* Конкурентная позиция */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {cp.moats?.length > 0 && (
+            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-green-500">
+              <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
+                <ShieldCheck size={16} />
+                Конкурентные преимущества
+              </h4>
+              <ul className="space-y-2">
+                {cp.moats.map((m, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-green-500 mt-0.5 flex-shrink-0">•</span>
+                    <span>{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {cp.vulnerabilities?.length > 0 && (
+            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-red-500">
+              <h4 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+                <ShieldAlert size={16} />
+                Уязвимости
+              </h4>
+              <ul className="space-y-2">
+                {cp.vulnerabilities.map((v, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-red-500 mt-0.5 flex-shrink-0">•</span>
+                    <span>{v}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* Макрочувствительность */}
+        {ms.length > 0 && (
+          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+              <Globe size={16} />
+              Макрочувствительность
+            </h4>
+            <div className="space-y-3">
+              {ms.map((m, i) => (
+                <div key={i} className="border-b border-slate-700/40 pb-3 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className={`font-mono text-xs font-bold uppercase tracking-wide ${dirColor(m.direction)}`}>{m.factor}</span>
+                    {strengthBadge(m.strength)}
+                    <span className={`text-xs ${dirColor(m.direction)}`}>
+                      {m.direction === "positive" ? "▲ позитив" : m.direction === "negative" ? "▼ негатив" : "↔ смешанно"}
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-xs leading-relaxed">{m.channel}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Ключевые метрики */}
+        {km.length > 0 && (
+          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+              <Target size={16} />
+              Ключевые метрики для наблюдения
+            </h4>
+            <div className="space-y-4">
+              {km.map((k, i) => (
+                <div key={i} className="border-b border-slate-700/40 pb-4 last:border-0 last:pb-0">
+                  <div className="text-white text-sm font-semibold mb-1">{k.metric}</div>
+                  <div className="text-slate-400 text-xs mb-1 leading-relaxed">{k.why_important}</div>
+                  <div className="text-slate-500 text-xs italic leading-relaxed">{k.what_to_look_for}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Конкуренты + Структура затрат */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {cp.main_competitors?.length > 0 && (
+            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+              <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
+                <Users size={16} />
+                Конкуренты
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {cp.main_competitors.map((c, i) => (
+                  <span key={i} className="text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg font-mono">{c}</span>
+                ))}
+              </div>
+              {cp.market_share_pct && (
+                <p className="text-slate-500 text-xs mt-3">
+                  Доля рынка: <span className="text-white font-bold">{cp.market_share_pct}%</span>
+                  {cp.market_share_scope && ` (${cp.market_share_scope})`}
+                </p>
+              )}
+            </div>
+          )}
+          {cs.margin_drivers?.length > 0 && (
+            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
+              <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
+                <Activity size={16} />
+                Драйверы маржи
+              </h4>
+              <ul className="space-y-1.5 mb-3">
+                {cs.margin_drivers.map((d, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-green-300">
+                    <span className="text-green-500 mt-0.5 flex-shrink-0">+</span>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+              {cs.margin_threats?.length > 0 && (
+                <ul className="space-y-1.5 border-t border-slate-700/50 pt-3">
+                  {cs.margin_threats.map((t, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-red-300">
+                      <span className="text-red-500 mt-0.5 flex-shrink-0">−</span>
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -2254,6 +2479,7 @@ const CompanyCard = ({ company, onBack }) => {
       }}>
         {[
           { id: "overview", label: "Обзор" },
+          { id: "business", label: "Бизнес-модель" },
           { id: "deep", label: "Глубокий разбор" },
           { id: "consilium", label: "Консилиум" },
           { id: "stress", label: "Стресс-тест" },
@@ -2276,6 +2502,7 @@ const CompanyCard = ({ company, onBack }) => {
 
       <>
         {tab === "overview" && renderOverview()}
+        {tab === "business" && renderBusinessProfile()}
         {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
         {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
         {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}
