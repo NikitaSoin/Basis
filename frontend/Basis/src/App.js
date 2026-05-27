@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import {
   Search,
   TrendingUp,
@@ -1632,6 +1633,8 @@ const CompanyCard = ({ company, onBack }) => {
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [bmMd, setBmMd] = useState(null);
+  const [bmMdLoading, setBmMdLoading] = useState(true);
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -1683,6 +1686,15 @@ const CompanyCard = ({ company, onBack }) => {
       .then(r => r.ok ? r.json() : null)
       .then(d => { setProfile(d); setProfileLoading(false); })
       .catch(() => setProfileLoading(false));
+  }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setBmMdLoading(true);
+    fetch(`${apiUrl}/api/companies/by-ticker/${company.ticker}/business-model`)
+      .then(r => r.ok ? r.text() : null)
+      .then(d => { setBmMd(d); setBmMdLoading(false); })
+      .catch(() => setBmMdLoading(false));
   }, [company.ticker]);
 
   const renderComingSoon = (label) => (
@@ -2192,11 +2204,41 @@ const CompanyCard = ({ company, onBack }) => {
   };
 
   const renderBusinessProfile = () => {
-    if (profileLoading) return (
+    const isLoading = bmMdLoading && profileLoading;
+    if (isLoading) return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-slate-400 animate-pulse">Загружаем профиль...</div>
+        <div className="text-slate-400 animate-pulse">Загружаем бизнес-модель...</div>
       </div>
     );
+
+    // Prefer rich markdown document if available
+    if (bmMd) return (
+      <div className="prose prose-invert prose-sm max-w-none space-y-1"
+        style={{
+          color: "var(--text-2)",
+          lineHeight: 1.7,
+        }}>
+        <ReactMarkdown
+          components={{
+            h1: ({children}) => <h1 style={{fontSize:20, fontWeight:800, color:"var(--text-1)", marginBottom:4, marginTop:0}}>{children}</h1>,
+            h2: ({children}) => <h2 style={{fontSize:15, fontWeight:700, color:"var(--accent-text)", marginTop:28, marginBottom:8, paddingBottom:4, borderBottom:"1px solid var(--border-mid)"}}>{children}</h2>,
+            h3: ({children}) => <h3 style={{fontSize:13, fontWeight:600, color:"var(--text-1)", marginTop:16, marginBottom:6}}>{children}</h3>,
+            p: ({children}) => <p style={{fontSize:13, color:"var(--text-2)", marginBottom:8, lineHeight:1.65}}>{children}</p>,
+            table: ({children}) => <div style={{overflowX:"auto", marginBottom:12}}><table style={{width:"100%", borderCollapse:"collapse", fontSize:12}}>{children}</table></div>,
+            thead: ({children}) => <thead style={{background:"var(--bg-surface)"}}>{children}</thead>,
+            th: ({children}) => <th style={{padding:"6px 12px", textAlign:"left", color:"var(--text-3)", fontWeight:600, fontSize:11, textTransform:"uppercase", letterSpacing:"0.04em", borderBottom:"1px solid var(--border-mid)"}}>{children}</th>,
+            td: ({children}) => <td style={{padding:"6px 12px", color:"var(--text-2)", fontSize:12, borderBottom:"1px solid var(--border-subtle)"}}>{children}</td>,
+            li: ({children}) => <li style={{fontSize:13, color:"var(--text-2)", marginBottom:4}}>{children}</li>,
+            ul: ({children}) => <ul style={{paddingLeft:16, marginBottom:8}}>{children}</ul>,
+            ol: ({children}) => <ol style={{paddingLeft:16, marginBottom:8}}>{children}</ol>,
+            strong: ({children}) => <strong style={{color:"var(--text-1)", fontWeight:600}}>{children}</strong>,
+            hr: () => <hr style={{borderColor:"var(--border-mid)", margin:"16px 0"}} />,
+            blockquote: ({children}) => <blockquote style={{borderLeft:"3px solid var(--accent)",paddingLeft:12,color:"var(--text-3)",fontStyle:"italic"}}>{children}</blockquote>,
+          }}
+        >{bmMd}</ReactMarkdown>
+      </div>
+    );
+
     if (!profile) return renderComingSoon("Бизнес-модель");
 
     const meta = profile.meta || {};

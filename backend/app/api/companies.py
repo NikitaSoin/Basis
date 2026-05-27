@@ -1,7 +1,10 @@
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+
+COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 from app.db.session import get_db
 from app.models.company_profile import CompanyProfile
 from app.schemas.company import (
@@ -231,3 +234,14 @@ async def get_company_profile(ticker: str, db: Session = Depends(get_db)):
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile.profile_json
+
+
+@router.get("/companies/by-ticker/{ticker}/business-model", response_class=PlainTextResponse)
+async def get_business_model_md(ticker: str):
+    path = COMPANIES_DIR / ticker.upper() / "business_model.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Business model not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
