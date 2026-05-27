@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   Search,
   TrendingUp,
@@ -2212,32 +2213,96 @@ const CompanyCard = ({ company, onBack }) => {
     );
 
     // Prefer rich markdown document if available
-    if (bmMd) return (
-      <div className="prose prose-invert prose-sm max-w-none space-y-1"
-        style={{
-          color: "var(--text-2)",
-          lineHeight: 1.7,
-        }}>
-        <ReactMarkdown
-          components={{
-            h1: ({children}) => <h1 style={{fontSize:20, fontWeight:800, color:"var(--text-1)", marginBottom:4, marginTop:0}}>{children}</h1>,
-            h2: ({children}) => <h2 style={{fontSize:15, fontWeight:700, color:"var(--accent-text)", marginTop:28, marginBottom:8, paddingBottom:4, borderBottom:"1px solid var(--border-mid)"}}>{children}</h2>,
-            h3: ({children}) => <h3 style={{fontSize:13, fontWeight:600, color:"var(--text-1)", marginTop:16, marginBottom:6}}>{children}</h3>,
-            p: ({children}) => <p style={{fontSize:13, color:"var(--text-2)", marginBottom:8, lineHeight:1.65}}>{children}</p>,
-            table: ({children}) => <div style={{overflowX:"auto", marginBottom:12}}><table style={{width:"100%", borderCollapse:"collapse", fontSize:12}}>{children}</table></div>,
-            thead: ({children}) => <thead style={{background:"var(--bg-surface)"}}>{children}</thead>,
-            th: ({children}) => <th style={{padding:"6px 12px", textAlign:"left", color:"var(--text-3)", fontWeight:600, fontSize:11, textTransform:"uppercase", letterSpacing:"0.04em", borderBottom:"1px solid var(--border-mid)"}}>{children}</th>,
-            td: ({children}) => <td style={{padding:"6px 12px", color:"var(--text-2)", fontSize:12, borderBottom:"1px solid var(--border-subtle)"}}>{children}</td>,
-            li: ({children}) => <li style={{fontSize:13, color:"var(--text-2)", marginBottom:4}}>{children}</li>,
-            ul: ({children}) => <ul style={{paddingLeft:16, marginBottom:8}}>{children}</ul>,
-            ol: ({children}) => <ol style={{paddingLeft:16, marginBottom:8}}>{children}</ol>,
-            strong: ({children}) => <strong style={{color:"var(--text-1)", fontWeight:600}}>{children}</strong>,
-            hr: () => <hr style={{borderColor:"var(--border-mid)", margin:"16px 0"}} />,
-            blockquote: ({children}) => <blockquote style={{borderLeft:"3px solid var(--accent)",paddingLeft:12,color:"var(--text-3)",fontStyle:"italic"}}>{children}</blockquote>,
-          }}
-        >{bmMd}</ReactMarkdown>
-      </div>
-    );
+    if (bmMd) {
+      let isFirstP = true;
+      const mdComponents = {
+        h1: ({children}) => (
+          <h1 style={{fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"0 0 4px 0", lineHeight:1.3}}>{children}</h1>
+        ),
+        h2: ({children}) => (
+          <h2 style={{fontSize:16, fontWeight:600, color:"var(--text-1)", margin:"28px 0 10px 0", paddingBottom:6, borderBottom:"1px solid var(--border-mid)"}}>{children}</h2>
+        ),
+        h3: ({children}) => (
+          <h3 style={{fontSize:14, fontWeight:600, color:"var(--text-1)", margin:"18px 0 6px 0"}}>{children}</h3>
+        ),
+        p: ({children}) => {
+          if (isFirstP) {
+            isFirstP = false;
+            return (
+              <p style={{
+                fontSize:14, lineHeight:1.7, color:"var(--text-1)",
+                background:"var(--bg-surface)", borderLeft:"3px solid var(--accent)",
+                padding:"10px 14px", borderRadius:"0 8px 8px 0",
+                margin:"10px 0 16px 0",
+              }}>{children}</p>
+            );
+          }
+          return <p style={{fontSize:14, lineHeight:1.7, color:"var(--text-1)", margin:"0 0 10px 0"}}>{children}</p>;
+        },
+        table: ({children}) => (
+          <div style={{overflowX:"auto", margin:"8px 0 16px 0", borderRadius:8, border:"1px solid var(--border-mid)"}}>
+            <table style={{width:"100%", borderCollapse:"collapse", fontSize:13}}>{children}</table>
+          </div>
+        ),
+        thead: ({children}) => (
+          <thead style={{background:"var(--bg-surface)"}}>{children}</thead>
+        ),
+        th: ({children}) => (
+          <th style={{
+            padding:"8px 12px", textAlign:"left", color:"var(--text-3)",
+            fontWeight:600, fontSize:11, textTransform:"uppercase",
+            letterSpacing:"0.05em", borderBottom:"1px solid var(--border-mid)",
+            whiteSpace:"nowrap",
+          }}>{children}</th>
+        ),
+        td: ({children}) => {
+          const raw = typeof children === "string" ? children : (Array.isArray(children) ? children.join("") : "");
+          const isNum = /^[+−\-]?[\d]/.test(raw.trim());
+          const color = raw.trim().startsWith("+") ? "var(--positive)"
+            : (raw.trim().startsWith("−") || raw.trim().startsWith("-")) && isNum ? "var(--negative)"
+            : "var(--text-1)";
+          return (
+            <td style={{
+              padding:"7px 12px", color, fontSize:13,
+              borderBottom:"1px solid var(--border-subtle)",
+              textAlign: isNum ? "right" : "left",
+            }}>{children}</td>
+          );
+        },
+        tr: ({children, ...props}) => (
+          <tr style={{}} {...props}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--bg-surface)"}
+            onMouseLeave={e => e.currentTarget.style.background = ""}
+          >{children}</tr>
+        ),
+        li: ({children}) => (
+          <li style={{fontSize:14, color:"var(--text-1)", marginBottom:5, lineHeight:1.6}}>{children}</li>
+        ),
+        ul: ({children}) => (
+          <ul style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ul>
+        ),
+        ol: ({children}) => (
+          <ol style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ol>
+        ),
+        strong: ({children}) => (
+          <strong style={{color:"var(--text-1)", fontWeight:700}}>{children}</strong>
+        ),
+        hr: () => (
+          <hr style={{borderColor:"var(--border-mid)", margin:"20px 0", borderStyle:"solid", borderWidth:"0 0 1px 0"}} />
+        ),
+        blockquote: ({children}) => (
+          <blockquote style={{borderLeft:"3px solid var(--accent)", paddingLeft:12, margin:"8px 0", color:"var(--text-2)", fontStyle:"italic"}}>{children}</blockquote>
+        ),
+        code: ({children}) => (
+          <code style={{background:"var(--bg-surface)", padding:"1px 5px", borderRadius:4, fontSize:12, color:"var(--text-2)", fontFamily:"monospace"}}>{children}</code>
+        ),
+      };
+      return (
+        <div style={{color:"var(--text-1)", lineHeight:1.65}}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{bmMd}</ReactMarkdown>
+        </div>
+      );
+    }
 
     if (!profile) return renderComingSoon("Бизнес-модель");
 
