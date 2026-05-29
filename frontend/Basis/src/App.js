@@ -2216,6 +2216,8 @@ const CompanyCard = ({ company, onBack }) => {
     if (bmMd) {
       let isFirstP = true;
       let trIdx = 0;
+      let listMode = "ul";
+      let olItemIdx = 0;
 
       const getText = (node) => {
         if (typeof node === "string") return node;
@@ -2346,15 +2348,46 @@ const CompanyCard = ({ company, onBack }) => {
             }}>{children}</td>
           );
         },
-        li: ({children}) => (
-          <li style={{fontSize:14, color:"var(--text-1)", marginBottom:5, lineHeight:1.6}}>{children}</li>
-        ),
-        ul: ({children}) => (
-          <ul style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ul>
-        ),
-        ol: ({children}) => (
-          <ol style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ol>
-        ),
+        li: ({children}) => {
+          if (listMode === "ol") {
+            const idx = olItemIdx++;
+            const txt = getText(children);
+            const hasRisk = txt.toLowerCase().includes("риск:");
+            return (
+              <div style={{
+                background:"var(--bg-card)",
+                border:"1px solid var(--border)",
+                borderLeft:`3px solid ${hasRisk ? "var(--negative)" : "var(--border-mid)"}`,
+                borderRadius:"0 10px 10px 0",
+                padding:"11px 14px",
+                display:"flex",
+                gap:12,
+              }}>
+                <span style={{
+                  width:24, height:24, borderRadius:"50%",
+                  background:"var(--accent-fade)", color:"var(--accent-text)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:12, fontWeight:700, flexShrink:0,
+                }}>{idx + 1}</span>
+                <div style={{fontSize:14, lineHeight:1.6, color:"var(--text-1)"}}>{children}</div>
+              </div>
+            );
+          }
+          return <li style={{fontSize:14, color:"var(--text-1)", marginBottom:5, lineHeight:1.6}}>{children}</li>;
+        },
+        ul: ({children}) => {
+          listMode = "ul";
+          return <ul style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ul>;
+        },
+        ol: ({children}) => {
+          listMode = "ol";
+          olItemIdx = 0;
+          return (
+            <div style={{display:"flex", flexDirection:"column", gap:8, margin:"10px 0 16px 0"}}>
+              {children}
+            </div>
+          );
+        },
         strong: ({children}) => (
           <strong style={{color:"var(--text-1)", fontWeight:700}}>{children}</strong>
         ),
