@@ -2215,35 +2215,98 @@ const CompanyCard = ({ company, onBack }) => {
     // Prefer rich markdown document if available
     if (bmMd) {
       let isFirstP = true;
+      let trIdx = 0;
+
+      const getText = (node) => {
+        if (typeof node === "string") return node;
+        if (typeof node === "number") return String(node);
+        if (Array.isArray(node)) return node.map(getText).join("");
+        if (node?.props?.children != null) return getText(node.props.children);
+        return "";
+      };
+
+      const H2_ICONS = {
+        "первый экран": Layout, "суть бизнеса": Briefcase, "мини-p&l": BarChart2,
+        "ключевые факторы": ShieldAlert, "экономика": Database, "сегменты": Layers,
+        "цепочка": ArrowRightLeft, "география": Globe, "клиенты": Users, "источники": FileText,
+      };
+      const getH2Icon = (txt) => {
+        const low = txt.toLowerCase();
+        for (const [k, I] of Object.entries(H2_ICONS)) if (low.includes(k)) return I;
+        return null;
+      };
+
       const mdComponents = {
-        h1: ({children}) => (
-          <h1 style={{fontSize:20, fontWeight:800, color:"var(--text-1)", margin:"0 0 4px 0", lineHeight:1.3}}>{children}</h1>
-        ),
-        h2: ({children}) => (
-          <h2 style={{fontSize:16, fontWeight:600, color:"var(--text-1)", margin:"28px 0 10px 0", paddingBottom:6, borderBottom:"1px solid var(--border-mid)"}}>{children}</h2>
-        ),
+        h1: () => null,
+
+        h2: ({children}) => {
+          const Icon = getH2Icon(getText(children));
+          return (
+            <div style={{marginTop:30, marginBottom:14}}>
+              <h2 style={{
+                fontSize:15, fontWeight:700, color:"var(--text-1)", margin:0,
+                display:"flex", alignItems:"center", gap:10,
+                paddingBottom:10, borderBottom:"1px solid var(--border-mid)",
+              }}>
+                {Icon && (
+                  <span style={{
+                    width:28, height:28, borderRadius:8, background:"var(--accent-fade)",
+                    display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+                  }}>
+                    <Icon size={15} style={{color:"var(--accent-text)"}} />
+                  </span>
+                )}
+                {children}
+              </h2>
+            </div>
+          );
+        },
+
         h3: ({children}) => (
-          <h3 style={{fontSize:14, fontWeight:600, color:"var(--text-1)", margin:"18px 0 6px 0"}}>{children}</h3>
+          <h3 style={{
+            fontSize:13, fontWeight:600, color:"var(--text-2)",
+            margin:"18px 0 6px 0", display:"flex", alignItems:"center", gap:7,
+          }}>
+            <span style={{width:3, height:12, background:"var(--accent)", borderRadius:2, flexShrink:0}} />
+            {children}
+          </h3>
         ),
+
         p: ({children}) => {
+          const txt = getText(children);
           if (isFirstP) {
             isFirstP = false;
             return (
               <p style={{
                 fontSize:14, lineHeight:1.7, color:"var(--text-1)",
                 background:"var(--bg-surface)", borderLeft:"3px solid var(--accent)",
-                padding:"10px 14px", borderRadius:"0 8px 8px 0",
-                margin:"10px 0 16px 0",
+                padding:"10px 14px", borderRadius:"0 8px 8px 0", margin:"10px 0 16px 0",
               }}>{children}</p>
+            );
+          }
+          if (txt.startsWith("Вывод") || txt.startsWith("Главный вывод")) {
+            return (
+              <div style={{
+                display:"flex", gap:10, alignItems:"flex-start",
+                background:"var(--accent-fade)", borderLeft:"3px solid var(--accent)",
+                padding:"10px 14px", borderRadius:"0 8px 8px 0", margin:"12px 0 16px 0",
+              }}>
+                <Zap size={16} style={{color:"var(--accent-text)", flexShrink:0, marginTop:2}} />
+                <p style={{fontSize:14, lineHeight:1.7, color:"var(--text-1)", margin:0}}>{children}</p>
+              </div>
             );
           }
           return <p style={{fontSize:14, lineHeight:1.7, color:"var(--text-1)", margin:"0 0 10px 0"}}>{children}</p>;
         },
-        table: ({children}) => (
-          <div style={{overflowX:"auto", margin:"8px 0 16px 0", borderRadius:8, border:"1px solid var(--border-mid)"}}>
-            <table style={{width:"100%", borderCollapse:"collapse", fontSize:13}}>{children}</table>
-          </div>
-        ),
+
+        table: ({children}) => {
+          trIdx = 0;
+          return (
+            <div style={{overflowX:"auto", margin:"8px 0 16px 0", borderRadius:8, border:"1px solid var(--border-mid)"}}>
+              <table style={{width:"100%", borderCollapse:"collapse", fontSize:13}}>{children}</table>
+            </div>
+          );
+        },
         thead: ({children}) => (
           <thead style={{background:"var(--bg-surface)"}}>{children}</thead>
         ),
@@ -2251,30 +2314,38 @@ const CompanyCard = ({ company, onBack }) => {
           <th style={{
             padding:"8px 12px", textAlign:"left", color:"var(--text-3)",
             fontWeight:600, fontSize:11, textTransform:"uppercase",
-            letterSpacing:"0.05em", borderBottom:"1px solid var(--border-mid)",
-            whiteSpace:"nowrap",
+            letterSpacing:"0.05em", borderBottom:"1px solid var(--border-mid)", whiteSpace:"nowrap",
           }}>{children}</th>
         ),
+        tr: ({children}) => {
+          const idx = trIdx++;
+          const bg = idx % 2 === 1 ? "var(--bg-surface)" : "transparent";
+          return (
+            <tr
+              style={{background:bg}}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--accent-fade)"}
+              onMouseLeave={e => e.currentTarget.style.background = bg}
+            >{children}</tr>
+          );
+        },
         td: ({children}) => {
-          const raw = typeof children === "string" ? children : (Array.isArray(children) ? children.join("") : "");
-          const isNum = /^[+−\-]?[\d]/.test(raw.trim());
-          const color = raw.trim().startsWith("+") ? "var(--positive)"
-            : (raw.trim().startsWith("−") || raw.trim().startsWith("-")) && isNum ? "var(--negative)"
+          const raw = getText(children).trim();
+          const isNum = /^[+−\-]?[\d]/.test(raw);
+          const isDelta = /^[+−\-][\d]/.test(raw) && (/[%]/.test(raw) || /п\.п/.test(raw));
+          const color = isDelta
+            ? (raw.startsWith("+") ? "var(--positive)" : "var(--negative)")
             : "var(--text-1)";
           return (
             <td style={{
               padding:"7px 12px", color, fontSize:13,
-              borderBottom:"1px solid var(--border-subtle)",
+              borderBottom:"1px solid var(--border-mid)",
               textAlign: isNum ? "right" : "left",
+              fontWeight: isDelta ? 600 : 400,
+              fontVariantNumeric: isNum ? "tabular-nums" : "normal",
+              whiteSpace: isNum ? "nowrap" : "normal",
             }}>{children}</td>
           );
         },
-        tr: ({children, ...props}) => (
-          <tr style={{}} {...props}
-            onMouseEnter={e => e.currentTarget.style.background = "var(--bg-surface)"}
-            onMouseLeave={e => e.currentTarget.style.background = ""}
-          >{children}</tr>
-        ),
         li: ({children}) => (
           <li style={{fontSize:14, color:"var(--text-1)", marginBottom:5, lineHeight:1.6}}>{children}</li>
         ),
@@ -2293,8 +2364,40 @@ const CompanyCard = ({ company, onBack }) => {
         blockquote: ({children}) => (
           <blockquote style={{borderLeft:"3px solid var(--accent)", paddingLeft:12, margin:"8px 0", color:"var(--text-2)", fontStyle:"italic"}}>{children}</blockquote>
         ),
-        code: ({children}) => (
-          <code style={{background:"var(--bg-surface)", padding:"1px 5px", borderRadius:4, fontSize:12, color:"var(--text-2)", fontFamily:"monospace"}}>{children}</code>
+        code: ({children, inline}) => {
+          const txt = String(children);
+          if (!inline && (txt.includes("→") || txt.includes("->"))) {
+            const steps = txt.split(/\s*(?:→|->)\s*/).filter(s => s.trim());
+            return (
+              <div style={{
+                display:"flex", flexWrap:"wrap", alignItems:"center", gap:8,
+                padding:"14px 16px", background:"var(--bg-surface)",
+                borderRadius:10, margin:"10px 0 16px 0",
+              }}>
+                {steps.map((step, i) => (
+                  <React.Fragment key={i}>
+                    <span style={{
+                      background:"var(--accent-fade)", border:"1px solid var(--accent-border)",
+                      color:"var(--text-1)", padding:"6px 12px",
+                      borderRadius:8, fontSize:12, fontWeight:500, whiteSpace:"nowrap",
+                    }}>{step.trim()}</span>
+                    {i < steps.length - 1 && (
+                      <ChevronRight size={16} style={{color:"var(--text-3)", flexShrink:0}} />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            );
+          }
+          return (
+            <code style={{background:"var(--bg-surface)", padding:"1px 5px", borderRadius:4, fontSize:12, color:"var(--text-2)", fontFamily:"monospace"}}>{children}</code>
+          );
+        },
+        pre: ({children}) => <>{children}</>,
+        a: ({href, children}) => (
+          <a href={href} target="_blank" rel="noopener noreferrer"
+            style={{color:"var(--accent-text)", textDecoration:"underline", textUnderlineOffset:2}}
+          >{children}</a>
         ),
       };
       return (
