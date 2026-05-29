@@ -1065,3 +1065,68 @@ input, textarea, select { font-size: 16px; }
 .focus\:outline-none:focus { outline: none; }
 .focus\:border-indigo-500:focus { border-color: #4f46e5; }
 .last\:border-0:last-child { border-width: 0; }
+
+/* =============================================
+   BUSINESS MODEL — COLLAPSIBLE SECTIONS
+   ============================================= */
+.bm-section {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bm-section summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+.bm-section summary::-webkit-details-marker { display: none; }
+
+.bm-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 26px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-mid);
+}
+.bm-section-header:hover .bm-section-title {
+  color: var(--accent-text);
+}
+
+.bm-section-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-fade);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bm-section-title {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  transition: color 0.15s;
+}
+
+.bm-section-chevron {
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.bm-section[open] > summary .bm-section-chevron {
+  transform: rotate(180deg);
+}
+
+/* Collapsed hint */
+.bm-section:not([open]) .bm-section-header {
+  margin-bottom: 0;
+  border-bottom-style: dashed;
+  opacity: 0.75;
+}
