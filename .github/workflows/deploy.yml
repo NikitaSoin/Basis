@@ -8,19 +8,5 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Timeweb redeploy
-        run: |
-          HTTP_STATUS=$(curl -s -o /tmp/tw_response.json -w "%{http_code}" \
-            -X POST "https://api.timeweb.cloud/api/v1/apps/${{ secrets.TIMEWEB_APP_ID }}/deploy" \
-            -H "Authorization: Bearer ${{ secrets.TIMEWEB_API_TOKEN }}" \
-            -H "Content-Type: application/json")
-
-          echo "HTTP status: $HTTP_STATUS"
-          cat /tmp/tw_response.json
-
-          if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
-            echo "✅ Deploy triggered successfully"
-          else
-            echo "❌ Deploy failed (HTTP $HTTP_STATUS)"
-            exit 1
-          fi
+      - name: No-op placeholder
+        run: echo "Deploy step removed"
