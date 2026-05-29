@@ -33,6 +33,7 @@ import {
   LogOut,
   X,
   Trash2,
+  ChevronDown,
 } from "lucide-react";
 
 // =========================
@@ -2238,31 +2239,29 @@ const CompanyCard = ({ company, onBack }) => {
         return null;
       };
 
+      // Split markdown by H2 headings for collapsible sections
+      const splitByH2 = (md) => {
+        const sections = [];
+        let curHead = null;
+        let curLines = [];
+        for (const line of md.split('\n')) {
+          if (/^## /.test(line)) {
+            if (curHead !== null) sections.push({ heading: curHead, body: curLines.join('\n') });
+            curHead = line.replace(/^## /, '').trim();
+            curLines = [];
+          } else if (curHead !== null) {
+            curLines.push(line);
+          }
+        }
+        if (curHead !== null) sections.push({ heading: curHead, body: curLines.join('\n') });
+        return sections;
+      };
+      const bmSections = splitByH2(bmMd);
+      const COLLAPSED = ["экономика"];
+
       const mdComponents = {
         h1: () => null,
-
-        h2: ({children}) => {
-          const Icon = getH2Icon(getText(children));
-          return (
-            <div style={{marginTop:30, marginBottom:14}}>
-              <h2 style={{
-                fontSize:15, fontWeight:700, color:"var(--text-1)", margin:0,
-                display:"flex", alignItems:"center", gap:10,
-                paddingBottom:10, borderBottom:"1px solid var(--border-mid)",
-              }}>
-                {Icon && (
-                  <span style={{
-                    width:28, height:28, borderRadius:8, background:"var(--accent-fade)",
-                    display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
-                  }}>
-                    <Icon size={15} style={{color:"var(--accent-text)"}} />
-                  </span>
-                )}
-                {children}
-              </h2>
-            </div>
-          );
-        },
+        h2: () => null,
 
         h3: ({children}) => (
           <h3 style={{
@@ -2435,7 +2434,29 @@ const CompanyCard = ({ company, onBack }) => {
       };
       return (
         <div style={{color:"var(--text-1)", lineHeight:1.65}}>
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{bmMd}</ReactMarkdown>
+          {bmSections.map(({heading, body}, secIdx) => {
+            const Icon = getH2Icon(heading);
+            const collapsed = COLLAPSED.some(k => heading.toLowerCase().includes(k));
+            if (secIdx > 0) isFirstP = false;
+            return (
+              <details key={secIdx} open={!collapsed} className="bm-section">
+                <summary className="bm-section-summary">
+                  <div className="bm-section-header">
+                    {Icon && (
+                      <span className="bm-section-icon">
+                        <Icon size={15} style={{color:"var(--accent-text)"}} />
+                      </span>
+                    )}
+                    <span className="bm-section-title">{heading}</span>
+                    <ChevronDown size={15} className="bm-section-chevron" />
+                  </div>
+                </summary>
+                <div style={{paddingTop:2}}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{body}</ReactMarkdown>
+                </div>
+              </details>
+            );
+          })}
         </div>
       );
     }
