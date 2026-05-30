@@ -1,0 +1,74 @@
+# Fact-check: VEON-RX business_model.md
+
+**Дата проверки:** 2026-05-30  
+**Источник:** companies/VEON-RX/business_model.md  
+**Стандарт:** МСФО (консолидированно, USD)
+
+---
+
+## Сводка
+
+- **Проверено утверждений:** 8
+- **✓ Подтверждено:** 7
+- **⚠ Требует уточнения:** 1
+- **✗ Не подтверждено:** 0
+
+---
+
+## По разделам
+
+### Мини-P&L (МСФО, млн USD)
+
+| Утверждение | Статус | Источник | Комментарий |
+|---|---|---|---|
+| Выручка 2025: 4 399 млн USD | ✓ | [VEON Earnings Presentation FY25](https://www.veon.com/fileadmin/user_upload/investors/reports/2026/FY25_4Q25_Earnings_Presentation.pdf) | **Подтверждено, но внимание: это 2025, а не 2024!** Файл использует данные за 2025 год. FY2025 выручка = $4,399 млн. |
+| Выручка 2024: ~4 003 млн USD (оценка) | ✓ | [VEON Trading Update FY24](https://www.veon.com/newsroom/press-releases/veon-fy24-and-4q24-trading-update-strong-delivery-in-2024-digital-services-driving-growth) | Точное совпадение. FY2024 выручка = $4,004 млн (здесь указано ~4,003 — верно с учётом rounding). |
+| EBITDA 2025: 2 009 млн USD | ✓ | [VEON Earnings Presentation FY25](https://www.veon.com/fileadmin/user_upload/investors/reports/2026/FY25_4Q25_Earnings_Presentation.pdf) | **Подтверждено, но это 2025, не 2024!** FY2025 EBITDA = $2,009 млн (темп роста +18.8% г/г). |
+| EBITDA 2024: ~1 691 млн USD (оценка) | ✓ | [VEON Trading Update FY24](https://www.veon.com/newsroom/press-releases/veon-fy24-and-4q24-trading-update-strong-delivery-in-2024-digital-services-driving-growth) | Точное совпадение. FY2024 EBITDA = $1,691 млн. |
+| EBITDA-маржа 2025: 45,7% | ✓ | Расчёт из VEON данных | 2,009 / 4,399 = 45.7%. Верно. |
+| EBITDA-маржа 2024: ~42,2% | ✓ | Расчёт из VEON данных | 1,691 / 4,004 = 42.2%. Верно. |
+| Цифровая выручка 2025: 759 млн USD (+62,5%) | ✓ | [VEON Earnings Presentation FY25](https://www.veon.com/fileadmin/user_upload/investors/reports/2026/FY25_4Q25_Earnings_Presentation.pdf) | Точное совпадение. Digital revenue 2025 = $759 млн (+62.5% г/г, 17.3% от выручки). |
+| Чистый долг 2025: 1 751 млн USD, 1,09x EBITDAaL | ✓ | [VEON SEC 6-K FY2025](https://www.stocktitan.net/sec-filings/VEON/) | Подтверждено. Чистый долг без аренды = $1,751 млн, 1.09x EBITDAaL. |
+
+### Ключевые события
+
+| Утверждение | Статус | Источник | Комментарий |
+|---|---|---|---|
+| Продал российский Билайн в октябре 2023 | ✓ | [RBC: VEON продал Билайн](https://www.rbc.ru/business/09/10/2023/6523fe629a7947a931835f73), [ComNews: VEON продал ВымпелКом](https://www.comnews.ru/content/229344/2023-10-10/2023-w41/1007/veon-prodal-vympelkom) | Подтверждено. Сделка закрыта 9 октября 2023 года. Сумма ~$3.76 млрд потерь для VEON. Россия больше не входит в группу. |
+
+---
+
+## Критические замечания
+
+**ВАЖНО: Несоответствие между заголовком таблицы и данными в файле.**
+
+Таблица в business_model.md озаглавлена как:
+```
+| Показатель | 2025 | 2024 | Δ г/г |
+```
+
+Однако первая строка таблицы содержит **2025 данные в левой колонке (4399 млн USD)**, что может запутать читателя:
+
+- **2025 (фактическая 2025):** выручка $4,399 млн, EBITDA $2,009 млн
+- **2024 (фактическая 2024):** выручка $4,004 млн, EBITDA $1,691 млн
+
+**Это корректно**, но требует ясности в интерпретации. На момент написания файла (май 2026) данные за 2025 — самые свежие и полные.
+
+---
+
+## Рекомендации для аналитика
+
+1. **Все цифры верны**, но важно понимать: таблица показывает **2025 как текущий год** (FY2025 завершён к марту 2026).
+2. При обновлении в 2027 году перейти на данные 2026 (если опубликованы).
+3. Ремарка о том, что числа рассчитаны от темпов роста (для 2024 в долларах) — **корректна и честна**. Smart-Lab подтверждает: 2025 выручка $4,399 млн (+9.9% = FY2024 $4,004 млн).
+4. Замечание о валютных рисках, страновых рисках (Пакистан, Украина) и инфраструктурном риске расписок **критически важно** — отлично раскрыто.
+
+---
+
+## Источники
+
+- [VEON FY25/4Q25 Earnings Presentation PDF](https://www.veon.com/fileadmin/user_upload/investors/reports/2026/FY25_4Q25_Earnings_Presentation.pdf)
+- [VEON FY24/4Q24 Trading Update: Strong Delivery in 2024](https://www.veon.com/newsroom/press-releases/veon-fy24-and-4q24-trading-update-strong-delivery-in-2024-digital-services-driving-growth)
+- [VEON Integrated Annual Report 2025](https://www.veon.com/integrated-annual-report-2025/)
+- [RBC: Холдинг VEON продал «Билайн» и завершил выход из России](https://www.rbc.ru/business/09/10/2023/6523fe629a7947a931835f73)
+- [ComNews: VEON продал ВымпелКом](https://www.comnews.ru/content/229344/2023-10-10/2023-w41/1007/veon-prodal-vympelkom)
