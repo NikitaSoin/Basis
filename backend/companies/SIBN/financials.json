@@ -15,6 +15,15 @@
     "data_source_priority": ["uploaded_file", "official_report", "broker", "aggregator"]
   },
 
+  "anomaly_flag": false,
+  "anomaly_note": "Аномалий в мультипликаторах не обнаружено. Чистый долг 2025 положительный (1 094 773 млн), поэтому EV>капитализации и EV/EBITDA=3.88 экономически осмыслен (нет искажения от отрицательного чистого долга, как у SNGS/LKOH). P/E=9.86 — повышен, но не аномален: это циклический минимум прибыли 2025 (Urals ~$55,6, крепкий рубль, налог 25%), а не разовый убыток или искажение. P/B=0.77 и P/S=0.67 типичны для нефтянки РФ. net_debt/EBITDA=1.21 — умеренная нагрузка. Все знаменатели положительны, выбросов нет → флаг false.",
+
+  "peer_multiples": {
+    "2025": { "pe": 9.86, "ps": 0.67, "pb": 0.77, "ev_ebitda": 3.88, "net_debt_ebitda": 1.21, "roe": 7.81 },
+    "2024": { "pe": 5.06, "ps": 0.59, "pb": 0.77, "ev_ebitda": 2.76, "net_debt_ebitda": 0.65, "roe": 15.13 },
+    "note": "Рассчитано кодом при ТЕКУЩЕЙ цене 511,45 руб (капитализация 2 424 938 млн) на показатели соответствующего года. pe=mcap/ЧП, ps=mcap/выручка, pb=mcap/капитал, ev_ebitda=(mcap+чистый_долг_года)/EBITDA_года, net_debt_ebitda=чистый_долг_года/EBITDA_года, roe=ЧП_года/капитал_года. roe здесь — фактический ROE года, не price-based."
+  },
+
   "income_statement": {
     "revenue": [2485308, 1999620, 3068442, 3412129, 3519959, 4099708, 3607030],
     "cogs": [null, null, null, null, null, null, null],
@@ -101,9 +110,11 @@
         "key_assumptions": { "normalized_eps": 96.1, "payout": 0.55, "normalized_div_ps": 52.8,
           "required_yield": 0.15,
           "note": "среднециклическая прибыль (среднее ЧП 2023-2025) × payout 55%; целевая дивдоходность 15%" } },
-      { "method": "relative_peers", "fair_value_per_share": null, "horizon": "intrinsic_now",
-        "key_assumptions": { "peer_multiple": "ev_ebitda", "peer_median": null },
-        "status": "insufficient_data" },
+      { "method": "relative_peers", "fair_value_per_share": 560, "horizon": "intrinsic_now",
+        "key_assumptions": { "peer_multiple": "ev_ebitda", "peer_median": 4.13,
+          "basis": "sector_2025_ex_anomaly",
+          "note": "медиана EV/EBITDA сектора 2025 ex-аномалии (SNGS, LKOH) = 4.13; target_EV = 4.13×EBITDA_2025 (908 064) = 3 750 304 млн; target_equity = target_EV − чистый_долг_2025 (1 094 773) = 2 655 531 млн; / 4 741,3 млн акций = 560 руб. Оценка строится на EBITDA-2025 (циклический минимум), поэтому консервативна." },
+        "status": "ok" },
       { "method": "CAPM", "fair_value_per_share": 606, "horizon": "12m",
         "key_assumptions": { "ke": 0.236, "beta": 1.0,
           "expected_div_yield": 0.051, "expected_div_ps": 25.9,
@@ -141,7 +152,7 @@
     "Текущий CapEx (599 млрд в 2025) на циклическом пике, а FCF-2025 (21,8 млрд) на минимуме — DCF строился на нормализованном (среднециклическом) FCF, иначе оценка занижается.",
     "Бета от агрегаторов по SIBN = −0,11 (нереалистично, ломает CAPM); для оценки взята отраслевая бета 1,0 — оценка к ней чувствительна.",
     "Брокерский консенсус прогноза в исходниках отсутствует → forecast механический (source_type=mechanical).",
-    "relative_peers не посчитан: sectors/oil_gas/peers.json по заданию не трогался → insufficient_data.",
+    "relative_peers посчитан от медианы EV/EBITDA сектора 2025 ex-аномалии (SNGS, LKOH) = 4.13; fair value 560 руб. Sectors/oil_gas/peers.json по заданию не пересобирался — медиана задана извне.",
     "Чистая прибыль — доля акционеров. Префов нет; все акции обыкновенные (4 741,3 млн).",
     "Текущая рыночная цена на MOEX (~518 руб на 25.05.2026) близка к цене из источника (511,45 на 18.05.2026) — расхождение несущественно."
   ]

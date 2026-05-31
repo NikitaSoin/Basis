@@ -12,284 +12,344 @@
       "NVTK"
     ],
     "n": 6,
-    "basis": "current multiples из financials.json каждой компании; latest non-null для рядов",
-    "macro_params_ref": "config/market_params.json"
+    "basis": "peer_multiples из financials.json каждой компании, посчитаны кодом при текущей цене за 2025 и 2024",
+    "macro_params_ref": "config/market_params.json",
+    "registry_ref": "config/sectors.json",
+    "relative_valuation": "метод relative_peers у компаний считается от медианы EV/EBITDA сектора 2025 ex-аномалии (=4.13)"
   },
   "comparison_table": {
-    "columns": [
-      "ticker",
-      "name",
-      "last_price",
+    "metrics": [
       "pe",
       "ps",
       "pb",
       "ev_ebitda",
       "net_debt_ebitda",
-      "debt_to_equity",
-      "roe",
-      "roa",
-      "roic",
-      "ebitda_margin",
-      "net_margin",
-      "fair_value_base",
-      "upside_downside_pct",
-      "data_quality"
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
     ],
     "rows": [
       {
         "ticker": "ROSN",
         "name": "ПАО «НК «Роснефть»",
-        "last_price": 407.7,
-        "price_date": "2026-05-18",
-        "currency": "RUB",
-        "pe": 14.75,
-        "ps": 0.52,
-        "pb": 0.48,
-        "ev_ebitda": 4.07,
-        "net_debt_ebitda": 1.8628,
-        "debt_to_equity": 0.7251,
-        "roe": 3.23,
-        "roa": 5.03,
-        "roic": 5.91,
-        "ebitda_margin": 24.96,
-        "net_margin": 3.56,
-        "fair_value_base": 446.0,
-        "fair_value_conservative": 301.3,
-        "upside_downside_pct": 9.4,
-        "data_quality": "medium"
+        "price": 407.7,
+        "anomaly": false,
+        "anomaly_note": null,
+        "label": "ROSN",
+        "2025": {
+          "pe": 14.75,
+          "ps": 0.52,
+          "pb": 0.48,
+          "ev_ebitda": 4.07,
+          "net_debt_ebitda": 1.97,
+          "roe": 3.23
+        },
+        "2024": {
+          "pe": 3.99,
+          "ps": 0.43,
+          "pb": 0.47,
+          "ev_ebitda": 2.66,
+          "net_debt_ebitda": 1.21,
+          "roe": 11.84
+        }
       },
       {
         "ticker": "LKOH",
         "name": "ПАО «ЛУКОЙЛ»",
-        "last_price": 4899.0,
-        "price_date": "2026-05-31",
-        "currency": "RUB",
-        "pe": null,
-        "ps": 0.9,
-        "pb": 0.94,
-        "ev_ebitda": 3.02,
-        "net_debt_ebitda": -0.22,
-        "debt_to_equity": 0.09,
-        "roe": -29.35,
-        "roa": -19.44,
-        "roic": 10.89,
-        "ebitda_margin": 27.85,
-        "net_margin": -28.25,
-        "fair_value_base": 5298,
-        "fair_value_conservative": 5130,
-        "upside_downside_pct": 8.1,
-        "data_quality": "medium"
+        "price": 4899.0,
+        "anomaly": true,
+        "anomaly_note": "FY2025 искажён РАЗОВЫМ НЕДЕНЕЖНЫМ списанием зарубежных активов (LUKOIL International GmbH, LIG, ~1.67 трлн ₽), из-за которого чистая прибыль 2025 = -1 064 269 млн ₽. Операционно российский бизнес прибылен (op_profit 526 646, FCF 639 840). Следствия для оценки: (1) P/E 2025 ОТРИЦАТЕЛЕН и НЕРЕЛЕВАНТЕН — оценивать компанию по нему НЕЛЬЗЯ (pe_2025=null); (2) ROE 2025 (-29.35%) и ROA/ROS 2025 тоже ИСКАЖЕНЫ убытком от списания, не отражают операционную рентабельность — нормализованный ориентир см. ROE 2024 ≈12.3%. Мультипликаторы, НЕ завязанные на чистую прибыль, искажений практически НЕ имеют и применимы: EV/EBITDA 2025 = 3.02 (EBITDA продолжающейся деятельности от списания не страдает), P/B 2025 = 0.94 (капитал уже уменьшен на списание, поэтому P/B даже выше 2024 — это нормально и не аномалия), P/S 2025 = 0.90. Для относительной оценки сектора LKOH и SNGS исключены из расчёта медианы EV/EBITDA как аномальные.",
+        "label": "LKOH *",
+        "2025": {
+          "pe": null,
+          "ps": 0.901,
+          "pb": 0.936,
+          "ev_ebitda": 3.02,
+          "net_debt_ebitda": -0.215,
+          "roe": -29.35
+        },
+        "2024": {
+          "pe": 4.0,
+          "ps": 0.768,
+          "pb": 0.493,
+          "ev_ebitda": 1.422,
+          "net_debt_ebitda": -0.634,
+          "roe": 12.31
+        }
       },
       {
         "ticker": "SIBN",
         "name": "ПАО «Газпром нефть»",
-        "last_price": 511.45,
-        "price_date": "2026-05-18",
-        "currency": "RUB",
-        "pe": 9.86,
-        "ps": 0.67,
-        "pb": 0.77,
-        "ev_ebitda": 3.88,
-        "net_debt_ebitda": 1.21,
-        "debt_to_equity": 0.41,
-        "roe": 7.81,
-        "roa": 3.81,
-        "roic": 7.59,
-        "ebitda_margin": 25.17,
-        "net_margin": 6.81,
-        "fair_value_base": 272,
-        "fair_value_conservative": 217,
-        "upside_downside_pct": -46.8,
-        "data_quality": "high"
+        "price": 511.45,
+        "anomaly": false,
+        "anomaly_note": null,
+        "label": "SIBN",
+        "2025": {
+          "pe": 9.86,
+          "ps": 0.67,
+          "pb": 0.77,
+          "ev_ebitda": 3.88,
+          "net_debt_ebitda": 1.21,
+          "roe": 7.81
+        },
+        "2024": {
+          "pe": 5.06,
+          "ps": 0.59,
+          "pb": 0.77,
+          "ev_ebitda": 2.76,
+          "net_debt_ebitda": 0.65,
+          "roe": 15.13
+        }
       },
       {
         "ticker": "TATN",
         "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
-        "last_price": 605.5,
-        "price_date": "2026-05-18",
-        "currency": "RUB",
-        "pe": 8.85,
-        "ps": 0.77,
-        "pb": 1.06,
-        "ev_ebitda": 4.19,
-        "net_debt_ebitda": -0.098,
-        "debt_to_equity": 0.026,
-        "roe": 11.97,
-        "roa": 7.43,
-        "roic": 14.75,
-        "ebitda_margin": 18.01,
-        "net_margin": 8.72,
-        "fair_value_base": 410.5,
-        "fair_value_conservative": 313.0,
-        "upside_downside_pct": -32.2,
-        "data_quality": "high"
+        "price": 605.5,
+        "anomaly": false,
+        "anomaly_note": null,
+        "label": "TATN",
+        "2025": {
+          "pe": 8.88,
+          "ps": 0.77,
+          "pb": 1.06,
+          "ev_ebitda": 4.2,
+          "net_debt_ebitda": -0.098,
+          "roe": 11.97
+        },
+        "2024": {
+          "pe": 4.6,
+          "ps": 0.69,
+          "pb": 1.06,
+          "ev_ebitda": 2.8,
+          "net_debt_ebitda": -0.224,
+          "roe": 23.01
+        }
       },
       {
         "ticker": "SNGS",
         "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
-        "last_price": 19.66,
-        "price_date": "2026-04-29",
-        "currency": "RUB",
-        "pe": 0.53,
-        "ps": 0.44,
-        "pb": 0.14,
-        "ev_ebitda": 1.36,
-        "net_debt_ebitda": -0.23,
-        "debt_to_equity": 0,
-        "roe": 18.66,
-        "roa": 16.44,
-        "roic": null,
-        "ebitda_margin": 27.61,
-        "net_margin": 57.42,
-        "fair_value_base": 22.57,
-        "fair_value_conservative": 5.86,
-        "upside_downside_pct": 14.78,
-        "data_quality": "low"
+        "price": 19.66,
+        "anomaly": true,
+        "anomaly_note": "СТРУКТУРНАЯ АНОМАЛИЯ ОЦЕНКИ. Огромная валютная «кубышка» (~6 трлн ₽) классифицирована как финансовые вложения, а НЕ в строке cash, поэтому чистый долг (net_debt = только −cash ≈ −148 млрд) сильно занижен по модулю / искусственно отрицателен. Из-за этого EV сильно занижен, и мультипликаторы EV/EBITDA (current 1.36) и P/B (current 0.14) СТРУКТУРНО искажены и несопоставимы с пирами по нефтегазу. P/E тоже искажён и нерепрезентативен: чистая прибыль формируется не нефтью, а валютной переоценкой кубышки и процентным доходом (ЧП-2023 > EBITDA-2023), то есть зависит от курса рубля и ключевой ставки, а не от операционного результата. ИТОГО искажены: EV/EBITDA, P/B, P/E. ДАННЫЕ ПО ГОДАМ: за 2025 финпоказателей в источнике нет (peer_multiples «2025» = null); 2024 в источнике также отсутствует (null), поэтому peer_multiples «2024» рассчитаны по ПОСЛЕДНЕМУ доступному году — 2023 (помечено year_used=2023).",
+        "label": "SNGS *",
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 0.53,
+          "ps": 0.31,
+          "pb": 0.1,
+          "ev_ebitda": 0.87,
+          "net_debt_ebitda": -0.23,
+          "roe": 18.66
+        }
       },
       {
         "ticker": "NVTK",
         "name": "ПАО «НОВАТЭК»",
-        "last_price": 1218.8,
-        "price_date": "2026-05-18",
-        "currency": "RUB",
-        "pe": 20.22,
-        "ps": 2.56,
-        "pb": 1.3,
-        "ev_ebitda": 9.43,
-        "net_debt_ebitda": -0.1,
-        "debt_to_equity": 0.105,
-        "roe": 6.44,
-        "roa": 5.1,
-        "roic": null,
-        "ebitda_margin": 26.85,
-        "net_margin": 12.66,
-        "fair_value_base": 411.9,
-        "fair_value_conservative": 403.4,
-        "upside_downside_pct": -66.2,
-        "data_quality": "medium"
+        "price": 1218.8,
+        "anomaly": false,
+        "anomaly_note": null,
+        "label": "NVTK",
+        "2025": {
+          "pe": 20.22,
+          "ps": 2.56,
+          "pb": 1.3,
+          "ev_ebitda": 9.43,
+          "net_debt_ebitda": -0.1,
+          "roe": 6.44
+        },
+        "2024": {
+          "pe": 7.5,
+          "ps": 2.39,
+          "pb": 1.3,
+          "ev_ebitda": 9.23,
+          "net_debt_ebitda": 0.34,
+          "roe": 17.33
+        }
       }
     ]
   },
-  "sector_medians": {
-    "pe": 9.86,
-    "ps": 0.72,
-    "pb": 0.85,
-    "ev_ebitda": 3.98,
-    "net_debt_ebitda": -0.1,
-    "roe": 7.12,
-    "roa": 5.06,
-    "ebitda_margin": 26.01,
-    "net_margin": 7.77
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 13.43,
+        "ps": 1.13,
+        "pb": 0.9,
+        "ev_ebitda": 5.39,
+        "net_debt_ebitda": 0.75,
+        "roe": 7.36
+      },
+      "median": {
+        "pe": 12.3,
+        "ps": 0.72,
+        "pb": 0.92,
+        "ev_ebitda": 4.13,
+        "net_debt_ebitda": 0.56,
+        "roe": 7.12
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 5.29,
+        "ps": 1.02,
+        "pb": 0.9,
+        "ev_ebitda": 4.36,
+        "net_debt_ebitda": 0.49,
+        "roe": 16.83
+      },
+      "median": {
+        "pe": 4.83,
+        "ps": 0.64,
+        "pb": 0.92,
+        "ev_ebitda": 2.78,
+        "net_debt_ebitda": 0.49,
+        "roe": 16.23
+      }
+    },
+    "excluded_anomalous": [
+      "LKOH",
+      "SNGS"
+    ],
+    "included": [
+      "ROSN",
+      "SIBN",
+      "TATN",
+      "NVTK"
+    ],
+    "note": "Среднее и медиана считаются БЕЗ аномальных компаний; аномальные оставлены в таблице со * (label)."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
-      "title": "Долговая нагрузка vs Оценка",
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
       "x_axis": {
         "key": "net_debt_ebitda",
         "label": "Чистый долг / EBITDA",
-        "note": "меньше = безопаснее"
+        "year": 2025
       },
       "y_axis": {
-        "key": "pe",
-        "label": "P/E",
-        "note": "меньше = дешевле"
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
       },
       "points": [
         {
           "ticker": "ROSN",
           "name": "ПАО «НК «Роснефть»",
-          "x": 1.8628,
-          "y": 14.75
+          "anomaly": false,
+          "x": 1.97,
+          "y": 4.07
         },
         {
           "ticker": "LKOH",
           "name": "ПАО «ЛУКОЙЛ»",
-          "x": -0.22,
-          "y": null
+          "anomaly": true,
+          "x": -0.215,
+          "y": 3.02
         },
         {
           "ticker": "SIBN",
           "name": "ПАО «Газпром нефть»",
+          "anomaly": false,
           "x": 1.21,
-          "y": 9.86
+          "y": 3.88
         },
         {
           "ticker": "TATN",
           "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "anomaly": false,
           "x": -0.098,
-          "y": 8.85
+          "y": 4.2
         },
         {
           "ticker": "SNGS",
           "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
-          "x": -0.23,
-          "y": 0.53
+          "anomaly": true,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "NVTK",
           "name": "ПАО «НОВАТЭК»",
+          "anomaly": false,
           "x": -0.1,
-          "y": 20.22
+          "y": 9.43
         }
       ]
     },
     "map_2_quality_vs_price": {
-      "title": "Качество бизнеса vs Цена",
+      "title": "Качество бизнеса (ROE) vs Цена (P/B)",
       "x_axis": {
         "key": "roe",
         "label": "ROE, %",
-        "note": "больше = качественнее"
+        "year": 2025
       },
       "y_axis": {
         "key": "pb",
         "label": "P/B",
-        "note": "меньше = дешевле к балансу"
+        "year": 2025
       },
       "points": [
         {
           "ticker": "ROSN",
           "name": "ПАО «НК «Роснефть»",
+          "anomaly": false,
           "x": 3.23,
           "y": 0.48
         },
         {
           "ticker": "LKOH",
           "name": "ПАО «ЛУКОЙЛ»",
+          "anomaly": true,
           "x": -29.35,
-          "y": 0.94
+          "y": 0.936
         },
         {
           "ticker": "SIBN",
           "name": "ПАО «Газпром нефть»",
+          "anomaly": false,
           "x": 7.81,
           "y": 0.77
         },
         {
           "ticker": "TATN",
           "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "anomaly": false,
           "x": 11.97,
           "y": 1.06
         },
         {
           "ticker": "SNGS",
           "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
-          "x": 18.66,
-          "y": 0.14
+          "anomaly": true,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "NVTK",
           "name": "ПАО «НОВАТЭК»",
+          "anomaly": false,
           "x": 6.44,
           "y": 1.3
         }
       ]
     }
   },
-  "notes": [
-    "LKOH P/E = null: чистый убыток FY2025 из-за неденежного списания LIG, мультипликатор неинформативен.",
-    "ROSN net_debt/EBITDA взят за последний раскрытый год (FY2025 чистый долг не раскрыт).",
-    "SNGS: P/B 0.14 и ROE искажены валютной кубышкой; держатель обыкновенной акции к ней доступа не имеет.",
-    "NVTK ev_ebitda от консолидированной МСФО EBITDA (без доли в СП), поэтому выше пиров.",
-    "Все оценки — внутренняя стоимость при ОФЗ 14.6%/ERP 9% из config; чувствительны к ставке."
+  "anomalies": [
+    {
+      "ticker": "LKOH",
+      "note": "FY2025 искажён РАЗОВЫМ НЕДЕНЕЖНЫМ списанием зарубежных активов (LUKOIL International GmbH, LIG, ~1.67 трлн ₽), из-за которого чистая прибыль 2025 = -1 064 269 млн ₽. Операционно российский бизнес прибылен (op_profit 526 646, FCF 639 840). Следствия для оценки: (1) P/E 2025 ОТРИЦАТЕЛЕН и НЕРЕЛЕВАНТЕН — оценивать компанию по нему НЕЛЬЗЯ (pe_2025=null); (2) ROE 2025 (-29.35%) и ROA/ROS 2025 тоже ИСКАЖЕНЫ убытком от списания, не отражают операционную рентабельность — нормализованный ориентир см. ROE 2024 ≈12.3%. Мультипликаторы, НЕ завязанные на чистую прибыль, искажений практически НЕ имеют и применимы: EV/EBITDA 2025 = 3.02 (EBITDA продолжающейся деятельности от списания не страдает), P/B 2025 = 0.94 (капитал уже уменьшен на списание, поэтому P/B даже выше 2024 — это нормально и не аномалия), P/S 2025 = 0.90. Для относительной оценки сектора LKOH и SNGS исключены из расчёта медианы EV/EBITDA как аномальные."
+    },
+    {
+      "ticker": "SNGS",
+      "note": "СТРУКТУРНАЯ АНОМАЛИЯ ОЦЕНКИ. Огромная валютная «кубышка» (~6 трлн ₽) классифицирована как финансовые вложения, а НЕ в строке cash, поэтому чистый долг (net_debt = только −cash ≈ −148 млрд) сильно занижен по модулю / искусственно отрицателен. Из-за этого EV сильно занижен, и мультипликаторы EV/EBITDA (current 1.36) и P/B (current 0.14) СТРУКТУРНО искажены и несопоставимы с пирами по нефтегазу. P/E тоже искажён и нерепрезентативен: чистая прибыль формируется не нефтью, а валютной переоценкой кубышки и процентным доходом (ЧП-2023 > EBITDA-2023), то есть зависит от курса рубля и ключевой ставки, а не от операционного результата. ИТОГО искажены: EV/EBITDA, P/B, P/E. ДАННЫЕ ПО ГОДАМ: за 2025 финпоказателей в источнике нет (peer_multiples «2025» = null); 2024 в источнике также отсутствует (null), поэтому peer_multiples «2024» рассчитаны по ПОСЛЕДНЕМУ доступному году — 2023 (помечено year_used=2023)."
+    }
   ]
 }
