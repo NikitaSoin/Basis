@@ -1637,6 +1637,9 @@ const CompanyCard = ({ company, onBack }) => {
   const [profileLoading, setProfileLoading] = useState(true);
   const [bmMd, setBmMd] = useState(null);
   const [bmMdLoading, setBmMdLoading] = useState(true);
+  const [finMd, setFinMd] = useState(null);
+  const [finJson, setFinJson] = useState(null);
+  const [finLoading, setFinLoading] = useState(true);
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -1697,6 +1700,22 @@ const CompanyCard = ({ company, onBack }) => {
       .then(r => r.ok ? r.text() : null)
       .then(d => { setBmMd(d); setBmMdLoading(false); })
       .catch(() => setBmMdLoading(false));
+  }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setFinLoading(true);
+    setFinMd(null);
+    setFinJson(null);
+    const base = `${apiUrl}/api/companies/by-ticker/${company.ticker}`;
+    Promise.all([
+      fetch(`${base}/financials-summary`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}/financials`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([md, js]) => {
+      setFinMd(md);
+      setFinJson(js);
+      setFinLoading(false);
+    });
   }, [company.ticker]);
 
   const renderComingSoon = (label) => (
@@ -2201,6 +2220,130 @@ const CompanyCard = ({ company, onBack }) => {
             </div>
           )}
         </div>
+      </div>
+    );
+  };
+
+  const renderFinancials = () => {
+    if (finLoading) return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-slate-400 animate-pulse">Загружаем финансы...</div>
+      </div>
+    );
+    if (!finMd && !finJson) return renderComingSoon("Финансы и оценка");
+
+    const meta = finJson?.meta || {};
+    const cur = (finJson?.multiples && finJson.multiples.current) || {};
+    const ratios = (finJson?.balance_sheet && finJson.balance_sheet.ratios) || {};
+    const ret = finJson?.returns || {};
+    const fvr = (finJson?.valuation && finJson.valuation.fair_value_range) || {};
+    const rel = finJson?.relative_peers_sector || {};
+    const lastNN = (a) => Array.isArray(a) ? ([...a].reverse().find((x) => x != null) ?? null) : null;
+    const fmt = (v, d = 2) => (typeof v === "number" ? v.toFixed(d) : "—");
+
+    const chips = [
+      { label: "P/E", value: fmt(cur.pe) },
+      { label: "P/S", value: fmt(cur.ps) },
+      { label: "P/B", value: fmt(cur.pb) },
+      { label: "EV/EBITDA", value: fmt(cur.ev_ebitda) },
+      { label: "Чистый долг / EBITDA", value: fmt(lastNN(ratios.net_debt_ebitda)) },
+      { label: "ROE", value: typeof lastNN(ret.roe) === "number" ? fmt(lastNN(ret.roe), 1) + "%" : "—" },
+    ];
+
+    const upside = fvr.upside_downside_pct;
+    const mdc = {
+      h1: () => null,
+      h2: ({ children }) => (
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1, #fff)", margin: "18px 0 8px" }}>{children}</h2>
+      ),
+      h3: ({ children }) => (
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2, #cbd5e1)", margin: "12px 0 6px" }}>{children}</h3>
+      ),
+      p: ({ children }) => (
+        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: "var(--text-2, #cbd5e1)", margin: "6px 0" }}>{children}</p>
+      ),
+      li: ({ children }) => (
+        <li style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-2, #cbd5e1)", margin: "3px 0" }}>{children}</li>
+      ),
+      strong: ({ children }) => <strong style={{ color: "var(--text-1, #fff)" }}>{children}</strong>,
+      table: ({ children }) => (
+        <div style={{ overflowX: "auto", margin: "10px 0" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>{children}</table>
+        </div>
+      ),
+      th: ({ children }) => (
+        <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid var(--border, #334155)", color: "var(--text-2, #94a3b8)", fontWeight: 600 }}>{children}</th>
+      ),
+      td: ({ children }) => (
+        <td style={{ padding: "6px 8px", borderBottom: "1px solid var(--border, #1e293b)", color: "var(--text-2, #cbd5e1)" }}>{children}</td>
+      ),
+      code: ({ children }) => (
+        <code style={{ background: "var(--bg-surface, #1e293b)", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>{children}</code>
+      ),
+    };
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {finJson && (
+          <div style={{ background: "var(--bg-surface, #1e293b)", borderRadius: 12, padding: 18, border: "1px solid var(--border, #334155)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1, #fff)", display: "flex", alignItems: "center", gap: 8 }}>
+                <BarChart2 size={16} style={{ color: "var(--accent, #6366f1)" }} />
+                Ключевые мультипликаторы
+              </h4>
+              {typeof meta.last_price === "number" && (
+                <span style={{ fontSize: 12, color: "var(--text-2, #94a3b8)" }}>
+                  Цена {meta.last_price} {meta.currency || "₽"}{meta.price_date ? ` · ${meta.price_date}` : ""}
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 8 }}>
+              {chips.map((c, i) => (
+                <div key={i} style={{ background: "var(--bg-base, #0f172a)", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-2, #94a3b8)", marginBottom: 3 }}>{c.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1, #fff)", fontFamily: "monospace" }}>{c.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {(typeof fvr.base === "number" || typeof fvr.conservative === "number") && (
+              <div style={{ marginTop: 14, fontSize: 13, color: "var(--text-2, #cbd5e1)" }}>
+                <b style={{ color: "var(--text-1, #fff)" }}>Справедливая цена:</b>{" "}
+                {typeof fvr.conservative === "number" ? `${fvr.conservative}` : "—"} – {typeof fvr.base === "number" ? `${fvr.base}` : "—"} {meta.currency || "₽"}
+                {typeof upside === "number" && (
+                  <span style={{ marginLeft: 8, fontWeight: 700, color: upside >= 0 ? "#22c55e" : "#ef4444" }}>
+                    {upside >= 0 ? "▲ +" : "▼ "}{upside}%
+                  </span>
+                )}
+              </div>
+            )}
+
+            {typeof rel.fair_value_per_share === "number" && (
+              <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--text-2, #94a3b8)" }}>
+                По сектору (EV/EBITDA пиров): ~{rel.fair_value_per_share} {meta.currency || "₽"}
+                {typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${rel.upside_downside_pct}%)` : ""}
+              </div>
+            )}
+
+            {finJson.anomaly_flag && finJson.anomaly_note && (
+              <div style={{ marginTop: 14, padding: "10px 12px", background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 8, fontSize: 12.5, color: "#fcd34d", display: "flex", gap: 8 }}>
+                <ShieldAlert size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+                <span><b>Мультипликаторы искажены:</b> {finJson.anomaly_note}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {finMd ? (
+          <div style={{ background: "var(--bg-surface, #1e293b)", borderRadius: 12, padding: 18, border: "1px solid var(--border, #334155)" }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>
+          </div>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--text-2, #94a3b8)" }}>
+            Текстовый разбор по этой компании пока не сформирован — показаны только числовые метрики.
+          </p>
+        )}
       </div>
     );
   };
@@ -2744,6 +2887,7 @@ const CompanyCard = ({ company, onBack }) => {
         {[
           { id: "overview", label: "Обзор" },
           { id: "business", label: "Бизнес-модель" },
+          { id: "finance", label: "Финансы" },
           { id: "deep", label: "Глубокий разбор" },
           { id: "consilium", label: "Консилиум" },
           { id: "stress", label: "Стресс-тест" },
@@ -2767,6 +2911,7 @@ const CompanyCard = ({ company, onBack }) => {
       <>
         {tab === "overview" && renderOverview()}
         {tab === "business" && renderBusinessProfile()}
+        {tab === "finance" && renderFinancials()}
         {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
         {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
         {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}

@@ -1,3 +1,5 @@
+import json
+import re
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -5,6 +7,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+SECTORS_DIR = Path(__file__).parent.parent.parent.parent / "sectors"
+
+# Разрешаем только безопасные имена (тикеры/ключи секторов) — защита от path traversal.
+_SAFE_NAME = re.compile(r"[A-Za-z0-9_-]+")
+
+
+def _safe(name: str) -> str:
+    if not _SAFE_NAME.fullmatch(name or ""):
+        raise HTTPException(status_code=404, detail="Not found")
+    return name
 from app.db.session import get_db
 from app.models.company_profile import CompanyProfile
 from app.schemas.company import (
@@ -245,3 +257,33 @@ async def get_business_model_md(ticker: str):
         content=path.read_text(encoding="utf-8"),
         media_type="text/markdown; charset=utf-8",
     )
+
+
+@router.get("/companies/by-ticker/{ticker}/financials")
+async def get_financials_json(ticker: str):
+    """Блок «Финансы и оценка» в виде JSON (его рисует фронтенд)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "financials.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Financials not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+@router.get("/companies/by-ticker/{ticker}/financials-summary", response_class=PlainTextResponse)
+async def get_financials_summary_md(ticker: str):
+    """Текстовая интерпретация блока «Финансы и оценка» (markdown)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "financials_summary.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Financials summary not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
+
+
+@router.get("/sectors/{sector_key}/peers")
+async def get_sector_peers(sector_key: str):
+    """Сравнение конкурентов по сектору + данные для карт-координат."""
+    path = SECTORS_DIR / _safe(sector_key).lower() / "peers.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Sector peers not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
