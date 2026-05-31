@@ -1,0 +1,999 @@
+{
+  "meta": {
+    "sector": "Финансы",
+    "sector_key": "finance",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "SBER",
+      "SBERP",
+      "VTBR",
+      "T",
+      "SVCB",
+      "CBOM",
+      "BSPB",
+      "BSPBP",
+      "MBNK",
+      "USBN",
+      "DOMRF",
+      "MOEX",
+      "LEAS",
+      "RENI",
+      "RGSS",
+      "SPBE",
+      "SFIN",
+      "ZAYM",
+      "AFKS"
+    ],
+    "n": 19,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "Разнородный сектор (банки/биржи/страховщики/лизинг/МФО/холдинги). Среднее/медиана — по чистым сопоставимым банкам (SBER/T/BSPB). У банков EV/EBITDA и чистый долг неприменимы.",
+    "relative_valuation": "relative_peers от медианы P/B чистых банков 2025 = 0.88"
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "SBER",
+        "name": "ПАО «Сбербанк»",
+        "price": 323.4,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "SBER",
+        "relative_fair_value": 323.4,
+        "2025": {
+          "pe": 4.28,
+          "ps": null,
+          "pb": 0.88,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 23.8
+        },
+        "2024": {
+          "pe": 4.53,
+          "ps": null,
+          "pb": 1.0,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 24.02
+        }
+      },
+      {
+        "ticker": "SBERP",
+        "name": "ПАО «Сбербанк» (привилегированные акции)",
+        "price": 316.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "SBERP *",
+        "relative_fair_value": 323.35,
+        "2025": {
+          "pe": 4.08,
+          "ps": null,
+          "pb": 0.86,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 23.8
+        },
+        "2024": {
+          "pe": 4.41,
+          "ps": null,
+          "pb": 0.99,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 24.02
+        }
+      },
+      {
+        "ticker": "VTBR",
+        "name": "Банк ВТБ (ПАО)",
+        "price": 78.965,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VTBR *",
+        "relative_fair_value": 315.86,
+        "2025": {
+          "pe": 1.23,
+          "ps": null,
+          "pb": 0.22,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 17.99
+        },
+        "2024": {
+          "pe": 0.88,
+          "ps": null,
+          "pb": 0.18,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 24.73
+        }
+      },
+      {
+        "ticker": "T",
+        "name": "ПАО «Т-Технологии» (ТКС / Тинькофф)",
+        "price": 309.4,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "T",
+        "relative_fair_value": 264.34,
+        "2025": {
+          "pe": 4.69,
+          "ps": null,
+          "pb": 1.03,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.1
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": 1.71,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 32.5
+        }
+      },
+      {
+        "ticker": "SVCB",
+        "name": "ПАО «Совкомбанк»",
+        "price": 12.105,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SVCB *",
+        "relative_fair_value": 16.14,
+        "2025": {
+          "pe": 5.57,
+          "ps": 0.34,
+          "pb": 0.66,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 12.54
+        },
+        "2024": {
+          "pe": 3.61,
+          "ps": null,
+          "pb": 0.7,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 21.96
+        }
+      },
+      {
+        "ticker": "CBOM",
+        "name": "ПАО «Московский кредитный банк» (МКБ)",
+        "price": 6.121,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "CBOM *",
+        "relative_fair_value": 9.79,
+        "2025": {
+          "pe": 9.05,
+          "ps": 0.27,
+          "pb": 0.55,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 6.47
+        },
+        "2024": {
+          "pe": 10.42,
+          "ps": 0.32,
+          "pb": 0.62,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 6.0
+        }
+      },
+      {
+        "ticker": "BSPB",
+        "name": "ПАО «Банк «Санкт-Петербург»",
+        "price": 335.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "BSPB",
+        "relative_fair_value": 446.67,
+        "2025": {
+          "pe": 3.78,
+          "ps": null,
+          "pb": 0.66,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 18.79
+        },
+        "2024": {
+          "pe": 2.82,
+          "ps": null,
+          "pb": 0.71,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.2
+        }
+      },
+      {
+        "ticker": "BSPBP",
+        "name": "ПАО «Банк «Санкт-Петербург» (привилегированные акции)",
+        "price": 47.75,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "BSPBP *",
+        "relative_fair_value": 420.2,
+        "2025": {
+          "pe": 0.56,
+          "ps": null,
+          "pb": 0.1,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 18.79
+        },
+        "2024": {
+          "pe": 0.42,
+          "ps": null,
+          "pb": 0.11,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.2
+        }
+      },
+      {
+        "ticker": "MBNK",
+        "name": "ПАО «МТС-Банк»",
+        "price": 1207.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MBNK *",
+        "relative_fair_value": 2795.16,
+        "2025": {
+          "pe": 3.34,
+          "ps": 0.32,
+          "pb": 0.38,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 12.83
+        },
+        "2024": {
+          "pe": 3.88,
+          "ps": 0.42,
+          "pb": 0.43,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 16.21
+        }
+      },
+      {
+        "ticker": "USBN",
+        "name": "ПАО «Банк Уралсиб»",
+        "price": 0.1257,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "USBN *",
+        "relative_fair_value": 0.28,
+        "2025": {
+          "pe": 9.61,
+          "ps": null,
+          "pb": 0.39,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 4.28
+        },
+        "2024": {
+          "pe": 15.06,
+          "ps": null,
+          "pb": 0.41,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 2.59
+        }
+      },
+      {
+        "ticker": "DOMRF",
+        "name": "АО «ДОМ.РФ»",
+        "price": 2387.7,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "DOMRF *",
+        "relative_fair_value": 2298.88,
+        "2025": {
+          "pe": 4.84,
+          "ps": null,
+          "pb": 0.914,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 18.87
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 20.0
+        }
+      },
+      {
+        "ticker": "MOEX",
+        "name": "ПАО «Московская Биржа»",
+        "price": 174.5,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MOEX *",
+        "relative_fair_value": 104.46,
+        "2025": {
+          "pe": 6.7,
+          "ps": 3.08,
+          "pb": 1.47,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 22.62
+        },
+        "2024": {
+          "pe": 5.01,
+          "ps": 2.74,
+          "pb": 1.52,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 35.52
+        }
+      },
+      {
+        "ticker": "LEAS",
+        "name": "ПАО «ЛК «Европлан»",
+        "price": 656.6,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "LEAS *",
+        "relative_fair_value": 310.65,
+        "2025": {
+          "pe": 15.35,
+          "ps": null,
+          "pb": 1.86,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 10.14
+        },
+        "2024": {
+          "pe": 5.33,
+          "ps": null,
+          "pb": 1.57,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.46
+        }
+      },
+      {
+        "ticker": "RENI",
+        "name": "ПАО «Группа Ренессанс Страхование»",
+        "price": 84.96,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RENI *",
+        "relative_fair_value": 89.01,
+        "2025": {
+          "pe": 4.29,
+          "ps": null,
+          "pb": 0.84,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 20.2
+        },
+        "2024": {
+          "pe": 4.77,
+          "ps": null,
+          "pb": 0.97,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 24.94
+        }
+      },
+      {
+        "ticker": "RGSS",
+        "name": "ПАО СК «Росгосстрах»",
+        "price": 0.1964,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RGSS *",
+        "relative_fair_value": 0.13,
+        "2025": {
+          "pe": 10.96,
+          "ps": null,
+          "pb": 1.29,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 13.35
+        },
+        "2024": {
+          "pe": 10.85,
+          "ps": null,
+          "pb": 1.65,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 17.12
+        }
+      },
+      {
+        "ticker": "SPBE",
+        "name": "ПАО «СПБ Биржа»",
+        "price": 209.3,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SPBE *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SFIN",
+        "name": "ПАО «ЭсЭфАй» (SFI)",
+        "price": 700,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SFIN *",
+        "relative_fair_value": 993.55,
+        "2025": {
+          "pe": 1.99,
+          "ps": 14.41,
+          "pb": 0.62,
+          "ev_ebitda": 7.07,
+          "net_debt_ebitda": null,
+          "roe": 19.92
+        },
+        "2024": {
+          "pe": 2.01,
+          "ps": 10.72,
+          "pb": 0.41,
+          "ev_ebitda": 33.77,
+          "net_debt_ebitda": null,
+          "roe": 25.84
+        }
+      },
+      {
+        "ticker": "ZAYM",
+        "name": "ПАО МФК «Займер»",
+        "price": 148.6,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ZAYM *",
+        "relative_fair_value": 126.96,
+        "2025": {
+          "pe": 3.41,
+          "ps": null,
+          "pb": 1.03,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 30.12
+        },
+        "2024": {
+          "pe": 3.73,
+          "ps": null,
+          "pb": 1.16,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 31.1
+        }
+      },
+      {
+        "ticker": "AFKS",
+        "name": "ПАО АФК «Система»",
+        "price": 11.522,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "AFKS *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 4.25,
+        "ps": null,
+        "pb": 0.86,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null,
+        "roe": 23.9
+      },
+      "median": {
+        "pe": 4.28,
+        "ps": null,
+        "pb": 0.88,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null,
+        "roe": 23.8
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 3.67,
+        "ps": null,
+        "pb": 1.14,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null,
+        "roe": 28.57
+      },
+      "median": {
+        "pe": 3.67,
+        "ps": null,
+        "pb": 1.0,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null,
+        "roe": 29.2
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "SBER",
+      "T",
+      "BSPB"
+    ],
+    "excluded": [
+      "SBERP",
+      "VTBR",
+      "SVCB",
+      "CBOM",
+      "BSPBP",
+      "MBNK",
+      "USBN",
+      "DOMRF",
+      "MOEX",
+      "LEAS",
+      "RENI",
+      "RGSS",
+      "SPBE",
+      "SFIN",
+      "ZAYM",
+      "AFKS"
+    ],
+    "note": "Медиана/среднее — только чистые сопоставимые банки; остальные со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Рентабельность (ROE) vs Оценка (P/E)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pe",
+        "label": "P/E",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "SBER",
+          "name": "ПАО «Сбербанк»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 23.8,
+          "y": 4.28
+        },
+        {
+          "ticker": "SBERP",
+          "name": "ПАО «Сбербанк» (привилегированные акции)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 23.8,
+          "y": 4.08
+        },
+        {
+          "ticker": "VTBR",
+          "name": "Банк ВТБ (ПАО)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 17.99,
+          "y": 1.23
+        },
+        {
+          "ticker": "T",
+          "name": "ПАО «Т-Технологии» (ТКС / Тинькофф)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 29.1,
+          "y": 4.69
+        },
+        {
+          "ticker": "SVCB",
+          "name": "ПАО «Совкомбанк»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 12.54,
+          "y": 5.57
+        },
+        {
+          "ticker": "CBOM",
+          "name": "ПАО «Московский кредитный банк» (МКБ)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 6.47,
+          "y": 9.05
+        },
+        {
+          "ticker": "BSPB",
+          "name": "ПАО «Банк «Санкт-Петербург»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 18.79,
+          "y": 3.78
+        },
+        {
+          "ticker": "BSPBP",
+          "name": "ПАО «Банк «Санкт-Петербург» (привилегированные акции)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 18.79,
+          "y": 0.56
+        },
+        {
+          "ticker": "MBNK",
+          "name": "ПАО «МТС-Банк»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 12.83,
+          "y": 3.34
+        },
+        {
+          "ticker": "USBN",
+          "name": "ПАО «Банк Уралсиб»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 4.28,
+          "y": 9.61
+        },
+        {
+          "ticker": "DOMRF",
+          "name": "АО «ДОМ.РФ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 18.87,
+          "y": 4.84
+        },
+        {
+          "ticker": "MOEX",
+          "name": "ПАО «Московская Биржа»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 22.62,
+          "y": 6.7
+        },
+        {
+          "ticker": "LEAS",
+          "name": "ПАО «ЛК «Европлан»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 10.14,
+          "y": 15.35
+        },
+        {
+          "ticker": "RENI",
+          "name": "ПАО «Группа Ренессанс Страхование»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 20.2,
+          "y": 4.29
+        },
+        {
+          "ticker": "RGSS",
+          "name": "ПАО СК «Росгосстрах»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 13.35,
+          "y": 10.96
+        },
+        {
+          "ticker": "SPBE",
+          "name": "ПАО «СПБ Биржа»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SFIN",
+          "name": "ПАО «ЭсЭфАй» (SFI)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 19.92,
+          "y": 1.99
+        },
+        {
+          "ticker": "ZAYM",
+          "name": "ПАО МФК «Займер»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 30.12,
+          "y": 3.41
+        },
+        {
+          "ticker": "AFKS",
+          "name": "ПАО АФК «Система»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "SBER",
+          "name": "ПАО «Сбербанк»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 23.8,
+          "y": 0.88
+        },
+        {
+          "ticker": "SBERP",
+          "name": "ПАО «Сбербанк» (привилегированные акции)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 23.8,
+          "y": 0.86
+        },
+        {
+          "ticker": "VTBR",
+          "name": "Банк ВТБ (ПАО)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 17.99,
+          "y": 0.22
+        },
+        {
+          "ticker": "T",
+          "name": "ПАО «Т-Технологии» (ТКС / Тинькофф)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 29.1,
+          "y": 1.03
+        },
+        {
+          "ticker": "SVCB",
+          "name": "ПАО «Совкомбанк»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 12.54,
+          "y": 0.66
+        },
+        {
+          "ticker": "CBOM",
+          "name": "ПАО «Московский кредитный банк» (МКБ)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 6.47,
+          "y": 0.55
+        },
+        {
+          "ticker": "BSPB",
+          "name": "ПАО «Банк «Санкт-Петербург»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 18.79,
+          "y": 0.66
+        },
+        {
+          "ticker": "BSPBP",
+          "name": "ПАО «Банк «Санкт-Петербург» (привилегированные акции)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 18.79,
+          "y": 0.1
+        },
+        {
+          "ticker": "MBNK",
+          "name": "ПАО «МТС-Банк»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 12.83,
+          "y": 0.38
+        },
+        {
+          "ticker": "USBN",
+          "name": "ПАО «Банк Уралсиб»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 4.28,
+          "y": 0.39
+        },
+        {
+          "ticker": "DOMRF",
+          "name": "АО «ДОМ.РФ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 18.87,
+          "y": 0.914
+        },
+        {
+          "ticker": "MOEX",
+          "name": "ПАО «Московская Биржа»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 22.62,
+          "y": 1.47
+        },
+        {
+          "ticker": "LEAS",
+          "name": "ПАО «ЛК «Европлан»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 10.14,
+          "y": 1.86
+        },
+        {
+          "ticker": "RENI",
+          "name": "ПАО «Группа Ренессанс Страхование»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 20.2,
+          "y": 0.84
+        },
+        {
+          "ticker": "RGSS",
+          "name": "ПАО СК «Росгосстрах»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 13.35,
+          "y": 1.29
+        },
+        {
+          "ticker": "SPBE",
+          "name": "ПАО «СПБ Биржа»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SFIN",
+          "name": "ПАО «ЭсЭфАй» (SFI)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 19.92,
+          "y": 0.62
+        },
+        {
+          "ticker": "ZAYM",
+          "name": "ПАО МФК «Займер»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 30.12,
+          "y": 1.03
+        },
+        {
+          "ticker": "AFKS",
+          "name": "ПАО АФК «Система»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "VTBR",
+      "note": "Оптические мультипликаторы P/B≈0.19 и P/E≈1.1 экстремально низкие и ИСКАЖЕНЫ, оценивать их буквально нельзя. Причины: (1) хроническое размывание — число обыкновенных акций менялось скачкообразно (12 960 млн в 2016-2022 → 5 370 млн после реклассификации 2023 → 6 620 млн после SPO 2025), из-за чего балансовая стоимость на акцию нестабильна; (2) минимальная достаточность капитала Н20.0 9.8% при регуляторном минимуме 9.25% — буфер почти исчерпан, что вынуждает банк периодически проводить допэмиссии для пополнения капитала, размывая текущих акционеров. Поэтому метод P/BV×ROE, дающий цену 166–230 ₽, переоценивает внутреннюю стоимость на акцию: значительная часть прироста капитала уходит на восстановление норматива, а не акционерам. Дивидендный метод (≈70–97 ₽) ближе к экономической реальности. Источники по числу акций расходятся (5.3 / 6.6 / 12.9 млрд) — использован внутренне согласованный набор из загруженного отчёта (капитализация 595 937 млн / цена 90.015 = 6 620 млн акций)."
+    },
+    {
+      "ticker": "SVCB",
+      "note": "Прибыль и ROE искажены разовыми факторами в обе стороны. 2024: прибыль завышена разовым доходом от выгодной покупки Хоум Банка (bargain purchase gain ~19 млрд руб.) и переоценками — ROE ~22-26%, P/E ~3.6 выглядят искусственно привлекательными. 2025: прибыль занижена пиком стоимости фондирования при ставке ЦБ до 21% и ростом резервов (CoR 2.8%, CIR 94%) — ROE упал до 12%, что ниже устойчивого уровня. У Совкомбанка значимы небанковские и страховые доходы (выручка от небанковских услуг ~164 млрд в 2025) плюс волатильный казначейский результат, поэтому отчётный чистый результат год к году нестабилен. ROE и P/E одного года нерепрезентативны — для оценки взят нормализованный mid-cycle ROE."
+    },
+    {
+      "ticker": "CBOM",
+      "note": "2025: прибыль положительна (+8% г/г) ТОЛЬКО за счёт разовых ~196 млрд руб. доходов от операций с ценными бумагами. Резервы под кредитные убытки выросли в 5,4х (42→224 млрд), стоимость риска (COR) подскочила с 1,54% до 9,53%, доля NPL — до ~28% портфеля. Без разовой статьи банк был бы убыточен. Кредитный портфель −12,8%, депозиты −2,1%, активы −2,7%. P/BV×ROE-оценка даёт цену в 1,6-4,5 руб против рынка 6,12 руб — рынок оценивает банк выше фундаментала, вероятно закладывая нормализацию ROE и/или поддержку акционера."
+    },
+    {
+      "ticker": "MBNK",
+      "note": "Высокая стоимость риска (CoR ~6.6-7.1% в 2025 — почти вдвое выше среднего по сектору ~3.55%) — структурная особенность фокуса на необеспеченной рознице, давит на прибыль и ROE. Резервы 2025 = 24 752 млн руб. при чистой прибыли 14 431 млн. При нормализации CoR до среднеотраслевых ~3.55% высвободилось бы ~11.5 млрд руб. до налога (~8.6 млрд после 25% налога), что подняло бы чистую прибыль до ~23 млрд и ROE до ~18%. Отсюда разрыв между текущим бухгалтерским ROE (~12.8%) и целевым/нормализованным (~16-18%). Дополнительно: рост ROE сдерживается опережающим ростом капитала после IPO-2024 и SPO-2025 (капитал +50% за 2 года при прибыли +16%). Расхождение метрик: банк в пресс-релизе сообщает ROE 14.5% (скорр. на выплаты по суборду/бессрочным инструментам), источник-PDF даёт бухгалтерский ROE 12.83% (ЧП/капитал на конец периода) — обе цифры корректны, разная методология."
+    },
+    {
+      "ticker": "USBN",
+      "note": "Мультипликаторы искажены (низкая ликвидность/недавнее IPO/слабый ROE)."
+    },
+    {
+      "ticker": "DOMRF",
+      "note": "Мультипликаторы искажены (низкая ликвидность/недавнее IPO/слабый ROE)."
+    },
+    {
+      "ticker": "MOEX",
+      "note": "Высокая ключевая ставка ЦБ (16–21% в 2024 — начале 2025) раздула процентный доход на огромных клиентских и НКЦ-остатках. Это вытолкнуло чистую прибыль 2024 на рекорд 79 246 млн (ROE 35,5% простой / 32,7% на средний капитал) — пик, не норму. В 2025 ставка пошла вниз, прибыль упала до 59 246 млн (−25,2%), ROE вернулся к 22,6%. Эффект искажает P/E: на прибыль 2024 P/E ≈ 5,0 выглядит дёшево, но это знаменатель на пике цикла. На нормализованную прибыль P/E ≈ 6,3, на прибыль 2025 — 6,7. Корректно оценивать по нормализованной (через-цикл) прибыли и ROE ~18–23%, а не по рекорду 2024. С продолжением снижения ставки в 2026–2027 процентная составляющая дохода продолжит сжиматься."
+    },
+    {
+      "ticker": "LEAS",
+      "note": "Лизинг (иная модель + дно цикла, резервы); не сопоставим с банками по P/B×ROE."
+    },
+    {
+      "ticker": "RENI",
+      "note": "Прибыль страховщика сильно зависит от переоценки облигационного портфеля (74% портфеля в облигациях). При смене ключевой ставки переоценка облигаций (FVTPL/FVOCI) и инвестдоход двигают чистую прибыль на величину, сопоставимую с операционным результатом страхования. В 2025 инвестдоход +83% г/г (46,7 млрд), но ~28 млрд ушло в финрасходы по договорам life и -5,4 млрд валютная переоценка — поэтому чистая прибыль почти не выросла (11,0 vs 11,1 млрд). Вывод: при снижении ставки 2026 возможна положительная переоценка тела облигаций, но снижение текущего купонного дохода; прибыль волатильна и плохо экстраполируется линейно."
+    },
+    {
+      "ticker": "RGSS",
+      "note": "Малоликвидная бумага (free-float мал, ВТБ контролирует, идут переговоры о продаже — цена 0,1964 руб может не отражать справедливую стоимость). Капитал и прибыль чувствительны к переоценке инвестпортфеля при движении ставки ЦБ. Накопленный убыток -75 642 млн в капитале (наследие санации). Методы оценки сильно расходятся из-за высокой Ke (22,7%) против ROE ~12-13%."
+    },
+    {
+      "ticker": "SPBE",
+      "note": "Биржа под санкциями — основной бизнес разрушен, прибыль из процентов; мультипликаторы ненадёжны."
+    },
+    {
+      "ticker": "SFIN",
+      "note": "Инвестхолдинг — оценка по SOTP/NAV; P/E нерепрезентативен."
+    },
+    {
+      "ticker": "ZAYM",
+      "note": "ОТРАСЛЕВАЯ АНОМАЛИЯ МФО. (1) Сверхвысокая стоимость риска: резервы под кредитные убытки 8,7 млрд руб. в 2025 (+57% г/г), CoR ~50-60% от портфеля — структурно «съедает» половину процентных доходов. (2) Регуляторные ограничения ЦБ РФ: с 01.04.2026 максимальная переплата по займам снижена со 130% до 100% от тела; введены макропруденциальные лимиты по ПДН (запрет выдачи при ПДН>80%, лимит 10% портфеля при ПДН 50-80%) — прямое давление на маржу PDL-сегмента. (3) Очень высокий ROE (30-34%) при экстремально низком P/E (3.4) и P/B (1.03) — рынок закладывает регуляторное сжатие прибыли, поэтому низкие мультипликаторы НЕ означают дешевизну в чистом виде. (4) Финансирование на 99%+ за счёт собственного капитала, чистая денежная позиция (net cash -3,267 млн), долговой леверидж практически отсутствует — нетипично для финкомпании. (5) ROE снизился с пиковых 51% (2023) до 30-34% (2025) — нормализация после регуляторного ужесточения."
+    },
+    {
+      "ticker": "AFKS",
+      "note": "Инвестхолдинг с долгом корпцентра и отриц. капиталом; P/E/P/B нерепрезентативны."
+    }
+  ]
+}
