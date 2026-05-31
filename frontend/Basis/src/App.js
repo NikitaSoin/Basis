@@ -3,6 +3,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   Search,
+  Scale,
+  Wallet,
+  AlertTriangle,
   TrendingUp,
   TrendingDown,
   Activity,
@@ -1356,6 +1359,86 @@ const SECTOR_MAP = {
 };
 const SECTOR_ORDER = ["Нефть и газ", "Финансы", "Металлургия", "IT-сектор", "Потребительский сектор", "Телеком", "Электроэнергетика", "Химия", "Девелопмент", "Транспорт и логистика", "Здравоохранение", "Машиностроение"];
 
+// Сектор (русское имя из company.sector) → ключ сектора в API/реестре config/sectors.json
+const SECTOR_KEY_BY_NAME = {
+  "Нефть и газ": "oil_gas",
+  "Финансы": "finance",
+  "Металлургия": "metals",
+  "IT-сектор": "it",
+  "Потребительский сектор": "consumer",
+  "Телеком": "telecom",
+  "Электроэнергетика": "utilities",
+  "Химия": "chemicals",
+  "Девелопмент": "development",
+  "Транспорт и логистика": "transport",
+  "Здравоохранение": "healthcare",
+  "Машиностроение": "machinery",
+  "Прочее": "other",
+};
+
+// SVG scatter для секторных карт (без сторонних библиотек). Модульный компонент — со своим hover-state.
+function ScatterMap({ map, currentTicker }) {
+  const [hover, setHover] = useState(null);
+  if (!map || !Array.isArray(map.points)) return null;
+  const W = 360, H = 300, padL = 46, padR = 16, padT = 16, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const pts = map.points.filter((p) => p.x != null && p.y != null);
+  if (pts.length === 0) {
+    return <div style={{ padding: 24, textAlign: "center", color: "var(--text-3)", fontSize: 12 }}>Недостаточно данных для карты</div>;
+  }
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+  const pad = (lo, hi) => { const d = (hi - lo) || Math.abs(hi) || 1; return [lo - d * 0.08, hi + d * 0.08]; };
+  const [xMin, xMax] = pad(Math.min(...xs), Math.max(...xs));
+  const [yMin, yMax] = pad(Math.min(...ys), Math.max(...ys));
+  const sx = (v) => padL + ((v - xMin) / (xMax - xMin || 1)) * plotW;
+  const sy = (v) => padT + (1 - (v - yMin) / (yMax - yMin || 1)) * plotH;
+  const ticks = (lo, hi, n = 4) => Array.from({ length: n + 1 }, (_, i) => lo + ((hi - lo) * i) / n);
+  const fmtTick = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
+  return (
+    <div style={{ position: "relative" }}>
+      <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-1)", marginBottom: 6 }}>{map.title}</div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} onMouseLeave={() => setHover(null)}>
+        {ticks(yMin, yMax).map((t, i) => (
+          <g key={`y${i}`}>
+            <line x1={padL} y1={sy(t)} x2={W - padR} y2={sy(t)} stroke="var(--border)" strokeWidth="0.5" />
+            <text x={padL - 6} y={sy(t) + 3} textAnchor="end" fontSize="9" fill="var(--text-3)" style={{ fontVariantNumeric: "tabular-nums" }}>{fmtTick(t)}</text>
+          </g>
+        ))}
+        {ticks(xMin, xMax).map((t, i) => (
+          <g key={`x${i}`}>
+            <line x1={sx(t)} y1={padT} x2={sx(t)} y2={H - padB} stroke="var(--border)" strokeWidth="0.5" />
+            <text x={sx(t)} y={H - padB + 14} textAnchor="middle" fontSize="9" fill="var(--text-3)" style={{ fontVariantNumeric: "tabular-nums" }}>{fmtTick(t)}</text>
+          </g>
+        ))}
+        <text x={padL + plotW / 2} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--text-2)">{map.x_axis?.label}</text>
+        <text x={12} y={padT + plotH / 2} textAnchor="middle" fontSize="10" fill="var(--text-2)" transform={`rotate(-90 12 ${padT + plotH / 2})`}>{map.y_axis?.label}</text>
+        {pts.slice().sort((a, b) => (a.ticker === currentTicker ? 1 : 0) - (b.ticker === currentTicker ? 1 : 0)).map((p) => {
+          const isCur = p.ticker === currentTicker;
+          const cx = sx(p.x), cy = sy(p.y);
+          const fill = isCur ? "var(--accent)" : p.anomaly ? "var(--text-3)" : "var(--text-2)";
+          const r = isCur ? 6 : 4;
+          return (
+            <g key={p.ticker} onMouseEnter={() => setHover({ ...p, px: cx, py: cy })} style={{ cursor: "default" }}>
+              <circle cx={cx} cy={cy} r={11} fill="transparent" />
+              <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={isCur ? 1 : p.anomaly ? 0.55 : 0.9} stroke={isCur ? "var(--bg-surface)" : "none"} strokeWidth={isCur ? 1.5 : 0} />
+              <text x={cx + r + 3} y={cy + 3} fontSize={isCur ? 10 : 9} fontWeight={isCur ? 600 : 400} fill={isCur ? "var(--accent-text)" : "var(--text-2)"}>{p.ticker}{p.anomaly ? " *" : ""}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {hover && (
+        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 9px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}>
+          <div style={{ fontWeight: 600, marginBottom: 2 }}>{hover.ticker}{hover.anomaly ? " *" : ""}</div>
+          <div style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
+            {map.x_axis?.label}: {hover.x?.toFixed(2)}<br />
+            {map.y_axis?.label}: {hover.y?.toFixed(2)}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const CompaniesView = ({ onSelectCompany }) => {
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
@@ -1640,6 +1723,8 @@ const CompanyCard = ({ company, onBack }) => {
   const [finMd, setFinMd] = useState(null);
   const [finJson, setFinJson] = useState(null);
   const [finLoading, setFinLoading] = useState(true);
+  const [peersJson, setPeersJson] = useState(null);
+  const [peersShowAll, setPeersShowAll] = useState(false);
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -1717,6 +1802,18 @@ const CompanyCard = ({ company, onBack }) => {
       setFinLoading(false);
     });
   }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setPeersJson(null);
+    setPeersShowAll(false);
+    const key = SECTOR_KEY_BY_NAME[company.sector];
+    if (!key) return;
+    fetch(`${apiUrl}/api/sectors/${key}/peers`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setPeersJson)
+      .catch(() => setPeersJson(null));
+  }, [company.ticker, company.sector]);
 
   const renderComingSoon = (label) => (
     <div className="bg-slate-800 p-10 text-center rounded-xl border border-slate-700">
@@ -2282,68 +2379,316 @@ const CompanyCard = ({ company, onBack }) => {
       ),
     };
 
+    // ── хелперы и данные для таблиц/графиков ──
+    const years = meta.fiscal_years || [];
+    const at = (arr, i) => (Array.isArray(arr) ? (arr[i] ?? null) : null);
+    const isBank = meta.profile === "bank";
+    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return (v / 1000000).toFixed(2) + " трлн"; if (a >= 1000) return (v / 1000).toFixed(1) + " млрд"; return v.toLocaleString("ru-RU"); };
+    const yoy = (c, p) => (typeof c === "number" && typeof p === "number" && p !== 0) ? ((c - p) / Math.abs(p)) * 100 : null;
+    const cardStyle = { background: "var(--bg-surface)", borderRadius: 12, padding: 18, border: "1px solid var(--border)" };
+    const cardHead = (Icon, title, right) => (
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}><Icon size={16} style={{ color: "var(--accent)" }} />{title}</h4>
+        {right}
+      </div>
+    );
+    const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
+
+    const finTable = (rows) => (
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead><tr>
+            <th style={{ textAlign: "left", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", borderBottom: "1px solid var(--border-mid)", position: "sticky", left: 0, background: "var(--bg-surface)" }}>Показатель</th>
+            {years.map((y, i) => (<th key={i} style={{ textAlign: "right", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, borderBottom: "1px solid var(--border-mid)", whiteSpace: "nowrap" }}>{y}</th>))}
+          </tr></thead>
+          <tbody>
+            {rows.map((row, ri) => { const f = row.fmt || fmtBig; return (
+              <tr key={ri} style={{ background: ri % 2 ? "var(--bg-card)" : "transparent" }}>
+                <td style={{ padding: "6px 10px", color: row.muted ? "var(--text-3)" : "var(--text-2)", fontWeight: row.bold ? 600 : 400, whiteSpace: "nowrap", position: "sticky", left: 0, background: "inherit", fontSize: row.muted ? 12 : 13 }}>{row.label}</td>
+                {years.map((_, i) => { const v = at(row.arr, i); const d = row.delta ? yoy(v, at(row.arr, i - 1)) : null; return (
+                  <td key={i} style={{ padding: "6px 10px", textAlign: "right", color: row.bold ? "var(--text-1)" : "var(--text-2)", fontWeight: row.bold ? 600 : 400, fontFamily: "monospace", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                    {v == null ? <span style={{ color: "var(--text-3)" }}>—</span> : f(v)}
+                    {d != null && (<span style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: d >= 0 ? "var(--positive)" : "var(--negative)" }}>{d >= 0 ? "+" : ""}{d.toFixed(1)}%</span>)}
+                  </td>
+                ); })}
+              </tr>
+            ); })}
+          </tbody>
+        </table>
+      </div>
+    );
+    const tableSection = (Icon, title, rows, open) => (rows && rows.length) ? (
+      <details open={open} style={cardStyle}>
+        <summary style={{ cursor: "pointer", listStyle: "none", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}><Icon size={16} style={{ color: "var(--accent)" }} />{title}<ChevronDown size={15} style={{ color: "var(--text-3)", marginLeft: "auto" }} /></summary>
+        <div style={{ marginTop: 12 }}>{finTable(rows)}</div>
+      </details>
+    ) : null;
+
+    const miniChart = (data, type, color) => {
+      const W = 320, H = 120, padX = 6, padTop = 14, padBot = 18;
+      const vals = (data || []).filter((v) => typeof v === "number");
+      if (!vals.length) return null;
+      const max = Math.max(...vals, 0), min = Math.min(...vals, 0), span = (max - min) || 1, n = (data || []).length;
+      const xAt = (i) => padX + (n === 1 ? (W - 2 * padX) / 2 : (i * (W - 2 * padX)) / (n - 1));
+      const yAt = (v) => padTop + (1 - (v - min) / span) * (H - padTop - padBot);
+      const zeroY = yAt(0);
+      return (
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} preserveAspectRatio="none">
+          {min < 0 && max > 0 && (<line x1={padX} x2={W - padX} y1={zeroY} y2={zeroY} stroke="var(--border-mid)" strokeWidth="1" />)}
+          {type === "bar" && (data || []).map((v, i) => { if (typeof v !== "number") return null; const bw = Math.max(6, (W - 2 * padX) / n * 0.6); const x = xAt(i) - bw / 2; const y = v >= 0 ? yAt(v) : zeroY; const h = Math.abs(yAt(v) - zeroY); return <rect key={i} x={x} y={y} width={bw} height={Math.max(h, 1)} rx="2" fill={v < 0 ? "var(--negative)" : color} opacity={v < 0 ? 0.9 : 0.85} />; })}
+          {type === "line" && (() => { const seg = (data || []).map((v, i) => ({ v, i })).filter((p) => typeof p.v === "number"); const d = seg.map((p, k) => `${k === 0 ? "M" : "L"}${xAt(p.i).toFixed(1)},${yAt(p.v).toFixed(1)}`).join(" "); return (<><path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />{seg.map((p, k) => <circle key={k} cx={xAt(p.i)} cy={yAt(p.v)} r="2.5" fill={color} />)}</>); })()}
+          {years.map((lb, i) => (<text key={i} x={xAt(i)} y={H - 5} textAnchor="middle" fontSize="8" fill="var(--text-3)" fontFamily="monospace">{String(lb).slice(2)}</text>))}
+        </svg>
+      );
+    };
+
+    const fairValueBar = () => {
+      const lo = fvr.conservative, hi = fvr.base, curp = fvr.current_price ?? meta.last_price;
+      if (typeof lo !== "number" || typeof hi !== "number" || typeof curp !== "number") return null;
+      const mn = Math.min(lo, curp) * 0.92, mx = Math.max(hi, curp) * 1.08;
+      const pos = (v) => ((v - mn) / (mx - mn || 1)) * 100;
+      return (
+        <div style={cardStyle}>
+          {cardHead(Target, "Справедливая стоимость", typeof upside === "number" && (
+            <span style={{ fontSize: 15, fontWeight: 700, color: upside >= 0 ? "var(--positive)" : "var(--negative)" }}>{upside >= 0 ? "▲ +" : "▼ "}{upside}% {upside >= 0 ? "апсайд" : "даунсайд"}</span>
+          ))}
+          <div style={{ position: "relative", height: 46, marginTop: 8 }}>
+            <div style={{ position: "absolute", top: 20, left: 0, right: 0, height: 6, background: "var(--bg-card)", borderRadius: 3 }} />
+            <div style={{ position: "absolute", top: 20, height: 6, borderRadius: 3, background: "var(--accent)", opacity: 0.5, left: `${pos(lo)}%`, width: `${pos(hi) - pos(lo)}%` }} />
+            <div style={{ position: "absolute", top: 14, left: `${pos(curp)}%`, transform: "translateX(-50%)", width: 2, height: 18, background: "var(--text-1)" }} />
+            <div style={{ position: "absolute", top: 0, left: `${pos(curp)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-1)", fontWeight: 600, whiteSpace: "nowrap" }}>{curp} ₽</div>
+            <div style={{ position: "absolute", top: 30, left: `${pos(lo)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{lo}</div>
+            <div style={{ position: "absolute", top: 30, left: `${pos(hi)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{hi}</div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-2)", marginTop: 6 }}>
+            <span>Консервативно: <b style={{ color: "var(--text-1)" }}>{lo} {meta.currency || "₽"}</b></span>
+            <span>База: <b style={{ color: "var(--text-1)" }}>{hi} {meta.currency || "₽"}</b></span>
+          </div>
+          {typeof rel.fair_value_per_share === "number" && (
+            <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>По сектору (EV/EBITDA пиров): ~{rel.fair_value_per_share} {meta.currency || "₽"}{typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${rel.upside_downside_pct}%)` : ""}</div>
+          )}
+        </div>
+      );
+    };
+
+    // данные таблиц
+    const is = finJson?.income_statement || {}, bs = finJson?.balance_sheet || {}, cf = finJson?.cash_flow || {}, mg = is.margins || {};
+    const bp = finJson?.bank_pnl || {}, bmx = finJson?.bank_metrics || {};
+    const pnlRows = !isBank ? [
+      { label: "Выручка", arr: is.revenue, bold: true, delta: true },
+      { label: "EBITDA", arr: is.ebitda, delta: true },
+      { label: "Операц. прибыль", arr: is.operating_profit, delta: true },
+      { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
+      { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
+    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+    const bsRows = [
+      { label: "Активы", arr: bs.total_assets, bold: true },
+      { label: "Капитал", arr: bs.total_equity },
+      { label: "Обязательства", arr: bs.total_liabilities },
+      { label: "Чистый долг", arr: bs.net_debt },
+      { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => fmt(v, 2) + "×", muted: true },
+    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null));
+    const cfRows = !isBank ? [
+      { label: "Операц. поток (CFO)", arr: cf.cfo, bold: true },
+      { label: "CapEx", arr: cf.capex },
+      { label: "FCF", arr: cf.fcf, bold: true, delta: true },
+      { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
+    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+    const bankPnlRows = isBank ? [
+      { label: "Чистый проц. доход", arr: bp.net_interest_income, bold: true, delta: true },
+      { label: "Чистый комис. доход", arr: bp.net_fee_income, delta: true },
+      { label: "Операц. доходы", arr: bp.operating_income },
+      { label: "Резервы", arr: bp.provisions },
+      { label: "Чистая прибыль", arr: bp.net_profit, bold: true, delta: true },
+    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+    const bankMetricRows = isBank ? [
+      { label: "ЧПМ (NIM), %", arr: bmx.nim, fmt: (v) => fmt(v, 2) + "%", muted: true },
+      { label: "Стоимость риска, %", arr: bmx.cost_of_risk, fmt: (v) => fmt(v, 2) + "%", muted: true },
+      { label: "CIR, %", arr: bmx.cir, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "ROE, %", arr: bmx.roe, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "Достаточность кап., %", arr: bmx.capital_adequacy, fmt: (v) => fmt(v, 1) + "%", muted: true },
+    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+
+    // графики
+    const chartRevenue = isBank ? bp.net_interest_income : is.revenue;
+    const chartProfit = isBank ? bp.net_profit : is.net_profit;
+    const chartMargin = isBank ? bmx.roe : mg.net_margin;
+    const hasCharts = [chartRevenue, chartProfit, chartMargin].some((a) => Array.isArray(a) && a.some((x) => x != null));
+
+    // методы оценки
+    const methods = finJson?.valuation?.methods || [];
+    const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", relative_peers: "По пирам", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
+    const HORIZON_RU = { intrinsic_now: "сейчас", "12m": "12 мес." };
+    const statusBadge = (s) => { const map = { ok: { t: "ок", c: "var(--positive)", bg: "var(--pos-fade)" }, insufficient_data: { t: "мало данных", c: "var(--text-3)", bg: "var(--bg-card)" }, not_applicable: { t: "n/a", c: "var(--text-3)", bg: "var(--bg-card)" }, reference_only: { t: "справочно", c: "var(--text-3)", bg: "var(--bg-card)" } }; const x = map[s] || map.ok; return <span style={{ fontSize: 11, fontWeight: 600, color: x.c, background: x.bg, padding: "2px 8px", borderRadius: 6 }}>{x.t}</span>; };
+
+    // ── секторное сравнение ──
+    const renderSectorComparison = () => {
+      if (!peersJson) return null;
+      const ct = peersJson.comparison_table, aggs = peersJson.sector_aggregates || {};
+      const rows = ct?.rows || [];
+      if (!rows.length) return null;
+      const METRICS = [{ key: "pe", label: "P/E" }, { key: "ps", label: "P/S" }, { key: "pb", label: "P/B" }, { key: "ev_ebitda", label: "EV/EBITDA" }, { key: "net_debt_ebitda", label: "ND/EBITDA" }, { key: "roe", label: "ROE" }];
+      const num = (v, suff = "") => (typeof v === "number" ? v.toFixed(2) + suff : "—");
+      const ordered = rows.slice().sort((a, b) => { const cur = (r) => (r.ticker === company.ticker ? 0 : 1); const an = (r) => (r.anomaly ? 1 : 0); return cur(a) - cur(b) || an(a) - an(b) || a.ticker.localeCompare(b.ticker); });
+      const visible = peersShowAll ? ordered : ordered.filter((r) => !r.anomaly || r.ticker === company.ticker);
+      const thBase = { textAlign: "right", padding: "7px 10px", fontSize: 11, fontWeight: 500, color: "var(--text-3)", borderBottom: "1px solid var(--border-mid)", whiteSpace: "nowrap" };
+      const tdNum = (muted) => ({ textAlign: "right", padding: "7px 10px", fontSize: 12.5, fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: muted ? "var(--text-3)" : "var(--text-1)", whiteSpace: "nowrap" });
+      const AggRow = ({ title, agg }) => (
+        <tr style={{ borderTop: "1px solid var(--border-mid)", background: "var(--bg-app)" }}>
+          <td style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, color: "var(--text-2)", position: "sticky", left: 0, background: "var(--bg-app)" }}>{title}</td>
+          {METRICS.map((m) => (<td key={m.key} style={{ ...tdNum(false), fontWeight: 600, color: "var(--text-2)" }}>{num(agg?.[m.key], m.key === "roe" ? "%" : "")}</td>))}
+        </tr>
+      );
+      return (
+        <div style={cardStyle}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <Users size={16} style={{ color: "var(--accent)" }} />
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", margin: 0 }}>Сравнение с сектором</h4>
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 14 }}>{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы 2025 (мелким — 2024)</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, marginBottom: 12 }}>
+            <ScatterMap map={peersJson.maps?.map_1_debt_vs_valuation} currentTicker={company.ticker} />
+            <ScatterMap map={peersJson.maps?.map_2_quality_vs_price} currentTicker={company.ticker} />
+          </div>
+          <div style={{ fontSize: 11.5, lineHeight: 1.5, color: "var(--text-3)", marginBottom: 18, paddingTop: 8, borderTop: "1px solid var(--border)" }}>
+            <b style={{ color: "var(--text-2)" }}>*</b> — мультипликаторы искажены (внутригрупповые операции, разовые статьи, низкий free-float, регулируемый тариф и т.п.). Такие компании исключены из расчёта медианы и среднего; сравнивать с ними напрямую некорректно.
+          </div>
+          <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid var(--border)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+              <thead style={{ background: "var(--bg-app)" }}>
+                <tr>
+                  <th style={{ ...thBase, textAlign: "left", position: "sticky", left: 0, background: "var(--bg-app)" }}>Тикер</th>
+                  {METRICS.map((m) => <th key={m.key} style={thBase}>{m.label}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((r, i) => { const isCur = r.ticker === company.ticker; const d25 = r["2025"] || {}, d24 = r["2024"] || {}; return (
+                  <tr key={r.ticker} style={{ background: isCur ? "var(--accent-fade)" : (i % 2 ? "transparent" : "var(--bg-card)"), borderLeft: isCur ? "3px solid var(--accent)" : "3px solid transparent" }}>
+                    <td style={{ padding: "7px 10px", fontSize: 12.5, whiteSpace: "nowrap", fontWeight: isCur ? 600 : 400, color: r.anomaly ? "var(--text-3)" : (isCur ? "var(--accent-text)" : "var(--text-1)"), position: "sticky", left: 0, background: isCur ? "var(--accent-fade)" : "var(--bg-surface)" }}>{r.ticker}{r.anomaly ? " *" : ""}{r.is_pref ? <span style={{ color: "var(--text-3)", fontSize: 10 }}> ап</span> : null}</td>
+                    {METRICS.map((m) => { const v25 = d25[m.key], v24 = d24[m.key]; return (
+                      <td key={m.key} style={tdNum(r.anomaly && !isCur)}>
+                        <div>{num(v25, m.key === "roe" ? "%" : "")}</div>
+                        <div style={{ fontSize: 10, color: "var(--text-3)", marginTop: 1 }}>{num(v24, m.key === "roe" ? "%" : "")}</div>
+                      </td>
+                    ); })}
+                  </tr>
+                ); })}
+              </tbody>
+              <tfoot>
+                <AggRow title="Медиана сектора" agg={aggs["2025"]?.median} />
+                <AggRow title="Среднее сектора" agg={aggs["2025"]?.mean} />
+              </tfoot>
+            </table>
+          </div>
+          {ordered.length > visible.length && (
+            <button onClick={() => setPeersShowAll(true)} style={{ marginTop: 10, background: "transparent", border: "none", color: "var(--accent-text)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: "4px 0" }}>Показать все {ordered.length} компаний →</button>
+          )}
+        </div>
+      );
+    };
+
+    const summarySecs = splitH2(finMd);
+
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {finJson && (
-          <div style={{ background: "var(--bg-surface, #1e293b)", borderRadius: 12, padding: 18, border: "1px solid var(--border, #334155)" }}>
+          <div style={cardStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-              <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1, #fff)", display: "flex", alignItems: "center", gap: 8 }}>
-                <BarChart2 size={16} style={{ color: "var(--accent, #6366f1)" }} />
-                Ключевые мультипликаторы
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}>
+                <BarChart2 size={16} style={{ color: "var(--accent)" }} />Ключевые мультипликаторы
               </h4>
               {typeof meta.last_price === "number" && (
-                <span style={{ fontSize: 12, color: "var(--text-2, #94a3b8)" }}>
-                  Цена {meta.last_price} {meta.currency || "₽"}{meta.price_date ? ` · ${meta.price_date}` : ""}
-                </span>
+                <span style={{ fontSize: 12, color: "var(--text-2)" }}>Цена {meta.last_price} {meta.currency || "₽"}{meta.price_date ? ` · ${meta.price_date}` : ""}</span>
               )}
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 8 }}>
               {chips.map((c, i) => (
-                <div key={i} style={{ background: "var(--bg-base, #0f172a)", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: "var(--text-2, #94a3b8)", marginBottom: 3 }}>{c.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1, #fff)", fontFamily: "monospace" }}>{c.value}</div>
+                <div key={i} style={{ background: "var(--bg-app)", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-2)", marginBottom: 3 }}>{c.label}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", fontFamily: "monospace" }}>{c.value}</div>
                 </div>
               ))}
             </div>
-
-            {(typeof fvr.base === "number" || typeof fvr.conservative === "number") && (
-              <div style={{ marginTop: 14, fontSize: 13, color: "var(--text-2, #cbd5e1)" }}>
-                <b style={{ color: "var(--text-1, #fff)" }}>Справедливая цена:</b>{" "}
-                {typeof fvr.conservative === "number" ? `${fvr.conservative}` : "—"} – {typeof fvr.base === "number" ? `${fvr.base}` : "—"} {meta.currency || "₽"}
-                {typeof upside === "number" && (
-                  <span style={{ marginLeft: 8, fontWeight: 700, color: upside >= 0 ? "#22c55e" : "#ef4444" }}>
-                    {upside >= 0 ? "▲ +" : "▼ "}{upside}%
-                  </span>
-                )}
-              </div>
-            )}
-
-            {typeof rel.fair_value_per_share === "number" && (
-              <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--text-2, #94a3b8)" }}>
-                По сектору (EV/EBITDA пиров): ~{rel.fair_value_per_share} {meta.currency || "₽"}
-                {typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${rel.upside_downside_pct}%)` : ""}
-              </div>
-            )}
-
-            {finJson.anomaly_flag && finJson.anomaly_note && (
-              <div style={{ marginTop: 14, padding: "10px 12px", background: "rgba(245,158,11,0.10)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 8, fontSize: 12.5, color: "#fcd34d", display: "flex", gap: 8 }}>
-                <ShieldAlert size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-                <span><b>Мультипликаторы искажены:</b> {finJson.anomaly_note}</span>
-              </div>
-            )}
           </div>
         )}
 
-        {finMd ? (
-          <div style={{ background: "var(--bg-surface, #1e293b)", borderRadius: 12, padding: 18, border: "1px solid var(--border, #334155)" }}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>
+        {finJson?.anomaly_flag && finJson?.anomaly_note && (
+          <details style={{ background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 12, padding: "12px 16px" }}>
+            <summary style={{ cursor: "pointer", listStyle: "none", display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, fontWeight: 600, color: "var(--negative)" }}>
+              <AlertTriangle size={16} style={{ flexShrink: 0 }} />Мультипликаторы структурно искажены — раскрыть пояснение
+              <ChevronDown size={15} style={{ marginLeft: "auto", color: "var(--negative)" }} />
+            </summary>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-2)", margin: "10px 0 0" }}>{finJson.anomaly_note}</p>
+          </details>
+        )}
+
+        {fairValueBar()}
+
+        {methods.length > 0 && (
+          <div style={cardStyle}>
+            {cardHead(Scale, "Методы оценки")}
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead><tr>
+                  {["Метод", "Справедливая цена", "Горизонт", "Статус"].map((h, i) => (<th key={i} style={{ textAlign: i === 1 ? "right" : "left", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", borderBottom: "1px solid var(--border-mid)" }}>{h}</th>))}
+                </tr></thead>
+                <tbody>
+                  {methods.map((mt, i) => (
+                    <tr key={i} style={{ background: i % 2 ? "var(--bg-card)" : "transparent", opacity: (mt.status === "insufficient_data" || mt.status === "not_applicable") ? 0.6 : 1 }}>
+                      <td style={{ padding: "7px 10px", color: "var(--text-1)" }}>{METHOD_RU[mt.method] || mt.method}</td>
+                      <td style={{ padding: "7px 10px", textAlign: "right", fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: "var(--text-1)", fontWeight: 600 }}>{typeof mt.fair_value_per_share === "number" ? `${mt.fair_value_per_share} ₽` : "—"}</td>
+                      <td style={{ padding: "7px 10px", color: "var(--text-2)" }}>{HORIZON_RU[mt.horizon] || mt.horizon || "—"}</td>
+                      <td style={{ padding: "7px 10px" }}>{statusBadge(mt.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+        )}
+
+        {hasCharts && (
+          <div style={cardStyle}>
+            {cardHead(TrendingUp, "Динамика по годам")}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18 }}>
+              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>{isBank ? "Чистый проц. доход" : "Выручка"}</div>{miniChart(chartRevenue, "bar", "var(--accent)")}</div>
+              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>Чистая прибыль</div>{miniChart(chartProfit, "bar", "var(--accent)")}</div>
+              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>{isBank ? "ROE, %" : "Чистая маржа, %"}</div>{miniChart(chartMargin, "line", "var(--positive)")}</div>
+            </div>
+          </div>
+        )}
+
+        {isBank ? (
+          <>
+            {tableSection(BarChart2, "Отчёт о прибылях (банк)", bankPnlRows, true)}
+            {tableSection(Target, "Банковские метрики", bankMetricRows, false)}
+            {tableSection(Scale, "Баланс", bsRows, false)}
+          </>
         ) : (
-          <p style={{ fontSize: 13, color: "var(--text-2, #94a3b8)" }}>
-            Текстовый разбор по этой компании пока не сформирован — показаны только числовые метрики.
-          </p>
+          <>
+            {tableSection(BarChart2, "Прибыли и убытки (P&L)", pnlRows, true)}
+            {tableSection(Scale, "Баланс", bsRows, false)}
+            {tableSection(Wallet, "Денежные потоки (ОДДС)", cfRows, false)}
+          </>
         )}
+
+        {finMd && (
+          <div style={cardStyle}>
+            {cardHead(FileText, "Комментарий аналитика")}
+            {summarySecs.length ? summarySecs.map(({ heading, body }, i) => (
+              <details key={i} open={i === 0} style={{ borderTop: i ? "1px solid var(--border-mid)" : "none", padding: "8px 0" }}>
+                <summary style={{ cursor: "pointer", listStyle: "none", fontSize: 13, fontWeight: 600, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 3, height: 12, background: "var(--accent)", borderRadius: 2 }} />{heading}
+                  <ChevronDown size={14} style={{ marginLeft: "auto", color: "var(--text-3)" }} />
+                </summary>
+                <div style={{ paddingTop: 6 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{body}</ReactMarkdown></div>
+              </details>
+            )) : <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>}
+          </div>
+        )}
+
+        {renderSectorComparison()}
       </div>
     );
   };
