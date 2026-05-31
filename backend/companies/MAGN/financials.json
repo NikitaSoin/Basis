@@ -1,0 +1,723 @@
+{
+  "meta": {
+    "ticker": "MAGN",
+    "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
+    "sector": "Металлургия",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 26.275,
+    "price_date": "2026-05-14",
+    "shares_outstanding": 11174330000,
+    "shares_outstanding_mln": 11174.33,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      373699,
+      439972,
+      514556,
+      489742,
+      460180,
+      873189,
+      699817,
+      763390,
+      768466,
+      609865
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      96412,
+      85048,
+      114968,
+      82643,
+      67912,
+      276174,
+      109928,
+      146184,
+      99699,
+      21444
+    ],
+    "ebitda": [
+      128241,
+      116806,
+      150376,
+      115667,
+      102662,
+      313707,
+      153535,
+      194532,
+      153989,
+      81508
+    ],
+    "da": [
+      31829,
+      31758,
+      35408,
+      33024,
+      34750,
+      37533,
+      43607,
+      48348,
+      54290,
+      60064
+    ],
+    "finance_costs": [
+      7874,
+      2561,
+      1950,
+      2468,
+      3129,
+      2689,
+      5969,
+      6514,
+      5500,
+      7537
+    ],
+    "net_profit": [
+      73432,
+      69242,
+      82480,
+      55249,
+      43359,
+      229322,
+      70174,
+      118177,
+      79856,
+      -14061
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        34.32,
+        26.55,
+        29.22,
+        23.62,
+        22.31,
+        35.93,
+        21.94,
+        25.48,
+        20.04,
+        13.36
+      ],
+      "operating_margin": [
+        25.8,
+        19.33,
+        22.34,
+        16.87,
+        14.76,
+        31.63,
+        15.71,
+        19.15,
+        12.97,
+        3.52
+      ],
+      "net_margin": [
+        19.65,
+        15.74,
+        16.03,
+        11.28,
+        9.42,
+        26.26,
+        10.03,
+        15.48,
+        10.39,
+        -2.31
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      394304,
+      456402,
+      500670,
+      512778,
+      553575,
+      721800,
+      737785,
+      902002,
+      913176,
+      877943
+    ],
+    "total_equity": [
+      285727,
+      316610,
+      348031,
+      341641,
+      339828,
+      470214,
+      535434,
+      663309,
+      689812,
+      664719
+    ],
+    "total_liabilities": [
+      108577,
+      139792,
+      152639,
+      171137,
+      213747,
+      251586,
+      202351,
+      238693,
+      223364,
+      213224
+    ],
+    "cash": [
+      16135,
+      32023,
+      51325,
+      68399,
+      63352,
+      62649,
+      144214,
+      161809,
+      114435,
+      38107
+    ],
+    "short_term_debt": [
+      19410,
+      17716,
+      18660,
+      20621,
+      30372,
+      32200,
+      53062,
+      57704,
+      34744,
+      22801
+    ],
+    "long_term_debt": [
+      10797,
+      13488,
+      17080,
+      32599,
+      40516,
+      39225,
+      20249,
+      12624,
+      12578,
+      15513
+    ],
+    "net_debt": [
+      14072,
+      -819,
+      -15585,
+      -15179,
+      7536,
+      8776,
+      -70903,
+      -91481,
+      -67113,
+      207
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.11,
+        0.1,
+        0.1,
+        0.16,
+        0.21,
+        0.15,
+        0.14,
+        0.11,
+        0.07,
+        0.06
+      ],
+      "net_debt_ebitda": [
+        0.11,
+        -0.01,
+        -0.1,
+        -0.13,
+        0.07,
+        0.03,
+        -0.46,
+        -0.47,
+        -0.44,
+        0.0
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      78625,
+      79312,
+      119915,
+      110731,
+      89403,
+      198844,
+      142649,
+      114845,
+      113463,
+      80472
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      31200,
+      39353,
+      54133,
+      55262,
+      50350,
+      83106,
+      79477,
+      94859,
+      101244,
+      113463
+    ],
+    "fcf": [
+      47425,
+      39959,
+      65782,
+      55469,
+      39053,
+      115738,
+      63172,
+      19986,
+      12219,
+      -32991
+    ],
+    "ratios": {
+      "fcf_margin": [
+        12.69,
+        9.08,
+        12.78,
+        11.33,
+        8.49,
+        13.25,
+        9.03,
+        2.62,
+        1.59,
+        -5.41
+      ],
+      "cfo_to_capex": [
+        2.52,
+        2.02,
+        2.22,
+        2.0,
+        1.78,
+        2.39,
+        1.79,
+        1.21,
+        1.12,
+        0.71
+      ],
+      "capex_to_revenue": [
+        8.35,
+        8.94,
+        10.52,
+        11.28,
+        10.94,
+        9.52,
+        11.36,
+        12.43,
+        13.17,
+        18.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      25.7,
+      21.87,
+      23.7,
+      16.17,
+      12.76,
+      48.77,
+      13.11,
+      17.82,
+      11.58,
+      -2.12
+    ],
+    "roa": [
+      18.62,
+      15.17,
+      16.47,
+      10.77,
+      7.83,
+      31.77,
+      9.51,
+      13.1,
+      8.74,
+      -1.6
+    ],
+    "roic": [
+      25.73,
+      21.55,
+      27.67,
+      20.25,
+      15.64,
+      46.13,
+      18.93,
+      20.45,
+      12.81,
+      2.58
+    ],
+    "ros": [
+      19.65,
+      15.74,
+      16.03,
+      11.28,
+      9.42,
+      26.26,
+      10.03,
+      15.48,
+      10.39,
+      -2.31
+    ],
+    "asset_turnover": [
+      0.95,
+      0.96,
+      1.03,
+      0.96,
+      0.83,
+      1.21,
+      0.95,
+      0.85,
+      0.84,
+      0.69
+    ]
+  },
+  "multiples": {
+    "pe": [
+      5.44,
+      7.39,
+      6.07,
+      7.35,
+      14.77,
+      2.94,
+      9.35,
+      3.8,
+      4.42,
+      -20.88
+    ],
+    "ps": [
+      1.07,
+      1.16,
+      0.97,
+      0.83,
+      1.39,
+      0.77,
+      0.94,
+      0.59,
+      0.46,
+      0.48
+    ],
+    "pb": [
+      1.4,
+      1.62,
+      1.44,
+      1.19,
+      1.88,
+      1.44,
+      1.23,
+      0.68,
+      0.51,
+      0.44
+    ],
+    "ev_ebitda": [
+      3.23,
+      4.37,
+      3.22,
+      3.38,
+      6.31,
+      2.18,
+      3.81,
+      1.84,
+      1.86,
+      3.6
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.48,
+      "pb": 0.44,
+      "ev_ebitda": 3.6,
+      "as_of": "2026-05-14"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.13,
+      "pe_5y_median": 4.11,
+      "ev_ebitda_5y_median": 2.18,
+      "period": "2021-2025 (P/E без 2025 — убыток)"
+    }
+  },
+  "anomaly_flag": false,
+  "anomaly_note": "2025: чистый убыток -14 061 млн на фоне положительной EBITDA 81 508 млн из-за разового обесценения угольного сегмента (~28 млрд) — прибыль/ROE/P-E искажены; FCF ушёл в минус (-32 991) из-за скачка CapEx до 113 463 (CFO/CapEx=0.71). Расхождение с business_model.md (там CapEx~95, FCF+6.6): в источнике CapEx и FCF взяты по полной выгрузке отчёта — pending ручной сверки с примечаниями МСФО.",
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": 0.48,
+      "pb": 0.44,
+      "ev_ebitda": 3.6,
+      "roe": -2.12,
+      "net_debt_ebitda": 0.0
+    },
+    "2024": {
+      "pe": 4.42,
+      "ps": 0.46,
+      "pb": 0.51,
+      "ev_ebitda": 1.86,
+      "roe": 11.58,
+      "net_debt_ebitda": -0.44
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      4.0,
+      3.5,
+      3.5,
+      3.5,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерский консенсус не подгружен. Механический прогноз: восстановление к mid-cycle с затуханием к долгосрочному росту 3.5%. Прибыль 2025 искажена разовым обесценением, поэтому оценка строится на нормализованной mid-cycle EBITDA (3-летнее среднее 2023-2025 ≈ 143 343 млн), maintenance CapEx ≈ уровню амортизации."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 33.05,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2225,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "fcff_base_mln": 66623,
+          "basis": "normalized mid-cycle FCFF"
+        },
+        "tv_share_of_value_pct": 43.5,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 22.29,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 4.11,
+          "basis": "5y_median × normalized EPS",
+          "eps_normalized": 5.42
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 24.37,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2225,
+          "beta": 0.85,
+          "target_12m": 31.07,
+          "basis": "P/E≈1/Ke × normalized EPS; 12m target = price×(1+(Ke−div_yield))"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 27.11,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 3.25,
+          "required_div_yield": 0.12,
+          "payout": 0.6,
+          "basis": "normalized net profit × payout / required yield"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 22.29,
+      "base": 25.74,
+      "current_price": 26.275,
+      "upside_downside_pct": -2.0
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.2025,
+        0.2225,
+        0.2425
+      ],
+      "growth_grid": [
+        0.025,
+        0.035
+      ],
+      "matrix": [
+        [
+          35.86,
+          37.0
+        ],
+        [
+          32.19,
+          33.05
+        ],
+        [
+          29.2,
+          29.86
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ММК (МСФО 2025) на 14.05.2026 — инфографика годовой отчётности 2016-2025",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО ММК, консолидированная отчётность МСФО 2025",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Котировка MAGN MOEX и beta (TradingView/BCS)",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "2025 чистый убыток -14 061 млн вызван разовым обесценением угольного сегмента (~28 млрд); P/E, ROE, ROA, ROS за 2025 не показательны — оценка строится на нормализованных mid-cycle величинах.",
+    "FCF 2025 = -32 991 млн из-за скачка CapEx до 113 463 млн (CFO/CapEx=0.71). Это расходится с business_model.md (CapEx~95 млрд, FCF +6.6 млрд): источник-инфографика даёт более полную капитализацию затрат — требуется ручная сверка с примечаниями МСФО.",
+    "COGS/валовая прибыль и постатейный CFI/CFF в источнике не раскрыты — gross_margin, cfi, cff, net_change_in_cash = null.",
+    "Beta измеренная по источникам 0.29-0.68 (низкая для циклической стали); консервативно принята 0.85 для повышения ставки дисконтирования.",
+    "relative_peers = pending_sector_backfill: медианный мультипликатор сектора «Металлургия» подставится после прогона всех компаний сектора (peers.json).",
+    "Текущая рыночная цена ~24.97-25.0 руб (конец мая 2026) чуть ниже цены отчёта 26.275 руб (14.05.2026) — апсайд к рынку немного выше указанного."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 5.41,
+    "fair_value_per_share": 39.49,
+    "upside_downside_pct": 50.3,
+    "status": "ok",
+    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+  }
+}
