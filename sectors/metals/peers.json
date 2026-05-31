@@ -1,0 +1,747 @@
+{
+  "meta": {
+    "sector": "Металлургия",
+    "sector_key": "metals",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "GMKN",
+      "NLMK",
+      "CHMF",
+      "MAGN",
+      "PLZL",
+      "RUAL",
+      "ALRS",
+      "MTLR",
+      "TRMK",
+      "ENPG",
+      "SELG",
+      "UGLD",
+      "SGZH",
+      "ROLO"
+    ],
+    "n": 14,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "Металлы и добыча (сталь/золото/никель/алмазы/алюминий/лес). Медиана/среднее — по сопоставимым производителям с валидным EV/EBITDA; холдинги/долговые/убыточные исключены (*). Подсегменты различаются по уровню EV/EBITDA.",
+    "relative_valuation": "relative_peers от медианы EV/EBITDA сопоставимых производителей 2025 = 5.41"
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "GMKN",
+        "name": "ПАО «ГМК «Норильский никель»",
+        "price": 129.24,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "GMKN",
+        "relative_fair_value": 114.59,
+        "2025": {
+          "pe": 12.04,
+          "ps": 1.72,
+          "pb": 1.88,
+          "ev_ebitda": 5.91,
+          "net_debt_ebitda": 1.5,
+          "roe": 15.6
+        },
+        "2024": {
+          "pe": 16.15,
+          "ps": 1.69,
+          "pb": 2.4,
+          "ev_ebitda": 6.34,
+          "net_debt_ebitda": 1.87,
+          "roe": 14.9
+        }
+      },
+      {
+        "ticker": "NLMK",
+        "name": "ПАО «НЛМК»",
+        "price": 86.12,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "NLMK",
+        "relative_fair_value": 134.46,
+        "2025": {
+          "pe": 8.18,
+          "ps": 0.62,
+          "pb": 0.58,
+          "ev_ebitda": 3.35,
+          "net_debt_ebitda": -0.32,
+          "roe": 7.1
+        },
+        "2024": {
+          "pe": 4.86,
+          "ps": 0.6,
+          "pb": 0.69,
+          "ev_ebitda": 2.27,
+          "net_debt_ebitda": -0.04,
+          "roe": 14.2
+        }
+      },
+      {
+        "ticker": "CHMF",
+        "name": "ПАО «Северсталь»",
+        "price": 760.8,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "CHMF",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 19.92,
+          "ps": 0.93,
+          "pb": 1.21,
+          "ev_ebitda": 4.9,
+          "net_debt_ebitda": null,
+          "roe": 6.05
+        },
+        "2024": {
+          "pe": 5.55,
+          "ps": 1.03,
+          "pb": 1.67,
+          "ev_ebitda": 3.47,
+          "net_debt_ebitda": null,
+          "roe": 30.12
+        }
+      },
+      {
+        "ticker": "MAGN",
+        "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
+        "price": 26.275,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "MAGN",
+        "relative_fair_value": 39.49,
+        "2025": {
+          "pe": null,
+          "ps": 0.48,
+          "pb": 0.44,
+          "ev_ebitda": 3.6,
+          "net_debt_ebitda": 0.0,
+          "roe": -2.12
+        },
+        "2024": {
+          "pe": 4.42,
+          "ps": 0.46,
+          "pb": 0.51,
+          "ev_ebitda": 1.86,
+          "net_debt_ebitda": -0.44,
+          "roe": 11.58
+        }
+      },
+      {
+        "ticker": "PLZL",
+        "name": "ПАО «Полюс»",
+        "price": 2095.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "PLZL",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RUAL",
+        "name": "МКПАО «ОК РУСАЛ»",
+        "price": 37.92,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RUAL *",
+        "relative_fair_value": -18.94,
+        "2025": {
+          "pe": -16.13,
+          "ps": 0.5,
+          "pb": 0.63,
+          "ev_ebitda": 18.98,
+          "net_debt_ebitda": 9.93,
+          "roe": -3.8
+        },
+        "2024": {
+          "pe": 9.37,
+          "ps": 0.62,
+          "pb": 0.67,
+          "ev_ebitda": 15.39,
+          "net_debt_ebitda": 7.08,
+          "roe": 6.9
+        }
+      },
+      {
+        "ticker": "ALRS",
+        "name": "ПАО АК «АЛРОСА»",
+        "price": 26.64,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "ALRS",
+        "relative_fair_value": 20.45,
+        "2025": {
+          "pe": 5.42,
+          "ps": 0.83,
+          "pb": 0.48,
+          "ev_ebitda": 6.2,
+          "net_debt_ebitda": 2.8,
+          "roe": 9.3
+        },
+        "2024": {
+          "pe": 13.97,
+          "ps": 1.24,
+          "pb": 0.8,
+          "ev_ebitda": 4.42,
+          "net_debt_ebitda": 1.47,
+          "roe": 5.6
+        }
+      },
+      {
+        "ticker": "MTLR",
+        "name": "ПАО «Мечел» (обыкновенные акции)",
+        "price": 57.04,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MTLR *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.11,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.09,
+          "pb": null,
+          "ev_ebitda": 8.22,
+          "net_debt_ebitda": 7.1,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "TRMK",
+        "name": "ПАО «Трубная Металлургическая Компания»",
+        "price": 86.78,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TRMK *",
+        "relative_fair_value": 4.23,
+        "2025": {
+          "pe": -4.34,
+          "ps": 0.23,
+          "pb": 2.8,
+          "ev_ebitda": 6.97,
+          "net_debt_ebitda": 5.33,
+          "roe": -46.86
+        },
+        "2024": {
+          "pe": -4.51,
+          "ps": 0.2,
+          "pb": 1.88,
+          "ev_ebitda": 5.93,
+          "net_debt_ebitda": 4.2,
+          "roe": -33.18
+        }
+      },
+      {
+        "ticker": "ENPG",
+        "name": "МКПАО «Эн+ Груп»",
+        "price": 409.7,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ENPG *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SELG",
+        "name": "ПАО «Селигдар»",
+        "price": 47.45,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "SELG",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "UGLD",
+        "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
+        "price": 0.6587,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "UGLD",
+        "relative_fair_value": 0.55,
+        "2025": {
+          "pe": 9.65,
+          "ps": 1.35,
+          "pb": 2.32,
+          "ev_ebitda": 6.05,
+          "net_debt_ebitda": 2.1,
+          "roe": 24.1
+        },
+        "2024": {
+          "pe": 18.53,
+          "ps": 2.15,
+          "pb": 3.4,
+          "ev_ebitda": 8.03,
+          "net_debt_ebitda": 2.43,
+          "roe": 18.3
+        }
+      },
+      {
+        "ticker": "SGZH",
+        "name": "ПАО «Сегежа Групп»",
+        "price": 0.839,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SGZH *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ROLO",
+        "name": "ПАО «Русолово»",
+        "price": 0.4312,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ROLO *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 11.04,
+        "ps": 0.99,
+        "pb": 1.15,
+        "ev_ebitda": 5.0,
+        "net_debt_ebitda": 1.22,
+        "roe": 10.01
+      },
+      "median": {
+        "pe": 9.65,
+        "ps": 0.88,
+        "pb": 0.9,
+        "ev_ebitda": 5.41,
+        "net_debt_ebitda": 1.5,
+        "roe": 8.2
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 10.58,
+        "ps": 1.2,
+        "pb": 1.58,
+        "ev_ebitda": 4.4,
+        "net_debt_ebitda": 1.06,
+        "roe": 15.78
+      },
+      "median": {
+        "pe": 9.76,
+        "ps": 1.14,
+        "pb": 1.23,
+        "ev_ebitda": 3.95,
+        "net_debt_ebitda": 1.47,
+        "roe": 14.55
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "GMKN",
+      "NLMK",
+      "CHMF",
+      "MAGN",
+      "PLZL",
+      "ALRS",
+      "SELG",
+      "UGLD"
+    ],
+    "excluded": [
+      "RUAL",
+      "MTLR",
+      "TRMK",
+      "ENPG",
+      "SGZH",
+      "ROLO"
+    ],
+    "note": "Медиана/среднее — сопоставимые производители; холдинги/убыточные/долговые со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "GMKN",
+          "name": "ПАО «ГМК «Норильский никель»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 1.5,
+          "y": 5.91
+        },
+        {
+          "ticker": "NLMK",
+          "name": "ПАО «НЛМК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.32,
+          "y": 3.35
+        },
+        {
+          "ticker": "CHMF",
+          "name": "ПАО «Северсталь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 4.9
+        },
+        {
+          "ticker": "MAGN",
+          "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.0,
+          "y": 3.6
+        },
+        {
+          "ticker": "PLZL",
+          "name": "ПАО «Полюс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RUAL",
+          "name": "МКПАО «ОК РУСАЛ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 9.93,
+          "y": 18.98
+        },
+        {
+          "ticker": "ALRS",
+          "name": "ПАО АК «АЛРОСА»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 2.8,
+          "y": 6.2
+        },
+        {
+          "ticker": "MTLR",
+          "name": "ПАО «Мечел» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "TRMK",
+          "name": "ПАО «Трубная Металлургическая Компания»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 5.33,
+          "y": 6.97
+        },
+        {
+          "ticker": "ENPG",
+          "name": "МКПАО «Эн+ Груп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SELG",
+          "name": "ПАО «Селигдар»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "UGLD",
+          "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 2.1,
+          "y": 6.05
+        },
+        {
+          "ticker": "SGZH",
+          "name": "ПАО «Сегежа Групп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ROLO",
+          "name": "ПАО «Русолово»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "GMKN",
+          "name": "ПАО «ГМК «Норильский никель»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 15.6,
+          "y": 1.88
+        },
+        {
+          "ticker": "NLMK",
+          "name": "ПАО «НЛМК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.1,
+          "y": 0.58
+        },
+        {
+          "ticker": "CHMF",
+          "name": "ПАО «Северсталь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 6.05,
+          "y": 1.21
+        },
+        {
+          "ticker": "MAGN",
+          "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -2.12,
+          "y": 0.44
+        },
+        {
+          "ticker": "PLZL",
+          "name": "ПАО «Полюс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RUAL",
+          "name": "МКПАО «ОК РУСАЛ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -3.8,
+          "y": 0.63
+        },
+        {
+          "ticker": "ALRS",
+          "name": "ПАО АК «АЛРОСА»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 9.3,
+          "y": 0.48
+        },
+        {
+          "ticker": "MTLR",
+          "name": "ПАО «Мечел» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "TRMK",
+          "name": "ПАО «Трубная Металлургическая Компания»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -46.86,
+          "y": 2.8
+        },
+        {
+          "ticker": "ENPG",
+          "name": "МКПАО «Эн+ Груп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SELG",
+          "name": "ПАО «Селигдар»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "UGLD",
+          "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 24.1,
+          "y": 2.32
+        },
+        {
+          "ticker": "SGZH",
+          "name": "ПАО «Сегежа Групп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ROLO",
+          "name": "ПАО «Русолово»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "RUAL",
+      "note": "Доля в Норникеле искажает прибыль/P/E; высокий долг (ND/EBITDA ~10x) — не сопоставим по EV/EBITDA."
+    },
+    {
+      "ticker": "MTLR",
+      "note": "Долговая ловушка: отрицательный капитал и EBITDA — мультипликаторы нерепрезентативны."
+    },
+    {
+      "ticker": "TRMK",
+      "note": "(1) Расхождение EBITDA: статутная EBITDA 2025 (опер. прибыль 28 646 + амортизация 26 709 = 55 355 млн, EBITDA-маржа 13,7%) против скорр. EBITDA менеджмента ~74 700 млн (маржа 18,5%) из пресс-релиза/бизнес-модели — разница ~35%, влияет на EV/EBITDA (6,97x vs ~5,2x) и на справедливую цену. В JSON использована статутная EBITDA из загруженного файла. (2) ROE 2025: на конце капитала -64,6%, на среднем капитале -46,9% (в JSON — на среднем, как в исходнике PDF -36,8% при их методике сглаживания); собственный капитал обрушился до 32 596 млн из-за двух лет убытков, что искажает балансовые мультипликаторы (P/BV 2,80x, D/E 11,98x). (3) Два года подряд чистый убыток (-23 884 и -21 050 млн) при положительной EBITDA — вся операционная прибыль уходит на финансовые расходы (81 782 млн, покрытие опер. прибылью 0,35x). (4) FCF 2025 околонулевой (+1 204 млн) против +91 454 млн в 2024 — резкое сжатие операционного потока (CFO упал со 120 345 до 19 095 млн)."
+    },
+    {
+      "ticker": "ENPG",
+      "note": "Холдинг (РУСАЛ+энергетика+доля в ГМКН), ND≈EV — equity-методы ломаются."
+    },
+    {
+      "ticker": "SGZH",
+      "note": "Убыток + отрицательная EBITDA + допэмиссия — мультипликаторы нерепрезентативны."
+    },
+    {
+      "ticker": "ROLO",
+      "note": "(1) Акция малоликвидна, free-float мал (~85% у Селигдара), рыночная цена 0.4312 руб и капитализация 1.29 млрд руб слабо репрезентативны. (2) Финрезультат критически зависит от мировой цены олова (LME, в USD) и курса рубля — компания ценополучатель. (3) EBITDA отрицательна в 2024-2025, поэтому EV/EBITDA и ND/EBITDA не имеют экономического смысла (формально -18.6x и -17.6x). (4) Собственный капитал обвалился с 6.3 млрд (2024) до 0.8 млрд руб (2025) из-за накопленного убытка -6.6 млрд — баланс на грани отрицательного капитала. (5) Чистый долг вырос до 23.5 млрд руб при отрицательной EBITDA — обслуживание зависит от поддержки материнского Селигдара."
+    }
+  ]
+}
