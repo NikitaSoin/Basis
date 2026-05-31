@@ -1,0 +1,603 @@
+{
+  "meta": {
+    "ticker": "RAGR",
+    "name": "ПАО «Группа «Русагро»",
+    "sector": "Сельское хозяйство и АПК",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 101.3,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 958749600,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "2025 искажён двумя факторами. (1) Биологические активы: МСФО (IAS 41) требует переоценки биоактивов (поголовье свиней, посевы) по справедливой стоимости — её колебания попадают в P&L и делают EBITDA/чистую прибыль волатильными год к году. (2) Корпоративный риск: в марте 2025 арестованы основатель Вадим Мошкович и экс-гендиректор Максим Басов — неопределённость по контролю над активами, управлению и дивидендам не поддаётся количественной оценке и является главным риском кейса. Чистая прибыль 2025 упала на 48,7% (18,5 млрд против 42,6 млрд в 2024) не из-за продаж, а из-за опережающего роста себестоимости, скачка финансовых расходов (17,4 млрд против 9,5 млрд) и роста эффективной ставки налога. Кол-во акций выросло со 136,5 млн до 958,75 млн в 2023 при редомициляции — исторические P/E и EPS до 2023 несопоставимы с текущими."
+  },
+  "income_statement": {
+    "revenue": [
+      138172,
+      158971,
+      222932,
+      240230,
+      276076,
+      340089,
+      396451
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      8979,
+      23824,
+      19060,
+      42551,
+      46753,
+      47406,
+      37285
+    ],
+    "ebitda": [
+      17459,
+      34618,
+      33221,
+      56497,
+      63205,
+      61974,
+      56601
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      19321
+    ],
+    "finance_costs": [
+      5481,
+      7865,
+      7209,
+      4805,
+      5499,
+      9546,
+      17374
+    ],
+    "net_profit": [
+      4423,
+      21165,
+      24360,
+      30874,
+      36107,
+      42558,
+      18530
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        12.64,
+        21.78,
+        14.9,
+        23.52,
+        22.89,
+        18.22,
+        14.28
+      ],
+      "operating_margin": [
+        6.5,
+        14.99,
+        8.55,
+        17.71,
+        16.93,
+        13.94,
+        9.4
+      ],
+      "net_margin": [
+        3.2,
+        13.31,
+        10.93,
+        12.85,
+        13.08,
+        12.51,
+        4.67
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      239495,
+      362321,
+      394579,
+      432827,
+      508837,
+      508837,
+      551166
+    ],
+    "total_equity": [
+      126034,
+      160663,
+      147875,
+      154662,
+      190442,
+      240422,
+      260379
+    ],
+    "total_liabilities": [
+      113461,
+      201658,
+      246704,
+      278165,
+      318395,
+      268415,
+      290787
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      10097,
+      10747
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      150900,
+      189500
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.91,
+        1.08,
+        1.58,
+        0.83,
+        0.85,
+        0.67,
+        0.77
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        2.43,
+        3.35
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      15219,
+      -9475
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      13247,
+      29577,
+      29577,
+      13004,
+      13100,
+      29577,
+      35550
+    ],
+    "fcf": [
+      -12369,
+      -14358,
+      -20919,
+      11558,
+      11858,
+      -14358,
+      -45025
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -8.95,
+        -9.03,
+        -9.38,
+        4.81,
+        4.3,
+        -4.22,
+        -11.36
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        0.51,
+        -0.27
+      ],
+      "capex_to_revenue": [
+        9.59,
+        18.61,
+        13.27,
+        5.41,
+        4.75,
+        8.7,
+        8.97
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      3.51,
+      13.17,
+      16.47,
+      19.96,
+      18.96,
+      17.7,
+      7.12
+    ],
+    "roa": [
+      1.85,
+      5.84,
+      6.17,
+      7.13,
+      7.1,
+      8.36,
+      3.36
+    ],
+    "roic": [
+      2.98,
+      5.72,
+      4.0,
+      12.04,
+      10.64,
+      9.45,
+      6.48
+    ],
+    "ros": [
+      3.2,
+      13.31,
+      10.93,
+      12.85,
+      13.08,
+      12.51,
+      4.67
+    ],
+    "asset_turnover": [
+      0.58,
+      0.44,
+      0.56,
+      0.56,
+      0.54,
+      0.67,
+      0.72
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      5.08,
+      5.22,
+      17.85
+    ],
+    "ps": [
+      0.79,
+      0.8,
+      0.43,
+      0.34,
+      0.43,
+      0.34,
+      0.26
+    ],
+    "pb": [
+      1.1,
+      0.98,
+      0.78,
+      0.66,
+      0.65,
+      0.48,
+      0.4
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      3.91,
+      5.12
+    ],
+    "current": {
+      "pe": 5.24,
+      "ps": 0.24,
+      "pb": 0.37,
+      "ev_ebitda": 5.06,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 5.54,
+      "ev_ebitda_10y_median": 7.52,
+      "period": "2021-2025 (P/E) / 2016-2025 (EV/EBITDA)"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 17.85,
+        "ps": 0.26,
+        "pb": 0.4,
+        "ev_ebitda": 5.12,
+        "roe": 7.12,
+        "net_debt_ebitda": 3.35
+      },
+      "2024": {
+        "pe": 5.22,
+        "ps": 0.34,
+        "pb": 0.48,
+        "ev_ebitda": 3.91,
+        "roe": 17.7,
+        "net_debt_ebitda": 2.43
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "консенсус аналитиков (≈2 покрытия)"
+    ],
+    "revenue_growth_pct": [
+      8,
+      7,
+      6,
+      5,
+      4
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Покрытие узкое (≈2 аналитика), консенсус 'покупать', медианный таргет ≈150 ₽. Прогноз роста выручки задан механически с затуханием от среднего темпа к долгосрочному макротренду (≤3,5%). Прибыль 2026 крайне чувствительна к ставке ЦБ (обслуживание долга 200 млрд) и переоценке биоактивов."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 39.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 18.57,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "fcf0_basis": "нормализованный NOPAT ≈29,8 млрд (EBIT 2025 × (1−20%)), а не отрицательный FCF 2025"
+        },
+        "tv_share_of_value_pct": 51.5,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 107.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.54,
+          "basis": "5y_median",
+          "eps_used": 19.33,
+          "note": "EPS 2025 (19,33 ₽) занижен из-за разовых факторов — оценка может быть консервативной по знаменателю и завышенной по P/E (исторический P/E включает годы дешёвого долга)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана сектора АПК будет проставлена после прогона всех компаний сектора (sectors/agriculture/peers.json). Конкуренты: GCHE (Черкизово), AGRO-аналоги, Продимекс (непубл.)."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 121.3,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "expected_div_yield_pct": 3.0,
+          "note": "таргет на 12 мес = текущая × (1 + (Ke − дивдоходность))"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 39.0,
+      "base": 107.1,
+      "current_price": 101.3,
+      "upside_downside_pct": 5.7
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.166,
+        0.186,
+        0.206
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          62.9,
+          75.1,
+          75.1
+        ],
+        [
+          29.9,
+          38.6,
+          38.6
+        ],
+        [
+          4.2,
+          10.6,
+          10.6
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Русагро (МСФО 2025) на 13.05.2026 — аналитическая выгрузка (10 лет, ТГ 'Финансовая отчётность')",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Консолидированная отчётность МСФО ПАО «Группа «Русагро» за 2025",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "broker",
+      "title": "Консенсус аналитиков по RAGR (таргет ≈150 ₽)",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX/zerno.press — текущая цена 101,3 ₽, акций 958,75 млн",
+      "period": "2026-05-31",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "АНОМАЛИЯ: 2025 искажён переоценкой биологических активов (IAS 41) и корпоративным риском (арест основателя в марте 2025) — см. meta.anomaly_note.",
+    "Кол-во акций изменилось со 136,5 млн (до 2023) на 958,75 млн (с 2023, редомициляция) — исторические P/E/EPS до 2023 несопоставимы; в массиве P/E годы до 2023 = null.",
+    "net_debt за 2019-2023 не выделен из источника (null); 2024-2025 заякорены: ND2025=189,5 млрд, ND2024=150,9 млрд (cash восстановлен как gross_debt − ND).",
+    "CFO деталей по годам нет, кроме 2024 (15,2 млрд) и 2025 (−9,5 млрд); CFI/CFF/net_change_in_cash = null.",
+    "D&A раскрыта только оценочно за 2025 (≈19,3 млрд, из CapEx/D&A=1,84); cogs/gross_profit/opex не выделены.",
+    "FCF 2025 = −45,0 млрд (инвестцикл + рост оборотного капитала); для DCF использован нормализованный NOPAT, а не фактический отрицательный FCF — иначе DCF дал бы отрицательную стоимость.",
+    "relative_peers = pending_sector_backfill: медиана сектора АПК не проставлена (требуется прогон сектора).",
+    "Разброс методов оценки широкий (DCF 39 ₽ ↔ консенсус 150 ₽) — закономерно при заниженной прибыли и высокой ставке; conservative взят по нижнему кластеру (DCF).",
+    "Дивидендный метод не применён: payout по РСБУ-прибыли, выплаты под вопросом из-за корпоративного риска и роста долга (ND/EBITDA 3,35)."
+  ],
+  "anomaly_flag": false,
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data",
+    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+  }
+}

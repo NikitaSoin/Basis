@@ -1,0 +1,531 @@
+{
+  "meta": {
+    "ticker": "HNFG",
+    "name": "ПАО «Хэндерсон Фэшн Групп» (Henderson)",
+    "sector": "Потребительский сектор / Ритейл (мода, мужская одежда)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 401.6,
+    "price_date": "2026-05-22",
+    "shares_outstanding": 40.44,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      9522,
+      12433,
+      16762,
+      20840,
+      23938
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      -6640,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      14200,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1209,
+      3029,
+      4557,
+      5336,
+      5170
+    ],
+    "ebitda": [
+      1489,
+      3465,
+      5207,
+      6174,
+      6279
+    ],
+    "da": [
+      280,
+      436,
+      650,
+      838,
+      1109
+    ],
+    "finance_costs": [
+      652,
+      1089,
+      1179,
+      1551,
+      2278
+    ],
+    "net_profit": [
+      456,
+      1832,
+      2352,
+      3050,
+      2291
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        68.1,
+        null
+      ],
+      "ebitda_margin": [
+        15.64,
+        27.87,
+        31.06,
+        29.63,
+        26.23
+      ],
+      "operating_margin": [
+        12.7,
+        24.36,
+        27.19,
+        25.6,
+        21.6
+      ],
+      "net_margin": [
+        4.79,
+        14.73,
+        14.03,
+        14.64,
+        9.57
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      9640,
+      14419,
+      20078,
+      22564,
+      26480
+    ],
+    "total_equity": [
+      -1013,
+      2957,
+      7808,
+      8932,
+      9945
+    ],
+    "total_liabilities": [
+      10652,
+      11462,
+      12270,
+      13632,
+      16534
+    ],
+    "cash": [
+      199,
+      562,
+      2575,
+      1563,
+      745
+    ],
+    "short_term_debt": [
+      1133,
+      2514,
+      1342,
+      2064,
+      911
+    ],
+    "long_term_debt": [
+      1900,
+      1907,
+      730,
+      0,
+      1800
+    ],
+    "net_debt": [
+      2834,
+      3859,
+      -502,
+      501,
+      1966
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        1.5,
+        0.27,
+        0.23,
+        0.27
+      ],
+      "net_debt_ebitda": [
+        1.9,
+        1.11,
+        -0.1,
+        0.08,
+        0.31
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      2511,
+      1679,
+      4512,
+      4297,
+      4777
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      545,
+      1945,
+      1356,
+      1930,
+      3472
+    ],
+    "fcf": [
+      1966,
+      -266,
+      3156,
+      2367,
+      1305
+    ],
+    "ratios": {
+      "fcf_margin": [
+        20.6,
+        -2.1,
+        18.8,
+        11.4,
+        5.5
+      ],
+      "cfo_to_capex": [
+        4.61,
+        0.86,
+        3.33,
+        2.23,
+        1.38
+      ],
+      "capex_to_revenue": [
+        5.72,
+        15.64,
+        8.09,
+        9.26,
+        14.5
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      188.48,
+      43.7,
+      36.44,
+      24.27
+    ],
+    "roa": [
+      4.73,
+      12.71,
+      11.71,
+      13.52,
+      8.65
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      4.79,
+      14.73,
+      14.03,
+      14.64,
+      9.57
+    ],
+    "asset_turnover": [
+      1.98,
+      1.03,
+      0.97,
+      0.98,
+      0.98
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      12.53,
+      5.48,
+      7.09
+    ],
+    "ps": [
+      null,
+      null,
+      1.76,
+      0.8,
+      0.68
+    ],
+    "pb": [
+      null,
+      null,
+      3.77,
+      1.87,
+      1.63
+    ],
+    "ev_ebitda": [
+      1.9,
+      1.11,
+      5.56,
+      2.79,
+      2.9
+    ],
+    "current": {
+      "pe": 7.09,
+      "ps": 0.68,
+      "pb": 1.63,
+      "ev_ebitda": 2.9,
+      "as_of": "2026-05-22"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 8.37,
+      "pe_5y_median": 7.09,
+      "ev_ebitda_5y_avg": 2.85,
+      "period": "2023-2025 (с IPO ноя-2023)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 7.09,
+      "ps": 0.68,
+      "pb": 1.63,
+      "ev_ebitda": 2.9,
+      "roe": 25.65,
+      "net_debt_ebitda": 0.31
+    },
+    "2024": {
+      "pe": 5.48,
+      "ps": 0.8,
+      "pb": 1.87,
+      "ev_ebitda": 2.79,
+      "roe": 36.44,
+      "net_debt_ebitda": 0.08
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "Т-Инвестиции (обзор по отчёту 2025)"
+    ],
+    "revenue_growth_pct": [
+      12.0,
+      12.0,
+      11.0,
+      10.0,
+      8.0
+    ],
+    "net_profit_growth_pct": [
+      8.0,
+      12.0,
+      12.0,
+      10.0,
+      8.0
+    ],
+    "note": "Базовый сценарий из business_model.md: рост выручки +10–15% при марже EBITDA 22–24% (IAS17) и прибыли 2,3–2,7 млрд руб. в 2026. Восстановление маржи зависит от спроса и снижения ставки ЦБ. 2025 — год сжатия прибыли (-25% при росте выручки +15%) из-за роста аренды, ФОТ и процентов."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 165,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.9,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "base_fcf_2025": 1305
+        },
+        "tv_share_of_value_pct": 46.0,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 402,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 7.09,
+          "basis": "median_2023_2025",
+          "eps_2025": 56.65
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медианный EV/EBITDA сектора «Ритейл потреб.» будет подставлен после прогона всех компаний сектора в sectors/<sector>/peers.json."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 240,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "target_pe": 4.24,
+          "basis": "P/E ≈ 1/Ke × EPS_2025"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 150,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "payout_pct": 50,
+          "div_per_share_2025e": 28.3,
+          "g": 4.0,
+          "required_yield": 23.6,
+          "model": "Гордон по дивидендам"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 150,
+      "base": 225,
+      "current_price": 401.6,
+      "upside_downside_pct": -44.0
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        20.0,
+        22.0,
+        24.0
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          184.2,
+          192.1,
+          201.0
+        ],
+        [
+          159.4,
+          165.3,
+          171.9
+        ],
+        [
+          139.2,
+          143.8,
+          148.8
+        ]
+      ]
+    }
+  },
+  "anomaly_flag": false,
+  "anomaly_note": "(1) EBITDA в источнике (6 279 млн в 2025, маржа ~26%) рассчитана по IFRS 16 — расходы на аренду частично вынесены в амортизацию и проценты, что завышает EBITDA. По сопоставимой базе IAS 17 EBITDA ≈ 5,47 млрд (маржа ~22,9%), как в business_model.md. Соответственно ND/EBITDA: 0,31x (IFRS16) против 0,36x (IAS17). (2) DCF (165 ₽) сильно ниже текущей цены и прочих методов: база FCF 2025 = 1 305 млн искажена пиковым CapEx 3 472 млн (год активного открытия больших салонов) и высокой ставкой дисконтирования (WACC ~22% из-за Rf=14,6% и ERP=9%). При нормализованном CapEx FCF и DCF были бы выше. (3) Резкий разброс методов (150–402 ₽) отражает противоречие: по историческим мультипликаторам бумага оценена справедливо (P/E=7,09=медиане), но по доходным методам при текущих ставках выглядит дорого — апсайда нет.",
+  "relative_peers": {
+    "status": "pending_sector_backfill"
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Henderson (МСФО 2025) на 22.05.2026 — инфографика СРКИ (P&L, баланс, ДДС, мультипликаторы, отраслевое сравнение)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Henderson IR — пресс-релизы результатов по МСФО 2024 и 6М2025",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "broker",
+      "title": "Т-Инвестиции — разбор отчёта Henderson 2025 (выручка +15%, прибыль -23%)",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX/Т-Инвестиции — котировка HNFG ~399–401,6 ₽ на 22–25.05.2026",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "EBITDA источника — по IFRS 16 (включает эффект аренды); для сопоставимости с IAS 17 (~5,47 млрд, маржа 22,9%) использовать пометку anomaly_note.",
+    "COGS/gross_profit раскрыты только за 2024 (валовая прибыль ~14,2 млрд, маржа ~68%); за прочие годы null.",
+    "CFI/CFF и net_change_in_cash в источнике-инфографике не раскрыты построчно — null; FCF = CFO − CapEx пересчитан кодом.",
+    "ROE 2022 = 188% — артефакт выхода капитала из отрицательной зоны после IPO (−1 013 млн в 2021 → 2 957 млн в 2022); среднюю ROE по 2022 не использовать. Репрезентативны 2023–2025 (24–44%).",
+    "Структура долга: краткосрочная/долгосрочная задолженность по годам в источнике частично смещена между листами; итоговый общий долг (2 711 млн в 2025) и чистый долг (1 966 млн) сверены.",
+    "Дивиденд 2025 — оценка (50% payout по дивполитике при ND/EBITDA<2,5); фактический может отличаться. Див. на акцию: 32 ₽ (2023), 48 ₽ (2024).",
+    "relative_peers: медиана мультипликаторов сектора не подставлена — status pending_sector_backfill.",
+    "DCF чувствителен к нормализации CapEx и ставке дисконтирования: база FCF 2025 занижена пиковым CapEx; см. sensitivity и anomaly_note."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 2.9,
+    "fair_value_per_share": 401.6,
+    "upside_downside_pct": 0.0,
+    "status": "ok",
+    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+  }
+}
