@@ -1,0 +1,586 @@
+{
+  "meta": {
+    "ticker": "RTGZ",
+    "name": "ПАО «Газпром газораспределение Ростов-на-Дону»",
+    "sector": "Нефть и газ — газораспределение (ГРО)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 38600,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 142108,
+    "shares_detail": {
+      "ordinary_RTGZ": 120246,
+      "preferred_RTBGP": 21862,
+      "price_ordinary": 38600,
+      "price_preferred": 13800,
+      "market_cap_mln": 4943.2,
+      "note": "Капитализация по двум классам акций. Мультипликаторы P/E,P/B,P/S считаны на полную капитализацию обоих классов."
+    },
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "1) ГРО с регулируемым тарифом ФАС — НЕ сопоставима по EV/EBITDA с нефтегазодобытчиками сектора; относительную оценку по медиане сектора применять нельзя. 2) Прибыль 2023 (2.26 млрд, маржа 17.8%) — выброс, вероятно разовый неоперационный доход; 2024 — убыток из-за переоценки ОНО при росте ставки налога 20%→25%. Нормализованная прибыль ~0.8 млрд. 3) Балансовая стоимость на акцию (~174 тыс. ₽) в разы выше цены: регулируемые сетевые активы не зарабатывают рыночную доходность (ROE ~3% < g), поэтому глубокий дисконт к капиталу рационален, а формула Гордона (ROE−g)/(Ke−g) даёт отрицательный P/B и НЕ применима. 4) РСБУ-раскрытие: EBITDA, CapEx, долг, денежные потоки строками не публикуются."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      12664.1,
+      11868.7,
+      13056.8
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      787.2,
+      818.4,
+      1061.1,
+      2258.9,
+      -160.1,
+      734.9
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        17.8,
+        -1.3,
+        5.6
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      17671.3,
+      18841.1,
+      21198.1,
+      23548.8,
+      23614.9,
+      24721.3
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      4.5,
+      4.3,
+      5.0,
+      9.6,
+      -0.7,
+      3.0
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      17.8,
+      -1.3,
+      5.6
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      6.28,
+      6.04,
+      4.66,
+      2.19,
+      null,
+      6.73
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.39,
+      0.42,
+      0.38
+    ],
+    "pb": [
+      0.28,
+      0.26,
+      0.23,
+      0.21,
+      0.21,
+      0.2
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 6.73,
+      "ps": 0.38,
+      "pb": 0.2,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 6.04,
+      "period": "2020-2025, годы с положительной прибылью; 2023 — выброс, 2024 — убыток исключены"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 6.73,
+        "pb": 0.2,
+        "ps": 0.38,
+        "ev_ebitda": null
+      },
+      "2024": {
+        "pe": null,
+        "pb": 0.21,
+        "ps": 0.42,
+        "ev_ebitda": null
+      },
+      "note": "Считаны кодом на текущую капитализацию (4.94 млрд ₽, оба класса) и РСБУ-метрики соответствующего года. 2024 P/E нет — убыток. EV/EBITDA нет — EBITDA и долг по РСБУ не раскрыты."
+    },
+    "relative_peers": {
+      "status": "pending_sector_backfill",
+      "note": "ГРО с регулируемым тарифом несопоставима по EV/EBITDA с добытчиками нефтегазового сектора. Относительную оценку по медиане сектора НЕ применять; при бэкфилле сравнивать только с другими ГРО (облгазами)."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет (малоликвидная бумага только для квалинвесторов). Прибыль волатильна из-за разовых неоперационных и налоговых факторов — механический прогноз нерепрезентативен. Выручка растёт вслед за индексацией тарифа ФАС (~+10% г/г в 2025), но прибыль им не определяется."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "По РСБУ не раскрыты CapEx, операционный денежный поток и долг — FCFF восстановить нельзя."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 34121,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 6.04,
+          "basis": "5y_median, нормализованная прибыль ~0.8 млрд ₽",
+          "eps_used_rub": 5649
+        },
+        "note": "Цена обыкновенной акции. Медиана P/E взята по годам с положительной прибылью; применена к нормализованной прибыли (исключены выброс 2023 и убыток 2024)."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 4.13
+        },
+        "status": "ok",
+        "note": "Несопоставима с добытчиками сектора; сравнивать только с другими ГРО."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 25914,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "logic": "целевой P/E ≈ 1/Ke = 4.59 × нормализованный EPS 5649 ₽"
+        },
+        "note": "Низкая бета (~0.8) для регулируемой коммунальной монополии. Цена обыкновенной акции."
+      },
+      {
+        "method": "empirical_pb",
+        "fair_value_per_share": 43490,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_band": "0.20-0.30 (исторический коридор для ГРО)",
+          "bvps_rub": 173961,
+          "midpoint": 0.25
+        },
+        "status": "low_weight",
+        "note": "Балансовая оценка ненадёжна: регулируемые активы не зарабатывают рыночную доходность, формула Гордона (ROE−g)/(Ke−g) даёт отрицательный P/B. Дан как верхняя справочная граница, в базовый коридор не включён с полным весом."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 25900,
+      "base": 31000,
+      "current_price": 38600,
+      "upside_downside_pct": -19.7,
+      "note": "Коридор по обыкновенной акции RTGZ. conservative=CAPM на нормализованной прибыли; base=медиана методов P/E и CAPM. Эмпирический P/B (~43 тыс.) — справочная верхняя граница, низкий вес. При текущей цене 38 600 ₽ бумага оценена выше расчётного диапазона: даунсайд к базе ~20%, к консервативной ~33%."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "РСБУ-отчётность ПАО «Газпром газораспределение Ростов-на-Дону» (выручка, чистая прибыль, чистые активы 2020-2025)",
+      "period": "2020-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "BlackTerminal / Finviewer — ряды чистой прибыли, выручки, чистых активов РСБУ",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "Московская биржа (MOEX) — объёмы выпусков RTGZ (120 246) и RTBGP (21 862), номинал 2000 ₽",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Котировки RTGZ ~38 600 ₽ и RTBGP ~13 800 ₽ (Profinansy/Blackterminal, конец мая 2026)",
+      "period": "2026-05",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "Smart-lab — разбор экономики ГРО (P/E≈7.7, P/B≈0.3; прибыль формируют спецнадбавка и техприсоединение)",
+      "period": "2025",
+      "reliability": "low"
+    }
+  ],
+  "data_flags": [
+    "РСБУ-раскрытие: EBITDA, операционная прибыль, CapEx, денежные потоки (CFO/CFI/CFF), долг и чистый долг построчно НЕ публикуются — соответствующие ряды null.",
+    "DCF невозможен (нет CapEx и CFO) — status insufficient_data.",
+    "relative_peers: pending_sector_backfill. ГРО с регулируемым тарифом ФАС несопоставима по EV/EBITDA с нефтегазодобытчиками сектора — медиану сектора не применять, сравнивать только с другими облгазами.",
+    "Прибыль 2023 (2.26 млрд, чистая маржа 17.8%) — аномальный выброс, вероятно разовый неоперационный доход; для оценки исключена.",
+    "Убыток 2024 (−0.16 млрд) связан с переоценкой отложенных налоговых обязательств при росте ставки налога 20%→25% (оценка сторонних аналитиков), а не с операциями.",
+    "По МСФО результаты расходятся с РСБУ (агрегатор: чистая прибыль 2025 ~1.14 млрд по МСФО против 0.735 млрд по РСБУ; убыток 2024 ~−0.21 млрд) — взяты якоря РСБУ.",
+    "Выручка 2020-2022 надёжно не подтверждена — null.",
+    "Балансовая стоимость на акцию (~174 тыс. ₽) многократно выше рыночной цены; формула фундаментального P/B (ROE−g)/(Ke−g) даёт отрицательное значение (ROE 3% < g 3.5% < Ke), поэтому балансовый метод имеет низкий вес.",
+    "Мультипликаторы считаны на капитализацию ОБОИХ классов акций (4.94 млрд ₽); цена справедливой стоимости в valuation относится к ОБЫКНОВЕННОЙ акции RTGZ.",
+    "Дивиденды по обыкновенным акциям не платятся с 2012 г. — дивидендный метод не применён.",
+    "Бумага малоликвидна, доступна только квалинвесторам; цена слабо связана с фундаменталом."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "reference_only",
+    "basis": "EV/EBITDA нефтедобычи не сопоставим с этим бизнесом (НПЗ-процессинг/ГРО/транспорт/нефтехимия/оболочка) — оценка справочная"
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "ГРО с регулируемым тарифом ФАС — бизнес-модель и EV/EBITDA несопоставимы с нефтедобытчиками сектора; прибыль волатильна (разовый 2023, убыток 2024 от переоценки ОНО).",
+  "peer_multiples": {
+    "_note": "добрано из multiples.current и последних ratios/roe (агент не записал peer_multiples)",
+    "2025": {
+      "pe": 6.73,
+      "ps": 0.38,
+      "pb": 0.2,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": 3.0
+    },
+    "2024": {
+      "pe": null,
+      "ps": 0.42,
+      "pb": 0.21,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": -0.7
+    }
+  }
+}

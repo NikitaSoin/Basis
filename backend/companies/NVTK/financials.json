@@ -493,7 +493,7 @@
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": 540.88,
+        "fair_value_per_share": 540.98,
         "horizon": "intrinsic_now",
         "key_assumptions": {
           "peer_multiple": "ev_ebitda",
@@ -602,5 +602,12 @@
     "Финансовые расходы 2024–2025 в источнике = 0/не раскрыты (показаны нулями на графике) — вероятно искажение выгрузки, помечено null.",
     "relative_peers = insufficient_data: sectors/oil_gas/peers.json ещё не собран (сектор не прогонялся целиком). Метод не применён.",
     "ГЛАВНЫЙ МЕТОДОЛОГИЧЕСКИЙ ФЛАГ: при ОФЗ 14.6% и ERP 9% ставка Ke≈23.6%. Это делает все DCF/DDM-оценки по российским дивидендным акциям структурно НИЖЕ рынка. Не интерпретировать DCF 403 ₽ как «справедливая цена −67%» — это нижняя интринсик-граница при текущих ставках. Рынок (1218 ₽) ближе к оценке по собственной исторической EV/EBITDA."
-  ]
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": 540.98,
+    "upside_downside_pct": -55.6,
+    "status": "ok",
+    "basis": "медиана EV/EBITDA сопоставимых производителей ROSN/SIBN/TATN/NVTK (2025)"
+  }
 }

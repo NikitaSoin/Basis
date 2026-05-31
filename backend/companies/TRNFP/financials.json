@@ -1,0 +1,616 @@
+{
+  "meta": {
+    "ticker": "TRNFP",
+    "name": "ПАО «Транснефть» (привилегированные акции)",
+    "sector": "Транспорт (трубопроводный)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 1424.6,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 724930000,
+    "shares_note": "Всего 724.93 млн акций (569.45 млн об. + 155.49 млн прив.). В 2024 проведён сплит 1:100. На бирже торгуются только привилегированные (TRNFP).",
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      1063829,
+      962440,
+      null,
+      1204703,
+      1330899,
+      1423904,
+      1440281
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      277089,
+      225656,
+      null,
+      298098,
+      309674,
+      282207,
+      249681
+    ],
+    "ebitda": [
+      485789,
+      443268,
+      null,
+      511356,
+      551710,
+      513024,
+      487109
+    ],
+    "da": [
+      -208700,
+      -217612,
+      null,
+      -213258,
+      -242036,
+      -230817,
+      -237428
+    ],
+    "finance_costs": [
+      -88464,
+      -100570,
+      null,
+      -172008,
+      -41356,
+      -42549,
+      -33534
+    ],
+    "net_profit": [
+      179388,
+      133236,
+      null,
+      242585,
+      304196,
+      287662,
+      226073
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        45.66,
+        46.06,
+        null,
+        42.45,
+        41.45,
+        36.03,
+        33.82
+      ],
+      "operating_margin": [
+        26.05,
+        23.45,
+        null,
+        24.74,
+        23.27,
+        19.82,
+        17.34
+      ],
+      "net_margin": [
+        16.86,
+        13.84,
+        null,
+        20.14,
+        22.86,
+        20.2,
+        15.7
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      3329502,
+      3331429,
+      null,
+      3378553,
+      3542024,
+      3691024,
+      3702383
+    ],
+    "total_equity": [
+      2168982,
+      2222739,
+      null,
+      2539775,
+      2750433,
+      2927953,
+      3003155
+    ],
+    "total_liabilities": [
+      1160520,
+      1108690,
+      null,
+      838778,
+      791591,
+      763071,
+      699228
+    ],
+    "cash": [
+      83601,
+      62812,
+      null,
+      117679,
+      139204,
+      115559,
+      223527
+    ],
+    "short_term_debt": [
+      81717,
+      94912,
+      null,
+      99023,
+      80987,
+      84344,
+      80490
+    ],
+    "long_term_debt": [
+      555635,
+      494630,
+      null,
+      331013,
+      265242,
+      191590,
+      126503
+    ],
+    "net_debt": [
+      553751,
+      526730,
+      null,
+      312357,
+      207025,
+      160375,
+      -16534
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.294,
+        0.265,
+        null,
+        0.169,
+        0.126,
+        0.094,
+        0.069
+      ],
+      "net_debt_ebitda": [
+        1.14,
+        1.19,
+        null,
+        0.61,
+        0.38,
+        0.31,
+        -0.03
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      361223,
+      338467,
+      null,
+      422396,
+      425058,
+      449331,
+      438958
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      -270507,
+      -199326,
+      null,
+      -207070,
+      -268440,
+      -351655,
+      -356781
+    ],
+    "fcf": [
+      90716,
+      139141,
+      null,
+      215326,
+      156618,
+      97676,
+      82177
+    ],
+    "ratios": {
+      "fcf_margin": [
+        8.53,
+        14.46,
+        null,
+        17.87,
+        11.77,
+        6.86,
+        5.71
+      ],
+      "cfo_to_capex": [
+        1.34,
+        1.7,
+        null,
+        2.04,
+        1.58,
+        1.28,
+        1.23
+      ],
+      "capex_to_revenue": [
+        25.43,
+        20.71,
+        null,
+        17.19,
+        20.17,
+        24.7,
+        24.77
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      8.27,
+      5.99,
+      null,
+      9.55,
+      11.06,
+      9.82,
+      7.53
+    ],
+    "roa": [
+      5.39,
+      4.0,
+      null,
+      7.18,
+      8.59,
+      7.79,
+      6.11
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      16.86,
+      13.84,
+      null,
+      20.14,
+      22.86,
+      20.2,
+      15.7
+    ],
+    "asset_turnover": [
+      0.32,
+      0.289,
+      null,
+      0.357,
+      0.376,
+      0.386,
+      0.389
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.57
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.72
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.344
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.09
+    ],
+    "current": {
+      "pe": 4.57,
+      "ps": 0.72,
+      "pb": 0.344,
+      "ev_ebitda": 2.09,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитан: ряд P/E в источнике построен на устаревшей капитализации и нерепрезентативен"
+    },
+    "note": "Текущие мультипликаторы пересчитаны кодом от рыночной цены 1424.6₽ × 724.93 млн акций. Мультипликаторы из исходного PDF (P/E 0.98, P/BV 0.07, EV/EBITDA 0.42) ОШИБОЧНЫ — построены на устаревшей капитализации 221 507 млн (≈306₽/акц), занижены ~в 4.7 раза."
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 4.57,
+      "ps": 0.72,
+      "pb": 0.344,
+      "ev_ebitda": 2.09
+    },
+    "2024": {
+      "pe": 3.59,
+      "ps": 0.73,
+      "pb": 0.353,
+      "ev_ebitda": 2.33
+    },
+    "basis": "при текущей цене 1424.6₽ и 724.93 млн акций; EV = mcap + чистый долг соответствующего года"
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "Т-Инвестиции"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": null,
+    "note": "Выручка растёт ограниченно: тариф ФАС индексируется 'инфляция−0.1%' (2026 ~+5.1%), объёмы прокачки под давлением ОПЕК+. Ожидаемый дивиденд следующих 12 мес ~201.4₽ (консенсус Т-Инвестиции). Прибыль 2025–2030 под давлением ставки налога 40%."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 830,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "approach": "FCFE",
+          "base_fcf_mln": 112157,
+          "ke": 0.2315,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "beta": 0.95,
+          "tax_rate": 0.4
+        },
+        "tv_share_of_value_pct": 41.9,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "not_applicable"
+        },
+        "status": "insufficient_data",
+        "note": "Историч. ряд P/E в источнике построен на устаревшей капитализации — нерепрезентативен; собственных историч. цен нет."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 4.13
+        },
+        "status": "ok",
+        "note": "Требуется медиана EV/EBITDA по транспортному сектору после прогона всех компаний сектора."
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 1025,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "d1_per_share": 201.38,
+          "ke": 0.2315,
+          "g": 0.035,
+          "formula": "P = D1/(Ke−g)"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend_target_yield",
+        "fair_value_per_share": 1119,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "d1_per_share": 201.38,
+          "required_yield": 0.18,
+          "note": "требуемая дивдоходность ~18% (выше ключевой ставки 14.5% за риск)"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 1553,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2315,
+          "beta": 0.95,
+          "exp_div_yield": 0.1414,
+          "note": "таргет на 12 мес = цена×(1+(Ke−дивдоходность)); верхний выброс, не входит в коридор внутренней стоимости"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 830,
+      "base": 1025,
+      "current_price": 1424.6,
+      "upside_downside_pct": -28.1,
+      "note": "Коридор по методам внутренней стоимости (DCF FCFE, дивидендные). conservative=нижний кластер, base=медиана. Все методы дают цену НИЖЕ рынка при высокой ставке дисконтирования (Ke=23.2%)."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.2115,
+        0.2315,
+        0.2515
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          895,
+          921,
+          950
+        ],
+        [
+          810,
+          830,
+          851
+        ],
+        [
+          740,
+          755,
+          772
+        ]
+      ],
+      "note": "DCF FCFE: строки = ставка дисконтирования (Ke), столбцы = терминальный рост g; значения = справедливая цена, ₽."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Транснефть, инфографика МСФО 2016–2025",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Консолидированная отчётность ПАО «Транснефть» по МСФО за 2025",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "broker",
+      "title": "Т-Инвестиции: котировка и дивидендный прогноз TRNFP",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "(1) Капитализация в исходном PDF (221 507 млн) устарела — соответствует цене ~306₽, тогда как TRNFP торгуется ~1425₽; из-за этого все мультипликаторы в PDF (P/E 0.98, P/BV 0.07, EV/EBITDA 0.42) занижены ~в 4.7 раза. Пересчитано кодом от реальной цены. (2) Крупная денежная позиция: кэш 223 527 млн (~21.6% капитализации), чистый долг 2025 ОТРИЦАТЕЛЬНЫЙ (−16 534 млн) — чистая денежная позиция. (3) 2021 г. отсутствует в большинстве рядов исходника (пропуск отчётности/аномалия — EPS показан −25.19), оставлен null. (4) Сплит акций 1:100 в 2024 (число акций 7.25→724.93 млн) — EPS до/после несопоставимы напрямую.",
+  "data_flags": [
+    "2021 год отсутствует в большинстве рядов исходного PDF — оставлен null (не интерполировался).",
+    "Компания не раскрывает сегментную выручку/расходы с 2021; COGS, валовая прибыль, opex — null.",
+    "Денежные потоки CFI/CFF и net_change_in_cash в источнике не раскрыты постатейно — null; CFO и CapEx есть, FCF=CFO−CapEx пересчитан и сошёлся с источником.",
+    "Текущий коэффициент (current_ratio) не выводится — нет разбивки оборотных активов; известен Cash Ratio=2.78 (2025).",
+    "Историч. ряд P/E в PDF на устаревшей капитализации — для оценки не использован.",
+    "Налог на прибыль 40% (2025–2030, повышенная ставка) учтён в DCF (NOPAT) и в прогнозе прибыли.",
+    "Бета 0.95 — из справочника источника (PDF), не пересчитывалась самостоятельно.",
+    "relative_peers — status pending_sector_backfill: ждёт медиану сектора 'Транспорт'."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "reference_only",
+    "basis": "EV/EBITDA нефтедобычи не сопоставим с этим бизнесом (НПЗ-процессинг/ГРО/транспорт/нефтехимия/оболочка) — оценка справочная"
+  }
+}

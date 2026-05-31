@@ -1,0 +1,607 @@
+{
+  "meta": {
+    "ticker": "JNOSP",
+    "name": "ПАО «Славнефть-ЯНОС» (привилегированные акции)",
+    "sector": "oil_gas",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 11.8,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 310884574,
+    "shares_note": "shares_outstanding = число ПРИВИЛЕГИРОВАННЫХ акций (310 884 574). Это тот же эмитент, что обыкновенные JNOS (932 654 723 ао). Отчётность ЕДИНА на эмитента; EPS/BVPS считаются на ПОЛНОЕ число акций обоих классов (1 243 539 297). Все мультипликаторы посчитаны от капитализации ОБОИХ классов при текущих ценах (ао 25,14 + ап 11,80) — она одинакова и для JNOS, и для JNOSP, поэтому ряды мультипликаторов идентичны файлу JNOS; различается только цена-ориентир и дивидендный метод.",
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Унаследовано от эмитента (JNOS). ДВЕ структурные аномалии искажают стандартные мультипликаторы. (1) ПРОЦЕССИНГОВАЯ МОДЕЛЬ: завод не владеет нефтью и нефтепродуктами, а получает плату за услугу переработки, поэтому в себестоимости нет стоимости сырья → EBITDA-маржа аномально высокая для НПЗ (~53-57% против ~10-20% у интегрированных переработчиков). Сравнивать EV/EBITDA и маржи напрямую с обычной нефтянкой (SIBN, LKOH, TATN) НЕЛЬЗЯ. (2) ВНУТРИГРУППОВОЕ ФИНАНСОВОЕ ПОСРЕДНИЧЕСТВО: завод привлекает крупный кредитный портфель (общий долг РСБУ 53,7 млрд на 2024, по отдельным обзорам до ~98-102 млрд) и зеркально передаёт средства займами в материнскую «Славнефть». Долгу противостоят выданные займы и дебиторская задолженность связанных сторон → ЭКОНОМИЧЕСКИЙ чистый долг и FCF в обычном понимании НЕПРИМЕНИМЫ (net_debt=null, fcf=null). ev_ebitda посчитан как mcap/EBITDA (EV≈капитализация) и НЕ отражает реальную долговую нагрузку. ДОПОЛНИТЕЛЬНО ДЛЯ ПРЕФА: дивиденд по привилегированной акции — фиксированные 0,01 ₽ (уставный минимум, дивполитики нет), поэтому дивидендный метод даёт около нулевую справедливую цену и НЕ может якорить коридор. Основная стоимость префа определяется тем же бизнесом и капиталом эмитента, что и обыкновенной акции, при рыночном дисконте за неликвидность и миноритарный статус.",
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": null
+    },
+    "2024": {
+      "pe": 7.89,
+      "ps": 0.58,
+      "pb": 0.34,
+      "ev_ebitda": 1.02,
+      "net_debt_ebitda": null,
+      "roe": 4.31
+    },
+    "note": "Рассчитано КОДОМ при ТЕКУЩЕЙ цене префа (ап 11,80 ₽). Капитализация обоих классов ≈27 115 млн ₽ (932 654 723 ао × 25,14 + 310 884 574 ап × 11,80) — она ЕДИНА на эмитента, поэтому ряды совпадают с файлом JNOS. pe=mcap/ЧП_года(РСБУ), ps=mcap/выручка_года, pb=mcap/капитал_года, ev_ebitda=mcap/EBITDA_года (чистый долг обнулён — EV≈mcap, показатель ЗАНИЖЕН), roe=ЧП_года/капитал_года. 2025: полный год РСБУ не раскрыт (только Q1) → null. net_debt_ebitda=null — неприменимо (внутригрупповое посредничество).",
+    "relative_peers": {
+      "status": "pending_sector_backfill",
+      "note": "Медиана мультипликаторов сектора oil_gas по peers.json в этом прогоне не пересобиралась. ВАЖНО: из-за процессинговой модели JNOS/JNOSP НЕ сопоставим напрямую с интегрированной нефтянкой по EV/EBITDA и марже — относительную оценку строить только на сопоставимой базе (P/B, P/S) или исключить из коридора."
+    }
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      33728,
+      41191,
+      46814,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      21800,
+      26500,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      1515,
+      6584,
+      3438,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        52.92,
+        56.61,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        4.49,
+        15.98,
+        7.34,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      95600,
+      104400,
+      133100,
+      175000,
+      159200,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      79701,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        0.67,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      20100,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        42.94,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.31,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      1.14,
+      3.76,
+      2.16,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      4.49,
+      15.98,
+      7.34,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      0.24,
+      0.29,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      17.9,
+      4.12,
+      7.89,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.8,
+      0.66,
+      0.58,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.34,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      1.24,
+      1.02,
+      null
+    ],
+    "current": {
+      "pe": 7.89,
+      "ps": 0.58,
+      "pb": 0.34,
+      "ev_ebitda": 1.02,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 7.89,
+      "period": "2022-2024 (только 3 года РСБУ доступны)"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского консенсуса по JNOSP нет (узкий неликвидный эмитент, миноритарный free-float). Механический прогноз невозможен: (1) тариф процессинга и загрузку задают акционеры-заказчики, а не рынок; (2) чистая прибыль определяется разницей ставок привлечения/размещения внутри группы и динамикой ключевой ставки ЦБ — переменные вне контроля и непрогнозируемые из публичных данных. Поэтому source_type=none, DCF=insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.236,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "НЕПРИМЕНИМ. FCF и экономический чистый долг не реконструируются: процессинговая модель + внутригрупповое финансовое посредничество. Прогноз потоков невозможен (source_type=none)."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 0.04,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_div_per_share_rub": 0.01,
+          "required_yield": 0.236,
+          "div_growth": 0.0,
+          "dividend_yield_at_price_pct": 0.085,
+          "note": "Дивиденд по ПРЕФУ — фиксированные 0,01 ₽/акция, выплачивается раз в год; у компании НЕТ утверждённой дивполитики (история 2019-2024 — стабильно 0,01 ₽). Модель Гордона при g=0: справедливая цена = 0,01 / 0,236 ≈ 0,04 ₽. Метод показывает, что КАК ДИВИДЕНДНАЯ БУМАГА преф ничего не стоит — текущая дивдоходность ~0,085%. В коридор внутренней стоимости НЕ включается (это структурный «пол» дивидендной компоненты, а не оценка бизнеса). Стоимость префа держится на доле в капитале/прибыли эмитента, а не на дивиденде."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 21.81,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 7.89,
+          "basis": "median_2022_2024",
+          "eps_2024_rub": 2.76,
+          "note": "Медиана P/E по 3 доступным годам РСБУ (2022-2024); 2022 (P/E 17,9) — год аномально низкой прибыли. Справедливая стоимость на акцию = медиана P/E × прибыль на акцию 2024 (на все 1 243,5 млн акций обоих классов). Цена ОДИНАКОВА для ао и префа, т.к. EPS считается на полное число акций эмитента, а мультипликатор — от единой капитализации. Для префа эта внутренняя стоимость выше его рыночной цены 11,80 ₽."
+        }
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 8.89,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "justified_pb": 0.139,
+          "roe_normalized": 0.0629,
+          "ke": 0.236,
+          "g": 0.035,
+          "bvps_2024_rub": 64.09,
+          "note": "Справедливый P/B=(ROE_norm−g)/(Ke−g). ROE нормализован по средней ЧП 2023-2024 (6,3%), т.к. ROE-2024 (4,3%) задавлен процентной нагрузкой. Низкая оценка структурна: нормализованный ROE (6,3%) много ниже требуемой доходности Ke (23,6%). Рынок и сам торгует эмитента глубоко ниже капитала (P/B 0,34)."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 4.13,
+          "basis": "pending_sector_backfill",
+          "note": "НЕ посчитан: peers.json по сектору не пересобирался; к тому же из-за процессинговой модели EV/EBITDA несопоставим с интегрированной нефтянкой. Корректная относительная оценка возможна только на базе P/B или P/S по сопоставимым процессинговым/сервисным активам."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 14.57,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.236,
+          "beta": 1.0,
+          "expected_div_yield": 0.00085,
+          "note": "Таргет на 12 мес для ПРЕФА: цена_префа×(1+(Ke−дивдоходность)) = 11,80×(1+(0,236−0,00085)) ≈ 14,57 ₽. Дивдоходность префа ~0,085% (0,01 ₽/11,80). Горизонт 12м ОТЛИЧАЕТСЯ от intrinsic-методов — в итоговый коридор внутренней стоимости НЕ включён. Бета отраслевая 1,0 (устойчивой рыночной беты по неликвидному JNOSP нет)."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 8.89,
+      "base": 15.35,
+      "current_price": 11.8,
+      "upside_downside_pct": 30.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Славнефть-ЯНОС» — бухгалтерская отчётность РСБУ (выручка, чистая прибыль, активы, капитал, долг)",
+      "period": "2022-2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru / finviewer.ru — ряды РСБУ и МСФО по JNOS/JNOSP",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX / investfunds / Банки.ру — котировка префа (ап 11,80 ₽), число привилегированных акций 310 884 574",
+      "period": "2026-05-31",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab / investmint / interfax — история дивидендов по префу JNOSP (0,01 ₽/акция в 2019-2024, дивполитики нет)",
+      "period": "2019-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "Обзоры на основе РСБУ (9 мес. 2024: выручка 34,8 млрд, процентные расходы 13,5 млрд, долг ~98 млрд, дебиторка 33,2 млрд)",
+      "period": "9m2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ПРЕФ ТОГО ЖЕ ЭМИТЕНТА, ЧТО JNOS. Отчётность переиспользована из companies/JNOS/financials.json (РСБУ). Капитализация и все ряды мультипликаторов ЕДИНЫ на эмитента и идентичны JNOS; различаются только цена-ориентир (ап 11,80 против ао 25,14) и дивидендный метод.",
+    "ДИВИДЕНД ПРЕФА: фиксированные 0,01 ₽/акция (уставный минимум), выплата раз в год, дивполитики НЕТ. Дивдоходность ~0,085%. Дивидендный метод даёт ~0,04 ₽ и в коридор не включён — как дивбумага преф не имеет ценности, стоимость держится на доле в капитале/прибыли эмитента.",
+    "ОТЧЁТНОСТЬ РСБУ (МСФО раскрывается ограниченно). РСБУ и МСФО дают РАЗНУЮ ЧП: 2024 = 3,44 млрд (РСБУ) против 6,26 млрд (МСФО); 2023 = 6,58 (РСБУ) против 8,0 (МСФО). В JSON РСБУ; P/E чувствителен к выбору стандарта.",
+    "АНОМАЛИЯ 1 (процессинг): EBITDA-маржа ~53-57% аномально высока для НПЗ. EV/EBITDA и маржи НЕ сравнивать с интегрированной нефтянкой.",
+    "АНОМАЛИЯ 2 (внутригрупповое посредничество): кредиты зеркалятся займами в «Славнефть»; экономический чистый долг и FCF НЕ реконструируются → net_debt=null, fcf=null, net_debt_ebitda=null. ev_ebitda=mcap/EBITDA (EV≈mcap) ЗАНИЖЕН.",
+    "Расхождение по величине долга: smart-lab РСБУ 2024 = 53,7 млрд; обзоры по квартальной РСБУ — до ~98-102 млрд. Для оценки величина долга не используется (аномалия 2).",
+    "EBITDA-2023/2024 (21,8 / 26,5 млрд) — МСФО-якоря/реконструкция (РСБУ EBITDA отдельной строкой не раскрывает). Помечены как оценка.",
+    "Капитал (equity) надёжно раскрыт только на 31.12.2024 (79,70 млрд). За 2020-2023 ряд = null → P/B и ROE есть только за 2024.",
+    "EPS/BVPS считались на ПОЛНОЕ число акций обоих классов (1 243,54 млн), т.к. отчётность едина на эмитента. Поэтому intrinsic-цена по historical_pe (21,81 ₽) и pbv_roe (8,89 ₽) — общая для ао и префа.",
+    "2025: полный год РСБУ не закрыт (есть Q1 2025: выручка 13,27 млрд, ЧП РСБУ 2,36 млрд) → весь столбец 2025 = null.",
+    "Оценка СЛАБАЯ (data_quality=low): DCF и relative_peers неприменимы/отложены; коридор построен на 2 intrinsic-методах (historical_pe 21,81; pbv_roe 8,89). При цене префа 11,80 ₽ база 15,35 даёт апсайд +30,1%, консервативная 8,89 — даунсайд −24,7%. Чувствительность к нормализации прибыли высокая.",
+    "relative_peers: status=pending_sector_backfill — sectors/oil_gas/peers.json не обновлялся."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "reference_only",
+    "basis": "EV/EBITDA нефтедобычи не сопоставим с этим бизнесом (НПЗ-процессинг/ГРО/транспорт/нефтехимия/оболочка) — оценка справочная"
+  }
+}

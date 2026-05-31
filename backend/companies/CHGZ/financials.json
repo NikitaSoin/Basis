@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "ticker": "CHGZ",
+    "name": "АО «РН-Западная Сибирь»",
+    "sector": "Нефть и газ (формально); фактически — «спящая»/имущественная структура группы «Роснефть»",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 91.2,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 26771420,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Эмитент НЕРЕПРЕЗЕНТАТИВЕН для финансовой оценки. CHGZ — фактически «спящая»/имущественная оболочка в контуре «Роснефти» (бывш. «Черногорнефть»), добычные активы выведены. Выручка сжалась с ≈56 млн ₽ (2019) до единиц млн ₽ (5,29 млн в 2023) и ≈0 в 2024; компания несёт растущий чистый убыток (−33,3 млн ₽ в 2023 → −66,6 млн ₽ в 2024). Финансовый результат формируется не операционной деятельностью, а решениями контролирующего акционера и неоперационными статьями (внутригрупповые операции, переоценки, содержание юрлица). МСФО не публикуется; РСБУ раскрывает практически только итоговые строки (выручка, чистый результат). Маржи и мультипликаторы математически бессмысленны (чистая маржа 2022 = +288%, 2023 = −629% — результат кратно превышает выручку). Котировка крайне волатильна на третьем уровне листинга (в апреле 2026 спайки до 194–259 ₽ при ~91 ₽ в конце мая 2026). Классическая оценка (DCF, мультипликаторы, исторический P/E) к эмитенту НЕПРИМЕНИМА.",
+  "income_statement": {
+    "revenue": [
+      56.04,
+      null,
+      null,
+      17.61,
+      5.29,
+      0.0,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      55.0,
+      null,
+      null,
+      50.68,
+      -33.27,
+      -66.6,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        98.1,
+        null,
+        null,
+        287.8,
+        -628.9,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      98.1,
+      null,
+      null,
+      287.8,
+      -628.9,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29",
+      "note": "P/E неприменим (чистый убыток 2023–2024). P/S не считается (выручка 2024 ≈ 0). P/B и EV/EBITDA — нет данных по балансу и EBITDA в раскрытии РСБУ. Капитализация при цене 91,2 ₽ и 26,77 млн акций ≈ 2,44 млрд ₽ при выручке в единицы млн ₽ и убытках — соотношение неинформативно."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитывается — нет устойчивого ряда положительной прибыли и сопоставимой капитализации"
+    }
+  },
+  "peer_multiples": {
+    "2025": null,
+    "2024": null,
+    "note": "Сопоставимые мультипликаторы по эмитенту не считаются: P/E неприменим (убытки), P/S неприменим (выручка ≈ 0), P/B и EV/EBITDA — нет раскрытия баланса и EBITDA. Для сектора «Нефть и газ» эмитент нерепрезентативен (не операционный нефтедобытчик), поэтому в сравнительную выборку конкурентов он включаться не должен."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз невозможен. История нерепрезентативна (свёрнутая выручка, растущий убыток, отсутствие операционной модели), аналитического покрытия консенсусом по фундаменталу нет; финрезультат задаётся решениями контролирующего акционера, а не рыночными факторами. source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Нет прогнозируемого FCF: отсутствует операционный денежный поток и раскрытие баланса/CapEx; выручка ≈ 0, прибыль отрицательна. DCF не строится."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable",
+        "note": "Нет устойчивого ряда положительной EPS (2023–2024 — убытки), медиана P/E недостоверна."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 4.13
+        },
+        "status": "ok",
+        "note": "Ожидает заполнения медиан сектора; при текущих данных (EBITDA не раскрыта, выручка ≈ 0, эмитент нерепрезентативен) метод, вероятно, перейдёт в insufficient_data."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "not_applicable",
+        "note": "Ke = 14,6% + 1,0 × 9,0% = 23,6% формально считается, но базы для таргета нет: ни прогноза прибыли/денежного потока, ни дивидендов, ни осмысленного якоря цены. Применение CAPM к котировке дало бы псевдоточность."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": null,
+      "base": null,
+      "current_price": 91.2,
+      "upside_downside_pct": null,
+      "note": "Справедливая стоимость не определяется ни одним методом из-за дефицита данных и нерепрезентативности эмитента. Коридор не выставляется сознательно."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сравнение с конкурентами сектора «Нефть и газ» отложено до прогона сектора. Прогноз: с высокой вероятностью статус станет insufficient_data — эмитент не является операционным нефтедобытчиком и не сопоставим с отраслевыми компаниями."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Годовая бухгалтерская (финансовая) отчётность по РСБУ, e-disclosure.ru (id=3867; ИНН 8620003528)",
+      "period": "2019–2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "BlackTerminal — CHGZ (итоговые строки РСБУ, котировка)",
+      "period": "2022–2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Conomy / financemarker / РБК Quote — параметры выпуска, структура владения, котировка",
+      "period": "2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ЭМИТЕНТ НЕРЕПРЕЗЕНТАТИВЕН: «спящая»/имущественная оболочка группы «Роснефть», не операционный бизнес — классическая оценка неприменима (см. anomaly_note).",
+    "МСФО НЕ ПУБЛИКУЕТСЯ. Данные только РСБУ и только по итоговым строкам (выручка, чистый результат). Баланс, денежные потоки, EBITDA, CapEx, чистый долг — НЕ раскрыты (null).",
+    "Ряды выручки и прибыли НЕПОЛНЫЕ: достоверны 2019, 2022, 2023, 2024; 2020, 2021, 2025 — нет данных (null).",
+    "Выручка-2024 показана как ≈0 в части источников — требует сверки по форме №2 РСБУ (e-disclosure.ru). Net_margin 2024 не считается из-за нулевой выручки.",
+    "Чистые маржи 2022 (+288%) и 2023 (−629%) математически верны, но ЭКОНОМИЧЕСКИ БЕССМЫСЛЕННЫ: результат формируется неоперационными статьями, кратно превышающими выручку.",
+    "Цифры по прибыли расходятся между раскрытием и business_model.md в части знака/величины 2022 (агрегаторы: прибыль +50,68 млн ₽ в 2022, убыток −33,27 млн ₽ в 2023); первоисточник — РСБУ на e-disclosure.ru.",
+    "Котировка крайне волатильна на 3-м уровне листинга: ~91 ₽ (29.05.2026) против спайков 194–259 ₽ в апреле 2026. Капитализация ~2,44 млрд ₽ не отражает фундаментал.",
+    "Все методы оценки (DCF, historical_pe, relative_peers, CAPM) → not_applicable / insufficient_data / pending_sector_backfill. Справедливый коридор сознательно не выставлен."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "reference_only",
+    "basis": "EV/EBITDA нефтедобычи не сопоставим с этим бизнесом (НПЗ-процессинг/ГРО/транспорт/нефтехимия/оболочка) — оценка справочная"
+  }
+}
