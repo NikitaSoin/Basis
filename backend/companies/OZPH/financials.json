@@ -1,0 +1,540 @@
+{
+  "meta": {
+    "ticker": "OZPH",
+    "name": "ПАО «Озон Фармацевтика»",
+    "sector": "Биотехнологии и фармацевтика",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 47.3,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 1167690000,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": false,
+  "anomaly_note": "FCF за 2025 отрицательный (-726 млн) при рекордной чистой прибыли (6169 млн) и -44% CFO г/г: компания в фазе крупных капвложений (capex ~12-13% выручки на новые производства и биосимиляры) и роста оборотного капитала после IPO/SPO. Прибыль по P&L растёт, но в кэш пока не конвертируется. DCF поэтому даёт консервативный результат и сильно зависит от нормализации FCF после 2027.",
+  "income_statement": {
+    "revenue": [
+      17648,
+      18960,
+      19724,
+      25562,
+      31588
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      5444,
+      5503,
+      6148,
+      7941,
+      10782
+    ],
+    "ebitda": [
+      5836,
+      6249,
+      7081,
+      9068,
+      11981
+    ],
+    "da": [
+      392,
+      746,
+      932,
+      1126,
+      1199
+    ],
+    "finance_costs": [
+      885,
+      1376,
+      1509,
+      2387,
+      3396
+    ],
+    "net_profit": [
+      3948,
+      3652,
+      4003,
+      4611,
+      6169
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        33.1,
+        33.0,
+        35.9,
+        35.5,
+        37.9
+      ],
+      "operating_margin": [
+        30.8,
+        29.0,
+        31.2,
+        31.1,
+        34.1
+      ],
+      "net_margin": [
+        22.4,
+        19.3,
+        20.3,
+        18.0,
+        19.5
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      29684,
+      34104,
+      34401,
+      49543,
+      52236
+    ],
+    "total_equity": [
+      12797,
+      14653,
+      15955,
+      25337,
+      32201
+    ],
+    "total_liabilities": [
+      16887,
+      19451,
+      18446,
+      24206,
+      20035
+    ],
+    "cash": [
+      1373,
+      1113,
+      600,
+      5578,
+      2835
+    ],
+    "short_term_debt": [
+      1554,
+      6936,
+      5287,
+      4994,
+      3390
+    ],
+    "long_term_debt": [
+      6354,
+      4434,
+      3971,
+      10535,
+      8418
+    ],
+    "net_debt": [
+      6535,
+      10256,
+      8658,
+      9951,
+      8973
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.62,
+        0.78,
+        0.58,
+        0.61,
+        0.37
+      ],
+      "net_debt_ebitda": [
+        1.12,
+        1.64,
+        1.22,
+        1.1,
+        0.75
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      2771,
+      -994,
+      4661,
+      5830,
+      3253
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      1188,
+      682,
+      706,
+      4282,
+      3979
+    ],
+    "fcf": [
+      1583,
+      -1676,
+      3955,
+      1548,
+      -726
+    ],
+    "ratios": {
+      "fcf_margin": [
+        9.0,
+        -8.8,
+        20.1,
+        6.1,
+        -2.3
+      ],
+      "cfo_to_capex": [
+        2.33,
+        -1.46,
+        6.6,
+        1.36,
+        0.82
+      ],
+      "capex_to_revenue": [
+        6.7,
+        3.6,
+        3.6,
+        16.8,
+        12.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      28.54,
+      27.32,
+      28.9,
+      24.35
+    ],
+    "roa": [
+      null,
+      12.3,
+      11.74,
+      13.4,
+      12.45
+    ],
+    "roic": [
+      21.97,
+      17.23,
+      19.48,
+      17.55,
+      20.43
+    ],
+    "ros": [
+      22.37,
+      19.26,
+      20.3,
+      18.04,
+      19.53
+    ],
+    "asset_turnover": [
+      1.19,
+      0.59,
+      0.58,
+      0.61,
+      0.62
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      8.48,
+      12.08,
+      9.16
+    ],
+    "ps": [
+      null,
+      null,
+      1.72,
+      2.18,
+      1.79
+    ],
+    "pb": [
+      null,
+      null,
+      2.13,
+      2.2,
+      1.75
+    ],
+    "ev_ebitda": [
+      1.12,
+      1.64,
+      6.02,
+      7.24,
+      5.46
+    ],
+    "current": {
+      "pe": 8.95,
+      "ps": 1.75,
+      "pb": 1.72,
+      "ev_ebitda": 5.36,
+      "ev_sales": 2.03,
+      "fcf_yield_pct": -1.31,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 9.91,
+      "pe_5y_median": 9.16,
+      "ev_ebitda_5y_median": 5.46,
+      "period": "2021-2025 (P/E только 2023-2025 в отчёте)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 8.95,
+      "ps": 1.75,
+      "pb": 1.72,
+      "ev_ebitda": 5.36,
+      "ev_sales": 2.03,
+      "fcf_yield_pct": -1.31
+    },
+    "2024": {
+      "pe": 12.08,
+      "ps": 2.18,
+      "pb": 2.2,
+      "ev_ebitda": 7.24,
+      "ev_sales": null,
+      "fcf_yield_pct": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор Биотех/Фарма (PRMD Промомед, ABIO Артген, LIFE Фармсинтез) — медианный мультипликатор подставить после прогона всего сектора.",
+    "sector_peers_raw": [
+      {
+        "ticker": "PRMD",
+        "name": "Промомед",
+        "year": 2025,
+        "ev_ebitda": 7.11,
+        "pe": 12.15,
+        "ps": 2.28,
+        "roe": 35.82
+      },
+      {
+        "ticker": "ABIO",
+        "name": "Артген",
+        "year": 2025,
+        "ev_ebitda": 19.43,
+        "pe": 53.28,
+        "ps": 3.01,
+        "roe": 9.37
+      },
+      {
+        "ticker": "LIFE",
+        "name": "Фармсинтез",
+        "year": 2023,
+        "ev_ebitda": -7.51,
+        "pe": -4.56,
+        "ps": 3.34,
+        "roe": -229.07
+      }
+    ]
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [
+      "company_guidance"
+    ],
+    "revenue_growth_pct": [
+      20.0,
+      18.0,
+      15.0,
+      10.0,
+      7.0
+    ],
+    "net_profit_growth_pct": [
+      19.8,
+      18.0,
+      15.0,
+      10.0,
+      7.0
+    ],
+    "note": "Гайденс компании: выручка +15-25% в 2026 (база 20%), затем затухание к долгосрочному тренду. Маржа ЧП ~19.5% удержана. Консенсус брокеров по таргетам не раскрыт публично."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 23.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 22.7,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "beta": 0.9
+        },
+        "tv_share_of_value_pct": 52.3,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 48.39,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 9.16,
+          "basis": "3y_median (P/E раскрыт с 2023)",
+          "eps_ttm": 5.28
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 57.75,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "div_yield_pct": 0.6
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 23.7,
+      "base": 48.39,
+      "current_price": 47.3,
+      "upside_downside_pct": 2.3
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        20.7,
+        22.7,
+        24.7
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          26.68,
+          27.95,
+          29.39
+        ],
+        [
+          22.73,
+          23.7,
+          24.77
+        ],
+        [
+          19.53,
+          20.27,
+          21.09
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Инфографика МСФО ПАО Озон Фармацевтика 2025 (СРКИ)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "МСФО-отчётность ПАО Озон Фармацевтика",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Котировка OZPH (Т-Инвестиции/РБК)",
+      "period": "2026-05-31",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "FCF 2025 отрицательный (-726 млн) при чистой прибыли 6169 млн — фаза тяжёлых капвложений (новые производства/биосимиляры).",
+    "CFO 2025 = 3253 млн, -44% г/г при росте прибыли — рост оборотного капитала; качество прибыли по кэшу слабее, чем по P&L.",
+    "EBITDA из отчёта (11981) > опер.прибыль+амортизация (11981) на 0 млн — это скорр. EBITDA (исключены разовые/неден. статьи).",
+    "ROE/ROA взяты как опубликованы в отчёте (ROE 2025=24.35%); расчёт от конечного капитала даёт ~19% — разница из-за роста капитала после IPO/SPO (отчёт считает от средневзвешенного капитала). ROE 2021 в отчёте не раскрыт.",
+    "Валовая прибыль/COGS в инфографике не раскрыты (null). Скорр. EBITDA-маржа ~38.6% из IR выше отчётной EBITDA-маржи 37.9% — разница на разовые/неденежные корректировки.",
+    "P/E, P/S, P/BV раскрыты в отчёте только с 2023 (IPO окт.2024); ряды 2021-2022 = null. Текущие мультипликаторы посчитаны от цены 47.30 и 1167.69 млн акций."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data",
+    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+  }
+}

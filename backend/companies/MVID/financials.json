@@ -1,0 +1,580 @@
+{
+  "meta": {
+    "ticker": "MVID",
+    "name": "ПАО «М.видео-Эльдорадо»",
+    "sector": "Ритейл (электроника и техника)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 64.1,
+    "price_date": "2026-05-22",
+    "shares_outstanding": 179770000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Компания в финансовом кризисе: одновременно высокий долг (чистый долг 147,5 млрд руб., вырос с 85,8 млрд за год), убыток (чистый убыток 63,6 млрд руб., EBITDA отрицательная −7,1 млрд), отрицательный собственный капитал (−45,6 млрд) и предстоящее сильное размытие (допэмиссия до ~1,5 млрд новых акций к текущим 179,77 млн). Из-за этого P/E, P/B и EV/EBITDA нерепрезентативны (отрицательные знаменатели), долговые коэффициенты к EBITDA не считаются. Учтена аренда по IFRS16 в амортизации; чистый долг в отчёте дан без обязательств по аренде. Оценка возможна только по P/S и носит ориентировочный характер."
+  },
+  "income_statement": {
+    "revenue": [
+      365216,
+      422089,
+      476364,
+      402462,
+      434390,
+      451642,
+      324761
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      24114,
+      22927,
+      5764,
+      7748,
+      16297,
+      11950,
+      -30111
+    ],
+    "ebitda": [
+      46616,
+      47022,
+      31102,
+      34808,
+      41750,
+      37679,
+      -7065
+    ],
+    "da": [
+      22502,
+      24095,
+      25338,
+      27060,
+      25453,
+      25729,
+      23046
+    ],
+    "finance_costs": [
+      12961,
+      12733,
+      14417,
+      21472,
+      24603,
+      40353,
+      52760
+    ],
+    "net_profit": [
+      7134,
+      9009,
+      -4003,
+      -10299,
+      -6613,
+      -20121,
+      -63638
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        12.76,
+        11.14,
+        6.53,
+        8.65,
+        9.61,
+        8.34,
+        -2.18
+      ],
+      "operating_margin": [
+        6.6,
+        5.43,
+        1.21,
+        1.93,
+        3.75,
+        2.65,
+        -9.27
+      ],
+      "net_margin": [
+        1.95,
+        2.13,
+        -0.84,
+        -2.56,
+        -1.52,
+        -4.46,
+        -19.6
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      346029,
+      390121,
+      436914,
+      333991,
+      359809,
+      367451,
+      288701
+    ],
+    "total_equity": [
+      32127,
+      33639,
+      16829,
+      6380,
+      -233,
+      -20354,
+      -45596
+    ],
+    "total_liabilities": [
+      313902,
+      356482,
+      420085,
+      327611,
+      360042,
+      387805,
+      334297
+    ],
+    "cash": [
+      4738,
+      7445,
+      12053,
+      30196,
+      18622,
+      22659,
+      4737
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      104785,
+      150000
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      3674,
+      2247
+    ],
+    "net_debt": [
+      44672,
+      40483,
+      57085,
+      65470,
+      67813,
+      85800,
+      147510
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        1.54,
+        1.42,
+        4.11,
+        14.99,
+        -370.97,
+        -5.33,
+        -3.34
+      ],
+      "net_debt_ebitda": [
+        0.96,
+        0.86,
+        1.84,
+        1.88,
+        1.62,
+        2.28,
+        -20.88
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      18147,
+      31014,
+      19895,
+      3755,
+      16799,
+      -392,
+      -58183
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      9336,
+      7913,
+      14567,
+      6036,
+      6720,
+      8804,
+      4722
+    ],
+    "fcf": [
+      8811,
+      23101,
+      5328,
+      -2281,
+      10079,
+      -9196,
+      -62905
+    ],
+    "ratios": {
+      "fcf_margin": [
+        2.41,
+        5.47,
+        1.12,
+        -0.57,
+        2.32,
+        -2.04,
+        -19.37
+      ],
+      "cfo_to_capex": [
+        1.94,
+        3.92,
+        1.37,
+        0.62,
+        2.5,
+        -0.04,
+        -12.32
+      ],
+      "capex_to_revenue": [
+        2.56,
+        1.87,
+        3.06,
+        1.5,
+        1.55,
+        1.95,
+        1.45
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      22.6,
+      27.4,
+      -15.9,
+      -88.8,
+      -215.2,
+      195.5,
+      193.0
+    ],
+    "roa": [
+      2.26,
+      2.45,
+      -0.97,
+      -2.67,
+      -1.91,
+      -5.53,
+      -19.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      1.95,
+      2.13,
+      -0.84,
+      -2.56,
+      -1.52,
+      -4.46,
+      -19.6
+    ],
+    "asset_turnover": [
+      1.159,
+      1.147,
+      1.152,
+      1.044,
+      1.252,
+      1.242,
+      0.99
+    ]
+  },
+  "multiples": {
+    "pe": [
+      10.94,
+      15.75,
+      -8.83,
+      -3.48,
+      -5.79,
+      -0.56,
+      -0.18
+    ],
+    "ps": [
+      0.21,
+      0.34,
+      0.07,
+      0.09,
+      0.09,
+      0.03,
+      0.04
+    ],
+    "pb": [
+      2.43,
+      4.22,
+      2.1,
+      5.62,
+      -164.22,
+      -0.56,
+      -0.25
+    ],
+    "ev_ebitda": [
+      2.63,
+      3.88,
+      2.97,
+      2.91,
+      2.54,
+      2.58,
+      -22.51
+    ],
+    "current": {
+      "pe": -0.18,
+      "ps": 0.035,
+      "pb": -0.253,
+      "ev_ebitda": -22.51,
+      "ev": 159033.0,
+      "net_debt_ebitda": -20.88,
+      "as_of": "2026-05-22"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025 — все годы убыточные, медиана P/E не определена"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": 0.035,
+      "pb": -0.253,
+      "ev_ebitda": -22.51,
+      "net_debt_ebitda": -20.88,
+      "roe": 193.0
+    },
+    "2024": {
+      "pe": null,
+      "ps": 0.026,
+      "pb": -0.566,
+      "ev_ebitda": 2.58,
+      "net_debt_ebitda": 2.28,
+      "roe": 195.5
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "История нерепрезентативна (3-й год убытков, отрицательный собственный капитал, реструктуризация, предстоящая допэмиссия). Механический прогноз не строится; DCF неинформативен. Менеджмент ориентирует на рост выручки ~25% в 2026 за счёт закрытия убыточных точек — не подтверждён отчётностью."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ps",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": null,
+          "beta": null
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "distressed_ps",
+        "fair_value_per_share": 108.4,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_band": [
+            0.035,
+            0.06,
+            0.09
+          ],
+          "revenue_2025": 324761,
+          "note": "Единственный применимый ориентир — P/S в полосе для проблемного ретейлера; не учитывает размытие от допэмиссии"
+        },
+        "status": "ok"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 63.2,
+      "base": 108.4,
+      "optimistic": 162.6,
+      "current_price": 64.1,
+      "upside_downside_pct": 69.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "М.видео (МСФО 2025) на 22.05.2026г.pdf — сводка СРКИ/инфографика по МСФО 2016-2025",
+      "period": "2016-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Раскрытия и пресс-релизы М.Видео-Эльдорадо по МСФО за 2024-2025",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "anomaly_flag=true: высокий долг + убыток + отрицательный капитал + предстоящее размытие; P/E, P/B, EV/EBITDA нерепрезентативны.",
+    "Чистый долг в исходнике (147,5 млрд за 2025) дан без обязательств по аренде IFRS16; в бизнес-модели фигурировала цифра ~153 млрд — расхождение из-за разной трактовки аренды; требует сверки по годовому отчёту.",
+    "COGS/валовая прибыль и постатейная структура расходов в источнике не раскрыты — gross_margin = null.",
+    "CFI/CFF и net_change_in_cash в источнике не раскрыты раздельно — null; FCF=CFO−CapEx сверён с источником (совпал).",
+    "ROE за 2023-2025 искажён переходом собственного капитала через ноль в отрицательную зону — не интерпретируется как доходность.",
+    "ND/EBITDA за 2025 не считается (EBITDA<0); за 2024 = 2,28x по чистому долгу без аренды (с арендой нагрузка выше).",
+    "relative_peers status=pending_sector_backfill: медиана мультипликаторов сектора будет подставлена после прогона всех ритейлеров; peer-таблица из источника носит ориентировочный характер.",
+    "Коридор цены построен ТОЛЬКО по P/S и не учитывает размытие от допэмиссии до ~1,5 млрд акций — фактический потенциал на акцию может быть существенно ниже."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Высокий долг + убыток + отрицательный капитал + допэмиссия — мультипликаторы нерепрезентативны.",
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 2.9,
+    "fair_value_per_share": -935.15,
+    "upside_downside_pct": -1558.9,
+    "status": "reference_only",
+    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+  }
+}
