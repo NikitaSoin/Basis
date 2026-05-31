@@ -1,0 +1,148 @@
+{
+  "meta": {
+    "ticker": "SIBN",
+    "name": "ПАО «Газпром нефть»",
+    "sector": "oil_gas",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [2019, 2020, 2021, 2022, 2023, 2024, 2025],
+    "last_price": 511.45,
+    "price_date": "2026-05-18",
+    "shares_outstanding": 4741300000,
+    "data_quality": "high",
+    "data_source_priority": ["uploaded_file", "official_report", "broker", "aggregator"]
+  },
+
+  "income_statement": {
+    "revenue": [2485308, 1999620, 3068442, 3412129, 3519959, 4099708, 3607030],
+    "cogs": [null, null, null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null, null, null],
+    "operating_expenses": [null, null, null, null, null, null, null],
+    "operating_profit": [446568, 145177, 561337, 87352, 721049, 678837, 429280],
+    "ebitda": [627940, 367328, 789395, 397745, 1085624, 1149571, 908064],
+    "da": [181372, 222151, 228058, 310393, 364575, 470734, 478784],
+    "finance_costs": [32772, 28746, 25631, 64601, 43041, 70969, 72343],
+    "net_profit": [400201, 117699, 503445, 751473, 641110, 479450, 245816],
+    "margins": {
+      "gross_margin": [null, null, null, null, null, null, null],
+      "ebitda_margin": [25.27, 18.37, 25.73, 11.66, 30.84, 28.04, 25.17],
+      "operating_margin": [17.97, 7.26, 18.29, 2.56, 20.48, 16.56, 11.90],
+      "net_margin": [16.10, 5.89, 16.41, 22.02, 18.21, 11.69, 6.81]
+    }
+  },
+
+  "balance_sheet": {
+    "total_assets": [3825483, 4259174, 4960473, 5128816, 6053578, 6140642, 6453900],
+    "total_equity": [2213197, 2262447, 2538193, 2735653, 2993731, 3168749, 3149208],
+    "total_liabilities": [1612286, 1996727, 2422280, 2393163, 3059847, 2971893, 3304692],
+    "cash": [202404, 237011, 573421, 452209, 587125, 217735, 182918],
+    "short_term_debt": [30198, 45695, 180678, 24772, 198779, 208230, 524853],
+    "long_term_debt": [685030, 738530, 553342, 613705, 699124, 752082, 752838],
+    "net_debt": [512824, 547214, 160599, 186268, 310778, 742577, 1094773],
+    "ratios": {
+      "debt_to_equity": [0.32, 0.35, 0.29, 0.23, 0.30, 0.30, 0.41],
+      "net_debt_ebitda": [0.82, 1.49, 0.20, 0.47, 0.29, 0.65, 1.21],
+      "current_ratio": [null, null, null, null, null, null, null]
+    }
+  },
+
+  "cash_flow": {
+    "cfo": [609076, 517057, 941923, 793153, 922950, 823777, 621150],
+    "cfi": [null, null, null, null, null, null, null],
+    "cff": [null, null, null, null, null, null, null],
+    "net_change_in_cash": [null, 34607, 336410, -121212, 134916, -369390, -34817],
+    "capex": [435452, 417898, 449696, null, 522414, 444062, 599323],
+    "fcf": [173624, 99159, 492227, null, 400536, 379715, 21827],
+    "ratios": {
+      "fcf_margin": [6.99, 4.96, 16.04, null, 11.38, 9.26, 0.61],
+      "cfo_to_capex": [1.40, 1.24, 2.09, null, 1.77, 1.86, 1.04],
+      "capex_to_revenue": [17.52, 20.90, 14.66, null, 14.84, 10.83, 16.62]
+    }
+  },
+
+  "returns": {
+    "roe": [18.08, 5.20, 19.83, 27.47, 21.42, 15.13, 7.81],
+    "roa": [10.46, 2.76, 10.15, 14.65, 10.59, 7.81, 3.81],
+    "roic": [13.11, 4.13, 16.64, 2.39, 17.46, 13.88, 7.59],
+    "ros": [16.10, 5.89, 16.41, 22.02, 18.21, 11.69, 6.81],
+    "asset_turnover": [0.65, 0.47, 0.62, 0.67, 0.58, 0.67, 0.56]
+  },
+
+  "multiples": {
+    "pe": [6.06, 20.61, 4.82, 3.23, 3.78, 5.06, 9.86],
+    "ps": [0.98, 1.21, 0.79, 0.71, 0.69, 0.59, 0.67],
+    "pb": [1.10, 1.07, 0.96, 0.89, 0.81, 0.77, 0.77],
+    "ev_ebitda": [4.68, 8.09, 3.28, 6.57, 2.52, 2.76, 3.88],
+    "current": { "pe": 9.86, "ps": 0.67, "pb": 0.77, "ev_ebitda": 3.88, "as_of": "2026-05-18" },
+    "historical_avg": { "pe_5y_avg": 5.35, "pe_5y_median": 4.82, "period": "2021-2025" }
+  },
+
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [3.0, 4.0, 4.0, 4.0, 4.0],
+    "net_profit_growth_pct": [15.0, 10.0, 8.0, 6.0, 5.0],
+    "note": "Брокерский консенсус по SIBN в исходниках не приведён, поэтому прогноз механический и консервативный. 2025 — циклический минимум (низкий Urals ~$55,6, укрепление рубля, налог 25%, срезанный демпфер, пик CapEx обнулил FCF). База для прогноза — нормализованный (среднециклический) FCF, а не FCF-2025. Рост затухает к долгосрочному макротренду."
+  },
+
+  "valuation": {
+    "methods": [
+      { "method": "DCF", "fair_value_per_share": 272, "horizon": "intrinsic_now",
+        "key_assumptions": { "wacc": 0.236, "terminal_growth": 0.035, "forecast_years": 5,
+          "fcf_base_mln": 424159, "fcf_base_note": "среднециклический FCF (среднее 2021,2023,2024), а не провальный FCF-2025=21 827",
+          "short_term_growth": 0.06, "beta": 1.0 },
+        "tv_share_of_value_pct": 42.5, "status": "ok" },
+      { "method": "historical_pe", "fair_value_per_share": 250, "horizon": "intrinsic_now",
+        "key_assumptions": { "pe_used": 4.82, "basis": "5y_median", "eps_2025": 51.85,
+          "note": "медиана P/E 2021-2025; прибыль 2025 на циклическом минимуме, оценка консервативна" } },
+      { "method": "dividend", "fair_value_per_share": 352, "horizon": "intrinsic_now",
+        "key_assumptions": { "normalized_eps": 96.1, "payout": 0.55, "normalized_div_ps": 52.8,
+          "required_yield": 0.15,
+          "note": "среднециклическая прибыль (среднее ЧП 2023-2025) × payout 55%; целевая дивдоходность 15%" } },
+      { "method": "relative_peers", "fair_value_per_share": null, "horizon": "intrinsic_now",
+        "key_assumptions": { "peer_multiple": "ev_ebitda", "peer_median": null },
+        "status": "insufficient_data" },
+      { "method": "CAPM", "fair_value_per_share": 606, "horizon": "12m",
+        "key_assumptions": { "ke": 0.236, "beta": 1.0,
+          "expected_div_yield": 0.051, "expected_div_ps": 25.9,
+          "note": "таргет на 12 мес: цена×(1+(Ke−дивдоходность)). Горизонт ОТЛИЧАЕТСЯ от intrinsic-методов, поэтому в итоговый коридор внутренней стоимости не включён" } }
+    ],
+    "fair_value_range": { "conservative": 217, "base": 272,
+      "current_price": 511.45, "upside_downside_pct": -46.8 },
+    "sensitivity": {
+      "wacc_grid": [0.21, 0.236, 0.26],
+      "growth_grid": [0.025, 0.035, 0.045],
+      "matrix": [
+        [330.8, 348.1, 367.4],
+        [259.5, 271.6, 285.0],
+        [207.9, 216.9, 226.7]
+      ]
+    }
+  },
+
+  "sources": [
+    { "id": "src_1", "type": "uploaded_file",
+      "title": "Газпромнефть (МСФО 2025) — инфографика финансовой отчётности на 18.05.2026",
+      "period": "2016-2025", "reliability": "high" },
+    { "id": "src_2", "type": "official_report",
+      "title": "ПАО «Газпром нефть» — консолидированная отчётность МСФО 2025 (якоря в business_model.md)",
+      "period": "2025", "reliability": "high" },
+    { "id": "src_3", "type": "aggregator",
+      "title": "Котировка SIBN MOEX / Банки.ру / TradingView (цена, бета)",
+      "period": "2026-05", "reliability": "medium" }
+  ],
+
+  "data_flags": [
+    "CapEx и FCF за 2022 год в исходной инфографике не заполнены (пустая ячейка) → проставлены null; FCF-2022 в источнике ошибочно показан как 0.",
+    "Постатейная разбивка P&L (COGS, gross profit, opex) в источнике не агрегируется → gross_margin = null.",
+    "CFI и CFF по годам в источнике отдельно не приведены; net_change_in_cash рассчитан как изменение остатка денежных средств (Δcash), а не как CFO+CFI+CFF.",
+    "Текущий CapEx (599 млрд в 2025) на циклическом пике, а FCF-2025 (21,8 млрд) на минимуме — DCF строился на нормализованном (среднециклическом) FCF, иначе оценка занижается.",
+    "Бета от агрегаторов по SIBN = −0,11 (нереалистично, ломает CAPM); для оценки взята отраслевая бета 1,0 — оценка к ней чувствительна.",
+    "Брокерский консенсус прогноза в исходниках отсутствует → forecast механический (source_type=mechanical).",
+    "relative_peers не посчитан: sectors/oil_gas/peers.json по заданию не трогался → insufficient_data.",
+    "Чистая прибыль — доля акционеров. Префов нет; все акции обыкновенные (4 741,3 млн).",
+    "Текущая рыночная цена на MOEX (~518 руб на 25.05.2026) близка к цене из источника (511,45 на 18.05.2026) — расхождение несущественно."
+  ]
+}

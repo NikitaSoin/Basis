@@ -1,0 +1,295 @@
+{
+  "meta": {
+    "sector": "Нефть и газ",
+    "sector_key": "oil_gas",
+    "generated_at": "2026-05-31",
+    "companies": [
+      "ROSN",
+      "LKOH",
+      "SIBN",
+      "TATN",
+      "SNGS",
+      "NVTK"
+    ],
+    "n": 6,
+    "basis": "current multiples из financials.json каждой компании; latest non-null для рядов",
+    "macro_params_ref": "config/market_params.json"
+  },
+  "comparison_table": {
+    "columns": [
+      "ticker",
+      "name",
+      "last_price",
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "debt_to_equity",
+      "roe",
+      "roa",
+      "roic",
+      "ebitda_margin",
+      "net_margin",
+      "fair_value_base",
+      "upside_downside_pct",
+      "data_quality"
+    ],
+    "rows": [
+      {
+        "ticker": "ROSN",
+        "name": "ПАО «НК «Роснефть»",
+        "last_price": 407.7,
+        "price_date": "2026-05-18",
+        "currency": "RUB",
+        "pe": 14.75,
+        "ps": 0.52,
+        "pb": 0.48,
+        "ev_ebitda": 4.07,
+        "net_debt_ebitda": 1.8628,
+        "debt_to_equity": 0.7251,
+        "roe": 3.23,
+        "roa": 5.03,
+        "roic": 5.91,
+        "ebitda_margin": 24.96,
+        "net_margin": 3.56,
+        "fair_value_base": 446.0,
+        "fair_value_conservative": 301.3,
+        "upside_downside_pct": 9.4,
+        "data_quality": "medium"
+      },
+      {
+        "ticker": "LKOH",
+        "name": "ПАО «ЛУКОЙЛ»",
+        "last_price": 4899.0,
+        "price_date": "2026-05-31",
+        "currency": "RUB",
+        "pe": null,
+        "ps": 0.9,
+        "pb": 0.94,
+        "ev_ebitda": 3.02,
+        "net_debt_ebitda": -0.22,
+        "debt_to_equity": 0.09,
+        "roe": -29.35,
+        "roa": -19.44,
+        "roic": 10.89,
+        "ebitda_margin": 27.85,
+        "net_margin": -28.25,
+        "fair_value_base": 5298,
+        "fair_value_conservative": 5130,
+        "upside_downside_pct": 8.1,
+        "data_quality": "medium"
+      },
+      {
+        "ticker": "SIBN",
+        "name": "ПАО «Газпром нефть»",
+        "last_price": 511.45,
+        "price_date": "2026-05-18",
+        "currency": "RUB",
+        "pe": 9.86,
+        "ps": 0.67,
+        "pb": 0.77,
+        "ev_ebitda": 3.88,
+        "net_debt_ebitda": 1.21,
+        "debt_to_equity": 0.41,
+        "roe": 7.81,
+        "roa": 3.81,
+        "roic": 7.59,
+        "ebitda_margin": 25.17,
+        "net_margin": 6.81,
+        "fair_value_base": 272,
+        "fair_value_conservative": 217,
+        "upside_downside_pct": -46.8,
+        "data_quality": "high"
+      },
+      {
+        "ticker": "TATN",
+        "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+        "last_price": 605.5,
+        "price_date": "2026-05-18",
+        "currency": "RUB",
+        "pe": 8.85,
+        "ps": 0.77,
+        "pb": 1.06,
+        "ev_ebitda": 4.19,
+        "net_debt_ebitda": -0.098,
+        "debt_to_equity": 0.026,
+        "roe": 11.97,
+        "roa": 7.43,
+        "roic": 14.75,
+        "ebitda_margin": 18.01,
+        "net_margin": 8.72,
+        "fair_value_base": 410.5,
+        "fair_value_conservative": 313.0,
+        "upside_downside_pct": -32.2,
+        "data_quality": "high"
+      },
+      {
+        "ticker": "SNGS",
+        "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+        "last_price": 19.66,
+        "price_date": "2026-04-29",
+        "currency": "RUB",
+        "pe": 0.53,
+        "ps": 0.44,
+        "pb": 0.14,
+        "ev_ebitda": 1.36,
+        "net_debt_ebitda": -0.23,
+        "debt_to_equity": 0,
+        "roe": 18.66,
+        "roa": 16.44,
+        "roic": null,
+        "ebitda_margin": 27.61,
+        "net_margin": 57.42,
+        "fair_value_base": 22.57,
+        "fair_value_conservative": 5.86,
+        "upside_downside_pct": 14.78,
+        "data_quality": "low"
+      },
+      {
+        "ticker": "NVTK",
+        "name": "ПАО «НОВАТЭК»",
+        "last_price": 1218.8,
+        "price_date": "2026-05-18",
+        "currency": "RUB",
+        "pe": 20.22,
+        "ps": 2.56,
+        "pb": 1.3,
+        "ev_ebitda": 9.43,
+        "net_debt_ebitda": -0.1,
+        "debt_to_equity": 0.105,
+        "roe": 6.44,
+        "roa": 5.1,
+        "roic": null,
+        "ebitda_margin": 26.85,
+        "net_margin": 12.66,
+        "fair_value_base": 411.9,
+        "fair_value_conservative": 403.4,
+        "upside_downside_pct": -66.2,
+        "data_quality": "medium"
+      }
+    ]
+  },
+  "sector_medians": {
+    "pe": 9.86,
+    "ps": 0.72,
+    "pb": 0.85,
+    "ev_ebitda": 3.98,
+    "net_debt_ebitda": -0.1,
+    "roe": 7.12,
+    "roa": 5.06,
+    "ebitda_margin": 26.01,
+    "net_margin": 7.77
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "note": "меньше = безопаснее"
+      },
+      "y_axis": {
+        "key": "pe",
+        "label": "P/E",
+        "note": "меньше = дешевле"
+      },
+      "points": [
+        {
+          "ticker": "ROSN",
+          "name": "ПАО «НК «Роснефть»",
+          "x": 1.8628,
+          "y": 14.75
+        },
+        {
+          "ticker": "LKOH",
+          "name": "ПАО «ЛУКОЙЛ»",
+          "x": -0.22,
+          "y": null
+        },
+        {
+          "ticker": "SIBN",
+          "name": "ПАО «Газпром нефть»",
+          "x": 1.21,
+          "y": 9.86
+        },
+        {
+          "ticker": "TATN",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "x": -0.098,
+          "y": 8.85
+        },
+        {
+          "ticker": "SNGS",
+          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "x": -0.23,
+          "y": 0.53
+        },
+        {
+          "ticker": "NVTK",
+          "name": "ПАО «НОВАТЭК»",
+          "x": -0.1,
+          "y": 20.22
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество бизнеса vs Цена",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "note": "больше = качественнее"
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "note": "меньше = дешевле к балансу"
+      },
+      "points": [
+        {
+          "ticker": "ROSN",
+          "name": "ПАО «НК «Роснефть»",
+          "x": 3.23,
+          "y": 0.48
+        },
+        {
+          "ticker": "LKOH",
+          "name": "ПАО «ЛУКОЙЛ»",
+          "x": -29.35,
+          "y": 0.94
+        },
+        {
+          "ticker": "SIBN",
+          "name": "ПАО «Газпром нефть»",
+          "x": 7.81,
+          "y": 0.77
+        },
+        {
+          "ticker": "TATN",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "x": 11.97,
+          "y": 1.06
+        },
+        {
+          "ticker": "SNGS",
+          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "x": 18.66,
+          "y": 0.14
+        },
+        {
+          "ticker": "NVTK",
+          "name": "ПАО «НОВАТЭК»",
+          "x": 6.44,
+          "y": 1.3
+        }
+      ]
+    }
+  },
+  "notes": [
+    "LKOH P/E = null: чистый убыток FY2025 из-за неденежного списания LIG, мультипликатор неинформативен.",
+    "ROSN net_debt/EBITDA взят за последний раскрытый год (FY2025 чистый долг не раскрыт).",
+    "SNGS: P/B 0.14 и ROE искажены валютной кубышкой; держатель обыкновенной акции к ней доступа не имеет.",
+    "NVTK ev_ebitda от консолидированной МСФО EBITDA (без доли в СП), поэтому выше пиров.",
+    "Все оценки — внутренняя стоимость при ОФЗ 14.6%/ERP 9% из config; чувствительны к ставке."
+  ]
+}

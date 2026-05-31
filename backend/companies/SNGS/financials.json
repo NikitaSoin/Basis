@@ -1,0 +1,521 @@
+{
+  "meta": {
+    "ticker": "SNGS",
+    "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+    "sector": "Нефть и газ",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "last_price": 19.66,
+    "price_date": "2026-04-29",
+    "shares_outstanding": 35726.0,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      1814821,
+      1181877,
+      null,
+      2481673,
+      2302522,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      393007,
+      165063,
+      null,
+      654623,
+      534061,
+      null
+    ],
+    "ebitda": [
+      464079,
+      248840,
+      null,
+      743442,
+      635660,
+      null
+    ],
+    "da": [
+      71072,
+      83777,
+      null,
+      88819,
+      101599,
+      null
+    ],
+    "finance_costs": [
+      21477,
+      20936,
+      null,
+      9554,
+      17108,
+      null
+    ],
+    "net_profit": [
+      106162,
+      742871,
+      null,
+      320493,
+      1322045,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        25.57,
+        21.05,
+        null,
+        29.96,
+        27.61,
+        null
+      ],
+      "operating_margin": [
+        21.66,
+        13.97,
+        null,
+        26.38,
+        23.19,
+        null
+      ],
+      "net_margin": [
+        5.85,
+        62.86,
+        null,
+        12.91,
+        57.42,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      5267896,
+      5875687,
+      null,
+      6488679,
+      8039888,
+      null
+    ],
+    "total_equity": [
+      4449378,
+      5160408,
+      null,
+      5799891,
+      7086741,
+      null
+    ],
+    "total_liabilities": [
+      818518,
+      715279,
+      null,
+      688788,
+      953147,
+      null
+    ],
+    "cash": [
+      396234,
+      178811,
+      null,
+      137778,
+      147671,
+      null
+    ],
+    "short_term_debt": [
+      0,
+      0,
+      null,
+      0,
+      0,
+      null
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      null,
+      0,
+      0,
+      null
+    ],
+    "net_debt": [
+      -396234,
+      -178811,
+      null,
+      -137778,
+      -147671,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0,
+        0,
+        null,
+        0,
+        0,
+        null
+      ],
+      "net_debt_ebitda": [
+        -0.85,
+        -0.72,
+        null,
+        -0.19,
+        -0.23,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      419280,
+      129430,
+      null,
+      692151,
+      595130,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      159215,
+      171292,
+      null,
+      226741,
+      264987,
+      null
+    ],
+    "fcf": [
+      260065,
+      -41862,
+      null,
+      465410,
+      330143,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        14.33,
+        -3.54,
+        null,
+        18.75,
+        14.34,
+        null
+      ],
+      "cfo_to_capex": [
+        2.63,
+        0.76,
+        null,
+        3.05,
+        2.25,
+        null
+      ],
+      "capex_to_revenue": [
+        8.77,
+        14.49,
+        null,
+        9.14,
+        11.51,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      2.39,
+      14.4,
+      null,
+      5.53,
+      18.66,
+      null
+    ],
+    "roa": [
+      2.02,
+      12.64,
+      null,
+      4.94,
+      16.44,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      5.85,
+      62.86,
+      null,
+      12.91,
+      57.42,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 0.53,
+      "ps": 0.44,
+      "pb": 0.14,
+      "ev_ebitda": 1.36,
+      "as_of": "2026-04-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 2.31,
+      "period": "2017-2023 (положит. годы; 2016 и 2021 исключены)"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз чистой прибыли невозможен: итог доминируется неденежной курсовой переоценкой валютной «кубышки» (~6 трлн ₽) и процентным доходом — оба зависят от курса рубля и ставки, которые не прогнозируются. Операционная прибыль стабильнее, но компания не раскрывает сегментацию и валютную структуру с 2022 г."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 167.05,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 19.1,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "operating_fcf_base_mln": 250000,
+          "cash_pile_added_mln": 5800000
+        },
+        "tv_share_of_value_pct": 47.57,
+        "status": "insufficient_data",
+        "note": "Операционный DCF (~1.45 трлн EV) + денежная «кубышка» ~5.8 трлн = ~167 ₽/акц. ТЕОРЕТИЧЕСКАЯ стоимость активов: держатель ОБЫКНОВЕННОЙ акции не получает доступа к кубышке (символический дивиденд), поэтому рынок справедливо торгует с P/BV~0.12. Не использовать как таргет для SNGS."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 25.9,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.31,
+          "basis": "5y_median",
+          "eps_basis": "нормализованная прибыль ex-FX (операц. прибыль 2023 после налога 25%)"
+        },
+        "note": "На фактическом EPS-2023 (37 ₽, раздут курсовой переоценкой) дало бы ~85 ₽ — нерепрезентативно. Взята нормализованная прибыль без FX → ~26 ₽."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 22.57,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 19.1,
+          "beta": 0.5,
+          "beta_reported": -0.47,
+          "note": "Рыночная бета SNGS отрицательная (~-0.47): прибыль растёт при ослаблении рубля, контрциклична рынку. При отрицательной бете CAPM ломается (Ke<g), поэтому бета поднята до консервативного floor 0.5."
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 5.86,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dividend_per_share": 0.85,
+          "required_yield_pct": 14.5,
+          "note": "Дивиденд по ОБЫКНОВЕННОЙ акции символический и не привязан к прибыли (формула 10% ЧП по РСБУ — только для префа). Самый честный ориентир денежного потока держателя SNGS."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 5.86,
+      "base": 22.57,
+      "current_price": 19.66,
+      "upside_downside_pct": 14.78
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        17.0,
+        19.1,
+        21.0
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.0
+      ],
+      "matrix": [],
+      "note": "Матрица не строилась: DCF не используется как таргет для обыкновенной акции (см. method DCF)."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Инфографика по МСФО ПАО «Сургутнефтегаз» (ТГ-канал «Финансовая отчётность»), данные 2015–2023",
+      "period": "2015-2023",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Чистая прибыль МСФО 2023 = 1 322 045 млн ₽ (якорь, совпал с business_model.md)",
+      "period": "2023",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Investing.com / TradingView — цена SNGS ~19.66 ₽ и бета ~-0.47",
+      "period": "2026-04-29",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ИСТОЧНИК — не первичная отчётность, а агрегированная инфографика; столбцы по годам были сдвинуты (пустой 2021, пустой 2024) — год привязан кодом по якорю ЧП-2023=1 322 045; данные за 2021 и 2024 в источнике ОТСУТСТВУЮТ (null).",
+    "ЧИСТАЯ ПРИБЫЛЬ > EBITDA (2023: 1 322 045 > 635 660) — аномалия Сургутнефтегаза: прибыль формируется финансовым блоком (проценты + курсовая переоценка валютной «кубышки»), а не операционным.",
+    "ЗАВИСИМОСТЬ ОТ КУРСА РУБЛЯ И СТАВКИ: основной драйвер итоговой прибыли — неденежная переоценка валютных депозитов (~+700 млрд ₽ в 2023 на ослаблении рубля). При укреплении рубля прибыль обваливается вплоть до убытка; процентный доход зависит от ключевой ставки (14.5%).",
+    "Операционную и финансовую часть прибыли РАЗДЕЛИТЬ точно нельзя: источник не даёт сумм процентного дохода и курсовой переоценки отдельной строкой. Операц. прибыль (oper) и EBITDA отражают только нефтяной бизнес; разрыв до net_profit = финблок.",
+    "«КУБЫШКА» НЕ В строке cash: денежные средства в отчёте ~147 671 млн (2023), а основная ликвидность (~6 трлн ₽) классифицирована как финансовые вложения и в этот источник постатейно не попала. net_debt здесь = только -cash и НЕДООЦЕНИВАЕТ денежную позицию.",
+    "Долг (кредиты/займы) в источнике = 0 по всем годам; принят net_debt = -cash.",
+    "БЕТА отрицательная (~-0.47) — CAPM применён с консервативным floor бета=0.5; результат трактовать осторожно.",
+    "ПАРАДОКС ОБЫКНОВЕННОЙ АКЦИИ: активы стоят кратно цены (BVPS-2023 ≈ 163 ₽, P/BV≈0.12), но держатель SNGS не получает доступа к кубышке — дивиденд символический. Поэтому fair_value_range построен от денежного потока акционера (дивиденд/CAPM), а не от стоимости активов (DCF/P/BV даны справочно как ТЕОРЕТИЧЕСКАЯ верхняя граница).",
+    "relative_peers не заполнен — ждёт прогона сектора oil_gas (insufficient_data)."
+  ]
+}
