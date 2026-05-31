@@ -433,7 +433,7 @@
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": 77.62,
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
           "peer_multiple": "ev_ebitda",
@@ -446,7 +446,7 @@
           "target_equity_mln": 2772947,
           "note": "результат искажён — не учитывает кубышку в финвложениях; для SNGS EV/EBITDA не репрезентативен. EBITDA взята за 2023 (последний доступный год — 2024 и 2025 в данных отсутствуют)."
         },
-        "status": "ok"
+        "status": "insufficient_data"
       },
       {
         "method": "CAPM",
@@ -548,5 +548,12 @@
       "roe": 18.66,
       "note": "2024 в данных отсутствует — рассчитано по последнему доступному году (2023)."
     }
+  },
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data",
+    "basis": "нет EV/EBITDA или чистого долга за 2025"
   }
 }

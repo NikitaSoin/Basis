@@ -1,0 +1,585 @@
+{
+  "meta": {
+    "ticker": "MFGSP",
+    "name": "ПАО «Славнефть-Мегионнефтегаз» (привилегированные акции)",
+    "sector": "oil_gas",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ (якоря) / МСФО (ряды по агрегаторам)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 244.0,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 33056875,
+    "shares_outstanding_note": "Это число ПРИВИЛЕГИРОВАННЫХ акций (MFGSP) ≈ 33,06 млн. У эмитента два класса: 99 474 705 ао (MFGS) + 33 056 875 ап (MFGSP) = 132 531 580 всего. Отчётность (выручка, прибыль, капитал) — общая на весь эмитент, переиспользована из companies/MFGS/financials.json.",
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Аномалия тройная. (1) Убыток: эмитент убыточен по обоим стандартам в 2020 и 2022–2025 → P/E неприменим (null/отрицателен), исторический P/E и DCF на прибыли/FCF недостоверны. (2) Расхождение РСБУ/МСФО: за 2024 РСБУ-убыток −13 250 млн (EPS −133,2 ₽ × 99,475 млн ао), а МСФО-убыток по smart-lab −5 760 млн — разница ×2,3; выручка РСБУ 210 800 vs МСФО 213 800. (3) Дисконт префа: MFGSP торгуется по 244 ₽ против 502 ₽ у обыкновенной MFGS (≈48,6% цены ао) при идентичной экономике актива — рынок дисконтирует ап за отсутствие/ограничение голоса и отсутствие дивидендной базы (компания убыточна). Также по 2024 у агрегатора одновременно показаны общий долг 101 836 млн и «чистый долг 0,00» — внутренне противоречиво, поэтому net_debt-2024 оставлен null. Все факторы → флаг true; оценка строится на book value (P/B), а не на прибыли.",
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": 0.151,
+      "pb": 0.195,
+      "ev_ebitda": 2.29,
+      "net_debt_ebitda": null,
+      "roe": -3.47
+    },
+    "note": "Рассчитано КОДОМ при цене ПРЕФА 244 ₽ и числе акций 132 531 580 (ао 99 474 705 + ап 33 056 875), оценённых по цене префа: капитализация ~32 338 млн ₽ (mcap_at_pref = 132 531 580 × 244). Это нижняя, «префовая» оценка стоимости всего эмитента. pe=null (убыток, знаменатель отрицателен), ps=mcap/выручка_МСФО_2024 (213 800), pb=mcap/капитал_МСФО_2024 (166 200), ev_ebitda=2,29 переиспользован из MFGS (зависит от EBITDA 2024 ~29 000 и чистого долга года; на класс акций не влияет, так как считался на полное число акций — для префа отдельный EV-расчёт не уточнялся), roe=ЧП_2024/капитал_2024 (фактический ROE эмитента, отрицателен). Для справки: при «смешанной» капитализации (ао@502 + ап@244 = 58 002 млн) P/S=0,271, P/B=0,349 — это ближе к рыночной оценке MFGS. 2025: МСФО баланс/выручка у агрегатора не раскрыты → все поля null (status pending).",
+    "relative_peers": {
+      "status": "pending_sector_backfill",
+      "note": "Медиана мультипликаторов сектора oil_gas (EV/EBITDA, P/S) будет подставлена при пересборке sectors/oil_gas/peers.json. Сейчас относительная оценка через сектор не считалась."
+    }
+  },
+  "income_statement": {
+    "revenue": [
+      185100,
+      73900,
+      null,
+      null,
+      198900,
+      213800,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      13700,
+      -10300,
+      null,
+      null,
+      7930,
+      16300,
+      null
+    ],
+    "ebitda": [
+      29200,
+      null,
+      null,
+      null,
+      null,
+      29000,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      9550,
+      -10500,
+      null,
+      null,
+      -3040,
+      -5760,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        15.78,
+        null,
+        null,
+        null,
+        null,
+        13.56,
+        null
+      ],
+      "operating_margin": [
+        7.4,
+        -13.94,
+        null,
+        null,
+        3.99,
+        7.62,
+        null
+      ],
+      "net_margin": [
+        5.16,
+        -14.21,
+        null,
+        null,
+        -1.53,
+        -2.69,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      285700,
+      262500,
+      null,
+      null,
+      296200,
+      289200,
+      null
+    ],
+    "total_equity": [
+      174300,
+      163700,
+      null,
+      null,
+      174800,
+      166200,
+      null
+    ],
+    "total_liabilities": [
+      111400,
+      98800,
+      null,
+      null,
+      121400,
+      123000,
+      null
+    ],
+    "cash": [
+      1040,
+      910,
+      null,
+      null,
+      490,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      54700,
+      48700,
+      null,
+      null,
+      43100,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.32,
+        0.3,
+        null,
+        null,
+        0.25,
+        0.61,
+        null
+      ],
+      "net_debt_ebitda": [
+        1.87,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      12700,
+      11000,
+      null,
+      null,
+      11200,
+      29300,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      13600,
+      13300,
+      null,
+      null,
+      32200,
+      31200,
+      null
+    ],
+    "fcf": [
+      -900,
+      -2300,
+      null,
+      null,
+      -21000,
+      -1900,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -0.49,
+        -3.11,
+        null,
+        null,
+        -10.56,
+        -0.89,
+        null
+      ],
+      "cfo_to_capex": [
+        0.93,
+        0.83,
+        null,
+        null,
+        0.35,
+        0.94,
+        null
+      ],
+      "capex_to_revenue": [
+        7.35,
+        18.0,
+        null,
+        null,
+        16.19,
+        14.59,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      5.48,
+      -6.41,
+      null,
+      null,
+      -1.74,
+      -3.47,
+      null
+    ],
+    "roa": [
+      3.34,
+      -4.0,
+      null,
+      null,
+      -1.03,
+      -1.99,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      5.16,
+      -14.21,
+      null,
+      null,
+      -1.53,
+      -2.69,
+      null
+    ],
+    "asset_turnover": [
+      0.65,
+      0.28,
+      null,
+      null,
+      0.67,
+      0.74,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.151,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.195,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.29,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.151,
+      "pb": 0.195,
+      "ev_ebitda": 2.29,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025 — P/E неприменим: эмитент убыточен почти весь период"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз не строится. Эмитент — малоликвидная миноритарная «дочка» Славнефти без брокерского покрытия; история нерепрезентативна (устойчивый убыток 2022–2025, неоднозначные данные о долге). Привилегированный выпуск без дивидендной базы и без голоса. Любой механический прогноз прибыли/FCF от убыточной базы недостоверен → source_type=none, DCF=insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median",
+          "note": "Неприменим: прибыль отрицательна в 2022–2025 → P/E и медиана P/E экономического смысла не имеют."
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "price_to_book",
+        "fair_value_per_share": 251,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps_2024_rub": 1254,
+          "pb_target_low": 0.15,
+          "pb_target_high": 0.3,
+          "basis": "капитал МСФО 2024 (166 200 млн) / 132 531 580 акций = 1 254 ₽ на акцию (балансовая стоимость общая на эмитента, одинакова для ао и ап)",
+          "current_pb_pref": 0.195,
+          "note": "Главный применимый метод для убыточного добытчика без дивидендов. Привилегированная MFGSP торгуется с ДОПОЛНИТЕЛЬНЫМ дисконтом к ао: текущий P/B префа ~0,195 против ~0,40 у MFGS (ап ≈ 48,6% цены ао). Это устойчивая премия обыкновенных за голос и за дивидендный приоритет, который у убыточной компании пока не реализуется. Целевой P/B префа 0,15–0,30 → 188–376 ₽; центр ~0,20 → 251 ₽."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 4.13
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "note": "Дивиденды не выплачивались в 2018–2024 → дивидендная модель неприменима, несмотря на формальный приоритет префа."
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": null,
+          "beta": null,
+          "note": "CAPM на цену акции при убытке и без ожидаемого дивиденда не даёт осмысленного таргета; пропущен."
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 188,
+      "base": 251,
+      "current_price": 244.0,
+      "upside_downside_pct": 2.9
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": [],
+      "note": "DCF не строился (insufficient_data) → сетка чувствительности по WACC/росту отсутствует. Чувствительность диапазона задаётся целевым P/B префа: 0,15→188 ₽, 0,18→226 ₽, 0,20→251 ₽, 0,25→314 ₽, 0,30→376 ₽. Текущая цена 244 ₽ ≈ P/B 0,195."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Якоря РСБУ 2024 (выручка 210 800 млн, чистый убыток 13 250 млн) — business_model.md / раскрытие e-disclosure (общие на эмитента)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО MFGS (выручка, опер. прибыль, ЧП, активы, капитал, долг, CapEx, CFO 2018–2024) и РСБУ EPS 2021–2025 — переиспользована для MFGSP (тот же эмитент)",
+      "period": "2018-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Котировка MFGSP: banki.ru (244 ₽, 31.05.2026), investfunds.ru (249,5 ₽, 31.05.2026; 33,06 млн ап). Цена ао MFGS 502 ₽ для сравнения дисконта.",
+      "period": "2026-05-31",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ИСХОДНИКОВ В sources/ НЕТ (только .gitkeep). Отчётность переиспользована из companies/MFGS/financials.json (тот же эмитент), цена префа добрана из веба → data_quality=low.",
+    "Два класса акций: 99 474 705 ао (MFGS, 502 ₽) + 33 056 875 ап (MFGSP, 244 ₽). meta.shares_outstanding = число ПРЕФ-акций (33 056 875). Капитализация для мультипликаторов считалась на ПОЛНОЕ число акций (132 531 580) по цене префа (mcap_at_pref) — это даёт «префовую» нижнюю оценку всего эмитента; рыночная (смешанная) капитализация выше (~58 002 млн).",
+    "Дисконт префа: MFGSP 244 ₽ ≈ 48,6% цены ао (502 ₽) при одинаковой экономике актива. Дисконт — за отсутствие/ограничение голоса и за неработающий дивидендный приоритет (компания убыточна).",
+    "Балансовая стоимость на акцию BVPS = 1 254 ₽ — общая для обоих классов (капитал делится на полное число акций). Текущий P/B префа ~0,195 против ~0,40 у MFGS.",
+    "РСБУ vs МСФО расходятся: за 2024 РСБУ-убыток −13 250 млн (EPS −133,2 ₽), МСФО-убыток −5 760 млн; выручка РСБУ 210 800 vs МСФО 213 800. В income_statement.net_profit взяты ряды МСФО для сопоставимости с балансом.",
+    "Противоречие по долгу 2024: агрегатор показывает общий долг 101 836 млн и одновременно «чистый долг 0,00». При кэше <1 млрд это несовместимо → net_debt-2024 и net_debt/EBITDA-2024 оставлены null.",
+    "EBITDA раскрыта только за 2019 (29 200) и ориентир 2024 (~29 000). За 2020–2023, 2025 EBITDA/D&A не раскрыты → ev_ebitda по этим годам null.",
+    "2021, 2022, 2025: МСФО выручка/баланс у агрегатора не приведены → строки этих лет в основном null.",
+    "Цена префа 244 ₽ на 31.05.2026 (banki.ru; investfunds 249,5 ₽ в тот же день). Бумага малоликвидна (лот 10 шт.), котировка может быть нерепрезентативной для крупного объёма.",
+    "Оценка: P/E, DCF, дивидендный, CAPM неприменимы (убыток, нет дивидендов, нет прогноза). Базовый метод — P/B префа от BVPS 1 254 ₽; коридор 188–376 ₽ при целевом P/B 0,15–0,30; центр 251 ₽. relative_peers — pending_sector_backfill."
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data",
+    "basis": "нет EV/EBITDA или чистого долга за 2025"
+  }
+}

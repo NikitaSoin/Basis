@@ -634,7 +634,7 @@
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 419.35,
         "horizon": "intrinsic_now",
         "key_assumptions": {
           "peer_multiple": "ev_ebitda",
@@ -646,7 +646,6 @@
           "net_debt_note": "FY2025 чистый долг не раскрыт — взят последний известный ~4 046 млрд (2021)",
           "target_equity_mln": 4445280
         },
-        "fair_value_per_share": 419.4,
         "status": "ok"
       },
       {
@@ -753,5 +752,12 @@
     "ROIC за 2022-2025 приблизителен: инвестированный капитал по долгу аппроксимирован уровнем 2021 (~4 705 млрд) из-за дыр в данных по долгу.",
     "Дивидендный метод Гордона нестабилен при Ke=23%; вынесен в insufficient_data, в базовый коридор не включён.",
     "peers.json не заполнен — относительная оценка по сектору отложена (insufficient_data)."
-  ]
+  ],
+  "relative_peers_sector": {
+    "peer_median_ev_ebitda_2025": 4.13,
+    "fair_value_per_share": 419.35,
+    "upside_downside_pct": 2.9,
+    "status": "ok",
+    "basis": "медиана EV/EBITDA сопоставимых производителей ROSN/SIBN/TATN/NVTK (2025)"
+  }
 }

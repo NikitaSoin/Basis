@@ -4,18 +4,38 @@
     "sector_key": "oil_gas",
     "generated_at": "2026-05-31",
     "companies": [
-      "ROSN",
+      "BANE",
+      "BANEP",
+      "CHGZ",
+      "GAZP",
+      "JNOS",
+      "JNOSP",
+      "KRKN",
+      "KRKNP",
       "LKOH",
+      "MFGS",
+      "MFGSP",
+      "NKNC",
+      "NKNCP",
+      "NVTK",
+      "RNFT",
+      "ROSN",
+      "RTGZ",
       "SIBN",
-      "TATN",
       "SNGS",
-      "NVTK"
+      "SNGSP",
+      "TATN",
+      "TATNP",
+      "TRNFP",
+      "VJGZ",
+      "VJGZP",
+      "YAKG"
     ],
-    "n": 6,
-    "basis": "peer_multiples из financials.json каждой компании, посчитаны кодом при текущей цене за 2025 и 2024",
-    "macro_params_ref": "config/market_params.json",
+    "n": 26,
     "registry_ref": "config/sectors.json",
-    "relative_valuation": "метод relative_peers у компаний считается от медианы EV/EBITDA сектора 2025 ex-аномалии (=4.13)"
+    "macro_params_ref": "config/market_params.json",
+    "basis": "peer_multiples (текущая цена, 2025/2024) из financials.json каждой компании; считалось кодом",
+    "relative_valuation": "relative_peers от медианы EV/EBITDA сопоставимых производителей 2025 = 4.13"
   },
   "comparison_table": {
     "metrics": [
@@ -32,27 +52,211 @@
     ],
     "rows": [
       {
-        "ticker": "ROSN",
-        "name": "ПАО «НК «Роснефть»",
-        "price": 407.7,
-        "anomaly": false,
-        "anomaly_note": null,
-        "label": "ROSN",
+        "ticker": "BANE",
+        "name": "ПАО АНК «Башнефть»",
+        "price": 1408.5,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "BANE *",
+        "relative_fair_value": 3728.91,
         "2025": {
-          "pe": 14.75,
-          "ps": 0.52,
-          "pb": 0.48,
-          "ev_ebitda": 4.07,
-          "net_debt_ebitda": 1.97,
-          "roe": 3.23
+          "pe": 4.84,
+          "ps": 0.24,
+          "pb": 0.26,
+          "ev_ebitda": 1.56,
+          "net_debt_ebitda": 0.0,
+          "roe": 5.38
         },
         "2024": {
-          "pe": 3.99,
-          "ps": 0.43,
-          "pb": 0.47,
-          "ev_ebitda": 2.66,
-          "net_debt_ebitda": 1.21,
-          "roe": 11.84
+          "pe": 2.28,
+          "ps": 0.21,
+          "pb": 0.27,
+          "ev_ebitda": 1.26,
+          "net_debt_ebitda": 0.0,
+          "roe": 11.72
+        }
+      },
+      {
+        "ticker": "BANEP",
+        "name": "ПАО АНК «Башнефть» (привилегированные акции)",
+        "price": 1015.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "BANEP *",
+        "relative_fair_value": 3728.91,
+        "2025": {
+          "pe": 3.35,
+          "ps": 0.18,
+          "pb": 0.2,
+          "ev_ebitda": 1.56,
+          "net_debt_ebitda": 0.0,
+          "roe": 5.38
+        },
+        "2024": {
+          "pe": 1.54,
+          "ps": 0.16,
+          "pb": 0.2,
+          "ev_ebitda": 1.36,
+          "net_debt_ebitda": 0.0,
+          "roe": 11.72
+        }
+      },
+      {
+        "ticker": "CHGZ",
+        "name": "АО «РН-Западная Сибирь»",
+        "price": 91.2,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "CHGZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GAZP",
+        "name": "ПАО «Газпром»",
+        "price": 115.76,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "GAZP *",
+        "relative_fair_value": 222.17,
+        "2025": {
+          "pe": 2.1,
+          "ps": 0.28,
+          "pb": 0.145,
+          "ev_ebitda": 3.22,
+          "net_debt_ebitda": 2.23,
+          "roe": 7.15
+        },
+        "2024": {
+          "pe": 2.25,
+          "ps": 0.256,
+          "pb": 0.155,
+          "ev_ebitda": 2.99,
+          "net_debt_ebitda": 2.02,
+          "roe": 7.14
+        }
+      },
+      {
+        "ticker": "JNOS",
+        "name": "ПАО «Славнефть-ЯНОС»",
+        "price": 25.14,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "JNOS *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 7.89,
+          "ps": 0.58,
+          "pb": 0.34,
+          "ev_ebitda": 1.02,
+          "net_debt_ebitda": null,
+          "roe": 4.31
+        }
+      },
+      {
+        "ticker": "JNOSP",
+        "name": "ПАО «Славнефть-ЯНОС» (привилегированные акции)",
+        "price": 11.8,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "JNOSP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 7.89,
+          "ps": 0.58,
+          "pb": 0.34,
+          "ev_ebitda": 1.02,
+          "net_debt_ebitda": null,
+          "roe": 4.31
+        }
+      },
+      {
+        "ticker": "KRKN",
+        "name": "ПАО «Саратовский НПЗ»",
+        "price": 11350,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KRKN *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.74,
+          "pb": null,
+          "ev_ebitda": 2.9,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 10.1,
+          "ps": 0.74,
+          "pb": null,
+          "ev_ebitda": 2.9,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "KRKNP",
+        "name": "ПАО «Саратовский НПЗ» (привилегированные акции)",
+        "price": 6780,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KRKNP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.12,
+          "pb": null,
+          "ev_ebitda": 2.0,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 6.1,
+          "ps": 0.12,
+          "pb": null,
+          "ev_ebitda": 2.0,
+          "net_debt_ebitda": null,
+          "roe": null
         }
       },
       {
@@ -60,8 +264,10 @@
         "name": "ПАО «ЛУКОЙЛ»",
         "price": 4899.0,
         "anomaly": true,
-        "anomaly_note": "FY2025 искажён РАЗОВЫМ НЕДЕНЕЖНЫМ списанием зарубежных активов (LUKOIL International GmbH, LIG, ~1.67 трлн ₽), из-за которого чистая прибыль 2025 = -1 064 269 млн ₽. Операционно российский бизнес прибылен (op_profit 526 646, FCF 639 840). Следствия для оценки: (1) P/E 2025 ОТРИЦАТЕЛЕН и НЕРЕЛЕВАНТЕН — оценивать компанию по нему НЕЛЬЗЯ (pe_2025=null); (2) ROE 2025 (-29.35%) и ROA/ROS 2025 тоже ИСКАЖЕНЫ убытком от списания, не отражают операционную рентабельность — нормализованный ориентир см. ROE 2024 ≈12.3%. Мультипликаторы, НЕ завязанные на чистую прибыль, искажений практически НЕ имеют и применимы: EV/EBITDA 2025 = 3.02 (EBITDA продолжающейся деятельности от списания не страдает), P/B 2025 = 0.94 (капитал уже уменьшен на списание, поэтому P/B даже выше 2024 — это нормально и не аномалия), P/S 2025 = 0.90. Для относительной оценки сектора LKOH и SNGS исключены из расчёта медианы EV/EBITDA как аномальные.",
+        "is_pref": false,
+        "excluded_from_aggregate": true,
         "label": "LKOH *",
+        "relative_fair_value": 6579.96,
         "2025": {
           "pe": null,
           "ps": 0.901,
@@ -80,12 +286,222 @@
         }
       },
       {
+        "ticker": "MFGS",
+        "name": "ПАО «Славнефть-Мегионнефтегаз»",
+        "price": 502.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MFGS *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.31,
+          "pb": 0.4,
+          "ev_ebitda": 2.29,
+          "net_debt_ebitda": null,
+          "roe": -3.47
+        }
+      },
+      {
+        "ticker": "MFGSP",
+        "name": "ПАО «Славнефть-Мегионнефтегаз» (привилегированные акции)",
+        "price": 244.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "MFGSP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.151,
+          "pb": 0.195,
+          "ev_ebitda": 2.29,
+          "net_debt_ebitda": null,
+          "roe": -3.47
+        }
+      },
+      {
+        "ticker": "NKNC",
+        "name": "ПАО «Нижнекамскнефтехим»",
+        "price": 69.4,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NKNC *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 4.53,
+          "ps": 0.48,
+          "pb": 0.32,
+          "ev_ebitda": 6.34,
+          "net_debt_ebitda": 3.8,
+          "roe": 7.12
+        },
+        "2024": {
+          "pe": 4.61,
+          "ps": 0.52,
+          "pb": 0.42,
+          "ev_ebitda": 4.55,
+          "net_debt_ebitda": 2.53,
+          "roe": 9.21
+        }
+      },
+      {
+        "ticker": "NKNCP",
+        "name": "ПАО «Нижнекамскнефтехим» (привилегированные)",
+        "price": 49.22,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "NKNCP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.33,
+          "ps": 0.35,
+          "pb": 0.24,
+          "ev_ebitda": 5.67,
+          "net_debt_ebitda": 3.8,
+          "roe": 7.12
+        },
+        "2024": {
+          "pe": 2.93,
+          "ps": 0.33,
+          "pb": 0.27,
+          "ev_ebitda": 3.82,
+          "net_debt_ebitda": 2.53,
+          "roe": 9.21
+        }
+      },
+      {
+        "ticker": "NVTK",
+        "name": "ПАО «НОВАТЭК»",
+        "price": 1218.8,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "NVTK",
+        "relative_fair_value": 540.98,
+        "2025": {
+          "pe": 20.22,
+          "ps": 2.56,
+          "pb": 1.3,
+          "ev_ebitda": 9.43,
+          "net_debt_ebitda": -0.1,
+          "roe": 6.44
+        },
+        "2024": {
+          "pe": 7.5,
+          "ps": 2.39,
+          "pb": 1.3,
+          "ev_ebitda": 9.23,
+          "net_debt_ebitda": 0.34,
+          "roe": 17.33
+        }
+      },
+      {
+        "ticker": "RNFT",
+        "name": "ПАО НК «РуссНефть»",
+        "price": 93.3,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RNFT *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 1.15,
+          "ps": 0.13,
+          "pb": null,
+          "ev_ebitda": 2.99,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 0.5,
+          "ps": 0.09,
+          "pb": null,
+          "ev_ebitda": 1.52,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ROSN",
+        "name": "ПАО «НК «Роснефть»",
+        "price": 407.7,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "ROSN",
+        "relative_fair_value": 419.35,
+        "2025": {
+          "pe": 14.75,
+          "ps": 0.52,
+          "pb": 0.48,
+          "ev_ebitda": 4.07,
+          "net_debt_ebitda": 1.97,
+          "roe": 3.23
+        },
+        "2024": {
+          "pe": 3.99,
+          "ps": 0.43,
+          "pb": 0.47,
+          "ev_ebitda": 2.66,
+          "net_debt_ebitda": 1.21,
+          "roe": 11.84
+        }
+      },
+      {
+        "ticker": "RTGZ",
+        "name": "ПАО «Газпром газораспределение Ростов-на-Дону»",
+        "price": 38600,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RTGZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 6.73,
+          "ps": 0.38,
+          "pb": 0.2,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 3.0
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.42,
+          "pb": 0.21,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": -0.7
+        }
+      },
+      {
         "ticker": "SIBN",
         "name": "ПАО «Газпром нефть»",
         "price": 511.45,
         "anomaly": false,
-        "anomaly_note": null,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
         "label": "SIBN",
+        "relative_fair_value": 559.34,
         "2025": {
           "pe": 9.86,
           "ps": 0.67,
@@ -104,36 +520,14 @@
         }
       },
       {
-        "ticker": "TATN",
-        "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
-        "price": 605.5,
-        "anomaly": false,
-        "anomaly_note": null,
-        "label": "TATN",
-        "2025": {
-          "pe": 8.88,
-          "ps": 0.77,
-          "pb": 1.06,
-          "ev_ebitda": 4.2,
-          "net_debt_ebitda": -0.098,
-          "roe": 11.97
-        },
-        "2024": {
-          "pe": 4.6,
-          "ps": 0.69,
-          "pb": 1.06,
-          "ev_ebitda": 2.8,
-          "net_debt_ebitda": -0.224,
-          "roe": 23.01
-        }
-      },
-      {
         "ticker": "SNGS",
         "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
         "price": 19.66,
         "anomaly": true,
-        "anomaly_note": "СТРУКТУРНАЯ АНОМАЛИЯ ОЦЕНКИ. Огромная валютная «кубышка» (~6 трлн ₽) классифицирована как финансовые вложения, а НЕ в строке cash, поэтому чистый долг (net_debt = только −cash ≈ −148 млрд) сильно занижен по модулю / искусственно отрицателен. Из-за этого EV сильно занижен, и мультипликаторы EV/EBITDA (current 1.36) и P/B (current 0.14) СТРУКТУРНО искажены и несопоставимы с пирами по нефтегазу. P/E тоже искажён и нерепрезентативен: чистая прибыль формируется не нефтью, а валютной переоценкой кубышки и процентным доходом (ЧП-2023 > EBITDA-2023), то есть зависит от курса рубля и ключевой ставки, а не от операционного результата. ИТОГО искажены: EV/EBITDA, P/B, P/E. ДАННЫЕ ПО ГОДАМ: за 2025 финпоказателей в источнике нет (peer_multiples «2025» = null); 2024 в источнике также отсутствует (null), поэтому peer_multiples «2024» рассчитаны по ПОСЛЕДНЕМУ доступному году — 2023 (помечено year_used=2023).",
+        "is_pref": false,
+        "excluded_from_aggregate": true,
         "label": "SNGS *",
+        "relative_fair_value": null,
         "2025": {
           "pe": null,
           "ps": null,
@@ -152,27 +546,185 @@
         }
       },
       {
-        "ticker": "NVTK",
-        "name": "ПАО «НОВАТЭК»",
-        "price": 1218.8,
-        "anomaly": false,
-        "anomaly_note": null,
-        "label": "NVTK",
+        "ticker": "SNGSP",
+        "name": "ПАО «Сургутнефтегаз» (привилегированные акции)",
+        "price": 40.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "SNGSP *",
+        "relative_fair_value": null,
         "2025": {
-          "pe": 20.22,
-          "ps": 2.56,
-          "pb": 1.3,
-          "ev_ebitda": 9.43,
-          "net_debt_ebitda": -0.1,
-          "roe": 6.44
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
         },
         "2024": {
-          "pe": 7.5,
-          "ps": 2.39,
-          "pb": 1.3,
-          "ev_ebitda": 9.23,
-          "net_debt_ebitda": 0.34,
-          "roe": 17.33
+          "pe": 0.76,
+          "ps": 0.44,
+          "pb": 0.14,
+          "ev_ebitda": 1.36,
+          "net_debt_ebitda": -0.23,
+          "roe": 18.66
+        }
+      },
+      {
+        "ticker": "TATN",
+        "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+        "price": 605.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "TATN",
+        "relative_fair_value": 595.64,
+        "2025": {
+          "pe": 8.88,
+          "ps": 0.77,
+          "pb": 1.06,
+          "ev_ebitda": 4.2,
+          "net_debt_ebitda": -0.098,
+          "roe": 11.97
+        },
+        "2024": {
+          "pe": 4.6,
+          "ps": 0.69,
+          "pb": 1.06,
+          "ev_ebitda": 2.8,
+          "net_debt_ebitda": -0.224,
+          "roe": 23.01
+        }
+      },
+      {
+        "ticker": "TATNP",
+        "name": "ПАО «Татнефть» им. В.Д. Шашина (привилегированные)",
+        "price": 562.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "TATNP *",
+        "relative_fair_value": 595.64,
+        "2025": {
+          "pe": 8.24,
+          "ps": 0.72,
+          "pb": 0.99,
+          "ev_ebitda": 3.89,
+          "net_debt_ebitda": -0.098,
+          "roe": 11.97
+        },
+        "2024": {
+          "pe": 4.27,
+          "ps": 0.64,
+          "pb": 0.98,
+          "ev_ebitda": 2.59,
+          "net_debt_ebitda": -0.224,
+          "roe": 23.01
+        }
+      },
+      {
+        "ticker": "TRNFP",
+        "name": "ПАО «Транснефть» (привилегированные акции)",
+        "price": 1424.6,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TRNFP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 4.57,
+          "ps": 0.72,
+          "pb": 0.344,
+          "ev_ebitda": 2.09,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 3.59,
+          "ps": 0.73,
+          "pb": 0.353,
+          "ev_ebitda": 2.33,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VJGZ",
+        "name": "ПАО «ННК-Варьеганнефтегаз» (обыкновенные)",
+        "price": 3030.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VJGZ *",
+        "relative_fair_value": 307.58,
+        "2025": {
+          "pe": -13.9,
+          "ps": 0.96,
+          "pb": 0.72,
+          "ev_ebitda": 12.45,
+          "net_debt_ebitda": 3.19,
+          "roe": -5.17
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VJGZP",
+        "name": "ПАО «ННК-Варьеганнефтегаз» (привилегированные)",
+        "price": 1236.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "VJGZP *",
+        "relative_fair_value": 307.58,
+        "2025": {
+          "pe": -13.95,
+          "ps": 0.967,
+          "pb": 0.721,
+          "ev_ebitda": 12.48,
+          "net_debt_ebitda": 3.19,
+          "roe": -5.17
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "YAKG",
+        "name": "ПАО «ЯТЭК» (Якутская топливно-энергетическая компания)",
+        "price": 39.65,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "YAKG *",
+        "relative_fair_value": 12.85,
+        "2025": {
+          "pe": 14.97,
+          "ps": 3.15,
+          "pb": 1.7,
+          "ev_ebitda": 8.97,
+          "net_debt_ebitda": 1.81,
+          "roe": 11.35
+        },
+        "2024": {
+          "pe": 44.61,
+          "ps": 3.78,
+          "pb": 1.92,
+          "ev_ebitda": 12.52,
+          "net_debt_ebitda": 2.43,
+          "roe": 4.3
         }
       }
     ]
@@ -214,17 +766,37 @@
         "roe": 16.23
       }
     },
-    "excluded_anomalous": [
-      "LKOH",
-      "SNGS"
-    ],
-    "included": [
+    "included_non_anomalous_ex_pref": [
+      "NVTK",
       "ROSN",
       "SIBN",
-      "TATN",
-      "NVTK"
+      "TATN"
     ],
-    "note": "Среднее и медиана считаются БЕЗ аномальных компаний; аномальные оставлены в таблице со * (label)."
+    "excluded": [
+      "BANE",
+      "BANEP",
+      "CHGZ",
+      "GAZP",
+      "JNOS",
+      "JNOSP",
+      "KRKN",
+      "KRKNP",
+      "LKOH",
+      "MFGS",
+      "MFGSP",
+      "NKNC",
+      "NKNCP",
+      "RNFT",
+      "RTGZ",
+      "SNGS",
+      "SNGSP",
+      "TATNP",
+      "TRNFP",
+      "VJGZ",
+      "VJGZP",
+      "YAKG"
+    ],
+    "note": "Среднее и медиана — только по сопоставимым производителям (без аномальных и без префов-дубликатов)."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
@@ -241,51 +813,217 @@
       },
       "points": [
         {
-          "ticker": "ROSN",
-          "name": "ПАО «НК «Роснефть»",
-          "anomaly": false,
-          "x": 1.97,
-          "y": 4.07
+          "ticker": "BANE",
+          "name": "ПАО АНК «Башнефть»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.0,
+          "y": 1.56
+        },
+        {
+          "ticker": "BANEP",
+          "name": "ПАО АНК «Башнефть» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 0.0,
+          "y": 1.56
+        },
+        {
+          "ticker": "CHGZ",
+          "name": "АО «РН-Западная Сибирь»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZP",
+          "name": "ПАО «Газпром»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 2.23,
+          "y": 3.22
+        },
+        {
+          "ticker": "JNOS",
+          "name": "ПАО «Славнефть-ЯНОС»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "JNOSP",
+          "name": "ПАО «Славнефть-ЯНОС» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KRKN",
+          "name": "ПАО «Саратовский НПЗ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.9
+        },
+        {
+          "ticker": "KRKNP",
+          "name": "ПАО «Саратовский НПЗ» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 2.0
         },
         {
           "ticker": "LKOH",
           "name": "ПАО «ЛУКОЙЛ»",
           "anomaly": true,
+          "is_pref": false,
           "x": -0.215,
           "y": 3.02
         },
         {
-          "ticker": "SIBN",
-          "name": "ПАО «Газпром нефть»",
-          "anomaly": false,
-          "x": 1.21,
-          "y": 3.88
-        },
-        {
-          "ticker": "TATN",
-          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
-          "anomaly": false,
-          "x": -0.098,
-          "y": 4.2
-        },
-        {
-          "ticker": "SNGS",
-          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "ticker": "MFGS",
+          "name": "ПАО «Славнефть-Мегионнефтегаз»",
           "anomaly": true,
+          "is_pref": false,
           "x": null,
           "y": null
+        },
+        {
+          "ticker": "MFGSP",
+          "name": "ПАО «Славнефть-Мегионнефтегаз» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NKNC",
+          "name": "ПАО «Нижнекамскнефтехим»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 3.8,
+          "y": 6.34
+        },
+        {
+          "ticker": "NKNCP",
+          "name": "ПАО «Нижнекамскнефтехим» (привилегированные)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 3.8,
+          "y": 5.67
         },
         {
           "ticker": "NVTK",
           "name": "ПАО «НОВАТЭК»",
           "anomaly": false,
+          "is_pref": false,
           "x": -0.1,
           "y": 9.43
+        },
+        {
+          "ticker": "RNFT",
+          "name": "ПАО НК «РуссНефть»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.99
+        },
+        {
+          "ticker": "ROSN",
+          "name": "ПАО «НК «Роснефть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 1.97,
+          "y": 4.07
+        },
+        {
+          "ticker": "RTGZ",
+          "name": "ПАО «Газпром газораспределение Ростов-на-Дону»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SIBN",
+          "name": "ПАО «Газпром нефть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 1.21,
+          "y": 3.88
+        },
+        {
+          "ticker": "SNGS",
+          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SNGSP",
+          "name": "ПАО «Сургутнефтегаз» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "TATN",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.098,
+          "y": 4.2
+        },
+        {
+          "ticker": "TATNP",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (привилегированные)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": -0.098,
+          "y": 3.89
+        },
+        {
+          "ticker": "TRNFP",
+          "name": "ПАО «Транснефть» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.09
+        },
+        {
+          "ticker": "VJGZ",
+          "name": "ПАО «ННК-Варьеганнефтегаз» (обыкновенные)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 3.19,
+          "y": 12.45
+        },
+        {
+          "ticker": "VJGZP",
+          "name": "ПАО «ННК-Варьеганнефтегаз» (привилегированные)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 3.19,
+          "y": 12.48
+        },
+        {
+          "ticker": "YAKG",
+          "name": "ПАО «ЯТЭК» (Якутская топливно-энергетическая компания)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 1.81,
+          "y": 8.97
         }
       ]
     },
     "map_2_quality_vs_price": {
-      "title": "Качество бизнеса (ROE) vs Цена (P/B)",
+      "title": "Качество (ROE) vs Цена (P/B)",
       "x_axis": {
         "key": "roe",
         "label": "ROE, %",
@@ -298,58 +1036,300 @@
       },
       "points": [
         {
-          "ticker": "ROSN",
-          "name": "ПАО «НК «Роснефть»",
-          "anomaly": false,
-          "x": 3.23,
-          "y": 0.48
+          "ticker": "BANE",
+          "name": "ПАО АНК «Башнефть»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 5.38,
+          "y": 0.26
+        },
+        {
+          "ticker": "BANEP",
+          "name": "ПАО АНК «Башнефть» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 5.38,
+          "y": 0.2
+        },
+        {
+          "ticker": "CHGZ",
+          "name": "АО «РН-Западная Сибирь»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZP",
+          "name": "ПАО «Газпром»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 7.15,
+          "y": 0.145
+        },
+        {
+          "ticker": "JNOS",
+          "name": "ПАО «Славнефть-ЯНОС»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "JNOSP",
+          "name": "ПАО «Славнефть-ЯНОС» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KRKN",
+          "name": "ПАО «Саратовский НПЗ»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KRKNP",
+          "name": "ПАО «Саратовский НПЗ» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "LKOH",
           "name": "ПАО «ЛУКОЙЛ»",
           "anomaly": true,
+          "is_pref": false,
           "x": -29.35,
           "y": 0.936
         },
         {
-          "ticker": "SIBN",
-          "name": "ПАО «Газпром нефть»",
-          "anomaly": false,
-          "x": 7.81,
-          "y": 0.77
-        },
-        {
-          "ticker": "TATN",
-          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
-          "anomaly": false,
-          "x": 11.97,
-          "y": 1.06
-        },
-        {
-          "ticker": "SNGS",
-          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "ticker": "MFGS",
+          "name": "ПАО «Славнефть-Мегионнефтегаз»",
           "anomaly": true,
+          "is_pref": false,
           "x": null,
           "y": null
+        },
+        {
+          "ticker": "MFGSP",
+          "name": "ПАО «Славнефть-Мегионнефтегаз» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NKNC",
+          "name": "ПАО «Нижнекамскнефтехим»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 7.12,
+          "y": 0.32
+        },
+        {
+          "ticker": "NKNCP",
+          "name": "ПАО «Нижнекамскнефтехим» (привилегированные)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 7.12,
+          "y": 0.24
         },
         {
           "ticker": "NVTK",
           "name": "ПАО «НОВАТЭК»",
           "anomaly": false,
+          "is_pref": false,
           "x": 6.44,
           "y": 1.3
+        },
+        {
+          "ticker": "RNFT",
+          "name": "ПАО НК «РуссНефть»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ROSN",
+          "name": "ПАО «НК «Роснефть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 3.23,
+          "y": 0.48
+        },
+        {
+          "ticker": "RTGZ",
+          "name": "ПАО «Газпром газораспределение Ростов-на-Дону»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 3.0,
+          "y": 0.2
+        },
+        {
+          "ticker": "SIBN",
+          "name": "ПАО «Газпром нефть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.81,
+          "y": 0.77
+        },
+        {
+          "ticker": "SNGS",
+          "name": "ПАО «Сургутнефтегаз» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SNGSP",
+          "name": "ПАО «Сургутнефтегаз» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "TATN",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (обыкновенные)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 11.97,
+          "y": 1.06
+        },
+        {
+          "ticker": "TATNP",
+          "name": "ПАО «Татнефть» им. В.Д. Шашина (привилегированные)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 11.97,
+          "y": 0.99
+        },
+        {
+          "ticker": "TRNFP",
+          "name": "ПАО «Транснефть» (привилегированные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.344
+        },
+        {
+          "ticker": "VJGZ",
+          "name": "ПАО «ННК-Варьеганнефтегаз» (обыкновенные)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -5.17,
+          "y": 0.72
+        },
+        {
+          "ticker": "VJGZP",
+          "name": "ПАО «ННК-Варьеганнефтегаз» (привилегированные)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -5.17,
+          "y": 0.721
+        },
+        {
+          "ticker": "YAKG",
+          "name": "ПАО «ЯТЭК» (Якутская топливно-энергетическая компания)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 11.35,
+          "y": 1.7
         }
       ]
     }
   },
   "anomalies": [
     {
+      "ticker": "BANE",
+      "note": "Структурное искажение из-за корпоративного управления. (1) Чистый долг по балансу = 0 с 2023 г. (вся задолженность погашена), формально чистая денежная позиция — но свободный кэш не остаётся у компании: исторически крупная дебиторская задолженность связанных сторон (займы/размещения в адрес группы Роснефти) выводит ликвидность из периметра миноритариев. Поэтому net_debt≈0 НЕ означает, что деньги доступны акционерам. (2) Как следствие, рыночные мультипликаторы экстремально низкие (P/E≈4.8, P/BV≈0.26, EV/EBITDA≈1.56, P/FCF≈3.5) — рынок закладывает большой дисконт за вывод средств в пользу контролирующего акционера и за низкую долю free-float. (3) DCF, считающий FCF как доступный акционерам, даёт цену ~2540 руб (×1.8 к рынку) — это завышено, т.к. FCF фактически кредитуется материнской компании, а не распределяется/накапливается для миноритариев. Поэтому DCF используется как ВЕРХНЯЯ граница, а базовый коридор опирается на исторический P/E и дивидендный метод. (4) 2025 — слабый год: выручка −12.9% г/г, чистая прибыль −53% г/г, EBITDA-маржа сжалась до 15.4%."
+    },
+    {
+      "ticker": "BANEP",
+      "note": "Унаследовано от BANE (единый эмитент): структурное искажение из-за корпоративного управления. (1) Чистый долг по балансу = 0 с 2023 г., но свободный кэш не остаётся у миноритариев — внутригрупповая дебиторка перед группой Роснефти выводит ликвидность из периметра; net_debt≈0 НЕ означает доступную акционерам денежную позицию. (2) Рыночные мультипликаторы экстремально низкие (рынок закладывает дисконт за вывод средств и низкий free-float). (3) 2025 — слабый год: выручка −12.9% г/г, чистая прибыль −53% г/г, EBITDA-маржа 15.4%. СПЕЦИФИКА ПРЕФА: дивиденд на BANEP равен дивиденду на BANE (устав: равная выплата на ао и ап + приоритет/минимум 10% номинала по префу), но цена префа ниже обыкновенной (~1015 против 1408.5) → дивдоходность префа структурно ВЫШЕ (FY2024 14.5% против 10.5% у обыкновенной). Это ключевая инвестидея BANEP. При этом мультипликаторы P/E, P/B, P/S при цене префа ещё ниже, чем у обыкновенной (P/E≈3.35 vs 4.84). EV/EBITDA — компанийный показатель (1.56), от класса акций не зависит. Риск: абсолютный размер дивиденда определяет совет директоров, контролируемый голосами обыкновенных акций (Роснефть); приоритет префа смягчает, но не отменяет зависимость от решения о выплате."
+    },
+    {
+      "ticker": "CHGZ",
+      "note": "Эмитент НЕРЕПРЕЗЕНТАТИВЕН для финансовой оценки. CHGZ — фактически «спящая»/имущественная оболочка в контуре «Роснефти» (бывш. «Черногорнефть»), добычные активы выведены. Выручка сжалась с ≈56 млн ₽ (2019) до единиц млн ₽ (5,29 млн в 2023) и ≈0 в 2024; компания несёт растущий чистый убыток (−33,3 млн ₽ в 2023 → −66,6 млн ₽ в 2024). Финансовый результат формируется не операционной деятельностью, а решениями контролирующего акционера и неоперационными статьями (внутригрупповые операции, переоценки, содержание юрлица). МСФО не публикуется; РСБУ раскрывает практически только итоговые строки (выручка, чистый результат). Маржи и мультипликаторы математически бессмысленны (чистая маржа 2022 = +288%, 2023 = −629% — результат кратно превышает выручку). Котировка крайне волатильна на третьем уровне листинга (в апреле 2026 спайки до 194–259 ₽ при ~91 ₽ в конце мая 2026). Классическая оценка (DCF, мультипликаторы, исторический P/E) к эмитенту НЕПРИМЕНИМА."
+    },
+    {
+      "ticker": "GAZP",
+      "note": "Оценка Газпрома искажена тремя факторами. (1) Бумажная прибыль: рост чистой прибыли 2025 (1 307 млрд против 1 219 млрд в 2024) обеспечен в основном положительной переоценкой валютного долга на укреплении рубля и резким падением финансовых расходов (с 1 038 до 472 млрд) — операционная (скорректированная) прибыль, по комментариям компании и аналитиков, снизилась более чем на 30%. P/E и историческая оценка по нему завышены качеством этой прибыли. (2) Крупный нефтяной сегмент через «Газпром нефть» (SIBN, ~40% выручки) с собственной волатильностью цены Urals и санкционными дисконтами — консолидированные EBITDA/маржа смешивают газовую и нефтяную экономику, поэтому EV/EBITDA группы не сопоставим напрямую с чистыми газовыми или чистыми нефтяными аналогами. (3) CapEx/долг: капзатраты на пике (~2 595 млрд, 26,6% выручки против среднего ~23%) удерживают FCF у нуля; чистый долг 6 104 млрд, чистый долг/EBITDA ~2,2x. Из-за подавленного капзатратами FCF метод DCF крайне ненадёжен: при FCF0=272 млрд он даёт ~7 ₽/акц, а при нормализации CapEx до 20% выручки (FCF~913 млрд) — ~630 ₽/акц. Поэтому DCF понижен в весе, опора сделана на мультипликаторы и исторический P/E. EBITDA в источнике рассчитана как операционная прибыль + амортизация (2025: 2 744 млрд) и расходится с EBITDA из пресс-релиза/бизнес-модели (~2 917 млрд) из-за разной трактовки разовых статей — см. data_flags."
+    },
+    {
+      "ticker": "JNOS",
+      "note": "ДВЕ структурные аномалии искажают стандартные мультипликаторы. (1) ПРОЦЕССИНГОВАЯ МОДЕЛЬ: завод не владеет нефтью и нефтепродуктами, а получает плату за услугу переработки, поэтому в себестоимости нет стоимости сырья → EBITDA-маржа аномально высокая для НПЗ (~53-57% против ~10-20% у интегрированных переработчиков). Сравнивать EV/EBITDA и маржи напрямую с обычной нефтянкой (SIBN, LKOH, TATN) НЕЛЬЗЯ. (2) ВНУТРИГРУППОВОЕ ФИНАНСОВОЕ ПОСРЕДНИЧЕСТВО: завод привлекает крупный кредитный портфель (общий долг РСБУ 53,7 млрд на 2024, по отдельным обзорам до ~98-102 млрд с учётом всех процентных обязательств) и зеркально передаёт средства займами в материнскую «Славнефть». Долгу противостоят выданные займы и дебиторская задолженность связанных сторон → ЭКОНОМИЧЕСКИЙ чистый долг и FCF в обычном понимании НЕПРИМЕНИМЫ (net_debt=null, fcf=null). Из-за этого: ev_ebitda посчитан как mcap/EBITDA (EV≈капитализация, чистый долг обнулён) и НЕ отражает реальную долговую нагрузку; net_debt_ebitda не считается. Дополнительно: процентные расходы из-за высокой ставки ЦБ в 2024 «съели» большую часть прибыли (ЧП РСБУ −47,7% г/г при росте выручки) → P/E 2024 (7,89) и ROE (4,3%) на циклическом минимуме из-за процентной нагрузки, а не из-за основного бизнеса."
+    },
+    {
+      "ticker": "JNOSP",
+      "note": "Унаследовано от эмитента (JNOS). ДВЕ структурные аномалии искажают стандартные мультипликаторы. (1) ПРОЦЕССИНГОВАЯ МОДЕЛЬ: завод не владеет нефтью и нефтепродуктами, а получает плату за услугу переработки, поэтому в себестоимости нет стоимости сырья → EBITDA-маржа аномально высокая для НПЗ (~53-57% против ~10-20% у интегрированных переработчиков). Сравнивать EV/EBITDA и маржи напрямую с обычной нефтянкой (SIBN, LKOH, TATN) НЕЛЬЗЯ. (2) ВНУТРИГРУППОВОЕ ФИНАНСОВОЕ ПОСРЕДНИЧЕСТВО: завод привлекает крупный кредитный портфель (общий долг РСБУ 53,7 млрд на 2024, по отдельным обзорам до ~98-102 млрд) и зеркально передаёт средства займами в материнскую «Славнефть». Долгу противостоят выданные займы и дебиторская задолженность связанных сторон → ЭКОНОМИЧЕСКИЙ чистый долг и FCF в обычном понимании НЕПРИМЕНИМЫ (net_debt=null, fcf=null). ev_ebitda посчитан как mcap/EBITDA (EV≈капитализация) и НЕ отражает реальную долговую нагрузку. ДОПОЛНИТЕЛЬНО ДЛЯ ПРЕФА: дивиденд по привилегированной акции — фиксированные 0,01 ₽ (уставный минимум, дивполитики нет), поэтому дивидендный метод даёт около нулевую справедливую цену и НЕ может якорить коридор. Основная стоимость префа определяется тем же бизнесом и капиталом эмитента, что и обыкновенной акции, при рыночном дисконте за неликвидность и миноритарный статус."
+    },
+    {
+      "ticker": "KRKN",
+      "note": "Рыночная цена обеих бумаг кратно превышает любую фундаментальную оценку. По РСБУ-прибыли 2024 (1116 млн ₽) обыкновенная акция при цене 11 350 ₽ оценивается в ~10 P/E, но обыкновенные акции НЕ получают дивидендов вовсе — их фундаментальная стоимость по доходному подходу ~3 960-5 595 ₽ (даунсайд ~-50…-65%). Преф при цене 6 780 ₽ даёт дивдоходность лишь ~6.6% на волатильной РСБУ-базе, тогда как требуемая доходность (Ke≈20%) предполагает справедливую цену ~2 240-2 980 ₽ (даунсайд ~-56…-67%). Премия в цене объясняется не фундаменталом, а малой ликвидностью (free-float крошечный, всего 997 349 акций), статусом «дочки Роснефти» и спекулятивным/коллекционным спросом. По МСФО чистая прибыль около нуля (51 млн ₽ в 2023-2024), что даёт P/E МСФО ~200 — это аномалия учётных расхождений, а не показатель оценки. Любая оценка этой бумаги ненадёжна: тариф процессинга и распределение прибыли назначает связанная сторона."
+    },
+    {
+      "ticker": "KRKNP",
+      "note": "Унаследовано от KRKN. Рыночная цена префа кратно превышает любую фундаментальную оценку. Преф — единственная бумага эмитента с дивидендом (= 10% РСБУ-прибыли / 249 337 префов). По прибыли РСБУ 2024 (1116 млн ₽) дивиденд = 447.6 ₽/преф, что при цене 6 780 ₽ даёт дивдоходность лишь ~6.6% при волатильной РСБУ-базе. Требуемая доходность (Ke≈20%) предполагает справедливую цену префа ~2 238-2 984 ₽ (даунсайд ~-56…-67%). Премия в цене объясняется не фундаменталом, а малой ликвидностью (free-float крошечный, всего 997 349 акций на двоих), статусом «дочки Роснефти» и спекулятивным/коллекционным спросом. По МСФО чистая прибыль около нуля (51 млн ₽ в 2023-2024) — учётное расхождение, не показатель оценки. Тариф процессинга и распределение прибыли назначает связанная сторона (Роснефть, ~81%) — драйверы дивиденда вне контроля миноритария и непрозрачны. Любая оценка этой бумаги структурно ненадёжна."
+    },
+    {
       "ticker": "LKOH",
       "note": "FY2025 искажён РАЗОВЫМ НЕДЕНЕЖНЫМ списанием зарубежных активов (LUKOIL International GmbH, LIG, ~1.67 трлн ₽), из-за которого чистая прибыль 2025 = -1 064 269 млн ₽. Операционно российский бизнес прибылен (op_profit 526 646, FCF 639 840). Следствия для оценки: (1) P/E 2025 ОТРИЦАТЕЛЕН и НЕРЕЛЕВАНТЕН — оценивать компанию по нему НЕЛЬЗЯ (pe_2025=null); (2) ROE 2025 (-29.35%) и ROA/ROS 2025 тоже ИСКАЖЕНЫ убытком от списания, не отражают операционную рентабельность — нормализованный ориентир см. ROE 2024 ≈12.3%. Мультипликаторы, НЕ завязанные на чистую прибыль, искажений практически НЕ имеют и применимы: EV/EBITDA 2025 = 3.02 (EBITDA продолжающейся деятельности от списания не страдает), P/B 2025 = 0.94 (капитал уже уменьшен на списание, поэтому P/B даже выше 2024 — это нормально и не аномалия), P/S 2025 = 0.90. Для относительной оценки сектора LKOH и SNGS исключены из расчёта медианы EV/EBITDA как аномальные."
     },
     {
+      "ticker": "MFGS",
+      "note": "Аномалия двойная. (1) Убыток: компания убыточна по обоим стандартам в 2020 и 2022–2025 → P/E неприменим (null/отрицателен), исторический P/E и DCF на прибыли/FCF недостоверны. (2) Расхождение РСБУ/МСФО: за 2024 РСБУ-убыток −13 250 млн (EPS −133,2 ₽ × 99,475 млн ао; якорь business_model.md), а МСФО-убыток по агрегатору smart-lab −5 760 млн — отличие почти в 2,3 раза; выручка тоже расходится (РСБУ 210 800 vs МСФО 213 800). Дополнительно по 2024 у агрегатора одновременно показаны общий долг 101 836 млн и «чистый долг 0,00» — это внутренне противоречиво (при долге 101,8 млрд и кэше <1 млрд чистый долг не может быть нулём), поэтому net_debt-2024 оставлен null. Все эти факторы → флаг true; оценка строится на book value (P/B) и P/S, а не на прибыли."
+    },
+    {
+      "ticker": "MFGSP",
+      "note": "Аномалия тройная. (1) Убыток: эмитент убыточен по обоим стандартам в 2020 и 2022–2025 → P/E неприменим (null/отрицателен), исторический P/E и DCF на прибыли/FCF недостоверны. (2) Расхождение РСБУ/МСФО: за 2024 РСБУ-убыток −13 250 млн (EPS −133,2 ₽ × 99,475 млн ао), а МСФО-убыток по smart-lab −5 760 млн — разница ×2,3; выручка РСБУ 210 800 vs МСФО 213 800. (3) Дисконт префа: MFGSP торгуется по 244 ₽ против 502 ₽ у обыкновенной MFGS (≈48,6% цены ао) при идентичной экономике актива — рынок дисконтирует ап за отсутствие/ограничение голоса и отсутствие дивидендной базы (компания убыточна). Также по 2024 у агрегатора одновременно показаны общий долг 101 836 млн и «чистый долг 0,00» — внутренне противоречиво, поэтому net_debt-2024 оставлен null. Все факторы → флаг true; оценка строится на book value (P/B), а не на прибыли."
+    },
+    {
+      "ticker": "NKNC",
+      "note": "Чистая прибыль NKNC систематически искажается валютной переоценкой долга/активов и прочими неоперационными статьями. В 2024 без валютной переоценки ЧП была бы ~12.4 млрд против отчётных 30.7 млрд. В 2025 операционная прибыль рухнула на 54% (46.2→21.1 млрд) из-за сжатия спреда сырьё/продукт, но ЧП почти не изменилась (30.7→27.1 млрд) — снова за счёт неоперационных доходов: ЧП (27.1) превышает операционную прибыль за вычетом финрасходов (17.5) на ~9.6 млрд. Поэтому отчётный P/E=4.53 обманчиво низок; «нормализованный» P/E по очищенной прибыли ≈9.3. Крупная инвестпрограмма ЭП-600 (~200 млрд ₽, запуск дек.2024) загнала чистый долг до 184 млрд (ND/EBITDA=3.8x) и держала FCF около нуля/в минусе несколько лет (FCF 2025=+3.7 млрд после серии отрицательных), что и обрушивает DCF-оценку собственного капитала."
+    },
+    {
+      "ticker": "NKNCP",
+      "note": "Чистая прибыль NKNC систематически искажается валютной переоценкой долга/активов и прочими неоперационными статьями. В 2024 без валютной переоценки ЧП была бы ~12.4 млрд против отчётных 30.7 млрд. В 2025 операционная прибыль рухнула на 54% (46.2→21.1 млрд) из-за сжатия спреда сырьё/продукт, но ЧП почти не изменилась (30.7→27.1 млрд) — снова за счёт неоперационных доходов: ЧП (27.1) превышает операционную прибыль за вычетом финрасходов (17.5) на ~9.6 млрд. Поэтому отчётный P/E=4.53 обманчиво низок; «нормализованный» P/E по очищенной прибыли ≈9.3. Крупная инвестпрограмма ЭП-600 (~200 млрд ₽, запуск дек.2024) загнала чистый долг до 184 млрд (ND/EBITDA=3.8x) и держала FCF около нуля/в минусе несколько лет (FCF 2025=+3.7 млрд после серии отрицательных), что и обрушивает DCF-оценку собственного капитала. || NKNCP — привилегированные акции того же эмитента; вся отчётность, прибыль и долг общие с NKNC. По уставу НКНХ дивиденд на префы равен дивиденду на обыкновенные (0.85 ₽ за 2025), отдельной фиксированной ставки по префам нет, поэтому дивидендная поддержка такая же слабая. Преф торгуется с дисконтом к обыкновенной (49.22 vs 69.4 ₽, дисконт ~29%), что снижает мультипликаторы P/E,P/S,P/B относительно NKNC, но не меняет операционных рисков."
+    },
+    {
+      "ticker": "RNFT",
+      "note": "ВЫСОКАЯ ДОЛГОВАЯ НАГРУЗКА И ИСКАЖАЮЩАЯ СТРУКТУРА КАПИТАЛА С ПРЕФАМИ. (1) Чистый долг ~89,7 млрд ₽ на конец 2025 (Net debt/EBITDA 2,29x) при околонулевом кэше (670 млн ₽, cash ratio 0,01) — обслуживание долга (фин. расходы 17,3 млрд ₽ в 2025) съедает половину операционной прибыли (OP/фин.расходы = 1,97). (2) Структура капитала: помимо 294,12 млн обыкновенных есть 98,032 млн НЕторгуемых привилегированных акций, и дивиденды платятся ТОЛЬКО на префы. Исходный PDF учитывает префы как 0 — поэтому его рыночная капитализация (≈30,97 млрд ₽ = цена × только обыкновенные) и EPS/мультипликаторы относятся лишь к обыкновенным акциям и НЕ отражают приоритетную претензию префов на прибыль. Реальная экономика обыкновенной акции хуже, чем показывают «голые» P/E≈1 и P/BV≈0,2. (3) Мультипликаторы аномально низкие (P/E≈1,2; P/BV≈0,19; EV/EBITDA≈3,0) — это не «дешевизна на ровном месте», а дисконт рынка за корпоративное управление (группа Гуцериевых/Сафмар), отсутствие дивидендов по обыкновенным, долг и зрелость активов. Поэтому методы CAPM (1/Ke) и относительный P/E дают абсурдно высокие цены (≈390–400 ₽) и в итоговом коридоре НЕ используются."
+    },
+    {
+      "ticker": "RTGZ",
+      "note": "ГРО с регулируемым тарифом ФАС — бизнес-модель и EV/EBITDA несопоставимы с нефтедобытчиками сектора; прибыль волатильна (разовый 2023, убыток 2024 от переоценки ОНО)."
+    },
+    {
       "ticker": "SNGS",
       "note": "СТРУКТУРНАЯ АНОМАЛИЯ ОЦЕНКИ. Огромная валютная «кубышка» (~6 трлн ₽) классифицирована как финансовые вложения, а НЕ в строке cash, поэтому чистый долг (net_debt = только −cash ≈ −148 млрд) сильно занижен по модулю / искусственно отрицателен. Из-за этого EV сильно занижен, и мультипликаторы EV/EBITDA (current 1.36) и P/B (current 0.14) СТРУКТУРНО искажены и несопоставимы с пирами по нефтегазу. P/E тоже искажён и нерепрезентативен: чистая прибыль формируется не нефтью, а валютной переоценкой кубышки и процентным доходом (ЧП-2023 > EBITDA-2023), то есть зависит от курса рубля и ключевой ставки, а не от операционного результата. ИТОГО искажены: EV/EBITDA, P/B, P/E. ДАННЫЕ ПО ГОДАМ: за 2025 финпоказателей в источнике нет (peer_multiples «2025» = null); 2024 в источнике также отсутствует (null), поэтому peer_multiples «2024» рассчитаны по ПОСЛЕДНЕМУ доступному году — 2023 (помечено year_used=2023)."
+    },
+    {
+      "ticker": "SNGSP",
+      "note": "ДВЕ НАЛОЖЕННЫЕ АНОМАЛИИ. (1) СТРУКТУРНАЯ: огромная валютная «кубышка» (~6,4 трлн ₽) учтена как финансовые вложения, а НЕ в строке cash, поэтому чистый долг (net_debt = только −cash ≈ −148 млрд) сильно занижен по модулю, EV занижен, и мультипликаторы EV/EBITDA (1,36) и P/B (0,14) СТРУКТУРНО искажены и несопоставимы с пирами нефтегаза. P/E (0,76) тоже искажён: чистая прибыль формируется валютной переоценкой кубышки и процентным доходом, а не нефтью (ЧП-2023 > EBITDA-2023). (2) ДИВИДЕНДНАЯ ВОЛАТИЛЬНОСТЬ ОТ FX: SNGSP — ключевая дивидендная бумага РФ, но её дивиденд (7,1% ЧП РСБУ) зависит от курса рубля на 31.12 через переоценку кубышки. Слабый рубль → большая бумажная прибыль → высокий дивиденд (2023: ~12 ₽, доходность ~30% к цене 40 ₽) и высокая дивдоходность; крепкий рубль → убыток РСБУ → дивиденд около нуля (за 2025 ожидается ~0,8–3 ₽). Поэтому справедливая цена — не точка, а ВЕЕР по курсу: ~5,5 ₽ (крепкий рубль) … ~83 ₽ (слабый рубль), база ~41 ₽. SNGSP — натуральный хедж против девальвации рубля. ДАННЫЕ ПО ГОДАМ: финпоказателей за 2024 и 2025 в источнике нет → peer_multiples «2025» = null; «2024» рассчитаны по последнему доступному году 2023 (year_used=2023)."
+    },
+    {
+      "ticker": "TRNFP",
+      "note": "(1) Капитализация в исходном PDF (221 507 млн) устарела — соответствует цене ~306₽, тогда как TRNFP торгуется ~1425₽; из-за этого все мультипликаторы в PDF (P/E 0.98, P/BV 0.07, EV/EBITDA 0.42) занижены ~в 4.7 раза. Пересчитано кодом от реальной цены. (2) Крупная денежная позиция: кэш 223 527 млн (~21.6% капитализации), чистый долг 2025 ОТРИЦАТЕЛЬНЫЙ (−16 534 млн) — чистая денежная позиция. (3) 2021 г. отсутствует в большинстве рядов исходника (пропуск отчётности/аномалия — EPS показан −25.19), оставлен null. (4) Сплит акций 1:100 в 2024 (число акций 7.25→724.93 млн) — EPS до/после несопоставимы напрямую."
+    },
+    {
+      "ticker": "VJGZ",
+      "note": "ДА, аномалия искажает рентабельность и оценку. (1) Сильное расхождение РСБУ vs МСФО: за 2024 РСБУ показывает прибыль +3,67 млрд ₽ при выручке 85,26 млрд ₽, а МСФО за тот же физический период (год раскрытия источники маркируют по-разному — 2024 или 2025) даёт выручку ~64,2 млрд ₽ и чистый УБЫТОК ~−4,45 млрд ₽. (2) Причина — операции со связанными сторонами группы ННК-Холдинг (Худайнатов, контроль 85-94%): значимая часть нефти продаётся внутригрупповому трейдеру, и трансфертные цены искажают и выручку, и маржу; рыночную рентабельность барреля по отчётности восстановить нельзя. (3) Маржа EBITDA по МСФО упала с 26% (2021) до 10% (2025) при том, что цена нефти не падала в разы — это поведение, типичное для перераспределения прибыли внутри группы. Поэтому P/E 2025 отрицателен (убыток), EBITDA-маржа занижена, а историческая прибыль (boom-годы 2021/2023) завышена относительно нормального уровня. Для оценки опираемся на нормализованные показатели и балансовую стоимость, DCF — фрагилен. Компанию НЕЛЬЗЯ брать в медиану сектора как репрезентативную (исключить из peers)."
+    },
+    {
+      "ticker": "VJGZP",
+      "note": "ДА, аномалия искажает рентабельность и оценку (та же, что у VJGZ — единый эмитент). (1) Сильное расхождение РСБУ vs МСФО: 2024 РСБУ +3,67 млрд ₽ прибыли при выручке 85,26 млрд ₽, а МСФО за сопоставимый период даёт выручку ~64,2 млрд ₽ и чистый УБЫТОК ~−4,45 млрд ₽. (2) Причина — операции со связанными сторонами группы ННК-Холдинг (Худайнатов, контроль 85-94%): значимая часть нефти продаётся внутригрупповому трейдеру, трансфертные цены искажают и выручку, и маржу; рыночную рентабельность барреля по отчётности восстановить нельзя. (3) EBITDA-маржа МСФО упала с 26% (2021) до 10% (2025) при том, что цена нефти не падала в разы — поведение, типичное для перераспределения прибыли внутри группы. P/E 2025 отрицателен (убыток), EBITDA-маржа занижена, историческая прибыль (boom 2021/2023) завышена относительно нормального уровня. (4) ДОПОЛНИТЕЛЬНО ДЛЯ ПРЕФА: бумага малоликвидна, третий котировальный уровень; дивиденды по префам не платятся с 2019 г. (последняя выплата 3,49 ₽ в июле 2019) — устав ННК-структуры не гарантирует фиксированный дивиденд при отсутствии прибыли, поэтому дивидендный метод неприменим. Для оценки опираемся на нормализованные показатели и балансовую стоимость, DCF — фрагилен. Компанию НЕЛЬЗЯ брать в медиану сектора как репрезентативную (исключить из peers)."
+    },
+    {
+      "ticker": "YAKG",
+      "note": "Флаг TRUE. (1) Структура собственности: ~90,6% акций контролирует группа «А-Проперти» Альберта Авдоляна; free-float ~9% и ниже — биржевая цена формируется тонким рынком и может быть оторвана от фундаментала. (2) Рыночная цена детачнута от денежных потоков: при текущей цене 39,65 руб капитализация ~32 787 млн, тогда как чистый долг 2025 (8 280 млн) велик относительно неё, FCF был отрицательным 4 из последних 5 лет (−1 610/−2 130/+440/−617/−558), а внутренняя стоимость по DCF ~5 руб и по нормализованному P/E ~17 руб. Премия рынка к фундаменталу — это плата за стратегический опцион (разворот к ЦОД/майнингу/облаку после заморозки «Якутского СПГ» 29.10.2025) и за контролируемый региональный газовый актив, а не за текущие денежные потоки. (3) P/E-2024 при текущей цене = 44,6x (искажён провалом прибыли 2024 до 735 млн из-за роста амортизации и процентов); это циклический/разовый провал, а не устойчивый уровень. Итог: оценочные методы достоверны как ориентир внутренней стоимости, но дисконт к рыночной цене огромный — фундаментальная модель не объясняет котировку, цену двигают контроль и опцион роста."
     }
   ]
 }
