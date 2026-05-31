@@ -1,0 +1,583 @@
+{
+  "meta": {
+    "ticker": "ZAYM",
+    "name": "ПАО МФК «Займер»",
+    "sector": "Финансы (МФО)",
+    "profile": "standard",
+    "profile_note": "Микрофинансовая компания. Оценка ведётся как для финансовой компании: ключевые метрики P/E, P/B, ROE, дивидендная доходность; EV/EBITDA и Net debt/EBITDA неприменимы.",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 148.6,
+    "price_date": "2026-05-19",
+    "shares_outstanding": 100.0,
+    "shares_unit": "млн",
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "ОТРАСЛЕВАЯ АНОМАЛИЯ МФО. (1) Сверхвысокая стоимость риска: резервы под кредитные убытки 8,7 млрд руб. в 2025 (+57% г/г), CoR ~50-60% от портфеля — структурно «съедает» половину процентных доходов. (2) Регуляторные ограничения ЦБ РФ: с 01.04.2026 максимальная переплата по займам снижена со 130% до 100% от тела; введены макропруденциальные лимиты по ПДН (запрет выдачи при ПДН>80%, лимит 10% портфеля при ПДН 50-80%) — прямое давление на маржу PDL-сегмента. (3) Очень высокий ROE (30-34%) при экстремально низком P/E (3.4) и P/B (1.03) — рынок закладывает регуляторное сжатие прибыли, поэтому низкие мультипликаторы НЕ означают дешевизну в чистом виде. (4) Финансирование на 99%+ за счёт собственного капитала, чистая денежная позиция (net cash -3,267 млн), долговой леверидж практически отсутствует — нетипично для финкомпании. (5) ROE снизился с пиковых 51% (2023) до 30-34% (2025) — нормализация после регуляторного ужесточения.",
+  "income_statement": {
+    "revenue": [
+      8423,
+      13860,
+      21728,
+      19131,
+      19152,
+      22911
+    ],
+    "revenue_note": "Процентные доходы по микрозаймам (для МФО = выручка)",
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      4223,
+      9047,
+      12421,
+      14540,
+      13020,
+      11740
+    ],
+    "operating_profit_note": "Операционная прибыль после резервов и операционных расходов",
+    "ebitda": [
+      4250,
+      9075,
+      12482,
+      14784,
+      13092,
+      12089
+    ],
+    "ebitda_note": "EBITDA для МФО справочна; в оценке не используется (anomaly)",
+    "da": [
+      27,
+      28,
+      61,
+      244,
+      72,
+      349
+    ],
+    "finance_costs": [
+      57,
+      194,
+      277,
+      208,
+      64,
+      98
+    ],
+    "net_profit": [
+      1677,
+      3790,
+      5756,
+      6089,
+      3930,
+      4353
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        50.14,
+        65.27,
+        57.17,
+        76.0,
+        67.98,
+        51.24
+      ],
+      "net_margin": [
+        19.91,
+        27.34,
+        26.49,
+        31.83,
+        20.52,
+        19.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      6012,
+      11121,
+      15395,
+      15611,
+      16464,
+      17830
+    ],
+    "total_equity": [
+      4505,
+      7706,
+      11427,
+      11918,
+      12637,
+      14452
+    ],
+    "total_liabilities": [
+      1508,
+      3416,
+      3968,
+      3693,
+      3827,
+      3378
+    ],
+    "cash": [
+      600,
+      928,
+      1909,
+      2153,
+      1899,
+      3272
+    ],
+    "short_term_debt": [
+      471,
+      1734,
+      1486,
+      882,
+      42,
+      5
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      -129,
+      806,
+      -423,
+      -1271,
+      -1857,
+      -3267
+    ],
+    "book_value_per_share": [
+      45.05,
+      77.06,
+      114.27,
+      119.18,
+      126.37,
+      144.52
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.1,
+        0.23,
+        0.13,
+        0.07,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": null,
+      "net_debt_ebitda_note": "Неприменимо для МФО (anomaly). У компании чистая денежная позиция, долга практически нет.",
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      997,
+      -83,
+      3398,
+      6655,
+      2989,
+      5999
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      74,
+      146,
+      160,
+      152,
+      331,
+      1024
+    ],
+    "fcf": [
+      924,
+      -229,
+      3238,
+      6502,
+      2658,
+      4975
+    ],
+    "ratios": {
+      "fcf_margin": [
+        10.97,
+        -1.65,
+        14.9,
+        33.99,
+        13.88,
+        21.71
+      ],
+      "cfo_to_capex": [
+        13.47,
+        -0.57,
+        21.24,
+        43.78,
+        9.03,
+        5.86
+      ],
+      "capex_to_revenue": [
+        0.88,
+        1.05,
+        0.74,
+        0.79,
+        1.73,
+        4.47
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      37.23,
+      49.18,
+      50.37,
+      51.09,
+      31.1,
+      30.12
+    ],
+    "roe_reported": [
+      null,
+      null,
+      84.12,
+      74.7,
+      53.29,
+      32.98
+    ],
+    "roe_reported_2025": 34.45,
+    "roe_note": "roe = ЧП / капитал на конец периода (30.12% за 2025). roe_reported — версия из источника по среднегодовому капиталу (34.45% за 2025). Обе версии корректны, различие — в базе.",
+    "roa": [
+      27.89,
+      34.08,
+      37.39,
+      39.0,
+      23.87,
+      24.41
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      19.91,
+      27.34,
+      26.49,
+      31.83,
+      20.52,
+      19.0
+    ],
+    "asset_turnover": [
+      null,
+      1.62,
+      1.64,
+      1.23,
+      1.19,
+      1.34
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      3.84,
+      3.73,
+      3.41
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      1.22,
+      0.77,
+      0.65
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      1.96,
+      1.16,
+      1.03
+    ],
+    "ev_ebitda": null,
+    "ev_ebitda_note": "Неприменимо для МФО (anomaly_flag).",
+    "current": {
+      "pe": 3.41,
+      "ps": 0.65,
+      "pb": 1.03,
+      "ev_ebitda": null,
+      "roe": 30.12,
+      "dividend_yield_pct": 24.11,
+      "payout_ratio_pct": 82.31,
+      "eps": 43.53,
+      "dps": 35.83,
+      "as_of": "2026-05-19"
+    },
+    "historical_avg": {
+      "pe_3y_avg": 3.66,
+      "pe_3y_median": 3.73,
+      "pb_3y_median": 1.16,
+      "period": "2023-2025 (с IPO апреля 2024 публичная история короткая)"
+    }
+  },
+  "peer_multiples": {
+    "_note": "Сравнение с публичными финкомпаниями РФ из отраслевой таблицы источника (биржи, инвестдома, страховщики, лизинг). EV/EBITDA и Net debt/EBITDA неприменимы для финсектора.",
+    "2025": {
+      "pe": 3.41,
+      "pb": 1.03,
+      "roe": 30.12,
+      "roe_reported": 34.45,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "dividend_yield_pct": 24.11
+    },
+    "2024": {
+      "pe": 3.73,
+      "pb": 1.16,
+      "roe": 31.1,
+      "roe_reported": 53.29,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "dividend_yield_pct": null
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "Т-Инвестиции (дивиденды)",
+      "Альфа-Инвестиции",
+      "Эксперт РА (рынок МФО)"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      8.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -10.0
+    ],
+    "note": "Прогноз осторожный из-за регуляторного давления: снижение максимальной переплаты со 130% до 100% (с 01.04.2026) и МПЛ по ПДН сжимают маржу PDL-сегмента. Базовый сценарий бизнес-модели: прибыль 4,0-4,5 млрд при адаптации; жёсткий сценарий: -20-30% и ROE 20-25%. Компенсируется ростом IL-займов и комиссионных доходов (×4,5 до 2,4 млрд в 2025)."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable",
+        "note": "DCF неприменим для финкомпании/МФО (нет классического FCFF-моделирования, денежный поток = кредитный портфель). Оценка через P/BV×ROE, исторический P/E и дивидендный метод."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 190.5,
+        "fair_value_conservative": 133.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ke_pct": 23.6,
+          "g_pct": 3.5,
+          "roe_sustainable_base_pct": 30.0,
+          "roe_sustainable_conservative_pct": 22.0,
+          "bvps": 144.52,
+          "fair_pb_base": 1.32,
+          "fair_pb_conservative": 0.92,
+          "formula": "fair P/B = (ROE - g)/(Ke - g); цена = fair P/B × BVPS"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 162.4,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.73,
+          "basis": "3y_median (2023-2025, короткая публичная история)",
+          "eps_2025": 43.53
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 136.6,
+        "fair_value_conservative": 92.2,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "required_yield_pct": 23.6,
+          "expected_dps_base": 32.25,
+          "expected_dps_conservative": 21.77,
+          "dps_2025": 35.83,
+          "payout_floor_pct": 50,
+          "formula": "цена = ожидаемый DPS / требуемая дивдоходность (Ke). База — 90% от DPS-2025; консерватив — 50% payout от ЧП-2025."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 23.6,
+          "beta": 1.0,
+          "benchmark_pe": 4.24,
+          "note": "Ориентир P/E ≈ 1/Ke = 4.24. Текущий P/E (3.41) ниже бенчмарка — рынок требует повышенную доходность из-за регуляторного риска. Бета принята 1.0 (короткая история с IPO 2024)."
+        },
+        "status": "reference_only"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 92.2,
+      "base": 163.2,
+      "current_price": 148.6,
+      "upside_downside_pct": 9.8,
+      "upside_downside_conservative_pct": -38.0,
+      "note": "Широкий коридор отражает регуляторную неопределённость МФО. База ~163 руб (+10%) — при сохранении ROE ~30% и адаптации к ограничениям. Консерватив ~92 руб (-38%) — при жёстком сценарии (снижение payout до 50%, ROE к 22%, дальнейшее ужесточение ЦБ)."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": [],
+      "note": "Матрица чувствительности WACC×g неприменима (DCF not_applicable). Чувствительность определяется sustainable ROE и payout — см. диапазон conservative/base."
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Полное сравнение по сектору (биржи, инвестдома, страховщики, лизинг, МФО) будет собрано после прогона всех компаний финсектора в peers.json. В источнике есть отраслевая таблица (АФК Система, Мосбиржа, Ренессанс, Росгосстрах, СПБбиржа, SFI, Европлан, Займер), но прямые конкуренты-МФО (MoneyMan, Webbankir, Лайм-Займ) непубличны.",
+    "peer_table_source": "Отраслевое сравнение финкомпаний из PDF (стр. 19)"
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Займер (МСФО 2025) на 19.05.2026 — годовой отчёт МСФО, СРКИ/инфографика",
+      "period": "2020-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО МФК «Займер» — дивидендная политика (Протокол СД №2 от 19.02.2024), цель 50% ЧП по МСФО",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "ЦБ РФ — снижение макс. переплаты со 130% до 100% с 01.04.2026; МПЛ по ПДН",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Т-Инвестиции / Альфа-Инвестиции — дивиденды и операционные результаты ZAYM",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ROE расходится в зависимости от базы: 30.12% (капитал на конец периода) vs 34.45% (среднегодовой капитал, версия источника). В JSON приведены обе.",
+    "EBITDA и EV/EBITDA присутствуют в источнике справочно, но для МФО неприменимы и в оценке не используются (anomaly_flag).",
+    "Структура процентных доходов/расходов внутри P&L (резервы, маркетинг, IT) детально не раскрыта в годовом МСФО — оценки даны в business_model.md.",
+    "Публичная история короткая (IPO апрель 2024) — исторические мультипликаторы по 3 годам (2023-2025), медиана менее устойчива.",
+    "Прогноз net_profit заложен консервативно (-10%) из-за регуляторного сжатия с 01.04.2026 — фактический результат сильно зависит от темпа перехода на IL-займы и динамики ключевой ставки.",
+    "Бета принята 1.0 (нет достаточной торговой истории для надёжной оценки); CAPM дан как reference_only.",
+    "relative_peers: status pending_sector_backfill — прямые конкуренты-МФО непубличны, секторное сравнение будет дополнено."
+  ],
+  "relative_peers_sector": {
+    "peer_median_pb_2025": 0.88,
+    "fair_value_per_share": 126.96,
+    "upside_downside_pct": -14.6,
+    "status": "reference_only",
+    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+  }
+}

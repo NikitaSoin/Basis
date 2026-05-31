@@ -1,0 +1,622 @@
+{
+  "meta": {
+    "ticker": "SPBE",
+    "name": "ПАО «СПБ Биржа»",
+    "sector": "Финансы (биржа/инфраструктура)",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 209.3,
+    "price_date": "2026-05-19",
+    "shares_outstanding": 132840000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Компания под блокирующими санкциями США (SDN-лист, ноябрь 2023). Основной бизнес — торги иностранными бумагами — уничтожен, активы клиентов (~3 млрд $) заблокированы, объём торгов упал на ~99% от пика 2021 г. Прибыль 2023–2025 формируется почти исключительно процентным доходом от размещения собственного капитала (~21–22 млрд руб.) под высокую ключевую ставку, а не операционной деятельностью. Поэтому P/E и относительная оценка по прибыли НЕНАДЁЖНЫ и нестабильны; опорные метрики — P/B и ROE. При снижении ключевой ставки ЦБ процентный доход (и прибыль) сократятся пропорционально."
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      null,
+      null,
+      null,
+      null,
+      2580,
+      2820,
+      null
+    ],
+    "net_fee_income": [
+      null,
+      null,
+      null,
+      null,
+      1450,
+      320,
+      null
+    ],
+    "operating_income": [
+      716,
+      3295,
+      7602,
+      7737,
+      7239,
+      3952,
+      4099
+    ],
+    "provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      355,
+      965,
+      2347,
+      1769,
+      2497,
+      873,
+      898
+    ],
+    "net_profit": [
+      -27,
+      1198,
+      17,
+      1504,
+      583,
+      1008,
+      561
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cost_of_risk": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cir": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      -2.1,
+      34.92,
+      0.09,
+      7.51,
+      2.78,
+      4.71,
+      2.5
+    ],
+    "roa": [
+      -0.34,
+      6.54,
+      0.04,
+      2.01,
+      0.52,
+      1.12,
+      0.63
+    ],
+    "capital_adequacy": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loan_portfolio": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "deposits": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      7890,
+      18327,
+      42337,
+      74885,
+      112858,
+      90162,
+      88977
+    ],
+    "total_equity": [
+      1287,
+      3431,
+      18109,
+      20035,
+      20947,
+      21402,
+      22438
+    ],
+    "book_value_per_share": [
+      0.97,
+      1.2,
+      136.32,
+      150.82,
+      157.69,
+      161.11,
+      168.91
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      716,
+      3295,
+      7602,
+      7737,
+      7239,
+      3952,
+      4099
+    ],
+    "operating_profit": [
+      361,
+      2330,
+      5255,
+      5968,
+      4742,
+      3079,
+      3201
+    ],
+    "ebitda": [
+      378,
+      2357,
+      5355,
+      6189,
+      5263,
+      3644,
+      3757
+    ],
+    "da": [
+      17,
+      28,
+      100,
+      220,
+      522,
+      564,
+      556
+    ],
+    "finance_costs": [
+      50,
+      54,
+      82,
+      551,
+      661,
+      465,
+      506
+    ],
+    "net_profit": [
+      -27,
+      1198,
+      17,
+      1504,
+      583,
+      1008,
+      561
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        52.79,
+        71.53,
+        70.44,
+        79.99,
+        72.7,
+        92.21,
+        91.66
+      ],
+      "operating_margin": [
+        50.42,
+        70.71,
+        69.13,
+        77.14,
+        65.51,
+        77.91,
+        78.09
+      ],
+      "net_margin": [
+        -3.77,
+        36.36,
+        0.22,
+        19.44,
+        8.05,
+        25.51,
+        13.69
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -194,
+      9474,
+      -268,
+      -7066,
+      5810,
+      -15385,
+      2898
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      8,
+      287,
+      152,
+      1145,
+      377,
+      324,
+      598
+    ],
+    "fcf": [
+      -202,
+      9187,
+      -420,
+      -8211,
+      5433,
+      -15709,
+      2300
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -2.1,
+      34.92,
+      0.09,
+      7.51,
+      2.78,
+      4.71,
+      2.5
+    ],
+    "roa": [
+      -0.34,
+      6.54,
+      0.04,
+      2.01,
+      0.52,
+      1.12,
+      0.63
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -3.77,
+      36.36,
+      0.22,
+      19.44,
+      8.05,
+      25.51,
+      13.69
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      23.21,
+      1635.49,
+      18.49,
+      47.69,
+      27.58,
+      49.56
+    ],
+    "ps": [
+      38.83,
+      8.44,
+      3.66,
+      3.59,
+      3.84,
+      7.04,
+      6.78
+    ],
+    "pb": [
+      21.6,
+      8.1,
+      1.54,
+      1.39,
+      1.33,
+      1.3,
+      1.24
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 49.56,
+      "ps": 6.78,
+      "pb": 1.24,
+      "ev_ebitda": null,
+      "as_of": "2026-05-19"
+    },
+    "historical_avg": {
+      "pb_5y_median": 1.33,
+      "pe_5y_median": null,
+      "period": "2021-2025; P/E нерепрезентативен из-за разрушенной прибыли"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 49.56,
+        "pb": 1.24,
+        "roe": 2.5,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null
+      },
+      "2024": {
+        "pe": 27.58,
+        "pb": 1.3,
+        "roe": 4.71,
+        "ev_ebitda": null,
+        "net_debt_ebitda": null
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз невозможен: прибыль зависит от траектории ключевой ставки ЦБ (снижается с 21% до 14,5%), а не от операционного бизнеса. При падении ставки процентный доход сжимается; восстановление комиссионного бизнеса требует снятия санкций. Брокерское покрытие фактически отсутствует."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable"
+      },
+      {
+        "method": "PBV_ROE",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "formula": "P/BV=(ROE-g)/(Ke-g)",
+          "Ke_pct": 23.6,
+          "g_pct": 3.5,
+          "bvps": 168.91,
+          "roe_sustainable_pct": "3.6 (среднее 2024-2025)",
+          "note": "При устойчивом ROE ~3.6% << Ke 23.6% справедливый P/BV около нуля → фундаментальная стоимость акции близка к 0–13 руб. в зависимости от допущения о ROE (2.5%→~0; 5%→~13; 8%→~38). Это показывает, что текущая цена 209 руб (P/BV 1.24) держится на спекулятивной/опционной премии, а не на доходности капитала."
+        },
+        "status": "low_confidence"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 23.6,
+          "beta": 1.0,
+          "note": "Требуемая доходность 23.6%; компания дивидендов не платит, ожидаемый ROE ниже Ke — модель не даёт положительного таргета."
+        },
+        "status": "low_confidence"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0,
+      "base": 40,
+      "current_price": 209.3,
+      "upside_downside_pct": -81.0,
+      "method_note": "Фундаментальный коридор 0–40 руб получен методом P/BV×ROE при сценариях устойчивого ROE 2.5–8%. Текущая цена 209 руб включает 'опционную' премию на гипотетическое снятие санкций / разблокировку активов, что фундаментальными методами не оценивается. Коридор намеренно широкий и низконадёжный (anomaly)."
+    },
+    "sensitivity": {
+      "roe_grid": [
+        2.5,
+        3.7,
+        5.0,
+        8.0
+      ],
+      "fair_pbv": [
+        -0.05,
+        0.01,
+        0.075,
+        0.224
+      ],
+      "fair_price": [
+        0,
+        2,
+        13,
+        38
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "СПБ Биржа (МСФО 2025) — аналитическая выгрузка отчётности 2016–2025",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Пресс-релизы СПБ Биржи (итоги 2024, 2025)",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Smart-Lab SPBE",
+      "period": "2019-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ANOMALY: основной бизнес уничтожен санкциями (ноябрь 2023); прибыль 2023–2025 — процентный доход с капитала, а не операционная деятельность.",
+    "Разбивка операционного дохода на процентный/комиссионный в выгрузке отсутствует; цифры 2023–2024 (2.58/1.45 и 2.82/0.32 млрд) взяты из business_model.md и пресс-релизов.",
+    "ROE 2020=34.9% (период-конец) против 93.0% в выгрузке (средний капитал + разовые статьи) — год нерепрезентативен.",
+    "P/E крайне нестабилен (1635 в 2021, 49.6 в 2025) — не использовать для оценки.",
+    "Долг (кратко/долгосрочный) в выгрузке не детализирован; чистый долг отрицательный = чистая денежная позиция.",
+    "Денежный поток волатилен и отражает движение клиентских/собственных остатков, а не операционную генерацию.",
+    "relative_peers: ждёт заполнения медиан по сектору 'Финансы/биржи' (Мосбиржа) — pending_sector_backfill.",
+    "Текущая цена содержит спекулятивную опционную премию на снятие санкций — фундаментальными методами не оценивается."
+  ],
+  "relative_peers_sector": {
+    "peer_median_pb_2025": 0.88,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data",
+    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Биржа под санкциями — основной бизнес разрушен, прибыль из процентов; мультипликаторы ненадёжны."
+}

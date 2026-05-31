@@ -1,0 +1,485 @@
+{
+  "meta": {
+    "ticker": "DOMRF",
+    "name": "АО «ДОМ.РФ»",
+    "sector": "Финансы (банки/институты развития)",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 2387.7,
+    "price_date": "2026-05-22",
+    "shares_outstanding": 179.89,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Гибридная модель: банк (Банк ДОМ.РФ) + государственный институт развития с агентскими/субсидийными доходами и фондом. Показатели смешивают банковскую отчётность и инфраструктурные комиссии, поэтому классические банковские метрики (NIM, ROE) трактуются осторожно. ROE 2025 в источнике (СРКИ) = 23.35% рассчитан на смещённой базе капитала; пересчёт на конечный капитал = 18.9%, на средний капитал = 20.9%; гайденс/бизнес-модель ~21%. IPO ноябрь 2025 — рыночная история <1 года, исторические мультипликаторы недоступны. В PDF столбец 2019 пуст в ряде рядов (отчётный разрыв), помечено null."
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      18984,
+      18076,
+      19016,
+      null,
+      24039,
+      35566,
+      55667,
+      78737,
+      122879,
+      161944
+    ],
+    "net_fee_income": [
+      null,
+      45,
+      1768,
+      null,
+      2595,
+      3751,
+      5351,
+      5487,
+      7254,
+      12959
+    ],
+    "operating_income": [
+      21435,
+      28608,
+      38289,
+      null,
+      51564,
+      58130,
+      63743,
+      88811,
+      118109,
+      161040
+    ],
+    "provisions": [
+      816,
+      1213,
+      1712,
+      null,
+      5109,
+      2206,
+      8209,
+      12669,
+      18386,
+      31168
+    ],
+    "operating_expenses": [
+      6151,
+      7130,
+      16588,
+      null,
+      20837,
+      20968,
+      25622,
+      33186,
+      39354,
+      48623
+    ],
+    "net_profit": [
+      13710,
+      17986,
+      19007,
+      null,
+      26341,
+      33385,
+      30304,
+      47112,
+      65614,
+      88693
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      5.86,
+      2.36,
+      2.48,
+      null,
+      1.81,
+      1.95,
+      1.95,
+      1.93,
+      2.21,
+      2.52
+    ],
+    "cost_of_risk": [
+      0.29,
+      0.22,
+      0.31,
+      null,
+      0.54,
+      0.19,
+      0.54,
+      0.4,
+      0.43,
+      0.58
+    ],
+    "cir": [
+      28.7,
+      24.9,
+      43.3,
+      null,
+      40.4,
+      36.1,
+      40.2,
+      37.4,
+      33.3,
+      30.2
+    ],
+    "roe": [
+      10.14,
+      12.57,
+      16.49,
+      null,
+      18.9,
+      23.9,
+      19.23,
+      21.68,
+      20.0,
+      18.87
+    ],
+    "roe_reported_src": [
+      10.14,
+      12.57,
+      16.49,
+      null,
+      18.9,
+      23.9,
+      19.23,
+      21.68,
+      20.0,
+      23.35
+    ],
+    "roa": [
+      4.08,
+      5.56,
+      2.48,
+      null,
+      null,
+      2.51,
+      1.66,
+      1.65,
+      1.6,
+      1.59
+    ],
+    "capital_adequacy": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      12.1
+    ],
+    "loan_portfolio": [
+      278026,
+      557513,
+      553331,
+      null,
+      951455,
+      1163978,
+      1513227,
+      3167487,
+      4249800,
+      5331505
+    ],
+    "deposits": [
+      2999,
+      265023,
+      198219,
+      null,
+      302476,
+      643345,
+      1337965,
+      1987345,
+      2524325,
+      3476147
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      323687,
+      687447,
+      765622,
+      null,
+      1331799,
+      1824031,
+      2857599,
+      4089289,
+      5568482,
+      6423636
+    ],
+    "total_equity": [
+      143098,
+      115252,
+      139040,
+      139370,
+      139699,
+      157588,
+      217310,
+      328024,
+      379836,
+      470017
+    ],
+    "book_value_per_share": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2612.8
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.84
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.914
+    ],
+    "current": {
+      "pe": 4.84,
+      "pb": 0.914,
+      "as_of": "2026-05-22"
+    },
+    "historical_avg": {
+      "pb_5y_median": null,
+      "period": "н/д — IPO ноябрь 2025, биржевой истории <1 года"
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "Т-Инвестиции (research)",
+      "Прогноз компании (IR)"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      17.3
+    ],
+    "note": "Прогноз компании на 2026: чистая прибыль >104 млрд руб. (+~17% г/г) при ROE >21%. DCF неприменим для банка."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": null
+        },
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable"
+      },
+      {
+        "method": "bank_pbv_roe",
+        "fair_value_per_share": 2274.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ke": 23.6,
+          "g": 3.5,
+          "roe_base_pct": 21.0,
+          "bvps": 2612.8,
+          "formula": "fair_PBV=(ROE-g)/(Ke-g); price=PBV*BVPS",
+          "scenarios": {
+            "conservative_roe_18.47": 1946.0,
+            "base_roe_21": 2274.8,
+            "optimistic_roe_23.35": 2580.3
+          }
+        }
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": 2244.4,
+        "horizon": "12m",
+        "key_assumptions": {
+          "div_2025": 246.88,
+          "required_yield_pct": 11.0,
+          "payout_pct": 50.0,
+          "note": "Рекомендован дивиденд 246.88 руб (50% ЧП). Цена при требуемой дивдоходности 11%."
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор «Банки» ещё не прогнан целиком; P/B-колонка в исходном PDF (стр.19) ненадёжна. Заполнить после backfill peers.json."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 1946.0,
+      "base": 2275.0,
+      "optimistic": 2580.0,
+      "current_price": 2387.7,
+      "upside_downside_pct": -4.7
+    },
+    "sensitivity": {
+      "ke_grid": [
+        22.6,
+        23.6,
+        24.6
+      ],
+      "roe_grid": [
+        18.47,
+        21.0,
+        23.35
+      ],
+      "matrix": [
+        [
+          2048.0,
+          2394.0,
+          2715.0
+        ],
+        [
+          1946.0,
+          2275.0,
+          2580.0
+        ],
+        [
+          1854.0,
+          2167.0,
+          2458.0
+        ]
+      ]
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 4.84,
+      "pb": 0.914,
+      "roe": 18.87,
+      "ps": null,
+      "ev_ebitda": null,
+      "div_yield": 10.34,
+      "nim": 2.52,
+      "cir": 30.2,
+      "cor": 0.58
+    },
+    "2024": {
+      "pe": null,
+      "pb": null,
+      "roe": 20.0,
+      "ps": null,
+      "ev_ebitda": null,
+      "div_yield": null,
+      "nim": 2.21,
+      "cir": 33.3,
+      "cor": 0.43
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Заполнить медианные мультипликаторы сектора «Банки» после прогона всех эмитентов сектора."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ДОМ.РФ (МСФО 2025) инфографика СРКИ на 16.05.2026",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "broker",
+      "title": "IPO ДОМ.РФ — Т-Банк Research / ДОХОДЪ",
+      "period": "2025-2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX/Finviewer котировка и дивиденды DOMRF",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ROE 2025 расхождение: источник СРКИ 23.35% vs пересчёт по конечному капиталу 18.87% vs средний капитал 20.87% vs бизнес-модель 21.6%. В JSON roe=18.87 (конечный капитал), reported сохранён отдельно.",
+    "Столбец 2019 в PDF пуст в большинстве рядов P&L/потоков — отчётный разрыв, проставлен null.",
+    "Гибрид банк+госинститут: NIM/ROE/CIR смешивают банковскую и комиссионно-агентскую активность; трактовать осторожно (anomaly_flag).",
+    "IPO ноябрь 2025: биржевой истории <1 года, исторические P/E и P/B недоступны (historical_avg=null).",
+    "Чистый операционный денежный поток глубоко отрицательный (-606 980 млн в 2025) — норма для растущего банка (рост кредитного портфеля), не индикатор убытка; FCF/CapEx-метрики для банка неинформативны.",
+    "relative_peers и P/B-медиана сектора — pending_sector_backfill (колонка P/B в исходном PDF ненадёжна).",
+    "beta=1.0 принята условно (нет рыночной истории для оценки); Ke=23.6% (rf 14.6 + ERP 9.0).",
+    "Достаточность капитала Н1.0 ~12.1% — из бизнес-модели/IR, в МСФО-инфографике не раскрыта."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Мультипликаторы искажены (низкая ликвидность/недавнее IPO/слабый ROE).",
+  "relative_peers_sector": {
+    "peer_median_pb_2025": 0.88,
+    "fair_value_per_share": 2298.88,
+    "upside_downside_pct": -3.7,
+    "status": "reference_only",
+    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+  }
+}

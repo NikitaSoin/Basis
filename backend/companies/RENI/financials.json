@@ -1,0 +1,373 @@
+{
+  "meta": {
+    "ticker": "RENI",
+    "name": "ПАО «Группа Ренессанс Страхование»",
+    "sector": "Финансы (страхование)",
+    "profile": "standard",
+    "subprofile": "insurer",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 84.96,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 556950000,
+    "shares_outstanding_mln": 556.95,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Прибыль страховщика сильно зависит от переоценки облигационного портфеля (74% портфеля в облигациях). При смене ключевой ставки переоценка облигаций (FVTPL/FVOCI) и инвестдоход двигают чистую прибыль на величину, сопоставимую с операционным результатом страхования. В 2025 инвестдоход +83% г/г (46,7 млрд), но ~28 млрд ушло в финрасходы по договорам life и -5,4 млрд валютная переоценка — поэтому чистая прибыль почти не выросла (11,0 vs 11,1 млрд). Вывод: при снижении ставки 2026 возможна положительная переоценка тела облигаций, но снижение текущего купонного дохода; прибыль волатильна и плохо экстраполируется линейно.",
+  "insurance_metrics": {
+    "gross_premiums": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      169800,
+      205000
+    ],
+    "investment_portfolio": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      234700,
+      286400
+    ],
+    "combined_ratio": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "combined_ratio_note": "Компания не раскрывает combined ratio публично; для non-life ориентир рынка 95-100%.",
+    "note": "Для страховщика 'выручка' SRK = совокупный доход (total income), не равна валовым премиям. Премии 2025=205 млрд (брутто)."
+  },
+  "income_statement": {
+    "revenue": [
+      42167,
+      70275,
+      71691,
+      82766,
+      104257,
+      116974,
+      97677,
+      107316
+    ],
+    "revenue_note": "total income (совокупный доход) по выгрузке SRK; не равно валовым страховым премиям",
+    "operating_profit": [
+      null,
+      5422,
+      7358,
+      5582,
+      4589,
+      3742,
+      11566,
+      10169
+    ],
+    "net_profit": [
+      1373,
+      3378,
+      4147,
+      4680,
+      3591,
+      10328,
+      10817,
+      11042
+    ],
+    "eps": [
+      2.47,
+      6.07,
+      7.45,
+      8.4,
+      6.45,
+      18.54,
+      19.42,
+      19.83
+    ],
+    "margins": {
+      "net_margin": [
+        3.26,
+        4.81,
+        5.78,
+        5.65,
+        3.44,
+        8.83,
+        11.07,
+        10.29
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      85559,
+      105801,
+      131658,
+      163674,
+      178729,
+      223937,
+      266479,
+      323167
+    ],
+    "total_equity": [
+      21617,
+      25572,
+      30244,
+      50253,
+      46812,
+      43370,
+      53064,
+      56289
+    ],
+    "total_liabilities": [
+      66576,
+      84184,
+      106086,
+      133430,
+      128476,
+      180566,
+      213415,
+      266878
+    ],
+    "book_value_per_share": [
+      38.81,
+      45.91,
+      54.3,
+      90.23,
+      84.05,
+      77.87,
+      95.28,
+      101.07
+    ],
+    "ratios": {
+      "liabilities_to_assets": [
+        77.8,
+        79.6,
+        80.6,
+        81.5,
+        71.9,
+        80.6,
+        80.1,
+        82.6
+      ],
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "na_note": "EV/EBITDA, чистый долг и net_debt/EBITDA неприменимы к страховщику (структура баланса — резервы, не долг)."
+    }
+  },
+  "returns": {
+    "roe": [
+      6.4,
+      14.3,
+      14.9,
+      11.6,
+      7.4,
+      22.9,
+      22.4,
+      20.2
+    ],
+    "roe_note": "по средней величине капитала; ROE по капиталу на конец 2025 ~19,6%, RoATE (компания) 27,9%",
+    "roa": [
+      1.6,
+      3.19,
+      3.15,
+      2.86,
+      2.01,
+      4.61,
+      4.06,
+      3.42
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      5.97,
+      7.26,
+      4.77,
+      4.36
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      0.43,
+      0.65,
+      1.73,
+      0.97,
+      0.85
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.21,
+      0.64,
+      0.53,
+      0.45,
+      0.44
+    ],
+    "ev_ebitda": null,
+    "net_debt_ebitda": null,
+    "current": {
+      "pe": 4.29,
+      "pb": 0.84,
+      "ps": 0.44,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_median": 5.37,
+      "pe_period": "2022-2025",
+      "pb_5y_median": 0.85
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 4.29,
+      "pb": 0.84,
+      "roe": 20.2,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null
+    },
+    "2024": {
+      "pe": 4.77,
+      "pb": 0.97,
+      "roe": 24.94,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор финкомпаний (биржи/страховщики/лизинг/МФО) разнороден; сравнение P/E,P/B,ROE заполнить после прогона сектора. Из выгрузки SRK ориентиры: Росгосстрах P/E10,96 P/B1,29 ROE13,35; средние по фин-сектору смешанные."
+  },
+  "dividends": {
+    "dps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.7,
+      2.3,
+      10.0
+    ],
+    "dps_2025": 10.0,
+    "div_yield_2025_pct": 11.8,
+    "policy": "не менее 50% чистой прибыли МСФО",
+    "payout_2025_pct": 50.4
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "status": "not_applicable",
+        "fair_value_per_share": null,
+        "note": "Для страховщика FCFF-DCF неинформативен (денежные потоки определяются страховыми резервами и инвестпортфелем)."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 106.49,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.37,
+          "basis": "median 2022-2025",
+          "eps_2025": 19.83
+        }
+      },
+      {
+        "method": "pb_roe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "roe": 20.2,
+          "ke": "Rf14.6+beta*ERP9.0",
+          "note": "ROE~20% близок к Ke~23% => справедливый P/B<1, около текущего 0,84"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 71.43,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 10.0,
+          "required_yield": 0.14,
+          "note": "при базовом дивиденде 10 руб и требуемой доходности ~14%"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 71.0,
+      "base": 90.0,
+      "optimistic": 100.0,
+      "current_price": 84.96,
+      "method_note": "коридор: дивидендный метод (~71 при тр.дох.14%) — низ; историч.P/E (медиана 5,27×EPS19,83≈104) и текущая оценка — верх; учитывая anomaly (волатильность прибыли от переоценки облигаций) база ~90.",
+      "upside_downside_pct": 5.9
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Ренессанс (МСФО 2025) на 19.05.2026 — SRK выгрузка",
+      "period": "2018-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Группа Ренессанс Страхование — МСФО 2025 пресс-релиз",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "dohod.ru / РБК — цена и дивиденды RENI",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "SRK-выгрузка: заголовок столбцов 2016-2025, но фактически данные 2018-2025 (8 значений) — годы сдвинуты, выровнено вручную.",
+    "'ВЫРУЧКА' в выгрузке = совокупный доход (total income), НЕ валовые страховые премии (205 млрд 2025). Не путать.",
+    "EV/EBITDA, чистый долг, P/FCF из выгрузки для страховщика неинформативны — исключены.",
+    "Combined ratio / loss ratio компания публично не раскрывает.",
+    "Прибыль чувствительна к переоценке облигационного портфеля при смене ставки (anomaly_flag=true).",
+    "ROE: компания даёт RoATE 27,9%; здесь ROE по среднему капиталу ~20% (МСФО, более консервативно).",
+    "relative_peers: pending_sector_backfill — сектор финкомпаний ещё не прогнан целиком."
+  ],
+  "relative_peers_sector": {
+    "peer_median_pb_2025": 0.88,
+    "fair_value_per_share": 89.01,
+    "upside_downside_pct": 4.8,
+    "status": "reference_only",
+    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+  }
+}

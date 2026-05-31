@@ -1,0 +1,505 @@
+{
+  "meta": {
+    "ticker": "LEAS",
+    "name": "ПАО «ЛК «Европлан»",
+    "sector": "Финансы (лизинг)",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 656.6,
+    "price_date": "2026-05-19",
+    "shares_outstanding": 120000000,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "2025 — аномальный год: высокая ключевая ставка ЦБ (среднегодовая >17%) сжала новый бизнес и взорвала стоимость риска. Резервы выросли с 7,4 до 21,9 млрд (+196%), чистая прибыль обвалилась с 14,9 до 5,1 млрд (−65,8%), ROE упал с ~31% до ~10–11%, баланс сжался на 32%. P/E 15,35 и ROE 10% отражают дно цикла, а не норму — оценивать надо по нормализованной ROE."
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      25600,
+      21800
+    ],
+    "net_fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      15900,
+      18100
+    ],
+    "operating_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      41500,
+      39900
+    ],
+    "provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      7400,
+      21900
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      11000,
+      11000
+    ],
+    "net_profit": [
+      2406,
+      2144,
+      3292,
+      4826,
+      6044,
+      8673,
+      11891,
+      14796,
+      14910,
+      5133
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      9.9,
+      9.5
+    ],
+    "cost_of_risk": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3.4,
+      8.9
+    ],
+    "cir": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      27.5,
+      27.5
+    ],
+    "roe": [
+      null,
+      19.99,
+      32.73,
+      38.73,
+      38.91,
+      40.09,
+      39.67,
+      37.69,
+      31.29,
+      11.03
+    ],
+    "roa": [
+      null,
+      5.19,
+      6.2,
+      6.84,
+      6.77,
+      6.42,
+      6.6,
+      6.52,
+      5.26,
+      2.02
+    ],
+    "capital_adequacy": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loan_portfolio": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      256000,
+      168600
+    ],
+    "deposits": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      38129,
+      44503,
+      61716,
+      79421,
+      99069,
+      170984,
+      189293,
+      264706,
+      302076,
+      205332
+    ],
+    "total_equity": [
+      12323,
+      9127,
+      10988,
+      13931,
+      17138,
+      26133,
+      33820,
+      44686,
+      50616,
+      42421
+    ],
+    "total_liabilities": [
+      25806,
+      35377,
+      50729,
+      65491,
+      81931,
+      144851,
+      155473,
+      220021,
+      251459,
+      162912
+    ],
+    "cash": [
+      8473,
+      783,
+      1490,
+      2762,
+      2574,
+      8611,
+      10173,
+      11562,
+      15799,
+      9249
+    ],
+    "short_term_debt": [
+      10205,
+      21791,
+      31976,
+      38056,
+      51119,
+      78538,
+      94209,
+      155179,
+      178323,
+      98230
+    ],
+    "long_term_debt": [
+      13362,
+      9694,
+      13894,
+      20070,
+      23022,
+      54764,
+      47442,
+      47087,
+      48333,
+      37645
+    ],
+    "net_debt": [
+      15093,
+      30702,
+      44380,
+      55364,
+      71567,
+      124691,
+      131479,
+      190704,
+      210857,
+      126626
+    ],
+    "book_value_per_share": [
+      102.69,
+      76.06,
+      91.57,
+      116.09,
+      142.82,
+      217.78,
+      281.83,
+      372.38,
+      421.8,
+      353.51
+    ],
+    "note_net_debt": "Для лизинговой компании чистый долг — это рабочий капитал (фондирование лизингового портфеля), а не классическая долговая нагрузка. EV/EBITDA и Net Debt/EBITDA неинформативны и не используются."
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      8.19,
+      5.33,
+      15.35
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.71,
+      1.57,
+      1.86
+    ],
+    "current": {
+      "pe": 15.35,
+      "pb": 1.86,
+      "as_of": "2026-05-19"
+    },
+    "historical_avg": {
+      "pb_5y_median": 1.86,
+      "pe_post_ipo_median": 8.19,
+      "period": "2023-2025 (компания на бирже с марта 2024, истории мало)"
+    },
+    "ev_ebitda": null,
+    "net_debt_ebitda": null,
+    "ev_ebitda_note": "null — для лизинга неинформативен (см. balance_sheet.note_net_debt)"
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 15.35,
+      "pb": 1.86,
+      "roe": 10.14,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null
+    },
+    "2024": {
+      "pe": 5.33,
+      "pb": 1.57,
+      "roe": 29.46,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского консенсуса в источниках нет. Прогноз механический: 2025 — дно цикла резервов; при снижении ключевой ставки (цикл смягчения с июня 2025, 14,5% на май 2026) CoR нормализуется к 3-4%, ROE восстанавливается к 18-22% на горизонте 2-3 лет. Интеграция с Альфа-Банком потенциально удешевляет фондирование."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable",
+        "note": "DCF не применяется для финансовой/лизинговой компании (денежные потоки определяются фондированием портфеля)."
+      },
+      {
+        "method": "PBV_ROE",
+        "fair_value_per_share": 310.2,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "formula": "fair P/BV=(ROE-g)/(Ke-g)",
+          "Ke_pct": 23.6,
+          "g_pct": 3.5,
+          "bvps_2025": 353.51,
+          "roe_depressed_2025_pct": 11.0,
+          "fv_at_depressed": 131.9,
+          "roe_recovery_pct": 18.0,
+          "fv_at_recovery": 255.0,
+          "roe_normalized_pct": 22.0,
+          "fv_at_normalized": 325.4
+        },
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 350.3,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 8.19,
+          "basis": "median P/E за пост-IPO (2023-2025)",
+          "eps_2025": 42.77
+        },
+        "note": "История короткая (IPO 03.2024), медиана искажена трошем 2024 и пиком 2025; ориентир грубый."
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 182.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "payout_pct": 50,
+          "roe_norm_range_pct": [
+            18,
+            22
+          ],
+          "Ke_pct": 23.6,
+          "g_pct": 3.5,
+          "fv_low": 163.8,
+          "fv_high": 200.2
+        },
+        "note": "Политика: дивиденд ≥50% ЧП по МСФО. Выплата 2025 (87 руб, payout 203%) разовая, из накопленной прибыли — не норма."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 181.2,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 23.6,
+          "beta": 1.0,
+          "implied_fair_pe": 4.24
+        },
+        "note": "Ориентир P/E≈1/Ke на текущей (заниженной) прибыли 2025 — нижняя граница."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 150.0,
+      "base": 290.0,
+      "current_price": 656.6,
+      "upside_downside_pct": -55.8
+    },
+    "relative_peers": {
+      "status": "pending_sector_backfill",
+      "note": "Сравнение с конкурентами по сектору «Финансы» (Мосбиржа, Ренессанс, SFI, Займер и др. из таблицы стр.19 МСФО-2025) собрать после прогона всего сектора в peers.json."
+    },
+    "sensitivity": {
+      "roe_grid": [
+        11,
+        14,
+        18,
+        22,
+        26
+      ],
+      "ke_grid": [
+        21.6,
+        23.6,
+        25.6
+      ],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Европлан МСФО 2025 (инфографика СРКИ, на 19.05.2026)",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО ЛК Европлан — годовой отчёт МСФО 2025",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "business_model",
+      "title": "business_model.md (LEAS) — банковская декомпозиция P&L",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "2025 — аномальный год (дно цикла резервов): P/E и ROE искажены вниз, оценка по нормализованной ROE, а не по факту 2025.",
+    "Банковская декомпозиция (ЧПД, ЧНД, резервы, opex) раскрыта только за 2024-2025 (из business_model.md); за 2016-2023 в загруженном файле этих строк нет → null.",
+    "Рыночные мультипликаторы (P/E, P/B) есть только с 2023-2025 — IPO в марте 2024, история короткая.",
+    "ROE 2025: PDF=10,14% (своя база капитала), на средний капитал =11,0% — отчёт даёт диапазон 10-11%.",
+    "Дивиденд 2025 (87 руб, payout 203%) — разовая выплата из накопленной прибыли при обвале ЧП, не репрезентативна.",
+    "EV/EBITDA и Net Debt/EBITDA = null намеренно: для лизинга чистый долг — рабочий капитал, мультипликатор неинформативен.",
+    "relative_peers — pending_sector_backfill: ждёт сборки peers.json по сектору Финансы.",
+    "WACC/Ke=23,6% (rf 14,6% + 1,0×ERP 9,0%) — высокий, давит все оценки вниз; справедливый коридор широкий из-за неопределённости нормализации ROE."
+  ],
+  "relative_peers_sector": {
+    "peer_median_pb_2025": 0.88,
+    "fair_value_per_share": 310.65,
+    "upside_downside_pct": -52.7,
+    "status": "reference_only",
+    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Лизинг (иная модель + дно цикла, резервы); не сопоставим с банками по P/B×ROE."
+}
