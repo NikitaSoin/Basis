@@ -1499,17 +1499,20 @@ function DividendChart({ history = [] }) {
   );
 }
 function ScoreBar({ label, score, rationale }) {
-  const s = Math.max(0, Math.min(5, Math.round(score || 0)));
+  const has = typeof score === "number";
+  const s = has ? Math.max(0, Math.min(5, Math.round(score))) : 0;
   const c = s >= 4 ? "var(--positive)" : s === 3 ? "var(--text-2)" : "var(--negative)";
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <span style={{ fontSize: 12.5, color: "var(--text-1)" }}>{label}</span>
-        <span style={{ fontFamily: "monospace", fontSize: 12, color: c, fontWeight: 600 }}>{s}/5</span>
+        {has
+          ? <span style={{ fontFamily: "monospace", fontSize: 12, color: c, fontWeight: 600 }}>{s}/5</span>
+          : <span style={{ fontSize: 11, color: "var(--text-3)" }}>не раскрыто</span>}
       </div>
       <div style={{ display: "flex", gap: 3 }}>
         {[1, 2, 3, 4, 5].map((i) => (
-          <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i <= s ? c : "var(--bg-card)" }} />
+          <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: has && i <= s ? c : "var(--bg-card)", opacity: has ? 1 : 0.5 }} />
         ))}
       </div>
       {rationale && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, lineHeight: 1.45 }}>{rationale}</div>}
