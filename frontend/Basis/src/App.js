@@ -1376,6 +1376,177 @@ const SECTOR_KEY_BY_NAME = {
   "Прочее": "other",
 };
 
+// ── Корпоративное управление: модульные компоненты (чистый SVG, без библиотек) ──
+const TYPE_COLOR = {
+  state: "var(--negative)",
+  strategic: "var(--accent)",
+  management: "var(--accent-text)",
+  institutional: "var(--text-2)",
+  foreign: "var(--text-2)",
+  treasury: "var(--border-mid)",
+  free_float: "var(--positive)",
+  other: "var(--text-3)",
+};
+const TYPE_LABEL = {
+  state: "государство", strategic: "стратег", management: "менеджмент",
+  institutional: "институционалы", foreign: "иностранцы", treasury: "казначейские",
+  free_float: "free float", other: "прочее",
+};
+const SCORE_LABELS = {
+  ownership_transparency: "Прозрачность владения",
+  minority_protection: "Защита миноритариев",
+  dividend_consistency: "Стабильность дивидендов",
+  board_independence: "Независимость СД",
+  disclosure: "Раскрытие информации",
+  overall: "Интегральная оценка",
+};
+
+function Fact({ label, value }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "3px 0" }}>
+      <span style={{ color: "var(--text-3)", fontSize: 12 }}>{label}</span>
+      <span style={{ color: "var(--text-1)", fontSize: 13, fontWeight: 600, textAlign: "right" }}>{value}</span>
+    </div>
+  );
+}
+function Metric({ label, value }) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, color: "var(--text-3)" }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", fontFamily: "monospace", fontVariantNumeric: "tabular-nums", marginTop: 2 }}>{value}</div>
+    </div>
+  );
+}
+function DataQualityBanner({ flags = [] }) {
+  return (
+    <div style={{ background: "var(--neg-fade)", borderLeft: "3px solid var(--negative)", borderRadius: 8, padding: "10px 12px" }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Данные ограниченной полноты — выводы предварительные</div>
+      {flags.length > 0 && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 4, lineHeight: 1.45 }}>{flags.slice(0, 3).join(" · ")}</div>}
+    </div>
+  );
+}
+function StackedOwnershipBar({ shareholders = [] }) {
+  const order = { free_float: 1, treasury: 2 };
+  const data = [...shareholders]
+    .filter((s) => typeof s.stake_pct === "number" && s.stake_pct > 0)
+    .sort((a, b) => (order[a.type] || 0) - (order[b.type] || 0) || b.stake_pct - a.stake_pct);
+  if (!data.length) return <div style={{ fontSize: 12.5, color: "var(--text-3)" }}>Структура владения официально не раскрыта.</div>;
+  const total = data.reduce((s, x) => s + x.stake_pct, 0) || 100;
+  const W = 100, H = 28;
+  let acc = 0;
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 28, display: "block", borderRadius: 6, overflow: "hidden" }}>
+        {data.map((s, i) => {
+          const w = (s.stake_pct / total) * W;
+          const x = acc; acc += w;
+          const c = TYPE_COLOR[s.type] || TYPE_COLOR.other;
+          return (
+            <g key={i}>
+              <rect x={x} y={0} width={w} height={H} fill={c}
+                stroke={s.is_controlling ? "var(--text-1)" : "var(--bg-surface)"}
+                strokeWidth={s.is_controlling ? 1.5 : 0.5} vectorEffect="non-scaling-stroke" />
+              {w > 9 && <text x={x + w / 2} y={H / 2 + 3} textAnchor="middle" fontSize="7"
+                fill="var(--bg-app)" fontWeight="600" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {s.stake_pct.toFixed(0)}%</text>}
+            </g>
+          );
+        })}
+      </svg>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 12 }}>
+        {data.map((s, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text-2)" }}>
+            <span style={{ width: 10, height: 10, borderRadius: 2, background: TYPE_COLOR[s.type] || TYPE_COLOR.other, flexShrink: 0 }} />
+            <span style={{ color: "var(--text-1)" }}>{s.name}</span>
+            <span style={{ fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: "var(--text-1)", fontWeight: 600 }}>{s.stake_pct.toFixed(1)}%</span>
+            {s.is_controlling && <span style={{ fontSize: 10, color: "var(--text-3)" }}>контроль</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+function DividendChart({ history = [] }) {
+  const data = [...history].sort((a, b) => a.year - b.year);
+  if (!data.length) return null;
+  const W = 360, H = 150, padX = 8, padTop = 20, padBot = 22;
+  const vals = data.map((d) => d.dps || 0);
+  const max = Math.max(...vals, 0) || 1;
+  const n = data.length;
+  const slot = (W - 2 * padX) / n;
+  const bw = Math.min(34, slot * 0.6);
+  const yAt = (v) => padTop + (1 - v / max) * (H - padTop - padBot);
+  const colorOf = (d) => (d.paid === false ? "var(--text-3)" : d.special ? "var(--accent)" : "var(--positive)");
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+      {data.map((d, i) => {
+        const x = padX + i * slot + slot / 2;
+        const v = d.dps || 0;
+        const y = d.paid === false ? H - padBot - 2 : yAt(v);
+        const h = d.paid === false ? 2 : Math.max(H - padBot - yAt(v), 1);
+        return (
+          <g key={i}>
+            <rect x={x - bw / 2} y={y} width={bw} height={h} rx="2" fill={colorOf(d)} opacity={d.paid === false ? 0.4 : 0.9} />
+            {d.paid !== false && v > 0 &&
+              <text x={x} y={y - 4} textAnchor="middle" fontSize="8" fill="var(--text-2)" style={{ fontVariantNumeric: "tabular-nums" }}>{v}</text>}
+            {d.paid === false &&
+              <text x={x} y={H - padBot - 6} textAnchor="middle" fontSize="8" fill="var(--text-3)">×</text>}
+            <text x={x} y={H - 6} textAnchor="middle" fontSize="8.5" fill="var(--text-3)" fontFamily="monospace">{String(d.year).slice(2)}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+function ScoreBar({ label, score, rationale }) {
+  const s = Math.max(0, Math.min(5, Math.round(score || 0)));
+  const c = s >= 4 ? "var(--positive)" : s === 3 ? "var(--text-2)" : "var(--negative)";
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+        <span style={{ fontSize: 12.5, color: "var(--text-1)" }}>{label}</span>
+        <span style={{ fontFamily: "monospace", fontSize: 12, color: c, fontWeight: 600 }}>{s}/5</span>
+      </div>
+      <div style={{ display: "flex", gap: 3 }}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: i <= s ? c : "var(--bg-card)" }} />
+        ))}
+      </div>
+      {rationale && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, lineHeight: 1.45 }}>{rationale}</div>}
+    </div>
+  );
+}
+function PrecedentCard({ p }) {
+  const tone = {
+    positive: { c: "var(--positive)", bg: "var(--pos-fade)" },
+    negative: { c: "var(--negative)", bg: "var(--neg-fade)" },
+  }[p.impact] || { c: "var(--text-3)", bg: "transparent" };
+  return (
+    <div style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: tone.c, flexShrink: 0 }} />
+        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{p.title}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{p.year}</span>
+      </div>
+      {p.type && <div style={{ fontSize: 11, color: "var(--text-3)", margin: "2px 0 0 16px" }}>{p.type}</div>}
+      <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, margin: "6px 0 0 16px" }}>{p.description}</div>
+    </div>
+  );
+}
+function RiskCard({ r, warn }) {
+  const tone = { high: "var(--negative)", medium: warn, low: "var(--text-3)" }[r.severity] || "var(--text-3)";
+  const SEV = { high: "высокий", medium: "средний", low: "низкий" }[r.severity] || r.severity;
+  return (
+    <div style={{ borderLeft: `3px solid ${tone}`, background: "var(--bg-card)", borderRadius: 8, padding: "10px 12px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{r.title}</span>
+        <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 600, color: tone, textTransform: "uppercase", letterSpacing: "0.03em" }}>{SEV}</span>
+      </div>
+      <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{r.description}</div>
+    </div>
+  );
+}
+
 // SVG scatter для секторных карт (без сторонних библиотек). Модульный компонент — со своим hover-state.
 function ScatterMap({ map, currentTicker }) {
   const [hover, setHover] = useState(null);
@@ -1723,6 +1894,9 @@ const CompanyCard = ({ company, onBack }) => {
   const [finMd, setFinMd] = useState(null);
   const [finJson, setFinJson] = useState(null);
   const [finLoading, setFinLoading] = useState(true);
+  const [govMd, setGovMd] = useState(null);
+  const [govJson, setGovJson] = useState(null);
+  const [govLoading, setGovLoading] = useState(true);
   const [peersJson, setPeersJson] = useState(null);
   const [peersShowAll, setPeersShowAll] = useState(false);
   const [livePrice, setLivePrice] = useState(null);
@@ -1800,6 +1974,22 @@ const CompanyCard = ({ company, onBack }) => {
       setFinMd(md);
       setFinJson(js);
       setFinLoading(false);
+    });
+  }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setGovLoading(true);
+    setGovMd(null);
+    setGovJson(null);
+    const base = `${apiUrl}/api/companies/by-ticker/${company.ticker}`;
+    Promise.all([
+      fetch(`${base}/governance-summary`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}/governance`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([md, js]) => {
+      setGovMd(md);
+      setGovJson(js);
+      setGovLoading(false);
     });
   }, [company.ticker]);
 
@@ -2693,6 +2883,237 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  const renderGovernance = () => {
+    if (govLoading) return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-slate-400 animate-pulse">Загружаем данные по управлению...</div>
+      </div>
+    );
+    if (!govMd && !govJson) return renderComingSoon("Корпоративное управление");
+
+    const WARN = "#C9A227"; // жёлтого нет в теме — инлайн-исключение для severity=medium
+    const meta = govJson?.meta || {};
+    const own = govJson?.ownership || {};
+    const div = govJson?.dividends || {};
+    const mino = govJson?.minority_treatment || {};
+    const gq = govJson?.governance_quality || {};
+    const flags = govJson?.data_flags || [];
+    const scores = gq.scores || {};
+    const num = (x) => (typeof x === "number" ? x : null);
+    const pctOrDash = (x) => (typeof x === "number" ? x + "%" : "—");
+
+    const cardStyle = { background: "var(--bg-surface)", borderRadius: 12, padding: 18, border: "1px solid var(--border)" };
+    const cardHead = (Icon, title, right) => (
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+        <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}>
+          <Icon size={16} style={{ color: "var(--accent)" }} />{title}
+        </h4>
+        {right}
+      </div>
+    );
+    const colHead = { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "var(--text-3)", fontWeight: 600, padding: "6px 8px" };
+    const td = { padding: "6px 8px", fontSize: 13, color: "var(--text-1)" };
+    const tdNum = { ...td, textAlign: "right", fontFamily: "monospace", fontVariantNumeric: "tabular-nums" };
+    const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
+    const ovScore = num(scores.overall?.score);
+    const ovColor = ovScore == null ? "var(--text-1)" : ovScore >= 4 ? "var(--positive)" : ovScore === 3 ? "var(--text-1)" : "var(--negative)";
+
+    const assessTone = (txt) => {
+      const t = String(txt || "").toLowerCase();
+      if (/наруша|пропуск|непредсказ|нет истории/.test(t)) return { c: "var(--negative)", bg: "var(--neg-fade)" };
+      if (/соблюда|стабиль|в основном/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
+      return { c: "var(--text-3)", bg: "transparent" };
+    };
+
+    const ffRight = typeof own.free_float_pct === "number" ? (
+      <div style={{ textAlign: "right" }}>
+        <div style={{ fontFamily: "monospace", fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, color: "var(--positive)" }}>{own.free_float_pct}%</div>
+        <div style={{ fontSize: 11, color: "var(--text-3)" }}>free float</div>
+      </div>
+    ) : null;
+
+    const precedents = [...(mino.precedents || [])].sort((a, b) => (b.year || 0) - (a.year || 0));
+    const govSections = splitH2(govMd);
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
+
+        {/* СЕКЦИЯ 1 — структура владения */}
+        <div style={cardStyle}>
+          {cardHead(Users, "Структура владения", ffRight)}
+          <StackedOwnershipBar shareholders={own.shareholders || []} />
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 8, background: "var(--bg-card)", borderLeft: "3px solid var(--accent)" }}>
+            <Fact label="Контролирующий собственник" value={own.controlling_shareholder || "—"} />
+            <Fact label="Конечный бенефициар" value={own.ultimate_beneficiary || "не раскрыт"} />
+            <Fact label="Доля государства" value={pctOrDash(num(own.state_share_pct))} />
+          </div>
+          {Array.isArray(own.share_classes) && own.share_classes.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 14 }}>
+              {own.share_classes.map((sc, i) => (
+                <div key={i} style={{ background: "var(--bg-card)", borderRadius: 10, padding: 14, border: "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <span style={{ fontWeight: 700, color: "var(--text-1)", fontSize: 13 }}>
+                      {sc.class === "preferred" ? "Привилегированные (ап)" : "Обыкновенные (ао)"}
+                    </span>
+                    <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-3)" }}>{sc.ticker || ""}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 18, marginTop: 10 }}>
+                    <Metric label="Голосов / акцию" value={sc.votes_per_share ?? "—"} />
+                    <Metric label="Доля капитала" value={pctOrDash(num(sc.share_of_capital_pct))} />
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 10, lineHeight: 1.5 }}>
+                    <b style={{ color: "var(--text-1)" }}>Дивиденд:</b> {sc.dividend_rule || "—"}
+                  </div>
+                  {sc.note && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6 }}>{sc.note}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {own.notes && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12, lineHeight: 1.5 }}>{own.notes}</div>}
+        </div>
+
+        {/* СЕКЦИЯ 2 — дивиденды */}
+        <div style={cardStyle}>
+          {cardHead(Wallet, "Дивиденды")}
+          {div.policy && (
+            div.policy.exists === false ? (
+              <div style={{ background: "var(--neg-fade)", borderLeft: "3px solid var(--negative)", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
+                <span style={{ fontSize: 13, color: "var(--text-1)" }}>Формальной дивидендной политики нет.</span>
+              </div>
+            ) : (
+              <div style={{ background: "var(--bg-card)", borderRadius: 8, padding: 12, marginBottom: 14 }}>
+                <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.5 }}>{div.policy.summary}</div>
+                <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, display: "flex", flexWrap: "wrap", gap: "2px 14px" }}>
+                  {div.policy.target_basis && <span>База: {div.policy.target_basis}</span>}
+                  {typeof div.policy.target_payout_pct === "number" && <span>Целевой payout: {div.policy.target_payout_pct}%</span>}
+                  {div.policy.frequency && <span>Периодичность: {div.policy.frequency}</span>}
+                </div>
+              </div>
+            )
+          )}
+          <DividendChart history={div.history || []} />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", margin: "6px 0 12px", fontSize: 11, color: "var(--text-3)" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--positive)" }} />выплата</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--accent)" }} />спецдивиденд</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--text-3)", opacity: 0.4 }} />не платили</span>
+          </div>
+          {Array.isArray(div.history) && div.history.length > 0 && (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead><tr>
+                  <th style={{ ...colHead, textAlign: "left" }}>Год</th>
+                  <th style={{ ...colHead, textAlign: "right" }}>DPS</th>
+                  <th style={{ ...colHead, textAlign: "right" }}>Payout</th>
+                  <th style={{ ...colHead, textAlign: "right" }}>Див.дох.</th>
+                  <th style={{ ...colHead, textAlign: "right" }}>Флаг</th>
+                </tr></thead>
+                <tbody>
+                  {[...div.history].sort((a, b) => (b.year || 0) - (a.year || 0)).map((d, ri) => (
+                    <tr key={ri} style={{ background: ri % 2 ? "var(--bg-card)" : "transparent" }}>
+                      <td style={td}>{d.year}</td>
+                      <td style={tdNum}>{typeof d.dps === "number" ? d.dps : "—"}</td>
+                      <td style={tdNum}>{pctOrDash(num(d.payout_ratio_pct))}</td>
+                      <td style={tdNum}>{pctOrDash(num(d.div_yield_pct))}</td>
+                      <td style={{ ...tdNum, color: d.paid === false ? "var(--text-3)" : d.special ? "var(--accent)" : "var(--text-3)" }}>
+                        {d.paid === false ? "не платили" : d.special ? "спец" : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {div.policy_vs_practice && (() => {
+            const tone = assessTone(div.policy_vs_practice.assessment);
+            return (
+              <div style={{ marginTop: 14, background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>Политика vs практика: {div.policy_vs_practice.assessment}</div>
+                {Array.isArray(div.policy_vs_practice.skipped_years) && div.policy_vs_practice.skipped_years.length > 0 &&
+                  <div style={{ fontSize: 12, color: "var(--text-3)", fontFamily: "monospace", marginTop: 4 }}>Пропущенные годы: {div.policy_vs_practice.skipped_years.join(", ")}</div>}
+                {div.policy_vs_practice.commentary &&
+                  <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{div.policy_vs_practice.commentary}</div>}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* СЕКЦИЯ 3 — прецеденты по миноритариям */}
+        {(precedents.length > 0 || mino.summary) && (
+          <div style={cardStyle}>
+            {cardHead(Scale, "Отношение к миноритариям",
+              typeof mino.score === "number" ? <span style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: mino.score >= 4 ? "var(--positive)" : mino.score === 3 ? "var(--text-1)" : "var(--negative)" }}>{mino.score}/5</span> : null)}
+            {mino.summary && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginBottom: 12 }}>{mino.summary}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {precedents.map((p, i) => <PrecedentCard key={i} p={p} />)}
+            </div>
+          </div>
+        )}
+
+        {/* СЕКЦИЯ 4 — качество управления и риски */}
+        <div style={cardStyle}>
+          {cardHead(ShieldCheck, "Качество управления",
+            ovScore != null ? (
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontFamily: "monospace", fontSize: 24, fontWeight: 700, color: ovColor }}>{ovScore}/5</div>
+                <div style={{ fontSize: 11, color: "var(--text-3)" }}>интегральная оценка</div>
+              </div>
+            ) : null)}
+          {scores.overall?.rationale && <div style={{ fontSize: 12.5, color: "var(--text-3)", lineHeight: 1.5, marginBottom: 14 }}>{scores.overall.rationale}</div>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
+            {["ownership_transparency", "minority_protection", "dividend_consistency", "board_independence", "disclosure", "overall"].map((k) =>
+              scores[k] ? <ScoreBar key={k} label={SCORE_LABELS[k]} score={scores[k].score} rationale={scores[k].rationale} /> : null
+            )}
+          </div>
+          {(Array.isArray(gq.strengths) && gq.strengths.length > 0 || Array.isArray(gq.risks) && gq.risks.length > 0) && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14, marginTop: 16 }}>
+              {Array.isArray(gq.strengths) && gq.strengths.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8 }}>Сильные стороны</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {gq.strengths.map((s, i) => (
+                      <div key={i} style={{ background: "var(--pos-fade)", borderLeft: "3px solid var(--positive)", borderRadius: 8, padding: "8px 12px", fontSize: 12.5, color: "var(--text-1)", lineHeight: 1.45 }}>{s}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {Array.isArray(gq.risks) && gq.risks.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8 }}>Риски</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {gq.risks.map((r, i) => <RiskCard key={i} r={r} warn={WARN} />)}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {(gq.board || gq.transparency) && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 16, padding: 12, background: "var(--bg-card)", borderRadius: 8 }}>
+              {gq.board?.size != null && <Metric label="Размер СД" value={gq.board.size} />}
+              {gq.board?.independent_directors != null && <Metric label="Независимых директоров" value={gq.board.independent_directors + (typeof gq.board.independent_share_pct === "number" ? ` (${gq.board.independent_share_pct}%)` : "")} />}
+              {Array.isArray(gq.board?.committees) && gq.board.committees.length > 0 && <Metric label="Комитеты" value={gq.board.committees.length} />}
+              {gq.transparency?.ifrs_reporting != null && <Metric label="Отчётность МСФО" value={gq.transparency.ifrs_reporting ? "Да" : "Нет"} />}
+              {gq.transparency?.reporting_regularity && <Metric label="Регулярность" value={gq.transparency.reporting_regularity} />}
+              {gq.transparency?.disclosure_level && <Metric label="Раскрытие" value={gq.transparency.disclosure_level} />}
+            </div>
+          )}
+        </div>
+
+        {/* СЕКЦИЯ 5 — сопроводительный текст summary.md */}
+        {govSections.length > 0 && govSections.map((sec, i) => (
+          <div key={i} style={cardStyle}>
+            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
+              <Info size={16} style={{ color: "var(--accent)" }} />{sec.heading}
+            </h4>
+            <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderBusinessProfile = () => {
     const isLoading = bmMdLoading && profileLoading;
     if (isLoading) return (
@@ -3233,6 +3654,7 @@ const CompanyCard = ({ company, onBack }) => {
           { id: "overview", label: "Обзор" },
           { id: "business", label: "Бизнес-модель" },
           { id: "finance", label: "Финансы" },
+          { id: "governance", label: "Управление" },
           { id: "deep", label: "Глубокий разбор" },
           { id: "consilium", label: "Консилиум" },
           { id: "stress", label: "Стресс-тест" },
@@ -3257,6 +3679,7 @@ const CompanyCard = ({ company, onBack }) => {
         {tab === "overview" && renderOverview()}
         {tab === "business" && renderBusinessProfile()}
         {tab === "finance" && renderFinancials()}
+        {tab === "governance" && renderGovernance()}
         {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
         {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
         {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}

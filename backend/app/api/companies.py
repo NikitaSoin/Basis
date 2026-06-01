@@ -280,6 +280,27 @@ async def get_financials_summary_md(ticker: str):
     )
 
 
+@router.get("/companies/by-ticker/{ticker}/governance")
+async def get_governance_json(ticker: str):
+    """Блок «Корпоративное управление» в виде JSON (его рисует фронтенд)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "governance.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Governance not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+@router.get("/companies/by-ticker/{ticker}/governance-summary", response_class=PlainTextResponse)
+async def get_governance_summary_md(ticker: str):
+    """Текстовая интерпретация блока «Корпоративное управление» (markdown)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "governance_summary.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Governance summary not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
+
+
 @router.get("/sectors/{sector_key}/peers")
 async def get_sector_peers(sector_key: str):
     """Сравнение конкурентов по сектору + данные для карт-координат."""
