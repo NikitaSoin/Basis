@@ -1392,15 +1392,6 @@ const TYPE_LABEL = {
   institutional: "институционалы", foreign: "иностранцы", treasury: "казначейские",
   free_float: "free float", other: "прочее",
 };
-const SCORE_LABELS = {
-  ownership_transparency: "Прозрачность владения",
-  minority_protection: "Защита миноритариев",
-  dividend_consistency: "Стабильность дивидендов",
-  board_independence: "Независимость СД",
-  disclosure: "Раскрытие информации",
-  overall: "Интегральная оценка",
-};
-
 function Fact({ label, value }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "3px 0" }}>
@@ -1498,51 +1489,13 @@ function DividendChart({ history = [] }) {
     </svg>
   );
 }
-function ScoreBar({ label, score, rationale }) {
-  const has = typeof score === "number";
-  const s = has ? Math.max(0, Math.min(5, Math.round(score))) : 0;
-  const c = s >= 4 ? "var(--positive)" : s === 3 ? "var(--text-2)" : "var(--negative)";
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-        <span style={{ fontSize: 12.5, color: "var(--text-1)" }}>{label}</span>
-        {has
-          ? <span style={{ fontFamily: "monospace", fontSize: 12, color: c, fontWeight: 600 }}>{s}/5</span>
-          : <span style={{ fontSize: 11, color: "var(--text-3)" }}>не раскрыто</span>}
-      </div>
-      <div style={{ display: "flex", gap: 3 }}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <span key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: has && i <= s ? c : "var(--bg-card)", opacity: has ? 1 : 0.5 }} />
-        ))}
-      </div>
-      {rationale && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, lineHeight: 1.45 }}>{rationale}</div>}
-    </div>
-  );
-}
-function PrecedentCard({ p }) {
-  const tone = {
-    positive: { c: "var(--positive)", bg: "var(--pos-fade)" },
-    negative: { c: "var(--negative)", bg: "var(--neg-fade)" },
-  }[p.impact] || { c: "var(--text-3)", bg: "transparent" };
-  return (
-    <div style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: tone.c, flexShrink: 0 }} />
-        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{p.title}</span>
-        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{p.year}</span>
-      </div>
-      {p.type && <div style={{ fontSize: 11, color: "var(--text-3)", margin: "2px 0 0 16px" }}>{p.type}</div>}
-      <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, margin: "6px 0 0 16px" }}>{p.description}</div>
-    </div>
-  );
-}
 function RiskCard({ r, warn }) {
   const tone = { high: "var(--negative)", medium: warn, low: "var(--text-3)" }[r.severity] || "var(--text-3)";
   const SEV = { high: "высокий", medium: "средний", low: "низкий" }[r.severity] || r.severity;
   return (
     <div style={{ borderLeft: `3px solid ${tone}`, background: "var(--bg-card)", borderRadius: 8, padding: "10px 12px" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{r.title}</span>
+        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{r.risk || r.title}</span>
         <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 600, color: tone, textTransform: "uppercase", letterSpacing: "0.03em" }}>{SEV}</span>
       </div>
       <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{r.description}</div>
@@ -2898,10 +2851,10 @@ const CompanyCard = ({ company, onBack }) => {
     const meta = govJson?.meta || {};
     const own = govJson?.ownership || {};
     const div = govJson?.dividends || {};
-    const mino = govJson?.minority_treatment || {};
     const gq = govJson?.governance_quality || {};
+    const grisks = govJson?.governance_risks || [];
     const flags = govJson?.data_flags || [];
-    const scores = gq.scores || {};
+    const mt = gq.minority_treatment || [];
     const num = (x) => (typeof x === "number" ? x : null);
     const pctOrDash = (x) => (typeof x === "number" ? x + "%" : "—");
 
@@ -2918,24 +2871,29 @@ const CompanyCard = ({ company, onBack }) => {
     const td = { padding: "6px 8px", fontSize: 13, color: "var(--text-1)" };
     const tdNum = { ...td, textAlign: "right", fontFamily: "monospace", fontVariantNumeric: "tabular-nums" };
     const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
-    const ovScore = num(scores.overall?.score);
-    const ovColor = ovScore == null ? "var(--text-1)" : ovScore >= 4 ? "var(--positive)" : ovScore === 3 ? "var(--text-1)" : "var(--negative)";
-
+    const FLAG = { good: { c: "var(--positive)", t: "надёжное управление" }, mixed: { c: WARN, t: "смешанное" }, weak: { c: "var(--negative)", t: "слабое управление" }, insufficient_data: { c: "var(--text-3)", t: "мало данных" } }[meta.governance_quality_flag] || { c: "var(--text-3)", t: meta.governance_quality_flag || "—" };
+    const flagRight = (
+      <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 700, color: FLAG.c, background: "var(--bg-card)", border: `1px solid ${FLAG.c}` }}>{FLAG.t}</span>
+    );
+    const CTRL = { state: "государственный", private: "частный", founder: "контроль основателя", dispersed: "распылённый" };
     const assessTone = (txt) => {
       const t = String(txt || "").toLowerCase();
       if (/наруша|пропуск|непредсказ|нет истории/.test(t)) return { c: "var(--negative)", bg: "var(--neg-fade)" };
-      if (/соблюда|стабиль|в основном/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
+      if (/соблюда|стабиль|в основном|регулярно/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
       return { c: "var(--text-3)", bg: "transparent" };
     };
-
+    const minoTone = (s) => {
+      const t = String(s || "").toLowerCase();
+      if (/риск|негатив|ущемл|размыт|против/.test(t)) return { c: "var(--negative)", bg: "var(--neg-fade)" };
+      if (/позитив|в пользу|справедлив/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
+      return { c: "var(--text-3)", bg: "transparent" };
+    };
     const ffRight = typeof own.free_float_pct === "number" ? (
       <div style={{ textAlign: "right" }}>
         <div style={{ fontFamily: "monospace", fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, color: "var(--positive)" }}>{own.free_float_pct}%</div>
         <div style={{ fontSize: 11, color: "var(--text-3)" }}>free float</div>
       </div>
     ) : null;
-
-    const precedents = [...(mino.precedents || [])].sort((a, b) => (b.year || 0) - (a.year || 0));
     const govSections = splitH2(govMd);
 
     return (
@@ -2948,52 +2906,41 @@ const CompanyCard = ({ company, onBack }) => {
           <StackedOwnershipBar shareholders={own.shareholders || []} />
           <div style={{ marginTop: 14, padding: 12, borderRadius: 8, background: "var(--bg-card)", borderLeft: "3px solid var(--accent)" }}>
             <Fact label="Контролирующий собственник" value={own.controlling_shareholder || "—"} />
-            <Fact label="Конечный бенефициар" value={own.ultimate_beneficiary || "не раскрыт"} />
-            <Fact label="Доля государства" value={pctOrDash(num(own.state_share_pct))} />
+            <Fact label="Тип контроля" value={CTRL[own.control_type] || own.control_type || "—"} />
+            {own.ultimate_beneficiary && <Fact label="Конечный бенефициар" value={own.ultimate_beneficiary} />}
+            <Fact label="Квазиказначейский пакет" value={pctOrDash(num(own.treasury_quasitreasury_pct))} />
           </div>
+          {own.free_float_note && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8, lineHeight: 1.5 }}>{own.free_float_note}</div>}
           {Array.isArray(own.share_classes) && own.share_classes.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 14 }}>
               {own.share_classes.map((sc, i) => (
                 <div key={i} style={{ background: "var(--bg-card)", borderRadius: 10, padding: 14, border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                     <span style={{ fontWeight: 700, color: "var(--text-1)", fontSize: 13 }}>
-                      {sc.class === "preferred" ? "Привилегированные (ап)" : "Обыкновенные (ао)"}
+                      {/привил/i.test(sc.class || "") ? "Привилегированные (ап)" : "Обыкновенные (ао)"}
                     </span>
                     <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-3)" }}>{sc.ticker || ""}</span>
                   </div>
-                  <div style={{ display: "flex", gap: 18, marginTop: 10 }}>
-                    <Metric label="Голосов / акцию" value={sc.votes_per_share ?? "—"} />
-                    <Metric label="Доля капитала" value={pctOrDash(num(sc.share_of_capital_pct))} />
-                  </div>
-                  <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 10, lineHeight: 1.5 }}>
-                    <b style={{ color: "var(--text-1)" }}>Дивиденд:</b> {sc.dividend_rule || "—"}
-                  </div>
-                  {sc.note && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6 }}>{sc.note}</div>}
+                  {sc.rights_note && <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 8, lineHeight: 1.5 }}>{sc.rights_note}</div>}
                 </div>
               ))}
             </div>
           )}
-          {own.notes && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12, lineHeight: 1.5 }}>{own.notes}</div>}
+          {own.treasury_note && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12, lineHeight: 1.5 }}>{own.treasury_note}</div>}
         </div>
 
         {/* СЕКЦИЯ 2 — дивиденды */}
         <div style={cardStyle}>
           {cardHead(Wallet, "Дивиденды")}
-          {div.policy && (
-            div.policy.exists === false ? (
-              <div style={{ background: "var(--neg-fade)", borderLeft: "3px solid var(--negative)", borderRadius: 8, padding: "10px 12px", marginBottom: 14 }}>
-                <span style={{ fontSize: 13, color: "var(--text-1)" }}>Формальной дивидендной политики нет.</span>
+          {(div.policy_text || div.policy_base) && (
+            <div style={{ background: "var(--bg-card)", borderRadius: 8, padding: 12, marginBottom: 14 }}>
+              <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.5 }}>{div.policy_text || "—"}</div>
+              <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, display: "flex", flexWrap: "wrap", gap: "2px 14px" }}>
+                {div.policy_base && <span>База: {div.policy_base}</span>}
+                {typeof div.policy_min_payout_pct === "number" && <span>Мин. payout: {div.policy_min_payout_pct}%</span>}
+                {div.policy_conditions && <span>{div.policy_conditions}</span>}
               </div>
-            ) : (
-              <div style={{ background: "var(--bg-card)", borderRadius: 8, padding: 12, marginBottom: 14 }}>
-                <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.5 }}>{div.policy.summary}</div>
-                <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, display: "flex", flexWrap: "wrap", gap: "2px 14px" }}>
-                  {div.policy.target_basis && <span>База: {div.policy.target_basis}</span>}
-                  {typeof div.policy.target_payout_pct === "number" && <span>Целевой payout: {div.policy.target_payout_pct}%</span>}
-                  {div.policy.frequency && <span>Периодичность: {div.policy.frequency}</span>}
-                </div>
-              </div>
-            )
+            </div>
           )}
           <DividendChart history={div.history || []} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", margin: "6px 0 12px", fontSize: 11, color: "var(--text-3)" }}>
@@ -3016,8 +2963,8 @@ const CompanyCard = ({ company, onBack }) => {
                     <tr key={ri} style={{ background: ri % 2 ? "var(--bg-card)" : "transparent" }}>
                       <td style={td}>{d.year}</td>
                       <td style={tdNum}>{typeof d.dps === "number" ? d.dps : "—"}</td>
-                      <td style={tdNum}>{pctOrDash(num(d.payout_ratio_pct))}</td>
-                      <td style={tdNum}>{pctOrDash(num(d.div_yield_pct))}</td>
+                      <td style={tdNum}>{pctOrDash(num(d.payout_pct))}</td>
+                      <td style={tdNum}>{pctOrDash(num(d.yield_pct))}</td>
                       <td style={{ ...tdNum, color: d.paid === false ? "var(--text-3)" : d.special ? "var(--accent)" : "var(--text-3)" }}>
                         {d.paid === false ? "не платили" : d.special ? "спец" : ""}
                       </td>
@@ -3027,80 +2974,74 @@ const CompanyCard = ({ company, onBack }) => {
               </table>
             </div>
           )}
-          {div.policy_vs_practice && (() => {
-            const tone = assessTone(div.policy_vs_practice.assessment);
+          {(div.regularity_note || div.policy_vs_practice) && (() => {
+            const tone = assessTone(div.regularity_note);
             return (
               <div style={{ marginTop: 14, background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>Политика vs практика: {div.policy_vs_practice.assessment}</div>
-                {Array.isArray(div.policy_vs_practice.skipped_years) && div.policy_vs_practice.skipped_years.length > 0 &&
-                  <div style={{ fontSize: 12, color: "var(--text-3)", fontFamily: "monospace", marginTop: 4 }}>Пропущенные годы: {div.policy_vs_practice.skipped_years.join(", ")}</div>}
-                {div.policy_vs_practice.commentary &&
-                  <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{div.policy_vs_practice.commentary}</div>}
+                {div.regularity_note && <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>Политика vs практика: {div.regularity_note}</div>}
+                {div.policy_vs_practice && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{div.policy_vs_practice}</div>}
               </div>
             );
           })()}
         </div>
 
-        {/* СЕКЦИЯ 3 — прецеденты по миноритариям */}
-        {(precedents.length > 0 || mino.summary) && (
-          <div style={cardStyle}>
-            {cardHead(Scale, "Отношение к миноритариям",
-              typeof mino.score === "number" ? <span style={{ fontFamily: "monospace", fontSize: 16, fontWeight: 700, color: mino.score >= 4 ? "var(--positive)" : mino.score === 3 ? "var(--text-1)" : "var(--negative)" }}>{mino.score}/5</span> : null)}
-            {mino.summary && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginBottom: 12 }}>{mino.summary}</div>}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {precedents.map((p, i) => <PrecedentCard key={i} p={p} />)}
-            </div>
-          </div>
-        )}
-
-        {/* СЕКЦИЯ 4 — качество управления и риски */}
+        {/* СЕКЦИЯ 3 — качество управления */}
         <div style={cardStyle}>
-          {cardHead(ShieldCheck, "Качество управления",
-            ovScore != null ? (
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "monospace", fontSize: 24, fontWeight: 700, color: ovColor }}>{ovScore}/5</div>
-                <div style={{ fontSize: 11, color: "var(--text-3)" }}>интегральная оценка</div>
+          {cardHead(ShieldCheck, "Качество управления", flagRight)}
+          {meta.governance_quality_note && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginBottom: 14 }}>{meta.governance_quality_note}</div>}
+          {mt.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Scale size={14} style={{ color: "var(--accent)" }} />Отношение к миноритариям</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {mt.map((p, i) => {
+                  const tone = minoTone((p.implication || "") + " " + (p.description || ""));
+                  return (
+                    <div key={i} style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: tone.c, flexShrink: 0 }} />
+                        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{p.event}</span>
+                        {p.period && <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{p.period}</span>}
+                      </div>
+                      {p.description && <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, margin: "6px 0 0 16px" }}>{p.description}</div>}
+                      {p.implication && <div style={{ fontSize: 12, color: tone.c, lineHeight: 1.45, margin: "4px 0 0 16px" }}>{p.implication}</div>}
+                    </div>
+                  );
+                })}
               </div>
-            ) : null)}
-          {scores.overall?.rationale && <div style={{ fontSize: 12.5, color: "var(--text-3)", lineHeight: 1.5, marginBottom: 14 }}>{scores.overall.rationale}</div>}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
-            {["ownership_transparency", "minority_protection", "dividend_consistency", "board_independence", "disclosure", "overall"].map((k) =>
-              scores[k] ? <ScoreBar key={k} label={SCORE_LABELS[k]} score={scores[k].score} rationale={scores[k].rationale} /> : null
-            )}
-          </div>
-          {(Array.isArray(gq.strengths) && gq.strengths.length > 0 || Array.isArray(gq.risks) && gq.risks.length > 0) && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14, marginTop: 16 }}>
-              {Array.isArray(gq.strengths) && gq.strengths.length > 0 && (
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8 }}>Сильные стороны</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {gq.strengths.map((s, i) => (
-                      <div key={i} style={{ background: "var(--pos-fade)", borderLeft: "3px solid var(--positive)", borderRadius: 8, padding: "8px 12px", fontSize: 12.5, color: "var(--text-1)", lineHeight: 1.45 }}>{s}</div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {Array.isArray(gq.risks) && gq.risks.length > 0 && (
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8 }}>Риски</div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {gq.risks.map((r, i) => <RiskCard key={i} r={r} warn={WARN} />)}
-                  </div>
-                </div>
-              )}
             </div>
           )}
-          {(gq.board || gq.transparency) && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 16, padding: 12, background: "var(--bg-card)", borderRadius: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {gq.transparency && <Fact label="Прозрачность / раскрытие" value={gq.transparency} />}
+            {gq.related_party?.note && <Fact label="Связанные стороны" value={gq.related_party.note} />}
+            {gq.management?.note && <Fact label="Менеджмент" value={gq.management.note} />}
+          </div>
+          {(gq.board?.size != null || gq.board?.independent_count != null || gq.board?.note) && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 14, padding: 12, background: "var(--bg-card)", borderRadius: 8 }}>
               {gq.board?.size != null && <Metric label="Размер СД" value={gq.board.size} />}
-              {gq.board?.independent_directors != null && <Metric label="Независимых директоров" value={gq.board.independent_directors + (typeof gq.board.independent_share_pct === "number" ? ` (${gq.board.independent_share_pct}%)` : "")} />}
-              {Array.isArray(gq.board?.committees) && gq.board.committees.length > 0 && <Metric label="Комитеты" value={gq.board.committees.length} />}
-              {gq.transparency?.ifrs_reporting != null && <Metric label="Отчётность МСФО" value={gq.transparency.ifrs_reporting ? "Да" : "Нет"} />}
-              {gq.transparency?.reporting_regularity && <Metric label="Регулярность" value={gq.transparency.reporting_regularity} />}
-              {gq.transparency?.disclosure_level && <Metric label="Раскрытие" value={gq.transparency.disclosure_level} />}
+              {gq.board?.independent_count != null && <Metric label="Независимых директоров" value={gq.board.independent_count} />}
+              {gq.board?.note && <div style={{ fontSize: 12, color: "var(--text-2)", alignSelf: "center" }}>{gq.board.note}</div>}
+            </div>
+          )}
+          {Array.isArray(gq.key_figures) && gq.key_figures.length > 0 && (
+            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }}>
+              {gq.key_figures.map((k, i) => (
+                <div key={i} style={{ fontSize: 12.5, color: "var(--text-2)" }}>
+                  <b style={{ color: "var(--text-1)" }}>{k.name}</b>{k.role ? ` — ${k.role}` : ""}{k.note ? `. ${k.note}` : ""}
+                </div>
+              ))}
             </div>
           )}
         </div>
+
+        {/* СЕКЦИЯ 4 — риски управления */}
+        {grisks.length > 0 && (
+          <div style={cardStyle}>
+            {cardHead(AlertTriangle, "Риски управления")}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {grisks.map((r, i) => <RiskCard key={i} r={r} warn={WARN} />)}
+            </div>
+          </div>
+        )}
 
         {/* СЕКЦИЯ 5 — сопроводительный текст summary.md */}
         {govSections.length > 0 && govSections.map((sec, i) => (
