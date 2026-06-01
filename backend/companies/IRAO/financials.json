@@ -1,0 +1,608 @@
+{
+  "meta": {
+    "ticker": "IRAO",
+    "name": "ПАО «Интер РАО»",
+    "sector": "Электроэнергетика",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 3.2445,
+    "price_date": "2026-05-20",
+    "shares_outstanding": 104400,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Огромная чистая денежная позиция: на конец 2025 чистый долг = −260 952 млн (кэш и эквиваленты 266 511 млн при общем долге всего 5 559 млн). Из-за этого EV = капитализация − чистый кэш = 77 774 млн — лишь ~23% капитализации (338 726 млн). EV/EBITDA = 0.53 СИЛЬНО ЗАНИЖЕН и не отражает реальную дороговизну операционного бизнеса: это «дисконт кубышки». Рынок исторически дисконтирует кэш Интер РАО (не выплачивается акционерам целиком, payout ~25%). В DCF денежная подушка возвращается через −net_debt, поэтому DCF-цена близка к рынку. Корректнее сравнивать операцию по P/E и марже, а EV/EBITDA трактовать с поправкой на кэш.",
+  "income_statement": {
+    "revenue": [
+      1032120,
+      986292,
+      null,
+      1264996,
+      1359799,
+      1548447,
+      1760626
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      98307,
+      80540,
+      null,
+      108419,
+      124884,
+      108005,
+      106800
+    ],
+    "ebitda": [
+      126309,
+      109509,
+      null,
+      134655,
+      155293,
+      143867,
+      146769
+    ],
+    "da": [
+      28002,
+      28969,
+      null,
+      26236,
+      30409,
+      35862,
+      39969
+    ],
+    "finance_costs": [
+      12538,
+      8515,
+      null,
+      24715,
+      11608,
+      14137,
+      15891
+    ],
+    "net_profit": [
+      81631,
+      74989,
+      null,
+      115299,
+      133112,
+      144219,
+      131029
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        12.24,
+        11.1,
+        null,
+        10.64,
+        11.42,
+        9.29,
+        8.34
+      ],
+      "operating_margin": [
+        9.52,
+        8.17,
+        null,
+        8.57,
+        9.18,
+        6.98,
+        6.07
+      ],
+      "net_margin": [
+        7.91,
+        7.6,
+        null,
+        9.11,
+        9.79,
+        9.31,
+        7.44
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      751009,
+      865243,
+      null,
+      1121971,
+      1299183,
+      1460989,
+      1577153
+    ],
+    "total_equity": [
+      552779,
+      616097,
+      null,
+      804684,
+      929397,
+      1039136,
+      1138805
+    ],
+    "total_liabilities": [
+      198230,
+      249146,
+      null,
+      317287,
+      369786,
+      421853,
+      438348
+    ],
+    "cash": [
+      95924,
+      181116,
+      null,
+      257569,
+      403005,
+      312088,
+      266511
+    ],
+    "short_term_debt": [
+      2842,
+      2788,
+      null,
+      12268,
+      17982,
+      9263,
+      3486
+    ],
+    "long_term_debt": [
+      474,
+      263,
+      null,
+      1088,
+      1251,
+      1839,
+      2073
+    ],
+    "net_debt": [
+      -92608,
+      -178065,
+      null,
+      -244213,
+      -383772,
+      -300986,
+      -260952
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.006,
+        0.005,
+        null,
+        0.0166,
+        0.0207,
+        0.0107,
+        0.0049
+      ],
+      "net_debt_ebitda": [
+        -0.73,
+        -1.63,
+        null,
+        -1.81,
+        -2.47,
+        -2.09,
+        -1.78
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      109256,
+      101743,
+      null,
+      126784,
+      122610,
+      115518,
+      99421
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      24466,
+      28546,
+      null,
+      54920,
+      69156,
+      115826,
+      193144
+    ],
+    "fcf": [
+      84790,
+      73197,
+      null,
+      71864,
+      53454,
+      -308,
+      -93723
+    ],
+    "ratios": {
+      "fcf_margin": [
+        8.22,
+        7.42,
+        null,
+        5.68,
+        3.93,
+        -0.02,
+        -5.32
+      ],
+      "cfo_to_capex": [
+        4.47,
+        3.56,
+        null,
+        2.31,
+        1.77,
+        1.0,
+        0.51
+      ],
+      "capex_to_revenue": [
+        2.37,
+        2.89,
+        null,
+        4.34,
+        5.09,
+        7.48,
+        10.97
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      14.77,
+      12.17,
+      null,
+      14.33,
+      14.32,
+      13.88,
+      11.51
+    ],
+    "roa": [
+      10.87,
+      8.67,
+      null,
+      10.28,
+      10.25,
+      9.87,
+      8.31
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      7.91,
+      7.6,
+      null,
+      9.11,
+      9.79,
+      9.31,
+      7.44
+    ],
+    "asset_turnover": [
+      1.37,
+      1.14,
+      null,
+      1.13,
+      1.05,
+      1.06,
+      1.12
+    ]
+  },
+  "multiples": {
+    "pe": [
+      6.26,
+      7.16,
+      null,
+      3.65,
+      2.95,
+      2.39,
+      2.59
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 2.59,
+      "ps": 0.192,
+      "pb": 0.297,
+      "ev_ebitda": 0.53,
+      "as_of": "2026-05-20"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 4.17,
+      "pe_5y_median": 3.3,
+      "period": "2017–2025 (без 2021, нет данных)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.59,
+      "ps": 0.192,
+      "pb": 0.297,
+      "ev_ebitda": 0.53,
+      "roe": 11.51,
+      "net_margin": 7.44
+    },
+    "2024": {
+      "pe": 2.59,
+      "ps": 0.22,
+      "pb": 0.33,
+      "ev_ebitda": 0.31,
+      "roe": 13.88,
+      "net_margin": 9.31
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского консенсуса в источниках нет. Механический прогноз: рост выручки ~4% в год (ниже исторического CAGR ~7%, затухание к макротренду). Риски прибыли: ставка налога 25% и снижение процентного дохода от кубышки при падении ключевой ставки."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 3.2073190664315394,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2135,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "beta": 0.75,
+          "fcf0_normalized": 12516.333333333328,
+          "note": "WACC≈Ke (долг минимален). FCF нормализован: CFO ~ среднее 3 лет, CapEx ~100 000 (КОММод-программа выше нормы). Кэш-подушка возвращается через −net_debt."
+        },
+        "tv_share_of_value_pct": 45.4,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 4.141721264367816,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.3,
+          "basis": "медиана P/E 2017–2025 = 3.3; EPS_2025 = 1.26",
+          "note": "P/E компании структурно низкий — рынок дисконтирует кубышку и госучастие."
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Ждёт прогон всего сектора электроэнергетики и заполнения sectors/.../peers.json. Для IRAO относительная оценка по EV/EBITDA исказится кубышкой — предпочтительнее P/E или P/BV×ROE."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 3.58720075,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2135,
+          "beta": 0.75,
+          "expected_div_yield": 0.1079,
+          "note": "Таргет 12 мес: P_target = P×(1+(Ke−дивдоходность)). Ke=14.6%+0.75×9%=21.35%."
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 2.0294117647058822,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_forward": 0.35,
+          "required_yield_model": "Гордон: DPS×(1+g)/(Ke−g)",
+          "g": 0.035,
+          "ke": 0.2135,
+          "note": "Payout ~25–28% от ЧП, дивиденд 0.35 руб/акц за 2025. Метод даёт самую низкую (консервативную) оценку — кубышка не распределяется."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2.03,
+      "base": 3.4,
+      "current_price": 3.2445,
+      "upside_downside_pct": 4.8
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.2035,
+        0.2135,
+        0.2235
+      ],
+      "growth_grid": [
+        0.02,
+        0.04,
+        0.06
+      ],
+      "matrix": [
+        [
+          3.2,
+          3.25,
+          3.31
+        ],
+        [
+          3.16,
+          3.21,
+          3.26
+        ],
+        [
+          3.12,
+          3.17,
+          3.22
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Интер РАО (МСФО 2025) на 20.05.2026 — инфографика «Финансовая отчётность»",
+      "period": "2016–2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО «Интер РАО» — консолидированная отчётность МСФО за 2025 (раскрытие 27.02.2026)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX — котировка IRAO 3.2445 руб на 20.05.2026",
+      "period": "2026-05-20",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Год 2021 в источнике отсутствует (пропуск в рядах) — везде null.",
+    "Источник (инфографика) даёт EBITDA_2025 = 146 769 млн и ЧП = 131 029 млн (вся группа). В business_model.md фигурируют EBITDA 181,5 млрд и ЧП акционеров 133,8 млрд — расхождение из-за разной методики EBITDA (вкл./искл. процентный доход и доли ассоциированных) и базы ЧП (группа vs акционеры). Для оценки взяты числа источника как контролируемые.",
+    "COGS, gross_profit, opex, CFI, CFF, current_ratio в инфографике не раскрыты — null.",
+    "FCF_2025 = −93 723 млн (CapEx-пик по КОММод). Для DCF FCF нормализован, иначе оценка отрицательная и нерепрезентативная.",
+    "EV/EBITDA = 0.53 занижен кубышкой (см. anomaly_note) — нельзя трактовать как «дёшево» напрямую.",
+    "relative_peers не посчитан — нужен секторный peers.json (status pending_sector_backfill).",
+    "Прогноз механический (нет брокерского консенсуса в источниках) — коридор оценки широкий.",
+    "ROE_2025 пересчитан на конец периода = 11.51% (источник показывает 12.61% по средн. капиталу за 2024-базу) — методическое расхождение."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

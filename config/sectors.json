@@ -1,6 +1,6 @@
 {
   "_about": "Реестр секторов — единый источник правды: сектор → тикеры. Сгенерирован из БД (companies.sector). Используется для прогона по сектору (напр. financial-analyst по oil_gas).",
-  "updated_at": "2026-05-31",
+  "updated_at": "2026-06-01",
   "sectors": {
     "development": {
       "name": "Девелопмент",
@@ -34,9 +34,8 @@
     },
     "machinery": {
       "name": "Машиностроение",
-      "count": 28,
+      "count": 27,
       "tickers": [
-        "BAZA",
         "CHKZ",
         "EELT",
         "GAZA",
@@ -324,9 +323,10 @@
     },
     "it": {
       "name": "IT-сектор",
-      "count": 14,
+      "count": 15,
       "tickers": [
         "ASTR",
+        "BAZA",
         "CARM",
         "CNRU",
         "DATA",

@@ -1,0 +1,757 @@
+{
+  "meta": {
+    "ticker": "KZOS",
+    "name": "ПАО «Казаньоргсинтез»",
+    "sector": "Нефтехимия / полимеры",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 58.8,
+    "price_date": "2026-05-27",
+    "shares_outstanding": 1785.11,
+    "shares_outstanding_unit": "млн шт (обыкновенные)",
+    "shares_preferred": 119.6,
+    "pref_ticker": "KZOSP",
+    "pref_price": 13.66,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "В исходном PDF (агрегатор СРКИ по МСФО) ОТСУТСТВУЮТ данные за 2021 и 2022 годы — во всех рядах на этих позициях стоят нули/пропуски. В JSON 2021 и 2022 = null (НЕ ноль). Все ряды реально покрывают 2016–2020 и 2023–2025. Кроме того: (1) переход из чистой денежной позиции (−7.7 млрд в 2020) в чистый долг 33.4 млрд в 2025 из-за пиковой инвестпрограммы (ЭП-600); (2) FCF ушёл в минус в 2023–2025 (−11.4 млрд в 2025) из-за CapEx 41.1 млрд → P/FCF отрицательный и неинформативен; (3) payout >100% в 2019–2020 и 2023–2025 (дивиденды выше ЧП — за счёт накопленного кэша); (4) DCF при ставке дисконтирования 24.5% (Rf 14.6% + beta·ERP) даёт сильно заниженную оценку ~6 руб — типичный эффект высокой безрисковой ставки РФ для капиталоёмкого циклика, метод ненадёжен изолированно.",
+  "income_statement": {
+    "revenue": [
+      75514,
+      72106,
+      79122,
+      72579,
+      62935,
+      null,
+      null,
+      99558,
+      104889,
+      99945
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      23265,
+      18882,
+      22935,
+      15619,
+      10107,
+      null,
+      null,
+      19868,
+      13527,
+      9309
+    ],
+    "ebitda": [
+      26649,
+      22090,
+      26141,
+      19021,
+      13523,
+      null,
+      null,
+      30289,
+      24845,
+      21026
+    ],
+    "da": [
+      3384,
+      3208,
+      3206,
+      3402,
+      3416,
+      null,
+      null,
+      10421,
+      11318,
+      11717
+    ],
+    "finance_costs": [
+      754,
+      312,
+      25,
+      18,
+      101,
+      null,
+      null,
+      175,
+      199,
+      194
+    ],
+    "net_profit": [
+      17971,
+      15057,
+      20083,
+      11882,
+      8431,
+      null,
+      null,
+      15890,
+      10612,
+      7299
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        35.29,
+        30.64,
+        33.04,
+        26.21,
+        21.49,
+        null,
+        null,
+        30.42,
+        23.69,
+        21.04
+      ],
+      "operating_margin": [
+        30.81,
+        26.19,
+        28.99,
+        21.52,
+        16.06,
+        null,
+        null,
+        19.96,
+        12.9,
+        9.31
+      ],
+      "net_margin": [
+        23.8,
+        20.88,
+        25.38,
+        16.37,
+        13.4,
+        null,
+        null,
+        15.96,
+        10.12,
+        7.3
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      63101,
+      65774,
+      75720,
+      72668,
+      75083,
+      null,
+      null,
+      167190,
+      182345,
+      215076
+    ],
+    "total_equity": [
+      48871,
+      54854,
+      67410,
+      65278,
+      65508,
+      null,
+      null,
+      144102,
+      140812,
+      143791
+    ],
+    "total_liabilities": [
+      14230,
+      10920,
+      8310,
+      7390,
+      9575,
+      null,
+      null,
+      23088,
+      41533,
+      71285
+    ],
+    "cash": [
+      2717,
+      10330,
+      6961,
+      8056,
+      7688,
+      null,
+      null,
+      1989,
+      644,
+      655
+    ],
+    "short_term_debt": [
+      5878,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2100,
+      5000,
+      2100
+    ],
+    "long_term_debt": [
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0,
+      6000,
+      32000
+    ],
+    "net_debt": [
+      3161,
+      -10330,
+      -6961,
+      -8056,
+      -7688,
+      null,
+      null,
+      111,
+      10356,
+      33445
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.12,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        null,
+        null,
+        0.01,
+        0.08,
+        0.24
+      ],
+      "net_debt_ebitda": [
+        0.12,
+        -0.47,
+        -0.27,
+        -0.42,
+        -0.57,
+        null,
+        null,
+        0.0,
+        0.42,
+        1.59
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      12136,
+      24725,
+      20089,
+      14631,
+      13068,
+      null,
+      null,
+      18170,
+      21876,
+      29723
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      5352,
+      7195,
+      10567,
+      11078,
+      6195,
+      null,
+      null,
+      20610,
+      22066,
+      41107
+    ],
+    "fcf": [
+      6784,
+      17530,
+      9522,
+      3553,
+      6873,
+      null,
+      null,
+      -2440,
+      -190,
+      -11384
+    ],
+    "ratios": {
+      "fcf_margin": [
+        8.98,
+        24.31,
+        12.03,
+        4.9,
+        10.92,
+        null,
+        null,
+        -2.45,
+        -0.18,
+        -11.39
+      ],
+      "cfo_to_capex": [
+        2.27,
+        3.44,
+        1.9,
+        1.32,
+        2.11,
+        null,
+        null,
+        0.88,
+        0.99,
+        0.72
+      ],
+      "capex_to_revenue": [
+        7.09,
+        9.98,
+        13.36,
+        15.26,
+        9.84,
+        null,
+        null,
+        20.7,
+        21.04,
+        41.13
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      36.77,
+      27.45,
+      29.79,
+      18.2,
+      12.87,
+      null,
+      null,
+      11.03,
+      7.54,
+      5.08
+    ],
+    "roa": [
+      28.48,
+      22.89,
+      26.52,
+      16.35,
+      11.23,
+      null,
+      null,
+      9.5,
+      5.82,
+      3.39
+    ],
+    "roic": [
+      35.77,
+      33.93,
+      30.35,
+      21.84,
+      13.98,
+      null,
+      null,
+      11.02,
+      7.16,
+      3.94
+    ],
+    "ros": [
+      23.8,
+      20.88,
+      25.38,
+      16.37,
+      13.4,
+      null,
+      null,
+      15.96,
+      10.12,
+      7.3
+    ],
+    "asset_turnover": [
+      1.2,
+      1.1,
+      1.04,
+      1.0,
+      0.84,
+      null,
+      null,
+      0.6,
+      0.58,
+      0.46
+    ]
+  },
+  "multiples": {
+    "pe": [
+      6.2,
+      11.0,
+      8.76,
+      12.85,
+      19.32,
+      null,
+      null,
+      9.9,
+      11.55,
+      14.6
+    ],
+    "ps": [
+      1.48,
+      2.3,
+      2.22,
+      2.1,
+      2.59,
+      null,
+      null,
+      1.58,
+      1.17,
+      1.07
+    ],
+    "pb": [
+      2.28,
+      3.02,
+      2.61,
+      2.34,
+      2.49,
+      null,
+      null,
+      1.09,
+      0.87,
+      0.74
+    ],
+    "ev_ebitda": [
+      4.3,
+      7.03,
+      6.46,
+      7.6,
+      11.48,
+      null,
+      null,
+      5.2,
+      5.35,
+      6.66
+    ],
+    "current": {
+      "pe": 14.6,
+      "ps": 1.07,
+      "pb": 0.74,
+      "ev_ebitda": 6.66,
+      "p_fcf": -9.36,
+      "e_p": 6.85,
+      "as_of": "2026-05-27"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 11.77,
+      "pe_5y_median": 11.28,
+      "ev_ebitda_8y_avg": 6.76,
+      "ev_ebitda_median": 6.56,
+      "period": "2016-2025 (без 2021-2022)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "ev_ebitda": 6.66,
+      "pe": 14.6,
+      "ps": 1.07,
+      "pb": 0.74,
+      "roe": 5.18,
+      "net_debt_ebitda": 1.62
+    },
+    "2024": {
+      "ev_ebitda": 5.35,
+      "pe": 11.55,
+      "ps": 1.17,
+      "pb": 0.87,
+      "roe": 7.54,
+      "net_debt_ebitda": 0.42
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Публичного брокерского консенсуса по KZOS нет (низкий free-float, неликвид). Компания прогнозов не даёт. Прогноз механический невозможен из-за дыры 2021-2022 и циклической волатильности — для DCF использована нормализованная среднецикловая EBITDA ~24 млрд (уровень 2024), capex затухает с пика 2025."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 6.04,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.245,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "normalized_ebitda_mln": 24000,
+          "normalized_capex_mln": 12000,
+          "tax": 0.25,
+          "beta": 1.1
+        },
+        "tv_share_of_value_pct": 39.8,
+        "status": "ok",
+        "note": "Сильно занижен из-за ставки дисконтирования 24.5% и чистого долга 33.4 млрд; рассматривать только в связке с прочими методами."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 45.91,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 11.28,
+          "basis": "median_2016_2025_excl_2021_2022",
+          "eps": 4.07
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор «Нефтехимия» (PHOR, NKNC, AKRN, KAZT, NKSH) ещё не прогнан целиком — медиана сектора будет добита позже."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 64.11,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.245,
+          "beta": 1.1,
+          "expected_div_yield": 0.155
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 18.83,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "normalized_div_per_share": 3.39,
+          "required_yield": 0.18,
+          "policy": ">=70% скорр. ЧП по МСФО; преф — 25% от номинала фикс."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 12.4,
+      "base": 45.9,
+      "current_price": 58.8,
+      "upside_downside_pct": -21.9,
+      "note": "Очень широкий разброс методов (6–64 руб) отражает реальную неопределённость циклика при высокой ставке. База — исторический P/E."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.22,
+        0.235,
+        0.245,
+        0.26
+      ],
+      "growth_grid": [
+        0.025,
+        0.03,
+        0.035
+      ],
+      "matrix": [
+        [
+          8.5,
+          8.9,
+          9.2
+        ],
+        [
+          6.6,
+          6.9,
+          7.2
+        ],
+        [
+          5.5,
+          5.8,
+          6.0
+        ],
+        [
+          4.0,
+          4.2,
+          4.5
+        ]
+      ]
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "sector": "Нефтехимия",
+    "note": "Из PDF (стр.19) доступна отраслевая таблица: ФосАгро, НКНХ, Acron, КуйбышевАзот, Казаньоргсинтез, Нижнекамскшина. Подставить медиану после прогона всего сектора."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Казаньоргсинтез МСФО 2016-2025 (инфографика СРКИ, агрегатор)",
+      "period": "2016-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО Казаньоргсинтез — годовая отчётность МСФО, дивполитика (Протокол СД №27 от 26.03.2023)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX котировки KZOS 58.8 / KZOSP 13.66 на 27.05.2026",
+      "period": "2026-05-27",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "2021 и 2022 годы отсутствуют в источнике (null), не путать с нулём — anomaly_flag=true.",
+    "Постатейная себестоимость (cogs, gross_profit, opex) в источнике не раскрыта — null.",
+    "CFI/CFF и net_change_in_cash не приведены в инфографике — null; FCF взят из источника и сверен (cfo−capex): 2025 29723−41107=−11384 ✓.",
+    "FCF отрицательный 2023-2025 → P/FCF неинформативен; оценка по P/FCF не применялась.",
+    "DCF чувствителен: TV-доля 39.8% (норма), но абсолют занижен ставкой 24.5% — держать в связке с историч. P/E.",
+    "relative_peers и медиана сектора — pending_sector_backfill.",
+    "Дивиденд на обыкновенную/привилег. акцию в источнике подан переплетённо (стр.17) — использованы payout и EPS, ряд div_ord не клался во избежание ошибки."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.72,
+    "fair_value_per_share": 47.83,
+    "upside_downside_pct": -18.7,
+    "status": "ok"
+  }
+}

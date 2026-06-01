@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "ticker": "LIFE",
+    "name": "ПАО «Фармсинтез»",
+    "sector": "Фармацевтика / биотех",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
+    ],
+    "last_price": 2.875,
+    "price_date": "2026-05-12",
+    "shares_outstanding": 440390000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Хронически убыточный эмитент 3-го эшелона. EBITDA отрицательна во ВСЕ годы 2017–2023 → EV/EBITDA, ND/EBITDA, ROE, ROA, P/E не имеют экономического смысла (отрицательные). Капитал тонкий и волатильный (121 млн в 2022 → 479 млн в 2023 за счёт допэмиссии), накопленный убыток −4 722 млн. Финансирование за счёт долга и регулярных допэмиссий (акций стало 301→440 млн шт.). Акция малоликвидна. Оценка возможна только по P/S и P/BV с широким коридором.",
+  "income_statement": {
+    "revenue": [
+      719,
+      349,
+      291,
+      372,
+      438,
+      380,
+      379
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      -481,
+      -541,
+      -2021,
+      -500,
+      -644,
+      -167,
+      -246
+    ],
+    "ebitda": [
+      -437,
+      -486,
+      -1995,
+      -455,
+      -612,
+      -148,
+      -227
+    ],
+    "da": [
+      44,
+      55,
+      26,
+      44,
+      32,
+      20,
+      19
+    ],
+    "finance_costs": [
+      5,
+      10,
+      10,
+      30,
+      10,
+      41,
+      38
+    ],
+    "net_profit": [
+      -358,
+      -418,
+      -1812,
+      -525,
+      -698,
+      -207,
+      -277
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        -60.78,
+        -139.26,
+        -685.57,
+        -122.31,
+        -139.73,
+        -38.95,
+        -59.89
+      ],
+      "operating_margin": [
+        -66.9,
+        -155.01,
+        -694.5,
+        -134.41,
+        -147.03,
+        -43.95,
+        -64.91
+      ],
+      "net_margin": [
+        -49.79,
+        -119.77,
+        -622.68,
+        -141.13,
+        -159.36,
+        -54.47,
+        -73.09
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      5493,
+      4551,
+      2426,
+      2052,
+      1425,
+      1338,
+      1544
+    ],
+    "total_equity": [
+      4420,
+      3474,
+      1364,
+      1014,
+      345,
+      121,
+      479
+    ],
+    "total_liabilities": [
+      1073,
+      1077,
+      1062,
+      1038,
+      1080,
+      1217,
+      1065
+    ],
+    "cash": [
+      5,
+      5,
+      67,
+      10413,
+      15296,
+      9,
+      26
+    ],
+    "short_term_debt": [
+      3,
+      63,
+      112,
+      388,
+      398,
+      484,
+      453
+    ],
+    "long_term_debt": [
+      49,
+      60,
+      140,
+      13,
+      87,
+      17,
+      13
+    ],
+    "net_debt": [
+      47,
+      117,
+      185,
+      -10012,
+      -14811,
+      491,
+      439
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.01,
+        0.04,
+        0.18,
+        0.4,
+        1.41,
+        4.13,
+        0.97
+      ],
+      "net_debt_ebitda": [
+        -0.11,
+        -0.24,
+        -0.09,
+        22.0,
+        24.2,
+        -3.32,
+        -1.93
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -167,
+      -113,
+      -69,
+      -233,
+      -63,
+      -3,
+      -465
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      9,
+      19,
+      15,
+      10,
+      0,
+      3,
+      99
+    ],
+    "fcf": [
+      -176,
+      -132,
+      -83,
+      -242,
+      -63,
+      -7,
+      -564
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -24.48,
+        -37.82,
+        -28.52,
+        -65.05,
+        -14.38,
+        -1.84,
+        -148.81
+      ],
+      "cfo_to_capex": [
+        -18.56,
+        -5.95,
+        -4.6,
+        -23.3,
+        null,
+        -1.0,
+        -4.7
+      ],
+      "capex_to_revenue": [
+        1.25,
+        5.44,
+        5.15,
+        2.69,
+        0.0,
+        0.79,
+        26.12
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -8.1,
+      -12.03,
+      -132.84,
+      -51.78,
+      -202.32,
+      -171.07,
+      -57.83
+    ],
+    "roa": [
+      -6.52,
+      -9.18,
+      -74.69,
+      -25.58,
+      -48.98,
+      -15.47,
+      -17.94
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -49.79,
+      -119.77,
+      -622.68,
+      -141.13,
+      -159.36,
+      -54.47,
+      -73.09
+    ],
+    "asset_turnover": [
+      0.13,
+      0.08,
+      0.12,
+      0.18,
+      0.31,
+      0.28,
+      0.25
+    ]
+  },
+  "multiples": {
+    "pe": [
+      -3.54,
+      -3.03,
+      -0.7,
+      -2.41,
+      -1.81,
+      -6.12,
+      -4.57
+    ],
+    "ps": [
+      1.76,
+      3.63,
+      4.35,
+      3.4,
+      2.89,
+      3.33,
+      3.34
+    ],
+    "pb": [
+      0.29,
+      0.36,
+      0.93,
+      1.25,
+      3.67,
+      10.46,
+      2.64
+    ],
+    "ev_ebitda": [
+      -3.0,
+      -2.85,
+      -0.73,
+      19.22,
+      22.13,
+      -11.87,
+      -7.51
+    ],
+    "current": {
+      "pe": -4.57,
+      "ps": 3.34,
+      "pb": 2.64,
+      "ev_ebitda": -7.51,
+      "as_of": "2026-05-12"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2019–2023; P/E не применим (убыток все годы)"
+    },
+    "peer_multiples": {
+      "2025": {
+        "ev_ebitda": null,
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "roe": null,
+        "net_debt_ebitda": null
+      },
+      "2024": {
+        "ev_ebitda": null,
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "roe": null,
+        "net_debt_ebitda": null
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (3-й эшелон, малоликвид). История нерепрезентативна: выручка стагнирует ~0,4 млрд ₽, прибыль хронически отрицательна. Механический прогноз не строим — нет устойчивой базы. DCF → insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "relative_ps_own_history",
+        "fair_value_per_share": 2.874,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_used": 3.34,
+          "basis": "5y_median_own_history",
+          "rev_per_share": 0.861
+        },
+        "status": "ok_low_confidence"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": null,
+          "beta": null
+        },
+        "status": "insufficient_data",
+        "note": "CAPM-таргет через 1/Ke не имеет смысла при отрицательной прибыли."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 1.5,
+      "base": 2.6,
+      "current_price": 2.875,
+      "upside_downside_pct": null
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сравнение с сектором (фарма/биотех РФ) добавить после прогона всего сектора и заполнения sectors/<sector>/peers.json."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Фармсинтез (МСФО 2023) — инфографика СРК/smart-lab, динамика 2015–2023",
+      "period": "2015–2023",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX котировка LIFE на 12.05.2026 (2,875 ₽)",
+      "period": "2026-05-12",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Источник — агрегированная инфографика (СРК/smart-lab), НЕ первичная МСФО-отчётность с e-disclosure. data_quality=low.",
+    "Последний доступный год — 2023; за 2024–2025 раскрытия в источнике нет (колонка 2024 пустая).",
+    "COGS, gross_profit, operating_expenses, CFI, CFF не раскрыты в инфографике → null.",
+    "EBITDA отрицательна все годы → EV/EBITDA, ND/EBITDA, Debt/EBITDA, ROE, P/E экономически неинформативны (помечены anomaly_flag).",
+    "Капитал тонкий и волатильный: 121 млн (2022) → 479 млн (2023) на фоне допэмиссии; число акций 301→440 млн шт.",
+    "Чистый долг 2023 = 465−26 = 439 млн (сверено с источником).",
+    "FCF=CFO−CapEx сверён по всем годам (расхождения ≤1 млн, округление).",
+    "Малоликвидная бумага 3-го эшелона — котировка и капитализация ориентировочны.",
+    "Несоответствие с business_model.md: там выручка 2023=380, EBITDA 2023=−121; в инфографике 2023: выручка=379, EBITDA=−227. Расхождение EBITDA было отмечено и в fact_check.md. За базу взяты числа загруженного файла.",
+    "Оценка только по P/S/P/BV; коридор широкий из-за убыточности и отсутствия покрытия."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 7.18,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

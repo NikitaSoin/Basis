@@ -1,0 +1,701 @@
+{
+  "meta": {
+    "ticker": "NSVZ",
+    "name": "ПАО «Наука-Связь»",
+    "sector": "Телеком",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 224.0,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 15700000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Малоликвидная бумага (free-float низкий, оценка MOEX к free-float спорна). В 2025 чистая прибыль обвалилась до ~4 млн (ROE 0,1%, P/E 928) — финансовые расходы (802 млн) почти полностью съели операционную прибыль (811 млн), покрытие 1,01x. Операционный денежный поток отрицательный 3 года подряд (-846 млн в 2025), FCF -1211 млн. Мультипликаторы P/E и доходностные коэффициенты в 2025 не информативны; оценка опирается на EV/EBITDA, P/BV и нормализованные показатели. Цена 224 руб и P/BV 0,94 при малой ликвидности могут быть нерепрезентативны."
+  },
+  "income_statement": {
+    "revenue": [
+      973,
+      918,
+      1052,
+      1055,
+      1141,
+      1498,
+      1583,
+      6396,
+      8836,
+      7296
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      105,
+      93,
+      84,
+      83,
+      113,
+      209,
+      87,
+      612,
+      763,
+      811
+    ],
+    "ebitda": [
+      218,
+      209,
+      209,
+      212,
+      260,
+      316,
+      266,
+      969,
+      1165,
+      1255
+    ],
+    "da": [
+      113,
+      116,
+      125,
+      130,
+      148,
+      107,
+      178,
+      357,
+      402,
+      444
+    ],
+    "finance_costs": [
+      81,
+      79,
+      68,
+      69,
+      68,
+      41,
+      78,
+      213,
+      483,
+      802
+    ],
+    "net_profit": [
+      10,
+      0,
+      5,
+      7,
+      34,
+      119,
+      14,
+      371,
+      279,
+      4
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        22.4,
+        22.8,
+        19.9,
+        20.1,
+        22.8,
+        21.1,
+        16.8,
+        15.2,
+        13.2,
+        17.2
+      ],
+      "operating_margin": [
+        10.8,
+        10.1,
+        8.0,
+        7.9,
+        9.9,
+        14.0,
+        5.5,
+        9.6,
+        8.6,
+        11.1
+      ],
+      "net_margin": [
+        1.03,
+        0.0,
+        0.48,
+        0.66,
+        2.98,
+        7.94,
+        0.88,
+        5.8,
+        3.16,
+        0.05
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1378,
+      1440,
+      1520,
+      1574,
+      1809,
+      2429,
+      4081,
+      7965,
+      10920,
+      10072
+    ],
+    "total_equity": [
+      513,
+      514,
+      518,
+      526,
+      1205,
+      1324,
+      1334,
+      3500,
+      3796,
+      3727
+    ],
+    "total_liabilities": [
+      865,
+      926,
+      1002,
+      1048,
+      604,
+      1105,
+      2747,
+      4465,
+      7124,
+      6346
+    ],
+    "cash": [
+      9,
+      6,
+      14,
+      6,
+      16,
+      13,
+      26,
+      58,
+      263,
+      81
+    ],
+    "short_term_debt": [
+      247,
+      447,
+      531,
+      650,
+      333,
+      169,
+      628,
+      1830,
+      2783,
+      4193
+    ],
+    "long_term_debt": [
+      333,
+      170,
+      68,
+      0,
+      0,
+      394,
+      448,
+      132,
+      315,
+      157
+    ],
+    "net_debt": [
+      571,
+      611,
+      585,
+      644,
+      317,
+      550,
+      1051,
+      1904,
+      2835,
+      4269
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        1.13,
+        1.2,
+        1.16,
+        1.24,
+        0.28,
+        0.43,
+        0.81,
+        0.56,
+        0.82,
+        1.17
+      ],
+      "net_debt_ebitda": [
+        2.62,
+        2.92,
+        2.8,
+        3.04,
+        1.22,
+        1.74,
+        3.95,
+        1.96,
+        2.43,
+        3.4
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      105,
+      126,
+      103,
+      118,
+      156,
+      263,
+      95,
+      -738,
+      -26,
+      -846
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      131,
+      169,
+      76,
+      176,
+      179,
+      298,
+      142,
+      106,
+      345,
+      364
+    ],
+    "fcf": [
+      -26,
+      -43,
+      27,
+      -58,
+      -23,
+      -35,
+      -47,
+      -844,
+      -371,
+      -1210
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -2.7,
+        -4.7,
+        2.6,
+        -5.5,
+        -2.0,
+        -2.3,
+        -3.0,
+        -13.2,
+        -4.2,
+        -16.6
+      ],
+      "cfo_to_capex": [
+        0.8,
+        0.75,
+        1.36,
+        0.67,
+        0.87,
+        0.88,
+        0.67,
+        -6.96,
+        -0.08,
+        -2.32
+      ],
+      "capex_to_revenue": [
+        13.5,
+        18.4,
+        7.2,
+        16.7,
+        15.7,
+        19.9,
+        9.0,
+        1.7,
+        3.9,
+        5.0
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      1.95,
+      0.0,
+      0.97,
+      1.33,
+      2.82,
+      8.99,
+      1.05,
+      10.6,
+      7.35,
+      0.11
+    ],
+    "roa": [
+      0.73,
+      0.0,
+      0.33,
+      0.44,
+      1.88,
+      4.9,
+      0.34,
+      4.66,
+      2.55,
+      0.04
+    ],
+    "roic": [
+      7.69,
+      6.58,
+      6.02,
+      5.65,
+      5.88,
+      8.86,
+      2.89,
+      8.96,
+      8.85,
+      8.03
+    ],
+    "ros": [
+      1.03,
+      0.0,
+      0.48,
+      0.66,
+      2.98,
+      7.94,
+      0.88,
+      5.8,
+      3.16,
+      0.05
+    ],
+    "asset_turnover": [
+      0.71,
+      0.64,
+      0.69,
+      0.67,
+      0.63,
+      0.62,
+      0.39,
+      0.8,
+      0.81,
+      0.72
+    ]
+  },
+  "multiples": {
+    "pe": [
+      30.28,
+      6793.45,
+      75.72,
+      36.9,
+      29.06,
+      5.56,
+      92.33,
+      23.87,
+      13.51,
+      928.25
+    ],
+    "ps": [
+      0.31,
+      0.29,
+      0.33,
+      0.25,
+      0.86,
+      0.44,
+      0.79,
+      1.39,
+      0.43,
+      0.48
+    ],
+    "pb": [
+      0.59,
+      0.52,
+      0.67,
+      0.51,
+      0.81,
+      0.5,
+      0.94,
+      2.53,
+      0.99,
+      0.94
+    ],
+    "ev_ebitda": [
+      4.0,
+      4.19,
+      4.45,
+      4.3,
+      4.97,
+      3.83,
+      8.67,
+      11.11,
+      5.67,
+      6.21
+    ],
+    "current": {
+      "pe": 928.25,
+      "ps": 0.48,
+      "pb": 0.94,
+      "ev_ebitda": 6.21,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 29.7,
+      "period": "2016-2025, медиана с исключением выбросов >200 (2017,2025)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 928.25,
+      "ps": 0.48,
+      "pb": 0.94,
+      "ev_ebitda": 6.21,
+      "ev_sales": 1.07,
+      "net_debt_ebitda": 3.4
+    },
+    "2024": {
+      "pe": 13.51,
+      "ps": 0.43,
+      "pb": 0.99,
+      "ev_ebitda": 5.67,
+      "ev_sales": 0.75,
+      "net_debt_ebitda": 2.43
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерское покрытие отсутствует (малоликвидная бумага). История нерепрезентативна: скачок выручки 2022→2023 (×4), обвал прибыли в 2025, отрицательный CFO 3 года. Прогноз не строим, source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 23.6,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 297.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 29.7,
+          "basis": "5y_median (исключены выбросы); EPS нормализован по средней ЧП за 5 лет, т.к. ЧП-2025 ≈ 0"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": 127.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 5.0
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "note": "Требуемая доходность 23,6%, дивиденды отсутствуют; таргет не обоснован фундаментально (ЧП≈0). Не используем."
+        }
+      },
+      {
+        "method": "P/BV",
+        "fair_value_per_share": 213.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps": 237.4,
+          "pbv_range": "0.5-0.9x (низкий ROE ~0%)"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 118.7,
+      "base": 213.1,
+      "current_price": 224.0,
+      "upside_downside_pct": -4.9
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Наука-Связь (МСФО 2025) на 29.05.2026 — сводка отчётности и мультипликаторы",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX котировка NSVZ (цена 224 руб, free-float, число акций 15,70 млн)",
+      "period": "2026-05-29",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Малоликвидная бумага: цена и рыночные мультипликаторы (P/E, P/BV) могут не отражать справедливую стоимость (anomaly_flag=true).",
+    "2025: ЧП ≈ 4 млн, ROE 0,1%, P/E 928 — крайнее искажение; доходностные методы не применимы.",
+    "CFO отрицательный 2023-2025; FCF отрицательный почти весь период; компания финансирует деятельность и CapEx долгом.",
+    "Покрытие операционной прибылью финрасходов упало до 1,01x (2025) — крайне высокая чувствительность прибыли к ставке.",
+    "COGS/валовая прибыль и разбивка операционных расходов в источнике не раскрыты — gross_margin = null.",
+    "Текущая ликвидность не считается: нет разбивки текущих обязательств.",
+    "relative_peers: peer_median EV/EBITDA = 5.0 — заглушка, требует пересчёта по сектору (status=pending_sector_backfill).",
+    "DCF не построен (insufficient_data): отрицательный и волатильный FCF, нерепрезентативная история.",
+    "Long-term debt за 2016 не раскрыт отдельно; восстановлен как total_debt − short_term_debt."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 3.9,
+    "fair_value_per_share": 39.86,
+    "upside_downside_pct": -82.2,
+    "status": "reference_only"
+  }
+}

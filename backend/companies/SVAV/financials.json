@@ -1,0 +1,585 @@
+{
+  "meta": {
+    "ticker": "SVAV",
+    "name": "ПАО «Соллерс»",
+    "sector": "Машиностроение / Автопром",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 451.0,
+    "price_date": "2026-05-21",
+    "shares_outstanding": 31490000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "2022 год — структурный разрыв в данных (null по всем рядам): после ухода Ford и реструктуризации СП сопоставимая отчётность МСФО за 2022 в источнике не раскрыта (нулевые столбцы во всех графиках). Динамика выручки нелинейна: пик 91,7 млрд (2021), 82,3 (2023), 91,8 (2024), затем падение до 62,4 млрд (2025, −31,9% г/г). FCF структурно слабый/отрицательный из-за тяжёлого CapEx 2023–2024 — DCF не применялся (insufficient_data).",
+  "income_statement": {
+    "revenue": [
+      57839,
+      65985,
+      91709,
+      null,
+      82289,
+      91761,
+      62447
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      2340,
+      -517,
+      5346,
+      null,
+      6885,
+      2848,
+      4674
+    ],
+    "ebitda": [
+      5000,
+      2977,
+      8503,
+      null,
+      9755,
+      5713,
+      8072
+    ],
+    "da": [
+      2660,
+      3494,
+      3157,
+      null,
+      2870,
+      2865,
+      3398
+    ],
+    "finance_costs": [
+      1397,
+      1861,
+      516,
+      null,
+      748,
+      1831,
+      1182
+    ],
+    "net_profit": [
+      128,
+      -2125,
+      2429,
+      null,
+      4931,
+      3727,
+      2297
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        8.64,
+        4.51,
+        9.27,
+        null,
+        11.85,
+        6.23,
+        12.93
+      ],
+      "operating_margin": [
+        4.05,
+        -0.78,
+        5.83,
+        null,
+        8.37,
+        3.1,
+        7.48
+      ],
+      "net_margin": [
+        0.22,
+        -3.22,
+        2.65,
+        null,
+        5.99,
+        4.06,
+        3.68
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      64958,
+      67551,
+      72242,
+      null,
+      70611,
+      78239,
+      81273
+    ],
+    "total_equity": [
+      26976,
+      25231,
+      27730,
+      null,
+      24071,
+      25002,
+      25095
+    ],
+    "total_liabilities": [
+      37982,
+      42320,
+      44512,
+      null,
+      46540,
+      53237,
+      56178
+    ],
+    "cash": [
+      6689,
+      9825,
+      15343,
+      null,
+      9313,
+      8300,
+      6398
+    ],
+    "short_term_debt": [
+      6574,
+      6766,
+      7905,
+      null,
+      7189,
+      6834,
+      5550
+    ],
+    "long_term_debt": [
+      586,
+      5539,
+      1905,
+      null,
+      5095,
+      7400,
+      10610
+    ],
+    "net_debt": [
+      471,
+      2480,
+      -5533,
+      null,
+      2971,
+      5934,
+      9762
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.27,
+        0.49,
+        0.35,
+        null,
+        0.51,
+        0.57,
+        0.64
+      ],
+      "net_debt_ebitda": [
+        0.09,
+        0.83,
+        -0.65,
+        null,
+        0.3,
+        1.04,
+        1.21
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      977,
+      -1957,
+      11428,
+      null,
+      3335,
+      2570,
+      4810
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      1968,
+      3421,
+      2589,
+      null,
+      4835,
+      8243,
+      6567
+    ],
+    "fcf": [
+      -991,
+      -5378,
+      8839,
+      null,
+      -1500,
+      -5673,
+      -1757
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -1.71,
+        -8.15,
+        9.64,
+        null,
+        -1.82,
+        -6.18,
+        -2.81
+      ],
+      "cfo_to_capex": [
+        0.5,
+        -0.57,
+        4.41,
+        null,
+        0.69,
+        0.31,
+        0.73
+      ],
+      "capex_to_revenue": [
+        3.4,
+        5.18,
+        2.82,
+        null,
+        5.88,
+        8.98,
+        10.52
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      0.47,
+      -8.42,
+      8.76,
+      null,
+      20.49,
+      14.91,
+      9.15
+    ],
+    "roa": [
+      0.2,
+      -3.15,
+      3.36,
+      null,
+      6.98,
+      4.76,
+      2.83
+    ],
+    "roic": [
+      6.82,
+      -1.49,
+      19.27,
+      null,
+      20.37,
+      7.36,
+      10.73
+    ],
+    "ros": [
+      0.22,
+      -3.22,
+      2.65,
+      null,
+      5.99,
+      4.06,
+      3.68
+    ],
+    "asset_turnover": [
+      0.89,
+      0.98,
+      1.27,
+      null,
+      1.17,
+      1.17,
+      0.77
+    ]
+  },
+  "multiples": {
+    "pe": [
+      61.24,
+      -4.12,
+      5.74,
+      null,
+      5.4,
+      3.95,
+      6.18
+    ],
+    "ps": [
+      0.14,
+      0.13,
+      0.15,
+      null,
+      0.32,
+      0.16,
+      0.23
+    ],
+    "pb": [
+      0.29,
+      0.35,
+      0.5,
+      null,
+      1.11,
+      0.59,
+      0.57
+    ],
+    "ev_ebitda": [
+      1.66,
+      3.77,
+      0.99,
+      null,
+      3.04,
+      3.61,
+      2.97
+    ],
+    "current": {
+      "pe": 6.18,
+      "ps": 0.23,
+      "pb": 0.57,
+      "ev_ebitda": 2.97,
+      "as_of": "2026-05-21"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 5.57,
+      "period": "2019-2025, медиана по годам с положит. прибылью; 2018(405)/2019(61)/2022(gap) исключены"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 6.18,
+      "ps": 0.23,
+      "pb": 0.57,
+      "ev_ebitda": 2.97,
+      "roe": 9.15,
+      "net_debt_ebitda": 1.21
+    },
+    "2024": {
+      "pe": 3.95,
+      "ps": 0.16,
+      "pb": 0.59,
+      "ev_ebitda": 3.61,
+      "roe": 14.91,
+      "net_debt_ebitda": 1.04
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      5.0,
+      4.5,
+      4.0,
+      3.75,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      5.0,
+      4.5,
+      4.0,
+      3.75,
+      3.5
+    ],
+    "note": "Брокерского консенсуса в источнике нет. Механический прогноз: восстановление от провала 2025 с затуханием к долгосрочному тренду 3,5%. Высокая неопределённость — прибыль зависит от господдержки, СП и автоцикла."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 16.79,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF структурно отрицательный/волатильный (тяжёлый CapEx 2023-24, FCF 2025=-1757 млн). Нормализованный FCF близок к нулю → DCF недостоверен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 406,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.57,
+          "basis": "5y_median (positive-profit years)"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": 459,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 3.0
+        },
+        "status": "pending_sector_backfill",
+        "note": "Использован ориентир EV/EBITDA=3.0 (грубо по произв. сектору). Точная медиана сектора — после прогона всех компаний сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 483,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9
+        },
+        "status": "ok",
+        "note": "Таргет на 12 мес. через требуемую доходность Ke с учётом дивдоходности 15,5%."
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 197,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "sustainable_payout_pct": 50,
+          "required_yield_pct": 22.7,
+          "g_pct": 3.5
+        },
+        "status": "ok",
+        "note": "Консервативно: payout 50% (факт 2024 ≈96%), модель Гордона при Ke=22,7%. Даёт нижнюю границу."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 197,
+      "base": 406,
+      "current_price": 451.0,
+      "upside_downside_pct": -10.0
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        14.79,
+        16.79,
+        18.79
+      ],
+      "growth_grid": [
+        2.5,
+        3.0,
+        3.5
+      ],
+      "matrix": [],
+      "note": "DCF недостоверен (FCF≈0), сетка чувствительности не строилась — оценка опирается на мультипликаторы и дивидендный метод."
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор «Производство (разные отрасли)»: KROT, KMAZ, SVAV, TRMK, SGZH, ELMT, UWGN, ОВК. Медианные мультипликаторы сектора будут заполнены после прогона всех эмитентов."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "СОЛЛЕРС (МСФО 2025), инфографика СРКИ на 21.05.2026",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО СОЛЛЕРС — результаты МСФО 2024 (пресс-центр, Интерфакс)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "2022 — null по всем рядам (структурный разрыв после ухода Ford, нет сопоставимой МСФО).",
+    "Выручка/себестоимость в разрезе не раскрыты: gross_profit, cogs, operating_expenses = null.",
+    "CFI/CFF и net_change_in_cash не раскрыты в источнике (только CFO).",
+    "current_ratio не рассчитать (нет разбивки оборотных активов/обязательств).",
+    "ROE/ROA пересчитаны от NP/equity и NP/assets; незначит. расхождения с отчётными (база капитала среднегодовая vs конечная).",
+    "EBITDA 2025=8072 — при падении выручки −31,9%; вероятно включает разовые/неоперац. статьи (EBITDA выросла при падении опер. прибыли до 2848). Требует ручной проверки состава.",
+    "FCF структурно отрицательный 2023-2025 → DCF не применён (insufficient_data).",
+    "relative_peers — pending_sector_backfill (медиана сектора не финализирована).",
+    "beta=0.9 — экспертная оценка (циклический автопром, низкий долг), не регрессионная."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": 369.0,
+    "upside_downside_pct": -18.2,
+    "status": "ok"
+  }
+}

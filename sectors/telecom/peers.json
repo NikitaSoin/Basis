@@ -1,0 +1,431 @@
+{
+  "meta": {
+    "sector": "Телеком",
+    "sector_key": "telecom",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "MTSS",
+      "RTKM",
+      "MGTS",
+      "TTLK",
+      "CNTL",
+      "NSVZ",
+      "BISVP"
+    ],
+    "n": 7,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "Телеком. Ядро для медианы — крупные операторы с устойчивой EBITDA (МТС, Ростелеком, Таттелеком, МГТС). CNTL/NSVZ/BISVP — особые (разовые/убыток/преф-прокси), со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 3.9. "
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "MTSS",
+        "name": "ПАО «МТС»",
+        "price": 228.4,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "MTSS",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 12.96,
+          "ps": 0.57,
+          "pb": 26.92,
+          "ev_ebitda": 3.9,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 9.31,
+          "ps": 0.65,
+          "pb": -40.63,
+          "ev_ebitda": 4.13,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RTKM",
+        "name": "ПАО «Ростелеком» (обыкновенные акции)",
+        "price": 51.2,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "RTKM",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MGTS",
+        "name": "ПАО «Московская городская телефонная сеть»",
+        "price": 1296,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "MGTS",
+        "relative_fair_value": 1047.08,
+        "2025": {
+          "pe": 4.29,
+          "ps": 2.54,
+          "pb": 0.64,
+          "ev_ebitda": 4.82,
+          "net_debt_ebitda": 0.03,
+          "roe": 18.1
+        },
+        "2024": {
+          "pe": 4.15,
+          "ps": 2.27,
+          "pb": 0.64,
+          "ev_ebitda": 4.22,
+          "net_debt_ebitda": -0.02,
+          "roe": 18.11
+        }
+      },
+      {
+        "ticker": "TTLK",
+        "name": "ПАО «Таттелеком»",
+        "price": 0.59,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "TTLK",
+        "relative_fair_value": 0.62,
+        "2025": {
+          "pe": 5.78,
+          "ps": 0.99,
+          "pb": 0.8,
+          "ev_ebitda": 3.71,
+          "net_debt_ebitda": -0.21,
+          "roe": 15.25
+        },
+        "2024": {
+          "pe": 7.01,
+          "ps": 1.35,
+          "pb": 1.12,
+          "ev_ebitda": 4.35,
+          "net_debt_ebitda": -0.46,
+          "roe": 17.64
+        }
+      },
+      {
+        "ticker": "CNTL",
+        "name": "ПАО «Центральный телеграф»",
+        "price": 8.84,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "CNTL *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "NSVZ",
+        "name": "ПАО «Наука-Связь»",
+        "price": 224.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NSVZ *",
+        "relative_fair_value": 39.86,
+        "2025": {
+          "pe": 928.25,
+          "ps": 0.48,
+          "pb": 0.94,
+          "ev_ebitda": 6.21,
+          "net_debt_ebitda": 3.4,
+          "roe": null
+        },
+        "2024": {
+          "pe": 13.51,
+          "ps": 0.43,
+          "pb": 0.99,
+          "ev_ebitda": 5.67,
+          "net_debt_ebitda": 2.43,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "BISVP",
+        "name": "ПАО «Башинформсвязь» (преф)",
+        "price": 11.34,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "BISVP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 8.14,
+          "ps": 0.45,
+          "pb": 0.47,
+          "ev_ebitda": 1.43,
+          "net_debt_ebitda": null,
+          "roe": 5.75
+        },
+        "2024": {
+          "pe": 20.5,
+          "ps": 0.43,
+          "pb": 0.44,
+          "ev_ebitda": 1.61,
+          "net_debt_ebitda": null,
+          "roe": 2.14
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 7.68,
+        "ps": 1.37,
+        "pb": 9.45,
+        "ev_ebitda": 4.14,
+        "net_debt_ebitda": -0.09,
+        "roe": 16.68
+      },
+      "median": {
+        "pe": 5.78,
+        "ps": 0.99,
+        "pb": 0.8,
+        "ev_ebitda": 3.9,
+        "net_debt_ebitda": -0.09,
+        "roe": 16.68
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 6.82,
+        "ps": 1.42,
+        "pb": -12.96,
+        "ev_ebitda": 4.23,
+        "net_debt_ebitda": -0.24,
+        "roe": 17.88
+      },
+      "median": {
+        "pe": 7.01,
+        "ps": 1.35,
+        "pb": 0.64,
+        "ev_ebitda": 4.22,
+        "net_debt_ebitda": -0.24,
+        "roe": 17.88
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "MTSS",
+      "RTKM",
+      "TTLK",
+      "MGTS"
+    ],
+    "excluded": [
+      "CNTL",
+      "NSVZ",
+      "BISVP"
+    ],
+    "note": "Медиана/среднее — сопоставимые ядро сектора; особые/аномальные со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "MTSS",
+          "name": "ПАО «МТС»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.9
+        },
+        {
+          "ticker": "RTKM",
+          "name": "ПАО «Ростелеком» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MGTS",
+          "name": "ПАО «Московская городская телефонная сеть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.03,
+          "y": 4.82
+        },
+        {
+          "ticker": "TTLK",
+          "name": "ПАО «Таттелеком»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.21,
+          "y": 3.71
+        },
+        {
+          "ticker": "CNTL",
+          "name": "ПАО «Центральный телеграф»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NSVZ",
+          "name": "ПАО «Наука-Связь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 3.4,
+          "y": 6.21
+        },
+        {
+          "ticker": "BISVP",
+          "name": "ПАО «Башинформсвязь» (преф)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.43
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "MTSS",
+          "name": "ПАО «МТС»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 26.92
+        },
+        {
+          "ticker": "RTKM",
+          "name": "ПАО «Ростелеком» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MGTS",
+          "name": "ПАО «Московская городская телефонная сеть»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 18.1,
+          "y": 0.64
+        },
+        {
+          "ticker": "TTLK",
+          "name": "ПАО «Таттелеком»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 15.25,
+          "y": 0.8
+        },
+        {
+          "ticker": "CNTL",
+          "name": "ПАО «Центральный телеграф»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NSVZ",
+          "name": "ПАО «Наука-Связь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.94
+        },
+        {
+          "ticker": "BISVP",
+          "name": "ПАО «Башинформсвязь» (преф)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 5.75,
+          "y": 0.47
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "MTSS",
+      "note": "Две структурные аномалии. (1) Собственный капитал почти обнулён и в части лет отрицателен (2022: −3,6 млрд; 2024: −11,2 млрд; 2025: 17,0 млрд) — результат многолетней политики «дивиденды выше прибыли». Из-за этого ROE, P/BV и D/E математически бессмысленны (ROE скачет от −5751% до +1230%, P/BV=26,9 при капитале 17 млрд) — их НЕЛЬЗЯ использовать для оценки; рабочая метрика рентабельности — ROIC≈15,9%. (2) Дивиденды превышают свободный денежный поток в 5 из 7 лет (например 2024: дивиденды 69,9 млрд против FCF 26,6 млрд) — выплаты финансируются долгом; чистый долг вырос с 280 млрд (2019) до 635 млрд (2025). Высокая ключевая ставка (14,5%) удорожает рефинансирование: финансовые расходы выросли с 60 млрд (2023) до 149 млрд (2025) и обвалили чистую прибыль на 28% при росте выручки на 15%. IFRS16: аренда капитализирована, что завышает EBITDA, активы и долг."
+    },
+    {
+      "ticker": "RTKM",
+      "note": "Чистая прибыль 2025 (11.3 млрд руб.) сильно сжата ростом финансовых расходов до 123.4 млрд (+42.2% г/г) при росте выручки +11.9% и OIBDA/EBITDA. Производные от прибыли показатели искажены вниз: ROE упал до 4.15%, P/E вырос до ~24x, FCF почти обнулился (0.875 млрд), P/FCF=316x. Это эффект высокой ключевой ставки и долга ~690 млрд, а не операционного ухудшения. Оценку по прибыли (исторический P/E на текущую EPS) считать ненадёжной; опираться на EV/EBITDA, DCF на нормализованном FCFF и дивидендную модель."
+    },
+    {
+      "ticker": "CNTL",
+      "note": "Прибыль крайне волатильна и формируется разовыми статьями (доходы/убытки от недвижимости и переоценки активов), а не операциями. 2019 — разовый доход от выбытия недвижимости (ЧП 2257, EBITDA 2954, ROE 71,7%); 2025 — разовый убыток (ЧП −355, EBITDA −391, ROE −60,6%), вероятно списание/переоценка. 2019 и 2025 искажают мультипликаторы и рентабельности; оценка строится на нормализованных показателях (средн. 2021–2024). Акция малоликвидна — котировка чувствительна к разовым сделкам и корпоративным новостям Ростелекома."
+    },
+    {
+      "ticker": "BISVP",
+      "note": "Обыкновенные акции на MOEX НЕ котируются — торгуется только малоликвидный преф BISVP (free-float по префу 100%, но объёмы крошечные, спреды широкие). Рыночной капитализации в обычном смысле нет: для мультипликаторов цена префа 11,34 ₽ применена ко ВСЕМ акциям как прокси (985,19 млн шт.) — это завышает/искажает оценку, т.к. реальная стоимость обычки рынком не определена. Дивиденд по префу = 10% ЧП по РСБУ / число акций в 25% устава (фиксированная формула, малая абсолютная сумма). Все стоимостные мультипликаторы трактовать с осторожностью."
+    }
+  ]
+}

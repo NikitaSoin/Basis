@@ -1,0 +1,663 @@
+{
+  "meta": {
+    "ticker": "BISVP",
+    "name": "ПАО «Башинформсвязь» (преф)",
+    "sector": "Телеком",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 11.34,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 985190000,
+    "shares_ordinary": 949020000,
+    "shares_preferred": 36170000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Обыкновенные акции на MOEX НЕ котируются — торгуется только малоликвидный преф BISVP (free-float по префу 100%, но объёмы крошечные, спреды широкие). Рыночной капитализации в обычном смысле нет: для мультипликаторов цена префа 11,34 ₽ применена ко ВСЕМ акциям как прокси (985,19 млн шт.) — это завышает/искажает оценку, т.к. реальная стоимость обычки рынком не определена. Дивиденд по префу = 10% ЧП по РСБУ / число акций в 25% устава (фиксированная формула, малая абсолютная сумма). Все стоимостные мультипликаторы трактовать с осторожностью.",
+  "income_statement": {
+    "revenue": [
+      8233,
+      9660,
+      16192,
+      21608,
+      25705,
+      31961,
+      25904,
+      25105
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1883,
+      2216,
+      2343,
+      3794,
+      3246,
+      3826,
+      2080,
+      2483
+    ],
+    "ebitda": [
+      3359,
+      3916,
+      5511,
+      7345,
+      7268,
+      8131,
+      7193,
+      5811
+    ],
+    "da": [
+      1476,
+      1700,
+      3168,
+      3551,
+      4022,
+      4305,
+      5113,
+      3328
+    ],
+    "finance_costs": [
+      395,
+      886,
+      990,
+      1010,
+      473,
+      271,
+      1061,
+      985
+    ],
+    "net_profit": [
+      1818,
+      2284,
+      977,
+      2169,
+      2511,
+      2155,
+      545,
+      1373
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        40.8,
+        40.54,
+        34.04,
+        33.99,
+        28.27,
+        25.44,
+        27.77,
+        23.15
+      ],
+      "operating_margin": [
+        22.87,
+        22.94,
+        14.47,
+        17.56,
+        12.63,
+        11.97,
+        8.03,
+        9.89
+      ],
+      "net_margin": [
+        22.08,
+        23.64,
+        6.03,
+        10.04,
+        9.77,
+        6.74,
+        2.1,
+        5.47
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      22731,
+      29510,
+      43046,
+      46194,
+      43354,
+      42100,
+      39400,
+      36869
+    ],
+    "total_equity": [
+      14868,
+      15242,
+      16859,
+      20719,
+      22104,
+      25928,
+      25467,
+      23876
+    ],
+    "total_liabilities": [
+      7864,
+      14268,
+      26187,
+      25475,
+      21250,
+      16173,
+      13933,
+      12992
+    ],
+    "cash": [
+      365,
+      436,
+      2503,
+      988,
+      1172,
+      4836,
+      4923,
+      5608
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      4232,
+      8755,
+      11914,
+      10524,
+      8539,
+      1508,
+      391,
+      -2861
+    ],
+    "interest_bearing_debt": [
+      4598,
+      9192,
+      14417,
+      11512,
+      9712,
+      6344,
+      5314,
+      2747
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.31,
+        0.6,
+        0.86,
+        0.56,
+        0.44,
+        0.24,
+        0.21,
+        0.12
+      ],
+      "net_debt_ebitda": [
+        1.26,
+        2.24,
+        2.16,
+        1.43,
+        1.17,
+        0.19,
+        0.05,
+        -0.49
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      1894,
+      3295,
+      4139,
+      3084,
+      3825,
+      7915,
+      3841,
+      4539
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      1053,
+      890,
+      1587,
+      3223,
+      2476,
+      3011,
+      2909,
+      1821
+    ],
+    "fcf": [
+      841,
+      2405,
+      2552,
+      -139,
+      1349,
+      4904,
+      932,
+      2718
+    ],
+    "ratios": {
+      "fcf_margin": [
+        10.21,
+        24.9,
+        15.76,
+        -0.64,
+        5.25,
+        15.34,
+        3.6,
+        10.83
+      ],
+      "cfo_to_capex": [
+        1.8,
+        3.7,
+        2.61,
+        0.96,
+        1.54,
+        2.63,
+        1.32,
+        2.49
+      ],
+      "capex_to_revenue": [
+        12.79,
+        9.21,
+        9.8,
+        14.92,
+        9.63,
+        9.42,
+        11.23,
+        7.25
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      12.23,
+      14.98,
+      5.8,
+      10.47,
+      11.36,
+      8.31,
+      2.14,
+      5.75
+    ],
+    "roa": [
+      8.0,
+      7.74,
+      2.27,
+      4.7,
+      5.79,
+      5.12,
+      1.38,
+      3.72
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      22.08,
+      23.64,
+      6.03,
+      10.04,
+      9.77,
+      6.74,
+      2.1,
+      5.47
+    ],
+    "asset_turnover": [
+      0.36,
+      0.33,
+      0.38,
+      0.47,
+      0.59,
+      0.76,
+      0.66,
+      0.68
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 8.14,
+      "ps": 0.45,
+      "pb": 0.47,
+      "ev_ebitda": 1.43,
+      "as_of": "2026-05-29",
+      "basis": "pref_price_11.34_proxy_all_shares"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "н/д — обыкновенные акции не котируются, история рыночной цены префа не реконструирована"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "ev_ebitda": 1.43,
+      "nd_ebitda": -0.49,
+      "pe": 8.14,
+      "ps": 0.45,
+      "pb": 0.47,
+      "roe": 5.75
+    },
+    "2024": {
+      "ev_ebitda": 1.61,
+      "nd_ebitda": 0.05,
+      "pe": 20.5,
+      "ps": 0.43,
+      "pb": 0.44,
+      "roe": 2.14
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по BISVP нет (малоликвидный региональный преф). Механический прогноз: консервативный рост выручки ~2% (зрелый региональный оператор, телефония сжимается, ШПД/B2B компенсирует). Прибыль волатильна из-за финансовых доходов при высокой ставке."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 11.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "fcf_base": "медиана FCF 2021-2025 ≈ 1349 млн (cfo−capex)",
+          "beta": 0.6
+        },
+        "tv_share_of_value_pct": 46.9,
+        "status": "ok",
+        "note": "Цена на ВСЕ акции (прокси). База FCF нормализована по медиане 2021-2025 — годовой FCF сильно волатилен."
+      },
+      {
+        "method": "DCF_mean_fcf",
+        "fair_value_per_share": 14.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2,
+          "terminal_growth": 0.035,
+          "fcf_base": "среднее FCF 2021-2025 ≈ 1953 млн"
+        },
+        "tv_share_of_value_pct": null,
+        "status": "ok",
+        "note": "Верхняя граница DCF при среднем FCF."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Ждёт прогон всего телеком-сектора и заполнения sectors/telecom/peers.json. Ориентир из инфографики: сектор. средний EV/EBITDA 4.76 → ~31 ₽/акц; сектор. медиана P/E ~12.5 → ~17 ₽/акц. Сектор искажён крупными РТКМ/МТС с высоким долгом — медиану по сектору пересчитать после бэкфилла."
+      },
+      {
+        "method": "dividend_pref",
+        "fair_value_per_share": 4.4,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "div_pref_base": 0.727,
+          "required_yield": 0.2,
+          "div_growth": 0.03,
+          "model": "Gordon"
+        },
+        "status": "ok",
+        "note": "Оценивает ТОЛЬКО право префа на дивиденд (10% ЧП РСБУ / 25% устава), а не долю в капитале. Дивиденд по префу 2023-25 в среднем 0,73 ₽. Это нижний ориентир ценности именно дивидендного потока префа; ниже балансовой/DCF-стоимости, т.к. формула отдаёт префу малую часть прибыли."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2,
+          "beta": 0.6
+        },
+        "status": "insufficient_data",
+        "note": "Нет рыночной истории цены и репрезентативной беты для малоликвидного префа; таргет на 12м не строим."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4.4,
+      "base": 11.0,
+      "optimistic": 17.0,
+      "current_price": 11.34,
+      "upside_downside_pct": -3.0,
+      "note": "Широкий коридор из-за малоликвидности и отсутствия рыночной оценки обычки. Нижняя граница (4.4) = ценность дивидендного права префа; база (11.0) = DCF на всю компанию (прокси); верх (17) = сектор. P/E. Префовый держатель ближе к нижней-средней части коридора."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.18,
+        0.2,
+        0.22
+      ],
+      "growth_grid": [
+        0.02,
+        0.035,
+        0.05
+      ],
+      "matrix": [
+        [
+          11.63,
+          12.14,
+          12.76
+        ],
+        [
+          10.66,
+          11.03,
+          11.47
+        ],
+        [
+          9.89,
+          10.16,
+          10.49
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Башинформсвязь — инфографика МСФО 2018-2025 (СРКИ/Интерфакс)",
+      "period": "2018-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Устав ПАО «Башинформсвязь» — формула дивиденда по префу типа А",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX котировка BISVP 11,34 ₽",
+      "period": "2026-05-29",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ANOMALY: обыкновенные акции не котируются — рыночной капитализации нет; цена префа 11,34 ₽ применена ко всем акциям как ПРОКСИ, искажает мультипликаторы.",
+    "FCF в исходной инфографике (стр.13) не сходится с cfo−capex за 2021 (−1381 vs −139) и 2023 (904 vs 4904) — взят пересчитанный cfo−capex как корректный.",
+    "Годовой FCF крайне волатилен (от −139 до 4904 млн) — DCF нормализован по медиане/среднему 2021-2025.",
+    "Валовая прибыль, COGS, opex, разбивка долга по срокам, структура CF (cfi/cff) в инфографике не раскрыты — null.",
+    "Чистый долг 2025 отрицательный (−2861 млн, чистая денежная позиция) → ND/EBITDA = −0.49.",
+    "Сектор. сравнение (relative_peers) — pending_sector_backfill: требуется прогон телеком-сектора и peers.json.",
+    "EBITDA = операц. прибыль + амортизация (из инфографики); совпадает с приведённой EBITDA источника."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 3.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

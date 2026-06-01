@@ -1,0 +1,247 @@
+{
+  "meta": {
+    "sector": "Машиностроение",
+    "sector_key": "machinery",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "KMAZ",
+      "SVAV",
+      "UWGN"
+    ],
+    "n": 3,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "Машиностроение (с PDF): КАМАЗ/Соллерс/ОВК. 2025 — спад цикла. Ядро медианы — SVAV/UWGN (положительная EBITDA); KMAZ убыточен в 2025 (EBITDA<0) — со *. Прочие эмитенты сектора без МСФО-PDF не прогонялись.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 2.65. "
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "KMAZ",
+        "name": "ПАО «КАМАЗ»",
+        "price": 68.2,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KMAZ *",
+        "relative_fair_value": -301.45,
+        "2025": {
+          "pe": -1.13,
+          "ps": 0.13,
+          "pb": 0.61,
+          "ev_ebitda": -62.12,
+          "net_debt_ebitda": -50.17,
+          "roe": -34.59
+        },
+        "2024": {
+          "pe": -301.17,
+          "ps": 0.14,
+          "pb": 0.43,
+          "ev_ebitda": 7.76,
+          "net_debt_ebitda": 6.16,
+          "roe": -0.15
+        }
+      },
+      {
+        "ticker": "SVAV",
+        "name": "ПАО «Соллерс»",
+        "price": 451.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "SVAV",
+        "relative_fair_value": 369.0,
+        "2025": {
+          "pe": 6.18,
+          "ps": 0.23,
+          "pb": 0.57,
+          "ev_ebitda": 2.97,
+          "net_debt_ebitda": 1.21,
+          "roe": 9.15
+        },
+        "2024": {
+          "pe": 3.95,
+          "ps": 0.16,
+          "pb": 0.59,
+          "ev_ebitda": 3.61,
+          "net_debt_ebitda": 1.04,
+          "roe": 14.91
+        }
+      },
+      {
+        "ticker": "UWGN",
+        "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
+        "price": 24.3,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "UWGN",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.26,
+          "ps": 1.08,
+          "pb": 0.96,
+          "ev_ebitda": 2.33,
+          "net_debt_ebitda": null,
+          "roe": 41.89
+        },
+        "2024": {
+          "pe": 2.46,
+          "ps": 0.53,
+          "pb": 1.49,
+          "ev_ebitda": 1.91,
+          "net_debt_ebitda": null,
+          "roe": 116.1
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 4.72,
+        "ps": 0.66,
+        "pb": 0.76,
+        "ev_ebitda": 2.65,
+        "net_debt_ebitda": 1.21,
+        "roe": 25.52
+      },
+      "median": {
+        "pe": 4.72,
+        "ps": 0.66,
+        "pb": 0.76,
+        "ev_ebitda": 2.65,
+        "net_debt_ebitda": 1.21,
+        "roe": 25.52
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 3.21,
+        "ps": 0.35,
+        "pb": 1.04,
+        "ev_ebitda": 2.76,
+        "net_debt_ebitda": 1.04,
+        "roe": 65.5
+      },
+      "median": {
+        "pe": 3.21,
+        "ps": 0.35,
+        "pb": 1.04,
+        "ev_ebitda": 2.76,
+        "net_debt_ebitda": 1.04,
+        "roe": 65.5
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "SVAV",
+      "UWGN"
+    ],
+    "excluded": [
+      "KMAZ"
+    ],
+    "note": "Медиана/среднее — сопоставимое ядро сектора; особые/аномальные со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "KMAZ",
+          "name": "ПАО «КАМАЗ»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -50.17,
+          "y": -62.12
+        },
+        {
+          "ticker": "SVAV",
+          "name": "ПАО «Соллерс»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 1.21,
+          "y": 2.97
+        },
+        {
+          "ticker": "UWGN",
+          "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.33
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "KMAZ",
+          "name": "ПАО «КАМАЗ»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -34.59,
+          "y": 0.61
+        },
+        {
+          "ticker": "SVAV",
+          "name": "ПАО «Соллерс»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 9.15,
+          "y": 0.57
+        },
+        {
+          "ticker": "UWGN",
+          "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 41.89,
+          "y": 0.96
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "SVAV",
+      "note": "2022 год — структурный разрыв в данных (null по всем рядам): после ухода Ford и реструктуризации СП сопоставимая отчётность МСФО за 2022 в источнике не раскрыта (нулевые столбцы во всех графиках). Динамика выручки нелинейна: пик 91,7 млрд (2021), 82,3 (2023), 91,8 (2024), затем падение до 62,4 млрд (2025, −31,9% г/г). FCF структурно слабый/отрицательный из-за тяжёлого CapEx 2023–2024 — DCF не применялся (insufficient_data)."
+    },
+    {
+      "ticker": "UWGN",
+      "note": "Сильные искажения исторических рядов из-за трёх событий. 1) Допэмиссия 2023 г.: число обыкновенных акций выросло со 116 млн до 2 905,89 млн (×25), поэтому EPS, P/E, ROE до 2023 г. несопоставимы с текущими, а исторические мультипликаторы на акцию не несут смысла. 2) Реструктуризация долга 2023 г.: чистая прибыль 2023 г. (34,0 млрд) раздута разовым доходом от списания/реструктуризации долга перед банком «Траст», а не операцией; одновременно общий долг обнулён (2024–2025: долг = 0, чистый долг отрицательный — чистая денежная позиция). 3) Цикл вагоностроения: 2024 г. — пик цикла (выручка 145,0 млрд, EBITDA 34,1 млрд), 2025 г. — резкое охлаждение (выручка 65,4 млрд −55%, EBITDA 21,5 млрд −37%). Корректно сравнивать бизнес по EBITDA и марже, а оценку строить на нормализованной средне-цикловой прибыли, а не на пике 2024 или трауфе одного года."
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "meta": {
+    "sector": "Здравоохранение",
+    "sector_key": "healthcare",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "MDMG",
+      "GEMC",
+      "PRMD",
+      "ABIO",
+      "LIFE"
+    ],
+    "n": 5,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "Здравоохранение/фарма. Ядро — клиники MDMG/GEMC + фарма PRMD (EV/EBITDA ~7). ABIO (биотех, оценка по R&D-портфелю) и LIFE (Фармсинтез, убыток/EBITDA<0) — со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 7.18. "
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "MDMG",
+        "name": "МКПАО «МД Медикал Груп» («Мать и дитя»)",
+        "price": 1287.6,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "MDMG",
+        "relative_fair_value": 1256.73,
+        "2025": {
+          "pe": 9.0,
+          "ps": 2.23,
+          "pb": 2.64,
+          "ev_ebitda": 7.35,
+          "net_debt_ebitda": 0.26,
+          "roe": 34.95
+        },
+        "2024": {
+          "pe": 9.0,
+          "ps": 2.23,
+          "pb": 2.64,
+          "ev_ebitda": 9.29,
+          "net_debt_ebitda": -0.18,
+          "roe": 32.28
+        }
+      },
+      {
+        "ticker": "GEMC",
+        "name": "МКПАО «Юнайтед Медикал Груп» (EMC)",
+        "price": 802.2,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "GEMC",
+        "relative_fair_value": 822.11,
+        "2025": {
+          "pe": 12.21,
+          "ps": 2.79,
+          "pb": 2.08,
+          "ev_ebitda": 7.01,
+          "net_debt_ebitda": 0.16,
+          "roe": 25.05
+        },
+        "2024": {
+          "pe": 8.36,
+          "ps": 3.42,
+          "pb": 3.29,
+          "ev_ebitda": 6.93,
+          "net_debt_ebitda": -0.61,
+          "roe": 44.36
+        }
+      },
+      {
+        "ticker": "PRMD",
+        "name": "ПАО «Промомед»",
+        "price": 399.1,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "PRMD",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ABIO",
+        "name": "ПАО «Артген биотех»",
+        "price": 55.76,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ABIO *",
+        "relative_fair_value": 18.86,
+        "2025": {
+          "pe": 53.26,
+          "ps": 3.01,
+          "pb": 4.53,
+          "ev_ebitda": 19.43,
+          "net_debt_ebitda": 0.92,
+          "roe": 9.37
+        },
+        "2024": {
+          "pe": 24.03,
+          "ps": 3.4,
+          "pb": 4.99,
+          "ev_ebitda": 13.55,
+          "net_debt_ebitda": 0.17,
+          "roe": 20.77
+        }
+      },
+      {
+        "ticker": "LIFE",
+        "name": "ПАО «Фармсинтез»",
+        "price": 2.875,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "LIFE *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 10.61,
+        "ps": 2.51,
+        "pb": 2.36,
+        "ev_ebitda": 7.18,
+        "net_debt_ebitda": 0.21,
+        "roe": 30.0
+      },
+      "median": {
+        "pe": 10.61,
+        "ps": 2.51,
+        "pb": 2.36,
+        "ev_ebitda": 7.18,
+        "net_debt_ebitda": 0.21,
+        "roe": 30.0
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 8.68,
+        "ps": 2.83,
+        "pb": 2.96,
+        "ev_ebitda": 8.11,
+        "net_debt_ebitda": -0.4,
+        "roe": 38.32
+      },
+      "median": {
+        "pe": 8.68,
+        "ps": 2.83,
+        "pb": 2.96,
+        "ev_ebitda": 8.11,
+        "net_debt_ebitda": -0.4,
+        "roe": 38.32
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "MDMG",
+      "GEMC",
+      "PRMD"
+    ],
+    "excluded": [
+      "ABIO",
+      "LIFE"
+    ],
+    "note": "Медиана/среднее — сопоставимое ядро сектора; особые/аномальные со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "MDMG",
+          "name": "МКПАО «МД Медикал Груп» («Мать и дитя»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.26,
+          "y": 7.35
+        },
+        {
+          "ticker": "GEMC",
+          "name": "МКПАО «Юнайтед Медикал Груп» (EMC)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.16,
+          "y": 7.01
+        },
+        {
+          "ticker": "PRMD",
+          "name": "ПАО «Промомед»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ABIO",
+          "name": "ПАО «Артген биотех»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.92,
+          "y": 19.43
+        },
+        {
+          "ticker": "LIFE",
+          "name": "ПАО «Фармсинтез»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "MDMG",
+          "name": "МКПАО «МД Медикал Груп» («Мать и дитя»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 34.95,
+          "y": 2.64
+        },
+        {
+          "ticker": "GEMC",
+          "name": "МКПАО «Юнайтед Медикал Груп» (EMC)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 25.05,
+          "y": 2.08
+        },
+        {
+          "ticker": "PRMD",
+          "name": "ПАО «Промомед»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ABIO",
+          "name": "ПАО «Артген биотех»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 9.37,
+          "y": 4.53
+        },
+        {
+          "ticker": "LIFE",
+          "name": "ПАО «Фармсинтез»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "LIFE",
+      "note": "Хронически убыточный эмитент 3-го эшелона. EBITDA отрицательна во ВСЕ годы 2017–2023 → EV/EBITDA, ND/EBITDA, ROE, ROA, P/E не имеют экономического смысла (отрицательные). Капитал тонкий и волатильный (121 млн в 2022 → 479 млн в 2023 за счёт допэмиссии), накопленный убыток −4 722 млн. Финансирование за счёт долга и регулярных допэмиссий (акций стало 301→440 млн шт.). Акция малоликвидна. Оценка возможна только по P/S и P/BV с широким коридором."
+    }
+  ]
+}
