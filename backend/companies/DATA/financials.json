@@ -1,0 +1,617 @@
+{
+  "meta": {
+    "ticker": "DATA",
+    "name": "ПАО «Группа Аренадата» (Arenadata)",
+    "sector": "IT (СУБД, управление данными)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 97.0,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 218020000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": false,
+  "anomaly_note": "Чистая прибыль 2025: источник-PDF (главная страница) показывает 2670 млн, тогда как пресс-релиз/бизнес-модель — 2956 млн (скорр. ЧП). Разрыв ~10% (отражённая ЧП vs нормализованная NIC). EBITDA-источник 3076 vs раскрываемая компанией OIBDA 3156 / OIBDAC 2783 — компания не раскрывает классическую EBITDA, поэтому мультипликаторы EV/EBITDA приблизительны. Капитал 2022–2023 близок к нулю/отрицателен (до IPO) — ROE/P/BV за эти годы не показательны. Капитализация в источнике дана двумя значениями (20 346 и 212 165 млн — вторая, видимо, опечатка). Расчёты ведены от отражённой ЧП (2670) консервативно.",
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      1555,
+      2494,
+      3951,
+      6015,
+      8753
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      664,
+      856,
+      1595,
+      1831,
+      2917
+    ],
+    "ebitda": [
+      null,
+      null,
+      694,
+      904,
+      1662,
+      1934,
+      3076
+    ],
+    "da": [
+      null,
+      null,
+      29,
+      48,
+      67,
+      103,
+      160
+    ],
+    "finance_costs": [
+      null,
+      null,
+      47,
+      80,
+      248,
+      222,
+      72
+    ],
+    "net_profit": [
+      null,
+      null,
+      651,
+      970,
+      1456,
+      1950,
+      2670
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        44.63,
+        36.25,
+        42.07,
+        32.15,
+        35.14
+      ],
+      "operating_margin": [
+        null,
+        null,
+        42.7,
+        34.32,
+        40.37,
+        30.44,
+        33.33
+      ],
+      "net_margin": [
+        null,
+        null,
+        41.86,
+        38.89,
+        36.85,
+        32.42,
+        30.5
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      2045,
+      3017,
+      3356,
+      4433,
+      8960
+    ],
+    "total_equity": [
+      null,
+      null,
+      0,
+      -57,
+      -2,
+      2384,
+      5689
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      2045,
+      3074,
+      3358,
+      2049,
+      3272
+    ],
+    "cash": [
+      null,
+      null,
+      1194,
+      1782,
+      1251,
+      1366,
+      3074
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      2,
+      11,
+      2,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      8,
+      83,
+      69,
+      77,
+      73
+    ],
+    "net_debt": [
+      null,
+      null,
+      -1184,
+      -1688,
+      -1181,
+      -1289,
+      -3002
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        0.032,
+        0.013
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -1.71,
+        -1.87,
+        -0.71,
+        -0.67,
+        -0.98
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      386,
+      1120,
+      1115,
+      1691,
+      3276
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      42,
+      68,
+      144,
+      66,
+      373
+    ],
+    "fcf": [
+      null,
+      null,
+      344,
+      1052,
+      971,
+      1625,
+      2903
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        22.12,
+        42.18,
+        24.58,
+        27.02,
+        33.17
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        9.19,
+        16.47,
+        7.74,
+        25.62,
+        8.78
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        2.7,
+        2.73,
+        3.64,
+        1.1,
+        4.26
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      81.8,
+      66.15
+    ],
+    "roa": [
+      null,
+      null,
+      31.83,
+      32.15,
+      43.38,
+      43.99,
+      29.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      41.86,
+      38.89,
+      36.85,
+      32.42,
+      30.5
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      11.67,
+      7.62
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      3.78,
+      2.32
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      9.54,
+      3.58
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      11.1,
+      5.64
+    ],
+    "current": {
+      "pe": 7.92,
+      "ps": 2.42,
+      "pb": 3.72,
+      "ev_ebitda": 5.9,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 9.64,
+      "pe_5y_median": 9.645,
+      "period": "2024-2025 (только 2 года публичной истории, IPO окт.2024)"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 7.62,
+        "ps": 2.32,
+        "pb": 3.58,
+        "ev_ebitda": 5.64,
+        "roe": 111.98,
+        "ros": 30.5
+      },
+      "2024": {
+        "pe": 11.67,
+        "ps": 3.78,
+        "pb": 9.54,
+        "ev_ebitda": 11.1,
+        "roe": null,
+        "ros": 32.42
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "менеджмент (гайденс 2026)",
+      "брокеры РФ"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      60.4,
+      52.4,
+      52.3,
+      52.2,
+      45.5
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      49.0,
+      50.1,
+      33.9,
+      36.9
+    ],
+    "note": "Гайденс компании на 2026: рост выручки +20–40% (база 30%). DCF строит затухание 30→10%."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 132.61,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "start_fcf": 2903,
+          "growth_path_pct": [
+            30,
+            25,
+            20,
+            15,
+            10
+          ]
+        },
+        "tv_share_of_value_pct": 45.5,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 118.12,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 9.645,
+          "basis": "median 2024-2025 (история всего 2 года)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": 93.91,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 5.68,
+          "peers": "iTechnology: Yandex,VK,HEAD,POSI,SOFL,ASTR,CIAN,Basis"
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 116.48,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "pe_target": 4.08
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 20.42,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_2025": 3.43,
+          "dps_2026e": 4.29,
+          "required_return": 24.5,
+          "note": "Гордон; компания роста с малым payout — метод вспомогательный, низкий вес"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 93.91,
+      "base": 118.12,
+      "current_price": 97.0,
+      "upside_downside_pct": 21.77,
+      "corridor": [
+        93.91,
+        132.61
+      ]
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        22.5,
+        24.5,
+        26.5
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.0
+      ],
+      "matrix": [
+        [
+          142.63,
+          146.47,
+          148.55
+        ],
+        [
+          129.66,
+          132.61,
+          134.2
+        ],
+        [
+          118.91,
+          121.23,
+          122.47
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Arenadata МСФО 2025 (инфографика на 28.05.2026)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Пресс-релиз Arenadata: результаты 2025 (выручка +46%)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Котировка DATA MOEX (T-Bank/RBC, май 2026)",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Чистая прибыль 2025: 2670 (источник-PDF) vs 2956 (пресс-релиз). Расчёты от 2670 (консервативно).",
+    "EBITDA не раскрывается компанией напрямую; источник даёт 3076, компания — OIBDA 3156 / OIBDAC 2783. EV/EBITDA приблизителен.",
+    "Капитал 2022–2023 ≈0/отрицателен (до IPO) — ROE/P/BV за эти годы не рассчитаны.",
+    "COGS/валовая прибыль и постатейные опер.расходы в источнике не раскрыты — null.",
+    "CFI/CFF не раскрыты постатейно — только CFO и CapEx; FCF = CFO−CapEx.",
+    "История публичных мультипликаторов всего 2 года (IPO окт.2024) — медиана P/E ненадёжна.",
+    "relative_peers помечен pending_sector_backfill: медиана взята из таблицы источника, а не из sectors/peers.json.",
+    "Цена: 97 руб (веб, ~14-30.05.2026) против 93.32 в PDF (28.05.2026); взята 97."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 6.29,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

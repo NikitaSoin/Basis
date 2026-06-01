@@ -1,0 +1,607 @@
+{
+  "meta": {
+    "ticker": "CNTL",
+    "name": "ПАО «Центральный телеграф»",
+    "sector": "Телеком",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 8.84,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 166170000,
+    "shares_ordinary": 166170000,
+    "shares_preferred": 55390000,
+    "price_preferred": 5.02,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Прибыль крайне волатильна и формируется разовыми статьями (доходы/убытки от недвижимости и переоценки активов), а не операциями. 2019 — разовый доход от выбытия недвижимости (ЧП 2257, EBITDA 2954, ROE 71,7%); 2025 — разовый убыток (ЧП −355, EBITDA −391, ROE −60,6%), вероятно списание/переоценка. 2019 и 2025 искажают мультипликаторы и рентабельности; оценка строится на нормализованных показателях (средн. 2021–2024). Акция малоликвидна — котировка чувствительна к разовым сделкам и корпоративным новостям Ростелекома.",
+  "income_statement": {
+    "revenue": [
+      2093,
+      1623,
+      1476,
+      1332,
+      1300,
+      1271,
+      1191
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      2736,
+      96,
+      443,
+      -103,
+      83,
+      101,
+      -465
+    ],
+    "ebitda": [
+      2954,
+      282,
+      629,
+      129,
+      213,
+      185,
+      -391
+    ],
+    "da": [
+      218,
+      186,
+      187,
+      231,
+      130,
+      84,
+      74
+    ],
+    "finance_costs": [
+      17,
+      5,
+      5,
+      6,
+      6,
+      7,
+      7
+    ],
+    "net_profit": [
+      2257,
+      138,
+      354,
+      -6,
+      74,
+      111,
+      -355
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        141.14,
+        17.38,
+        42.62,
+        9.68,
+        16.38,
+        14.56,
+        -32.83
+      ],
+      "operating_margin": [
+        130.72,
+        5.91,
+        30.01,
+        -7.73,
+        6.38,
+        7.95,
+        -39.04
+      ],
+      "net_margin": [
+        107.84,
+        8.5,
+        23.98,
+        -0.45,
+        5.69,
+        8.73,
+        -29.81
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      4938,
+      1415,
+      1614,
+      1152,
+      1193,
+      1297,
+      858
+    ],
+    "total_equity": [
+      3150,
+      788,
+      1128,
+      782,
+      879,
+      949,
+      586
+    ],
+    "total_liabilities": [
+      1788,
+      627,
+      486,
+      370,
+      314,
+      347,
+      272
+    ],
+    "cash": [
+      6,
+      2,
+      4,
+      4,
+      400,
+      621,
+      606
+    ],
+    "short_term_debt": [
+      0,
+      56,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      -6,
+      54,
+      -4,
+      -4,
+      -400,
+      -621,
+      -606
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        0.071,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        -0.0,
+        0.19,
+        -0.01,
+        -0.03,
+        -1.88,
+        -3.36,
+        1.55
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -135,
+      -1059,
+      337,
+      291,
+      186,
+      13,
+      84
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      194,
+      50,
+      16,
+      42,
+      17,
+      100,
+      79
+    ],
+    "fcf": [
+      -329,
+      -1109,
+      321,
+      249,
+      169,
+      -87,
+      5
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -15.72,
+        -68.33,
+        21.75,
+        18.69,
+        13.0,
+        -6.85,
+        0.42
+      ],
+      "cfo_to_capex": [
+        -0.7,
+        -21.18,
+        21.06,
+        6.93,
+        10.94,
+        0.13,
+        1.06
+      ],
+      "capex_to_revenue": [
+        9.27,
+        3.08,
+        1.08,
+        3.15,
+        1.31,
+        7.87,
+        6.63
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      71.65,
+      17.51,
+      31.38,
+      -0.77,
+      8.42,
+      11.7,
+      -60.58
+    ],
+    "roa": [
+      45.71,
+      9.75,
+      21.93,
+      -0.52,
+      6.2,
+      8.56,
+      -41.38
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      107.84,
+      8.5,
+      23.98,
+      -0.45,
+      5.69,
+      8.73,
+      -29.81
+    ],
+    "asset_turnover": [
+      0.42,
+      1.15,
+      0.91,
+      1.16,
+      1.09,
+      0.98,
+      1.39
+    ]
+  },
+  "multiples": {
+    "pe": [
+      1.75,
+      26.8,
+      5.24,
+      -617.15,
+      48.14,
+      17.0,
+      -4.92
+    ],
+    "ps": [
+      1.88,
+      2.27,
+      1.26,
+      2.61,
+      2.74,
+      1.48,
+      1.47
+    ],
+    "pb": [
+      1.25,
+      4.68,
+      1.64,
+      4.44,
+      4.05,
+      1.98,
+      2.98
+    ],
+    "ev_ebitda": [
+      1.33,
+      13.26,
+      2.94,
+      26.98,
+      14.8,
+      6.8,
+      -2.92
+    ],
+    "current": {
+      "pe": -4.92,
+      "ps": 1.47,
+      "pb": 2.98,
+      "ev_ebitda": -2.92,
+      "net_debt_ebitda": 1.55,
+      "as_of": "2026-05-29",
+      "note": "P/E и EV/EBITDA отрицательны из-за разового убытка 2025 — неинформативны, ориентир P/S"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 5.24,
+      "ps_5y_median": 1.48,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "RTKM": {
+        "pe": 24.39,
+        "ps": 0.82,
+        "pb": 0.99,
+        "ev_ebitda": 1.93,
+        "roe": 4.15,
+        "nd_ebitda": 0.62
+      },
+      "MTSS": {
+        "pe": 12.96,
+        "ps": 2.32,
+        "pb": 26.92,
+        "ev_ebitda": 17.62,
+        "roe": -313.51,
+        "nd_ebitda": 0.49
+      },
+      "TTLK": {
+        "pe": 5.78,
+        "ps": 12.17,
+        "pb": 0.1,
+        "ev_ebitda": null,
+        "roe": 15.25,
+        "nd_ebitda": 0.67
+      },
+      "MGTS": {
+        "pe": 4.29,
+        "ps": 14.99,
+        "pb": 0.64,
+        "ev_ebitda": 360.53,
+        "roe": 18.1,
+        "nd_ebitda": 0.23
+      },
+      "BISVP": {
+        "pe": 0.3,
+        "ps": 3.48,
+        "pb": 0.02,
+        "ev_ebitda": 1.41,
+        "roe": 5.39,
+        "nd_ebitda": 0.66
+      }
+    },
+    "2024": null
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      -2.0,
+      -2.0,
+      -2.0,
+      -1.0,
+      -1.0
+    ],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (микрокомпания). Механический сценарий: сжатие выручки −1…−2%, нормализованная прибыль ~130 млн, FCF ~160 млн. Разовые статьи не прогнозируются."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 8.93,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.227,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "fcf_base_normalized_mln": 163,
+          "basis": "нормализованный FCF (средн. 2021-2024) + чистая денежная позиция"
+        },
+        "tv_share_of_value_pct": 42.7,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 4.2,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.24,
+          "basis": "5y_median P/E × нормализованная EPS (~0.80)",
+          "note": "2025 EPS отрицательна; использована нормализованная прибыль ~130 млн"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 10.85,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.227,
+          "beta": 0.9,
+          "note": "таргет 12 мес = цена×(1+(Ke−дивдоходность)); дивдоходность по обыкновенным ~0"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4.2,
+      "base": 8.93,
+      "current_price": 8.84,
+      "upside_downside_pct": 1.0
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.207,
+        0.227,
+        0.247
+      ],
+      "growth_grid": [
+        0.02,
+        0.035,
+        0.05
+      ],
+      "matrix": [
+        [
+          9.0,
+          9.55,
+          10.21
+        ],
+        [
+          8.48,
+          8.93,
+          9.47
+        ],
+        [
+          8.05,
+          8.44,
+          8.88
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Центральный телеграф — инфографика МСФО 2016–2025 (на 29.05.2026)",
+      "period": "2016-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Устав ПАО (дивполитика по префам)",
+      "period": "-",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Источник — агрегированная инфографика, а не первичная отчётность МСФО: COGS/валовая прибыль/опекс, CFI/CFF, оборотный капитал не раскрыты (null).",
+    "Прибыль и EBITDA волатильны из-за разовых статей (недвижимость/переоценка): 2019 (+разовый доход) и 2025 (−разовый убыток) искажают мультипликаторы — см. anomaly_note.",
+    "EBITDA 2025 = −391, EBITDA-маржа −33% — операционно убыточный 2025; EV/EBITDA и P/E отрицательны и неинформативны.",
+    "Малоликвидная акция: котировка чувствительна к разовым сделкам; коридор широкий; relative_peers ожидает сектора (pending_sector_backfill).",
+    "DCF опирается на нормализованный FCF (средн. 2021-2024); существенная доля стоимости — чистая денежная позиция (cash 606 млн при cap 1747 млн).",
+    "По обыкновенным акциям дивиденды исторически ~0; основной возврат — по префам (устав: 10% ЧП на префы)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 3.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

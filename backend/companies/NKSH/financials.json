@@ -1,0 +1,564 @@
+{
+  "meta": {
+    "ticker": "NKSH",
+    "name": "ПАО «Нижнекамскшина»",
+    "sector": "Нефтехимия (шинная промышленность)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО/РСБУ (агрегатор)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 38.5,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 63730000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Малоликвидная бумага (free-float низкий, цена волатильна: исторический диапазон 8–128 руб). Компания — производственное звено группы KAMA TYRES, работает по давальческой/внутригрупповой схеме: сбыт и маржа реализации концентрируются в ТД «Кама», поэтому P&L ПАО не отражает полную экономику бренда, а трансфертные условия искажают рентабельность. Капитал был отрицательным в 2020–2021, что делает ROE/ROA/P/BV этих лет неинформативными. 2022 — разовый выброс (прибыль 5047 млн, вероятно переоценка/внутригрупповые операции). 2025 — near-breakeven (чистый убыток −6 млн), мультипликаторы прибыли неинформативны.",
+  "income_statement": {
+    "revenue": [
+      14910,
+      6966,
+      7456,
+      9707,
+      11155,
+      12062,
+      11689
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      84,
+      -5109,
+      831,
+      6465,
+      557,
+      773,
+      83
+    ],
+    "ebitda": [
+      986,
+      -4664,
+      903,
+      6518,
+      1381,
+      1667,
+      1162
+    ],
+    "da": [
+      902,
+      444,
+      72,
+      53,
+      824,
+      894,
+      1079
+    ],
+    "finance_costs": [
+      32,
+      77,
+      122,
+      100,
+      76,
+      47,
+      43
+    ],
+    "net_profit": [
+      33,
+      -4170,
+      535,
+      5047,
+      335,
+      528,
+      -6
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        6.61,
+        null,
+        12.11,
+        67.15,
+        12.38,
+        13.82,
+        9.94
+      ],
+      "operating_margin": [
+        0.56,
+        -73.34,
+        11.15,
+        66.6,
+        4.99,
+        6.41,
+        0.71
+      ],
+      "net_margin": [
+        0.22,
+        -59.86,
+        7.18,
+        51.99,
+        3.0,
+        4.38,
+        -0.05
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      7983,
+      3582,
+      3964,
+      8771,
+      8597,
+      9158,
+      10009
+    ],
+    "total_equity": [
+      2075,
+      -2207,
+      -1507,
+      3397,
+      4240,
+      4789,
+      4664
+    ],
+    "total_liabilities": [
+      5908,
+      5789,
+      5471,
+      5373,
+      4356,
+      4369,
+      5345
+    ],
+    "cash": [
+      1,
+      1,
+      1,
+      2,
+      16,
+      26,
+      33
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      234,
+      2248,
+      1011,
+      655,
+      255,
+      -26,
+      -33
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.1133,
+        -1.019,
+        -0.6715,
+        0.1931,
+        0.0639,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        0.237,
+        null,
+        1.12,
+        0.1,
+        0.185,
+        -0.016,
+        -0.028
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -61,
+      -593,
+      1944,
+      811,
+      9,
+      2510,
+      1983
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      885,
+      1593,
+      779,
+      822,
+      1048,
+      2438,
+      2165
+    ],
+    "fcf": [
+      -946,
+      -2187,
+      1165,
+      -11,
+      -1039,
+      72,
+      -183
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -6.34,
+        -31.4,
+        15.62,
+        -0.11,
+        -9.31,
+        0.6,
+        -1.57
+      ],
+      "cfo_to_capex": [
+        -0.0689,
+        -0.3723,
+        2.4955,
+        0.9866,
+        0.0086,
+        1.0295,
+        0.9159
+      ],
+      "capex_to_revenue": [
+        5.94,
+        22.87,
+        10.45,
+        8.47,
+        9.39,
+        20.21,
+        18.52
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      1.59,
+      null,
+      null,
+      null,
+      7.9,
+      11.03,
+      -0.13
+    ],
+    "roa": [
+      0.41,
+      null,
+      null,
+      null,
+      3.9,
+      5.77,
+      -0.06
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      0.22,
+      -59.86,
+      7.18,
+      51.99,
+      3.0,
+      4.38,
+      -0.05
+    ],
+    "asset_turnover": [
+      1.8677,
+      1.9447,
+      1.8809,
+      1.1067,
+      1.2975,
+      1.3171,
+      1.1678
+    ]
+  },
+  "multiples": {
+    "pe": [
+      43.51,
+      -0.33,
+      2.67,
+      0.43,
+      14.83,
+      4.71,
+      -332.47
+    ],
+    "ps": [
+      0.1,
+      0.2,
+      0.19,
+      0.22,
+      0.45,
+      0.21,
+      0.17
+    ],
+    "pb": [
+      0.7,
+      -0.63,
+      -0.95,
+      0.63,
+      1.17,
+      0.52,
+      0.44
+    ],
+    "ev_ebitda": [
+      1.71,
+      -0.78,
+      2.7,
+      0.43,
+      3.78,
+      1.48,
+      1.72
+    ],
+    "current": {
+      "pe": -408.93,
+      "ps": 0.21,
+      "pb": 0.526,
+      "ev_ebitda": 2.083,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 3.69,
+      "period": "2021–2024 (норм. годы, искл. 2020 убыток, 2022 выброс, 2025 ~0)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -408.93,
+      "ps": 0.21,
+      "pb": 0.526,
+      "ev_ebitda": 2.083,
+      "ev_sales": 0.207,
+      "p_fcf": -13.41
+    },
+    "2024": {
+      "pe": 4.65,
+      "ps": 0.203,
+      "pb": 0.512,
+      "ev_ebitda": 1.456,
+      "ev_sales": 0.201,
+      "p_fcf": 34.08
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Медиана по сектору «шины/нефтехимия» не собрана — relative_peers ниже посчитан по собственной исторической медиане EV/EBITDA как временный ориентир; заменить на секторную медиану при backfill."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Аналитического покрытия нет (малоликвидная бумага). История прибыли нерепрезентативна: убыток 2020, выброс 2022 (5 млрд), near-zero 2025. Механический прогноз ненадёжен — прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.245,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF крайне волатилен и часто отрицателен (тяжёлый CapEx 2024–2025), EBIT в 2025 близок к нулю; устойчивый FCF не определяется — DCF неинформативен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 26.98,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.69,
+          "basis": "5y_median норм. лет; нормализованная EPS=7.31 руб (ср. ЧП 2021/2023/2024)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": 31.79,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 1.715
+        },
+        "status": "pending_sector_backfill",
+        "note": "Временно по собственной ист. медиане EV/EBITDA на EBITDA 2025; заменить секторной медианой."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 29.85,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.245,
+          "beta": 1.1,
+          "basis": "справедливый P/E≈1/Ke на нормализованную EPS (без роста/дивидендов)"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 26.98,
+      "base": 29.85,
+      "current_price": 38.5,
+      "upside_downside_pct": -22.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Нижнекамскшина — годовой отчёт (инфографика СРКИ/смарт-лаб, МСФО+РСБУ 2016–2025)",
+      "period": "2016–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX/агрегаторы — котировка NKSH",
+      "period": "май 2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Источник — агрегаторная инфографика, не первичная МСФО-отчётность ПАО; постатейная себестоимость, gross profit, opex, CFI/CFF, разбивка долга по срокам не раскрыты (null).",
+    "Давальческая/внутригрупповая схема KAMA TYRES: маржа сбыта вне ПАО, P&L занижает реальную экономику бренда — мультипликаторы прибыли не сопоставимы напрямую с независимыми производителями.",
+    "Отрицательный капитал 2020–2021 → ROE/ROA/P/BV этих лет неинформативны (обнулены/помечены).",
+    "2022 — разовый выброс прибыли 5047 млн (вероятно внутригрупповые/переоценочные операции); 2025 — чистый убыток −6 млн (мультипликаторы прибыли неинформативны, P/E текущий отрицателен).",
+    "Текущая цена: web (MOEX, ~38.5 руб, конец мая 2026) выше цены 31.9 руб в загруженном PDF от 27.05.2026 — расхождение из-за малой ликвидности; взята web-цена.",
+    "DCF не применён (insufficient_data); relative_peers — временный (pending_sector_backfill); прогноз отсутствует (нет покрытия). Коридор оценки широкий и ненадёжный.",
+    "Дивиденды по обыкновенным акциям не выплачиваются (история 0)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.72,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

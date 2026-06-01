@@ -1,0 +1,651 @@
+{
+  "meta": {
+    "sector": "IT-сектор",
+    "sector_key": "it",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "YDEX",
+      "OZON",
+      "VKCO",
+      "ASTR",
+      "POSI",
+      "HEAD",
+      "DIAS",
+      "SOFL",
+      "DATA",
+      "CNRU",
+      "ELMT",
+      "BAZA"
+    ],
+    "n": 12,
+    "registry_ref": "config/sectors.json",
+    "macro_params_ref": "config/market_params.json",
+    "note": "IT/интернет/софт. Ядро медианы — прибыльные сопоставимые. Убыточные/особые (OZON,VKCO,SOFL,ELMT) и недавний IPO BAZA — со * исключены.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 6.29. "
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "YDEX",
+        "name": "МКПАО «Яндекс»",
+        "price": 4016.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "YDEX",
+        "relative_fair_value": 4284.65,
+        "2025": {
+          "pe": 19.93,
+          "ps": 1.1,
+          "pb": 4.52,
+          "ev_ebitda": 5.9,
+          "net_debt_ebitda": 0.07,
+          "roe": 22.66
+        },
+        "2024": {
+          "pe": 138.32,
+          "ps": 1.45,
+          "pb": 5.4,
+          "ev_ebitda": 12.73,
+          "net_debt_ebitda": 0.38,
+          "roe": 3.9
+        }
+      },
+      {
+        "ticker": "OZON",
+        "name": "МКПАО «Озон»",
+        "price": 4253,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "OZON *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.92,
+          "pb": -6.2,
+          "ev_ebitda": 2.63,
+          "net_debt_ebitda": null,
+          "roe": 0.63
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": -7.4,
+          "ev_ebitda": 22.21,
+          "net_debt_ebitda": null,
+          "roe": 44.86
+        }
+      },
+      {
+        "ticker": "VKCO",
+        "name": "МКПАО «ВК»",
+        "price": 245.85,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VKCO *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.88,
+          "pb": 1.06,
+          "ev_ebitda": 3.84,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.47,
+          "pb": 1.54,
+          "ev_ebitda": 10.11,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ASTR",
+        "name": "ПАО «Группа Астра»",
+        "price": 279.4,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "ASTR",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 10.14,
+          "ps": 2.91,
+          "pb": 4.96,
+          "ev_ebitda": 7.52,
+          "net_debt_ebitda": null,
+          "roe": 71.69
+        },
+        "2024": {
+          "pe": 9.13,
+          "ps": 3.09,
+          "pb": 6.51,
+          "ev_ebitda": 8.0,
+          "net_debt_ebitda": null,
+          "roe": 71.3
+        }
+      },
+      {
+        "ticker": "POSI",
+        "name": "ПАО «Группа Позитив» (Positive Technologies)",
+        "price": 858,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "POSI",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 8.4,
+          "ps": 1.98,
+          "pb": 2.51,
+          "ev_ebitda": 6.67,
+          "net_debt_ebitda": null,
+          "roe": 35.1
+        },
+        "2024": {
+          "pe": 21.39,
+          "ps": 3.2,
+          "pb": 4.59,
+          "ev_ebitda": 15.13,
+          "net_debt_ebitda": null,
+          "roe": 24.2
+        }
+      },
+      {
+        "ticker": "HEAD",
+        "name": "МКПАО «Хэдхантер» (HeadHunter)",
+        "price": 2863.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "HEAD",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 8.86,
+          "ps": 3.28,
+          "pb": 10.27,
+          "ev_ebitda": 5.42,
+          "net_debt_ebitda": null,
+          "roe": 326.66
+        },
+        "2024": {
+          "pe": 7.61,
+          "ps": 3.53,
+          "pb": 29.98,
+          "ev_ebitda": 5.96,
+          "net_debt_ebitda": null,
+          "roe": 93.86
+        }
+      },
+      {
+        "ticker": "DIAS",
+        "name": "ПАО «Диасофт»",
+        "price": 1096.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "DIAS",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SOFL",
+        "name": "ПАО «Софтлайн»",
+        "price": 58.64,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SOFL *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "DATA",
+        "name": "ПАО «Группа Аренадата» (Arenadata)",
+        "price": 97.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "DATA",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 7.62,
+          "ps": 2.32,
+          "pb": 3.58,
+          "ev_ebitda": 5.64,
+          "net_debt_ebitda": null,
+          "roe": 111.98
+        },
+        "2024": {
+          "pe": 11.67,
+          "ps": 3.78,
+          "pb": 9.54,
+          "ev_ebitda": 11.1,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "CNRU",
+        "name": "МКПАО «Циан»",
+        "price": 638.2,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "CNRU",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 18.67,
+          "ps": 3.27,
+          "pb": 8.33,
+          "ev_ebitda": 13.93,
+          "net_debt_ebitda": null,
+          "roe": 26.53
+        },
+        "2024": {
+          "pe": 28.96,
+          "ps": 3.8,
+          "pb": 4.93,
+          "ev_ebitda": 15.52,
+          "net_debt_ebitda": null,
+          "roe": 23.74
+        }
+      },
+      {
+        "ticker": "ELMT",
+        "name": "ПАО «Элемент»",
+        "price": 0.12425,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ELMT *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -26.85,
+          "ps": 1.51,
+          "pb": 1.52,
+          "ev_ebitda": 11.14,
+          "net_debt_ebitda": null,
+          "roe": -5.35
+        },
+        "2024": {
+          "pe": 9.26,
+          "ps": 1.52,
+          "pb": 1.56,
+          "ev_ebitda": 4.73,
+          "net_debt_ebitda": null,
+          "roe": 21.31
+        }
+      },
+      {
+        "ticker": "BAZA",
+        "name": "ПАО «ГК «Базис»",
+        "price": 118.04,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "BAZA *",
+        "relative_fair_value": 148.71,
+        "2025": {
+          "pe": 8.78,
+          "ps": 3.09,
+          "pb": 3.52,
+          "ev_ebitda": 4.9,
+          "net_debt_ebitda": -0.45,
+          "roe": 46.7
+        },
+        "2024": {
+          "pe": 9.53,
+          "ps": 4.23,
+          "pb": 4.9,
+          "ev_ebitda": 6.72,
+          "net_debt_ebitda": -0.3,
+          "roe": 42.0
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {
+        "pe": 12.27,
+        "ps": 2.48,
+        "pb": 5.7,
+        "ev_ebitda": 7.51,
+        "net_debt_ebitda": 0.07,
+        "roe": 99.1
+      },
+      "median": {
+        "pe": 9.5,
+        "ps": 2.62,
+        "pb": 4.74,
+        "ev_ebitda": 6.29,
+        "net_debt_ebitda": 0.07,
+        "roe": 53.39
+      }
+    },
+    "2024": {
+      "mean": {
+        "pe": 36.18,
+        "ps": 3.14,
+        "pb": 10.16,
+        "ev_ebitda": 11.41,
+        "net_debt_ebitda": 0.38,
+        "roe": 43.4
+      },
+      "median": {
+        "pe": 16.53,
+        "ps": 3.37,
+        "pb": 5.96,
+        "ev_ebitda": 11.91,
+        "net_debt_ebitda": 0.38,
+        "roe": 24.2
+      }
+    },
+    "included_non_anomalous_ex_pref": [
+      "YDEX",
+      "ASTR",
+      "POSI",
+      "HEAD",
+      "DIAS",
+      "DATA",
+      "CNRU"
+    ],
+    "excluded": [
+      "OZON",
+      "VKCO",
+      "SOFL",
+      "ELMT",
+      "BAZA"
+    ],
+    "note": "Медиана/среднее — сопоставимое ядро сектора; особые/аномальные со * исключены."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "YDEX",
+          "name": "МКПАО «Яндекс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.07,
+          "y": 5.9
+        },
+        {
+          "ticker": "OZON",
+          "name": "МКПАО «Озон»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.63
+        },
+        {
+          "ticker": "VKCO",
+          "name": "МКПАО «ВК»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.84
+        },
+        {
+          "ticker": "ASTR",
+          "name": "ПАО «Группа Астра»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 7.52
+        },
+        {
+          "ticker": "POSI",
+          "name": "ПАО «Группа Позитив» (Positive Technologies)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 6.67
+        },
+        {
+          "ticker": "HEAD",
+          "name": "МКПАО «Хэдхантер» (HeadHunter)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 5.42
+        },
+        {
+          "ticker": "DIAS",
+          "name": "ПАО «Диасофт»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SOFL",
+          "name": "ПАО «Софтлайн»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "DATA",
+          "name": "ПАО «Группа Аренадата» (Arenadata)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 5.64
+        },
+        {
+          "ticker": "CNRU",
+          "name": "МКПАО «Циан»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 13.93
+        },
+        {
+          "ticker": "ELMT",
+          "name": "ПАО «Элемент»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 11.14
+        },
+        {
+          "ticker": "BAZA",
+          "name": "ПАО «ГК «Базис»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.45,
+          "y": 4.9
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "YDEX",
+          "name": "МКПАО «Яндекс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 22.66,
+          "y": 4.52
+        },
+        {
+          "ticker": "OZON",
+          "name": "МКПАО «Озон»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.63,
+          "y": -6.2
+        },
+        {
+          "ticker": "VKCO",
+          "name": "МКПАО «ВК»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.06
+        },
+        {
+          "ticker": "ASTR",
+          "name": "ПАО «Группа Астра»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 71.69,
+          "y": 4.96
+        },
+        {
+          "ticker": "POSI",
+          "name": "ПАО «Группа Позитив» (Positive Technologies)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 35.1,
+          "y": 2.51
+        },
+        {
+          "ticker": "HEAD",
+          "name": "МКПАО «Хэдхантер» (HeadHunter)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 326.66,
+          "y": 10.27
+        },
+        {
+          "ticker": "DIAS",
+          "name": "ПАО «Диасофт»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SOFL",
+          "name": "ПАО «Софтлайн»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "DATA",
+          "name": "ПАО «Группа Аренадата» (Arenadata)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 111.98,
+          "y": 3.58
+        },
+        {
+          "ticker": "CNRU",
+          "name": "МКПАО «Циан»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 26.53,
+          "y": 8.33
+        },
+        {
+          "ticker": "ELMT",
+          "name": "ПАО «Элемент»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -5.35,
+          "y": 1.52
+        },
+        {
+          "ticker": "BAZA",
+          "name": "ПАО «ГК «Базис»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 46.7,
+          "y": 3.52
+        }
+      ]
+    }
+  },
+  "anomalies": [
+    {
+      "ticker": "OZON",
+      "note": "Убыточная компания роста; финтех Ozon Банк раздувает кэш клиентскими средствами → P/E/P/B/чистый долг нерепрезентативны. Оценка по EV/Sales."
+    },
+    {
+      "ticker": "VKCO",
+      "note": "Убыток + высокий долг + допэмиссия → P/E/P/B нерепрезентативны."
+    },
+    {
+      "ticker": "SOFL",
+      "note": "(1) ВЫРУЧКА-НЕТТО по МСФО (95,5 млрд за 2025) кратно ниже 'оборота/turnover' (131,9 млрд), на котором компания строит коммуникацию из-за агентского признания реселла — мультипликаторы P/S к выручке-нетто завышены относительно оборота. (2) Чистая прибыль 2025 обнулилась (21 млн против 3 264 млн в 2024) из-за процентных расходов по M&A-долгу — P/E=1117 и hist-P/E нерепрезентативны, нужна нормализация прибыли. (3) Прошлые годы содержат разовые M&A-доходы/переоценки (аномальный ROE 68% в 2021, чистая маржа 11,4% в 2022). (4) Разводнение: число акций выросло 200→400 млн (2020→2022) + допэмиссии/SPO 2025 (Sk Capital 10%), EPS размывается. (5) FCF отрицательный в 2024-2025 (-7,6 / -6,4 млрд) из-за M&A-capex — прямой DCF по факт-FCF невозможен, использована нормализация."
+    },
+    {
+      "ticker": "ELMT",
+      "note": "Субсидии/льготные займы искажают маржу/финрасходы; убыток 2025 с резервами под обесценение."
+    }
+  ]
+}

@@ -1,0 +1,484 @@
+{
+  "meta": {
+    "ticker": "EUTR",
+    "name": "ПАО «ЕвроТранс»",
+    "sector": "Нефтегаз / топливный ритейл (АЗК)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 67.65,
+    "price_date": "2026-05-22",
+    "shares_outstanding": 159150000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Малая капитализация (~10,8 млрд ₽) и низкая ликвидность акции; выручка проектно-волатильна и определяется низкомаржинальным оптовым трейдингом топлива (рост выручки +43% г/г при снижении чистой прибыли). Базовая отчётность взята из сводного PDF (smart-lab-формат) — валовая прибыль/себестоимость отдельной строкой не раскрыты. Мультипликаторы P/E≈2,3 и EV/EBITDA≈2,8 аномально низкие при ND/EBITDA и крупном лизинге — стандартные методы оценки искажены, коридор расширен."
+  },
+  "income_statement": {
+    "revenue": [
+      48928,
+      64911,
+      126763,
+      186195,
+      265771
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1619,
+      5360,
+      10984,
+      14805,
+      18600
+    ],
+    "ebitda": [
+      2686,
+      6184,
+      12162,
+      16539,
+      20418
+    ],
+    "da": [
+      1067,
+      825,
+      1177,
+      1734,
+      1818
+    ],
+    "finance_costs": [
+      1777,
+      3336,
+      4550,
+      7553,
+      11866
+    ],
+    "net_profit": [
+      556,
+      1742,
+      5154,
+      5508,
+      4757
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        5.49,
+        9.53,
+        9.59,
+        8.88,
+        7.68
+      ],
+      "operating_margin": [
+        3.31,
+        8.26,
+        8.66,
+        7.95,
+        7.0
+      ],
+      "net_margin": [
+        1.14,
+        2.68,
+        4.07,
+        2.96,
+        1.79
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      33548,
+      51858,
+      84992,
+      103873,
+      141076
+    ],
+    "total_equity": [
+      179,
+      11942,
+      27601,
+      32646,
+      34401
+    ],
+    "total_liabilities": [
+      33369,
+      39916,
+      57391,
+      71228,
+      106675
+    ],
+    "cash": [
+      80,
+      204,
+      182,
+      181,
+      162
+    ],
+    "short_term_debt": [
+      20502,
+      7634,
+      5895,
+      12024,
+      22489
+    ],
+    "long_term_debt": [
+      201,
+      844,
+      11071,
+      11668,
+      24112
+    ],
+    "net_debt": [
+      20622,
+      8274,
+      16784,
+      23511,
+      46440
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        186.42,
+        3.34,
+        2.08,
+        2.18,
+        3.1
+      ],
+      "net_debt_ebitda": [
+        7.68,
+        1.34,
+        1.38,
+        1.42,
+        2.27
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      2551,
+      -9973,
+      -1820,
+      17979,
+      7831
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      24,
+      73,
+      13322,
+      14420,
+      14655
+    ],
+    "fcf": [
+      2527,
+      -10046,
+      -15142,
+      3559,
+      -6824
+    ],
+    "ratios": {
+      "fcf_margin": [
+        5.17,
+        -15.48,
+        -11.94,
+        1.91,
+        -2.57
+      ],
+      "cfo_to_capex": [
+        106.29,
+        -136.62,
+        -0.14,
+        1.25,
+        0.53
+      ],
+      "capex_to_revenue": [
+        0.05,
+        0.11,
+        10.51,
+        7.74,
+        5.51
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      310.61,
+      14.59,
+      18.67,
+      16.87,
+      13.83
+    ],
+    "roa": [
+      1.66,
+      3.36,
+      6.06,
+      5.3,
+      3.37
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      1.14,
+      2.68,
+      4.07,
+      2.96,
+      1.79
+    ],
+    "asset_turnover": [
+      1.46,
+      1.25,
+      1.49,
+      1.79,
+      1.88
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      14.52,
+      7.11,
+      2.43,
+      2.26
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.04
+    ],
+    "pb": [
+      null,
+      2.12,
+      1.33,
+      0.41,
+      0.31
+    ],
+    "ev_ebitda": [
+      7.68,
+      5.43,
+      4.39,
+      2.23,
+      2.8
+    ],
+    "current": {
+      "pe": 2.26,
+      "ps": 0.04,
+      "pb": 0.31,
+      "ev_ebitda": 2.8,
+      "as_of": "2026-05-22"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 2.43,
+      "period": "2023–2025 (исключён 2022 как искажающий: ROE 2021 >300%, мультипликаторы IPO-периода)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.26,
+      "ps": 0.04,
+      "pb": 0.31,
+      "ev_ebitda": 2.8,
+      "ev_sales": 0.22,
+      "net_debt_ebitda": 2.27
+    },
+    "2024": {
+      "pe": 2.43,
+      "ps": 0.07,
+      "pb": 0.41,
+      "ev_ebitda": 2.23,
+      "ev_sales": 0.2,
+      "net_debt_ebitda": 1.42
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      25,
+      15,
+      10,
+      7,
+      5
+    ],
+    "net_profit_growth_pct": [
+      0,
+      5,
+      8,
+      8,
+      6
+    ],
+    "note": "Брокерский консенсус по EUTR ограничен. Механический прогноз с затуханием: рост выручки тормозится с ~25% до долгосрочных ~5% (оптовый трейдинг волатилен и не масштабируется бесконечно); прибыль зажата процентными расходами при высокой ставке. Прогноз условный, малоликвидная проектная выручка снижает надёжность."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0,
+          "terminal_growth": 0,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 72.63,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.43,
+          "basis": "median 2023–2025 (2022 исключён как искажающий); EPS=29,89 ₽"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null,
+          "status": "pending_sector_backfill",
+          "note": "Медиана EV/EBITDA по сектору будет проставлена после прогона всех компаний топливного ритейла/нефтегаза. Ориентир-плейсхолдер: EV/EBITDA 3,0–4,0x → цена 93–221 ₽."
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "note": "Ke = 14,6 + 1,1×9,0 = 24,5%. Бета >1 из-за высокого финансового рычага и малой ликвидности. Прямого ценового таргета не даёт без устойчивой прибыли — используется как ставка дисконтирования/требуемая доходность."
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 79.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "sustainable_dps": 14.95,
+          "basis": "устойчивый payout ~50% от EPS 29,89 ₽ (фактический payout 2025 ~106% не покрывается FCF — захеджирован); требуемая дивдоходность 18–20% для малоликвидной закредитованной истории → 75–83 ₽",
+          "note": "Фактические дивиденды 2025 финансировались из долга при отрицательном FCF — устойчивость под вопросом."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 73.0,
+      "base": 90.0,
+      "current_price": 67.65,
+      "upside_downside_pct": 33.0
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill"
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ПАО «ЕвроТранс» — сводный отчёт МСФО 2025 (балансовые показатели, коэффициенты и мультипликаторы 2021–2025), на 22.05.2026",
+      "period": "2021–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Котировка EUTR (MOEX) и дивидендная история — T-Инвестиции / БКС / Доходъ, май 2026",
+      "period": "2025–2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Валовая прибыль, себестоимость, операционные расходы, CFI/CFF и текущая ликвидность в исходном PDF отдельной строкой не раскрыты → null.",
+    "ND/EBITDA по отчётности = 2,27x (2025), но в бизнес-модели фигурирует ~3,2x — расхождение из-за включения лизинговых обязательств в чистый долг. Требует сверки с полным МСФО.",
+    "EBITDA 2025 = 20 418 млн ₽ по своду; в пресс-релизе компании звучала цифра «свыше 24 млрд ₽» — вероятно с учётом лизинга. Расхождение не разрешено.",
+    "ROE 2021 = 310% и P/E IPO-периода искажают исторические ряды → исторический P/E взят по медиане 2023–2025.",
+    "Отрицательный FCF в 2022/2023/2025 при дивидендах payout ~106% → дивиденды финансируются долгом; DCF неприменим (insufficient_data).",
+    "Малая капитализация и низкая ликвидность акции (anomaly_flag=true): рыночная цена может расходиться с внутренней стоимостью дольше обычного.",
+    "relative_peers — pending_sector_backfill: медиана сектора будет подставлена после прогона всех компаний сектора."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.01,
+    "fair_value_per_share": 349.74,
+    "upside_downside_pct": 417.0,
+    "status": "reference_only"
+  }
+}

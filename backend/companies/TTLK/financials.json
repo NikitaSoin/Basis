@@ -1,0 +1,744 @@
+{
+  "meta": {
+    "ticker": "TTLK",
+    "name": "ПАО «Таттелеком»",
+    "sector": "Телеком",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.59,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 20843980000,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "EBITDA 2025 = операц.прибыль(1660)+D&A(1480)=3140 млн, маржа 25.3%. В business_model.md указана EBITDA 2025=3,26 млрд — это значение 2024 года (3263 млн); за 2025 фактически 3140 млн. Маржа EBITDA снижается 5-й год подряд (с пика 41.9% в 2021 до 25.3% в 2025) при росте выручки — операционные расходы (в первую очередь персонал) обгоняют выручку. Чистая прибыль снижается 3-й год подряд несмотря на рост выручки (2129 vs пик 2637 в 2022). FCF волатилен (818→1432) из-за лумпи-CapEx. Цена в источнике 0.59 руб (29.05.2026) против ~0.62 руб в вебе (март 2026) — низколиквидная бумага."
+  },
+  "income_statement": {
+    "revenue": [
+      8206,
+      8566,
+      9195,
+      9554,
+      9801,
+      9944,
+      10330,
+      10920,
+      11612,
+      12388
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      719,
+      607,
+      856,
+      1268,
+      2424,
+      2970,
+      2596,
+      2001,
+      1805,
+      1660
+    ],
+    "ebitda": [
+      2327,
+      2321,
+      2571,
+      2868,
+      3759,
+      4162,
+      4054,
+      3504,
+      3263,
+      3140
+    ],
+    "da": [
+      1608,
+      1714,
+      1715,
+      1600,
+      1335,
+      1192,
+      1458,
+      1503,
+      1458,
+      1480
+    ],
+    "finance_costs": [
+      316,
+      238,
+      229,
+      302,
+      130,
+      71,
+      32,
+      18,
+      16,
+      13
+    ],
+    "net_profit": [
+      155,
+      205,
+      402,
+      810,
+      1865,
+      2492,
+      2637,
+      2604,
+      2239,
+      2129
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        28.4,
+        27.1,
+        28.0,
+        30.0,
+        38.4,
+        41.9,
+        39.2,
+        32.1,
+        28.1,
+        25.3
+      ],
+      "operating_margin": [
+        8.8,
+        7.1,
+        9.3,
+        13.3,
+        24.7,
+        29.9,
+        25.1,
+        18.3,
+        15.5,
+        13.4
+      ],
+      "net_margin": [
+        1.9,
+        2.4,
+        4.4,
+        8.5,
+        19.0,
+        25.1,
+        25.5,
+        23.8,
+        19.3,
+        17.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      11897,
+      12244,
+      11958,
+      12791,
+      12065,
+      14451,
+      14998,
+      16416,
+      17488,
+      19468
+    ],
+    "total_equity": [
+      5926,
+      5916,
+      5915,
+      6302,
+      7762,
+      9436,
+      11075,
+      12695,
+      13961,
+      15308
+    ],
+    "total_liabilities": [
+      5971,
+      6328,
+      6043,
+      6488,
+      4302,
+      5016,
+      3923,
+      3722,
+      3527,
+      4160
+    ],
+    "cash": [
+      183,
+      407,
+      332,
+      1016,
+      1171,
+      2287,
+      3183,
+      1457,
+      1503,
+      655
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      3025,
+      2772,
+      2579,
+      1216,
+      -1171,
+      -2287,
+      -3183,
+      -1457,
+      -1503,
+      -655
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.54,
+        0.54,
+        0.49,
+        0.35,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        1.3,
+        1.19,
+        1.0,
+        0.42,
+        -0.31,
+        -0.55,
+        -0.79,
+        -0.42,
+        -0.46,
+        -0.21
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      1780,
+      1832,
+      2094,
+      2815,
+      3618,
+      4179,
+      3291,
+      3064,
+      2733,
+      3076
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      1803,
+      1307,
+      1244,
+      1087,
+      914,
+      1157,
+      1521,
+      2045,
+      1915,
+      1644
+    ],
+    "fcf": [
+      -23,
+      525,
+      850,
+      1728,
+      2704,
+      3022,
+      1770,
+      1019,
+      818,
+      1432
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -0.3,
+        6.1,
+        9.2,
+        18.1,
+        27.6,
+        30.4,
+        17.1,
+        9.3,
+        7.0,
+        11.6
+      ],
+      "cfo_to_capex": [
+        0.99,
+        1.4,
+        1.68,
+        2.59,
+        3.96,
+        3.61,
+        2.16,
+        1.5,
+        1.43,
+        1.87
+      ],
+      "capex_to_revenue": [
+        22.0,
+        15.3,
+        13.5,
+        11.4,
+        9.3,
+        11.6,
+        14.7,
+        18.7,
+        16.5,
+        13.3
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      2.6,
+      3.5,
+      6.8,
+      12.9,
+      24.0,
+      26.4,
+      23.8,
+      20.5,
+      16.0,
+      13.9
+    ],
+    "roa": [
+      1.3,
+      1.7,
+      3.4,
+      6.3,
+      15.5,
+      17.2,
+      17.6,
+      15.9,
+      12.8,
+      10.9
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      1.9,
+      2.4,
+      4.4,
+      8.5,
+      19.0,
+      25.1,
+      25.5,
+      23.8,
+      19.3,
+      17.2
+    ],
+    "asset_turnover": [
+      0.69,
+      0.7,
+      0.77,
+      0.75,
+      0.81,
+      0.69,
+      0.69,
+      0.67,
+      0.66,
+      0.64
+    ]
+  },
+  "multiples": {
+    "pe": [
+      19.42,
+      16.67,
+      9.14,
+      6.39,
+      6.75,
+      6.0,
+      8.55,
+      8.67,
+      7.01,
+      5.78
+    ],
+    "ps": [
+      0.37,
+      0.4,
+      0.4,
+      0.54,
+      1.28,
+      1.5,
+      2.18,
+      2.07,
+      1.35,
+      0.99
+    ],
+    "pb": [
+      0.51,
+      0.58,
+      0.62,
+      0.82,
+      1.62,
+      1.59,
+      2.03,
+      1.78,
+      1.12,
+      0.8
+    ],
+    "ev_ebitda": [
+      2.6,
+      2.66,
+      2.43,
+      2.23,
+      3.03,
+      3.05,
+      4.77,
+      6.03,
+      4.35,
+      3.71
+    ],
+    "current": {
+      "pe": 5.78,
+      "ps": 0.99,
+      "pb": 0.8,
+      "ev_ebitda": 3.71,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 7.2,
+      "pe_5y_median": 7.01,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      6.0,
+      5.5,
+      5.0,
+      4.5,
+      4.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерское покрытие TTLK минимально (малоликвидная бумага). Прогноз механический: выручка растёт с затуханием 6%→4% (3-летний средний рост ~6.2% с фейдом к макротренду), FCF-маржа консервативно 11% (средняя за 3 года 9.3%). Главная переменная — операционная маржа: тарифы против роста зарплат."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 0.42,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": 44.9,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.72,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 7.01,
+          "basis": "5y_median"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.47,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "basis": "implied_pe=1/ke=4.59 × EPS 0.1021"
+        }
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 0.34,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "div_per_share_2025": 0.0377,
+          "required_yield_pct": 11.0,
+          "note": "Дивиденд 2025 ~786 млн (37% ЧП). Метод требуемой дивдоходности 11% даёт 0.34; модель Гордона (g=3.5%) даёт 0.21 — нижняя граница."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.34,
+      "base": 0.44,
+      "current_price": 0.59,
+      "upside_downside_pct": -25.4
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        19.8,
+        20.8,
+        21.8,
+        22.8,
+        23.8
+      ],
+      "growth_grid": [
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "matrix": [
+        [
+          0.458,
+          0.465,
+          0.472,
+          0.48
+        ],
+        [
+          0.434,
+          0.44,
+          0.447,
+          0.453
+        ],
+        [
+          0.413,
+          0.418,
+          0.424,
+          0.429
+        ],
+        [
+          0.394,
+          0.398,
+          0.403,
+          0.408
+        ],
+        [
+          0.376,
+          0.38,
+          0.385,
+          0.389
+        ]
+      ]
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 5.78,
+      "ps": 0.99,
+      "pb": 0.8,
+      "ev_ebitda": 3.71,
+      "roe": 15.25,
+      "net_debt_ebitda": -0.21
+    },
+    "2024": {
+      "pe": 7.01,
+      "ps": 1.35,
+      "pb": 1.12,
+      "ev_ebitda": 4.35,
+      "roe": 17.64,
+      "net_debt_ebitda": -0.46
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор Телеком в PDF: Ростелеком, МТС, МГТС, Центральный телеграф, Башинформсвязь, Наука-Связь. Медиану сектора EV/EBITDA подставить после прогона всех компаний сектора (sectors/telecom/peers.json).",
+    "sector_companies": [
+      "RTKM",
+      "MTSS",
+      "MGTS",
+      "CNTL",
+      "BISVP",
+      "NSVZ"
+    ]
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Таттелеком МСФО 2025 — инфографика (ТГ «Финансовая отчётность»), на 29.05.2026",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX / Interfax — текущая котировка TTLK",
+      "period": "2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "EBITDA 2025=3140 млн (op.profit+D&A), а не 3263 (это 2024) — расхождение с business_model.md, см. anomaly_note.",
+    "EV/EBITDA текущий 3.71 рассчитан от EBITDA 2025=3140 и EV=11643 (совпадает с источником).",
+    "Общий долг и его срочная структура раскрыты в PDF фрагментарно; восстановлены как net_debt+cash. С 2020 балансовый кредитный долг ≈0 (чистая денежная позиция).",
+    "ROE/ROA в JSON считаны от капитала/активов на конец года; источник даёт ROE 2025=15.25 (усреднённый капитал) — методологическое различие, не ошибка.",
+    "CFI/CFF/net_change_in_cash не раскрыты в источнике — null.",
+    "relative_peers: медиана сектора не подставлена (pending_sector_backfill).",
+    "DCF и дивидендная оценка чувствительны к высокой ставке дисконтирования (Ke 21.8% при ОФЗ 14.6% + ERP 9% × beta 0.8); коридор широкий.",
+    "Цена: источник 0.59 руб (29.05.2026); веб ~0.62 руб (март 2026). Малоликвидная бумага, котировка волатильна."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 3.9,
+    "fair_value_per_share": 0.62,
+    "upside_downside_pct": 5.1,
+    "status": "ok"
+  }
+}

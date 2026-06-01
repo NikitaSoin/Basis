@@ -1,0 +1,589 @@
+{
+  "meta": {
+    "ticker": "FESH",
+    "name": "ПАО «ДВМП» (FESCO)",
+    "sector": "transport",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 67.89,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 2951.25,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "2025 — год чистого убытка (−2 327 млн ₽) при росте финансовых расходов почти вдвое (9 338→18 616 млн ₽) и сжатии EBITDA до 30 695 млн ₽ (маржа 17,9% против 26,6% в 2024). В исходной серии провайдера отсутствуют 2020–2021 (пропуски/реструктуризация раскрытия). Оценка по DCF и историческому P/E ненадёжна на убыточной базе — опора на EV/EBITDA и нормализованный FCF.",
+  "income_statement": {
+    "revenue": [
+      56673,
+      null,
+      null,
+      162639,
+      172004,
+      184978,
+      171583
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      8304,
+      null,
+      null,
+      50899,
+      38375,
+      36297,
+      16258
+    ],
+    "ebitda": [
+      11789,
+      null,
+      null,
+      57547,
+      49889,
+      49204,
+      30695
+    ],
+    "da": [
+      3485,
+      null,
+      null,
+      6648,
+      11514,
+      12907,
+      14437
+    ],
+    "finance_costs": [
+      4550,
+      null,
+      null,
+      7242,
+      4720,
+      9338,
+      18616
+    ],
+    "net_profit": [
+      -2232,
+      null,
+      null,
+      38613,
+      37702,
+      26784,
+      -2327
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        20.8,
+        null,
+        null,
+        35.38,
+        29.0,
+        26.6,
+        17.89
+      ],
+      "operating_margin": [
+        14.65,
+        null,
+        null,
+        31.3,
+        22.31,
+        19.62,
+        9.48
+      ],
+      "net_margin": [
+        -3.94,
+        null,
+        null,
+        23.74,
+        21.92,
+        14.48,
+        -1.36
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      61327,
+      null,
+      null,
+      166327,
+      210748,
+      278453,
+      236304
+    ],
+    "total_equity": [
+      5609,
+      null,
+      null,
+      90594,
+      137059,
+      168580,
+      153258
+    ],
+    "total_liabilities": [
+      55718,
+      null,
+      null,
+      75733,
+      73689,
+      109873,
+      83046
+    ],
+    "cash": [
+      1232,
+      null,
+      null,
+      30677,
+      4641,
+      20279,
+      15531
+    ],
+    "short_term_debt": [
+      6145,
+      null,
+      null,
+      3835,
+      4974,
+      9037,
+      7311
+    ],
+    "long_term_debt": [
+      26741,
+      null,
+      null,
+      26775,
+      21541,
+      25041,
+      18692
+    ],
+    "net_debt": [
+      31654,
+      null,
+      null,
+      -67,
+      21874,
+      13799,
+      10472
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        5.86,
+        null,
+        null,
+        0.34,
+        0.19,
+        0.2,
+        0.17
+      ],
+      "net_debt_ebitda": [
+        2.69,
+        null,
+        null,
+        -0.0,
+        0.44,
+        0.28,
+        0.34
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      8874,
+      null,
+      null,
+      63033,
+      43103,
+      40233,
+      25213
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      3563,
+      null,
+      null,
+      36494,
+      59302,
+      21014,
+      7913
+    ],
+    "fcf": [
+      5311,
+      null,
+      null,
+      26539,
+      -16199,
+      19219,
+      17300
+    ],
+    "ratios": {
+      "fcf_margin": [
+        9.37,
+        null,
+        null,
+        16.32,
+        -9.42,
+        10.39,
+        10.08
+      ],
+      "cfo_to_capex": [
+        2.49,
+        null,
+        null,
+        1.73,
+        0.73,
+        1.91,
+        3.19
+      ],
+      "capex_to_revenue": [
+        6.29,
+        null,
+        null,
+        22.44,
+        34.48,
+        11.36,
+        4.61
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -39.79,
+      null,
+      null,
+      42.62,
+      27.51,
+      15.89,
+      -1.52
+    ],
+    "roa": [
+      -3.64,
+      null,
+      null,
+      23.22,
+      17.89,
+      9.62,
+      -0.98
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -3.94,
+      null,
+      null,
+      23.74,
+      21.92,
+      14.48,
+      -1.36
+    ],
+    "asset_turnover": [
+      0.92,
+      null,
+      null,
+      0.98,
+      0.82,
+      0.66,
+      0.73
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      4.24,
+      null,
+      null,
+      2.51,
+      5.78,
+      4.84,
+      6.87
+    ],
+    "current": {
+      "pe": -86.1,
+      "ps": 1.17,
+      "pb": 1.31,
+      "ev_ebitda": 6.87,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "ev_ebitda_5y_median": 4.84,
+      "period": "2019-2025 (без 2020-2021)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -86.1,
+      "ps": 1.17,
+      "pb": 1.31,
+      "ev_ebitda": 6.87,
+      "roe": -1.38,
+      "nd_ebitda": 0.34
+    },
+    "2024": {
+      "pe": 8.37,
+      "ps": 1.21,
+      "pb": 1.33,
+      "ev_ebitda": 4.84,
+      "roe": 15.89,
+      "nd_ebitda": 0.28
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      3.0,
+      3.0,
+      2.5,
+      2.0,
+      3.5
+    ],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского консенсуса по FESH мало (низкая ликвидность, госконтроль Росатома). Механический прогноз FCF от нормализованной базы ~18 260 млн ₽ (среднее FCF 2024–2025) с затуханием роста к долгосрочному тренду 3,5%. Прибыль не прогнозируется отдельно из-за убытка 2025 и волатильности курсовых/амортизации."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 29.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.227,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "base_fcf_mln": 18260,
+          "beta": 0.9
+        },
+        "tv_share_of_value_pct": 42.3,
+        "status": "insufficient_data",
+        "note": "Низкая достоверность: база FCF нормализована вручную на фоне убыточного 2025; высокая WACC 22,7%. Результат ~29 ₽ существенно ниже рынка."
+      },
+      {
+        "method": "historical_ev_ebitda",
+        "fair_value_per_share": 46.79,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_ebitda_used": 4.84,
+          "basis": "5y_median (2019-2025 без 2020-2021)",
+          "ebitda_2025_mln": 30695
+        },
+        "status": "ok",
+        "note": "Историческая P/E неприменима (убыток 2025), поэтому используется EV/EBITDA по собственной медиане 4,84х к EBITDA 2025."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Ожидает прогон сектора «транспорт» (AFLT, FLOT, TRNFP, NMTP, WUSH, DELI) и заполнения sectors/transport/peers.json."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 83.3,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.227,
+          "beta": 0.9,
+          "note": "Ke=14,6%+0,9×9,0%=22,7%. Дивидендов нет (Росатом не платит), поэтому 12м-ориентир = требуемая доходность к текущей цене; это планка доходности, а не внутренняя стоимость."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 29.0,
+      "base": 37.89,
+      "current_price": 67.89,
+      "upside_downside_pct": -44.2
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.217,
+        0.227,
+        0.237
+      ],
+      "growth_grid": [
+        0.025,
+        0.03,
+        0.035
+      ],
+      "matrix": [
+        [
+          29.7,
+          30.2,
+          30.8
+        ],
+        [
+          28.0,
+          28.5,
+          29.0
+        ],
+        [
+          26.5,
+          27.0,
+          27.4
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ДВМП (МСФО 2025) — инфографика по годовому отчёту, ТГ-канал «Финансовая отчётность»",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО «ДВМП» — годовая консолидированная отчётность по МСФО",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX / котировки FESH",
+      "period": "2026-05-30",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "2025 — чистый убыток −2 327 млн ₽: P/E отрицателен (−86,1), исторический P/E и DCF на этой базе ненадёжны.",
+    "Финансовые расходы выросли почти вдвое в 2025 (9 338→18 616 млн ₽) — главный драйвер убытка вместе с ростом амортизации.",
+    "В серии провайдера отсутствуют данные за 2020 и 2021 (пропуски в раскрытии/реструктуризация группы) — массивы содержат null.",
+    "Себестоимость, валовая прибыль, OPEX, CFI/CFF, net_change_in_cash в исходнике не раскрыты постатейно — null.",
+    "Цена 67,89 ₽ взята из загруженного отчёта (дата 30.05.2026); веб-агрегаторы в апреле 2026 показывали ~74 ₽ — расхождение из-за разных дат снимка.",
+    "Дивиденды не выплачиваются (контроль Росатома); дивидендный метод оценки неприменим.",
+    "EV/EBITDA, FCF, чистый долг пересчитаны кодом — полностью сходятся с исходником (расхождений нет).",
+    "DCF: доля терминальной стоимости 42.3% — приемлема, но база FCF нормализована вручную; метод помечен insufficient_data.",
+    "relative_peers — pending_sector_backfill: ждёт медиану EV/EBITDA сектора «транспорт»."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.01,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

@@ -1,0 +1,465 @@
+{
+  "meta": {
+    "ticker": "BAZA",
+    "name": "ПАО «ГК «Базис»",
+    "sector": "IT",
+    "industry": "Программное обеспечение (виртуализация, VDI)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 118.04,
+    "price_date": "2026-05-28",
+    "shares_outstanding": 165.0,
+    "market_cap": 19477.0,
+    "free_float_pct": 16.7,
+    "listing_date": "2025-12-10",
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Недавнее IPO (10.12.2025), малый free-float ~16,7% и контролирующий акционер РТК-ЦОД/Ростелеком ~50,3% → низкая ликвидность и узкая рыночная история (нет собственной беты, нет 5-летней истории рыночных мультипликаторов). Капитализация ~19,5 млрд ₽ — небольшая по меркам рынка. Аномально высокая рентабельность (OIBDA-маржа ~58–69%, ROE 40–77%) типична для софтового вендора, но потенциально неустойчива при росте ФОТ. МСФО-история короткая (с 2022 г.), пред-IPO годы рыночной цены не имеют."
+  },
+  "income_statement": {
+    "revenue": [
+      1652,
+      3028,
+      4603,
+      6303
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      923,
+      1669,
+      2014,
+      2452
+    ],
+    "ebitda": [
+      1147,
+      2037,
+      2832,
+      3641
+    ],
+    "da": [
+      224,
+      368,
+      818,
+      1189
+    ],
+    "finance_costs": [
+      13,
+      15,
+      48,
+      13
+    ],
+    "net_profit": [
+      901,
+      1708,
+      2044,
+      2219
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        69.43,
+        67.27,
+        61.53,
+        57.77
+      ],
+      "operating_margin": [
+        55.87,
+        55.12,
+        43.75,
+        38.9
+      ],
+      "net_margin": [
+        54.54,
+        56.41,
+        44.41,
+        35.21
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      2385,
+      3651,
+      5504,
+      7340
+    ],
+    "total_equity": [
+      1877,
+      2536,
+      3972,
+      5536
+    ],
+    "total_liabilities": [
+      508,
+      1115,
+      1532,
+      1803
+    ],
+    "cash": [
+      748,
+      296,
+      444,
+      1627
+    ],
+    "short_term_debt": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      -748,
+      -296,
+      -444,
+      -1627
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        -0.65,
+        -0.15,
+        -0.16,
+        -0.45
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      1035,
+      1026,
+      2153,
+      3340
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      339,
+      531,
+      1304,
+      1559
+    ],
+    "fcf": [
+      696,
+      495,
+      849,
+      1781
+    ],
+    "ratios": {
+      "fcf_margin": [
+        42.13,
+        16.35,
+        18.44,
+        28.26
+      ],
+      "cfo_to_capex": [
+        3.05,
+        1.93,
+        1.65,
+        2.14
+      ],
+      "capex_to_revenue": [
+        20.52,
+        17.54,
+        28.33,
+        24.73
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      48.0,
+      67.41,
+      62.81,
+      46.68
+    ],
+    "roe_note": "2022 — по капиталу на конец года (нет 2021 для среднего); 2023–2025 — по среднему капиталу за период. Значения близки к PDF, расхождение из-за метода усреднения.",
+    "roa": [
+      37.78,
+      46.78,
+      37.14,
+      30.23
+    ],
+    "roic": [
+      46.72,
+      62.54,
+      48.16,
+      42.07
+    ],
+    "roic_note": "Долга нет → инвестированный капитал ≈ собственный капитал; NOPAT = операц. прибыль × (1 − ~5% льготная IT-ставка налога).",
+    "ros": [
+      54.54,
+      56.41,
+      44.41,
+      35.21
+    ],
+    "asset_turnover": [
+      0.69,
+      0.83,
+      0.84,
+      0.86
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      9.53,
+      8.78
+    ],
+    "ps": [
+      null,
+      null,
+      4.23,
+      3.09
+    ],
+    "pb": [
+      null,
+      null,
+      4.9,
+      3.52
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      6.72,
+      4.9
+    ],
+    "current": {
+      "pe": 8.78,
+      "ps": 3.09,
+      "pb": 3.52,
+      "ev_ebitda": 4.9,
+      "p_fcf": 10.94,
+      "ev_sales": 2.83,
+      "as_of": "2026-05-28"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — IPO 10.12.2025, рыночная история < 6 мес"
+    }
+  },
+  "peer_multiples": {
+    "_note": "Мультипликаторы самой BAZA по текущей цене 118,04 ₽ и метрикам соответствующего года. Для отраслевого сравнения — после сборки sectors/IT/peers.json.",
+    "2025": {
+      "pe": 8.78,
+      "ps": 3.09,
+      "pb": 3.52,
+      "ev_ebitda": 4.9,
+      "p_fcf": 10.94,
+      "ev_sales": 2.83,
+      "net_debt_ebitda": -0.45,
+      "roe": 46.7
+    },
+    "2024": {
+      "pe": 9.53,
+      "ps": 4.23,
+      "pb": 4.9,
+      "ev_ebitda": 6.72,
+      "p_fcf": 22.94,
+      "ev_sales": 4.13,
+      "net_debt_ebitda": -0.3,
+      "roe": 42.0
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      30,
+      24,
+      18,
+      12,
+      7
+    ],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского консенсуса по BAZA нет (IPO 6 мес назад). Прогноз механический: затухание с ~30% к долгосрочным ~7%, отражает разовую волну импортозамещения (CAGR выручки 2022–2025 ~56% неповторяем). Темпы применены к FCF в DCF."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 101.34,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "beta_used": 1.1,
+          "fcf_base_2025": 1781
+        },
+        "tv_share_of_value_pct": 44.3,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 136.37,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 10.14,
+          "basis": "среднее 2 доступных точек (P/E 2024=9.53, 2025=8.78); полноценной 5-летней медианы нет — IPO дек 2025",
+          "eps_2025": 13.45
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 146.96,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "dividend_yield_assumed": 0.0,
+          "logic": "целевая цена = текущая × (1 + (Ke − дивдоходность)); дивиденды пока не выплачивались"
+        },
+        "status": "ok"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 101.34,
+      "base": 118.85,
+      "current_price": 118.04,
+      "upside_downside_pct": 0.7
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        22.5,
+        24.5,
+        26.5
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          108.92,
+          111.8,
+          114.99
+        ],
+        [
+          99.12,
+          101.34,
+          103.77
+        ],
+        [
+          90.99,
+          92.73,
+          94.63
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ПАО «ГК «Базис» — Basis (МСФО 2025), инфографика на 28.05.2026",
+      "period": "2022-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Пресс-релиз/раскрытие компании по итогам 2025 (МСФО), дивполитика (Протокол СД №10/2025 от 21.11.2025)",
+      "period": "2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "anomaly: недавнее IPO (10.12.2025), низкая ликвидность, free-float ~16,7%, контролирующий акционер ~50,3%.",
+    "Нет 5-летней рыночной истории → historical_pe построен на 2 точках, помечен insufficient_data; собственная бета недоступна, в DCF/CAPM принята beta=1.1.",
+    "COGS/валовая прибыль, CFI, CFF, current_ratio постатейно в инфографике не раскрыты → null.",
+    "Эффективная ставка налога нестабильна (в 2023–2024 чистая прибыль ≈/выше доналоговой EBIT−проценты из-за процентного/неоперационного дохода и IT-льгот) → ROIC малоинформативен для денежной компании, дан с допущением 5% ставки.",
+    "Компания раскрывает OIBDA и скорр. NIC; здесь EBITDA = операц. прибыль + амортизация (сходится с PDF: 1147/2037/2832/3641).",
+    "relative_peers ожидает sectors/IT/peers.json (status=pending_sector_backfill); сектор IT — Yandex, VK, HeadHunter, Positive, Softline, Astra, DiaSoft, ArenaData, ЦИАН.",
+    "Прогноз механический (нет брокерского покрытия) → широкий итоговый коридор, оценка чувствительна к допущениям о темпе роста."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 6.29,
+    "fair_value_per_share": 148.71,
+    "upside_downside_pct": 26.0,
+    "status": "reference_only"
+  }
+}

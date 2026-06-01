@@ -1,0 +1,744 @@
+{
+  "meta": {
+    "ticker": "VKCO",
+    "name": "МКПАО «ВК»",
+    "sector": "IT / Интернет и медиа",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 245.85,
+    "price_date": "2026-05-28",
+    "shares_outstanding": 572904180,
+    "data_quality": "high",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Компания убыточна на уровне чистой прибыли (накопленный убыток, отрицательная нераспределённая прибыль), несёт высокую долговую нагрузку и в 2025 г. провела крупную допэмиссию (≈112 млрд ₽, число акций выросло с 227,87 до 572,90 млн). Из-за убытка и размытия P/E и P/B нерепрезентативны; основной ориентир оценки — EV/Sales и нормализованный EV/EBITDA. Отчётный EBITDA 2025 (54 999 млн) завышен разовыми/неденежными статьями относительно скорр. EBITDA ≈22 600 млн, поэтому EV/EBITDA на отчётном показателе занижен."
+  },
+  "income_statement": {
+    "revenue": [
+      40001,
+      50055,
+      66105,
+      96231,
+      100542,
+      81982,
+      97770,
+      120300,
+      147573,
+      159960
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      14143,
+      12435,
+      3524,
+      28195,
+      19279,
+      -25588,
+      14789,
+      -615,
+      -5048,
+      21323
+    ],
+    "ebitda": [
+      21897,
+      21366,
+      13189,
+      40966,
+      34417,
+      -9457,
+      32902,
+      23099,
+      24068,
+      54999
+    ],
+    "da": [
+      7754,
+      8931,
+      9665,
+      12771,
+      15138,
+      16131,
+      18113,
+      23714,
+      29116,
+      33676
+    ],
+    "finance_costs": [
+      732,
+      15,
+      17,
+      1459,
+      2969,
+      4229,
+      12379,
+      17749,
+      28472,
+      25200
+    ],
+    "net_profit": [
+      11831,
+      2281,
+      -8356,
+      19186,
+      -20201,
+      -15493,
+      -3144,
+      -33716,
+      -95496,
+      -25423
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        54.74,
+        42.69,
+        19.95,
+        42.57,
+        34.23,
+        -11.54,
+        33.65,
+        19.2,
+        16.31,
+        34.38
+      ],
+      "operating_margin": [
+        35.36,
+        24.84,
+        5.33,
+        29.3,
+        19.18,
+        -31.21,
+        15.13,
+        -0.51,
+        -3.42,
+        13.33
+      ],
+      "net_margin": [
+        29.58,
+        4.56,
+        -12.64,
+        19.94,
+        -20.09,
+        -18.9,
+        -3.22,
+        -28.03,
+        -64.71,
+        -15.89
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      185028,
+      191627,
+      204782,
+      254715,
+      291411,
+      297739,
+      360915,
+      400740,
+      333492,
+      333276
+    ],
+    "total_equity": [
+      163417,
+      166166,
+      164975,
+      185464,
+      181991,
+      170262,
+      168112,
+      137534,
+      44809,
+      132874
+    ],
+    "total_liabilities": [
+      21611,
+      25461,
+      39807,
+      69251,
+      109420,
+      127477,
+      192803,
+      263206,
+      288683,
+      200402
+    ],
+    "cash": [
+      13068,
+      15371,
+      11723,
+      9825,
+      39297,
+      23737,
+      48759,
+      51294,
+      28424,
+      32759
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      105229,
+      33821
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      97456,
+      69401
+    ],
+    "net_debt": [
+      -12873,
+      -15371,
+      -11723,
+      13693,
+      5918,
+      34151,
+      75758,
+      116868,
+      174261,
+      70463
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        0.0,
+        0.0,
+        0.13,
+        0.25,
+        0.34,
+        0.74,
+        1.22,
+        4.52,
+        0.78
+      ],
+      "net_debt_ebitda": [
+        -0.59,
+        -0.72,
+        -0.89,
+        0.33,
+        0.17,
+        -3.61,
+        2.3,
+        5.06,
+        7.24,
+        1.28
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      12620,
+      19323,
+      12482,
+      12920,
+      23021,
+      20912,
+      12549,
+      1270,
+      -10696,
+      2992
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      3827,
+      5022,
+      8608,
+      24072,
+      28436,
+      24424,
+      23166,
+      44029,
+      26924,
+      24927
+    ],
+    "fcf": [
+      8793,
+      14301,
+      3874,
+      -11152,
+      -5415,
+      -3512,
+      -10617,
+      -42759,
+      -37620,
+      -21935
+    ],
+    "ratios": {
+      "fcf_margin": [
+        21.98,
+        28.57,
+        5.86,
+        -11.59,
+        -5.39,
+        -4.28,
+        -10.86,
+        -35.54,
+        -25.49,
+        -13.71
+      ],
+      "cfo_to_capex": [
+        3.3,
+        3.85,
+        1.45,
+        0.54,
+        0.81,
+        0.86,
+        0.54,
+        0.03,
+        -0.4,
+        0.12
+      ],
+      "capex_to_revenue": [
+        9.57,
+        10.03,
+        13.02,
+        25.01,
+        28.28,
+        29.79,
+        23.69,
+        36.6,
+        18.24,
+        15.58
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      1.38,
+      -5.05,
+      10.95,
+      -11.0,
+      -8.8,
+      -1.86,
+      -22.06,
+      -104.74,
+      -28.62
+    ],
+    "roa": [
+      null,
+      1.21,
+      -4.22,
+      8.35,
+      -7.4,
+      -5.26,
+      -0.95,
+      -8.85,
+      -26.01,
+      -7.63
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      29.58,
+      4.56,
+      -12.64,
+      19.94,
+      -20.09,
+      -18.9,
+      -3.22,
+      -28.03,
+      -64.71,
+      -15.89
+    ],
+    "asset_turnover": [
+      null,
+      0.27,
+      0.33,
+      0.42,
+      0.37,
+      0.28,
+      0.3,
+      0.32,
+      0.4,
+      0.48
+    ]
+  },
+  "multiples": {
+    "pe": [
+      22.01,
+      184.31,
+      -41.34,
+      11.52,
+      -21.05,
+      -7.11,
+      -44.36,
+      -2.03,
+      -0.72,
+      -5.54
+    ],
+    "ps": [
+      6.51,
+      8.4,
+      5.23,
+      2.3,
+      4.23,
+      1.34,
+      1.43,
+      0.57,
+      0.47,
+      0.88
+    ],
+    "pb": [
+      1.59,
+      2.53,
+      2.09,
+      1.19,
+      2.34,
+      0.65,
+      0.83,
+      0.5,
+      1.54,
+      1.06
+    ],
+    "ev_ebitda": [
+      11.3,
+      18.96,
+      25.3,
+      5.73,
+      12.53,
+      -15.25,
+      6.54,
+      8.03,
+      10.11,
+      3.84
+    ],
+    "current": {
+      "pe": -5.54,
+      "ps": 0.88,
+      "pb": 1.06,
+      "ev_ebitda": 3.84,
+      "ev_sales": 1.32,
+      "as_of": "2026-05-28"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "ps_5y_median": 0.88,
+      "ps_10y_median": 1.86,
+      "period": "2021-2025 / 2016-2025",
+      "note": "P/E медиана не считается — убыток в большинстве лет; ориентир по P/S."
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": null,
+        "ps": 0.88,
+        "pb": 1.06,
+        "ev_ebitda": 3.84,
+        "ev_sales": 1.32,
+        "net_margin": -15.89
+      },
+      "2024": {
+        "pe": null,
+        "ps": 0.47,
+        "pb": 1.54,
+        "ev_ebitda": 10.11,
+        "ev_sales": null,
+        "net_margin": -64.71
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [
+      "менеджмент VK (ориентир EBITDA ~20 млрд ₽ на 2026)"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "История нерепрезентативна (регулярный убыток, отрицательный FCF, разворот EBITDA в плюс только в 2025, допэмиссия). Полноценный прогноз чистой прибыли невозможен; есть лишь ориентир менеджмента по EBITDA ~20 млрд ₽ на 2026."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 23.6,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF исторически отрицателен (8 из 10 лет минус), прогноз прибыли нерепрезентативен — механический DCF дал бы недостоверный результат."
+      },
+      {
+        "method": "historical_ps",
+        "fair_value_per_share": 245.71,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_used": 0.88,
+          "basis": "5y_median",
+          "sales_per_share": 279.21
+        },
+        "note": "Вместо historical_pe (убыток) — historical P/S по медиане 5 лет."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_sales",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана EV/Sales / EV/EBITDA по IT-сектору будет проставлена после прогона всех компаний сектора (peers.json)."
+      },
+      {
+        "method": "ev_ebitda_normalized",
+        "fair_value_per_share": 113.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "adj_ebitda_2025": 22600,
+          "ev_ebitda_used": 6,
+          "net_debt": 70463,
+          "grid": {
+            "5x": 74.25,
+            "6x": 113.7,
+            "8x": 192.59
+          }
+        },
+        "note": "К скорр. EBITDA ≈22,6 млрд (не к завышенному отчётному 55 млрд)."
+      },
+      {
+        "method": "ev_sales",
+        "fair_value_per_share": 156.22,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_sales_used": 1.0,
+          "net_debt": 70463,
+          "grid": {
+            "1.0x": 156.22,
+            "1.3x": 239.98,
+            "1.5x": 295.82
+          }
+        },
+        "note": "Текущий EV/Sales 1.32; консервативно для убыточного бизнеса 1.0-1.3x."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "not_applicable",
+        "note": "P/E≈1/Ke неприменим при убытке; CAPM используется лишь как ставка дисконтирования."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 90.0,
+      "base": 160.0,
+      "optimistic": 240.0,
+      "current_price": 245.85,
+      "upside_downside_pct": -34.9,
+      "note": "conservative — нижний кластер (EV/EBITDA 5-6x по скорр. EBITDA); base — EV/Sales ~1.0x и P/S 5y-медиана; optimistic — EV/Sales 1.3x / EV/EBITDA 8x. Текущая цена выше базового сценария."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "ВК (МСФО 2025) на 28.05.2026 — iTechnology, инфографика отчётности 2016-2025",
+      "period": "2016-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "VK пресс-релиз по итогам 2025 (выручка, скорр. EBITDA, сегменты, MAU)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX VKCO — цена и число акций (issue size 572 904 180)",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Убыток в большинстве лет → P/E, ROE, ROA, ROS отрицательны и нерепрезентативны; оценка по EV/Sales и нормализованному EV/EBITDA.",
+    "Допэмиссия 2025: число акций выросло с 227,87 до 572,90 млн (+151%) → размытие, исторические per-share метрики (EPS, P/E) несопоставимы.",
+    "Отчётный EBITDA 2025 = 54 999 млн заметно выше скорр. EBITDA ≈22 600 млн (разовые/неденежные статьи) → отчётный EV/EBITDA 3.84 занижен; для оценки взят скорр. EBITDA.",
+    "Разбивка short/long debt доступна только за 2024-2025 (из структуры долга PDF); за ранние годы null.",
+    "CFI, CFF, net_change_in_cash, current_ratio, gross_profit в источнике не раскрыты → null.",
+    "Чистый убыток 2025: ≈25,4 млрд (общий) vs ≈22 млрд (продолжающаяся деятельность) — взят общий показатель из инфографики (25 423 млн).",
+    "relative_peers ожидает медиану сектора (peers.json) — статус pending_sector_backfill.",
+    "peer_multiples[2024].ev_sales не заполнен (нужна цена акции на конец 2024 при 227,87 млн акций) → null."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Убыток + высокий долг + допэмиссия → P/E/P/B нерепрезентативны.",
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 6.29,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

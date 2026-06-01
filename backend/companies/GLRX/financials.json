@@ -1,0 +1,490 @@
+{
+  "meta": {
+    "ticker": "GLRX",
+    "name": "ПАО «Глоракс»",
+    "sector": "Девелопмент (строительство)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 45.42,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 282.81,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "GLRX — аномалия по структуре капитала: чистый долг 83 143 млн при капитале лишь 7 159 млн (D/E=11.8) и EBITDA 11 669 млн (ND/EBITDA=7.1x по полному долгу). Часть долга — проектное финансирование под эскроу (~87% покрытия), поэтому полный ND/EBITDA завышает корп. нагрузку; раскрытия чистого корпоративного долга в источнике нет. Из-за огромного долга относительная оценка по EV/EBITDA даёт ОТРИЦАТЕЛЬНУЮ стоимость капитала (медиана сектора 5.8x × EBITDA < чистого долга) — метод неприменим. P/E ~4.2 экстремально низкий (доходность E/P 22.9%), но чистая прибыль тонкая (маржа 7.4%), почти вся EBITDA уходит на проценты (8 865 млн). ROE по балансовому капиталу на конец года 42.9% (расчёт), но в источнике 134.8% — расхождение из-за базы (средний vs конечный капитал и быстрый рост капитала в 2025). IPO 2025 → история торгов <1 года, малоликвидна, free-float ~12%.",
+  "income_statement": {
+    "revenue": [
+      6889,
+      5454,
+      13657,
+      32616,
+      41278
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      338,
+      -339,
+      3632,
+      8773,
+      11427
+    ],
+    "ebitda": [
+      387,
+      -280,
+      3757,
+      8895,
+      11669
+    ],
+    "da": [
+      49,
+      59,
+      125,
+      122,
+      243
+    ],
+    "finance_costs": [
+      779,
+      1230,
+      3262,
+      8179,
+      8865
+    ],
+    "net_profit": [
+      -198,
+      -1160,
+      508,
+      1245,
+      3069
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        5.62,
+        -5.13,
+        27.51,
+        27.27,
+        28.27
+      ],
+      "operating_margin": [
+        4.91,
+        -6.22,
+        26.59,
+        26.9,
+        27.68
+      ],
+      "net_margin": [
+        -2.87,
+        -21.27,
+        3.72,
+        3.82,
+        7.43
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      16493,
+      31722,
+      60543,
+      75215,
+      109994
+    ],
+    "total_equity": [
+      1405,
+      980,
+      1056,
+      2277,
+      7159
+    ],
+    "total_liabilities": [
+      15088,
+      30742,
+      59487,
+      72938,
+      102835
+    ],
+    "cash": [
+      675,
+      205,
+      308,
+      474,
+      1388
+    ],
+    "short_term_debt": [
+      4150,
+      8667,
+      13220,
+      22605,
+      8592
+    ],
+    "long_term_debt": [
+      6336,
+      16509,
+      30969,
+      29743,
+      75939
+    ],
+    "net_debt": [
+      9811,
+      24971,
+      43881,
+      51874,
+      83143
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        7.46,
+        25.69,
+        41.85,
+        22.99,
+        11.81
+      ],
+      "net_debt_ebitda": [
+        25.35,
+        -89.18,
+        11.68,
+        5.83,
+        7.13
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -9340,
+      -11357,
+      -16499,
+      -785,
+      -19038
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      17,
+      23,
+      12,
+      388,
+      458
+    ],
+    "fcf": [
+      -9357,
+      -11380,
+      -16511,
+      -1173,
+      -19496
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -135.83,
+        -208.65,
+        -120.9,
+        -3.6,
+        -47.23
+      ],
+      "cfo_to_capex": [
+        -549.41,
+        -493.78,
+        -1374.92,
+        -2.02,
+        -41.57
+      ],
+      "capex_to_revenue": [
+        0.25,
+        0.42,
+        0.09,
+        1.19,
+        1.11
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -14.09,
+      -118.37,
+      48.11,
+      54.68,
+      42.87
+    ],
+    "roa": [
+      -1.2,
+      -3.66,
+      0.84,
+      1.66,
+      2.79
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      22.0
+    ],
+    "ros": [
+      -2.87,
+      -21.27,
+      3.72,
+      3.82,
+      7.43
+    ],
+    "asset_turnover": [
+      0.42,
+      0.17,
+      0.23,
+      0.43,
+      0.38
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      4.19
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.31
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      1.79
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      8.23
+    ],
+    "current": {
+      "pe": 4.19,
+      "ps": 0.31,
+      "pb": 1.79,
+      "ev_ebitda": 8.23,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно: IPO 2025, торгуется <1 года, исторических рыночных мультипликаторов нет"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 4.19,
+      "ps": 0.31,
+      "pb": 1.79,
+      "ev_ebitda": 8.23,
+      "roe": 42.87,
+      "net_margin": 7.43
+    },
+    "2024": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": 5.83,
+      "roe": 54.68,
+      "net_margin": 3.82
+    },
+    "_note": "2024 — доIPO, рыночные мультипликаторы (P/E,P/S,P/B) отсутствуют; EV/EBITDA и ROE из инфографики СРКИ. 6 метрик: pe, ps, pb, ev_ebitda, roe, net_margin."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз не строим: IPO 2025, история <1 года нерепрезентативна (взрывной рост выручки +138% в 2024, +27% в 2025, разворот прибыли из убытка), брокерское покрытие минимально. CFO структурно отрицательный (стройка/земля в оборотном капитале). source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF (=CFO−CapEx) отрицательный все 5 лет (−1 173…−19 496 млн): операционный поток уходит в землю/незавершёнку. Прогноз FCF недостоверен → DCF не применяется."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Нет 5-летней истории рыночного P/E (IPO 2025)."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": 5.78
+        },
+        "status": "pending_sector_backfill",
+        "note": "EV/EBITDA-метод неприменим из-за аномальной долговой нагрузки: 5.78×11 669=67 442 < чистого долга 83 143 → отрицательная стоимость капитала. Требуется полный пересчёт по сектору с корректным сравнением и при корп. чистом долге. P/E-relative (медиана валидных пиров 11.1x×EPS 10.85=121 руб) и P/B-relative (медиана 0.71×BVPS 25.3=17.9 руб) дают разлёт 18–121 руб — ненадёжно."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 41.26,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.263,
+          "beta": 1.3
+        },
+        "status": "ok",
+        "note": "Ke=14.6%+1.3×9.0%=26.3% (бета>1 для закредитованного малого девелопера). Целевой P/E≈1/Ke=3.8 × EPS 10.85=41.3 руб. Наиболее устойчивый якорь среди методов."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 18.0,
+      "base": 41.0,
+      "current_price": 45.42,
+      "upside_downside_pct": -9.7,
+      "_note": "Коридор 18–55 руб. Нижняя граница — P/B-relative (девелоперы торгуются ниже балансовой), база ~41 — CAPM/собственная доходность, верх ~55 — мягкое снижение ставок и расширение чистой маржи. Текущая цена 45.4 руб — внутри коридора, ближе к базе. Широкий коридор отражает аномалию структуры капитала."
+    },
+    "fair_value_range_full": {
+      "low": 18.0,
+      "high": 55.0
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": [],
+      "_note": "Сетка не строится: DCF неприменим (отрицательный FCF)."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "Глоракс (МСФО 2025) — инфографика СРКИ на 26.05.2026",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX — котировка GLRX 45.42 руб на 29.05.2026",
+      "period": "2026-05-29",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md / fact_check.md GLRX (эскроу 87%, ND/EBITDA 2.8x по корп.)",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "АНОМАЛИЯ структуры капитала: ND/EBITDA по полному долгу 7.1x против ~2.8x по корп. долгу (business_model) — раскрытия чистого КОРПОРАТИВНОГО долга в PDF нет; ~87% долга покрыто эскроу-проектным финансированием.",
+    "EV/EBITDA-оценка даёт отрицательную стоимость капитала → relative_peers помечен pending_sector_backfill.",
+    "ROE: источник 134.8% vs расчёт по конечному капиталу 42.9% — расхождение из-за базы (средний капитал) и роста капитала в 2025; использовать с осторожностью.",
+    "Валовая прибыль/COGS/OpEx в PDF не раскрыты (null); из business_model валовая маржа 2024 ~40%, EBITDA-маржа ~32%.",
+    "CFO отрицательный все годы — норма для растущего девелопера (земля/стройка в оборотном капитале), но FCF-методы (DCF) неприменимы.",
+    "IPO 2025: история торгов <1 года, малоликвидна, free-float ~12% (методология MOEX спорна) — рыночные мультипликаторы за прошлые годы отсутствуют.",
+    "Дивиденды не ранее 2027 (политика: при ND/EBITDA<2.5x — ≥30% ЧП); дивидендный метод неприменим.",
+    "Цена 45.42 (MOEX 29.05.2026) против 47.38 в PDF (26.05.2026) — взята более свежая."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pe",
+    "peer_median": 8.27,
+    "fair_value_per_share": 89.65,
+    "upside_downside_pct": 97.4,
+    "status": "reference_only"
+  }
+}
