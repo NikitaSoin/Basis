@@ -1,0 +1,520 @@
+{
+  "meta": {
+    "ticker": "MRKV",
+    "name": "ПАО «Россети Волга»",
+    "sector": "Электроэнергетика (распределительные сети)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.18485,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 188307958732,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      64.9,
+      66.8,
+      77.0,
+      83.4,
+      129.3
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      63.2,
+      66.25,
+      72.47,
+      76.44,
+      113.9
+    ],
+    "operating_profit": [
+      1.7,
+      0.55,
+      4.53,
+      6.96,
+      15.4
+    ],
+    "ebitda": [
+      6.9,
+      6.8,
+      10.8,
+      13.7,
+      23.2
+    ],
+    "da": [
+      5.2,
+      6.25,
+      6.27,
+      6.74,
+      7.8
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.983,
+      -0.47,
+      2.97,
+      3.63,
+      11.3
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        10.63,
+        10.18,
+        14.03,
+        16.43,
+        17.94
+      ],
+      "operating_margin": [
+        2.62,
+        0.82,
+        5.88,
+        8.35,
+        11.91
+      ],
+      "net_margin": [
+        1.51,
+        -0.7,
+        3.86,
+        4.35,
+        8.74
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      64.8,
+      67.6,
+      71.7,
+      80.9,
+      100.4
+    ],
+    "total_equity": [
+      39.4,
+      38.8,
+      41.7,
+      44.4,
+      53.4
+    ],
+    "total_liabilities": [
+      25.4,
+      28.8,
+      30.0,
+      36.5,
+      47.0
+    ],
+    "cash": [
+      0.805,
+      0.62,
+      2.85,
+      4.81,
+      6.33
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      7.96,
+      9.58,
+      4.88,
+      4.06,
+      2.06
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.22,
+        0.26,
+        0.19,
+        0.2,
+        0.16
+      ],
+      "net_debt_ebitda": [
+        1.15,
+        1.41,
+        0.45,
+        0.3,
+        0.09
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      7.84,
+      6.91,
+      13.7,
+      13.0,
+      19.1
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      7.16,
+      8.4,
+      8.6,
+      11.4,
+      16.6
+    ],
+    "fcf": [
+      0.68,
+      -1.49,
+      5.1,
+      1.6,
+      2.5
+    ],
+    "ratios": {
+      "fcf_margin": [
+        1.05,
+        -2.23,
+        6.62,
+        1.92,
+        1.93
+      ],
+      "cfo_to_capex": [
+        1.09,
+        0.82,
+        1.59,
+        1.14,
+        1.15
+      ],
+      "capex_to_revenue": [
+        11.03,
+        12.57,
+        11.17,
+        13.67,
+        12.84
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      2.49,
+      -1.21,
+      7.12,
+      8.18,
+      21.16
+    ],
+    "roa": [
+      1.52,
+      -0.7,
+      4.14,
+      4.49,
+      11.25
+    ],
+    "roic": [
+      2.87,
+      0.91,
+      7.78,
+      11.49,
+      20.83
+    ],
+    "ros": [
+      1.51,
+      -0.7,
+      3.86,
+      4.35,
+      8.74
+    ],
+    "asset_turnover": [
+      1.0,
+      0.99,
+      1.07,
+      1.03,
+      1.29
+    ]
+  },
+  "multiples": {
+    "pe": [
+      9.48,
+      -10.5,
+      3.49,
+      3.34,
+      2.56
+    ],
+    "ps": [
+      0.14,
+      0.07,
+      0.13,
+      0.15,
+      0.22
+    ],
+    "pb": [
+      0.24,
+      0.13,
+      0.25,
+      0.27,
+      0.54
+    ],
+    "ev_ebitda": [
+      2.5,
+      2.14,
+      1.41,
+      1.18,
+      1.34
+    ],
+    "current": {
+      "pe": 3.08,
+      "ps": 0.27,
+      "pb": 0.65,
+      "ev_ebitda": 1.59,
+      "p_fcf": 13.92,
+      "ev_sales": 0.29,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 4.72,
+      "pe_5y_median": 3.415,
+      "period": "2021-2025 (искл. 2022, убыток)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.56,
+      "ps": 0.22,
+      "pb": 0.54,
+      "ev_ebitda": 1.34,
+      "ev_sales": 0.29,
+      "p_fcf": 13.92
+    },
+    "2024": {
+      "pe": 3.34,
+      "ps": 0.15,
+      "pb": 0.27,
+      "ev_ebitda": 1.18,
+      "ev_sales": 0.19,
+      "p_fcf": 7.49
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Конкуренты — другие МРСК (Россети ЦП, Центр, Юг, Урал, СЗ и др.). peers.json по сектору ещё не собран."
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Скачок 2024->2025: выручка +55% (83.4->129.3), чистая прибыль +211% (3.63->11.3), услуги вышестоящих сетей +97%. Это изменение периметра/тарифной базы ('котлодержатель'), а не органический рост. Динамика 2024->2025 несопоставима; для нормализованных оценок (DCF, ист. P/E) опираться на 2024 либо помечать допущения.",
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      6.0,
+      5.5,
+      5.0,
+      4.5,
+      4.0
+    ],
+    "net_profit_growth_pct": [
+      5.0,
+      5.0,
+      4.5,
+      4.0,
+      3.5
+    ],
+    "note": "Нет публичного количественного консенсуса по росту. Механический прогноз с затуханием к терминальному росту 3.5%. ВНИМАНИЕ: база 2025 аномальна (см. anomaly_note) — прогноз строится от нормализованной траектории, а не от скачка 2025."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 0.1076,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "base_fcf_bn": 3.35,
+          "beta": 0.6,
+          "note": "FCF-база нормализована по 2023-2024 (исключён аномальный масштаб 2025); инвестпрограмма давит FCF"
+        },
+        "tv_share_of_value_pct": 48.3,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.0658,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.415,
+          "basis": "5y_median (искл. 2022)",
+          "eps_basis": "норм. прибыль 2024",
+          "fv_on_2025_eps": 0.2049
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.2022,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2,
+          "beta": 0.6,
+          "exp_div_yield": 0.106,
+          "note": "таргет на 12 мес: цена x (1 + (Ke - дивдоходность))"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.0658,
+      "base": 0.1451,
+      "current_price": 0.18485,
+      "upside_downside_pct": -21.5
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.18,
+        0.2,
+        0.22
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          0.1188,
+          0.1241,
+          0.13
+        ],
+        [
+          0.1038,
+          0.1076,
+          0.1118
+        ],
+        [
+          0.0918,
+          0.0946,
+          0.0978
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Отчётность МСФО ПАО «Россети Волга» (rossetivolga.ru, e-disclosure.ru)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/MRKV/f/y (агрегированная финотчётность МСФО)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "iss.moex.com — цена и число акций MRKV",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md MRKV (внутренний разбор бизнес-модели)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "АНОМАЛИЯ 2025: выручка +55%, чистая прибыль +211% — изменение периметра/тарифной базы, а не органический рост. Динамика 2024->2025 несопоставима.",
+    "Данные 2019-2020 МСФО в источниках не агрегированы — ряды начинаются с 2021.",
+    "Разбивка долга на кратко-/долгосрочный и финансовые расходы отдельной строкой из агрегатора не получены (null).",
+    "FCF неустойчив из-за крупной инвестпрограммы (CapEx 11-17 млрд); DCF на нормализованной FCF-базе, чувствителен к допущениям.",
+    "beta=0.6 — оценка для регулируемой сети, не рассчитана по рыночным данным.",
+    "relative_peers: peers.json по сектору МРСК ещё не собран (status=pending_sector_backfill).",
+    "Налоговая ставка 20% до 2024, 25% с 2025 — учтено в ROIC.",
+    "data_quality=medium: основа — агрегатор smart-lab + MOEX, без прямой выгрузки из официального отчёта построчно."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

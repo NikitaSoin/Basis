@@ -592,10 +592,10 @@
     "Денежный поток, CapEx, FCF, EV/EBITDA, чистый долг для банка неинформативны и не используются."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 323.35,
     "upside_downside_pct": 2.3,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   }
 }

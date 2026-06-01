@@ -1,0 +1,603 @@
+{
+  "meta": {
+    "ticker": "MISBP",
+    "name": "ПАО «ТНС энерго Марий Эл» (прив.)",
+    "sector": "electric_utilities_retail",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ (основа); МСФО приведён для сверки",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 56.7,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 121847780,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "MISB",
+    "pref_to_common_ratio": 1.132,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной MISB. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 1.132 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      8900,
+      9010,
+      9850,
+      10460,
+      11720
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      429,
+      470,
+      2250,
+      590,
+      2060
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        4.8,
+        5.2,
+        22.8,
+        5.6,
+        17.6
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      2110,
+      2020,
+      4690,
+      4920,
+      6980
+    ],
+    "total_equity": [
+      null,
+      null,
+      820,
+      1080,
+      3230,
+      3610,
+      5250
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      1290,
+      940,
+      1460,
+      1310,
+      1730
+    ],
+    "cash": [
+      null,
+      null,
+      254,
+      95,
+      900,
+      1740,
+      2050
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      400,
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      null,
+      null,
+      146,
+      -95,
+      -900,
+      -1740,
+      -2050
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.49,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -70
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        0.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      52.3,
+      43.5,
+      69.7,
+      16.3,
+      39.2
+    ],
+    "roa": [
+      null,
+      null,
+      20.3,
+      23.3,
+      48.0,
+      12.0,
+      29.5
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      4.8,
+      5.2,
+      22.8,
+      5.6,
+      17.6
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      4.22,
+      4.46,
+      2.1,
+      2.13,
+      1.68
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      4.92,
+      5.01,
+      4.29,
+      10.98,
+      4.12
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.59
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.31
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 3.35,
+      "ps": 0.59,
+      "pb": 1.31,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01",
+      "note": "P/E=2.96 рассчитан на РСБУ-прибыль 2025 (2,06 млрд ₽). По МСФО-прибыли 2025 (0,99 млрд ₽) текущий P/E≈6,2 — это более экономически осмысленная оценка."
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.86,
+      "pe_5y_median": 4.92,
+      "period": "2021-2025, РСБУ; 2019-2020 по дочерней компании надёжно не раскрыты"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по эмитенту третьего эшелона нет. Прибыль крайне волатильна (РСБУ: 0,47→2,25→0,59→2,06 млрд ₽) из-за резервов по дебиторке, переоценки фин.вложений и тарифных решений — механический прогноз нерепрезентативен. Прогноз не строится; оценка только по мультипликаторам и дивидендам."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0,
+          "terminal_growth": 0,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Энергосбыт с тонкой регулируемой маржой; РСБУ не раскрывает CFO/CapEx/EBITDA отдельной строкой, FCF не определить. Прибыль волатильна, прогноз невозможен — DCF не применяется."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 50.59,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.49,
+          "basis": "медиана МСФО P/E 2021/2022/2024/2025 (2023 исключён как выброс 133x); применена к МСФО EPS 2025 = 8,14 ₽",
+          "rsbu_variant_note": "На РСБУ (медиана P/E 4,35 × РСБУ EPS 16,91 ₽) метод даёт ~73,6 ₽, но РСБУ-прибыль завышена неденежными статьями — этот вариант не берётся за базу."
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор энергосбыта (TNSE, прочие ТНС-дочки, региональные ГП) ещё не прогнан; peers.json по сектору отсутствует."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 39.04,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.236,
+          "beta": 1.0,
+          "basis": "Ke = 14,6% + 1,0×9,0% = 23,6%; справедливый P/E ≈ 1/Ke = 4,24; × МСФО EPS 2025 (8,14 ₽). Beta=1,0 — допущение (для неликвидного 3-го эшелона бета надёжно не оценивается)."
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 18.67,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 1.98415279,
+          "basis": "рекомендованный СД дивиденд на обыкновенную акцию за 2025 г.; требуемая дивдоходность 12% (база) — 15% (консерватив) для бумаги 3-го эшелона с нерегулярными выплатами",
+          "fv_at_15pct": 13.2,
+          "fv_at_12pct": 16.5,
+          "note": "Payout по обыкновенным акциям низкий (~10% РСБУ-прибыли), выплаты нерегулярны — дивметод даёт жёсткий нижний 'денежный' якорь стоимости."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 16.5,
+      "base": 34.5,
+      "current_price": 50.1,
+      "upside_downside_pct": -31.1,
+      "note": "Диапазон 16,5–34,5 ₽ построен по МСФО-экономике и дивидендному якорю. Текущая цена 50,1 ₽ ВЫШЕ базового сценария (даунсайд ~31% к базе, ~67% к консервативу). Внимание: если считать по РСБУ-прибыли 2025, P/E=3,0 выглядит 'дёшево' и оценка по историческому P/E даёт ~70+ ₽ — расхождение методов огромно и отражает разрыв РСБУ/МСФО (см. anomaly)."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 3.35,
+      "ps": 0.59,
+      "pb": 1.31,
+      "ev_ebitda": null,
+      "roe": 39.2,
+      "net_margin": 17.6
+    },
+    "2024": {
+      "pe": 10.98,
+      "ps": 0.62,
+      "pb": 1.8,
+      "ev_ebitda": null,
+      "roe": 16.3,
+      "net_margin": 5.6
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Сильное расхождение РСБУ и МСФО. Чистая прибыль 2025: РСБУ 2,06 млрд ₽ против МСФО 0,99 млрд ₽; 2023: РСБУ 2,25 млрд ₽ против МСФО 0,064 млрд ₽. РСБУ-результат завышен неденежными статьями (переоценка финансовых вложений, внутригрупповые потоки ГК «ТНС энерго»). Следствие: текущий P/E на РСБУ = 2,96 (выглядит аномально 'дёшево'), на МСФО ≈ 6,2 (нормально). Дивиденд по обыкновенной акции (1,98 ₽ за 2025) — лишь ~10% от РСБУ-EPS (16,91 ₽), т.е. бóльшая часть учётной прибыли не распределяется и денежно не подтверждается. Оценка по разным методам расходится в разы (дивидендный якорь ~16 ₽ против историч. P/E на РСБУ ~73 ₽). Дополнительно: префы MISBP по дивполитике могут иметь приоритет/больший дивиденд (за 2025 СД рекомендовал 6,21 ₽ на преф против 1,98 ₽ на обыкновенную) — для обыкновенной MISB это понижающий фактор.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка ц.б. MISB (ISSUESIZE 121 847 780, ISIN RU000A0D8K33, FACEVALUE 0,1, листинг ур.3) и рыночные данные (LAST 50,1 ₽, 2026-06-01)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность MISB, РСБУ (выручка, чистая прибыль, активы, капитал, долг, кэш, EPS, ROE, P/E по годам)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность MISB, МСФО (для сверки: выручка, EBITDA, чистая прибыль, чистый долг, BVPS, EPS, P/E, P/B, ROE)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "investfunds.ru / smart-lab.ru / РБК — дивиденды на обыкновенную акцию по годам и рекомендация СД за 2024-2025 (1,98415 ₽ на ао за 2025)",
+      "period": "2019-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "internal",
+      "title": "backend/companies/MISB/business_model.md — подтверждение эмитента (ПАО «ТНС энерго Марий Эл», гарантирующий поставщик РМЭ), якоря выручки 11,72 и прибыли 2,06 млрд ₽ за 2025",
+      "period": "2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "В sources/ нет первичных PDF — все числа собраны из веба (iss.moex.com, smart-lab.ru, investfunds.ru). Первичную форму РСБУ сверить по e-disclosure.ru (id=6070). data_quality=low.",
+    "Данные за 2019-2020 по дочерней компании надёжно не раскрыты — оставлены null (не выдуманы).",
+    "EBITDA, операционная прибыль, COGS, валовая прибыль, денежные потоки (CFO/CFI/CFF), FCF в РСБУ отдельной строкой не публикуются → null. CapEx за 2025 (~70 млн ₽) — оценка из business_model.md, помечен.",
+    "АНОМАЛИЯ: РСБУ ≠ МСФО. Чистая прибыль 2025 РСБУ 2,06 vs МСФО 0,99 млрд ₽; 2023 РСБУ 2,25 vs МСФО 0,064 млрд ₽. РСБУ завышен переоценкой фин.вложений и внутригрупповыми статьями. Мультипликаторы и оценка считаны с учётом этого: текущие multiples даны на РСБУ-прибыль, но fair value построен на МСФО-экономике.",
+    "Текущий P/E на РСБУ = 2,96 выглядит аномально низким; экономически осмысленный P/E (МСФО) ≈ 6,2.",
+    "Дивиденд на обыкновенную акцию (~10% payout от РСБУ-прибыли) денежно не подтверждает учётную прибыль — дивидендный метод даёт нижний якорь ~13-16 ₽.",
+    "relative_peers не посчитан — peers.json по сектору энергосбыта отсутствует (status=pending_sector_backfill).",
+    "DCF неприменим (нет FCF, прибыль волатильна, прогноз невозможен) → insufficient_data.",
+    "Beta=1,0 в CAPM — допущение; для неликвидного эмитента 3-го эшелона бета надёжно не оценивается.",
+    "Префы MISBP выводятся отдельно; здесь только обыкновенная MISB. По рекомендации СД за 2025 дивиденд на преф (6,21 ₽) выше, чем на обыкновенную (1,98 ₽) — понижающий фактор для MISB."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

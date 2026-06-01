@@ -1,0 +1,481 @@
+{
+  "meta": {
+    "ticker": "LMBZ",
+    "name": "ПАО «Ламбумиз»",
+    "sector": "machinery_metalworking",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 543.5,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 20752219,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      1170,
+      2600,
+      2568,
+      2750,
+      2780
+    ],
+    "cogs": [
+      null,
+      null,
+      1867,
+      1917,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      701,
+      833,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      85,
+      201,
+      439,
+      509,
+      323
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      265,
+      82,
+      302,
+      269,
+      207
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        27.3,
+        30.3,
+        null
+      ],
+      "ebitda_margin": [
+        7.3,
+        7.7,
+        17.1,
+        18.5,
+        11.6
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        22.6,
+        3.2,
+        11.8,
+        9.8,
+        7.4
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1910,
+      2280,
+      2580,
+      null,
+      null
+    ],
+    "total_equity": [
+      859,
+      929,
+      1240,
+      1690,
+      1820
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      9,
+      121,
+      256,
+      503,
+      386
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      482,
+      138,
+      4,
+      -395,
+      -85
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.57,
+        0.28,
+        0.21,
+        0.06,
+        0.17
+      ],
+      "net_debt_ebitda": [
+        5.67,
+        0.69,
+        0.01,
+        -0.78,
+        -0.26
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      15,
+      628,
+      293,
+      98,
+      75
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      180,
+      51,
+      210,
+      null
+    ],
+    "fcf": [
+      null,
+      448,
+      242,
+      -112,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        17.2,
+        9.4,
+        -4.1,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        3.49,
+        5.75,
+        0.47,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        6.9,
+        2.0,
+        7.6,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      30.8,
+      8.8,
+      24.4,
+      15.9,
+      11.4
+    ],
+    "roa": [
+      13.9,
+      3.6,
+      11.7,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      22.6,
+      3.2,
+      11.8,
+      9.8,
+      7.4
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      54.5
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      4.06
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      6.2
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      34.66
+    ],
+    "current": {
+      "pe": 54.5,
+      "ps": 4.06,
+      "pb": 6.2,
+      "ev_ebitda": 34.66,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно: публичная история котировок только с IPO окт.2024 (1 полный год)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "ev_sales": null,
+      "net_margin": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "ev_sales": null,
+      "net_margin": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Аналитического покрытия консенсусом нет (3-й эшелон). История нерепрезентативна: IPO окт.2024, активная инвестфаза 2025-2026 (~1,5 млрд ₽ capex), FCF отрицательный. Механический прогноз ненадёжен."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.236,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 42.3,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.236,
+          "beta": 1.0
+        },
+        "status": "ok_low_confidence",
+        "note": "Ke=23,6% даёт обоснованный P/E≈4,2; рынок платит P/E 54 — премия за инвестисторию (асептика), не за текущую прибыль."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": null,
+      "base": null,
+      "current_price": 543.5,
+      "upside_downside_pct": null,
+      "note": "Диапазон не выставляем: единственный считаемый метод (CAPM) даёт цену ~42 ₽ против рынка 543,5 ₽ — модели текущей прибыли не объясняют котировку. Оценка требует прогноза отдачи инвестпрограммы, которого нет."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Ламбумиз», МСФО 2024 + операц.итоги",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru LMBZ МСФО (ряды 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab новость: МСФО 2025 (выручка 2,77 млрд, ЧП 0,2 млрд, adj EBITDA 323,4 млн)",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "iss.moex.com LMBZ: цена 543,5 ₽, выпуск 20 752 219 акций",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (подтверждение эмитента, сегменты)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: 3-й эшелон, малоликвид, аналитического покрытия нет, история котировок <2 лет.",
+    "EBITDA 2024: company adj = 509 млн (business_model), агрегатор даёт ~427 млн — расхождение из-за разных корректировок; взято 509.",
+    "EBITDA 2025 = 323 млн (adjusted, из новости) — снижение г/г при росте выручки: рост себестоимости + расходы инвестфазы.",
+    "ANOMALY: EV/EBITDA ~35, P/E ~54, P/B ~6 при ROE 11% — котировка отражает ожидания инвестпрограммы (асептика), а не текущую прибыль.",
+    "FCF 2023-2024 отрицательный (тяжёлый capex инвестпрограммы ~1,5 млрд ₽ 2025-2026).",
+    "Чистый долг отрицательный (чистая денежная позиция): на конец 2024 ≈ -395 млн, 2025 ≈ -85 млн (кэш частично потрачен на capex).",
+    "total_assets/total_liabilities за 2024-2025 в агрегаторе не раскрыты → ROA 2024-2025 = null.",
+    "Разбивка cogs/opex постатейно не раскрывается; gross_profit 2023-2024 реконструирован.",
+    "peer_multiples и relative_peers — status pending_sector_backfill (сектор machinery_metalworking не прогнан)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

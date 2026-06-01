@@ -447,10 +447,10 @@
     "ROE в источнике посчитан по капиталу на конец года (6,47%); по среднему капиталу ≈6,27%."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 9.79,
     "upside_downside_pct": 59.9,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   }
 }

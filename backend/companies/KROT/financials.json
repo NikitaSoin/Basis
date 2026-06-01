@@ -591,10 +591,10 @@
   "anomaly_flag": true,
   "anomaly_note": "Малоликвидна, внутригрупповые цены, около-нулевая EBITDA → EV/EBITDA-артефакт; ценность в недвижимости.",
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": -249.32,
     "upside_downside_pct": -122.4,
-    "status": "reference_only",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "reference_only"
   }
 }

@@ -1,0 +1,417 @@
+{
+  "meta": {
+    "ticker": "VSYDP",
+    "name": "ПАО «Выборгский судостроительный завод» (прив.)",
+    "sector": "machinery_shipbuilding",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 7050.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 2829795,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ],
+    "issuer_confirmation": "Подтверждён по business_model.md и MOEX: ПАО ВСЗ, обыкновенные акции VSYD (ISIN RU0006334372), 2 829 795 шт., номинал 0,5 ₽, контроль ОСК/ВТБ. Преф VSYDP (RU0006334380) НЕ включён в этот файл.",
+    "preferred_ticker": "VSYDP",
+    "is_pref": true,
+    "linked_common": "VSYD",
+    "pref_to_common_ratio": 0.876,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной VSYD. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.876 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      5200.0,
+      11100.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -685.8,
+      -1200.0,
+      141.5
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        -23.08,
+        1.27
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      -1200.0,
+      865.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      -23.08,
+      1.27
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      141.0
+    ],
+    "ps": [
+      null,
+      3.84,
+      1.8
+    ],
+    "pb": [
+      null,
+      null,
+      23.07
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 141.0,
+      "ps": 1.8,
+      "pb": 23.07,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитывается — убытки в 2023–2024, прибыль только в 2025; история нерепрезентативна"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 141.0,
+      "ps": 1.8,
+      "pb": 23.07,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": 3.84,
+      "pb": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Медианные мультипликаторы сектора «машиностроение/судостроение» будут заполнены после прогона всех компаний сектора (sectors/<sector>/peers.json)."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет (3-й эшелон, низкая ликвидность). История нерепрезентативна: выручка и прибыль скачут год к году из-за позаказного цикла и резкого расхождения источников по 2024 г. Механический прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "note": "Опубликованная бета ≈ −0,04 нереалистична (низкая ликвидность искажает регрессию); взят отраслевой пол β=0,9. Ke = 14,6% + 0,9×9,0% = 22,7%. Цена-таргет не выводится — нет ожидаемой прибыли/дивиденда для опоры."
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "book_value_anchor",
+        "fair_value_per_share": 535.98,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps_2025": 306,
+          "fair_pb_range": "1.0–3.0x",
+          "basis": "балансовый якорь — единственная опорная метрика, т.к. EBITDA/долг/FCF не раскрыты"
+        },
+        "status": "low_confidence"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 306,
+      "base": 917,
+      "current_price": 8050.0,
+      "upside_downside_pct": -88.6,
+      "note": "Коридор крайне ненадёжен и приведён только как балансовый ориентир (P/B 1–3× к чистым активам 2025 = 865 млн ₽ / 2,83 млн акций = 306 ₽/акц). Рынок торгует акцию с экстремальной премией к фундаменталу (P/E≈161, P/B≈26) — типично для неликвидного 3-го эшелона, где цена оторвана от отчётности. Реальную справедливую стоимость без МСФО, EBITDA, долга и FCF посчитать нельзя."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Годовой отчёт ВСЗ за 2025 (РСБУ): выручка 11,1 млрд ₽, чистая прибыль 141,5 млн ₽, чистые активы 865 млн ₽; 2024 — выручка 5,2 млрд ₽, убыток 1,2 млрд ₽, чистые активы −1,2 млрд ₽; докапитализация ОСК 1,8 млрд ₽ + субсидии (Фонтанка, 2026-04-10)",
+      "period": "2024–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX ISS — VSYD: цена 8050 ₽ (2026-06-01), 2 829 795 акций, ISIN RU0006334372, номинал 0,5 ₽; объём торгов за день 120 700 ₽ / 15 шт. (крайне низкая ликвидность)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Investfunds — VSYD: капитализация ~23,1 млрд ₽, P/E≈102, EPS 79,76 ₽, бета ≈ −0,04, дивиденды не платятся с 2009",
+      "period": "2026-06-01",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "PortNews — ВСЗ 2024 по РСБУ: выручка 16,3 млрд ₽ (+34,7%), чистая прибыль 783,6 млн ₽ против убытка 685,8 млн ₽ в 2023 — РАСХОДИТСЯ с годовым отчётом (см. data_flags)",
+      "period": "2023–2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "anomaly_flag=true. КРИТИЧЕСКОЕ расхождение по 2024 году между источниками. PortNews (src_4): выручка 16,3 млрд ₽, чистая ПРИБЫЛЬ 783,6 млн ₽. Годовой отчёт / Фонтанка (src_1): выручка 5,2 млрд ₽, чистый УБЫТОК 1,2 млрд ₽, чистые активы −1,2 млрд ₽. Разница и по знаку прибыли, и кратно по выручке. Версия PortNews использована в business_model.md.",
+    "anomaly_note: В financials.json в качестве основного источника взят САМЫЙ СВЕЖИЙ годовой отчёт (Фонтанка, 2026-04-10), т.к. он внутренне согласован (отрицательные чистые активы 2024 → докапитализация ОСК 1,8 млрд ₽ + субсидии → положительные 865 млн ₽ в 2025). Версия PortNews (16,3 млрд) могла относиться к иному периметру/промежуточной отчётности и здесь НЕ принята как основная. Требуется ручная сверка по первичной отчётности на e-disclosure.ru.",
+    "EBITDA, CapEx, FCF, чистый долг, состав активов/обязательств завод публично НЕ раскрывает → EV/EBITDA и ND/EBITDA не рассчитываются (null).",
+    "ROE не рассчитывается: средний капитал недостоверен (на конец 2024 чистые активы отрицательные −1,2 млрд ₽, на конец 2025 — +865 млн ₽). Прямой ROE на конечный капитал (16,4%) не репрезентативен и в JSON не вынесен как метрика.",
+    "Опубликованная бета ≈ −0,04 нереалистична — следствие почти нулевой ликвидности (15 акций / 14 сделок в день). В CAPM взят отраслевой пол β=0,9.",
+    "Котировка оторвана от фундаментала: P/E≈161, P/B≈26 на отчётность 2025. Рыночная капитализация ~22,8 млрд ₽ против чистых активов 0,87 млрд ₽. Коридор справедливой стоимости дан только как балансовый ориентир, доверие низкое.",
+    "Дивиденды по обыкновенным акциям не выплачиваются с 2009 г.",
+    "Преф VSYDP (RU0006334380) в этот файл НЕ включён по заданию — выводится отдельно."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

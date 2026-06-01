@@ -564,10 +564,10 @@
   "anomaly_flag": true,
   "anomaly_note": "Долговая ловушка: отрицательный капитал и EBITDA — мультипликаторы нерепрезентативны.",
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": null,
     "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "insufficient_data"
   }
 }

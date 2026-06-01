@@ -604,11 +604,11 @@
     "cfi/cff/net_change_in_cash не раскрыты в инфографике (только CFO); current_ratio не раскрыт."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 993.55,
     "upside_downside_pct": 41.9,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   },
   "anomaly_flag": true,
   "anomaly_note": "Инвестхолдинг — оценка по SOTP/NAV; P/E нерепрезентативен."

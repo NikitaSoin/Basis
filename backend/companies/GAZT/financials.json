@@ -1,0 +1,586 @@
+{
+  "meta": {
+    "ticker": "GAZT",
+    "name": "ГАЗ-Тек, ПАО",
+    "sector": "holding_finance",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 1739.0,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 471428300,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "ГАЗ-Тек — не операционный бизнес, а холдинговая оболочка для владения пакетом ~11,1% акций АО «Газпромбанк» (см. business_model.md, тикер GAZT, ISIN RU000A0JS199, листинг 3-го уровня МосБиржи). Поэтому: (1) Нет выручки/EBITDA/операционного долга — мультипликаторы PS, EV/EBITDA, EV/EBITDA_adj, ND/EBITDA неприменимы (null). Считается только P/E. (2) P/E ≈ 465x при EPS ~3,74 руб и цене 1739 руб — экстремально высокий, отражает не операционную доходность, а frozen-котировку при нулевом free-float. (3) Котировка 1739 руб — это, по сути, замороженный/последний рыночный принт (MOEX PREVPRICE=LCURRENTPRICE=1739, реальная ликвидность близка к нулю, последняя репрезентативная сделка ~30.11.2023, после чего цена практически не меняется; за год до этого бумага выросла на ~1865% на микрообъёмах). (4) Дивидендная развязка: дивиденд за 2024 ~4,30 руб даёт дивдоходность всего ~0,25% к цене 1739; для нормальной дивдоходности 1–3% цена должна быть ~143–430 руб. То есть рыночная цена в разы выше любой денежно-обоснованной (дивидендной) оценки и держится исключительно на отсутствии free-float и на «бумажной» стоимости пакета Газпромбанка, который публично не раскрыт. Балансовый капитал по РСБУ практически не раскрывается → P/B null, DCF и оценка по NAV невозможны. Профиль СТАНДАРТНЫЙ формально, но финансово это квази-фонд на одну позицию (Газпромбанк под санкциями ЕС/Великобритании).",
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      464.97
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 464.97,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недостаточно раскрытых данных по прибыли за 5 лет"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 464.97,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "ev_ebitda_adj": null,
+      "net_debt_ebitda": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "ev_ebitda_adj": null,
+      "net_debt_ebitda": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор холдингов газпромовского периметра (ГАЗКОН/ГАЗ-сервис/ГАЗ-Тек) ещё не прогнан целиком; peers.json не сформирован. К тому же сравнение по мультипликаторам бессмысленно: у всех этих оболочек нет операционной выручки/EBITDA, единственная сопоставимая метрика — дисконт к стоимости базового актива (доли в Газпромбанке), а она публично не раскрыта. Дозаполнить после прогона сектора."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет. Операционной истории нет (холдинг на одной позиции). Прибыль формируется дивидендами и переоценкой пакета Газпромбанка — непрогнозируема публично. Прогноз невозможен."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Медиана P/E за 5 лет недоступна — прибыль по годам не раскрыта; единственный P/E ~465x аномален и не годится как ориентир."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор не прогнан; к тому же EV/EBITDA неприменим к холдинговой оболочке без EBITDA."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 2145.0,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "ok",
+        "note": "Формальный расчёт: Ke=14,6%+1,0×9,0%=23,6%; таргет=цена×(1+(Ke−дивдоходность 0,25%))=2145. Бета=1,0 принята условно (по неликвидной бумаге 3-го эшелона бета не оценивается). Результат НЕНАДЁЖЕН: котировка-якорь заморожена при нулевом free-float, поэтому таргет наследует завышенную базу."
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": 286.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dividend_per_share": 4.29894,
+          "required_yield_pct_range": "1.0-3.0",
+          "basis": "div_2024"
+        },
+        "status": "ok",
+        "note": "Денежно-обоснованная (дивидендная) оценка: при дивиденде ~4,30 руб и требуемой дивдоходности 1–3% справедливая цена ~143–430 руб (середина ~286). Это нижний фундаментальный якорь — он в РАЗЫ ниже рыночной котировки 1739, т.к. рынок оценивает не денежный поток миноритарию, а «бумажную» долю в Газпромбанке при отсутствии free-float."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 286.0,
+      "base": 1739.0,
+      "current_price": 1739.0,
+      "upside_downside_pct": 0.0
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — карточка GAZT (название, ISIN RU000A0JS199, листинг 3, число акций 471 428 300, котировка/капитализация)",
+      "period": "2026-05-29",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Investfunds — ГАЗ-Тек (GAZT): цена, EPS, P/E, дивиденды 2023/2024/2025",
+      "period": "2023-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md (GAZT) — подтверждение эмитента: холдинг газпромовского периметра, ~11,1% Газпромбанка",
+      "period": "2023",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Котировка 1739 руб заморожена: MOEX PREVPRICE=LCURRENTPRICE=1739, реальной ликвидности нет; последняя репрезентативная сделка ~30.11.2023. Требует ручной проверки актуальности.",
+    "Развёрнутая РСБУ-отчётность ГАЗ-Тек публично не раскрыта — баланс, капитал, чистая прибыль, денежные потоки отсутствуют (все ряды null).",
+    "P/E ~465x и EPS 3,74 руб — оценочные (investfunds), не аудированы; P/E аномален и непригоден как ориентир оценки.",
+    "Балансовая стоимость пакета ~11,1% Газпромбанка не раскрыта → NAV/оценка по активу невозможна; Газпромбанк под санкциями ЕС/Великобритании.",
+    "Нулевой free-float (перекрёстное владение с ГАЗКОН/периметр Газфонда) — рыночная цена не является справедливой.",
+    "Дивидендная оценка (~143–430 руб) в разы ниже рыночной котировки 1739 — фундаментальный разрыв; коридор намеренно широкий.",
+    "Бета=1,0 в CAPM принята условно: по неликвидной бумаге 3-го эшелона бету корректно не оценить.",
+    "Сектор не прогнан целиком — relative_peers и peers.json в статусе pending_sector_backfill."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

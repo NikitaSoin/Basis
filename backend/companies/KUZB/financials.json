@@ -1,0 +1,307 @@
+{
+  "meta": {
+    "ticker": "KUZB",
+    "name": "ПАО Банк «Кузнецкий»",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2024,
+      2025
+    ],
+    "last_price": 0.02745,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 22503490875,
+    "isin": "RU000A0JSQ66",
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "data_quality_note": "Только публичные пресс-релизы РСБУ за 2024–2025 (2 года), детальной отчётности по форме в открытом доступе мало; ряды короткие, часть метрик — оценка."
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      555.6,
+      589.9
+    ],
+    "net_fee_income": [
+      185.2,
+      163.5
+    ],
+    "operating_income": [
+      740.8,
+      753.4
+    ],
+    "provisions": [
+      null,
+      null
+    ],
+    "operating_expenses": [
+      547.0,
+      618.8
+    ],
+    "net_profit": [
+      195.0,
+      104.5
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      5.79,
+      5.96
+    ],
+    "cost_of_risk": [
+      null,
+      0.3
+    ],
+    "cir": [
+      73.8,
+      82.1
+    ],
+    "roe": [
+      22.2,
+      11.2
+    ],
+    "roa": [
+      2.03,
+      1.06
+    ],
+    "capital_adequacy": [
+      10.66,
+      11.02
+    ],
+    "loan_portfolio": [
+      6260.0,
+      6500.0
+    ],
+    "deposits": [
+      3820.0,
+      4600.0
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      9600.0,
+      10200.0
+    ],
+    "total_equity": [
+      879.0,
+      995.0
+    ],
+    "book_value_per_share": [
+      0.03906,
+      0.04422
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      5.91
+    ],
+    "pb": [
+      null,
+      0.621
+    ],
+    "current": {
+      "pe": 5.91,
+      "pb": 0.621,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pb_5y_median": null,
+      "period": "недостаточно истории (только 2024–2025); медиана не считается"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pb": 0.62,
+      "roe": 11.2,
+      "pe": 5.91
+    },
+    "2024": {
+      "pb": null,
+      "roe": 22.2,
+      "pe": null
+    },
+    "note": "Историческая цена за 2024 для P/E и P/BV прошлых лет недоступна — мультипликаторы прошлого года null. Текущие значения — на цену 0.02745 руб. и капитал/прибыль 2025."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "note": "Банк — DCF (FCFF) не применяется; оценка через P/BV×ROE."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 0.02,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "model": "justified P/BV = (ROE - g) / (Ke - g)",
+          "roe_sustainable_base_pct": 13.0,
+          "roe_sustainable_conservative_pct": 11.0,
+          "ke_pct": 24.5,
+          "beta": 1.1,
+          "g_pct": 3.5,
+          "justified_pb_base": 0.452,
+          "justified_pb_conservative": 0.357,
+          "book_value_per_share": 0.04422
+        },
+        "fair_value_conservative": 0.0158,
+        "status": "ok",
+        "note": "Ke=14.6%+1.1×9.0%=24.5% очень высок относительно устойчивого ROE 11–13%, поэтому обоснованный P/BV<1 и модельная справедливая цена (0.016–0.020 руб.) НИЖЕ текущей рыночной 0.02745. Малоликвидная акция уже торгуется с дисконтом к капиталу (P/BV 0.62); модель чувствительна к допущению ROE и не учитывает потенциал восстановления маржи при снижении ставки ЦБ."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "peers.json по сектору finance ещё не собран — медианный P/BV/P/E банков-аналогов недоступен. Достроить после прогона сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 24.5,
+          "beta": 1.1
+        },
+        "status": "insufficient_data",
+        "note": "Целевая дивдоходность/прогноз дивиденда по неликвидной акции с нестабильной прибылью недостоверны; метод пропущен."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.0158,
+      "base": 0.02,
+      "optimistic": 0.0442,
+      "current_price": 0.02745,
+      "upside_downside_pct": -27.1,
+      "note": "Модельный коридор P/BV×ROE = 0.016–0.020 руб. (даунсайд −27…−43% к текущей цене), верхняя граница 0.044 руб. = балансовая стоимость на акцию (сценарий восстановления ROE→Ke при смягчении ставки и схлопывании дисконта к капиталу). Коридор широкий из-за низкого качества данных (2 года), малой ликвидности и высокой чувствительности к ставке."
+    },
+    "sensitivity": {
+      "roe_grid_pct": [
+        11.0,
+        13.0,
+        16.0,
+        20.0
+      ],
+      "ke_grid_pct": [
+        22.0,
+        24.5,
+        27.0
+      ],
+      "metric": "fair_value_per_share_rub",
+      "matrix": [
+        [
+          0.01793,
+          0.01579,
+          0.01411
+        ],
+        [
+          0.02271,
+          0.02,
+          0.01788
+        ],
+        [
+          0.02988,
+          0.02632,
+          0.02352
+        ],
+        [
+          0.03944,
+          0.03474,
+          0.03105
+        ]
+      ],
+      "note": "Строки — устойчивый ROE, столбцы — Ke. Справедливая цена = (ROE−g)/(Ke−g)×BVPS, g=3.5%, BVPS=0.04422."
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Акция глубоко ниже балансовой стоимости (P/BV≈0.62 при капитале 995 млн и капитализации ~618 млн руб.); крайне низкая ликвидность (контроль у 3 семей ~81%, мизерный free-float), биржевая цена слабо отражает фундаментал. ROE обвалился с 23.6% (2024) до 11% (2025), CIR вырос до 82%. Оценка по P/BV×ROE условна: высокий Ke=24.5% даёт модельный таргет ниже рынка, тогда как дисконт к капиталу может схлопнуться при восстановлении прибыли — отсюда широкий коридор и низкое доверие к точечной цифре.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Банк «Кузнецкий» — итоги финансовой деятельности за 2025 год (пресс-релиз, РСБУ)",
+      "period": "2025",
+      "url": "https://kuzbank.ru/press_center/news/detail.php?ID=9863",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Банк «Кузнецкий» — итоги за 12 месяцев 2024 года (пресс-релиз, РСБУ)",
+      "period": "2024",
+      "url": "https://kuzbank.ru/press_center/news/detail.php?ID=9411",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX ISS — котировки и параметры выпуска KUZB (цена, ISSUESIZE, капитализация)",
+      "period": "2026-05-29",
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/securities/KUZB.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX ISS — карточка эмитента KUZB (ISIN, наименование)",
+      "period": "2026",
+      "url": "https://iss.moex.com/iss/securities/KUZB.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "АКРА — кредитный рейтинг BB+(RU), прогноз стабильный (дек. 2025)",
+      "period": "2025-12",
+      "url": "https://cbonds.ru/news/3716717/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_6",
+      "type": "aggregator",
+      "title": "ЦБ РФ — ключевая ставка 14.5% (с 24.04.2026)",
+      "period": "2026",
+      "url": "https://www.cbr.ru/hd_base/keyrate/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_7",
+      "type": "official_report",
+      "title": "business_model.md KUZB — внутренний согласованный блок бизнес-модели",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Короткий ряд: только 2024–2025 (2 года). Тренды и медианы мультипликаторов не считаются — data_quality=low.",
+    "Provisions (резервы) в абсолюте не раскрыты в пресс-релизах — приведён только CoR 0.3% за 2025.",
+    "NIM рассчитан как ЧПД / средние активы (прокси) — банк не раскрывает средние работающие активы; реальная NIM может отличаться.",
+    "operating_income упрощённо = ЧПД + ЧКД (без торгового/прочего дохода, который не раскрыт); CIR на этой базе = 82% (2025).",
+    "ROE пересчитан на средний капитал (2025: 11.2% vs 11.0% в пресс-релизе — расхождение в пределах метода усреднения).",
+    "Историческая цена акции за 2024 недоступна → P/E и P/BV за 2024 = null, peer_multiples 2024 частично пустые.",
+    "relative_peers — status pending_sector_backfill: peers.json по сектору finance не собран.",
+    "Цена 0.02745 — LAST/LCURRENTPRICE на TQBR; на SMAL PREVPRICE 0.03935 (расхождение бордов из-за низкой ликвидности).",
+    "ВНИМАНИЕ ПО ИДЕНТИФИКАЦИИ: KUZB = ПАО Банк «Кузнецкий» (Пенза), ISIN RU000A0JSQ66 — НЕ «Кузнецкбизнесбанк» (Новокузнецк, отдельный эмитент). Анализ построен на корректной компании.",
+    "ev_ebitda и net_debt_ebitda неприменимы для банка (=null/отсутствуют в схеме банковского профиля)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 0.04,
+    "upside_downside_pct": 45.7,
+    "status": "reference_only"
+  }
+}

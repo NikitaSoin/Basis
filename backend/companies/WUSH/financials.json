@@ -493,10 +493,10 @@
     "Текущая цена (59,53) выше базовой справедливой оценки (46,1) — даунсайд ~-22,6% в базовом сценарии; в оптимистичном (быстрое восстановление маржи и снижение ставки) оценка приближается к цене."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": -32.76,
     "upside_downside_pct": -155.0,
-    "status": "reference_only",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "reference_only"
   }
 }

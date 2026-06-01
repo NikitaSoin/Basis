@@ -1,0 +1,574 @@
+{
+  "meta": {
+    "ticker": "MRKS",
+    "name": "ПАО «Россети Сибирь»",
+    "sector": "Электроэнергетика (распределительные сети)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.475,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 94815163249,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      60.7,
+      64.8,
+      69.3,
+      77.6,
+      133.37
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      3.29,
+      3.81,
+      -0.15,
+      5.96,
+      10.6
+    ],
+    "ebitda": [
+      null,
+      null,
+      9.7,
+      8.59,
+      7.76,
+      12.8,
+      16.5
+    ],
+    "da": [
+      null,
+      null,
+      5.6,
+      4.8,
+      6.6,
+      6.0,
+      4.9
+    ],
+    "finance_costs": [
+      null,
+      null,
+      2.84,
+      4.7,
+      4.27,
+      6.9,
+      9.31
+    ],
+    "net_profit": [
+      null,
+      null,
+      0.7,
+      -0.19,
+      -2.95,
+      -0.86,
+      1.16
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        15.98,
+        13.26,
+        11.2,
+        16.49,
+        12.37
+      ],
+      "operating_margin": [
+        null,
+        null,
+        5.42,
+        5.88,
+        -0.22,
+        7.68,
+        7.95
+      ],
+      "net_margin": [
+        null,
+        null,
+        1.15,
+        -0.29,
+        -4.26,
+        -1.11,
+        0.87
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      76.7,
+      82.1,
+      84.6,
+      94.3,
+      113.5
+    ],
+    "total_equity": [
+      null,
+      null,
+      17.9,
+      17.8,
+      14.9,
+      14.0,
+      15.2
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      58.8,
+      64.3,
+      69.7,
+      80.3,
+      98.3
+    ],
+    "cash": [
+      null,
+      null,
+      1.36,
+      2.82,
+      1.8,
+      2.05,
+      9.31
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      40.84,
+      39.28,
+      42.8,
+      48.25,
+      43.09
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        2.36,
+        2.37,
+        2.99,
+        3.59,
+        3.45
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        4.21,
+        4.57,
+        5.52,
+        3.77,
+        2.61
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      6.51,
+      7.81,
+      8.12,
+      5.42,
+      18.2
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      8.4,
+      6.37,
+      11.2,
+      11.1,
+      13.9
+    ],
+    "fcf": [
+      null,
+      null,
+      -1.89,
+      1.44,
+      -3.08,
+      -5.68,
+      4.3
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        -3.11,
+        2.22,
+        -4.44,
+        -7.32,
+        3.22
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        0.78,
+        1.23,
+        0.73,
+        0.49,
+        1.31
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        13.84,
+        9.83,
+        16.16,
+        14.3,
+        10.42
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      3.91,
+      -1.07,
+      -19.8,
+      -6.14,
+      7.63
+    ],
+    "roa": [
+      null,
+      null,
+      0.91,
+      -0.23,
+      -3.49,
+      -0.91,
+      1.02
+    ],
+    "roic": [
+      null,
+      null,
+      5.6,
+      6.67,
+      -0.26,
+      9.57,
+      18.18
+    ],
+    "ros": [
+      null,
+      null,
+      1.15,
+      -0.29,
+      -4.26,
+      -1.11,
+      0.87
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.79,
+      0.79,
+      0.82,
+      0.82,
+      1.18
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      38.83
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.338
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.963
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      5.34
+    ],
+    "current": {
+      "pe": 38.83,
+      "ps": 0.338,
+      "pb": 2.963,
+      "ev_ebitda": 5.34,
+      "as_of": "2026-06-01"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 38.83,
+        "ps": 0.338,
+        "pb": 2.963,
+        "ev_ebitda": 5.34,
+        "net_debt_ebitda": 2.61,
+        "roe": 7.63
+      },
+      "2024": {
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": null,
+        "net_debt_ebitda": 3.77,
+        "roe": -6.14
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — нет ряда исторических цен; прибыль волатильна/убыточна"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз не строится: история прибыли нерепрезентативна (убытки 2022-2024, символический выход в плюс 2025). Скачок выручки 2025 (+71,8%) — структурный, от расширения функций гарантирующего поставщика и госпрограммы перевода частного сектора на электроотопление, а не органический рост сетевого бизнеса. Брокерское покрытие компании практически отсутствует."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 17.31,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.0,
+          "beta": 0.6
+        },
+        "status": "not_applicable",
+        "note": "Бездивидендная убыточно-волатильная история: CAPM не даёт надёжного ценового якоря, т.к. ожидаемая доходность не привязана ни к дивиденду, ни к устойчивой прибыли."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.24,
+      "base": 0.37,
+      "current_price": 0.475,
+      "upside_downside_pct": -22.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — МСФО Россети Сибирь (MRKS), годовая отчётность",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "smart-lab новости: МСФО 2025 — выручка 133,37 млрд (+71,8%), чистая прибыль 1,16 млрд против убытка 0,86 млрд",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "iss.moex.com — параметры выпуска MRKS (94,815 млрд акций, ISIN RU000A0JPPF0) и цена 0,475 ₽",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/MRKS/business_model.md — структура бизнеса и якорные числа 2023-2024",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: нет загруженных PDF, основной источник — агрегатор smart-lab; не сверено с пояснениями к МСФО на e-disclosure.ru.",
+    "Расхождение по чистой прибыли 2024: smart-lab таблица бизнес-модели даёт -0,98 млрд (прибыль акционеров), новостная сводка МСФО -0,86 млрд (итог). В JSON взято -0,86 (итоговый МСФО).",
+    "2019-2020 данные недоступны на источнике — заполнены null.",
+    "Структура долга (кратко-/долгосрочный) и состав денежного потока (CFI/CFF) не раскрыты по источнику — null.",
+    "anomaly_flag: распределительная сетевая компания на регулируемом тарифе. Прибыль исторически слабая/убыточная (убытки 2022-2024), EBITDA почти целиком съедают амортизация огромного сетевого парка и проценты по долгу. P/E 38,8x и P/B ~3x не информативны как оценочные ориентиры.",
+    "Скачок выручки +71,8% в 2025 — структурный (расширение функций гарантирующего поставщика + госпрограмма электроотопления), НЕ органический. Сравнение выручки 2024 vs 2025 некорректно.",
+    "EV/EBITDA 5,34x — высоковато для регулируемой распредсети (типичный диапазон сектора ~2,5-4x); чистый долг (43 млрд) почти равен капитализации (45 млрд) — акция фактически леверидж на тарифную динамику.",
+    "Коридор справедливой цены получен ТОЛЬКО относительным методом (EV/EBITDA 4,0-5,0x) как грубый ориентир; DCF и исторический P/E неприменимы. Оценка ненадёжна, диапазон широкий.",
+    "relative_peers status=pending_sector_backfill: медиана сектора будет подставлена после прогона всех компаний электроэнергетики."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": 0.03,
+    "upside_downside_pct": -93.7,
+    "status": "reference_only"
+  }
+}

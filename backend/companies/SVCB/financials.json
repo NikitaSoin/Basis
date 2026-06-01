@@ -432,10 +432,10 @@
     "relative_peers и peers.json — pending_sector_backfill (отдельный прогон по сектору)."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 16.14,
     "upside_downside_pct": 33.3,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   }
 }

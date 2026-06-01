@@ -1,0 +1,554 @@
+{
+  "meta": {
+    "ticker": "PAZA",
+    "name": "ПАО «Павловский автобус»",
+    "sector": "machinery_auto",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "last_price": 8640,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 1567904,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      22100,
+      null,
+      null,
+      null,
+      26200,
+      33100,
+      24200
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      2100,
+      null,
+      null,
+      null,
+      2420,
+      1770,
+      934
+    ],
+    "ebitda": [
+      2330,
+      null,
+      null,
+      null,
+      2620,
+      2030,
+      1250
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      106,
+      null,
+      null,
+      null,
+      2160,
+      1300,
+      1180
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        10.5,
+        null,
+        null,
+        null,
+        10.0,
+        6.1,
+        5.2
+      ],
+      "operating_margin": [
+        9.5,
+        null,
+        null,
+        null,
+        9.2,
+        5.3,
+        3.9
+      ],
+      "net_margin": [
+        0.5,
+        null,
+        null,
+        null,
+        8.2,
+        3.9,
+        4.9
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      18600,
+      null,
+      null,
+      null,
+      25500,
+      32500,
+      23600
+    ],
+    "total_equity": [
+      9470,
+      null,
+      null,
+      null,
+      11500,
+      12800,
+      13900
+    ],
+    "total_liabilities": [
+      9130,
+      null,
+      null,
+      null,
+      14000,
+      19700,
+      9700
+    ],
+    "cash": [
+      5910,
+      null,
+      null,
+      null,
+      5640,
+      9700,
+      2030
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      -2910,
+      null,
+      null,
+      null,
+      -2760,
+      -7250,
+      -1278
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.32,
+        null,
+        null,
+        null,
+        0.25,
+        0.19,
+        0.05
+      ],
+      "net_debt_ebitda": [
+        -1.25,
+        null,
+        null,
+        null,
+        -1.05,
+        -3.57,
+        -1.02
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      1.1,
+      null,
+      null,
+      null,
+      18.8,
+      10.2,
+      8.5
+    ],
+    "roa": [
+      0.6,
+      null,
+      null,
+      null,
+      8.5,
+      4.0,
+      5.0
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      0.5,
+      null,
+      null,
+      null,
+      8.2,
+      3.9,
+      4.9
+    ],
+    "asset_turnover": [
+      1.19,
+      null,
+      null,
+      null,
+      1.03,
+      1.02,
+      1.03
+    ]
+  },
+  "multiples": {
+    "pe": [
+      23.68,
+      null,
+      null,
+      null,
+      3.77,
+      17.23,
+      11.27
+    ],
+    "ps": [
+      0.11,
+      null,
+      null,
+      null,
+      0.31,
+      0.68,
+      0.55
+    ],
+    "pb": [
+      0.27,
+      null,
+      null,
+      null,
+      0.71,
+      1.75,
+      0.96
+    ],
+    "ev_ebitda": [
+      -0.17,
+      null,
+      null,
+      null,
+      2.06,
+      7.46,
+      9.62
+    ],
+    "current": {
+      "pe": 11.48,
+      "ps": 0.56,
+      "pb": 0.97,
+      "ev_ebitda": 9.81,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 11.27,
+      "period": "2022-2024 (медиана ядра; 2018 — выброс, чистая маржа 0,5%)"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Покрытие брокерами отсутствует; ряд нерепрезентативен (циклический провал выручки −27% в 2024, дыры 2019-2021). Прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 23.6,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 8482,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 11.27,
+          "basis": "median_2022_2024",
+          "eps_2024": 752.6
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 3189,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "implied_pe": 4.24,
+          "note": "Без дивидендов; целевой P/E≈1/Ke. Низкая ROE против высокого Ke даёт низкий ориентир."
+        }
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 2201,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "roe": 8.5,
+          "ke": 23.6,
+          "g": 3.5,
+          "fair_pbv": 0.25,
+          "bvps_2024": 8865
+        },
+        "note": "Модель Гордона по капиталу: ROE<Ke даёт справедливый P/BV<<1."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2201,
+      "base": 3189,
+      "current_price": 8640,
+      "upside_downside_pct": -63.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — PAZA (цена, число акций, ISIN RU0009083240)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели МСФО PAZA по годам",
+      "period": "2018-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab — новости РСБУ/МСФО (выручка, прибыль 2024-2025)",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md PAZA (внутригрупповая структура, ГАЗ 93,79%)",
+      "period": "2026",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: компания с очень низким раскрытием; CapEx, FCF, денежные потоки, амортизация, проценты НЕ раскрыты — массивы cash_flow пустые.",
+    "ВНУТРИГРУППОВАЯ СТРУКТУРА: PAZA — холдинг ПАО, операции ведёт 100% дочка ООО «ПАЗ»; РСБУ ПАО показывает ~0,36-0,61 млрд ₽ выручки (надстройка), реальный масштаб только в МСФО (десятки млрд). В JSON взяты МСФО-показатели.",
+    "ДОЧКА ГРУППЫ ГАЗ (93,79% у ПАО «ГАЗ»): трансфертное ценообразование и внутригрупповые цены искажают рентабельность; денежный поток остаётся внутри группы.",
+    "САНКЦИИ: Группа ГАЗ под санкциями США — риск удорожания/дефицита импортных компонентов.",
+    "ANOMALY: выручка 2023 рекорд 33,1 млрд → 2024 −27% до 24,2 млрд (цикличность бюджетных закупок). 2018 — чистая маржа 0,5% (выброс), исключён из медианы P/E.",
+    "РАСХОЖДЕНИЕ ЛЕЙБЛОВ ГОДОВ: business_model.md называет рекордный год «2025», а провал «2024»; по smart-lab/MOEX это фискальные 2023 и 2024 соответственно. В JSON использована нумерация smart-lab.",
+    "NET CASH: чистый долг отрицателен во все годы (компания держит денежную позицию), ND/EBITDA<0 — долговой нагрузки нет.",
+    "Годы 2019-2021 не раскрыты агрегатором → null.",
+    "ОЦЕНКА НЕНАДЁЖНА: методы расходятся в 4 раза (P/E→8482; CAPM/P-BV→2200-3200). При высоком Ke (23,6%) и низкой ROE (8,5%) доходные методы дают цену сильно ниже рынка; рынок (8640) близок к балансу (BVPS 8865, P/B≈0,97). Малоликвид: 4 сделки/день.",
+    "relative_peers: status=pending_sector_backfill — медиана сектора машиностроения ещё не собрана."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

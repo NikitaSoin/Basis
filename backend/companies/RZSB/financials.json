@@ -1,0 +1,512 @@
+{
+  "meta": {
+    "ticker": "RZSB",
+    "name": "ПАО «Рязанская энергосбытовая компания» (РЭСК)",
+    "isin": "RU000A0D9AF5",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 38.52,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 206940220,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "data_quality_note": "Файлов в sources/ нет. Данные собраны из веба: iss.moex.com (эмитент, акции, цена), smart-lab.ru (МСФО-ряды и мультипликаторы — агрегатор), business_model.md. Постатейной первичной отчётности не было; ряды округлённые, 2025 — предварительный/оценочный. Поэтому data_quality=low."
+  },
+  "income_statement": {
+    "revenue": [
+      11600,
+      12200,
+      13200,
+      13600,
+      15400
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      610,
+      950,
+      1160,
+      974,
+      1160
+    ],
+    "ebitda": [
+      733,
+      1040,
+      1180,
+      1030,
+      1230
+    ],
+    "da": [
+      123,
+      90,
+      20,
+      56,
+      70
+    ],
+    "finance_costs": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_profit": [
+      507,
+      831,
+      982,
+      903,
+      982
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        6.3,
+        8.5,
+        8.9,
+        7.6,
+        8.0
+      ],
+      "operating_margin": [
+        5.3,
+        7.8,
+        8.8,
+        7.2,
+        7.5
+      ],
+      "net_margin": [
+        4.4,
+        6.8,
+        7.4,
+        6.6,
+        6.4
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      2080,
+      2470,
+      2760,
+      2800,
+      3320
+    ],
+    "total_equity": [
+      926,
+      1270,
+      1520,
+      1570,
+      1760
+    ],
+    "total_liabilities": [
+      1154,
+      1200,
+      1240,
+      1230,
+      1560
+    ],
+    "cash": [
+      973,
+      1240,
+      1300,
+      1330,
+      1420
+    ],
+    "short_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      -973,
+      -1240,
+      -1300,
+      -1330,
+      -1420
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "net_debt_ebitda": [
+        -1.33,
+        -1.19,
+        -1.1,
+        -1.29,
+        -1.15
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      54.8,
+      65.4,
+      64.6,
+      57.5,
+      55.8
+    ],
+    "roa": [
+      24.4,
+      33.6,
+      35.6,
+      32.2,
+      29.6
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      4.4,
+      6.8,
+      7.4,
+      6.6,
+      6.4
+    ],
+    "asset_turnover": [
+      5.58,
+      4.94,
+      4.78,
+      4.86,
+      4.64
+    ]
+  },
+  "multiples": {
+    "pe": [
+      7.22,
+      4.76,
+      6.62,
+      6.69,
+      7.27
+    ],
+    "ps": [
+      0.32,
+      0.32,
+      0.49,
+      0.44,
+      0.46
+    ],
+    "pb": [
+      3.96,
+      3.11,
+      4.28,
+      3.85,
+      4.06
+    ],
+    "ev_ebitda": [
+      3.67,
+      2.61,
+      4.41,
+      4.58,
+      4.65
+    ],
+    "dividend_yield": [
+      13.6,
+      18.8,
+      13.4,
+      13.5,
+      12.3
+    ],
+    "current": {
+      "pe": 8.12,
+      "ps": 0.52,
+      "pb": 4.53,
+      "ev_ebitda": 5.33,
+      "dividend_yield": 11.0,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 6.51,
+      "pe_5y_median": 6.69,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 7.27,
+      "ps": 0.46,
+      "pb": 4.06,
+      "ev_ebitda": 4.65,
+      "dividend_yield": 12.3,
+      "roe": 55.8
+    },
+    "2024": {
+      "pe": 6.69,
+      "ps": 0.44,
+      "pb": 3.85,
+      "ev_ebitda": 4.58,
+      "dividend_yield": 13.5,
+      "roe": 57.5
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      7.0,
+      5.0,
+      5.0
+    ],
+    "net_profit_growth_pct": [
+      3.0,
+      3.0,
+      3.0
+    ],
+    "note": "Брокерского покрытия по малоликвидному RZSB нет. Прогноз механический: выручка растёт на индексацию тарифов (~5-7%, затухает к инфляции), прибыль почти не растёт — упирается в регулируемую сбытовую надбавку и резервы по дебиторке. Низкая уверенность."
+  },
+  "valuation": {
+    "anomaly_flag": true,
+    "anomaly_note": "Две аномалии. (1) ROE 55-65% при P/B ~4 — следствие крошечного собственного капитала (~1.6-1.8 млрд при выручке ~14 млрд): прибыль высока относительно капитала, но мала абсолютно; классический «лёгкий по активам» сбыт. (2) Текущая цена 38.52 ₽ заметно выше всех методов оценки — апсайд отрицательный (downside −18%…−38%). Цена на максимумах за 5 лет; в малоликвидной бумаге котировка может отрываться от фундаментала. EV/EBITDA для энергосбыта малоинформативна (почти весь EV — отрицательный чистый долг, EBITDA транзитная), поэтому оценка построена на P/E и дивидендах.",
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 31.78,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 6.69,
+          "basis": "5y_median",
+          "eps_used": 4.75
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 30.21,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 4.23,
+          "required_yield_pct": 14.0,
+          "basis": "историческая дивдоходность ~13-14% + payout ~89-90%"
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 23.75,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.0,
+          "beta": 0.6,
+          "pe_implied": 5.0,
+          "note": "P/E ≈ 1/Ke; beta понижен (regulated utility, низкая чувствительность к рынку, но бумага неликвидна — beta оценочна)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 23.75,
+      "base": 30.21,
+      "optimistic": 31.78,
+      "current_price": 38.52,
+      "upside_downside_pct": -21.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — паспорт ценной бумаги RZSB (ISIN, число акций, листинг)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — котировка TQBR RZSB (last 38.52 ₽)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО и мультипликаторы RZSB",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Дивидендная история RZSB (smart-lab/vsdelke): за 2024 — 3.9385 ₽/акц, реестр 18.06.2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (RZSB) — согласованность якорных чисел МСФО за 2023-2024",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Файлов в sources/ нет — все числа из веба (MOEX + smart-lab + business_model.md). data_quality=low.",
+    "2025 — предварительные/оценочные данные агрегатора, не аудированная отчётность; возможна ревизия.",
+    "Постатейная разбивка не раскрыта: COGS, operating_expenses, gross_profit, весь cash_flow (CFO/CFI/CFF/CapEx/FCF), current_ratio, ROIC — null. CapEx у энергосбыта незначителен, но строкой не подтверждён.",
+    "DA (амортизация) восстановлена как EBITDA−операционная прибыль по агрегатору; для сбыта мала и может содержать прочие неоперационные статьи.",
+    "EV/EBITDA малоинформативна для энергосбыта: почти весь EV формирует отрицательный чистый долг (денежная подушка), EBITDA транзитная. Оценка опирается на P/E и дивиденды.",
+    "Расхождение РСБУ/МСФО по прибыли (по business_model.md прибыль РСБУ-2024 много ниже МСФО из-за резервов по дебиторке) — использован МСФО.",
+    "beta=0.6 для CAPM — оценочная (регулируемый сбыт, низкая системная чувствительность), но бумага малоликвидна, рыночная beta нерепрезентативна.",
+    "АНОМАЛИЯ: текущая цена 38.52 ₽ выше всех методов оценки (downside −18%…−38%); малоликвидная бумага, котировка может отрываться от фундаментала.",
+    "relative_peers — status pending_sector_backfill: peers.json по энергосбытовому сектору ещё не собран."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

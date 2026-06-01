@@ -1,0 +1,344 @@
+{
+  "meta": {
+    "ticker": "AVAN",
+    "name": "ПАО АКБ «АВАНГАРД»",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО (P&L); РСБУ для нормативов ЦБ (Н1.0, капитал на тек. дату)",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 600,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 80700000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      6180,
+      8450,
+      null,
+      8440,
+      7490
+    ],
+    "net_fee_income": [
+      5660,
+      4940,
+      null,
+      4940,
+      4320
+    ],
+    "operating_income": [
+      null,
+      null,
+      null,
+      null,
+      14200
+    ],
+    "provisions": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      10900
+    ],
+    "net_profit": [
+      null,
+      null,
+      281,
+      5044,
+      5851
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cost_of_risk": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cir": [
+      null,
+      null,
+      null,
+      null,
+      77
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      43.5
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capital_adequacy": [
+      null,
+      null,
+      null,
+      null,
+      17.7
+    ],
+    "loan_portfolio": [
+      3600,
+      14400,
+      15500,
+      null,
+      null
+    ],
+    "deposits": [
+      115600,
+      82100,
+      76600,
+      null,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      139700,
+      100200,
+      92500,
+      null,
+      null
+    ],
+    "total_equity": [
+      15000,
+      10600,
+      11500,
+      null,
+      15411
+    ],
+    "book_value_per_share": [
+      185.9,
+      131.4,
+      142.5,
+      null,
+      190.9
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      8.28
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      3.14
+    ],
+    "current": {
+      "pe": 8.28,
+      "pb": 3.14,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pb_5y_median": null,
+      "period": "недостаточно сопоставимых данных (история P/BV искажена низкой капитализацией и шумом в выгрузках)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 8.28,
+      "pb": 3.14,
+      "roe": 43.5,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "ps": null
+    },
+    "2024": {
+      "pe": null,
+      "pb": null,
+      "roe": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "ps": null
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Сильное расхождение методов оценки. Рыночный P/BV ~3.1 капитализирует аномально высокий ROE (~38–51%), тогда как нормализованная модель P/BV×ROE (Ke≈20.9%, нормализованный ROE 28–40%) даёт справедливый P/BV ~1.3–2.6 и цену 200–400 руб — заметно ниже рынка. Earnings-методы (историч. P/E≈10 → ~725, CAPM-12м ≈ 662) и дивидендный метод (~430) дают цену около или выше текущей. Итоговый коридор очень широкий из-за этого конфликта. Дополнительно: free-float ~0.3% (>99% у К. Миновалова), крайне низкая ликвидность акции и санкции (SDN США с 23.02.2024; 20-й пакет ЕС с 14.05.2026) — оценка ненадёжна.",
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable",
+        "note": "Банк — DCF к свободному денежному потоку не применяется; используется P/BV×ROE."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 300,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ke_pct": 20.9,
+          "beta": 0.7,
+          "terminal_growth_pct": 3.5,
+          "roe_normalized_pct_cons": 28,
+          "roe_normalized_pct_base": 40,
+          "fair_pbv_cons": 1.25,
+          "fair_pbv_base": 2.3,
+          "bvps_cons": 142.5,
+          "bvps_base": 190.9
+        },
+        "fair_value_cons": 201,
+        "fair_value_base": 401,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 725,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 10,
+          "basis": "ориентир по историческому диапазону P/E ~9–11; медиана недостоверна (год 2021 искажён околонулевой прибылью, выгрузки сдвинуты)",
+          "eps_ttm": 72.5
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb_roe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор finance ещё не прогнан целиком; peers.json по банкам не сформирован."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 662,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 20.9,
+          "beta": 0.7,
+          "dividend_yield_pct": 10.5,
+          "method_note": "целевая цена = текущая × (1 + (Ke − дивдоходность))"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": 429,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dividend_per_share_cons": 45,
+          "expected_dividend_per_share_base": 60,
+          "required_yield_pct": 14,
+          "note": "Зрелый дивплательщик; дивиденд 2025 ≈ 63 руб/акция. Требуемая дивдоходность ~14% в среде высокой ставки."
+        },
+        "fair_value_cons": 321,
+        "fair_value_base": 429,
+        "status": "ok"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 200,
+      "base": 550,
+      "current_price": 600,
+      "upside_downside_pct": -8.3
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — AVAN (issue size 80.7 млн акций, last 600 руб, кап. 48.4 млрд)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — Банк Авангард МСФО 2025 (ЧПД 7.49 млрд, чистая прибыль 5.85 млрд) и новость о 2024 (ЧПД 8.44 млрд, прибыль 5.04 млрд)",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Smart-Lab — EPS МСФО по годам (2023: 3.48; 2024: 62.5; 2025: 72.5)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Banki.ru — рейтинг Авангард (РСБУ, май 2026): активы-нетто 96.3 млрд, капитал 15.41 млрд, Н1.0 = 17.70%, вклады физлиц 7.87 млрд",
+      "period": "2026-05-01",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (AVAN) — структура доходов, сегменты, депозиты, кредитный портфель",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: банк раскрывает мало деталей; нет sources/ PDF — данные собраны из веба (MOEX, Smart-Lab, Banki.ru) и business_model.md.",
+    "Выравнивание лет: годовая таблица Smart-Lab /q/AVAN/f/y/ имела сдвиг столбцов на ~2 года. Годы реконструированы по новостям и EPS: ЧПД 2025=7.49, прибыль 2025=5.85; ЧПД 2024=8.44, прибыль 2024=5.04. Значения 2021-2023 (активы, капитал, депозиты, портфель) могут быть смещены — помечены как ненадёжные.",
+    "Чистая прибыль 2023 ≈ 281 млн (из EPS 3.48 × 80.7 млн акций); 2021-2022 не реконструированы достоверно (null).",
+    "ROE 2025 = 43.5% посчитан как прибыль 5851 / средний капитал ((11500+15411)/2). Аномально высок из-за низкой капитализации банка (агрессивная выплата дивидендов) и фокуса на комиссионных доходах.",
+    "Капитал и Н1.0 (17.70%) — по РСБУ на 01.05.2026 (точечная дата, не финансовый год); смешение с МСФО-капиталом по годам. CET1 МСФО 2024 ≈ 9.0 млрд (для справки).",
+    "EV/EBITDA и net_debt/EBITDA — not_applicable для банка (null).",
+    "Дивиденд на акцию по годам в выгрузках противоречив (Smart-Lab показывает 28.5/63.2 за 2024/2025 в сдвинутой таблице); цифры дивидендов использованы лишь как грубый ориентир.",
+    "CIR (~77%), операционный доход (~14.2 млрд) и операционные расходы (~10.9 млрд) за 2025 — оценочные (из business_model.md), банк не раскрывает.",
+    "relative_peers = pending_sector_backfill: медиана мультипликаторов банковского сектора не сформирована (peers.json по finance ещё нет).",
+    "Оценка ненадёжна: free-float ~0.3%, крайне низкая ликвидность, рыночная цена может не отражать фундаментал; санкции (SDN США, 20-й пакет ЕС)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 168.15,
+    "upside_downside_pct": -72.0,
+    "status": "reference_only"
+  }
+}

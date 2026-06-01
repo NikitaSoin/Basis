@@ -4,15 +4,39 @@
     "sector_key": "machinery",
     "generated_at": "2026-06-01",
     "companies": [
+      "CHKZ",
+      "EELT",
+      "GAZA",
+      "GAZAP",
+      "GAZC",
+      "GAZS",
+      "GAZT",
+      "IRKT",
       "KMAZ",
+      "KMEZ",
+      "KRKOP",
+      "LMBZ",
+      "MSTT",
+      "NAUK",
+      "NFAZ",
+      "OMZZP",
+      "PAZA",
+      "PRFN",
+      "RKKE",
       "SVAV",
-      "UWGN"
+      "TUZA",
+      "UNAC",
+      "UWGN",
+      "VSYD",
+      "VSYDP",
+      "ZILL",
+      "ZVEZ"
     ],
-    "n": 3,
+    "n": 27,
     "registry_ref": "config/sectors.json",
     "macro_params_ref": "config/market_params.json",
-    "note": "Машиностроение (с PDF): КАМАЗ/Соллерс/ОВК. 2025 — спад цикла. Ядро медианы — SVAV/UWGN (положительная EBITDA); KMAZ убыточен в 2025 (EBITDA<0) — со *. Прочие эмитенты сектора без МСФО-PDF не прогонялись.",
-    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 2.65. "
+    "note": "Машиностроение. Ядро — SVAV/UWGN; ВПК/закрытое раскрытие/холдинги-оболочки/малоликвиды со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda ядра 2025 = 2.65."
   },
   "comparison_table": {
     "metrics": [
@@ -28,6 +52,214 @@
       2024
     ],
     "rows": [
+      {
+        "ticker": "CHKZ",
+        "name": "ПАО «Челябинский кузнечно-прессовый завод» (ЧКПЗ)",
+        "price": 16300,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "CHKZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "EELT",
+        "name": "ПАО «Европейская Электротехника»",
+        "price": 7.9,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "EELT *",
+        "relative_fair_value": 6.87,
+        "2025": {
+          "pe": 5.37,
+          "ps": 0.44,
+          "pb": 1.35,
+          "ev_ebitda": 3.04,
+          "net_debt_ebitda": 0.05,
+          "roe": 25.1
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": 0.47,
+          "roe": 26.2
+        }
+      },
+      {
+        "ticker": "GAZA",
+        "name": "ПАО «ГАЗ» (Группа ГАЗ)",
+        "price": 417.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "GAZA *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GAZAP",
+        "name": "ПАО «ГАЗ» (прив.)",
+        "price": 217.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "GAZAP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GAZC",
+        "name": "ОАО «ГАЗКОН»",
+        "price": 659,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "GAZC *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 47.5,
+          "ps": null,
+          "pb": 1.86,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GAZS",
+        "name": "ГАЗ-сервис (ПАО)",
+        "price": 839.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "GAZS *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 59.17,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GAZT",
+        "name": "ГАЗ-Тек, ПАО",
+        "price": 1739.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "GAZT *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 464.97,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "IRKT",
+        "name": "ПАО «Яковлев» (бывш. Корпорация «Иркут»)",
+        "price": 20.1,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "IRKT *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 21.4,
+          "ps": null,
+          "pb": 1.98,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 10.3
+        },
+        "2024": {
+          "pe": 28.8,
+          "ps": 1.16,
+          "pb": 2.48,
+          "ev_ebitda": 12.05,
+          "net_debt_ebitda": 3.37,
+          "roe": null
+        }
+      },
       {
         "ticker": "KMAZ",
         "name": "ПАО «КАМАЗ»",
@@ -52,6 +284,266 @@
           "ev_ebitda": 7.76,
           "net_debt_ebitda": 6.16,
           "roe": -0.15
+        }
+      },
+      {
+        "ticker": "KMEZ",
+        "name": "ПАО «Ковровский механический завод»",
+        "price": 870,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KMEZ *",
+        "relative_fair_value": 792.82,
+        "2025": {
+          "pe": 4.44,
+          "ps": 0.32,
+          "pb": 0.56,
+          "ev_ebitda": 2.87,
+          "net_debt_ebitda": 0.39,
+          "roe": null
+        },
+        "2024": {
+          "pe": 6.56,
+          "ps": 0.83,
+          "pb": 0.65,
+          "ev_ebitda": 4.37,
+          "net_debt_ebitda": 0.01,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "KRKOP",
+        "name": "ТКЗ «Красный котельщик», прив. (KRKOP)",
+        "price": 13.28,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KRKOP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.52,
+          "ps": 0.58,
+          "pb": 0.92,
+          "ev_ebitda": 2.08,
+          "net_debt_ebitda": null,
+          "roe": 44.3
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 47.6
+        }
+      },
+      {
+        "ticker": "LMBZ",
+        "name": "ПАО «Ламбумиз»",
+        "price": 543.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "LMBZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MSTT",
+        "name": "ПАО «Мостотрест»",
+        "price": 96.5,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MSTT *",
+        "relative_fair_value": 25.89,
+        "2025": {
+          "pe": 42.12,
+          "ps": 3.48,
+          "pb": 4.91,
+          "ev_ebitda": 23.32,
+          "net_debt_ebitda": -4.93,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "NAUK",
+        "name": "ПАО «Научно-производственное объединение «Наука» (НПО «Наука»)",
+        "price": 502.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NAUK *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "NFAZ",
+        "name": "ПАО «Нефтекамский автозавод» (НефАЗ)",
+        "price": 208.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NFAZ *",
+        "relative_fair_value": -294.28,
+        "2025": {
+          "pe": -3.31,
+          "ps": 0.05,
+          "pb": 1.03,
+          "ev_ebitda": 24.48,
+          "net_debt_ebitda": 15.44,
+          "roe": null
+        },
+        "2024": {
+          "pe": 72.1,
+          "ps": 0.04,
+          "pb": 0.79,
+          "ev_ebitda": 7.4,
+          "net_debt_ebitda": 4.05,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "OMZZP",
+        "name": "ПАО «ОМЗ» (Объединённые машиностроительные заводы), привилегированные акции",
+        "price": 10300,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "OMZZP *",
+        "relative_fair_value": 1929.92,
+        "2025": {
+          "pe": -9.3,
+          "ps": 1.19,
+          "pb": 0.62,
+          "ev_ebitda": 10.5,
+          "net_debt_ebitda": 0.84,
+          "roe": -6.7
+        },
+        "2024": {
+          "pe": 13.5,
+          "ps": 0.94,
+          "pb": 0.56,
+          "ev_ebitda": 9.2,
+          "net_debt_ebitda": 0.46,
+          "roe": 4.2
+        }
+      },
+      {
+        "ticker": "PAZA",
+        "name": "ПАО «Павловский автобус»",
+        "price": 8640,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "PAZA *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "PRFN",
+        "name": "ПАО «ТЕПЛАНТ восток» (до 04.04.2025 — ПАО «ЧЗПСН-Профнастил»)",
+        "price": 3.48,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "PRFN *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 6.86,
+          "ps": 0.22,
+          "pb": 1.15,
+          "ev_ebitda": 4.34,
+          "net_debt_ebitda": null,
+          "roe": 18.2
+        },
+        "2024": {
+          "pe": 8.31,
+          "ps": 0.21,
+          "pb": 1.47,
+          "ev_ebitda": 4.46,
+          "net_debt_ebitda": null,
+          "roe": 18.8
+        }
+      },
+      {
+        "ticker": "RKKE",
+        "name": "ПАО «РКК «Энергия» им. С.П. Королёва»",
+        "price": 13400,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RKKE *",
+        "relative_fair_value": -3815.3,
+        "2025": {
+          "pe": null,
+          "ps": 0.41,
+          "pb": null,
+          "ev_ebitda": 50.84,
+          "net_debt_ebitda": 13.33,
+          "roe": null
+        },
+        "2024": {
+          "pe": 18.56,
+          "ps": 0.41,
+          "pb": null,
+          "ev_ebitda": 50.84,
+          "net_debt_ebitda": 13.33,
+          "roe": null
         }
       },
       {
@@ -81,6 +573,58 @@
         }
       },
       {
+        "ticker": "TUZA",
+        "name": "ПАО «Туймазинский завод автобетоновозов» (ТЗА)",
+        "price": 105.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TUZA *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "UNAC",
+        "name": "ПАО «Объединённая авиастроительная корпорация» (ОАК)",
+        "price": 0.3415,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "UNAC *",
+        "relative_fair_value": -0.2,
+        "2025": {
+          "pe": 53.06,
+          "ps": 0.65,
+          "pb": 3.68,
+          "ev_ebitda": 9.61,
+          "net_debt_ebitda": 5.24,
+          "roe": 6.93
+        },
+        "2024": {
+          "pe": -45.49,
+          "ps": 1.2,
+          "pb": 8.64,
+          "ev_ebitda": 64.57,
+          "net_debt_ebitda": 29.47,
+          "roe": -18.98
+        }
+      },
+      {
         "ticker": "UWGN",
         "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
         "price": 24.3,
@@ -104,6 +648,110 @@
           "ev_ebitda": 1.91,
           "net_debt_ebitda": null,
           "roe": 116.1
+        }
+      },
+      {
+        "ticker": "VSYD",
+        "name": "ПАО «Выборгский судостроительный завод»",
+        "price": 8050.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VSYD *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 161.0,
+          "ps": 2.05,
+          "pb": 26.34,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 4.38,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VSYDP",
+        "name": "ПАО «Выборгский судостроительный завод» (прив.)",
+        "price": 7050.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "VSYDP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 141.0,
+          "ps": 1.8,
+          "pb": 23.07,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 3.84,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ZILL",
+        "name": "ПАО «Завод имени И.А. Лихачёва» (АМО ЗИЛ)",
+        "price": 4410,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ZILL *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ZVEZ",
+        "name": "ПАО «ЗВЕЗДА»",
+        "price": 5.85,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ZVEZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -14.5,
+          "ps": 1.05,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -9.4,
+          "ps": 1.18,
+          "pb": null,
+          "ev_ebitda": 20.8,
+          "net_debt_ebitda": 10.2,
+          "roe": null
         }
       }
     ]
@@ -150,9 +798,33 @@
       "UWGN"
     ],
     "excluded": [
-      "KMAZ"
+      "CHKZ",
+      "EELT",
+      "GAZA",
+      "GAZAP",
+      "GAZC",
+      "GAZS",
+      "GAZT",
+      "IRKT",
+      "KMAZ",
+      "KMEZ",
+      "KRKOP",
+      "LMBZ",
+      "MSTT",
+      "NAUK",
+      "NFAZ",
+      "OMZZP",
+      "PAZA",
+      "PRFN",
+      "RKKE",
+      "TUZA",
+      "UNAC",
+      "VSYD",
+      "VSYDP",
+      "ZILL",
+      "ZVEZ"
     ],
-    "note": "Медиана/среднее — сопоставимое ядро сектора; особые/аномальные со * исключены."
+    "note": "Медиана/среднее — сопоставимое ядро сектора; малоликвиды/префы/аномальные со * исключены."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
@@ -169,12 +841,156 @@
       },
       "points": [
         {
+          "ticker": "CHKZ",
+          "name": "ПАО «Челябинский кузнечно-прессовый завод» (ЧКПЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "EELT",
+          "name": "ПАО «Европейская Электротехника»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.05,
+          "y": 3.04
+        },
+        {
+          "ticker": "GAZA",
+          "name": "ПАО «ГАЗ» (Группа ГАЗ)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZAP",
+          "name": "ПАО «ГАЗ» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZC",
+          "name": "ОАО «ГАЗКОН»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZS",
+          "name": "ГАЗ-сервис (ПАО)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZT",
+          "name": "ГАЗ-Тек, ПАО",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "IRKT",
+          "name": "ПАО «Яковлев» (бывш. Корпорация «Иркут»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "KMAZ",
           "name": "ПАО «КАМАЗ»",
           "anomaly": false,
           "is_pref": false,
           "x": -50.17,
           "y": -62.12
+        },
+        {
+          "ticker": "KMEZ",
+          "name": "ПАО «Ковровский механический завод»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.39,
+          "y": 2.87
+        },
+        {
+          "ticker": "KRKOP",
+          "name": "ТКЗ «Красный котельщик», прив. (KRKOP)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 2.08
+        },
+        {
+          "ticker": "LMBZ",
+          "name": "ПАО «Ламбумиз»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MSTT",
+          "name": "ПАО «Мостотрест»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -4.93,
+          "y": 23.32
+        },
+        {
+          "ticker": "NAUK",
+          "name": "ПАО «Научно-производственное объединение «Наука» (НПО «Наука»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NFAZ",
+          "name": "ПАО «Нефтекамский автозавод» (НефАЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 15.44,
+          "y": 24.48
+        },
+        {
+          "ticker": "OMZZP",
+          "name": "ПАО «ОМЗ» (Объединённые машиностроительные заводы), привилегированные акции",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 0.84,
+          "y": 10.5
+        },
+        {
+          "ticker": "PAZA",
+          "name": "ПАО «Павловский автобус»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "PRFN",
+          "name": "ПАО «ТЕПЛАНТ восток» (до 04.04.2025 — ПАО «ЧЗПСН-Профнастил»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 4.34
+        },
+        {
+          "ticker": "RKKE",
+          "name": "ПАО «РКК «Энергия» им. С.П. Королёва»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 13.33,
+          "y": 50.84
         },
         {
           "ticker": "SVAV",
@@ -185,12 +1001,60 @@
           "y": 2.97
         },
         {
+          "ticker": "TUZA",
+          "name": "ПАО «Туймазинский завод автобетоновозов» (ТЗА)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "UNAC",
+          "name": "ПАО «Объединённая авиастроительная корпорация» (ОАК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 5.24,
+          "y": 9.61
+        },
+        {
           "ticker": "UWGN",
           "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
           "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": 2.33
+        },
+        {
+          "ticker": "VSYD",
+          "name": "ПАО «Выборгский судостроительный завод»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VSYDP",
+          "name": "ПАО «Выборгский судостроительный завод» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ZILL",
+          "name": "ПАО «Завод имени И.А. Лихачёва» (АМО ЗИЛ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ZVEZ",
+          "name": "ПАО «ЗВЕЗДА»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
         }
       ]
     },
@@ -208,12 +1072,156 @@
       },
       "points": [
         {
+          "ticker": "CHKZ",
+          "name": "ПАО «Челябинский кузнечно-прессовый завод» (ЧКПЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "EELT",
+          "name": "ПАО «Европейская Электротехника»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 25.1,
+          "y": 1.35
+        },
+        {
+          "ticker": "GAZA",
+          "name": "ПАО «ГАЗ» (Группа ГАЗ)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZAP",
+          "name": "ПАО «ГАЗ» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZC",
+          "name": "ОАО «ГАЗКОН»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.86
+        },
+        {
+          "ticker": "GAZS",
+          "name": "ГАЗ-сервис (ПАО)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GAZT",
+          "name": "ГАЗ-Тек, ПАО",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "IRKT",
+          "name": "ПАО «Яковлев» (бывш. Корпорация «Иркут»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 10.3,
+          "y": 1.98
+        },
+        {
           "ticker": "KMAZ",
           "name": "ПАО «КАМАЗ»",
           "anomaly": false,
           "is_pref": false,
           "x": -34.59,
           "y": 0.61
+        },
+        {
+          "ticker": "KMEZ",
+          "name": "ПАО «Ковровский механический завод»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.56
+        },
+        {
+          "ticker": "KRKOP",
+          "name": "ТКЗ «Красный котельщик», прив. (KRKOP)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 44.3,
+          "y": 0.92
+        },
+        {
+          "ticker": "LMBZ",
+          "name": "ПАО «Ламбумиз»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MSTT",
+          "name": "ПАО «Мостотрест»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 4.91
+        },
+        {
+          "ticker": "NAUK",
+          "name": "ПАО «Научно-производственное объединение «Наука» (НПО «Наука»)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NFAZ",
+          "name": "ПАО «Нефтекамский автозавод» (НефАЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.03
+        },
+        {
+          "ticker": "OMZZP",
+          "name": "ПАО «ОМЗ» (Объединённые машиностроительные заводы), привилегированные акции",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -6.7,
+          "y": 0.62
+        },
+        {
+          "ticker": "PAZA",
+          "name": "ПАО «Павловский автобус»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "PRFN",
+          "name": "ПАО «ТЕПЛАНТ восток» (до 04.04.2025 — ПАО «ЧЗПСН-Профнастил»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 18.2,
+          "y": 1.15
+        },
+        {
+          "ticker": "RKKE",
+          "name": "ПАО «РКК «Энергия» им. С.П. Королёва»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "SVAV",
@@ -224,24 +1232,124 @@
           "y": 0.57
         },
         {
+          "ticker": "TUZA",
+          "name": "ПАО «Туймазинский завод автобетоновозов» (ТЗА)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "UNAC",
+          "name": "ПАО «Объединённая авиастроительная корпорация» (ОАК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 6.93,
+          "y": 3.68
+        },
+        {
           "ticker": "UWGN",
           "name": "ПАО «НПК Объединённая Вагонная Компания» (ОВК)",
           "anomaly": true,
           "is_pref": false,
           "x": 41.89,
           "y": 0.96
+        },
+        {
+          "ticker": "VSYD",
+          "name": "ПАО «Выборгский судостроительный завод»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 26.34
+        },
+        {
+          "ticker": "VSYDP",
+          "name": "ПАО «Выборгский судостроительный завод» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": 23.07
+        },
+        {
+          "ticker": "ZILL",
+          "name": "ПАО «Завод имени И.А. Лихачёва» (АМО ЗИЛ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ZVEZ",
+          "name": "ПАО «ЗВЕЗДА»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
         }
       ]
     }
   },
   "anomalies": [
     {
+      "ticker": "EELT",
+      "note": "Проектная волатильность ключевых рядов: выручка 2022→2023 сжалась (7,13→5,95 млрд), CFO дважды уходил в минус (2022, 2024) при положительной прибыли из-за роста оборотного капитала, маржа EBITDA сжалась с 17,3% (2024) до 14,7% (2025) при росте выручки +42,5%. ROE падает (46%→25%) на фоне роста капитала. Число акций сокращено с 610 до 551,8 млн."
+    },
+    {
+      "ticker": "GAZA",
+      "note": "Эмитент торгуется на МосБирже (TQBR), но не раскрывает консолидированную отчётность по МСФО с 2018 г.; финансовые мультипликаторы (P/E, P/S, P/B, EV/EBITDA, ND/EBITDA, ROE) рассчитать невозможно — нет числителей/знаменателей. Оценка стоимости опирается только на рыночную цену, а не на фундаментал. Бумага малоликвидна (листинг 3-го уровня), под блокирующими санкциями США (SDN) с 2018 г., с высоким долгом и без дивидендов с 2007 г."
+    },
+    {
+      "ticker": "GAZAP",
+      "note": "Эмитент торгуется на МосБирже (TQBR), но не раскрывает консолидированную отчётность по МСФО с 2018 г.; финансовые мультипликаторы (P/E, P/S, P/B, EV/EBITDA, ND/EBITDA, ROE) рассчитать невозможно — нет числителей/знаменателей. Оценка стоимости опирается только на рыночную цену, а не на фундаментал. Бумага малоликвидна (листинг 3-го уровня), под блокирующими санкциями США (SDN) с 2018 г., с высоким долгом и без дивидендов с 2007 г."
+    },
+    {
+      "ticker": "GAZC",
+      "note": "Тройная аномалия: (1) выручка=0 при положительной прибыли — холдинг-оболочка, операционные мультипликаторы и DCF неприменимы; (2) прибыль крайне волатильна (×84 разброс 2023→2024) из-за переоценки/дивидендов пакета Газпромбанка, P/E неинформативен; (3) котировка 659 руб торгуется с премией ~86% к балансовому NAV (354.5 руб), что нетипично для закрытого неликвидного холдинга 3-го эшелона — цена формируется на тонком рынке и может отражать нераскрытую рыночную стоимость пакета Газпромбанка."
+    },
+    {
+      "ticker": "GAZS",
+      "note": "Резкий разрыв между рыночной ценой (839 руб., P/E≈59) и дивидендной стоимостью (79–99 руб.). Цена формируется не операционной экономикой, а оценкой пакета 16,22% Газпромбанка на балансе (NAV), который публично не раскрыт. P/E≈59 — мнимо высокий: знаменатель (EPS≈14,2) — это в основном транслированные дивиденды банка, а не операционная прибыль. Неликвид 3-го эшелона: котировка закреплена (LCURRENTPRICE=PREVPRICE=839), сделок почти нет."
+    },
+    {
+      "ticker": "GAZT",
+      "note": "ГАЗ-Тек — не операционный бизнес, а холдинговая оболочка для владения пакетом ~11,1% акций АО «Газпромбанк» (см. business_model.md, тикер GAZT, ISIN RU000A0JS199, листинг 3-го уровня МосБиржи). Поэтому: (1) Нет выручки/EBITDA/операционного долга — мультипликаторы PS, EV/EBITDA, EV/EBITDA_adj, ND/EBITDA неприменимы (null). Считается только P/E. (2) P/E ≈ 465x при EPS ~3,74 руб и цене 1739 руб — экстремально высокий, отражает не операционную доходность, а frozen-котировку при нулевом free-float. (3) Котировка 1739 руб — это, по сути, замороженный/последний рыночный принт (MOEX PREVPRICE=LCURRENTPRICE=1739, реальная ликвидность близка к нулю, последняя репрезентативная сделка ~30.11.2023, после чего цена практически не меняется; за год до этого бумага выросла на ~1865% на микрообъёмах). (4) Дивидендная развязка: дивиденд за 2024 ~4,30 руб даёт дивдоходность всего ~0,25% к цене 1739; для нормальной дивдоходности 1–3% цена должна быть ~143–430 руб. То есть рыночная цена в разы выше любой денежно-обоснованной (дивидендной) оценки и держится исключительно на отсутствии free-float и на «бумажной» стоимости пакета Газпромбанка, который публично не раскрыт. Балансовый капитал по РСБУ практически не раскрывается → P/B null, DCF и оценка по NAV невозможны. Профиль СТАНДАРТНЫЙ формально, но финансово это квази-фонд на одну позицию (Газпромбанк под санкциями ЕС/Великобритании)."
+    },
+    {
+      "ticker": "KRKOP",
+      "note": "Экстремально низкие мультипликаторы (P/E≈2.5, EV/EBITDA≈2.1) при ROE≈44% — не ошибка данных. Причины: дивиденды не платятся с 2013 г. (прибыль остаётся в компании), free-float мизерный (~76.5% у контролёра — «Силовые машины»/А. Мордашов), бумага 3-го эшелона, малоликвидная. Рынок дисконтирует акцию из-за отсутствия денежного потока акционеру."
+    },
+    {
+      "ticker": "MSTT",
+      "note": "Рыночная капитализация при цене 96,5 ₽ (~27,2 млрд ₽) кратно выше собственного капитала (~5,5 млрд ₽, P/B 4,9) и чистой прибыли (0,65 млрд ₽, P/E 42) остаточного ПАО с ~300 сотрудниками. EV/EBITDA ~23 при оценочной (не раскрытой) EBITDA. Free-float ~3%, третий котировальный список, контроль ~97% у структуры Ротенберга — котировка слабо ликвидна и плохо отражает фундаментал. Мультипликаторы трактовать с осторожностью."
+    },
+    {
+      "ticker": "OMZZP",
+      "note": "2025 МСФО — чистый убыток -3.05 млрд при выручке 23.7 (разворот с прибыли 1.90 в 2024). EBITDA 2025 в источнике равна 2024 (2.94) — вероятно не обновлена/оценочна, поэтому EV/EBITDA и ND/EBITDA 2025 считать ориентировочными. 2022: чистая прибыль 13.5 при выручке 19.0 (маржа 71%) — явно неоперационная/разовая (переоценки, эффекты холдинга). Прибыль группы крайне волатильна и оторвана от операционной выручки; ROE скачет от 54% (2022) до -6.7% (2025). Бумага — низколиквидный преф 3-го листинга (1 сделка в сессии)."
+    },
+    {
+      "ticker": "PRFN",
+      "note": "Несколько аномалий: (1) 2023 P/E = 18.7x резко выбивается из ряда 7-9x — рыночный выброс по цене, медиана устойчивее. (2) 2025: операционный поток (CFO −0,20 млрд) и FCF (−0,40 млрд) отрицательные при росте чистой прибыли до 0,48 млрд — деньги ушли в оборотный капитал (запасы стали / дебиторка), типично для торгово-перепродажной модели; прибыль не конвертируется в кэш. (3) В 2024-2025 компания в чистой денежной позиции (ND/EBITDA −0,9x → −1,2x) — нетипично для 3-го эшелона, проверить структуру кэша (часть может быть связана с операциями группы «Стройсистема»). (4) Долг обнулён в 2025 (0,0 млрд) при росте активов до 8,59 млрд — рост профинансирован кредиторкой/оборотными обязательствами, не банковским долгом."
+    },
+    {
       "ticker": "SVAV",
       "note": "2022 год — структурный разрыв в данных (null по всем рядам): после ухода Ford и реструктуризации СП сопоставимая отчётность МСФО за 2022 в источнике не раскрыта (нулевые столбцы во всех графиках). Динамика выручки нелинейна: пик 91,7 млрд (2021), 82,3 (2023), 91,8 (2024), затем падение до 62,4 млрд (2025, −31,9% г/г). FCF структурно слабый/отрицательный из-за тяжёлого CapEx 2023–2024 — DCF не применялся (insufficient_data)."
     },
     {
+      "ticker": "TUZA",
+      "note": "2025 год аномален: выручка упала в ~3.1 раза (13.1 → 4.19 млрд ₽), впервые чистый убыток -434 млн ₽, отрицательная EBITDA -531 млн ₽, отрицательный FCF -927 млн ₽. Текущие P/E и EV/EBITDA отрицательны и неинформативны, ND/EBITDA при отрицательной EBITDA не имеет смысла. Вся оценка строится на нормализованной (2022-2024) базе; коридор справедливой цены условен."
+    },
+    {
+      "ticker": "UNAC",
+      "note": "Множественные структурные искажения, оценка крайне ненадёжна. (1) ОГРОМНЫЙ ДОЛГ и убытки: совокупный долг ~806-880 млрд ₽, чистый долг ~542-595 млрд ₽; компания была хронически убыточна (чистый убыток МСФО 2021 −17.2, 2022 −26.2, 2023 −34.85, 2024 −14.2 млрд ₽) и только в 2025 впервые вышла в символический плюс +9.36 млрд ₽ (маржа 1.2%). (2) ОТРИЦАТЕЛЬНЫЙ КАПИТАЛ в 2021-2022 (−153 и −187.5 млрд ₽) — собственный капитал восстановлен в 2023+ ТОЛЬКО за счёт докапитализации/допэмиссий, а не операционной прибыли. Из-за отрицательного капитала ROE и P/BV за 2021-2022 — арифметический мусор (минус на минус даёт ложный плюс), интерпретации не подлежат. (3) ГОССБОРОНЗАКАЗ закрывает прозрачность: рентабельность военной части по принципу 'затраты плюс', разбивка не раскрывается. (4) РЕГУЛЯРНЫЕ ДОПЭМИССИИ: число акций ×3.2 за 4 года (311→1009 млрд шт) + одобренная в дек.2025 эмиссия ещё на 2.06 трлн акций → кратное размытие. (5) ГОСПОДДЕРЖКА/ДОКАПИТАЛИЗАЦИЯ — бизнес не самоокупаем, держится на государстве; ND/EBITDA при положительной EBITDA только в 2025 (5.24х) и 2024 (29.5х — запредельно), в 2022-2023 EBITDA отрицательная (мультипликатор неопределён). (6) НИЗКИЙ FREE-FLOAT: госконтроль через Ростех, free-float мизерный → котировка волатильна, мультипликаторы нерепрезентативны. ИТОГ: DCF неприменим (нет стабильного FCF, история нерепрезентативна), исторический P/E искажён убытками, оценка возможна только по P/S с широчайшим коридором."
+    },
+    {
       "ticker": "UWGN",
       "note": "Сильные искажения исторических рядов из-за трёх событий. 1) Допэмиссия 2023 г.: число обыкновенных акций выросло со 116 млн до 2 905,89 млн (×25), поэтому EPS, P/E, ROE до 2023 г. несопоставимы с текущими, а исторические мультипликаторы на акцию не несут смысла. 2) Реструктуризация долга 2023 г.: чистая прибыль 2023 г. (34,0 млрд) раздута разовым доходом от списания/реструктуризации долга перед банком «Траст», а не операцией; одновременно общий долг обнулён (2024–2025: долг = 0, чистый долг отрицательный — чистая денежная позиция). 3) Цикл вагоностроения: 2024 г. — пик цикла (выручка 145,0 млрд, EBITDA 34,1 млрд), 2025 г. — резкое охлаждение (выручка 65,4 млрд −55%, EBITDA 21,5 млрд −37%). Корректно сравнивать бизнес по EBITDA и марже, а оценку строить на нормализованной средне-цикловой прибыли, а не на пике 2024 или трауфе одного года."
+    },
+    {
+      "ticker": "ZVEZ",
+      "note": "Отрицательный собственный капитал (-4,57 млрд руб. на 2025), накопленный за счёт убытков → P/B и ROE неприменимы, debt/equity не считается. Чистый убыток все раскрытые годы. Чистый долг/EBITDA ~10x (2024). Гособоронзаказ и судовые дизели/редукторы — выручка и часть статей не раскрываются. Инвестпрограмма (CapEx) минимальна, износ фондов высокий. EV/EBITDA сильно завышен из-за тонкой EBITDA на фоне крупного долга."
     }
   ]
 }

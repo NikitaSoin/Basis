@@ -1,0 +1,584 @@
+{
+  "meta": {
+    "ticker": "BLNG",
+    "name": "ПАО «Белон»",
+    "sector": "Уголь / угольный трейдинг",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 9.7,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 1150000000,
+    "isin": "RU000A0J2QG8",
+    "lot_size": 100,
+    "issue_size": 1150000000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "note": "ОАО/ПАО «Белон» — холдинговая компания (входит в группу ММК). Собственной операционной деятельности почти нет: выручка ~6 млн руб./год. Стоимость определяется долей 32,24% в ООО «ММК-Уголь», учитываемой по методу долевого участия. Мультипликаторы на основе выручки/EBITDA не информативны."
+  },
+  "income_statement": {
+    "revenue": [
+      6,
+      6,
+      6,
+      6,
+      6,
+      6,
+      6
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      10,
+      10,
+      1,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      10,
+      10,
+      1,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      3430,
+      1110,
+      -2040,
+      -7570,
+      -7500
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        166.67,
+        166.67,
+        16.67,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        166.67,
+        166.67,
+        16.67,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        57166.67,
+        18500.0,
+        -34000.0,
+        -126166.67,
+        -125000.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      8000,
+      12500,
+      13700,
+      11800,
+      3570
+    ],
+    "total_equity": [
+      null,
+      null,
+      8000,
+      12100,
+      13200,
+      11100,
+      3570
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      0,
+      400,
+      500,
+      700,
+      0
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      42.88,
+      11.04,
+      -16.13,
+      -62.3,
+      -102.25
+    ],
+    "roa": [
+      null,
+      null,
+      42.88,
+      10.83,
+      -15.57,
+      -59.37,
+      -97.59
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      57166.67,
+      18500.0,
+      -34000.0,
+      -126166.67,
+      -125000.0
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      3.25,
+      10.05,
+      -5.47,
+      -1.47,
+      -1.49
+    ],
+    "ps": [
+      1859.17,
+      1859.17,
+      1859.17,
+      1859.17,
+      1859.17,
+      1859.17,
+      1859.17
+    ],
+    "pb": [
+      null,
+      null,
+      1.39,
+      0.92,
+      0.85,
+      1.0,
+      3.12
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      1115.5,
+      1115.5,
+      11155.0,
+      null,
+      null
+    ],
+    "current": {
+      "pe": -1.47,
+      "ps": 1859.17,
+      "pb": 3.12,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "искажён: убытки 2023-2025 и переоценки доли; P/E не информативен"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": -1.49,
+        "ps": 1859.17,
+        "pb": 3.12,
+        "ev_ebitda": null,
+        "ev_sales": 1859.17,
+        "nd_ebitda": null
+      },
+      "2024": {
+        "pe": -1.47,
+        "ps": 1859.17,
+        "pb": 1.0,
+        "ev_ebitda": null,
+        "ev_sales": 1859.17,
+        "nd_ebitda": null
+      }
+    },
+    "anomaly_flag": true,
+    "anomaly_note": "EBITDA ≈ 0 (холдинг без операционной деятельности) → EV/EBITDA и ND/EBITDA не вычислимы/не информативны. P/S аномально высок (P/S≈1859), т.к. выручка ~6 млн руб. Чистый убыток 2023-2025 делает P/E отрицательным. Оценка возможна только по NAV (доля в ММК-Уголь / балансовый капитал)."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет. Прибыль/убыток полностью определяется неденежной переоценкой доли в ММК-Уголь и зависит от цен на коксующийся уголь. Прогноз нерепрезентативен → source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "NAV / book_value",
+        "fair_value_per_share": 6.38,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "basis": "балансовый капитал = доля 32,24% в ММК-Уголь по equity-методу",
+          "bvps_2025": 3.1,
+          "bvps_2024": 9.65
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "note": "Ke = 14.6% + 1.0×9.0% = 23.6%. Дивидендов нет с 2009 → метод целевой доходности неприменим для таргета цены."
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 3.1,
+      "base": 6.38,
+      "optimistic": 12.0,
+      "current_price": 9.7,
+      "upside_downside_pct": -34.2
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — карточка бумаги BLNG (ISIN, акции, цена)",
+      "period": "2026-05-29",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО BLNG",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md (BLNG) — структура группы, доля 32,24% в ММК-Уголь",
+      "period": "2026-05",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: компания почти не раскрывает отчётность; ООО «ММК-Уголь» отдельно не раскрывается.",
+    "EBITDA ≈ 0 → EV/EBITDA и ND/EBITDA не вычислимы (anomaly_flag=true).",
+    "Чистая прибыль 2025 (-7.5 млрд) — ОЦЕНКА по мостику капитала (11.1→3.57 млрд); на Smart-Lab дублируется значение 2024, требует ручной проверки.",
+    "Выручка ~6 млн руб./год → P/S не информативен (≈1859).",
+    "CFO/CapEx/FCF не раскрыты на уровне холдинга → cash_flow = null.",
+    "2019-2020 данные МСФО не найдены → null.",
+    "Дивиденды не выплачиваются с 2009 г.; free-float ~17%, низкая ликвидность.",
+    "relative_peers — status=pending_sector_backfill (медиана сектора «уголь» появится после прогона сектора)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

@@ -1,0 +1,496 @@
+{
+  "meta": {
+    "ticker": "KRSB",
+    "name": "ПАО «Красноярскэнергосбыт» (обыкновенные акции)",
+    "sector": "Электроэнергетика — энергосбыт",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 21.88,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 558917996,
+    "shares_total_incl_pref": 596039612,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      33.6,
+      36.2,
+      39.4,
+      43.1,
+      49.2
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      1.64,
+      1.79,
+      2.13,
+      2.77,
+      2.63
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      1.27,
+      1.29,
+      1.77,
+      2.54,
+      2.29
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        4.88,
+        4.95,
+        5.41,
+        6.43,
+        5.35
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        3.78,
+        3.56,
+        4.49,
+        5.89,
+        4.65
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      2.5,
+      3.14,
+      4.05,
+      5.59,
+      6.14
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      -3.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        -1.14
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      50.8,
+      41.1,
+      43.7,
+      45.4,
+      37.3
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      3.78,
+      3.56,
+      4.49,
+      5.89,
+      4.65
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      5.25,
+      5.16,
+      7.11,
+      4.63,
+      7.3
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.27
+    ],
+    "pb": [
+      2.66,
+      2.12,
+      3.11,
+      2.1,
+      2.72
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      3.82
+    ],
+    "current": {
+      "pe": 5.69,
+      "ps": 0.27,
+      "pb": 2.12,
+      "ev_ebitda": 3.82,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.89,
+      "pe_5y_median": 5.25,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 5.69,
+      "ps": 0.27,
+      "pb": 2.12,
+      "ev_ebitda": 3.82,
+      "div_yield": 9.4,
+      "roe": 37.3
+    },
+    "2024": {
+      "pe": 4.63,
+      "ps": null,
+      "pb": 2.1,
+      "ev_ebitda": null,
+      "div_yield": 14.6,
+      "roe": 45.4
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      6.0,
+      5.0,
+      4.5
+    ],
+    "net_profit_growth_pct": [
+      3.0,
+      3.0,
+      3.0
+    ],
+    "note": "Брокерского покрытия по KRSB нет (3-й эшелон). Механическая оценка: выручка растёт темпом тарифной индексации (~5%), прибыль стабилизируется около уровня 2,3-2,5 млрд ₽. Прогноз ориентировочный."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 20.17,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.25,
+          "basis": "5y_median",
+          "eps_used": 3.84
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 24.19,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.0,
+          "beta": 0.6,
+          "note": "low-beta utility; целевая цена при которой рост цены + дивдоходность 9,4% = Ke 20%"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 13.75,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 2.2,
+          "required_yield_pct": 16.0,
+          "note": "Основной метод для энергосбыта. Требуемая дивдоходность 16% учитывает риск 3-го эшелона и неликвидность."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 13.75,
+      "base": 16.96,
+      "current_price": 21.88,
+      "upside_downside_pct": -22.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Рынок (P/E 5,7; цена 21,88 ₽) оценивает акцию выше внутренних оценок по дивидендному методу и историческому P/E (коридор 13,8-20,2 ₽). Причина — рекордные дивиденды 2024 г. (доходность 14,6%) и высокий ROE ~37-45%, которые рынок экстраполирует. Базовая оценка даёт даунсайд ~22%. EV/EBITDA 3,82 для сбыта малоинформативна (транзитная выручка, отрицательный чистый долг искажает EV). Число обыкновенных акций (558,9 млн) — реестровое; агрегаторы используют суммарное 596,0 млн — требует ручной сверки.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — параметры выпуска KRSB (ISIN RU000A0HMLY1, 596 039 612 акций всего, листинг ур.3)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — котировки TQBR KRSB (last 21,88; prev 22,00)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финотчётность и мультипликаторы KRSB 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab.ru — история дивидендов KRSB",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "dohod.ru — дивиденды KRSB, payout, прогноз",
+      "period": "2024-2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Число обыкновенных акций KRSB взято реестровое 558 917 996; суммарный выпуск (ао+ап) = 596 039 612. Агрегаторы (smart-lab, dohod) считают мультипликаторы на суммарное число. EPS/P/E/payout в JSON пересчитаны на суммарное число акций для согласованности с дивидендами (ао и ап получают одинаковый дивиденд). Требует ручной сверки в годовом отчёте.",
+    "EBITDA, чистый долг, CapEx, потоки CFO/CFI/CFF — компания отдельной строкой не раскрывает; EBITDA и чистые активы взяты из агрегатора (smart-lab). Чистый долг -3,0 млрд ₽ — порядковая оценка (компания в чистой денежной позиции), не точная цифра.",
+    "Денежные потоки и CapEx недоступны → DCF посчитать нельзя (insufficient_data).",
+    "Брокерского консенсус-прогноза по KRSB нет — прогноз механический.",
+    "relative_peers ожидает заполнения медианы по сектору энергосбытов (pending_sector_backfill).",
+    "data_quality=low: значительная часть рядов (баланс, потоки, разбивка P&L) не раскрыта."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

@@ -1,0 +1,485 @@
+{
+  "meta": {
+    "ticker": "RASP",
+    "name": "ПАО «Распадская»",
+    "sector": "coal_mining",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 118.1,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 665733918,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      153800,
+      194200,
+      185800,
+      160600,
+      119200
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      81900,
+      75200,
+      44200,
+      -9900,
+      -62200
+    ],
+    "ebitda": [
+      98100,
+      88800,
+      60700,
+      8060,
+      -38900
+    ],
+    "da": [
+      16200,
+      13600,
+      16500,
+      17960,
+      23300
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      63700,
+      58900,
+      34600,
+      -11800,
+      -53100
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        63.8,
+        45.7,
+        32.7,
+        5.0,
+        -32.6
+      ],
+      "operating_margin": [
+        53.3,
+        38.7,
+        23.8,
+        -6.2,
+        -52.2
+      ],
+      "net_margin": [
+        41.4,
+        30.3,
+        18.6,
+        -7.3,
+        -44.5
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      211800,
+      219000,
+      260300,
+      251200,
+      203400
+    ],
+    "total_equity": [
+      106900,
+      166500,
+      202500,
+      190200,
+      136700
+    ],
+    "total_liabilities": [
+      104900,
+      52500,
+      57800,
+      61000,
+      66700
+    ],
+    "cash": [
+      29800,
+      27100,
+      29800,
+      8880,
+      10900
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      -40,
+      -27100,
+      -29800,
+      -8880,
+      -10900
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.28,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        -0.0,
+        -0.31,
+        -0.49,
+        -1.1,
+        0.28
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      64100,
+      65400,
+      24300,
+      -992,
+      18900
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      16100,
+      15300,
+      18400,
+      26900,
+      21700
+    ],
+    "fcf": [
+      48000,
+      50100,
+      5900,
+      -27892,
+      -2800
+    ],
+    "ratios": {
+      "fcf_margin": [
+        31.2,
+        25.8,
+        3.2,
+        -17.4,
+        -2.3
+      ],
+      "cfo_to_capex": [
+        3.98,
+        4.27,
+        1.32,
+        -0.04,
+        0.87
+      ],
+      "capex_to_revenue": [
+        10.5,
+        7.9,
+        9.9,
+        16.7,
+        18.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      59.6,
+      35.4,
+      17.1,
+      -6.2,
+      -38.8
+    ],
+    "roa": [
+      30.1,
+      26.9,
+      13.3,
+      -4.7,
+      -26.1
+    ],
+    "roic": [
+      47.9,
+      36.1,
+      17.5,
+      -4.2,
+      -36.4
+    ],
+    "ros": [
+      41.4,
+      30.3,
+      18.6,
+      -7.3,
+      -44.5
+    ],
+    "asset_turnover": [
+      0.73,
+      0.89,
+      0.71,
+      0.64,
+      0.59
+    ]
+  },
+  "multiples": {
+    "pe": [
+      4.9,
+      2.6,
+      8.3,
+      null,
+      null
+    ],
+    "ps": [
+      2.03,
+      0.78,
+      1.55,
+      1.08,
+      0.92
+    ],
+    "pb": [
+      2.92,
+      0.91,
+      1.42,
+      0.91,
+      0.8
+    ],
+    "ev_ebitda": [
+      3.2,
+      1.4,
+      4.3,
+      20.4,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.66,
+      "pb": 0.58,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.3,
+      "pe_5y_median": 4.9,
+      "period": "2021-2023 (2024-2025 убыток, P/E н/п)"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [
+      "Т-Инвестиции (обзор угольного сектора)"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Покрытие консенсусом ограничено; компания в SDN-листе, дивиденды приостановлены, прибыль отрицательна 2 года подряд. Прогноз прибыли невозможен — финрезультат целиком определяется ценой коксующегося угля (HCC) и курсом рубля. Forecast=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.9,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 4.9,
+          "basis": "5y_median, но текущая EPS отрицательна — метод неприменим"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.9,
+          "beta": 1.15,
+          "note": "Ke=24.9%; целевая цена неинформативна при убытке и нулевом дивиденде — не считаем точку."
+        }
+      },
+      {
+        "method": "midcycle_ev_ebitda",
+        "fair_value_per_share": 352.4,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "midcycle_ebitda_mln": 63915,
+          "period": "2021-2024",
+          "ev_ebitda_x": 3.5,
+          "note": "Ориентир по нормализованной EBITDA цикла, не по текущему убытку. Консервативный множитель из-за SDN-санкций и нулевых дивидендов."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 256.4,
+      "base": 352.4,
+      "current_price": 118.1,
+      "upside_downside_pct": 198.4
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО RASP",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО «Распадская» — консолидированные результаты 2024/2025 (IR)",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX ISS — ISSUESIZE и котировки RASP (TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Т-Инвестиции — обзор угольного сектора 2025",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "uploaded_file",
+      "title": "business_model.md (RASP) — мини-P&L 2024/2025",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Папка sources/ пуста — все числа из веба (Smart-Lab, MOEX ISS, IR Распадской) + business_model.md. data_quality=medium.",
+    "РАСХОЖДЕНИЕ EBITDA 2025: business_model.md даёт -16,6 млрд (вероятно «очищенная» EBITDA), Smart-Lab -38,9 млрд (с учётом обесценений). Взято -38,9 (полная). Требует ручной сверки по отчёту МСФО.",
+    "2024-2025 — чистый убыток, поэтому P/E, EV/EBITDA, ND/EBITDA на эти годы не имеют экономического смысла (EBITDA<0).",
+    "CFI/CFF/net_change_in_cash не раскрыты в агрегаторе — null.",
+    "COGS/валовая прибыль/опер.расходы детально не раскрыты — null; маржи считаны от выручки.",
+    "DCF=insufficient_data: прогноз FCF невозможен при отрицательной EBITDA и отсутствии консенсуса.",
+    "relative_peers=pending_sector_backfill: медиана EV/EBITDA по сектору coal_mining (Мечел и др.) ещё не собрана.",
+    "Оценка midcycle_ev_ebitda опирается на нормализованную EBITDA цикла 2021-2024 — чувствительна к выбору множителя и сохранению санкционных дисконтов."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

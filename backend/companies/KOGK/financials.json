@@ -1,0 +1,588 @@
+{
+  "meta": {
+    "ticker": "KOGK",
+    "name": "ПАО «Коршуновский ГОК»",
+    "sector": "metals_mining",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 288.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 25012600,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Внутригрупповые операции Группы «Мечел» искажают отчётность КГОКа. Внешний долг ~0, формально близко к «чистому кэшу», НО «Мечел» занимал у Коршуновского ГОКа крупные суммы (договор займа 3,2 млрд руб., 03.2020), т.е. активы и капитал раздуты дебиторкой/займами связанным сторонам. Реальная чистая денежная позиция иллюзорна — это требование к перегруженной долгом материнской группе. Прибыль от продаж (операционная) отрицательна в 2022-2025; положительная чистая прибыль 2024 г. (+3,84 млрд) сформирована финансовыми/внутригрупповыми статьями, а не основным производством. EBITDA и амортизация отдельно в РСБУ не раскрыты (за 2025 агрегатор даёт EBITDA -3,92 млрд — отрицательную). При отрицательной EBITDA мультипликаторы EV/EBITDA и ND/EBITDA не имеют экономического смысла."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      15200.0,
+      11200.0,
+      7860.0,
+      13800.0,
+      13230.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      4400.0,
+      -3000.0,
+      -5200.0,
+      -1580.0,
+      -3660.0
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -3920.0
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      5080.0,
+      -110.0,
+      -5090.0,
+      3840.0,
+      -1470.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        -29.6
+      ],
+      "operating_margin": [
+        null,
+        null,
+        28.9,
+        -26.8,
+        -66.2,
+        -11.4,
+        -27.7
+      ],
+      "net_margin": [
+        null,
+        null,
+        33.4,
+        -1.0,
+        -64.8,
+        27.8,
+        -11.1
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      56500.0,
+      64900.0,
+      59200.0,
+      67300.0,
+      56700.0
+    ],
+    "total_equity": [
+      null,
+      null,
+      52600.0,
+      56600.0,
+      46200.0,
+      50000.0,
+      48400.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      3900.0,
+      8300.0,
+      13000.0,
+      17300.0,
+      8300.0
+    ],
+    "cash": [
+      null,
+      null,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      5.0
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      195.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        -0.05
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      9.7,
+      -0.2,
+      -11.0,
+      7.7,
+      -3.0
+    ],
+    "roa": [
+      null,
+      null,
+      9.0,
+      -0.2,
+      -8.6,
+      5.7,
+      -2.6
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      33.4,
+      -1.0,
+      -64.8,
+      27.8,
+      -11.1
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      1.42,
+      -65.45,
+      -1.41,
+      1.88,
+      -4.9
+    ],
+    "ps": [
+      null,
+      null,
+      0.47,
+      0.64,
+      0.92,
+      0.52,
+      0.54
+    ],
+    "pb": [
+      null,
+      null,
+      0.14,
+      0.13,
+      0.16,
+      0.14,
+      0.15
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -1.89
+    ],
+    "current": {
+      "pe": -4.9,
+      "ps": 0.54,
+      "pb": 0.15,
+      "ev_ebitda": -1.89,
+      "ev_sales": 0.56,
+      "net_debt_ebitda": -0.05,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не считаем: чистая прибыль знакопеременная, P/E не репрезентативен"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -4.9,
+      "ps": 0.54,
+      "pb": 0.15,
+      "ev_ebitda": -1.89,
+      "ev_sales": 0.56,
+      "net_debt_ebitda": -0.05
+    },
+    "2024": {
+      "pe": 1.88,
+      "ps": 0.52,
+      "pb": 0.14,
+      "ev_ebitda": null,
+      "ev_sales": null,
+      "net_debt_ebitda": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (малоликвидная дочка «Мечела», free-float мал). Механический прогноз невозможен: результат определяется внутригрупповой политикой, а не рынком; чистая прибыль знакопеременна. Прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6 + 1.0×9.0 = 23.6%. Без устойчивой прибыли/дивиденда таргет по CAPM не строится."
+      },
+      {
+        "method": "book_value_discount",
+        "fair_value_per_share": 271,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps": 1935,
+          "p_b_conservative": 0.1,
+          "p_b_base": 0.18,
+          "note": "Балансовая стоимость (~1935 руб/акц) сильно завышена внутригрупповой дебиторкой к «Мечелу»; рынок уже дисконтирует капитал до P/B≈0.15. Коридор задан как глубокий дисконт к балансу."
+        },
+        "status": "low_reliability"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 194,
+      "base": 348,
+      "current_price": 288.0,
+      "upside_downside_pct": -32.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — KOGK security info (ISSUESIZE 25 012 600 акций, цена 288 руб на 01.06.2026)",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность РСБУ KOGK (выручка, опер. прибыль, чистый результат, активы, капитал)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Банки.ру — KOGK: P/E -4.9, P/S 0.55, ROE -3%, EBITDA 2025 -3.92 млрд, чистый долг 194.3 млн",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Finviewer — KGOK МСФО/РСБУ (выручка 2024 13.77 млрд, ЧП МСФО 2024 3.33 млрд)",
+      "period": "2024-2025",
+      "reliability": "low"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "1sn.ru — «Мечел» занял у Коршуновского ГОКа более 3 млрд руб. (договор займа 3,2 млрд, 03.2020)",
+      "period": "2020",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "official_report",
+      "title": "business_model.md (КГОК) — профиль, сегмент, внутригрупповая структура «Мечел»",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: РСБУ-агрегаторы, без аудированной полной отчётности из sources/; 2019-2020 не раскрыты.",
+    "ANOMALY: внутригрупповые займы/дебиторка к «Мечелу» раздувают активы и капитал; формальный «чистый кэш» иллюзорен (требование к проблемной материнской группе).",
+    "EBITDA отрицательна в 2025 (-3.92 млрд) → EV/EBITDA (-1.89) и ND/EBITDA (-0.05) НЕ имеют экономического смысла, использовать нельзя.",
+    "Операционная прибыль (прибыль от продаж) отрицательна 2022-2025: основное производство убыточно.",
+    "Чистая прибыль знакопеременна (2021 +5.08, 2023 -5.09, 2024 +3.84, 2025 -1.47) → P/E и historical P/E не репрезентативны.",
+    "Капитализация: на MOEX 25.01 млн акций × 288 руб = 7.2 млрд; банки.ру показывают 9.43 млрд (иное число акций) — взят MOEX как первоисточник. Расхождение помечено.",
+    "Балансовая стоимость акции ~1935 руб против рыночной 288 руб (P/B≈0.15): рынок дисконтирует капитал на ~85% из-за внутригрупповых рисков и убыточности — это согласуется с аномалией.",
+    "DCF/historical_pe/CAPM = insufficient_data; relative_peers = pending_sector_backfill (медиана сектора metals_mining не загружена).",
+    "Дивиденды нерегулярны/символические (~1 руб/акц за длительный период)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": -854.61,
+    "upside_downside_pct": -396.7,
+    "status": "reference_only"
+  }
+}

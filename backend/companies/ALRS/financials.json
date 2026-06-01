@@ -578,10 +578,10 @@
     "Цена-якорь 26,64 руб. (25.05.2026, из PDF); веб подтверждает ~27,7 руб. на 19.05.2026 — близко."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": 20.45,
     "upside_downside_pct": -23.2,
-    "status": "ok",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "ok"
   }
 }

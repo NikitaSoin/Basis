@@ -1,0 +1,534 @@
+{
+  "meta": {
+    "ticker": "KBSB",
+    "name": "ТНС энерго Кубань (ПАО)",
+    "sector": "Электроэнергетика / Энергосбыт",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 815.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 17869440,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Экстремально низкая оценка: P/E≈2.7, EV/EBITDA≈0.9 — это не ошибка данных, а устойчивая особенность бумаги (история отрицательного капитала до 2022 г., полный контроль ГК «ТНС энерго», нерегулярные дивиденды, низкая ликвидность, листинг 3-го уровня). DCF и CAPM систематически завышают справедливую цену для такой структурно дисконтированной бумаги; опорой служат дивидендный метод и собственный исторический P/E. Энергосбыт: EV/EBITDA малоинформативна (почти весь оборот — transit-закупка энергии), основная оценка — по P/E и дивидендам."
+  },
+  "income_statement": {
+    "revenue": [
+      55400.0,
+      60800.0,
+      67700.0,
+      75000.0,
+      84800.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      656.0,
+      1770.0,
+      4510.0,
+      1550.0,
+      5470.0
+    ],
+    "ebitda": [
+      656.0,
+      1830.0,
+      4590.0,
+      1670.0,
+      5610.0
+    ],
+    "da": [
+      0.0,
+      60.0,
+      80.0,
+      120.0,
+      140.0
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      74.0,
+      1260.0,
+      3870.0,
+      2530.0,
+      5370.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        1.18,
+        3.01,
+        6.78,
+        2.23,
+        6.62
+      ],
+      "operating_margin": [
+        1.18,
+        2.91,
+        6.66,
+        2.07,
+        6.45
+      ],
+      "net_margin": [
+        0.13,
+        2.07,
+        5.72,
+        3.37,
+        6.33
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      10400.0,
+      10500.0,
+      15600.0,
+      18300.0,
+      26100.0
+    ],
+    "total_equity": [
+      -63000.0,
+      240.0,
+      6850.0,
+      7650.0,
+      13100.0
+    ],
+    "total_liabilities": [
+      73400.0,
+      10260.0,
+      8750.0,
+      10650.0,
+      13000.0
+    ],
+    "cash": [
+      357.0,
+      590.0,
+      2230.0,
+      4330.0,
+      9430.0
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      3343.0,
+      2160.0,
+      -2230.0,
+      -4330.0,
+      -9430.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        11.46,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        5.1,
+        1.18,
+        -0.49,
+        -2.59,
+        -1.68
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -300.0,
+      1680.0,
+      4420.0,
+      3160.0,
+      3730.0
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      267.0,
+      200.0,
+      320.0,
+      352.0,
+      494.0
+    ],
+    "fcf": [
+      -567.0,
+      1480.0,
+      4100.0,
+      2808.0,
+      3236.0
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -1.02,
+        2.43,
+        6.06,
+        3.74,
+        3.82
+      ],
+      "cfo_to_capex": [
+        -1.12,
+        8.4,
+        13.81,
+        8.98,
+        7.55
+      ],
+      "capex_to_revenue": [
+        0.48,
+        0.33,
+        0.47,
+        0.47,
+        0.58
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      525.0,
+      109.17,
+      34.9,
+      51.76
+    ],
+    "roa": [
+      0.71,
+      12.06,
+      29.66,
+      14.93,
+      24.19
+    ],
+    "roic": [
+      null,
+      47.36,
+      52.67,
+      16.21,
+      31.32
+    ],
+    "ros": [
+      0.13,
+      2.07,
+      5.72,
+      3.37,
+      6.33
+    ],
+    "asset_turnover": [
+      5.33,
+      5.82,
+      5.19,
+      4.42,
+      3.82
+    ]
+  },
+  "multiples": {
+    "pe": [
+      33.69,
+      2.14,
+      2.22,
+      2.91,
+      2.61
+    ],
+    "ps": [
+      0.04,
+      0.04,
+      0.13,
+      0.1,
+      0.16
+    ],
+    "pb": [
+      null,
+      11.24,
+      1.25,
+      0.96,
+      1.07
+    ],
+    "ev_ebitda": [
+      8.9,
+      2.65,
+      1.38,
+      1.82,
+      0.81
+    ],
+    "div_yield": [
+      13.04,
+      10.19,
+      null,
+      17.09,
+      7.96
+    ],
+    "p_fcf": [
+      null,
+      1.82,
+      2.09,
+      2.63,
+      4.32
+    ],
+    "current": {
+      "pe": 2.71,
+      "ps": 0.17,
+      "pb": 1.11,
+      "ev_ebitda": 0.92,
+      "div_yield": 7.64,
+      "p_fcf": 4.5,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 2.47,
+      "pe_5y_median": 2.42,
+      "period": "2022-2025 (2021 исключён как выброс: P/E 33.7 при околонулевой прибыли)"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 2.61,
+        "ps": 0.16,
+        "pb": 1.07,
+        "ev_ebitda": 0.81,
+        "div_yield": 7.96,
+        "p_fcf": 4.32
+      },
+      "2024": {
+        "pe": 2.91,
+        "ps": 0.1,
+        "pb": 0.96,
+        "ev_ebitda": 1.82,
+        "div_yield": 17.09,
+        "p_fcf": 2.63
+      }
+    },
+    "peer_multiples_note": "Снимок мультипликаторов KBSB по двум годам для затравки секторного сравнения; медиана сектора энергосбыта будет добавлена при backfill."
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      6.0,
+      5.5,
+      5.0,
+      4.5,
+      4.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по KBSB нет. Механический прогноз: рост выручки затухает с ~6% к долгосрочному тренду 3.5–4% (инфляционная индексация тарифов и сбытовой надбавки). Прибыль волатильна (зависит от индексации надбавки и резервов под ДЗ), точечный прогноз прибыли не делаем."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 1663.06,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "fcf_base": 3381.3,
+          "basis": "нормализованный FCF = среднее 2023-2025"
+        },
+        "tv_share_of_value_pct": 44.9,
+        "status": "ok",
+        "note": "DCF даёт завышенную оценку: рынок устойчиво дисконтирует бумагу относительно фундаментала из-за корпоративной структуры и ликвидности. Использован как верхний (оптимистичный) ориентир, в базовый коридор не включён."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 727.23,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.42,
+          "basis": "5y_median (2022-2025)",
+          "eps_2025": 300.51
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 472.77,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dividend_per_share": 62.29,
+          "target_yield_pct": 10.5,
+          "gordon_fv": 352.3,
+          "yield_fv": 593.24,
+          "basis": "среднее модели Гордона (ke-g) и требуемой дивдоходности 10.5%"
+        },
+        "status": "ok",
+        "note": "Зрелый, но нерегулярный плательщик: в 2023 г. выплат не было. Главный метод для энергосбыта."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана мультипликаторов сектора энергосбыта будет добавлена после прогона всех компаний сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 1378.49,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "target_pe": 4.59,
+          "eps_2025": 300.51
+        },
+        "status": "ok",
+        "note": "Целевой P/E≈1/Ke=4.6 завышает для структурно дисконтированной бумаги; верхний ориентир."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 472.77,
+      "base": 600.0,
+      "optimistic": 1378.49,
+      "current_price": 815.0,
+      "upside_downside_pct": -26.4,
+      "note": "Коридор опирается на дивидендный метод (472) и собственный исторический P/E (727); база ≈600 (−26% к текущей цене). DCF (1663) и CAPM (1378) — верхние ориентиры на случай нормализации дисконта, в базу не входят. Широкий разброс отражает структурную неопределённость бумаги."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        19.8,
+        21.8,
+        23.8
+      ],
+      "growth_grid": [
+        2.5,
+        3.5
+      ],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "МСФО-отчётность ПАО «ТНС энерго Кубань» 2021-2025 (агрег. smart-lab.ru/q/KBSB/f/y/MSFO)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX ISS — котировка KBSB, число акций 17 869 440, цена 815 ₽",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — дивидендная история KBSB (2024: 70.51 ₽, 2025: 62.29 ₽)",
+      "period": "2017-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md KBSB — подтверждение эмитента (гарантирующий поставщик, Краснодарский край и Адыгея)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Источник — агрегатор (smart-lab) поверх МСФО; первичная отчётность e-disclosure не выгружалась построчно — числа сверены контрольными суммами кодом, но возможны округления.",
+    "2021 г.: капитал отрицательный (−63 млрд ₽) — следствие исторической реструктуризации; ROE/P/B за 2021 неинформативны (null), год исключён из медианы P/E как выброс.",
+    "EBITDA, DA, finance_costs точно построчно не раскрыты — DA реконструирована как EBITDA−операционная прибыль; cogs/gross_profit для энергосбыта неприменимы (null).",
+    "CFI/CFF и разбивка долга на кратко/долгосрочный из агрегатора недоступны (null); FCF=CFO−CapEx подтверждён.",
+    "Расхождение МСФО vs РСБУ: в business_model.md фигурировала выручка 88.5 млрд (РСБУ-2024), здесь МСФО-2024 = 75.0 млрд. Использована МСФО как консолидированная и полная.",
+    "Дивиденды нерегулярны (2023 — пропуск выплаты), что снижает надёжность дивидендного метода.",
+    "Брокерского покрытия нет — прогноз механический.",
+    "relative_peers: медиана сектора энергосбыта не заполнена (pending_sector_backfill)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

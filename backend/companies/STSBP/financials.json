@@ -1,0 +1,536 @@
+{
+  "meta": {
+    "ticker": "STSBP",
+    "name": "ПАО «Ставропольэнергосбыт» (прив.)",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 4.315,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 859074636,
+    "isin": "RU000A0ET1W4",
+    "listing_level": 3,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ],
+    "is_pref": true,
+    "linked_common": "STSB",
+    "pref_to_common_ratio": 1.233,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной STSB. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 1.233 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      21100,
+      22300,
+      24600,
+      27400,
+      32100
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      593,
+      946,
+      853,
+      1440,
+      1490
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      298,
+      530,
+      655,
+      1430,
+      1340
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        2.8,
+        4.2,
+        3.5,
+        5.3,
+        4.6
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        1.4,
+        2.4,
+        2.7,
+        5.2,
+        4.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      3850,
+      4020,
+      4690,
+      6390,
+      7700
+    ],
+    "total_equity": [
+      null,
+      1220,
+      1730,
+      2390,
+      3470,
+      4690
+    ],
+    "total_liabilities": [
+      null,
+      2630,
+      2290,
+      2300,
+      2920,
+      3010
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      830,
+      310,
+      -180,
+      -1040,
+      -1890
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        1.4,
+        0.33,
+        -0.21,
+        -0.72,
+        -1.27
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      320,
+      470,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        1.3,
+        1.7,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      24.4,
+      30.6,
+      27.4,
+      41.2,
+      28.6
+    ],
+    "roa": [
+      null,
+      7.7,
+      13.2,
+      14.0,
+      22.4,
+      17.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      1.4,
+      2.4,
+      2.7,
+      5.2,
+      4.2
+    ],
+    "asset_turnover": [
+      null,
+      5.48,
+      5.55,
+      5.25,
+      4.29,
+      4.17
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      3.11,
+      1.96,
+      4.61,
+      3.35,
+      4.32
+    ],
+    "ps": [
+      null,
+      0.05,
+      0.05,
+      0.12,
+      0.17,
+      0.18
+    ],
+    "pb": [
+      null,
+      0.76,
+      0.6,
+      1.27,
+      1.38,
+      1.23
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.75
+    ],
+    "current": {
+      "pe": 2.76,
+      "ps": 0.11,
+      "pb": 0.79,
+      "ev_ebitda": 0.75,
+      "net_debt_ebitda": -1.27,
+      "roe": 28.6,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 3.46,
+      "pe_5y_median": 3.35,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.76,
+      "ps": 0.11,
+      "pb": 0.79,
+      "ev_ebitda": 0.75,
+      "net_debt_ebitda": -1.27,
+      "roe": 28.6
+    },
+    "2024": {
+      "pe": 3.35,
+      "ps": 0.17,
+      "pb": 1.38,
+      "ev_ebitda": null,
+      "net_debt_ebitda": -0.72,
+      "roe": 41.2
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие STSB отсутствует. Прибыль волатильна (зависит от тарифа/надбавки регулятора и резервов под дебиторку), поэтому надёжный механический прогноз построить нельзя. Дополнительный фактор неопределённости — смена контролирующего акционера на государство (Росимущество 72,31% обыкновенных акций с 29.08.2025) и неясная будущая дивидендная политика по обыкновенным акциям."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 5.23,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.72,
+          "basis": "5y_median",
+          "eps_2025": 1.56
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "note": "Ke = 14.6% + 1.0×9.0% = 23.6%. Целевая цена по CAPM требует прогноза дивиденда/прибыли, которого нет; не считаем."
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "note": "По ОБЫКНОВЕННЫМ акциям STSB дивиденды не платятся (за 2021-2025 — 0 ₽). Дивметод применим только к префам STSBP (фикс. 10% прибыли РСБУ), которые выводятся отдельно.",
+          "div_yield_ordinary_pct": 0.0
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 3.9,
+      "base": 4.68,
+      "current_price": 3.5,
+      "upside_downside_pct": 33.7
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "EV/EBITDA = 0.75 и P/E ≈ 2.2-2.7 аномально низкие. Причина структурная, не ошибка: (1) энергосбыт прогоняет ~90% выручки транзитом, поэтому при огромной выручке капитализация мала → сверхнизкий P/S; (2) у компании чистая денежная позиция (net debt = −1,89 млрд ₽), из-за чего EV < капитализации и EV/EBITDA теряет смысл. Для энергосбыта оценка корректнее по P/E и дивидендам (для префов), EV/EBITDA малоинформативна.",
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сравнение с другими гарантирующими поставщиками (энергосбытами) будет добавлено после прогона сектора."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО STSB (revenue, net profit, EBITDA, equity, net debt, мультипликаторы)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка эмитента STSB: ISIN RU000A0ET1W4, выпуск 859 074 636 акций, уровень листинга 3, цена",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru / РБК / investfunds — дивиденды STSB/STSBP, цена",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md STSB — якоря P&L 2024 (выручка 27,4; EBITDA 1,44; ЧП 1,43; чистая денежная позиция; контроль Росимущества 72,31%)",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: sources/ пуст (нет PDF), данные собраны из веба (smart-lab, MOEX ISS, РБК, investfunds) — официальную отчётность МСФО/РСБУ с e-disclosure.ru нужно перепроверить вручную.",
+    "Расхождение прибыли: smart-lab МСФО даёт ЧП 2024 = 1,43 млрд ₽ (использовано), но РСБУ ЧП 2024 ≈ 1,233 млрд ₽ — база дивидендов по префам считается от РСБУ.",
+    "EBITDA, equity, net debt за 2025 — предварительные по агрегатору; cash, долг, CFO/CapEx/FCF в разрезе не раскрыты в доступных источниках.",
+    "P/E и P/B исторические взяты из агрегатора smart-lab (на момент закрытия каждого года); current-мультипликаторы пересчитаны кодом от цены 3,5 ₽ и выпуска 859 млн акций.",
+    "anomaly_flag=true: сверхнизкие P/E, P/S, EV/EBITDA — структурная особенность энергосбыта + чистая денежная позиция; не ошибка данных.",
+    "По обыкновенным акциям дивиденды не выплачиваются; дивидендная доходность обыкновенной акции = 0%. Дивиденды получают только префы STSBP.",
+    "DCF не построен (insufficient_data): нет прогноза и денежных потоков; relative_peers — pending_sector_backfill; CAPM-таргет не посчитан без прогноза дивиденда."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": 8.72,
+    "upside_downside_pct": 102.1,
+    "status": "reference_only"
+  }
+}

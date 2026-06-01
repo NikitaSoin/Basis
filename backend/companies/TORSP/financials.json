@@ -1,0 +1,552 @@
+{
+  "meta": {
+    "ticker": "TORSP",
+    "name": "ПАО «Россети Томск» (прив.)",
+    "sector": "Электроэнергетика (распределительные сети)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.596,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 3819315580,
+    "isin": "RU000A0ETZF2",
+    "data_quality": "low",
+    "data_quality_note": "Постатейная отчётность (P&L по строкам, баланс, ДДС) публично не раскрыта детально. Якорные ряды (выручка, EBITDA, чистая прибыль, ND, CapEx) взяты с агрегатора smart-lab (МСФО) и сверены с пресс-релизами; D&A, CFO, ROA, маржи рассчитаны/реконструированы кодом. Преф TORSP не учитывается — выведена отдельно.",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "TORS",
+    "pref_to_common_ratio": 0.805,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной TORS. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.805 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      7300,
+      8410,
+      9320,
+      9970,
+      11820
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      12,
+      430,
+      454,
+      325,
+      480
+    ],
+    "ebitda": [
+      520,
+      970,
+      970,
+      860,
+      1020
+    ],
+    "da": [
+      508,
+      540,
+      516,
+      535,
+      540
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      22,
+      327,
+      388,
+      220,
+      347
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        7.12,
+        11.53,
+        10.41,
+        8.63,
+        8.63
+      ],
+      "operating_margin": [
+        0.16,
+        5.11,
+        4.87,
+        3.26,
+        4.06
+      ],
+      "net_margin": [
+        0.3,
+        3.89,
+        4.16,
+        2.21,
+        2.94
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      4710,
+      5200,
+      5800,
+      6100,
+      6440
+    ],
+    "total_equity": [
+      3420,
+      3700,
+      4050,
+      4180,
+      4360
+    ],
+    "total_liabilities": [
+      1290,
+      1500,
+      1750,
+      1920,
+      2080
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      110,
+      120,
+      100,
+      120,
+      80
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        0.21,
+        0.12,
+        0.1,
+        0.14,
+        0.08
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      387,
+      900,
+      950,
+      820,
+      880
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      558,
+      700,
+      850,
+      960,
+      781
+    ],
+    "fcf": [
+      -171,
+      200,
+      100,
+      -140,
+      99
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -2.34,
+        2.38,
+        1.07,
+        -1.4,
+        0.84
+      ],
+      "cfo_to_capex": [
+        0.69,
+        1.29,
+        1.12,
+        0.85,
+        1.13
+      ],
+      "capex_to_revenue": [
+        7.64,
+        8.32,
+        9.12,
+        9.63,
+        6.61
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      0.64,
+      8.84,
+      9.58,
+      5.26,
+      7.96
+    ],
+    "roa": [
+      0.47,
+      6.29,
+      6.69,
+      3.61,
+      5.39
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      0.3,
+      3.89,
+      4.16,
+      2.21,
+      2.94
+    ],
+    "asset_turnover": [
+      1.55,
+      1.62,
+      1.61,
+      1.63,
+      1.84
+    ]
+  },
+  "multiples": {
+    "pe": [
+      45.86,
+      2.7,
+      5.27,
+      8.02,
+      5.83
+    ],
+    "ps": [
+      0.14,
+      0.1,
+      0.22,
+      0.18,
+      0.17
+    ],
+    "pb": [
+      0.3,
+      0.24,
+      0.51,
+      0.42,
+      0.47
+    ],
+    "ev_ebitda": [
+      2.62,
+      1.25,
+      2.72,
+      2.69,
+      2.54
+    ],
+    "current": {
+      "pe": 6.56,
+      "ps": 0.19,
+      "pb": 0.52,
+      "ev_ebitda": 2.85,
+      "ev_sales": 0.25,
+      "p_fcf": 28.55,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 13.54,
+      "pe_5y_median": 5.83,
+      "ev_ebitda_5y_median": 2.62,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      10.0,
+      8.0,
+      7.0,
+      6.0,
+      5.0
+    ],
+    "net_profit_growth_pct": [
+      5.0,
+      5.0,
+      5.0,
+      4.0,
+      3.5
+    ],
+    "note": "Аналитического покрытия по TORS нет (компания малоликвидна, free float мал, контроль у Россетей). Прогноз механический: выручка растёт с тарифной индексацией (~инфляция плюс), затухая к долгосрочному тренду; чистая прибыль ограничена регулируемой нормой и повышением ставки налога на прибыль до 25% с 2025 г."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 0.2,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "fcf_base_mln": 150
+        },
+        "tv_share_of_value_pct": 49.1,
+        "status": "insufficient_data",
+        "note": "FCF волатилен и близок к нулю (CapEx ≈ CFO), нормализация FCF условна — DCF дан как грубый ориентир, не якорь."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.53,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 7.24,
+          "basis": "5y_median",
+          "eps_ttm": 0.0909
+        },
+        "note": "Медиана P/E устойчивее среднего: 2021 искажён почти нулевой прибылью (P/E 57)."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "peers.json по сектору распределительных сетей (Россети МР, Ленэнерго, Кубань, Центр и др.) ещё не собран."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.36,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2,
+          "beta": 0.6,
+          "rf": 0.146,
+          "erp": 0.09
+        },
+        "note": "Бета 0.6 — низкая для регулируемой инфраструктуры (оценка). Целевой P/E≈1/Ke=5x от прибыли на акцию."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 0.19,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "fair_pb": 0.21,
+          "roe_norm": 0.07,
+          "ke": 0.2,
+          "g": 0.035,
+          "bvps": 1.1416
+        },
+        "note": "Справедливый P/B=(ROE−g)/(Ke−g). ROE (~7-8%) НИЖЕ стоимости капитала (20%) при текущих ставках → справедливый P/B<1, бизнес при таких ставках стоит дешевле капитала."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 0.06,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_2025": 0.0156,
+          "required_yield": 0.2
+        },
+        "status": "reference_only",
+        "note": "Низкий и нестабильный пейаут по обычке (дивдоходность ~1.9%) делает дивметод нерепрезентативным — в коридор не включён."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.24,
+      "base": 0.35,
+      "optimistic": 0.66,
+      "current_price": 0.74,
+      "upside_downside_pct": -52.7,
+      "note": "Коридор по 4 методам (DCF, hist P/E, CAPM, P/BV×ROE), дивидендный и relative_peers исключены. Текущая цена 0.74 ВЫШЕ верхней границы оценки."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.17,
+        0.2,
+        0.23
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          0.32,
+          0.36,
+          0.42
+        ],
+        [
+          0.22,
+          0.25,
+          0.29
+        ],
+        [
+          0.16,
+          0.18,
+          0.2
+        ]
+      ],
+      "note": "DCF цена за акцию по сетке WACC (строки) × терминальный рост (столбцы). Сильная чувствительность к ставке."
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "(1) ND/EBITDA ≈ 0.08x — аномально низкий долг для распределительной сетевой компании (обычно сети закредитованы под инвестпрограмму); компания финансирует CapEx преимущественно из операционного потока. (2) Текущая рыночная цена (0.74 ₽) ВЫШЕ верхней границы фундаментальной оценки (0.66 ₽) и заметно выше внутренней стоимости по P/BV×ROE и CAPM — рынок оценивает дороже, чем дают модели при ставке Rf 14.6%. (3) ROE (~7-8%) ниже стоимости капитала (Ke≈20%) — регулируемая норма прибыли не покрывает требуемую доходность при высоких ставках. (4) 2021 г. — почти нулевая прибыль, искажает средний P/E (57x), поэтому использована медиана.",
+  "peer_multiples": {
+    "2025": {
+      "pe": 5.83,
+      "ps": 0.17,
+      "pb": 0.47,
+      "ev_ebitda": 2.54,
+      "ev_sales": 0.22,
+      "roe": 7.96
+    },
+    "2024": {
+      "pe": 8.02,
+      "ps": 0.18,
+      "pb": 0.42,
+      "ev_ebitda": 2.69,
+      "ev_sales": 0.23,
+      "roe": 5.26
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Пресс-релизы ПАО «Россети Томск» по результатам МСФO (2024, 2025) / e-disclosure",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО TORS (выручка, EBITDA, прибыль, ND, CapEx, FCF, цены, дивиденды)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка бумаги TORS (ISIN, issuesize, цена)",
+      "period": "2026-05",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md (внутренний разбор бизнес-модели TORS)",
+      "period": "2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: постатейная разбивка P&L, баланса и ДДС публично не раскрыта — ряды cogs/opex/cash/долг по срокам/cfi/cff = null.",
+    "D&A реконструирована как EBITDA − operating_profit (приближение, может включать прочие неоперационные статьи).",
+    "CFO реконструирована как FCF + CapEx (упрощение).",
+    "total_liabilities = total_assets − total_equity (выведено, не из отчёта).",
+    "FCF волатилен и в 2 из 5 лет отрицателен — DCF дан как ориентир (insufficient_data).",
+    "Бета 0.6 — оценочная (бумага малоликвидна, рыночная бета ненадёжна).",
+    "relative_peers ждёт сбора peers.json по сектору распределительных сетей.",
+    "Дивметод исключён из коридора (низкий нестабильный пейаут по обычке).",
+    "Все числа по обыкновенной акции TORS; привилегированная TORSP не учитывается."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

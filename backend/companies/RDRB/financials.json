@@ -1,0 +1,336 @@
+{
+  "meta": {
+    "ticker": "RDRB",
+    "name": "ПАО АКБ «РОСДОРБАНК» (Российский Дорожный Банк)",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 116.8,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 27492735,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      null,
+      1860,
+      1740
+    ],
+    "net_fee_income": [
+      null,
+      740,
+      740
+    ],
+    "operating_income": [
+      null,
+      2660,
+      2480
+    ],
+    "provisions": [
+      null,
+      33,
+      95
+    ],
+    "operating_expenses": [
+      null,
+      1780,
+      2150
+    ],
+    "net_profit": [
+      737,
+      737,
+      279
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      null,
+      null,
+      3.69
+    ],
+    "cost_of_risk": [
+      null,
+      null,
+      0.22
+    ],
+    "cir": [
+      null,
+      66.9,
+      86.7
+    ],
+    "roe": [
+      19.7,
+      18.4,
+      6.1
+    ],
+    "roa": [
+      null,
+      1.71,
+      0.54
+    ],
+    "capital_adequacy": [
+      null,
+      12.0,
+      11.7
+    ],
+    "loan_portfolio": [
+      null,
+      null,
+      43000
+    ],
+    "deposits": [
+      null,
+      null,
+      45800
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      43030,
+      51320
+    ],
+    "total_equity": [
+      3750,
+      4270,
+      4830
+    ],
+    "book_value_per_share": [
+      246.71,
+      178.66,
+      175.68
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      11.5
+    ],
+    "pb": [
+      0.47,
+      0.65,
+      0.66
+    ],
+    "current": {
+      "pe": 11.5,
+      "pb": 0.66,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pb_5y_median": 0.65,
+      "period": "2023-2025 (короткая история публичных данных, не репрезентативна)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pb": 0.66,
+      "roe": 6.1,
+      "pe": 11.5
+    },
+    "2024": {
+      "pb": 0.65,
+      "roe": 18.4,
+      "pe": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие отсутствует (малоликвидная акция, free-float 14,29%). Прибыль 2025 упала на 62% г/г из-за сжатия NIM при ставке 14,5% и роста CIR до 87% — история нерепрезентативна для механического прогноза. Прогноз не строится; оценка только по P/BV×ROE со сценариями."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable"
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 77.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "model": "fair_P/BV = (ROE - g) / (Ke - g); price = fair_P/BV × BVPS",
+          "bvps_2025": 175.68,
+          "ke_pct": 22.7,
+          "ke_basis": "Rf 14.6 + beta 0.9 × ERP 9.0",
+          "g_pct": 3.5,
+          "roe_scenarios_pct": {
+            "conservative_current": 5.8,
+            "base_recovery": 12.0,
+            "optimistic_normalized": 17.0
+          },
+          "fair_pbv_scenarios": {
+            "conservative": 0.12,
+            "base": 0.443,
+            "optimistic": 0.703
+          }
+        },
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "история <3 лет, прибыль волатильна — метод неинформативен"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "ev_ebitda",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "note": "не применяется для банка"
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "net_debt_ebitda": null,
+    "ev_ebitda": null,
+    "fair_value_range": {
+      "conservative": 63.1,
+      "base": 77.8,
+      "optimistic_recovery": 123.5,
+      "current_price": 116.8,
+      "upside_downside_pct": -33.4,
+      "note": "Коридор base/conservative считается от P/BV×ROE при Ke=22.7%. Верхняя граница (123,5) достижима лишь при возврате ROE к ~17% (уровень 2023-2024). При депрессивной ROE 2025 (5.8%) внутренняя оценка ~21 руб. — рынок (117) уже закладывает уверенное восстановление маржи."
+    },
+    "sensitivity": {
+      "row_label": "ROE, %",
+      "col_label": "Ke, % (beta 0.7 / 0.9 / 1.1)",
+      "roe_grid": [
+        5.8,
+        10.0,
+        12.0,
+        15.0,
+        18.0
+      ],
+      "ke_grid": [
+        20.9,
+        22.7,
+        24.5
+      ],
+      "matrix": [
+        [
+          23.2,
+          21.0,
+          19.2
+        ],
+        [
+          65.6,
+          59.5,
+          54.4
+        ],
+        [
+          85.8,
+          77.8,
+          71.1
+        ],
+        [
+          116.1,
+          105.2,
+          96.2
+        ],
+        [
+          146.4,
+          132.7,
+          121.3
+        ]
+      ],
+      "note": "Значения матрицы — справедливая цена акции (руб.) = (ROE−g)/(Ke−g) × BVPS 175,68. g=3,5%."
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "P/B 0,66 при ROE 2025 всего 6,1% и Ke ~22,7% формально означает переоценку: справедливый P/BV по модели <0,5, т.е. цена должна быть ниже 78 руб. Рынок (117 руб., P/B 0,66) удерживает котировку выше внутренней оценки, закладывая возврат ROE к 17-18% (уровень 2023-2024) по мере снижения ключевой ставки. Это не ошибка данных, а премия за ожидаемое восстановление маржи. Дополнительный фактор — малоликвидность (free-float 14,29%, низкие обороты) искажает рыночное ценообразование.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО РосДорБанк — отчётность РСБУ, нормативы Н1.0/Н2 (rdb.ru/investor, e-disclosure)",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX ISS — RDRB: цена 116,8 руб, ISSUESIZE 27 492 735 акций",
+      "period": "2026-05-31",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — RDRB: капитал, число акций, P/B по годам",
+      "period": "2023-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "ЦБ РФ (cbr.ru) — регистрационные данные, ключевая ставка 14,5%",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "РБК Компании — разбор отчётности РосДорБанк 1П2025",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "official_report",
+      "title": "companies/RDRB/business_model.md — мини-P&L РСБУ 2024-2025",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: банк публикует сокращённую РСБУ-отчётность, МСФО недоступна; NIM, ROE, CoR не раскрываются — рассчитаны по доступным агрегатам, возможна погрешность.",
+    "ВНИМАНИЕ: данные smart-lab по чистой прибыли сдвинуты (показывают 0,279 млрд и в 2024, и в 2025). Использованы цифры business_model.md: 2024 = 737 млн, 2025 = 279 млн (-62% г/г). 2023 net_profit 737 млн — оценочно, требует проверки по полной РСБУ.",
+    "NIM 3,69% рассчитан как ЧПД / средние активы (за неимением данных по средним работающим активам) — это нижняя оценка реального NIM.",
+    "ROE считалась двумя способами: по капиталу на конец года (5,8%) и по среднему капиталу (6,1% за 2025). В bank_metrics использован вариант на среднем капитале.",
+    "Число акций менялось из-за допэмиссии (15,2 млн → 23,9 млн → 27,5 млн), что искажает BVPS и сопоставимость по годам.",
+    "relative_peers — status pending_sector_backfill: медиана сектора finance ещё не собрана; метод будет дозаполнен после прогона сектора.",
+    "beta 0,9 — допущение (рыночная бета по малоликвидной акции не оценивается достоверно)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 155.73,
+    "upside_downside_pct": 33.3,
+    "status": "reference_only"
+  }
+}

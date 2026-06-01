@@ -1,0 +1,310 @@
+{
+  "meta": {
+    "ticker": "PRMB",
+    "name": "ПАО АКБ «Приморье»",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 22600,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 250000,
+    "isin": "RU000A0DPNQ5",
+    "board": "TQBR",
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ],
+    "issuer_confirmed": true,
+    "issuer_note": "PRMB = ПАО АКБ «Приморье» ао (обыкновенные акции), ISIN RU000A0DPNQ5, MOEX/TQBR. Подтверждено по iss.moex.com и согласуется с business_model.md."
+  },
+  "bank_pnl": {
+    "net_interest_income": [
+      null,
+      null,
+      null,
+      -2.69,
+      -2.76
+    ],
+    "net_fee_income": [
+      null,
+      null,
+      null,
+      0.8,
+      0.9
+    ],
+    "operating_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "provisions": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      1.685,
+      -1.824,
+      -4.25
+    ]
+  },
+  "bank_metrics": {
+    "nim": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cost_of_risk": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cir": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      -33.2,
+      -121.4
+    ],
+    "roa": [
+      null,
+      null,
+      2.51,
+      -2.31,
+      -5.61
+    ],
+    "capital_adequacy": [
+      null,
+      null,
+      null,
+      null,
+      0.82
+    ],
+    "capital_adequacy_metric": "Н1.1 (базовый капитал), %; минимум ЦБ 4.5%",
+    "loan_portfolio": [
+      null,
+      null,
+      null,
+      22.0,
+      14.8
+    ],
+    "deposits": [
+      null,
+      null,
+      null,
+      22.0,
+      20.0
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      67.026,
+      78.833,
+      75.8
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      5.5,
+      3.5
+    ],
+    "book_value_per_share": [
+      null,
+      null,
+      null,
+      22000,
+      14000
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "pb": 1.61,
+      "as_of": "2026-06-01",
+      "note": "P/E неприменим — банк убыточен три года. P/BV = рыночная капитализация / собственный капитал 2025 (3.5 млрд оц.)."
+    },
+    "historical_avg": {
+      "pb_5y_median": null,
+      "period": "недостаточно данных"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pb": 1.61,
+      "roe": -121.4,
+      "pe": null
+    },
+    "2024": {
+      "pb": 1.03,
+      "roe": -33.2,
+      "pe": null
+    },
+    "note": "P/BV 2024 оценочно по капитализации ~5.5-7.5 млрд и капиталу 5.5 млрд. Сектор финансов: справедливый ориентир P/BV здорового регионального банка 0.4-0.8x при положительном ROE; PRMB торгуется выше книги при отрицательном ROE — рыночная аномалия."
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Медианные мультипликаторы сектора finance ещё не собраны (sectors/finance/peers.json). Относительная оценка будет добита после прогона всех банков сектора."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "note": "Для банка DCF не применяется (методология — P/BV×ROE)."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "insufficient_data",
+        "key_assumptions": {
+          "ke_pct": 23.6,
+          "ke_formula": "rf 14.6% + beta 1.0 × erp 9.0%",
+          "terminal_growth_pct": 3.5,
+          "roe_2025_pct": -121.4,
+          "fair_pbv": null
+        },
+        "note": "Формула справедливого P/BV = (ROE − g)/(Ke − g) даёт отрицательную величину при отрицательном ROE — экономического смысла нет. Оценка по нормализованному ROE невозможна: нет репрезентативной истории прибыли (3 года убытков, капитал обесценен, Н1.1=0.82%)."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "insufficient_data",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "note": "Ожидает sectors/finance/peers.json (status pending_sector_backfill)."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4200,
+      "base": 8400,
+      "current_price": 22600,
+      "upside_downside_pct": -62.8,
+      "method_note": "Коридор НЕ модельный, а book-value-anchored с дисконтом за дистресс: 0.3-0.6× от BVPS 2025 (14 000 ₽). BVPS сам по себе ненадёжен (капитал обесценен, Н1.1=0.82%). Текущая цена 22 600 ₽ выше книги (P/BV 1.6) при отрицательном ROE — оценка крайне неустойчива, диапазон ориентировочный."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "(1) Рынок оценивает убыточный банк в 1.6× балансовой стоимости при отрицательном ROE −121% и нарушенном нормативе достаточности капитала (Н1.1=0.82% при минимуме 4.5%) — оценка оторвана от фундаментала, акция крайне малоликвидна (всего 250 000 акций, лот 1, эпизодические сделки). (2) Расхождение числа акций: MOEX ISSUESIZE = 250 000, smart-lab/banki указывают 280 300 — вероятно допэмиссия 2025-2026 (СД объявлял размещение по 27 950 ₽). Капитализация и P/BV чувствительны к этому. (3) Собственный капитал (3.5 млрд 2025) — оценка из business_model.md, точная величина после докапитализации/списания суборда ЦБ не раскрыта.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — securities/PRMB (эмитент, ISIN, issue size, цена TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО АКБ «Приморье» — раскрытие информации, отчётность РСБУ/МСФО (primbank.ru)",
+      "period": "2023-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "Банк России — нормативы, форма 123, отчётность (cbr.ru, ogrn 1022500000566)",
+      "period": "2025-2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финрезультаты банка Приморье (прибыль/убыток, активы, число акций)",
+      "period": "2023-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "Деловые СМИ (Коммерсантъ, Konkurent, TAdviser) — убыток 4.2 млрд, Н1.1 0.82%, списание суборда, докапитализация",
+      "period": "2025-2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "official_report",
+      "title": "companies/PRMB/business_model.md — сегменты, оценки капитала/портфеля",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: в sources/ нет PDF, числа собраны из веба и business_model.md; многие ряды (NIM, CoR, CIR, резервы, опер. доходы/расходы) не раскрыты — оставлены null, НЕ выдуманы.",
+    "Собственный капитал 2024-2025 (5.5 / 3.5 млрд) — оценка из business_model.md; после списания суборда 1 млрд и докапитализации 3.5 млрд точная величина капитала ЦБ не раскрыта. ROE и P/BV производны от этой оценки.",
+    "Число акций: MOEX=250 000, smart-lab/banki=280 300. Использовано 250 000 (официальный ISSUESIZE). При 280 300 капитализация ~6.34 млрд, P/BV ~1.81.",
+    "Н1.1=0.82% на 1 февраля 2026 (нарушение норматива, минимум 4.5%). Н1.0 (общий) отдельно не раскрыт — оставлен в capital_adequacy только базовый.",
+    "Чистая прибыль 2024: РСБУ −1.824 млрд, МСФО −1.17 млрд — взят РСБУ для согласованности ряда. 2025 убыток ~−4.25 млрд (РСБУ).",
+    "Оценка (валюация): все модельные методы → insufficient_data / not_applicable. Коридор 4 200-8 400 ₽ — book-value-anchored с дисконтом за дистресс, ориентировочный, НЕ модельный.",
+    "relative_peers и peer_multiples sector-медиана — status pending_sector_backfill, ждут sectors/finance/peers.json."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 12352.8,
+    "upside_downside_pct": -45.3,
+    "status": "reference_only"
+  }
+}

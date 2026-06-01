@@ -1,0 +1,493 @@
+{
+  "meta": {
+    "ticker": "URKZ",
+    "name": "ПАО «Уральская кузница»",
+    "sector": "metals_mining",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 250.6,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 54776100,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      15100.0,
+      21300.0,
+      21800.0,
+      23500.0,
+      18900.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      926.0,
+      3510.0,
+      5530.0,
+      6670.0,
+      3410.0
+    ],
+    "ebitda": [
+      1270.0,
+      5840.0,
+      7000.0,
+      7580.0,
+      3770.0
+    ],
+    "da": [
+      344.0,
+      2330.0,
+      1470.0,
+      910.0,
+      360.0
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      2080.0,
+      4850.0,
+      6150.0,
+      8880.0,
+      6570.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        8.4,
+        27.4,
+        32.1,
+        32.3,
+        19.9
+      ],
+      "operating_margin": [
+        6.1,
+        16.5,
+        25.4,
+        28.4,
+        18.0
+      ],
+      "net_margin": [
+        13.8,
+        22.8,
+        28.2,
+        37.8,
+        34.8
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      39900.0,
+      45700.0,
+      52700.0,
+      62600.0,
+      68500.0
+    ],
+    "total_equity": [
+      33800.0,
+      38700.0,
+      44800.0,
+      53700.0,
+      60300.0
+    ],
+    "total_liabilities": [
+      6100.0,
+      7000.0,
+      7900.0,
+      8900.0,
+      8200.0
+    ],
+    "cash": [
+      126.0,
+      2170.0,
+      430.0,
+      194.0,
+      105.0
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      1930.0,
+      -470.0,
+      1140.0,
+      1180.0,
+      4110.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.06,
+        0.04,
+        0.04,
+        0.03,
+        0.07
+      ],
+      "net_debt_ebitda": [
+        1.52,
+        -0.08,
+        0.16,
+        0.16,
+        1.09
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      2020.0,
+      1810.0,
+      3100.0,
+      4950.0,
+      -3530.0
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      215.0,
+      260.0,
+      480.0,
+      399.0,
+      347.0
+    ],
+    "fcf": [
+      1660.0,
+      1230.0,
+      2500.0,
+      -46.0,
+      -2930.0
+    ],
+    "ratios": {
+      "fcf_margin": [
+        11.0,
+        5.8,
+        11.5,
+        -0.2,
+        -15.5
+      ],
+      "cfo_to_capex": [
+        9.4,
+        7.0,
+        6.5,
+        12.4,
+        -10.2
+      ],
+      "capex_to_revenue": [
+        1.4,
+        1.2,
+        2.2,
+        1.7,
+        1.8
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      6.2,
+      12.5,
+      13.7,
+      16.5,
+      10.9
+    ],
+    "roa": [
+      5.2,
+      10.6,
+      11.7,
+      14.2,
+      9.6
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      13.8,
+      22.8,
+      28.2,
+      37.8,
+      34.8
+    ],
+    "asset_turnover": [
+      0.38,
+      0.47,
+      0.41,
+      0.38,
+      0.28
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      1.55,
+      2.09
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.58,
+      0.73
+    ],
+    "pb": [
+      0.26,
+      0.23,
+      0.33,
+      0.26,
+      0.23
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      1.97,
+      4.73
+    ],
+    "current": {
+      "pe": 2.09,
+      "ps": 0.73,
+      "pb": 0.23,
+      "ev_ebitda": 4.73,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 1.9,
+      "period": "2024-2025 (ликвидные данные только за 2 года)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.09,
+      "ps": 0.73,
+      "pb": 0.23,
+      "ev_ebitda": 4.73,
+      "ev_sales": 0.94,
+      "p_fcf": null
+    },
+    "2024": {
+      "pe": 1.55,
+      "ps": 0.58,
+      "pb": 0.26,
+      "ev_ebitda": 1.97,
+      "ev_sales": 0.63,
+      "p_fcf": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сравнение с конкурентами по сектору металлургии/машиностроения будет добавлено после прогона остальных компаний сектора. Прямые аналоги-кузнечные заводы на бирже почти отсутствуют."
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "URKZ — кэптивное казначейство группы «Мечел», а не нормальный производитель поковок. ~67 из ~83 млрд руб. активов (РСБУ) — это займы, выданные «Мечелу» и связанным сторонам (в 2024 выдано 47,4 млрд, из них 36,1 млрд — «Мечелу»; дебиторка по связанным сторонам ~51 млрд на 31.12.2024). Формально по standalone-балансу компания почти «чистый кэш» (net_debt 1-4 млрд, ND/EBITDA ~0.2-1.1, P/B 0.23), НО это иллюзия: бóльшая часть «капитала» обеспечена ВНУТРИГРУППОВОЙ дебиторкой к материнской компании с рейтингом A-(негативный). Чистая маржа 35-38% невозможна для металлообработки — это процентный доход по займам группе, а не операционная рентабельность поковок. При обесценении требований к «Мечелу» обнуляется значительная часть прибыли и капитала. EBITDA за 2024 компания/агрегатор не раскрыли — оценена как операционная прибыль + медианная амортизация (data_flag).",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия URKZ нет (малоликвидная бумага, free-float минимальный). Прибыль зависит от ключевой ставки (процентный доход по займам группе) и от платёжеспособности «Мечела» — нерепрезентативна для механического прогноза. DCF неприменим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 228.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 1.9,
+          "basis": "медиана P/E 2024-2025 × EPS 2025 (≈119,9 руб)"
+        }
+      },
+      {
+        "method": "pb_adjusted",
+        "fair_value_per_share": 822.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "book_value_per_share": 1101,
+          "haircut": "30% на ~51 млрд внутригрупповой дебиторки к «Мечелу»",
+          "note": "Теоретический потолок по балансу; рынок этот апсайд не платит из-за риска на «Мечел» и неликвидности."
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "note": "Ke = 14.6 + 1.1×9.0. Целевая цена не считается: прибыль доминирована процентным доходом, дивидендов нет, бумага неликвидна — модель неинформативна."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 228.0,
+      "base": 525.0,
+      "current_price": 250.6,
+      "upside_downside_pct": 109.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "РСБУ/МСФО-отчётность ПАО «Уралкуз» (e-disclosure.ru)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финпоказатели МСФО URKZ (выручка, EBITDA, прибыль, активы, капитал, долг, CFO, CapEx, FCF, P/BV)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "finviewer.ru — чистая прибыль и чистые активы по периодам",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "iss.moex.com — цена 250,6 руб, ISSUESIZE 54 776 100 акций, mcap 13,73 млрд",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "smart-lab аналитика по облигациям/связанным сторонам — займы группе ~67/83 млрд активов, дебиторка к «Мечелу» ~51 млрд",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "EBITDA 2024 не раскрыта агрегаторами — оценена как операционная прибыль (6,67 млрд) + медианная амортизация (0,91 млрд) ≈ 7,58 млрд; D&A по годам частично реконструирована.",
+    "COGS, валовая прибыль, разбивка долга (кратко/долгосрочный), CFI/CFF, current_ratio, ROIC не раскрыты публично → null.",
+    "net_debt и ND/EBITDA даны на STANDALONE-основе (по данным агрегатора) — НЕ учитывают, что компания сама является крупным кредитором группы; экономически это не чистая денежная позиция, а концентрация кредитного риска на «Мечеле».",
+    "Чистая маржа 35-38% обусловлена процентным доходом по займам группе, а не операционной рентабельностью поковок — мультипликаторы P/E и EV/EBITDA искажены этим доходом.",
+    "2025 — предварительные данные (9 мес.: выручка 14,04 млрд −19,3%, прибыль 5,59 млрд −16,7%; годовые оценочные). CFO 2025 отрицательный (−3,53 млрд) из-за роста выдачи внутригрупповых займов.",
+    "Коридор цены: методы расходятся в разы (228 руб по P/E против 822 руб по скорр. балансу) — типично для кэптивной структуры; верхняя граница теоретическая и рынком не оплачивается. Базовая оценка 525 руб условна, надёжность низкая.",
+    "Данных за 2019-2020 в разрезе баланса/EBITDA нет → ряд начат с 2021.",
+    "relative_peers и DCF не заполнены (нет аналогов/прогноза) — status pending/insufficient_data."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

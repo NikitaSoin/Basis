@@ -611,11 +611,11 @@
     "Текущая цена содержит спекулятивную опционную премию на снятие санкций — фундаментальными методами не оценивается."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 148.54,
+    "upside_downside_pct": -29.0,
+    "status": "reference_only"
   },
   "anomaly_flag": true,
   "anomaly_note": "Биржа под санкциями — основной бизнес разрушен, прибыль из процентов; мультипликаторы ненадёжны."

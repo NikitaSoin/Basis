@@ -1,0 +1,625 @@
+{
+  "meta": {
+    "ticker": "WTCMP",
+    "name": "ПАО «Центр международной торговли» (прив.)",
+    "sector": "Недвижимость / Коммерческая рентная",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 12.18,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 1245.0,
+    "shares_breakdown": {
+      "ordinary_WTCM": 1083.0,
+      "preferred_WTCMP": 162.0,
+      "unit": "млн шт"
+    },
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "ДВА БИЗНЕСА В ОДНОМ. (1) Рентный комплекс (~10,2 млрд ₽ выручки, EBITDA-маржа ~43%). (2) Денежный фонд: ~20,7 млрд ₽ на депозитах. EV/EBITDA отрицательный (-0,83x) и ND/EBITDA = -4,66x потому что чистая денежная позиция превышает капитализацию — классический EV/EBITDA не работает как 'дёшево/дорого'. Скачок чистой прибыли 2025 (+77%) обеспечен процентными доходами с депозитов (~3,7 млрд ₽ при ключевой ставке ~14,5%), а не арендой — при снижении ставки эта надбавка к прибыли сократится. Капитализация (~17,0 млрд ₽) ниже чистых активов (60,7 млрд ₽), P/BV=0,28x — для asset-heavy недвижимости значимая часть стоимости в балансе, а не в P/E.",
+    "is_pref": true,
+    "linked_common": "WTCM",
+    "pref_to_common_ratio": 0.876,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной WTCM. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.876 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      6600,
+      6870,
+      8360,
+      9590,
+      10200
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      2620,
+      770,
+      2560,
+      3360,
+      3880
+    ],
+    "ebitda": [
+      null,
+      null,
+      3210,
+      1300,
+      3020,
+      3940,
+      4440
+    ],
+    "da": [
+      null,
+      null,
+      590,
+      530,
+      460,
+      580,
+      560
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0
+    ],
+    "net_profit": [
+      null,
+      null,
+      2100,
+      670,
+      3600,
+      3110,
+      5500
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        48.64,
+        18.92,
+        36.12,
+        41.08,
+        43.53
+      ],
+      "operating_margin": [
+        null,
+        null,
+        39.7,
+        11.21,
+        30.62,
+        35.04,
+        38.04
+      ],
+      "net_margin": [
+        null,
+        null,
+        31.82,
+        9.75,
+        43.06,
+        32.43,
+        53.92
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      56000,
+      56500,
+      62400,
+      67600,
+      73400
+    ],
+    "total_equity": [
+      null,
+      null,
+      46900,
+      47500,
+      52800,
+      55600,
+      60700
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      9100,
+      9000,
+      9600,
+      12000,
+      12700
+    ],
+    "cash": [
+      null,
+      null,
+      1170,
+      3490,
+      12800,
+      16600,
+      20700
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0
+    ],
+    "net_debt": [
+      null,
+      null,
+      -1170,
+      -3490,
+      -12800,
+      -16600,
+      -20700
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -0.36,
+        -2.68,
+        -4.24,
+        -4.21,
+        -4.66
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      2010,
+      2120,
+      1980,
+      2300,
+      1590
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      195,
+      470,
+      378,
+      337,
+      226
+    ],
+    "fcf": [
+      null,
+      null,
+      1815,
+      1650,
+      1602,
+      1963,
+      1364
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        27.5,
+        24.02,
+        19.16,
+        20.47,
+        13.37
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        10.31,
+        4.51,
+        5.24,
+        6.82,
+        7.04
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        2.95,
+        6.84,
+        4.52,
+        3.51,
+        2.22
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      4.48,
+      1.41,
+      6.82,
+      5.59,
+      9.06
+    ],
+    "roa": [
+      null,
+      null,
+      3.75,
+      1.19,
+      5.77,
+      4.6,
+      7.49
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      31.82,
+      9.75,
+      43.06,
+      32.43,
+      53.92
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.12,
+      0.12,
+      0.13,
+      0.14,
+      0.14
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.72
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.46
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.25
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -0.83
+    ],
+    "current": {
+      "pe": 2.72,
+      "ps": 1.46,
+      "pb": 0.25,
+      "ev_ebitda": -0.83,
+      "as_of": "2026-06-01"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 3.1,
+        "ps": 1.67,
+        "pb": 0.28,
+        "ev_ebitda": -0.83,
+        "ev_sales": null,
+        "div_yield": null
+      },
+      "2024": {
+        "pe": 5.39,
+        "ps": 1.75,
+        "pb": 0.3,
+        "ev_ebitda": 0.03,
+        "ev_sales": null,
+        "div_yield": null
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.66,
+      "pe_5y_median": 4.72,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      5.0,
+      5.0,
+      4.0,
+      4.0,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      -15.0,
+      -5.0,
+      2.0,
+      3.0,
+      3.5
+    ],
+    "note": "Брокерское покрытие WTCM практически отсутствует (низкий free-float, контроль ТПП РФ ~51%). Прогноз механический. Выручка аренды растёт умеренно (загрузка офисов уже 98,7% — потолок, дальше только индексация ставок). Чистая прибыль в 2026-2027 ожидаемо снижается: при снижении ключевой ставки процентные доходы с депозитов (~3,7 млрд ₽ в 2025) падают — а они дали значимую часть скачка прибыли 2025."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 29.02,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.196,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "beta": 0.6,
+          "ke": 0.196,
+          "base_fcff_2025_mln": 3244,
+          "net_cash_added_mln": 20700
+        },
+        "tv_share_of_value_pct": 47.8,
+        "status": "ok",
+        "note": "FCFF от нормализованного ядра (NOPAT + амортизация − CapEx, оборотный капитал ≈0), WACC≈Ke (долга нет). К стоимости операционного бизнеса добавлена чистая денежная позиция 20,7 млрд ₽. Доля чистого кэша в оценке велика — цена чувствительна к тому, как рынок оценивает 'запертые' на депозитах деньги (исторически дисконт из-за низкого реинвестирования и контроля мажоритария)."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 20.86,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.39,
+          "basis": "5y_median",
+          "eps_2025": 4.418
+        },
+        "note": "Медиана P/E 2021-2025. EPS 2025 завышен разовым уровнем процентных доходов — справедливая цена по этому методу частично отражает временно высокую прибыль."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор коммерческой рентной недвижимости РФ на платформе ещё не собран (peers.json отсутствует). Кроме того, EV/EBITDA для ЦМТ отрицателен из-за чистой денежной позиции — для этой компании корректнее P/BV-сравнение."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 19.36,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2,
+          "beta": 0.6,
+          "implied_pe": 5.0,
+          "eps_2025": 4.418
+        },
+        "note": "Ориентир P/E ≈ 1/Ke при Ke=20%. Таргет на 12 мес."
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 4.22,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_2025": 0.964,
+          "required_yield": 0.2,
+          "payout_2025_pct": 22
+        },
+        "status": "distorted_low_payout",
+        "note": "ИСКЛЮЧЁН из итогового коридора. Плоская модель Гордона по дивидендам резко занижает стоимость, потому что payout всего ~22% — компания копит кэш, а не распределяет. Метод не отражает накопленную денежную подушку 20,7 млрд ₽."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 22.09,
+      "base": 23.81,
+      "current_price": 13.9,
+      "upside_downside_pct": 71.3,
+      "note": "Коридор по кластеру CAPM / historical_pe / DCF (22-33 ₽). Дивидендный метод исключён (искажён низким payout). Главная оговорка: ~half стоимости — это чистый кэш на депозитах, который рынок исторически дисконтирует; реализация апсайда зависит от решений мажоритария (ТПП РФ) о распределении средств."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.18,
+        0.196,
+        0.21
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          34.68,
+          35.39,
+          36.22
+        ],
+        [
+          32.97,
+          33.53,
+          34.16
+        ],
+        [
+          31.73,
+          32.18,
+          32.68
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — ЦМТ (WTCM/WTCMP), годовая отчётность МСФО 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — котировки и параметры выпусков WTCM/WTCMP (цена, ISSUESIZE)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "finviewer.ru / conomy.ru — финансовые и операционные результаты ЦМТ 2025",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "backend/companies/WTCM/business_model.md — бизнес-модель, структура выручки, операционные метрики",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Данные 2019-2020 не раскрыты в использованных веб-источниках (smart-lab начинает с 2021) → null. data_quality=medium.",
+    "Амортизация (da) реконструирована как EBITDA − операционная прибыль; точная разбивка из отчёта МСФО не выгружалась.",
+    "CapEx, CFO, FCF взяты с агрегатора (smart-lab); FCF в JSON пересчитан как CFO − CapEx и НЕ совпадает с агрегаторским FCF (агрегатор показывал ~4,47 млрд ₽ за 2025, что, вероятно, включает приток от реализации финвложений/процентов, а не чистый операционный FCF). Помечено как требующее сверки по официальному МСФО.",
+    "Чистый долг отрицательный во всех годах (долга нет; кэш и депозиты превышают обязательства). EV отрицательный → EV/EBITDA как мультипликатор 'дороговизны' неинформативен.",
+    "Процентные доходы (~3,7 млрд ₽ в 2025) — ключевой драйвер чистой прибыли; точная сумма и налог на прибыль по компании отдельно не детализированы в источниках.",
+    "Дивиденд 2025 (1,2 млрд ₽ всего) и payout ~22% — оценка от агрегированных данных; точная DPS по WTCM и WTCMP раздельно не выверена.",
+    "relative_peers: сектор коммерческой рентной недвижимости РФ на платформе не собран — status pending_sector_backfill.",
+    "Оценка чувствительна к тому, как учитывать ~20,7 млрд ₽ чистого кэша: при полном зачёте по номиналу справедливая цена выше текущей на 60-70%, но рынок исторически держит P/BV ~0,28x из-за низкого реинвестирования и контроля мажоритария."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": null,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

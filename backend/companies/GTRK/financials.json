@@ -1,0 +1,497 @@
+{
+  "meta": {
+    "ticker": "GTRK",
+    "name": "ПАО «Глобалтрак Менеджмент» (Globaltruck)",
+    "sector": "Транспорт / автомобильные грузоперевозки (FTL)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "last_price": 60.7,
+    "price_date": "2026-05-28",
+    "shares_outstanding": 58462120,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      10000,
+      12400,
+      15400,
+      20000,
+      10700
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      1000
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      321,
+      525,
+      454,
+      1520,
+      -120
+    ],
+    "ebitda": [
+      970,
+      1060,
+      880,
+      1100,
+      247
+    ],
+    "da": [
+      649,
+      535,
+      426,
+      null,
+      367
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      66,
+      191,
+      100,
+      440,
+      -1080
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        9.35
+      ],
+      "ebitda_margin": [
+        9.7,
+        8.55,
+        5.71,
+        5.5,
+        2.31
+      ],
+      "operating_margin": [
+        3.21,
+        4.23,
+        2.95,
+        7.6,
+        -1.12
+      ],
+      "net_margin": [
+        0.66,
+        1.54,
+        0.65,
+        2.2,
+        -10.09
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      9910,
+      10900,
+      10800,
+      14900,
+      12700
+    ],
+    "total_equity": [
+      4930,
+      5100,
+      5190,
+      6070,
+      5820
+    ],
+    "total_liabilities": [
+      4980,
+      5800,
+      5610,
+      8830,
+      6880
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      2890,
+      2600,
+      1850,
+      4650,
+      3810
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        2.98,
+        2.45,
+        2.1,
+        4.23,
+        15.43
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      550,
+      474,
+      600,
+      -700,
+      -1080
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      300,
+      670,
+      330,
+      160,
+      1020
+    ],
+    "fcf": [
+      250,
+      -196,
+      270,
+      -860,
+      -2100
+    ],
+    "ratios": {
+      "fcf_margin": [
+        2.5,
+        -1.58,
+        1.75,
+        -4.3,
+        -19.63
+      ],
+      "cfo_to_capex": [
+        1.83,
+        0.71,
+        1.82,
+        -4.38,
+        -1.06
+      ],
+      "capex_to_revenue": [
+        3.0,
+        5.4,
+        2.14,
+        0.8,
+        9.53
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      1.34,
+      3.75,
+      1.93,
+      7.25,
+      -18.56
+    ],
+    "roa": [
+      0.67,
+      1.75,
+      0.93,
+      2.95,
+      -8.5
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      0.66,
+      1.54,
+      0.65,
+      2.2,
+      -10.09
+    ],
+    "asset_turnover": [
+      1.01,
+      1.14,
+      1.43,
+      1.34,
+      0.84
+    ]
+  },
+  "multiples": {
+    "pe": [
+      36.7,
+      8.86,
+      29.6,
+      74.1,
+      -12.0
+    ],
+    "ps": [
+      0.24,
+      0.14,
+      0.19,
+      1.63,
+      1.22
+    ],
+    "pb": [
+      0.5,
+      0.35,
+      0.62,
+      5.81,
+      2.38
+    ],
+    "ev_ebitda": [
+      5.48,
+      4.05,
+      5.46,
+      33.9,
+      68.2
+    ],
+    "current": {
+      "pe": -3.29,
+      "ps": 0.33,
+      "pb": 0.61,
+      "ev_ebitda": 29.79,
+      "ev_revenue": 0.69,
+      "p_fcf": -1.69,
+      "as_of": "2026-05-28"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2020-2024 (искажён, не применим — есть убыточные годы и год смены контроля)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": 0.61,
+      "ev_ebitda": null,
+      "ev_revenue": 0.69,
+      "p_fcf": null
+    },
+    "2024": {
+      "pe": -12.0,
+      "ps": 1.22,
+      "pb": 2.38,
+      "ev_ebitda": 68.2,
+      "ev_revenue": null,
+      "p_fcf": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "История нерепрезентативна: обвал выручки −46.6% в 2024, переход в убыток, смена контроля (группа «Монополия», 2023). Брокерского покрытия с консенсус-прогнозом по малоликвидному GTRK не найдено. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1
+        },
+        "status": "ok",
+        "note": "Ke=Rf 14.6% + beta 1.1 × ERP 9.0% = 24.5% — требуемая годовая доходность. Целевой цены не даёт: нет прибыли/дивидендов для расчёта (P/E≈1/Ke неприменим к убытку)."
+      },
+      {
+        "method": "book_value",
+        "fair_value_per_share": 99.55,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps_2024": 99.55,
+          "applied_pb": "0.4-0.7x"
+        },
+        "status": "ok",
+        "note": "Балансовая стоимость на акцию = капитал 5820 млн / 58.46 млн акций = 99.6 ₽. Текущая цена 60.7 ₽ = 0.61× балансовой. Для убыточного капиталоёмкого перевозчика с высоким долгом дисконт к балансу оправдан."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 40,
+      "base": 70,
+      "current_price": 60.7,
+      "upside_downside_pct": 15.3
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Глобалтрак Менеджмент» — раскрытие, выручка 2024 −46.6% до 10.7 млрд, чистый убыток 1.08 млрд (Интерфакс)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО GTRK (revenue, EBITDA, net profit, net debt, CapEx, CFO, мультипликаторы)",
+      "period": "2020-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "Московская биржа — карточка эмитента GTRK, issue size 58 462 120 акций",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "investfunds/RBC — котировка GTRK 60.7 ₽ на 28.05.2026",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "companies/GTRK/business_model.md — подтверждение эмитента, сегменты, структура выручки",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: в sources/ нет первичной отчётности (PDF), большинство рядов взято с агрегатора smart-lab (МСФО) и не сверено с официальным отчётом компании.",
+    "Чистая прибыль 2023: расхождение источников — 882 млн ₽ (раскрытие компании/Интерфакс) против 440 млн ₽ (smart-lab). В ряд income_statement взято 440 млн ₽ для внутренней согласованности ряда smart-lab; в бизнес-модели фигурирует 882 млн ₽. Требует сверки с официальным отчётом.",
+    "FCF пересчитан кодом как CFO−CapEx и расходится с FCF на smart-lab (например 2024: −2100 млн расчётно против −1580 млн у агрегатора; 2023: −860 против −1120). Вероятная причина — разный учёт лизинговых платежей и прочих инвестиций; рекомендуется сверить по отчёту о движении денежных средств.",
+    "DA (амортизация) за 2020-2022 и 2024 реконструирована как EBITDA−operating_profit; 2023 не считается из-за аномалии (op_profit 1520 > EBITDA 1100 по данным агрегатора — вероятна ошибка/разовый эффект в строке операционной прибыли smart-lab).",
+    "EV/EBITDA current (29.8x) посчитан от текущей цены 60.7 ₽; историческое значение 2024 (68.2x) на smart-lab считалось от средней цены года (~105 ₽). Оба знаменателя EBITDA малы → мультипликатор крайне чувствителен.",
+    "ROE/ROA посчитаны от капитала/активов на конец года (средние значения за период недоступны).",
+    "Структура долга (кратко/долгосрочный, кэш, лизинг) и денежные потоки CFI/CFF публично не детализированы → null.",
+    "ANOMALY 2024: чистый убыток, ND/EBITDA=15.4x, EV/EBITDA=68x, ROE=−18.6%. LTM (2025): EBITDA отрицательна, чистый убыток ~−2.2 млрд ₽ по агрегатору — ситуация продолжает ухудшаться.",
+    "relative_peers status=pending_sector_backfill — медиана по сектору автоперевозок не собрана (нет других публичных FTL-аналогов на МосБирже).",
+    "Коридор справедливой цены 40–70 ₽ опирается на балансовую стоимость с дисконтом (0.4–0.7× BVPS 99.6 ₽), а не на доходные методы — для убыточной компании это наиболее устойчивый якорь; оценка ориентировочная, надёжность низкая."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "2024: выручка −46.6% до 10.7 млрд ₽, EBITDA схлопнулась до 0.25 млрд ₽ (маржа 2.3%), чистый убыток −1.08 млрд ₽, ND/EBITDA=15.4x, EV/EBITDA=68x, ROE=−18.6%. Доходные мультипликаторы (P/E, EV/EBITDA, P/FCF) отрицательны или искажены малым знаменателем и не информативны. LTM 2025 — дальнейшее ухудшение (отрицательная EBITDA).",
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.01,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

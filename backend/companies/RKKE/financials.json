@@ -1,0 +1,433 @@
+{
+  "meta": {
+    "ticker": "RKKE",
+    "name": "ПАО «РКК «Энергия» им. С.П. Королёва»",
+    "sector": "machinery_space",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "last_price": 13400,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 1842049,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ],
+    "company_notes": "Госкорпорация под контролем Роскосмоса (~93% акций и выручки). Гособоронзаказ/пилотируемая космонавтика, ограниченное раскрытие, волатильная прибыль, ОТРИЦАТЕЛЬНЫЙ собственный капитал во всех годах. Малоликвидная бумага, доступна только квалифицированным инвесторам."
+  },
+  "income_statement": {
+    "revenue": [
+      46800,
+      50200,
+      50200,
+      60400
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1750,
+      2110,
+      315,
+      -377
+    ],
+    "ebitda": [
+      3020,
+      2230,
+      1390,
+      658
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      1740,
+      342,
+      511,
+      1330
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        6.45,
+        4.44,
+        2.77,
+        1.09
+      ],
+      "operating_margin": [
+        3.74,
+        4.2,
+        0.63,
+        -0.62
+      ],
+      "net_margin": [
+        3.72,
+        0.68,
+        1.02,
+        2.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      104400,
+      99200,
+      112200,
+      131300
+    ],
+    "total_equity": [
+      -3470,
+      -3100,
+      -1560,
+      -2120
+    ],
+    "total_liabilities": [
+      107870,
+      102300,
+      113760,
+      133420
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      0,
+      4000,
+      14700,
+      8770
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        0.0,
+        1.79,
+        10.58,
+        13.33
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      1.67,
+      0.34,
+      0.46,
+      1.01
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      3.72,
+      0.68,
+      1.02,
+      2.2
+    ],
+    "asset_turnover": [
+      0.45,
+      0.51,
+      0.45,
+      0.46
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 18.56,
+      "ps": 0.41,
+      "pb": -11.64,
+      "ev_ebitda": 50.84,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитывается — прибыль волатильна, капитал отрицателен, мультипликаторы не репрезентативны"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": 0.41,
+      "pb": null,
+      "ev_ebitda": 50.84,
+      "net_debt_ebitda": 13.33,
+      "roe": null
+    },
+    "2024": {
+      "pe": 18.56,
+      "ps": 0.41,
+      "pb": null,
+      "ev_ebitda": 50.84,
+      "net_debt_ebitda": 13.33,
+      "roe": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (малоликвидная бумага для квалинвесторов). История нерепрезентативна: прибыль волатильна и около нуля, операционный убыток в 2024, собственный капитал отрицателен. Механический прогноз дал бы ложную точность — не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 1.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6 + 1.0*9.0 = 23.6%; CAPM-таргет не считаем — нет устойчивой базовой прибыли/дивиденда для привязки."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 13100,
+      "base": 16400,
+      "current_price": 13400,
+      "upside_downside_pct": 22.0,
+      "method_note": "Единственный применимый ориентир — диапазон по P/S 0.4–0.6 к выручке 2024 (60,4 млрд ₽): 13 100–19 700 ₽; conservative=нижняя граница, base=середина ~16 400 ₽. Оценка ОРИЕНТИРОВОЧНАЯ и ненадёжная — см. data_flags."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — RKKE МСФО годовая отчётность",
+      "period": "2021-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX — объём выпуска 1 842 049 акций, ISIN RU0009095939",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "financemarker.ru / cbonds — финрезультаты RKKE",
+      "period": "2024",
+      "reliability": "low"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md RKKE (внутренний)",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ГОСКОРПОРАЦИЯ/РОСКОСМОС: ~93% акций и выручки у Роскосмоса; ценообразование госконтрактами, рыночной силы по цене нет.",
+    "ГОСОБОРОНЗАКАЗ / ограниченное раскрытие: COGS, opex, CapEx, FCF, денежные потоки, разбивка выручки НЕ раскрываются — массивы null.",
+    "ОТРИЦАТЕЛЬНЫЙ собственный капитал во ВСЕХ годах (−3,5 … −1,6 млрд ₽) → P/BV и ROE не имеют экономического смысла, помечены null.",
+    "ВОЛАТИЛЬНАЯ ПРИБЫЛЬ около нуля: чистая прибыль 0,3–1,7 млрд ₽ без устойчивого тренда; операционный УБЫТОК в 2024.",
+    "ANOMALY: EBITDA сжалась 3020→658 млн ₽ (2021→2024), из-за чего EV/EBITDA взлетел до ~51x, а ND/EBITDA до ~13x — мультипликаторы искажены и не сопоставимы.",
+    "Источники расходятся по 2024 (выручка 51,6 vs 60,4 млрд ₽ РСБУ/МСФО; чистый результат от +1,3 до −1,35 млрд ₽). Взяты значения МСФО smart-lab; считать ОРИЕНТИРОМ.",
+    "2025 отчётность ещё не опубликована — последний полный год 2024.",
+    "DCF/historical_pe/CAPM невозможны (нет FCF, нет устойчивой прибыли, отрицательный капитал). relative_peers — pending_sector_backfill (нет peers.json по космос/ОПК).",
+    "Дивиденды не платятся (2016–2024).",
+    "Малоликвидная бумага, доступна только квалифицированным инвесторам; цена 13 400 ₽ на 2026-06-01 при 15-мин задержке."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": -3815.3,
+    "upside_downside_pct": -128.5,
+    "status": "reference_only"
+  }
+}

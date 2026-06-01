@@ -795,10 +795,10 @@
     "Расхождение методов оценки очень велико (116–523 ₽) — прямое следствие искажения прибыли биоактивами и волатильности EBITDA. Итоговый коридор широкий, надёжность оценки НИЗКАЯ."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": null,
     "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "insufficient_data"
   }
 }

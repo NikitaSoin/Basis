@@ -1,0 +1,484 @@
+{
+  "meta": {
+    "ticker": "KLVZ",
+    "name": "ПАО «Алкогольная группа Кристалл» (Калужский ЛВЗ «Кристалл»)",
+    "sector": "consumer_alcohol",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 2.478,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 921052700,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      1390,
+      3570,
+      4920,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      48,
+      371,
+      478,
+      null
+    ],
+    "ebitda": [
+      null,
+      87,
+      -86,
+      -311,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      -277,
+      104,
+      -13,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        6.26,
+        -2.41,
+        -6.32,
+        null
+      ],
+      "operating_margin": [
+        null,
+        3.45,
+        10.39,
+        9.72,
+        null
+      ],
+      "net_margin": [
+        null,
+        -19.93,
+        2.91,
+        -0.26,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      4150,
+      4210,
+      5360,
+      7030
+    ],
+    "total_equity": [
+      null,
+      1240,
+      1190,
+      2230,
+      2190
+    ],
+    "total_liabilities": [
+      null,
+      2910,
+      3020,
+      3130,
+      4840
+    ],
+    "cash": [
+      null,
+      162,
+      30,
+      20,
+      40
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      830,
+      1050,
+      1310,
+      1800
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        0.8,
+        0.91,
+        0.6,
+        0.84
+      ],
+      "net_debt_ebitda": [
+        null,
+        9.54,
+        -12.21,
+        -4.21,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      89,
+      -335,
+      336,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      223,
+      558,
+      271,
+      null
+    ],
+    "fcf": [
+      null,
+      -134,
+      -893,
+      65,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        -9.64,
+        -25.01,
+        1.32,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        0.4,
+        -0.6,
+        1.24,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        16.04,
+        15.63,
+        5.51,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      -22.34,
+      8.74,
+      -0.58,
+      null
+    ],
+    "roa": [
+      null,
+      -6.67,
+      2.47,
+      -0.24,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      -19.93,
+      2.91,
+      -0.26,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      0.33,
+      0.85,
+      0.92,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      21.9,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      1.64,
+      0.64,
+      0.46,
+      null
+    ],
+    "pb": [
+      null,
+      1.84,
+      1.92,
+      1.02,
+      1.04
+    ],
+    "ev_ebitda": [
+      null,
+      35.8,
+      -38.7,
+      -11.6,
+      null
+    ],
+    "ev_sales": [
+      null,
+      2.24,
+      0.93,
+      0.73,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.46,
+      "pb": 1.04,
+      "ev_ebitda": -13.1,
+      "ev_sales": 0.83,
+      "as_of": "2026-06-01",
+      "note": "P/E и EV/EBITDA не определены: в 2024 чистый убыток и отрицательная EBITDA. P/E считается только по 2023 (последний год с прибылью). EV/EBITDA(тек) = EV(на тек. цене, ND 2025) / EBITDA 2024 (отриц.) — экономического смысла не несёт, оставлен как факт. ND/EBITDA(тек) = ND 2025 / EBITDA 2024 = -5.79 (отрицателен из-за отриц. EBITDA)."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недостаточно прибыльных лет (один год прибыли — 2023); медиана P/E не считается"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз невозможен: компания на IPO с 2024, история короткая и нерепрезентативная (прибыль 2023, убыток и отрицательная EBITDA 2024-2025, фаза агрессивных инвестиций). Брокерского консенсуса с раскрытыми моделями по KLVZ нет. Механический прогноз по средней выручке не строим — EBITDA отрицательна, экстраполяция вводит в заблуждение."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_sales",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1
+        },
+        "status": "reference_only",
+        "note": "Ke = 14.6 + 1.1×9.0 = 24.5% — требуемая доходность для малоликвидной small-cap (beta>1). Целевую цену не выводим: нет прогнозной прибыли/дивиденда. Ke служит порогом доходности."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.45,
+      "base": 1.52,
+      "current_price": 2.478,
+      "upside_downside_pct": -38.7,
+      "method_note": "Коридор получен ТОЛЬКО мультипликатором P/S к выручке МСФО ~4.92 млрд (cons P/S 0.45, base P/S 0.65) с вычетом чистого долга 1.8 млрд. Это единственный применимый метод при отрицательной EBITDA и убытке. Оценка крайне грубая; широкий разброс отражает низкое качество данных. upside_downside_pct указан к base."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — KLVZ годовая отчётность МСФО и баланс",
+      "period": "2022-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ISS MOEX — KLVZ: ISSUESIZE 921 052 700, ISIN RU000A107KX0, ур. листинга 3, цена",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md KLVZ — операционные результаты 2024-2025, структура продаж",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Т-Инвестиции / РБК / Investfunds — котировки, дивиденды KLVZ",
+      "period": "2024-2026",
+      "reliability": "medium"
+    }
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "(1) В источнике МСФО EBITDA за 2023-2024 ниже операционной прибыли (EBITDA 2024 = -311 при OpProfit +478), что невозможно для корректной EBITDA (EBITDA ≥ OpProfit на величину амортизации). Вероятно агрегатор подаёт нестандартную/скорректированную EBITDA (вычитает разовые/обесценения) либо ошибка периметра. Поэтому D&A не выводилась (da = null), а ev_ebitda/nd_ebitda на этих годах помечены как ненадёжные. (2) Расхождение периметра РСБУ (ООО «КЛВЗ Кристалл») и МСФО (ПАО АГК): выручка РСБУ-2025 = 4.759 млрд, МСФО-2024 = 4.92 млрд — годы и периметры путаются между источниками. (3) Отчётность МСФО за 2025 на дату анализа полностью не раскрыта (только баланс), P&L 2025 = null.",
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": 0.46,
+      "pb": 1.04,
+      "ev_ebitda": -13.1,
+      "ev_sales": 0.83,
+      "roe": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": 0.46,
+      "pb": 1.02,
+      "ev_ebitda": -11.6,
+      "ev_sales": 0.73,
+      "roe": -0.58
+    }
+  },
+  "data_flags": [
+    "data_quality=low: МСФО-2025 P&L не раскрыт (только баланс); P&L 2025 = null по всем строкам.",
+    "EBITDA из агрегатора непоследовательна (ниже операционной прибыли) — см. anomaly_note; ev_ebitda и nd_ebitda на 2023-2025 ненадёжны.",
+    "D&A, COGS, gross_profit, opex, finance_costs, short/long-term debt, CFI, CFF не раскрыты в доступных источниках — null.",
+    "cash восстановлен как debt − net_debt по данным агрегатора, не из прямого раскрытия.",
+    "Расхождение периметра РСБУ (ООО) и МСФО (ПАО АГК) — числа по годам требуют сверки с консолидированным МСФО-отчётом ПАО АГК за 2025.",
+    "P/E историческая медиана не считается — единственный прибыльный год (2023).",
+    "DCF и historical_pe = insufficient_data; relative_peers = pending_sector_backfill (нет peers.json по алкоголю).",
+    "Коридор справедливой цены построен только по P/S — крайне грубая оценка, широкий разброс."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

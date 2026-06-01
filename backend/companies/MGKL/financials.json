@@ -1,0 +1,499 @@
+{
+  "meta": {
+    "ticker": "MGKL",
+    "name": "ПАО «МГКЛ» (Мосгорломбард)",
+    "sector": "finance_retail",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 2.4805,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 1268545000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      422,
+      1430,
+      2200,
+      8700,
+      32000
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      52,
+      355,
+      785,
+      1180,
+      2300
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      480
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      800
+    ],
+    "net_profit": [
+      -107,
+      2,
+      332,
+      393,
+      724
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        12.32,
+        24.83,
+        35.68,
+        13.56,
+        7.19
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        -25.36,
+        0.14,
+        15.09,
+        4.52,
+        2.26
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1550,
+      2210,
+      3460,
+      4910,
+      10400
+    ],
+    "total_equity": [
+      280,
+      280,
+      500,
+      1060,
+      1770
+    ],
+    "total_liabilities": [
+      1270,
+      1930,
+      2960,
+      3850,
+      8630
+    ],
+    "cash": [
+      231,
+      115,
+      490,
+      1010,
+      4580
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      639,
+      1055,
+      1070,
+      1590,
+      1320
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        3.11,
+        4.18,
+        3.12,
+        2.45,
+        3.33
+      ],
+      "net_debt_ebitda": [
+        12.29,
+        2.97,
+        1.36,
+        1.35,
+        0.57
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      -312,
+      -401,
+      -268,
+      625,
+      2490
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      46,
+      5,
+      167,
+      109,
+      124
+    ],
+    "fcf": [
+      -358,
+      -406,
+      -435,
+      516,
+      2366
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -84.83,
+        -28.39,
+        -19.77,
+        5.93,
+        7.39
+      ],
+      "cfo_to_capex": [
+        -6.78,
+        -80.2,
+        -1.6,
+        5.73,
+        20.08
+      ],
+      "capex_to_revenue": [
+        10.9,
+        0.35,
+        7.59,
+        1.25,
+        0.39
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -38.2,
+      0.7,
+      85.1,
+      50.4,
+      51.2
+    ],
+    "roa": [
+      -6.9,
+      0.1,
+      11.7,
+      9.4,
+      9.5
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -25.36,
+      0.14,
+      15.09,
+      4.52,
+      2.26
+    ],
+    "asset_turnover": [
+      0.27,
+      0.65,
+      0.64,
+      1.77,
+      3.08
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      1966.0,
+      9.05,
+      7.68,
+      4.61
+    ],
+    "ps": [
+      9.32,
+      2.75,
+      1.37,
+      0.35,
+      0.1
+    ],
+    "pb": [
+      14.04,
+      14.04,
+      6.01,
+      2.85,
+      1.88
+    ],
+    "ev_ebitda": [
+      87.9,
+      14.05,
+      5.19,
+      3.91,
+      2.02
+    ],
+    "current": {
+      "pe": 4.35,
+      "ps": 0.1,
+      "pb": 1.78,
+      "ev_ebitda": 1.94,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 8.37,
+      "period": "2021-2025, годы 2021-2022 искажены (убыток/околонулевая прибыль)"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 4.35,
+        "ps": 0.1,
+        "pb": 1.78,
+        "ev_ebitda": 1.94,
+        "roe": 51.2,
+        "nd_ebitda": 0.57
+      },
+      "2024": {
+        "pe": 7.68,
+        "ps": 0.35,
+        "pb": 2.85,
+        "ev_ebitda": 3.91,
+        "roe": 50.4,
+        "nd_ebitda": 1.35
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "Синара",
+      "консенсус-агрегаторы (beststocks, stocksru)"
+    ],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Синара: таргет 5,2 руб на конец 2026 (Покупать). Консенсус 12м ~3,87-4,60 руб. Прогноз P/E снижается 3,0(2025)->2,4(2026); прогнозная дивдоходность 15%(2025)->19%(2026). Менеджмент: цель ЧП 4 млрд руб к 2030."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.196,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "beta": 1.2
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF волатилен и нерепрезентативен: отрицателен в 3 из 5 лет, в 2025 раздут разовым приростом кэша (1010->4580 млн) и оборотным капиталом оптовой торговли драгметаллами. Механический DCF даёт нереалистичные ~18 руб/акц — исключён из коридора."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 4.77,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 8.37,
+          "basis": "5y_median",
+          "eps_2025": 0.5707
+        },
+        "note": "Медиана P/E 8,37 (годы 2021-2022 искажены и исключены из выборки). База — прибыль 2025 (724 млн)."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Нет прямых публичных аналогов-ломбардов на МосБирже; сравнение по сектору finance_retail добирается после прогона сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 2.74,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 25.4,
+          "beta": 1.2,
+          "div_yield_assumed_pct": 15.0
+        },
+        "note": "Таргет 12м = цена×(1+(Ke−дивдоходность)). Ke=25,4% (rf 14,6 + beta 1,2 × ERP 9,0)."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2.74,
+      "base": 3.76,
+      "optimistic": 4.77,
+      "current_price": 2.4805,
+      "upside_downside_pct": 51.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab: годовая отчётность МСФО MGKL",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Пресс-релизы МГКЛ по МСФО 2025 (Ведомости, Интерфакс, AKM)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX ISS: котировка MGKL (TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Синара / консенсус-агрегаторы: таргеты MGKL 2026",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md MGKL",
+      "period": "2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Структура P&L раскрыта частично: COGS, операционная прибыль, D&A, финрасходы — оценочно/не раскрыты постатейно (D&A и проценты 2025 — оценка из business_model).",
+    "ROE по smart-lab (39,1% за 2025) считается на средний капитал иначе; пересчёт на среднегодовой капитал даёт ~51%. В JSON оставлен пересчёт по среднему капиталу; расхождение с публичной цифрой 39,1% помечено.",
+    "DCF неприменим: FCF нерепрезентативен (отрицателен в 3 из 5 лет, 2025 раздут приростом кэша и WC оптового сегмента). Оценка опирается на исторический P/E и CAPM; relative_peers ожидает секторного бэкфилла.",
+    "anomaly_flag: маржа EBITDA упала с 35,7% (2023) до 7,2% (2025) из-за взрывного роста низкомаржинального опта драгметаллами — структурный сдвиг, не ухудшение ядра.",
+    "D/E 3,33 при ND/EBITDA 0,57 — высокий валовый долг (11 облигационных выпусков, ставки 19-26%), но большой кэш снижает чистый долг; фаза роста с повышенной долговой нагрузкой.",
+    "Дивиденды 2024-2025 в годовых выгрузках не подтверждены однозначно; прогнозная дивдоходность 15-19% — из брокерских материалов."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Маржа EBITDA 35,7%(2023)->13,6%(2024)->7,2%(2025) и P/S 1,36->0,10: каскадное падение из-за роста оптового сегмента драгметаллов (~81% выручки, маржа 1-2%). Абсолютная EBITDA и прибыль при этом растут. Это структурный сдвиг микса, а не деградация бизнеса — учитывать при сравнении мультипликаторов с прошлыми годами.",
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 1.23,
+    "upside_downside_pct": -50.4,
+    "status": "reference_only"
+  }
+}

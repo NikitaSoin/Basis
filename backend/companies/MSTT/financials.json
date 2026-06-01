@@ -1,0 +1,570 @@
+{
+  "meta": {
+    "ticker": "MSTT",
+    "name": "ПАО «Мостотрест»",
+    "sector": "infrastructure_construction",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 96.5,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 282215500,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      4860,
+      3880,
+      3690,
+      3700,
+      7830
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      4034,
+      6500
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -344,
+      1330
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      905,
+      -21,
+      -1180,
+      -1200,
+      758.1
+    ],
+    "ebitda": [
+      null,
+      null,
+      1010,
+      116,
+      -1030,
+      -1200,
+      964
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      206
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      195.5,
+      1700
+    ],
+    "net_profit": [
+      null,
+      null,
+      830,
+      925,
+      -4,
+      109.4,
+      646.5
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        -9.3,
+        17.0
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        20.8,
+        3.0,
+        -27.9,
+        -32.4,
+        12.3
+      ],
+      "operating_margin": [
+        null,
+        null,
+        18.6,
+        -0.5,
+        -32.0,
+        -32.4,
+        9.7
+      ],
+      "net_margin": [
+        null,
+        null,
+        17.1,
+        23.8,
+        -0.1,
+        3.0,
+        8.3
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      8100,
+      18500,
+      21500,
+      25300,
+      25300
+    ],
+    "total_equity": [
+      null,
+      null,
+      3300,
+      4390,
+      4370,
+      4900,
+      5546
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      4800,
+      14110,
+      17130,
+      20400,
+      19754
+    ],
+    "cash": [
+      null,
+      null,
+      3100,
+      10600,
+      6850,
+      5000,
+      5000
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      -2810,
+      -10424,
+      -6653,
+      -4755,
+      -4755
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.09,
+        0.04,
+        0.05,
+        0.05,
+        0.04
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        -4.93
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      25.2,
+      21.1,
+      -0.1,
+      2.2,
+      11.7
+    ],
+    "roa": [
+      null,
+      null,
+      10.2,
+      5.0,
+      -0.02,
+      0.4,
+      2.6
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      17.1,
+      23.8,
+      -0.1,
+      3.0,
+      8.3
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.6,
+      0.21,
+      0.17,
+      0.15,
+      0.31
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      42.12
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3.48
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.91
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      23.32
+    ],
+    "current": {
+      "pe": 42.12,
+      "ps": 3.48,
+      "pb": 4.91,
+      "ev_ebitda": 23.32,
+      "ev_sales": 2.87,
+      "net_debt_ebitda": -4.93,
+      "as_of": "2026-06-01"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 42.12,
+        "ps": 3.48,
+        "pb": 4.91,
+        "ev_ebitda": 23.32,
+        "ev_sales": 2.87,
+        "net_debt_ebitda": -4.93
+      },
+      "2024": {
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": null,
+        "ev_sales": null,
+        "net_debt_ebitda": null
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недостаточно исторических котировок (низкая ликвидность)"
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Рыночная капитализация при цене 96,5 ₽ (~27,2 млрд ₽) кратно выше собственного капитала (~5,5 млрд ₽, P/B 4,9) и чистой прибыли (0,65 млрд ₽, P/E 42) остаточного ПАО с ~300 сотрудниками. EV/EBITDA ~23 при оценочной (не раскрытой) EBITDA. Free-float ~3%, третий котировальный список, контроль ~97% у структуры Ротенберга — котировка слабо ликвидна и плохо отражает фундаментал. Мультипликаторы трактовать с осторожностью.",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие отсутствует. Прибыль и выручка волатильны и проектны (зависят от наличия крупного госконтракта), финрезультат искажён крупными неденежными дисконтными расходами и разовыми доходами. Репрезентативного тренда для механического прогноза нет."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 23.6,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data",
+        "note": "Дивидендов нет с 2018; ожидаемая доходность не моделируется на нынешних данных."
+      },
+      {
+        "method": "fundamental_floor",
+        "fair_value_per_share": 19.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "basis": "P/E 4–6× к EPS 2025 (2,29 ₽) и балансовая стоимость 19,7 ₽/акц."
+        },
+        "status": "indicative"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 9.2,
+      "base": 19.7,
+      "current_price": 96.5,
+      "upside_downside_pct": -79.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Отчётность МСФО ПАО «Мостотрест» (по данным Интерфакса), якоря 2024–2025",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели MSFO MSTT",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "iss.moex.com — параметры выпуска MSTT (issuesize 282 215 500, листинг 3), котировки",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "backend/companies/MSTT/business_model.md — якоря выручки/прибыли, структура расходов",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: остаточное ПАО раскрывает минимум; EBITDA, CapEx, CFO/FCF, структура долга и портфель заказов не раскрыты.",
+    "EBITDA 2025 (~964 млн ₽) — ОЦЕНКА (операционная прибыль 758 + оценка амортизации ~206), не факт из отчёта. Все ev_ebitda/nd_ebitda производные — индикативные.",
+    "Чистая прибыль: 646,5 млн ₽ — прибыль акционеров (business_model.md); агрегатор smart-lab показывает ~533 млн ₽ итоговую. Использован показатель к акционерам.",
+    "Инфраструктурное строительство: авансы заказчиков и контрактные обязательства раздувают баланс (активы ~25 млрд при капитале ~5 млрд) и искажают чистый долг/оборотный капитал; «отрицательный чистый долг» (-4,75 млрд) во многом отражает авансовый кэш под обязательства, а не реальную денежную подушку акционеров.",
+    "Финансовые расходы 2025 (~1,7 млрд ₽) на ~1,6 млрд неденежные (амортизация дисконта по финобязательствам); прибыль вытянута прочими/разовыми доходами — финрезультат низкого качества и плохо предсказуем.",
+    "Прибыль волатильна и проектна: 2022 чистая прибыль 925 млн при операционном убытке (разовые статьи), 2023 около нуля, 2024 убыток операционный — тренда нет.",
+    "Историческая медиана P/E и DCF не считаются: нет надёжного ряда котировок (низкая ликвидность) и репрезентативного прогноза FCF.",
+    "ANOMALY: цена 96,5 ₽ даёт P/B 4,9 и P/E 42 на крошечный остаточный бизнес при free-float ~3% — котировка слабо ликвидна и оторвана от фундаментала; коридор справедливой стоимости (9–20 ₽) индикативный и существенно ниже рынка.",
+    "relative_peers: status=pending_sector_backfill — медиана сектора infrastructure_construction не собрана (sectors/ пуст)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": 25.89,
+    "upside_downside_pct": -73.2,
+    "status": "reference_only"
+  }
+}

@@ -714,10 +714,10 @@
     "Текущая рыночная цена ~24.97-25.0 руб (конец мая 2026) чуть ниже цены отчёта 26.275 руб (14.05.2026) — апсайд к рынку немного выше указанного."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": 39.49,
     "upside_downside_pct": 50.3,
-    "status": "ok",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "ok"
   }
 }

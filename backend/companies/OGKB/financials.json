@@ -1,0 +1,581 @@
+{
+  "meta": {
+    "ticker": "OGKB",
+    "name": "ПАО «ОГК-2»",
+    "sector": "Электроэнергетика (тепловая генерация)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.2572,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 136207331098,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      141.6,
+      143.4,
+      165.2,
+      180.1,
+      177.7
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      7.7,
+      16.8,
+      13.8,
+      12.5,
+      -2.09
+    ],
+    "ebitda": [
+      null,
+      null,
+      39.5,
+      38.8,
+      35.6,
+      31.1,
+      10.3
+    ],
+    "da": [
+      null,
+      null,
+      12.3,
+      11.1,
+      10.9,
+      10.8,
+      12.39
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      4.44,
+      12.8,
+      8.54,
+      10.5,
+      -1.78
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        27.9,
+        27.1,
+        21.5,
+        17.3,
+        5.8
+      ],
+      "operating_margin": [
+        null,
+        null,
+        5.4,
+        11.7,
+        8.4,
+        6.9,
+        -1.2
+      ],
+      "net_margin": [
+        null,
+        null,
+        3.1,
+        8.9,
+        5.2,
+        5.8,
+        -1.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      210.1,
+      204.9,
+      224.4,
+      223.1,
+      246.9
+    ],
+    "total_equity": [
+      null,
+      null,
+      142.8,
+      144.9,
+      147.1,
+      172.2,
+      162.2
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      67.3,
+      60.0,
+      77.3,
+      50.9,
+      84.7
+    ],
+    "cash": [
+      null,
+      null,
+      19.3,
+      0.016,
+      0.019,
+      0.0,
+      0.045
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      17.2,
+      31.48,
+      31.48,
+      21.2,
+      44.85
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.26,
+        0.22,
+        0.21,
+        0.12,
+        0.28
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        0.44,
+        0.81,
+        0.88,
+        0.68,
+        4.35
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      33.1,
+      20.7,
+      30.3,
+      24.7,
+      3.78
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      14.8,
+      20.3,
+      17.7,
+      35.9,
+      21.7
+    ],
+    "fcf": [
+      null,
+      null,
+      18.3,
+      0.4,
+      12.6,
+      -11.2,
+      -17.92
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        12.9,
+        0.3,
+        7.6,
+        -6.2,
+        -10.1
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        2.24,
+        1.02,
+        1.71,
+        0.69,
+        0.17
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        10.5,
+        14.2,
+        10.7,
+        19.9,
+        12.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      3.1,
+      8.8,
+      5.8,
+      6.1,
+      -1.1
+    ],
+    "roa": [
+      null,
+      null,
+      2.1,
+      6.2,
+      3.8,
+      4.7,
+      -0.7
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      3.1,
+      8.9,
+      5.2,
+      5.8,
+      -1.0
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      7.89,
+      2.74,
+      4.1,
+      3.34,
+      -19.68
+    ],
+    "ps": [
+      null,
+      null,
+      0.25,
+      0.24,
+      0.21,
+      0.19,
+      0.2
+    ],
+    "pb": [
+      null,
+      null,
+      0.25,
+      0.24,
+      0.24,
+      0.2,
+      0.22
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      1.32,
+      1.71,
+      1.87,
+      1.81,
+      7.76
+    ],
+    "current": {
+      "pe": -19.68,
+      "ps": 0.2,
+      "pb": 0.22,
+      "ev_ebitda": 7.76,
+      "p_fcf": -1.95,
+      "ev_sales": 0.45,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 3.72,
+      "ev_ebitda_5y_median": 1.81,
+      "pb_5y_median": 0.24,
+      "period": "2021-2025 (P/E медиана только по прибыльным годам 2021-2024)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -19.68,
+      "ps": 0.2,
+      "pb": 0.22,
+      "ev_ebitda": 7.76,
+      "ev_sales": 0.45,
+      "net_debt_ebitda": 4.35
+    },
+    "2024": {
+      "pe": 3.34,
+      "ps": 0.19,
+      "pb": 0.2,
+      "ev_ebitda": 1.81,
+      "ev_sales": 0.31,
+      "net_debt_ebitda": 0.68
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      1.3,
+      15.2,
+      9.0,
+      -1.3
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      188.3,
+      -33.3,
+      23.0,
+      -117.0
+    ],
+    "note": "Прогноз не строится механически: 2025 — структурный перелом из-за окончания ДПМ-платежей, историческая база рентабельности нерепрезентативна для будущего (КОМ-плата кратно ниже ДПМ). Покрытие аналитиков по OGKB ограничено. Будущая прибыль зависит от графика истечения остаточных ДПМ, ввода блоков по КОММод и цен КОМ — переменных, которые компания публично не детализирует."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF отрицателен в 2024-2025, прибыль и EBITDA после ДПМ резко упали, нормализованный уровень денежного потока неизвестен — DCF дал бы фиктивную точность. Ke=14.6+0.8*9.0=21.8% (beta 0.8 для регулируемой внутренней генерации)."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.72,
+          "basis": "5y_median (2021-2024)"
+        },
+        "status": "insufficient_data",
+        "note": "Текущая прибыль на акцию отрицательна (убыток 2025), поэтому historical_pe × EPS даёт отрицательную цену. Метод неприменим до восстановления прибыли."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медианный EV/EBITDA сектора тепловой генерации (Интер РАО, Юнипро, Мосэнерго, ТГК-1, ЭЛ5-Энерго) будет подставлен после прогона сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8
+        },
+        "status": "insufficient_data",
+        "note": "CAPM-таргет через P/E≈1/Ke неинформативен при убытке. Ke=21.8% задаёт требуемую доходность, но ожидаемый дивиденд/прибыль на 12 мес. не определён."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.238,
+      "base": 0.286,
+      "current_price": 0.2572,
+      "upside_downside_pct": 11.2,
+      "method_note": "Коридор построен по балансовой оценке P/BV (BVPS=1.19 ₽), так как доходные методы неприменимы из-за убытка и обрыва ДПМ. Нижняя граница — минимум исторического P/B (0.20×1.19=0.238); база — медиана P/B 2021-2025 (0.24×1.19=0.286). Это рыночно-балансовый ориентир, НЕ внутренняя стоимость на основе денежных потоков; коридор широкий и низконадёжный."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — ОГК-2 (OGKB) годовая отчётность МСФО",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — новость: МСФО 2025 выручка 177,72 млрд, чистый убыток -1,78 млрд",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "iss.moex.com — котировка OGKB (TQBR) и число акций (ISSUESIZE)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/OGKB/business_model.md — структура выручки, ДПМ, сегменты",
+      "period": "2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "anomaly_flag=true: 2025 — структурный обвал EBITDA -67% и переход в убыток из-за окончания ДПМ-платежей (см. anomaly_note). Прибыльные мультипликаторы 2025 (P/E, P/FCF) отрицательны и неинформативны.",
+    "Данные МСФО за 2019-2020 не раскрыты публично (ОГК-2 несколько лет не публиковала отдельную МСФО) — массивы за эти годы null.",
+    "Чистый убыток 2025 в источниках варьируется -1,78…-2,12 млрд ₽ в зависимости от учёта неконтролирующей доли; взято -1,78 (smart-lab).",
+    "Кэш с 2022 околонулевой (специфика кэш-пулинга внутри группы ГЭХ), поэтому net debt ≈ gross debt; ликвидность по балансу выглядит хуже реальной.",
+    "Разбивка долга на short/long term, finance_costs, CFI/CFF, current_ratio, ROIC из агрегаторов не выделены — null.",
+    "DA за 2025 (12,39) реконструирована как EBITDA − операционная прибыль; постатейная разбивка расходов не раскрыта.",
+    "P/B рассчитан от mcap=цена×136,21 млрд акций и собственного капитала; совпадает с BVPS=1,19 ₽ из источника. Расхождение с отдельными агрегаторами возможно из-за разной трактовки числа акций/НКД.",
+    "Оценка — только балансовый коридор P/BV; доходные методы (DCF, historical P/E, CAPM) помечены insufficient_data, relative_peers — pending_sector_backfill. Коридор низконадёжный."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": -0.12,
+    "upside_downside_pct": -146.7,
+    "status": "reference_only"
+  }
+}

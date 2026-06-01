@@ -1,0 +1,527 @@
+{
+  "meta": {
+    "ticker": "IVAT",
+    "name": "ПАО «ИВА» (IVA Technologies)",
+    "sector": "IT",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 97.5,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 100000000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      560,
+      1380,
+      2450,
+      3330,
+      3200
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      198,
+      1030,
+      1760,
+      1950,
+      1620
+    ],
+    "ebitda": [
+      432,
+      1070,
+      1950,
+      2330,
+      2200
+    ],
+    "da": [
+      234,
+      40,
+      190,
+      380,
+      580
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      188,
+      1000,
+      1760,
+      1900,
+      1420
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        77.1,
+        77.5,
+        79.6,
+        70.0,
+        68.8
+      ],
+      "operating_margin": [
+        35.4,
+        74.6,
+        71.8,
+        58.6,
+        50.6
+      ],
+      "net_margin": [
+        33.6,
+        72.5,
+        71.8,
+        57.1,
+        44.4
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1980,
+      3340,
+      4950,
+      6990,
+      8590
+    ],
+    "total_equity": [
+      1810,
+      2600,
+      3790,
+      5100,
+      6520
+    ],
+    "total_liabilities": [
+      170,
+      740,
+      1160,
+      1890,
+      2070
+    ],
+    "cash": [
+      5,
+      356,
+      266,
+      240,
+      11
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      26,
+      -296,
+      595,
+      270,
+      497
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.02,
+        0.02,
+        0.23,
+        0.1,
+        0.08
+      ],
+      "net_debt_ebitda": [
+        0.06,
+        -0.28,
+        0.31,
+        0.12,
+        0.23
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      219,
+      1050,
+      702,
+      1710,
+      1670
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      203,
+      592,
+      648,
+      1500,
+      1820
+    ],
+    "fcf": [
+      16,
+      458,
+      54,
+      210,
+      -150
+    ],
+    "ratios": {
+      "fcf_margin": [
+        2.9,
+        33.2,
+        2.2,
+        6.3,
+        -4.7
+      ],
+      "cfo_to_capex": [
+        1.08,
+        1.77,
+        1.08,
+        1.14,
+        0.92
+      ],
+      "capex_to_revenue": [
+        36.3,
+        42.9,
+        26.4,
+        45.0,
+        56.9
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      10.4,
+      45.2,
+      55.0,
+      42.7,
+      24.4
+    ],
+    "roa": [
+      9.5,
+      37.6,
+      42.4,
+      31.8,
+      18.2
+    ],
+    "roic": [
+      10.2,
+      36.5,
+      38.5,
+      35.9,
+      22.2
+    ],
+    "ros": [
+      33.6,
+      72.5,
+      71.8,
+      57.1,
+      44.4
+    ],
+    "asset_turnover": [
+      0.28,
+      0.52,
+      0.59,
+      0.56,
+      0.41
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      10.5,
+      11.9
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      5.98,
+      5.29
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      8.65,
+      7.92
+    ],
+    "current": {
+      "pe": 6.87,
+      "ps": 3.05,
+      "pb": 1.5,
+      "ev_ebitda": 4.66,
+      "ev_sales": 3.2,
+      "fcf_yield_pct": -1.54,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 11.2,
+      "pe_5y_median": 11.2,
+      "period": "только пост-IPO 2024–2025 (2 точки); до IPO рыночной цены нет"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 11.9,
+      "ps": 5.29,
+      "pb": null,
+      "ev_ebitda": 7.92,
+      "ev_sales": null,
+      "fcf_yield_pct": null
+    },
+    "2024": {
+      "pe": 10.5,
+      "ps": 5.98,
+      "pb": null,
+      "ev_ebitda": 8.65,
+      "ev_sales": null,
+      "fcf_yield_pct": null
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [
+      "ПСБ (таргет 323 ₽ — устаревший, доIPO-froth)",
+      "консенсус Т-Инвестиции (таргет ~110 ₽, рекомендация Sell)"
+    ],
+    "revenue_growth_pct": [
+      12.0,
+      10.0,
+      8.0,
+      6.0,
+      4.5
+    ],
+    "net_profit_growth_pct": [
+      16.1,
+      10.0,
+      8.0,
+      6.0,
+      4.5
+    ],
+    "note": "Брокерское покрытие противоречиво: старые таргеты (ПСБ 323 ₽) выставлены до коррекции и не отражают стагнацию 2025; свежий консенсус Т-Инвестиций ~110 ₽ с рекомендацией Sell. Полноценного публичного гайденса компания не даёт. Использован механический прогноз: умеренное восстановление выручки 12% с затуханием к 4,5% (терминал ~3,5%), маржа чистой прибыли ~46%. История нерепрезентативна (IPO 2024, разворот роста в 2025), поэтому прогноз помечен как механический и коридор оценки широкий."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 19.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 25.4,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "beta": 1.2
+        },
+        "tv_share_of_value_pct": 52.0,
+        "status": "insufficient_data",
+        "note": "DCF даёт аномально низкую цену (~20 ₽). Причина: FCF подавлен капитализацией R&D (R&D 1,76 млрд проходит через CapEx 1,82 млрд → FCF 2025 отрицательный), а ставка дисконтирования 25,4% (Ke = 14,6% + 1,2×9,0%) очень высока. На FCFF-базе модель не отражает реальную ценность high-margin софта. Метод помечен insufficient_data и НЕ включён в базовый коридор."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 159.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 11.2,
+          "basis": "median_post_ipo_2y",
+          "eps": 14.2
+        },
+        "status": "low_reliability",
+        "note": "Медиана P/E всего по 2 точкам (2024–2025), сформированным на завышенной IPO-оценке. Даёт 159 ₽, но выборка нерепрезентативна — как верхняя граница, не как база."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медианные мультипликаторы IT-сектора будут подставлены после прогона всех компаний сектора (ASTR, DATA, POSI, SOFL и др.) и обновления sectors/it/peers.json."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 122.0,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 25.4,
+          "beta": 1.2,
+          "dividend_yield": 0.0
+        },
+        "note": "Таргет на 12 мес: цена×(1 + (Ke − дивдоходность)). Дивидендов нет (0%). Ke = 14,6% + 1,2×9,0% = 25,4%. Даёт ~122 ₽ — требуемая доходность от текущей цены."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 20.0,
+      "base": 122.0,
+      "current_price": 97.5,
+      "upside_downside_pct": 25.0
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        23.4,
+        25.4,
+        27.4
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          22.0,
+          22.8,
+          23.8
+        ],
+        [
+          19.0,
+          19.7,
+          20.5
+        ],
+        [
+          16.6,
+          17.1,
+          17.7
+        ]
+      ]
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Несколько аномалий 2025: (1) рост выручки остановился (-4% г/г) после +36% в 2024; (2) чистая маржа упала с 57% до 44%; (3) FCF ушёл в минус (CapEx 1,82 млрд > CFO 1,67 млрд) из-за капитализации R&D; (4) методы оценки расходятся в РАЗЫ — DCF 20 ₽ vs hist-P/E 159 ₽ vs CAPM 122 ₽, что отражает высокую неопределённость и слабую базу для FCFF-DCF у высокомаржинального софтверного вендора в фазе тяжёлых R&D-инвестиций. Коридор оценки намеренно широкий.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Финансовые и операционные результаты ПАО «ИВА» по МСФО за 2025 год (iva.ru IR)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Финансовые результаты ПАО «ИВА» по МСФО за 2024 год (iva.ru IR)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность IVAT (P&L, баланс, денежные потоки 2021–2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Т-Инвестиции / БКС — котировки и консенсус-таргет IVAT",
+      "period": "2026-06",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (companies/IVAT) — сегменты, R&D, структура выручки",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Помесячная/постатейная разбивка P&L (COGS, gross profit, opex, finance costs) в публичных релизах не раскрыта — null.",
+    "CFI/CFF и точная сверка net_change_in_cash недоступны; CapEx и CFO взяты из агрегатора smart-lab, возможны округления.",
+    "Капитализация R&D искажает CapEx и FCF: R&D 1,76 млрд проходит как инвестиции в НМА, поэтому FCFF-DCF структурно занижает оценку — см. anomaly_note.",
+    "Число акций принято 100 млн (округлённо; по разным источникам ~99–100 млн) — уточнить по реестру MOEX.",
+    "Дочисленные DA (ebitda − operating_profit) — приближение, а не раскрытая строка отчёта.",
+    "Мультипликаторы 2021–2023 = null: до IPO (июнь 2024) рыночной цены не было.",
+    "relative_peers ожидает медиан сектора IT (pending_sector_backfill).",
+    "P/B исторические не считаны (нет рыночной цены по годам кроме текущей)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 6.29,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

@@ -1,0 +1,524 @@
+{
+  "meta": {
+    "ticker": "YRSB",
+    "name": "ПАО «ТНС энерго Ярославль» (обыкновенная акция)",
+    "issuer_full": "ПАО «ТНС энерго Ярославль»",
+    "isin": "RU000A0D8760",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 768.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 17143584,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      17800,
+      17900,
+      21210,
+      22790,
+      26000
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      359,
+      970,
+      1180,
+      950,
+      1710
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      120,
+      510,
+      -470,
+      172,
+      931
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        2.02,
+        5.42,
+        5.56,
+        4.17,
+        6.58
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        0.67,
+        2.85,
+        -2.22,
+        0.75,
+        3.58
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      -1650,
+      359,
+      452,
+      1550,
+      2400
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      1820,
+      0,
+      890,
+      370,
+      190
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        5.07,
+        0.0,
+        0.75,
+        0.39,
+        0.11
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      142.1,
+      -104.0,
+      11.1,
+      38.8
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      0.67,
+      2.85,
+      -2.22,
+      0.75,
+      3.58
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      29.43,
+      5.98,
+      null,
+      69.17,
+      14.73
+    ],
+    "ps": [
+      null,
+      0.2,
+      0.17,
+      0.87,
+      0.52,
+      0.53
+    ],
+    "pb": [
+      null,
+      null,
+      8.5,
+      40.73,
+      7.68,
+      5.71
+    ],
+    "ev_ebitda": [
+      null,
+      14.91,
+      3.15,
+      16.36,
+      12.91,
+      8.13
+    ],
+    "current": {
+      "pe": 14.14,
+      "ps": 0.51,
+      "pb": 5.49,
+      "ev_ebitda": 7.81,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 22.08,
+      "period": "2021-2025, искажён выбросами (2024 P/E=69 при провале прибыли, 2021 P/E=29); напрямую не использовался для оценки"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 14.73,
+      "ps": 0.53,
+      "pb": 5.71,
+      "ev_ebitda": 8.13,
+      "roe": 38.8,
+      "net_margin": 3.58
+    },
+    "2024": {
+      "pe": 69.17,
+      "ps": 0.52,
+      "pb": 7.68,
+      "ev_ebitda": 12.91,
+      "roe": 11.1,
+      "net_margin": 0.75
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия YRSB нет (low-float, 3-й котировальный список). Прибыль крайне волатильна (убыток 2023 -> рекорд 2025), репрезентативного тренда для прогноза нет. source_type=none; DCF неприменим из-за отсутствия раскрытия денежных потоков и непрогнозируемости прибыли."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 434,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 8.0,
+          "basis": "нормализованный P/E (не медиана 22,08 — она искажена годами с провалом/восстановлением прибыли); консервативный диапазон 6-8x для неликвидного бездивидендного энергосбыта",
+          "eps_2025_rub": 54.3
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 239,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "note": "Ke=Rf 14.6% + beta 0.9 x ERP 9.0% = 22.7%. Earnings-yield ориентир P/E ~= 1/Ke = 4.4x -> цена 239 руб. Жёсткий якорь снизу: без дивидендов вся требуемая доходность должна приходить через прибыль/цену."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 326,
+      "base": 434,
+      "current_price": 768.0,
+      "upside_downside_pct": -43.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    },
+    "anomaly_flag": true,
+    "anomaly_note": "Чистая прибыль РСБУ крайне волатильна: -470 млн (2023, убыток) -> +172 млн (2024) -> +931 млн (2025), рост в 5,4x при росте выручки лишь ~+14%. Собственный капитал был ОТРИЦАТЕЛЬНЫМ в 2021 (-1,65 млрд), поэтому P/B и ROE ранних лет неинформативны, а текущий ROE 38,8% завышен низкой базой капитала. EBITDA и денежные потоки компания отдельно не раскрывает — все значения EBITDA/чистого долга это оценки агрегаторов (data_quality=low). Текущая цена 768 руб даёт P/E 14x — это ВЫШЕ справедливого коридора 326-434 руб (P/E 6-8x), посчитанного по 2025 EPS; рынок, по-видимому, закладывает либо нормализацию прибыли на более высоком уровне, либо премию неликвидности/спекулятивный фактор. ОБЫКНОВЕННАЯ акция YRSB ДИВИДЕНДОВ НЕ ПЛАТИТ (дивиденды идут только на префы YRSBP, ~17,2 руб/акц, ~8,7%), поэтому дивидендный метод оценки к YRSB НЕприменим — оценка строится на P/E и earnings yield."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "РСБУ-раскрытие ПАО «ТНС энерго Ярославль» (e-disclosure.ru): выручка 2024 ₽22,79 млрд, чистая прибыль 2024 ₽171,85 млн; 9 мес 2025 выручка ₽18,22 млрд, прибыль ₽739 млн",
+      "period": "2023-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS securities/YRSB: эмитент ПАО «ТНС энерго Ярославль» ао, ISIN RU000A0D8760, 17 143 584 акции, 3-й котировальный список",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/YRSB: ряды выручки/прибыли/EBITDA/мультипликаторов, цена, дивиденды (по обычке 0)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX marketdata: последняя цена YRSB 768 руб",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (внутренний) — согласование сегментов и якорей РСБУ",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: EBITDA, чистый долг, денежные потоки компанией отдельно не раскрываются — взяты как оценки агрегатора smart-lab; CFO/CapEx/FCF недоступны (вся секция cash_flow = null).",
+    "DCF неприменим (insufficient_data): нет денежных потоков и нет репрезентативного прогноза прибыли.",
+    "Расхождение источников по выручке/прибыли: РСБУ-раскрытие (выручка 2024 ₽22,79 млрд, прибыль ₽172 млн) против рядов smart-lab (могут отражать иную консолидацию). В JSON использованы РСБУ-якоря; 2025 выручка ₽26 млрд — оценка.",
+    "Собственный капитал 2021 отрицательный (-1,65 млрд) -> P/B и ROE до 2022 неинформативны; ROE 2022 (142%) и 2025 (38,8%) завышены низкой базой капитала.",
+    "Историческая медиана P/E (22,08) искажена годами провала/восстановления прибыли; для оценки использован нормализованный P/E 6-8x.",
+    "ОБЫКНОВЕННАЯ YRSB дивидендов не платит (только преф YRSBP) — дивидендный метод оценки не применяется.",
+    "relative_peers: status=pending_sector_backfill — медиана по сектору энергосбыта появится после прогона всех тикеров сектора.",
+    "Текущая рыночная цена (768) выше расчётного фундаментального коридора (326-434) — возможна премия неликвидности или ожидание нормализации прибыли; коридор оценки широкий, надёжность низкая."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

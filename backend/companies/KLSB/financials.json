@@ -1,0 +1,596 @@
+{
+  "meta": {
+    "ticker": "KLSB",
+    "name": "ПАО «Калужская сбытовая компания»",
+    "isin": "RU000A0DKZK3",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 18.11,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 91487347,
+    "market_cap_mln": 1656.8,
+    "ev_mln": 3536.8,
+    "data_quality": "low",
+    "data_quality_note": "Источников немного (агрегаторы по МСФО, MOEX). Компания почти не раскрывает CapEx/FCF и постатейную структуру. 2019-2020 недоступны. Многие исходные числа округлены.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      24600.0,
+      25300.0,
+      27200.0,
+      30000.0,
+      35020.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      690.0,
+      770.0,
+      680.0,
+      1400.0,
+      979.0
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      86.0,
+      97.0,
+      113.0,
+      124.0,
+      84.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        2.8,
+        3.04,
+        2.5,
+        4.67,
+        2.8
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        0.35,
+        0.38,
+        0.42,
+        0.41,
+        0.24
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      6750.0,
+      6590.0,
+      6580.0,
+      7190.0,
+      6790.0
+    ],
+    "total_equity": [
+      null,
+      null,
+      1120.0,
+      1220.0,
+      1270.0,
+      1340.0,
+      1430.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      5630.0,
+      5370.0,
+      5310.0,
+      5850.0,
+      5360.0
+    ],
+    "cash": [
+      null,
+      null,
+      320.0,
+      230.0,
+      480.0,
+      580.0,
+      730.0
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      3240.0,
+      3090.0,
+      2690.0,
+      3240.0,
+      1880.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        3.18,
+        2.72,
+        2.5,
+        2.85,
+        1.83
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        4.7,
+        4.01,
+        3.96,
+        2.31,
+        1.92
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      7.68,
+      7.95,
+      8.9,
+      9.25,
+      5.87
+    ],
+    "roa": [
+      null,
+      null,
+      1.27,
+      1.47,
+      1.72,
+      1.72,
+      1.24
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      0.35,
+      0.38,
+      0.42,
+      0.41,
+      0.24
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      3.64,
+      3.84,
+      4.13,
+      4.17,
+      5.16
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      11.3,
+      8.65,
+      24.0,
+      15.5,
+      22.2
+    ],
+    "ps": [
+      null,
+      null,
+      0.04,
+      0.03,
+      0.1,
+      0.06,
+      0.05
+    ],
+    "pb": [
+      null,
+      null,
+      0.88,
+      0.7,
+      2.19,
+      1.51,
+      1.42
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      6.1,
+      5.11,
+      7.95,
+      3.69,
+      3.82
+    ],
+    "current": {
+      "pe": 19.72,
+      "ps": 0.047,
+      "pb": 1.16,
+      "ev_ebitda": 3.61,
+      "ev_sales": 0.101,
+      "dividend_yield_pct": 0.0,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 16.33,
+      "pe_5y_median": 15.5,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 19.72,
+      "ps": 0.047,
+      "pb": 1.16,
+      "ev_ebitda": 3.61,
+      "ev_sales": 0.101,
+      "dividend_yield_pct": 0.0
+    },
+    "2024": {
+      "pe": 13.36,
+      "ps": 0.055,
+      "pb": 1.24,
+      "ev_ebitda": 3.5,
+      "ev_sales": 0.163,
+      "dividend_yield_pct": 0.0
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "EBITDA 2024 (1.40 млрд) скачком +106% к 2023 (0.68 млрд) при росте выручки лишь +10% — вероятна разовая статья/динамика резервов; EBITDA-мультипликаторы малоинформативны. Чистая прибыль 2025 (84 млн) -32% г/г при росте выручки +17% — давление процентных расходов при ставке 14.5%.",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по KLSB нет (микрокап, низкая ликвидность). Прибыль волатильна (124→84 млн), механический прогноз нерепрезентативен. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "CapEx и FCF не раскрываются, прибыль волатильна, покрытия аналитиками нет — FCF-прогноз невозможен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 14.26,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 15.5,
+          "basis": "5y_median",
+          "eps": 0.92
+        },
+        "status": "ok",
+        "note": "Основной метод для энергосбыта. Медиана P/E 2021-2025; искажающие годы 2023/2025 (просадка прибыли) сглажены медианой."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Ждёт прогона сектора энергосбытов; для сбыта сравнение по P/E, EV/EBITDA малоинформативна."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 4.4,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.9,
+          "beta": 0.7,
+          "fair_pe": 4.78
+        },
+        "status": "ok",
+        "note": "Ke = Rf 14.6% + beta 0.7 × ERP 9.0% = 20.90%. Ориентир P/E≈1/Ke. Бета понижена (регулируемый бизнес), но добавляет риск микрокапа/неликвидности."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "note": "Дивиденды не платятся с 2007 г.; СД рекомендовал не платить и за 2025 г. (прибыль в резервный фонд). Дивидендный метод неприменим."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4.4,
+      "base": 14.26,
+      "current_price": 18.11,
+      "upside_downside_pct": -21.3,
+      "upside_downside_conservative_pct": -75.7
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    },
+    "valuation_note": "Энергосбыт оценивается по P/E и дивидендам. EV/EBITDA малоинформативна: транзитные затраты (закупка энергии + передача ~95% выручки) раздувают EV, а тонкая и волатильная EBITDA искажает мультипликатор. Дивидендный метод неприменим (выплат нет с 2007). Коридор узкий и условный — низкое качество данных."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО KLSB",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS — параметры бумаги KLSB (ISIN, число акций, цена)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "РБК Инвестиции / Т-Инвестиции — дивидендная история, котировки",
+      "period": "2007-2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md (внутренний разбор KLSB)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: данные собраны из агрегаторов (smart-lab) + MOEX; первичную отчётность МСФО построчно не сверяли.",
+    "2019-2020 недоступны в источниках — null.",
+    "EBITDA расходится между источниками и волатильна (2024 ~1.40 млрд — вероятна разовая статья/резервы); EBITDA-мультипликаторы малоинформативны для энергосбыта.",
+    "CapEx, FCF, денежные потоки и постатейная структура затрат компанией не раскрываются — блок cash_flow пуст.",
+    "Исторические P/E/P/B/EV-EBITDA по годам взяты из smart-lab (цены на конец года), нашими руками не пересчитывались.",
+    "Бета оценочная (0.7), прямого расчёта по ряду котировок не делалось из-за низкой ликвидности бумаги.",
+    "relative_peers ждёт backfill по сектору энергосбытов (status=pending_sector_backfill).",
+    "Дивиденды не выплачиваются с 2007 г. — дивидендный метод оценки неприменим."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

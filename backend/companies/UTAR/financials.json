@@ -1,0 +1,496 @@
+{
+  "meta": {
+    "ticker": "UTAR",
+    "name": "ПАО «Авиакомпания «ЮТэйр»",
+    "sector": "transport",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 9.94,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 7896123268,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      75.5,
+      81.0,
+      97.7,
+      113.3,
+      121.3
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      9.58,
+      18.4,
+      10.1,
+      8.35,
+      0.37
+    ],
+    "ebitda": [
+      17.1,
+      26.7,
+      24.6,
+      26.6,
+      22.4
+    ],
+    "da": [
+      7.52,
+      8.3,
+      14.5,
+      18.25,
+      22.03
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      7.6,
+      null
+    ],
+    "net_profit": [
+      26.8,
+      4.44,
+      2.81,
+      -6.92,
+      2.4
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        22.6,
+        33.0,
+        25.2,
+        23.5,
+        18.5
+      ],
+      "operating_margin": [
+        12.7,
+        22.7,
+        10.3,
+        7.4,
+        0.3
+      ],
+      "net_margin": [
+        35.5,
+        5.5,
+        2.9,
+        -6.1,
+        2.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      95.5,
+      98.6,
+      123.2,
+      130.3,
+      161.8
+    ],
+    "total_equity": [
+      10.8,
+      20.0,
+      22.4,
+      13.9,
+      43.2
+    ],
+    "total_liabilities": [
+      84.7,
+      78.6,
+      100.8,
+      116.4,
+      118.6
+    ],
+    "cash": [
+      7.6,
+      16.8,
+      5.5,
+      5.5,
+      6.8
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      17.6,
+      13.2,
+      25.2,
+      25.6,
+      22.2
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        2.33,
+        1.5,
+        1.37,
+        2.24,
+        0.67
+      ],
+      "net_debt_ebitda": [
+        1.03,
+        0.49,
+        1.02,
+        0.96,
+        0.99
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      5.4,
+      20.7,
+      19.1,
+      20.4,
+      15.6
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      8.57,
+      10.5,
+      23.6,
+      19.9,
+      11.8
+    ],
+    "fcf": [
+      -3.17,
+      10.2,
+      -4.5,
+      0.5,
+      3.8
+    ],
+    "ratios": {
+      "fcf_margin": [
+        -4.2,
+        12.6,
+        -4.6,
+        0.4,
+        3.1
+      ],
+      "cfo_to_capex": [
+        0.63,
+        1.97,
+        0.81,
+        1.03,
+        1.32
+      ],
+      "capex_to_revenue": [
+        11.4,
+        13.0,
+        24.2,
+        17.6,
+        9.7
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      248.1,
+      28.8,
+      13.3,
+      -38.1,
+      8.4
+    ],
+    "roa": [
+      28.1,
+      4.6,
+      2.5,
+      -5.5,
+      1.6
+    ],
+    "roic": [
+      20.0,
+      27.6,
+      14.3,
+      13.9,
+      0.4
+    ],
+    "ros": [
+      35.5,
+      5.5,
+      2.9,
+      -6.1,
+      2.0
+    ],
+    "asset_turnover": [
+      0.79,
+      0.83,
+      0.88,
+      0.89,
+      0.83
+    ]
+  },
+  "multiples": {
+    "pe": [
+      1.05,
+      6.11,
+      34.9,
+      -15.5,
+      36.2
+    ],
+    "ps": [
+      0.37,
+      0.34,
+      1.0,
+      0.95,
+      0.72
+    ],
+    "pb": [
+      2.61,
+      1.35,
+      4.38,
+      7.71,
+      2.01
+    ],
+    "ev_ebitda": [
+      2.67,
+      1.51,
+      5.0,
+      5.0,
+      4.88
+    ],
+    "current": {
+      "pe": 32.7,
+      "ps": 0.65,
+      "pb": 1.82,
+      "ev_ebitda": 4.49,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 20.5,
+      "ev_ebitda_5y_median": 4.88,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Публичного консенсуса аналитиков по UTAR не найдено (Т-Инвестиции, БКС — нет покрытия). Прибыль нерепрезентативна: 2021 искажён разовой прибылью реструктуризации (~26.8 млрд, ROE 248%), 2024 — чистый убыток. Механический прогноз не строился; оценка опирается на EV/EBITDA."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 26.3,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Структурно тонкий FCF при высокой ставке Ke=26.3% и чистом долге 22 млрд даёт отрицательную/неустойчивую стоимость капитала — метод неинформативен для компании с такой долговой нагрузкой."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 20.5,
+          "basis": "5y_median"
+        },
+        "status": "unreliable",
+        "note": "EPS 2025 ~0.30 ₽ на 7.9 млрд акций; P/E искажён разовой прибылью 2021 и убытком 2024. Метод исключён из коридора."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор transport ещё не прогнан; медиана конкурентов будет подставлена позже."
+      },
+      {
+        "method": "own_history_ev_ebitda",
+        "fair_value_per_share": 11.03,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_ebitda_used": 4.88,
+          "ebitda_2025": 22.4,
+          "net_debt": 22.2,
+          "conservative_mult": 4.0
+        },
+        "status": "ok",
+        "note": "Базовый метод оценки. Коридор по EV/EBITDA 4.0x (cons) – 4.88x (медиана своей истории) – 5.5x."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 1.16,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 26.3,
+          "beta": 1.3
+        },
+        "status": "weak",
+        "note": "Ke=26.3% (beta 1.3 для закредитованного циклического авиаперевозчика). На текущей тонкой прибыли даёт ~1 ₽ — служит лишь нижним sanity-флагом, не якорем."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 8.54,
+      "base": 11.03,
+      "current_price": 9.94,
+      "upside_downside_pct": 11.0
+    },
+    "sensitivity": {
+      "ev_ebitda_grid": [
+        4.0,
+        4.5,
+        4.88,
+        5.5
+      ],
+      "implied_price": [
+        8.54,
+        9.95,
+        11.03,
+        12.79
+      ],
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ЮТэйр — отчётность МСФО 2024 (раскрытие e-disclosure)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО UTAR 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "iss.moex.com — UTAR: число акций (7,896,123,268), цена TQBR",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md — якоря 2024 (выручка 113.3, опер. прибыль 8.3, убыток 7.05)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "anomaly_flag=true. ЮТэйр — закредитованный циклический авиаперевозчик с историей реструктуризаций 2015-2021.",
+    "IFRS16: оценки долга/EV расходятся. Использован ряд процентного долга ~29-31 млрд (smart-lab); полная аренда по IFRS16 раздувает обязательства до ~116 млрд (2024). EV/EBITDA и ND/EBITDA трактовать осторожно — при включении полной аренды ND/EBITDA вырастает многократно.",
+    "2021: чистая прибыль 26.8 млрд и ROE 248% — разовая прибыль от реструктуризации долга, НЕ операционная. Искажает P/E и ROE за 2021.",
+    "2024: чистый убыток -6.92 млрд при положительной опер. прибыли 8.3 млрд — съеден фин. расходами (~7.6 млрд, +27%), курсовыми (-2.6 млрд), обесценением ОС и переоценкой ОНО под ставку 25%. Капитал упал на ~38%.",
+    "Капитал волатилен и тонок (10.8→43.2 млрд за 5 лет); P/B и ROE нестабильны.",
+    "EBITDA по разным источникам расходится из-за трактовки аренды (от ~9 до ~27 млрд); взят ряд smart-lab.",
+    "Постатейная COGS/gross profit компанией не раскрыты — null.",
+    "Free-float мал: контроль у структуры НПФ Сургутнефтегаз (>60%); RBC считает капитализацию по free-float (~36 млрд), здесь — по полному выпуску 7.896 млрд акций (mcap ~78.5 млрд), согласовано с рядом мультипликаторов smart-lab.",
+    "Покрытия аналитиков нет → forecast=none, DCF=insufficient_data."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.01,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

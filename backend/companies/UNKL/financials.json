@@ -1,0 +1,561 @@
+{
+  "meta": {
+    "ticker": "UNKL",
+    "name": "ПАО «Комбинат Южуралникель» (Южно-Уральский никелевый комбинат)",
+    "sector": "metals",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 3770,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 599737,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Завод фактически не ведёт производство — никелевая плавка остановлена с 27.09.2012 и не возобновлялась. Это не операционный бизнес, а законсервированный имущественный комплекс. Классические показатели операционной экономики (EBITDA, маржа, FCF, EV/EBITDA, P/E) неинформативны: EBITDA отрицательна/символична, EV/EBITDA не имеет смысла. Корректная база оценки — чистые активы на акцию (балансовый капитал) с дисконтом за непрозрачность и внутригрупповые операции «Мечела». Внутригрупповые займы и корректировки «Мечела» создают расхождения РСБУ/МСФО (в 2024 РСБУ +108 млн при убытке МСФО -272 млн). Прибыль 2025 противоречива между источниками (smart-lab МСФО +380 млн vs РСБУ -44,5 млн убыток) — помечена как недостоверная, ROE 2025 не считался."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      116.0,
+      56.0,
+      298.0,
+      216.8,
+      158.08
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      123.0,
+      138.0,
+      -123.0,
+      -272.0,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        106.0,
+        246.4,
+        -41.3,
+        -125.5,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      8190.0,
+      8520.0,
+      4860.0,
+      5080.0,
+      5470.0
+    ],
+    "total_equity": [
+      null,
+      null,
+      7510.0,
+      7640.0,
+      3920.0,
+      3640.0,
+      4020.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      680.0,
+      880.0,
+      940.0,
+      1440.0,
+      1450.0
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "book_value_per_share": [
+      null,
+      null,
+      12522.2,
+      12738.9,
+      6536.2,
+      6069.3,
+      6702.9
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      1.6,
+      1.8,
+      -3.1,
+      -7.5,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      1.5,
+      1.6,
+      -2.5,
+      -5.4,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      106.0,
+      246.4,
+      -41.3,
+      -125.5,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.01,
+      0.01,
+      0.06,
+      0.04,
+      0.03
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      14.3
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.56
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 14.3,
+      "pb": 0.56,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не считается: убытки по МСФО, P/E неинформативен"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет. Прогноз невозможен: производство остановлено, выручка остаточная и волатильная, результат по МСФО убыточный, судьбу актива контролирует «Мечел». DCF неприменим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable"
+      },
+      {
+        "method": "net_assets",
+        "fair_value_per_share": 4022,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "book_value_per_share": 6702.9,
+          "haircut_pct": 40,
+          "basis": "балансовый капитал 2025 (4020 млн / 599737 акций) с дисконтом 40% за непрозрачность, риск обесценения активов, внутригрупповые операции «Мечела»"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "не применим: убыток по МСФО"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2681,
+      "base": 4022,
+      "current_price": 3770,
+      "upside_downside_pct": 6.7
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab UNKL финотчётность МСФО/РСБУ (выручка, прибыль, баланс 2021–2025)",
+      "period": "2021–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS — параметры бумаги UNKL (599 737 акций, листинг ур.3, последняя цена 3 770 ₽ на 2026-06-01)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "e-disclosure.ru — карточка эмитента ПАО «Комбинат Южуралникель»",
+      "period": "текущая",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "business_model.md UNKL — статус остановки производства, мини-P&L",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Производство никеля остановлено с 27.09.2012 — операционная экономика отсутствует; EBITDA/маржа/FCF/EV-EBITDA неинформативны.",
+    "2019–2020: данные не раскрыты (null).",
+    "Прибыль 2025 противоречива: smart-lab МСФО +380 млн vs РСБУ убыток -44,5 млн. Поставлен null по МСФО, ROE 2025 не считался.",
+    "Расхождение РСБУ/МСФО за 2024 (РСБУ +108 млн vs МСФО -272 млн) — следствие внутригрупповых корректировок «Мечела».",
+    "Cash, структура долга, денежные потоки не раскрыты детально — все CF-ряды null.",
+    "total_liabilities оценены как total_assets − total_equity (контрольная разность), не из прямого раскрытия.",
+    "Оценка net_assets — балансовая, чувствительна к риску обесценения имущества и экологическим обязательствам; дисконт 40% экспертный.",
+    "P/S 14.3 неинформативен — выручка не операционная (остаточные поступления имущественного комплекса).",
+    "relative_peers ожидает прогон сектора metals (status pending_sector_backfill)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

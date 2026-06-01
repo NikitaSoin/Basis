@@ -494,11 +494,11 @@
     "WACC/Ke=23,6% (rf 14,6% + 1,0×ERP 9,0%) — высокий, давит все оценки вниз; справедливый коридор широкий из-за неопределённости нормализации ROE."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 310.65,
     "upside_downside_pct": -52.7,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   },
   "anomaly_flag": true,
   "anomaly_note": "Лизинг (иная модель + дно цикла, резервы); не сопоставим с банками по P/B×ROE."

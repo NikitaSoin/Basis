@@ -1,0 +1,568 @@
+{
+  "meta": {
+    "ticker": "VRSBP",
+    "name": "ПАО «ТНС энерго Воронеж» (прив.)",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ (основа); МСФО — справочно",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 140.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 56151024,
+    "isin": "RU000A0DPG67",
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "РСБУ NP 2025 (3,37 млрд) существенно выше МСФО NP 2025 (2,03 млрд) — расхождение стандартов. Чистая маржа выше операционной из-за процентных доходов на отрицательный чистый долг (накопленный кэш). Прибыль 2024 удвоилась при росте выручки лишь +7% — эффект высокой ключевой ставки ЦБ на денежную позицию. Прибыль структурно чувствительна к ставке: при её снижении процентная добавка сократится. EPS RSBU 2025 (60 руб) раздут процентным доходом.",
+    "is_pref": true,
+    "linked_common": "VRSB",
+    "pref_to_common_ratio": 0.42,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной VRSB. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.42 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      29854,
+      32318,
+      32748,
+      30200,
+      32300,
+      42120
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      1140,
+      1870,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      1190,
+      1940,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      50,
+      70,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      1040,
+      1487,
+      1100,
+      2280,
+      3370
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        3.9,
+        6.0,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        3.8,
+        5.8,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        3.2,
+        4.5,
+        3.6,
+        7.1,
+        8.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      2520,
+      2320,
+      7330,
+      7150,
+      10200
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      472,
+      850,
+      1780,
+      3020,
+      4350
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      255,
+      14,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      null,
+      null,
+      -217,
+      -836,
+      -1780,
+      -3020,
+      -4350
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.1,
+        0.01,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        -1.5,
+        -1.6,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      41.3,
+      64.1,
+      15.0,
+      31.9,
+      33.0
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      3.2,
+      4.5,
+      3.6,
+      7.1,
+      8.0
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      5.25,
+      3.66,
+      12.05,
+      4.49,
+      4.53
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.19
+    ],
+    "pb": [
+      null,
+      null,
+      2.17,
+      1.61,
+      1.81,
+      1.44,
+      0.9
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.41,
+      null
+    ],
+    "current": {
+      "pe": 2.33,
+      "ps": 0.19,
+      "pb": 0.77,
+      "ev_ebitda": 7.41,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.99,
+      "pe_5y_median": 4.53,
+      "period": "2021-2025, РСБУ/смешанный; 2023 (28.7) — выброс"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия по VRSB нет (неликвид). Механический прогноз неинформативен: прибыль управляется ключевой ставкой ЦБ (доход на кэш) и решениями тарифного регулятора по сбытовой надбавке, а не органическим ростом. Выручка ~транзитная (объём отпуска × конечный тариф). Прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 23.6,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 205.74,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 10.75,
+          "basis": "медиана P/E (исключён выброс 2023=28.7) × нормализованный EPS",
+          "eps_normalized": 45.59,
+          "note": "EPS RSBU 2025 (60) раздут процентным доходом; нормализация = среднее(RSBU'25 60, RSBU'24 40.6, МСФО'25 36.2)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 168.29,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "note": "целевая = цена×(1+(ke−дивдоходность)); 12-мес. ориентир, не внутренняя стоимость"
+        }
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 24.39,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "d_base": 11.29,
+          "g": 3.5,
+          "ke": 23.6,
+          "note": "Модель Гордона при ke≈23.6% даёт неустойчиво низкую оценку (ставка дисконта почти убивает малый дивиденд). Малоинформативна, используется как нижний якорь."
+        }
+      },
+      {
+        "method": "dividend_yield_anchor",
+        "fair_value_per_share": 59.23,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "d_sustainable": 11.29,
+          "required_yield_pct": 8.0,
+          "note": "fair = устойчивый дивиденд / требуемая дивдоходность 8% (зрелый плательщик). Нижняя граница коридора."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 141.1,
+      "base": 315.6,
+      "current_price": 333.5,
+      "upside_downside_pct": -5.4
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка бумаги VRSB (ISIN, число акций, цена)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — РСБУ/МСФО ряды, мультипликаторы, ROE, дивиденды VRSB",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "finam.ru / rbc.ru / investfunds — дивиденды по обыкновенной акции",
+      "period": "2019-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md VRSB (внутренний) — экономика энергосбыта, EBITDA 2023-2024",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: первичная отчётность (e-disclosure.ru) не выгружена в sources/, ряды собраны из агрегаторов и могут содержать смешение РСБУ и МСФО.",
+    "РСБУ vs МСФО 2025: NP 3,37 млрд (РСБУ) против 2,03 млрд (МСФО), выручка 42,12 (РСБУ) против 37,3 (МСФО). В блоке за основу взят РСБУ (как в business_model.md), МСФО — справочно. Перепроверить по первичным отчётам.",
+    "2019-2020: чистая прибыль и капитал надёжно не восстановлены — null.",
+    "EBITDA/операционная прибыль раскрыты только за 2023-2024 (из business_model.md); за 2025 — null.",
+    "Денежные потоки (CFO/CapEx/FCF) в публичных агрегаторах не выделены — весь блок cash_flow = null. CapEx у энергосбыта структурно мал (нет генерации и сетей).",
+    "ROE рассчитан к капиталу на конец года; скачок капитала в 2023 (2,3→7,3 млрд) меняет базу — ROE до/после несопоставимы.",
+    "DCF неприменим: прибыль управляется ставкой ЦБ и тарифным регулятором, не органическим ростом; денежные потоки не раскрыты → insufficient_data.",
+    "relative_peers: медиана сектора энергосбыта не собрана → status=pending_sector_backfill.",
+    "Дивидендные методы дают широкий разброс (Гордон 58 ↔ доходностный якорь 141); политика по обычке нестабильна (2020=0, 2021=14.69, 2022=4.67). Коридор оценки намеренно широкий.",
+    "Существует преф VRSBP (≈25% уставного капитала, дивиденд = 10% скоррект. чистой прибыли) — оценивается отдельно, в этот файл не входит.",
+    "Контролирующий акционер ГК «ТНС энерго» ≈92,9% обычки — free-float мал, ликвидность низкая, бета 1.0 принята по умолчанию (надёжной беты нет)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

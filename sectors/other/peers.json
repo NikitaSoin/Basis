@@ -1,0 +1,164 @@
+{
+  "meta": {
+    "sector": "Прочее",
+    "sector_key": "other",
+    "generated_at": "2026-06-01",
+    "companies": [
+      "WTCM",
+      "WTCMP"
+    ],
+    "n": 2,
+    "registry_ref": "config/sectors.json",
+    "note": "Прочее (ЦМТ — коммерческая недвижимость, рентная модель + денежная подушка). Ядро не выделено — мало эмитентов, относительная оценка не строится.",
+    "relative_valuation": "n/a"
+  },
+  "comparison_table": {
+    "metrics": [
+      "pe",
+      "ps",
+      "pb",
+      "ev_ebitda",
+      "net_debt_ebitda",
+      "roe"
+    ],
+    "years": [
+      2025,
+      2024
+    ],
+    "rows": [
+      {
+        "ticker": "WTCM",
+        "name": "ПАО «Центр международной торговли» (ЦМТ)",
+        "price": 13.9,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "WTCM *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.1,
+          "ps": 1.67,
+          "pb": 0.28,
+          "ev_ebitda": -0.83,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 5.39,
+          "ps": 1.75,
+          "pb": 0.3,
+          "ev_ebitda": 0.03,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "WTCMP",
+        "name": "ПАО «Центр международной торговли» (прив.)",
+        "price": 12.18,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "WTCMP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.1,
+          "ps": 1.67,
+          "pb": 0.28,
+          "ev_ebitda": -0.83,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 5.39,
+          "ps": 1.75,
+          "pb": 0.3,
+          "ev_ebitda": 0.03,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      }
+    ]
+  },
+  "sector_aggregates": {
+    "2025": {
+      "mean": {},
+      "median": {}
+    },
+    "2024": {
+      "mean": {},
+      "median": {}
+    },
+    "included_non_anomalous_ex_pref": [],
+    "excluded": [
+      "WTCM",
+      "WTCMP"
+    ],
+    "note": "Мало эмитентов — агрегаты не считаются."
+  },
+  "maps": {
+    "map_1_debt_vs_valuation": {
+      "title": "Долговая нагрузка vs Оценка (EV/EBITDA)",
+      "x_axis": {
+        "key": "net_debt_ebitda",
+        "label": "Чистый долг / EBITDA",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "ev_ebitda",
+        "label": "EV/EBITDA",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "WTCM",
+          "name": "ПАО «Центр международной торговли» (ЦМТ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": -0.83
+        },
+        {
+          "ticker": "WTCMP",
+          "name": "ПАО «Центр международной торговли» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": -0.83
+        }
+      ]
+    },
+    "map_2_quality_vs_price": {
+      "title": "Качество (ROE) vs Цена (P/B)",
+      "x_axis": {
+        "key": "roe",
+        "label": "ROE, %",
+        "year": 2025
+      },
+      "y_axis": {
+        "key": "pb",
+        "label": "P/B",
+        "year": 2025
+      },
+      "points": [
+        {
+          "ticker": "WTCM",
+          "name": "ПАО «Центр международной торговли» (ЦМТ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.28
+        },
+        {
+          "ticker": "WTCMP",
+          "name": "ПАО «Центр международной торговли» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": 0.28
+        }
+      ]
+    }
+  },
+  "anomalies": []
+}

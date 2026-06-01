@@ -560,10 +560,10 @@
     "Цена 86,78 ₽ и число акций 1 052 млн взяты из загруженного файла на 21.05.2026; привилегированных акций у ТМК нет."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": 4.23,
     "upside_downside_pct": -95.1,
-    "status": "reference_only",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "reference_only"
   }
 }

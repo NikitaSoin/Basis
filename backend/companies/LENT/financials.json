@@ -725,10 +725,10 @@
     "P/E ряд: 2023 отрицателен (убыток), 2022 завышен (провал прибыли) — для исторической оценки взята медиана положительных значений."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": 2390.26,
     "upside_downside_pct": 19.9,
-    "status": "ok",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "ok"
   }
 }

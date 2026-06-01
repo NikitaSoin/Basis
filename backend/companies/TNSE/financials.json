@@ -1,0 +1,596 @@
+{
+  "meta": {
+    "ticker": "TNSE",
+    "name": "ПАО ГК «ТНС энерго»",
+    "sector": "energy_utilities_sales",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 3470.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 13668239,
+    "data_quality": "low",
+    "data_quality_note": "Многолетние ряды собраны из агрегатора smart-lab (2021-2025); 2019-2020 не раскрыты в выборке; постатейный P&L, FCF, точные процентные доходы и доля миноритариев по консолидированному МСФО не сверены построчно. Числа — порядок величины, не аудит.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      256.6,
+      265.0,
+      282.2,
+      307.9,
+      347.8
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      328.67,
+      371.0
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      24.82
+    ],
+    "ebitda": [
+      null,
+      null,
+      8.71,
+      10.8,
+      12.1,
+      13.8,
+      25.7
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      3.39,
+      5.0,
+      9.37,
+      10.6,
+      19.2
+    ],
+    "net_profit_total_group": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      11.33,
+      20.62
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        3.39,
+        4.08,
+        4.29,
+        4.48,
+        7.39
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        7.14
+      ],
+      "net_margin": [
+        null,
+        null,
+        1.32,
+        1.89,
+        3.32,
+        3.44,
+        5.52
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      0.324,
+      2.1,
+      9.0,
+      20.6,
+      39.6
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      2.64,
+      3.39,
+      9.28,
+      17.6,
+      32.2
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      7.28,
+      1.02,
+      0.5
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.5,
+      1.3
+    ],
+    "net_debt": [
+      null,
+      null,
+      -2.62,
+      9.19,
+      -1.97,
+      -16.6,
+      -31.9
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.07,
+        6.0,
+        0.81,
+        0.05,
+        0.01
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -0.3,
+        0.85,
+        -0.16,
+        -1.2,
+        -1.24
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      1046.3,
+      238.1,
+      104.1,
+      51.5,
+      48.5
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      1.32,
+      1.89,
+      3.32,
+      3.44,
+      5.52
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      3.67,
+      1.64,
+      4.91,
+      2.98,
+      2.59
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.14
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.2
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      1.13,
+      1.61,
+      3.65,
+      1.1,
+      0.69
+    ],
+    "current": {
+      "pe": 2.47,
+      "ps": 0.14,
+      "pb": 1.2,
+      "ev_ebitda": 0.6,
+      "ev_sales": 0.045,
+      "p_ebitda": 1.85,
+      "as_of": "2026-06-01"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 2.59,
+        "ps": 0.14,
+        "pb": 1.2,
+        "ev_ebitda": 0.69,
+        "ev_sales": 0.045,
+        "p_ebitda": 1.85
+      },
+      "2024": {
+        "pe": 2.98,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": 1.1,
+        "ev_sales": null,
+        "p_ebitda": null
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": 3.16,
+      "pe_5y_median": 2.98,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Аналитического покрытия по консенсусу не найдено. Прибыль 2024-2025 во многом определяется процентным доходом на денежную подушку при высокой ключевой ставке (14.5%) — при снижении ставки этот драйвер ослабнет, поэтому механическая экстраполяция роста прибыли некорректна. Прогноз не строится (source_type=none)."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF, CapEx и операционный денежный поток в раскрытиях не выделены; прибыль искажена процентным доходом на кэш. Надёжный DCF невозможен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 4186.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.98,
+          "basis": "5y_median",
+          "eps_used": 1404.72
+        },
+        "status": "ok",
+        "note": "Медиана P/E 2021-2025 = 2.98 (структурно низкая для сектора), применена к прибыли на акцию мат. компании 19.2 млрд / 13.67 млн акций."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор энергосбытов (ТНС-дочки, прочие ГП) ещё не прогнан — медиана мультипликаторов недоступна."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 7024.0,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.0,
+          "beta": 0.6,
+          "rf": 14.6,
+          "erp": 9.0
+        },
+        "status": "ok",
+        "note": "Низкая бета (~0.6) для регулируемого сбыта — допущение. Целевой P/E ≈ 1/Ke = 5.0 × EPS 1404.72. Чувствителен к допущению о бете и к качеству прибыли (процентный доход)."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4186.0,
+      "base": 5605.0,
+      "current_price": 3470.0,
+      "upside_downside_pct": 61.5,
+      "upside_conservative_pct": 20.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": [
+    "P/E ~2.5 экстремально низкий: рынок устойчиво даёт энергосбытам глубокий дисконт за тонкую маржу и качество прибыли — это не обязательно недооценка.",
+    "EV/EBITDA ~0.6 (<1): EV ниже годовой EBITDA из-за крупной чистой денежной позиции (чистый долг −31.9 млрд); мультипликатор не сопоставим с капиталоёмкими компаниями.",
+    "Капитал группы был около нуля в 2021-2023 (0.3-9.0 млрд) → ROE 100-1000% — артефакт малого знаменателя, не реальная доходность; к 2025 ROE нормализовался к ~48%.",
+    "Рост прибыли 2024-2025 в значительной мере обеспечен процентным доходом на денежную подушку при ставке 14.5%, а не ростом сбыта; при снижении ставки эффект ослабнет.",
+    "Чистая прибыль на акционеров мат. компании (19.2) ниже общей по группе (20.62) из-за миноритариев в отдельно торгуемых региональных дочках (Кубань, Ростов, НН и др.).",
+    "Оценка по historical_pe механически переносит структурно низкий P/E сектора; CAPM даёт более высокий ориентир — коридор широкий, надёжность низкая (data_quality=low)."
+  ],
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — параметры выпуска TNSE (цена, число акций)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО TNSE (ряды 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "broker",
+      "title": "Finam / MarketPower — пресс-релизы по МСФО 2024-2025 (выручка, чистая прибыль)",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/TNSE/business_model.md — сегменты, экономика сбыта",
+      "period": "2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "2019-2020 ряды отсутствуют (не раскрыты в выборке агрегатора).",
+    "Постатейный P&L (COGS, расходы на покупку энергии и передачу, резерв под дебиторку, точные процентные доходы) построчно не сверён по консолидированному МСФО.",
+    "FCF/CapEx/денежные потоки не выделены — DCF не считался.",
+    "P/BV истории на смартлабе отрицательны/аномальны (−1665 за 2024) из-за околонулевого капитала; в JSON оставлен только корректный текущий P/B (1.20).",
+    "Net profit: используется прибыль на акционеров мат. компании (19.2/2025, 10.6/2024) для P/E и ROE; общая по группе (20.62/11.33) хранится отдельно.",
+    "Бета 0.6 для CAPM — допущение (нет рассчитанной по регрессии); чувствительность оценки к нему высокая.",
+    "relative_peers в статусе pending_sector_backfill — сектор энергосбытов не прогнан."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

@@ -1,0 +1,495 @@
+{
+  "meta": {
+    "ticker": "LPSB",
+    "name": "ПАО «Липецкая энергосбытовая компания» (ЛЭСК)",
+    "isin": "RU000A0D8MR7",
+    "sector": "Электроэнергетика (энергосбыт / гарантирующий поставщик)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 55.55,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 155521950,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "data_quality_note": "sources/ пуст (нет PDF). Все ряды собраны из веб-агрегаторов (smart-lab, MOEX ISS, finviewer); компания не публикует МСФО, EBITDA и CapEx отдельными строками не раскрывает — часть значений оценочная. Брокерского покрытия по эмитенту нет."
+  },
+  "income_statement": {
+    "revenue": [
+      11.3,
+      12.2,
+      13.0,
+      13.6,
+      14.7
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      0.636,
+      0.91,
+      1.44,
+      0.27,
+      1.49
+    ],
+    "ebitda": [
+      0.71,
+      0.945,
+      1.48,
+      0.307,
+      1.53
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.552,
+      0.78,
+      1.42,
+      0.444,
+      1.45
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        6.3,
+        7.7,
+        11.4,
+        2.3,
+        10.4
+      ],
+      "operating_margin": [
+        5.6,
+        7.5,
+        11.1,
+        2.0,
+        10.1
+      ],
+      "net_margin": [
+        4.9,
+        6.4,
+        10.9,
+        3.3,
+        9.9
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      2.87,
+      3.93,
+      4.11,
+      2.21,
+      3.77
+    ],
+    "total_equity": [
+      1.67,
+      2.45,
+      3.01,
+      0.968,
+      2.42
+    ],
+    "total_liabilities": [
+      1.2,
+      1.48,
+      1.1,
+      1.24,
+      1.35
+    ],
+    "cash": [
+      1.35,
+      2.37,
+      2.51,
+      0.932,
+      2.11
+    ],
+    "short_term_debt": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "long_term_debt": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "net_debt": [
+      -1.35,
+      -2.37,
+      -2.51,
+      -0.932,
+      -2.11
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        -1.9,
+        -2.51,
+        -1.7,
+        -3.04,
+        -1.38
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      0.27,
+      0.965,
+      0.92,
+      0.795,
+      1.03
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0.03,
+      0.1,
+      0.17,
+      0.171,
+      0.068
+    ],
+    "fcf": [
+      0.24,
+      0.865,
+      0.75,
+      0.624,
+      0.962
+    ],
+    "ratios": {
+      "fcf_margin": [
+        2.1,
+        7.1,
+        5.8,
+        4.6,
+        6.5
+      ],
+      "cfo_to_capex": [
+        9.0,
+        9.65,
+        5.41,
+        4.65,
+        15.15
+      ],
+      "capex_to_revenue": [
+        0.3,
+        0.8,
+        1.3,
+        1.3,
+        0.5
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      33.1,
+      31.8,
+      47.2,
+      45.9,
+      59.9
+    ],
+    "roa": [
+      19.2,
+      19.8,
+      34.5,
+      20.1,
+      38.5
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      4.9,
+      6.4,
+      10.9,
+      3.3,
+      9.9
+    ],
+    "asset_turnover": [
+      3.94,
+      3.1,
+      3.16,
+      6.15,
+      3.9
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      5.96
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.59
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      3.57
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      4.27
+    ],
+    "current": {
+      "pe": 5.96,
+      "ps": 0.59,
+      "pb": 3.57,
+      "ev_ebitda": 4.27,
+      "ev_sales": 0.44,
+      "dividend_yield_pct": 0.0,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025",
+      "note": "Достоверного ряда годовых средних цен не собрано (низкая ликвидность, нет надёжного price-history по годам). P/E эмитента крайне волатилен из-за скачков прибыли — историческая средняя малоинформативна."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия эмитента нет. Прибыль нестабильна (2024: 0.444 млрд при операционной 0.27; 2025: 1.45 млрд) и зависит от регулируемой сбытовой надбавки, резерва под дебиторку и процентного результата по свободным остаткам. История нерепрезентативна для механического прогноза — прогноз не строим, DCF → insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 20.0,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF волатилен и зависит от оборотного капитала и регулируемой надбавки; прогноза нет (forecast.source_type=none). DCF не строим, чтобы не выдумывать траекторию."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 30.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 6.0,
+          "basis": "fair_pe_x_normalized_eps",
+          "eps_normalized": 5.02,
+          "eps_2025_actual": 9.32,
+          "note": "Нормализованная прибыль = медиана чистой прибыли 5 лет (0.78 млрд). При справедливом P/E 6x для регулируемого тонкомаржинального сбыта без регулярных дивидендов → 30. На пиковой прибыли 2025 (EPS 9.32) тот же 6x даёт ~56 (около текущей цены) — отсюда широкий разброс."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана по сектору энергосбытов будет подставлена после прогона всех компаний сектора и обновления peers.json."
+      },
+      {
+        "method": "pb_roe",
+        "fair_value_per_share": 40.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "fair_pb": 2.57,
+          "roe_normalized_pct": 45.9,
+          "ke_pct": 20.0,
+          "g_pct": 3.5,
+          "bvps_2025": 15.56,
+          "formula": "fair_P/B = (ROE - g) / (Ke - g); price = fair_P/B x BVPS"
+        },
+        "status": "ok",
+        "note": "Чувствительно к допущению об устойчивой ROE: исторические выплаты крупных спецдивидендов резко уменьшают капитал и завышают ROE/balance-метрики."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.0,
+          "beta": 0.6,
+          "rf": 14.6,
+          "erp": 9.0
+        },
+        "status": "insufficient_data",
+        "note": "Целевая цена через CAPM требует ожидаемой дивдоходности/прибыли на 12 мес. Регулярных дивидендов нет, прогноза прибыли нет → таргет на год не считаем. Ke=20% приведён как ставка-ориентир."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "note": "Регулярной дивполитики нет: за 2023, 2024 и 2025 дивиденды не выплачивались (прибыль оставлена нераспределённой). Разовая выплата 16.00 руб/акц в мае 2024 (за 1кв2024 + прошлые периоды, всего 2.488 млрд) — спецраспределение накопленной прибыли, повторяемость не гарантирована. Дивидендный метод не применим как база оценки."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 20.0,
+      "base": 35.0,
+      "current_price": 55.55,
+      "upside_downside_pct": -37.0,
+      "note": "Коридор широкий и ниже рынка: база (~35) — среднее метода нормализованного P/E (30) и P/B×ROE (40). Консервативная (~20) — на нормализованной прибыли при P/E 4x. На пиковой прибыли 2025 оценка по P/E подтягивается к текущей цене (~56), поэтому ключевая развилка — устойчива ли прибыль 2025 или это разовый всплеск."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Чистая прибыль 2025 = 1.45 млрд против 0.444 млрд в 2024 (рост в 3.3 раза) при росте выручки лишь на ~8%. Операционная прибыль 2024 проседала до 0.27 млрд (маржа 2.0%) — нетипично низко для ряда, затем восстановление до 1.49 млрд в 2025. Прибыль сбыта формируется тонким слоем регулируемой надбавки + резервом под дебиторку + процентным доходом по свободным остаткам (чистый долг отрицательный, −2.11 млрд), поэтому при стабильной выручке прибыль скачет в разы. ROE 60% и P/B 3.57 искажены тем, что капитал в 2024 был резко уменьшен спецдивидендом (16 руб/акц). Полнота раскрытия низкая — причина скачка 2025 по публичным данным однозначно не подтверждена.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — справка по бумаге LPSB (ISIN, число акций, котировка TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность РСБУ ЛЭСК (выручка, прибыль, баланс, мультипликаторы) 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "finviewer.ru — дивидендная история и структура ЛЭСК",
+      "period": "2024-2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md (внутренний разбор LPSB) — якорные значения 2024/2025, чистый долг, статус ГП",
+      "period": "2024-2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "sources/ пуст — нет ни одного PDF/выгрузки; все числа из веб-агрегаторов, перекрёстно сверены, но без первоисточника (форма РСБУ эмитента) — data_quality=low.",
+    "EBITDA, CapEx, D&A, COGS, финансовые расходы отдельными строками компанией не раскрываются — EBITDA и операционная маржа частично оценочные (по агрегатору).",
+    "EV/EBITDA для энергосбыта малоинформативна (чистый долг отрицательный, бизнес — транзит чужих денег): EV/EBITDA=4.27 приведён, но не несущая метрика. Оценка опирается на P/E и P/B×ROE.",
+    "Аномалия: чистая прибыль 2025 x3.3 к 2024 при +8% выручки — причина по публичным данным не подтверждена (резерв под дебиторку / процентный доход / разовые статьи). См. anomaly_note.",
+    "ROE и P/B завышены из-за резкого сокращения капитала спецдивидендом 2024 (16 руб/акц, 2.488 млрд) — нормализованная ROE/устойчивость капитала под вопросом.",
+    "Дивиденды нерегулярны: 2023-2025 не выплачивались, 2024 — разовая спецвыплата. Дивидендный метод и CAPM-таргет не считаются (нет базы).",
+    "Брокерского покрытия нет → forecast.source_type=none, DCF=insufficient_data.",
+    "relative_peers = pending_sector_backfill (нет peers.json по сектору энергосбытов).",
+    "Корпоративный риск: контроль >88.5% (по части источников до 91%) у Zefavel Trading Limited (Кипр); free-float мал, ликвидность акции низкая — рыночная цена может слабо отражать стоимость.",
+    "total_liabilities по годам частично восстановлены как (assets − equity); current_ratio не раскрыт."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

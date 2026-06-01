@@ -1,0 +1,569 @@
+{
+  "meta": {
+    "ticker": "IRKT",
+    "name": "ПАО «Яковлев» (бывш. Корпорация «Иркут»)",
+    "sector": "Машиностроение / Авиастроение",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 20.1,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 12051279624,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Выручка, себестоимость и большинство строк отчётности ЗАКРЫТЫ режимом гособоронзаказа (постановления Правительства РФ). Раскрыты только агрегированные якоря за 2024 г. (выручка 209,7; EBITDA 27,9; долг 142,8; кэш 48,7; FCF 8,77) и ряд чистой прибыли 2021–2025. P/B за 2021 г. бессмыслен (отрицательный капитал −0,25 млрд). Прибыль зависит от господдержки и исполнения долгосрочных контрактов; гражданский проект МС-21 пока не вышел в устойчивую серию. Оценка крайне неопределённая. Free-float малый, ликвидность низкая."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      209700,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      14500,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      27900,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      13400,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      5740,
+      27300,
+      -5390,
+      11400,
+      11300
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        13.3,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        6.9,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        5.4,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      306800,
+      389100,
+      596700,
+      633000,
+      626000
+    ],
+    "total_equity": [
+      null,
+      null,
+      -250,
+      47300,
+      65900,
+      97800,
+      122300
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      307050,
+      341800,
+      530800,
+      535200,
+      503700
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      48700,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      94100,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        1.46,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        3.37,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      28100,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      10500,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      8770,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        4.2,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        2.68,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        5.0,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      10.3
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      4.5,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      5.4,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.33,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      21.4
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.16,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      5.12,
+      3.67,
+      2.48,
+      1.98
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      12.05,
+      null
+    ],
+    "current": {
+      "pe": 21.4,
+      "ps": 1.16,
+      "pb": 1.98,
+      "ev_ebitda": 12.05,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 28.2,
+      "period": "2021-2025 (без 2023 — убыток; медиана искажена высокими оценками рынка)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 21.4,
+      "ps": null,
+      "pb": 1.98,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": 10.3
+    },
+    "2024": {
+      "pe": 28.8,
+      "ps": 1.16,
+      "pb": 2.48,
+      "ev_ebitda": 12.05,
+      "net_debt_ebitda": 3.37,
+      "roe": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз невозможен: выручка закрыта ГОЗ, история нерепрезентативна (скачки чистой прибыли: 2022 +27,3 млрд → 2023 убыток −5,4 млрд → 2024–2025 ~11 млрд). Прибыль определяется признанием долгосрочных контрактов и господдержкой, а не органическим ростом. Серийный выпуск МС-21 неоднократно сдвигался. DCF → insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 26.43,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 28.2,
+          "basis": "5y_median (2021-2025, без убыточного 2023)"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 3.83,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "basis": "справедливый P/E ≈ 1/Ke × EPS; дивидендов нет"
+        },
+        "status": "ok"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 3.83,
+      "base": 15.13,
+      "current_price": 20.1,
+      "upside_downside_pct": -24.7
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Яковлев» — раскрытие e-disclosure.ru / IR ОАК (агрегированные якоря МСФО 2024)",
+      "period": "2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab: Яковлев (IRKT) годовая отчётность МСФО",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "MOEX ISS: профиль бумаги IRKT (issuesize, листинг)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX ISS: котировки TQBR IRKT (last price)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "Интерфакс: прибыль РСБУ 2024 (6,5 млрд), убыток 2023 (−28,5 млрд), закрытие выручки",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "ВЫРУЧКА закрыта ГОЗ: раскрыта только за 2024 г. (209,7 млрд). За остальные годы — null. P/S и FCF margin посчитаны только для 2024.",
+    "EBITDA, операционная прибыль, долг, кэш, CapEx, CFO, FCF раскрыты только за 2024 г. — мультипликаторы EV/EBITDA, ND/EBITDA опираются на единственный год.",
+    "Чистый долг (94,1 млрд) и ND/EBITDA 3,37 — высокая долговая нагрузка; при ставке ЦБ 14,5% обслуживание долга 142,8 млрд значимо давит на прибыль.",
+    "Капитал 2021 отрицательный (−0,25 млрд) → P/B за 2021 не считается (бессмыслен).",
+    "EV/EBITDA и ND/EBITDA смешивают рыночную капитализацию на 2026-06-01 с EBITDA 2024 — временной разрыв ~1,5 года, точность ограничена.",
+    "Прибыль зависит от ГОСПОДДЕРЖКИ и признания долгосрочных госконтрактов, а не от рыночной выручки; устойчивость прибыли оценить нельзя.",
+    "Гражданский проект МС-21 (ключевой драйвер стоимости) не вышел в устойчивую серию; сроки неоднократно сдвигались.",
+    "АНОМАЛИЯ ОЦЕНКИ: методы расходятся в разы — CAPM даёт ~3,8 ₽ (рынок платит высокий P/E 21x за тонкую дотируемую прибыль), исторический P/E ~26 ₽ (но сама историческая медиана P/E ~28 завышена ожиданиями). Реальный коридор крайне широк и ненадёжен.",
+    "DCF неприменим: нет раскрытой выручки и репрезентативной истории FCF (один год).",
+    "relative_peers: status=pending_sector_backfill — медиана сектора авиастроения/ОАК будет добавлена после прогона всех компаний сектора.",
+    "Малый free-float, низкая ликвидность; риск размытия миноритариев при допэмиссиях в рамках ОАК (shares outstanding выросли с 6,79 млрд в 2021 до 12,05 млрд в 2024).",
+    "data_quality=low: большинство строк отчётности недоступны."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}
