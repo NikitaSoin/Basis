@@ -1,0 +1,566 @@
+{
+  "meta": {
+    "ticker": "ARSA",
+    "name": "ПАО «УК «Арсагера»",
+    "sector": "finance",
+    "subsector": "asset_management",
+    "profile": "standard",
+    "profile_note": "Стандартный профиль с финспецификой: управляющая компания (asset manager), не банк. Ключевые метрики — P/BV, ROE, СЧА/собственный портфель. EV/EBITDA малоинформативен (см. data_flags). Прибыль во многом формируется переоценкой собственного инвестпортфеля → высокая волатильность.",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 7.35,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 123817165,
+    "data_quality": "low",
+    "data_quality_note": "Доступна агрегированная МСФО-отчётность 2021–2025 (smart-lab + сайт компании). Денежные потоки и детальная разбивка P&L/баланса не собраны; ряды 2019–2020 отсутствуют. Историческое раскрытие ограничено.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      56.0,
+      38.0,
+      62.2,
+      71.5,
+      77.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      54.8,
+      81.3,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      53.0,
+      -82.0,
+      108.4,
+      -8.4,
+      -1.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        94.6,
+        -215.8,
+        174.3,
+        -11.7,
+        -1.3
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      292.0,
+      205.0,
+      322.0,
+      247.0,
+      231.0
+    ],
+    "total_equity": [
+      275.0,
+      193.0,
+      302.4,
+      232.2,
+      213.0
+    ],
+    "total_liabilities": [
+      17.0,
+      12.0,
+      19.6,
+      14.8,
+      18.0
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "book_value_per_share": [
+      2.22,
+      1.56,
+      2.44,
+      1.88,
+      1.72
+    ],
+    "investment_portfolio": [
+      null,
+      null,
+      301.0,
+      215.4,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "note": "Денежные потоки для asset manager малоинформативны и не собраны (data_quality=low). Главный «денежный» драйвер — переоценка собственного портфеля ЦБ, отражаемая в прибыли, а не CapEx."
+  },
+  "returns": {
+    "roe": [
+      19.3,
+      -42.5,
+      35.8,
+      -3.6,
+      -0.5
+    ],
+    "roa": [
+      18.2,
+      -40.0,
+      33.7,
+      -3.4,
+      -0.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      94.6,
+      -215.8,
+      174.3,
+      -11.7,
+      -1.3
+    ],
+    "asset_turnover": [
+      0.19,
+      0.19,
+      0.19,
+      0.29,
+      0.33
+    ],
+    "note": "ROE считается к капиталу на конец периода. Размах ROE от +36% до −43% отражает доминирование переоценки собственного портфеля над операционным результатом."
+  },
+  "multiples": {
+    "pe": [
+      17.7,
+      -7.56,
+      12.5,
+      -164.5,
+      -1045.0
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      3.41,
+      3.21,
+      4.51,
+      5.67,
+      4.91
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda_note": "EV/EBITDA для управляющей компании малоинформативен: нет производственных активов и амортизации, прибыль определяется переоценкой портфеля. Не используется ни для оценки, ни для сравнения.",
+    "current": {
+      "pe": null,
+      "pe_note": "P/E неприменим: чистый результат 2025 близок к нулю/убыток.",
+      "ps": 11.82,
+      "pb": 4.27,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "pe_note": "Медиана P/E не считается: 3 из 5 лет — убыток/околонулевая прибыль, выборка нерепрезентативна.",
+      "pb_5y_avg": 4.34,
+      "pb_5y_median": 4.51,
+      "period": "2021-2025"
+    },
+    "peer_multiples": {
+      "_about": "Снимок ключевых мультипликаторов компании за два последних года для сравнения с сектором (заполняется по сектору при backfill).",
+      "2025": {
+        "pe": null,
+        "ps": 11.82,
+        "pb": 4.91,
+        "ev_ebitda": null,
+        "roe": -0.5,
+        "net_margin": -1.3
+      },
+      "2024": {
+        "pe": null,
+        "ps": null,
+        "pb": 5.67,
+        "ev_ebitda": null,
+        "roe": -3.6,
+        "net_margin": -11.7
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз не строится. Брокерского покрытия микро-капа нет; прибыль определяется непредсказуемой переоценкой собственного портфеля (зависит от индекса МосБиржи). История нерепрезентативна (3 убыточных/околонулевых года из 5). source_type=none."
+  },
+  "valuation": {
+    "anomaly_flag": true,
+    "anomaly_note": "Сильная аномалия оценки. Акция торгуется по P/BV ≈ 4.3 при балансовой стоимости 1.72 руб/акцию, тогда как ~90% капитала — это переоцениваемый портфель ликвидных ЦБ (инвестиционный холдинг обычно торгуется около или ниже NAV). Нормализованная ROE (~2% за 5 лет) значительно ниже стоимости капитала Ke≈23.6%, поэтому модель P/BV×ROE даёт справедливый P/BV <1. Все методы указывают на цену существенно ниже рыночной (фундаментальный апсайд глубоко отрицательный). Вероятные причины разрыва: крайне низкая ликвидность/free-float, премия «истории и бренда» Арсагеры, спекулятивный/неэффективный ценообразующий микро-кап. Число достоверно посчитано, но к нему относиться как к сигналу о переоценке, а не как к точному таргету.",
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.236,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable",
+        "note": "FCF управляющей компании недоступен и неинформативен: стоимость создаётся переоценкой портфеля ЦБ, а не операционным денежным потоком. Прогноз невозможен (source_type=none). DCF не применяется."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "3 из 5 лет — убыток/околонулевая прибыль; медиана P/E нерепрезентативна, текущая EPS отрицательна."
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 0.39,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "formula": "fair_P/BV = (ROE_n − g) / (Ke − g); FV = fair_P/BV × BVPS",
+          "roe_normalized_pct": 8.0,
+          "ke_pct": 23.6,
+          "g_pct": 3.5,
+          "bvps": 1.72
+        },
+        "status": "ok",
+        "note": "Основной метод для asset manager. При нормализованной ROE 8% (оптимистично — выше фактической средней ~2%) справедливый P/BV ≈ 0.22, FV ≈ 0.39 руб. Поскольку устойчивая ROE ниже Ke, фундаментальная стоимость ниже балансовой."
+      },
+      {
+        "method": "book_value_anchor",
+        "fair_value_per_share": 2.58,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "fair_pbv_band": "0.8x–1.5x BVPS",
+          "bvps": 1.72,
+          "rationale": "Капитал ≈ портфель ликвидных ЦБ; для инвестхолдинга/нишевой УК справедливо торговаться около NAV с небольшой премией за франшизу."
+        },
+        "status": "ok",
+        "note": "Консервативный диапазон 1.38–2.58 руб (0.8x–1.5x балансовой стоимости). Используется как верхняя граница справедливого коридора, более мягкая, чем P/BV×ROE."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Требуется медиана P/BV по сопоставимым публичным УК/финкомпаниям РФ — заполнить после прогона сектора finance и сборки sectors/finance/peers.json."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.236,
+          "beta": 1.0,
+          "rf_pct": 14.6,
+          "erp_pct": 9.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke≈23.6% (бета≈1.0, высокая чувствительность к рынку). Таргет на 12 мес. не считается: нет ожидаемой прибыли/дивиденда (СД рекомендовал не платить за 2025), ожидаемая доходность не определяется."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.39,
+      "base": 2.58,
+      "current_price": 7.35,
+      "upside_downside_pct": -64.9,
+      "range_note": "Коридор 0.39–2.58 руб. Нижняя граница — метод P/BV×ROE (устойчивая ROE < Ke). Верхняя — 1.5x балансовой стоимости. Текущая цена 7.35 руб лежит ВЫШЕ всего фундаментального коридора → даунсайд −65% (к базе) … −95% (к нижней границе). См. anomaly_note."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": [],
+      "note": "Сетка чувствительности DCF неприменима (DCF not_applicable)."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО ARSA (2021–2025)",
+      "url": "https://smart-lab.ru/q/ARSA/f/y/",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS — параметры бумаги ARSA (число акций 123 817 165, ISIN RU000A0JP0Q7)",
+      "url": "https://iss.moex.com/iss/securities/ARSA.json",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "MOEX ISS — рыночные данные ARSA (цена TQBR 7.35 руб на 2026-06-01)",
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/securities/ARSA.json",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Smart-Lab — история дивидендов ARSA",
+      "url": "https://smart-lab.ru/q/ARSA/dividend/",
+      "period": "2018-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "Отчётность УК Арсагера (сайт компании, раздел для акционеров)",
+      "url": "https://stock.arsagera.ru/",
+      "period": "2023-2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_6",
+      "type": "internal",
+      "title": "Блок «Бизнес-модель» ARSA (companies/ARSA/business_model.md)",
+      "period": "2024-2026",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: денежные потоки (CFO/CFI/CFF/CapEx/FCF) не собраны; детальная разбивка P&L и баланса (cogs, долг, кэш) не раскрыта в собранных источниках.",
+    "Ряды 2019–2020 отсутствуют у источников — fiscal_years начинается с 2021 (5 лет вместо 7).",
+    "Аномалия оценки (anomaly_flag=true): рыночная цена 7.35 руб при балансовой стоимости 1.72 руб (P/BV≈4.3) и устойчивой ROE ниже Ke. Все фундаментальные методы дают цену существенно ниже рыночной. Вероятная причина — крайне низкая ликвидность микро-капа и премия бренда, а не фундаментал.",
+    "EV/EBITDA и DCF неприменимы для управляющей компании — помечены not_applicable.",
+    "P/E неинформативен: 3 из 5 лет убыток/околонулевая прибыль; current P/E и медиана P/E = null.",
+    "ROE считается к капиталу на конец периода (не к среднему) из-за отсутствия квартальных данных — может слегка занижать/завышать против стандартной методики.",
+    "operating_expenses 2024=81.3 включают расхождение (~прочие операционные/переоценка) — см. сноску в business_model.md; разбивка себестоимость/админ — оценка.",
+    "Бета=1.0 принята как допущение (нет надёжной оценки беты для неликвидной бумаги); фактическая чувствительность к рынку, вероятно, высокая.",
+    "relative_peers — status=pending_sector_backfill: нет медианы P/BV по публичным УК РФ до прогона сектора finance.",
+    "Дивиденды за 2024 (выплачены в 2025) — 0.15 руб; за 2025 СД рекомендовал не платить (29.04.2026)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "pb",
+    "peer_median": 0.88,
+    "fair_value_per_share": 1.32,
+    "upside_downside_pct": -82.0,
+    "status": "reference_only"
+  }
+}

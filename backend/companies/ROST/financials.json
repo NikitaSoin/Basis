@@ -1,0 +1,501 @@
+{
+  "meta": {
+    "ticker": "ROST",
+    "name": "ПАО «Росинтер Ресторантс Холдинг»",
+    "sector": "consumer",
+    "subsector": "restaurants",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 82.4,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 16305334,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      6.21,
+      6.28,
+      7.17,
+      7.77,
+      7.77
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1.06,
+      1.47,
+      1.09,
+      1.31,
+      1.14
+    ],
+    "ebitda": [
+      2.37,
+      2.73,
+      2.28,
+      2.38,
+      2.54
+    ],
+    "ebitda_company_adjusted": [
+      null,
+      null,
+      0.72,
+      0.8,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.094,
+      0.327,
+      0.112,
+      -0.017,
+      -0.173
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        38.2,
+        43.5,
+        31.8,
+        30.6,
+        32.7
+      ],
+      "operating_margin": [
+        17.1,
+        23.4,
+        15.2,
+        16.9,
+        14.7
+      ],
+      "net_margin": [
+        1.5,
+        5.2,
+        1.6,
+        -0.2,
+        -2.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      9.06,
+      6.72,
+      7.51,
+      9.36,
+      9.79
+    ],
+    "total_equity": [
+      -3.0,
+      -2.69,
+      -2.53,
+      -2.53,
+      -2.72
+    ],
+    "total_liabilities": [
+      12.06,
+      9.41,
+      10.04,
+      11.89,
+      12.51
+    ],
+    "cash": [
+      0.33,
+      0.158,
+      0.41,
+      0.195,
+      0.1
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_debt": [
+      4.91,
+      4.74,
+      4.68,
+      5.09,
+      6.16
+    ],
+    "net_debt": [
+      4.58,
+      4.59,
+      4.27,
+      4.9,
+      6.06
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        1.93,
+        1.68,
+        1.87,
+        2.06,
+        2.39
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      0.516,
+      1.1,
+      1.07,
+      0.983,
+      0.743
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0.254,
+      0.139,
+      0.21,
+      0.53,
+      0.793
+    ],
+    "fcf": [
+      0.26,
+      0.96,
+      0.86,
+      0.45,
+      -0.05
+    ],
+    "ratios": {
+      "fcf_margin": [
+        4.2,
+        15.3,
+        12.0,
+        5.8,
+        -0.6
+      ],
+      "cfo_to_capex": [
+        2.03,
+        7.91,
+        5.1,
+        1.85,
+        0.94
+      ],
+      "capex_to_revenue": [
+        4.1,
+        2.2,
+        2.9,
+        6.8,
+        10.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe_note": "Капитал отрицательный (−2.5…−2.7 млрд) — ROE не интерпретируется (NM).",
+    "roa": [
+      1.0,
+      4.9,
+      1.5,
+      -0.2,
+      -1.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      1.5,
+      5.2,
+      1.6,
+      -0.2,
+      -2.2
+    ],
+    "asset_turnover": [
+      0.69,
+      0.93,
+      0.95,
+      0.83,
+      0.79
+    ]
+  },
+  "multiples": {
+    "pe": [
+      12.0,
+      2.9,
+      21.2,
+      -117.6,
+      -9.5
+    ],
+    "ps": [
+      0.18,
+      0.15,
+      0.33,
+      0.26,
+      0.21
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      2.41,
+      2.03,
+      2.91,
+      2.9,
+      3.03
+    ],
+    "current": {
+      "pe": -7.8,
+      "ps": 0.17,
+      "pb": null,
+      "ev_ebitda": 2.91,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "ev_ebitda_5y_median": 2.9,
+      "ps_5y_median": 0.21,
+      "pe_5y_median": null,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие отсутствует (малоликвидная акция). Чистый результат волатилен и в 2024-2025 ушёл в убыток — история нерепрезентативна для механического прогноза прибыли. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Чистый убыток в 2024-2025, FCF ушёл к нулю/минусу, капитал отрицательный, прогноза нет — DCF не строится."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable",
+        "note": "Прибыль на акцию отрицательна/волатильна — P/E не применим."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана сектора (рестораны/общепит РФ) будет добита при прогоне сектора consumer."
+      },
+      {
+        "method": "own_history_ev_ebitda",
+        "fair_value_per_share": 80.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "multiple_used": 2.9,
+          "basis": "5y_median_own",
+          "ebitda_2025": 2.54
+        },
+        "status": "ok",
+        "note": "Возврат к собственной 5-летней медиане EV/EBITDA на EBITDA 2025 (IFRS-16)."
+      },
+      {
+        "method": "own_history_ps",
+        "fair_value_per_share": 100.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "multiple_used": 0.21,
+          "basis": "5y_median_own",
+          "revenue_2025": 7.77
+        },
+        "status": "ok",
+        "note": "Возврат к собственной 5-летней медиане P/S на выручке 2025."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1
+        },
+        "status": "reference_only",
+        "note": "Ke = 14.6 + 1.1×9.0 = 24.5%. Это требуемая доходность; целевую цену не выводим — нет дивидендов и прогноза прибыли."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 80,
+      "base": 100,
+      "current_price": 82.4,
+      "upside_downside_pct": 9.2,
+      "note": "Коридор широкий и опирается ТОЛЬКО на возврат к собственным историческим мультипликаторам (EV/EBITDA и P/S), т.к. P/E, P/B и DCF неприменимы. Низкая надёжность."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Отрицательный собственный капитал (−2.5…−2.7 млрд руб.) на всём горизонте — ROE и P/B не интерпретируются. Чистая прибыль волатильна и в 2024-2025 ушла в убыток (P/E отрицателен/NM). EBITDA-маржа 31-43% аномально высока для общепита, т.к. показатели агрегатора (smart-lab) посчитаны по МСФО-16: арендные платежи вынесены из EBITDA в амортизацию/проценты. Собственный показатель компании «EBITDA до обесценения и списаний» — ~0.8 млрд (маржа ~10%), а чистый долг без аренды ~2.48 млрд (ND/EBITDA ~0.94). EV/EBITDA и ND/EBITDA в JSON даны на МСФО-16 базе (согласованы с net_debt, включающим аренду).",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Годовая отчётность ПАО «Росинтер» (e-disclosure / IR)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели ROST по МСФО 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "MOEX ISS — котировка ROST (TQBR), число акций",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Интерфакс — выручка/EBITDA Росинтер 2024",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Собственный капитал отрицательный на всём горизонте — ROE, P/B, debt/equity не считаются (NM).",
+    "Две версии EBITDA: МСФО-16 агрегатора (~2.4 млрд, маржа ~31%) и собственная «до обесценения/списаний» (~0.8 млрд, маржа ~10%). В JSON ряды — МСФО-16, согласованы с net_debt c арендой. Собственная EBITDA добавлена отдельным полем ebitda_company_adjusted.",
+    "COGS/gross profit, разбивка долга по срочности, состав CFI/CFF и амортизация компанией детально не раскрыты — null.",
+    "Чистая прибыль 2024 у источников расходится: smart-lab показывает −17 млн (убыток после списаний), business_model.md и часть СМИ — +81 млн до части списаний. Взята база smart-lab (МСФО, после списаний).",
+    "2025 — предварительные/неполные данные агрегатора, возможна корректировка.",
+    "Брокерское покрытие отсутствует — прогноз и консенсус недоступны.",
+    "Малоликвидная акция: рыночная цена и мультипликаторы могут не отражать справедливую стоимость.",
+    "relative_peers — status pending_sector_backfill (медиана сектора consumer/рестораны добивается позже)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

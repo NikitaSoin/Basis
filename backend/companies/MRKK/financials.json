@@ -1,0 +1,582 @@
+{
+  "meta": {
+    "ticker": "MRKK",
+    "name": "ПАО «Россети Северный Кавказ»",
+    "sector": "electric_utilities",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 20.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 2093000000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Структурно убыточная распределительная электросетевая компания СКФО: хронические убытки, многолетний отрицательный собственный капитал (в 2025 чуть выше нуля). P/E, EV/EBITDA, P/B и ROE математически считаются, но экономически неинформативны (прибыль и капитал около/ниже нуля). Корректные мультипликаторы — только P/S; оценка через DCF неприменима. Число акций уточнено по капитализации MOEX (41.66 млрд / 20.00 ≈ 2.083–2.093 млрд); смарт-лаб даёт средневзвешенное число акций по годам, расходящееся из-за регулярных допэмиссий (докапитализация)."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      34.6,
+      41.3,
+      48.5,
+      54.4,
+      73.6
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      64.5,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      -19.7,
+      2.65,
+      -11.6,
+      -17.6,
+      -12.1
+    ],
+    "ebitda": [
+      null,
+      null,
+      -14.0,
+      4.66,
+      -4.46,
+      -9.55,
+      -6.43
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      8.0,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.6,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      -27.9,
+      0.68,
+      -11.1,
+      -15.7,
+      -10.9
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        -40.5,
+        11.3,
+        -9.2,
+        -17.6,
+        -8.7
+      ],
+      "operating_margin": [
+        null,
+        null,
+        -56.9,
+        6.4,
+        -23.9,
+        -32.4,
+        -16.4
+      ],
+      "net_margin": [
+        null,
+        null,
+        -80.6,
+        1.6,
+        -22.9,
+        -28.9,
+        -14.8
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      17.8,
+      23.0,
+      27.2,
+      30.5,
+      36.3
+    ],
+    "total_equity": [
+      null,
+      null,
+      -46.7,
+      -24.9,
+      -0.26,
+      -1.97,
+      0.948
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      64.5,
+      47.9,
+      27.46,
+      32.47,
+      35.35
+    ],
+    "cash": [
+      null,
+      null,
+      2.65,
+      7.27,
+      7.09,
+      6.33,
+      5.4
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      6.5,
+      6.13,
+      -3.56,
+      -2.89,
+      -1.9
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      3.8,
+      6.2,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        7.8,
+        11.4,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      59.7,
+      -2.7,
+      4269.2,
+      797.0,
+      -1149.8
+    ],
+    "roa": [
+      null,
+      null,
+      -156.7,
+      3.0,
+      -40.8,
+      -51.5,
+      -30.0
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      -80.6,
+      1.6,
+      -22.9,
+      -28.9,
+      -14.8
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -3.84
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.57
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      44.2
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -6.21
+    ],
+    "current": {
+      "pe": -3.84,
+      "ps": 0.57,
+      "pb": 44.2,
+      "ev_ebitda": -6.21,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитывается — компания хронически убыточна, P/E отрицательны/неинформативны"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": -3.84,
+        "ps": 0.57,
+        "pb": 44.2,
+        "ev_ebitda": -6.21,
+        "roe": -1149.8,
+        "net_margin": -14.8
+      },
+      "2024": {
+        "pe": -5.21,
+        "ps": 1.51,
+        "pb": -36.9,
+        "ev_ebitda": null,
+        "roe": 797.0,
+        "net_margin": -28.9
+      }
+    },
+    "relative_peers": {
+      "status": "pending_sector_backfill",
+      "note": "Сравнение с распределительными сетевыми компаниями (Россети Центр, ЦП, Волга, Юг, МР, Ленэнерго и др.) будет добавлено после прогона сектора electric_utilities. Для убыточной компании сопоставимы только P/S и P/B."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие отсутствует; история нерепрезентативна (хронические убытки, скачкообразный рост выручки из-за тарифов и допэмиссий). Прогноз FCF невозможен — DCF неприменим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ps",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "ps_sector_proxy",
+        "fair_value_per_share": 10.5,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_low": 0.2,
+          "ps_high": 0.4,
+          "basis": "осторожный диапазон P/S для регулируемых распредсетей с дисконтом за убыточность",
+          "revenue_ttm_bln": 73.6
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "note": "Ke = 14.6% + 1.0×9.0% = 23.6%; таргет не считается — нет ни прибыли, ни дивидендов, к которым применить требуемую доходность"
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 7.0,
+      "base": 10.5,
+      "current_price": 20.0,
+      "upside_downside_pct": -47.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО MRKK (выручка, убыток, EBITDA, капитал, долг)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — котировка и капитализация MRKK (TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "peretok.ru — убыток МСФО 2024 вырос на 42% до 15.7 млрд",
+      "period": "2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "banki.ru — котировки и профиль MRKK (дивидендов нет)",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "internal",
+      "title": "business_model.md MRKK",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: нет загруженных файлов в sources/, нет аудированной отчётности; ряды 2019-2020 не раскрыты в доступных источниках (null).",
+    "Денежные потоки (CFO/CFI/CFF/FCF) не раскрыты в доступных агрегаторах — весь блок cash_flow null, кроме CapEx за 2023-2024 из бизнес-модели.",
+    "Число акций для текущих мультипликаторов взято из капитализации MOEX (≈2.093 млрд). Источник peretok даёт 8 373 416 680 — вероятно номинальный/уставный счёт, не совпадает с рыночной капитализацией; требует сверки с аудированной отчётностью.",
+    "Собственный капитал многолетне отрицателен (2021: -46.7; 2022: -24.9; 2023: -0.26; 2024: -1.97; 2025: +0.948 млрд) → P/B и ROE экстремальны и экономически неинформативны.",
+    "P/E, EV/EBITDA отрицательны (убыток, EBITDA<0) → неинформативны, в коридоре цены не используются.",
+    "Капитал 2025 чуть выше нуля — вероятно эффект очередной докапитализации/допэмиссии материнскими «Россетями»; будущие допэмиссии размывают долю миноритариев.",
+    "Резерв под сомнительную дебиторку и его величина за 2024 не раскрыты — ключевой драйвер убытка.",
+    "Коридор цены 7.0-10.5 руб получен ТОЛЬКО по P/S-прокси к сектору (осторожный 0.2-0.4×); пока sector backfill не выполнен — это грубый ориентир, надёжность низкая."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

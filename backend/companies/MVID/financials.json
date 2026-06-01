@@ -571,10 +571,10 @@
   "anomaly_flag": true,
   "anomaly_note": "Высокий долг + убыток + отрицательный капитал + допэмиссия — мультипликаторы нерепрезентативны.",
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": -935.15,
     "upside_downside_pct": -1558.9,
-    "status": "reference_only",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "reference_only"
   }
 }

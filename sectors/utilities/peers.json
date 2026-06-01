@@ -4,20 +4,78 @@
     "sector_key": "utilities",
     "generated_at": "2026-06-01",
     "companies": [
-      "IRAO",
-      "HYDR",
-      "FEES",
-      "UPRO",
+      "ASSB",
+      "DVEC",
       "ELFV",
+      "FEES",
+      "HYDR",
+      "IRAO",
+      "KBSB",
+      "KCHE",
+      "KCHEP",
+      "KGKC",
+      "KGKCP",
+      "KLSB",
+      "KRSB",
+      "KRSBP",
+      "LPSB",
       "LSNG",
+      "LSNGP",
+      "MAGE",
+      "MAGEP",
+      "MISB",
+      "MISBP",
+      "MRKC",
+      "MRKK",
+      "MRKP",
+      "MRKS",
+      "MRKU",
+      "MRKV",
+      "MRKY",
+      "MRKZ",
+      "MRSB",
+      "MSNG",
+      "MSRS",
+      "NNSB",
+      "NNSBP",
+      "OGKB",
       "PMSB",
-      "TGKB"
+      "PMSBP",
+      "RHYD",
+      "RTSB",
+      "RTSBP",
+      "RZSB",
+      "SAGO",
+      "SAGOP",
+      "SARE",
+      "SAREP",
+      "SLEN",
+      "STSB",
+      "STSBP",
+      "TASB",
+      "TASBP",
+      "TGKA",
+      "TGKB",
+      "TGKBP",
+      "TGKN",
+      "TNSE",
+      "TORS",
+      "TORSP",
+      "UPRO",
+      "VGSB",
+      "VGSBP",
+      "VRSB",
+      "VRSBP",
+      "YKEN",
+      "YKENP",
+      "YRSB",
+      "YRSBP"
     ],
-    "n": 8,
+    "n": 66,
     "registry_ref": "config/sectors.json",
     "macro_params_ref": "config/market_params.json",
-    "note": "Электроэнергетика крайне неоднородна (генерация/сети/сбыт/холдинг). Ядро медианы — HYDR/UPRO/LSNG. IRAO/UPRO с кэш-подушкой, FEES/ELFV искажены обесценениями/пиком EBITDA, PMSB — сбыт, TGKB — нерепрезентативна. Со *.",
-    "relative_valuation": "relative_peers от медианы ev_ebitda сопоставимых 2025 = 2.81. "
+    "note": "Электроэнергетика (генерация/сети/сбыт/холдинги). Крайне неоднородна; ядро — HYDR/UPRO/LSNG; сбыты/МРСК/префы/убыточные со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda ядра 2025 = 2.81."
   },
   "comparison_table": {
     "metrics": [
@@ -34,107 +92,55 @@
     ],
     "rows": [
       {
-        "ticker": "IRAO",
-        "name": "ПАО «Интер РАО»",
-        "price": 3.2445,
+        "ticker": "ASSB",
+        "name": "ПАО «Астраханская энергосбытовая компания» (Астраханьэнергосбыт)",
+        "price": 2.685,
         "anomaly": true,
         "is_pref": false,
         "excluded_from_aggregate": true,
-        "label": "IRAO *",
+        "label": "ASSB *",
         "relative_fair_value": null,
         "2025": {
-          "pe": 2.59,
-          "ps": 0.192,
-          "pb": 0.297,
-          "ev_ebitda": 0.53,
+          "pe": 4.14,
+          "ps": 0.117,
+          "pb": 2.35,
+          "ev_ebitda": 0.61,
           "net_debt_ebitda": null,
-          "roe": 11.51
+          "roe": 79.24
         },
         "2024": {
-          "pe": 2.59,
-          "ps": 0.22,
-          "pb": 0.33,
-          "ev_ebitda": 0.31,
-          "net_debt_ebitda": null,
-          "roe": 13.88
-        }
-      },
-      {
-        "ticker": "HYDR",
-        "name": "ПАО «РусГидро»",
-        "price": 0.3854,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "HYDR",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": 1.502,
-          "ps": 0.258,
-          "pb": 0.244,
-          "ev_ebitda": 3.404,
-          "net_debt_ebitda": null,
-          "roe": 16.219
-        },
-        "2024": {
-          "pe": -3.75,
-          "ps": 0.34,
-          "pb": 0.35,
-          "ev_ebitda": 13.136,
-          "net_debt_ebitda": null,
-          "roe": -9.249
-        }
-      },
-      {
-        "ticker": "FEES",
-        "name": "ПАО «Россети» (ФСК-Россети)",
-        "price": 0.06848,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "FEES *",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": 1.02,
+          "pe": 15.1,
           "ps": 0.08,
-          "pb": 0.08,
-          "ev_ebitda": 1.44,
+          "pb": 3.27,
+          "ev_ebitda": null,
           "net_debt_ebitda": null,
-          "roe": 7.42
+          "roe": 24.13
+        }
+      },
+      {
+        "ticker": "DVEC",
+        "name": "ПАО «ДЭК» (Дальневосточная энергетическая компания)",
+        "price": 1.705,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "DVEC *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
         },
         "2024": {
           "pe": null,
-          "ps": 0.1,
-          "pb": 0.08,
-          "ev_ebitda": 7.71,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
           "net_debt_ebitda": null,
-          "roe": -8.68
-        }
-      },
-      {
-        "ticker": "UPRO",
-        "name": "ПАО «Юнипро»",
-        "price": 1.3905,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "UPRO",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": 2.23,
-          "ps": 0.65,
-          "pb": 0.39,
-          "ev_ebitda": 2.81,
-          "net_debt_ebitda": null,
-          "roe": 21.39
-        },
-        "2024": {
-          "pe": 3.16,
-          "ps": 0.79,
-          "pb": 0.55,
-          "ev_ebitda": 2.21,
-          "net_debt_ebitda": null,
-          "roe": 20.94
+          "roe": null
         }
       },
       {
@@ -164,6 +170,318 @@
         }
       },
       {
+        "ticker": "FEES",
+        "name": "ПАО «Россети» (ФСК-Россети)",
+        "price": 0.06848,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "FEES *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 1.02,
+          "ps": 0.08,
+          "pb": 0.08,
+          "ev_ebitda": 1.44,
+          "net_debt_ebitda": null,
+          "roe": 7.42
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.1,
+          "pb": 0.08,
+          "ev_ebitda": 7.71,
+          "net_debt_ebitda": null,
+          "roe": -8.68
+        }
+      },
+      {
+        "ticker": "HYDR",
+        "name": "ПАО «РусГидро»",
+        "price": 0.3854,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "HYDR",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 1.502,
+          "ps": 0.258,
+          "pb": 0.244,
+          "ev_ebitda": 3.404,
+          "net_debt_ebitda": null,
+          "roe": 16.219
+        },
+        "2024": {
+          "pe": -3.75,
+          "ps": 0.34,
+          "pb": 0.35,
+          "ev_ebitda": 13.136,
+          "net_debt_ebitda": null,
+          "roe": -9.249
+        }
+      },
+      {
+        "ticker": "IRAO",
+        "name": "ПАО «Интер РАО»",
+        "price": 3.2445,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "IRAO *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.59,
+          "ps": 0.192,
+          "pb": 0.297,
+          "ev_ebitda": 0.53,
+          "net_debt_ebitda": null,
+          "roe": 11.51
+        },
+        "2024": {
+          "pe": 2.59,
+          "ps": 0.22,
+          "pb": 0.33,
+          "ev_ebitda": 0.31,
+          "net_debt_ebitda": null,
+          "roe": 13.88
+        }
+      },
+      {
+        "ticker": "KBSB",
+        "name": "ТНС энерго Кубань (ПАО)",
+        "price": 815.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KBSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.61,
+          "ps": 0.16,
+          "pb": 1.07,
+          "ev_ebitda": 0.81,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 2.91,
+          "ps": 0.1,
+          "pb": 0.96,
+          "ev_ebitda": 1.82,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "KCHE",
+        "name": "ПАО «Камчатскэнерго» (обыкновенные акции)",
+        "price": 0.352,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KCHE *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -684.0,
+          "ps": 0.92,
+          "pb": 1.41,
+          "ev_ebitda": 8.53,
+          "net_debt_ebitda": null,
+          "roe": -0.2
+        },
+        "2024": {
+          "pe": -25.1,
+          "ps": 0.94,
+          "pb": 1.42,
+          "ev_ebitda": 17.87,
+          "net_debt_ebitda": null,
+          "roe": -5.6
+        }
+      },
+      {
+        "ticker": "KCHEP",
+        "name": "ПАО «Камчатскэнерго» (прив.)",
+        "price": 0.71,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KCHEP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -1379.66,
+          "ps": 1.86,
+          "pb": 2.84,
+          "ev_ebitda": 8.53,
+          "net_debt_ebitda": null,
+          "roe": -0.2
+        },
+        "2024": {
+          "pe": -50.63,
+          "ps": 1.9,
+          "pb": 2.86,
+          "ev_ebitda": 17.87,
+          "net_debt_ebitda": null,
+          "roe": -5.6
+        }
+      },
+      {
+        "ticker": "KGKC",
+        "name": "ПАО «Курганская генерирующая компания» (обыкновенные акции)",
+        "price": 43.8,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KGKC *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.48,
+          "pb": 0.68,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": -3.5
+        },
+        "2024": {
+          "pe": 42.9,
+          "ps": 0.51,
+          "pb": 0.68,
+          "ev_ebitda": 4.64,
+          "net_debt_ebitda": null,
+          "roe": 1.6
+        }
+      },
+      {
+        "ticker": "KGKCP",
+        "name": "ПАО «Курганская генерирующая компания» (прив.)",
+        "price": 50.2,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KGKCP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.55,
+          "pb": 0.78,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": -3.5
+        },
+        "2024": {
+          "pe": 49.17,
+          "ps": 0.58,
+          "pb": 0.78,
+          "ev_ebitda": 4.64,
+          "net_debt_ebitda": null,
+          "roe": 1.6
+        }
+      },
+      {
+        "ticker": "KLSB",
+        "name": "ПАО «Калужская сбытовая компания»",
+        "price": 18.11,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KLSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 19.72,
+          "ps": 0.047,
+          "pb": 1.16,
+          "ev_ebitda": 3.61,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 13.36,
+          "ps": 0.055,
+          "pb": 1.24,
+          "ev_ebitda": 3.5,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "KRSB",
+        "name": "ПАО «Красноярскэнергосбыт» (обыкновенные акции)",
+        "price": 21.88,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KRSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 5.69,
+          "ps": 0.27,
+          "pb": 2.12,
+          "ev_ebitda": 3.82,
+          "net_debt_ebitda": null,
+          "roe": 37.3
+        },
+        "2024": {
+          "pe": 4.63,
+          "ps": null,
+          "pb": 2.1,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 45.4
+        }
+      },
+      {
+        "ticker": "KRSBP",
+        "name": "ПАО «Красноярскэнергосбыт» (прив.)",
+        "price": 21.68,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KRSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 5.64,
+          "ps": 0.27,
+          "pb": 2.1,
+          "ev_ebitda": 3.82,
+          "net_debt_ebitda": null,
+          "roe": 37.3
+        },
+        "2024": {
+          "pe": 4.59,
+          "ps": null,
+          "pb": 2.08,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 45.4
+        }
+      },
+      {
+        "ticker": "LPSB",
+        "name": "ПАО «Липецкая энергосбытовая компания» (ЛЭСК)",
+        "price": 55.55,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "LPSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
         "ticker": "LSNG",
         "name": "ПАО «Россети Ленэнерго» (обыкновенные акции)",
         "price": 15.18,
@@ -187,6 +505,500 @@
           "ev_ebitda": 3.64,
           "net_debt_ebitda": -0.23,
           "roe": 10.6
+        }
+      },
+      {
+        "ticker": "LSNGP",
+        "name": "ПАО «Россети Ленэнерго» (прив.)",
+        "price": 370.15,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "LSNGP *",
+        "relative_fair_value": 392.66,
+        "2025": {
+          "pe": 128.99,
+          "ps": 31.46,
+          "pb": 19.75,
+          "ev_ebitda": 2.63,
+          "net_debt_ebitda": -0.33,
+          "roe": 15.3
+        },
+        "2024": {
+          "pe": 186.29,
+          "ps": 32.19,
+          "pb": 19.75,
+          "ev_ebitda": 3.64,
+          "net_debt_ebitda": -0.23,
+          "roe": 10.6
+        }
+      },
+      {
+        "ticker": "MAGE",
+        "name": "ПАО «Магаданэнерго»",
+        "price": 2.435,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MAGE *",
+        "relative_fair_value": -2.8,
+        "2025": {
+          "pe": 1.67,
+          "ps": 0.05,
+          "pb": null,
+          "ev_ebitda": 3.39,
+          "net_debt_ebitda": 3.12,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.08,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": -7.91,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MAGEP",
+        "name": "ПАО «Магаданэнерго» (прив.)",
+        "price": 2.195,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "MAGEP *",
+        "relative_fair_value": -2.52,
+        "2025": {
+          "pe": 1.51,
+          "ps": 0.05,
+          "pb": null,
+          "ev_ebitda": 3.39,
+          "net_debt_ebitda": 3.12,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.07,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": -7.91,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MISB",
+        "name": "ПАО «ТНС энерго Марий Эл» (обыкновенные акции)",
+        "price": 50.1,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MISB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.96,
+          "ps": 0.52,
+          "pb": 1.16,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 39.2
+        },
+        "2024": {
+          "pe": 9.7,
+          "ps": 0.55,
+          "pb": 1.59,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 16.3
+        }
+      },
+      {
+        "ticker": "MISBP",
+        "name": "ПАО «ТНС энерго Марий Эл» (прив.)",
+        "price": 56.7,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "MISBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.35,
+          "ps": 0.59,
+          "pb": 1.31,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 39.2
+        },
+        "2024": {
+          "pe": 10.98,
+          "ps": 0.62,
+          "pb": 1.8,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 16.3
+        }
+      },
+      {
+        "ticker": "MRKC",
+        "name": "ПАО «Россети Центр» (МРСК Центра)",
+        "price": 0.6906,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKC *",
+        "relative_fair_value": 1.89,
+        "2025": {
+          "pe": 2.51,
+          "ps": 0.19,
+          "pb": 0.4,
+          "ev_ebitda": 1.59,
+          "net_debt_ebitda": 0.89,
+          "roe": 15.8
+        },
+        "2024": {
+          "pe": 3.07,
+          "ps": 0.21,
+          "pb": 0.32,
+          "ev_ebitda": 1.82,
+          "net_debt_ebitda": 1.2,
+          "roe": 10.1
+        }
+      },
+      {
+        "ticker": "MRKK",
+        "name": "ПАО «Россети Северный Кавказ»",
+        "price": 20.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKK *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -3.84,
+          "ps": 0.57,
+          "pb": 44.2,
+          "ev_ebitda": -6.21,
+          "net_debt_ebitda": null,
+          "roe": -1149.8
+        },
+        "2024": {
+          "pe": -5.21,
+          "ps": 1.51,
+          "pb": -36.9,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 797.0
+        }
+      },
+      {
+        "ticker": "MRKP",
+        "name": "ПАО «Россети Центр и Приволжье»",
+        "price": 0.5982,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.86,
+          "ps": 0.41,
+          "pb": 0.57,
+          "ev_ebitda": 1.33,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 4.11,
+          "ps": 0.47,
+          "pb": 0.68,
+          "ev_ebitda": 1.84,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MRKS",
+        "name": "ПАО «Россети Сибирь»",
+        "price": 0.475,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKS *",
+        "relative_fair_value": 0.03,
+        "2025": {
+          "pe": 38.83,
+          "ps": 0.338,
+          "pb": 2.963,
+          "ev_ebitda": 5.34,
+          "net_debt_ebitda": 2.61,
+          "roe": 7.63
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": 3.77,
+          "roe": -6.14
+        }
+      },
+      {
+        "ticker": "MRKU",
+        "name": "ПАО «Россети Урал»",
+        "price": 0.5896,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKU *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.2,
+          "ps": 0.32,
+          "pb": null,
+          "ev_ebitda": 1.87,
+          "net_debt_ebitda": null,
+          "roe": 16.2
+        },
+        "2024": {
+          "pe": 2.42,
+          "ps": 0.26,
+          "pb": 0.75,
+          "ev_ebitda": 1.69,
+          "net_debt_ebitda": null,
+          "roe": 18.3
+        }
+      },
+      {
+        "ticker": "MRKV",
+        "name": "ПАО «Россети Волга»",
+        "price": 0.18485,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKV *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.56,
+          "ps": 0.22,
+          "pb": 0.54,
+          "ev_ebitda": 1.34,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 3.34,
+          "ps": 0.15,
+          "pb": 0.27,
+          "ev_ebitda": 1.18,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MRKY",
+        "name": "ПАО «Россети Юг»",
+        "price": 0.0794,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKY *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 9.82,
+          "ps": 0.567,
+          "pb": 0.67,
+          "ev_ebitda": 6.42,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.96,
+          "ps": 0.213,
+          "pb": 1.41,
+          "ev_ebitda": 4.22,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MRKZ",
+        "name": "ПАО «Россети Северо-Запад»",
+        "price": 0.15375,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRKZ *",
+        "relative_fair_value": 0.57,
+        "2025": {
+          "pe": 1.82,
+          "ps": 0.11,
+          "pb": 0.39,
+          "ev_ebitda": 0.97,
+          "net_debt_ebitda": 0.29,
+          "roe": 21.6
+        },
+        "2024": {
+          "pe": 11.28,
+          "ps": 0.08,
+          "pb": 0.28,
+          "ev_ebitda": 1.03,
+          "net_debt_ebitda": 0.52,
+          "roe": 2.5
+        }
+      },
+      {
+        "ticker": "MRSB",
+        "name": "ПАО «Мордовская энергосбытовая компания» (Мордовэнергосбыт)",
+        "price": 0.864,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MRSB *",
+        "relative_fair_value": 1.41,
+        "2025": {
+          "pe": 4.52,
+          "ps": 0.122,
+          "pb": 1.93,
+          "ev_ebitda": 1.69,
+          "net_debt_ebitda": -0.09,
+          "roe": 42.7
+        },
+        "2024": {
+          "pe": 4.29,
+          "ps": 0.11,
+          "pb": 1.95,
+          "ev_ebitda": null,
+          "net_debt_ebitda": 0.14,
+          "roe": 45.2
+        }
+      },
+      {
+        "ticker": "MSNG",
+        "name": "ПАО «Мосэнерго»",
+        "price": 1.789,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MSNG *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 6.55,
+          "ps": 0.27,
+          "pb": 0.21,
+          "ev_ebitda": 0.89,
+          "net_debt_ebitda": -1.15,
+          "roe": 3.26
+        }
+      },
+      {
+        "ticker": "MSRS",
+        "name": "ПАО «Россети Московский регион» (МОЭСК)",
+        "price": 1.89,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MSRS *",
+        "relative_fair_value": 4.03,
+        "2025": {
+          "pe": 2.2,
+          "ps": 0.32,
+          "pb": 0.36,
+          "ev_ebitda": 1.69,
+          "net_debt_ebitda": 0.7,
+          "roe": 16.24
+        },
+        "2024": {
+          "pe": 6.77,
+          "ps": 0.37,
+          "pb": 0.41,
+          "ev_ebitda": 1.96,
+          "net_debt_ebitda": 0.73,
+          "roe": 6.09
+        }
+      },
+      {
+        "ticker": "NNSB",
+        "name": "ПАО «ТНС энерго Нижний Новгород»",
+        "price": 3990,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NNSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "NNSBP",
+        "name": "ПАО «ТНС энерго Нижний Новгород» (прив.)",
+        "price": 1314.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "NNSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "OGKB",
+        "name": "ПАО «ОГК-2»",
+        "price": 0.2572,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "OGKB *",
+        "relative_fair_value": -0.12,
+        "2025": {
+          "pe": -19.68,
+          "ps": 0.2,
+          "pb": 0.22,
+          "ev_ebitda": 7.76,
+          "net_debt_ebitda": 4.35,
+          "roe": null
+        },
+        "2024": {
+          "pe": 3.34,
+          "ps": 0.19,
+          "pb": 0.2,
+          "ev_ebitda": 1.81,
+          "net_debt_ebitda": 0.68,
+          "roe": null
         }
       },
       {
@@ -216,6 +1028,396 @@
         }
       },
       {
+        "ticker": "PMSBP",
+        "name": "ПАО «Пермэнергосбыт» (прив.)",
+        "price": 510.4,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "PMSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RHYD",
+        "name": "ПАО «РусГидро» (тикер-идентификатор RHYD = HYDR)",
+        "price": 0.3888,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RHYD *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 1.515,
+          "ps": 0.261,
+          "pb": 0.246,
+          "ev_ebitda": 3.41,
+          "net_debt_ebitda": null,
+          "roe": 16.219
+        },
+        "2024": {
+          "pe": -3.75,
+          "ps": 0.34,
+          "pb": 0.35,
+          "ev_ebitda": 13.136,
+          "net_debt_ebitda": null,
+          "roe": -9.249
+        }
+      },
+      {
+        "ticker": "RTSB",
+        "name": "ПАО «ТНС энерго Ростов-на-Дону» (обыкновенные акции)",
+        "price": 3.03,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RTSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RTSBP",
+        "name": "ПАО «ТНС энерго Ростов-на-Дону» (прив.)",
+        "price": 1.414,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "RTSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RZSB",
+        "name": "ПАО «Рязанская энергосбытовая компания» (РЭСК)",
+        "price": 38.52,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RZSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 7.27,
+          "ps": 0.46,
+          "pb": 4.06,
+          "ev_ebitda": 4.65,
+          "net_debt_ebitda": null,
+          "roe": 55.8
+        },
+        "2024": {
+          "pe": 6.69,
+          "ps": 0.44,
+          "pb": 3.85,
+          "ev_ebitda": 4.58,
+          "net_debt_ebitda": null,
+          "roe": 57.5
+        }
+      },
+      {
+        "ticker": "SAGO",
+        "name": "ПАО «Самараэнерго» (обыкновенные акции)",
+        "price": 2.38,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SAGO *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SAGOP",
+        "name": "ПАО «Самараэнерго» (прив.)",
+        "price": 2.275,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "SAGOP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SARE",
+        "name": "ПАО «Саратовэнерго» (обыкновенные акции)",
+        "price": 0.726,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SARE *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 3.76,
+          "ps": 0.13,
+          "pb": 2.22,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 59.1
+        }
+      },
+      {
+        "ticker": "SAREP",
+        "name": "ПАО «Саратовэнерго» (прив.)",
+        "price": 0.432,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "SAREP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 2.24,
+          "ps": 0.08,
+          "pb": 1.32,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 59.1
+        }
+      },
+      {
+        "ticker": "SLEN",
+        "name": "ПАО «Сахалинэнерго»",
+        "price": 3.22,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SLEN *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 1.33,
+          "ps": 0.4,
+          "pb": 0.53,
+          "ev_ebitda": 2.7,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -0.77,
+          "ps": 0.47,
+          "pb": 0.94,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "STSB",
+        "name": "ПАО «Ставропольэнергосбыт» (обыкновенные акции)",
+        "price": 3.5,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "STSB *",
+        "relative_fair_value": 7.07,
+        "2025": {
+          "pe": 2.24,
+          "ps": 0.09,
+          "pb": 0.64,
+          "ev_ebitda": 0.75,
+          "net_debt_ebitda": -1.27,
+          "roe": 28.6
+        },
+        "2024": {
+          "pe": 2.72,
+          "ps": 0.14,
+          "pb": 1.12,
+          "ev_ebitda": null,
+          "net_debt_ebitda": -0.72,
+          "roe": 41.2
+        }
+      },
+      {
+        "ticker": "STSBP",
+        "name": "ПАО «Ставропольэнергосбыт» (прив.)",
+        "price": 4.315,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "STSBP *",
+        "relative_fair_value": 8.72,
+        "2025": {
+          "pe": 2.76,
+          "ps": 0.11,
+          "pb": 0.79,
+          "ev_ebitda": 0.75,
+          "net_debt_ebitda": -1.27,
+          "roe": 28.6
+        },
+        "2024": {
+          "pe": 3.35,
+          "ps": 0.17,
+          "pb": 1.38,
+          "ev_ebitda": null,
+          "net_debt_ebitda": -0.72,
+          "roe": 41.2
+        }
+      },
+      {
+        "ticker": "TASB",
+        "name": "ПАО «Тамбовская энергосбытовая компания» (обыкновенные акции)",
+        "price": 1.636,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TASB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 5.43,
+          "ps": 0.33,
+          "pb": 1.21,
+          "ev_ebitda": 1.32,
+          "net_debt_ebitda": null,
+          "roe": 22.3
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.2
+        }
+      },
+      {
+        "ticker": "TASBP",
+        "name": "ПАО «Тамбовская энергосбытовая компания» (прив.)",
+        "price": 0.958,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "TASBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.18,
+          "ps": 0.19,
+          "pb": 0.71,
+          "ev_ebitda": 1.32,
+          "net_debt_ebitda": null,
+          "roe": 22.3
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": 29.2
+        }
+      },
+      {
+        "ticker": "TGKA",
+        "name": "ПАО «ТГК-1»",
+        "price": 0.005796,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TGKA *",
+        "relative_fair_value": 0.0,
+        "2025": {
+          "pe": 14.14,
+          "ps": 0.179,
+          "pb": 0.169,
+          "ev_ebitda": 3.54,
+          "net_debt_ebitda": 2.172,
+          "roe": null
+        },
+        "2024": {
+          "pe": 28.79,
+          "ps": 0.202,
+          "pb": 0.171,
+          "ev_ebitda": 3.04,
+          "net_debt_ebitda": 1.766,
+          "roe": null
+        }
+      },
+      {
         "ticker": "TGKB",
         "name": "ПАО «ТГК-2»",
         "price": 0.00696,
@@ -239,6 +1441,370 @@
           "ev_ebitda": 4.31,
           "net_debt_ebitda": 2.44,
           "roe": -16.51
+        }
+      },
+      {
+        "ticker": "TGKBP",
+        "name": "ПАО «ТГК-2» (прив.)",
+        "price": 0.00882,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "TGKBP *",
+        "relative_fair_value": -0.01,
+        "2025": {
+          "pe": 3.65,
+          "ps": 0.2,
+          "pb": 0.63,
+          "ev_ebitda": 96.83,
+          "net_debt_ebitda": 40.3,
+          "roe": 42.96
+        },
+        "2024": {
+          "pe": -3.61,
+          "ps": 0.2,
+          "pb": 1.42,
+          "ev_ebitda": 4.31,
+          "net_debt_ebitda": 2.44,
+          "roe": -16.51
+        }
+      },
+      {
+        "ticker": "TGKN",
+        "name": "ПАО «ТГК-14»",
+        "price": 0.00471,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TGKN *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 26.9,
+          "ps": 0.3,
+          "pb": 1.0,
+          "ev_ebitda": 5.77,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "TNSE",
+        "name": "ПАО ГК «ТНС энерго»",
+        "price": 3470.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TNSE *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.59,
+          "ps": 0.14,
+          "pb": 1.2,
+          "ev_ebitda": 0.69,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 2.98,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": 1.1,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "TORS",
+        "name": "ПАО «Россети Томск» (Томская распределительная компания), обыкновенные акции",
+        "price": 0.74,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "TORS *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 7.24,
+          "ps": 0.21,
+          "pb": 0.58,
+          "ev_ebitda": 2.54,
+          "net_debt_ebitda": null,
+          "roe": 7.96
+        },
+        "2024": {
+          "pe": 9.96,
+          "ps": 0.22,
+          "pb": 0.52,
+          "ev_ebitda": 2.69,
+          "net_debt_ebitda": null,
+          "roe": 5.26
+        }
+      },
+      {
+        "ticker": "TORSP",
+        "name": "ПАО «Россети Томск» (прив.)",
+        "price": 0.596,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "TORSP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 5.83,
+          "ps": 0.17,
+          "pb": 0.47,
+          "ev_ebitda": 2.54,
+          "net_debt_ebitda": null,
+          "roe": 7.96
+        },
+        "2024": {
+          "pe": 8.02,
+          "ps": 0.18,
+          "pb": 0.42,
+          "ev_ebitda": 2.69,
+          "net_debt_ebitda": null,
+          "roe": 5.26
+        }
+      },
+      {
+        "ticker": "UPRO",
+        "name": "ПАО «Юнипро»",
+        "price": 1.3905,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "UPRO",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 2.23,
+          "ps": 0.65,
+          "pb": 0.39,
+          "ev_ebitda": 2.81,
+          "net_debt_ebitda": null,
+          "roe": 21.39
+        },
+        "2024": {
+          "pe": 3.16,
+          "ps": 0.79,
+          "pb": 0.55,
+          "ev_ebitda": 2.21,
+          "net_debt_ebitda": null,
+          "roe": 20.94
+        }
+      },
+      {
+        "ticker": "VGSB",
+        "name": "ПАО «Волгоградэнергосбыт» (обыкновенные акции)",
+        "price": 13.7,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VGSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VGSBP",
+        "name": "ПАО «Волгоградэнергосбыт» (прив.)",
+        "price": 13.15,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "VGSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VRSB",
+        "name": "ПАО «ТНС энерго Воронеж» (обыкновенные акции)",
+        "price": 333.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VRSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VRSBP",
+        "name": "ПАО «ТНС энерго Воронеж» (прив.)",
+        "price": 140.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "VRSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "YKEN",
+        "name": "ПАО АК «Якутскэнерго» (обыкновенные акции)",
+        "price": 0.356,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "YKEN *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -0.25,
+          "ps": 0.09,
+          "pb": null,
+          "ev_ebitda": 27.85,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -0.14,
+          "ps": 0.11,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "YKENP",
+        "name": "ПАО АК «Якутскэнерго» (прив.)",
+        "price": 0.292,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "YKENP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -0.21,
+          "ps": 0.07,
+          "pb": null,
+          "ev_ebitda": 27.85,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -0.11,
+          "ps": 0.09,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "YRSB",
+        "name": "ПАО «ТНС энерго Ярославль» (обыкновенная акция)",
+        "price": 768.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "YRSB *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 14.73,
+          "ps": 0.53,
+          "pb": 5.71,
+          "ev_ebitda": 8.13,
+          "net_debt_ebitda": null,
+          "roe": 38.8
+        },
+        "2024": {
+          "pe": 69.17,
+          "ps": 0.52,
+          "pb": 7.68,
+          "ev_ebitda": 12.91,
+          "net_debt_ebitda": null,
+          "roe": 11.1
+        }
+      },
+      {
+        "ticker": "YRSBP",
+        "name": "ПАО «ТНС энерго Ярославль» (прив.)",
+        "price": 193.5,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "YRSBP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 3.71,
+          "ps": 0.13,
+          "pb": 1.44,
+          "ev_ebitda": 8.13,
+          "net_debt_ebitda": null,
+          "roe": 38.8
+        },
+        "2024": {
+          "pe": 17.43,
+          "ps": 0.13,
+          "pb": 1.93,
+          "ev_ebitda": 12.91,
+          "net_debt_ebitda": null,
+          "roe": 11.1
         }
       }
     ]
@@ -286,13 +1852,71 @@
       "LSNG"
     ],
     "excluded": [
-      "IRAO",
-      "FEES",
+      "ASSB",
+      "DVEC",
       "ELFV",
+      "FEES",
+      "IRAO",
+      "KBSB",
+      "KCHE",
+      "KCHEP",
+      "KGKC",
+      "KGKCP",
+      "KLSB",
+      "KRSB",
+      "KRSBP",
+      "LPSB",
+      "LSNGP",
+      "MAGE",
+      "MAGEP",
+      "MISB",
+      "MISBP",
+      "MRKC",
+      "MRKK",
+      "MRKP",
+      "MRKS",
+      "MRKU",
+      "MRKV",
+      "MRKY",
+      "MRKZ",
+      "MRSB",
+      "MSNG",
+      "MSRS",
+      "NNSB",
+      "NNSBP",
+      "OGKB",
       "PMSB",
-      "TGKB"
+      "PMSBP",
+      "RHYD",
+      "RTSB",
+      "RTSBP",
+      "RZSB",
+      "SAGO",
+      "SAGOP",
+      "SARE",
+      "SAREP",
+      "SLEN",
+      "STSB",
+      "STSBP",
+      "TASB",
+      "TASBP",
+      "TGKA",
+      "TGKB",
+      "TGKBP",
+      "TGKN",
+      "TNSE",
+      "TORS",
+      "TORSP",
+      "VGSB",
+      "VGSBP",
+      "VRSB",
+      "VRSBP",
+      "YKEN",
+      "YKENP",
+      "YRSB",
+      "YRSBP"
     ],
-    "note": "Медиана/среднее — сопоставимое ядро сектора; особые/аномальные со * исключены."
+    "note": "Медиана/среднее — сопоставимое ядро сектора; малоликвиды/префы/аномальные со * исключены."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
@@ -309,36 +1933,20 @@
       },
       "points": [
         {
-          "ticker": "IRAO",
-          "name": "ПАО «Интер РАО»",
+          "ticker": "ASSB",
+          "name": "ПАО «Астраханская энергосбытовая компания» (Астраханьэнергосбыт)",
           "anomaly": true,
           "is_pref": false,
           "x": null,
-          "y": 0.53
+          "y": 0.61
         },
         {
-          "ticker": "HYDR",
-          "name": "ПАО «РусГидро»",
+          "ticker": "DVEC",
+          "name": "ПАО «ДЭК» (Дальневосточная энергетическая компания)",
           "anomaly": true,
           "is_pref": false,
           "x": null,
-          "y": 3.404
-        },
-        {
-          "ticker": "FEES",
-          "name": "ПАО «Россети» (ФСК-Россети)",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": 1.44
-        },
-        {
-          "ticker": "UPRO",
-          "name": "ПАО «Юнипро»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": null,
-          "y": 2.81
+          "y": null
         },
         {
           "ticker": "ELFV",
@@ -349,12 +1957,260 @@
           "y": 1.48
         },
         {
+          "ticker": "FEES",
+          "name": "ПАО «Россети» (ФСК-Россети)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.44
+        },
+        {
+          "ticker": "HYDR",
+          "name": "ПАО «РусГидро»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.404
+        },
+        {
+          "ticker": "IRAO",
+          "name": "ПАО «Интер РАО»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.53
+        },
+        {
+          "ticker": "KBSB",
+          "name": "ТНС энерго Кубань (ПАО)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.81
+        },
+        {
+          "ticker": "KCHE",
+          "name": "ПАО «Камчатскэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 8.53
+        },
+        {
+          "ticker": "KCHEP",
+          "name": "ПАО «Камчатскэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 8.53
+        },
+        {
+          "ticker": "KGKC",
+          "name": "ПАО «Курганская генерирующая компания» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KGKCP",
+          "name": "ПАО «Курганская генерирующая компания» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KLSB",
+          "name": "ПАО «Калужская сбытовая компания»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.61
+        },
+        {
+          "ticker": "KRSB",
+          "name": "ПАО «Красноярскэнергосбыт» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.82
+        },
+        {
+          "ticker": "KRSBP",
+          "name": "ПАО «Красноярскэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 3.82
+        },
+        {
+          "ticker": "LPSB",
+          "name": "ПАО «Липецкая энергосбытовая компания» (ЛЭСК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "LSNG",
           "name": "ПАО «Россети Ленэнерго» (обыкновенные акции)",
           "anomaly": true,
           "is_pref": false,
           "x": -0.33,
           "y": 2.63
+        },
+        {
+          "ticker": "LSNGP",
+          "name": "ПАО «Россети Ленэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -0.33,
+          "y": 2.63
+        },
+        {
+          "ticker": "MAGE",
+          "name": "ПАО «Магаданэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 3.12,
+          "y": 3.39
+        },
+        {
+          "ticker": "MAGEP",
+          "name": "ПАО «Магаданэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 3.12,
+          "y": 3.39
+        },
+        {
+          "ticker": "MISB",
+          "name": "ПАО «ТНС энерго Марий Эл» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MISBP",
+          "name": "ПАО «ТНС энерго Марий Эл» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MRKC",
+          "name": "ПАО «Россети Центр» (МРСК Центра)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.89,
+          "y": 1.59
+        },
+        {
+          "ticker": "MRKK",
+          "name": "ПАО «Россети Северный Кавказ»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": -6.21
+        },
+        {
+          "ticker": "MRKP",
+          "name": "ПАО «Россети Центр и Приволжье»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.33
+        },
+        {
+          "ticker": "MRKS",
+          "name": "ПАО «Россети Сибирь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 2.61,
+          "y": 5.34
+        },
+        {
+          "ticker": "MRKU",
+          "name": "ПАО «Россети Урал»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.87
+        },
+        {
+          "ticker": "MRKV",
+          "name": "ПАО «Россети Волга»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.34
+        },
+        {
+          "ticker": "MRKY",
+          "name": "ПАО «Россети Юг»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 6.42
+        },
+        {
+          "ticker": "MRKZ",
+          "name": "ПАО «Россети Северо-Запад»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.29,
+          "y": 0.97
+        },
+        {
+          "ticker": "MRSB",
+          "name": "ПАО «Мордовская энергосбытовая компания» (Мордовэнергосбыт)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.09,
+          "y": 1.69
+        },
+        {
+          "ticker": "MSNG",
+          "name": "ПАО «Мосэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MSRS",
+          "name": "ПАО «Россети Московский регион» (МОЭСК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.7,
+          "y": 1.69
+        },
+        {
+          "ticker": "NNSB",
+          "name": "ПАО «ТНС энерго Нижний Новгород»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NNSBP",
+          "name": "ПАО «ТНС энерго Нижний Новгород» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "OGKB",
+          "name": "ПАО «ОГК-2»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 4.35,
+          "y": 7.76
         },
         {
           "ticker": "PMSB",
@@ -365,12 +2221,244 @@
           "y": null
         },
         {
+          "ticker": "PMSBP",
+          "name": "ПАО «Пермэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RHYD",
+          "name": "ПАО «РусГидро» (тикер-идентификатор RHYD = HYDR)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 3.41
+        },
+        {
+          "ticker": "RTSB",
+          "name": "ПАО «ТНС энерго Ростов-на-Дону» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RTSBP",
+          "name": "ПАО «ТНС энерго Ростов-на-Дону» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RZSB",
+          "name": "ПАО «Рязанская энергосбытовая компания» (РЭСК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 4.65
+        },
+        {
+          "ticker": "SAGO",
+          "name": "ПАО «Самараэнерго» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SAGOP",
+          "name": "ПАО «Самараэнерго» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SARE",
+          "name": "ПАО «Саратовэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SAREP",
+          "name": "ПАО «Саратовэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SLEN",
+          "name": "ПАО «Сахалинэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.7
+        },
+        {
+          "ticker": "STSB",
+          "name": "ПАО «Ставропольэнергосбыт» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -1.27,
+          "y": 0.75
+        },
+        {
+          "ticker": "STSBP",
+          "name": "ПАО «Ставропольэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -1.27,
+          "y": 0.75
+        },
+        {
+          "ticker": "TASB",
+          "name": "ПАО «Тамбовская энергосбытовая компания» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.32
+        },
+        {
+          "ticker": "TASBP",
+          "name": "ПАО «Тамбовская энергосбытовая компания» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": 1.32
+        },
+        {
+          "ticker": "TGKA",
+          "name": "ПАО «ТГК-1»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 2.172,
+          "y": 3.54
+        },
+        {
           "ticker": "TGKB",
           "name": "ПАО «ТГК-2»",
           "anomaly": true,
           "is_pref": false,
           "x": 40.3,
           "y": 96.83
+        },
+        {
+          "ticker": "TGKBP",
+          "name": "ПАО «ТГК-2» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 40.3,
+          "y": 96.83
+        },
+        {
+          "ticker": "TGKN",
+          "name": "ПАО «ТГК-14»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 5.77
+        },
+        {
+          "ticker": "TNSE",
+          "name": "ПАО ГК «ТНС энерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.69
+        },
+        {
+          "ticker": "TORS",
+          "name": "ПАО «Россети Томск» (Томская распределительная компания), обыкновенные акции",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.54
+        },
+        {
+          "ticker": "TORSP",
+          "name": "ПАО «Россети Томск» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 2.54
+        },
+        {
+          "ticker": "UPRO",
+          "name": "ПАО «Юнипро»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 2.81
+        },
+        {
+          "ticker": "VGSB",
+          "name": "ПАО «Волгоградэнергосбыт» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VGSBP",
+          "name": "ПАО «Волгоградэнергосбыт» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VRSB",
+          "name": "ПАО «ТНС энерго Воронеж» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VRSBP",
+          "name": "ПАО «ТНС энерго Воронеж» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "YKEN",
+          "name": "ПАО АК «Якутскэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 27.85
+        },
+        {
+          "ticker": "YKENP",
+          "name": "ПАО АК «Якутскэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": 27.85
+        },
+        {
+          "ticker": "YRSB",
+          "name": "ПАО «ТНС энерго Ярославль» (обыкновенная акция)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 8.13
+        },
+        {
+          "ticker": "YRSBP",
+          "name": "ПАО «ТНС энерго Ярославль» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": 8.13
         }
       ]
     },
@@ -388,36 +2476,20 @@
       },
       "points": [
         {
-          "ticker": "IRAO",
-          "name": "ПАО «Интер РАО»",
+          "ticker": "ASSB",
+          "name": "ПАО «Астраханская энергосбытовая компания» (Астраханьэнергосбыт)",
           "anomaly": true,
           "is_pref": false,
-          "x": 11.51,
-          "y": 0.297
+          "x": 79.24,
+          "y": 2.35
         },
         {
-          "ticker": "HYDR",
-          "name": "ПАО «РусГидро»",
+          "ticker": "DVEC",
+          "name": "ПАО «ДЭК» (Дальневосточная энергетическая компания)",
           "anomaly": true,
           "is_pref": false,
-          "x": 16.219,
-          "y": 0.244
-        },
-        {
-          "ticker": "FEES",
-          "name": "ПАО «Россети» (ФСК-Россети)",
-          "anomaly": false,
-          "is_pref": false,
-          "x": 7.42,
-          "y": 0.08
-        },
-        {
-          "ticker": "UPRO",
-          "name": "ПАО «Юнипро»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": 21.39,
-          "y": 0.39
+          "x": null,
+          "y": null
         },
         {
           "ticker": "ELFV",
@@ -428,12 +2500,260 @@
           "y": 0.36
         },
         {
+          "ticker": "FEES",
+          "name": "ПАО «Россети» (ФСК-Россети)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.42,
+          "y": 0.08
+        },
+        {
+          "ticker": "HYDR",
+          "name": "ПАО «РусГидро»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 16.219,
+          "y": 0.244
+        },
+        {
+          "ticker": "IRAO",
+          "name": "ПАО «Интер РАО»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 11.51,
+          "y": 0.297
+        },
+        {
+          "ticker": "KBSB",
+          "name": "ТНС энерго Кубань (ПАО)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.07
+        },
+        {
+          "ticker": "KCHE",
+          "name": "ПАО «Камчатскэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -0.2,
+          "y": 1.41
+        },
+        {
+          "ticker": "KCHEP",
+          "name": "ПАО «Камчатскэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -0.2,
+          "y": 2.84
+        },
+        {
+          "ticker": "KGKC",
+          "name": "ПАО «Курганская генерирующая компания» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -3.5,
+          "y": 0.68
+        },
+        {
+          "ticker": "KGKCP",
+          "name": "ПАО «Курганская генерирующая компания» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": -3.5,
+          "y": 0.78
+        },
+        {
+          "ticker": "KLSB",
+          "name": "ПАО «Калужская сбытовая компания»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.16
+        },
+        {
+          "ticker": "KRSB",
+          "name": "ПАО «Красноярскэнергосбыт» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 37.3,
+          "y": 2.12
+        },
+        {
+          "ticker": "KRSBP",
+          "name": "ПАО «Красноярскэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 37.3,
+          "y": 2.1
+        },
+        {
+          "ticker": "LPSB",
+          "name": "ПАО «Липецкая энергосбытовая компания» (ЛЭСК)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "LSNG",
           "name": "ПАО «Россети Ленэнерго» (обыкновенные акции)",
           "anomaly": true,
           "is_pref": false,
           "x": 15.3,
           "y": 0.81
+        },
+        {
+          "ticker": "LSNGP",
+          "name": "ПАО «Россети Ленэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 15.3,
+          "y": 19.75
+        },
+        {
+          "ticker": "MAGE",
+          "name": "ПАО «Магаданэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MAGEP",
+          "name": "ПАО «Магаданэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MISB",
+          "name": "ПАО «ТНС энерго Марий Эл» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 39.2,
+          "y": 1.16
+        },
+        {
+          "ticker": "MISBP",
+          "name": "ПАО «ТНС энерго Марий Эл» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 39.2,
+          "y": 1.31
+        },
+        {
+          "ticker": "MRKC",
+          "name": "ПАО «Россети Центр» (МРСК Центра)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 15.8,
+          "y": 0.4
+        },
+        {
+          "ticker": "MRKK",
+          "name": "ПАО «Россети Северный Кавказ»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -1149.8,
+          "y": 44.2
+        },
+        {
+          "ticker": "MRKP",
+          "name": "ПАО «Россети Центр и Приволжье»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.57
+        },
+        {
+          "ticker": "MRKS",
+          "name": "ПАО «Россети Сибирь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.63,
+          "y": 2.963
+        },
+        {
+          "ticker": "MRKU",
+          "name": "ПАО «Россети Урал»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 16.2,
+          "y": null
+        },
+        {
+          "ticker": "MRKV",
+          "name": "ПАО «Россети Волга»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.54
+        },
+        {
+          "ticker": "MRKY",
+          "name": "ПАО «Россети Юг»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.67
+        },
+        {
+          "ticker": "MRKZ",
+          "name": "ПАО «Россети Северо-Запад»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 21.6,
+          "y": 0.39
+        },
+        {
+          "ticker": "MRSB",
+          "name": "ПАО «Мордовская энергосбытовая компания» (Мордовэнергосбыт)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 42.7,
+          "y": 1.93
+        },
+        {
+          "ticker": "MSNG",
+          "name": "ПАО «Мосэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MSRS",
+          "name": "ПАО «Россети Московский регион» (МОЭСК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 16.24,
+          "y": 0.36
+        },
+        {
+          "ticker": "NNSB",
+          "name": "ПАО «ТНС энерго Нижний Новгород»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NNSBP",
+          "name": "ПАО «ТНС энерго Нижний Новгород» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "OGKB",
+          "name": "ПАО «ОГК-2»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.22
         },
         {
           "ticker": "PMSB",
@@ -444,44 +2764,415 @@
           "y": null
         },
         {
+          "ticker": "PMSBP",
+          "name": "ПАО «Пермэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RHYD",
+          "name": "ПАО «РусГидро» (тикер-идентификатор RHYD = HYDR)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 16.219,
+          "y": 0.246
+        },
+        {
+          "ticker": "RTSB",
+          "name": "ПАО «ТНС энерго Ростов-на-Дону» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RTSBP",
+          "name": "ПАО «ТНС энерго Ростов-на-Дону» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RZSB",
+          "name": "ПАО «Рязанская энергосбытовая компания» (РЭСК)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 55.8,
+          "y": 4.06
+        },
+        {
+          "ticker": "SAGO",
+          "name": "ПАО «Самараэнерго» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SAGOP",
+          "name": "ПАО «Самараэнерго» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SARE",
+          "name": "ПАО «Саратовэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SAREP",
+          "name": "ПАО «Саратовэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SLEN",
+          "name": "ПАО «Сахалинэнерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.53
+        },
+        {
+          "ticker": "STSB",
+          "name": "ПАО «Ставропольэнергосбыт» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 28.6,
+          "y": 0.64
+        },
+        {
+          "ticker": "STSBP",
+          "name": "ПАО «Ставропольэнергосбыт» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 28.6,
+          "y": 0.79
+        },
+        {
+          "ticker": "TASB",
+          "name": "ПАО «Тамбовская энергосбытовая компания» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 22.3,
+          "y": 1.21
+        },
+        {
+          "ticker": "TASBP",
+          "name": "ПАО «Тамбовская энергосбытовая компания» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 22.3,
+          "y": 0.71
+        },
+        {
+          "ticker": "TGKA",
+          "name": "ПАО «ТГК-1»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.169
+        },
+        {
           "ticker": "TGKB",
           "name": "ПАО «ТГК-2»",
           "anomaly": true,
           "is_pref": false,
           "x": 42.96,
           "y": 0.5
+        },
+        {
+          "ticker": "TGKBP",
+          "name": "ПАО «ТГК-2» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 42.96,
+          "y": 0.63
+        },
+        {
+          "ticker": "TGKN",
+          "name": "ПАО «ТГК-14»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.0
+        },
+        {
+          "ticker": "TNSE",
+          "name": "ПАО ГК «ТНС энерго»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.2
+        },
+        {
+          "ticker": "TORS",
+          "name": "ПАО «Россети Томск» (Томская распределительная компания), обыкновенные акции",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 7.96,
+          "y": 0.58
+        },
+        {
+          "ticker": "TORSP",
+          "name": "ПАО «Россети Томск» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 7.96,
+          "y": 0.47
+        },
+        {
+          "ticker": "UPRO",
+          "name": "ПАО «Юнипро»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 21.39,
+          "y": 0.39
+        },
+        {
+          "ticker": "VGSB",
+          "name": "ПАО «Волгоградэнергосбыт» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VGSBP",
+          "name": "ПАО «Волгоградэнергосбыт» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VRSB",
+          "name": "ПАО «ТНС энерго Воронеж» (обыкновенные акции)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "VRSBP",
+          "name": "ПАО «ТНС энерго Воронеж» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "YKEN",
+          "name": "ПАО АК «Якутскэнерго» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "YKENP",
+          "name": "ПАО АК «Якутскэнерго» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "YRSB",
+          "name": "ПАО «ТНС энерго Ярославль» (обыкновенная акция)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 38.8,
+          "y": 5.71
+        },
+        {
+          "ticker": "YRSBP",
+          "name": "ПАО «ТНС энерго Ярославль» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": 38.8,
+          "y": 1.44
         }
       ]
     }
   },
   "anomalies": [
     {
-      "ticker": "IRAO",
-      "note": "Огромная чистая денежная позиция: на конец 2025 чистый долг = −260 952 млн (кэш и эквиваленты 266 511 млн при общем долге всего 5 559 млн). Из-за этого EV = капитализация − чистый кэш = 77 774 млн — лишь ~23% капитализации (338 726 млн). EV/EBITDA = 0.53 СИЛЬНО ЗАНИЖЕН и не отражает реальную дороговизну операционного бизнеса: это «дисконт кубышки». Рынок исторически дисконтирует кэш Интер РАО (не выплачивается акционерам целиком, payout ~25%). В DCF денежная подушка возвращается через −net_debt, поэтому DCF-цена близка к рынку. Корректнее сравнивать операцию по P/E и марже, а EV/EBITDA трактовать с поправкой на кэш."
+      "ticker": "ASSB",
+      "note": "Чистая прибыль 2025 выросла в 6 раз (82 → 502 млн ₽) при росте выручки лишь на 14%. Причина — не основной бизнес: процентный доход на денежной подушке (~1,38 млрд ₽, чистый долг отрицательный) и движение резервов по дебиторке. Следствие: P/E 4.1 выглядит дёшево, но прибыль не нормализована; ROE 79% и P/B 2.35 искажены тонким капиталом. Бумага 3-го эшелона, низкая ликвидность, дивидендов нет — широкий итоговый коридор оценки."
     },
     {
-      "ticker": "HYDR",
-      "note": "Прибыль крайне волатильна из-за регулярных неденежных обесценений активов (ДФО) и быстро растущих процентных расходов. 2024 — чистый убыток −54,1 млрд ₽ (обесценения + рост процентов), 2025 — рекордная прибыль +114,1 млрд ₽ (либерализация цен ДФО, индексация тарифов, эффект низкой базы). 2025 — пиковый год по прибыли, не репрезентативен для нормализации. Чистый долг 706,3 млрд ₽ (ND/EBITDA ≈2,7x по EBITDA из EBIT+D&A), пик инвестпрограммы 2026–2028 (~1 трлн ₽ на 2026–2030) даёт устойчиво отрицательный FCF. Дивиденды приостановлены (мораторий ~до 2030). Расчётный WACC (~9,9%) опустился НИЖЕ безрисковой ставки (14,6%) из-за дешёвого легаси-долга в средней стоимости — для оценки использован Ke=19,55%, DCF признан неинформативным."
-    },
-    {
-      "ticker": "UPRO",
-      "note": "Аномалия структуры баланса и распределения капитала: у компании нет долга и накоплена крупная чистая денежная позиция (ND/EBITDA отрицательный), но дивиденды заморожены с 2022 г. — мажоритарий Uniper SE (83,73%) с апреля 2023 г. под внешним управлением Росимущества (Указ №302). Накопленный кэш не распределяется акционерам, а копится и реинвестируется в депозиты (даёт процентный доход, из-за которого чистая прибыль выше операционной) и в выросший CapEx. Поэтому низкие P/E (2,2) и P/BV (0,39) отражают не дешевизну бизнеса, а дисконт за невозможность вернуть кэш акционерам."
+      "ticker": "DVEC",
+      "note": "(1) Методы оценки расходятся в разы (DCF 0.16 / дивидендный 0.87 / CAPM 1.41 / истор. P/E 3.56) — следствие низкой и волатильной прибыли при капиталоёмком регулируемом бизнесе; единой надёжной цены нет. (2) Расчётная амортизация (EBITDA − опер. прибыль) ~6-7 млрд ₽/год заметно выше строки 'амортизация' у агрегатора (~3-4 млрд) — вероятно, в разнице сидят неденежные обесценения/резервы генерации (ДГК); D&A взята как EBITDA − опер.прибыль. (3) FCF структурно ~0: операционный поток почти полностью уходит в инвестпрограмму. (4) Чистая прибыль 2024 у агрегатора 2.76 млрд ₽ против 3.0 млрд ₽ (акционерам) в business_model — расхождение из-за доли миноритариев / источника."
     },
     {
       "ticker": "ELFV",
       "note": "2025 год — резкий скачок результатов: операционная прибыль почти удвоилась (9 489→18 691 млн ₽), EBITDA выросла с 12 652 до 23 877 млн ₽ (+89%), чистая прибыль +135% (4 543→10 701 млн ₽). Это разрывает многолетний тренд (выручка +18%, но прибыль кратно выше). Вероятные причины: повышенные платежи ДПМ ВИЭ/КОММод, индексация цен РСВ, возможные разовые/неденежные эффекты от реорганизации (присоединение ВДК-Энерго и ЛУКОЙЛ-Экоэнерго одобрено в дек.2025, завершено 01.04.2026). Маржа EBITDA 2025 = 29,4% против ~19–20% в 2023–2024 — нетипично высоко для газовой генерации. Прогноз и DCF строились на НОРМАЛИЗОВАННОЙ базе (среднее 2024–2025), а не на пиковом 2025, чтобы не завышать оценку."
     },
     {
+      "ticker": "HYDR",
+      "note": "Прибыль крайне волатильна из-за регулярных неденежных обесценений активов (ДФО) и быстро растущих процентных расходов. 2024 — чистый убыток −54,1 млрд ₽ (обесценения + рост процентов), 2025 — рекордная прибыль +114,1 млрд ₽ (либерализация цен ДФО, индексация тарифов, эффект низкой базы). 2025 — пиковый год по прибыли, не репрезентативен для нормализации. Чистый долг 706,3 млрд ₽ (ND/EBITDA ≈2,7x по EBITDA из EBIT+D&A), пик инвестпрограммы 2026–2028 (~1 трлн ₽ на 2026–2030) даёт устойчиво отрицательный FCF. Дивиденды приостановлены (мораторий ~до 2030). Расчётный WACC (~9,9%) опустился НИЖЕ безрисковой ставки (14,6%) из-за дешёвого легаси-долга в средней стоимости — для оценки использован Ke=19,55%, DCF признан неинформативным."
+    },
+    {
+      "ticker": "IRAO",
+      "note": "Огромная чистая денежная позиция: на конец 2025 чистый долг = −260 952 млн (кэш и эквиваленты 266 511 млн при общем долге всего 5 559 млн). Из-за этого EV = капитализация − чистый кэш = 77 774 млн — лишь ~23% капитализации (338 726 млн). EV/EBITDA = 0.53 СИЛЬНО ЗАНИЖЕН и не отражает реальную дороговизну операционного бизнеса: это «дисконт кубышки». Рынок исторически дисконтирует кэш Интер РАО (не выплачивается акционерам целиком, payout ~25%). В DCF денежная подушка возвращается через −net_debt, поэтому DCF-цена близка к рынку. Корректнее сравнивать операцию по P/E и марже, а EV/EBITDA трактовать с поправкой на кэш."
+    },
+    {
+      "ticker": "KCHE",
+      "note": "Несколько аномалий: (1) расхождение стандартов — РСБУ-выручка (40,4 млрд, business_model.md) почти вдвое выше МСФО-выручки (21,9 млрд); (2) убыток по МСФО в 2024–2025 делает P/E отрицательным и неинформативным, EV/EBITDA нестабилен (17,9× в 2024 при провале EBITDA); (3) допэмиссия — число акций выросло с 48 747 до 58 294 млн в 2023, что искажает сопоставимость на акцию; (4) низкомаржинальная регулируемая модель — оценка по EV/EBITDA малоинформативна, опора на P/E и P/BV. data_quality=low."
+    },
+    {
+      "ticker": "KCHEP",
+      "note": "Несколько аномалий: (1) расхождение стандартов — РСБУ-выручка (40,4 млрд, business_model.md) почти вдвое выше МСФО-выручки (21,9 млрд); (2) убыток по МСФО в 2024–2025 делает P/E отрицательным и неинформативным, EV/EBITDA нестабилен (17,9× в 2024 при провале EBITDA); (3) допэмиссия — число акций выросло с 48 747 до 58 294 млн в 2023, что искажает сопоставимость на акцию; (4) низкомаржинальная регулируемая модель — оценка по EV/EBITDA малоинформативна, опора на P/E и P/BV. data_quality=low."
+    },
+    {
+      "ticker": "KGKC",
+      "note": "Две противоречащие учётные базы. РСБУ (официальная, ИНН 4501122913): выручка 2024 = 8315 млн, чистая прибыль = 603.5 млн → P/E ≈ 8.9. МСФО (агрегатор smart-lab): выручка 2024 = 10600 млн, чистая прибыль = 125 млн, 2025 = убыток −277 млн → P/E ≈ 42.9. Рыночные ориентиры (EPS TTM 1.02, дивиденд 1.30 ₽, дивдоходность ~3%) согласованы с МСФО-базой, поэтому оценка построена на ней. Расхождение >4× по прибыли — НЕ устранено, требует ручной сверки по форме №2 РСБУ и консолидированной МСФО на e-disclosure.ru. По всем доходным/дивидендным методам справедливая цена существенно ниже рыночной (8.7–18.3 ₽ против 43.8 ₽), то есть либо акция переоценена, либо рынок закладывает иную (РСБУ/нормализованную) прибыль. data_quality=low."
+    },
+    {
+      "ticker": "KGKCP",
+      "note": "Две противоречащие учётные базы. РСБУ (официальная, ИНН 4501122913): выручка 2024 = 8315 млн, чистая прибыль = 603.5 млн → P/E ≈ 8.9. МСФО (агрегатор smart-lab): выручка 2024 = 10600 млн, чистая прибыль = 125 млн, 2025 = убыток −277 млн → P/E ≈ 42.9. Рыночные ориентиры (EPS TTM 1.02, дивиденд 1.30 ₽, дивдоходность ~3%) согласованы с МСФО-базой, поэтому оценка построена на ней. Расхождение >4× по прибыли — НЕ устранено, требует ручной сверки по форме №2 РСБУ и консолидированной МСФО на e-disclosure.ru. По всем доходным/дивидендным методам справедливая цена существенно ниже рыночной (8.7–18.3 ₽ против 43.8 ₽), то есть либо акция переоценена, либо рынок закладывает иную (РСБУ/нормализованную) прибыль. data_quality=low."
+    },
+    {
+      "ticker": "KLSB",
+      "note": "EBITDA 2024 (1.40 млрд) скачком +106% к 2023 (0.68 млрд) при росте выручки лишь +10% — вероятна разовая статья/динамика резервов; EBITDA-мультипликаторы малоинформативны. Чистая прибыль 2025 (84 млн) -32% г/г при росте выручки +17% — давление процентных расходов при ставке 14.5%."
+    },
+    {
+      "ticker": "KRSB",
+      "note": "Рынок (P/E 5,7; цена 21,88 ₽) оценивает акцию выше внутренних оценок по дивидендному методу и историческому P/E (коридор 13,8-20,2 ₽). Причина — рекордные дивиденды 2024 г. (доходность 14,6%) и высокий ROE ~37-45%, которые рынок экстраполирует. Базовая оценка даёт даунсайд ~22%. EV/EBITDA 3,82 для сбыта малоинформативна (транзитная выручка, отрицательный чистый долг искажает EV). Число обыкновенных акций (558,9 млн) — реестровое; агрегаторы используют суммарное 596,0 млн — требует ручной сверки."
+    },
+    {
+      "ticker": "KRSBP",
+      "note": "Рынок (P/E 5,7; цена 21,88 ₽) оценивает акцию выше внутренних оценок по дивидендному методу и историческому P/E (коридор 13,8-20,2 ₽). Причина — рекордные дивиденды 2024 г. (доходность 14,6%) и высокий ROE ~37-45%, которые рынок экстраполирует. Базовая оценка даёт даунсайд ~22%. EV/EBITDA 3,82 для сбыта малоинформативна (транзитная выручка, отрицательный чистый долг искажает EV). Число обыкновенных акций (558,9 млн) — реестровое; агрегаторы используют суммарное 596,0 млн — требует ручной сверки."
+    },
+    {
+      "ticker": "LPSB",
+      "note": "Чистая прибыль 2025 = 1.45 млрд против 0.444 млрд в 2024 (рост в 3.3 раза) при росте выручки лишь на ~8%. Операционная прибыль 2024 проседала до 0.27 млрд (маржа 2.0%) — нетипично низко для ряда, затем восстановление до 1.49 млрд в 2025. Прибыль сбыта формируется тонким слоем регулируемой надбавки + резервом под дебиторку + процентным доходом по свободным остаткам (чистый долг отрицательный, −2.11 млрд), поэтому при стабильной выручке прибыль скачет в разы. ROE 60% и P/B 3.57 искажены тем, что капитал в 2024 был резко уменьшен спецдивидендом (16 руб/акц). Полнота раскрытия низкая — причина скачка 2025 по публичным данным однозначно не подтверждена."
+    },
+    {
       "ticker": "LSNG",
       "note": "Резкая диспропорция дивидендов между классами акций: за 2024 г. LSNGP получили 25.95 ₽/акц против 0.42 ₽ по LSNG (в ~62 раза больше); за 2025 г. объявлено LSNGP 36.72 ₽ против ~0.54 ₽ по LSNG. Причина — устав: на префы направляется 10% ЧП по РСБУ при доле префов всего ~1.1% капитала, что даёт огромный дивиденд на одну привилегированную акцию. Для держателя LSNG это структурная особенность: дивидендный возврат минимален, обыкновенная акция — ставка на рост стоимости активов, а не на дивиденд. Доп. аномалия: ЧП-2025 +65% г/г — вероятен разовый эффект, искажает P/E и EPS текущего года."
+    },
+    {
+      "ticker": "LSNGP",
+      "note": "Резкая диспропорция дивидендов между классами акций: за 2024 г. LSNGP получили 25.95 ₽/акц против 0.42 ₽ по LSNG (в ~62 раза больше); за 2025 г. объявлено LSNGP 36.72 ₽ против ~0.54 ₽ по LSNG. Причина — устав: на префы направляется 10% ЧП по РСБУ при доле префов всего ~1.1% капитала, что даёт огромный дивиденд на одну привилегированную акцию. Для держателя LSNG это структурная особенность: дивидендный возврат минимален, обыкновенная акция — ставка на рост стоимости активов, а не на дивиденд. Доп. аномалия: ЧП-2025 +65% г/г — вероятен разовый эффект, искажает P/E и EPS текущего года."
+    },
+    {
+      "ticker": "MAGE",
+      "note": "Множественные аномалии. (1) Расхождение стандартов: РСБУ показывает выручку 15,69 млрд (2024) / 16,22 млрд (2023) и чистый убыток −0,74 / −3,11 млрд; МСФО (smart-lab) — выручку 14,7 / 14,8 млрд и убыток −3,99 / −1,39 млрд. В JSON взят ряд МСФО. (2) 2025 год: МСФО smart-lab показывает выручку 23,5 млрд и ПРИБЫЛЬ +0,675 млрд, тогда как РСБУ за 2025 — выручку ~26,4 млрд и УБЫТОК −3,16 млрд. Знак результата 2025 года противоречив; данные предварительные/несверённые. (3) Отрицательный собственный капитал в 2024 (−3,06 млрд) и 2025 (−2,36 млрд) — ROE и P/BV за эти годы экономически не интерпретируются (обнулены в null). ROE 2024 «+130%» (деление убытка на отрицательный капитал) механически положителен и ложен — убран. (4) EBITDA 2024 отрицательна (−1,34 млрд), EV/EBITDA и ND/EBITDA за этот год не имеют смысла. (5) Пересчитанный FCF=CFO−CapEx резко расходится с FCF из агрегатора (например 2024: пересчёт +0,58 млрд против −2,33 млрд у smart-lab) — вероятно разные определения CFO/учёт процентов; ряд FCF ненадёжен."
+    },
+    {
+      "ticker": "MAGEP",
+      "note": "Множественные аномалии. (1) Расхождение стандартов: РСБУ показывает выручку 15,69 млрд (2024) / 16,22 млрд (2023) и чистый убыток −0,74 / −3,11 млрд; МСФО (smart-lab) — выручку 14,7 / 14,8 млрд и убыток −3,99 / −1,39 млрд. В JSON взят ряд МСФО. (2) 2025 год: МСФО smart-lab показывает выручку 23,5 млрд и ПРИБЫЛЬ +0,675 млрд, тогда как РСБУ за 2025 — выручку ~26,4 млрд и УБЫТОК −3,16 млрд. Знак результата 2025 года противоречив; данные предварительные/несверённые. (3) Отрицательный собственный капитал в 2024 (−3,06 млрд) и 2025 (−2,36 млрд) — ROE и P/BV за эти годы экономически не интерпретируются (обнулены в null). ROE 2024 «+130%» (деление убытка на отрицательный капитал) механически положителен и ложен — убран. (4) EBITDA 2024 отрицательна (−1,34 млрд), EV/EBITDA и ND/EBITDA за этот год не имеют смысла. (5) Пересчитанный FCF=CFO−CapEx резко расходится с FCF из агрегатора (например 2024: пересчёт +0,58 млрд против −2,33 млрд у smart-lab) — вероятно разные определения CFO/учёт процентов; ряд FCF ненадёжен."
+    },
+    {
+      "ticker": "MISB",
+      "note": "Сильное расхождение РСБУ и МСФО. Чистая прибыль 2025: РСБУ 2,06 млрд ₽ против МСФО 0,99 млрд ₽; 2023: РСБУ 2,25 млрд ₽ против МСФО 0,064 млрд ₽. РСБУ-результат завышен неденежными статьями (переоценка финансовых вложений, внутригрупповые потоки ГК «ТНС энерго»). Следствие: текущий P/E на РСБУ = 2,96 (выглядит аномально 'дёшево'), на МСФО ≈ 6,2 (нормально). Дивиденд по обыкновенной акции (1,98 ₽ за 2025) — лишь ~10% от РСБУ-EPS (16,91 ₽), т.е. бóльшая часть учётной прибыли не распределяется и денежно не подтверждается. Оценка по разным методам расходится в разы (дивидендный якорь ~16 ₽ против историч. P/E на РСБУ ~73 ₽). Дополнительно: префы MISBP по дивполитике могут иметь приоритет/больший дивиденд (за 2025 СД рекомендовал 6,21 ₽ на преф против 1,98 ₽ на обыкновенную) — для обыкновенной MISB это понижающий фактор."
+    },
+    {
+      "ticker": "MISBP",
+      "note": "Сильное расхождение РСБУ и МСФО. Чистая прибыль 2025: РСБУ 2,06 млрд ₽ против МСФО 0,99 млрд ₽; 2023: РСБУ 2,25 млрд ₽ против МСФО 0,064 млрд ₽. РСБУ-результат завышен неденежными статьями (переоценка финансовых вложений, внутригрупповые потоки ГК «ТНС энерго»). Следствие: текущий P/E на РСБУ = 2,96 (выглядит аномально 'дёшево'), на МСФО ≈ 6,2 (нормально). Дивиденд по обыкновенной акции (1,98 ₽ за 2025) — лишь ~10% от РСБУ-EPS (16,91 ₽), т.е. бóльшая часть учётной прибыли не распределяется и денежно не подтверждается. Оценка по разным методам расходится в разы (дивидендный якорь ~16 ₽ против историч. P/E на РСБУ ~73 ₽). Дополнительно: префы MISBP по дивполитике могут иметь приоритет/больший дивиденд (за 2025 СД рекомендовал 6,21 ₽ на преф против 1,98 ₽ на обыкновенную) — для обыкновенной MISB это понижающий фактор."
+    },
+    {
+      "ticker": "MRKC",
+      "note": "Чистая прибыль по МСФО за 2024 снизилась на 17% (6.56 vs 7.92 млрд) при росте EBITDA на +31.5% и выручки +7.5%. Причина — рост амортизации от инвестпрограммы (RAB/тариф стимулирует CapEx), рост процентных расходов при высокой ключевой ставке и возможные обесценения сетевых активов; всё это давит на прибыль НИЖЕ EBITDA. Регулируемый тариф сглаживает выручку, но искажённая прибыль делает P/E нерепрезентативным год-к-году — приоритет EV/EBITDA и дивидендному методу. По 2019-2020 EBITDA/опер.прибыль оценены (data_quality low по этим годам)."
+    },
+    {
+      "ticker": "MRKU",
+      "note": "EBITDA из агрегатора (smart-lab ~30.5 млрд) расходится с официальной EBITDA пресс-релиза 2024 (26 156 млн) — разные методики; использована официальная. Чистая прибыль 2024 поддержана разовой продажей 'Екатеринбургэнергосбыта' (~2-2.4 млрд), эффект неповторяемый. EV/EBITDA<2 — экстремально низко даже для регулируемой сети."
+    },
+    {
+      "ticker": "MRKV",
+      "note": "Скачок 2024->2025: выручка +55% (83.4->129.3), чистая прибыль +211% (3.63->11.3), услуги вышестоящих сетей +97%. Это изменение периметра/тарифной базы ('котлодержатель'), а не органический рост. Динамика 2024->2025 несопоставима; для нормализованных оценок (DCF, ист. P/E) опираться на 2024 либо помечать допущения."
+    },
+    {
+      "ticker": "MSNG",
+      "note": "1) EV/EBITDA ≈ 0,9 и EV/Sales ≈ 0,12 аномально низкие — это НЕ ошибка, а следствие чистой денежной позиции: чистый долг отрицательный (~−40 млрд ₽), EV (31 млрд) почти вдвое ниже капитализации (71 млрд). 2) ROE низкий (3-6%) при глубоком дисконте к капиталу (P/B ≈ 0,21) — рынок оценивает капитал в пятую часть балансовой стоимости, что типично для зарегулированной низкомаржинальной генерации без дивидендов. 3) Прибыль 2024 искажена разовым отложенным налогом ~6,19 млрд ₽ — P/E 6,55 на искажённой базе. Часть веб-агрегаторов показывает P/E 35 (видимо на МСФО-прибыли ~2 млрд) — расхождение из-за разной базы (РСБУ vs МСФО)."
     },
     {
       "ticker": "PMSB",
       "note": "(1) МАЛОЛИКВИДНЫЙ эмитент 3-го эшелона MOEX: free-float по ао и ап ~47,6% (методология MOEX спорна), но реальные объёмы торгов очень малы — рыночная цена шумная, мультипликаторы и таргеты следует трактовать с широким допуском. (2) ДВА КЛАССА АКЦИЙ: 36,21 млн обыкновенных (PMSB, 519,2 ₽) и 11,35 млн привилегированных (PMSBP, 535 ₽). По Уставу дивиденд по префу = 10% чистой прибыли по РСБУ / число префов; при этом действует «уравнивающая» оговорка — если дивиденд на ао превышает дивиденд на ап, дивиденд по ап повышается до уровня ао. Исторически выплаты на ао и ап равны (2025: по 57,0 ₽). Капитализация и мультипликаторы (P/E 10,43; P/BV 7,02; EV/EBITDA 7,90 за 2025) считаны по СУММАРНОЙ капитализации обоих классов (24 873 млн ₽). (3) У компании НЕТ ДОЛГА все годы: чистый долг = −денежные средства (чистая денежная позиция −3 997 млн ₽ в 2025). Чистая прибыль превышает операционную в отдельные годы за счёт процентного дохода на денежную подушку при высокой ставке ЦБ — снижение ставки этот доход уменьшит. (4) Бизнес «транзитный»: ~92% выручки — перепродаваемая электроэнергия и сети; маржа тонкая (net margin ~4%), но ROE очень высок (57%) из-за малого капитала и высокой оборачиваемости. (5) Выплата 2025 = 113,68% чистой прибыли по МСФО — разовый повышенный пэйаут (база — РСБУ); устойчивость на будущее не гарантирована."
     },
     {
+      "ticker": "PMSBP",
+      "note": "(1) МАЛОЛИКВИДНЫЙ эмитент 3-го эшелона MOEX: free-float по ао и ап ~47,6% (методология MOEX спорна), но реальные объёмы торгов очень малы — рыночная цена шумная, мультипликаторы и таргеты следует трактовать с широким допуском. (2) ДВА КЛАССА АКЦИЙ: 36,21 млн обыкновенных (PMSB, 519,2 ₽) и 11,35 млн привилегированных (PMSBP, 535 ₽). По Уставу дивиденд по префу = 10% чистой прибыли по РСБУ / число префов; при этом действует «уравнивающая» оговорка — если дивиденд на ао превышает дивиденд на ап, дивиденд по ап повышается до уровня ао. Исторически выплаты на ао и ап равны (2025: по 57,0 ₽). Капитализация и мультипликаторы (P/E 10,43; P/BV 7,02; EV/EBITDA 7,90 за 2025) считаны по СУММАРНОЙ капитализации обоих классов (24 873 млн ₽). (3) У компании НЕТ ДОЛГА все годы: чистый долг = −денежные средства (чистая денежная позиция −3 997 млн ₽ в 2025). Чистая прибыль превышает операционную в отдельные годы за счёт процентного дохода на денежную подушку при высокой ставке ЦБ — снижение ставки этот доход уменьшит. (4) Бизнес «транзитный»: ~92% выручки — перепродаваемая электроэнергия и сети; маржа тонкая (net margin ~4%), но ROE очень высок (57%) из-за малого капитала и высокой оборачиваемости. (5) Выплата 2025 = 113,68% чистой прибыли по МСФО — разовый повышенный пэйаут (база — РСБУ); устойчивость на будущее не гарантирована."
+    },
+    {
+      "ticker": "RHYD",
+      "note": "RHYD — внутренний идентификатор того же эмитента ПАО «РусГидро», реально торгуемого на Мосбирже под тикером HYDR (TQBR, LAST 0,3888 ₽ на 01.06.2026); отдельного инструмента RHYD на Мосбирже не существует (ISS возвращает пустые данные), префов у компании нет. Экономика идентична HYDR. Прибыль крайне волатильна из-за регулярных неденежных обесценений активов ДФО и быстро растущих процентных расходов: 2024 — чистый убыток −54,1 млрд ₽, 2025 — рекордная прибыль +114,1 млрд ₽ (либерализация цен ДФО, индексация тарифов, эффект низкой базы). 2025 — пиковый год по прибыли, не репрезентативен для нормализации. Чистый долг 706,3 млрд ₽ (ND/EBITDA ≈2,7x по EBITDA = EBIT+D&A; ~3,2x по «адж.» EBITDA из бизнес-модели). Пик инвестпрограммы 2026–2028 даёт устойчиво отрицательный FCF. Дивиденды приостановлены (мораторий ~до 2030), DCF признан неинформативным."
+    },
+    {
+      "ticker": "SARE",
+      "note": "1) Капитал был ОТРИЦАТЕЛЬНЫМ в 2020-2022 (накопленный убыток), вышел в плюс лишь в 2023; из-за этого ROE/P/B за ранние годы не считаются. 2) ROE 2024 ~59% завышен низкой базой капитала и разовым роспуском резервов — не отражает устойчивую доходность. 3) Чистая прибыль крайне волатильна (0.12→0.64→0.40→0.94 млрд ₽) и определяется резервами по дебиторке, а не операционкой; для оценки взята нормализованная EPS. 4) Обыкновенные акции дивиденды не платят (в отличие от префа SAREP). 5) Эмитент третьего эшелона, малая ликвидность."
+    },
+    {
+      "ticker": "SAREP",
+      "note": "1) Капитал был ОТРИЦАТЕЛЬНЫМ в 2020-2022 (накопленный убыток), вышел в плюс лишь в 2023; из-за этого ROE/P/B за ранние годы не считаются. 2) ROE 2024 ~59% завышен низкой базой капитала и разовым роспуском резервов — не отражает устойчивую доходность. 3) Чистая прибыль крайне волатильна (0.12→0.64→0.40→0.94 млрд ₽) и определяется резервами по дебиторке, а не операционкой; для оценки взята нормализованная EPS. 4) Обыкновенные акции дивиденды не платят (в отличие от префа SAREP). 5) Эмитент третьего эшелона, малая ликвидность."
+    },
+    {
+      "ticker": "SLEN",
+      "note": "2024 — аномальный год: отрицательная EBITDA (−5,88 млрд) и убыток −9,39 млрд из-за крупного неденежного обесценения активов при выросшей выручке; в 2024 же прошла допэмиссия (акций 1 237→2 237 млн). EV/EBITDA и ND/EBITDA за 2024 не определены. Малоликвидная бумага 3-го уровня листинга. Оценка имеет низкую достоверность."
+    },
+    {
+      "ticker": "STSB",
+      "note": "EV/EBITDA = 0.75 и P/E ≈ 2.2-2.7 аномально низкие. Причина структурная, не ошибка: (1) энергосбыт прогоняет ~90% выручки транзитом, поэтому при огромной выручке капитализация мала → сверхнизкий P/S; (2) у компании чистая денежная позиция (net debt = −1,89 млрд ₽), из-за чего EV < капитализации и EV/EBITDA теряет смысл. Для энергосбыта оценка корректнее по P/E и дивидендам (для префов), EV/EBITDA малоинформативна."
+    },
+    {
+      "ticker": "STSBP",
+      "note": "EV/EBITDA = 0.75 и P/E ≈ 2.2-2.7 аномально низкие. Причина структурная, не ошибка: (1) энергосбыт прогоняет ~90% выручки транзитом, поэтому при огромной выручке капитализация мала → сверхнизкий P/S; (2) у компании чистая денежная позиция (net debt = −1,89 млрд ₽), из-за чего EV < капитализации и EV/EBITDA теряет смысл. Для энергосбыта оценка корректнее по P/E и дивидендам (для префов), EV/EBITDA малоинформативна."
+    },
+    {
       "ticker": "TGKB",
       "note": "Малоликвидная «копеечная» акция (цена ~0,007 ₽, узкий free-float, госконтроль ~83% через ДУ структуры ГЭХ). Прибыль крайне волатильна и определяется неденежными/разовыми статьями, а не операциями: в 2023 убыток −15,4 млрд ₽, в 2024 −3,3 млрд ₽, в 2025 прибыль +3,6 млрд ₽ при ОПЕРАЦИОННОМ убытке −2,0 млрд ₽. EBITDA-2025 обнулилась (183 млн против ~5,0 млрд в 2024), из-за чего EV/EBITDA (96,8x) и ND/EBITDA (40,3x по чистому долгу; 71,4x по общему долгу) теряют смысл — мультипликаторы к прибыли/EBITDA за 2025 нерепрезентативны. Высокая долговая нагрузка, обязательства ~69% активов. История корпоративных проблем: изъятие госпакета в доход государства и передача в доверительное управление на период финоздоровления."
+    },
+    {
+      "ticker": "TGKBP",
+      "note": "Малоликвидная «копеечная» акция (цена ~0,007 ₽, узкий free-float, госконтроль ~83% через ДУ структуры ГЭХ). Прибыль крайне волатильна и определяется неденежными/разовыми статьями, а не операциями: в 2023 убыток −15,4 млрд ₽, в 2024 −3,3 млрд ₽, в 2025 прибыль +3,6 млрд ₽ при ОПЕРАЦИОННОМ убытке −2,0 млрд ₽. EBITDA-2025 обнулилась (183 млн против ~5,0 млрд в 2024), из-за чего EV/EBITDA (96,8x) и ND/EBITDA (40,3x по чистому долгу; 71,4x по общему долгу) теряют смысл — мультипликаторы к прибыли/EBITDA за 2025 нерепрезентативны. Высокая долговая нагрузка, обязательства ~69% активов. История корпоративных проблем: изъятие госпакета в доход государства и передача в доверительное управление на период финоздоровления."
+    },
+    {
+      "ticker": "TGKN",
+      "note": "Расхождение между источниками по долговой нагрузке: smart-lab (МСФО) даёт net_debt 2025 ~11,5 млрд ₽ и ND/EBITDA ~3,7x (при подразумеваемом кэше ~8,2 млрд ₽ — необычно высоком, вероятно средства SPO/целевое финансирование инвестпрограммы), тогда как business_model.md по РСБУ (кредитный портфель ~20,3 млрд ₽ на 30.09.2025) и АКРА дают ND/EBITDA ~5,8–6,5x. Реальная нагрузка, вероятно, ближе к верхней оценке; в JSON взят ряд smart-lab МСФО как наиболее полный за 5 лет, но показатель помечен как неоднозначный. P/E 26.9x искажён обвалом прибыли 2025 (база некорректна для оценки). Число акций ~1,358 трлн — крайне велико, проверено по MOEX ISS (ISSUESIZE), цена номинируется в долях копейки."
+    },
+    {
+      "ticker": "TNSE",
+      "note": [
+        "P/E ~2.5 экстремально низкий: рынок устойчиво даёт энергосбытам глубокий дисконт за тонкую маржу и качество прибыли — это не обязательно недооценка.",
+        "EV/EBITDA ~0.6 (<1): EV ниже годовой EBITDA из-за крупной чистой денежной позиции (чистый долг −31.9 млрд); мультипликатор не сопоставим с капиталоёмкими компаниями.",
+        "Капитал группы был около нуля в 2021-2023 (0.3-9.0 млрд) → ROE 100-1000% — артефакт малого знаменателя, не реальная доходность; к 2025 ROE нормализовался к ~48%.",
+        "Рост прибыли 2024-2025 в значительной мере обеспечен процентным доходом на денежную подушку при ставке 14.5%, а не ростом сбыта; при снижении ставки эффект ослабнет.",
+        "Чистая прибыль на акционеров мат. компании (19.2) ниже общей по группе (20.62) из-за миноритариев в отдельно торгуемых региональных дочках (Кубань, Ростов, НН и др.).",
+        "Оценка по historical_pe механически переносит структурно низкий P/E сектора; CAPM даёт более высокий ориентир — коридор широкий, надёжность низкая (data_quality=low)."
+      ]
+    },
+    {
+      "ticker": "TORS",
+      "note": "(1) ND/EBITDA ≈ 0.08x — аномально низкий долг для распределительной сетевой компании (обычно сети закредитованы под инвестпрограмму); компания финансирует CapEx преимущественно из операционного потока. (2) Текущая рыночная цена (0.74 ₽) ВЫШЕ верхней границы фундаментальной оценки (0.66 ₽) и заметно выше внутренней стоимости по P/BV×ROE и CAPM — рынок оценивает дороже, чем дают модели при ставке Rf 14.6%. (3) ROE (~7-8%) ниже стоимости капитала (Ke≈20%) — регулируемая норма прибыли не покрывает требуемую доходность при высоких ставках. (4) 2021 г. — почти нулевая прибыль, искажает средний P/E (57x), поэтому использована медиана."
+    },
+    {
+      "ticker": "TORSP",
+      "note": "(1) ND/EBITDA ≈ 0.08x — аномально низкий долг для распределительной сетевой компании (обычно сети закредитованы под инвестпрограмму); компания финансирует CapEx преимущественно из операционного потока. (2) Текущая рыночная цена (0.74 ₽) ВЫШЕ верхней границы фундаментальной оценки (0.66 ₽) и заметно выше внутренней стоимости по P/BV×ROE и CAPM — рынок оценивает дороже, чем дают модели при ставке Rf 14.6%. (3) ROE (~7-8%) ниже стоимости капитала (Ke≈20%) — регулируемая норма прибыли не покрывает требуемую доходность при высоких ставках. (4) 2021 г. — почти нулевая прибыль, искажает средний P/E (57x), поэтому использована медиана."
+    },
+    {
+      "ticker": "UPRO",
+      "note": "Аномалия структуры баланса и распределения капитала: у компании нет долга и накоплена крупная чистая денежная позиция (ND/EBITDA отрицательный), но дивиденды заморожены с 2022 г. — мажоритарий Uniper SE (83,73%) с апреля 2023 г. под внешним управлением Росимущества (Указ №302). Накопленный кэш не распределяется акционерам, а копится и реинвестируется в депозиты (даёт процентный доход, из-за которого чистая прибыль выше операционной) и в выросший CapEx. Поэтому низкие P/E (2,2) и P/BV (0,39) отражают не дешевизну бизнеса, а дисконт за невозможность вернуть кэш акционерам."
+    },
+    {
+      "ticker": "YKEN",
+      "note": "Отрицательный собственный капитал (чистые активы −31.4 млрд ₽ на 2025); чистый убыток в 2024 (−25.3) и 2025 (−14.4); EBITDA 2024 отрицательная (−14.7 млрд ₽) → мультипликаторы за 2024 неинформативны; экстремальная долговая нагрузка ND/EBITDA(2025)=26.8; FCF устойчиво глубоко отрицателен. Классический distressed-кейс регулируемой инфраструктуры: тариф ниже себестоимости, устойчивость держится на тарифных решениях и поддержке группы РусГидро."
+    },
+    {
+      "ticker": "YKENP",
+      "note": "Отрицательный собственный капитал (чистые активы −31.4 млрд ₽ на 2025); чистый убыток в 2024 (−25.3) и 2025 (−14.4); EBITDA 2024 отрицательная (−14.7 млрд ₽) → мультипликаторы за 2024 неинформативны; экстремальная долговая нагрузка ND/EBITDA(2025)=26.8; FCF устойчиво глубоко отрицателен. Классический distressed-кейс регулируемой инфраструктуры: тариф ниже себестоимости, устойчивость держится на тарифных решениях и поддержке группы РусГидро."
     }
   ]
 }

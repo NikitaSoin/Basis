@@ -724,11 +724,11 @@
     "relative_peers — pending_sector_backfill: добрать после прогона сектора холдингов."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": null,
     "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "insufficient_data"
   },
   "anomaly_flag": true,
   "anomaly_note": "Инвестхолдинг с долгом корпцентра и отриц. капиталом; P/E/P/B нерепрезентативны."

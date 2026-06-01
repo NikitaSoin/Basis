@@ -1,0 +1,634 @@
+{
+  "meta": {
+    "ticker": "GEMA",
+    "name": "ПАО «ММЦБ» / Гемабанк (IMCB PJSC)",
+    "sector": "Здравоохранение / Биотехнологии",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ (с опорой на раскрытые показатели МСФО)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 126.4,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 14.92992,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Микро-кап 3-го эшелона, малоликвидная бумага (листинг МосБиржи уровень 3). Компания платит почти всю прибыль дивидендами (payout 90-110%), из-за чего собственный капитал остаётся очень низким, а P/B (~9.5x) и ROE (~76%) механически экстремальны — это следствие distribution-модели, а не сверхэффективности. Полной МСФО-отчётности за 2024-2025 в публичных агрегаторах нет: ряды собраны в основном из РСБУ + раскрытых в business_model.md значений МСФО за 2023-2024; баланс и денежные потоки за 2023-2025 не раскрыты. Брокерского покрытия (консенсус-прогноз) нет."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      266.0,
+      255.0,
+      283.5,
+      348.6,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      140.0,
+      139.0,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      148.0,
+      145.0,
+      145.0,
+      190.0,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      123.9,
+      129.2,
+      98.2,
+      125.8,
+      151.2,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        55.64,
+        56.86,
+        51.15,
+        54.5,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        52.63,
+        54.51,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        48.57,
+        38.51,
+        44.37,
+        43.37,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      679.0,
+      870.0,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      202.0,
+      139.0,
+      null,
+      null,
+      198.4
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      477.0,
+      731.0,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      36.0,
+      76.0,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      -10.0,
+      150.0,
+      145.0,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.15,
+        1.62,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -0.07,
+        1.03,
+        1.0,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      243.0,
+      245.0,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      5.0,
+      4.0,
+      4.0,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      238.0,
+      241.0,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        89.47,
+        94.51,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        48.6,
+        61.25,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        1.88,
+        1.57,
+        1.41,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      63.96,
+      70.65,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      19.03,
+      11.29,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      48.57,
+      38.51,
+      44.37,
+      43.37,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.39,
+      0.29,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 12.48,
+      "ps": 5.41,
+      "pb": 9.51,
+      "ev_ebitda": 10.7,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "Надёжных исторических цен по неликвидной бумаге 3-го эшелона нет — годовые мультипликаторы не реконструируются. Текущие посчитаны на базе показателей 2024 (последний раскрытый полный год)."
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": null,
+      "roe": null,
+      "note": "Полный 2025 год по МСФО/РСБУ не раскрыт на момент сборки (доступны 9 мес 2025: выручка ~280.3, чистая прибыль ~120.2). Мультипликаторы 2025 не считаем во избежание выдумывания."
+    },
+    "2024": {
+      "pe": 12.48,
+      "ps": 5.41,
+      "pb": 9.51,
+      "ev_ebitda": 10.7,
+      "net_debt_ebitda": 0.76,
+      "roe": 76.21,
+      "note": "Считано от текущей цены 126.4 руб и показателей 2024 (выручка 348.6, EBITDA ~190 оценка, чистая прибыль 151.2, ND ~145 по последним раскрытым данным 2023, капитал 198.4 на конец 2025). P/B и ROE экстремальны из-за высокого payout (низкий капитал)."
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сравнение с сектором соберётся после прогона компаний здравоохранения/биотеха и обновления sectors/<sector>/peers.json. Прямых публичных аналогов на МосБирже у персонального банка стволовых клеток почти нет (ближайшие — другие активы группы Артген: ABIO/Genetico)."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия (Т-Инвестиции/БКС/Сбер) по микро-кап 3-го эшелона нет. Исторический рост выручки нестабилен (2022 сжатие, 2024 ускорение +23%), баланс и денежные потоки за 2023-2025 не раскрыты, поэтому полноценный прогноз не строим. Для справочного DCF использован механический затухающий рост от 12% к долгосрочным 4%."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 55.5,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 22.7,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "fcf0_mln": 151.0,
+          "growth_fade_pct": [
+            12,
+            10,
+            8,
+            6,
+            4
+          ],
+          "beta": 0.9
+        },
+        "tv_share_of_value_pct": 44.1,
+        "status": "insufficient_data",
+        "note": "СПРАВОЧНЫЙ механический DCF: FCF0 принят равным чистой прибыли 2024 (бизнес asset-light, capex ~4 млн, высокая конверсия в кэш). При ставке 22.7% (Ke=Rf 14.6% + beta 0.9 × ERP 9.0%) даёт ~55.5 руб/акцию — заметно НИЖЕ цены 126.4. Помечен insufficient_data: нет раскрытых CFO/CapEx за 2024-2025 и нет прогноза от аналитиков. Высокая ставка дисконтирования (ОФЗ 14.6%) сильно давит на оценку растущего бизнеса с дальним денежным потоком."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Надёжной 5-летней истории цен по неликвидной бумаге 3-го эшелона нет, медиану P/E не построить. Метод пропущен."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "insufficient_data",
+        "note": "pending_sector_backfill — peers.json по сектору ещё не собран; прямых публичных аналогов мало."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 147.1,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "expected_div_yield_pct": 6.3,
+          "basis": "target = current × (1 + (Ke − ожидаемая дивдоходность))"
+        },
+        "status": "ok",
+        "note": "Таргет на 12 мес: требуемая доходность Ke=22.7%, ожидаемая дивдоходность ~6.3% (≈8 руб/акцию к цене 126.4) → требуемый рост цены ~16.4% → ~147 руб. Чувствителен к допущению о beta (для неликвида beta условна) и к будущим дивидендам, которые в 2025-2026 резко сократились."
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": 30.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "normalized_dividend_per_share": "2.8-10.8",
+          "required_yield_pct": 22.7,
+          "required_yield_basis": "Ke = Rf 14.6% + beta 0.9 × ERP 9.0%"
+        },
+        "status": "ok",
+        "note": "Дивиденд резко упал: ~10.8 руб (2024) → объявленные ~8 руб за 2025 поквартально → ~2.8 руб ожидается за итог 2025. При требуемой доходности 22.7% коридор 12-48 руб (mid ~30). Метод даёт оценку много НИЖЕ цены — рынок, видимо, платит за рост базы хранения и потенциальное восстановление выплат, а не за текущую дивдоходность."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 30,
+      "base": 90,
+      "current_price": 126.4,
+      "upside_downside_pct": -28.8
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        20.7,
+        22.7,
+        24.7
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          61.8,
+          64.9,
+          68.4
+        ],
+        [
+          53.1,
+          55.5,
+          58.2
+        ],
+        [
+          46.4,
+          48.4,
+          50.5
+        ]
+      ],
+      "note": "DCF цена на акцию (руб) по сетке ставка × терминальный рост. Даже при мягких допущениях DCF держится в районе 46-68 руб — устойчиво ниже рыночной цены. Главная причина — высокая безрисковая ставка 14.6%."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «ММЦБ» (GEMA) — РСБУ-показатели (выручка, чистая прибыль, EPS, капитал) 2020-2025, e-disclosure / агрегаторы",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru / finviewer.ru — финансовые ряды и дивиденды GEMA (МСФО за 2021-2023, РСБУ за 2024-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "business_model.md (внутренний разбор) — МСФО-якоря 2023-2024 (выручка ~255/349, EBITDA ~145/190, ND/EBITDA ~1.0x)",
+      "period": "2023-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "MOEX iss — котировка GEMA (TQBR) 126.4 руб, капитализация 1.887 млрд руб, 14 929 920 акций, листинг ур.3",
+      "period": "2026-05-30",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "DATA QUALITY = LOW. Микро-кап 3-го эшелона, неликвид. Полная МСФО-отчётность за 2024-2025 публично не раскрыта; ряды собраны из РСБУ + раскрытых в business_model.md значений МСФО за 2023-2024.",
+    "Баланс (активы, долг, кэш) и денежные потоки (CFO/CFI/CFF/CapEx) за 2023-2025 не раскрыты — большинство строк за эти годы null. net_debt 2023 (~145) и ND/EBITDA ~1.0x взяты из business_model.md (требуют сверки по отчёту).",
+    "P/B ~9.5x и ROE ~76% ЭКСТРЕМАЛЬНЫ механически: компания распределяет почти всю прибыль дивидендами (payout 90-110%), капитал остаётся очень низким (~140-200 млн). Это особенность distribution-модели, НЕ ошибка и НЕ признак сверхэффективности.",
+    "Расхождение между РСБУ и МСФО: РСБУ-выручка 2024 = 348.6, 2023 = 283.5; МСФО (business_model.md) 2024 ~349, 2023 = 255. Для 2023 взято РСБУ 283.5 ради сопоставимости ряда; разница ~28 млн.",
+    "EBITDA 2024 (~190) — ОЦЕНКА из business_model.md, не раскрытая величина. EBITDA-маржа и EV/EBITDA на ней — приблизительны.",
+    "Дивиденд резко сократился: ~10.8 руб (2024) → ~8 руб поквартально за 2025 → ~2.8 руб ожидаемый итог 2025. Дивидендная оценка чувствительна к выбору нормализованного дивиденда.",
+    "Историю EPS агрегаторы дают в двух несовместимых базах акций (старая: ~76-92 руб; текущая по 14.93 млн акций: ~8-10 руб). Использована текущая база (EPS 2024 ~10.13). До-2021 ряды несопоставимы.",
+    "Брокерского консенсус-прогноза нет (forecast.source_type = none). DCF и historical_pe помечены insufficient_data; итоговый коридор намеренно широкий.",
+    "Зависимость от мажоритария: группа Артген владеет ~82% — решения по дивидендам/распределению ресурсов вне контроля миноритария.",
+    "relative_peers: pending_sector_backfill — peers.json по сектору здравоохранения/биотеха ещё не собран."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 7.18,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

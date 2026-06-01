@@ -4,28 +4,35 @@
     "sector_key": "consumer",
     "generated_at": "2026-06-01",
     "companies": [
-      "X5",
-      "MGNT",
-      "LENT",
-      "OKEY",
-      "FIXR",
-      "MVID",
-      "BELU",
-      "GCHE",
-      "RAGR",
+      "ABRD",
+      "APTK",
       "AQUA",
+      "BELU",
+      "FIXR",
+      "GCHE",
       "HNFG",
+      "KLVZ",
+      "KROT",
+      "KROTP",
+      "LENT",
+      "MGNT",
+      "MVID",
+      "NKHP",
+      "OKEY",
+      "OZPH",
+      "RAGR",
+      "ROST",
+      "SVET",
+      "SVETP",
       "VSEH",
       "WUSH",
-      "OZPH",
-      "ABRD",
-      "KROT"
+      "X5"
     ],
-    "n": 16,
+    "n": 23,
     "registry_ref": "config/sectors.json",
     "macro_params_ref": "config/market_params.json",
-    "note": "Разнородный потребительский сектор (продуктовый ритейл/алко/агро/электроника/мода/e-comm). Медиана/среднее — по сопоставимым с валидным EV/EBITDA; убыточные/особые исключены (*). У ритейла EV/EBITDA — по IFRS16.",
-    "relative_valuation": "relative_peers от медианы EV/EBITDA сопоставимых 2025 = 2.9"
+    "note": "Потребсектор/ритейл/АПК. Ядро — крупные прибыльные; малоликвиды/префы со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda ядра 2025 = 2.9."
   },
   "comparison_table": {
     "metrics": [
@@ -42,117 +49,65 @@
     ],
     "rows": [
       {
-        "ticker": "X5",
-        "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
-        "price": 2490,
+        "ticker": "ABRD",
+        "name": "ПАО «Абрау-Дюрсо»",
+        "price": 145.0,
         "anomaly": false,
         "is_pref": false,
         "excluded_from_aggregate": false,
-        "label": "X5",
-        "relative_fair_value": null,
+        "label": "ABRD",
+        "relative_fair_value": 32.67,
         "2025": {
-          "pe": 8.23,
-          "ps": 0.15,
-          "pb": 7.05,
-          "ev_ebitda": 2.07,
-          "net_debt_ebitda": null,
-          "roe": 30.64
+          "pe": 8.07,
+          "ps": 0.74,
+          "pb": 0.82,
+          "ev_ebitda": 5.41,
+          "net_debt_ebitda": 2.17,
+          "roe": 10.91
         },
         "2024": {
-          "pe": 8.23,
-          "ps": 0.15,
-          "pb": 7.05,
-          "ev_ebitda": 2.24,
-          "net_debt_ebitda": null,
-          "roe": 47.48
+          "pe": 7.84,
+          "ps": 0.75,
+          "pb": 0.82,
+          "ev_ebitda": 5.6,
+          "net_debt_ebitda": 2.24,
+          "roe": 14.07
         }
       },
       {
-        "ticker": "MGNT",
-        "name": "ПАО «Магнит»",
-        "price": 2300,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "MGNT",
-        "relative_fair_value": -100.0,
-        "2025": {
-          "pe": -7.59,
-          "ps": 0.067,
-          "pb": 1.56,
-          "ev_ebitda": 4.34,
-          "net_debt_ebitda": 2.96,
-          "roe": -20.62
-        },
-        "2024": {
-          "pe": 5.78,
-          "ps": 0.08,
-          "pb": 1.41,
-          "ev_ebitda": 1.74,
-          "net_debt_ebitda": 1.47,
-          "roe": 24.32
-        }
-      },
-      {
-        "ticker": "LENT",
-        "name": "МКПАО «Лента»",
-        "price": 1993.5,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "LENT",
-        "relative_fair_value": 2390.26,
-        "2025": {
-          "pe": 6.63,
-          "ps": 0.21,
-          "pb": 1.28,
-          "ev_ebitda": 2.49,
-          "net_debt_ebitda": 0.43,
-          "roe": null
-        },
-        "2024": {
-          "pe": 10.29,
-          "ps": 0.26,
-          "pb": 1.55,
-          "ev_ebitda": 3.43,
-          "net_debt_ebitda": 0.71,
-          "roe": null
-        }
-      },
-      {
-        "ticker": "OKEY",
-        "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
-        "price": 33.55,
+        "ticker": "APTK",
+        "name": "ПАО «Аптечная сеть 36,6»",
+        "price": 6.336,
         "anomaly": true,
         "is_pref": false,
         "excluded_from_aggregate": true,
-        "label": "OKEY *",
-        "relative_fair_value": -33.96,
+        "label": "APTK *",
+        "relative_fair_value": 0.38,
         "2025": {
-          "pe": -2.53,
-          "ps": 0.063,
-          "pb": -0.47,
-          "ev_ebitda": 4.53,
-          "net_debt_ebitda": 3.72,
+          "pe": 183.83,
+          "ps": 0.46,
+          "pb": null,
+          "ev_ebitda": 8.25,
+          "net_debt_ebitda": 2.56,
           "roe": null
         },
         "2024": {
-          "pe": 6.46,
-          "ps": 0.06,
-          "pb": -0.88,
-          "ev_ebitda": 3.3,
-          "net_debt_ebitda": 2.66,
+          "pe": 55.83,
+          "ps": 0.55,
+          "pb": null,
+          "ev_ebitda": 10.38,
+          "net_debt_ebitda": 3.16,
           "roe": null
         }
       },
       {
-        "ticker": "FIXR",
-        "name": "ПАО «Фикс Прайс»",
-        "price": 0.5285,
-        "anomaly": false,
+        "ticker": "AQUA",
+        "name": "ПАО «Инарктика»",
+        "price": 412.0,
+        "anomaly": true,
         "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "FIXR",
+        "excluded_from_aggregate": true,
+        "label": "AQUA *",
         "relative_fair_value": null,
         "2025": {
           "pe": null,
@@ -169,32 +124,6 @@
           "ev_ebitda": null,
           "net_debt_ebitda": null,
           "roe": null
-        }
-      },
-      {
-        "ticker": "MVID",
-        "name": "ПАО «М.видео-Эльдорадо»",
-        "price": 64.1,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "MVID *",
-        "relative_fair_value": -935.15,
-        "2025": {
-          "pe": null,
-          "ps": 0.035,
-          "pb": -0.253,
-          "ev_ebitda": -22.51,
-          "net_debt_ebitda": -20.88,
-          "roe": 193.0
-        },
-        "2024": {
-          "pe": null,
-          "ps": 0.026,
-          "pb": -0.566,
-          "ev_ebitda": 2.58,
-          "net_debt_ebitda": 2.28,
-          "roe": 195.5
         }
       },
       {
@@ -224,6 +153,32 @@
         }
       },
       {
+        "ticker": "FIXR",
+        "name": "ПАО «Фикс Прайс»",
+        "price": 0.5285,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "FIXR",
+        "relative_fair_value": 1.1,
+        "2025": {
+          "pe": 4.73,
+          "ps": 0.17,
+          "pb": 0.87,
+          "ev_ebitda": 1.44,
+          "net_debt_ebitda": 0.08,
+          "roe": 22.5
+        },
+        "2024": {
+          "pe": 2.8,
+          "ps": 0.2,
+          "pb": 1.2,
+          "ev_ebitda": 1.56,
+          "net_debt_ebitda": 0.26,
+          "roe": 37.21
+        }
+      },
+      {
         "ticker": "GCHE",
         "name": "ПАО «Группа Черкизово»",
         "price": 3744.0,
@@ -231,58 +186,6 @@
         "is_pref": false,
         "excluded_from_aggregate": false,
         "label": "GCHE",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        },
-        "2024": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        }
-      },
-      {
-        "ticker": "RAGR",
-        "name": "ПАО «Группа «Русагро»",
-        "price": 101.3,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "RAGR",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        },
-        "2024": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        }
-      },
-      {
-        "ticker": "AQUA",
-        "name": "ПАО «Инарктика»",
-        "price": 412.0,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "AQUA *",
         "relative_fair_value": null,
         "2025": {
           "pe": null,
@@ -325,6 +228,344 @@
           "ev_ebitda": 2.79,
           "net_debt_ebitda": 0.08,
           "roe": 36.44
+        }
+      },
+      {
+        "ticker": "KLVZ",
+        "name": "ПАО «Алкогольная группа Кристалл» (Калужский ЛВЗ «Кристалл»)",
+        "price": 2.478,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KLVZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.46,
+          "pb": 1.04,
+          "ev_ebitda": -13.1,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.46,
+          "pb": 1.02,
+          "ev_ebitda": -11.6,
+          "net_debt_ebitda": null,
+          "roe": -0.58
+        }
+      },
+      {
+        "ticker": "KROT",
+        "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
+        "price": 1113.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KROT *",
+        "relative_fair_value": -249.32,
+        "2025": {
+          "pe": 110.34,
+          "ps": 0.46,
+          "pb": 0.96,
+          "ev_ebitda": 87.54,
+          "net_debt_ebitda": 18.39,
+          "roe": 0.8
+        },
+        "2024": {
+          "pe": 2584.97,
+          "ps": 0.47,
+          "pb": 0.95,
+          "ev_ebitda": -28.93,
+          "net_debt_ebitda": -5.35,
+          "roe": 0.03
+        }
+      },
+      {
+        "ticker": "KROTP",
+        "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"» — привилегированные акции",
+        "price": 448.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "KROTP *",
+        "relative_fair_value": -102.32,
+        "2025": {
+          "pe": 117.42,
+          "ps": 0.45,
+          "pb": 0.94,
+          "ev_ebitda": 86.21,
+          "net_debt_ebitda": 18.39,
+          "roe": 0.8
+        },
+        "2024": {
+          "pe": 2729.94,
+          "ps": 0.45,
+          "pb": 0.92,
+          "ev_ebitda": -28.15,
+          "net_debt_ebitda": -5.35,
+          "roe": 0.03
+        }
+      },
+      {
+        "ticker": "LENT",
+        "name": "МКПАО «Лента»",
+        "price": 1993.5,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "LENT",
+        "relative_fair_value": 2390.26,
+        "2025": {
+          "pe": 6.63,
+          "ps": 0.21,
+          "pb": 1.28,
+          "ev_ebitda": 2.49,
+          "net_debt_ebitda": 0.43,
+          "roe": null
+        },
+        "2024": {
+          "pe": 10.29,
+          "ps": 0.26,
+          "pb": 1.55,
+          "ev_ebitda": 3.43,
+          "net_debt_ebitda": 0.71,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MGNT",
+        "name": "ПАО «Магнит»",
+        "price": 2300,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "MGNT",
+        "relative_fair_value": -100.0,
+        "2025": {
+          "pe": -7.59,
+          "ps": 0.067,
+          "pb": 1.56,
+          "ev_ebitda": 4.34,
+          "net_debt_ebitda": 2.96,
+          "roe": -20.62
+        },
+        "2024": {
+          "pe": 5.78,
+          "ps": 0.08,
+          "pb": 1.41,
+          "ev_ebitda": 1.74,
+          "net_debt_ebitda": 1.47,
+          "roe": 24.32
+        }
+      },
+      {
+        "ticker": "MVID",
+        "name": "ПАО «М.видео-Эльдорадо»",
+        "price": 64.1,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MVID *",
+        "relative_fair_value": -935.15,
+        "2025": {
+          "pe": null,
+          "ps": 0.035,
+          "pb": -0.253,
+          "ev_ebitda": -22.51,
+          "net_debt_ebitda": -20.88,
+          "roe": 193.0
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.026,
+          "pb": -0.566,
+          "ev_ebitda": 2.58,
+          "net_debt_ebitda": 2.28,
+          "roe": 195.5
+        }
+      },
+      {
+        "ticker": "NKHP",
+        "name": "ПАО «Новороссийский комбинат хлебопродуктов»",
+        "price": 490.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "NKHP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "OKEY",
+        "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
+        "price": 33.55,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "OKEY *",
+        "relative_fair_value": -33.96,
+        "2025": {
+          "pe": -2.53,
+          "ps": 0.063,
+          "pb": -0.47,
+          "ev_ebitda": 4.53,
+          "net_debt_ebitda": 3.72,
+          "roe": null
+        },
+        "2024": {
+          "pe": 6.46,
+          "ps": 0.06,
+          "pb": -0.88,
+          "ev_ebitda": 3.3,
+          "net_debt_ebitda": 2.66,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "OZPH",
+        "name": "ПАО «Озон Фармацевтика»",
+        "price": 47.3,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "OZPH",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 8.95,
+          "ps": 1.75,
+          "pb": 1.72,
+          "ev_ebitda": 5.36,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 12.08,
+          "ps": 2.18,
+          "pb": 2.2,
+          "ev_ebitda": 7.24,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RAGR",
+        "name": "ПАО «Группа «Русагро»",
+        "price": 101.3,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "RAGR",
+        "relative_fair_value": -25.75,
+        "2025": {
+          "pe": 17.85,
+          "ps": 0.26,
+          "pb": 0.4,
+          "ev_ebitda": 5.12,
+          "net_debt_ebitda": 3.35,
+          "roe": 7.12
+        },
+        "2024": {
+          "pe": 5.22,
+          "ps": 0.34,
+          "pb": 0.48,
+          "ev_ebitda": 3.91,
+          "net_debt_ebitda": 2.43,
+          "roe": 17.7
+        }
+      },
+      {
+        "ticker": "ROST",
+        "name": "ПАО «Росинтер Ресторантс Холдинг»",
+        "price": 82.4,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ROST *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SVET",
+        "name": "ПАО «Светофор Групп»",
+        "price": 11.14,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SVET *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 39.5,
+          "ps": 0.76,
+          "pb": 0.53,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.59,
+          "ps": 0.41,
+          "pb": 0.62,
+          "ev_ebitda": 1.48,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SVETP",
+        "name": "ПАО «Светофор Групп» (прив.)",
+        "price": 19.5,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "SVETP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 39.5,
+          "ps": 0.76,
+          "pb": 0.53,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.59,
+          "ps": 0.41,
+          "pb": 0.62,
+          "ev_ebitda": 1.48,
+          "net_debt_ebitda": null,
+          "roe": null
         }
       },
       {
@@ -380,81 +621,29 @@
         }
       },
       {
-        "ticker": "OZPH",
-        "name": "ПАО «Озон Фармацевтика»",
-        "price": 47.3,
+        "ticker": "X5",
+        "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
+        "price": 2490,
         "anomaly": false,
         "is_pref": false,
         "excluded_from_aggregate": false,
-        "label": "OZPH",
+        "label": "X5",
         "relative_fair_value": null,
         "2025": {
-          "pe": 8.95,
-          "ps": 1.75,
-          "pb": 1.72,
-          "ev_ebitda": 5.36,
+          "pe": 8.23,
+          "ps": 0.15,
+          "pb": 7.05,
+          "ev_ebitda": 2.07,
           "net_debt_ebitda": null,
-          "roe": null
+          "roe": 30.64
         },
         "2024": {
-          "pe": 12.08,
-          "ps": 2.18,
-          "pb": 2.2,
-          "ev_ebitda": 7.24,
+          "pe": 8.23,
+          "ps": 0.15,
+          "pb": 7.05,
+          "ev_ebitda": 2.24,
           "net_debt_ebitda": null,
-          "roe": null
-        }
-      },
-      {
-        "ticker": "ABRD",
-        "name": "ПАО «Абрау-Дюрсо»",
-        "price": 145.0,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "ABRD",
-        "relative_fair_value": 32.67,
-        "2025": {
-          "pe": 8.07,
-          "ps": 0.74,
-          "pb": 0.82,
-          "ev_ebitda": 5.41,
-          "net_debt_ebitda": 2.17,
-          "roe": 10.91
-        },
-        "2024": {
-          "pe": 7.84,
-          "ps": 0.75,
-          "pb": 0.82,
-          "ev_ebitda": 5.6,
-          "net_debt_ebitda": 2.24,
-          "roe": 14.07
-        }
-      },
-      {
-        "ticker": "KROT",
-        "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
-        "price": 1113.0,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "KROT *",
-        "relative_fair_value": -249.32,
-        "2025": {
-          "pe": 110.34,
-          "ps": 0.46,
-          "pb": 0.96,
-          "ev_ebitda": 87.54,
-          "net_debt_ebitda": 18.39,
-          "roe": 0.8
-        },
-        "2024": {
-          "pe": 2584.97,
-          "ps": 0.47,
-          "pb": 0.95,
-          "ev_ebitda": -28.93,
-          "net_debt_ebitda": -5.35,
-          "roe": 0.03
+          "roe": 47.48
         }
       }
     ]
@@ -462,35 +651,35 @@
   "sector_aggregates": {
     "2025": {
       "mean": {
-        "pe": 6.01,
-        "ps": 0.54,
-        "pb": 2.89,
-        "ev_ebitda": 3.52,
-        "net_debt_ebitda": 1.47,
-        "roe": 11.64
+        "pe": 7.18,
+        "ps": 0.47,
+        "pb": 2.39,
+        "ev_ebitda": 3.46,
+        "net_debt_ebitda": 1.55,
+        "roe": 12.7
       },
       "median": {
         "pe": 8.07,
         "ps": 0.21,
-        "pb": 1.63,
+        "pb": 1.56,
         "ev_ebitda": 2.9,
         "net_debt_ebitda": 1.3,
-        "roe": 18.28
+        "roe": 16.7
       }
     },
     "2024": {
       "mean": {
-        "pe": 14.77,
-        "ps": 0.63,
-        "pb": 4.54,
-        "ev_ebitda": 3.95,
-        "net_debt_ebitda": 1.12,
-        "roe": 30.58
+        "pe": 12.38,
+        "ps": 0.55,
+        "pb": 3.72,
+        "ev_ebitda": 3.68,
+        "net_debt_ebitda": 1.2,
+        "roe": 29.54
       },
       "median": {
-        "pe": 8.23,
+        "pe": 7.84,
         "ps": 0.26,
-        "pb": 1.87,
+        "pb": 1.55,
         "ev_ebitda": 3.43,
         "net_debt_ebitda": 1.09,
         "roe": 30.38
@@ -510,13 +699,20 @@
       "ABRD"
     ],
     "excluded": [
-      "OKEY",
-      "MVID",
+      "APTK",
       "AQUA",
-      "WUSH",
-      "KROT"
+      "KLVZ",
+      "KROT",
+      "KROTP",
+      "MVID",
+      "NKHP",
+      "OKEY",
+      "ROST",
+      "SVET",
+      "SVETP",
+      "WUSH"
     ],
-    "note": "Медиана/среднее — сопоставимые потребительские; убыточные/особые со * исключены."
+    "note": "Медиана/среднее — сопоставимое ядро сектора; малоликвиды/префы/аномальные со * исключены."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
@@ -533,52 +729,28 @@
       },
       "points": [
         {
-          "ticker": "X5",
-          "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
+          "ticker": "ABRD",
+          "name": "ПАО «Абрау-Дюрсо»",
           "anomaly": false,
           "is_pref": false,
-          "x": null,
-          "y": 2.07
+          "x": 2.17,
+          "y": 5.41
         },
         {
-          "ticker": "MGNT",
-          "name": "ПАО «Магнит»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": 2.96,
-          "y": 4.34
-        },
-        {
-          "ticker": "LENT",
-          "name": "МКПАО «Лента»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": 0.43,
-          "y": 2.49
-        },
-        {
-          "ticker": "OKEY",
-          "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
+          "ticker": "APTK",
+          "name": "ПАО «Аптечная сеть 36,6»",
           "anomaly": true,
           "is_pref": false,
-          "x": 3.72,
-          "y": 4.53
+          "x": 2.56,
+          "y": 8.25
         },
         {
-          "ticker": "FIXR",
-          "name": "ПАО «Фикс Прайс»",
-          "anomaly": false,
+          "ticker": "AQUA",
+          "name": "ПАО «Инарктика»",
+          "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": null
-        },
-        {
-          "ticker": "MVID",
-          "name": "ПАО «М.видео-Эльдорадо»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": -20.88,
-          "y": -22.51
         },
         {
           "ticker": "BELU",
@@ -589,25 +761,17 @@
           "y": null
         },
         {
+          "ticker": "FIXR",
+          "name": "ПАО «Фикс Прайс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.08,
+          "y": 1.44
+        },
+        {
           "ticker": "GCHE",
           "name": "ПАО «Группа Черкизово»",
           "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "RAGR",
-          "name": "ПАО «Группа «Русагро»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "AQUA",
-          "name": "ПАО «Инарктика»",
-          "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": null
@@ -619,6 +783,110 @@
           "is_pref": false,
           "x": 0.31,
           "y": 2.9
+        },
+        {
+          "ticker": "KLVZ",
+          "name": "ПАО «Алкогольная группа Кристалл» (Калужский ЛВЗ «Кристалл»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": -13.1
+        },
+        {
+          "ticker": "KROT",
+          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 18.39,
+          "y": 87.54
+        },
+        {
+          "ticker": "KROTP",
+          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"» — привилегированные акции",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 18.39,
+          "y": 86.21
+        },
+        {
+          "ticker": "LENT",
+          "name": "МКПАО «Лента»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 0.43,
+          "y": 2.49
+        },
+        {
+          "ticker": "MGNT",
+          "name": "ПАО «Магнит»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 2.96,
+          "y": 4.34
+        },
+        {
+          "ticker": "MVID",
+          "name": "ПАО «М.видео-Эльдорадо»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -20.88,
+          "y": -22.51
+        },
+        {
+          "ticker": "NKHP",
+          "name": "ПАО «Новороссийский комбинат хлебопродуктов»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "OKEY",
+          "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 3.72,
+          "y": 4.53
+        },
+        {
+          "ticker": "OZPH",
+          "name": "ПАО «Озон Фармацевтика»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 5.36
+        },
+        {
+          "ticker": "RAGR",
+          "name": "ПАО «Группа «Русагро»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 3.35,
+          "y": 5.12
+        },
+        {
+          "ticker": "ROST",
+          "name": "ПАО «Росинтер Ресторантс Холдинг»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SVET",
+          "name": "ПАО «Светофор Групп»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SVETP",
+          "name": "ПАО «Светофор Групп» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "VSEH",
@@ -637,28 +905,12 @@
           "y": 6.14
         },
         {
-          "ticker": "OZPH",
-          "name": "ПАО «Озон Фармацевтика»",
+          "ticker": "X5",
+          "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
           "anomaly": false,
           "is_pref": false,
           "x": null,
-          "y": 5.36
-        },
-        {
-          "ticker": "ABRD",
-          "name": "ПАО «Абрау-Дюрсо»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": 2.17,
-          "y": 5.41
-        },
-        {
-          "ticker": "KROT",
-          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": 18.39,
-          "y": 87.54
+          "y": 2.07
         }
       ]
     },
@@ -676,73 +928,17 @@
       },
       "points": [
         {
-          "ticker": "X5",
-          "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
+          "ticker": "ABRD",
+          "name": "ПАО «Абрау-Дюрсо»",
           "anomaly": false,
           "is_pref": false,
-          "x": 30.64,
-          "y": 7.05
+          "x": 10.91,
+          "y": 0.82
         },
         {
-          "ticker": "MGNT",
-          "name": "ПАО «Магнит»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": -20.62,
-          "y": 1.56
-        },
-        {
-          "ticker": "LENT",
-          "name": "МКПАО «Лента»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": 1.28
-        },
-        {
-          "ticker": "OKEY",
-          "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
+          "ticker": "APTK",
+          "name": "ПАО «Аптечная сеть 36,6»",
           "anomaly": true,
-          "is_pref": false,
-          "x": null,
-          "y": -0.47
-        },
-        {
-          "ticker": "FIXR",
-          "name": "ПАО «Фикс Прайс»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "MVID",
-          "name": "ПАО «М.видео-Эльдорадо»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": 193.0,
-          "y": -0.253
-        },
-        {
-          "ticker": "BELU",
-          "name": "ПАО «НоваБев Групп»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "GCHE",
-          "name": "ПАО «Группа Черкизово»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "RAGR",
-          "name": "ПАО «Группа «Русагро»",
-          "anomaly": false,
           "is_pref": false,
           "x": null,
           "y": null
@@ -756,12 +952,140 @@
           "y": null
         },
         {
+          "ticker": "BELU",
+          "name": "ПАО «НоваБев Групп»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "FIXR",
+          "name": "ПАО «Фикс Прайс»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 22.5,
+          "y": 0.87
+        },
+        {
+          "ticker": "GCHE",
+          "name": "ПАО «Группа Черкизово»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "HNFG",
           "name": "ПАО «Хэндерсон Фэшн Групп» (Henderson)",
           "anomaly": false,
           "is_pref": false,
           "x": 25.65,
           "y": 1.63
+        },
+        {
+          "ticker": "KLVZ",
+          "name": "ПАО «Алкогольная группа Кристалл» (Калужский ЛВЗ «Кристалл»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.04
+        },
+        {
+          "ticker": "KROT",
+          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.8,
+          "y": 0.96
+        },
+        {
+          "ticker": "KROTP",
+          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"» — привилегированные акции",
+          "anomaly": true,
+          "is_pref": true,
+          "x": 0.8,
+          "y": 0.94
+        },
+        {
+          "ticker": "LENT",
+          "name": "МКПАО «Лента»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.28
+        },
+        {
+          "ticker": "MGNT",
+          "name": "ПАО «Магнит»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -20.62,
+          "y": 1.56
+        },
+        {
+          "ticker": "MVID",
+          "name": "ПАО «М.видео-Эльдорадо»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 193.0,
+          "y": -0.253
+        },
+        {
+          "ticker": "NKHP",
+          "name": "ПАО «Новороссийский комбинат хлебопродуктов»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "OKEY",
+          "name": "О'КЕЙ Групп (ООО «О'КЕЙ»)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": -0.47
+        },
+        {
+          "ticker": "OZPH",
+          "name": "ПАО «Озон Фармацевтика»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 1.72
+        },
+        {
+          "ticker": "RAGR",
+          "name": "ПАО «Группа «Русагро»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.12,
+          "y": 0.4
+        },
+        {
+          "ticker": "ROST",
+          "name": "ПАО «Росинтер Ресторантс Холдинг»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "SVET",
+          "name": "ПАО «Светофор Групп»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.53
+        },
+        {
+          "ticker": "SVETP",
+          "name": "ПАО «Светофор Групп» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": 0.53
         },
         {
           "ticker": "VSEH",
@@ -780,52 +1104,52 @@
           "y": 1.66
         },
         {
-          "ticker": "OZPH",
-          "name": "ПАО «Озон Фармацевтика»",
+          "ticker": "X5",
+          "name": "ПАО «Корпоративный центр ИКС 5» (X5 Group)",
           "anomaly": false,
           "is_pref": false,
-          "x": null,
-          "y": 1.72
-        },
-        {
-          "ticker": "ABRD",
-          "name": "ПАО «Абрау-Дюрсо»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": 10.91,
-          "y": 0.82
-        },
-        {
-          "ticker": "KROT",
-          "name": "ПАО «Московская кондитерская фабрика \"Красный Октябрь\"»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": 0.8,
-          "y": 0.96
+          "x": 30.64,
+          "y": 7.05
         }
       ]
     }
   },
   "anomalies": [
     {
-      "ticker": "OKEY",
-      "note": "Источник — отчётность ООО «О'КЕЙ» (российская операционная единица), а НЕ листингуемой группы O'KEY Group. Три аномалии: (1) Отрицательный собственный капитал -19 028 млн (накопленный убыток + аренда по МСФО 16) — балансовые мультипликаторы (P/BV -0,47) и ROE не имеют смысла: PDF показывает ROE +34,73%, но это деление убытка на отрицательный капитал (ложноположительное значение). (2) Чистый убыток -3 563 млн в 2025 при положительной EBITDA 11 154 — съедают высокие финансовые расходы (13 437 млн, +36% г/г при ставке 14,5%) и амортизация аренды по МСФО 16. (3) Выручка упала на 30,9 млрд (-17,7% за 2 года) из-за выбытия гипермаркетов; в эту единицу НЕ попала разовая прибыль группы +14,3 млрд от продажи ГМ, описанная в business_model.md. Итог: чистый долг 41 452 при честной (peer) оценке EV ~24–29 млрд оставляет акционерам около нуля; оценка справедливой стоимости капитала на этих данных некорректна, дан только иллюстративный P/S-коридор."
-    },
-    {
-      "ticker": "MVID",
-      "note": "Высокий долг + убыток + отрицательный капитал + допэмиссия — мультипликаторы нерепрезентативны."
+      "ticker": "APTK",
+      "note": "Несколько структурных аномалий. (1) ОТРИЦАТЕЛЬНЫЙ собственный капитал во все годы (-6,6…-7,6 млрд руб) → P/B и debt/equity экономически неинтерпретируемы и проставлены null; ROE с отрицательным знаменателем даёт ложный знак (отрицательный ROE при положительной прибыли) → ROE проставлен null, оставлен ROA. (2) ПРИБЫЛЬ У НУЛЯ (263 млн в 2025 при выручке 105,6 млрд) → P/E экстремально высок и нестабилен (184x в 2025, 56x в 2024, 217x в 2022) — не аномалия расчёта, а свойство бизнеса: почти вся EBITDA уходит на проценты по большому долгу. (3) РАСХОЖДЕНИЕ БАЗЫ EBITDA: агрегатор Smart-Lab показывает EBITDA по IFRS-16 (после аренды): 2022=13,2; 2023=16,3 млрд — это в ~2 раза выше операционной EBITDA, раскрываемой компанией в пресс-релизах (2024=6,7; 2025=8,5 млрд). Использована операционная (доаренда / management) EBITDA, согласованная с business_model.md; EV/EBITDA и ND/EBITDA посчитаны на ней. На базе IFRS-16 EV/EBITDA и ND/EBITDA были бы примерно вдвое ниже. Это ключевой источник неопределённости. (4) Высокий чистый долг 21,8 млрд при EBITDA 8,5 млрд (ND/EBITDA 2,56x на операционной EBITDA) делает оценку через активы/капитал и DCF ненадёжной."
     },
     {
       "ticker": "AQUA",
       "note": "Прибыль и P/E искажены неденежной переоценкой биологических активов (живая рыба в воде по справедливой стоимости, IAS 41). В 2025 отчётный чистый убыток −2 238 млн ₽ при положительной скорр. чистой прибыли (~2,1 млрд ₽) и положительной EBITDA 5 722 млн ₽: убыток в значимой части — это разворот переоценки, а не операционный провал. Из-за этого P/E 2025 отрицателен и неинформативен, ROE/ROA отрицательны при работающем бизнесе. Дополнительно длинный (~2 года) биологический цикл: продажи года определяются «урожаем» рыбы прошлых периодов, поэтому EBITDA и прибыль крайне волатильны (2024: EBITDA 15 052 → 2025: 5 722). Оценку P/E и DCF строить на НОРМАЛИЗОВАННОЙ (mid-cycle / скорректированной) прибыли, не на отчётной за 2025."
     },
     {
-      "ticker": "WUSH",
-      "note": "2025 — переломный год: первый годовой убыток после IPO (-2,93 млрд) при падении выручки -12,9%. Операционная прибыль почти обнулилась (256 млн против 3 212 млн в 2024), финансовые расходы выросли на 75% (до 3 296 млн), ND/EBITDA подскочил с 1,58x до 4,05x. EBITDA-маржа 2021 (63%) аномально высока относительно последующих лет — вероятно эффект низкой базы/разовых статей до масштабирования флота; для трендового анализа опорным считать 2022-2024 (36-42%). FCF отрицателен все 5 лет подряд (капиталоёмкая закупка флота в валюте). Из-за убытка, отрицательного FCF и резкого роста долга классические P/E и DCF дают ненадёжный результат — оценка опирается на нормализованную EBITDA и сценарий восстановления."
+      "ticker": "KLVZ",
+      "note": "(1) В источнике МСФО EBITDA за 2023-2024 ниже операционной прибыли (EBITDA 2024 = -311 при OpProfit +478), что невозможно для корректной EBITDA (EBITDA ≥ OpProfit на величину амортизации). Вероятно агрегатор подаёт нестандартную/скорректированную EBITDA (вычитает разовые/обесценения) либо ошибка периметра. Поэтому D&A не выводилась (da = null), а ev_ebitda/nd_ebitda на этих годах помечены как ненадёжные. (2) Расхождение периметра РСБУ (ООО «КЛВЗ Кристалл») и МСФО (ПАО АГК): выручка РСБУ-2025 = 4.759 млрд, МСФО-2024 = 4.92 млрд — годы и периметры путаются между источниками. (3) Отчётность МСФО за 2025 на дату анализа полностью не раскрыта (только баланс), P&L 2025 = null."
     },
     {
       "ticker": "KROT",
       "note": "Малоликвидна, внутригрупповые цены, около-нулевая EBITDA → EV/EBITDA-артефакт; ценность в недвижимости."
+    },
+    {
+      "ticker": "KROTP",
+      "note": "Малоликвидная привилегированная акция, внутригрупповые цены, около-нулевая EBITDA → EV/EBITDA- и P/E-артефакт; ценность в балансе и недвижимости. Торгуется с большим дисконтом к BVPS и к обыкновенной акции."
+    },
+    {
+      "ticker": "MVID",
+      "note": "Высокий долг + убыток + отрицательный капитал + допэмиссия — мультипликаторы нерепрезентативны."
+    },
+    {
+      "ticker": "OKEY",
+      "note": "Источник — отчётность ООО «О'КЕЙ» (российская операционная единица), а НЕ листингуемой группы O'KEY Group. Три аномалии: (1) Отрицательный собственный капитал -19 028 млн (накопленный убыток + аренда по МСФО 16) — балансовые мультипликаторы (P/BV -0,47) и ROE не имеют смысла: PDF показывает ROE +34,73%, но это деление убытка на отрицательный капитал (ложноположительное значение). (2) Чистый убыток -3 563 млн в 2025 при положительной EBITDA 11 154 — съедают высокие финансовые расходы (13 437 млн, +36% г/г при ставке 14,5%) и амортизация аренды по МСФО 16. (3) Выручка упала на 30,9 млрд (-17,7% за 2 года) из-за выбытия гипермаркетов; в эту единицу НЕ попала разовая прибыль группы +14,3 млрд от продажи ГМ, описанная в business_model.md. Итог: чистый долг 41 452 при честной (peer) оценке EV ~24–29 млрд оставляет акционерам около нуля; оценка справедливой стоимости капитала на этих данных некорректна, дан только иллюстративный P/S-коридор."
+    },
+    {
+      "ticker": "ROST",
+      "note": "Отрицательный собственный капитал (−2.5…−2.7 млрд руб.) на всём горизонте — ROE и P/B не интерпретируются. Чистая прибыль волатильна и в 2024-2025 ушла в убыток (P/E отрицателен/NM). EBITDA-маржа 31-43% аномально высока для общепита, т.к. показатели агрегатора (smart-lab) посчитаны по МСФО-16: арендные платежи вынесены из EBITDA в амортизацию/проценты. Собственный показатель компании «EBITDA до обесценения и списаний» — ~0.8 млрд (маржа ~10%), а чистый долг без аренды ~2.48 млрд (ND/EBITDA ~0.94). EV/EBITDA и ND/EBITDA в JSON даны на МСФО-16 базе (согласованы с net_debt, включающим аренду)."
+    },
+    {
+      "ticker": "WUSH",
+      "note": "2025 — переломный год: первый годовой убыток после IPO (-2,93 млрд) при падении выручки -12,9%. Операционная прибыль почти обнулилась (256 млн против 3 212 млн в 2024), финансовые расходы выросли на 75% (до 3 296 млн), ND/EBITDA подскочил с 1,58x до 4,05x. EBITDA-маржа 2021 (63%) аномально высока относительно последующих лет — вероятно эффект низкой базы/разовых статей до масштабирования флота; для трендового анализа опорным считать 2022-2024 (36-42%). FCF отрицателен все 5 лет подряд (капиталоёмкая закупка флота в валюте). Из-за убытка, отрицательного FCF и резкого роста долга классические P/E и DCF дают ненадёжный результат — оценка опирается на нормализованную EBITDA и сценарий восстановления."
     }
   ]
 }

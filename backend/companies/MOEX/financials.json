@@ -770,10 +770,10 @@
     "Free-float ~65–90% по разным источникам — методология оспаривается; на оценку напрямую не влияет."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 104.46,
     "upside_downside_pct": -40.1,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   }
 }

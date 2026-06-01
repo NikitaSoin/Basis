@@ -1,0 +1,536 @@
+{
+  "meta": {
+    "ticker": "KGKC",
+    "name": "ПАО «Курганская генерирующая компания» (обыкновенные акции)",
+    "sector": "electric_utilities",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "смешанно: РСБУ (официальные якоря) + МСФО (агрегатор)",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 43.8,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 122453406,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      7540,
+      8690,
+      10200,
+      10600,
+      11100
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      920,
+      970,
+      1500,
+      1500,
+      775
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      176,
+      322,
+      470,
+      125,
+      -277
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        12.2,
+        11.2,
+        14.7,
+        14.2,
+        7.0
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        2.3,
+        3.7,
+        4.6,
+        1.2,
+        -2.5
+      ]
+    },
+    "_rsbu_anchors": {
+      "note": "Официальная РСБУ-отчётность по ИНН 4501122913 (подтверждена fact_check): 2023 — выручка 7411, чистая прибыль 539.1; 2024 — выручка 8314.776, чистая прибыль 603.526. РСБУ-выручка и прибыль СУЩЕСТВЕННО расходятся с МСФО-рядом агрегатора (выручка ниже, прибыль выше). В основном ряду оставлен МСФО, т.к. он согласован с рыночной ценой и EPS TTM 1.02 и с выплаченным дивидендом.",
+      "revenue_2024_rsbu": 8314.776,
+      "net_profit_2024_rsbu": 603.526,
+      "net_profit_2023_rsbu": 539.1
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      4690,
+      6020,
+      7190,
+      7900,
+      7880
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      1850,
+      1640,
+      1760,
+      1590,
+      1870
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.39,
+        0.27,
+        0.24,
+        0.2,
+        0.24
+      ],
+      "net_debt_ebitda": [
+        2.01,
+        1.69,
+        1.17,
+        1.06,
+        2.41
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      3.8,
+      5.3,
+      6.5,
+      1.6,
+      -3.5
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      2.3,
+      3.7,
+      4.6,
+      1.2,
+      -2.5
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      42.9,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.51,
+      0.48
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      0.68,
+      0.68
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      4.64,
+      null
+    ],
+    "current": {
+      "pe": 42.9,
+      "ps": 0.51,
+      "pb": 0.68,
+      "ev_ebitda": 4.64,
+      "as_of": "2026-06-01",
+      "_alt_pe_rsbu": 8.9,
+      "_alt_note": "P/E на МСФО-прибыли 2024 (125 млн) = 42.9; на РСБУ-прибыли (603.5 млн) = 8.9. Рынок (EPS TTM 1.02, дивиденд 1.30) согласован с МСФО-базой. EV/EBITDA для региональной энергетики/сбыта малоинформативна (чистый долг приближён к валовому, кэш не раскрыт)."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "нет надёжного ряда цен для малоликвидной акции 3-го уровня"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": 0.48,
+      "pb": 0.68,
+      "ev_ebitda": null,
+      "roe": -3.5,
+      "net_margin": -2.5
+    },
+    "2024": {
+      "pe": 42.9,
+      "ps": 0.51,
+      "pb": 0.68,
+      "ev_ebitda": 4.64,
+      "roe": 1.6,
+      "net_margin": 1.2
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор electric_utilities (региональная генерация/сбыт) ещё не прогнан целиком; медианные мультипликаторы по сопоставимым ТГК/региональным сбытам подставить после сборки sectors/electric_utilities/peers.json."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Аналитического покрытия нет (малоликвидный эмитент 3-го уровня). Прибыль волатильна и развернулась в убыток в 2025 (−277 млн по МСФО), история нерепрезентативна → механический прогноз и DCF неприменимы."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0,
+          "terminal_growth": 0,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "ok",
+        "_note": "Ke = 14.6 + 1.0×9.0 = 23.6%. Требуемая дивдоходность 23.6% против фактических ~3% → текущая цена не оправдана требуемой доходностью."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 10.9,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps": 1.3023,
+          "required_yield_pct_range": "12-15",
+          "fv_range": "8.7-10.9"
+        },
+        "status": "ok",
+        "_note": "Профильный метод для региональной энергетики/сбыта. Дивиденд 1.3023 ₽/обыкн (2024). Требуемая доходность для малоликвида 3-го уровня 12–15%."
+      },
+      {
+        "method": "pb_floor",
+        "fair_value_per_share": 25.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps": 64.5,
+          "fair_pb_range": "0.4-0.6",
+          "fv_range": "25.8-38.7"
+        },
+        "status": "ok",
+        "_note": "BVPS по МСФО-капиталу ~64.5 ₽; для зарегулированной низко-ROE генерации справедливый P/B 0.4–0.6."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 8.7,
+      "base": 18.3,
+      "current_price": 43.8,
+      "upside_downside_pct": -58.2
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Две противоречащие учётные базы. РСБУ (официальная, ИНН 4501122913): выручка 2024 = 8315 млн, чистая прибыль = 603.5 млн → P/E ≈ 8.9. МСФО (агрегатор smart-lab): выручка 2024 = 10600 млн, чистая прибыль = 125 млн, 2025 = убыток −277 млн → P/E ≈ 42.9. Рыночные ориентиры (EPS TTM 1.02, дивиденд 1.30 ₽, дивдоходность ~3%) согласованы с МСФО-базой, поэтому оценка построена на ней. Расхождение >4× по прибыли — НЕ устранено, требует ручной сверки по форме №2 РСБУ и консолидированной МСФО на e-disclosure.ru. По всем доходным/дивидендным методам справедливая цена существенно ниже рыночной (8.7–18.3 ₽ против 43.8 ₽), то есть либо акция переоценена, либо рынок закладывает иную (РСБУ/нормализованную) прибыль. data_quality=low.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "РСБУ-отчётность ПАО «КГК», ИНН 4501122913 (выручка/чистая прибыль 2023–2024), e-disclosure.ru",
+      "period": "2023-2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели KGKC (МСФО, 2021–2025)",
+      "period": "2021-2025",
+      "reliability": "low"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX / iss.moex.com — выпуск 122 453 406 акций, ISIN RU000A0JP120, 3-й уровень, free-float 19%",
+      "period": "2026",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "investing.com / banki.ru — цена ~43.8 ₽, mcap ~5.36 млрд, EPS TTM 1.02",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "smart-lab.ru / interfax.ru — дивиденды 2024: 1.3023 ₽ обыкн, 6.2897 ₽ преф",
+      "period": "2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "official_report",
+      "title": "business_model.md ПАО «КГК» (подтверждение эмитента, профиль активов)",
+      "period": "2026",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "КРИТИЧНО: расхождение РСБУ vs МСФО по выручке (8315 vs 10600 млн) и прибыли (603.5 vs 125 млн) за 2024 — >4× по прибыли, не устранено. Сверить форму №2 РСБУ и консолидированную МСФО на e-disclosure.ru.",
+    "EBITDA, CapEx, FCF, кэш, точный чистый долг компания публично не раскрывает; ряды EBITDA/долга — из агрегатора (low reliability).",
+    "net_debt приведён как валовой долг (кэш не раскрыт) — net_debt/EBITDA завышен (консервативно).",
+    "Маржи и ROE рассчитаны от МСФО-ряда агрегатора; при пересчёте на РСБУ-прибыль ROE и net_margin будут ВЫШЕ (ROE ~7.6%, net_margin ~7.3% за 2024).",
+    "Аналитического покрытия и надёжного ряда цен нет → DCF и исторический P/E неприменимы (insufficient_data).",
+    "relative_peers ожидает заполнения медиан по сектору electric_utilities.",
+    "Есть привилегированные акции (KGKCP, ISIN RU000A0JP138, дивиденд 2024 = 6.2897 ₽) — выводятся отдельно, в этот файл не включены.",
+    "data_quality=low: оценка ориентировочная, корридор широкий, основной риск — неопределённость базы прибыли."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

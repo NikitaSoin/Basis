@@ -1,0 +1,604 @@
+{
+  "meta": {
+    "ticker": "GAZS",
+    "name": "ГАЗ-сервис (ПАО)",
+    "sector": "finance_holding",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 839.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 206508967,
+    "isin": "RU000A0JQG78",
+    "listing_level": 3,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      59.17
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "p_fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_sales": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 59.17,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "p_fcf": null,
+      "ev_sales": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — нет раскрытия прибыли по годам"
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 59.17,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": null,
+        "p_fcf": null,
+        "ev_sales": null
+      },
+      "2024": {
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": null,
+        "p_fcf": null,
+        "ev_sales": null
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет. История прибыли не раскрывается, доход холдинга = дивиденды и переоценка пакета Газпромбанка. Механический прогноз невозможен — source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 19.1,
+          "beta": 0.5,
+          "rf": 14.6,
+          "erp": 9.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke=19,1% посчитан, но целевой цены нет: нет ожидаемой доходности (цена закреплена на неликвиде, прогноза прибыли нет)."
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": 99.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dividend_rub": 14.3,
+          "required_yield_pct": 14.5
+        },
+        "status": "ok",
+        "note": "Стоимость как дивидендного актива: 14,3 руб./акция / 14,5% = ~99 руб. При премии за неликвидность/санкции 18% → ~79 руб. Это нижний (доходный) якорь; рыночная цена 839 руб. отражает NAV-логику (пакет Газпромбанка), а не дивидендную."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 79.0,
+      "base": 99.0,
+      "current_price": 839.0,
+      "upside_downside_pct": -88.2,
+      "note": "Коридор 79–99 руб. — ТОЛЬКО доходная (дивидендная) стоимость. NAV-стоимость пакета 16,22% Газпромбанка не раскрыта и не поддаётся расчёту, поэтому разрыв с рыночной ценой 839 руб. не оценочный, а информационный. Достоверность низкая."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Резкий разрыв между рыночной ценой (839 руб., P/E≈59) и дивидендной стоимостью (79–99 руб.). Цена формируется не операционной экономикой, а оценкой пакета 16,22% Газпромбанка на балансе (NAV), который публично не раскрыт. P/E≈59 — мнимо высокий: знаменатель (EPS≈14,2) — это в основном транслированные дивиденды банка, а не операционная прибыль. Неликвид 3-го эшелона: котировка закреплена (LCURRENTPRICE=PREVPRICE=839), сделок почти нет.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — карточка бумаги GAZS (ISIN RU000A0JQG78, листинг ур.3, 206 508 967 акций, номинал 10 руб., LCURRENTPRICE=839)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Investfunds — ГАЗ-сервис: EPS≈14,18, P/E≈59,18, дивиденд FY2024=14,32642 руб., 9м2025=12,41844 руб., доп. рекоменд. 2025=1,75867 руб.",
+      "period": "2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md GAZS — подтверждение эмитента и структуры (16,2% Газпромбанка, газпромовский периметр)",
+      "period": "2026-05-30",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Эмитент подтверждён по business_model.md и MOEX (ISIN RU000A0JQG78) — это ОАО/ПАО «ГАЗ-сервис», холдинг с пакетом ~16,22% Газпромбанка; НЕ автопроизводитель «Группа ГАЗ» (GAZA).",
+    "data_quality=low: развёрнутая РСБУ/МСФО-отчётность публично не раскрыта. Выручка, EBITDA, баланс, денежные потоки, рентабельности — недоступны (null), не выдуманы.",
+    "Из 6 мультипликаторов считается только P/E≈59,17 (по EPS-оценке Investfunds). PS/PB/EV-EBITDA/P-FCF/EV-Sales — null (нет выручки/баланса/EBITDA у холдинга).",
+    "P/E искажён: EPS состоит в основном из транслированных дивидендов Газпромбанка, не из операционной прибыли — сравнивать с обычными компаниями некорректно.",
+    "Главный актив (16,22% Газпромбанка) не имеет публичной балансовой/справедливой стоимости; Газпромбанк под санкциями, отчётность ограничена. NAV не рассчитываем.",
+    "Котировка 839 руб. — неликвидная (3-й эшелон, LCURRENTPRICE=PREVPRICE, сделок почти нет); рыночная цена может не отражать справедливую стоимость.",
+    "relative_peers — status=pending_sector_backfill: медиана сектора финансовых холдингов газпромовского периметра (GAZS/GAZT/GAZC/GAZA…) будет посчитана после прогона сектора.",
+    "ND/EBITDA, ROE — не рассчитываемы (нет EBITDA, нет раскрытого капитала и прибыли по РСБУ)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

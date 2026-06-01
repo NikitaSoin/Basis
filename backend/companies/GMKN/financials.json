@@ -752,10 +752,10 @@
   ],
   "anomaly_flag": false,
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": 114.59,
     "upside_downside_pct": -11.3,
-    "status": "ok",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "ok"
   }
 }

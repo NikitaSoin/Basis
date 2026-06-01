@@ -588,10 +588,10 @@
     "Точечный консенсус по чистой прибыли 2026 не зафиксирован — прогноз ведётся через устойчивый ROE и дивполитику."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 323.4,
     "upside_downside_pct": 0.0,
-    "status": "ok",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "ok"
   }
 }

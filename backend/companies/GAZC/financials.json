@@ -1,0 +1,615 @@
+{
+  "meta": {
+    "ticker": "GAZC",
+    "name": "ОАО «ГАЗКОН»",
+    "issuer_confirmed": "ОАО «ГАЗКОН» (ISIN RU000A0JQG86) — финансово-холдинговая структура газпромовского периметра, владелец ~16,23% акций АО «Газпромбанк» и пакета ОАО «ГАЗ-Тек». НЕ связана с автопроизводителем «Группа ГАЗ» (GAZA).",
+    "sector": "finance_holding",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 659,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 225381601,
+    "market_cap_mln": 148526,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "data_quality_note": "Эмитент почти не раскрывает развёрнутую отчётность; в sources/ нет загруженных файлов. Ряды собраны из веб-агрегаторов (smart-lab) и MOEX ISS. Это холдинг-оболочка: операционной выручки нет, прибыль — дивиденды и переоценка пакета Газпромбанка. Многие мультипликаторы и DCF не применимы."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      860,
+      2160,
+      50,
+      4220,
+      3130
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      72800,
+      65900,
+      68900,
+      77500,
+      79900
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "book_value_per_share": [
+      null,
+      null,
+      323.0,
+      292.4,
+      305.7,
+      343.8,
+      354.5
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      1.2,
+      3.3,
+      0.1,
+      5.4,
+      3.9
+    ],
+    "roa": [
+      null,
+      null,
+      1.2,
+      3.3,
+      0.1,
+      5.4,
+      3.9
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      77.3,
+      34.2,
+      null,
+      null,
+      47.5
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      0.91,
+      1.12,
+      null,
+      null,
+      1.86
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "dividend_yield": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.0
+    ],
+    "p_nav": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.86
+    ],
+    "current": {
+      "pe": 47.5,
+      "ps": null,
+      "pb": 1.86,
+      "ev_ebitda": null,
+      "p_nav": 1.86,
+      "dividend_yield": 0.0,
+      "as_of": "2026-06-01"
+    },
+    "current_note": "6 ключевых мультипликаторов: P/E=47.5 (по чистой прибыли 2025, неинформативен из-за волатильности), P/B=1.86, P/NAV=1.86 (NAV≈балансовый капитал), P/S=N/A (выручка=0), EV/EBITDA=N/A (нет операционной EBITDA у холдинга), div_yield=0.0% (регулярных дивидендов нет). ND/EBITDA=N/A (долг отсутствует, EBITDA нет).",
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "pb_5y_median": 1.12,
+      "period": "2021-2025, частичный (P/E и P/B по году доступны лишь за 2021-2022 и текущий; история цены неликвидна и нерепрезентативна)"
+    }
+  },
+  "peer_multiples": {
+    "_note": "Сравнение с конкурентами по сектору отложено (нет прогнанного сектора finance_holding). Значения по самой GAZC за 2025 и 2024; остальные ключи — заглушки до секторного бэкфилла.",
+    "2025": {
+      "pe": 47.5,
+      "pb": 1.86,
+      "ps": null,
+      "ev_ebitda": null,
+      "p_nav": 1.86,
+      "dividend_yield": 0.0
+    },
+    "2024": {
+      "pe": null,
+      "pb": null,
+      "ps": null,
+      "ev_ebitda": null,
+      "p_nav": null,
+      "dividend_yield": 0.0
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (3-й эшелон, неликвид). Прибыль не имеет операционной базы — она определяется дивидендами и переоценкой пакета Газпромбанка и потому нерепрезентативна (2023: 0.05 млрд, 2024: 4.22 млрд). Механический прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "not_applicable",
+        "note": "У холдинга-оболочки нет операционного FCF; денежный поток сводится к дивидендам Газпромбанка, которые волатильны и нераскрыты. DCF неприменим."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Прибыль волатильна и не операционная; история цены неликвидна. Медиана P/E нерепрезентативна."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "p_nav",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор finance_holding ещё не прогнан; медианный P/NAV сопоставимых неликвидных холдингов не собран."
+      },
+      {
+        "method": "NAV",
+        "fair_value_per_share": 230,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "nav_per_share": 354.5,
+          "nav_basis": "балансовый капитал РСБУ 2025 / число акций",
+          "holding_discount_base_pct": 35,
+          "holding_discount_conservative_pct": 50
+        },
+        "status": "ok",
+        "note": "Основной применимый метод для квази-фонда. NAV≈балансовая стоимость капитала на акцию (354.5 руб). К NAV применён дисконт за неликвидность и закрытость структуры: база -35% (≈230 руб), консервативно -50% (≈177 руб). Сам NAV занижен/непрозрачен из-за нераскрытой переоценки пакета Газпромбанка."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "rf": 14.6,
+          "erp": 9.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke≈14.6+0.9×9.0≈22.7%. Целевая цена не считается: нет надёжного ожидаемого дивиденда/прибыли на акцию; бета по неликвиду нерепрезентативна."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 177,
+      "base": 230,
+      "current_price": 659,
+      "upside_downside_pct": -65.1,
+      "note": "Коридор по NAV с дисконтом за неликвидность: 177-230 руб против цены 659 руб. Котировка торгуется с премией ~86% к балансовому NAV, что аномально для закрытого неликвидного холдинга и, вероятно, отражает тонкий рынок и нераскрытую (потенциально более высокую) рыночную стоимость пакета Газпромбанка. Диапазон широкий и низконадёжный."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "MOEX ISS — GAZC (цена, число акций, ISIN, капитализация)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — GAZC (чистая прибыль, капитал/BV, P/E, P/B по годам)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md GAZC (структура владения, состав активов)",
+      "period": "2026-05-30",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab forum GAZC — оценка пакета Газпромбанка ~59,37 млрд и ГАЗ-Тек ~4,2 млрд",
+      "period": "2026",
+      "reliability": "low"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: эмитент почти не раскрывает развёрнутую РСБУ-отчётность; в sources/ нет загруженных файлов.",
+    "Выручка=0 (холдинг): P/S, EV/EBITDA, EV/Sales, операционные маржи, ND/EBITDA не применимы — поставлены null, не выдуманы.",
+    "ND/EBITDA не рассчитывается: долг компании не раскрыт и предположительно отсутствует, операционная EBITDA отсутствует.",
+    "EV/EBITDA = N/A по той же причине (нет EBITDA у холдинга-оболочки).",
+    "Прибыль крайне волатильна (2023: 50 млн, 2024: 4220 млн) — зависит от дивидендов и переоценки пакета Газпромбанка; P/E неинформативен (anomaly).",
+    "Цена 659 руб даёт P/B=P/NAV=1.86 — премию ~86% к балансовому NAV (354.5 руб): аномалия для закрытого неликвида, котировка на тонком рынке (anomaly).",
+    "total_assets, cash, долг, денежные потоки не раскрыты — ROA принят ≈ ROE (плечо минимально, активы≈капитал), это аппроксимация.",
+    "Стоимость пакета Газпромбанка (~59,37 млрд) и ГАЗ-Тек (~4,2 млрд) — рыночные оценки с форума, reliability=low; требуют сверки по РСБУ ГАЗКОН.",
+    "relative_peers: status=pending_sector_backfill — сектор finance_holding не прогнан, peer-медианы отсутствуют.",
+    "Дивиденды: разовая выплата 9.035 руб/акц за 2021 г.; в дальнейшем регулярных выплат не зафиксировано, div_yield≈0."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Тройная аномалия: (1) выручка=0 при положительной прибыли — холдинг-оболочка, операционные мультипликаторы и DCF неприменимы; (2) прибыль крайне волатильна (×84 разброс 2023→2024) из-за переоценки/дивидендов пакета Газпромбанка, P/E неинформативен; (3) котировка 659 руб торгуется с премией ~86% к балансовому NAV (354.5 руб), что нетипично для закрытого неликвидного холдинга 3-го эшелона — цена формируется на тонком рынке и может отражать нераскрытую рыночную стоимость пакета Газпромбанка.",
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

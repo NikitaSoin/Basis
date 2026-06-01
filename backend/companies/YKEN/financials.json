@@ -1,0 +1,512 @@
+{
+  "meta": {
+    "ticker": "YKEN",
+    "name": "ПАО АК «Якутскэнерго» (обыкновенные акции)",
+    "isin": "RU0009257075",
+    "sector": "Электроэнергетика",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО (консолидированная, с дочерними «Сахаэнерго», «Теплоэнергосервис» и др.)",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.356,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 10187741424,
+    "market_cap_mln": 3627.0,
+    "data_quality": "low",
+    "data_quality_note": "Постатейная МСФО-отчётность (CFO/CFI/CFF, разбивка долга, амортизация 2025) в открытом доступе не зафиксирована построчно из аудированного отчёта. Ряды собраны из агрегатора smart-lab (МСФО) + сверка по cbonds/blackterminal. Между агрегаторами есть расхождения по абсолютным значениям убытка и EBITDA — см. data_flags.",
+    "group": "Группа РусГидро (через АО «РАО ЭС Востока»)",
+    "regulated": true,
+    "related_security": "Преф YKENP (RU0007796827) — выводится отдельно",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      22600,
+      25300,
+      32200,
+      33600,
+      42100
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      -9430,
+      12100,
+      7200,
+      -18300,
+      -32
+    ],
+    "ebitda": [
+      4190,
+      5300,
+      5900,
+      -14700,
+      3330
+    ],
+    "da": [
+      1900,
+      2700,
+      3500,
+      3400,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -10200,
+      8000,
+      3000,
+      -25300,
+      -14400
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        18.5,
+        20.9,
+        18.3,
+        -43.8,
+        7.9
+      ],
+      "operating_margin": [
+        -41.7,
+        47.8,
+        22.4,
+        -54.5,
+        -0.1
+      ],
+      "net_margin": [
+        -45.1,
+        31.6,
+        9.3,
+        -75.3,
+        -34.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      56900,
+      52400,
+      64500,
+      60000,
+      81900
+    ],
+    "total_equity": [
+      -8890,
+      -750,
+      7000,
+      -20200,
+      -31400
+    ],
+    "total_liabilities": [
+      65790,
+      53150,
+      57500,
+      80200,
+      113300
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      24300,
+      32800,
+      37300,
+      58200,
+      89100
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        8.21,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        5.8,
+        6.19,
+        6.32,
+        null,
+        26.76
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      4430,
+      670,
+      5120,
+      -1390,
+      -10700
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      5950,
+      10300,
+      11200,
+      8140
+    ],
+    "fcf": [
+      null,
+      -5280,
+      -5180,
+      -12590,
+      -18840
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        -20.9,
+        -16.1,
+        -37.5,
+        -44.8
+      ],
+      "cfo_to_capex": [
+        null,
+        0.11,
+        0.5,
+        -0.12,
+        -1.31
+      ],
+      "capex_to_revenue": [
+        null,
+        23.5,
+        32.0,
+        33.3,
+        19.3
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      42.9,
+      null,
+      null
+    ],
+    "roa": [
+      -17.9,
+      15.3,
+      4.7,
+      -42.2,
+      -17.6
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -45.1,
+      31.6,
+      9.3,
+      -75.3,
+      -34.2
+    ],
+    "asset_turnover": [
+      null,
+      0.48,
+      0.5,
+      0.56,
+      0.51
+    ]
+  },
+  "multiples": {
+    "pe": [
+      -0.36,
+      0.45,
+      1.21,
+      -0.14,
+      -0.25
+    ],
+    "ps": [
+      0.16,
+      0.14,
+      0.11,
+      0.11,
+      0.09
+    ],
+    "pb": [
+      null,
+      null,
+      0.52,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      6.67,
+      6.87,
+      6.94,
+      null,
+      27.85
+    ],
+    "ev_sales": [
+      1.24,
+      1.44,
+      1.27,
+      1.84,
+      2.2
+    ],
+    "nd_ebitda": [
+      5.8,
+      6.19,
+      6.32,
+      null,
+      26.76
+    ],
+    "current": {
+      "pe": -0.25,
+      "ps": 0.09,
+      "pb": null,
+      "ev_ebitda": 27.85,
+      "ev_sales": 2.2,
+      "nd_ebitda": 26.76,
+      "as_of": "2026-06-01",
+      "note": "P/E и P/BV отрицательны/неприменимы (убыток и отрицательный капитал). Текущие мультипликаторы построены на mcap=3627 млн ₽ и метриках 2025."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025; P/E немедианится — 3 из 5 лет убыток/отрицательный, медиана искажена"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -0.25,
+      "ps": 0.09,
+      "pb": null,
+      "ev_ebitda": 27.85,
+      "ev_sales": 2.2,
+      "nd_ebitda": 26.76
+    },
+    "2024": {
+      "pe": -0.14,
+      "ps": 0.11,
+      "pb": null,
+      "ev_ebitda": null,
+      "ev_sales": 1.84,
+      "nd_ebitda": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие YKEN отсутствует. История нерепрезентативна: чистый убыток в 3 из 5 лет, отрицательный капитал, отрицательная/символическая EBITDA. Механический прогноз дал бы ложную точность — не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF устойчиво отрицателен (−5…−19 млрд ₽/год), EBITDA неустойчива и уходила в минус. Дисконтирование отрицательных потоков даёт отрицательную стоимость собственного капитала — метод неинформативен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable",
+        "note": "Прибыль отрицательна в большинстве лет — P/E не определён."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_sales",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Единственный осмысленный относительный якорь для убыточной регулируемой энергетики — EV/Sales (или EV/RAB). Медиана сектора «Электроэнергетика» ещё не собрана. После backfill peers.json — пересчитать."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "not_applicable",
+        "note": "Ke = 14.6% + 1.0×9.0% = 23.6%. Метод требует положительной базовой доходности/дивиденда; компания убыточна, дивиденды по обычке не платятся — таргет не строится."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.3,
+      "base": 0.356,
+      "optimistic": 0.5,
+      "current_price": 0.356,
+      "upside_downside_pct": 0.0,
+      "basis": "Доходные и балансовые методы неприменимы (убыток, отрицательный капитал, отрицательная EBITDA). Коридор — технический/относительный: наблюдаемый рыночный диапазон обыкновенной акции 2025-2026 (≈0.30-0.50 ₽). Достоверность низкая.",
+      "confidence": "low"
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Отрицательный собственный капитал (чистые активы −31.4 млрд ₽ на 2025); чистый убыток в 2024 (−25.3) и 2025 (−14.4); EBITDA 2024 отрицательная (−14.7 млрд ₽) → мультипликаторы за 2024 неинформативны; экстремальная долговая нагрузка ND/EBITDA(2025)=26.8; FCF устойчиво глубоко отрицателен. Классический distressed-кейс регулируемой инфраструктуры: тариф ниже себестоимости, устойчивость держится на тарифных решениях и поддержке группы РусГидро.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — идентификация бумаги YKEN (ISIN, число акций, цена)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/YKEN/f/y — годовая отчётность МСФО (ряды 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "cbonds.ru — чистый убыток/выручка МСФО и РСБУ 2024-2025",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "blackterminal.com — котировки YKEN/YKENP, новости отчётности",
+      "period": "2025-2026",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "companies/YKEN/business_model.md — согласованность сегментов/валюты/контекста",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: построчного аудированного МСФО-отчёта (e-disclosure / yakutskenergo.ru) в работе не открыто; ряды — из агрегаторов.",
+    "Расхождение источников по абсолютному убытку МСФО: smart-lab показывает 2024 −25.3 / 2025 −14.4 млрд ₽; cbonds/деловые СМИ ранее давали 2024 ≈ −9.3 млрд ₽ (близко к РСБУ головной компании). Принят ряд smart-lab (консолидированный МСФО), но цифры требуют сверки с аудированным отчётом.",
+    "Выручка: smart-lab МСФО 2024=33.6 млрд ₽; РСБУ головной компании 2024=36.16 млрд ₽ (бизнес-модель ссылается на РСБУ). Разные периметры консолидации.",
+    "CapEx 2021 в источнике = 461 (явная ошибка единиц/сдвиг столбца) → обнулён (null).",
+    "FCF пересчитан как CFO−CapEx и расходится с FCF источника (источник: 2022 −8.51, 2024 −22.0, 2025 −34.4 млрд ₽ — вероятно включает проценты/прочее). В JSON приведён пересчитанный ряд; ряд источника — в data_flags.",
+    "Амортизация 2025 не зафиксирована (null).",
+    "ND/EBITDA, debt_to_equity, ROE, P/BV не определены в годы с отрицательным капиталом/EBITDA (null).",
+    "Разбивка долга (краткосрочный/долгосрочный) и денежные средства построчно не раскрыты в собранных источниках.",
+    "relative_peers: status=pending_sector_backfill — медиана сектора «Электроэнергетика» не собрана."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

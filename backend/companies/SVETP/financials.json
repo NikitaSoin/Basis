@@ -1,0 +1,543 @@
+{
+  "meta": {
+    "ticker": "SVETP",
+    "name": "ПАО «Светофор Групп» (прив.)",
+    "sector": "EdTech / Образование",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 19.5,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 22333500,
+    "shares_note": "Обыкновенные SVET = 22 333 500; преф SVETP = 2 481 500 (уставный капитал 24 815 000). Капитализация/EV считаны по всем акциям (24,815 млн шт.), мультипликаторы на акцию — по обыкновенным.",
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "SVET",
+    "pref_to_common_ratio": 1.75,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной SVET. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 1.75 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      473.0,
+      310.0,
+      461.7,
+      677.0,
+      364.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      230.0,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      1.0,
+      25.0,
+      49.5,
+      174.4,
+      7.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        34.0,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        0.2,
+        8.1,
+        10.7,
+        25.8,
+        1.9
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      304.0,
+      162.0,
+      212.0,
+      449.0,
+      519.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      33.0,
+      51.0,
+      18.0,
+      16.0,
+      16.0
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      167.0,
+      129.0,
+      122.0,
+      64.0,
+      -16.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        0.66,
+        1.11,
+        0.66,
+        0.18,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        0.28,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      0.3,
+      15.4,
+      23.3,
+      38.8,
+      1.3
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      0.2,
+      8.1,
+      10.7,
+      25.8,
+      1.9
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      2.78,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.72,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      1.09,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      1.48,
+      null
+    ],
+    "current": {
+      "pe": 2.78,
+      "ps": 0.72,
+      "pb": 1.09,
+      "ev_ebitda": 1.48,
+      "as_of": "2026-06-01",
+      "basis_note": "Мультипликаторы рассчитаны на базе пика FY2024 (выручка 677, прибыль 174,4, EBITDA~230 оценка) и текущей цены 11,14. На базе провального FY2025 они кратно хуже (агрегаторы дают EV/EBITDA~3,7, P/S~0,6, P/BV~0,57). Год нерепрезентативен в обе стороны — см. anomaly."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно: исторический ряд котировок не реконструирован (низкая ликвидность, листинг 2019)"
+    },
+    "peer_multiples": {
+      "_about": "6 мультипликаторов компании по двум базисным годам для сравнения с сектором. relative_peers пока pending_sector_backfill — сектор EdTech на платформе не собран.",
+      "2024": {
+        "pe": 1.59,
+        "ps": 0.41,
+        "pb": 0.62,
+        "ev_ebitda": 1.48,
+        "ev_sales": 0.5,
+        "nd_ebitda": 0.28
+      },
+      "2025": {
+        "pe": 39.5,
+        "ps": 0.76,
+        "pb": 0.53,
+        "ev_ebitda": null,
+        "ev_sales": 0.72,
+        "nd_ebitda": null
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Аналитического покрытия микрокапа нет. История нерепрезентативна: FY2024 — пик (выручка 677, прибыль 174), FY2025 — резкий провал (выручка ~364, прибыль ~7, отдельные кварталы убыточны). Механический прогноз ненадёжен. source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 25.4,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 32.56,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 6.0,
+          "basis": "нормализованная прибыль 77 млн (среднее 2023-2025) × консервативный P/E 6 для неликвидного микрокапа; на акцию по всем 24,815 млн шт.",
+          "note": "Своей медианы P/E нет — взят консервативный отраслевой ориентир P/E=6."
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 21.36,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 25.4,
+          "beta": 1.2,
+          "note": "Справедливый P/E ≈ 1/Ke = 3,9; применён к нормализованной прибыли на акцию. Бета 1,2 — допущение для неликвидного рискового микрокапа (своей оценённой беты нет)."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 12.2,
+      "base": 15.4,
+      "current_price": 11.14,
+      "upside_downside_pct": 38.0,
+      "note": "Коридор широкий и оценка ненадёжна (data_quality=low). Нижняя граница — CAPM на нормализованной прибыли; верхняя тянется вверх, если рынок вернётся к доходности FY2024, но FY2025 показал, что это не база. Все методы на акцию считаны по всем 24,815 млн акций (вкл. преф)."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Светофор Групп» — раскрытие РСБУ (e-disclosure)",
+      "period": "2021-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — квартальная и годовая отчётность РСБУ SVET",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Finviewer — выручка/прибыль/капитал/долг SVET",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "РБК Инвестиции — цена SVET 11,14 ₽, мультипликаторы (P/BV 0,57; P/S 0,60; EV/EBITDA 3,73; ND/EBITDA -0,32)",
+      "period": "2026-06",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "Структура уставного капитала: 22 333 500 обыкн. + 2 481 500 преф",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: компания отчитывается только по РСБУ, нет МСФО, нет сегментной разбивки, нет раскрытия CapEx/денежных потоков/D&A.",
+    "EBITDA FY2024 (~230 млн, маржа ~34%) — ОЦЕНКА аналитика (РСБУ не выделяет EBITDA; восстановлено от прибыли до налога + малая амортизация asset-light модели). Не аудированный факт.",
+    "АНОМАЛИЯ FY2025: резкий провал прибыли со 174,4 млн (2024) до ~7 млн (2025); отдельные кварталы 2025 убыточны (Q2 NP -57, Q3 -15 по данным smart-lab). Год нерепрезентативен.",
+    "Расхождение по годовой выручке FY2025 между агрегаторами: ~364 млн (finviewer) vs 322,8 млн за 9м (smart-lab) vs ~180 млн LTM. Взято 364 как годовое с пометкой неуверенности.",
+    "Мультипликаторы current посчитаны на базе пика FY2024 — выглядят аномально дёшево (P/E 1,6; EV/EBITDA 1,5). На базе FY2025 они близки к данным РБК (EV/EBITDA ~3,7). Истина между — год нерепрезентативен.",
+    "Исторический ряд P/E не реконструирован: котировки SVET низколиквидны, надёжной истории цены нет.",
+    "Бета и WACC — допущения (beta=1,2), своей оценённой беты у неликвидного микрокапа нет.",
+    "Капитализация по РБК (297 млн) считана по числу акций ~26,7 млн при цене 11,14 — близко к суммарным 24,815 млн; небольшое расхождение источников по числу акций (finviewer ошибочно показывал 7,44 млн преф)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

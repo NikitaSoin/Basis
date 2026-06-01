@@ -1,0 +1,592 @@
+{
+  "meta": {
+    "ticker": "RBCM",
+    "name": "ПАО «ГК РБК» (РосБизнесКонсалтинг)",
+    "sector": "media_internet",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО (до 2022) / РСБУ ПАО (2023–2025)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 8.67,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 365631010,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      6000,
+      8060,
+      10700,
+      null,
+      null,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      1300,
+      1770,
+      27,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      480,
+      1060,
+      442,
+      null,
+      null,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        21.7,
+        22.0,
+        0.3,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        8.0,
+        13.2,
+        4.1,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      5600,
+      14400,
+      16400,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      -12800,
+      1230,
+      4190,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      13800,
+      0,
+      0,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        10.6,
+        0.0,
+        0.0,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      86.2,
+      10.5,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      8.6,
+      7.4,
+      2.7,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      8.0,
+      13.2,
+      4.1,
+      null,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      1.07,
+      0.56,
+      0.65,
+      null,
+      null,
+      null
+    ]
+  },
+  "rsbu_holding_context": {
+    "_note": "Показатели материнского ПАО по РСБУ — холдинг, обслуживающий долг, НЕ операционная выручка группы. Приведены для понимания долговой нагрузки и убытков.",
+    "net_profit": [
+      null,
+      null,
+      -147,
+      -540,
+      -390,
+      -160,
+      -1030
+    ],
+    "total_debt": [
+      null,
+      null,
+      20500,
+      22500,
+      24000,
+      26400,
+      29600
+    ],
+    "total_assets": [
+      null,
+      null,
+      22700,
+      23600,
+      24700,
+      27100,
+      29300
+    ],
+    "equity": [
+      null,
+      null,
+      -2530,
+      -3070,
+      -3460,
+      -3620,
+      -4650
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 7.17,
+      "ps": 0.3,
+      "pb": 0.76,
+      "ev_ebitda": 1213.7,
+      "ev_sales": 3.06,
+      "net_debt_ebitda": 1096.3,
+      "as_of": "2026-05-30",
+      "_basis_note": "Числитель — рыночная капитализация (цена 8.67 × 365.63 млн акций = ₽3170 млн). Знаменатели — последняя достоверная консолидированная МСФО (2022): выручка 10700, EBITDA 27, чистая прибыль 442, капитал 4190. Долг для EV/ND — совокупный долг холдинга ПАО ₽29 600 млн (РСБУ 2025), как связывающее ограничение долговой нагрузки группы."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не рассчитывается — нет достоверных рыночных мультипликаторов за ряд лет (низкая ликвидность, отсутствие свежей МСФО)"
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "EV/EBITDA ≈ 1214x и ND/EBITDA ≈ 1096x — математически бессмысленны: EBITDA консолидированной группы в 2022 обвалилась почти до нуля (₽27 млн) при совокупном долге холдинга ~₽29,6 млрд. Это не «дорогая оценка», а артефакт знаменателя, близкого к нулю, на фоне огромного долга. P/B 0.76 и P/E 7.2 рассчитаны от устаревших данных МСФО 2022 и нерепрезентативны: капитал ПАО фактически отрицательный (~−₽4,65 млрд РСБУ 2025). Консолидированная МСФО за 2023–2025 публично не раскрыта. Любая оценка по мультипликаторам недостоверна.",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Консенсус-покрытия нет (малоликвидная бумага, free-float ~7%). Консолидированная МСФО за 2023–2025 не раскрыта, прибыль ПАО хронически отрицательна, EBITDA нестабильна. История нерепрезентативна — механический прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1
+        },
+        "status": "insufficient_data",
+        "_note": "Ke = 14.6% + 1.1×9.0% = 24.5%. Целевую цену не считаем: нет устойчивого денежного/дивидендного потока (дивиденды не платятся, прибыль отрицательна), якорить не от чего."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": null,
+      "base": null,
+      "current_price": 8.67,
+      "upside_downside_pct": null,
+      "_note": "Достоверный фундаментальный диапазон не выводится. Капитал отрицательный, EBITDA≈0, МСФО не раскрыта, прогноза нет. Цена определяется техническими/спекулятивными факторами и контролем мажоритария, а не фундаменталом. Качественный ориентир риска: высокий даунсайд при реализации долговых рисков."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — МСФО РБК (RBCM), годовая отчётность",
+      "period": "2020–2022",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — РСБУ ПАО ГК РБК, годовая отчётность",
+      "period": "2021–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "MOEX iss — RBCM (цена 8.67 ₽ TQBR, выпуск 365 631 010 акций)",
+      "period": "2026-05-30",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "Banki.ru — котировка RBCM",
+      "period": "2026-05",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "Т-Инвестиции — разбор RBCM (free-float, отрицательный капитал, 9м2025)",
+      "period": "2025",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: консолидированная МСФО за 2023–2025 публично НЕ раскрыта. Последние достоверные консолидированные цифры — 2022.",
+    "EBITDA 2022 ≈ ₽27 млн (обвал с ₽1,77 млрд в 2021) делает EV/EBITDA и ND/EBITDA математически бессмысленными — см. anomaly_note.",
+    "Капитал материнского ПАО отрицательный (~−₽4,65 млрд РСБУ 2025); P/B от данных МСФО 2022 (+₽4,19 млрд) вводит в заблуждение.",
+    "Net debt для EV взят как совокупный долг холдинга ПАО (₽29,6 млрд РСБУ 2025) — он смешивает уровни МСФО-группы и РСБУ-холдинга; точная консолидированная чистая позиция группы за 2023–2025 неизвестна.",
+    "Smart-Lab МСФО-таблица показывает противоречивые столбцы за 2024–2025 (повтор цифр 2022) — расценено как артефакт парсинга, свежие годы НЕ использованы.",
+    "Денежные потоки (CFO/CapEx/FCF) не раскрыты — весь блок cash_flow = null.",
+    "Прогноз отсутствует (нет аналитического покрытия, история нерепрезентативна).",
+    "Бета 1.1 — экспертная оценка (малоликвид, высокий долг); рыночная бета по такой бумаге ненадёжна.",
+    "relative_peers — status pending_sector_backfill: медиана сектора media_internet ещё не собрана."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 6.29,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

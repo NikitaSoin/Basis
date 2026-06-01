@@ -1,0 +1,619 @@
+{
+  "meta": {
+    "ticker": "AMEZ",
+    "name": "ПАО «Ашинский метзавод»",
+    "sector": "metals",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 68.05,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 388891322,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      40100.0,
+      43100.0,
+      46500.0,
+      37300.0,
+      27200.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      10000.0,
+      10800.0,
+      4170.0,
+      -1220.0
+    ],
+    "ebitda": [
+      null,
+      null,
+      10500.0,
+      10900.0,
+      11700.0,
+      5100.0,
+      -273.0
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      900.0,
+      900.0,
+      930.0,
+      947.0
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      11700.0,
+      8720.0,
+      9730.0,
+      4810.0,
+      -1390.0
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        26.2,
+        25.3,
+        25.2,
+        13.7,
+        -1.0
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        23.2,
+        23.2,
+        11.2,
+        -4.5
+      ],
+      "net_margin": [
+        null,
+        null,
+        29.2,
+        20.2,
+        20.9,
+        12.9,
+        -5.1
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      31200.0,
+      39000.0,
+      50800.0,
+      41100.0,
+      37700.0
+    ],
+    "total_equity": [
+      null,
+      null,
+      20400.0,
+      29000.0,
+      38600.0,
+      13500.0,
+      12200.0
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      10800.0,
+      10000.0,
+      12200.0,
+      27600.0,
+      25500.0
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      -80.0,
+      -9110.0,
+      -4690.0,
+      14100.0,
+      15600.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -0.01,
+        -0.84,
+        -0.4,
+        2.76,
+        -57.14
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      7340.0,
+      10100.0,
+      7690.0,
+      -4110.0,
+      209.0
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      480.0,
+      600.0,
+      800.0,
+      1880.0,
+      7510.0
+    ],
+    "fcf": [
+      null,
+      null,
+      6860.0,
+      9500.0,
+      6890.0,
+      -5990.0,
+      -7301.0
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        17.1,
+        22.0,
+        14.8,
+        -16.1,
+        -26.8
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        15.29,
+        16.83,
+        9.61,
+        -2.19,
+        0.03
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        1.2,
+        1.4,
+        1.7,
+        5.0,
+        27.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      57.4,
+      30.1,
+      25.2,
+      35.6,
+      -11.4
+    ],
+    "roa": [
+      null,
+      null,
+      37.5,
+      22.4,
+      19.2,
+      11.7,
+      -3.7
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      29.2,
+      20.2,
+      20.9,
+      12.9,
+      -5.1
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      1.29,
+      1.11,
+      0.92,
+      0.91,
+      0.72
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      2.3,
+      3.0,
+      2.7,
+      5.5,
+      -19.0
+    ],
+    "ps": [
+      null,
+      null,
+      0.66,
+      0.61,
+      0.57,
+      0.71,
+      0.97
+    ],
+    "pb": [
+      null,
+      null,
+      1.3,
+      0.91,
+      0.69,
+      1.96,
+      2.17
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      2.5,
+      1.6,
+      1.9,
+      8.0,
+      -154.1
+    ],
+    "current": {
+      "pe": -19.04,
+      "ps": 0.97,
+      "pb": 2.17,
+      "ev_ebitda": -154.08,
+      "as_of": "2026-06-01",
+      "note": "P/E и EV/EBITDA на 2025 неинформативны (убыток/около-нулевая EBITDA); ориентир — показатели 2024: P/E 5.50, EV/EBITDA 7.95, P/S 0.71, P/B 1.96"
+    },
+    "anomaly_flag": true,
+    "anomaly_note": "2025: чистый убыток -1.39 млрд и EBITDA -0.27 млрд делают P/E (-19.0) и EV/EBITDA (-154) бессмысленными. 2024 P/E≈5.5 — низкий из-за разового дивиденда и просадки капитала. До 2021–2022 акция торговалась с P/E<2 — исторический аномально дешёвый уровень. Опорные мультипликаторы — 2024.",
+    "peer_multiples": {
+      "2025": {
+        "pe": -19.04,
+        "ps": 0.97,
+        "pb": 2.17,
+        "ev_ebitda": -154.08,
+        "ev_sales": 1.55,
+        "roe": -11.4
+      },
+      "2024": {
+        "pe": 5.5,
+        "ps": 0.71,
+        "pb": 1.96,
+        "ev_ebitda": 7.95,
+        "ev_sales": 1.09,
+        "roe": 35.6
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 2.47,
+      "period": "2021-2024 (фактически торговавшиеся P/E; 2025 исключён как убыточный)",
+      "note": "Медиана фактического P/E 2021-2024 ≈ 2.5 — искажена аномально дешёвой оценкой 2021-2022 и разовым дивидендом 2024"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерское покрытие малоликвидной AMEZ отсутствует. 2024-2025 — перелом: падение цен на сталь, рост долга до 15.6 млрд под крупный CapEx (7.5 млрд в 2025), убыток 2025. История нерепрезентативна для механического прогноза → source_type=none, прогноз не строим."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "normalized_fcf_mln": 2950
+        },
+        "tv_share_of_value_pct": 37.7,
+        "status": "insufficient_data",
+        "note": "При Ke=24.5% и нормализованном FCF ~2.95 млрд EV≈12.9 млрд < чистого долга 15.6 млрд → стоимость собственного капитала отрицательна. На фоне переходного года (пик CapEx, убыток, долговая нагрузка) DCF ненадёжен и не используется в коридоре."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 49.2,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.47,
+          "basis": "median_2021_2024",
+          "midcycle_eps": 19.94
+        },
+        "note": "Медиана фактического P/E 2021-2024 × среднециклическая EPS (среднее ЧП 2022-2024 / акции). Метод занижен из-за аномально низких P/E 2021-2022."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медианные мультипликаторы сектора metals (peers.json) ещё не собраны — оценка по конкурентам отложена."
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 26.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.85,
+          "basis": "median_actual_2021_2025",
+          "bvps_2025": 31.4
+        },
+        "note": "Балансовая стоимость на акцию 31.4 руб × историческая медиана фактического P/B 0.85. Консервативный «балансовый» ориентир для циклической компании с убытком."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 81.4,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "basis": "midcycle_eps/Ke"
+        },
+        "note": "Ke=Rf 14.6% + beta 1.1 × ERP 9.0% = 24.5%. Справедливая цена ≈ среднециклическая EPS / Ke. Верхняя, оптимистичная граница — предполагает возврат к среднециклической прибыли."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 26.7,
+      "base": 49.2,
+      "current_price": 68.05,
+      "upside_downside_pct": -27.7
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        22.5,
+        24.5,
+        26.5
+      ],
+      "growth_grid": [
+        2.0,
+        3.5,
+        0.0
+      ],
+      "matrix": [
+        [
+          -4.9,
+          -3.6,
+          -6.4
+        ],
+        [
+          -8.0,
+          -7.0,
+          -9.2
+        ],
+        [
+          -10.6,
+          -9.8,
+          -11.5
+        ]
+      ],
+      "note": "DCF-чувствительность: во всех сценариях цена собственного капитала отрицательна из-за долга > EV. Подтверждает непригодность DCF для текущего состояния."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО AMEZ (выручка, EBITDA, ЧП, активы, капитал, чистый долг, CapEx, CFO, мультипликаторы 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS — котировка AMEZ (last 68.05) и число акций 388 891 322",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Металлоснабжение и сбыт / РБК — разовый дивиденд 77 руб/акция за 1п2024, убыток РСБУ 2025",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/AMEZ/business_model.md — профиль, сегменты, валюта, контекст долга и CapEx",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: загруженных файлов в sources/ нет, отчётность взята из агрегатора Smart-Lab (МСФО); постатейная детализация P&L (COGS, opex, проценты, налоги) не раскрыта — массивы null.",
+    "Нет данных за 2019-2020 (массивы null).",
+    "АНОМАЛИЯ 2021: операционная прибыль (14.7 млрд) > EBITDA (10.5 млрд) по данным Smart-Lab — внутренне противоречиво (вероятно, в опер. прибыль включены прочие доходы). operating_profit и da за 2021 обнулены и помечены.",
+    "АНОМАЛИЯ 2025: EBITDA -0.27 млрд и убыток -1.39 млрд → P/E и EV/EBITDA отрицательны и неинформативны; опорный год для мультипликаторов — 2024.",
+    "Чистый долг вырос с -4.7 млрд (2023, чистая денежная позиция) до +15.6 млрд (2025) на фоне CapEx 7.5 млрд (2025) — переходный период, искажает FCF и DCF.",
+    "P/E 2024 ≈ 5.5 занижен разовым дивидендом 77 руб/акция (1п2024) и просадкой собственного капитала (с 38.6 до 13.5 млрд).",
+    "DCF: при Ke 24.5% нормализованный EV < чистого долга → отрицательная стоимость акции; метод помечен insufficient_data, в коридор не включён.",
+    "relative_peers: peers.json по сектору metals не собран → status=pending_sector_backfill.",
+    "Cash, short/long-term debt по отдельности не раскрыты — есть только агрегированный чистый долг.",
+    "Брокерского покрытия и консенсус-прогноза нет (малоликвидная бумага) → forecast.source_type=none."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

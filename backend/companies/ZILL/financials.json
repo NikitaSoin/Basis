@@ -1,0 +1,485 @@
+{
+  "meta": {
+    "ticker": "ZILL",
+    "name": "ПАО «Завод имени И.А. Лихачёва» (АМО ЗИЛ)",
+    "sector": "real_estate_holding",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 4410,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 3391616,
+    "shares_breakdown": {
+      "ordinary": 2659962,
+      "preferred": 731654
+    },
+    "data_quality": "low",
+    "data_quality_note": "Компания (государственный имущественный актив, мажоритарий — город Москва ~65%) раскрывает только сокращённые показатели. EBITDA, CapEx, FCF и структуру выручки эмитент отдельной строкой не публикует — ряды собраны из агрегатора Smart-Lab по МСФО и помечены. Производство автомобилей фактически прекращено (последний грузовик 2016, ликвидация автопроизводителя к 2020) — это держатель дорогой московской земли/недвижимости, а не операционный бизнес.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "valuation_approach": "Оценка по чистым активам / переоценке активов (asset-based). Производственный денежный поток отсутствует; финрезультат год к году определяется неденежной переоценкой инвестиционной недвижимости (IAS 40). EV/EBITDA и DCF малоинформативны — см. data_flags."
+  },
+  "income_statement": {
+    "revenue": [
+      3410,
+      2580,
+      5020,
+      10700
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      1860,
+      549,
+      3520,
+      5580
+    ],
+    "ebitda": [
+      null,
+      3620,
+      6060,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      3390,
+      -1100,
+      3920,
+      3400
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        140.3,
+        120.7,
+        null
+      ],
+      "operating_margin": [
+        54.5,
+        21.3,
+        70.1,
+        52.1
+      ],
+      "net_margin": [
+        99.4,
+        -42.6,
+        78.1,
+        31.8
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      44000,
+      52400,
+      72500,
+      103300
+    ],
+    "total_equity": [
+      34900,
+      35500,
+      39400,
+      41000
+    ],
+    "total_liabilities": [
+      9100,
+      16900,
+      33100,
+      62300
+    ],
+    "cash": [
+      12600,
+      25600,
+      25300,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      5700,
+      -7650,
+      -25400,
+      -25300
+    ],
+    "net_assets_per_share": {
+      "basis_total_shares": [
+        10290.1,
+        10467.0,
+        11616.9,
+        12088.6
+      ],
+      "basis_ordinary_only": [
+        13120.5,
+        13346.1,
+        14812.2,
+        15413.8
+      ],
+      "note": "Чистые активы = собственный капитал МСФО. basis_total_shares делит капитал на все акции (об.+прив.); basis_ordinary_only — на обыкновенные. Капитал не раскрыт постатейно — долг считаем как обязательства минус прочее не реконструируется, поэтому total_liabilities = активы − капитал."
+    },
+    "ratios": {
+      "debt_to_equity": [
+        0.16,
+        0.14,
+        0.005,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        -2.11,
+        -4.19,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      1850,
+      17300,
+      14800,
+      7850
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0,
+      16200,
+      1800,
+      8200
+    ],
+    "fcf": [
+      1850,
+      1100,
+      13000,
+      -350
+    ],
+    "ratios": {
+      "fcf_margin": [
+        54.3,
+        42.6,
+        259.0,
+        -3.3
+      ],
+      "cfo_to_capex": [
+        null,
+        1.07,
+        8.22,
+        0.96
+      ],
+      "capex_to_revenue": [
+        0.0,
+        627.9,
+        35.9,
+        76.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      9.7,
+      -3.1,
+      10.5,
+      8.5
+    ],
+    "roa": [
+      7.7,
+      -2.3,
+      6.3,
+      3.9
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      99.4,
+      -42.6,
+      78.1,
+      31.8
+    ],
+    "asset_turnover": [
+      0.08,
+      0.05,
+      0.08,
+      0.12
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      4.4
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      1.4
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      0.36
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      -1.71,
+      null
+    ],
+    "current": {
+      "pe": 4.4,
+      "ps": 1.4,
+      "pb": 0.36,
+      "ev_ebitda": -1.71,
+      "ev_revenue": -0.97,
+      "as_of": "2026-06-01",
+      "note": "P/E, P/S по прибыли/выручке 2025 МСФО на цену об. акции; P/B = цена / (капитал на акцию по всем акциям). EV отрицателен (чистая денежная позиция −25,3 млрд > рыночной капитализации), поэтому EV/EBITDA и EV/Revenue отрицательны и НЕинформативны. EBITDA включает неденежную переоценку (маржа >100%) — мультипликатор по EBITDA для этой компании не применять."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "pb_4y_median": 0.27,
+      "period": "2022-2025, P/B по данным агрегатора 0.18-0.36",
+      "note": "P/E искажён убытком 2023 и неденежной переоценкой — медиана нерепрезентативна. Якорь оценки — P/B (исторически глубокий дисконт к чистым активам 0.18-0.36)."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия нет (малоликвидный имущественный актив). Прибыль определяется неденежной переоценкой недвижимости и нерепрезентативна для прогноза (качели −1,1 → +3,9 → +3,4 млрд ₽). Механический прогноз не строим: source_type=none, DCF → insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Производственного денежного потока нет, FCF волатилен и определяется разовыми сделками с недвижимостью; прогноз невозможен. DCF не применяется."
+      },
+      {
+        "method": "asset_based_nav",
+        "fair_value_per_share": 3989,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "net_assets_per_share_total": 12088.6,
+          "pb_conservative": 0.25,
+          "pb_base": 0.33,
+          "basis": "Капитал МСФО 2025 = 41,0 млрд ₽ на все акции (3 391 616). Применён исторический дисконт к чистым активам (P/B 0.18-0.36)."
+        },
+        "status": "ok",
+        "note": "Основной метод. Стоимость держится на московской земле/недвижимости. Рынок устойчиво даёт глубокий дисконт к NAV из-за госконтроля (~65% город Москва), отсутствия денежного потока и низкой ликвидности — поэтому оценка = доля от NAV, а не сам NAV."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "median"
+        },
+        "status": "not_applicable",
+        "note": "Прибыль неденежная (переоценка) и волатильна (убыток 2023) — P/E нерепрезентативен."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pb",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Нет прямых публичных аналогов — уникальный городской земельный актив. Сравнение по P/NAV с московскими девелоперскими/имущественными активами дозаполнить после прогона сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "not_applicable",
+        "note": "Ke = 14.6% + 1.0×9.0% = 23.6%. Метод требует прогноза дивиденда/цены, которого нет; справочно показывает требуемую доходность. Для asset-based кейса не используется."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 3022,
+      "base": 3989,
+      "current_price": 4410,
+      "upside_downside_pct": -9.5,
+      "note": "Коридор по asset-based (P/B 0.25-0.33 × NAV 12 089 ₽). Текущая цена 4 410 ₽ (P/B≈0.36) уже у ВЕРХА исторического дисконтного диапазона — апсайда к консервативному/базовому ориентиру нет (даунсайд −9.5% к базе). Реализация NAV зависит от воли мажоритария (города) и хода редевелопмента «Полуостров ЗИЛ» — не контролируется миноритарием."
+    },
+    "sensitivity": {
+      "pb_grid": [
+        0.2,
+        0.25,
+        0.3,
+        0.33,
+        0.36,
+        0.4
+      ],
+      "nav_per_share": 12088.6,
+      "price_grid": [
+        2418,
+        3022,
+        3627,
+        3989,
+        4352,
+        4835
+      ],
+      "matrix": [],
+      "note": "Цена = P/B × NAV/акцию (все акции). Сетка по дисконту к чистым активам вместо WACC×g (DCF неприменим)."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО ЗИЛ — годовая отчётность МСФО (e-disclosure.ru)",
+      "period": "2022-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — финпоказатели МСФО ZILL (выручка, прибыль, EBITDA, активы, капитал, ДП)",
+      "period": "2022-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "MOEX ISS — число акций (ZILL 2 659 962 об. + ZILLP 731 654 прив.), цена 4 410 ₽",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "backend/companies/ZILL/business_model.md — профиль актива, оговорки по неденежной прибыли",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "ANOMALY: EBITDA 2024 (6,06 млрд ₽) и 2023 (3,62 млрд ₽) ПРЕВЫШАЮТ выручку (маржа EBITDA >100%) — в показатель попадает неденежная переоценка инвестиционной недвижимости (IAS 40). EBITDA-мультипликаторы для компании не применять.",
+    "ANOMALY: EV отрицателен (рыночная капитализация ~11,7 млрд ₽ < чистой денежной позиции 25,3 млрд ₽) — EV/EBITDA и EV/Revenue выходят отрицательными и НЕинформативны.",
+    "ANOMALY: чистая прибыль волатильна и неденежна — качели −1,10 (2023) → +3,92 (2024) → +3,40 (2025) млрд ₽ из-за переоценки активов; P/E нерепрезентативен.",
+    "ANOMALY: глубокий дисконт к чистым активам — цена 4 410 ₽ при NAV ~12 089 ₽/акц (P/B≈0.36), классический госхолдинг-дисконт.",
+    "Возможен сдвиг столбцов в агрегаторе: EBITDA показана для 2024 в одной выгрузке и для 2025 в другой — ряд EBITDA помечен и не используется в оценке.",
+    "Эмитент не раскрывает: структуру выручки, COGS, EBITDA отдельной строкой, CapEx/FCF официально, разбивку долга кратко/долгосрочного, сегменты. CapEx/CFO/FCF взяты из агрегатора — невысокая надёжность.",
+    "total_liabilities посчитан как активы − капитал (постатейный баланс не раскрыт).",
+    "NAV/акцию приведён в двух базах: на все акции (12 089 ₽) и на обыкновенные (15 414 ₽); распределение капитала между об./прив. эмитент не раскрывает — для оценки использована консервативная база total_shares.",
+    "data_quality=low: оценка опирается на активы и агрегатор, а не на раскрытие эмитента; сверять с e-disclosure.ru при решениях.",
+    "relative_peers status=pending_sector_backfill — нет прямых аналогов, дозаполнить P/NAV по сектору московских имущественных активов."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

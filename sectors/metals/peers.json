@@ -4,26 +4,42 @@
     "sector_key": "metals",
     "generated_at": "2026-06-01",
     "companies": [
-      "GMKN",
-      "NLMK",
-      "CHMF",
-      "MAGN",
-      "PLZL",
-      "RUAL",
       "ALRS",
-      "MTLR",
-      "TRMK",
+      "AMEZ",
+      "BLNG",
+      "BRZL",
+      "CHMF",
+      "CHMK",
       "ENPG",
+      "GMKN",
+      "IGST",
+      "IGSTP",
+      "KOGK",
+      "LNZL",
+      "LNZLP",
+      "MAGN",
+      "MGNZ",
+      "MTLR",
+      "MTLRP",
+      "NLMK",
+      "PLZL",
+      "RASP",
+      "ROLO",
+      "RUAL",
       "SELG",
-      "UGLD",
       "SGZH",
-      "ROLO"
+      "TRMK",
+      "UGLD",
+      "UKUZ",
+      "UNKL",
+      "URKZ",
+      "VSMO"
     ],
-    "n": 14,
+    "n": 30,
     "registry_ref": "config/sectors.json",
     "macro_params_ref": "config/market_params.json",
-    "note": "Металлы и добыча (сталь/золото/никель/алмазы/алюминий/лес). Медиана/среднее — по сопоставимым производителям с валидным EV/EBITDA; холдинги/долговые/убыточные исключены (*). Подсегменты различаются по уровню EV/EBITDA.",
-    "relative_valuation": "relative_peers от медианы EV/EBITDA сопоставимых производителей 2025 = 5.41"
+    "note": "Металлургия/добыча. Ядро — крупные прибыльные; Мечел-группа/малоликвиды/префы со *.",
+    "relative_valuation": "relative_peers от медианы ev_ebitda ядра 2025 = 5.41."
   },
   "comparison_table": {
     "metrics": [
@@ -40,55 +56,107 @@
     ],
     "rows": [
       {
-        "ticker": "GMKN",
-        "name": "ПАО «ГМК «Норильский никель»",
-        "price": 129.24,
+        "ticker": "ALRS",
+        "name": "ПАО АК «АЛРОСА»",
+        "price": 26.64,
         "anomaly": false,
         "is_pref": false,
         "excluded_from_aggregate": false,
-        "label": "GMKN",
-        "relative_fair_value": 114.59,
+        "label": "ALRS",
+        "relative_fair_value": 20.45,
         "2025": {
-          "pe": 12.04,
-          "ps": 1.72,
-          "pb": 1.88,
-          "ev_ebitda": 5.91,
-          "net_debt_ebitda": 1.5,
-          "roe": 15.6
+          "pe": 5.42,
+          "ps": 0.83,
+          "pb": 0.48,
+          "ev_ebitda": 6.2,
+          "net_debt_ebitda": 2.8,
+          "roe": 9.3
         },
         "2024": {
-          "pe": 16.15,
-          "ps": 1.69,
-          "pb": 2.4,
-          "ev_ebitda": 6.34,
-          "net_debt_ebitda": 1.87,
-          "roe": 14.9
+          "pe": 13.97,
+          "ps": 1.24,
+          "pb": 0.8,
+          "ev_ebitda": 4.42,
+          "net_debt_ebitda": 1.47,
+          "roe": 5.6
         }
       },
       {
-        "ticker": "NLMK",
-        "name": "ПАО «НЛМК»",
-        "price": 86.12,
+        "ticker": "AMEZ",
+        "name": "ПАО «Ашинский метзавод»",
+        "price": 68.05,
         "anomaly": false,
         "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "NLMK",
-        "relative_fair_value": 134.46,
+        "excluded_from_aggregate": true,
+        "label": "AMEZ *",
+        "relative_fair_value": null,
         "2025": {
-          "pe": 8.18,
-          "ps": 0.62,
-          "pb": 0.58,
-          "ev_ebitda": 3.35,
-          "net_debt_ebitda": -0.32,
-          "roe": 7.1
+          "pe": -19.04,
+          "ps": 0.97,
+          "pb": 2.17,
+          "ev_ebitda": -154.08,
+          "net_debt_ebitda": null,
+          "roe": -11.4
         },
         "2024": {
-          "pe": 4.86,
-          "ps": 0.6,
+          "pe": 5.5,
+          "ps": 0.71,
+          "pb": 1.96,
+          "ev_ebitda": 7.95,
+          "net_debt_ebitda": null,
+          "roe": 35.6
+        }
+      },
+      {
+        "ticker": "BLNG",
+        "name": "ПАО «Белон»",
+        "price": 9.7,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "BLNG *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -1.49,
+          "ps": 1859.17,
+          "pb": 3.12,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -1.47,
+          "ps": 1859.17,
+          "pb": 1.0,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "BRZL",
+        "name": "ПАО «Бурятзолото»",
+        "price": 1446,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "BRZL *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": 9.33,
+          "ps": null,
+          "pb": 0.55,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 8.17,
+          "ps": null,
           "pb": 0.69,
-          "ev_ebitda": 2.27,
-          "net_debt_ebitda": -0.04,
-          "roe": 14.2
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
         }
       },
       {
@@ -118,6 +186,214 @@
         }
       },
       {
+        "ticker": "CHMK",
+        "name": "ПАО «Челябинский металлургический комбинат»",
+        "price": 3700.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "CHMK *",
+        "relative_fair_value": -44931.13,
+        "2025": {
+          "pe": null,
+          "ps": 0.08,
+          "pb": 0.19,
+          "ev_ebitda": 86.9,
+          "net_debt_ebitda": 80.7,
+          "roe": -30.8
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.07,
+          "pb": 0.15,
+          "ev_ebitda": 16.7,
+          "net_debt_ebitda": 15.5,
+          "roe": -8.8
+        }
+      },
+      {
+        "ticker": "ENPG",
+        "name": "МКПАО «Эн+ Груп»",
+        "price": 409.7,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ENPG *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "GMKN",
+        "name": "ПАО «ГМК «Норильский никель»",
+        "price": 129.24,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "GMKN",
+        "relative_fair_value": 114.59,
+        "2025": {
+          "pe": 12.04,
+          "ps": 1.72,
+          "pb": 1.88,
+          "ev_ebitda": 5.91,
+          "net_debt_ebitda": 1.5,
+          "roe": 15.6
+        },
+        "2024": {
+          "pe": 16.15,
+          "ps": 1.69,
+          "pb": 2.4,
+          "ev_ebitda": 6.34,
+          "net_debt_ebitda": 1.87,
+          "roe": 14.9
+        }
+      },
+      {
+        "ticker": "IGST",
+        "name": "ПАО «Ижсталь»",
+        "price": 4100,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "IGST *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.01,
+          "ps": 0.1,
+          "pb": 0.48,
+          "ev_ebitda": 1.93,
+          "net_debt_ebitda": 1.25,
+          "roe": 58.4
+        }
+      },
+      {
+        "ticker": "IGSTP",
+        "name": "ПАО «Ижсталь» (прив.)",
+        "price": 3070.0,
+        "anomaly": false,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "IGSTP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.01,
+          "ps": 0.1,
+          "pb": 0.48,
+          "ev_ebitda": 1.93,
+          "net_debt_ebitda": 1.25,
+          "roe": 58.4
+        }
+      },
+      {
+        "ticker": "KOGK",
+        "name": "ПАО «Коршуновский ГОК»",
+        "price": 288.0,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "KOGK *",
+        "relative_fair_value": -854.61,
+        "2025": {
+          "pe": -4.9,
+          "ps": 0.54,
+          "pb": 0.15,
+          "ev_ebitda": -1.89,
+          "net_debt_ebitda": -0.05,
+          "roe": null
+        },
+        "2024": {
+          "pe": 1.88,
+          "ps": 0.52,
+          "pb": 0.14,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "LNZL",
+        "name": "ПАО «Лензолото»",
+        "price": 1260.0,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "LNZL *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 29.9,
+          "ps": 4.9,
+          "pb": 4.53,
+          "ev_ebitda": 19.2,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "LNZLP",
+        "name": "ПАО «Лензолото» (прив.)",
+        "price": 198.0,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "LNZLP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": 4.7,
+          "ps": 0.77,
+          "pb": 0.71,
+          "ev_ebitda": 19.2,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
         "ticker": "MAGN",
         "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
         "price": 26.275,
@@ -144,6 +420,110 @@
         }
       },
       {
+        "ticker": "MGNZ",
+        "name": "ПАО «Соликамский магниевый завод» (СМЗ)",
+        "price": 7440,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MGNZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": -1.01,
+          "ps": 0.31,
+          "pb": 0.97,
+          "ev_ebitda": -2.9,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -3.27,
+          "ps": 0.27,
+          "pb": 0.49,
+          "ev_ebitda": -0.97,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MTLR",
+        "name": "ПАО «Мечел» (обыкновенные акции)",
+        "price": 57.04,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "MTLR *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.11,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.09,
+          "pb": null,
+          "ev_ebitda": 8.22,
+          "net_debt_ebitda": 7.1,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "MTLRP",
+        "name": "ПАО «Мечел» (прив.)",
+        "price": 43.65,
+        "anomaly": true,
+        "is_pref": true,
+        "excluded_from_aggregate": true,
+        "label": "MTLRP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.08,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.07,
+          "pb": null,
+          "ev_ebitda": 8.22,
+          "net_debt_ebitda": 7.1,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "NLMK",
+        "name": "ПАО «НЛМК»",
+        "price": 86.12,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": false,
+        "label": "NLMK",
+        "relative_fair_value": 134.46,
+        "2025": {
+          "pe": 8.18,
+          "ps": 0.62,
+          "pb": 0.58,
+          "ev_ebitda": 3.35,
+          "net_debt_ebitda": -0.32,
+          "roe": 7.1
+        },
+        "2024": {
+          "pe": 4.86,
+          "ps": 0.6,
+          "pb": 0.69,
+          "ev_ebitda": 2.27,
+          "net_debt_ebitda": -0.04,
+          "roe": 14.2
+        }
+      },
+      {
         "ticker": "PLZL",
         "name": "ПАО «Полюс»",
         "price": 2095.0,
@@ -151,6 +531,58 @@
         "is_pref": false,
         "excluded_from_aggregate": false,
         "label": "PLZL",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "RASP",
+        "name": "ПАО «Распадская»",
+        "price": 118.1,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "RASP *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": null,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "ROLO",
+        "name": "ПАО «Русолово»",
+        "price": 0.4312,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "ROLO *",
         "relative_fair_value": null,
         "2025": {
           "pe": null,
@@ -196,43 +628,17 @@
         }
       },
       {
-        "ticker": "ALRS",
-        "name": "ПАО АК «АЛРОСА»",
-        "price": 26.64,
+        "ticker": "SELG",
+        "name": "ПАО «Селигдар»",
+        "price": 47.45,
         "anomaly": false,
         "is_pref": false,
         "excluded_from_aggregate": false,
-        "label": "ALRS",
-        "relative_fair_value": 20.45,
-        "2025": {
-          "pe": 5.42,
-          "ps": 0.83,
-          "pb": 0.48,
-          "ev_ebitda": 6.2,
-          "net_debt_ebitda": 2.8,
-          "roe": 9.3
-        },
-        "2024": {
-          "pe": 13.97,
-          "ps": 1.24,
-          "pb": 0.8,
-          "ev_ebitda": 4.42,
-          "net_debt_ebitda": 1.47,
-          "roe": 5.6
-        }
-      },
-      {
-        "ticker": "MTLR",
-        "name": "ПАО «Мечел» (обыкновенные акции)",
-        "price": 57.04,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "MTLR *",
+        "label": "SELG",
         "relative_fair_value": null,
         "2025": {
           "pe": null,
-          "ps": 0.11,
+          "ps": null,
           "pb": null,
           "ev_ebitda": null,
           "net_debt_ebitda": null,
@@ -240,10 +646,36 @@
         },
         "2024": {
           "pe": null,
-          "ps": 0.09,
+          "ps": null,
           "pb": null,
-          "ev_ebitda": 8.22,
-          "net_debt_ebitda": 7.1,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "SGZH",
+        "name": "ПАО «Сегежа Групп»",
+        "price": 0.839,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "SGZH *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 0.74,
+          "pb": 258.12,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": -0.75,
+          "ps": 0.74,
+          "pb": 16.49,
+          "ev_ebitda": 16.55,
+          "net_debt_ebitda": 14.76,
           "roe": null
         }
       },
@@ -274,58 +706,6 @@
         }
       },
       {
-        "ticker": "ENPG",
-        "name": "МКПАО «Эн+ Груп»",
-        "price": 409.7,
-        "anomaly": true,
-        "is_pref": false,
-        "excluded_from_aggregate": true,
-        "label": "ENPG *",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        },
-        "2024": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        }
-      },
-      {
-        "ticker": "SELG",
-        "name": "ПАО «Селигдар»",
-        "price": 47.45,
-        "anomaly": false,
-        "is_pref": false,
-        "excluded_from_aggregate": false,
-        "label": "SELG",
-        "relative_fair_value": null,
-        "2025": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        },
-        "2024": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
-          "net_debt_ebitda": null,
-          "roe": null
-        }
-      },
-      {
         "ticker": "UGLD",
         "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
         "price": 0.6587,
@@ -352,13 +732,39 @@
         }
       },
       {
-        "ticker": "SGZH",
-        "name": "ПАО «Сегежа Групп»",
-        "price": 0.839,
-        "anomaly": true,
+        "ticker": "UKUZ",
+        "name": "ПАО «Южный Кузбасс»",
+        "price": 696,
+        "anomaly": false,
         "is_pref": false,
         "excluded_from_aggregate": true,
-        "label": "SGZH *",
+        "label": "UKUZ *",
+        "relative_fair_value": null,
+        "2025": {
+          "pe": null,
+          "ps": 1.25,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        },
+        "2024": {
+          "pe": null,
+          "ps": 0.99,
+          "pb": null,
+          "ev_ebitda": null,
+          "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "UNKL",
+        "name": "ПАО «Комбинат Южуралникель» (Южно-Уральский никелевый комбинат)",
+        "price": 3770,
+        "anomaly": false,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "UNKL *",
         "relative_fair_value": null,
         "2025": {
           "pe": null,
@@ -378,28 +784,54 @@
         }
       },
       {
-        "ticker": "ROLO",
-        "name": "ПАО «Русолово»",
-        "price": 0.4312,
+        "ticker": "URKZ",
+        "name": "ПАО «Уральская кузница»",
+        "price": 250.6,
         "anomaly": true,
         "is_pref": false,
         "excluded_from_aggregate": true,
-        "label": "ROLO *",
+        "label": "URKZ *",
         "relative_fair_value": null,
         "2025": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
+          "pe": 2.09,
+          "ps": 0.73,
+          "pb": 0.23,
+          "ev_ebitda": 4.73,
           "net_debt_ebitda": null,
           "roe": null
         },
         "2024": {
-          "pe": null,
-          "ps": null,
-          "pb": null,
-          "ev_ebitda": null,
+          "pe": 1.55,
+          "ps": 0.58,
+          "pb": 0.26,
+          "ev_ebitda": 1.97,
           "net_debt_ebitda": null,
+          "roe": null
+        }
+      },
+      {
+        "ticker": "VSMO",
+        "name": "ПАО «Корпорация ВСМПО-АВИСМА»",
+        "price": 24580,
+        "anomaly": true,
+        "is_pref": false,
+        "excluded_from_aggregate": true,
+        "label": "VSMO *",
+        "relative_fair_value": 5744.31,
+        "2025": {
+          "pe": 1376.0,
+          "ps": 3.74,
+          "pb": 1.22,
+          "ev_ebitda": 20.1,
+          "net_debt_ebitda": 0.93,
+          "roe": null
+        },
+        "2024": {
+          "pe": 16.4,
+          "ps": 2.34,
+          "pb": 0.93,
+          "ev_ebitda": 7.88,
+          "net_debt_ebitda": 0.86,
           "roe": null
         }
       }
@@ -453,14 +885,30 @@
       "UGLD"
     ],
     "excluded": [
-      "RUAL",
-      "MTLR",
-      "TRMK",
+      "AMEZ",
+      "BLNG",
+      "BRZL",
+      "CHMK",
       "ENPG",
+      "IGST",
+      "IGSTP",
+      "KOGK",
+      "LNZL",
+      "LNZLP",
+      "MGNZ",
+      "MTLR",
+      "MTLRP",
+      "RASP",
+      "ROLO",
+      "RUAL",
       "SGZH",
-      "ROLO"
+      "TRMK",
+      "UKUZ",
+      "UNKL",
+      "URKZ",
+      "VSMO"
     ],
-    "note": "Медиана/среднее — сопоставимые производители; холдинги/убыточные/долговые со * исключены."
+    "note": "Медиана/среднее — сопоставимое ядро сектора; малоликвиды/префы/аномальные со * исключены."
   },
   "maps": {
     "map_1_debt_vs_valuation": {
@@ -477,20 +925,36 @@
       },
       "points": [
         {
-          "ticker": "GMKN",
-          "name": "ПАО «ГМК «Норильский никель»",
+          "ticker": "ALRS",
+          "name": "ПАО АК «АЛРОСА»",
           "anomaly": false,
           "is_pref": false,
-          "x": 1.5,
-          "y": 5.91
+          "x": 2.8,
+          "y": 6.2
         },
         {
-          "ticker": "NLMK",
-          "name": "ПАО «НЛМК»",
+          "ticker": "AMEZ",
+          "name": "ПАО «Ашинский метзавод»",
           "anomaly": false,
           "is_pref": false,
-          "x": -0.32,
-          "y": 3.35
+          "x": null,
+          "y": -154.08
+        },
+        {
+          "ticker": "BLNG",
+          "name": "ПАО «Белон»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "BRZL",
+          "name": "ПАО «Бурятзолото»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
         },
         {
           "ticker": "CHMF",
@@ -501,6 +965,70 @@
           "y": 4.9
         },
         {
+          "ticker": "CHMK",
+          "name": "ПАО «Челябинский металлургический комбинат»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 80.7,
+          "y": 86.9
+        },
+        {
+          "ticker": "ENPG",
+          "name": "МКПАО «Эн+ Груп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GMKN",
+          "name": "ПАО «ГМК «Норильский никель»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 1.5,
+          "y": 5.91
+        },
+        {
+          "ticker": "IGST",
+          "name": "ПАО «Ижсталь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "IGSTP",
+          "name": "ПАО «Ижсталь» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KOGK",
+          "name": "ПАО «Коршуновский ГОК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.05,
+          "y": -1.89
+        },
+        {
+          "ticker": "LNZL",
+          "name": "ПАО «Лензолото»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "LNZLP",
+          "name": "ПАО «Лензолото» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "MAGN",
           "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
           "anomaly": false,
@@ -509,9 +1037,57 @@
           "y": 3.6
         },
         {
+          "ticker": "MGNZ",
+          "name": "ПАО «Соликамский магниевый завод» (СМЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": -2.9
+        },
+        {
+          "ticker": "MTLR",
+          "name": "ПАО «Мечел» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MTLRP",
+          "name": "ПАО «Мечел» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NLMK",
+          "name": "ПАО «НЛМК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": -0.32,
+          "y": 3.35
+        },
+        {
           "ticker": "PLZL",
           "name": "ПАО «Полюс»",
           "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RASP",
+          "name": "ПАО «Распадская»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ROLO",
+          "name": "ПАО «Русолово»",
+          "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": null
@@ -525,16 +1101,16 @@
           "y": 18.98
         },
         {
-          "ticker": "ALRS",
-          "name": "ПАО АК «АЛРОСА»",
+          "ticker": "SELG",
+          "name": "ПАО «Селигдар»",
           "anomaly": false,
           "is_pref": false,
-          "x": 2.8,
-          "y": 6.2
+          "x": null,
+          "y": null
         },
         {
-          "ticker": "MTLR",
-          "name": "ПАО «Мечел» (обыкновенные акции)",
+          "ticker": "SGZH",
+          "name": "ПАО «Сегежа Групп»",
           "anomaly": true,
           "is_pref": false,
           "x": null,
@@ -549,22 +1125,6 @@
           "y": 6.97
         },
         {
-          "ticker": "ENPG",
-          "name": "МКПАО «Эн+ Груп»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "SELG",
-          "name": "ПАО «Селигдар»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
           "ticker": "UGLD",
           "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
           "anomaly": false,
@@ -573,20 +1133,36 @@
           "y": 6.05
         },
         {
-          "ticker": "SGZH",
-          "name": "ПАО «Сегежа Групп»",
-          "anomaly": true,
+          "ticker": "UKUZ",
+          "name": "ПАО «Южный Кузбасс»",
+          "anomaly": false,
           "is_pref": false,
           "x": null,
           "y": null
         },
         {
-          "ticker": "ROLO",
-          "name": "ПАО «Русолово»",
-          "anomaly": true,
+          "ticker": "UNKL",
+          "name": "ПАО «Комбинат Южуралникель» (Южно-Уральский никелевый комбинат)",
+          "anomaly": false,
           "is_pref": false,
           "x": null,
           "y": null
+        },
+        {
+          "ticker": "URKZ",
+          "name": "ПАО «Уральская кузница»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 4.73
+        },
+        {
+          "ticker": "VSMO",
+          "name": "ПАО «Корпорация ВСМПО-АВИСМА»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": 0.93,
+          "y": 20.1
         }
       ]
     },
@@ -604,20 +1180,36 @@
       },
       "points": [
         {
-          "ticker": "GMKN",
-          "name": "ПАО «ГМК «Норильский никель»",
+          "ticker": "ALRS",
+          "name": "ПАО АК «АЛРОСА»",
           "anomaly": false,
           "is_pref": false,
-          "x": 15.6,
-          "y": 1.88
+          "x": 9.3,
+          "y": 0.48
         },
         {
-          "ticker": "NLMK",
-          "name": "ПАО «НЛМК»",
+          "ticker": "AMEZ",
+          "name": "ПАО «Ашинский метзавод»",
           "anomaly": false,
           "is_pref": false,
-          "x": 7.1,
-          "y": 0.58
+          "x": -11.4,
+          "y": 2.17
+        },
+        {
+          "ticker": "BLNG",
+          "name": "ПАО «Белон»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 3.12
+        },
+        {
+          "ticker": "BRZL",
+          "name": "ПАО «Бурятзолото»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.55
         },
         {
           "ticker": "CHMF",
@@ -628,6 +1220,70 @@
           "y": 1.21
         },
         {
+          "ticker": "CHMK",
+          "name": "ПАО «Челябинский металлургический комбинат»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": -30.8,
+          "y": 0.19
+        },
+        {
+          "ticker": "ENPG",
+          "name": "МКПАО «Эн+ Груп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "GMKN",
+          "name": "ПАО «ГМК «Норильский никель»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 15.6,
+          "y": 1.88
+        },
+        {
+          "ticker": "IGST",
+          "name": "ПАО «Ижсталь»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "IGSTP",
+          "name": "ПАО «Ижсталь» (прив.)",
+          "anomaly": false,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "KOGK",
+          "name": "ПАО «Коршуновский ГОК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.15
+        },
+        {
+          "ticker": "LNZL",
+          "name": "ПАО «Лензолото»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "LNZLP",
+          "name": "ПАО «Лензолото» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
           "ticker": "MAGN",
           "name": "ПАО «Магнитогорский металлургический комбинат» (ММК)",
           "anomaly": false,
@@ -636,9 +1292,57 @@
           "y": 0.44
         },
         {
+          "ticker": "MGNZ",
+          "name": "ПАО «Соликамский магниевый завод» (СМЗ)",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": 0.97
+        },
+        {
+          "ticker": "MTLR",
+          "name": "ПАО «Мечел» (обыкновенные акции)",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "MTLRP",
+          "name": "ПАО «Мечел» (прив.)",
+          "anomaly": true,
+          "is_pref": true,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "NLMK",
+          "name": "ПАО «НЛМК»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": 7.1,
+          "y": 0.58
+        },
+        {
           "ticker": "PLZL",
           "name": "ПАО «Полюс»",
           "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "RASP",
+          "name": "ПАО «Распадская»",
+          "anomaly": false,
+          "is_pref": false,
+          "x": null,
+          "y": null
+        },
+        {
+          "ticker": "ROLO",
+          "name": "ПАО «Русолово»",
+          "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": null
@@ -652,20 +1356,20 @@
           "y": 0.63
         },
         {
-          "ticker": "ALRS",
-          "name": "ПАО АК «АЛРОСА»",
+          "ticker": "SELG",
+          "name": "ПАО «Селигдар»",
           "anomaly": false,
-          "is_pref": false,
-          "x": 9.3,
-          "y": 0.48
-        },
-        {
-          "ticker": "MTLR",
-          "name": "ПАО «Мечел» (обыкновенные акции)",
-          "anomaly": true,
           "is_pref": false,
           "x": null,
           "y": null
+        },
+        {
+          "ticker": "SGZH",
+          "name": "ПАО «Сегежа Групп»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 258.12
         },
         {
           "ticker": "TRMK",
@@ -676,22 +1380,6 @@
           "y": 2.8
         },
         {
-          "ticker": "ENPG",
-          "name": "МКПАО «Эн+ Груп»",
-          "anomaly": true,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
-          "ticker": "SELG",
-          "name": "ПАО «Селигдар»",
-          "anomaly": false,
-          "is_pref": false,
-          "x": null,
-          "y": null
-        },
-        {
           "ticker": "UGLD",
           "name": "ПАО «Южуралзолото Группа Компаний» (ЮГК)",
           "anomaly": false,
@@ -700,48 +1388,92 @@
           "y": 2.32
         },
         {
-          "ticker": "SGZH",
-          "name": "ПАО «Сегежа Групп»",
-          "anomaly": true,
+          "ticker": "UKUZ",
+          "name": "ПАО «Южный Кузбасс»",
+          "anomaly": false,
           "is_pref": false,
           "x": null,
           "y": null
         },
         {
-          "ticker": "ROLO",
-          "name": "ПАО «Русолово»",
-          "anomaly": true,
+          "ticker": "UNKL",
+          "name": "ПАО «Комбинат Южуралникель» (Южно-Уральский никелевый комбинат)",
+          "anomaly": false,
           "is_pref": false,
           "x": null,
           "y": null
+        },
+        {
+          "ticker": "URKZ",
+          "name": "ПАО «Уральская кузница»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 0.23
+        },
+        {
+          "ticker": "VSMO",
+          "name": "ПАО «Корпорация ВСМПО-АВИСМА»",
+          "anomaly": true,
+          "is_pref": false,
+          "x": null,
+          "y": 1.22
         }
       ]
     }
   },
   "anomalies": [
     {
-      "ticker": "RUAL",
-      "note": "Доля в Норникеле искажает прибыль/P/E; высокий долг (ND/EBITDA ~10x) — не сопоставим по EV/EBITDA."
+      "ticker": "BRZL",
+      "note": "Прибыль не операционная: продажа рудников (Ирокинда, ~1.28 млрд руб в июне 2024) + процентный доход на кэш. Выручка и EBITDA за 2024-2025 не раскрыты, поэтому EV/EBITDA и P/S за последние годы недоступны. Чистая денежная позиция (~4.33 млрд руб) делает EV существенно ниже капитализации. Компания — 'денежная оболочка', а не действующий золотодобытчик; цена слабо связана с золотом. P/B<1 устойчиво — рынок дисконтирует кэш под контролем мажоритария Nordgold (~85%), который не платит дивиденды."
     },
     {
-      "ticker": "MTLR",
-      "note": "Долговая ловушка: отрицательный капитал и EBITDA — мультипликаторы нерепрезентативны."
-    },
-    {
-      "ticker": "TRMK",
-      "note": "(1) Расхождение EBITDA: статутная EBITDA 2025 (опер. прибыль 28 646 + амортизация 26 709 = 55 355 млн, EBITDA-маржа 13,7%) против скорр. EBITDA менеджмента ~74 700 млн (маржа 18,5%) из пресс-релиза/бизнес-модели — разница ~35%, влияет на EV/EBITDA (6,97x vs ~5,2x) и на справедливую цену. В JSON использована статутная EBITDA из загруженного файла. (2) ROE 2025: на конце капитала -64,6%, на среднем капитале -46,9% (в JSON — на среднем, как в исходнике PDF -36,8% при их методике сглаживания); собственный капитал обрушился до 32 596 млн из-за двух лет убытков, что искажает балансовые мультипликаторы (P/BV 2,80x, D/E 11,98x). (3) Два года подряд чистый убыток (-23 884 и -21 050 млн) при положительной EBITDA — вся операционная прибыль уходит на финансовые расходы (81 782 млн, покрытие опер. прибылью 0,35x). (4) FCF 2025 околонулевой (+1 204 млн) против +91 454 млн в 2024 — резкое сжатие операционного потока (CFO упал со 120 345 до 19 095 млн)."
+      "ticker": "CHMK",
+      "note": "ND/EBITDA≈81x и EV/EBITDA≈87x за 2025 — не операционная характеристика, а следствие того, что ЧМК — центр концентрации долга группы «Мечел» (~153 млрд ₽ при выручке 144 млрд и почти нулевой EBITDA). Чистый убыток искажён внутригрупповыми процентами к уплате (28.5 млрд ₽) и займами связанным сторонам (>34 млрд ₽ финвложений в компании группы, риск невозврата). Мультипликаторы долга НЕ отражают самостоятельную кредитоспособность завода."
     },
     {
       "ticker": "ENPG",
       "note": "Холдинг (РУСАЛ+энергетика+доля в ГМКН), ND≈EV — equity-методы ломаются."
     },
     {
-      "ticker": "SGZH",
-      "note": "Убыток + отрицательная EBITDA + допэмиссия — мультипликаторы нерепрезентативны."
+      "ticker": "LNZL",
+      "note": "Кэш (514.0 млн ₽) превышает собственный капитал (317.0 млн ₽) за 2024 — несовместимо без отрицательных чистых обязательств; веб-источники РСБУ/МСФО рассогласованы (data_quality=low). Рыночная цена 1260 ₽ в 4.5× выше чистых активов на акцию (278 ₽) и в 2.8× выше кэша на акцию (451 ₽) — премия к ликвидационной стоимости. Добывающий актив (ЗДК «Лензолото») продан Полюсу в 2020: оценивать по чистым активам/кэшу на акцию, EV/EBITDA малоинформативен (EBITDA≈чистый процентный результат)."
+    },
+    {
+      "ticker": "LNZLP",
+      "note": "Кэш (514.0 млн ₽) превышает собственный капитал (317.0 млн ₽) за 2024 — несовместимо без отрицательных чистых обязательств; веб-источники РСБУ/МСФО рассогласованы (data_quality=low). Рыночная цена 1260 ₽ в 4.5× выше чистых активов на акцию (278 ₽) и в 2.8× выше кэша на акцию (451 ₽) — премия к ликвидационной стоимости. Добывающий актив (ЗДК «Лензолото») продан Полюсу в 2020: оценивать по чистым активам/кэшу на акцию, EV/EBITDA малоинформативен (EBITDA≈чистый процентный результат)."
+    },
+    {
+      "ticker": "MTLR",
+      "note": "Долговая ловушка: отрицательный капитал и EBITDA — мультипликаторы нерепрезентативны."
+    },
+    {
+      "ticker": "MTLRP",
+      "note": "Долговая ловушка: отрицательный капитал и EBITDA — мультипликаторы нерепрезентативны."
     },
     {
       "ticker": "ROLO",
       "note": "(1) Акция малоликвидна, free-float мал (~85% у Селигдара), рыночная цена 0.4312 руб и капитализация 1.29 млрд руб слабо репрезентативны. (2) Финрезультат критически зависит от мировой цены олова (LME, в USD) и курса рубля — компания ценополучатель. (3) EBITDA отрицательна в 2024-2025, поэтому EV/EBITDA и ND/EBITDA не имеют экономического смысла (формально -18.6x и -17.6x). (4) Собственный капитал обвалился с 6.3 млрд (2024) до 0.8 млрд руб (2025) из-за накопленного убытка -6.6 млрд — баланс на грани отрицательного капитала. (5) Чистый долг вырос до 23.5 млрд руб при отрицательной EBITDA — обслуживание зависит от поддержки материнского Селигдара."
+    },
+    {
+      "ticker": "RUAL",
+      "note": "Доля в Норникеле искажает прибыль/P/E; высокий долг (ND/EBITDA ~10x) — не сопоставим по EV/EBITDA."
+    },
+    {
+      "ticker": "SGZH",
+      "note": "Убыток + отрицательная EBITDA + допэмиссия — мультипликаторы нерепрезентативны."
+    },
+    {
+      "ticker": "TRMK",
+      "note": "(1) Расхождение EBITDA: статутная EBITDA 2025 (опер. прибыль 28 646 + амортизация 26 709 = 55 355 млн, EBITDA-маржа 13,7%) против скорр. EBITDA менеджмента ~74 700 млн (маржа 18,5%) из пресс-релиза/бизнес-модели — разница ~35%, влияет на EV/EBITDA (6,97x vs ~5,2x) и на справедливую цену. В JSON использована статутная EBITDA из загруженного файла. (2) ROE 2025: на конце капитала -64,6%, на среднем капитале -46,9% (в JSON — на среднем, как в исходнике PDF -36,8% при их методике сглаживания); собственный капитал обрушился до 32 596 млн из-за двух лет убытков, что искажает балансовые мультипликаторы (P/BV 2,80x, D/E 11,98x). (3) Два года подряд чистый убыток (-23 884 и -21 050 млн) при положительной EBITDA — вся операционная прибыль уходит на финансовые расходы (81 782 млн, покрытие опер. прибылью 0,35x). (4) FCF 2025 околонулевой (+1 204 млн) против +91 454 млн в 2024 — резкое сжатие операционного потока (CFO упал со 120 345 до 19 095 млн)."
+    },
+    {
+      "ticker": "URKZ",
+      "note": "URKZ — кэптивное казначейство группы «Мечел», а не нормальный производитель поковок. ~67 из ~83 млрд руб. активов (РСБУ) — это займы, выданные «Мечелу» и связанным сторонам (в 2024 выдано 47,4 млрд, из них 36,1 млрд — «Мечелу»; дебиторка по связанным сторонам ~51 млрд на 31.12.2024). Формально по standalone-балансу компания почти «чистый кэш» (net_debt 1-4 млрд, ND/EBITDA ~0.2-1.1, P/B 0.23), НО это иллюзия: бóльшая часть «капитала» обеспечена ВНУТРИГРУППОВОЙ дебиторкой к материнской компании с рейтингом A-(негативный). Чистая маржа 35-38% невозможна для металлообработки — это процентный доход по займам группе, а не операционная рентабельность поковок. При обесценении требований к «Мечелу» обнуляется значительная часть прибыли и капитала. EBITDA за 2024 компания/агрегатор не раскрыли — оценена как операционная прибыль + медианная амортизация (data_flag)."
+    },
+    {
+      "ticker": "VSMO",
+      "note": "2025 — глубокий циклический провал: производство титана −32.6% (16.94 тыс. т, минимум за 10 лет), EBITDA −52% г/г, чистая прибыль обнулилась (0.263 млрд). Из-за этого текущий P/E (1077x) и EV/EBITDA (16x) аномально завышены — знаменатели временно подавлены. Оценку строить на нормализованной (среднециклической) прибыли/EBITDA и на P/B, а не на показателях 2025 года."
     }
   ]
 }

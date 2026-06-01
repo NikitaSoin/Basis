@@ -1,0 +1,604 @@
+{
+  "meta": {
+    "ticker": "MRKC",
+    "name": "ПАО «Россети Центр» (МРСК Центра)",
+    "sector": "electric_utilities_grid",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.6906,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 42217941468,
+    "data_quality": "medium",
+    "data_quality_note": "2021-2025 — данные из smart-lab (МСФО) сходятся с пресс-релизами компании и business_model.md; 2019-2020 — частичные (EBITDA/операционная прибыль оценены), по этим годам качество low.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      94640,
+      97640,
+      108100,
+      114600,
+      128500,
+      138200,
+      153000
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      10100,
+      11900,
+      13800,
+      17600,
+      22800
+    ],
+    "ebitda": [
+      17000,
+      21000,
+      23000,
+      24700,
+      24800,
+      32600,
+      41200
+    ],
+    "da": [
+      null,
+      null,
+      12900,
+      12800,
+      11000,
+      15000,
+      18400
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      3060,
+      2156,
+      4370,
+      4910,
+      7920,
+      6560,
+      11600
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        18.0,
+        21.5,
+        21.3,
+        21.6,
+        19.3,
+        23.6,
+        26.9
+      ],
+      "operating_margin": [
+        null,
+        null,
+        9.3,
+        10.4,
+        10.7,
+        12.7,
+        14.9
+      ],
+      "net_margin": [
+        3.2,
+        2.2,
+        4.0,
+        4.3,
+        6.2,
+        4.7,
+        7.6
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      130300,
+      139800,
+      148800,
+      158900,
+      174000
+    ],
+    "total_equity": [
+      null,
+      null,
+      50200,
+      52400,
+      60200,
+      64800,
+      73200
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      80100,
+      87400,
+      88600,
+      94100,
+      100800
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      45600,
+      39500,
+      37600,
+      39200,
+      36500
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        1.98,
+        1.6,
+        1.52,
+        1.2,
+        0.89
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      24300,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      3300,
+      3300,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        2.6,
+        2.4,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        17.6,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      8.7,
+      9.4,
+      13.2,
+      10.1,
+      15.8
+    ],
+    "roa": [
+      null,
+      null,
+      3.4,
+      3.5,
+      5.3,
+      4.1,
+      6.7
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      3.2,
+      2.2,
+      4.0,
+      4.3,
+      6.2,
+      4.7,
+      7.6
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.83,
+      0.82,
+      0.86,
+      0.87,
+      0.88
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      4.01,
+      2.74,
+      3.0,
+      3.07,
+      2.51
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.19
+    ],
+    "pb": [
+      null,
+      null,
+      0.37,
+      0.27,
+      0.42,
+      0.32,
+      0.4
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      2.75,
+      2.15,
+      2.47,
+      1.82,
+      1.59
+    ],
+    "current": {
+      "pe": 2.51,
+      "ps": 0.19,
+      "pb": 0.4,
+      "ev_ebitda": 1.59,
+      "net_debt_ebitda": 0.89,
+      "roe": 15.8,
+      "as_of": "2026-06-01",
+      "basis": "цена 0.6906 ₽ × 42.218 млрд акций; фундамент — МСФО 2025"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 3.07,
+      "pe_5y_median": 3.07,
+      "ev_ebitda_5y_median": 2.15,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      8.0,
+      7.0,
+      6.0,
+      5.5,
+      5.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Покрытие брокерами по MRKC слабое. Прогноз механический: выручка регулируема (индексация тарифа ~ИПЦ + объём), рост затухает к долгосрочному тренду ~5%. Прибыль ниже EBITDA не прогнозируется отдельно из-за высокой волатильности амортизации/процентов/обесценений — см. anomaly_note."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Нет раскрытого ряда CFO/CapEx/FCF за 5+ лет (только точечные FCF ~3.3 млрд за 2023-2024). Денежный поток сетевой компании сильно зависит от инвестпрограммы; без полного CF-ряда DCF ненадёжен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.8435,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.07,
+          "basis": "5y_median 2021-2025",
+          "eps_used": 0.2748
+        },
+        "note": "P/E искажается волатильной прибылью ниже EBITDA; медиана устойчивее. EPS на базе МСФО 2025."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сравнение с MRKP, MSRS, MRKU и др. дочками Россетей — после прогона сектора распределительных сетей."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.7776,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "justified_pe": 2.83,
+          "payout": 0.5,
+          "g": 3.5
+        },
+        "note": "Justified P/E = payout×(1+g)/(Ke−g) = 0.5×1.035/(0.218−0.035) = 2.83; × EPS 2025."
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 1.0568,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 0.1374,
+          "required_yield": 0.13,
+          "payout_assumed": 0.5
+        },
+        "note": "Зрелый дивидендный плательщик (14+ лет выплат, дивдоходность 11-13%). Ожидаемый дивиденд = 50% МСФО-прибыли 2025 / акции / требуемая доходность 13%. Чувствителен к payout — он у компании волатилен."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.78,
+      "base": 0.84,
+      "optimistic": 1.06,
+      "current_price": 0.6906,
+      "upside_downside_pct": 22.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Чистая прибыль по МСФО за 2024 снизилась на 17% (6.56 vs 7.92 млрд) при росте EBITDA на +31.5% и выручки +7.5%. Причина — рост амортизации от инвестпрограммы (RAB/тариф стимулирует CapEx), рост процентных расходов при высокой ключевой ставке и возможные обесценения сетевых активов; всё это давит на прибыль НИЖЕ EBITDA. Регулируемый тариф сглаживает выручку, но искажённая прибыль делает P/E нерепрезентативным год-к-году — приоритет EV/EBITDA и дивидендному методу. По 2019-2020 EBITDA/опер.прибыль оценены (data_quality low по этим годам).",
+  "peer_multiples": {
+    "2025": {
+      "pe": 2.51,
+      "ps": 0.19,
+      "pb": 0.4,
+      "ev_ebitda": 1.59,
+      "net_debt_ebitda": 0.89,
+      "roe": 15.8
+    },
+    "2024": {
+      "pe": 3.07,
+      "ps": 0.21,
+      "pb": 0.32,
+      "ev_ebitda": 1.82,
+      "net_debt_ebitda": 1.2,
+      "roe": 10.1
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — Россети Центр (MRKC) годовая отчётность МСФО",
+      "period": "2021-2025",
+      "url": "https://smart-lab.ru/q/MRKC/f/y/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО «Россети Центр» — пресс-релиз результатов РСБУ 2024 (выручка 132.3 млрд, ЧП +27.6%)",
+      "period": "2024",
+      "url": "https://www.mrsk-1.ru/investors/presentations/ir_news/83043/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX ISS — котировка и число акций MRKC (LAST 0.6906; ISSUESIZE 42 217 941 468)",
+      "period": "2026-06-01",
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/securities/MRKC.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Т-Инвестиции / smart-lab — дивидендная история и доходность 11-13%",
+      "period": "2021-2024",
+      "url": "https://www.tbank.ru/invest/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "companies/MRKC/business_model.md — якоря выручки/EBITDA/ЧД 2024",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "2019-2020: EBITDA и операционная прибыль ОЦЕНЕНЫ (нет точного раскрытия в найденных источниках) — data_quality low по этим годам.",
+    "Денежные потоки (CFO/CFI/CFF/CapEx) не раскрыты рядами — FCF ~3.3 млрд за 2023-2024 точечно; DCF помечен insufficient_data.",
+    "Структура долга (кратко-/долгосрочный, кэш) отдельно не собрана — есть только чистый долг.",
+    "ROA/asset_turnover за 2021-2025 пересчитаны кодом от чистого долга/капитала/активов smart-lab; чувствительны к точности их выгрузки.",
+    "Аномалия: ЧП 2024 ↓ при EBITDA ↑ — прибыль искажена амортизацией/процентами/обесценениями (см. anomaly_note).",
+    "relative_peers = pending_sector_backfill — нет peers.json по сектору распределительных сетей.",
+    "Payout дивидендов волатилен — дивидендная оценка чувствительна к допущению 50%.",
+    "Себестоимость/опер.расходы по МСФО построчно не раскрыты — gross_profit null (детализация расходов есть в business_model.md по РСБУ)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": 1.89,
+    "upside_downside_pct": 173.7,
+    "status": "reference_only"
+  }
+}

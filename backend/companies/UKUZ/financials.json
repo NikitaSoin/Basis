@@ -1,0 +1,588 @@
+{
+  "meta": {
+    "ticker": "UKUZ",
+    "name": "ПАО «Южный Кузбасс»",
+    "sector": "coal",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 696,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 36149002,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Компания — дочка группы «Мечел». Значительная часть сбыта и финансирования внутригрупповая, поэтому отчётность сильно искажена: (1) собственный капитал глубоко отрицателен (-103,3 млрд руб. на 2025), что обнуляет смысл ROE, P/BV, D/E и DCF; (2) операционный денежный поток (CFO 42,8 и 54,2 млрд руб. в 2024–2025) превышает выручку — это эффект внутригрупповых займов и расчётов «Мечела», а не реальная операционная генерация, поэтому FCF и CFO/CapEx нерепрезентативны; (3) EBITDA с 2024 отрицательна — ND/EBITDA и EV/EBITDA не интерпретируются. Чистый долг и чистый убыток искажены внутригрупповыми процентами. Бумага в секторе ПИР (повышенный риск) и для квалифицированных инвесторов де-факто; листинг 3-й уровень; ликвидность крайне низкая (дневной оборот десятки–сотни акций)."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      28000,
+      40100,
+      58400,
+      45400,
+      39285,
+      25500
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      15700,
+      24200,
+      7840,
+      -8620,
+      -20800
+    ],
+    "ebitda": [
+      null,
+      null,
+      17300,
+      26200,
+      10200,
+      -5480,
+      -17900
+    ],
+    "da": [
+      null,
+      null,
+      1600,
+      2000,
+      2360,
+      3140,
+      2900
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      13800,
+      15900,
+      1800,
+      -17105,
+      -28400
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        43.1,
+        44.9,
+        22.5,
+        -13.9,
+        -70.2
+      ],
+      "operating_margin": [
+        null,
+        null,
+        39.2,
+        41.4,
+        17.3,
+        -21.9,
+        -81.6
+      ],
+      "net_margin": [
+        null,
+        null,
+        34.4,
+        27.2,
+        4.0,
+        -43.5,
+        -111.4
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      76500,
+      71300,
+      61600,
+      66200,
+      65700
+    ],
+    "total_equity": [
+      null,
+      null,
+      -21000,
+      -5000,
+      -9620,
+      -44100,
+      -103300
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      97500,
+      76300,
+      71220,
+      110300,
+      169000
+    ],
+    "cash": [
+      null,
+      null,
+      100,
+      730,
+      0,
+      3,
+      9
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      76900,
+      59300,
+      55700,
+      50400,
+      50100
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        4.45,
+        2.26,
+        5.46,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      11800,
+      23500,
+      8250,
+      42800,
+      54200
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      1530,
+      3720,
+      3830,
+      2200,
+      1080
+    ],
+    "fcf": [
+      null,
+      null,
+      10270,
+      19780,
+      4420,
+      40600,
+      53120
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        25.6,
+        33.9,
+        9.7,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        7.71,
+        6.32,
+        2.15,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        3.8,
+        6.4,
+        8.4,
+        5.6,
+        4.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      18.0,
+      22.3,
+      2.9,
+      -25.8,
+      -43.2
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      34.4,
+      27.2,
+      4.0,
+      -43.5,
+      -111.4
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.52,
+      0.82,
+      0.74,
+      0.59,
+      0.39
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      3.52,
+      2.77,
+      32.2,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      1.21,
+      0.76,
+      1.28,
+      0.99,
+      1.25
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      7.25,
+      3.95,
+      11.1,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.99,
+      "pb": null,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01",
+      "note": "P/E, P/BV, EV/EBITDA не считаются: чистый убыток, отрицательный капитал, отрицательная EBITDA. Рабочий мультипликатор только P/S (≈0,99 на 2025; mcap 25,2 млрд / выручка 25,5 млрд)."
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не считается — годы с убытком и отрицательным капиталом делают P/E бессмысленным"
+    },
+    "peer_multiples": {
+      "_about": "Мультипликаторы компании по 6 ключам для последующего сравнения с медианой сектора coal. EV/EBITDA, P/E, P/BV неприменимы (EBITDA<0, убыток, отрицательный капитал) — null. Рабочий — только P/S.",
+      "2025": {
+        "pe": null,
+        "ps": 1.25,
+        "pb": null,
+        "ev_ebitda": null,
+        "ev_sales": 3.21,
+        "net_debt_ebitda": null
+      },
+      "2024": {
+        "pe": null,
+        "ps": 0.99,
+        "pb": null,
+        "ev_ebitda": null,
+        "ev_sales": 2.27,
+        "net_debt_ebitda": null
+      }
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз невозможен: брокерское покрытие отсутствует, история нерепрезентативна (разворот в глубокий убыток 2024–2025, отрицательный капитал, внутригрупповая экономика). source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF/CFO искажены внутригрупповыми потоками «Мечела», EBITDA отрицательна, прогноз отсутствует — DCF неприменим."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable",
+        "note": "Чистый убыток в 2024–2025; медиана P/E бессмысленна."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана сектора coal ещё не собрана. Дополнительно: EV/EBITDA неприменим (EBITDA<0); при появлении медианы оценивать по P/S."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 27.2,
+          "beta": 1.4
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14,6% + 1,4×9,0% = 27,2%. Цель по доходности не строится: дивидендов нет, прибыль отрицательна, точка отсчёта прибыли отсутствует."
+      },
+      {
+        "method": "price_to_sales",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "multiple_range": [
+            0.3,
+            0.8
+          ],
+          "revenue_ttm_mln": 25500
+        },
+        "status": "indicative_only",
+        "note": "Единственный технически считаемый ориентир. При стрессовом для убыточных угольных диапазоне P/S 0,3–0,8 цена акции ≈ 212–564 руб. против текущих 696. Это грубый ориентир, не таргет: P/S не учитывает отрицательный капитал и долговую нагрузку."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 212,
+      "base": 353,
+      "current_price": 696,
+      "upside_downside_pct": -49,
+      "note": "Коридор крайне условный, получен ТОЛЬКО методом P/S (0,3–0,8 от выручки 2025). Базовый сценарий 353 руб → даунсайд ~-49% к текущей цене 696. Все доходные методы (DCF, P/E, EV/EBITDA, дивидендный) неприменимы. Балансовая стоимость акции отрицательна (-2858 руб). Котировка 696 руб не поддержана ни прибылью, ни активами, ни капиталом — держится на низкой ликвидности и факторе материнской группы."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — котировка и параметры выпуска UKUZ (цена 696 руб, акций 36 149 002, ПИР, листинг 3)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО UKUZ 2021–2025 (выручка, EBITDA, прибыль, капитал, долг, CFO)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Smart-Lab — убыток МСФО 2024 (-17,105 млрд) и РСБУ 2025 (-29,751 млрд)",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Арсагера — итоги 9 мес 2024: резкий рост финансовых расходов",
+      "period": "9M2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md UKUZ (внутренний, согласование сегментов и валюты)",
+      "period": "2026-05-30",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Собственный капитал отрицателен (-44,1 млрд в 2024, -103,3 млрд в 2025) — обнуляет ROE, P/BV, D/E; DCF неприменим.",
+    "CFO 2024–2025 (42,8 и 54,2 млрд руб.) превышает выручку — артефакт внутригрупповых займов/расчётов «Мечела»; FCF, CFO/CapEx и fcf_margin за эти годы помечены null как нерепрезентативные.",
+    "EBITDA отрицательна с 2024 — ND/EBITDA и EV/EBITDA за 2024–2025 не считаются (null).",
+    "Чистый долг (~50 млрд) и чистый убыток искажены внутригрупповыми процентами; реальная экономическая нагрузка определяется политикой «Мечела», а не рынком.",
+    "Данные 2019–2020 в публичных агрегаторах почти не раскрыты (только выручка 2020 ≈28 млрд) — массивы за эти годы преимущественно null.",
+    "Постатейная разбивка P&L (COGS, OpEx, finance_costs) не раскрывается — gross_profit и проценты null; da оценена как EBITDA−EBIT.",
+    "Брокерское покрытие отсутствует — прогноз source_type=none.",
+    "Бумага в секторе ПИР (повышенный инвестиционный риск), листинг 3-го уровня, крайне низкая ликвидность (дневной оборот десятки–сотни акций) — котировка слабо отражает фундаментал.",
+    "Оценочный коридор построен ТОЛЬКО по P/S (0,3–0,8) и является индикативным, не таргетом.",
+    "data_quality=low: основной источник — агрегатор Smart-Lab; первичную отчётность сверить на e-disclosure.ru при актуализации."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

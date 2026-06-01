@@ -1,0 +1,584 @@
+{
+  "meta": {
+    "ticker": "VLHZ",
+    "name": "ПАО «Владимирский химический завод»",
+    "sector": "chemicals",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 141.8,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 5005605,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "data_notes": "Первичного PDF в sources/ нет. Данные собраны из веба (smart-lab МСФО-агрегатор, MOEX ISS по цене/числу акций, Интерфакс, РБК Quote). 2019-2020 не раскрыты. 2025 РАСКРЫТ ЧАСТИЧНО (МСФО за 1П25 выручка ~809 млн; smart-lab показывает усечённый/TTM ряд) — годовые значения 2025 неполные, использовать только как ориентир."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      3600,
+      3540,
+      3900,
+      3220,
+      1140
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      131,
+      212,
+      410,
+      146,
+      80
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      480,
+      99,
+      238,
+      48,
+      11
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        3.6,
+        6.0,
+        10.5,
+        4.5,
+        7.0
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        13.3,
+        2.8,
+        6.1,
+        1.5,
+        1.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      1330,
+      1210,
+      1500,
+      1580,
+      1080
+    ],
+    "total_equity": [
+      null,
+      null,
+      385,
+      520,
+      760,
+      807,
+      818
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      945,
+      690,
+      740,
+      773,
+      262
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      550,
+      250,
+      380,
+      370,
+      -180
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        4.2,
+        1.18,
+        0.93,
+        2.53,
+        -2.25
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      124.7,
+      19.0,
+      31.3,
+      5.9,
+      1.3
+    ],
+    "roa": [
+      null,
+      null,
+      36.1,
+      8.2,
+      15.9,
+      3.0,
+      1.0
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      13.3,
+      2.8,
+      6.1,
+      1.5,
+      1.0
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      2.71,
+      2.93,
+      2.6,
+      2.04,
+      1.06
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      1.48,
+      7.17,
+      2.98,
+      14.79,
+      64.53
+    ],
+    "ps": [
+      null,
+      null,
+      0.2,
+      0.2,
+      0.18,
+      0.22,
+      0.62
+    ],
+    "pb": [
+      null,
+      null,
+      1.84,
+      1.36,
+      0.93,
+      0.88,
+      0.87
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      9.62,
+      4.53,
+      2.66,
+      7.4,
+      6.62
+    ],
+    "current": {
+      "pe": 14.79,
+      "ps": 0.22,
+      "pb": 0.88,
+      "ev_ebitda": 7.4,
+      "net_debt_ebitda": 2.53,
+      "roe": 5.9,
+      "as_of": "2026-05-29",
+      "basis": "база — последний ПОЛНЫЙ год FY2024 при текущей капитализации 710 млн руб; 2025 раскрыт частично",
+      "peer_multiples": {
+        "2025": {
+          "pe": 64.53,
+          "ps": 0.62,
+          "pb": 0.87,
+          "ev_ebitda": 6.62,
+          "net_debt_ebitda": -2.25,
+          "roe": 1.3
+        },
+        "2024": {
+          "pe": 14.79,
+          "ps": 0.22,
+          "pb": 0.88,
+          "ev_ebitda": 7.4,
+          "net_debt_ebitda": 2.53,
+          "roe": 5.9
+        }
+      },
+      "anomaly_flag": true,
+      "anomaly_note": "Глубокая рассинхронизация цены и фундаментала. При цене 141.8 руб (P/E~15x на провальной прибыли 2024 и P/E>60x на усечённом 2025) внутренние методы (историч. P/E и CAPM от EPS-2024 9.59 руб) дают всего 42-49 руб — даунсайд 68-70%. P/B<1 (0.88) при ROE 1-6% также указывает на низкое качество прибыли. Котировка переоценена дивидендной спекуляцией (объявлены 20 руб/акц за 2024) и крайней малоликвидностью 3-го эшелона, а не прибыльностью. 2025 раскрыт частично — мультипликаторы 2025 искажены."
+    },
+    "historical_avg": {
+      "pe_5y_avg": 18.19,
+      "pe_5y_median": 5.08,
+      "period": "2021-2024 (полные годы; 2025 исключён как неполный)",
+      "note": "Медиана устойчивее: P/E сильно скачет из-за волатильной прибыли малого переработчика (1.5x в 2021 → 15x в 2024)."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (3-й эшелон, низкая ликвидность). История нерепрезентативна: прибыль балансирует у нуля и колеблется в разы из-за операционного рычага и цен на ПВХ-смолу. 2025 раскрыт частично и показывает резкое сжатие выручки (~1.14 млрд против 3.22 млрд в 2024). Механический прогноз дал бы ложную точность — source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Нет раскрытия CFO/CapEx/FCF, нет надёжного прогноза, прибыль у нуля. DCF неприменим."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 48.7,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.08,
+          "basis": "медиана P/E 2021-2024",
+          "eps_2024": 9.59
+        },
+        "status": "ok",
+        "note": "Медианный P/E полных лет × EPS FY2024. Прибыль 2024 уже депрессивная; в лучший год оценка была бы выше."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана EV/EBITDA сектора химии будет подставлена после прогона всех компаний сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 42.2,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "rf": 14.6,
+          "erp": 9.0,
+          "basis": "P/E~1/Ke × EPS-2024"
+        },
+        "status": "ok",
+        "note": "Beta 0.9 — оценочно для малоликвидного 3-эшелона. Ориентир по требуемой доходности при нулевом росте."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 42.2,
+      "base": 45.5,
+      "current_price": 141.8,
+      "upside_downside_pct": -67.9,
+      "note": "Коридор 42-49 руб от методов, привязанных к депрессивной прибыли FY2024. Текущая цена 141.8 руб подразумевает даунсайд 68-70%. ВАЖНО: коридор НЕненадёжен — построен на одном депрессивном годе без прогноза и без FCF; в сильный год (EBITDA 410 млн как в 2023) оценка кратно выше. Не трактовать как точный таргет — только как сигнал, что котировка оторвана от текущего фундаментала."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — финансовая отчётность VLHZ (МСФО, годовые)",
+      "period": "2021-2025",
+      "reliability": "medium",
+      "url": "https://smart-lab.ru/q/VLHZ/f/y/"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "MOEX ISS — цена и число акций VLHZ (TQBR)",
+      "period": "2026-05-29",
+      "reliability": "high",
+      "url": "https://iss.moex.com/iss/engines/stock/markets/shares/securities/VLHZ.json"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "Интерфакс — РСБУ-результаты ВХЗ (1 кв., 9 мес. 2025), дивиденды 20 руб/акц за 2024",
+      "period": "2024-2025",
+      "reliability": "medium",
+      "url": "https://www.interfax-russia.ru/center/news/vladimirskiy-himzavod-v-i-kvartale-uvelichil-chistuyu-pribyl-po-rsbu-v-6-5-raza-na-fone-sokrashcheniya-sebestoimosti"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "РБК Quote — котировки и дивиденды VLHZ",
+      "period": "2026",
+      "reliability": "medium",
+      "url": "https://www.rbc.ru/quote/ticker/59874"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md (внутренний разбор VLHZ)",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Первичного PDF/выгрузки в sources/ нет — все числа из веб-агрегаторов, data_quality=low.",
+    "2019-2020 не раскрыты (null по всему ряду).",
+    "2025 РАСКРЫТ ЧАСТИЧНО: МСФО 1П25 выручка ~809 млн; ряд 2025 на smart-lab усечён/TTM. Годовые мультипликаторы 2025 (P/E 64.5x) искажены — НЕ использовать как репрезентативные.",
+    "EBITDA взята из агрегатора (компания EBITDA в раскрытии не детализирует) — проверить по отчёту.",
+    "CFO, CapEx, FCF, cash, разбивка долга не раскрыты — денежный поток весь null, DCF неприменим.",
+    "ANOMALY: цена 141.8 руб оторвана от фундаментала — внутренние методы дают 42-49 руб (даунсайд ~68%). Вероятная причина: дивидендная спекуляция (20 руб/акц за 2024) + крайняя малоликвидность 3-эшелона. Коридор оценки ненадёжен (один депрессивный год, без прогноза).",
+    "relative_peers — status pending_sector_backfill (нет медианы сектора химии).",
+    "Beta 0.9 в CAPM — оценочная (нет надёжной беты по неликвидной бумаге).",
+    "Дивиденд 20 руб/акц за 2024 (≈14% к цене 142) — но устойчивость выплат сомнительна при прибыли у нуля."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.72,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

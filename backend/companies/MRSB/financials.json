@@ -1,0 +1,500 @@
+{
+  "meta": {
+    "ticker": "MRSB",
+    "name": "ПАО «Мордовская энергосбытовая компания» (Мордовэнергосбыт)",
+    "isin": "RU000A0D9AJ7",
+    "sector": "Электроэнергетика (энергосбыт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.864,
+    "price_date": "2026-05-30",
+    "shares_outstanding": 1345037710,
+    "data_quality": "low",
+    "data_quality_note": "Компания публикует только РСБУ без раскрытия EBITDA, CapEx, денежных потоков и сегментов. EBITDA, маржи и оценка реконструированы по агрегаторам (smart-lab) и оценочно. МСФО не составляется. Эмитент малоликвидный, мажоритарий ~84%.",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      6950,
+      6770,
+      7640,
+      8360,
+      9500
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      580,
+      354,
+      500,
+      580,
+      653
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      142,
+      96,
+      146,
+      219,
+      257
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        8.3,
+        5.2,
+        6.5,
+        6.9,
+        6.9
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        2.0,
+        1.4,
+        1.9,
+        2.6,
+        2.7
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1410,
+      1460,
+      1420,
+      1500,
+      1680
+    ],
+    "total_equity": [
+      242,
+      337,
+      390,
+      485,
+      602
+    ],
+    "total_liabilities": [
+      1168,
+      1123,
+      1030,
+      1015,
+      1078
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      410,
+      270,
+      70,
+      80,
+      -60
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        0.71,
+        0.76,
+        0.14,
+        0.14,
+        -0.09
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      58.7,
+      28.5,
+      37.4,
+      45.2,
+      42.7
+    ],
+    "roa": [
+      10.1,
+      6.6,
+      10.3,
+      14.6,
+      15.3
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      2.0,
+      1.4,
+      1.9,
+      2.6,
+      2.7
+    ],
+    "asset_turnover": [
+      4.93,
+      4.64,
+      5.38,
+      5.57,
+      5.65
+    ]
+  },
+  "multiples": {
+    "pe": [
+      3.87,
+      4.41,
+      7.21,
+      4.29,
+      4.52
+    ],
+    "ps": [
+      0.08,
+      0.06,
+      0.14,
+      0.11,
+      0.122
+    ],
+    "pb": [
+      2.27,
+      1.26,
+      2.7,
+      1.95,
+      1.93
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      1.69
+    ],
+    "current": {
+      "pe": 4.52,
+      "ps": 0.122,
+      "pb": 1.93,
+      "ev_ebitda": 1.69,
+      "net_debt_ebitda": -0.09,
+      "roe": 42.7,
+      "as_of": "2026-05-30"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 4.85,
+      "pe_5y_median": 4.41,
+      "period": "2021-2025"
+    },
+    "anomaly_flag": true,
+    "anomaly_note": "EV/EBITDA ~1.7x аномально низкий и малоинформативен для энергосбыта: бизнес asset-light (нет генерации/сетей), почти нулевой чистый долг, основная масса оборота — транзитные платежи. Высокий ROE 40-50% при тонкой марже ~2,5% — следствие малого собственного капитала, а не сверхэффективности. Оценку энергосбыта вести по P/E и дивидендам, EV/EBITDA не использовать."
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 4.52,
+      "ps": 0.122,
+      "pb": 1.93,
+      "ev_ebitda": 1.69,
+      "net_debt_ebitda": -0.09,
+      "roe": 42.7
+    },
+    "2024": {
+      "pe": 4.29,
+      "ps": 0.11,
+      "pb": 1.95,
+      "ev_ebitda": null,
+      "net_debt_ebitda": 0.14,
+      "roe": 45.2
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      9.0,
+      7.0,
+      6.0,
+      5.0,
+      4.0
+    ],
+    "net_profit_growth_pct": [
+      5.0,
+      4.0,
+      4.0,
+      3.5,
+      3.5
+    ],
+    "note": "Брокерское покрытие микрокапа отсутствует. Механический прогноз: рост выручки определяется индексацией тарифов и потреблением в Мордовии, затухает к долгосрочному макротренду. Прибыль ограничена регулируемой сбытовой надбавкой и повышением ставки налога с 20% до 25% с 2025 г. Прогноз ориентировочный."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 21.8,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "Компания не раскрывает CFO/CapEx/FCF; построить достоверный DCF невозможно. Для энергосбыта с тонкой маржой DCF малоинформативен."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.843,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 4.41,
+          "basis": "5y_median",
+          "eps_2025": 0.1911
+        },
+        "note": "Медиана P/E 2021-2025 = 4.41 × EPS 2025 (0.1911 руб). 2023 (P/E 7.2) — выброс, медиана устойчивее."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сектор энергосбытов (TASB, RTSB, KBSB, DASB и др.) ещё не прогнан — медиана мультипликаторов будет добавлена позже."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.876,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "rf": 14.6,
+          "erp": 9.0,
+          "basis": "P/E≈1/Ke × EPS_2025"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 0.693,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "div_2025_per_share": 0.104,
+          "required_yield_base": 0.15,
+          "required_yield_conservative": 0.18
+        },
+        "note": "Энергосбыт — зрелый дивидендный плательщик. Справедливая цена = дивиденд / требуемая дивдоходность. Требуемая доходность для малоликвидного микрокапа взята вблизи ключевой ставки (15-18%). Дивиденды волатильны, payout 22-56%."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.578,
+      "base": 0.843,
+      "current_price": 0.864,
+      "upside_downside_pct": -2.4
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — карточка эмитента MRSB (ISIN, акции, цена)",
+      "period": "2026-05-30",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая РСБУ-отчётность MRSB (выручка, прибыль, капитал, мультипликаторы, ROE, дивиденды)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "companies/MRSB/business_model.md — якоря по выручке/прибыли и структуре бизнеса",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "EBITDA не раскрывается компанией — оценочная (smart-lab), маржа EBITDA и EV/EBITDA производны от оценки.",
+    "CapEx, FCF, денежные потоки (CFO/CFI/CFF) не раскрыты — DCF невозможен (insufficient_data).",
+    "Детальная разбивка себестоимости и сегментов не публикуется.",
+    "total_liabilities получены как total_assets − total_equity (балансировка), не из прямого раскрытия.",
+    "Net profit за 2025 по разным выгрузкам smart-lab расходится (213-268 млн); взято 257 млн как медианное.",
+    "Beta оценочная (0.8): акция малоликвидна, рыночная бета недостоверна; CAPM-таргет ориентировочный.",
+    "EV/EBITDA малоинформативен для энергосбыта (anomaly_flag) — в оценке не используется.",
+    "relative_peers — pending_sector_backfill: медиана по сектору энергосбытов будет добавлена после прогона сектора.",
+    "Дивиденды волатильны (в 2024 за 2023 г. выплата была, payout скачет 22-56%); дивидендная оценка чувствительна к допущению о требуемой доходности."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": 1.41,
+    "upside_downside_pct": 63.2,
+    "status": "reference_only"
+  }
+}

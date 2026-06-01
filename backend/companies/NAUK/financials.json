@@ -1,0 +1,499 @@
+{
+  "meta": {
+    "ticker": "NAUK",
+    "name": "ПАО «Научно-производственное объединение «Наука» (НПО «Наука»)",
+    "sector": "Промышленность / Авиационное приборостроение",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 502.5,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 11789500,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      2390,
+      2320,
+      3200,
+      4860,
+      6090
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      161,
+      321,
+      210,
+      877,
+      1550
+    ],
+    "ebitda": [
+      360,
+      490,
+      510,
+      1180,
+      1920
+    ],
+    "da": [
+      199,
+      169,
+      300,
+      303,
+      370
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -533,
+      104,
+      149,
+      828,
+      1410
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        15.1,
+        21.1,
+        15.9,
+        24.3,
+        31.5
+      ],
+      "operating_margin": [
+        6.7,
+        13.8,
+        6.6,
+        18.0,
+        25.5
+      ],
+      "net_margin": [
+        -22.3,
+        4.5,
+        4.7,
+        17.0,
+        23.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      5940,
+      6740,
+      8580,
+      10800,
+      11600
+    ],
+    "total_equity": [
+      2540,
+      2570,
+      2640,
+      3340,
+      4300
+    ],
+    "total_liabilities": [
+      3400,
+      4170,
+      5940,
+      7460,
+      7300
+    ],
+    "cash": [
+      760,
+      611,
+      1480,
+      1960,
+      646
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      280,
+      116,
+      -960,
+      -1526,
+      -48
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.41,
+        0.28,
+        0.2,
+        0.13,
+        0.14
+      ],
+      "net_debt_ebitda": [
+        0.78,
+        0.24,
+        -1.88,
+        -1.29,
+        -0.03
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      860,
+      410,
+      1200,
+      1000,
+      -964
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      271,
+      162,
+      210,
+      380,
+      621
+    ],
+    "fcf": [
+      589,
+      248,
+      990,
+      620,
+      -1585
+    ],
+    "ratios": {
+      "fcf_margin": [
+        24.6,
+        10.7,
+        30.9,
+        12.8,
+        -26.0
+      ],
+      "cfo_to_capex": [
+        3.17,
+        2.53,
+        5.71,
+        2.63,
+        -1.55
+      ],
+      "capex_to_revenue": [
+        11.3,
+        7.0,
+        6.6,
+        7.8,
+        10.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -21.0,
+      4.0,
+      5.6,
+      24.8,
+      32.8
+    ],
+    "roa": [
+      -9.0,
+      1.5,
+      1.7,
+      7.7,
+      12.2
+    ],
+    "roic": [
+      3.6,
+      7.8,
+      5.3,
+      18.1,
+      24.8
+    ],
+    "ros": [
+      -22.3,
+      4.5,
+      4.7,
+      17.0,
+      23.2
+    ],
+    "asset_turnover": [
+      0.4,
+      0.34,
+      0.37,
+      0.45,
+      0.53
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      4.2
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.97
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      1.38
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      3.06
+    ],
+    "current": {
+      "pe": 4.2,
+      "ps": 0.97,
+      "pb": 1.38,
+      "ev_ebitda": 3.06,
+      "ev_sales": 0.97,
+      "p_fcf": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025; медиана P/E искажена (убыток 2021, низкая база прибыли 2022-2023) — не использовалась как опорная"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      18.0,
+      14.0,
+      10.0,
+      7.0,
+      5.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерское покрытие отсутствует (малоликвидный эмитент 3-го уровня листинга). Прогноз механический: средний рост выручки 2021-2025 высокий, заложено затухание к долгосрочному тренду 5%. Источник роста — серийные программы импортозамещения в авиапроме (МС-21, SJ-100, Ту-214) и гособоронзаказ; темпы зависят от графика выпуска самолётов."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 584,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "ke_basis": "Ke = 14.6 + 1.1*9.0 = 24.5%; beta=1.1 (малоликвидный small-cap); чистый долг ~0 => WACC ≈ Ke",
+          "base_fcf_mln": 1045,
+          "base_fcf_note": "FCF нормализован: NOPAT(2025, ставка 25%) + амортизация − нормализованный CapEx 8% выручки. Фактический FCF 2025 отрицателен из-за разовой просадки оборотного капитала и пика капзатрат — для DCF не использован напрямую."
+        },
+        "tv_share_of_value_pct": 41.9,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median",
+          "note": "Не применён: история P/E нерепрезентативна — убыток 2021, аномально высокие P/E 2022-2023 на низкой базе прибыли. Медиана даёт завышенный выброс."
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 488,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "note": "Целевой ориентир P/E ≈ 1/Ke = 4.08; цена = 4.08 × EPS(2025) 119.6 ₽. Горизонт 12 мес."
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "last_dps": 16.01,
+          "note": "Не применён как опорный: дивиденды нерегулярны (нет утверждённой дивполитики), выплата 2025 (16.01 ₽) разово повышена. Требуемая дивдоходность 16% дала бы заниженную оценку ~100 ₽."
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 439,
+      "base": 536,
+      "current_price": 502.5,
+      "upside_downside_pct": 6.7
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        22.0,
+        24.5,
+        27.0
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          647,
+          665,
+          686
+        ],
+        [
+          570,
+          584,
+          598
+        ],
+        [
+          510,
+          520,
+          530
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели НПО Наука (NAUK), МСФО",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка бумаги NAUK (ISIN RU000A0JRPX9, выпуск 11 789 500 акций, листинг 3 ур.) и котировки TQBR",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md (раскрытие РСБУ 2023-2024, профиль эмитента) — подтверждение эмитента и сверка якорей выручки/прибыли",
+      "period": "2023-2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Компания не публикует МСФО официально в удобном виде — ряды 2021-2025 взяты с агрегатора smart-lab (reliability medium); EBITDA, операционная прибыль и D&A — расчётные/агрегаторные оценки, официально построчно не раскрыты.",
+    "COGS, валовая прибыль, OpEx, finance_costs, структура долга (кратко-/долгосрочный), CFI, CFF не раскрыты построчно — null.",
+    "data_quality=medium: только 5 лет, без МСФО-первоисточника, малоликвидный эмитент 3-го уровня листинга, free-float ~6% (АО «ГК Наука» ~93,7%).",
+    "FCF 2025 резко отрицателен (−1585 млн) из-за разовой просадки CFO и пика CapEx — для DCF использован нормализованный FCF, не фактический.",
+    "net_debt 2025 ≈ 0 (−48 млн): денежная подушка 2023-2024 (−960/−1526) частично израсходована в 2025 (рост запасов/авансов под заказы).",
+    "Историческая P/E-оценка и дивидендная оценка не применены (нерепрезентативная база) — итоговый коридор шире из-за малого числа надёжных методов.",
+    "relative_peers — pending_sector_backfill: медиана сектора авиаприборостроения будет добавлена после прогона остальных эмитентов сектора (UNAC, IRKT, ZVEZ и др.).",
+    "Сверка кодом: net_debt = долг − кэш ✓; fcf = cfo − capex ✓; маржи и мультипликаторы пересчитаны от цены 502.5 ₽ × 11 789 500 акций (mcap ≈ 5924 млн, EV ≈ 5876 млн)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

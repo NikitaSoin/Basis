@@ -1,0 +1,510 @@
+{
+  "meta": {
+    "ticker": "NKHP",
+    "name": "ПАО «Новороссийский комбинат хлебопродуктов»",
+    "sector": "Агро / зерновая инфраструктура",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 490.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 67597000,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      6380,
+      4960,
+      9240,
+      11200,
+      7660
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      3020,
+      2450,
+      5830,
+      7240,
+      3620
+    ],
+    "ebitda": [
+      3320,
+      2750,
+      6160,
+      7840,
+      4210
+    ],
+    "da": [
+      300,
+      300,
+      330,
+      600,
+      590
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      2380,
+      1960,
+      4890,
+      6410,
+      3260
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        52.0,
+        55.4,
+        66.7,
+        70.0,
+        55.0
+      ],
+      "operating_margin": [
+        47.3,
+        49.4,
+        63.1,
+        64.6,
+        47.3
+      ],
+      "net_margin": [
+        37.3,
+        39.5,
+        52.9,
+        57.2,
+        42.6
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      11300,
+      12500,
+      16900,
+      18400,
+      19300
+    ],
+    "total_equity": [
+      9210,
+      11200,
+      13100,
+      15900,
+      17800
+    ],
+    "total_liabilities": [
+      2090,
+      1300,
+      3800,
+      2500,
+      1500
+    ],
+    "cash": [
+      902,
+      1360,
+      4600,
+      6320,
+      6640
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      320,
+      -1000,
+      -3930,
+      -6220,
+      -6640
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.13,
+        0.03,
+        0.05,
+        0.01,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        0.1,
+        -0.36,
+        -0.64,
+        -0.79,
+        -1.58
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      2520,
+      2480,
+      4970,
+      6990,
+      1460
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      760,
+      1130,
+      1290,
+      640,
+      506
+    ],
+    "fcf": [
+      1760,
+      1350,
+      3680,
+      6350,
+      954
+    ],
+    "ratios": {
+      "fcf_margin": [
+        27.6,
+        27.2,
+        39.8,
+        56.7,
+        12.5
+      ],
+      "cfo_to_capex": [
+        3.32,
+        2.19,
+        3.85,
+        10.92,
+        2.89
+      ],
+      "capex_to_revenue": [
+        11.9,
+        22.8,
+        14.0,
+        5.7,
+        6.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      25.8,
+      17.5,
+      37.3,
+      40.3,
+      18.3
+    ],
+    "roa": [
+      21.1,
+      15.7,
+      28.9,
+      34.8,
+      16.9
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      37.3,
+      39.5,
+      52.9,
+      57.2,
+      42.6
+    ],
+    "asset_turnover": [
+      0.56,
+      0.4,
+      0.55,
+      0.61,
+      0.4
+    ]
+  },
+  "multiples": {
+    "pe": [
+      8.23,
+      9.95,
+      13.8,
+      6.17,
+      10.2
+    ],
+    "ps": [
+      3.07,
+      3.93,
+      7.3,
+      3.53,
+      4.34
+    ],
+    "pb": [
+      2.13,
+      1.74,
+      5.14,
+      2.49,
+      1.87
+    ],
+    "ev_ebitda": [
+      6.0,
+      6.73,
+      10.3,
+      4.25,
+      6.33
+    ],
+    "current": {
+      "pe": 10.16,
+      "ps": 4.32,
+      "pb": 1.86,
+      "ev_ebitda": 6.29,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 9.71,
+      "pe_5y_median": 9.95,
+      "period": "2021-2025"
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      5,
+      5,
+      5,
+      4,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Профессионального брокерского консенсуса по NKHP не найдено. Прогноз механический: умеренный рост выручки ~5% на горизонте 2026-2028 с затуханием к 3.5% (ввод нового причала, мощность до 11,6 млн т в 2026), при допущении нейтрального экспортного режима. Сильно зависит от урожая и квот/пошлин — фактический результат может резко отклоняться (операционный рычаг)."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 423,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 20.9,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "base_fcf_mln": 3500,
+          "note": "Нормализованный mid-cycle FCF 3.5 млрд (между провальным 2025 и рекордным 2024), рост 5% затухающий"
+        },
+        "tv_share_of_value_pct": 46.8,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 480,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 9.95,
+          "basis": "5y_median",
+          "note": "× EPS 2025 = 48.2 ₽. 2025 — слабая база, занижает оценку"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 231,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 20.9,
+          "beta": 0.7,
+          "note": "Ориентир P/E≈1/Ke=4.8 × EPS 2025. При высокой ОФЗ 14.6% метод даёт жёсткий пол; чувствителен к нормализации прибыли"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 170,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "required_div_yield_pct": 17.4,
+          "payout": 0.5,
+          "normalized_div_per_share": 29.6,
+          "note": "Гордон по дивидендам: норм. дивиденд ~29.6 ₽ / требуемую дивдоходность (Ke−g=17.4%). При текущих ставках требуемая доходность очень высокая → консервативный пол"
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 170,
+      "base": 327,
+      "current_price": 490.0,
+      "upside_downside_pct": -33.3
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        18.9,
+        20.9,
+        22.9
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          470,
+          440,
+          415
+        ],
+        [
+          455,
+          423,
+          395
+        ],
+        [
+          440,
+          408,
+          378
+        ]
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — котировка и число акций NKHP (TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — МСФО NKHP (выручка, EBITDA, прибыль, долг, капитал, дивиденды, мультипликаторы)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Smart-Lab — денежные потоки NKHP (CFO, CapEx, FCF, кэш)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "Т-Инвестиции / форум — справедливая цена 400-420 ₽ (DCF одного инвестора, не консенсус)",
+      "period": "2026-05",
+      "reliability": "low"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md NKHP (сегменты, объёмы перевалки, структура)",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "COGS/валовая прибыль/операционные расходы постатейно из агрегатора не разделены — null (gross_margin недоступна напрямую).",
+    "Финансовые доходы/расходы и разбивка долга на кратко-/долгосрочный не раскрыты в источнике — null. Долг почти нулевой, чистая денежная позиция.",
+    "net_change_in_cash и CFI/CFF не извлечены из агрегатора — null.",
+    "АНОМАЛИЯ 2025: выручка −31.6%, чистая прибыль −49.1% г/г. Причина внешняя/цикличная — экспортная квота на зерно (15.02-30.06.2025) обвалила перевалку с 8,4 до 5,3 млн т. НЕ структурное ухудшение бизнеса, а операционный рычаг при падении объёма. EPS 2025 (48.2 ₽) — слабая база, занижает оценки от прибыли.",
+    "relative_peers = pending_sector_backfill: peers.json по зерновой/агроинфраструктуре ещё не собран.",
+    "Брокерского консенсуса нет → прогноз механический, коридор оценки намеренно широкий (170-480 ₽).",
+    "При текущей ОФЗ 14.6% и ERP 9% Ke≈21% делает все доходные методы (CAPM, дивидендный) жёсткими — они тянут нижнюю границу; верх дают DCF и историч. P/E.",
+    "Число акций по годам в агрегаторе колебалось (67.1-67.6 млн) — взято актуальное MOEX 67 597 000."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

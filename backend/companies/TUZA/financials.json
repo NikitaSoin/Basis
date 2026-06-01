@@ -1,0 +1,497 @@
+{
+  "meta": {
+    "ticker": "TUZA",
+    "name": "ПАО «Туймазинский завод автобетоновозов» (ТЗА)",
+    "sector": "machinery",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 105.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 8220000,
+    "data_quality": "low",
+    "data_quality_note": "Малоликвидный микрокап, отчётность только РСБУ, сегментные и постатейные данные раскрываются скупо. EBITDA/амортизация/денежные потоки реконструированы из агрегатора smart-lab (не из первичного отчёта), требуют ручной проверки. Текущая цена и капитализация — с MOEX ISS (TQBR) на 2026-06-01.",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      2730,
+      5780,
+      10900,
+      13100,
+      4190
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      12350,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      750,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      119,
+      400,
+      621,
+      406,
+      -608
+    ],
+    "ebitda": [
+      null,
+      418,
+      636,
+      565,
+      -531
+    ],
+    "da": [
+      null,
+      18,
+      15,
+      159,
+      77
+    ],
+    "finance_costs": [
+      null,
+      null,
+      13,
+      0,
+      null
+    ],
+    "net_profit": [
+      248,
+      292,
+      494,
+      457,
+      -434
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        5.73,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        7.23,
+        5.83,
+        4.31,
+        -12.67
+      ],
+      "operating_margin": [
+        4.36,
+        6.92,
+        5.7,
+        3.1,
+        -14.51
+      ],
+      "net_margin": [
+        9.08,
+        5.05,
+        4.53,
+        3.49,
+        -10.36
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1100,
+      2000,
+      4010,
+      4560,
+      2510
+    ],
+    "total_equity": [
+      286,
+      611,
+      1110,
+      1560,
+      1130
+    ],
+    "total_liabilities": [
+      814,
+      1389,
+      2900,
+      3000,
+      1380
+    ],
+    "cash": [
+      1,
+      1,
+      1,
+      610,
+      29
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      -1,
+      87,
+      319,
+      -610,
+      369
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        0.14,
+        0.29,
+        0.0,
+        0.35
+      ],
+      "net_debt_ebitda": [
+        null,
+        0.21,
+        0.5,
+        -1.08,
+        -0.69
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      -77,
+      -134,
+      1030,
+      -920
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      7,
+      80,
+      72,
+      7
+    ],
+    "fcf": [
+      null,
+      -84,
+      -214,
+      958,
+      -927
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        -1.45,
+        -1.96,
+        7.31,
+        -22.12
+      ],
+      "cfo_to_capex": [
+        null,
+        -11.0,
+        -1.68,
+        14.31,
+        -131.43
+      ],
+      "capex_to_revenue": [
+        null,
+        0.12,
+        0.73,
+        0.55,
+        0.17
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      86.71,
+      47.79,
+      44.5,
+      29.29,
+      -38.41
+    ],
+    "roa": [
+      22.55,
+      14.6,
+      12.32,
+      10.02,
+      -17.29
+    ],
+    "roic": [
+      33.29,
+      45.78,
+      34.74,
+      20.82,
+      -29.84
+    ],
+    "ros": [
+      9.08,
+      5.05,
+      4.53,
+      3.49,
+      -10.36
+    ],
+    "asset_turnover": [
+      2.48,
+      2.89,
+      2.72,
+      2.87,
+      1.67
+    ]
+  },
+  "multiples": {
+    "pe": [
+      4.8,
+      2.57,
+      3.16,
+      3.59,
+      null
+    ],
+    "ps": [
+      0.44,
+      0.13,
+      0.14,
+      0.13,
+      0.24
+    ],
+    "pb": [
+      4.16,
+      1.23,
+      1.41,
+      1.05,
+      0.9
+    ],
+    "ev_ebitda": [
+      null,
+      2.0,
+      2.95,
+      1.82,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": 0.21,
+      "pb": 0.76,
+      "ev_ebitda": null,
+      "nd_ebitda": -0.69,
+      "roe": -38.41,
+      "as_of": "2026-06-01"
+    },
+    "current_note": "Текущие мультипликаторы рассчитаны на последний период (2025), который аномален: P/E и EV/EBITDA отрицательны при чистом убытке и отрицательной EBITDA — не используются. ND/EBITDA = -0.69 формально отрицателен, но при отрицательной EBITDA не имеет экономического смысла (фактически у компании небольшой чистый долг 369 млн). Информативны только P/S=0.21 и P/B=0.76.",
+    "historical_avg": {
+      "pe_5y_avg": 3.53,
+      "pe_5y_median": 3.38,
+      "period": "2021-2024, прибыльные годы (2025 убыточный исключён)"
+    }
+  },
+  "peer_multiples": {
+    "_note": "Заготовка для секторного сравнения (machinery). Заполняется при backfill сектора. ev_ebitda/pe — медианы сектора.",
+    "2025": {
+      "ev_ebitda": null,
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "roe": null,
+      "net_margin": null
+    },
+    "2024": {
+      "ev_ebitda": null,
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "roe": null,
+      "net_margin": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Покрытия аналитиками нет (микрокап, малоликвид). История нерепрезентативна: бурный рост 2021-2024, затем обвал выручки в 3.1 раза и чистый убыток в 2025. Прогноз построить нельзя — source_type='none'. DCF → insufficient_data, оценка только по мультипликаторам на нормализованной базе."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "FCF волатилен и в 2025 резко отрицателен (-927 млн), прогноз невозможен, аналитического покрытия нет. DCF не применяется."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 187.91,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 3.38,
+          "basis": "медиана P/E 2021-2024 (прибыльные годы) × нормализованная прибыль на акцию",
+          "normalized_net_profit_mln": 457,
+          "normalized_eps": 55.6
+        },
+        "note": "2025 убыточный — оценка на нормализованной прибыли (медиана 2022-2024 = 457 млн). P/E медиана устойчивее к выбросам."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана мультипликаторов сектора machinery ещё не собрана. Заполнить после прогона сектора."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 218.88,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.254,
+          "beta": 1.2,
+          "implied_fair_pe": 3.94,
+          "basis": "целевой P/E ≈ 1/Ke × нормализованная EPS",
+          "normalized_eps": 55.6
+        },
+        "note": "Ke = 14.6% + 1.2×9.0% = 25.4%. Бета 1.2 — повышенный риск микрокапа/малоликвида. Таргет на 12 мес на нормализованной прибыли."
+      },
+      {
+        "method": "book_value",
+        "fair_value_per_share": 137.47,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 1.0,
+          "book_value_per_share": 137.47,
+          "basis": "капитал 1130 млн / 8.22 млн акций, при справедливом P/B≈1.0 для низкорентабельного машиностроения"
+        },
+        "note": "Балансовая опора снизу: при текущей цене 105 ₽ акция торгуется ниже балансовой стоимости (P/B=0.76)."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 137.47,
+      "base": 187.91,
+      "current_price": 105.0,
+      "upside_downside_pct": 79.0,
+      "upside_conservative_pct": 30.9,
+      "note": "Коридор 137–188 ₽ построен на нормализованной (докризисной) прибыли и балансе; реализуется ТОЛЬКО при восстановлении загрузки завода до уровня 2022-2024. При сохранении убыточности 2025 года оценка ближе к нижней границе / балансу. Оценка ненадёжна (data_quality=low)."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "2025 год аномален: выручка упала в ~3.1 раза (13.1 → 4.19 млрд ₽), впервые чистый убыток -434 млн ₽, отрицательная EBITDA -531 млн ₽, отрицательный FCF -927 млн ₽. Текущие P/E и EV/EBITDA отрицательны и неинформативны, ND/EBITDA при отрицательной EBITDA не имеет смысла. Вся оценка строится на нормализованной (2022-2024) базе; коридор справедливой цены условен.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — котировки и капитализация TUZA (TQBR), ISIN RU000A0HL7A2, 8.22 млн акций",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая РСБУ-отчётность ТЗА (выручка, прибыль, EBITDA, баланс, денежные потоки, мультипликаторы)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business-gazeta.ru / ati.su — итоги 2025 (убыток 434.2 млн ₽, выручка -3.1x)",
+      "period": "2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/TUZA/business_model.md — согласование тикера, сегментов, валюты",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: микрокап, малоликвид, только РСБУ, скупое раскрытие.",
+    "EBITDA, амортизация (DA), CFO, CapEx, FCF взяты из агрегатора smart-lab, а НЕ из первичного отчёта — требуют сверки по аудированной РСБУ-отчётности e-disclosure.",
+    "Структура себестоимости (COGS) раскрыта только агрегированно за 2024 (12 350 млн); разбивка по статьям не публикуется.",
+    "Деление долга на короткий/длинный, current_ratio, cfi/cff не раскрыты — null.",
+    "DA 2024 = 159 млн (ebitda - op_profit) выглядит высоким на фоне ~0 в бизнес-модели; вероятно в EBITDA smart-lab включены прочие доходы/господдержка — проверить вручную.",
+    "Текущая цена: MOEX ISS даёт ~105 ₽ (кап. 863 млн) на 2026-06-01; отдельные агрегаторы показывали ~163 ₽ (вероятно устаревшая внутримесячная котировка) — взята цена MOEX как первичная.",
+    "relative_peers — status pending_sector_backfill: peer_multiples и медианы сектора machinery ещё не собраны.",
+    "Вся справедливая оценка опирается на НОРМАЛИЗОВАННУЮ прибыль (2022-2024); при затяжной просадке заказов недостижима."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

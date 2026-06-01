@@ -459,10 +459,10 @@
     "peers.json по банковскому сектору не собран — relative_peers в статусе pending_sector_backfill"
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 264.34,
     "upside_downside_pct": -14.6,
-    "status": "ok",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "ok"
   }
 }

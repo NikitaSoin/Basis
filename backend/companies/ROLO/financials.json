@@ -748,10 +748,10 @@
     "Оценка справедливой стоимости не выводится надёжно: убыток, отрицательная EBITDA/FCF, почти нулевой капитал, экстремальный долг."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": null,
     "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "insufficient_data"
   }
 }

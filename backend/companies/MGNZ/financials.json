@@ -1,0 +1,602 @@
+{
+  "meta": {
+    "ticker": "MGNZ",
+    "name": "ПАО «Соликамский магниевый завод» (СМЗ)",
+    "sector": "metals_mining",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 7440,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 398272,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Глубокий разворот в убыток: EBITDA отрицательная в 2024 (-898 млн) и 2025 (-2 220 млн), чистый убыток 2025 -2 940 млн при выручке 9 580 млн. Поэтому EV/EBITDA (-2.9), P/E (-1.0) и DCF не имеют экономического смысла — знаменатели отрицательны. Чистый долг вырос с -1.06 млрд (2023) до +3.47 млрд (2025), ND/EBITDA отрицателен и нечитаем. Капитал за 2025 сжался почти вдвое (6.0 → 3.06 млрд). КОРПОРАТИВНЫЙ КОНФЛИКТ / СМЕНА СОБСТВЕННИКА: по иску Генпрокуратуры (2022) у частных акционеров изъято 89.5% акций в пользу государства, пакет передан в контур «Росатома»; оставшиеся ~10.5% акций миноритариев также взысканы в пользу государства. Риски: принудительный выкуп/делистинг, подчинение корпполитики госзадачам, дивиденды за 2024 не рекомендованы. Рыночная капитализация (~2.96 млрд) ниже балансового капитала. Оценка через EV/EBITDA, P/E и DCF неприменима; единственный читаемый ориентир — P/BV к активам с дисконтом за убытки и корпоративный риск."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      9190,
+      13100,
+      12400,
+      11000,
+      9580
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      990,
+      4330,
+      1040,
+      -898,
+      -2220
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      730,
+      3650,
+      1150,
+      -907,
+      -2940
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        10.8,
+        33.1,
+        8.4,
+        -8.2,
+        -23.2
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        7.9,
+        27.9,
+        9.3,
+        -8.2,
+        -30.7
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      6120,
+      9810,
+      9470,
+      8580,
+      8070
+    ],
+    "total_equity": [
+      null,
+      null,
+      3860,
+      7520,
+      6910,
+      6000,
+      3060
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      2260,
+      2290,
+      2560,
+      2580,
+      5010
+    ],
+    "cash": [
+      null,
+      null,
+      1190,
+      3430,
+      2160,
+      231,
+      156
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      -130,
+      -2330,
+      -1060,
+      870,
+      3470
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.27,
+        0.15,
+        0.16,
+        0.18,
+        1.19
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -0.13,
+        -0.54,
+        -1.02,
+        -0.97,
+        -1.56
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      960,
+      2430,
+      340,
+      -1680,
+      -2350
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      264,
+      390,
+      690,
+      627,
+      693
+    ],
+    "fcf": [
+      null,
+      null,
+      696,
+      2040,
+      -350,
+      -2307,
+      -3043
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        7.6,
+        15.6,
+        -2.8,
+        -21.0,
+        -31.8
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        3.64,
+        6.23,
+        0.49,
+        -2.68,
+        -3.39
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        2.9,
+        3.0,
+        5.6,
+        5.7,
+        7.2
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      18.9,
+      48.5,
+      16.6,
+      -15.1,
+      -96.1
+    ],
+    "roa": [
+      null,
+      null,
+      11.9,
+      37.2,
+      12.1,
+      -10.6,
+      -36.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      7.9,
+      27.9,
+      9.3,
+      -8.2,
+      -30.7
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      1.5,
+      1.34,
+      1.31,
+      1.28,
+      1.19
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      4.06,
+      0.81,
+      2.58,
+      -3.27,
+      -1.01
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.31
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.97
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -2.9
+    ],
+    "current": {
+      "pe": -1.01,
+      "ps": 0.31,
+      "pb": 0.97,
+      "ev_ebitda": -2.9,
+      "ev_sales": 0.67,
+      "fcf_yield": -102.7,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 2.58,
+      "period": "2021-2025, медиана только по положительным годам (2021-2023); 2024-2025 убыточны и исключены"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -1.01,
+      "ps": 0.31,
+      "pb": 0.97,
+      "ev_ebitda": -2.9,
+      "ev_sales": 0.67,
+      "net_margin": -30.7
+    },
+    "2024": {
+      "pe": -3.27,
+      "ps": 0.27,
+      "pb": 0.49,
+      "ev_ebitda": -0.97,
+      "ev_sales": 0.3,
+      "net_margin": -8.2
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор metals_mining ещё не прогнан целиком — медианные мультипликаторы сектора недоступны. Кроме того, для MGNZ относительная оценка по EV/EBITDA неприменима из-за отрицательной EBITDA; при появлении peers.json использовать P/BV или EV/Sales с дисконтом за убыточность и корпоративный риск."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерское покрытие отсутствует (малоликвидный актив, листинг 3 уровня, фактический госконтроль). История нерепрезентативна: пик 2022, разворот в убыток 2024-2025. Механический прогноз бессмыслен — траектория определяется не рынком, а инвестиционной/ценовой политикой нового государственного собственника («Росатом»), которая раскрывается ограниченно. source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 25.4,
+          "terminal_growth": 3.5,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.58,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Текущая прибыль на акцию отрицательна (EPS25 ≈ -7382 руб), умножение на медианный P/E даёт отрицательную/бессмысленную цену. Метод неприменим до возврата к прибыли."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 25.4,
+          "beta": 1.2
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6% + 1.2×9.0% = 25.4%. Дать таргет нельзя без прогноза прибыли/дивиденда; компания убыточна, дивиденды за 2024 не рекомендованы."
+      },
+      {
+        "method": "pbv_book",
+        "fair_value_per_share": 4226,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps_2025": 7683,
+          "pbv_base": 0.55,
+          "pbv_conservative": 0.3,
+          "rationale": "ROE отрицателен (-96% в 2025), поэтому справедливый P/BV сильно ниже 1x. Базовый 0.55x отражает остаточную ценность РЗЭ/ниобий/танталового передела при дисконте за убытки; консервативный 0.30x — давление национализации, риск списаний и принуждённого выкупа миноритариев."
+        },
+        "status": "ok_low_confidence"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2305,
+      "base": 4226,
+      "current_price": 7440,
+      "upside_downside_pct": -43.2
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "iss.moex.com — карточка бумаги MGNZ (issuesize 398 272, реф. цена 7 440 руб, листинг 3 ур.)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО MGNZ (выручка, EBITDA, прибыль, активы, капитал, долг, CFO, CapEx) 2021-2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "Интерфакс / e-disclosure — чистый убыток 2024 -907 млн руб МСФО (национализация, контур Росатома)",
+      "period": "2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab.news / Коммерсантъ — 1П2025 убыток ×5 г/г; СД рекомендует не платить дивиденды за 2024",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "business_model.md MGNZ — сегменты, структура выручки, история национализации",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: загруженных файлов в sources/ нет, всё собрано из веба (MOEX, smart-lab, Интерфакс, e-disclosure-контекст). Цифры МСФО — агрегатор smart-lab, первичной отчётностью построчно не верифицированы.",
+    "Ряды 2019-2020 отсутствуют (smart-lab раскрывает с 2021); fiscal_years оставлены полными, значения null.",
+    "Расхождение FCF: пересчёт fcf=CFO−CapEx даёт 696/2040/-350/-2307/-3043 млн против smart-lab FCF 552/2260/-10/-1950/-2500. Вероятно у агрегатора в CapEx входят НМА/аренда или иной знак статей. Использованы пересчитанные значения; расхождение помечено.",
+    "EBITDA отрицательна в 2024-2025 → EV/EBITDA и ND/EBITDA нечитаемы (отрицательные знаменатели), приведены формально со знаком.",
+    "P/E текущий и за 2024-2025 отрицателен (убытки) — для оценки не использовать.",
+    "Детализация P&L (COGS, gross profit, opex, D&A, проценты) и cash flow (CFI, CFF) у агрегатора не раскрыта построчно — null.",
+    "Shares_outstanding=398 272 (issuesize MOEX). Free-float крайне мал: ~89.5%+10.5% изъято в пользу государства; рыночная цена формируется на тонком рынке (LAST сегодня null, взята реф. цена).",
+    "anomaly_flag=true. Корпоративный конфликт/национализация (иск Генпрокуратуры, передача Росатому, взыскание долей миноритариев) — главный риск; см. anomaly_note.",
+    "relative_peers: status=pending_sector_backfill — медианы сектора metals_mining появятся после прогона всего сектора."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

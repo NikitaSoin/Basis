@@ -1,0 +1,484 @@
+{
+  "meta": {
+    "ticker": "GECO",
+    "name": "ПАО ЦГРМ «ГЕНЕТИКО»",
+    "sector": "healthcare",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 17.69,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 83000000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      397.0,
+      312.0,
+      346.0,
+      425.9,
+      553.1
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      -312.7,
+      -462.0
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      113.2,
+      91.0
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      -106.7,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      -15.1,
+      6.6,
+      null
+    ],
+    "ebitda": [
+      24.0,
+      -57.0,
+      null,
+      56.1,
+      -4.0
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      -30.9,
+      null
+    ],
+    "net_profit": [
+      -136.0,
+      -78.0,
+      -35.0,
+      -13.3,
+      -66.1
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        26.6,
+        16.5
+      ],
+      "ebitda_margin": [
+        6.0,
+        -18.3,
+        null,
+        13.2,
+        -0.7
+      ],
+      "operating_margin": [
+        null,
+        null,
+        -4.4,
+        1.5,
+        null
+      ],
+      "net_margin": [
+        -34.3,
+        -25.0,
+        -10.1,
+        -3.1,
+        -12.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      816.0,
+      794.0,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      526.0,
+      472.0,
+      null,
+      423.7,
+      357.6
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      0.0
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      145.0,
+      0.0
+    ],
+    "net_debt": [
+      160.0,
+      197.0,
+      null,
+      null,
+      0.0
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        6.7,
+        null,
+        null,
+        null,
+        0.0
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      -3.1,
+      -18.5
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -34.3,
+      -25.0,
+      -10.1,
+      -3.1,
+      -12.0
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      -110.4,
+      -22.2
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      3.45,
+      2.65
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      3.47,
+      4.11
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      26.2,
+      -367.1
+    ],
+    "current": {
+      "pe": -22.2,
+      "ps": 2.65,
+      "pb": 4.11,
+      "ev_ebitda": -367.1,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "P/E не репрезентативен — компания убыточна весь период"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -22.2,
+      "ps": 2.65,
+      "pb": 4.11,
+      "ev_ebitda": -367.1,
+      "nd_ebitda": 0.0,
+      "roe": -18.5
+    },
+    "2024": {
+      "pe": -110.4,
+      "ps": 3.45,
+      "pb": 3.47,
+      "ev_ebitda": 26.2,
+      "nd_ebitda": 0.0,
+      "roe": -3.1
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Выручка +29.9% г/г (553 млн ₽), но EBITDA обрушилась с 56,1 млн (2024) до ~0/отрицательной, а чистый убыток вырос почти в 5 раз — до -66,1 млн. P/E и EV/EBITDA отрицательны и не интерпретируемы — оценка опирается только на P/S. Причина — себестоимость и коммерческие расходы росли быстрее выручки при запуске новых продуктов. Венчурный микрокап-профиль: оценивается по выручке/портфелю, прибыль тонкая/отрицательная.",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Покрытия аналитиков с публичным таргетом нет. История нерепрезентативна (хронический убыток, разворот EBITDA в минус в 2025) — механический прогноз дал бы ложную точность. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ps",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "ps_anchor",
+        "fair_value_per_share": 19.99,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_conservative": 1.5,
+          "ps_base": 3.0,
+          "revenue_basis_mln": 553.1
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 10.0,
+      "base": 19.99,
+      "current_price": 17.69,
+      "upside_downside_pct": -43.5
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ГЕНЕТИКО — раскрытие РСБУ 2024/2025 (e-disclosure), реконструкция в business_model.md",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финпоказатели и число акций (83 млн)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "broker",
+      "title": "Т-Инвестиции / banki.ru — котировка GECO 17,69 ₽",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "iss.moex.com — тикер GECO, цена/объём торгов",
+      "period": "2026-06-01",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: компания публикует только РСБУ; МСФО консолидируется у материнской «Артген биотех». Денежные потоки (CFO/CFI/CFF, CapEx, FCF) не раскрыты — весь блок cash_flow = null.",
+    "EBITDA 2025 — оценка ~0/отрицательная: business_model даёт 9М2025 EBITDA 21,2 млн, агрегаторы — FY ~-4 млн; за год эффект 4-го квартала ушёл в минус. Перепроверить по итоговому годовому отчёту.",
+    "Капитал 2024-2025 не раскрыт явно — реконструирован от equity 2022 (472 млн) минус накопленные убытки; P/B и ROE 2024-2025 поэтому ОЦЕНОЧНЫ.",
+    "COGS/валовая прибыль 2024 (312,7 / 113,2) — из релиза; 2025 (~462 / ~91) — реконструкция, помечена в business_model как оценка.",
+    "Net_debt 2025 = 0: облигационный заём 145 млн полностью погашен в июне 2025; долговой нагрузки больше нет.",
+    "P/E и EV/EBITDA отрицательны → не интерпретируемы. Оценка только по P/S; relative_peers — pending_sector_backfill (нет peers.json по healthcare).",
+    "Оценка по P/S-якорям (1,5x-3x) — экспертные границы до появления секторных медиан; коридор широкий из-за венчурного профиля."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 7.18,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

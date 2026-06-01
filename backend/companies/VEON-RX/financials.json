@@ -1,0 +1,629 @@
+{
+  "meta": {
+    "ticker": "VEON-RX",
+    "name": "VEON Ltd (расписки)",
+    "sector": "telecom",
+    "profile": "standard",
+    "currency": "USD",
+    "currency_note": "Отчётность VEON Ltd — в долларах США. Расписки VEON-RX торгуются на МосБирже в РУБ. Цена/мультипликаторы сведены в USD; коридор справедливой цены конвертирован в РУБ по курсу USD/RUB 71.0224 (2026-05-30).",
+    "unit": "млн",
+    "reporting_standard": "МСФО (IFRS)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 58.1,
+    "last_price_currency": "RUB",
+    "price_date": "2026-05-30",
+    "shares_outstanding": 1749127404,
+    "fx_usdrub": 71.0224,
+    "data_quality": "low",
+    "data_quality_note": "Профиль НИЗКОГО качества данных: загруженных файлов нет, история (2019-2023) собрана из агрегатора (StockTitan) и округлена; ряды до/после деконсолидации РФ (2023) несопоставимы; 2024 в USD частично выведен из раскрытых темпов роста; брокерского покрытия расписок VEON-RX нет.",
+    "data_source_priority": [
+      "official_report",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      3500,
+      3900,
+      3800,
+      3700,
+      4004,
+      4399
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      1691,
+      2009
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      -316,
+      801,
+      -9,
+      -2450,
+      487,
+      591
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        42.2,
+        45.7
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        -9.0,
+        20.5,
+        -0.2,
+        -66.2,
+        12.2,
+        13.4
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      14600,
+      15900,
+      15100,
+      8200,
+      8000,
+      9200
+    ],
+    "total_equity": [
+      null,
+      1000,
+      1500,
+      767,
+      1100,
+      1300,
+      1600
+    ],
+    "total_liabilities": [
+      null,
+      13600,
+      14400,
+      14333,
+      7100,
+      6700,
+      7600
+    ],
+    "cash": [
+      null,
+      1700,
+      2300,
+      3100,
+      1900,
+      1700,
+      1734
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3100
+    ],
+    "net_debt": [
+      null,
+      6000,
+      5300,
+      3600,
+      1800,
+      1600,
+      1366
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        7.7,
+        5.07,
+        8.74,
+        3.36,
+        2.54,
+        1.94
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        0.95,
+        0.68
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      2400,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      550,
+      699,
+      634,
+      531,
+      627,
+      930
+    ],
+    "fcf": [
+      null,
+      1850,
+      null,
+      null,
+      null,
+      null,
+      624
+    ],
+    "fcf_note": "2025 — equity FCF (после процентов/аренды) из релиза = 624 млн USD; 2020 — FCF=CFO−CapEx по единственной доступной точке CFO. Сопоставимого ряда FCFF нет.",
+    "ratios": {
+      "fcf_margin": [
+        null,
+        52.9,
+        null,
+        null,
+        null,
+        null,
+        14.2
+      ],
+      "cfo_to_capex": [
+        null,
+        4.36,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        15.7,
+        17.9,
+        16.7,
+        14.4,
+        15.7,
+        21.1
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      -31.6,
+      53.4,
+      -1.2,
+      -222.7,
+      37.5,
+      36.9
+    ],
+    "roa": [
+      null,
+      -2.2,
+      5.0,
+      -0.1,
+      -29.9,
+      6.1,
+      6.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      -9.0,
+      20.5,
+      -0.2,
+      -66.2,
+      12.2,
+      13.4
+    ],
+    "asset_turnover": [
+      null,
+      0.24,
+      0.25,
+      0.25,
+      0.45,
+      0.5,
+      0.48
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      2.42
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.33
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.89
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.39
+    ],
+    "current": {
+      "pe": 2.42,
+      "ps": 0.33,
+      "pb": 0.89,
+      "ev_ebitda": 1.39,
+      "ev_sales": 0.64,
+      "p_fcf": 2.29,
+      "as_of": "2026-05-30",
+      "note": "6 мультипликаторов посчитаны кодом от цены расписки 58.1 RUB → mcap 1431 млн USD, EV 2797 млн USD. Экстремально низкие значения отражают дисконт расписок (инфраструктурно-санкционный), а не фундаментальную дешевизну бизнеса."
+    },
+    "peer_multiples": {
+      "2025": {
+        "pe": 2.42,
+        "ps": 0.33,
+        "pb": 0.89,
+        "ev_ebitda": 1.39,
+        "ev_sales": 0.64,
+        "p_fcf": 2.29
+      },
+      "2024": {
+        "pe": null,
+        "ps": null,
+        "pb": null,
+        "ev_ebitda": null,
+        "ev_sales": null,
+        "p_fcf": null
+      }
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — нет долларового ряда исторических цен расписки; годы убытков (2020/2022/2023) делают P/E нерепрезентативным"
+    }
+  },
+  "forecast": {
+    "source_type": "broker_consensus",
+    "providers": [
+      "VEON IR (guidance)",
+      "1Q26 trading update"
+    ],
+    "revenue_growth_pct": [
+      12.5
+    ],
+    "net_profit_growth_pct": [
+      null
+    ],
+    "ebitda_growth_pct": [
+      8.5
+    ],
+    "note": "Гайденс VEON на 2026: рост выручки +9–12% и EBITDA +7–10% в USD (повышен после 1Q26 до +11–14% по выручке; 1Q26 факт: выручка +17%, EBITDA +17.7% г/г). Это менеджмент-гайденс компании, не консенсус по расписке — независимого брокерского покрытия VEON-RX не найдено."
+  },
+  "valuation": {
+    "valuation_framing": "КЛЮЧЕВОЕ: расписка VEON-RX торгуется с глубоким дисконтом к фундаментальной стоимости бизнеса из-за инфраструктурно-санкционного риска (иностранный холдинг, барьеры между российской и зарубежной депозитарной инфраструктурой, дивиденды/права затруднены). Поэтому методы оценки бизнеса (DCF, EV/EBITDA) дают цену в разы ВЫШЕ рынка — это НЕ апсайд в обычном смысле, а величина дисконта расписки. Коридор намеренно расширен вниз; верх диапазона достижим только при снятии инфраструктурного барьера.",
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 381.4,
+        "fair_value_currency": "RUB",
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.132,
+          "wacc_basis": "USD-ставка: USD risk-free ~4.5% + страновая премия EM (Пакистан/Украина/Казахстан) ~7% × beta 1.1, с надбавкой за рефинансирование валютного долга. RF/ERP из config — рублёвые, к долларовым потокам напрямую не применимы (см. data_flags).",
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "fcff_base_usd_mln": 950
+        },
+        "tv_share_of_value_pct": 64.7,
+        "status": "ok",
+        "note": "Оценивает БИЗНЕС без учёта дисконта расписки. Не отражает реальную цену инструмента для российского держателя."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "fair_value_currency": "RUB",
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "note": "Нет долларового ряда исторических цен расписки; 2020/2022/2023 — убыточные годы, медиана P/E нерепрезентативна."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "fair_value_currency": "RUB",
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана сектора telecom будет проставлена после прогона всех компаний сектора (peers.json). Прокси-ориентир EM-телеком 3.0–4.0x EV/EBITDA → 189–271 RUB/расписка (оценка бизнеса)."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 65.2,
+        "fair_value_currency": "RUB",
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.122,
+          "beta": 1.1,
+          "dividend_yield": 0.0
+        },
+        "status": "ok",
+        "note": "Таргет на 12 мес от текущей цены 58.1 RUB при требуемой доходности 12.2% USD и нулевых дивидендах. Единственный метод, отталкивающийся от рыночной цены расписки, а не от стоимости бизнеса."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 58.1,
+      "base": 110.0,
+      "optimistic_business_value": 230.0,
+      "current_price": 58.1,
+      "currency": "RUB",
+      "upside_downside_pct": 89.3,
+      "range_note": "Консервативный край = текущая цена (дисконт расписки сохраняется). База ~110 RUB — частичное сокращение дисконта при росте бизнеса. Оценка бизнеса (DCF/EV-EBITDA 189–381 RUB) — потолок, реализуемый лишь при снятии инфраструктурного барьера. Диапазон намеренно широкий из-за низкого качества данных и доминирующего нефундаментального риска."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        0.122,
+        0.132,
+        0.142
+      ],
+      "growth_grid": [
+        0.03,
+        0.035,
+        0.04
+      ],
+      "matrix": [
+        [
+          410,
+          381,
+          356
+        ],
+        [
+          430,
+          399,
+          372
+        ],
+        [
+          453,
+          419,
+          390
+        ]
+      ],
+      "matrix_note": "DCF цена бизнеса (RUB/расписка) по сетке WACC×g. Все значения — стоимость БИЗНЕСА без дисконта расписки."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "VEON FY25/4Q25 Earnings Presentation & Release (veon.com)",
+      "period": "FY2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "VEON 4Q25 press-release (digital +84%, EBITDA +29% в 4Q)",
+      "period": "4Q2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "StockTitan VEON financials (история 2020-2025, округлено)",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "iss.moex.com — VEON-RX котировка/issuesize",
+      "period": "2026-05-30",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "iss.moex.com — курс USD/RUB (CBRF_USD_LAST)",
+      "period": "2026-05-30",
+      "reliability": "high"
+    },
+    {
+      "id": "src_6",
+      "type": "aggregator",
+      "title": "smart-lab.ru / РБК — VEON-RX, отсутствие дивидендов и таргета",
+      "period": "2026",
+      "reliability": "low"
+    }
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "Структурный разрыв рядов 2023 г.: продажа российского «ВымпелКома» дала разовый убыток -2450 млн USD (ROE -222.7%) и сжатие активов ~вдвое (15.1→8.2 млрд USD). Сопоставимы только 2024-2025. Отдельная крупная аномалия — экстремально низкие мультипликаторы расписки (EV/EBITDA 1.39x, P/E 2.42x): это дисконт расписки, не дешевизна бизнеса.",
+  "data_flags": [
+    "data_quality=low: загруженных файлов нет, история из агрегатора (округлена), 2024 в USD частично выведен из темпов роста — сверять по 20-F.",
+    "Разрыв рядов 2023: деконсолидация РФ. Ряды до/после несопоставимы; ROE/ROA/маржи 2020-2023 включают эффект продажи.",
+    "Net debt: расчётный (долг−кэш) на 2025 = 1366 млн USD; компания раскрывает net debt excl. leases = 1751 млн USD и ND/EBITDAaL=1.09x — расхождение из-за аренды и определения. Оба значения указаны.",
+    "Число акций: MOEX issuesize 1.749 млрд использовано как основное; StockTitan указывает 1.85 млрд (эффект ADS-конвертации) — мультипликаторы чувствительны к выбору.",
+    "Валютная развязка: бизнес в USD, расписка в RUB. Config RF=14.6%/ERP=9% — рублёвые и к долларовым FCF напрямую неприменимы; для DCF построена отдельная USD-ставка (USD rf + страновая премия EM). Это допущение, а не из config.",
+    "Дисконт расписки: главный нефундаментальный фактор. DCF/EV-EBITDA оценивают бизнес и дают цену в разы выше рынка — трактовать как величину дисконта, не как торговый апсайд.",
+    "Дивидендов нет и не объявлено → дивидендный метод оценки неприменим.",
+    "CFO/FCFF ряд почти не раскрыт в доступных источниках — DCF опирается на прокси FCFF=950 млн USD (между EBITDA−capex=1079 и eFCF=624).",
+    "relative_peers = pending_sector_backfill: медиана сектора telecom будет заполнена позже."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 3.9,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

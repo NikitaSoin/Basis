@@ -531,10 +531,10 @@
     "P/E, P/S, P/BV раскрыты в отчёте только с 2023 (IPO окт.2024); ряды 2021-2022 = null. Текущие мультипликаторы посчитаны от цены 47.30 и 1167.69 млн акций."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 2.9,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
     "fair_value_per_share": null,
     "upside_downside_pct": null,
-    "status": "insufficient_data",
-    "basis": "медиана EV/EBITDA сопоставимых потребительских компаний"
+    "status": "insufficient_data"
   }
 }

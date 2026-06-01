@@ -1,0 +1,500 @@
+{
+  "meta": {
+    "ticker": "DIOD",
+    "name": "ПАО «ДИОД» (Завод экологической техники и экопитания «ДИОД»)",
+    "sector": "consumer_healthcare",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 8.96,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 91500000,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      602,
+      561,
+      549,
+      511,
+      521
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      117,
+      56,
+      12,
+      -266,
+      -28
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      88,
+      42,
+      8,
+      -248,
+      -71
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        19.44,
+        9.98,
+        2.19,
+        -52.05,
+        -5.37
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        14.62,
+        7.49,
+        1.46,
+        -48.53,
+        -13.63
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      1420,
+      1420,
+      1350,
+      1020,
+      970
+    ],
+    "total_equity": [
+      1230,
+      1210,
+      1130,
+      755,
+      640
+    ],
+    "total_liabilities": [
+      190,
+      210,
+      220,
+      265,
+      330
+    ],
+    "cash": [
+      88,
+      108,
+      34,
+      21,
+      10
+    ],
+    "short_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      -88,
+      -108,
+      -34,
+      -21,
+      -10
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "net_debt_ebitda": [
+        -0.75,
+        -1.93,
+        -2.83,
+        0.08,
+        0.36
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      104,
+      100,
+      3,
+      65,
+      60
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      11,
+      3,
+      35,
+      32,
+      1
+    ],
+    "fcf": [
+      93,
+      97,
+      -32,
+      33,
+      59
+    ],
+    "ratios": {
+      "fcf_margin": [
+        15.45,
+        17.29,
+        -5.83,
+        6.46,
+        11.32
+      ],
+      "cfo_to_capex": [
+        9.45,
+        33.33,
+        0.09,
+        2.03,
+        60.0
+      ],
+      "capex_to_revenue": [
+        1.83,
+        0.53,
+        6.38,
+        6.26,
+        0.19
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      7.15,
+      3.47,
+      0.71,
+      -32.85,
+      -11.09
+    ],
+    "roa": [
+      6.2,
+      2.96,
+      0.59,
+      -24.31,
+      -7.32
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      14.62,
+      7.49,
+      1.46,
+      -48.53,
+      -13.63
+    ],
+    "asset_turnover": [
+      0.42,
+      0.4,
+      0.41,
+      0.5,
+      0.54
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      -11.55
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      1.57
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      1.28
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      -28.92
+    ],
+    "ev_sales": [
+      null,
+      null,
+      null,
+      null,
+      1.55
+    ],
+    "div_yield": [
+      null,
+      null,
+      null,
+      null,
+      12.72
+    ],
+    "current": {
+      "pe": -11.55,
+      "ps": 1.57,
+      "pb": 1.28,
+      "ev_ebitda": -28.92,
+      "ev_sales": 1.55,
+      "div_yield": 12.72,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не считается — прибыль отрицательна в 2 из последних лет, исторические годовые цены не верифицированы"
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "EBITDA и чистая прибыль отрицательны в 2024 и 2025 — мультипликаторы P/E, EV/EBITDA, ROE отрицательны и не имеют экономического смысла. Net debt отрицательный (чистая денежная позиция ~10 млн ₽ на конец 2025), поэтому ND/EBITDA при EBITDA<0 не интерпретируется. Обвал маржи в 2024 (EBITDA −52%) при падении выручки лишь на ~7% указывает на вероятные разовые списания/обесценения — не подтверждено по форме №2. Оценка только по балансовым и выручным якорям, коридор широкий.",
+  "peer_multiples": {
+    "2025": {
+      "pe": -11.55,
+      "ps": 1.57,
+      "pb": 1.28,
+      "ev_ebitda": -28.92,
+      "ev_sales": 1.55,
+      "div_yield": 12.72
+    },
+    "2024": {
+      "pe": -3.87,
+      "ps": 1.88,
+      "pb": 1.74,
+      "ev_ebitda": -3.53,
+      "ev_sales": null,
+      "div_yield": null
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерское покрытие отсутствует (малоликвидный микро-кап). История нерепрезентативна: разворот в убыток 2024-2025. Механический прогноз не строится — source_type=none."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_sales",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "book_value",
+        "fair_value_per_share": 6.99,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "bvps": 6.99,
+          "pb_target": 1.0,
+          "basis": "equity_2025 / shares"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6% + 1.0×9.0% = 23.6%. Таргет на год не считаем — нет положительной прибыли/дивиденда как базы доходности."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4.66,
+      "base": 6.4,
+      "current_price": 8.96,
+      "upside_downside_pct": -28.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели DIOD (РСБУ)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — реестр ценной бумаги DIOD (число акций, ISIN, доска)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "iss.moex.com — текущая котировка TQBR/DIOD",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "companies/DIOD/business_model.md — профиль и качественный контекст",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: нет загруженных файлов в sources/, все числа из веб-агрегатора smart-lab; постатейная отчётность (COGS, opex, D&A, проценты, CFI/CFF) не раскрыта.",
+    "EBITDA, маржи, FCF — расчётные показатели агрегатора, не строки официального РСБУ-отчёта; контрольные суммы пересчитаны кодом по revenue/np/equity/cash.",
+    "Причина убытка 2024 (−248 млн) не детализирована: вероятны разовые списания/обесценения — проверить по форме №2 e-disclosure.ru.",
+    "Исторические годовые мультипликаторы (P/E, EV/EBITDA по годам) не заполнены — годовые цены закрытия не верифицированы по первичному источнику.",
+    "relative_peers status=pending_sector_backfill — медиана сектора consumer_healthcare ещё не собрана.",
+    "Дивиденд за 2025 не объявлен (компания убыточна) — div_yield 12.72% посчитан по последней выплате 1.14 ₽ за 2024, как ориентир, не как ожидание."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 7.18,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

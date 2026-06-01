@@ -1,0 +1,607 @@
+{
+  "meta": {
+    "ticker": "GAZAP",
+    "name": "ПАО «ГАЗ» (прив.)",
+    "sector": "Машиностроение / Автопром (коммерческий транспорт)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "не раскрывается (МСФО не публикуется с 2018 г.)",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 217.0,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 18520260,
+    "market_cap": 7722948420,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "GAZA",
+    "pref_to_common_ratio": 0.52,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной GAZA. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.52 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "nd_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "nd_ebitda": null,
+      "roe": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — отчётность не раскрывается с 2018 г."
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "nd_ebitda": null,
+      "roe": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "nd_ebitda": null,
+      "roe": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "sector": "Машиностроение / Автопром",
+    "note": "Сравнение с конкурентами (КАМАЗ, СОЛЛЕРС) будет добавлено после прогона всего сектора. Для GAZA относительная оценка всё равно ограничена: нет собственных финансовых метрик (выручка/EBITDA) для подстановки в секторный мультипликатор."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Прогноз невозможен: компания не раскрывает консолидированную отчётность с 2018 г., брокерское покрытие финансовых прогнозов отсутствует. Доступны только операционные метрики рынка LCV (регистрации, доля рынка) — см. business_model.md."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 26.3,
+          "beta": 1.3
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6% + 1.3 × 9.0% = 26.3%. Бета принята 1.3 как ориентир для цикличного машиностроения с высоким долгом под санкциями (нет публичной оценки беты по малоликвидной бумаге). Целевая цена не выводится: нет ожидаемой прибыли/дивиденда для применения P/E ≈ 1/Ke."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 312.8,
+      "base": 417.0,
+      "current_price": 417.0,
+      "upside_downside_pct": 0.0,
+      "method_note": "Фундаментальные методы (DCF, исторический P/E, относительная оценка, CAPM) неприменимы из-за закрытой отчётности. Коридор задан техническим способом — от текущей рыночной цены с консервативной поправкой −25% на риск малоликвидной бумаги без раскрытия. Это НЕ фундаментальная справедливая стоимость."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Эмитент торгуется на МосБирже (TQBR), но не раскрывает консолидированную отчётность по МСФО с 2018 г.; финансовые мультипликаторы (P/E, P/S, P/B, EV/EBITDA, ND/EBITDA, ROE) рассчитать невозможно — нет числителей/знаменателей. Оценка стоимости опирается только на рыночную цену, а не на фундаментал. Бумага малоликвидна (листинг 3-го уровня), под блокирующими санкциями США (SDN) с 2018 г., с высоким долгом и без дивидендов с 2007 г.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — рыночные данные по GAZA (TQBR): цена 417 ₽, число акций 18 520 260, капитализация 7,72 млрд ₽",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "Smart-Lab — карточка GAZA: подтверждение «компания не публикует консолидированную отчётность МСФО с 2018 года», дивиденды только 2018–2020 (3,92–5,13 ₽/акц.)",
+      "period": "2018–2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "ПАО «ГАЗ» — центр раскрытия e-disclosure.ru (раскрытие сведено к минимуму)",
+      "period": "2018–2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "broker",
+      "title": "business_model.md GAZA — операционные метрики рынка LCV, исторический якорь выручки ~165 млрд ₽ (2017, последнее полное МСФО)",
+      "period": "2017–2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Консолидированная отчётность по МСФО не публикуется с 2018 г. — все ряды P&L, баланса и денежных потоков = null.",
+    "Последний публичный финансовый якорь — выручка ~165 млрд ₽ за 2017 г.; за 2018–2025 финансы недоступны.",
+    "Ни один из 6 ключевых мультипликаторов (P/E, P/S, P/B, EV/EBITDA, ND/EBITDA, ROE) не рассчитывается — нет знаменателей.",
+    "Бета 1.3 для CAPM — экспертный ориентир, не рыночная регрессия (бумага малоликвидна).",
+    "Коридор цены 312,8–417 ₽ получен техническим способом от рыночной цены (−25% / 0%), а не фундаментально. Не интерпретировать как DCF-таргет.",
+    "Источник smart-lab упоминал «1П2025 МСФО +19,2% выручка» — не подтверждено первоисточником и противоречит официальному статусу нераскрытия; не использовано.",
+    "relative_peers — status pending_sector_backfill: ждёт прогона сектора (КАМАЗ, СОЛЛЕРС).",
+    "Префы GAZAP в этом файле не рассматриваются — выводятся отдельно из обыкновенной акции.",
+    "data_quality=low."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

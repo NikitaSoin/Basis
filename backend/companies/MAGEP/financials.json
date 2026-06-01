@@ -1,0 +1,602 @@
+{
+  "meta": {
+    "ticker": "MAGEP",
+    "name": "ПАО «Магаданэнерго» (прив.)",
+    "sector": "Электроэнергетика (генерация + сети + сбыт, изолированная энергосистема)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 2.195,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 463838268,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "issuer_confirmation": "Подтверждён: ПАО «Магаданэнерго», ИНН 4909047148, ОГРН 1024900954385, ISIN RU0006758919, обыкновенная акция, MOEX:TQBR код MAGE, номинал 1 ₽, 463 838 268 акций. Привилегированная акция MAGEP выведена отдельно и в этот файл не входит.",
+    "is_pref": true,
+    "linked_common": "MAGE",
+    "pref_to_common_ratio": 0.901,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной MAGE. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.901 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      12000,
+      11900,
+      14800,
+      14700,
+      23500
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      3500,
+      -2680,
+      -100,
+      -2150,
+      3650
+    ],
+    "ebitda": [
+      null,
+      null,
+      2240,
+      1720,
+      4760,
+      -1340,
+      4290
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      2490,
+      -2560,
+      -1390,
+      -3990,
+      675
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        18.7,
+        14.5,
+        32.2,
+        -9.1,
+        18.3
+      ],
+      "operating_margin": [
+        null,
+        null,
+        29.2,
+        -22.5,
+        -0.7,
+        -14.6,
+        15.5
+      ],
+      "net_margin": [
+        null,
+        null,
+        20.8,
+        -21.5,
+        -9.4,
+        -27.1,
+        2.9
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      14100,
+      18500,
+      20100,
+      20200,
+      19600
+    ],
+    "total_equity": [
+      null,
+      null,
+      5540,
+      3480,
+      2030,
+      -3060,
+      -2360
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      8560,
+      15020,
+      18070,
+      23260,
+      21960
+    ],
+    "cash": [
+      null,
+      null,
+      550,
+      40,
+      100,
+      400,
+      500
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      1700,
+      4680,
+      8220,
+      10600,
+      13400
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        0.41,
+        1.36,
+        4.1,
+        -3.59,
+        -5.89
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        0.76,
+        2.72,
+        1.73,
+        -7.91,
+        3.12
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      1830,
+      -540,
+      655,
+      5410,
+      4000
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      1010,
+      2430,
+      2280,
+      4830,
+      3130
+    ],
+    "fcf": [
+      null,
+      null,
+      820,
+      -2970,
+      -1625,
+      580,
+      870
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        6.8,
+        -25.0,
+        -11.0,
+        3.9,
+        3.7
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        1.81,
+        -0.22,
+        0.29,
+        1.12,
+        1.28
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        8.4,
+        20.4,
+        15.4,
+        32.9,
+        13.3
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      44.9,
+      -73.6,
+      -68.5,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      17.7,
+      -13.8,
+      -6.9,
+      -19.8,
+      3.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      20.8,
+      -21.5,
+      -9.4,
+      -27.1,
+      2.9
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      0.85,
+      0.64,
+      0.74,
+      0.73,
+      1.2
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1.51
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      0.05
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      3.39
+    ],
+    "current": {
+      "pe": 1.51,
+      "ps": 0.05,
+      "pb": null,
+      "ev_ebitda": 3.39,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не считается — прибыль большинства лет отрицательна, P/E не определён"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 1.51,
+      "ps": 0.05,
+      "pb": null,
+      "ev_ebitda": 3.39,
+      "net_debt_ebitda": 3.12,
+      "roe": null
+    },
+    "2024": {
+      "pe": null,
+      "ps": 0.07,
+      "pb": null,
+      "ev_ebitda": null,
+      "net_debt_ebitda": -7.91,
+      "roe": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Медиана мультипликаторов сектора «Электроэнергетика» появится после прогона остальных компаний сектора. Относительная оценка отложена."
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Множественные аномалии. (1) Расхождение стандартов: РСБУ показывает выручку 15,69 млрд (2024) / 16,22 млрд (2023) и чистый убыток −0,74 / −3,11 млрд; МСФО (smart-lab) — выручку 14,7 / 14,8 млрд и убыток −3,99 / −1,39 млрд. В JSON взят ряд МСФО. (2) 2025 год: МСФО smart-lab показывает выручку 23,5 млрд и ПРИБЫЛЬ +0,675 млрд, тогда как РСБУ за 2025 — выручку ~26,4 млрд и УБЫТОК −3,16 млрд. Знак результата 2025 года противоречив; данные предварительные/несверённые. (3) Отрицательный собственный капитал в 2024 (−3,06 млрд) и 2025 (−2,36 млрд) — ROE и P/BV за эти годы экономически не интерпретируются (обнулены в null). ROE 2024 «+130%» (деление убытка на отрицательный капитал) механически положителен и ложен — убран. (4) EBITDA 2024 отрицательна (−1,34 млрд), EV/EBITDA и ND/EBITDA за этот год не имеют смысла. (5) Пересчитанный FCF=CFO−CapEx резко расходится с FCF из агрегатора (например 2024: пересчёт +0,58 млрд против −2,33 млрд у smart-lab) — вероятно разные определения CFO/учёт процентов; ряд FCF ненадёжен.",
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского консенсуса по MAGE нет (низкая ликвидность, 3-й котировальный уровень). История прибыли разнознаковая и волатильная, 2025 год противоречив по стандартам — механический прогноз нерепрезентативен. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "reason": "Убыточность по РСБУ, отрицательный собственный капитал, чистый долг ~3x EBITDA, разнознаковый FCF и противоречивый 2025 год делают прогноз денежного потока недостоверным."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data",
+        "reason": "Прибыль большинства лет отрицательна — медиана P/E не определена."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "reason": "Ждёт медиану мультипликаторов сектора. Чувствительность крайне высока: при ND≈3x EBITDA equity-стоимость меняет знак между 3x и 4x EV/EBITDA (−1,1 ₽ → +8,1 ₽), поэтому метод даст широкий коридор."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 22.7,
+          "beta": 0.9,
+          "note": "Ke = 14.6% + 0.9 × 9.0% = 22.7%. Целевая цена не выводится: нет устойчивой ожидаемой прибыли/дивиденда (дивиденды не платятся), к которым применить требуемую доходность."
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 1.5,
+      "base": 2.4,
+      "current_price": 2.435,
+      "upside_downside_pct": -1.4,
+      "note": "Коридор ОЦЕНОЧНЫЙ и широкий (data_quality=low). Опорная точка — рыночная цена 2,4 ₽ (≈3,4x EV/EBITDA на волатильной EBITDA 2025). Консервативная граница 1,5 ₽ отражает риск отрицательного собственного капитала, высокого долга и убыточности по РСБУ. Верхний сценарий (до ~8 ₽ при 4x EV/EBITDA) возможен только при устойчивой нормализации EBITDA и снижении долга — не закладывается как база из-за ненадёжности данных."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": [],
+      "note": "DCF не строился; сетка не заполняется."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО «Магаданэнерго», РСБУ-результаты 2024 (cbonds)",
+      "period": "2024",
+      "reliability": "high",
+      "url": "https://cbonds.ru/news/3302469/"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО «Магаданэнерго», РСБУ-результаты 2023 (cbonds)",
+      "period": "2023",
+      "reliability": "high",
+      "url": "https://cbonds.ru/news/2765293/"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab: годовая отчётность МСФО MAGE (выручка, EBITDA, прибыль, баланс, долг, CFO, CapEx)",
+      "period": "2021-2025",
+      "reliability": "medium",
+      "url": "https://smart-lab.ru/q/MAGE/f/y/"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab: чистая прибыль МСФО MAGE по годам",
+      "period": "2021-2025",
+      "reliability": "medium",
+      "url": "https://smart-lab.ru/q/MAGE/MSFO/net_income/"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "MOEX: параметры выпуска MAGE (ISIN, число акций, номинал)",
+      "period": "2026",
+      "reliability": "high",
+      "url": "https://www.moex.com/ru/issue.aspx?board=TQBR&code=MAGE"
+    },
+    {
+      "id": "src_6",
+      "type": "aggregator",
+      "title": "zerno.press: текущая цена акции MAGE 2,435 ₽",
+      "period": "2026",
+      "reliability": "medium",
+      "url": "https://zerno.press/ru/moex/company/mage"
+    },
+    {
+      "id": "src_7",
+      "type": "official_report",
+      "title": "companies/MAGE/business_model.md — бизнес-якоря (изолированная энергосистема, регулируемые тарифы)",
+      "period": "2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "PDF-исходников в sources/ нет — все числа из веба (cbonds, smart-lab, MOEX) и business_model.md; data_quality=low.",
+    "Стандарты расходятся: РСБУ vs МСФО дают разные выручку и разный знак убытка; в JSON взят ряд МСФО для сопоставимости рядов.",
+    "2025 год предварительный и противоречивый: МСФО smart-lab = прибыль +0,675 млрд; РСБУ = убыток −3,16 млрд при выручке ~26,4 млрд. Требует сверки по официальному годовому отчёту.",
+    "Отрицательный собственный капитал в 2024 и 2025 → ROE и P/BV за эти годы обнулены (экономически не интерпретируются).",
+    "EBITDA 2024 отрицательна → EV/EBITDA и ND/EBITDA 2024 не имеют смысла (null).",
+    "FCF=CFO−CapEx, пересчитанный кодом, расходится с FCF агрегатора (разные определения/учёт процентов) — ряд FCF ненадёжен.",
+    "Историческое P/E и P/B по годам не считались по корректной исторической капитализации (нет цены на каждую дату) — приведены только текущие мультипликаторы на цену 2,435 ₽.",
+    "COGS, разбивка долга на кратко/долгосрочный, finance_costs, CFI/CFF, амортизация компанией в открытых сводках не раскрыты → null.",
+    "relative_peers: status=pending_sector_backfill — медиана сектора будет добавлена после прогона электроэнергетики.",
+    "Дивиденды по обыкновенным акциям не выплачиваются (0% за рассмотренные годы)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": -2.52,
+    "upside_downside_pct": -214.8,
+    "status": "reference_only"
+  }
+}

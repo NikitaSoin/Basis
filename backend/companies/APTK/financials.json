@@ -1,0 +1,572 @@
+{
+  "meta": {
+    "ticker": "APTK",
+    "name": "ПАО «Аптечная сеть 36,6»",
+    "sector": "consumer",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 6.336,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 7630433826,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Несколько структурных аномалий. (1) ОТРИЦАТЕЛЬНЫЙ собственный капитал во все годы (-6,6…-7,6 млрд руб) → P/B и debt/equity экономически неинтерпретируемы и проставлены null; ROE с отрицательным знаменателем даёт ложный знак (отрицательный ROE при положительной прибыли) → ROE проставлен null, оставлен ROA. (2) ПРИБЫЛЬ У НУЛЯ (263 млн в 2025 при выручке 105,6 млрд) → P/E экстремально высок и нестабилен (184x в 2025, 56x в 2024, 217x в 2022) — не аномалия расчёта, а свойство бизнеса: почти вся EBITDA уходит на проценты по большому долгу. (3) РАСХОЖДЕНИЕ БАЗЫ EBITDA: агрегатор Smart-Lab показывает EBITDA по IFRS-16 (после аренды): 2022=13,2; 2023=16,3 млрд — это в ~2 раза выше операционной EBITDA, раскрываемой компанией в пресс-релизах (2024=6,7; 2025=8,5 млрд). Использована операционная (доаренда / management) EBITDA, согласованная с business_model.md; EV/EBITDA и ND/EBITDA посчитаны на ней. На базе IFRS-16 EV/EBITDA и ND/EBITDA были бы примерно вдвое ниже. Это ключевой источник неопределённости. (4) Высокий чистый долг 21,8 млрд при EBITDA 8,5 млрд (ND/EBITDA 2,56x на операционной EBITDA) делает оценку через активы/капитал и DCF ненадёжной.",
+  "peer_multiples": {
+    "2025": {
+      "pe": 183.83,
+      "ps": 0.46,
+      "pb": null,
+      "ev_ebitda": 8.25,
+      "net_debt_ebitda": 2.56,
+      "roe": null
+    },
+    "2024": {
+      "pe": 55.83,
+      "ps": 0.55,
+      "pb": null,
+      "ev_ebitda": 10.38,
+      "net_debt_ebitda": 3.16,
+      "roe": null
+    },
+    "note": "Рассчитано кодом при ТЕКУЩЕЙ цене 6,336 руб (капитализация 48 346 млн) на показатели соответствующего года. pe=mcap/ЧП, ps=mcap/выручка, ev_ebitda=(mcap+чистый_долг_года)/операционная_EBITDA_года, net_debt_ebitda=чистый_долг_года/операционная_EBITDA_года. pb и roe = null: собственный капитал отрицателен, мультипликатор/рентабельность не интерпретируются. EV/EBITDA посчитан на операционной EBITDA компании (6,7 / 8,5 млрд); на IFRS-16-базе Smart-Lab был бы ~вдвое ниже."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      44100,
+      59100,
+      67400,
+      87200,
+      105600
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      4270,
+      6770,
+      9960,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      6700,
+      8500
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      -950,
+      223,
+      921,
+      866,
+      263
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        7.68,
+        8.05
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        7.23,
+        10.04,
+        11.42,
+        null
+      ],
+      "net_margin": [
+        null,
+        null,
+        -2.15,
+        0.38,
+        1.37,
+        0.99,
+        0.25
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      37800,
+      43600,
+      53200,
+      60800,
+      64100
+    ],
+    "total_equity": [
+      null,
+      null,
+      -6650,
+      -6410,
+      -6830,
+      -7560,
+      -7300
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      44450,
+      50010,
+      60030,
+      68360,
+      71400
+    ],
+    "cash": [
+      null,
+      null,
+      1730,
+      810,
+      2090,
+      1960,
+      1360
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      19900,
+      18100,
+      18600,
+      21200,
+      21800
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        3.16,
+        2.56
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      3230,
+      6600,
+      7050,
+      6490,
+      5070
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      980,
+      980,
+      1280,
+      1510,
+      1870
+    ],
+    "fcf": [
+      null,
+      null,
+      2250,
+      5620,
+      5770,
+      4980,
+      3200
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        5.1,
+        9.51,
+        8.56,
+        5.71,
+        3.03
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        3.3,
+        6.73,
+        5.51,
+        4.3,
+        2.71
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        2.22,
+        1.66,
+        1.9,
+        1.73,
+        1.77
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      -2.51,
+      0.51,
+      1.73,
+      1.42,
+      0.41
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      -2.15,
+      0.38,
+      1.37,
+      0.99,
+      0.25
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      1.17,
+      1.36,
+      1.27,
+      1.43,
+      1.65
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      216.8,
+      52.49,
+      55.83,
+      183.83
+    ],
+    "ps": [
+      null,
+      null,
+      1.1,
+      0.82,
+      0.72,
+      0.55,
+      0.46
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      10.38,
+      8.25
+    ],
+    "current": {
+      "pe": 183.83,
+      "ps": 0.46,
+      "pb": null,
+      "ev_ebitda": 8.25,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "2021-2025",
+      "ps_5y_median": 0.72,
+      "note": "P/E нерепрезентативен (прибыль у нуля, годовые значения 52–217x). Для исторической оценки используется медиана P/S = 0,72."
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерский консенсус по APTK в источниках не найден (бумага низколиквидная, покрытие минимальное). Прибыль исторически у нуля и нерепрезентативна для прогноза; чистая прибыль определяется ставкой ЦБ через процентные расходы, а не операционной динамикой. Поэтому source_type=none; DCF — insufficient_data."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data",
+        "note": "DCF не применяется: отрицательный капитал, прибыль у нуля, нет надёжного прогноза FCF и нет раскрытой структуры долга/процентов. Свободный денежный поток до процентов положителен, но почти весь уходит на обслуживание долга 21,8 млрд; интринзик-стоимость акционерного капитала крайне чувствительна к ставке и рефинансированию."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null,
+          "company_ev_ebitda_2025": 8.25,
+          "company_net_debt_ebitda_2025": 2.56
+        },
+        "status": "pending_sector_backfill",
+        "note": "Медиана EV/EBITDA сектора consumer/фарма-ритейл будет подставлена при пересборке sectors/consumer/peers.json. Ориентир: при секторном EV/EBITDA ~4–5x на операционную EBITDA-2025 (8,5 млрд) target_EV=34–42,5 млрд, минус чистый долг 21,8 млрд → справедливая цена акционерного капитала всего ~1,6–2,7 руб. Это ниже рынка (6,34 руб): большой долг съедает почти всю стоимость предприятия. Оценка ненадёжна из-за расхождения базы EBITDA (IFRS-16 vs операционная)."
+      },
+      {
+        "method": "historical_ps",
+        "fair_value_per_share": 9.96,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ps_used": 0.72,
+          "basis": "5y_median_ps",
+          "revenue_2025_mln": 105600,
+          "note": "P/E нерепрезентативен → использован P/S. Метод игнорирует долг и капитал, поэтому даёт оценку ВЫШЕ рынка; противоречит EV/EBITDA-подходу. Расхождение методов отражает реальную неопределённость."
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.236,
+          "beta": 1.0,
+          "expected_div_yield": 0.0,
+          "note": "Ke=14,6%+1,0×9,0%=23,6%. Дивидендов нет (отрицательный капитал, нечем платить). Для near-zero-earner CAPM-таргет не даёт осмысленной справедливой цены интринзик-уровня → fair_value null, метод оставлен только для требуемой доходности."
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 1.6,
+      "base": 5.0,
+      "current_price": 6.336,
+      "upside_downside_pct": -21.1,
+      "note": "Коридор НАМЕРЕННО широкий и ненадёжный (data_quality=low). Нижняя граница (~1,6 руб) — EV/EBITDA-подход, где чистый долг 21,8 млрд почти обнуляет стоимость акционерного капитала. Верхняя зона (~10 руб) — P/S-медиана, игнорирующая долг. База ~5 руб — компромисс ближе к нижнему кластеру по правилу консервативности (отрицательный капитал, прибыль у нуля). upside_downside_pct посчитан к base."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — APTK годовая отчётность МСФО (выручка, ЧП, активы, капитал, долг, чистый долг, CFO, CapEx)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Пресс-релизы ПАО «Аптечная сеть 36,6» — операционная EBITDA 2024=6,7 / 2025=8,5 млрд, выручка 117,4 млрд с НДС",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX ISS — число акций (7 630 433 826) и котировка APTK (TQBR), цена 6,336 руб на 29.05.2026",
+      "period": "2026-05",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "backend/companies/APTK/business_model.md — согласование сегментов, EBITDA-якорей и профиля",
+      "period": "2024-2025",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "ДАННЫЕ 2019-2020 не раскрыты агрегатором → null по всем рядам.",
+    "ОТРИЦАТЕЛЬНЫЙ собственный капитал (-6,6…-7,6 млрд) во все годы → P/B, debt_to_equity, ROE, ROIC = null (экономически не интерпретируются).",
+    "РАСХОЖДЕНИЕ EBITDA: Smart-Lab даёт EBITDA по IFRS-16 (2022=13,2; 2023=16,3 млрд), компания в пресс-релизах — операционную (2024=6,7; 2025=8,5 млрд). Использована операционная (согласована с business_model). EV/EBITDA и ND/EBITDA на IFRS-16-базе были бы ~вдвое ниже. Главный источник неопределённости.",
+    "EBITDA за 2021-2023 на операционной (доаренда) базе компанией публично не раскрыта → null; ряд EBITDA заполнен только за 2024-2025.",
+    "D&A, finance_costs, COGS, gross profit, short/long-term debt по годам отдельно не раскрыты → null.",
+    "CFI, CFF, net_change_in_cash отдельно не раскрыты → null.",
+    "Чистый долг сверен кодом: долг−кэш 2025=21 840 vs отчётный 21 800 (расхождение 0,2%, в пределах округления); 2024=21 140 vs 21 200.",
+    "P/E нерепрезентативен (прибыль у нуля): годовые значения 52–217x. Для истории и оценки использован P/S (медиана 0,72).",
+    "Брокерский консенсус прогноза отсутствует (низкая ликвидность, малое покрытие) → forecast source_type=none, DCF insufficient_data.",
+    "relative_peers — status pending_sector_backfill: медиана сектора будет подставлена при пересборке sectors/consumer/peers.json.",
+    "Цена 6,336 руб взята с MOEX TQBR (последняя торговая сессия 29.05.2026). Бумага низколиквидная — цена волатильна.",
+    "Все акции обыкновенные (7 630 433 826), префов нет."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.9,
+    "fair_value_per_share": 0.38,
+    "upside_downside_pct": -94.0,
+    "status": "reference_only"
+  }
+}

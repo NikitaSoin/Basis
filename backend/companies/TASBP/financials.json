@@ -1,0 +1,516 @@
+{
+  "meta": {
+    "ticker": "TASBP",
+    "name": "ПАО «Тамбовская энергосбытовая компания» (прив.)",
+    "sector": "Электроэнергетика — энергосбыт (гарантирующий поставщик)",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.958,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 1525986880,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "note": "Оценивается только обыкновенная акция TASB. Преф TASBP (217 961 420 шт.) выведена отдельно. В sources/ файлов нет — данные из веба (iss.moex.com, smart-lab.ru, rbc.ru) + business_model.md.",
+    "is_pref": true,
+    "linked_common": "TASB",
+    "pref_to_common_ratio": 0.586,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной TASB. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.586 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      6700,
+      6959,
+      7166,
+      7560,
+      7480
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      273,
+      317,
+      370,
+      330
+    ],
+    "ebitda": [
+      null,
+      null,
+      355,
+      430,
+      360
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      261,
+      261,
+      312,
+      467,
+      460
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        5.0,
+        5.7,
+        4.8
+      ],
+      "operating_margin": [
+        null,
+        3.9,
+        4.4,
+        4.9,
+        4.4
+      ],
+      "net_margin": [
+        3.9,
+        3.8,
+        4.4,
+        6.2,
+        6.1
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      1620,
+      1950,
+      2430,
+      3060
+    ],
+    "total_equity": [
+      null,
+      805,
+      1130,
+      1600,
+      2060
+    ],
+    "total_liabilities": [
+      null,
+      815,
+      820,
+      830,
+      1000
+    ],
+    "cash": [
+      null,
+      800,
+      1120,
+      1560,
+      2020
+    ],
+    "short_term_debt": [
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    "long_term_debt": [
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    "net_debt": [
+      null,
+      -800,
+      -1120,
+      -1560,
+      -2020
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -3.15,
+        -3.63,
+        -5.61
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "note": "Энергосбыт не раскрывает ОДДС в публичных сводках. CapEx незначителен (нет генерации и сетей). FCF ≈ чистая прибыль как прокси."
+  },
+  "returns": {
+    "roe": [
+      null,
+      32.4,
+      27.6,
+      29.2,
+      22.3
+    ],
+    "roa": [
+      null,
+      16.1,
+      16.0,
+      19.2,
+      15.0
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      3.9,
+      3.8,
+      4.4,
+      6.2,
+      6.1
+    ],
+    "asset_turnover": [
+      null,
+      4.3,
+      3.7,
+      3.1,
+      2.4
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      3.18
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.19
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      0.71
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      1.32
+    ],
+    "current": {
+      "pe": 3.18,
+      "ps": 0.19,
+      "pb": 0.71,
+      "ev_ebitda": 1.32,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "недоступно — нет надёжной истории цен обыкновенной акции (низкая ликвидность)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 3.18,
+      "ps": 0.19,
+      "pb": 0.71,
+      "ev_ebitda": 1.32,
+      "roe": 22.3,
+      "net_margin": 6.1
+    },
+    "2024": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "roe": 29.2,
+      "net_margin": 6.2
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      5.0,
+      4.0,
+      3.5,
+      3.5,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "note": "Брокерского покрытия нет (микрокап). Механический прогноз: выручка растёт с тарифами и затухает к долгосрочному тренду; прибыль принята плоской — регулируемая сбытовая надбавка ограничивает рост маржи, а снижение ключевой ставки уменьшит процентный доход на кэш."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 1.75,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.2,
+          "terminal_growth": 0.035,
+          "forecast_years": 5,
+          "beta": 0.6,
+          "fcf_proxy": "net_profit_flat",
+          "net_cash_added_mln": 2020
+        },
+        "tv_share_of_value_pct": 45.7,
+        "status": "insufficient_data",
+        "note": "Прокси-DCF: FCF≈чистой прибыли, плюс добавлена чистая денежная позиция 2 020 млн. Результат завышен и НЕНАДЁЖЕН — для сбыта без раскрытия ОДДС и с доминирующим кэшем DCF малоинформативен. Не используется в базовом коридоре."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.97,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.5,
+          "basis": "нормализованный P/E энергосбытов 4–6x (нет надёжной 5y-истории цены)"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.88,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.2,
+          "beta": 0.6,
+          "fair_pe": 5.0,
+          "basis": "fair_pe ≈ 1/Ke × EPS_2025"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "expected_dps": 0,
+          "required_yield": null
+        },
+        "status": "not_applicable",
+        "note": "По обыкновенным акциям дивиденды в последние годы фактически не выплачивались; дивполитики нет, решения за «Интер РАО». Положительной оценки от дивидендов по обычке не присваиваем."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 1.206,
+      "base": 1.658,
+      "current_price": 1.636,
+      "upside_downside_pct": 1.3
+    },
+    "sensitivity": {
+      "pe_grid": [
+        4.0,
+        5.0,
+        5.5,
+        6.0
+      ],
+      "fv_per_share": [
+        1.206,
+        1.507,
+        1.658,
+        1.809
+      ],
+      "matrix": []
+    },
+    "note": "Базовый коридор построен по P/E (нормализованный 4–6x) и CAPM на прибыли 2025 (~460 млн). DCF исключён из коридора как ненадёжный. Текущая цена ~у верхней границы консервативной зоны — акция оценена справедливо/без явного апсайда по прибыли."
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — параметры бумаги TASB (issuesize 1 525 986 880, ISIN RU000A0D8NG8, цена TQBR)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/TASB/f/y — годовые показатели (выручка, прибыль, капитал, активы, чистый долг)",
+      "period": "2022-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "rbc.ru/quote/ticker/59823 — мультипликаторы, прибыль/выручка 2024-2025",
+      "period": "2024-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md (РСБУ-якоря 2024: выручка 7 560, ЧП 467; 2023: 7 170 / 312)",
+      "period": "2023-2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "В sources/ нет загруженных файлов — все числа из веба; data_quality=medium.",
+    "ОДДС не раскрыт: CFO/CFI/CFF/CapEx/FCF = null. FCF в DCF взят как прокси от чистой прибыли.",
+    "ANOMALY: чистая денежная позиция ~2 020 млн ≈ 81% рыночной капитализации (2 497 млн); EV/EBITDA лишь ~1.3x. Бизнес-стоимость без кэша мизерна — почти вся капитализация = кэш на балансе. Это ключевая особенность кейса.",
+    "Структура баланса (активы/капитал/чистый долг 2022-2025) — из агрегатора smart-lab, не сверена с РСБУ-формами e-disclosure; total_liabilities оценочно как assets−equity.",
+    "EBITDA — оценка (РСБУ без отдельной строки; восстановлено от прибыли от продаж, амортизация минимальна).",
+    "2021 net_profit (~261 млн) — низкая достоверность, приближение.",
+    "Историческая медиана P/E недоступна: низкая ликвидность обыкновенной акции, нет надёжного ряда цен → исторический P/E взят как нормализованный диапазон сектора.",
+    "relative_peers = pending_sector_backfill: peers.json по энергосбытам ещё не собран.",
+    "Дивиденды по обычке фактически отсутствуют; дивидендный метод not_applicable для TASB."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

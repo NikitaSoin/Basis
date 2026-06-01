@@ -1,0 +1,517 @@
+{
+  "meta": {
+    "ticker": "PRFN",
+    "name": "ПАО «ТЕПЛАНТ восток» (до 04.04.2025 — ПАО «ЧЗПСН-Профнастил»)",
+    "sector": "Машиностроение / металлоконструкции",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 3.48,
+    "price_date": "2026-05-31",
+    "shares_outstanding": 838287450,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      9900,
+      9570,
+      12100,
+      16700,
+      15100
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      405,
+      220,
+      400,
+      510,
+      408
+    ],
+    "ebitda": [
+      469,
+      368,
+      544,
+      656,
+      595
+    ],
+    "da": [
+      64,
+      148,
+      144,
+      146,
+      187
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      176,
+      202,
+      264,
+      422,
+      478
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        4.7,
+        3.8,
+        4.5,
+        3.9,
+        3.9
+      ],
+      "operating_margin": [
+        4.1,
+        2.3,
+        3.3,
+        3.1,
+        2.7
+      ],
+      "net_margin": [
+        1.8,
+        2.1,
+        2.2,
+        2.5,
+        3.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      4240,
+      4510,
+      4740,
+      7040,
+      8590
+    ],
+    "total_equity": [
+      1620,
+      1820,
+      2100,
+      2380,
+      2860
+    ],
+    "total_liabilities": [
+      2620,
+      2690,
+      2640,
+      4660,
+      5730
+    ],
+    "cash": [
+      20,
+      65,
+      71,
+      1350,
+      697
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      1210,
+      725,
+      889,
+      -584,
+      -697
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.76,
+        0.43,
+        0.46,
+        0.32,
+        0.0
+      ],
+      "net_debt_ebitda": [
+        2.58,
+        1.97,
+        1.63,
+        -0.89,
+        -1.17
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      910,
+      450,
+      -66,
+      1660,
+      -199
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      186,
+      166,
+      94,
+      81,
+      202
+    ],
+    "fcf": [
+      724,
+      284,
+      -160,
+      1579,
+      -401
+    ],
+    "ratios": {
+      "fcf_margin": [
+        7.3,
+        3.0,
+        -1.3,
+        9.5,
+        -2.7
+      ],
+      "cfo_to_capex": [
+        4.89,
+        2.71,
+        -0.7,
+        20.49,
+        -0.99
+      ],
+      "capex_to_revenue": [
+        1.9,
+        1.7,
+        0.8,
+        0.5,
+        1.3
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      10.9,
+      11.7,
+      13.5,
+      18.8,
+      18.2
+    ],
+    "roa": [
+      4.2,
+      4.6,
+      5.7,
+      7.2,
+      6.1
+    ],
+    "roic": [
+      13.9,
+      9.3,
+      12.7,
+      15.0,
+      10.7
+    ],
+    "ros": [
+      1.8,
+      2.1,
+      2.2,
+      2.5,
+      3.2
+    ],
+    "asset_turnover": [
+      2.33,
+      2.19,
+      2.62,
+      2.84,
+      1.93
+    ]
+  },
+  "multiples": {
+    "pe": [
+      8.98,
+      8.86,
+      18.7,
+      8.31,
+      6.86
+    ],
+    "ps": [
+      0.16,
+      0.19,
+      0.41,
+      0.21,
+      0.22
+    ],
+    "pb": [
+      0.98,
+      0.98,
+      2.35,
+      1.47,
+      1.15
+    ],
+    "ev_ebitda": [
+      5.95,
+      6.83,
+      10.7,
+      4.46,
+      4.34
+    ],
+    "current": {
+      "pe": 6.1,
+      "ps": 0.19,
+      "pb": 1.02,
+      "ev_ebitda": 3.73,
+      "ev_sales": 0.15,
+      "p_fcf": -7.27,
+      "as_of": "2026-05-31"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 10.34,
+      "pe_5y_median": 8.86,
+      "ev_ebitda_5y_median": 5.95,
+      "period": "2021-2025"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 6.86,
+      "ps": 0.22,
+      "pb": 1.15,
+      "ev_ebitda": 4.34,
+      "ev_sales": 0.14,
+      "roe": 18.2
+    },
+    "2024": {
+      "pe": 8.31,
+      "ps": 0.21,
+      "pb": 1.47,
+      "ev_ebitda": 4.46,
+      "ev_sales": 0.11,
+      "roe": 18.8
+    }
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      5.0,
+      4.5,
+      4.0,
+      3.75,
+      3.5
+    ],
+    "net_profit_growth_pct": [
+      5.0,
+      4.5,
+      4.0,
+      3.75,
+      3.5
+    ],
+    "note": "Брокерского покрытия по PRFN нет (3-й эшелон, малоликвид). Прогноз механический: умеренный рост ~5% с затуханием к долгосрочному макротренду 3,5%. Выручка циклична (зависит от цены стали и объёмов стройки), в 2025 уже снизилась с 16,7 до 15,1 млрд ₽ — рост не гарантирован."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 2.59,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 24.5,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "beta": 1.1,
+          "normalized_fcff_base_mln": 291
+        },
+        "tv_share_of_value_pct": 39.9,
+        "status": "ok"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 5.05,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 8.86,
+          "basis": "5y_median",
+          "eps_2025": 0.57
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 4.33,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 24.5,
+          "beta": 1.1,
+          "div_yield": 0.0
+        }
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 2.59,
+      "base": 3.82,
+      "current_price": 3.48,
+      "upside_downside_pct": 9.8
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        22.5,
+        24.5,
+        26.5
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [
+        [
+          2.9,
+          3.05,
+          3.24
+        ],
+        [
+          2.49,
+          2.59,
+          2.71
+        ],
+        [
+          2.18,
+          2.25,
+          2.33
+        ]
+      ]
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Несколько аномалий: (1) 2023 P/E = 18.7x резко выбивается из ряда 7-9x — рыночный выброс по цене, медиана устойчивее. (2) 2025: операционный поток (CFO −0,20 млрд) и FCF (−0,40 млрд) отрицательные при росте чистой прибыли до 0,48 млрд — деньги ушли в оборотный капитал (запасы стали / дебиторка), типично для торгово-перепродажной модели; прибыль не конвертируется в кэш. (3) В 2024-2025 компания в чистой денежной позиции (ND/EBITDA −0,9x → −1,2x) — нетипично для 3-го эшелона, проверить структуру кэша (часть может быть связана с операциями группы «Стройсистема»). (4) Долг обнулён в 2025 (0,0 млрд) при росте активов до 8,59 млрд — рост профинансирован кредиторкой/оборотными обязательствами, не банковским долгом.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "smart-lab.ru — годовая отчётность МСФО PRFN (выручка, EBITDA, прибыль, баланс, мультипликаторы 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "iss.moex.com — реестр ценной бумаги PRFN (ISIN RU000A0JNXF9, 838 287 450 акций, ном. 0,1 ₽, листинг 3-го уровня, TQBR)",
+      "period": "2026-05-31",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "Котировка PRFN на 31.05.2026 — 3,48 ₽ (MOEX TQBR)",
+      "period": "2026-05-31",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md PRFN — подтверждение эмитента, структура выручки (АКРА), якоря P&L МСФО 2023-2024",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Отчётность доступна только за 2021-2025 (5 лет); периоды 2019-2020 не раскрыты агрегатором.",
+    "Нет постатейного раскрытия COGS / валовой прибыли / операционных расходов в МСФО — cogs/gross_profit = null. По business_model.md себестоимость ~94% выручки (≈15,8 млрд из 16,7 млрд в 2024), но в JSON не вношу без проверяемого источника.",
+    "DA реконструирована как EBITDA − операционная прибыль; финансовые расходы (finance_costs) не раскрыты отдельной строкой — null.",
+    "Краткосрочный/долгосрочный долг отдельно не раскрыт; current_ratio не рассчитан (нет разбивки оборотных активов/обязательств).",
+    "FCF волатилен и в 2023 и 2025 отрицателен из-за оборотного капитала — для DCF использован нормализованный FCFF (NOPAT + DA − CapEx ≈ 291 млн), а не фактический FCF.",
+    "WACC ≈ Ke = 24,5% (Rf 14,6% + β1,1×ERP 9%); долг малозначим (net cash), поэтому WACC≈Ke. Бета оценочная (3-й эшелон, низкая ликвидность — рыночная бета ненадёжна).",
+    "relative_peers не рассчитан — нет sectors/machinery/peers.json (status pending_sector_backfill).",
+    "Брокерского консенсус-прогноза нет; прогноз механический.",
+    "Самопроверка кодом: net_debt = долг − кэш ✓; fcf = cfo − capex ✓; мультипликаторы пересчитаны от цены 3,48 ₽ × 838,3 млн акций (MCap 2,92 млрд, EV 2,22 млрд) ✓.",
+    "Дивиденды не выплачивались (2021-2025) — дивидендный метод оценки не применяется."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

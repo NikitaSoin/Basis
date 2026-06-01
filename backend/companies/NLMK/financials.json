@@ -734,10 +734,10 @@
     "Прогноз mechanical: единого консенсуса по абсолютным денежным потокам нет; таргеты брокеров (110-131 ₽) выше базовой внутренней оценки и отражают ставку на восстановление цикла."
   ],
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": 134.46,
     "upside_downside_pct": 56.1,
-    "status": "ok",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "ok"
   }
 }

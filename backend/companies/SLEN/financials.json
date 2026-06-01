@@ -1,0 +1,500 @@
+{
+  "meta": {
+    "ticker": "SLEN",
+    "name": "ПАО «Сахалинэнерго»",
+    "sector": "Электроэнергетика",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 3.22,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 2237123773,
+    "isin": "RU0009280465",
+    "listing_level": 3,
+    "liquidity": "low",
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      10.9,
+      12.5,
+      14.2,
+      15.4,
+      18.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      5.72,
+      3.58,
+      5.51,
+      -5.88,
+      7.83
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -0.002,
+      -6.3,
+      1.7,
+      -9.39,
+      5.4
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        52.5,
+        28.6,
+        38.8,
+        -38.2,
+        43.5
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_margin": [
+        -0.0,
+        -50.4,
+        12.0,
+        -61.0,
+        30.0
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      38.7,
+      28.9,
+      36.4,
+      35.6,
+      40.6
+    ],
+    "total_equity": [
+      9.81,
+      11.5,
+      16.9,
+      7.68,
+      13.5
+    ],
+    "total_liabilities": [
+      28.89,
+      17.4,
+      19.5,
+      27.92,
+      27.1
+    ],
+    "cash": [
+      3.05,
+      2.02,
+      0.32,
+      1.09,
+      1.93
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      -0.38,
+      3.62,
+      7.71,
+      12.4,
+      13.9
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        0.27,
+        0.49,
+        0.48,
+        1.76,
+        1.18
+      ],
+      "net_debt_ebitda": [
+        -0.07,
+        1.01,
+        1.4,
+        null,
+        1.78
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      5.13,
+      1.78,
+      6.31,
+      7.56,
+      8.39
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      3.2,
+      5.03,
+      9.9,
+      10.2,
+      6.05
+    ],
+    "fcf": [
+      1.93,
+      -3.25,
+      -3.59,
+      -2.64,
+      2.34
+    ],
+    "ratios": {
+      "fcf_margin": [
+        17.7,
+        -26.0,
+        -25.3,
+        -17.1,
+        13.0
+      ],
+      "cfo_to_capex": [
+        1.6,
+        0.35,
+        0.64,
+        0.74,
+        1.39
+      ],
+      "capex_to_revenue": [
+        29.4,
+        40.2,
+        69.7,
+        66.2,
+        33.6
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      -0.0,
+      -54.8,
+      10.1,
+      -122.3,
+      40.0
+    ],
+    "roa": [
+      -0.0,
+      -21.8,
+      4.7,
+      -26.4,
+      13.3
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      -0.0,
+      -50.4,
+      12.0,
+      -61.0,
+      30.0
+    ],
+    "asset_turnover": [
+      0.28,
+      0.43,
+      0.39,
+      0.43,
+      0.44
+    ]
+  },
+  "multiples": {
+    "pe": [
+      -3601.77,
+      -1.14,
+      4.24,
+      -0.77,
+      1.33
+    ],
+    "ps": [
+      0.66,
+      0.58,
+      0.51,
+      0.47,
+      0.4
+    ],
+    "pb": [
+      0.73,
+      0.63,
+      0.43,
+      0.94,
+      0.53
+    ],
+    "ev_ebitda": [
+      1.19,
+      3.02,
+      2.71,
+      null,
+      2.7
+    ],
+    "current": {
+      "pe": 1.33,
+      "ps": 0.4,
+      "pb": 0.53,
+      "ev_ebitda": 2.7,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": 2.79,
+      "period": "2021-2025, медиана только по прибыльным годам (2023,2025); 2021/2022/2024 убыточны"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по SLEN нет. История нерепрезентативна: чередование прибыли и крупных неденежных убытков (обесценение 2024), допэмиссия 2024 (акций 1 237→2 237 млн). Механический прогноз ненадёжен. data_quality=low."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": 4.03,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 14.28,
+          "terminal_growth": 3.5,
+          "forecast_years": 5,
+          "fcf0_bln": 2.34,
+          "fcf_growth_pct": 4.0
+        },
+        "tv_share_of_value_pct": 61.2,
+        "status": "insufficient_data",
+        "note": "FCF волатилен и в 2022-2024 отрицателен из-за инвестпрограммы; за базу взят положительный FCF 2025. Оценка крайне чувствительна к нормализации CapEx."
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 6.74,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.79,
+          "basis": "5y_median_positive_years",
+          "eps_2025": 2.41
+        },
+        "note": "Медиана P/E считана лишь по 2 прибыльным годам; EPS 2025 (2,41 ₽) — после убытка 2024, устойчивость не доказана."
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill",
+        "note": "Сравнение с сектором электроэнергетики будет добавлено после прогона всех компаний сектора (peers.json)."
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 11.07,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "implied_pe": 4.59,
+          "eps_2025": 2.41
+        },
+        "note": "Таргет на 12 мес через P/E≈1/Ke на EPS 2025. Завышен, т.к. опирается на единственный прибыльный год после убытков — НЕнадёжен."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 4.03,
+      "base": 6.74,
+      "current_price": 3.22,
+      "upside_downside_pct": 25.2,
+      "note": "Коридор широкий (4,0–6,7 ₽) из-за низкого качества данных и волатильной прибыли. Апсайд указан к conservative; к base ~+109%, но base опирается на неустойчивую прибыль 2025."
+    },
+    "sensitivity": {
+      "wacc_grid": [
+        12.0,
+        14.28,
+        16.0
+      ],
+      "growth_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "matrix": [],
+      "note": "Полная матрица не строилась: DCF помечен insufficient_data, числовая чувствительность вводила бы в заблуждение при таком качестве входных данных."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "MOEX ISS — карточка эмитента ПАО «Сахалинэнерго» (ISIN RU0009280465, цена)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru — финансовые показатели SLEN (МСФО, 2021-2025)",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "backend/companies/SLEN/business_model.md + fact_check.md",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "data_quality=low: единственный источник по рядам отчётности — агрегатор smart-lab (МСФО). Первичная отчётность с e-disclosure не сверена построчно.",
+    "Расхождение МСФО vs РСБУ: по МСФО выручка 2024=15,4 млрд (использована здесь), по РСБУ ~22,1 млрд. Стандарты не смешивать.",
+    "DA отдельно не раскрыта → operating_profit, ROIC, current_ratio = null.",
+    "CFI/CFF не раскрыты по годам → net_change_in_cash = null.",
+    "Допэмиссия 2024: число акций выросло 1 237→2 237 млн. Per-share метрики до/после несопоставимы; мультипликаторы по годам считаны от ТЕКУЩЕЙ капитализации (2 237 млн × 3,22 ₽) — это упрощение.",
+    "Убыток 2024 (−9,4 млрд) преимущественно неденежное обесценение основных средств; EBITDA 2024 отрицательна → EV/EBITDA и ND/EBITDA за 2024 = null (аномалия).",
+    "Дивиденды компания не платит → дивидендный метод оценки не применялся.",
+    "relative_peers = pending_sector_backfill.",
+    "Прибыль волатильна (чередование прибыли и убытков) → historical_pe и CAPM ненадёжны; основной якорь — DCF, но и он insufficient_data."
+  ],
+  "anomaly_flag": true,
+  "anomaly_note": "2024 — аномальный год: отрицательная EBITDA (−5,88 млрд) и убыток −9,39 млрд из-за крупного неденежного обесценения активов при выросшей выручке; в 2024 же прошла допэмиссия (акций 1 237→2 237 млн). EV/EBITDA и ND/EBITDA за 2024 не определены. Малоликвидная бумага 3-го уровня листинга. Оценка имеет низкую достоверность.",
+  "peer_multiples": {
+    "2025": {
+      "pe": 1.33,
+      "ps": 0.4,
+      "pb": 0.53,
+      "ev_ebitda": 2.7,
+      "ev_sales": 1.17,
+      "net_margin": 30.0
+    },
+    "2024": {
+      "pe": -0.77,
+      "ps": 0.47,
+      "pb": 0.94,
+      "ev_ebitda": null,
+      "ev_sales": 1.27,
+      "net_margin": -61.0
+    }
+  },
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

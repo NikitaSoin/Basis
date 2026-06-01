@@ -1,0 +1,510 @@
+{
+  "meta": {
+    "ticker": "ZVEZ",
+    "name": "ПАО «ЗВЕЗДА»",
+    "sector": "machinery_defense",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 5.85,
+    "price_date": "2026-05-29",
+    "shares_outstanding": 562020480,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ]
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      2450,
+      3750,
+      3560,
+      3590
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      -1230,
+      -370,
+      0,
+      200
+    ],
+    "ebitda": [
+      null,
+      null,
+      -100,
+      260,
+      400,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      -1340,
+      -660,
+      -450,
+      -260
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        -4.1,
+        6.9,
+        11.2,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        -50.2,
+        -9.9,
+        0.0,
+        5.6
+      ],
+      "net_margin": [
+        null,
+        null,
+        -54.7,
+        -17.6,
+        -12.6,
+        -7.2
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      9780,
+      9700,
+      11200,
+      10900
+    ],
+    "total_equity": [
+      null,
+      null,
+      -2260,
+      -2760,
+      -4110,
+      -4570
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      12040,
+      12460,
+      15310,
+      15470
+    ],
+    "cash": [
+      null,
+      null,
+      20,
+      110,
+      70,
+      210
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      3600,
+      4390,
+      4100,
+      4540
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        -36.0,
+        16.9,
+        10.2,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      -1230,
+      -430,
+      -620,
+      -480
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      80,
+      60,
+      80,
+      10
+    ],
+    "fcf": [
+      null,
+      null,
+      -1310,
+      -490,
+      -700,
+      -490
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      -13.7,
+      -6.8,
+      -4.0,
+      -2.4
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      -54.7,
+      -17.6,
+      -12.6,
+      -7.2
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      -1.6,
+      -8.4,
+      -9.4,
+      -14.5
+    ],
+    "ps": [
+      null,
+      null,
+      0.85,
+      1.48,
+      1.18,
+      1.05
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      38.2,
+      20.8,
+      null
+    ],
+    "current": {
+      "pe": -12.6,
+      "ps": 0.92,
+      "pb": null,
+      "ev_ebitda": 19.6,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "period": "не применимо — прибыль отрицательная во все раскрытые годы"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": -14.5,
+      "ps": 1.05,
+      "pb": null,
+      "ev_ebitda": null,
+      "roe": null,
+      "net_debt_ebitda": null
+    },
+    "2024": {
+      "pe": -9.4,
+      "ps": 1.18,
+      "pb": null,
+      "ev_ebitda": 20.8,
+      "roe": null,
+      "net_debt_ebitda": 10.2
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет (малоликвидный эмитент 3-го уровня листинга). История нерепрезентативна: убыток и отрицательный собственный капитал во все раскрытые годы. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "not_applicable"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0
+        },
+        "status": "insufficient_data"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": null,
+      "base": null,
+      "current_price": 5.85,
+      "upside_downside_pct": null
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "Отрицательный собственный капитал (-4,57 млрд руб. на 2025), накопленный за счёт убытков → P/B и ROE неприменимы, debt/equity не считается. Чистый убыток все раскрытые годы. Чистый долг/EBITDA ~10x (2024). Гособоронзаказ и судовые дизели/редукторы — выручка и часть статей не раскрываются. Инвестпрограмма (CapEx) минимальна, износ фондов высокий. EV/EBITDA сильно завышен из-за тонкой EBITDA на фоне крупного долга.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "aggregator",
+      "title": "Smart-Lab — годовая отчётность МСФО ZVEZ (2022–2025)",
+      "period": "2022–2025",
+      "reliability": "low"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "MOEX ISS — ZVEZ: цена, объём выпуска, листинг",
+      "period": "2026-05-29",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "business_model.md ZVEZ — профиль, выручка/EBITDA/чистый долг 2023–2024",
+      "period": "2023–2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Собственный капитал отрицательный (2022–2025) — P/B, ROE, D/E не рассчитываются (null).",
+    "2020–2021 не раскрыты агрегатором — все ряды null.",
+    "EBITDA 2025 не раскрыта напрямую; ND/EBITDA и EV/EBITDA за 2025 не считаются.",
+    "COGS, OpEx, D&A, finance_costs, разбивка долга по срочности, CFI/CFF не раскрыты.",
+    "EV/EBITDA рассчитан только по годам с положительной EBITDA (2023, 2024); текущий EV/EBITDA = 19,6x использует EBITDA 2024 (400 млн) — пометить как приблизительный.",
+    "P/E отрицательный (убыток) — для оценки непригоден.",
+    "Прогноза и брокерского консенсуса нет; DCF/CAPM — insufficient_data.",
+    "relative_peers — status pending_sector_backfill (нет peers.json по сектору machinery_defense).",
+    "Расхождение источников по чистому долгу 2025: business_model.md закрывался на 2024 (4,10 млрд); Smart-Lab 2025 = 4,54 млрд — взято значение Smart-Lab."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.65,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

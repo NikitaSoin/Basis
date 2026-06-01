@@ -1,0 +1,589 @@
+{
+  "meta": {
+    "ticker": "SAREP",
+    "name": "ПАО «Саратовэнерго» (прив.)",
+    "sector": "energy_utilities_sales",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "isin": "RU0009100754",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.432,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 4865127996,
+    "data_quality": "low",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "SARE",
+    "pref_to_common_ratio": 0.595,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной SARE. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.595 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      21900,
+      null,
+      23700,
+      26500,
+      27600,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      14800,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      12300,
+      12800,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      210,
+      null,
+      770,
+      988,
+      945,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      120,
+      null,
+      640,
+      403,
+      940,
+      null
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        46.42,
+        46.38,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        0.96,
+        null,
+        3.25,
+        3.73,
+        3.42,
+        null
+      ],
+      "net_margin": [
+        null,
+        0.55,
+        null,
+        2.7,
+        1.52,
+        3.41,
+        null
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      2850,
+      null,
+      2500,
+      3060,
+      4490,
+      5630
+    ],
+    "total_equity": [
+      null,
+      -346,
+      null,
+      -6,
+      640,
+      1590,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      3196,
+      null,
+      2506,
+      2420,
+      2900,
+      null
+    ],
+    "cash": [
+      null,
+      1,
+      null,
+      430,
+      1000,
+      1860,
+      2430
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      690,
+      null,
+      -430,
+      -1000,
+      -1860,
+      -2430
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      63.0,
+      59.1,
+      null
+    ],
+    "roa": [
+      null,
+      4.2,
+      null,
+      25.6,
+      13.2,
+      20.9,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      0.55,
+      null,
+      2.7,
+      1.52,
+      3.41,
+      null
+    ],
+    "asset_turnover": [
+      null,
+      7.68,
+      null,
+      9.48,
+      8.66,
+      6.15,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 2.24,
+      "ps": 0.08,
+      "pb": 1.32,
+      "ev_ebitda": null,
+      "as_of": "2026-05-29"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 2.4,
+      "pe_5y_median": 2.41,
+      "period": "2020,2022,2023,2024 (агрегатор; 2019/2021 нет)"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": null,
+      "ps": null,
+      "pb": null,
+      "ev_ebitda": null,
+      "dividend_yield": null,
+      "roe": null
+    },
+    "2024": {
+      "pe": 2.24,
+      "ps": 0.08,
+      "pb": 1.32,
+      "ev_ebitda": null,
+      "dividend_yield": 0.0,
+      "roe": 59.1
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Брокерского покрытия по эмитенту третьего эшелона нет. Чистая прибыль волатильна и определяется резервами по сомнительным долгам и прочими разовыми статьями, а не операционной деятельностью, поэтому механический прогноз нерепрезентативен. 1кв2025: выручка +3.8% до 7.65 млрд ₽, чистая прибыль +28% до 279 млн ₽."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.33,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 4.05,
+          "basis": "median(2020,2022-2024) × нормализованная EPS (среднее ЧП 2022-2024 = 661 млн ₽, EPS=0.1359)"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.37,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 21.8,
+          "beta": 0.8,
+          "basis": "P/E ≈ 1/Ke на нормализованную EPS; роста и дивиденда по обычке нет"
+        },
+        "status": "ok"
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "note": "Не применим к обыкновенным акциям: SARE дивиденды не платит (выплаты идут только по префам SAREP)."
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.55,
+      "base": 0.62,
+      "current_price": 0.726,
+      "upside_downside_pct": -14.6
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "anomaly_flag": true,
+  "anomaly_note": "1) Капитал был ОТРИЦАТЕЛЬНЫМ в 2020-2022 (накопленный убыток), вышел в плюс лишь в 2023; из-за этого ROE/P/B за ранние годы не считаются. 2) ROE 2024 ~59% завышен низкой базой капитала и разовым роспуском резервов — не отражает устойчивую доходность. 3) Чистая прибыль крайне волатильна (0.12→0.64→0.40→0.94 млрд ₽) и определяется резервами по дебиторке, а не операционкой; для оценки взята нормализованная EPS. 4) Обыкновенные акции дивиденды не платят (в отличие от префа SAREP). 5) Эмитент третьего эшелона, малая ликвидность.",
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — карточка бумаги SARE (ISIN, число акций, цена)",
+      "period": "2026-05",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/SARE — финпоказатели и мультипликаторы",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "official_report",
+      "title": "РСБУ-отчётность ПАО «Саратовэнерго» (выручка/ЧП 2023-2024, 1кв2025)",
+      "period": "2023-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md (внутренний разбор бизнес-модели)",
+      "period": "2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "Нет загруженных файлов в sources/ — все числа из веба (MOEX + smart-lab + РСБУ-пресс).",
+    "Годы 2019 и 2021 не раскрыты в доступных источниках — null.",
+    "EBITDA не рассчитывается: бизнес безактивный (нет ОС), амортизация ~0, показатель малоинформативен для энергосбыта.",
+    "Денежные потоки (CFO/CapEx/FCF) из публичных агрегаторов не получены — весь блок cash_flow = null.",
+    "Капитал 2020-2022 отрицательный → P/B и ROE за эти годы не считаются.",
+    "Структура акционеров: «Интер РАО» ~83.5% — требует сверки по официальному раскрытию (e-disclosure.ru).",
+    "Оценка построена на нормализованной прибыли из-за волатильности ЧП; коридор широкий, надёжность низкая.",
+    "relative_peers ждёт backfill по сектору энергосбытов (peers.json не собран)."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

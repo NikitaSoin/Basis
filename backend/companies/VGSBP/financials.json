@@ -1,0 +1,448 @@
+{
+  "meta": {
+    "ticker": "VGSBP",
+    "name": "ПАО «Волгоградэнергосбыт» (прив.)",
+    "sector": "electric_utilities_sales",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "РСБУ",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 13.15,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 319595965,
+    "data_quality": "medium",
+    "data_source_priority": [
+      "uploaded_file",
+      "official_report",
+      "broker",
+      "aggregator"
+    ],
+    "is_pref": true,
+    "linked_common": "VGSB",
+    "pref_to_common_ratio": 0.96,
+    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной VGSB. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.96 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+  },
+  "income_statement": {
+    "revenue": [
+      26.2,
+      26.2,
+      29.6,
+      32.0,
+      35.8
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      32.7,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      3.8,
+      3.7,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      2.15,
+      2.12,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      2.2,
+      2.1,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      0.007,
+      null
+    ],
+    "net_profit": [
+      0.284,
+      0.883,
+      1.77,
+      2.23,
+      2.13
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        12.8,
+        10.2,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        7.4,
+        5.8,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        7.3,
+        6.6,
+        null
+      ],
+      "net_margin": [
+        1.1,
+        3.4,
+        6.0,
+        7.0,
+        5.9
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      8.59
+    ],
+    "total_equity": [
+      -6.25,
+      -5.36,
+      -3.59,
+      -1.36,
+      0.77
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ratios": {
+      "fcf_margin": [],
+      "cfo_to_capex": [],
+      "capex_to_revenue": []
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      276.6
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      24.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      1.1,
+      3.4,
+      6.0,
+      7.0,
+      5.9
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      null,
+      4.17
+    ]
+  },
+  "multiples": {
+    "pe": [
+      14.8,
+      4.76,
+      2.37,
+      1.88,
+      1.98
+    ],
+    "ps": [
+      0.16,
+      0.16,
+      0.14,
+      0.13,
+      0.12
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      5.46
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": 1.98,
+      "ps": 0.12,
+      "pb": 5.46,
+      "ev_ebitda": null,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": 5.15,
+      "pe_5y_median": 2.37,
+      "period": "2021-2025, цена текущая ко прибыли каждого года"
+    }
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Малоликвидный эмитент 3-го эшелона, брокерского покрытия и консенсуса нет. Прибыль волатильна и зависит от решений тарифного регулятора и восстановления резервов — механический прогноз нерепрезентативен. Прогноз не строится."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": null,
+          "terminal_growth": null,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 15.8,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 2.47,
+          "basis": "5y_median, EPS_ttm=6.66"
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "pe",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 27.13,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 23.6,
+          "beta": 1.0,
+          "fair_pe": 4.24,
+          "note": "Дивидендов по обычке нет — вся требуемая доходность через апсайд; целевой P/E=1/Ke даёт верхнюю границу"
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "note": "По обыкновенным акциям VGSB дивиденды не выплачиваются с ~2011 г.; дивиденды идут на префы VGSBP"
+        },
+        "status": "not_applicable"
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 16.46,
+      "base": 16.46,
+      "current_price": 13.7,
+      "upside_downside_pct": 20.1
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "iss.moex.com — параметры выпуска и котировки VGSB (319 595 965 акций, цена 13,7 ₽)",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/VGSB — годовая отчётность РСБУ 2021-2025, мультипликаторы",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/VGSB/dividend — история дивидендов (по обычке = 0)",
+      "period": "2020-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "business_model.md — экономика гарантирующего поставщика, мини-P&L 2023-2024",
+      "period": "2023-2024",
+      "reliability": "high"
+    }
+  ],
+  "data_flags": [
+    "Отчётность только РСБУ; МСФО компания не публикует.",
+    "Денежный поток (CFO/CFI/CFF), CapEx, FCF, чистый долг компанией не раскрыты — DCF не применим (insufficient_data).",
+    "Собственный капитал был отрицательным в 2021-2024 (наследие долгов), вышел в плюс лишь в 2025 (+0,77 млрд); P/B и ROE до 2025 не имеют экономического смысла — ROE 2025 (276%) завышен из-за крайне малой базы капитала. anomaly_flag=true.",
+    "Историческая P/E-серия рассчитана как ТЕКУЩАЯ капитализация / прибыль каждого года (исторических цен по неликвиду нет) — это прокси, не настоящий исторический мультипликатор.",
+    "Дивиденды по обыкновенным акциям не платятся (~с 2011 г.) → дивидендный метод not_applicable; вся отдача инвестора зависит от переоценки и/или будущего возобновления выплат.",
+    "relative_peers ждёт прогона сектора энергосбытов (peers.json).",
+    "Низкая ликвидность (оборот ~0,4 млн ₽/день), спред SMAL 10,2/16,95 — рыночная цена шумная; оценки ориентировочны."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

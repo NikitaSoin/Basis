@@ -1,0 +1,612 @@
+{
+  "meta": {
+    "ticker": "MRKY",
+    "name": "ПАО «Россети Юг»",
+    "sector": "electric_utilities",
+    "profile": "standard",
+    "currency": "RUB",
+    "unit": "млрд",
+    "reporting_standard": "МСФО",
+    "fiscal_years": [
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 0.0794,
+    "price_date": "2026-06-01",
+    "shares_outstanding": 692.27956368,
+    "data_quality": "low",
+    "data_source_priority": [
+      "official_report",
+      "aggregator",
+      "broker"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "В 2025 г. завершена реорганизация: к ПАО «Россети Юг» присоединено более крупное АО «Россети Кубань» (выручка Кубани ~88 млрд против ~56 млрд у Юга). Это привело к скачку: выручка 56,4→97,0 млрд, активы 55,4→206,5 млрд, капитал 8,5→81,7 млрд, число акций 151,6→692,3 млрд (допэмиссия ~54,6 млрд акций номиналом 10 коп., конвертация бумаг Кубани). Показатели 2025 г. НЕ сопоставимы с предыдущими годами — это объединённая компания. Все ряды до 2025 относятся к прежней «МРСК/Россети Юг». Кроме того, в 2021–2022 гг. капитал был отрицательным (−1,05 и −0,68 млрд), поэтому ROE и P/B за эти годы не рассчитываются."
+  },
+  "income_statement": {
+    "revenue": [
+      null,
+      null,
+      43.4,
+      44.1,
+      51.0,
+      56.4,
+      97.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      null,
+      null,
+      -3.05,
+      3.03,
+      6.07,
+      11.7,
+      11.4
+    ],
+    "ebitda": [
+      null,
+      null,
+      7.5,
+      6.08,
+      8.68,
+      8.2,
+      14.2
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      -3.73,
+      0.34,
+      3.01,
+      6.13,
+      5.6
+    ],
+    "margins": {
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        17.28,
+        13.79,
+        17.02,
+        14.54,
+        14.64
+      ],
+      "operating_margin": [
+        null,
+        null,
+        -7.03,
+        6.87,
+        11.9,
+        20.74,
+        11.75
+      ],
+      "net_margin": [
+        null,
+        null,
+        -8.59,
+        0.77,
+        5.9,
+        10.87,
+        5.77
+      ]
+    }
+  },
+  "balance_sheet": {
+    "total_assets": [
+      null,
+      null,
+      37.7,
+      51.8,
+      49.8,
+      55.4,
+      206.5
+    ],
+    "total_equity": [
+      null,
+      null,
+      -1.05,
+      -0.68,
+      2.39,
+      8.53,
+      81.7
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      38.75,
+      52.48,
+      47.41,
+      46.87,
+      124.8
+    ],
+    "cash": [
+      null,
+      null,
+      1.3,
+      1.66,
+      4.03,
+      2.57,
+      18.1
+    ],
+    "short_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "long_term_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      null,
+      null,
+      23.0,
+      21.64,
+      19.47,
+      22.53,
+      36.2
+    ],
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        9.83,
+        2.94,
+        0.66
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        3.07,
+        3.56,
+        2.24,
+        2.75,
+        2.55
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      2.7,
+      6.55,
+      7.81,
+      2.99,
+      9.26
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      5.68,
+      5.27,
+      5.42,
+      6.02,
+      7.49
+    ],
+    "fcf": [
+      null,
+      null,
+      -2.98,
+      1.28,
+      2.39,
+      -3.03,
+      1.77
+    ],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        -6.87,
+        2.9,
+        4.69,
+        -5.37,
+        1.82
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        0.48,
+        1.24,
+        1.44,
+        0.5,
+        1.24
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        13.09,
+        11.95,
+        10.63,
+        10.67,
+        7.72
+      ]
+    }
+  },
+  "returns": {
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      125.9,
+      71.9,
+      6.9
+    ],
+    "roa": [
+      null,
+      null,
+      -9.89,
+      0.66,
+      6.04,
+      11.07,
+      2.71
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      -8.59,
+      0.77,
+      5.9,
+      10.87,
+      5.77
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      1.15,
+      0.85,
+      1.02,
+      1.02,
+      0.47
+    ]
+  },
+  "multiples": {
+    "_note": "Исторические мультипликаторы рассчитаны от ТЕКУЩЕЙ цены (0.0794 ₽) и числа акций соответствующего года к метрике года — это not-trailing, а индикатив текущей оценки против каждой годовой базы. P/B за 2021–2022 = null (капитал отрицательный).",
+    "pe": [
+      null,
+      null,
+      -3.23,
+      35.41,
+      4.0,
+      1.96,
+      9.82
+    ],
+    "ps": [
+      null,
+      null,
+      0.278,
+      0.273,
+      0.236,
+      0.213,
+      0.567
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      5.04,
+      1.41,
+      0.67
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      4.67,
+      5.54,
+      3.63,
+      4.22,
+      6.42
+    ],
+    "ev_sales": [
+      null,
+      null,
+      0.808,
+      0.764,
+      0.617,
+      0.614,
+      0.94
+    ],
+    "p_fcf": [
+      null,
+      null,
+      null,
+      9.4,
+      5.04,
+      null,
+      31.05
+    ],
+    "current": {
+      "pe": 9.82,
+      "ps": 0.567,
+      "pb": 0.67,
+      "ev_ebitda": 6.42,
+      "ev_sales": 0.94,
+      "p_fcf": 31.05,
+      "as_of": "2026-06-01"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "ev_ebitda_median_2021_2024": 4.22,
+      "period": "2021-2024 (до присоединения Кубани); медиана EV/EBITDA по агрегатору ~3.9, по пересчёту от текущей цены ~4.22"
+    }
+  },
+  "peer_multiples": {
+    "2025": {
+      "pe": 9.82,
+      "ps": 0.567,
+      "pb": 0.67,
+      "ev_ebitda": 6.42,
+      "ev_sales": 0.94,
+      "p_fcf": 31.05
+    },
+    "2024": {
+      "pe": 1.96,
+      "ps": 0.213,
+      "pb": 1.41,
+      "ev_ebitda": 4.22,
+      "ev_sales": 0.614,
+      "p_fcf": null
+    }
+  },
+  "relative_peers": {
+    "status": "pending_sector_backfill",
+    "note": "Сектор распределительных электросетей (МРСК / Россети-дочки: MRKP, MRKU, MRKC, MRKV, MRKZ, MSRS, LSNG, FEES и др.) ещё не прогнан. Медианные секторные EV/EBITDA и P/E подставить после backfill."
+  },
+  "forecast": {
+    "source_type": "none",
+    "providers": [],
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз не строится: 2025 г. — год слияния с Россети Кубань, исторический ряд нерепрезентативен (структурный разрыв, отрицательный капитал 2021–2022, разовые факторы прибыли). За 9 мес. 2025 выручка 60,8 млрд (+46,8% г/г), чистая прибыль 4,51 млрд — но рост почти полностью эффект присоединения Кубани, а не органика. Брокерское покрытие низкое."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "wacc": 0.227,
+          "terminal_growth": 0.035,
+          "forecast_years": 5
+        },
+        "tv_share_of_value_pct": null,
+        "status": "insufficient_data"
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": null,
+          "basis": "5y_median"
+        },
+        "status": "insufficient_data"
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "peer_multiple": "ev_ebitda",
+          "peer_median": null
+        },
+        "status": "pending_sector_backfill"
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": null,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke": 0.227,
+          "beta": 0.9
+        },
+        "status": "insufficient_data",
+        "note": "Ke = 14.6% + 0.9×9.0% = 22.7%. Целевая цена через дивдоходность не считается: дивиденды нерегулярны, дивполитика после слияния не подтверждена."
+      },
+      {
+        "method": "own_historical_ev_ebitda",
+        "fair_value_per_share": 0.028,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_ebitda_used": 3.9,
+          "basis": "медиана 2021-2024, дослияние",
+          "ebitda_2025": 14.2
+        },
+        "status": "ok",
+        "note": "ГРУБАЯ привязка: собственная дослияночная медиана EV/EBITDA ~3.9 × EBITDA объединённой компании 14,2 − чистый долг 36,2 = справедливый капитал ~19 млрд / 692,3 млрд акций ≈ 0,028 ₽. Метод ненадёжен: дослияночный мультипликатор применён к послеслияночной EBITDA, эталон сектора не подтверждён."
+      }
+    ],
+    "fair_value_range": {
+      "conservative": 0.028,
+      "base": null,
+      "current_price": 0.0794,
+      "upside_downside_pct": null,
+      "note": "Полноценный коридор не строится — слишком мало данных и структурный разрыв 2025 г. Единственная грубая оценка (по собственному историческому EV/EBITDA ~0,028 ₽) лежит существенно НИЖЕ рынка (0,0794 ₽), то есть по этой логике бумага выглядит дорого, но оценка не подтверждена секторным эталоном. Финальный диапазон — после backfill сектора."
+    },
+    "sensitivity": {
+      "wacc_grid": [],
+      "growth_grid": [],
+      "matrix": []
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Россети Юг МСФО 2024 (выручка 56,41 млрд, чистая прибыль 6,13 млрд)",
+      "period": "FY2024",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "aggregator",
+      "title": "smart-lab.ru /q/MRKY/f/y/ — годовые ряды МСФО 2021–2025",
+      "period": "2021-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "iss.moex.com securities/MRKY — цена 0.0794 ₽ TQBR, issue size 692 279 563 680 акций",
+      "period": "2026-06-01",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "Реорганизация: присоединение АО «Россети Кубань» к ПАО «Россети Юг», допэмиссия ~54,6 млрд акций (RBC/Kommersant/Interfax)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "official_report",
+      "title": "Россети Юг МСФО 9 мес 2025 (выручка 60,8 млрд, ЧП 4,51 млрд)",
+      "period": "9M2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "official_report",
+      "title": "companies/MRKY/business_model.md",
+      "period": "2023-2024",
+      "reliability": "medium"
+    }
+  ],
+  "data_flags": [
+    "АНОМАЛИЯ 2025: присоединена Россети Кубань — выручка/активы/капитал/число акций скачком выросли; 2025 не сопоставим с прошлым.",
+    "Капитал отрицательный в 2021 (−1,05) и 2022 (−0,68) → ROE и P/B за эти годы не рассчитаны.",
+    "Нет полного постатейного P&L и отчёта о движении денежных средств: COGS, opex, D&A, finance costs, CFI/CFF, структура долга — null.",
+    "CFO взяты с агрегатора, не сверены с официальным ОДДС; net_change_in_cash не рассчитан.",
+    "Разрыв EBITDA vs операционная прибыль (в 2024 EBITDA 8,2 < опер. прибыль 11,7 по агрегатору) — для сетевой компании нелогично (EBITDA должна быть выше на амортизацию); методика расчёта агрегатора сомнительна, требует сверки по отчёту МСФО.",
+    "Исторические мультипликаторы посчитаны от текущей цены к метрике года (индикатив), а не trailing на дату каждого года.",
+    "DCF, исторический P/E, CAPM-таргет — insufficient_data из-за структурного разрыва и слабого покрытия.",
+    "relative_peers — pending_sector_backfill: секторный эталон МРСК ещё не собран.",
+    "Распределительные электросети Юга — повышенные потери в сетях и проблема неплатежей/собираемости, слабая и волатильная прибыль; оценка осторожная."
+  ],
+  "relative_peers_sector": {
+    "basis_metric": "ev_ebitda",
+    "peer_median": 2.81,
+    "fair_value_per_share": null,
+    "upside_downside_pct": null,
+    "status": "insufficient_data"
+  }
+}

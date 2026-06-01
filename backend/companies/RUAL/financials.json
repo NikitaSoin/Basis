@@ -719,10 +719,10 @@
   "anomaly_flag": true,
   "anomaly_note": "Доля в Норникеле искажает прибыль/P/E; высокий долг (ND/EBITDA ~10x) — не сопоставим по EV/EBITDA.",
   "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 5.41,
+    "basis_metric": "ev_ebitda",
+    "peer_median": 5.41,
     "fair_value_per_share": -18.94,
     "upside_downside_pct": -149.9,
-    "status": "reference_only",
-    "basis": "медиана EV/EBITDA сопоставимых производителей сектора"
+    "status": "reference_only"
   }
 }

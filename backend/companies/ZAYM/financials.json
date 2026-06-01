@@ -574,10 +574,10 @@
     "relative_peers: status pending_sector_backfill — прямые конкуренты-МФО непубличны, секторное сравнение будет дополнено."
   ],
   "relative_peers_sector": {
-    "peer_median_pb_2025": 0.88,
+    "basis_metric": "pb",
+    "peer_median": 0.88,
     "fair_value_per_share": 126.96,
     "upside_downside_pct": -14.6,
-    "status": "reference_only",
-    "basis": "медиана P/B чистых сопоставимых банков (SBER/T/BSPB)"
+    "status": "reference_only"
   }
 }
