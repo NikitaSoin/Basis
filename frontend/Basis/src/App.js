@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -41,7 +41,7 @@ import {
   Check,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
-import { formatMoney, formatPercent as fmtPercent, formatNumber as fmtNumber } from "./design/format";
+import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 
 // =========================
@@ -1823,6 +1823,95 @@ const CompaniesView = ({ onSelectCompany }) => {
 };
 
 // =========================
+// FINANCE TAB — data-viz helpers (live language, token-only)
+// Used exclusively by renderFinancials. Module-scope so their hooks
+// (draw-in / count-up) keep stable identity and do NOT replay on the
+// card's background re-renders (live-price poll) — only on first mount.
+// =========================
+
+// Single number that counts up to its value on first mount via the
+// caller-owned gate; snaps (no replay) on later mounts / reduced-motion.
+function FinCountUp({ value, render, gate }) {
+  const n = useCountUp(typeof value === "number" ? value : 0, 700, gate ? gate.current : null);
+  if (typeof value !== "number") return <>{render(value)}</>;
+  return <>{render(n)}</>;
+}
+
+// Line chart with soft gradient area fill under it + draw-in (stroke
+// dashoffset) on first mount. NO preserveAspectRatio="none" — geometry is
+// computed in real coords so nothing is stretched/distorted. Colour comes
+// from a token var (cat/semantic). Year labels along the bottom.
+function FinAreaChart({ data = [], years = [], colorVar = "--cat-5", suffix = "" }) {
+  const uid = useId();
+  const reduced = usePrefersReducedMotion();
+  const [drawn, setDrawn] = useState(reduced);
+  useEffect(() => {
+    if (reduced) { setDrawn(true); return; }
+    const r = requestAnimationFrame(() => setDrawn(true));
+    return () => cancelAnimationFrame(r);
+  }, [reduced]);
+  const W = 320, H = 132, padL = 8, padR = 8, padT = 16, padB = 22;
+  const seg = (data || []).map((v, i) => ({ v, i })).filter((p) => typeof p.v === "number");
+  if (!seg.length) return null;
+  const vals = seg.map((p) => p.v);
+  const max = Math.max(...vals, 0), min = Math.min(...vals, 0), span = (max - min) || 1;
+  const n = (data || []).length;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xAt = (i) => padL + (n <= 1 ? plotW / 2 : (i * plotW) / (n - 1));
+  const yAt = (v) => padT + (1 - (v - min) / span) * plotH;
+  const zeroY = yAt(0);
+  const linePts = seg.map((p) => `${xAt(p.i).toFixed(1)},${yAt(p.v).toFixed(1)}`);
+  const lineD = linePts.map((pt, k) => `${k === 0 ? "M" : "L"}${pt}`).join(" ");
+  const areaD = `M${xAt(seg[0].i).toFixed(1)},${zeroY.toFixed(1)} ` +
+    seg.map((p) => `L${xAt(p.i).toFixed(1)},${yAt(p.v).toFixed(1)}`).join(" ") +
+    ` L${xAt(seg[seg.length - 1].i).toFixed(1)},${zeroY.toFixed(1)} Z`;
+  const last = seg[seg.length - 1];
+  const gradId = `fin-area-${uid}`;
+  const color = `var(${colorVar})`;
+  // approximate path length for the draw-in dash
+  let len = 0;
+  for (let k = 1; k < seg.length; k++) {
+    const dx = xAt(seg[k].i) - xAt(seg[k - 1].i);
+    const dy = yAt(seg[k].v) - yAt(seg[k - 1].v);
+    len += Math.hypot(dx, dy);
+  }
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {min < 0 && max > 0 && (
+        <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-subtle)" strokeWidth="1" />
+      )}
+      <path d={areaD} fill={`url(#${gradId})`} stroke="none" style={{ opacity: drawn ? 1 : 0, transition: reduced ? undefined : "opacity 500ms ease 200ms" }} />
+      <path
+        d={lineD}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        style={{
+          strokeDasharray: len,
+          strokeDashoffset: reduced || drawn ? 0 : len,
+          transition: reduced ? undefined : "stroke-dashoffset 700ms cubic-bezier(0.16,1,0.3,1)",
+        }}
+      />
+      <circle cx={xAt(last.i)} cy={yAt(last.v)} r="2.5" fill={color}
+        style={{ opacity: drawn ? 1 : 0, transition: reduced ? undefined : "opacity 300ms ease 600ms" }} />
+      {years.map((lb, i) => (
+        <text key={i} x={xAt(i)} y={H - 5} textAnchor="middle" fontSize="9" fill="var(--text-tertiary)" fontFamily="monospace" style={{ fontVariantNumeric: "tabular-nums" }}>
+          {String(lb).slice(2)}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+// =========================
 // COMPANY CARD
 // =========================
 
@@ -1861,6 +1950,9 @@ const CompanyCard = ({ company, onBack }) => {
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
+  // Count-up gate for the Finance tab: numbers animate once per card visit,
+  // on the FIRST time the tab is opened — and snap (no replay) on tab switches.
+  const finCountGate = useRef({ played: false });
 
   const data = company.overview ? company : MOCK_COMPANIES[0];
 
@@ -2472,59 +2564,68 @@ const CompanyCard = ({ company, onBack }) => {
 
   const renderFinancials = () => {
     if (finLoading) return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-slate-400 animate-pulse">Загружаем финансы...</div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем финансы…</div>
       </div>
     );
     if (!finMd && !finJson) return renderComingSoon("Финансы и оценка");
 
+    const cx = (...p) => p.filter(Boolean).join(" ");
     const meta = finJson?.meta || {};
     const cur = (finJson?.multiples && finJson.multiples.current) || {};
+    const hist = finJson?.multiples || {};
     const ratios = (finJson?.balance_sheet && finJson.balance_sheet.ratios) || {};
     const ret = finJson?.returns || {};
     const fvr = (finJson?.valuation && finJson.valuation.fair_value_range) || {};
     const rel = finJson?.relative_peers_sector || {};
     const lastNN = (a) => Array.isArray(a) ? ([...a].reverse().find((x) => x != null) ?? null) : null;
-    const fmt = (v, d = 2) => (typeof v === "number" ? v.toFixed(d) : "—");
+    const fmt = (v, d = 2) => (typeof v === "number" ? formatNumber(v, { decimals: d }) : "—");
+    // prior-non-null: second-from-end non-null value, for a YoY-style delta on multiples
+    const prevNN = (a) => { if (!Array.isArray(a)) return null; const xs = [...a].reverse().filter((x) => x != null); return xs.length > 1 ? xs[1] : null; };
+    // signed % change between current and a reference (history prior year)
+    const pctOf = (c, p) => (typeof c === "number" && typeof p === "number" && p !== 0) ? ((c - p) / Math.abs(p)) * 100 : null;
 
-    const chips = [
-      { label: "P/E", value: fmt(cur.pe) },
-      { label: "P/S", value: fmt(cur.ps) },
-      { label: "P/B", value: fmt(cur.pb) },
-      { label: "EV/EBITDA", value: fmt(cur.ev_ebitda) },
-      { label: "Чистый долг / EBITDA", value: fmt(lastNN(ratios.net_debt_ebitda)) },
-      { label: "ROE", value: typeof lastNN(ret.roe) === "number" ? fmt(lastNN(ret.roe), 1) + "%" : "—" },
+    // Multiples → KpiTile grid. fmtVal renders the count-up'd number with unit.
+    const roeNow = lastNN(ret.roe);
+    const ndeNow = lastNN(ratios.net_debt_ebitda);
+    const mult = [
+      { label: "P/E", value: cur.pe, delta: pctOf(cur.pe, prevNN(hist.pe)), kind: "x" },
+      { label: "P/S", value: cur.ps, delta: pctOf(cur.ps, prevNN(hist.ps)), kind: "x" },
+      { label: "P/B", value: cur.pb, delta: pctOf(cur.pb, prevNN(hist.pb)), kind: "x" },
+      { label: "EV/EBITDA", value: cur.ev_ebitda, delta: pctOf(cur.ev_ebitda, prevNN(hist.ev_ebitda)), kind: "x" },
+      { label: "ND / EBITDA", value: ndeNow, delta: pctOf(ndeNow, prevNN(ratios.net_debt_ebitda)), kind: "x" },
+      { label: "ROE", value: roeNow, delta: pctOf(roeNow, prevNN(ret.roe)), kind: "pct" },
     ];
 
     const upside = fvr.upside_downside_pct;
     const mdc = {
       h1: () => null,
       h2: ({ children }) => (
-        <h2 style={{ fontSize: 15, fontWeight: 700, color: "var(--text-1, #fff)", margin: "18px 0 8px" }}>{children}</h2>
+        <h2 className="tw-text-[15px] tw-font-bold tw-text-text-primary tw-mt-[18px] tw-mb-2">{children}</h2>
       ),
       h3: ({ children }) => (
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text-2, #cbd5e1)", margin: "12px 0 6px" }}>{children}</h3>
+        <h3 className="tw-text-[13px] tw-font-semibold tw-text-text-secondary tw-mt-3 tw-mb-1.5">{children}</h3>
       ),
       p: ({ children }) => (
-        <p style={{ fontSize: 13.5, lineHeight: 1.65, color: "var(--text-2, #cbd5e1)", margin: "6px 0" }}>{children}</p>
+        <p className="tw-text-[13px] tw-leading-relaxed tw-text-text-secondary tw-my-1.5">{children}</p>
       ),
       li: ({ children }) => (
-        <li style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-2, #cbd5e1)", margin: "3px 0" }}>{children}</li>
+        <li className="tw-text-[13px] tw-leading-relaxed tw-text-text-secondary tw-my-0.5">{children}</li>
       ),
-      strong: ({ children }) => <strong style={{ color: "var(--text-1, #fff)" }}>{children}</strong>,
+      strong: ({ children }) => <strong className="tw-text-text-primary">{children}</strong>,
       table: ({ children }) => (
-        <div style={{ overflowX: "auto", margin: "10px 0" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>{children}</table>
+        <div className="tw-overflow-x-auto tw-my-2.5">
+          <table className="tw-w-full tw-border-collapse tw-text-[12px]">{children}</table>
         </div>
       ),
       th: ({ children }) => (
-        <th style={{ textAlign: "left", padding: "6px 8px", borderBottom: "1px solid var(--border, #334155)", color: "var(--text-2, #94a3b8)", fontWeight: 600 }}>{children}</th>
+        <th className="tw-text-left tw-px-2 tw-py-1.5 tw-border-b tw-border-border-strong tw-text-text-secondary tw-font-semibold">{children}</th>
       ),
       td: ({ children }) => (
-        <td style={{ padding: "6px 8px", borderBottom: "1px solid var(--border, #1e293b)", color: "var(--text-2, #cbd5e1)" }}>{children}</td>
+        <td className="tw-px-2 tw-py-1.5 tw-border-b tw-border-border-subtle tw-text-text-secondary">{children}</td>
       ),
       code: ({ children }) => (
-        <code style={{ background: "var(--bg-surface, #1e293b)", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>{children}</code>
+        <code className="tw-bg-bg-base tw-px-1.5 tw-py-0.5 tw-rounded-xs tw-text-[12px] tw-font-mono">{children}</code>
       ),
     };
 
@@ -2532,91 +2633,100 @@ const CompanyCard = ({ company, onBack }) => {
     const years = meta.fiscal_years || [];
     const at = (arr, i) => (Array.isArray(arr) ? (arr[i] ?? null) : null);
     const isBank = meta.profile === "bank";
-    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return (v / 1000000).toFixed(2) + " трлн"; if (a >= 1000) return (v / 1000).toFixed(1) + " млрд"; return v.toLocaleString("ru-RU"); };
+    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return formatNumber(v / 1000000, { decimals: 2 }) + " трлн"; if (a >= 1000) return formatNumber(v / 1000, { decimals: 1 }) + " млрд"; return formatNumber(v); };
     const yoy = (c, p) => (typeof c === "number" && typeof p === "number" && p !== 0) ? ((c - p) / Math.abs(p)) * 100 : null;
-    const cardStyle = { background: "var(--bg-surface)", borderRadius: 12, padding: 18, border: "1px solid var(--border)" };
+    // Section card header: accent icon + title + optional right slot.
     const cardHead = (Icon, title, right) => (
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-        <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}><Icon size={16} style={{ color: "var(--accent)" }} />{title}</h4>
+      <div className="tw-flex tw-justify-between tw-items-baseline tw-flex-wrap tw-gap-2 tw-mb-3.5">
+        <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
+          <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
+        </h4>
         {right}
       </div>
     );
     const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
 
-    const finTable = (rows) => (
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-          <thead><tr>
-            <th style={{ textAlign: "left", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", borderBottom: "1px solid var(--border-mid)", position: "sticky", left: 0, background: "var(--bg-surface)" }}>Показатель</th>
-            {years.map((y, i) => (<th key={i} style={{ textAlign: "right", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, borderBottom: "1px solid var(--border-mid)", whiteSpace: "nowrap" }}>{y}</th>))}
-          </tr></thead>
-          <tbody>
-            {rows.map((row, ri) => { const f = row.fmt || fmtBig; return (
-              <tr key={ri} style={{ background: ri % 2 ? "var(--bg-card)" : "transparent" }}>
-                <td style={{ padding: "6px 10px", color: row.muted ? "var(--text-3)" : "var(--text-2)", fontWeight: row.bold ? 600 : 400, whiteSpace: "nowrap", position: "sticky", left: 0, background: "inherit", fontSize: row.muted ? 12 : 13 }}>{row.label}</td>
-                {years.map((_, i) => { const v = at(row.arr, i); const d = row.delta ? yoy(v, at(row.arr, i - 1)) : null; return (
-                  <td key={i} style={{ padding: "6px 10px", textAlign: "right", color: row.bold ? "var(--text-1)" : "var(--text-2)", fontWeight: row.bold ? 600 : 400, fontFamily: "monospace", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-                    {v == null ? <span style={{ color: "var(--text-3)" }}>—</span> : f(v)}
-                    {d != null && (<span style={{ display: "block", fontSize: 10.5, fontWeight: 600, color: d >= 0 ? "var(--positive)" : "var(--negative)" }}>{d >= 0 ? "+" : ""}{d.toFixed(1)}%</span>)}
-                  </td>
-                ); })}
-              </tr>
-            ); })}
-          </tbody>
-        </table>
-      </div>
-    );
-    const tableSection = (Icon, title, rows, open) => (rows && rows.length) ? (
-      <details open={open} style={cardStyle}>
-        <summary style={{ cursor: "pointer", listStyle: "none", display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "var(--text-1)" }}><Icon size={16} style={{ color: "var(--accent)" }} />{title}<ChevronDown size={15} style={{ color: "var(--text-3)", marginLeft: "auto" }} /></summary>
-        <div style={{ marginTop: 12 }}>{finTable(rows)}</div>
-      </details>
-    ) : null;
-
-    const miniChart = (data, type, color) => {
-      const W = 320, H = 120, padX = 6, padTop = 14, padBot = 18;
-      const vals = (data || []).filter((v) => typeof v === "number");
-      if (!vals.length) return null;
-      const max = Math.max(...vals, 0), min = Math.min(...vals, 0), span = (max - min) || 1, n = (data || []).length;
-      const xAt = (i) => padX + (n === 1 ? (W - 2 * padX) / 2 : (i * (W - 2 * padX)) / (n - 1));
-      const yAt = (v) => padTop + (1 - (v - min) / span) * (H - padTop - padBot);
-      const zeroY = yAt(0);
-      return (
-        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} preserveAspectRatio="none">
-          {min < 0 && max > 0 && (<line x1={padX} x2={W - padX} y1={zeroY} y2={zeroY} stroke="var(--border-mid)" strokeWidth="1" />)}
-          {type === "bar" && (data || []).map((v, i) => { if (typeof v !== "number") return null; const bw = Math.max(6, (W - 2 * padX) / n * 0.6); const x = xAt(i) - bw / 2; const y = v >= 0 ? yAt(v) : zeroY; const h = Math.abs(yAt(v) - zeroY); return <rect key={i} x={x} y={y} width={bw} height={Math.max(h, 1)} rx="2" fill={v < 0 ? "var(--negative)" : color} opacity={v < 0 ? 0.9 : 0.85} />; })}
-          {type === "line" && (() => { const seg = (data || []).map((v, i) => ({ v, i })).filter((p) => typeof p.v === "number"); const d = seg.map((p, k) => `${k === 0 ? "M" : "L"}${xAt(p.i).toFixed(1)},${yAt(p.v).toFixed(1)}`).join(" "); return (<><path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />{seg.map((p, k) => <circle key={k} cx={xAt(p.i)} cy={yAt(p.v)} r="2.5" fill={color} />)}</>); })()}
-          {years.map((lb, i) => (<text key={i} x={xAt(i)} y={H - 5} textAnchor="middle" fontSize="8" fill="var(--text-3)" fontFamily="monospace">{String(lb).slice(2)}</text>))}
-        </svg>
-      );
+    // Build a year-column Table from row specs. Numbers right-aligned mono;
+    // optional YoY delta (signed, success/danger by sign) under bold rows.
+    const finTable = (rows) => {
+      const columns = [
+        { key: "label", label: "Показатель" },
+        ...years.map((y, i) => ({ key: `y${i}`, label: String(y) })),
+      ];
+      const tableRows = rows.map((row) => {
+        const r = { label: row.label, _row: row };
+        years.forEach((_, i) => { r[`y${i}`] = i; });
+        return r;
+      });
+      const cols = columns.map((c, ci) => {
+        if (ci === 0) {
+          return { ...c, render: (_v, r) => (
+            <span className={cx(
+              r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]",
+              r._row.bold ? "tw-font-semibold" : "tw-font-normal",
+              "tw-whitespace-nowrap"
+            )}>{r._row.label}</span>
+          ) };
+        }
+        const i = ci - 1;
+        return { ...c, render: (_v, r) => {
+          const row = r._row; const f = row.fmt || fmtBig; const v = at(row.arr, i);
+          const d = row.delta ? yoy(v, at(row.arr, i - 1)) : null;
+          return (
+            <span className="tw-inline-flex tw-flex-col tw-items-end">
+              <span className={cx("tw-font-mono tw-tabular-nums tw-whitespace-nowrap", row.bold ? "tw-text-text-primary tw-font-semibold" : "tw-text-text-secondary")}>
+                {v == null ? <span className="tw-text-text-tertiary">—</span> : f(v)}
+              </span>
+              {d != null && (
+                <span className="tw-text-[10px]"><Delta value={d} /></span>
+              )}
+            </span>
+          );
+        } };
+      });
+      return <Table columns={cols} rows={tableRows} />;
     };
+    const tableSection = (Icon, title, rows, open) => (rows && rows.length) ? (
+      <Card>
+        <details open={open}>
+          <summary className="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-list-none tw-text-[14px] tw-font-bold tw-text-text-primary">
+            <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
+            <ChevronDown size={15} className="tw-text-text-tertiary tw-ml-auto" />
+          </summary>
+          <div className="tw-mt-3">{finTable(rows)}</div>
+        </details>
+      </Card>
+    ) : null;
 
     const fairValueBar = () => {
       const lo = fvr.conservative, hi = fvr.base, curp = fvr.current_price ?? meta.last_price;
       if (typeof lo !== "number" || typeof hi !== "number" || typeof curp !== "number") return null;
       const mn = Math.min(lo, curp) * 0.92, mx = Math.max(hi, curp) * 1.08;
       const pos = (v) => ((v - mn) / (mx - mn || 1)) * 100;
+      const cySym = meta.currency || "₽";
       return (
-        <div style={cardStyle}>
+        <Card>
           {cardHead(Target, "Справедливая стоимость", typeof upside === "number" && (
-            <span style={{ fontSize: 15, fontWeight: 700, color: upside >= 0 ? "var(--positive)" : "var(--negative)" }}>{upside >= 0 ? "▲ +" : "▼ "}{upside}% {upside >= 0 ? "апсайд" : "даунсайд"}</span>
+            <span className={cx("tw-inline-flex tw-items-center tw-gap-1 tw-text-[15px] tw-font-bold tw-font-mono tw-tabular-nums", upside >= 0 ? "tw-text-success" : "tw-text-danger")}>
+              <span aria-hidden="true">{upside >= 0 ? "▲" : "▼"}</span>{fmtPercent(Math.abs(upside), { decimals: 0 })} {upside >= 0 ? "апсайд" : "даунсайд"}
+            </span>
           ))}
-          <div style={{ position: "relative", height: 46, marginTop: 8 }}>
-            <div style={{ position: "absolute", top: 20, left: 0, right: 0, height: 6, background: "var(--bg-card)", borderRadius: 3 }} />
-            <div style={{ position: "absolute", top: 20, height: 6, borderRadius: 3, background: "var(--accent)", opacity: 0.5, left: `${pos(lo)}%`, width: `${pos(hi) - pos(lo)}%` }} />
-            <div style={{ position: "absolute", top: 14, left: `${pos(curp)}%`, transform: "translateX(-50%)", width: 2, height: 18, background: "var(--text-1)" }} />
-            <div style={{ position: "absolute", top: 0, left: `${pos(curp)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-1)", fontWeight: 600, whiteSpace: "nowrap" }}>{curp} ₽</div>
-            <div style={{ position: "absolute", top: 30, left: `${pos(lo)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{lo}</div>
-            <div style={{ position: "absolute", top: 30, left: `${pos(hi)}%`, transform: "translateX(-50%)", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{hi}</div>
+          <div className="tw-relative tw-h-12 tw-mt-2">
+            <div className="tw-absolute tw-left-0 tw-right-0 tw-rounded-pill tw-bg-bg-hover" style={{ top: 20, height: 6 }} />
+            <div className="tw-absolute tw-rounded-pill tw-bg-accent" style={{ top: 20, height: 6, opacity: 0.55, left: `${pos(lo)}%`, width: `${Math.max(0, pos(hi) - pos(lo))}%` }} />
+            <div className="tw-absolute tw-bg-text-primary" style={{ top: 14, left: `${pos(curp)}%`, transform: "translateX(-50%)", width: 2, height: 18 }} />
+            <div className="tw-absolute tw-text-[11px] tw-font-semibold tw-text-text-primary tw-font-mono tw-tabular-nums tw-whitespace-nowrap" style={{ top: 0, left: `${pos(curp)}%`, transform: "translateX(-50%)" }}>{formatMoney(curp, { currency: cySym })}</div>
+            <div className="tw-absolute tw-text-[11px] tw-text-text-tertiary tw-font-mono tw-tabular-nums" style={{ top: 30, left: `${pos(lo)}%`, transform: "translateX(-50%)" }}>{formatNumber(lo)}</div>
+            <div className="tw-absolute tw-text-[11px] tw-text-text-tertiary tw-font-mono tw-tabular-nums" style={{ top: 30, left: `${pos(hi)}%`, transform: "translateX(-50%)" }}>{formatNumber(hi)}</div>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-2)", marginTop: 6 }}>
-            <span>Консервативно: <b style={{ color: "var(--text-1)" }}>{lo} {meta.currency || "₽"}</b></span>
-            <span>База: <b style={{ color: "var(--text-1)" }}>{hi} {meta.currency || "₽"}</b></span>
+          <div className="tw-flex tw-justify-between tw-text-[12px] tw-text-text-secondary tw-mt-1.5">
+            <span>Консервативно: <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">{formatMoney(lo, { currency: cySym })}</b></span>
+            <span>База: <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">{formatMoney(hi, { currency: cySym })}</b></span>
           </div>
           {typeof rel.fair_value_per_share === "number" && (
-            <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 6 }}>По сектору (EV/EBITDA пиров): ~{rel.fair_value_per_share} {meta.currency || "₽"}{typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${rel.upside_downside_pct}%)` : ""}</div>
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1.5">По сектору (EV/EBITDA пиров): ~{formatMoney(rel.fair_value_per_share, { currency: cySym })}{typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${formatNumber(rel.upside_downside_pct)} %)` : ""}</div>
           )}
-        </div>
+        </Card>
       );
     };
 
@@ -2628,21 +2738,21 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "EBITDA", arr: is.ebitda, delta: true },
       { label: "Операц. прибыль", arr: is.operating_profit, delta: true },
       { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
-      { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
-      { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
+      { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
     const bsRows = [
       { label: "Активы", arr: bs.total_assets, bold: true },
       { label: "Капитал", arr: bs.total_equity },
       { label: "Обязательства", arr: bs.total_liabilities },
       { label: "Чистый долг", arr: bs.net_debt },
-      { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => fmt(v, 2) + "×", muted: true },
+      { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null));
     const cfRows = !isBank ? [
       { label: "Операц. поток (CFO)", arr: cf.cfo, bold: true },
       { label: "CapEx", arr: cf.capex },
       { label: "FCF", arr: cf.fcf, bold: true, delta: true },
-      { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
     const bankPnlRows = isBank ? [
       { label: "Чистый проц. доход", arr: bp.net_interest_income, bold: true, delta: true },
@@ -2652,11 +2762,11 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Чистая прибыль", arr: bp.net_profit, bold: true, delta: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
     const bankMetricRows = isBank ? [
-      { label: "ЧПМ (NIM), %", arr: bmx.nim, fmt: (v) => fmt(v, 2) + "%", muted: true },
-      { label: "Стоимость риска, %", arr: bmx.cost_of_risk, fmt: (v) => fmt(v, 2) + "%", muted: true },
-      { label: "CIR, %", arr: bmx.cir, fmt: (v) => fmt(v, 1) + "%", muted: true },
-      { label: "ROE, %", arr: bmx.roe, fmt: (v) => fmt(v, 1) + "%", muted: true },
-      { label: "Достаточность кап., %", arr: bmx.capital_adequacy, fmt: (v) => fmt(v, 1) + "%", muted: true },
+      { label: "ЧПМ (NIM), %", arr: bmx.nim, fmt: (v) => fmtPercent(v, { decimals: 2 }), muted: true },
+      { label: "Стоимость риска, %", arr: bmx.cost_of_risk, fmt: (v) => fmtPercent(v, { decimals: 2 }), muted: true },
+      { label: "CIR, %", arr: bmx.cir, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
+      { label: "ROE, %", arr: bmx.roe, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
+      { label: "Достаточность кап., %", arr: bmx.capital_adequacy, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
 
     // графики
@@ -2669,7 +2779,7 @@ const CompanyCard = ({ company, onBack }) => {
     const methods = finJson?.valuation?.methods || [];
     const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", relative_peers: "По пирам", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
     const HORIZON_RU = { intrinsic_now: "сейчас", "12m": "12 мес." };
-    const statusBadge = (s) => { const map = { ok: { t: "ок", c: "var(--positive)", bg: "var(--pos-fade)" }, insufficient_data: { t: "мало данных", c: "var(--text-3)", bg: "var(--bg-card)" }, not_applicable: { t: "n/a", c: "var(--text-3)", bg: "var(--bg-card)" }, reference_only: { t: "справочно", c: "var(--text-3)", bg: "var(--bg-card)" } }; const x = map[s] || map.ok; return <span style={{ fontSize: 11, fontWeight: 600, color: x.c, background: x.bg, padding: "2px 8px", borderRadius: 6 }}>{x.t}</span>; };
+    const statusBadge = (s) => { const map = { ok: { t: "ок", tone: "success" }, insufficient_data: { t: "мало данных", tone: "neutral" }, not_applicable: { t: "n/a", tone: "neutral" }, reference_only: { t: "справочно", tone: "neutral" } }; const x = map[s] || map.ok; return <Badge tone={x.tone}>{x.t}</Badge>; };
 
     // ── секторное сравнение ──
     const renderSectorComparison = () => {
@@ -2678,47 +2788,45 @@ const CompanyCard = ({ company, onBack }) => {
       const rows = ct?.rows || [];
       if (!rows.length) return null;
       const METRICS = [{ key: "pe", label: "P/E" }, { key: "ps", label: "P/S" }, { key: "pb", label: "P/B" }, { key: "ev_ebitda", label: "EV/EBITDA" }, { key: "net_debt_ebitda", label: "ND/EBITDA" }, { key: "roe", label: "ROE" }];
-      const num = (v, suff = "") => (typeof v === "number" ? v.toFixed(2) + suff : "—");
+      const num = (v, isPct) => (typeof v === "number" ? (isPct ? fmtPercent(v, { decimals: 2 }) : formatNumber(v, { decimals: 2 })) : "—");
       const ordered = rows.slice().sort((a, b) => { const cur = (r) => (r.ticker === company.ticker ? 0 : 1); const an = (r) => (r.anomaly ? 1 : 0); return cur(a) - cur(b) || an(a) - an(b) || a.ticker.localeCompare(b.ticker); });
       const visible = peersShowAll ? ordered : ordered.filter((r) => !r.anomaly || r.ticker === company.ticker);
-      const thBase = { textAlign: "right", padding: "7px 10px", fontSize: 11, fontWeight: 500, color: "var(--text-3)", borderBottom: "1px solid var(--border-mid)", whiteSpace: "nowrap" };
-      const tdNum = (muted) => ({ textAlign: "right", padding: "7px 10px", fontSize: 12.5, fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: muted ? "var(--text-3)" : "var(--text-1)", whiteSpace: "nowrap" });
       const AggRow = ({ title, agg }) => (
-        <tr style={{ borderTop: "1px solid var(--border-mid)", background: "var(--bg-app)" }}>
-          <td style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, color: "var(--text-2)", position: "sticky", left: 0, background: "var(--bg-app)" }}>{title}</td>
-          {METRICS.map((m) => (<td key={m.key} style={{ ...tdNum(false), fontWeight: 600, color: "var(--text-2)" }}>{num(agg?.[m.key], m.key === "roe" ? "%" : "")}</td>))}
+        <tr className="tw-border-t tw-border-border-strong tw-bg-bg-base">
+          <td className="tw-sticky tw-left-0 tw-bg-bg-base tw-px-2.5 tw-py-2 tw-text-[12px] tw-font-semibold tw-text-text-secondary tw-whitespace-nowrap">{title}</td>
+          {METRICS.map((m) => (<td key={m.key} className="tw-px-2.5 tw-py-2 tw-text-right tw-text-[12px] tw-font-mono tw-tabular-nums tw-font-semibold tw-text-text-secondary tw-whitespace-nowrap">{num(agg?.[m.key], m.key === "roe")}</td>))}
         </tr>
       );
       return (
-        <div style={cardStyle}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <Users size={16} style={{ color: "var(--accent)" }} />
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", margin: 0 }}>Сравнение с сектором</h4>
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+            <Users size={16} className="tw-text-accent tw-shrink-0" />
+            <h4 className="tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">Сравнение с сектором</h4>
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 14 }}>{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы 2025 (мелким — 2024)</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, marginBottom: 12 }}>
+          <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3.5">{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы 2025 (мелким — 2024)</div>
+          <div className="tw-grid tw-gap-4 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
             <ScatterMap map={peersJson.maps?.map_1_debt_vs_valuation} currentTicker={company.ticker} />
             <ScatterMap map={peersJson.maps?.map_2_quality_vs_price} currentTicker={company.ticker} />
           </div>
-          <div style={{ fontSize: 11.5, lineHeight: 1.5, color: "var(--text-3)", marginBottom: 18, paddingTop: 8, borderTop: "1px solid var(--border)" }}>
-            <b style={{ color: "var(--text-2)" }}>*</b> — мультипликаторы искажены (внутригрупповые операции, разовые статьи, низкий free-float, регулируемый тариф и т.п.). Такие компании исключены из расчёта медианы и среднего; сравнивать с ними напрямую некорректно.
+          <div className="tw-text-[11px] tw-leading-relaxed tw-text-text-tertiary tw-mb-4 tw-pt-2 tw-border-t tw-border-border-subtle">
+            <b className="tw-text-text-secondary">*</b> — мультипликаторы искажены (внутригрупповые операции, разовые статьи, низкий free-float, регулируемый тариф и т.п.). Такие компании исключены из расчёта медианы и среднего; сравнивать с ними напрямую некорректно.
           </div>
-          <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid var(--border)" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-              <thead style={{ background: "var(--bg-app)" }}>
+          <div className="tw-overflow-x-auto tw-rounded-md tw-border tw-border-border-strong">
+            <table className="tw-w-full tw-border-collapse" style={{ minWidth: 560 }}>
+              <thead className="tw-bg-bg-base">
                 <tr>
-                  <th style={{ ...thBase, textAlign: "left", position: "sticky", left: 0, background: "var(--bg-app)" }}>Тикер</th>
-                  {METRICS.map((m) => <th key={m.key} style={thBase}>{m.label}</th>)}
+                  <th className="tw-sticky tw-left-0 tw-bg-bg-base tw-text-left tw-px-2.5 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Тикер</th>
+                  {METRICS.map((m) => <th key={m.key} className="tw-text-right tw-px-2.5 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">{m.label}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {visible.map((r, i) => { const isCur = r.ticker === company.ticker; const d25 = r["2025"] || {}, d24 = r["2024"] || {}; return (
-                  <tr key={r.ticker} style={{ background: isCur ? "var(--accent-fade)" : (i % 2 ? "transparent" : "var(--bg-card)"), borderLeft: isCur ? "3px solid var(--accent)" : "3px solid transparent" }}>
-                    <td style={{ padding: "7px 10px", fontSize: 12.5, whiteSpace: "nowrap", fontWeight: isCur ? 600 : 400, color: r.anomaly ? "var(--text-3)" : (isCur ? "var(--accent-text)" : "var(--text-1)"), position: "sticky", left: 0, background: isCur ? "var(--accent-fade)" : "var(--bg-surface)" }}>{r.ticker}{r.anomaly ? " *" : ""}{r.is_pref ? <span style={{ color: "var(--text-3)", fontSize: 10 }}> ап</span> : null}</td>
+                  <tr key={r.ticker} className={cx(isCur ? "tw-bg-accent-soft" : (i % 2 ? "" : "tw-bg-bg-base"))} style={{ borderLeft: isCur ? "3px solid var(--accent)" : "3px solid transparent" }}>
+                    <td className={cx("tw-sticky tw-left-0 tw-px-2.5 tw-py-2 tw-text-[12px] tw-whitespace-nowrap tw-font-mono", isCur ? "tw-bg-accent-soft tw-font-semibold tw-text-accent" : (r.anomaly ? "tw-bg-bg-elevated tw-text-text-tertiary" : "tw-bg-bg-elevated tw-text-text-primary"))}>{r.ticker}{r.anomaly ? " *" : ""}{r.is_pref ? <span className="tw-text-text-tertiary tw-text-[10px]"> ап</span> : null}</td>
                     {METRICS.map((m) => { const v25 = d25[m.key], v24 = d24[m.key]; return (
-                      <td key={m.key} style={tdNum(r.anomaly && !isCur)}>
-                        <div>{num(v25, m.key === "roe" ? "%" : "")}</div>
-                        <div style={{ fontSize: 10, color: "var(--text-3)", marginTop: 1 }}>{num(v24, m.key === "roe" ? "%" : "")}</div>
+                      <td key={m.key} className={cx("tw-px-2.5 tw-py-2 tw-text-right tw-text-[12px] tw-font-mono tw-tabular-nums tw-whitespace-nowrap", (r.anomaly && !isCur) ? "tw-text-text-tertiary" : "tw-text-text-primary")}>
+                        <div>{num(v25, m.key === "roe")}</div>
+                        <div className="tw-text-[10px] tw-text-text-tertiary tw-mt-px">{num(v24, m.key === "roe")}</div>
                       </td>
                     ); })}
                   </tr>
@@ -2731,81 +2839,95 @@ const CompanyCard = ({ company, onBack }) => {
             </table>
           </div>
           {ordered.length > visible.length && (
-            <button onClick={() => setPeersShowAll(true)} style={{ marginTop: 10, background: "transparent", border: "none", color: "var(--accent-text)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", padding: "4px 0" }}>Показать все {ordered.length} компаний →</button>
+            <button onClick={() => setPeersShowAll(true)} className="tw-mt-2.5 tw-bg-transparent tw-border-0 tw-text-accent tw-text-[12px] tw-font-semibold tw-cursor-pointer tw-py-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm">Показать все {ordered.length} компаний →</button>
           )}
-        </div>
+        </Card>
       );
     };
 
     const summarySecs = splitH2(finMd);
+    const cySym = meta.currency || "₽";
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="tw-flex tw-flex-col tw-gap-4">
         {finJson && (
-          <div style={cardStyle}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-              <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}>
-                <BarChart2 size={16} style={{ color: "var(--accent)" }} />Ключевые мультипликаторы
-              </h4>
-              {typeof meta.last_price === "number" && (
-                <span style={{ fontSize: 12, color: "var(--text-2)" }}>Цена {meta.last_price} {meta.currency || "₽"}{meta.price_date ? ` · ${meta.price_date}` : ""}</span>
-              )}
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 8 }}>
-              {chips.map((c, i) => (
-                <div key={i} style={{ background: "var(--bg-app)", borderRadius: 8, padding: "10px 12px", textAlign: "center" }}>
-                  <div style={{ fontSize: 11, color: "var(--text-2)", marginBottom: 3 }}>{c.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-1)", fontFamily: "monospace" }}>{c.value}</div>
-                </div>
+          <Card>
+            {cardHead(BarChart2, "Ключевые мультипликаторы", typeof meta.last_price === "number" && (
+              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(meta.last_price, { currency: cySym })}{meta.price_date ? ` · ${meta.price_date}` : ""}</span>
+            ))}
+            <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
+              {mult.map((m, i) => (
+                <KpiTile
+                  key={i}
+                  caption={m.label}
+                  value={
+                    <FinCountUp
+                      value={m.value}
+                      gate={finCountGate}
+                      render={(n) => m.kind === "pct" ? fmtPercent(n, { decimals: 1 }) : formatMultiple(n, { decimals: 1 })}
+                    />
+                  }
+                  delta={m.delta}
+                />
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
         {finJson?.anomaly_flag && finJson?.anomaly_note && (
-          <details style={{ background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 12, padding: "12px 16px" }}>
-            <summary style={{ cursor: "pointer", listStyle: "none", display: "flex", alignItems: "center", gap: 10, fontSize: 13.5, fontWeight: 600, color: "var(--negative)" }}>
-              <AlertTriangle size={16} style={{ flexShrink: 0 }} />Мультипликаторы структурно искажены — раскрыть пояснение
-              <ChevronDown size={15} style={{ marginLeft: "auto", color: "var(--negative)" }} />
-            </summary>
-            <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-2)", margin: "10px 0 0" }}>{finJson.anomaly_note}</p>
-          </details>
+          <Card className="tw-bg-danger-soft tw-border-danger">
+            <details>
+              <summary className="tw-flex tw-items-center tw-gap-2.5 tw-cursor-pointer tw-list-none tw-text-[13px] tw-font-semibold tw-text-danger">
+                <AlertTriangle size={16} className="tw-shrink-0" />Мультипликаторы структурно искажены — раскрыть пояснение
+                <ChevronDown size={15} className="tw-ml-auto tw-text-danger" />
+              </summary>
+              <p className="tw-text-[13px] tw-leading-relaxed tw-text-text-secondary tw-mt-2.5 tw-mb-0">{finJson.anomaly_note}</p>
+            </details>
+          </Card>
         )}
 
         {fairValueBar()}
 
         {methods.length > 0 && (
-          <div style={cardStyle}>
+          <Card>
             {cardHead(Scale, "Методы оценки")}
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                <thead><tr>
-                  {["Метод", "Справедливая цена", "Горизонт", "Статус"].map((h, i) => (<th key={i} style={{ textAlign: i === 1 ? "right" : "left", padding: "6px 10px", color: "var(--text-3)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", borderBottom: "1px solid var(--border-mid)" }}>{h}</th>))}
-                </tr></thead>
-                <tbody>
-                  {methods.map((mt, i) => (
-                    <tr key={i} style={{ background: i % 2 ? "var(--bg-card)" : "transparent", opacity: (mt.status === "insufficient_data" || mt.status === "not_applicable") ? 0.6 : 1 }}>
-                      <td style={{ padding: "7px 10px", color: "var(--text-1)" }}>{METHOD_RU[mt.method] || mt.method}</td>
-                      <td style={{ padding: "7px 10px", textAlign: "right", fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: "var(--text-1)", fontWeight: 600 }}>{typeof mt.fair_value_per_share === "number" ? `${mt.fair_value_per_share} ₽` : "—"}</td>
-                      <td style={{ padding: "7px 10px", color: "var(--text-2)" }}>{HORIZON_RU[mt.horizon] || mt.horizon || "—"}</td>
-                      <td style={{ padding: "7px 10px" }}>{statusBadge(mt.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            <Table
+              columns={[
+                { key: "method", label: "Метод" },
+                { key: "price", label: "Справедливая цена", render: (v) => v },
+                { key: "horizon", label: "Горизонт" },
+                { key: "status", label: "Статус", render: (v) => v },
+              ]}
+              rows={methods.map((mt) => ({
+                method: METHOD_RU[mt.method] || mt.method,
+                price: typeof mt.fair_value_per_share === "number"
+                  ? <span className="tw-text-text-primary tw-font-semibold">{formatMoney(mt.fair_value_per_share, { currency: cySym })}</span>
+                  : <span className="tw-text-text-tertiary">—</span>,
+                horizon: HORIZON_RU[mt.horizon] || mt.horizon || "—",
+                status: statusBadge(mt.status),
+              }))}
+            />
+          </Card>
         )}
 
         {hasCharts && (
-          <div style={cardStyle}>
+          <Card>
             {cardHead(TrendingUp, "Динамика по годам")}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 18 }}>
-              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>{isBank ? "Чистый проц. доход" : "Выручка"}</div>{miniChart(chartRevenue, "bar", "var(--accent)")}</div>
-              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>Чистая прибыль</div>{miniChart(chartProfit, "bar", "var(--accent)")}</div>
-              <div><div style={{ fontSize: 12, color: "var(--text-2)", marginBottom: 6 }}>{isBank ? "ROE, %" : "Чистая маржа, %"}</div>{miniChart(chartMargin, "line", "var(--positive)")}</div>
+            <div className="tw-grid tw-gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
+              <div>
+                <div className="tw-text-[12px] tw-text-text-secondary tw-mb-1.5">{isBank ? "Чистый проц. доход" : "Выручка"}</div>
+                <FinAreaChart data={chartRevenue} years={years} colorVar="--cat-5" />
+              </div>
+              <div>
+                <div className="tw-text-[12px] tw-text-text-secondary tw-mb-1.5">Чистая прибыль</div>
+                <FinAreaChart data={chartProfit} years={years} colorVar="--cat-1" />
+              </div>
+              <div>
+                <div className="tw-text-[12px] tw-text-text-secondary tw-mb-1.5">{isBank ? "ROE, %" : "Чистая маржа, %"}</div>
+                <FinAreaChart data={chartMargin} years={years} colorVar="--success" />
+              </div>
             </div>
-          </div>
+          </Card>
         )}
 
         {isBank ? (
@@ -2823,18 +2945,18 @@ const CompanyCard = ({ company, onBack }) => {
         )}
 
         {finMd && (
-          <div style={cardStyle}>
+          <Card>
             {cardHead(FileText, "Комментарий аналитика")}
             {summarySecs.length ? summarySecs.map(({ heading, body }, i) => (
-              <details key={i} open={i === 0} style={{ borderTop: i ? "1px solid var(--border-mid)" : "none", padding: "8px 0" }}>
-                <summary style={{ cursor: "pointer", listStyle: "none", fontSize: 13, fontWeight: 600, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ width: 3, height: 12, background: "var(--accent)", borderRadius: 2 }} />{heading}
-                  <ChevronDown size={14} style={{ marginLeft: "auto", color: "var(--text-3)" }} />
+              <details key={i} open={i === 0} className={cx("tw-py-2", i ? "tw-border-t tw-border-border-subtle" : "")}>
+                <summary className="tw-flex tw-items-center tw-gap-1.5 tw-cursor-pointer tw-list-none tw-text-[13px] tw-font-semibold tw-text-text-primary">
+                  <span className="tw-rounded-xs tw-bg-accent" style={{ width: 3, height: 12 }} />{heading}
+                  <ChevronDown size={14} className="tw-ml-auto tw-text-text-tertiary" />
                 </summary>
-                <div style={{ paddingTop: 6 }}><ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{body}</ReactMarkdown></div>
+                <div className="tw-pt-1.5"><ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{body}</ReactMarkdown></div>
               </details>
             )) : <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>}
-          </div>
+          </Card>
         )}
 
         {renderSectorComparison()}
