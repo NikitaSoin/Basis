@@ -3250,8 +3250,8 @@ const CompanyCard = ({ company, onBack }) => {
   const renderBusinessProfile = () => {
     const isLoading = bmMdLoading && profileLoading;
     if (isLoading) return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-slate-400 animate-pulse">Загружаем бизнес-модель...</div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем бизнес-модель...</div>
       </div>
     );
 
@@ -3475,28 +3475,30 @@ const CompanyCard = ({ company, onBack }) => {
         ),
       };
       return (
-        <div style={{color:"var(--text-1)", lineHeight:1.65}}>
+        <div className="tw-flex tw-flex-col tw-gap-4 tw-text-text-primary">
           {bmSections.map(({heading, body}, secIdx) => {
             const Icon = getH2Icon(heading);
             const collapsed = COLLAPSED.some(k => heading.toLowerCase().includes(k));
             if (secIdx > 0) isFirstP = false;
             return (
-              <details key={secIdx} open={!collapsed} className="bm-section">
-                <summary className="bm-section-summary">
-                  <div className="bm-section-header">
-                    {Icon && (
-                      <span className="bm-section-icon">
-                        <Icon size={15} style={{color:"var(--accent-text)"}} />
-                      </span>
-                    )}
-                    <span className="bm-section-title">{heading}</span>
-                    <ChevronDown size={15} className="bm-section-chevron" />
+              <Card key={secIdx} className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+                <details open={!collapsed} className="bm-section">
+                  <summary className="bm-section-summary">
+                    <div className="tw-flex tw-items-center tw-gap-2.5 tw-pb-3 tw-border-b tw-border-border-subtle">
+                      {Icon && (
+                        <span className="tw-w-7 tw-h-7 tw-rounded-md tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
+                          <Icon size={15} className="tw-text-accent" />
+                        </span>
+                      )}
+                      <span className="tw-flex-1 tw-text-[15px] tw-font-semibold tw-text-text-primary">{heading}</span>
+                      <ChevronDown size={15} className="bm-section-chevron tw-text-text-tertiary tw-shrink-0" />
+                    </div>
+                  </summary>
+                  <div className="tw-pt-1">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{body}</ReactMarkdown>
                   </div>
-                </summary>
-                <div style={{paddingTop:2}}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{body}</ReactMarkdown>
-                </div>
-              </details>
+                </details>
+              </Card>
             );
           })}
         </div>
@@ -3514,197 +3516,198 @@ const CompanyCard = ({ company, onBack }) => {
     const km = profile.key_metrics_to_watch || [];
     const cs = profile.cost_structure || {};
 
-    const dirColor = (d) => d === "positive" ? "text-green-400" : d === "negative" ? "text-red-400" : "text-amber-400";
+    const dirColor = (d) => d === "positive" ? "tw-text-success" : d === "negative" ? "tw-text-danger" : "tw-text-warning";
     const strengthBadge = (s) => {
-      const cls = s === "high" ? "bg-red-500/20 text-red-400" : s === "medium" ? "bg-amber-500/20 text-amber-400" : "bg-slate-600 text-slate-400";
-      return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{s === "high" ? "сильно" : s === "medium" ? "умеренно" : "слабо"}</span>;
+      const tone = s === "high" ? "danger" : s === "medium" ? "warning" : "neutral";
+      return <Badge tone={tone}>{s === "high" ? "сильно" : s === "medium" ? "умеренно" : "слабо"}</Badge>;
     };
     const trendIcon = (t) => t === "growing" ? "↑" : t === "declining" ? "↓" : "→";
-    const trendColor = (t) => t === "growing" ? "text-green-400" : t === "declining" ? "text-red-400" : "text-slate-400";
+    const trendColor = (t) => t === "growing" ? "tw-text-success" : t === "declining" ? "tw-text-danger" : "tw-text-text-tertiary";
 
     return (
-      <div className="space-y-5">
+      <div className="tw-flex tw-flex-col tw-gap-5">
         {/* Суть бизнеса */}
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <h4 className="text-indigo-400 font-semibold flex items-center gap-2">
+        <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+          <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
+            <h4 className="tw-text-accent tw-font-semibold tw-flex tw-items-center tw-gap-2 tw-m-0">
               <Briefcase size={16} />
               Суть бизнеса
             </h4>
             {meta.data_as_of && (
-              <span className="text-xs bg-slate-700 text-slate-400 px-3 py-1 rounded-full">
-                Данные: {meta.data_as_of}
-              </span>
+              <Badge tone="neutral">Данные: {meta.data_as_of}</Badge>
             )}
           </div>
-          {desc.short && <p className="text-slate-300 text-sm leading-relaxed mb-3">{desc.short}</p>}
+          {desc.short && <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed tw-mb-3">{desc.short}</p>}
           {be.what_company_does && (
-            <p className="text-slate-400 text-xs leading-relaxed border-t border-slate-700/50 pt-3">{be.what_company_does}</p>
+            <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed tw-border-t tw-border-border-subtle tw-pt-3">{be.what_company_does}</p>
           )}
           {be.value_proposition && (
-            <p className="text-slate-400 text-xs leading-relaxed mt-2">
-              <span className="text-slate-500 font-medium">Ценность для клиентов: </span>{be.value_proposition}
+            <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed tw-mt-2">
+              <span className="tw-text-text-secondary tw-font-medium">Ценность для клиентов: </span>{be.value_proposition}
             </p>
           )}
-        </div>
+        </Card>
 
         {/* Структура выручки */}
         {rs.length > 0 && (
-          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+          <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+            <h4 className="tw-text-accent tw-font-semibold tw-mb-4 tw-flex tw-items-center tw-gap-2 tw-m-0">
               <PieChart size={16} />
               Структура выручки
             </h4>
-            <div className="space-y-4">
-              {rs.map((s, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-slate-300 text-sm flex items-center gap-2">
-                      <span className={`font-mono text-xs ${trendColor(s.trend)}`}>{trendIcon(s.trend)}</span>
-                      {s.segment}
-                    </span>
-                    <span className="text-white font-mono text-sm font-bold">{s.share_pct}%</span>
+            <div className="tw-flex tw-flex-col tw-gap-4">
+              {rs.map((s, i) => {
+                const cat = (i % 8) + 1;
+                return (
+                  <div key={i}>
+                    <div className="tw-flex tw-items-center tw-justify-between tw-mb-1.5">
+                      <span className="tw-text-text-secondary tw-text-[14px] tw-flex tw-items-center tw-gap-2">
+                        <span className={`tw-font-mono tw-text-[12px] ${trendColor(s.trend)}`}>{trendIcon(s.trend)}</span>
+                        {s.segment}
+                      </span>
+                      <span className="tw-text-text-primary tw-font-mono tw-text-[14px] tw-font-bold tw-tabular-nums">{fmtPercent(s.share_pct, { decimals: 0 })}</span>
+                    </div>
+                    <div className="tw-w-full tw-bg-bg-base tw-rounded-pill tw-h-1.5 tw-overflow-hidden">
+                      <div className="tw-h-1.5 tw-rounded-pill" style={{ width: `${Math.min(s.share_pct, 100)}%`, background: `var(--cat-${cat})` }} />
+                    </div>
+                    {s.description && (
+                      <p className="tw-text-text-tertiary tw-text-[13px] tw-mt-1.5 tw-leading-relaxed">{s.description}</p>
+                    )}
                   </div>
-                  <div className="w-full bg-slate-700 rounded-full h-1.5">
-                    <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min(s.share_pct, 100)}%` }} />
-                  </div>
-                  {s.description && (
-                    <p className="text-slate-500 text-xs mt-1.5 leading-relaxed">{s.description}</p>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
             {rs[0]?.year && (
-              <p className="text-slate-600 text-xs mt-4">Источник: FY{rs[0].year}</p>
+              <p className="tw-text-text-tertiary tw-text-[12px] tw-mt-4">Источник: FY{rs[0].year}</p>
             )}
-          </div>
+          </Card>
         )}
 
         {/* Конкурентная позиция */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-4">
           {cp.moats?.length > 0 && (
-            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-green-500">
-              <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
+            <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none" style={{ borderTop: "3px solid var(--success)" }}>
+              <h4 className="tw-text-success tw-font-semibold tw-mb-3 tw-flex tw-items-center tw-gap-2 tw-m-0">
                 <ShieldCheck size={16} />
                 Конкурентные преимущества
               </h4>
-              <ul className="space-y-2">
+              <ul className="tw-flex tw-flex-col tw-gap-2 tw-list-none tw-p-0 tw-m-0">
                 {cp.moats.map((m, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                    <span className="text-green-500 mt-0.5 flex-shrink-0">•</span>
+                  <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
+                    <span className="tw-text-success tw-mt-0.5 tw-shrink-0">•</span>
                     <span>{m}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           )}
           {cp.vulnerabilities?.length > 0 && (
-            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-red-500">
-              <h4 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+            <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none" style={{ borderTop: "3px solid var(--danger)" }}>
+              <h4 className="tw-text-danger tw-font-semibold tw-mb-3 tw-flex tw-items-center tw-gap-2 tw-m-0">
                 <ShieldAlert size={16} />
                 Уязвимости
               </h4>
-              <ul className="space-y-2">
+              <ul className="tw-flex tw-flex-col tw-gap-2 tw-list-none tw-p-0 tw-m-0">
                 {cp.vulnerabilities.map((v, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                    <span className="text-red-500 mt-0.5 flex-shrink-0">•</span>
+                  <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
+                    <span className="tw-text-danger tw-mt-0.5 tw-shrink-0">•</span>
                     <span>{v}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           )}
         </div>
 
         {/* Макрочувствительность */}
         {ms.length > 0 && (
-          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+          <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+            <h4 className="tw-text-accent tw-font-semibold tw-mb-4 tw-flex tw-items-center tw-gap-2 tw-m-0">
               <Globe size={16} />
               Макрочувствительность
             </h4>
-            <div className="space-y-3">
+            <div className="tw-flex tw-flex-col tw-gap-3">
               {ms.map((m, i) => (
-                <div key={i} className="border-b border-slate-700/40 pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className={`font-mono text-xs font-bold uppercase tracking-wide ${dirColor(m.direction)}`}>{m.factor}</span>
+                <div key={i} className="tw-border-b tw-border-border-subtle tw-pb-3 last:tw-border-0 last:tw-pb-0">
+                  <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1 tw-flex-wrap">
+                    <span className={`tw-font-mono tw-text-[12px] tw-font-bold tw-uppercase tw-tracking-wide ${dirColor(m.direction)}`}>{m.factor}</span>
                     {strengthBadge(m.strength)}
-                    <span className={`text-xs ${dirColor(m.direction)}`}>
+                    <span className={`tw-text-[12px] ${dirColor(m.direction)}`}>
                       {m.direction === "positive" ? "▲ позитив" : m.direction === "negative" ? "▼ негатив" : "↔ смешанно"}
                     </span>
                   </div>
-                  <p className="text-slate-400 text-xs leading-relaxed">{m.channel}</p>
+                  <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed">{m.channel}</p>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Ключевые метрики */}
         {km.length > 0 && (
-          <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-            <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
+          <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+            <h4 className="tw-text-accent tw-font-semibold tw-mb-4 tw-flex tw-items-center tw-gap-2 tw-m-0">
               <Target size={16} />
               Ключевые метрики для наблюдения
             </h4>
-            <div className="space-y-4">
+            <div className="tw-flex tw-flex-col tw-gap-4">
               {km.map((k, i) => (
-                <div key={i} className="border-b border-slate-700/40 pb-4 last:border-0 last:pb-0">
-                  <div className="text-white text-sm font-semibold mb-1">{k.metric}</div>
-                  <div className="text-slate-400 text-xs mb-1 leading-relaxed">{k.why_important}</div>
-                  <div className="text-slate-500 text-xs italic leading-relaxed">{k.what_to_look_for}</div>
+                <div key={i} className="tw-border-b tw-border-border-subtle tw-pb-4 last:tw-border-0 last:tw-pb-0">
+                  <div className="tw-text-text-primary tw-text-[14px] tw-font-semibold tw-mb-1">{k.metric}</div>
+                  <div className="tw-text-text-tertiary tw-text-[13px] tw-mb-1 tw-leading-relaxed">{k.why_important}</div>
+                  <div className="tw-text-text-tertiary tw-text-[13px] tw-italic tw-leading-relaxed">{k.what_to_look_for}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Конкуренты + Структура затрат */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-4">
           {cp.main_competitors?.length > 0 && (
-            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-              <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
+            <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+              <h4 className="tw-text-accent tw-font-semibold tw-mb-3 tw-flex tw-items-center tw-gap-2 tw-m-0">
                 <Users size={16} />
                 Конкуренты
               </h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="tw-flex tw-flex-wrap tw-gap-2">
                 {cp.main_competitors.map((c, i) => (
-                  <span key={i} className="text-xs bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg font-mono">{c}</span>
+                  <span key={i} className="tw-text-[12px] tw-bg-bg-base tw-text-text-secondary tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-rounded-md tw-font-mono">{c}</span>
                 ))}
               </div>
               {cp.market_share_pct && (
-                <p className="text-slate-500 text-xs mt-3">
-                  Доля рынка: <span className="text-white font-bold">{cp.market_share_pct}%</span>
+                <p className="tw-text-text-tertiary tw-text-[13px] tw-mt-3">
+                  Доля рынка: <span className="tw-text-text-primary tw-font-bold tw-tabular-nums">{fmtPercent(cp.market_share_pct, { decimals: 0 })}</span>
                   {cp.market_share_scope && ` (${cp.market_share_scope})`}
                 </p>
               )}
-            </div>
+            </Card>
           )}
           {cs.margin_drivers?.length > 0 && (
-            <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-              <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
+            <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
+              <h4 className="tw-text-accent tw-font-semibold tw-mb-3 tw-flex tw-items-center tw-gap-2 tw-m-0">
                 <Activity size={16} />
                 Драйверы маржи
               </h4>
-              <ul className="space-y-1.5 mb-3">
+              <ul className="tw-flex tw-flex-col tw-gap-1.5 tw-list-none tw-p-0 tw-mt-0 tw-mx-0 tw-mb-3">
                 {cs.margin_drivers.map((d, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs text-green-300">
-                    <span className="text-green-500 mt-0.5 flex-shrink-0">+</span>
+                  <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
+                    <span className="tw-text-success tw-mt-0.5 tw-shrink-0">+</span>
                     <span>{d}</span>
                   </li>
                 ))}
               </ul>
               {cs.margin_threats?.length > 0 && (
-                <ul className="space-y-1.5 border-t border-slate-700/50 pt-3">
+                <ul className="tw-flex tw-flex-col tw-gap-1.5 tw-border-t tw-border-border-subtle tw-list-none tw-px-0 tw-pb-0 tw-pt-3 tw-m-0">
                   {cs.margin_threats.map((t, i) => (
-                    <li key={i} className="flex items-start gap-2 text-xs text-red-300">
-                      <span className="text-red-500 mt-0.5 flex-shrink-0">−</span>
+                    <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
+                      <span className="tw-text-danger tw-mt-0.5 tw-shrink-0">−</span>
                       <span>{t}</span>
                     </li>
                   ))}
                 </ul>
               )}
-            </div>
+            </Card>
           )}
         </div>
       </div>
