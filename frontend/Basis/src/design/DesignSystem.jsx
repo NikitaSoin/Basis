@@ -23,6 +23,7 @@ import {
   KpiTile,
 } from "./primitives";
 import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
+import { LiveDepthBody, LiveDepthPreamble } from "./LiveDepthShowcase";
 
 /* ---- small layout helpers (gallery chrome only) ---- */
 
@@ -232,6 +233,11 @@ function Gallery() {
           <KpiTile caption="P/E" value={formatMultiple(6.4)} delta={0} />
           <KpiTile caption="Див. доходность" value={formatPercent(9.2)} delta={2.1} spark={[7, 7.5, 8, 8.4, 9, 9.2]} />
         </div>
+      </Section>
+
+      <Section title="13 · Живость и глубина (язык: сдержанность + точки жизни)">
+        <LiveDepthPreamble />
+        <LiveDepthBody />
       </Section>
     </div>
   );
