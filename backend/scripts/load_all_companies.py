@@ -146,6 +146,8 @@ def main():
     csv_path = sys.argv[1] if len(sys.argv) > 1 else None
     candidates = [
         csv_path,
+        # основной путь в образе/репозитории: backend/data/rates.csv
+        os.path.join(os.path.dirname(__file__), "../data/rates.csv"),
         "/Users/soinnikita/investment-platform/rates.csv",
         "/Users/soinnikita/Downloads/rates.csv",
         os.path.join(os.path.dirname(__file__), "../../rates.csv"),
