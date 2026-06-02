@@ -1828,6 +1828,21 @@ const CompaniesView = ({ onSelectCompany }) => {
 
 const CompanyCard = ({ company, onBack }) => {
   const [tab, setTab] = useState("overview");
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDoc = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false);
+    };
+    const onKey = (e) => { if (e.key === "Escape") setMoreOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
   const [stressScenario, setStressScenario] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(true);
@@ -3512,100 +3527,131 @@ const CompanyCard = ({ company, onBack }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-        <button
-          onClick={onBack}
-          style={{
-            background: "var(--bg-surface)", border: "1px solid var(--border-mid)",
-            borderRadius: "50%", width: 36, height: 36,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "var(--text-2)", flexShrink: 0, marginTop: 4,
-          }}
-        >
-          <ChevronRight className="rotate-180" size={18} />
-        </button>
+      {/* Header — elevated surface, ticker monogram, name/sector, live price + delta */}
+      <Card className="tw-p-5">
+        <div className="tw-flex tw-items-start tw-gap-4">
+          <IconButton aria-label="Назад" variant="ghost" onClick={onBack} className="tw-shrink-0">
+            <ChevronRight className="rotate-180" size={18} />
+          </IconButton>
 
-        {/* Colored ticker avatar */}
-        <div style={{
-          width: 52, height: 52, borderRadius: 12,
-          background: "var(--accent-fade)",
-          border: "1px solid var(--accent-border)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "monospace", fontWeight: 800, fontSize: 13,
-          color: "var(--accent-text)", flexShrink: 0,
-          letterSpacing: "-0.03em",
-        }}>
-          {company.ticker.slice(0, 4)}
-        </div>
+          {/* Ticker monogram */}
+          <div
+            className="tw-shrink-0 tw-rounded-md tw-flex tw-items-center tw-justify-center tw-bg-accent-soft tw-text-accent tw-font-mono tw-font-bold tw-text-[13px]"
+            style={{ width: 52, height: 52, letterSpacing: "-0.03em" }}
+          >
+            {company.ticker.slice(0, 4)}
+          </div>
 
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-1)", margin: 0 }}>
-              {company.name}
-            </h2>
-            <span style={{ fontSize: 13, color: "var(--text-3)", fontFamily: "monospace" }}>
-              {company.ticker}
-            </span>
-          </div>
-          <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2, marginBottom: 8 }}>
-            {company.sector}
-          </div>
-          {(() => {
-            const price = livePrice ?? company.price;
-            const change = liveChange ?? company.change;
-            const changeAbs = liveChangeAbs ?? company.changeAbs;
-            const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
-            return (
-              <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 22, fontWeight: 700, color: "var(--text-1)", fontVariantNumeric: "tabular-nums" }}>
-                  {price == null ? "—" : `${price.toLocaleString("ru-RU")} ₽`}
-                </span>
-                {change != null && (
-                  <span style={{ fontSize: 14, fontWeight: 600, color, display: "flex", alignItems: "center", gap: 3 }}>
-                    {change >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                    {changeAbs != null && (
-                      <span>{changeAbs >= 0 ? "+" : ""}{changeAbs.toFixed(2)} ₽</span>
-                    )}
-                    <span>{change > 0 ? "+" : ""}{change.toFixed(2)}%</span>
+          <div className="tw-flex-1 tw-min-w-0">
+            <div className="tw-flex tw-items-baseline tw-gap-2.5 tw-flex-wrap">
+              <h2 className="tw-text-[20px] tw-font-semibold tw-text-text-primary tw-m-0">
+                {company.name}
+              </h2>
+              <span className="tw-text-[13px] tw-text-text-tertiary tw-font-mono">
+                {company.ticker}
+              </span>
+            </div>
+            <div className="tw-mt-1 tw-mb-2">
+              <Badge tone="neutral">{company.sector}</Badge>
+            </div>
+            {(() => {
+              const price = livePrice ?? company.price;
+              const change = liveChange ?? company.change;
+              const changeAbs = liveChangeAbs ?? company.changeAbs;
+              return (
+                <div className="tw-flex tw-items-baseline tw-gap-3 tw-flex-wrap">
+                  <span className="tw-text-[24px] tw-font-semibold tw-text-text-primary tw-tabular-nums">
+                    {price == null ? "—" : formatMoney(price)}
                   </span>
-                )}
-              </div>
-            );
-          })()}
+                  {change != null && (
+                    <span className="tw-inline-flex tw-items-baseline tw-gap-2">
+                      {changeAbs != null && (
+                        <Delta value={changeAbs} suffix="₽" decimals={2} className="tw-text-[14px]" />
+                      )}
+                      <Delta value={change} suffix="%" decimals={2} className="tw-text-[14px]" />
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Tab bar */}
-      <div style={{
-        display: "flex", gap: 4,
-        background: "var(--bg-surface)", padding: 4, borderRadius: 12,
-        overflowX: "auto",
-      }}>
-        {[
+      {/* Tab bar — primary tablist (ready blocks) + "Ещё" menu for coming-soon blocks */}
+      {(() => {
+        const PRIMARY = [
           { id: "overview", label: "Обзор" },
           { id: "business", label: "Бизнес-модель" },
           { id: "finance", label: "Финансы" },
           { id: "governance", label: "Управление" },
+        ];
+        const SECONDARY = [
           { id: "deep", label: "Глубокий разбор" },
           { id: "consilium", label: "Консилиум" },
           { id: "stress", label: "Стресс-тест" },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              flex: 1, whiteSpace: "nowrap", padding: "8px 16px",
-              borderRadius: 8, border: "none", cursor: "pointer",
-              fontSize: 13, fontWeight: 600, transition: "all 0.15s",
-              background: tab === t.id ? "var(--accent)" : "transparent",
-              color: tab === t.id ? "#fff" : "var(--text-2)",
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+        ];
+        const inSecondary = SECONDARY.some((t) => t.id === tab);
+        const tabClass = (active) =>
+          [
+            "tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap",
+            "tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200",
+            active
+              ? "tw-text-accent tw-border-accent"
+              : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary",
+            "focus-visible:tw-outline-none focus-visible:tw-shadow-focus",
+          ].join(" ");
+        return (
+          <div role="tablist" aria-label="Разделы карточки" className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto">
+            {PRIMARY.map((t) => (
+              <button
+                key={t.id}
+                role="tab"
+                aria-selected={tab === t.id}
+                tabIndex={tab === t.id ? 0 : -1}
+                onClick={() => setTab(t.id)}
+                className={tabClass(tab === t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+            <div className="tw-relative" ref={moreRef}>
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
+                onClick={() => setMoreOpen((v) => !v)}
+                className={tabClass(inSecondary) + " tw-inline-flex tw-items-center tw-gap-1"}
+              >
+                {inSecondary ? SECONDARY.find((t) => t.id === tab).label : "Ещё"}
+                <ChevronRight className="tw-rotate-90" size={14} />
+              </button>
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="tw-absolute tw-right-0 tw-top-full tw-mt-1 tw-z-30 tw-min-w-[200px] tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-md tw-shadow-lg tw-p-1"
+                >
+                  {SECONDARY.map((t) => (
+                    <button
+                      key={t.id}
+                      role="menuitem"
+                      onClick={() => { setTab(t.id); setMoreOpen(false); }}
+                      className={[
+                        "tw-w-full tw-text-left tw-px-3 tw-py-2 tw-rounded-sm tw-text-[14px] tw-bg-transparent tw-border-0 tw-cursor-pointer",
+                        "tw-transition-colors tw-duration-150 hover:tw-bg-accent-soft",
+                        tab === t.id ? "tw-text-accent" : "tw-text-text-secondary hover:tw-text-text-primary",
+                        "focus-visible:tw-outline-none focus-visible:tw-shadow-focus",
+                      ].join(" ")}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       <>
         {tab === "overview" && renderOverview()}
