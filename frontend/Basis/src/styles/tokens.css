@@ -24,10 +24,10 @@
   --text-secondary: #4A5670;
   --text-tertiary:  #7B8499;
 
-  /* ---- Accent (indigo) ---- */
-  --accent:         #4F5BD5;
-  --accent-hover:   #4049B8;
-  --accent-soft:    rgba(79,91,213,0.10);
+  /* ---- Accent (signature: cobalt) ---- */
+  --accent:         #2347D9;
+  --accent-hover:   #1D3CB8;
+  --accent-soft:    rgba(35,71,217,0.10);
   --on-accent:      #FFFFFF;
 
   /* ---- Semantic ---- */
@@ -82,7 +82,7 @@
   --accent-h:      var(--accent-hover);
   --accent-fade:   var(--accent-soft);
   --accent-text:   var(--accent);
-  --accent-border: rgba(79,91,213,0.25);
+  --accent-border: rgba(35,71,217,0.25);
 
   --positive:      var(--success);
   --pos-fade:      var(--success-soft);
@@ -126,10 +126,10 @@
   --text-secondary: #ADB6CA;
   --text-tertiary:  #919BB2;
 
-  /* ---- Accent ---- */
-  --accent:         #6B7BFF;
-  --accent-hover:   #8390FF;
-  --accent-soft:    rgba(107,123,255,0.12);
+  /* ---- Accent (signature: cobalt, lightened for dark bg) ---- */
+  --accent:         #5B79FF;
+  --accent-hover:   #7B93FF;
+  --accent-soft:    rgba(91,121,255,0.12);
   --on-accent:      #0B1220;
 
   /* ---- Semantic ---- */
@@ -152,7 +152,7 @@
   --bg-surface:    #252523;
   --bg-hover:      #2D2D2B;
   --bg-overlay:    rgba(0,0,0,0.65);
-  --accent-border: rgba(107,123,255,0.30);
+  --accent-border: rgba(91,121,255,0.30);
   --gold-border:   rgba(245,158,11,0.30);
 
   color-scheme:    dark;
