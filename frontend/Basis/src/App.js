@@ -5387,10 +5387,13 @@ function OverviewView({ token }) {
   ];
 
   const mockFallback = MOCK_MARKET_NEWS[overviewType] || [];
-  const typeColors = {
-    express: { bg: "var(--accent-fade)", color: "var(--accent-text)" },
-    detailed: { bg: "var(--warn-fade)", color: "var(--warning)" },
-    deep: { bg: "var(--pos-fade)", color: "var(--positive)" },
+  // Depth level → Badge tone. These are content DEPTH categories, not severity,
+  // so we keep them on neutral data-viz tones: warning(gold) is reserved for
+  // risk callouts and success/danger for signed deltas — none apply here.
+  const typeTone = {
+    express: "info",
+    detailed: "accent",
+    deep: "neutral",
   };
 
   return (
@@ -5400,81 +5403,85 @@ function OverviewView({ token }) {
         <p className="view-subtitle">Контекстное понимание рыночного фона</p>
       </div>
 
-      <div className="filter-row">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setOverviewType(tab.id)}
-            className={`filter-pill ${overviewType === tab.id ? "active" : ""}`}
-          >
-            <tab.icon size={13} style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }} />
-            {tab.label}
-          </button>
-        ))}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <Chip
+              key={tab.id}
+              selected={overviewType === tab.id}
+              onClick={() => setOverviewType(tab.id)}
+            >
+              <Icon size={13} className="tw-shrink-0" aria-hidden="true" />
+              {tab.label}
+            </Chip>
+          );
+        })}
 
-        <button
+        <Button
           onClick={handleGenerate}
           disabled={generating}
-          className="btn btn-success"
-          style={{ marginLeft: "auto" }}
+          loading={generating}
+          variant="secondary"
+          iconLeft={!generating ? <Zap size={14} /> : null}
+          className="tw-ml-auto"
         >
-          <Zap size={14} />
           {generating ? "Генерируем..." : "Сгенерировать обзор"}
-        </button>
+        </Button>
       </div>
 
       {generateError && (
-        <div className="alert alert-error" style={{ marginBottom: 16 }}>
+        <div
+          role="alert"
+          className="tw-mb-4 tw-rounded-md tw-border tw-border-danger tw-bg-danger-soft tw-px-4 tw-py-3 tw-text-[14px] tw-text-danger"
+        >
           {generateError}
         </div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div style={{ color: "var(--text-2)" }} className="animate-pulse">Загружаем обзор...</div>
+          <div className="tw-text-text-secondary tw-animate-pulse">Загружаем обзор...</div>
         </div>
       ) : overviews.length > 0 ? (
         <div className="space-y-4">
-          {overviews.map((item) => {
-            const tc = typeColors[item.overview_type] || typeColors.express;
-            return (
-              <div key={item.id} className="overview-card">
-                <div className="overview-card-header">
-                  <span className="overview-card-period">{item.period}</span>
-                  <span className="badge" style={{ background: tc.bg, color: tc.color }}>
-                    {item.overview_type}
-                  </span>
-                </div>
-                <p className="overview-card-text">{item.content}</p>
+          {overviews.map((item) => (
+            <Card key={item.id}>
+              <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+                <span className="tw-font-mono tw-text-[13px] tw-text-text-tertiary">{item.period}</span>
+                <Badge tone={typeTone[item.overview_type] || "info"}>
+                  {item.overview_type}
+                </Badge>
               </div>
-            );
-          })}
+              <p className="tw-text-[14px] tw-leading-[22px] tw-text-text-secondary">{item.content}</p>
+            </Card>
+          ))}
         </div>
       ) : (
         <div className="space-y-4">
-          <p style={{ color: "var(--text-3)", fontSize: 12, fontStyle: "italic", marginBottom: 8 }}>
+          <p className="tw-text-[12px] tw-italic tw-text-text-tertiary tw-mb-2">
             Данных из API нет — показываем тестовые данные
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 12 }}>
+          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
             {mockFallback.map((news, i) => (
-              <div key={i} className="overview-card">
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Zap size={16} style={{ color: "var(--accent-text)", flexShrink: 0, marginTop: 2 }} />
+              <Card key={i}>
+                <div className="tw-flex tw-gap-3 tw-items-start">
+                  <Zap size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" aria-hidden="true" />
                   <div>
                     {news.time && (
-                      <div style={{ fontSize: 11, color: "var(--text-3)", fontFamily: "monospace", marginBottom: 4 }}>
+                      <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-mb-1">
                         {news.time}
                       </div>
                     )}
-                    <p className="overview-card-text" style={{ fontSize: 13 }}>
+                    <p className="tw-text-[13px] tw-leading-[20px] tw-text-text-secondary">
                       {news.text || news.title}
                     </p>
                     {news.desc && (
-                      <p style={{ fontSize: 12, color: "var(--text-2)", marginTop: 6 }}>{news.desc}</p>
+                      <p className="tw-text-[12px] tw-text-text-secondary tw-mt-1.5">{news.desc}</p>
                     )}
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
