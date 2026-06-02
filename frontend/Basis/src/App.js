@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import DesignSystem from "./design/DesignSystem";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -5637,6 +5638,10 @@ export default function App() {
         return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
     }
   };
+
+  if (typeof window !== "undefined" && window.location.pathname === "/_design") {
+    return <DesignSystem />;
+  }
 
   return (
     <div data-theme={theme} className="app-layout tw-bg-bg-base tw-text-text-primary">
