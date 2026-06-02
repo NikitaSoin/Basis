@@ -56,6 +56,7 @@ module.exports = {
           soft: "var(--info-soft)",
         },
         "on-accent": "var(--on-accent)",
+        "on-danger": "var(--on-danger)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
