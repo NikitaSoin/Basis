@@ -40,9 +40,9 @@ import {
   ChevronDown,
   Check,
 } from "lucide-react";
-import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Tabs, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
+import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber as fmtNumber } from "./design/format";
-import { SectorChip, TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, Treemap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
+import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 
 // =========================
 // HELPERS
@@ -4265,7 +4265,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           </span>
           <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
         </div>
-        <Badge tone="warning">Умеренное качество (Fair)</Badge>
+        <Badge tone="neutral">Умеренное качество (Fair)</Badge>
       </Card>
     );
   };
