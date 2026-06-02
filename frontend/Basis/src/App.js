@@ -3584,7 +3584,7 @@ const CompanyCard = ({ company, onBack }) => {
           { id: "overview", label: "Обзор" },
           { id: "business", label: "Бизнес-модель" },
           { id: "finance", label: "Финансы" },
-          { id: "governance", label: "Управление" },
+          { id: "governance", label: "Корп. управление" },
         ];
         const SECONDARY = [
           { id: "deep", label: "Глубокий разбор" },
@@ -3602,7 +3602,8 @@ const CompanyCard = ({ company, onBack }) => {
             "focus-visible:tw-outline-none focus-visible:tw-shadow-focus",
           ].join(" ");
         return (
-          <div role="tablist" aria-label="Разделы карточки" className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto">
+          <div className="tw-flex tw-items-stretch tw-gap-1 tw-border-b tw-border-border-subtle">
+            <div role="tablist" aria-label="Разделы карточки" className="tw-flex tw-gap-1 tw-overflow-x-auto">
             {PRIMARY.map((t) => (
               <button
                 key={t.id}
@@ -3615,7 +3616,8 @@ const CompanyCard = ({ company, onBack }) => {
                 {t.label}
               </button>
             ))}
-            <div className="tw-relative" ref={moreRef}>
+            </div>
+            <div className="tw-relative tw-ml-auto tw-shrink-0" ref={moreRef}>
               <button
                 type="button"
                 aria-haspopup="menu"
