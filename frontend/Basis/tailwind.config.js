@@ -57,6 +57,16 @@ module.exports = {
         },
         "on-accent": "var(--on-accent)",
         "on-danger": "var(--on-danger)",
+        // Categorical (Okabe-Ito) — DATA ONLY (chart series, sectors,
+        // treemap). Never chrome/buttons, never deltas. cat-1..8 + soft.
+        cat: {
+          1: "var(--cat-1)", 2: "var(--cat-2)", 3: "var(--cat-3)", 4: "var(--cat-4)",
+          5: "var(--cat-5)", 6: "var(--cat-6)", 7: "var(--cat-7)", 8: "var(--cat-8)",
+          "1-soft": "var(--cat-1-soft)", "2-soft": "var(--cat-2-soft)",
+          "3-soft": "var(--cat-3-soft)", "4-soft": "var(--cat-4-soft)",
+          "5-soft": "var(--cat-5-soft)", "6-soft": "var(--cat-6-soft)",
+          "7-soft": "var(--cat-7-soft)", "8-soft": "var(--cat-8-soft)",
+        },
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],

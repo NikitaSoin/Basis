@@ -100,6 +100,33 @@
 
   --sidebar-w:     64px;
 
+  /* ===========================================================
+     CATEGORICAL PALETTE — Okabe-Ito (colorblind-safe, 8 hues).
+     PURPOSE: these colours are ONLY for DATA categories — chart
+     series, sector chips, treemap cells, multi-series legends.
+     They are NEVER used for chrome/buttons (interactive = cobalt
+     --accent) and NEVER for deltas (gain/loss = --success/--danger).
+     Each hue also has a -soft fill for muted backgrounds (chips,
+     area fills) where the saturated hue stays as the text/stroke.
+     =========================================================== */
+  --cat-1: #E69F00;   /* orange         */
+  --cat-2: #56B4E9;   /* sky blue       */
+  --cat-3: #009E73;   /* bluish green   */
+  --cat-4: #C9A800;   /* yellow (darkened from #F0E442 for AA text on light) */
+  --cat-5: #0072B2;   /* blue           */
+  --cat-6: #D55E00;   /* vermillion     */
+  --cat-7: #CC79A7;   /* reddish purple */
+  --cat-8: #999999;   /* grey           */
+
+  --cat-1-soft: rgba(230,159,0,0.14);
+  --cat-2-soft: rgba(86,180,233,0.14);
+  --cat-3-soft: rgba(0,158,115,0.14);
+  --cat-4-soft: rgba(201,168,0,0.14);
+  --cat-5-soft: rgba(0,114,178,0.14);
+  --cat-6-soft: rgba(213,94,0,0.14);
+  --cat-7-soft: rgba(204,121,167,0.14);
+  --cat-8-soft: rgba(153,153,153,0.14);
+
   color-scheme:    light;
 }
 
@@ -157,5 +184,40 @@
   --accent-border: rgba(91,121,255,0.30);
   --gold-border:   rgba(245,158,11,0.30);
 
+  /* ---- Categorical palette (dark): hues lightened a touch so they
+     keep contrast against the near-black surface. Same PURPOSE rule:
+     data categories only — never chrome, never deltas. ---- */
+  --cat-1: #F0B43A;   /* orange         */
+  --cat-2: #7FC9F2;   /* sky blue       */
+  --cat-3: #2FC79A;   /* bluish green   */
+  --cat-4: #ECDA52;   /* yellow         */
+  --cat-5: #4D9FE0;   /* blue           */
+  --cat-6: #F07A33;   /* vermillion     */
+  --cat-7: #E29BC2;   /* reddish purple */
+  --cat-8: #B0B0B0;   /* grey           */
+
+  --cat-1-soft: rgba(240,180,58,0.16);
+  --cat-2-soft: rgba(127,201,242,0.16);
+  --cat-3-soft: rgba(47,199,154,0.16);
+  --cat-4-soft: rgba(236,218,82,0.16);
+  --cat-5-soft: rgba(77,159,224,0.16);
+  --cat-6-soft: rgba(240,122,51,0.16);
+  --cat-7-soft: rgba(226,155,194,0.16);
+  --cat-8-soft: rgba(176,176,176,0.16);
+
   color-scheme:    dark;
+}
+
+/* =============================================================
+   MOTION KEYFRAMES (design showcase). Slow decorative orbit used by
+   the «Живость и глубина» section. Disabled for reduced-motion users
+   in JS (component drops the animation), and globally below as a guard.
+   ============================================================= */
+@keyframes basis-orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="basis-orbit"] { animation: none !important; }
 }
