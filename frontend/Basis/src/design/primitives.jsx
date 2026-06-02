@@ -49,7 +49,7 @@ const BTN_VARIANTS = {
   ghost:
     "tw-bg-transparent tw-text-text-secondary tw-border tw-border-transparent hover:tw-bg-accent-soft hover:tw-text-text-primary",
   danger:
-    "tw-bg-danger tw-text-white tw-border tw-border-transparent hover:tw-opacity-90",
+    "tw-bg-danger tw-text-on-danger tw-border tw-border-transparent hover:tw-opacity-90",
 };
 
 function Spinner({ className }) {
@@ -147,16 +147,19 @@ export function IconButton({
 }
 
 /* =============================================================
-   3. Card — elevated surface; soft shadow (light) / +1px layer (dark)
-   The dark theme drops shadow via the --shadow-sm token resolving to
-   an inset-like 1px border, so a single tw-shadow-sm works in both.
+   3. Card — elevated surface.
+   Light: thin border + soft shadow (per constitution).
+   Dark:  layered surface + exactly ONE 1px border. The dark
+   --shadow-sm token resolves to a 1px border-as-shadow, which would
+   double the real border, so we drop the shadow in dark
+   (dark:tw-shadow-none) and keep the single tw-border instead.
    ============================================================= */
 
 export function Card({ children, header = null, footer = null, className = "", ...rest }) {
   return (
     <div
       className={cx(
-        "tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm",
+        "tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none",
         "tw-overflow-hidden",
         className
       )}
@@ -265,6 +268,7 @@ export function Chip({
 export function Tooltip({ label, children, side = "top" }) {
   const [open, setOpen] = useState(false);
   const reduced = usePrefersReducedMotion();
+  const tipId = useId();
   const sidePos = {
     top: "tw-bottom-full tw-left-1/2 -tw-translate-x-1/2 tw-mb-1.5",
     bottom: "tw-top-full tw-left-1/2 -tw-translate-x-1/2 tw-mt-1.5",
@@ -274,6 +278,7 @@ export function Tooltip({ label, children, side = "top" }) {
   return (
     <span
       className="tw-relative tw-inline-flex"
+      aria-describedby={tipId}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)}
@@ -283,6 +288,7 @@ export function Tooltip({ label, children, side = "top" }) {
       {open && (
         <span
           role="tooltip"
+          id={tipId}
           className={cx(
             "tw-absolute tw-z-50 tw-px-2 tw-py-1 tw-rounded-sm tw-whitespace-nowrap tw-pointer-events-none",
             "tw-bg-bg-overlay tw-text-text-primary tw-border tw-border-border-subtle tw-shadow-lg",
@@ -401,21 +407,59 @@ export function Select({
    9. Modal — scrim + overlay panel, Esc close, close button
    ============================================================= */
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function Modal({ open, onClose, title, children, footer = null }) {
   const reduced = usePrefersReducedMotion();
   const panelRef = useRef(null);
+  const triggerRef = useRef(null);
 
+  // Esc-close + Tab/Shift+Tab focus-trap inside the dialog.
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
-      if (e.key === "Escape") onClose && onClose();
+      if (e.key === "Escape") {
+        onClose && onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll(FOCUSABLE_SELECTOR)
+      ).filter((el) => el.offsetParent !== null || el === panelRef.current);
+      const first = focusable[0] || panelRef.current;
+      const last = focusable[focusable.length - 1] || panelRef.current;
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || active === panelRef.current) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // On open: remember the trigger, focus the first focusable (or panel).
+  // On close: return focus to the element that opened the modal.
   useEffect(() => {
-    if (open && panelRef.current) panelRef.current.focus();
+    if (open) {
+      triggerRef.current = document.activeElement;
+      const node = panelRef.current;
+      if (node) {
+        const focusable = node.querySelectorAll(FOCUSABLE_SELECTOR);
+        (focusable[0] || node).focus();
+      }
+      return;
+    }
+    if (triggerRef.current && typeof triggerRef.current.focus === "function") {
+      triggerRef.current.focus();
+      triggerRef.current = null;
+    }
   }, [open]);
 
   if (!open) return null;
@@ -591,7 +635,10 @@ export function Table({ columns = [], rows = [], caption }) {
 // Editorial sparkline: line + soft area fill under it + a dot on the
 // last point, all in the delta's semantic colour. Padded vertically so
 // the stroke and end dot are never clipped at the edges.
-function Sparkline({ data = [], width = 96, height = 32 }) {
+// `sign` drives the colour from the SAME source as the Delta glyph, so the
+// line colour and the ▲/▼ arrow can never disagree. Falls back to first-vs-last
+// only when no sign is supplied.
+function Sparkline({ data = [], width = 96, height = 32, sign }) {
   const uid = useId();
   if (!data.length) return null;
   const min = Math.min(...data);
@@ -607,7 +654,10 @@ function Sparkline({ data = [], width = 96, height = 32 }) {
   const line = coords.map(([x, y]) => `${x},${y}`).join(" ");
   const area = `0,${height} ${line} ${width},${height}`;
   const [lx, ly] = coords[coords.length - 1];
-  const rising = data[data.length - 1] >= data[0];
+  const rising =
+    sign === undefined || sign === null
+      ? data[data.length - 1] >= data[0]
+      : sign >= 0;
   const color = rising ? "var(--success)" : "var(--danger)";
   const gradId = `spark-fill-${uid}`;
   return (
@@ -657,7 +707,7 @@ export function KpiTile({ caption, value, unit, delta, deltaSuffix = "%", spark 
       )}
       {spark && (
         <div className="tw-mt-1">
-          <Sparkline data={spark} />
+          <Sparkline data={spark} sign={delta} />
         </div>
       )}
     </div>

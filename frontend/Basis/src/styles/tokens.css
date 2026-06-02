@@ -35,6 +35,7 @@
   --success-soft:   rgba(21,128,61,0.10);
   --danger:         #BE123C;
   --danger-soft:    rgba(190,18,60,0.10);
+  --on-danger:      #FFFFFF;          /* white on #BE123C = 6.29:1 (AA) */
   --warning:        #B45309;
   --warning-soft:   rgba(180,83,9,0.10);
   --info:           #0284C7;
@@ -137,6 +138,7 @@
   --success-soft:   rgba(34,197,94,0.14);
   --danger:         #F43F5E;
   --danger-soft:    rgba(244,63,94,0.14);
+  --on-danger:      #0B1220;          /* dark text on #F43F5E = 5.10:1 (AA); white would be 3.67:1 (fail) */
   --warning:        #F59E0B;
   --warning-soft:   rgba(245,158,11,0.14);
   --info:           #38BDF8;
