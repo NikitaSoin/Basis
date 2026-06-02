@@ -16,7 +16,15 @@ set -euo pipefail
 echo "[import] применяю миграции (alembic upgrade head)..."
 alembic upgrade head
 
-echo "[import] импортирую профили всех компаний в БД..."
+# 1. Таблица companies — СПИСОК компаний на сайте (/api/companies).
+#    Источник: backend/data/rates.csv (263 акции MOEX). Без этого шага список
+#    пустой → на сайте «Компании не найдены». Idempotent: дубли пропускаются.
+echo "[import] наполняю таблицу companies из data/rates.csv..."
+python -m scripts.load_all_companies data/rates.csv
+
+# 2. Таблица company_profiles — профиль/обзор компании (вкладка «обзор»).
+#    Источник: backend/data/company_profiles/*.json. Upsert по тикеру.
+echo "[import] импортирую профили компаний в БД..."
 python -m scripts.import_profiles_to_db --all
 
 echo "[import] готово."
