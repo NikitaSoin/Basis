@@ -1424,27 +1424,31 @@ function StackedOwnershipBar({ shareholders = [] }) {
     .sort((a, b) => (order[a.type] || 0) - (order[b.type] || 0) || b.stake_pct - a.stake_pct);
   if (!data.length) return <div style={{ fontSize: 12.5, color: "var(--text-3)" }}>Структура владения официально не раскрыта.</div>;
   const total = data.reduce((s, x) => s + x.stake_pct, 0) || 100;
-  const W = 100, H = 28;
-  let acc = 0;
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: "100%", height: 28, display: "block", borderRadius: 6, overflow: "hidden" }}>
+      <div style={{ display: "flex", width: "100%", height: 28, borderRadius: 6, overflow: "hidden" }}>
         {data.map((s, i) => {
-          const w = (s.stake_pct / total) * W;
-          const x = acc; acc += w;
+          const pct = (s.stake_pct / total) * 100;
           const c = TYPE_COLOR[s.type] || TYPE_COLOR.other;
           return (
-            <g key={i}>
-              <rect x={x} y={0} width={w} height={H} fill={c}
-                stroke={s.is_controlling ? "var(--text-1)" : "var(--bg-surface)"}
-                strokeWidth={s.is_controlling ? 1.5 : 0.5} vectorEffect="non-scaling-stroke" />
-              {w > 9 && <text x={x + w / 2} y={H / 2 + 3} textAnchor="middle" fontSize="7"
-                fill="var(--bg-app)" fontWeight="600" style={{ fontVariantNumeric: "tabular-nums" }}>
-                {s.stake_pct.toFixed(0)}%</text>}
-            </g>
+            <div key={i} title={`${s.name}: ${s.stake_pct.toFixed(1)}%`} style={{
+              width: `${pct}%`, background: c, display: "flex", alignItems: "center",
+              justifyContent: "center", minWidth: 0, overflow: "hidden",
+              boxShadow: s.is_controlling
+                ? "inset 0 0 0 1.5px var(--text-1)"
+                : "inset 0 0 0 0.5px var(--bg-surface)",
+            }}>
+              {pct > 9 && (
+                <span style={{
+                  fontSize: 10.5, fontWeight: 600, color: "var(--bg-app)",
+                  fontVariantNumeric: "tabular-nums", letterSpacing: "normal",
+                  whiteSpace: "nowrap",
+                }}>{s.stake_pct.toFixed(0)}%</span>
+              )}
+            </div>
           );
         })}
-      </svg>
+      </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 12 }}>
         {data.map((s, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text-2)" }}>
