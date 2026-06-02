@@ -40,7 +40,7 @@ import {
   ChevronDown,
   Check,
 } from "lucide-react";
-import { Button, Card, Badge } from "./design/primitives";
+import { Button, Card, Badge, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney } from "./design/format";
 
 // =========================
@@ -4990,127 +4990,118 @@ const AuthModal = ({ onClose, onSuccess }) => {
 // =========================
 
 const LandingView = ({ onNavigate, onShowAuth, user }) => {
+  const reducedMotion = usePrefersReducedMotion();
+  // Hero feature (bento — занимает 2 колонки) + остальные плитки мельче.
+  const heroFeature = {
+    icon: BarChart2,
+    title: "AI-анализ компаний",
+    desc: "Глубокий разбор 45 российских акций через Claude: бизнес-модель, риски, справедливая цена.",
+  };
   const features = [
     {
-      icon: BarChart2,
-      color: "var(--accent)",
-      bg: "var(--accent-fade)",
-      title: "AI-анализ компаний",
-      desc: "Глубокий разбор 45 российских акций через Claude: бизнес-модель, риски, справедливая цена.",
-    },
-    {
       icon: Activity,
-      color: "var(--positive)",
-      bg: "var(--pos-fade)",
       title: "Котировки MOEX",
       desc: "Данные Московской биржи с автоматическим обновлением. Цена, динамика, исторические данные.",
     },
     {
       icon: Briefcase,
-      color: "var(--gold)",
-      bg: "var(--gold-fade)",
       title: "Портфельная аналитика",
       desc: "Оценка здоровья портфеля, матрица корреляций, структура рисков и диверсификация.",
     },
     {
       icon: ShieldAlert,
-      color: "var(--negative)",
-      bg: "var(--neg-fade)",
       title: "Стресс-тестирование",
       desc: "Сценарии кризиса: что будет с портфелем при обвале нефти, росте ставки или чёрном лебеде.",
     },
     {
       icon: Globe,
-      color: "var(--accent-text)",
-      bg: "var(--accent-fade)",
       title: "Обозреватель рынка",
       desc: "Экспресс, детальный и глубокий AI-обзор рыночного фона — всегда актуальный контекст.",
     },
     {
       icon: Users,
-      color: "var(--teal)",
-      bg: "var(--teal-fade)",
       title: "Консилиум аналитиков",
       desc: "Сводка рекомендаций брокеров с целевыми ценами и собственной позицией платформы.",
     },
   ];
 
+  // Hover: лёгкий подъём (scale 1.0→1.015) + акцентный тинт; reduced-motion → без трансформа.
+  const hoverFx = reducedMotion
+    ? "hover:tw-bg-accent-soft tw-transition-colors tw-duration-150"
+    : "hover:tw-bg-accent-soft hover:tw-scale-[1.015] tw-transition tw-duration-200";
+
   return (
-    <div style={{ maxWidth: 880, margin: "0 auto" }}>
+    <div className="tw-mx-auto" style={{ maxWidth: 880 }}>
       {/* Hero */}
-      <div style={{ textAlign: "center", padding: "64px 0 52px" }}>
-        <div style={{
-          width: 64, height: 64,
-          background: "var(--accent-fade)",
-          borderRadius: 16,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          margin: "0 auto 20px",
-          color: "var(--accent-text)",
-        }}>
+      <div className="tw-text-center tw-pt-16 tw-pb-12">
+        <div className="tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
         </div>
-        <h1 style={{ fontSize: 40, fontWeight: 800, color: "var(--text-1)", margin: "0 0 12px", letterSpacing: "-0.02em" }}>
+        <h1
+          className="tw-font-display tw-font-medium tw-text-text-primary tw-m-0 tw-mb-3"
+          style={{ fontSize: 40, lineHeight: "44px", letterSpacing: "-0.5px" }}
+        >
           Базис
         </h1>
-        <p style={{ fontSize: 18, color: "var(--text-2)", margin: "0 0 36px", lineHeight: 1.5 }}>
+        <p
+          className="tw-text-text-secondary tw-mx-auto tw-mb-8"
+          style={{ fontSize: 18, lineHeight: "26px" }}
+        >
           Профессиональная аналитика российского рынка
         </p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <button
-            className="btn btn-primary"
-            style={{ padding: "11px 24px", fontSize: 14 }}
-            onClick={() => onNavigate("companies")}
-          >
-            <BarChart2 size={15} /> Компании
-          </button>
-          <button
-            className="btn btn-ghost"
-            style={{ padding: "11px 24px", fontSize: 14 }}
-            onClick={() => onNavigate("overview")}
-          >
-            <Globe size={15} /> Обозреватель
-          </button>
-          <button
-            className="btn btn-ghost"
-            style={{ padding: "11px 24px", fontSize: 14 }}
-            onClick={() => onNavigate("portfolio")}
-          >
-            <Briefcase size={15} /> Аналитика портфеля
-          </button>
+        <div className="tw-flex tw-gap-3 tw-justify-center tw-flex-wrap">
+          <Button variant="primary" iconLeft={<BarChart2 size={15} />} onClick={() => onNavigate("companies")}>
+            Компании
+          </Button>
+          <Button variant="secondary" iconLeft={<Globe size={15} />} onClick={() => onNavigate("overview")}>
+            Обозреватель
+          </Button>
+          <Button variant="secondary" iconLeft={<Briefcase size={15} />} onClick={() => onNavigate("portfolio")}>
+            Аналитика портфеля
+          </Button>
           {!user && (
-            <button
-              className="btn btn-ghost"
-              style={{ padding: "11px 24px", fontSize: 14 }}
-              onClick={onShowAuth}
-            >
+            <Button variant="ghost" onClick={onShowAuth}>
               Войти
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
-      {/* Feature cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
-        {features.map(({ icon: Icon, color, bg, title, desc }) => (
-          <div key={title} className="card" style={{ display: "flex", gap: 16, alignItems: "flex-start", cursor: "default" }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 10,
-              background: bg, color,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              <Icon size={20} />
+      {/* Feature tiles — bento: герой крупнее (2 колонки), остальные мельче */}
+      <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
+        {/* Герой — занимает 2 колонки на широком экране */}
+        <Card className={`sm:tw-col-span-2 tw-shadow-md ${hoverFx}`}>
+          <div className="tw-flex tw-flex-col tw-gap-4">
+            <div className="tw-w-12 tw-h-12 tw-rounded-md tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-shrink-0">
+              <heroFeature.icon size={24} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, color: "var(--text-1)", marginBottom: 4 }}>{title}</div>
-              <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>{desc}</div>
+              <div className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-mb-2" style={{ lineHeight: "30px" }}>
+                {heroFeature.title}
+              </div>
+              <div className="tw-text-[14px] tw-text-text-secondary" style={{ lineHeight: "22px" }}>
+                {heroFeature.desc}
+              </div>
             </div>
           </div>
+        </Card>
+        {features.map(({ icon: Icon, title, desc }) => (
+          <Card key={title} className={hoverFx}>
+            <div className="tw-flex tw-gap-4 tw-items-start">
+              <div className="tw-w-10 tw-h-10 tw-rounded-md tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-shrink-0">
+                <Icon size={20} />
+              </div>
+              <div>
+                <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-mb-1">{title}</div>
+                <div className="tw-text-[13px] tw-text-text-secondary" style={{ lineHeight: "20px" }}>{desc}</div>
+              </div>
+            </div>
+          </Card>
         ))}
       </div>
 
       {/* Footer note */}
-      <p style={{ textAlign: "center", fontSize: 12, color: "var(--text-3)", marginTop: 48, marginBottom: 8 }}>
+      <p className="tw-text-center tw-text-[12px] tw-text-text-tertiary tw-mt-12 tw-mb-2" style={{ lineHeight: "18px" }}>
         © 2026 Платформа Базис · Не является индивидуальной инвестиционной рекомендацией
       </p>
     </div>
