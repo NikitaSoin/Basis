@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -40,8 +40,9 @@ import {
   ChevronDown,
   Check,
 } from "lucide-react";
-import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, usePrefersReducedMotion } from "./design/primitives";
-import { formatMoney, formatPercent as fmtPercent } from "./design/format";
+import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Tabs, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
+import { formatMoney, formatPercent as fmtPercent, formatNumber as fmtNumber } from "./design/format";
+import { SectorChip, TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, Treemap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 
 // =========================
 // HELPERS
@@ -4200,6 +4201,75 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const portfolioScore = 68;
 
+  // Headline number with first-load count-up (rAF). Counts once when the
+  // component mounts; a background price refresh snaps to the latest value
+  // without replaying the animation (handled inside useCountUp).
+  const HeadlineNum = ({ value }) => {
+    const n = useCountUp(value);
+    return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
+  };
+
+  // ARIA tablist with a sliding accent underline (the "live language" tab
+  // motion). Keeps conditional panel mounting so per-tab count-up / draw-in
+  // fire when a tab is FIRST opened, not all at once on page load.
+  const PortfolioTabBar = ({ tabs, value, onChange }) => {
+    const reduced = usePrefersReducedMotion();
+    const refs = useRef({});
+    const [bar, setBar] = useState({ left: 0, width: 0 });
+    useEffect(() => {
+      const el = refs.current[value];
+      if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth });
+    }, [value]);
+    return (
+      <div role="tablist" aria-label="Разделы портфеля" className="tw-relative tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto">
+        {tabs.map((t) => {
+          const active = value === t.id;
+          return (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={active}
+              tabIndex={active ? 0 : -1}
+              ref={(el) => { refs.current[t.id] = el; }}
+              onClick={() => onChange(t.id)}
+              className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${active ? "tw-text-accent" : "tw-text-text-secondary hover:tw-text-text-primary"}`}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+        <span
+          aria-hidden="true"
+          className="tw-absolute tw-bottom-0 tw-h-0.5 tw-bg-accent tw-rounded-pill"
+          style={{
+            left: bar.left, width: bar.width,
+            transition: reduced ? undefined : "left 220ms cubic-bezier(0.16,1,0.3,1), width 220ms cubic-bezier(0.16,1,0.3,1)",
+          }}
+        />
+      </div>
+    );
+  };
+
+  // Big score dial with first-load count-up (rAF). Score 0..100; the value
+  // counts up once when the Metrics tab is first mounted.
+  const ScoreCard = ({ score }) => {
+    const n = useCountUp(score);
+    return (
+      <Card className="lg:tw-col-span-1 tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
+        <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
+          Индекс портфеля
+        </div>
+        <div className="tw-flex tw-items-baseline tw-gap-1 tw-mb-3">
+          <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: 56, lineHeight: 1, letterSpacing: "-1.5px" }}>
+            {fmtNumber(Math.round(n))}
+          </span>
+          <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
+        </div>
+        <Badge tone="warning">Умеренное качество (Fair)</Badge>
+      </Card>
+    );
+  };
+
   const stressMap = {
     black_swan: {
       label: "Черный лебедь (-20%)",
@@ -4223,234 +4293,137 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const currentStress = stressMap[stressScenario];
 
-  const TICKER_COLORS = ["#4f46e5","#3fb950","#f59e0b","#f85149","#a78bfa","#34d399","#fb923c","#38bdf8"];
-  const tickerColor = (t) => TICKER_COLORS[(t.charCodeAt(0) + (t.charCodeAt(1) || 0)) % TICKER_COLORS.length];
+  // Holdings rows enriched with derived value / weight / P&L for the Table.
+  const holdingRows = displayPositions.map((p) => {
+    const value = p.shares * p.currentPrice;
+    const weight = stats.totalValue > 0 ? (value / stats.totalValue) * 100 : 0;
+    const profitRub = p.shares * (p.currentPrice - p.avgPrice);
+    const profitPct = p.avgPrice > 0 ? (p.currentPrice / p.avgPrice - 1) * 100 : 0;
+    return { ...p, value, weight, profitRub, profitPct };
+  });
 
   const renderHoldings = () => (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: 4 }}>
+    <div className="tw-flex tw-flex-col tw-gap-3 tw-p-1">
       {/* Portfolio switcher */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
         {portfolioList.map(p => (
-          <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <button
+          <div key={p.id} className="tw-flex tw-items-center tw-gap-1">
+            <Chip
+              selected={activePortfolioId === p.id}
               onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
-              className={`filter-pill ${activePortfolioId === p.id ? "active" : ""}`}
             >
               {p.name}
-            </button>
-            <button
+            </Chip>
+            <IconButton
+              size="sm"
+              aria-label="Удалить портфель"
               onClick={() => setConfirmDeleteId(p.id)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", padding: "4px 5px", borderRadius: 6, display: "flex", alignItems: "center" }}
-              title="Удалить портфель"
             >
               <Trash2 size={13} />
-            </button>
+            </IconButton>
           </div>
         ))}
-        <button
-          className="btn btn-ghost"
-          style={{ padding: "5px 12px", fontSize: 12 }}
-          onClick={() => token ? setShowUploadModal(true) : onAuthRequired()}
-        >
-          <Plus size={12} /> Новый портфель
-        </button>
-        <button
-          className="btn btn-ghost"
-          style={{ padding: "5px 12px", fontSize: 12, border: "0.5px solid var(--border)", marginLeft: "auto" }}
-          onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}
-        >
-          <Plus size={12} /> Добавить сделку
-        </button>
+        <Button variant="ghost" size="sm" iconLeft={<Plus size={14} />} onClick={() => token ? setShowUploadModal(true) : onAuthRequired()}>
+          Новый портфель
+        </Button>
+        <Button variant="secondary" size="sm" iconLeft={<Plus size={14} />} className="tw-ml-auto" onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}>
+          Добавить сделку
+        </Button>
       </div>
 
       {/* Positions table */}
-      <div style={{ background: "var(--bg-surface)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: "0.5px solid var(--border)" }}>
-                {["Актив", "Кол-во", "Средняя", "Текущая", "Доля", "Результат ₽", "Результат %"].map((h, i) => (
-                  <th key={h} style={{
-                    padding: "10px 14px", fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-                    letterSpacing: "0.05em", color: "var(--text-3)",
-                    textAlign: i === 0 ? "left" : "right", whiteSpace: "nowrap",
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {displayPositions.map((p) => {
-                const value  = p.shares * p.currentPrice;
-                const weight = stats.totalValue > 0 ? (value / stats.totalValue) * 100 : 0;
-                const profitRub = p.shares * (p.currentPrice - p.avgPrice);
-                const profitPct = p.avgPrice > 0 ? (p.currentPrice / p.avgPrice - 1) * 100 : 0;
-                const posColor = profitRub >= 0 ? "var(--positive)" : "var(--negative)";
-                const tcolor = tickerColor(p.ticker);
+      <Table
+        columns={[
+          {
+            key: "ticker", label: "Актив",
+            render: (_, r) => (
+              <div className="tw-flex tw-items-center tw-gap-2.5">
+                <TickerBadge ticker={r.ticker} />
+                <div>
+                  <div className="tw-font-semibold tw-text-text-primary">{r.ticker}</div>
+                  <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
+                </div>
+              </div>
+            ),
+          },
+          { key: "shares", label: "Кол-во", render: (v) => fmtNumber(v) },
+          { key: "avgPrice", label: "Средняя", render: (v) => formatMoney(v, { decimals: 1 }) },
+          { key: "currentPrice", label: "Текущая", render: (v) => <span className="tw-text-text-primary tw-font-medium">{formatMoney(v, { decimals: 1 })}</span> },
+          {
+            key: "weight", label: "Доля",
+            render: (v, r) => (
+              <div className="tw-flex tw-items-center tw-justify-end tw-gap-2">
+                <span>{fmtPercent(v, { decimals: 1 })}</span>
+                <WeightBar pct={v} n={catFor(r.ticker)} />
+              </div>
+            ),
+          },
+          {
+            key: "profitRub", label: "Результат ₽",
+            render: (v) => (
+              <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"}>
+                <span aria-hidden="true">{v >= 0 ? "▲ " : "▼ "}</span>{formatMoney(Math.abs(v), { decimals: 0 })}
+              </span>
+            ),
+          },
+          { key: "profitPct", label: "Результат %", render: (v) => <Delta value={v} /> },
+        ]}
+        rows={holdingRows}
+      />
 
-                return (
-                  <tr key={p.ticker} style={{ borderBottom: "0.5px solid var(--border)", transition: "background 0.12s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                  >
-                    <td style={{ padding: "10px 14px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{
-                          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                          background: tcolor + "22", border: `1px solid ${tcolor}44`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontFamily: "monospace", fontWeight: 800, fontSize: 10, color: tcolor,
-                          letterSpacing: "-0.03em",
-                        }}>
-                          {p.ticker.slice(0, 4)}
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 700, color: "var(--text-1)" }}>{p.ticker}</div>
-                          <div style={{ fontSize: 11, color: "var(--text-3)" }}>{p.name}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-2)" }}>{p.shares}</td>
-                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{formatCurrency(p.avgPrice)}</td>
-                    <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--text-1)", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{formatCurrency(p.currentPrice)}</td>
-                    <td style={{ padding: "10px 14px", textAlign: "right" }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8 }}>
-                        <span style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>{weight.toFixed(1)}%</span>
-                        <div style={{ width: 40, height: 4, background: "var(--bg-hover)", borderRadius: 2, overflow: "hidden" }}>
-                          <div style={{ width: `${Math.min(weight, 100)}%`, height: "100%", background: "var(--accent)", borderRadius: 2 }} />
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: posColor, fontVariantNumeric: "tabular-nums" }}>
-                      {profitRub >= 0 ? "+" : ""}{formatCurrency(profitRub)}
-                    </td>
-                    <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: posColor }}>
-                      {profitPct >= 0 ? "+" : ""}{profitPct.toFixed(1)}%
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
-        <div className="p-4 border-b border-slate-700 bg-slate-800/50">
-          <h4 className="text-white font-semibold">
-            Аналитические метрики портфеля
-          </h4>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-900/50">
-              <tr>
-                <th className="px-6 py-4">Актив</th>
-                <th className="px-6 py-4">Ожид. доходность</th>
-                <th className="px-6 py-4">Std Deviation</th>
-                <th className="px-6 py-4">P/E тек.</th>
-                <th className="px-6 py-4">P/E ист.</th>
-                <th className="px-6 py-4">Beta</th>
-                <th className="px-6 py-4">Див. дох.</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700">
-              {displayPositions.map((p) => (
-                <tr key={`${p.ticker}_metrics`}>
-                  <td className="px-6 py-4 font-bold text-white">{p.ticker}</td>
-                  <td className="px-6 py-4 text-green-400">+{p.expReturn}%</td>
-                  <td className="px-6 py-4 text-slate-400">{p.stdDev}%</td>
-                  <td className="px-6 py-4 text-white">{p.pe}x</td>
-                  <td className="px-6 py-4 text-slate-500">{p.pe_hist}x</td>
-                  <td className="px-6 py-4 text-indigo-400 font-mono">
-                    {p.beta}
-                  </td>
-                  <td className="px-6 py-4 text-amber-400">{p.divYield}%</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="border-t border-slate-700 bg-slate-900/40">
-              <tr>
-                <td className="px-6 py-4 font-semibold text-white">Портфель</td>
-                <td className="px-6 py-4 text-green-400">
-                  +{stats.portExp.toFixed(1)}%
-                </td>
-                <td className="px-6 py-4 text-slate-300">
-                  {stats.portStd.toFixed(1)}%
-                </td>
-                <td className="px-6 py-4 text-slate-500">—</td>
-                <td className="px-6 py-4 text-slate-500">—</td>
-                <td className="px-6 py-4 text-indigo-400 font-mono">
-                  {stats.avgBeta.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 text-amber-400">
-                  {stats.avgYield.toFixed(1)}%
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+      {/* Per-asset analytic metrics */}
+      <Card header="Аналитические метрики портфеля" className="tw-mt-1">
+        <Table
+          columns={[
+            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
+            { key: "expReturn", label: "Ожид. доходность", render: (v) => v == null ? "—" : <span className="tw-text-success">{fmtPercent(v, { sign: true })}</span> },
+            { key: "stdDev", label: "Std Deviation", render: (v) => v == null ? "—" : fmtPercent(v) },
+            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}×` },
+            { key: "pe_hist", label: "P/E ист.", render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
+            { key: "beta", label: "Beta", render: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+            { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v) },
+          ]}
+          rows={[
+            ...displayPositions,
+            {
+              ticker: "Портфель", expReturn: stats.portExp, stdDev: stats.portStd,
+              pe: null, pe_hist: null, beta: stats.avgBeta, divYield: stats.avgYield,
+            },
+          ]}
+        />
+      </Card>
     </div>
   );
 
   const renderAggregate = () => (
-    <div className="p-4">
-      <h3 className="text-white font-semibold mb-4">
+    <div className="tw-p-4">
+      <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0">
         Агрегирующие метрики и Индекс портфеля
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-1 bg-slate-900 border border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center">
-          <div className="text-slate-400 text-sm mb-2">Portfolio Score</div>
-          <div className="text-6xl font-bold text-amber-400 mb-2">
-            {portfolioScore}
-            <span className="text-2xl text-slate-500">/100</span>
-          </div>
-          <div className="px-3 py-1 bg-amber-500/10 text-amber-500 rounded-full text-sm font-medium border border-amber-500/20">
-            Умеренное качество (Fair)
-          </div>
-        </div>
+      <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
+        {/* Score dial */}
+        <ScoreCard score={portfolioScore} />
 
-        <div className="col-span-1 lg:col-span-2 grid grid-cols-2 gap-4">
-          {[
-            {
-              label: "Соответствие риску",
-              val: "8/10",
-              desc: "Подходит для консервативного инвестора",
-              color: "text-green-400",
-            },
-            {
-              label: "Доходность к риску",
-              val: "4.5/10",
-              desc: "Низкая премия за риск",
-              color: "text-red-400",
-            },
-            {
-              label: "Защита от просадок",
-              val: "7/10",
-              desc: "Хорошая дивидендная подушка",
-              color: "text-amber-400",
-            },
-            {
-              label: "Диверсификация",
-              val: "3/10",
-              desc: "Сильный перекос в РФ Финансы",
-              color: "text-red-400",
-            },
-          ].map((m, i) => (
-            <div
-              key={i}
-              className="bg-slate-900 border border-slate-700 p-4 rounded-lg"
-            >
-              <div className="text-slate-400 text-xs mb-1">{m.label}</div>
-              <div className={`text-xl font-bold font-mono ${m.color}`}>
-                {m.val}
+        {/* Sub-indices as coloured health bars */}
+        <Card className="lg:tw-col-span-2">
+          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-4" style={{ letterSpacing: "0.06em" }}>
+            Здоровье портфеля · субиндексы
+          </div>
+          <div className="tw-flex tw-flex-col tw-gap-4">
+            {[
+              { label: "Соответствие риску", val: 80, colorVar: "--cat-3", desc: "Подходит для консервативного инвестора" },
+              { label: "Доходность к риску", val: 45, colorVar: "--danger", desc: "Низкая премия за риск" },
+              { label: "Защита от просадок", val: 70, colorVar: "--cat-1", desc: "Хорошая дивидендная подушка" },
+              { label: "Диверсификация", val: 30, colorVar: "--danger", desc: "Сильный перекос в РФ Финансы" },
+            ].map((m) => (
+              <div key={m.label} className="tw-flex tw-flex-col tw-gap-1">
+                <MetricBar label={m.label} value={m.val} colorVar={m.colorVar} />
+                <span className="tw-text-[12px] tw-text-text-tertiary tw-pl-[140px]">{m.desc}</span>
               </div>
-              <div className="text-xs text-slate-500 mt-1">{m.desc}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -4459,190 +4432,162 @@ const PortfolioView = ({ token, onAuthRequired }) => {
     const labels = ["SBER", "LKOH", "YDEX"];
 
     return (
-      <div className="p-4">
-        <h3 className="text-white font-semibold mb-2">
+      <div className="tw-p-4">
+        <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-2 tw-mt-0">
           Оценка диверсификации и скрытой концентрации
         </h3>
-        <p className="text-sm text-slate-400 mb-6">
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-6 tw-mt-0">
           Тепловая карта показывает, как активы движутся относительно друг друга
-          (1.0 = синхронно, 0 = независимо).
+          (1,0 = синхронно, 0 = независимо). Тёплые ячейки — высокая связь
+          (концентрация), холодные — диверсификация.
         </p>
 
-        <div className="overflow-x-auto">
-          <div className="min-w-[420px] max-w-md mx-auto bg-slate-900 p-4 rounded-xl border border-slate-700">
-            <div className="grid grid-cols-4 gap-1 text-center text-xs font-mono">
-              <div className="p-2"></div>
-              {labels.map((label) => (
-                <div key={`h-${label}`} className="p-2 text-slate-400">
-                  {label}
-                </div>
-              ))}
-              {labels.map((rowLabel, i) => (
-                <React.Fragment key={rowLabel}>
-                  <div className="p-2 text-slate-400 text-right flex items-center justify-end">
-                    {rowLabel}
-                  </div>
-                  {MOCK_CORRELATION[i].map((value, j) => (
-                    <div
-                      key={`${i}-${j}`}
-                      className={`p-2 rounded ${
-                        value >= 0.9
-                          ? "bg-indigo-500 text-white"
-                          : value >= 0.4
-                          ? "bg-indigo-500/40 text-indigo-100"
-                          : value >= 0.1
-                          ? "bg-indigo-500/20 text-indigo-200"
-                          : "bg-indigo-500/10 text-indigo-200"
-                      }`}
-                    >
-                      {value.toFixed(2)}
-                    </div>
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
+        <Card className="tw-max-w-lg tw-mx-auto">
+          <CorrelationHeatmap labels={labels} matrix={MOCK_CORRELATION} />
+          <div className="tw-mt-4 tw-flex tw-items-center tw-gap-4 tw-text-[12px] tw-text-text-tertiary">
+            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
+              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--danger) 45%, var(--bg-elevated))" }} />
+              высокая
+            </span>
+            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
+              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--cat-8) 14%, var(--bg-elevated))" }} />
+              средняя
+            </span>
+            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
+              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--success) 35%, var(--bg-elevated))" }} />
+              низкая
+            </span>
           </div>
-        </div>
+        </Card>
 
-        <div className="mt-6 bg-amber-500/10 border border-amber-500/20 p-4 rounded-lg text-sm text-amber-200">
-          <span className="font-bold">Вывод:</span> У портфеля средняя
-          корреляция между Сбером и Лукойлом (0.45) из-за общей
-          макро-зависимости от курса рубля и ставки. Яндекс выступает хорошим
-          диверсификатором.
+        <div className="tw-mt-6 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-warning-soft tw-border tw-border-warning-soft">
+          <ShieldAlert size={18} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
+          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+            <span className="tw-font-semibold tw-text-text-primary">Вывод: </span>
+            У портфеля средняя корреляция между Сбером и Лукойлом (0,45) из-за
+            общей макро-зависимости от курса рубля и ставки. Яндекс выступает
+            хорошим диверсификатором.
+          </p>
         </div>
       </div>
     );
   };
 
-  const renderAiDiagnosis = () => (
-    <div className="p-6">
-      <h3 className="text-white font-semibold mb-4 text-lg flex items-center gap-2">
-        <Zap size={20} className="text-indigo-400" />
-        Общий диагноз портфеля
-      </h3>
+  const renderAiDiagnosis = () => {
+    const pros = [
+      "Высокая ожидаемая див. доходность (около 11% годовых), создающая подушку безопасности.",
+      "Наличие Яндекса защищает портфель от стагнации, добавляя сильный фактор роста.",
+      "Устойчивость к девальвации рубля благодаря доле экспортёра (Лукойл).",
+    ];
+    const cons = [
+      "Жёсткая концентрация в 3 бумагах — риск отдельных корпоративных событий критичен.",
+      "Сильная зависимость финансового сектора от роста ключевой ставки.",
+      "Отсутствие защитных активов при высоких ставках на рынке.",
+    ];
+    return (
+      <div className="tw-p-6">
+        <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
+          <Zap size={20} className="tw-text-accent" />
+          Общий диагноз портфеля
+        </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="space-y-2">
-          <h4 className="text-green-400 font-medium">
-            Щит портфеля (Аргументы ЗА)
-          </h4>
-          <ul className="space-y-2 text-sm text-slate-300">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              Высокая ожидаемая див. доходность (около 11% годовых), создающая
-              подушку безопасности.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              Наличие Яндекса защищает портфель от стагнации, добавляя сильный
-              фактор роста.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 mt-0.5">•</span>
-              Устойчивость к девальвации рубля благодаря доле экспортёра
-              (Лукойл).
-            </li>
-          </ul>
+        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-mb-6">
+          <Card>
+            <h4 className="tw-text-[14px] tw-font-semibold tw-text-success tw-mt-0 tw-mb-3">
+              Щит портфеля (Аргументы ЗА)
+            </h4>
+            <ul className="tw-flex tw-flex-col tw-gap-2 tw-m-0 tw-p-0 tw-list-none">
+              {pros.map((t, i) => (
+                <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
+                  <span aria-hidden="true" className="tw-text-success tw-mt-px tw-shrink-0">▲</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          <Card>
+            <h4 className="tw-text-[14px] tw-font-semibold tw-text-danger tw-mt-0 tw-mb-3">
+              Уязвимости (Аргументы ПРОТИВ)
+            </h4>
+            <ul className="tw-flex tw-flex-col tw-gap-2 tw-m-0 tw-p-0 tw-list-none">
+              {cons.map((t, i) => (
+                <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
+                  <span aria-hidden="true" className="tw-text-danger tw-mt-px tw-shrink-0">▼</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
 
-        <div className="space-y-2">
-          <h4 className="text-red-400 font-medium">
-            Уязвимости (Аргументы ПРОТИВ)
+        <Card>
+          <h4 className="tw-text-[13px] tw-font-medium tw-text-accent tw-mt-0 tw-mb-2">
+            Резюме платформы
           </h4>
-          <ul className="space-y-2 text-sm text-slate-300">
-            <li className="flex items-start gap-2">
-              <span className="text-red-500 mt-0.5">•</span>
-              Жёсткая концентрация в 3 бумагах — риск отдельных корпоративных
-              событий критичен.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-red-500 mt-0.5">•</span>
-              Сильная зависимость финансового сектора от роста ключевой ставки.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-red-500 mt-0.5">•</span>
-              Отсутствие защитных активов при высоких ставках на рынке.
-            </li>
-          </ul>
-        </div>
+          <p className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-m-0">
+            Портфель представляет собой агрессивную ставку на российские голубые
+            фишки с перекосом в дивидендную историю Сбербанка. Он хорошо держит
+            инфляционный удар, но уязвим к сценарию жесткой ДКП и геополитическим
+            шокам. Базовая рекомендация — ребалансировка и добавление защитных
+            инструментов.
+          </p>
+        </Card>
       </div>
-
-      <div className="bg-slate-900 border border-slate-700 p-4 rounded-xl">
-        <h4 className="text-indigo-400 font-medium mb-2 text-sm">
-          Резюме платформы
-        </h4>
-        <p className="text-slate-300 text-sm leading-relaxed">
-          Портфель представляет собой агрессивную ставку на российские голубые
-          фишки с перекосом в дивидендную историю Сбербанка. Он хорошо держит
-          инфляционный удар, но уязвим к сценарию жесткой ДКП и геополитическим
-          шокам. Базовая рекомендация — ребалансировка и добавление защитных
-          инструментов.
-        </p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderStress = () => (
-    <div className="p-6 space-y-6">
-      <div className="bg-slate-800 rounded-2xl border border-slate-700 p-5">
-        <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-          <ShieldAlert size={18} className="text-indigo-400" />
+    <div className="tw-p-6 tw-flex tw-flex-col tw-gap-6">
+      <Card>
+        <h4 className="tw-text-[16px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
+          <ShieldAlert size={18} className="tw-text-accent" />
           Стресс-тестирование портфеля
         </h4>
 
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="tw-flex tw-flex-wrap tw-gap-2 tw-mb-6">
           {[
             { id: "black_swan", label: "Черный лебедь (-20%)" },
             { id: "rate_up", label: "Ставка ЦБ +5%" },
             { id: "oil_crash", label: "Крах нефти ($40)" },
           ].map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setStressScenario(s.id)}
-              className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
-                stressScenario === s.id
-                  ? "bg-indigo-600 border-indigo-500 text-white"
-                  : "bg-slate-900 border-slate-700 text-slate-300 hover:border-red-500 hover:text-red-400"
-              }`}
-            >
+            <Chip key={s.id} selected={stressScenario === s.id} onClick={() => setStressScenario(s.id)}>
               {s.label}
-            </button>
+            </Chip>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-            <div className="text-xs text-slate-500 uppercase mb-1">
+        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+          <div className="tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-p-4">
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
               Ожидаемое падение
             </div>
-            <div className="text-2xl font-bold text-red-400">
-              -{currentStress.drop.toFixed(1)}%
+            <div className="tw-text-[24px] tw-font-display tw-font-light tw-text-danger tw-tabular-nums tw-mb-2">
+              <span aria-hidden="true">▼ </span>{fmtPercent(currentStress.drop, { decimals: 1 })}
             </div>
-            <div className="text-xs text-slate-500 mt-1">
-              {currentStress.label}
-            </div>
+            <ImpactBar value={-currentStress.drop} max={25} />
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">{currentStress.label}</div>
           </div>
 
-          <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
-            <div className="text-xs text-slate-500 uppercase mb-1">
+          <div className="tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-p-4">
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
               Потеря стоимости
             </div>
-            <div className="text-2xl font-bold text-white">
-              {formatCurrency(currentStress.valueLoss)}
+            <div className="tw-text-[24px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums tw-mb-2">
+              {formatMoney(currentStress.valueLoss, { decimals: 0 })}
             </div>
-            <div className="text-xs text-slate-500 mt-1">
-              Оценка по текущей структуре портфеля
-            </div>
+            <ImpactBar value={-currentStress.drop} max={25} />
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">Оценка по текущей структуре портфеля</div>
           </div>
         </div>
 
-        <div className="mt-4 bg-red-500/10 border-l-4 border-red-500 p-4 rounded-r text-sm text-slate-300">
-          <span className="font-semibold text-red-400">
-            Интерпретация платформы:{" "}
-          </span>
-          {currentStress.text}
+        <div className="tw-mt-4 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-danger-soft" style={{ borderLeft: "3px solid var(--danger)" }}>
+          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+            <span className="tw-font-semibold tw-text-danger">Интерпретация платформы: </span>
+            {currentStress.text}
+          </p>
         </div>
-      </div>
+      </Card>
     </div>
   );
 
@@ -4736,79 +4681,55 @@ const PortfolioView = ({ token, onAuthRequired }) => {
       </div>
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12 }}>
-        {[
-          { label: "Стоимость", value: formatCurrency(stats.totalValue), color: "var(--text-1)" },
-          {
-            label: "Прибыль",
-            value: (stats.totalProfit >= 0 ? "+" : "") + formatCurrency(stats.totalProfit),
-            sub: formatPercent(stats.profitPct, 2),
-            color: stats.totalProfit >= 0 ? "var(--positive)" : "var(--negative)",
-          },
-          { label: "Beta (Риск)", value: "—", color: "var(--accent-text)" },
-          { label: "Див. доходность", value: "—", color: "var(--gold)" },
-        ].map(({ label, value, sub, color }) => (
-          <div key={label} className="card card-sm">
-            <div style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 6 }}>
-              {label}
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color, fontVariantNumeric: "tabular-nums" }}>{value}</div>
-            {sub && <div style={{ fontSize: 12, color, marginTop: 2, opacity: 0.8 }}>{sub}</div>}
-          </div>
-        ))}
+      <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))" }}>
+        <KpiTile caption="Стоимость" value={<HeadlineNum value={stats.totalValue} />} />
+        <KpiTile
+          caption="Прибыль"
+          value={<span className="tw-tabular-nums">{(stats.totalProfit >= 0 ? "▲ " : "▼ ") + formatMoney(Math.abs(stats.totalProfit), { decimals: 0 })}</span>}
+          delta={stats.profitPct}
+        />
+        <KpiTile caption="Beta (Риск)" value="—" />
+        <KpiTile caption="Див. доходность" value="—" />
       </div>
 
       {/* Health Score */}
-      <div className="card">
-        <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-1)", marginBottom: 16 }}>
-          Здоровье портфеля — {portfolioScore}/100
+      <Card>
+        <div className="tw-flex tw-items-baseline tw-gap-2 tw-mb-4">
+          <span className="tw-text-[15px] tw-font-semibold tw-text-text-primary">Здоровье портфеля</span>
+          <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-tertiary">{portfolioScore}/100</span>
         </div>
-        {[
-          { label: "Диверсификация", value: 72, color: "var(--accent)" },
-          { label: "Доходность", value: 65, color: "var(--positive)" },
-          { label: "Риск", value: 58, color: "var(--negative)" },
-          { label: "Концентрация", value: 70, color: "var(--warning)" },
-        ].map(({ label, value, color }) => (
-          <div key={label} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-            <span style={{ fontSize: 13, color: "var(--text-2)", width: 120, flexShrink: 0 }}>{label}</span>
-            <div style={{ flex: 1, height: 6, background: "var(--bg-hover)", borderRadius: 3, overflow: "hidden" }}>
-              <div style={{ width: `${value}%`, height: "100%", background: color, borderRadius: 3, transition: "width 0.6s" }} />
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color, width: 36, textAlign: "right" }}>{value}</span>
-          </div>
-        ))}
-      </div>
+        <div className="tw-flex tw-flex-col tw-gap-3">
+          {[
+            { label: "Диверсификация", value: 72, colorVar: "--cat-5" },
+            { label: "Доходность", value: 65, colorVar: "--cat-3" },
+            { label: "Риск", value: 58, colorVar: "--danger" },
+            { label: "Концентрация", value: 70, colorVar: "--cat-1" },
+          ].map((m) => (
+            <MetricBar key={m.label} label={m.label} value={m.value} colorVar={m.colorVar} />
+          ))}
+        </div>
+      </Card>
 
-      <div style={{ display: "flex", gap: 4, background: "var(--bg-surface)", padding: 4, borderRadius: 12, overflowX: "auto" }}>
-        {[
+      {/* Tab bar — ARIA tablist with sliding accent underline (live language) */}
+      <PortfolioTabBar
+        value={tab}
+        onChange={setTab}
+        tabs={[
           { id: "holdings", label: "Состав" },
           { id: "metrics", label: "Агрегирующая таблица" },
           { id: "correlation", label: "Матрица корреляций" },
           { id: "ai", label: "ИИ-Диагноз" },
           { id: "stress", label: "Стресс-тест" },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              padding: "8px 16px", borderRadius: 8, border: "none", cursor: "pointer",
-              fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", transition: "all 0.15s",
-              background: tab === t.id ? "var(--accent)" : "transparent",
-              color: tab === t.id ? "#fff" : "var(--text-2)",
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+        ]}
+      />
 
-      <div className="card" style={{ minHeight: 400, padding: 4 }}>
+      <Card style={{ minHeight: 400 }} className="tw-p-1">
         {tab === "holdings" && renderHoldings()}
         {tab === "metrics" && renderAggregate()}
         {tab === "correlation" && renderCorrelation()}
         {tab === "ai" && renderAiDiagnosis()}
         {tab === "stress" && renderStress()}
-      </div>
+      </Card>
 
       {showUploadModal && (
         <PortfolioImportModal
