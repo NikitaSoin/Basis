@@ -22,13 +22,17 @@ import {
   Delta,
   KpiTile,
 } from "./primitives";
+import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
 
 /* ---- small layout helpers (gallery chrome only) ---- */
 
 function Section({ title, children }) {
   return (
     <section className="tw-mb-12">
-      <h2 className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-pb-2 tw-border-b tw-border-border-subtle">
+      <h2
+        className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-pb-2 tw-border-b tw-border-border-subtle"
+        style={{ letterSpacing: "0.01em" }}
+      >
         {title}
       </h2>
       {children}
@@ -40,7 +44,10 @@ function Row({ label, children }) {
   return (
     <div className="tw-mb-5">
       {label && (
-        <div className="tw-text-[12px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">
+        <div
+          className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2"
+          style={{ letterSpacing: "0.06em" }}
+        >
           {label}
         </div>
       )}
@@ -55,6 +62,112 @@ const Bolt = (
   </svg>
 );
 
+/* ---- Brand-accent candidates (owner picks; global --accent unchanged) ----
+   Each candidate scopes --accent / --accent-hover / --on-accent LOCALLY on a
+   wrapper, so the real Button(primary) + active Tab inside re-resolve to that
+   colour — an honest A/B on actual components, in both themes. AA of white
+   text on each light fill was verified offline (all ≥4.5:1). */
+
+const ACCENT_CANDIDATES = [
+  {
+    name: "Текущий индиго",
+    light: { accent: "#4F5BD5", hover: "#4049B8" },
+    dark: { accent: "#6B7BFF", hover: "#8390FF" },
+    aa: "5,54:1",
+  },
+  {
+    name: "Плотный синий",
+    light: { accent: "#3232A6", hover: "#28288A" },
+    dark: { accent: "#5B5BD6", hover: "#7070E0" },
+    aa: "9,80:1",
+  },
+  {
+    name: "Сине-стальной",
+    light: { accent: "#2D5B9E", hover: "#244B84" },
+    dark: { accent: "#6E9AD0", hover: "#86ACDB" },
+    aa: "6,77:1",
+  },
+  {
+    name: "Кобальт / насыщенный",
+    light: { accent: "#2347D9", hover: "#1C3AB5" },
+    dark: { accent: "#5B79FF", hover: "#7690FF" },
+    aa: "7,06:1",
+  },
+];
+
+// One swatch: a themed surface with a primary button + active/inactive tabs,
+// using the locally-scoped accent vars.
+function AccentSwatch({ dark, vars }) {
+  return (
+    <div
+      className={dark ? "dark" : ""}
+      style={{
+        ["--accent"]: vars.accent,
+        ["--accent-hover"]: vars.hover,
+        ["--on-accent"]: "#FFFFFF",
+      }}
+    >
+      <div className="tw-bg-bg-base tw-border tw-border-border-strong tw-rounded-md tw-p-4 tw-flex tw-flex-col tw-gap-3">
+        <Button variant="primary" size="sm">
+          Кнопка primary
+        </Button>
+        <div role="tablist" className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle">
+          <span className="tw-px-3 tw-py-1.5 tw-text-[13px] tw-font-medium tw--mb-px tw-border-b-2 tw-text-accent tw-border-accent">
+            Активный
+          </span>
+          <span className="tw-px-3 tw-py-1.5 tw-text-[13px] tw-font-medium tw--mb-px tw-border-b-2 tw-text-text-secondary tw-border-transparent">
+            Неактивный
+          </span>
+        </div>
+        <span className="tw-text-[11px] tw-text-text-tertiary tw-font-mono">
+          {dark ? "dark" : "light"} {vars.accent}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function AccentCandidates() {
+  return (
+    <section className="tw-max-w-[1280px] tw-mx-auto tw-px-6 tw-py-10">
+      <h2
+        className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-mb-1 tw-pb-2 tw-border-b tw-border-border-subtle"
+        style={{ letterSpacing: "0.01em" }}
+      >
+        Кандидаты бренд-акцента
+      </h2>
+      <p className="tw-text-[13px] tw-text-text-tertiary tw-mb-6">
+        Владелец выбирает один. Глобальный <code className="tw-font-mono">--accent</code> не меняется —
+        цвет задан локально на образце. Белый текст на светлой заливке проходит AA (≥ 4,5:1).
+      </p>
+      <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6">
+        {ACCENT_CANDIDATES.map((c) => (
+          <div key={c.name} className="tw-flex tw-flex-col tw-gap-2">
+            <div className="tw-flex tw-items-baseline tw-justify-between">
+              <span
+                className="tw-text-[12px] tw-font-medium tw-uppercase tw-text-text-secondary"
+                style={{ letterSpacing: "0.06em" }}
+              >
+                {c.name}
+              </span>
+              <span className="tw-text-[11px] tw-font-mono tw-text-text-tertiary">
+                AA белого: {c.aa}
+              </span>
+            </div>
+            <div className="tw-grid tw-grid-cols-2 tw-gap-3">
+              <AccentSwatch dark={false} vars={c.light} />
+              <AccentSwatch dark={true} vars={c.dark} />
+            </div>
+            <div className="tw-text-[11px] tw-font-mono tw-text-text-tertiary">
+              light {c.light.accent} · dark {c.dark.accent}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ---- the actual gallery body (rendered once per theme) ---- */
 
 function Gallery() {
@@ -63,15 +176,16 @@ function Gallery() {
   const [chips, setChips] = useState({ growth: true, value: false, dividend: false });
 
   const plRows = [
-    { metric: "Выручка", y2023: "1 240", y2024: "1 388", delta: 11.9 },
-    { metric: "EBITDA", y2023: "402", y2024: "421", delta: 4.7 },
-    { metric: "Чистая прибыль", y2023: "188", y2024: "166", delta: -11.7 },
-    { metric: "Свободный денежный поток", y2023: "95", y2024: "112", delta: 17.9 },
+    { metric: "Выручка", y2023: 1240, y2024: 1388, delta: 11.9 },
+    { metric: "EBITDA", y2023: 402, y2024: 421, delta: 4.7 },
+    { metric: "Чистая прибыль", y2023: 188, y2024: 166, delta: -11.7 },
+    { metric: "Свободный денежный поток", y2023: 95, y2024: 112, delta: 17.9 },
   ];
+  const fmtBn = (v) => formatNumber(v, { decimals: 0 });
   const plColumns = [
     { key: "metric", label: "Показатель, млрд ₽" },
-    { key: "y2023", label: "2023" },
-    { key: "y2024", label: "2024" },
+    { key: "y2023", label: "2023", render: fmtBn },
+    { key: "y2024", label: "2024", render: fmtBn },
     { key: "delta", label: "Δ г/г", render: (v) => <Delta value={v} /> },
   ];
 
@@ -218,10 +332,11 @@ function Gallery() {
 
       <Section title="12 · KpiTile">
         <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-4">
-          <KpiTile caption="Выручка" value="1 388" unit="млрд ₽" delta={11.9} spark={[120, 124, 122, 130, 135, 139]} />
-          <KpiTile caption="Чистая прибыль" value="166" unit="млрд ₽" delta={-11.7} spark={[188, 180, 175, 170, 168, 166]} />
-          <KpiTile caption="P/E" value="6.4" delta={0} />
-          <KpiTile caption="Див. доходность" value="9.2" unit="%" delta={2.1} spark={[7, 7.5, 8, 8.4, 9, 9.2]} />
+          <KpiTile caption="Выручка" value={formatNumber(1388, { decimals: 0 })} unit="млрд ₽" delta={11.9} spark={[120, 124, 122, 130, 135, 139]} />
+          <KpiTile caption="Чистая прибыль" value={formatNumber(166, { decimals: 0 })} unit="млрд ₽" delta={-11.7} spark={[188, 180, 175, 170, 168, 166]} />
+          <KpiTile caption="Цена акции" value={formatMoney(4977.5, { decimals: 1 })} delta={1.4} spark={[4810, 4860, 4905, 4940, 4960, 4977]} />
+          <KpiTile caption="P/E" value={formatMultiple(6.4)} delta={0} />
+          <KpiTile caption="Див. доходность" value={formatPercent(9.2)} delta={2.1} spark={[7, 7.5, 8, 8.4, 9, 9.2]} />
         </div>
       </Section>
     </div>
@@ -246,13 +361,20 @@ export default function DesignSystem() {
                 Фаза 2 · библиотека базовых примитивов · маршрут /_design
               </p>
             </div>
-            <Button variant="secondary" onClick={() => setPage((p) => (p === "dark" ? "light" : "dark"))}>
-              {page === "dark" ? "Светлая тема" : "Тёмная тема"}
+            <Button
+              variant="secondary"
+              onClick={() => setPage((p) => (p === "dark" ? "light" : "dark"))}
+              className="tw-bg-bg-elevated tw-text-text-primary tw-border-border-strong hover:tw-bg-bg-hover"
+            >
+              {page === "dark" ? "☀ Светлая тема" : "☾ Тёмная тема"}
             </Button>
           </div>
         </header>
 
         <main className="tw-px-2 tw-py-2">
+          {/* Brand-accent candidates — shows both themes itself, render once */}
+          <AccentCandidates />
+
           {/* LIGHT section */}
           <div className="tw-bg-bg-base">
             <div className="tw-max-w-[1280px] tw-mx-auto tw-px-6 tw-pt-6">

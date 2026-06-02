@@ -7,6 +7,7 @@
 // prefers-reduced-motion. No hard-coded hex.
 // =============================================================
 import React, { useEffect, useId, useRef, useState } from "react";
+import { formatNumber, formatPercent } from "./format";
 
 /* ---------- shared helpers ---------- */
 
@@ -514,17 +515,22 @@ export function Tabs({ tabs = [], value, onChange }) {
    ============================================================= */
 
 // Render a signed delta with glyph + semantic colour.
-export function Delta({ value, suffix = "%", className = "" }) {
+// `suffix` selects the unit: "%" → formatPercent, otherwise raw formatNumber.
+export function Delta({ value, suffix = "%", decimals = 1, className = "" }) {
   if (value === null || value === undefined) return <span className="tw-text-text-tertiary">—</span>;
   const up = value > 0;
   const flat = value === 0;
   const glyph = flat ? "▬" : up ? "▲" : "▼";
   const tone = flat ? "tw-text-text-tertiary" : up ? "tw-text-success" : "tw-text-danger";
+  const abs = Math.abs(value);
+  const body =
+    suffix === "%"
+      ? formatPercent(abs, { decimals })
+      : `${formatNumber(abs, { decimals })}${suffix ? " " + suffix : ""}`;
   return (
     <span className={cx("tw-inline-flex tw-items-center tw-gap-1 tw-font-mono tw-tabular-nums", tone, className)}>
       <span aria-hidden="true">{glyph}</span>
-      {Math.abs(value).toLocaleString("ru-RU")}
-      {suffix}
+      {body}
     </span>
   );
 }
@@ -540,8 +546,9 @@ export function Table({ columns = [], rows = [], caption }) {
               <th
                 key={c.key}
                 scope="col"
+                style={{ letterSpacing: "0.06em" }}
                 className={cx(
-                  "tw-px-3 tw-py-2 tw-text-[12px] tw-font-medium tw-uppercase tw-text-text-tertiary tw-tracking-wide",
+                  "tw-px-3 tw-py-2 tw-text-[12px] tw-font-medium tw-uppercase tw-text-text-tertiary",
                   i === 0 ? "tw-text-left" : "tw-text-right"
                 )}
               >
@@ -554,7 +561,7 @@ export function Table({ columns = [], rows = [], caption }) {
           {rows.map((r, ri) => (
             <tr
               key={ri}
-              className="tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-accent-soft tw-transition-colors tw-duration-150"
+              className="tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-bg-hover tw-transition-colors tw-duration-150"
             >
               {columns.map((c, i) => (
                 <td
@@ -581,26 +588,46 @@ export function Table({ columns = [], rows = [], caption }) {
    12. KpiTile — caption / display value / delta / optional sparkline
    ============================================================= */
 
+// Editorial sparkline: line + soft area fill under it + a dot on the
+// last point, all in the delta's semantic colour. Padded vertically so
+// the stroke and end dot are never clipped at the edges.
 function Sparkline({ data = [], width = 96, height = 32 }) {
+  const uid = useId();
   if (!data.length) return null;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const span = max - min || 1;
+  const pad = 3; // keep line/dot off the top & bottom edges
+  const inner = height - pad * 2;
   const step = width / (data.length - 1 || 1);
-  const pts = data
-    .map((v, i) => `${(i * step).toFixed(1)},${(height - ((v - min) / span) * height).toFixed(1)}`)
-    .join(" ");
+  const coords = data.map((v, i) => [
+    +(i * step).toFixed(2),
+    +(pad + inner - ((v - min) / span) * inner).toFixed(2),
+  ]);
+  const line = coords.map(([x, y]) => `${x},${y}`).join(" ");
+  const area = `0,${height} ${line} ${width},${height}`;
+  const [lx, ly] = coords[coords.length - 1];
   const rising = data[data.length - 1] >= data[0];
+  const color = rising ? "var(--success)" : "var(--danger)";
+  const gradId = `spark-fill-${uid}`;
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="tw-block">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={area} fill={`url(#${gradId})`} stroke="none" />
       <polyline
-        points={pts}
+        points={line}
         fill="none"
-        stroke={rising ? "var(--success)" : "var(--danger)"}
+        stroke={color}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <circle cx={lx} cy={ly} r="2" fill={color} />
     </svg>
   );
 }
@@ -608,7 +635,10 @@ function Sparkline({ data = [], width = 96, height = 32 }) {
 export function KpiTile({ caption, value, unit, delta, deltaSuffix = "%", spark }) {
   return (
     <div className="tw-flex tw-flex-col tw-gap-1.5 tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm tw-p-4">
-      <div className="tw-text-[12px] tw-font-medium tw-uppercase tw-tracking-wide tw-text-text-tertiary">
+      <div
+        className="tw-text-[12px] tw-font-medium tw-uppercase tw-text-text-tertiary"
+        style={{ letterSpacing: "0.06em" }}
+      >
         {caption}
       </div>
       <div className="tw-flex tw-items-baseline tw-gap-1">
