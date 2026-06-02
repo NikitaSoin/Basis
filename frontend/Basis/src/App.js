@@ -38,7 +38,10 @@ import {
   X,
   Trash2,
   ChevronDown,
+  Check,
 } from "lucide-react";
+import { Button, Card, Badge } from "./design/primitives";
+import { formatMoney } from "./design/format";
 
 // =========================
 // HELPERS
@@ -5266,6 +5269,7 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
 
 const PricingView = ({ user, onShowAuth }) => {
   const isPremium = user?.subscription_type === "premium";
+  const isFree = !isPremium && !!user;
 
   const freeFeatures = [
     "Экспресс-обзор рынка",
@@ -5283,6 +5287,14 @@ const PricingView = ({ user, onShowAuth }) => {
     "Ранний доступ к новым функциям",
   ];
 
+  // Feature row: success-coloured check glyph + label. Consistent across both plans.
+  const FeatureItem = ({ children }) => (
+    <li className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-leading-[22px] tw-text-text-secondary">
+      <Check size={16} className="tw-shrink-0 tw-mt-0.5 tw-text-success" aria-hidden="true" />
+      <span>{children}</span>
+    </li>
+  );
+
   return (
     <div>
       <div className="view-header">
@@ -5290,66 +5302,70 @@ const PricingView = ({ user, onShowAuth }) => {
         <p className="view-subtitle">Выберите уровень доступа, который вам подходит</p>
       </div>
 
-      <div className="pricing-grid">
+      <div className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
         {/* FREE */}
-        <div className={`pricing-card ${!isPremium && user ? "active-plan" : ""}`}>
-          <p className="pricing-card-name">Базовый</p>
-          <p className="pricing-card-desc">Для начинающих инвесторов</p>
-          {!isPremium && user && (
-            <span className="badge badge-accent" style={{ marginBottom: 16, display: "inline-flex" }}>Текущий план</span>
-          )}
-          <div className="pricing-card-price" style={{ marginBottom: 20 }}>
-            Бесплатно
+        <Card className={isFree ? "tw-ring-1 tw-ring-accent" : ""}>
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+              <p className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0">Базовый</p>
+              {isFree && <Badge tone="accent">Текущий план</Badge>}
+            </div>
+            <p className="tw-text-[14px] tw-text-text-tertiary tw-m-0">Для начинающих инвесторов</p>
+            <div className="tw-mt-2 tw-mb-4">
+              <span
+                className="tw-font-display tw-font-light tw-text-text-primary"
+                style={{ fontSize: "32px", lineHeight: "1", letterSpacing: "-0.5px" }}
+              >
+                Бесплатно
+              </span>
+            </div>
+            <ul className="tw-flex tw-flex-col tw-gap-2.5 tw-list-none tw-p-0 tw-m-0">
+              {freeFeatures.map((f, i) => (
+                <FeatureItem key={i}>{f}</FeatureItem>
+              ))}
+            </ul>
+            {!user && (
+              <Button variant="primary" className="tw-w-full tw-mt-4" onClick={onShowAuth}>
+                Начать бесплатно
+              </Button>
+            )}
           </div>
-          <ul className="pricing-feature-list">
-            {freeFeatures.map((f, i) => (
-              <li key={i} className="pricing-feature-item">
-                <span className="pricing-feature-dot accent">
-                  <span style={{ width: 6, height: 6, background: "var(--accent-text)", borderRadius: "50%", display: "block" }} />
-                </span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          {!user && (
-            <button className="btn btn-primary w-full" style={{ justifyContent: "center", marginTop: 8 }} onClick={onShowAuth}>
-              Начать бесплатно
-            </button>
-          )}
-        </div>
+        </Card>
 
         {/* PREMIUM */}
-        <div className={`pricing-card premium ${isPremium ? "active-plan" : ""}`}>
-          <div className="pricing-card-badge">PREMIUM</div>
-          <p className="pricing-card-name" style={{ paddingRight: 80 }}>Максимум</p>
-          <p className="pricing-card-desc">Полный арсенал аналитика</p>
-          {isPremium && (
-            <span className="badge badge-gold" style={{ marginBottom: 16, display: "inline-flex" }}>Активен</span>
-          )}
-          <div className="pricing-card-price" style={{ marginBottom: 20 }}>
-            990 ₽ <span>/мес</span>
+        <Card className={isPremium ? "tw-ring-1 tw-ring-accent" : ""}>
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+              <p className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0">Максимум</p>
+              {isPremium ? <Badge tone="accent">Активен</Badge> : <Badge tone="accent">Premium</Badge>}
+            </div>
+            <p className="tw-text-[14px] tw-text-text-tertiary tw-m-0">Полный арсенал аналитика</p>
+            <div className="tw-mt-2 tw-mb-4 tw-flex tw-items-baseline tw-gap-1.5">
+              <span
+                className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums"
+                style={{ fontSize: "32px", lineHeight: "1", letterSpacing: "-0.5px" }}
+              >
+                {formatMoney(990)}
+              </span>
+              <span className="tw-text-[14px] tw-text-text-tertiary">/мес</span>
+            </div>
+            <ul className="tw-flex tw-flex-col tw-gap-2.5 tw-list-none tw-p-0 tw-m-0">
+              {premiumFeatures.map((f, i) => (
+                <FeatureItem key={i}>{f}</FeatureItem>
+              ))}
+            </ul>
+            {!isPremium && (
+              <Button variant="primary" className="tw-w-full tw-mt-4">
+                Перейти на Premium
+              </Button>
+            )}
+            {isPremium && user?.subscription_expires_at && (
+              <p className="tw-text-[13px] tw-text-success tw-mt-3 tw-mb-0">
+                Подписка активна до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
+              </p>
+            )}
           </div>
-          <ul className="pricing-feature-list">
-            {premiumFeatures.map((f, i) => (
-              <li key={i} className="pricing-feature-item">
-                <span className="pricing-feature-dot gold">
-                  <span style={{ width: 6, height: 6, background: "var(--gold)", borderRadius: "50%", display: "block" }} />
-                </span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          {!isPremium && (
-            <button className="btn btn-gold w-full" style={{ justifyContent: "center", marginTop: 8 }}>
-              Перейти на Premium →
-            </button>
-          )}
-          {isPremium && user?.subscription_expires_at && (
-            <p style={{ fontSize: 13, color: "var(--gold)", marginTop: 8 }}>
-              ✓ Подписка активна до {new Date(user.subscription_expires_at).toLocaleDateString("ru-RU")}
-            </p>
-          )}
-        </div>
+        </Card>
       </div>
     </div>
   );
