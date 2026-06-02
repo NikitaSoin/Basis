@@ -40,8 +40,8 @@ import {
   ChevronDown,
   Check,
 } from "lucide-react";
-import { Button, Card, Badge, usePrefersReducedMotion } from "./design/primitives";
-import { formatMoney } from "./design/format";
+import { Button, Card, Badge, Chip, Input, usePrefersReducedMotion } from "./design/primitives";
+import { formatMoney, formatPercent as fmtPercent } from "./design/format";
 
 // =========================
 // HELPERS
@@ -1574,6 +1574,74 @@ function ScatterMap({ map, currentTicker }) {
   );
 }
 
+// Clickable company tile for the Market grid. Consumes live quote if present
+// (no count-up / flashing — calm by constitution). Keyboard-activatable.
+const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
+  const price = liveQuote ? liveQuote.price : company.price;
+  const change = liveQuote ? liveQuote.change_pct : company.change;
+  const changeAbs = liveQuote ? liveQuote.change_abs : company.changeAbs;
+  const up = change != null && change >= 0;
+  const tone = change == null ? "tw-text-text-tertiary" : up ? "tw-text-success" : "tw-text-danger";
+  const glyph = change == null ? "" : up ? "▲" : "▼";
+  const cap = formatMarketCap(company.market_cap);
+  const onKey = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect();
+    }
+  };
+  return (
+    <Card
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={onKey}
+      className="tw-cursor-pointer hover:tw-shadow-md hover:-tw-translate-y-0.5 tw-transition-all tw-duration-150 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+    >
+      <div className="tw-font-mono tw-text-[15px] tw-font-semibold tw-text-text-primary">{company.ticker}</div>
+      <div className="tw-text-[14px] tw-text-text-secondary tw-mt-0.5">{company.name}</div>
+      <div className="tw-mt-1.5">
+        <Badge tone="neutral">{company.sector}</Badge>
+      </div>
+
+      {price != null ? (
+        <>
+          <div className="tw-text-[20px] tw-font-medium tw-text-text-primary tw-tabular-nums tw-mt-3">
+            {formatMoney(price)}
+          </div>
+          <div className="tw-flex tw-gap-2 tw-items-baseline tw-flex-wrap tw-mt-0.5">
+            {changeAbs != null && (
+              <span className={`tw-text-[12px] tw-font-medium tw-tabular-nums ${tone}`}>
+                {changeAbs >= 0 ? "+" : "−"}{formatMoney(Math.abs(changeAbs))}
+              </span>
+            )}
+            <span className={`tw-inline-flex tw-items-center tw-gap-1 tw-text-[12px] tw-font-medium tw-tabular-nums ${tone}`}>
+              {change == null ? "—" : (
+                <>
+                  <span aria-hidden="true">{glyph}</span>
+                  {fmtPercent(Math.abs(change), { decimals: 2 })}
+                </>
+              )}
+            </span>
+          </div>
+        </>
+      ) : (
+        <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-3">нет данных котировки</div>
+      )}
+
+      {cap && (
+        <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1">Кап: {cap}</div>
+      )}
+
+      <div className="tw-mt-3 tw-flex tw-justify-end">
+        <span className="tw-inline-flex tw-items-center tw-gap-0.5 tw-text-[11px] tw-text-accent">
+          Открыть <ChevronRight size={12} />
+        </span>
+      </div>
+    </Card>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
@@ -1658,118 +1726,80 @@ const CompaniesView = ({ onSelectCompany }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <div className="text-slate-400 text-lg animate-pulse">Загружаем компании...</div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-24">
+        <div className="tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем компании...</div>
       </div>
     );
   }
 
+  const renderGrid = (cards) => (
+    <div className="company-grid">
+      {cards.map((c) => (
+        <CompanyGridCard
+          key={c.ticker}
+          company={c}
+          liveQuote={liveQuotes[c.ticker]}
+          onSelect={() => onSelectCompany(c)}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <div>
-      <div className="view-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <h1 className="view-title">Рынок</h1>
-          {isLive && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--positive)", background: "rgba(52,199,89,0.12)", borderRadius: 6, padding: "2px 8px", letterSpacing: "0.05em" }}>
-              ● LIVE
-            </span>
-          )}
+      <div className="tw-mb-6">
+        <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+          <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">
+            Рынок
+          </h1>
+          {isLive && <Badge tone="success">● LIVE</Badge>}
           {moexTime && (
-            <span style={{ fontSize: 11, color: "var(--text-3)" }}>
+            <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono tw-tabular-nums">
               MOEX: {moexTime.slice(11, 19)} МСК
             </span>
           )}
         </div>
-        <p className="view-subtitle">Котировки и аналитика российского фондового рынка</p>
+        <p className="tw-text-[14px] tw-text-text-secondary tw-mt-1">
+          Котировки и аналитика российского фондового рынка
+        </p>
       </div>
 
-      <div className="filter-row" style={{ marginBottom: 16 }}>
-        <div className="search-wrap">
-          <Search className="search-icon" size={16} />
-          <input
-            className="search-input"
-            placeholder="Поиск по тикеру или названию..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+      <div className="tw-relative tw-mb-4 tw-max-w-md">
+        <Search
+          size={16}
+          className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10"
+        />
+        <Input
+          type="text"
+          placeholder="Поиск по тикеру или названию..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ paddingLeft: 36 }}
+        />
       </div>
 
-      <div className="filter-row">
+      <div className="tw-flex tw-flex-wrap tw-gap-2 tw-mb-6">
         {sectors.map((s) => (
-          <button
+          <Chip
             key={s}
+            selected={activeSector === s}
             onClick={() => setActiveSector(s)}
-            className={`filter-pill ${activeSector === s ? "active" : ""}`}
           >
             {s}
-          </button>
+          </Chip>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex items-center justify-center py-16 text-slate-400">
+        <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-tertiary">
           Компании не найдены
         </div>
       ) : activeSector !== "Все" ? (
         <div>
-          <div style={{
-            fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em",
-            color: "var(--text-3)", borderBottom: "0.5px solid var(--border)",
-            paddingBottom: 6, marginBottom: 14,
-          }}>
+          <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-4" style={{ letterSpacing: "0.08em" }}>
             {activeSector}
           </div>
-          <div className="company-grid">
-            {filtered.map((c) => (
-              <div
-                key={c.ticker}
-                className="company-card"
-                onClick={() => onSelectCompany(c)}
-              >
-                <div className="company-card-ticker">{c.ticker}</div>
-                <div className="company-card-name">{c.name}</div>
-                <div className="company-card-sector">{c.sector}</div>
-
-                {(() => {
-                  const lq = liveQuotes[c.ticker];
-                  const price = lq ? lq.price : c.price;
-                  const change = lq ? lq.change_pct : c.change;
-                  const changeAbs = lq ? lq.change_abs : c.changeAbs;
-                  const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
-                  return price != null ? (
-                    <>
-                      <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
-                      <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
-                        {changeAbs != null && (
-                          <span style={{ fontSize: 12, color, fontWeight: 500 }}>
-                            {changeAbs >= 0 ? `+${changeAbs.toFixed(2)}` : changeAbs.toFixed(2)} ₽
-                          </span>
-                        )}
-                        <span className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
-                          style={{ color }}>
-                          {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="company-card-nodata">нет данных котировки</div>
-                  );
-                })()}
-                {formatMarketCap(c.market_cap) && (
-                  <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
-                    Кап: {formatMarketCap(c.market_cap)}
-                  </div>
-                )}
-
-                <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
-                  <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
-                    Открыть <ChevronRight size={12} />
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {renderGrid(filtered)}
         </div>
       ) : (
         <div>
@@ -1777,62 +1807,11 @@ const CompaniesView = ({ onSelectCompany }) => {
             const sectorCards = filtered.filter(c => c.sector === sector);
             if (sectorCards.length === 0) return null;
             return (
-              <div key={sector} style={{ marginBottom: 28 }}>
-                <div style={{
-                  fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em",
-                  color: "var(--text-3)", borderBottom: "0.5px solid var(--border)",
-                  paddingBottom: 6, marginBottom: 14,
-                }}>
+              <div key={sector} className="tw-mb-8">
+                <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-4" style={{ letterSpacing: "0.08em" }}>
                   {sector}
                 </div>
-                <div className="company-grid">
-                  {sectorCards.map((c) => (
-                    <div
-                      key={c.ticker}
-                      className="company-card"
-                      onClick={() => onSelectCompany(c)}
-                    >
-                      <div className="company-card-ticker">{c.ticker}</div>
-                      <div className="company-card-name">{c.name}</div>
-                      <div className="company-card-sector">{c.sector}</div>
-                      {(() => {
-                        const lq = liveQuotes[c.ticker];
-                        const price = lq ? lq.price : c.price;
-                        const change = lq ? lq.change_pct : c.change;
-                        const changeAbs = lq ? lq.change_abs : c.changeAbs;
-                        const color = change == null ? "var(--text-3)" : change >= 0 ? "var(--positive)" : "var(--negative)";
-                        return price != null ? (
-                          <>
-                            <div className="company-card-price">{price.toLocaleString("ru-RU")} ₽</div>
-                            <div style={{ display: "flex", gap: 6, alignItems: "baseline", flexWrap: "wrap" }}>
-                              {changeAbs != null && (
-                                <span style={{ fontSize: 12, color, fontWeight: 500 }}>
-                                  {changeAbs >= 0 ? `+${changeAbs.toFixed(2)}` : changeAbs.toFixed(2)} ₽
-                                </span>
-                              )}
-                              <span className={`company-card-change ${change == null ? "neu" : change >= 0 ? "pos" : "neg"}`}
-                                style={{ color }}>
-                                {change == null ? "—" : change >= 0 ? `+${change.toFixed(2)}%` : `${change.toFixed(2)}%`}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="company-card-nodata">нет данных котировки</div>
-                        );
-                      })()}
-                      {formatMarketCap(c.market_cap) && (
-                        <div style={{ fontSize: 11, color: "var(--text-3)", marginTop: 4 }}>
-                          Кап: {formatMarketCap(c.market_cap)}
-                        </div>
-                      )}
-                      <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
-                        <span style={{ fontSize: 11, color: "var(--accent-text)", display: "flex", alignItems: "center", gap: 2 }}>
-                          Открыть <ChevronRight size={12} />
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {renderGrid(sectorCards)}
               </div>
             );
           })}
