@@ -23,6 +23,7 @@ module.exports = {
           base: "var(--bg-base)",
           elevated: "var(--bg-elevated)",
           overlay: "var(--bg-overlay-srf)",
+          hover: "var(--bg-hover)",
         },
         border: {
           subtle: "var(--border-subtle)",

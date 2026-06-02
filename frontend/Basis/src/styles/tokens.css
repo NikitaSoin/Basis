@@ -117,10 +117,14 @@
   --border-subtle:  rgba(255,255,255,0.10);
   --border-strong:  rgba(255,255,255,0.15);
 
-  /* ---- Text ---- */
+  /* ---- Text ----
+     Muted tones lifted for WCAG: on --bg-base #111110
+       --text-secondary #ADB6CA → 9.29:1 (body AAA), ≥6.78:1 even on --bg-hover
+       --text-tertiary  #919BB2 → 6.78:1 (≥4.5 body on base/elevated, ≥3:1 large
+                                  everywhere) — was #6B7691 = 4.16:1 / 3.04:1 hover (failed) */
   --text-primary:   #E6EAF2;
-  --text-secondary: #9AA4B8;
-  --text-tertiary:  #6B7691;
+  --text-secondary: #ADB6CA;
+  --text-tertiary:  #919BB2;
 
   /* ---- Accent ---- */
   --accent:         #6B7BFF;
