@@ -3528,7 +3528,7 @@ const CompanyCard = ({ company, onBack }) => {
   return (
     <div className="space-y-6">
       {/* Header — elevated surface, ticker monogram, name/sector, live price + delta */}
-      <Card className="tw-p-5">
+      <Card>
         <div className="tw-flex tw-items-start tw-gap-4">
           <IconButton aria-label="Назад" variant="ghost" onClick={onBack} className="tw-shrink-0">
             <ChevronRight className="rotate-180" size={18} />
@@ -3608,7 +3608,7 @@ const CompanyCard = ({ company, onBack }) => {
                 key={t.id}
                 role="tab"
                 aria-selected={tab === t.id}
-                tabIndex={tab === t.id ? 0 : -1}
+                tabIndex={0}
                 onClick={() => setTab(t.id)}
                 className={tabClass(tab === t.id)}
               >
