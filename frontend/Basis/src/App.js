@@ -40,7 +40,7 @@ import {
   ChevronDown,
   Check,
 } from "lucide-react";
-import { Button, Card, Badge, Chip, Input, usePrefersReducedMotion } from "./design/primitives";
+import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent } from "./design/format";
 
 // =========================
@@ -5495,6 +5495,8 @@ function OverviewView({ token }) {
 // =========================
 
 const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
+  const cx = (...parts) => parts.filter(Boolean).join(" ");
+  const reducedMotion = usePrefersReducedMotion();
   const NAV = [
     { id: "companies", icon: BarChart2, label: "Рынок" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
@@ -5502,46 +5504,93 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
     { id: "pricing",   icon: CreditCard, label: "Тарифы" },
   ];
 
+  // Active-indicator slide: a thin accent bar parks left of the active nav
+  // item and glides between items on tab change. Items are 40px tall with a
+  // 4px gap (tw-gap-1), so each step is 44px; the bar is 24px tall, centred.
+  const STEP = 44;
+  const activeNavIndex = NAV.findIndex((n) => n.id === activeTab);
+  const showIndicator = activeNavIndex !== -1;
+
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo" onClick={() => setActiveTab("landing")} title="На главную">
-        <Activity size={20} />
-      </div>
+      <Tooltip label="На главную" side="right">
+        <IconButton
+          aria-label="На главную"
+          onClick={() => setActiveTab("landing")}
+          className="tw-mb-3 tw-bg-accent-soft tw-text-accent hover:tw-bg-accent hover:tw-text-on-accent"
+        >
+          <Activity size={20} />
+        </IconButton>
+      </Tooltip>
 
       <div className="sidebar-divider" />
 
-      {NAV.map(({ id, icon: Icon, label }) => (
-        <button
-          key={id}
-          className={`sidebar-btn ${activeTab === id ? "active" : ""}`}
-          onClick={() => setActiveTab(id)}
-        >
-          <Icon size={20} />
-          <span className="sidebar-tooltip">{label}</span>
-        </button>
-      ))}
+      <div className="tw-relative tw-flex tw-flex-col tw-gap-1">
+        {showIndicator && (
+          <span
+            aria-hidden="true"
+            className="tw-absolute tw--left-3 tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
+            style={{
+              top: 8,
+              transform: `translateY(${activeNavIndex * STEP}px)`,
+              transition: reducedMotion
+                ? "none"
+                : "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          />
+        )}
+        {NAV.map(({ id, icon: Icon, label }) => {
+          const active = activeTab === id;
+          return (
+            <Tooltip key={id} label={label} side="right">
+              <IconButton
+                aria-label={label}
+                onClick={() => setActiveTab(id)}
+                className={cx(
+                  active
+                    ? "tw-bg-accent-soft tw-text-accent"
+                    : "tw-text-text-tertiary hover:tw-text-text-primary"
+                )}
+              >
+                <Icon size={20} />
+              </IconButton>
+            </Tooltip>
+          );
+        })}
+      </div>
 
       <div className="sidebar-spacer" />
 
-      <button className="sidebar-btn" onClick={toggleTheme}>
-        {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        <span className="sidebar-tooltip">{theme === "dark" ? "Светлая тема" : "Тёмная тема"}</span>
-      </button>
+      <Tooltip label={theme === "dark" ? "Светлая тема" : "Тёмная тема"} side="right">
+        <IconButton
+          aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+          onClick={toggleTheme}
+          className="tw-text-text-tertiary hover:tw-text-text-primary"
+        >
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        </IconButton>
+      </Tooltip>
 
-      <button
-        className={`sidebar-btn ${activeTab === "profile" ? "active" : ""}`}
-        onClick={() => setActiveTab("profile")}
-        style={{ marginBottom: 4 }}
-      >
-        {user ? (
-          <div className="sidebar-avatar">
-            {user.email.slice(0, 2).toUpperCase()}
-          </div>
-        ) : (
-          <User size={20} />
-        )}
-        <span className="sidebar-tooltip">{user ? "Профиль" : "Войти"}</span>
-      </button>
+      <Tooltip label={user ? "Профиль" : "Войти"} side="right">
+        <IconButton
+          aria-label={user ? "Профиль" : "Войти"}
+          onClick={() => setActiveTab("profile")}
+          className={cx(
+            "tw-mb-1",
+            activeTab === "profile"
+              ? "tw-bg-accent-soft tw-text-accent"
+              : "tw-text-text-tertiary hover:tw-text-text-primary"
+          )}
+        >
+          {user ? (
+            <span className="tw-inline-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-pill tw-bg-accent tw-text-on-accent tw-text-[12px] tw-font-bold tw-leading-none">
+              {user.email.slice(0, 2).toUpperCase()}
+            </span>
+          ) : (
+            <User size={20} />
+          )}
+        </IconButton>
+      </Tooltip>
     </aside>
   );
 };
