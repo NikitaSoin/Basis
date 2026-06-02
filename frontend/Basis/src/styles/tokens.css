@@ -1,0 +1,153 @@
+/* =============================================================
+   BASIS DESIGN TOKENS — single source of truth (Phase 1)
+   Constitution dictionary lives here. Legacy variable names
+   (used across ~5652 lines of App.js / styles.css) are kept as
+   ALIASES pointing at these tokens, so existing code keeps working
+   while colour now flows from one place.
+
+   :root          = LIGHT theme (DEFAULT)
+   .dark / [data-theme="dark"] = DARK theme (toggle)
+   ============================================================= */
+
+:root {
+  /* ---- Surfaces ---- */
+  --bg-base:        #FAFBFC;   /* app background (warm off-white) */
+  --bg-elevated:    #FFFFFF;   /* cards / panels */
+  --bg-overlay-srf: #FFFFFF;   /* modals / dropdowns (paired with shadow) */
+
+  /* ---- Borders ---- */
+  --border-subtle:  #E5EAF2;   /* hairlines */
+  --border-strong:  #CFD6E4;   /* card borders */
+
+  /* ---- Text ---- */
+  --text-primary:   #0A1428;
+  --text-secondary: #4A5670;
+  --text-tertiary:  #7B8499;
+
+  /* ---- Accent (indigo) ---- */
+  --accent:         #4F5BD5;
+  --accent-hover:   #4049B8;
+  --accent-soft:    rgba(79,91,213,0.10);
+  --on-accent:      #FFFFFF;
+
+  /* ---- Semantic ---- */
+  --success:        #15803D;
+  --success-soft:   rgba(21,128,61,0.10);
+  --danger:         #BE123C;
+  --danger-soft:    rgba(190,18,60,0.10);
+  --warning:        #B45309;
+  --warning-soft:   rgba(180,83,9,0.10);
+  --info:           #0284C7;
+  --info-soft:      rgba(2,132,199,0.10);
+
+  /* ---- Elevation (light = soft shadows) ---- */
+  --shadow-sm:      0 1px 2px rgba(10,20,40,0.05);
+  --shadow-md:      0 4px 12px rgba(10,20,40,0.08);
+  --shadow-lg:      0 12px 32px rgba(10,20,40,0.12);
+
+  /* ---- Radius ---- */
+  --radius-xs:      4px;
+  --radius-sm:      6px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+  --radius-xl:      16px;
+  --radius-pill:    9999px;
+  --radius-s:       var(--radius-sm);
+  --radius-m:       var(--radius-md);
+  --radius-l:       var(--radius-lg);
+
+  /* ---- Typography families ---- */
+  --font-sans:    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Inter Display", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* ===========================================================
+     LEGACY ALIASES → new tokens (DO NOT remove; 5652 lines rely
+     on these names). Mapping reflects real usage found via grep.
+     =========================================================== */
+  --bg-app:        var(--bg-base);
+  --bg-card:       var(--bg-elevated);
+  --bg-surface:    #F1EFE8;                 /* subtle raised surface (light) */
+  --bg-hover:      #ECEFF5;
+  --bg-overlay:    rgba(10,20,40,0.45);     /* scrim behind modals */
+
+  --border:        var(--border-subtle);
+  --border-mid:    var(--border-strong);
+
+  --text-1:        var(--text-primary);
+  --text-2:        var(--text-secondary);
+  --text-3:        var(--text-tertiary);
+
+  --accent-h:      var(--accent-hover);
+  --accent-fade:   var(--accent-soft);
+  --accent-text:   var(--accent);
+  --accent-border: rgba(79,91,213,0.25);
+
+  --positive:      var(--success);
+  --pos-fade:      var(--success-soft);
+  --negative:      var(--danger);
+  --neg-fade:      var(--danger-soft);
+  --warn-fade:     var(--warning-soft);
+
+  /* Decorative legacy colours folded onto semantic tokens */
+  --gold:          var(--warning);
+  --gold-fade:     var(--warning-soft);
+  --gold-border:   rgba(180,83,9,0.30);
+  --teal:          var(--info);
+  --teal-fade:     var(--info-soft);
+
+  --sidebar-w:     64px;
+
+  color-scheme:    light;
+}
+
+/* =============================================================
+   DARK THEME — applied via `.dark` (constitution) with backward
+   compatibility for the existing `[data-theme="dark"]` selector.
+   ============================================================= */
+.dark,
+[data-theme="dark"] {
+  /* ---- Surfaces ---- */
+  --bg-base:        #0B1220;   /* deep navy, not pure black */
+  --bg-elevated:    #111A2E;
+  --bg-overlay-srf: #172238;
+
+  /* ---- Borders ---- */
+  --border-subtle:  #1F2A44;
+  --border-strong:  #2A3958;
+
+  /* ---- Text ---- */
+  --text-primary:   #E6EAF2;
+  --text-secondary: #9AA4B8;
+  --text-tertiary:  #6B7691;
+
+  /* ---- Accent ---- */
+  --accent:         #6B7BFF;
+  --accent-hover:   #8390FF;
+  --accent-soft:    rgba(107,123,255,0.12);
+  --on-accent:      #0B1220;
+
+  /* ---- Semantic ---- */
+  --success:        #22C55E;
+  --success-soft:   rgba(34,197,94,0.14);
+  --danger:         #F43F5E;
+  --danger-soft:    rgba(244,63,94,0.14);
+  --warning:        #F59E0B;
+  --warning-soft:   rgba(245,158,11,0.14);
+  --info:           #38BDF8;
+  --info-soft:      rgba(56,189,248,0.14);
+
+  /* ---- Elevation (dark = layered surfaces + 1px borders, minimal shadow) ---- */
+  --shadow-sm:      0 0 0 1px var(--border-subtle);
+  --shadow-md:      0 0 0 1px var(--border-strong);
+  --shadow-lg:      0 8px 28px rgba(0,0,0,0.45);
+
+  /* ---- Legacy aliases that need dark-specific raw values ---- */
+  --bg-surface:    #1A2540;
+  --bg-hover:      #22304F;
+  --bg-overlay:    rgba(0,0,0,0.65);
+  --accent-border: rgba(107,123,255,0.30);
+  --gold-border:   rgba(245,158,11,0.30);
+
+  color-scheme:    dark;
+}
