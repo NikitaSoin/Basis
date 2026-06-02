@@ -10,14 +10,14 @@
    ============================================================= */
 
 :root {
-  /* ---- Surfaces ---- */
-  --bg-base:        #FAFBFC;   /* app background (warm off-white) */
+  /* ---- Surfaces (warm hybrid: prior cream/beige) ---- */
+  --bg-base:        #F8F7F4;   /* app background (warm cream — restored) */
   --bg-elevated:    #FFFFFF;   /* cards / panels */
   --bg-overlay-srf: #FFFFFF;   /* modals / dropdowns (paired with shadow) */
 
-  /* ---- Borders ---- */
-  --border-subtle:  #E5EAF2;   /* hairlines */
-  --border-strong:  #CFD6E4;   /* card borders */
+  /* ---- Borders (warm-neutral, softer than cool blue-grey) ---- */
+  --border-subtle:  rgba(0,0,0,0.08);   /* hairlines */
+  --border-strong:  rgba(0,0,0,0.14);   /* card borders */
 
   /* ---- Text ---- */
   --text-primary:   #0A1428;
@@ -40,11 +40,11 @@
   --info:           #0284C7;
   --info-soft:      rgba(2,132,199,0.10);
 
-  /* ---- Elevation (light = soft shadows) ---- */
-  --shadow-sm:      0 1px 2px rgba(10,20,40,0.05);
-  --shadow-md:      0 4px 12px rgba(10,20,40,0.08);
-  --shadow-lg:      0 12px 32px rgba(10,20,40,0.12);
-  --shadow-xl:      0 24px 48px rgba(10,20,40,0.16);
+  /* ---- Elevation (light = soft warm-neutral shadows) ---- */
+  --shadow-sm:      0 1px 2px rgba(30,25,20,0.05);
+  --shadow-md:      0 4px 12px rgba(30,25,20,0.08);
+  --shadow-lg:      0 12px 32px rgba(30,25,20,0.12);
+  --shadow-xl:      0 24px 48px rgba(30,25,20,0.16);
 
   /* ---- Radius ---- */
   --radius-xs:      4px;
@@ -68,8 +68,8 @@
      =========================================================== */
   --bg-app:        var(--bg-base);
   --bg-card:       var(--bg-elevated);
-  --bg-surface:    #F1EFE8;                 /* subtle raised surface (light) */
-  --bg-hover:      #ECEFF5;
+  --bg-surface:    #F1EFE8;                 /* subtle raised surface (warm beige) */
+  --bg-hover:      #E8E5DC;                 /* warm beige hover (restored) */
   --bg-overlay:    rgba(10,20,40,0.45);     /* scrim behind modals */
 
   --border:        var(--border-subtle);
@@ -108,14 +108,14 @@
    ============================================================= */
 .dark,
 [data-theme="dark"] {
-  /* ---- Surfaces ---- */
-  --bg-base:        #0B1220;   /* deep navy, not pure black */
-  --bg-elevated:    #111A2E;
-  --bg-overlay-srf: #172238;
+  /* ---- Surfaces (warm hybrid: prior soft warm near-black) ---- */
+  --bg-base:        #111110;   /* warm near-black (restored, softer than navy) */
+  --bg-elevated:    #1C1C1A;
+  --bg-overlay-srf: #232320;
 
-  /* ---- Borders ---- */
-  --border-subtle:  #1F2A44;
-  --border-strong:  #2A3958;
+  /* ---- Borders (soft warm hairlines) ---- */
+  --border-subtle:  rgba(255,255,255,0.10);
+  --border-strong:  rgba(255,255,255,0.15);
 
   /* ---- Text ---- */
   --text-primary:   #E6EAF2;
@@ -145,8 +145,8 @@
   --shadow-xl:      0 24px 48px rgba(0,0,0,0.55);
 
   /* ---- Legacy aliases that need dark-specific raw values ---- */
-  --bg-surface:    #1A2540;
-  --bg-hover:      #22304F;
+  --bg-surface:    #252523;
+  --bg-hover:      #2D2D2B;
   --bg-overlay:    rgba(0,0,0,0.65);
   --accent-border: rgba(107,123,255,0.30);
   --gold-border:   rgba(245,158,11,0.30);
