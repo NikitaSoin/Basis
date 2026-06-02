@@ -13,24 +13,30 @@ import { formatNumber, formatPercent } from "./format";
 const cx = (...p) => p.filter(Boolean).join(" ");
 
 /* ---------- count-up via requestAnimationFrame ---------- */
-// 0 → value over ~700ms on FIRST mount only. reduced-motion → final value.
-// Used for headline KPIs / indices when a tab is first opened, never on a
-// background price refresh (the component is keyed so it mounts once).
-export function useCountUp(value, duration = 700) {
+// 0 → value over ~700ms on FIRST run only. reduced-motion → final value.
+// `gate` (optional): a caller-owned mutable object `{ played: bool }`. When
+// supplied, the count-up plays only the FIRST time across the gate's lifetime —
+// even if THIS component remounts (e.g. a tab panel is closed and reopened).
+// Keep the gate in a ref that outlives remounts (e.g. at the PAGE level) so the
+// number animates once per page visit and snaps on every tab/click/refresh.
+export function useCountUp(value, duration = 700, gate = null) {
   const reduced = usePrefersReducedMotion();
-  const [n, setN] = useState(reduced ? value : 0);
+  const alreadyPlayed = reduced || (gate ? gate.played : false);
+  const [n, setN] = useState(alreadyPlayed ? value : 0);
   const started = useRef(false);
   useEffect(() => {
     if (reduced) {
       setN(value);
       return;
     }
-    // run once (first paint); afterwards snap to the latest value so a
+    // run once; afterwards snap to the latest value so a tab switch / click /
     // background refresh updates the number without replaying the count.
-    if (started.current) {
+    const done = gate ? gate.played : started.current;
+    if (done) {
       setN(value);
       return;
     }
+    if (gate) gate.played = true;
     started.current = true;
     let raf;
     const start = performance.now();
