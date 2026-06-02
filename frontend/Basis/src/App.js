@@ -4066,6 +4066,73 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
   );
 };
 
+// Hoisted to module scope (NOT defined inside PortfolioView) so the page's
+// re-renders — tab switch, click, 5s price poll — do NOT remount them and the
+// first-load count-up isn't replayed. `gate` carries the once-per-page-visit
+// flag (a ref owned by PortfolioView).
+const HeadlineNum = ({ value, gate }) => {
+  const n = useCountUp(value, 700, gate);
+  return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
+};
+
+// ARIA tablist with a sliding accent underline (the "live language" tab motion).
+const PortfolioTabBar = ({ tabs, value, onChange }) => {
+  const reduced = usePrefersReducedMotion();
+  const refs = useRef({});
+  const [bar, setBar] = useState({ left: 0, width: 0 });
+  useEffect(() => {
+    const el = refs.current[value];
+    if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [value]);
+  return (
+    <div role="tablist" aria-label="Разделы портфеля" className="tw-relative tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto">
+      {tabs.map((t) => {
+        const active = value === t.id;
+        return (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={active}
+            tabIndex={active ? 0 : -1}
+            ref={(el) => { refs.current[t.id] = el; }}
+            onClick={() => onChange(t.id)}
+            className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${active ? "tw-text-accent" : "tw-text-text-secondary hover:tw-text-text-primary"}`}
+          >
+            {t.label}
+          </button>
+        );
+      })}
+      <span
+        aria-hidden="true"
+        className="tw-absolute tw-bottom-0 tw-h-0.5 tw-bg-accent tw-rounded-pill"
+        style={{
+          left: bar.left, width: bar.width,
+          transition: reduced ? undefined : "left 220ms cubic-bezier(0.16,1,0.3,1), width 220ms cubic-bezier(0.16,1,0.3,1)",
+        }}
+      />
+    </div>
+  );
+};
+
+// Big score dial with once-per-page-visit count-up (gated via PortfolioView ref).
+const ScoreCard = ({ score, gate }) => {
+  const n = useCountUp(score, 700, gate);
+  return (
+    <Card className="lg:tw-col-span-1 tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
+      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
+        Индекс портфеля
+      </div>
+      <div className="tw-flex tw-items-baseline tw-gap-1 tw-mb-3">
+        <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: 56, lineHeight: 1, letterSpacing: "-1.5px" }}>
+          {fmtNumber(Math.round(n))}
+        </span>
+        <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
+      </div>
+      <Badge tone="neutral">Умеренное качество (Fair)</Badge>
+    </Card>
+  );
+};
+
 const PortfolioView = ({ token, onAuthRequired }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -4201,74 +4268,13 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const portfolioScore = 68;
 
-  // Headline number with first-load count-up (rAF). Counts once when the
-  // component mounts; a background price refresh snaps to the latest value
-  // without replaying the animation (handled inside useCountUp).
-  const HeadlineNum = ({ value }) => {
-    const n = useCountUp(value);
-    return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
-  };
-
-  // ARIA tablist with a sliding accent underline (the "live language" tab
-  // motion). Keeps conditional panel mounting so per-tab count-up / draw-in
-  // fire when a tab is FIRST opened, not all at once on page load.
-  const PortfolioTabBar = ({ tabs, value, onChange }) => {
-    const reduced = usePrefersReducedMotion();
-    const refs = useRef({});
-    const [bar, setBar] = useState({ left: 0, width: 0 });
-    useEffect(() => {
-      const el = refs.current[value];
-      if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth });
-    }, [value]);
-    return (
-      <div role="tablist" aria-label="Разделы портфеля" className="tw-relative tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto">
-        {tabs.map((t) => {
-          const active = value === t.id;
-          return (
-            <button
-              key={t.id}
-              role="tab"
-              aria-selected={active}
-              tabIndex={active ? 0 : -1}
-              ref={(el) => { refs.current[t.id] = el; }}
-              onClick={() => onChange(t.id)}
-              className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${active ? "tw-text-accent" : "tw-text-text-secondary hover:tw-text-text-primary"}`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-        <span
-          aria-hidden="true"
-          className="tw-absolute tw-bottom-0 tw-h-0.5 tw-bg-accent tw-rounded-pill"
-          style={{
-            left: bar.left, width: bar.width,
-            transition: reduced ? undefined : "left 220ms cubic-bezier(0.16,1,0.3,1), width 220ms cubic-bezier(0.16,1,0.3,1)",
-          }}
-        />
-      </div>
-    );
-  };
-
-  // Big score dial with first-load count-up (rAF). Score 0..100; the value
-  // counts up once when the Metrics tab is first mounted.
-  const ScoreCard = ({ score }) => {
-    const n = useCountUp(score);
-    return (
-      <Card className="lg:tw-col-span-1 tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
-        <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
-          Индекс портфеля
-        </div>
-        <div className="tw-flex tw-items-baseline tw-gap-1 tw-mb-3">
-          <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: 56, lineHeight: 1, letterSpacing: "-1.5px" }}>
-            {fmtNumber(Math.round(n))}
-          </span>
-          <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
-        </div>
-        <Badge tone="neutral">Умеренное качество (Fair)</Badge>
-      </Card>
-    );
-  };
+  // Count-up gates live at PAGE level (refs survive tab switches / re-renders),
+  // so the headline value and the index animate ONCE per page visit and snap
+  // (no replay) on tab switch, click or background price refresh. The animated
+  // components are hoisted to module scope (above) so re-renders of this page
+  // do not remount them.
+  const valueGate = useRef({ played: false });
+  const scoreGate = useRef({ played: false });
 
   const stressMap = {
     black_swan: {
@@ -4403,7 +4409,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
         {/* Score dial */}
-        <ScoreCard score={portfolioScore} />
+        <ScoreCard score={portfolioScore} gate={scoreGate.current} />
 
         {/* Sub-indices as coloured health bars */}
         <Card className="lg:tw-col-span-2">
@@ -4682,7 +4688,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
       {/* Stats row */}
       <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))" }}>
-        <KpiTile caption="Стоимость" value={<HeadlineNum value={stats.totalValue} />} />
+        <KpiTile caption="Стоимость" value={<HeadlineNum value={stats.totalValue} gate={valueGate.current} />} />
         <KpiTile
           caption="Прибыль"
           value={<span className="tw-tabular-nums">{(stats.totalProfit >= 0 ? "▲ " : "▼ ") + formatMoney(Math.abs(stats.totalProfit), { decimals: 0 })}</span>}
