@@ -4,7 +4,34 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
-	<meta name="theme-color" content="#000000">
+	<meta name="theme-color" content="#FAFBFC">
+
+	<!-- Fonts: Inter (UI/text), JetBrains Mono (numbers/tickers).
+	     Inter Display H1-H2 falls back to Inter (display optical size). -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400..600&display=swap"
+		rel="stylesheet">
+
+	<!-- Anti-FOUC: set theme class on <html> BEFORE first paint.
+	     Default = LIGHT. Dark only if the user explicitly chose it.
+	     Keeps data-theme attr for back-compat. -->
+	<script>
+		(function () {
+			try {
+				var stored = localStorage.getItem("basis_theme");
+				var isDark = stored === "dark";
+				var el = document.documentElement;
+				if (isDark) {
+					el.classList.add("dark");
+					el.setAttribute("data-theme", "dark");
+				} else {
+					el.setAttribute("data-theme", "light");
+				}
+			} catch (e) {}
+		})();
+	</script>
 	<!--
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/

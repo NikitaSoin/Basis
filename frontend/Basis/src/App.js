@@ -2847,7 +2847,7 @@ const CompanyCard = ({ company, onBack }) => {
     );
     if (!govMd && !govJson) return renderComingSoon("Корпоративное управление");
 
-    const WARN = "#C9A227"; // жёлтого нет в теме — инлайн-исключение для severity=medium
+    const WARN = "var(--warning)"; // токен предупреждения (Фаза 1: убран хардкод #C9A227)
     const meta = govJson?.meta || {};
     const own = govJson?.ownership || {};
     const div = govJson?.dividends || {};
@@ -5557,7 +5557,12 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState("landing");
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [theme, setTheme] = useState(() => localStorage.getItem("basis_theme") || "dark");
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem("basis_theme");
+    if (stored === "dark" || stored === "light") return stored;
+    // No explicit choice → default LIGHT (per design constitution; mirrors anti-FOUC script).
+    return "light";
+  });
 
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("basis_user")); } catch { return null; }
@@ -5566,7 +5571,10 @@ export default function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    const el = document.documentElement;
+    el.classList.toggle("dark", theme === "dark");
+    // Keep data-theme in sync for backward-compatible selectors.
+    el.setAttribute("data-theme", theme);
     localStorage.setItem("basis_theme", theme);
   }, [theme]);
 
