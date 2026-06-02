@@ -1382,15 +1382,17 @@ const SECTOR_KEY_BY_NAME = {
 };
 
 // ── Корпоративное управление: модульные компоненты (чистый SVG, без библиотек) ──
+// Цвет владения — В ДАННЫХ: категориальная палитра (cat) по типу акционера, плюс
+// семантика для free float (success) и казначейских (нейтраль). Не хром.
 const TYPE_COLOR = {
-  state: "var(--negative)",
-  strategic: "var(--accent)",
-  management: "var(--accent-text)",
-  institutional: "var(--text-2)",
-  foreign: "var(--text-2)",
-  treasury: "var(--border-mid)",
-  free_float: "var(--positive)",
-  other: "var(--text-3)",
+  state: "var(--cat-6)",          // vermillion — государство
+  strategic: "var(--cat-5)",      // blue — стратег
+  management: "var(--cat-7)",     // reddish purple — менеджмент
+  institutional: "var(--cat-2)",  // sky — институционалы
+  foreign: "var(--cat-1)",        // orange — иностранцы
+  treasury: "var(--cat-8)",       // grey — казначейские
+  free_float: "var(--success)",   // зелёный — free float (рыночный)
+  other: "var(--cat-8)",
 };
 const TYPE_LABEL = {
   state: "государство", strategic: "стратег", management: "менеджмент",
@@ -1399,25 +1401,25 @@ const TYPE_LABEL = {
 };
 function Fact({ label, value }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "3px 0" }}>
-      <span style={{ color: "var(--text-3)", fontSize: 12 }}>{label}</span>
-      <span style={{ color: "var(--text-1)", fontSize: 13, fontWeight: 600, textAlign: "right" }}>{value}</span>
+    <div className="tw-flex tw-justify-between tw-gap-3 tw-py-0.5">
+      <span className="tw-text-[12px] tw-text-text-tertiary">{label}</span>
+      <span className="tw-text-[13px] tw-font-semibold tw-text-text-primary tw-text-right">{value}</span>
     </div>
   );
 }
 function Metric({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: 11, color: "var(--text-3)" }}>{label}</div>
-      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-1)", fontFamily: "monospace", fontVariantNumeric: "tabular-nums", marginTop: 2 }}>{value}</div>
+      <div className="tw-text-[11px] tw-text-text-tertiary">{label}</div>
+      <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-font-mono tw-tabular-nums tw-mt-0.5">{value}</div>
     </div>
   );
 }
 function DataQualityBanner({ flags = [] }) {
   return (
-    <div style={{ background: "var(--neg-fade)", borderLeft: "3px solid var(--negative)", borderRadius: 8, padding: "10px 12px" }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-1)" }}>Данные ограниченной полноты — выводы предварительные</div>
-      {flags.length > 0 && <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 4, lineHeight: 1.45 }}>{flags.slice(0, 3).join(" · ")}</div>}
+    <div className="tw-bg-warning-soft tw-rounded-md tw-px-3 tw-py-2.5" style={{ borderLeft: "3px solid var(--warning)" }}>
+      <div className="tw-text-[13px] tw-font-semibold tw-text-text-primary">Данные ограниченной полноты — выводы предварительные</div>
+      {flags.length > 0 && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1 tw-leading-snug">{flags.slice(0, 3).join(" · ")}</div>}
     </div>
   );
 }
@@ -1426,40 +1428,37 @@ function StackedOwnershipBar({ shareholders = [] }) {
   const data = [...shareholders]
     .filter((s) => typeof s.stake_pct === "number" && s.stake_pct > 0)
     .sort((a, b) => (order[a.type] || 0) - (order[b.type] || 0) || b.stake_pct - a.stake_pct);
-  if (!data.length) return <div style={{ fontSize: 12.5, color: "var(--text-3)" }}>Структура владения официально не раскрыта.</div>;
+  if (!data.length) return <div className="tw-text-[12.5px] tw-text-text-tertiary">Структура владения официально не раскрыта.</div>;
   const total = data.reduce((s, x) => s + x.stake_pct, 0) || 100;
   return (
     <div>
-      <div style={{ display: "flex", width: "100%", height: 28, borderRadius: 6, overflow: "hidden" }}>
+      <div className="tw-flex tw-w-full tw-overflow-hidden tw-rounded-sm" style={{ height: 28 }}>
         {data.map((s, i) => {
           const pct = (s.stake_pct / total) * 100;
           const c = TYPE_COLOR[s.type] || TYPE_COLOR.other;
           return (
-            <div key={i} title={`${s.name}: ${s.stake_pct.toFixed(1)}%`} style={{
-              width: `${pct}%`, background: c, display: "flex", alignItems: "center",
-              justifyContent: "center", minWidth: 0, overflow: "hidden",
+            <div key={i} title={`${s.name}: ${s.stake_pct.toFixed(1)}%`} className="tw-flex tw-items-center tw-justify-center tw-min-w-0 tw-overflow-hidden" style={{
+              width: `${pct}%`, background: c,
               boxShadow: s.is_controlling
-                ? "inset 0 0 0 1.5px var(--text-1)"
-                : "inset 0 0 0 0.5px var(--bg-surface)",
+                ? "inset 0 0 0 1.5px var(--text-primary)"
+                : "inset 0 0 0 0.5px var(--bg-elevated)",
             }}>
               {pct > 9 && (
-                <span style={{
-                  fontSize: 10.5, fontWeight: 600, color: "var(--bg-app)",
-                  fontVariantNumeric: "tabular-nums", letterSpacing: "normal",
-                  whiteSpace: "nowrap",
+                <span className="tw-tabular-nums tw-whitespace-nowrap" style={{
+                  fontSize: 10.5, fontWeight: 600, color: "var(--bg-base)",
                 }}>{s.stake_pct.toFixed(0)}%</span>
               )}
             </div>
           );
         })}
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 14px", marginTop: 12 }}>
+      <div className="tw-flex tw-flex-wrap tw-mt-3" style={{ gap: "6px 14px" }}>
         {data.map((s, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--text-2)" }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: TYPE_COLOR[s.type] || TYPE_COLOR.other, flexShrink: 0 }} />
-            <span style={{ color: "var(--text-1)" }}>{s.name}</span>
-            <span style={{ fontFamily: "monospace", fontVariantNumeric: "tabular-nums", color: "var(--text-1)", fontWeight: 600 }}>{s.stake_pct.toFixed(1)}%</span>
-            {s.is_controlling && <span style={{ fontSize: 10, color: "var(--text-3)" }}>контроль</span>}
+          <div key={i} className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-text-text-secondary">
+            <span className="tw-shrink-0 tw-rounded-sm" style={{ width: 10, height: 10, background: TYPE_COLOR[s.type] || TYPE_COLOR.other }} />
+            <span className="tw-text-text-primary">{s.name}</span>
+            <span className="tw-font-mono tw-tabular-nums tw-text-text-primary tw-font-semibold">{s.stake_pct.toFixed(1)}%</span>
+            {s.is_controlling && <span className="tw-text-[10px] tw-text-text-tertiary">контроль</span>}
           </div>
         ))}
       </div>
@@ -1468,6 +1467,13 @@ function StackedOwnershipBar({ shareholders = [] }) {
 }
 function DividendChart({ history = [] }) {
   const data = [...history].sort((a, b) => a.year - b.year);
+  const reduced = usePrefersReducedMotion();
+  const [drawn, setDrawn] = useState(reduced);
+  useEffect(() => {
+    if (reduced) { setDrawn(true); return; }
+    const r = requestAnimationFrame(() => setDrawn(true));
+    return () => cancelAnimationFrame(r);
+  }, [reduced]);
   if (!data.length) return null;
   const W = 360, H = 150, padX = 8, padTop = 20, padBot = 22;
   const vals = data.map((d) => d.dps || 0);
@@ -1475,39 +1481,48 @@ function DividendChart({ history = [] }) {
   const n = data.length;
   const slot = (W - 2 * padX) / n;
   const bw = Math.min(34, slot * 0.6);
+  const baseline = H - padBot;
   const yAt = (v) => padTop + (1 - v / max) * (H - padTop - padBot);
-  const colorOf = (d) => (d.paid === false ? "var(--text-3)" : d.special ? "var(--accent)" : "var(--positive)");
+  // Цвет В ДАННЫХ: выплата = success, спецдив = accent, пропуск = нейтраль.
+  const colorOf = (d) => (d.paid === false ? "var(--text-tertiary)" : d.special ? "var(--accent)" : "var(--success)");
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
       {data.map((d, i) => {
         const x = padX + i * slot + slot / 2;
         const v = d.dps || 0;
-        const y = d.paid === false ? H - padBot - 2 : yAt(v);
-        const h = d.paid === false ? 2 : Math.max(H - padBot - yAt(v), 1);
+        const y = d.paid === false ? baseline - 2 : yAt(v);
+        const h = d.paid === false ? 2 : Math.max(baseline - yAt(v), 1);
         return (
           <g key={i}>
-            <rect x={x - bw / 2} y={y} width={bw} height={h} rx="2" fill={colorOf(d)} opacity={d.paid === false ? 0.4 : 0.9} />
+            {/* draw-in: рост столбца от базовой линии (scaleY), без дисторсии геометрии */}
+            <rect x={x - bw / 2} y={y} width={bw} height={h} rx="2" fill={colorOf(d)} opacity={d.paid === false ? 0.4 : 0.9}
+              style={{
+                transformOrigin: `0 ${baseline}px`,
+                transform: reduced || drawn ? "scaleY(1)" : "scaleY(0)",
+                transition: reduced ? undefined : `transform 600ms cubic-bezier(0.16,1,0.3,1) ${i * 40}ms`,
+              }} />
             {d.paid !== false && v > 0 &&
-              <text x={x} y={y - 4} textAnchor="middle" fontSize="8" fill="var(--text-2)" style={{ fontVariantNumeric: "tabular-nums" }}>{v}</text>}
+              <text x={x} y={y - 4} textAnchor="middle" fontSize="8" fill="var(--text-secondary)" style={{ fontVariantNumeric: "tabular-nums", opacity: drawn ? 1 : 0, transition: reduced ? undefined : "opacity 300ms ease 500ms" }}>{v}</text>}
             {d.paid === false &&
-              <text x={x} y={H - padBot - 6} textAnchor="middle" fontSize="8" fill="var(--text-3)">×</text>}
-            <text x={x} y={H - 6} textAnchor="middle" fontSize="8.5" fill="var(--text-3)" fontFamily="monospace">{String(d.year).slice(2)}</text>
+              <text x={x} y={baseline - 6} textAnchor="middle" fontSize="8" fill="var(--text-tertiary)">×</text>}
+            <text x={x} y={H - 6} textAnchor="middle" fontSize="8.5" fill="var(--text-tertiary)" fontFamily="monospace">{String(d.year).slice(2)}</text>
           </g>
         );
       })}
     </svg>
   );
 }
-function RiskCard({ r, warn }) {
-  const tone = { high: "var(--negative)", medium: warn, low: "var(--text-3)" }[r.severity] || "var(--text-3)";
+function RiskCard({ r }) {
+  // severity → семантика: high=danger, medium=warning, low=нейтраль
+  const tone = { high: "var(--danger)", medium: "var(--warning)", low: "var(--text-tertiary)" }[r.severity] || "var(--text-tertiary)";
   const SEV = { high: "высокий", medium: "средний", low: "низкий" }[r.severity] || r.severity;
   return (
-    <div style={{ borderLeft: `3px solid ${tone}`, background: "var(--bg-card)", borderRadius: 8, padding: "10px 12px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{r.risk || r.title}</span>
-        <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 600, color: tone, textTransform: "uppercase", letterSpacing: "0.03em" }}>{SEV}</span>
+    <div className="tw-bg-bg-elevated tw-rounded-md tw-px-3 tw-py-2.5" style={{ borderLeft: `3px solid ${tone}` }}>
+      <div className="tw-flex tw-items-baseline tw-gap-2">
+        <span className="tw-font-semibold tw-text-text-primary tw-text-[13px]">{r.risk || r.title}</span>
+        <span className="tw-ml-auto tw-text-[10.5px] tw-font-semibold tw-uppercase" style={{ color: tone, letterSpacing: "0.03em" }}>{SEV}</span>
       </div>
-      <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{r.description}</div>
+      <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-normal tw-mt-1.5">{r.description}</div>
     </div>
   );
 }
@@ -1953,6 +1968,9 @@ const CompanyCard = ({ company, onBack }) => {
   // Count-up gate for the Finance tab: numbers animate once per card visit,
   // on the FIRST time the tab is opened — and snap (no replay) on tab switches.
   const finCountGate = useRef({ played: false });
+  // Count-up gate for the Governance tab: free-float number animates once per
+  // card visit on the FIRST time the tab is opened, then snaps on switches.
+  const govCountGate = useRef({ played: false });
 
   const data = company.overview ? company : MOCK_COMPANIES[0];
 
@@ -2966,13 +2984,12 @@ const CompanyCard = ({ company, onBack }) => {
 
   const renderGovernance = () => {
     if (govLoading) return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-slate-400 animate-pulse">Загружаем данные по управлению...</div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем данные по управлению...</div>
       </div>
     );
     if (!govMd && !govJson) return renderComingSoon("Корпоративное управление");
 
-    const WARN = "var(--warning)"; // токен предупреждения (Фаза 1: убран хардкод #C9A227)
     const meta = govJson?.meta || {};
     const own = govJson?.ownership || {};
     const div = govJson?.dividends || {};
@@ -2983,84 +3000,81 @@ const CompanyCard = ({ company, onBack }) => {
     const num = (x) => (typeof x === "number" ? x : null);
     const pctOrDash = (x) => (typeof x === "number" ? x + "%" : "—");
 
-    const cardStyle = { background: "var(--bg-surface)", borderRadius: 12, padding: 18, border: "1px solid var(--border)" };
     const cardHead = (Icon, title, right) => (
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
-        <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", display: "flex", alignItems: "center", gap: 8 }}>
-          <Icon size={16} style={{ color: "var(--accent)" }} />{title}
+      <div className="tw-flex tw-justify-between tw-items-baseline tw-flex-wrap tw-gap-2 tw-mb-3.5">
+        <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
+          <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
         </h4>
         {right}
       </div>
     );
-    const colHead = { fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "var(--text-3)", fontWeight: 600, padding: "6px 8px" };
-    const td = { padding: "6px 8px", fontSize: 13, color: "var(--text-1)" };
-    const tdNum = { ...td, textAlign: "right", fontFamily: "monospace", fontVariantNumeric: "tabular-nums" };
     const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
-    const FLAG = { good: { c: "var(--positive)", t: "надёжное управление" }, mixed: { c: WARN, t: "смешанное" }, weak: { c: "var(--negative)", t: "слабое управление" }, insufficient_data: { c: "var(--text-3)", t: "мало данных" } }[meta.governance_quality_flag] || { c: "var(--text-3)", t: meta.governance_quality_flag || "—" };
-    const flagRight = (
-      <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 700, color: FLAG.c, background: "var(--bg-card)", border: `1px solid ${FLAG.c}` }}>{FLAG.t}</span>
-    );
+    // Флаг качества управления → семантический тон Badge.
+    const FLAG = { good: { tone: "success", t: "надёжное управление" }, mixed: { tone: "warning", t: "смешанное" }, weak: { tone: "danger", t: "слабое управление" }, insufficient_data: { tone: "neutral", t: "мало данных" } }[meta.governance_quality_flag] || { tone: "neutral", t: meta.governance_quality_flag || "—" };
+    const flagRight = <Badge tone={FLAG.tone}>{FLAG.t}</Badge>;
     const CTRL = { state: "государственный", private: "частный", founder: "контроль основателя", dispersed: "распылённый" };
     const assessTone = (txt) => {
       const t = String(txt || "").toLowerCase();
-      if (/наруша|пропуск|непредсказ|нет истории/.test(t)) return { c: "var(--negative)", bg: "var(--neg-fade)" };
-      if (/соблюда|стабиль|в основном|регулярно/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
-      return { c: "var(--text-3)", bg: "transparent" };
+      if (/наруша|пропуск|непредсказ|нет истории/.test(t)) return { c: "var(--danger)", bg: "var(--danger-soft)" };
+      if (/соблюда|стабиль|в основном|регулярно/.test(t)) return { c: "var(--success)", bg: "var(--success-soft)" };
+      return { c: "var(--text-tertiary)", bg: "transparent" };
     };
     const minoTone = (s) => {
       const t = String(s || "").toLowerCase();
-      if (/риск|негатив|ущемл|размыт|против/.test(t)) return { c: "var(--negative)", bg: "var(--neg-fade)" };
-      if (/позитив|в пользу|справедлив/.test(t)) return { c: "var(--positive)", bg: "var(--pos-fade)" };
-      return { c: "var(--text-3)", bg: "transparent" };
+      if (/риск|негатив|ущемл|размыт|против/.test(t)) return { c: "var(--danger)", bg: "var(--danger-soft)" };
+      if (/позитив|в пользу|справедлив/.test(t)) return { c: "var(--success)", bg: "var(--success-soft)" };
+      return { c: "var(--text-tertiary)", bg: "transparent" };
     };
     const ffRight = typeof own.free_float_pct === "number" ? (
-      <div style={{ textAlign: "right" }}>
-        <div style={{ fontFamily: "monospace", fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, color: "var(--positive)" }}>{own.free_float_pct}%</div>
-        <div style={{ fontSize: 11, color: "var(--text-3)" }}>free float</div>
+      <div className="tw-text-right">
+        <div className="tw-font-mono tw-tabular-nums tw-text-[22px] tw-font-bold tw-text-success">
+          <FinCountUp value={own.free_float_pct} gate={govCountGate} render={(n) => `${fmtNumber(n, { decimals: own.free_float_pct % 1 === 0 ? 0 : 1 })}%`} />
+        </div>
+        <div className="tw-text-[11px] tw-text-text-tertiary">free float</div>
       </div>
     ) : null;
     const govSections = splitH2(govMd);
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="tw-flex tw-flex-col tw-gap-4">
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
 
         {/* СЕКЦИЯ 1 — структура владения */}
-        <div style={cardStyle}>
+        <Card>
           {cardHead(Users, "Структура владения", ffRight)}
           <StackedOwnershipBar shareholders={own.shareholders || []} />
-          <div style={{ marginTop: 14, padding: 12, borderRadius: 8, background: "var(--bg-card)", borderLeft: "3px solid var(--accent)" }}>
+          <div className="tw-mt-3.5 tw-p-3 tw-rounded-md tw-bg-bg-base" style={{ borderLeft: "3px solid var(--accent)" }}>
             <Fact label="Контролирующий собственник" value={own.controlling_shareholder || "—"} />
             <Fact label="Тип контроля" value={CTRL[own.control_type] || own.control_type || "—"} />
             {own.ultimate_beneficiary && <Fact label="Конечный бенефициар" value={own.ultimate_beneficiary} />}
             <Fact label="Квазиказначейский пакет" value={pctOrDash(num(own.treasury_quasitreasury_pct))} />
           </div>
-          {own.free_float_note && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8, lineHeight: 1.5 }}>{own.free_float_note}</div>}
+          {own.free_float_note && <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2 tw-leading-normal">{own.free_float_note}</div>}
           {Array.isArray(own.share_classes) && own.share_classes.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 14 }}>
+            <div className="tw-grid tw-gap-3 tw-mt-3.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
               {own.share_classes.map((sc, i) => (
-                <div key={i} style={{ background: "var(--bg-card)", borderRadius: 10, padding: 14, border: "1px solid var(--border)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                    <span style={{ fontWeight: 700, color: "var(--text-1)", fontSize: 13 }}>
+                <div key={i} className="tw-bg-bg-base tw-rounded-md tw-p-3.5 tw-border tw-border-border-subtle">
+                  <div className="tw-flex tw-justify-between tw-items-baseline">
+                    <span className="tw-font-bold tw-text-text-primary tw-text-[13px]">
                       {/привил/i.test(sc.class || "") ? "Привилегированные (ап)" : "Обыкновенные (ао)"}
                     </span>
-                    <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-3)" }}>{sc.ticker || ""}</span>
+                    <span className="tw-font-mono tw-text-[12px] tw-text-text-tertiary">{sc.ticker || ""}</span>
                   </div>
-                  {sc.rights_note && <div style={{ fontSize: 12, color: "var(--text-2)", marginTop: 8, lineHeight: 1.5 }}>{sc.rights_note}</div>}
+                  {sc.rights_note && <div className="tw-text-[12px] tw-text-text-secondary tw-mt-2 tw-leading-normal">{sc.rights_note}</div>}
                 </div>
               ))}
             </div>
           )}
-          {own.treasury_note && <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 12, lineHeight: 1.5 }}>{own.treasury_note}</div>}
-        </div>
+          {own.treasury_note && <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-leading-normal">{own.treasury_note}</div>}
+        </Card>
 
         {/* СЕКЦИЯ 2 — дивиденды */}
-        <div style={cardStyle}>
+        <Card>
           {cardHead(Wallet, "Дивиденды")}
           {(div.policy_text || div.policy_base) && (
-            <div style={{ background: "var(--bg-card)", borderRadius: 8, padding: 12, marginBottom: 14 }}>
-              <div style={{ fontSize: 13, color: "var(--text-1)", lineHeight: 1.5 }}>{div.policy_text || "—"}</div>
-              <div style={{ fontSize: 11.5, color: "var(--text-3)", marginTop: 6, display: "flex", flexWrap: "wrap", gap: "2px 14px" }}>
+            <div className="tw-bg-bg-base tw-rounded-md tw-p-3 tw-mb-3.5">
+              <div className="tw-text-[13px] tw-text-text-primary tw-leading-normal">{div.policy_text || "—"}</div>
+              <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1.5 tw-flex tw-flex-wrap" style={{ gap: "2px 14px" }}>
                 {div.policy_base && <span>База: {div.policy_base}</span>}
                 {typeof div.policy_min_payout_pct === "number" && <span>Мин. payout: {div.policy_min_payout_pct}%</span>}
                 {div.policy_conditions && <span>{div.policy_conditions}</span>}
@@ -3068,116 +3082,109 @@ const CompanyCard = ({ company, onBack }) => {
             </div>
           )}
           <DividendChart history={div.history || []} />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 14px", margin: "6px 0 12px", fontSize: 11, color: "var(--text-3)" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--positive)" }} />выплата</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--accent)" }} />спецдивиденд</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, borderRadius: 2, background: "var(--text-3)", opacity: 0.4 }} />не платили</span>
+          <div className="tw-flex tw-flex-wrap tw-text-[11px] tw-text-text-tertiary" style={{ gap: "4px 14px", margin: "6px 0 12px" }}>
+            <span className="tw-flex tw-items-center tw-gap-1.5"><span className="tw-rounded-sm tw-bg-success" style={{ width: 9, height: 9 }} />выплата</span>
+            <span className="tw-flex tw-items-center tw-gap-1.5"><span className="tw-rounded-sm tw-bg-accent" style={{ width: 9, height: 9 }} />спецдивиденд</span>
+            <span className="tw-flex tw-items-center tw-gap-1.5"><span className="tw-rounded-sm tw-bg-text-tertiary tw-opacity-40" style={{ width: 9, height: 9 }} />не платили</span>
           </div>
           {Array.isArray(div.history) && div.history.length > 0 && (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead><tr>
-                  <th style={{ ...colHead, textAlign: "left" }}>Год</th>
-                  <th style={{ ...colHead, textAlign: "right" }}>DPS</th>
-                  <th style={{ ...colHead, textAlign: "right" }}>Payout</th>
-                  <th style={{ ...colHead, textAlign: "right" }}>Див.дох.</th>
-                  <th style={{ ...colHead, textAlign: "right" }}>Флаг</th>
-                </tr></thead>
-                <tbody>
-                  {[...div.history].sort((a, b) => (b.year || 0) - (a.year || 0)).map((d, ri) => (
-                    <tr key={ri} style={{ background: ri % 2 ? "var(--bg-card)" : "transparent" }}>
-                      <td style={td}>{d.year}</td>
-                      <td style={tdNum}>{typeof d.dps === "number" ? d.dps : "—"}</td>
-                      <td style={tdNum}>{pctOrDash(num(d.payout_pct))}</td>
-                      <td style={tdNum}>{pctOrDash(num(d.yield_pct))}</td>
-                      <td style={{ ...tdNum, color: d.paid === false ? "var(--text-3)" : d.special ? "var(--accent)" : "var(--text-3)" }}>
-                        {d.paid === false ? "не платили" : d.special ? "спец" : ""}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table
+              columns={[
+                { key: "year", label: "Год" },
+                { key: "dps", label: "DPS", render: (v) => (typeof v === "number" ? v : "—") },
+                { key: "payout_pct", label: "Payout", render: (v) => pctOrDash(num(v)) },
+                { key: "yield_pct", label: "Див.дох.", render: (v) => pctOrDash(num(v)) },
+                {
+                  key: "flag", label: "Флаг",
+                  render: (_v, d) => (
+                    <span className={d.paid === false ? "tw-text-text-tertiary" : d.special ? "tw-text-accent" : "tw-text-text-tertiary"}>
+                      {d.paid === false ? "не платили" : d.special ? "спец" : ""}
+                    </span>
+                  ),
+                },
+              ]}
+              rows={[...div.history].sort((a, b) => (b.year || 0) - (a.year || 0))}
+            />
           )}
           {(div.regularity_note || div.policy_vs_practice) && (() => {
             const tone = assessTone(div.regularity_note);
             return (
-              <div style={{ marginTop: 14, background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
-                {div.regularity_note && <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-1)" }}>Политика vs практика: {div.regularity_note}</div>}
-                {div.policy_vs_practice && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginTop: 6 }}>{div.policy_vs_practice}</div>}
+              <div className="tw-mt-3.5 tw-rounded-md tw-px-3 tw-py-2.5" style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}` }}>
+                {div.regularity_note && <div className="tw-text-[13px] tw-font-bold tw-text-text-primary">Политика vs практика: {div.regularity_note}</div>}
+                {div.policy_vs_practice && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-normal tw-mt-1.5">{div.policy_vs_practice}</div>}
               </div>
             );
           })()}
-        </div>
+        </Card>
 
         {/* СЕКЦИЯ 3 — качество управления */}
-        <div style={cardStyle}>
+        <Card>
           {cardHead(ShieldCheck, "Качество управления", flagRight)}
-          {meta.governance_quality_note && <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.5, marginBottom: 14 }}>{meta.governance_quality_note}</div>}
+          {meta.governance_quality_note && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-normal tw-mb-3.5">{meta.governance_quality_note}</div>}
           {mt.length > 0 && (
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-2)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Scale size={14} style={{ color: "var(--accent)" }} />Отношение к миноритариям</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div className="tw-mb-3.5">
+              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary tw-mb-2"><Scale size={14} className="tw-text-accent" />Отношение к миноритариям</div>
+              <div className="tw-flex tw-flex-col tw-gap-2.5">
                 {mt.map((p, i) => {
                   const tone = minoTone((p.implication || "") + " " + (p.description || ""));
                   return (
-                    <div key={i} style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}`, borderRadius: 8, padding: "10px 12px" }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: tone.c, flexShrink: 0 }} />
-                        <span style={{ fontWeight: 600, color: "var(--text-1)", fontSize: 13 }}>{p.event}</span>
-                        {p.period && <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-3)", fontFamily: "monospace" }}>{p.period}</span>}
+                    <div key={i} className="tw-rounded-md tw-px-3 tw-py-2.5" style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}` }}>
+                      <div className="tw-flex tw-items-baseline tw-gap-2">
+                        <span className="tw-shrink-0 tw-rounded-full" style={{ width: 8, height: 8, background: tone.c }} />
+                        <span className="tw-font-semibold tw-text-text-primary tw-text-[13px]">{p.event}</span>
+                        {p.period && <span className="tw-ml-auto tw-text-[11px] tw-text-text-tertiary tw-font-mono">{p.period}</span>}
                       </div>
-                      {p.description && <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.5, margin: "6px 0 0 16px" }}>{p.description}</div>}
-                      {p.implication && <div style={{ fontSize: 12, color: tone.c, lineHeight: 1.45, margin: "4px 0 0 16px" }}>{p.implication}</div>}
+                      {p.description && <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-normal" style={{ margin: "6px 0 0 16px" }}>{p.description}</div>}
+                      {p.implication && <div className="tw-text-[12px] tw-leading-snug" style={{ color: tone.c, margin: "4px 0 0 16px" }}>{p.implication}</div>}
                     </div>
                   );
                 })}
               </div>
             </div>
           )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="tw-flex tw-flex-col tw-gap-2">
             {gq.transparency && <Fact label="Прозрачность / раскрытие" value={gq.transparency} />}
             {gq.related_party?.note && <Fact label="Связанные стороны" value={gq.related_party.note} />}
             {gq.management?.note && <Fact label="Менеджмент" value={gq.management.note} />}
           </div>
           {(gq.board?.size != null || gq.board?.independent_count != null || gq.board?.note) && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginTop: 14, padding: 12, background: "var(--bg-card)", borderRadius: 8 }}>
+            <div className="tw-grid tw-gap-3.5 tw-mt-3.5 tw-p-3 tw-bg-bg-base tw-rounded-md" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
               {gq.board?.size != null && <Metric label="Размер СД" value={gq.board.size} />}
               {gq.board?.independent_count != null && <Metric label="Независимых директоров" value={gq.board.independent_count} />}
-              {gq.board?.note && <div style={{ fontSize: 12, color: "var(--text-2)", alignSelf: "center" }}>{gq.board.note}</div>}
+              {gq.board?.note && <div className="tw-text-[12px] tw-text-text-secondary tw-self-center">{gq.board.note}</div>}
             </div>
           )}
           {Array.isArray(gq.key_figures) && gq.key_figures.length > 0 && (
-            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className="tw-mt-3.5 tw-flex tw-flex-col tw-gap-1.5">
               {gq.key_figures.map((k, i) => (
-                <div key={i} style={{ fontSize: 12.5, color: "var(--text-2)" }}>
-                  <b style={{ color: "var(--text-1)" }}>{k.name}</b>{k.role ? ` — ${k.role}` : ""}{k.note ? `. ${k.note}` : ""}
+                <div key={i} className="tw-text-[12.5px] tw-text-text-secondary">
+                  <b className="tw-text-text-primary">{k.name}</b>{k.role ? ` — ${k.role}` : ""}{k.note ? `. ${k.note}` : ""}
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* СЕКЦИЯ 4 — риски управления */}
         {grisks.length > 0 && (
-          <div style={cardStyle}>
+          <Card>
             {cardHead(AlertTriangle, "Риски управления")}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {grisks.map((r, i) => <RiskCard key={i} r={r} warn={WARN} />)}
+            <div className="tw-flex tw-flex-col tw-gap-2">
+              {grisks.map((r, i) => <RiskCard key={i} r={r} />)}
             </div>
-          </div>
+          </Card>
         )}
 
         {/* СЕКЦИЯ 5 — сопроводительный текст summary.md */}
         {govSections.length > 0 && govSections.map((sec, i) => (
-          <div key={i} style={cardStyle}>
-            <h4 style={{ fontSize: 14, fontWeight: 700, color: "var(--text-1)", marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-              <Info size={16} style={{ color: "var(--accent)" }} />{sec.heading}
+          <Card key={i}>
+            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
+              <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
-            <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.6 }}>
+            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     );
