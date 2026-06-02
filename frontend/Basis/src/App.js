@@ -1971,6 +1971,9 @@ const CompanyCard = ({ company, onBack }) => {
   // Count-up gate for the Governance tab: free-float number animates once per
   // card visit on the FIRST time the tab is opened, then snaps on switches.
   const govCountGate = useRef({ played: false });
+  // Count-up gate for the Overview tab: the fair-value hero number animates
+  // once per card visit on the FIRST time the tab is opened, then snaps.
+  const ovwCountGate = useRef({ played: false });
 
   const data = company.overview ? company : MOCK_COMPANIES[0];
 
@@ -2089,237 +2092,291 @@ const CompanyCard = ({ company, onBack }) => {
     if (!company.overview) {
       if (analysisLoading) {
         return (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-slate-400 animate-pulse">Загружаем анализ...</div>
+          <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+            <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем анализ...</div>
           </div>
         );
       }
       if (analysis) {
         return (
-          <div className="space-y-6">
-            {analysis.analyst_note && (
-              <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
-                  <Activity size={18} />
-                  Аналитическая заметка
-                </h4>
-                <p className="text-slate-300 text-sm leading-relaxed">{analysis.analyst_note}</p>
-              </div>
+          <div className="tw-flex tw-flex-col tw-gap-4">
+            {analysis.fair_price && (
+              <Card className="tw-shadow-md dark:tw-shadow-none">
+                <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
+                  <Target size={18} />
+                  <span>Справедливая цена</span>
+                </div>
+                <div
+                  className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums"
+                  style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}
+                >
+                  <FinCountUp
+                    value={typeof analysis.fair_price === "number" ? analysis.fair_price : Number(analysis.fair_price)}
+                    gate={ovwCountGate}
+                    render={(n) =>
+                      typeof n === "number" && !Number.isNaN(n)
+                        ? formatMoney(Math.round(n), { decimals: 0 })
+                        : `${analysis.fair_price} ₽`
+                    }
+                  />
+                </div>
+              </Card>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {analysis.analyst_note && (
+              <Card>
+                <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
+                  <Activity size={18} />
+                  <span>Аналитическая заметка</span>
+                </div>
+                <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">{analysis.analyst_note}</p>
+              </Card>
+            )}
+            <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
               {analysis.bull_case && (
-                <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-green-500">
-                  <h4 className="text-green-400 font-semibold mb-4 flex items-center gap-2">
+                <Card>
+                  <div className="tw-flex tw-items-center tw-gap-2 tw-text-success tw-font-semibold tw-mb-4">
                     <TrendingUp size={18} />
-                    Аргументы ЗА
-                  </h4>
-                  <ul className="space-y-2 text-sm text-slate-300">
+                    <span>Аргументы ЗА</span>
+                  </div>
+                  <ul className="tw-flex tw-flex-col tw-gap-2">
                     {(Array.isArray(analysis.bull_case) ? analysis.bull_case : [analysis.bull_case]).map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5">•</span>
+                      <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
+                        <span aria-hidden="true" className="tw-text-success tw-mt-0.5 tw-shrink-0">✓</span>
                         <span>{typeof item === "object" ? (item.title || JSON.stringify(item)) : item}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Card>
               )}
               {analysis.bear_case && (
-                <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-red-500">
-                  <h4 className="text-red-400 font-semibold mb-4 flex items-center gap-2">
+                <Card>
+                  <div className="tw-flex tw-items-center tw-gap-2 tw-text-danger tw-font-semibold tw-mb-4">
                     <TrendingDown size={18} />
-                    Аргументы ПРОТИВ
-                  </h4>
-                  <ul className="space-y-2 text-sm text-slate-300">
+                    <span>Аргументы ПРОТИВ</span>
+                  </div>
+                  <ul className="tw-flex tw-flex-col tw-gap-2">
                     {(Array.isArray(analysis.bear_case) ? analysis.bear_case : [analysis.bear_case]).map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-red-500 mt-0.5">•</span>
+                      <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-text-text-secondary">
+                        <span aria-hidden="true" className="tw-text-danger tw-mt-0.5 tw-shrink-0">✗</span>
                         <span>{typeof item === "object" ? (item.title || JSON.stringify(item)) : item}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Card>
               )}
             </div>
-            {analysis.fair_price && (
-              <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
-                  <Target size={18} />
-                  Справедливая цена
-                </h4>
-                <div className="text-3xl font-bold font-mono text-white">
-                  {analysis.fair_price} ₽
-                </div>
-              </div>
-            )}
           </div>
         );
       }
       return (
-        <div className="bg-slate-800 p-10 text-center rounded-xl border border-slate-700">
-          <Info size={48} className="mx-auto text-slate-500 mb-4" />
-          <h3 className="text-xl text-white font-medium mb-2">Анализ готовится</h3>
-          <p className="text-slate-400 max-w-md mx-auto">
-            Детальный анализ по компании <b>{company.name}</b> ещё не добавлен.
+        <Card className="tw-text-center">
+          <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
+          <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
+          <p className="tw-text-text-secondary tw-max-w-md tw-mx-auto">
+            Детальный анализ по компании <b className="tw-text-text-primary">{company.name}</b> ещё не добавлен.
             Следите за обновлениями.
           </p>
-        </div>
+        </Card>
       );
     }
 
+    // Consensus base fair value = mean of the three method base scenarios.
+    // Drives the hero number (count-up once) + upside/downside vs current price.
+    const fvMethods = [
+      { title: "По модели DCF", data: data.fairValue.dcf },
+      { title: "Исторический P/E", data: data.fairValue.pe },
+      { title: "Доходность vs Ставка", data: data.fairValue.yield },
+    ];
+    const fvBases = fvMethods.map((m) => m.data.base).filter((v) => typeof v === "number");
+    const fvConsensus = fvBases.length
+      ? Math.round(fvBases.reduce((a, b) => a + b, 0) / fvBases.length)
+      : null;
+    const curPrice = livePrice ?? company.price ?? null;
+    const upside =
+      fvConsensus != null && typeof curPrice === "number" && curPrice > 0
+        ? ((fvConsensus - curPrice) / curPrice) * 100
+        : null;
+
     return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
-            <Activity size={18} />
-            Что происходит с акцией?
-          </h4>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            {data.overview.action}
-          </p>
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      {/* HERO — fair value: largest, accent-ringed, count-up number + upside delta */}
+      <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
+        <div className="tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-6">
+          <div>
+            <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
+              <Target size={18} />
+              <span>Справедливая цена</span>
+            </div>
+            <div className="tw-flex tw-items-baseline tw-gap-3 tw-flex-wrap">
+              <span
+                className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums"
+                style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}
+              >
+                {fvConsensus != null ? (
+                  <FinCountUp
+                    value={fvConsensus}
+                    gate={ovwCountGate}
+                    render={(n) => formatMoney(Math.round(n), { decimals: 0 })}
+                  />
+                ) : (
+                  "—"
+                )}
+              </span>
+              {upside != null && (
+                <span className="tw-text-[15px]">
+                  <Delta value={Math.round(upside * 10) / 10} suffix="%" decimals={1} />
+                  <span className="tw-text-text-tertiary tw-ml-1.5">
+                    {upside >= 0 ? "апсайд" : "даунсайд"}
+                  </span>
+                </span>
+              )}
+            </div>
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">
+              Консенсус трёх методов (база)
+              {typeof curPrice === "number" ? ` · текущая ${formatMoney(curPrice, { decimals: 0 })}` : ""}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <h4 className="text-indigo-400 font-semibold mb-3 flex items-center gap-2">
-            <Globe size={18} />
-            Макро и Геополитика
-          </h4>
-          <p className="text-slate-300 text-sm leading-relaxed mb-2">
-            <span className="text-slate-500 font-medium">Макро:</span>{" "}
-            {data.overview.macro}
-          </p>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            <span className="text-slate-500 font-medium">Политика:</span>{" "}
-            {data.overview.politics}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-green-500">
-          <h4 className="text-green-400 font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp size={18} />
-            Аргументы ЗА
-          </h4>
-          <ul className="space-y-4">
-            {data.pros.map((p, i) => (
-              <li key={i}>
-                <div className="text-white text-sm font-medium mb-1">
-                  {i + 1}. {p.title}
-                </div>
-                <div className="text-slate-400 text-xs">{p.desc}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700 border-t-4 border-t-red-500">
-          <h4 className="text-red-400 font-semibold mb-4 flex items-center gap-2">
-            <TrendingDown size={18} />
-            Аргументы ПРОТИВ
-          </h4>
-          <ul className="space-y-4">
-            {data.cons.map((p, i) => (
-              <li key={i}>
-                <div className="text-white text-sm font-medium mb-1">
-                  {i + 1}. {p.title}
-                </div>
-                <div className="text-slate-400 text-xs">{p.desc}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <h4 className="text-amber-400 font-semibold mb-4 flex items-center gap-2">
-          <ShieldAlert size={18} />
-          Основные риски
-        </h4>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-400 uppercase bg-slate-900/50">
-              <tr>
-                <th className="px-4 py-3 rounded-tl-lg">Событие</th>
-                <th className="px-4 py-3">Вероятность</th>
-                <th className="px-4 py-3">Влияние на цену</th>
-                <th className="px-4 py-3">Тип</th>
-                <th className="px-4 py-3 rounded-tr-lg">Знак</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.risks.map((r, i) => (
-                <tr key={i} className="border-b border-slate-700/50">
-                  <td className="px-4 py-3 text-white font-medium">
-                    {r.title}
-                  </td>
-                  <td className="px-4 py-3 text-slate-300">{r.prob}</td>
-                  <td
-                    className={`px-4 py-3 font-mono ${
-                      r.sign === "positive" ? "text-green-400" : "text-red-400"
-                    }`}
-                  >
-                    {r.effect}
-                  </td>
-                  <td className="px-4 py-3 text-slate-300">{r.type}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        r.sign === "positive"
-                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
-                      }`}
-                    >
-                      {r.sign === "positive" ? "Позитив" : "Негатив"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <h4 className="text-indigo-400 font-semibold mb-4 flex items-center gap-2">
-          <Target size={18} />
-          Справедливая цена
-        </h4>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { title: "По модели DCF", data: data.fairValue.dcf },
-            { title: "Исторический P/E", data: data.fairValue.pe },
-            { title: "Доходность vs Ставка", data: data.fairValue.yield },
-          ].map((m, i) => (
+        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3 tw-mt-6">
+          {fvMethods.map((m, i) => (
             <div
               key={i}
-              className="bg-slate-900 rounded-lg p-4 border border-slate-700/50"
+              className="tw-bg-bg-base tw-rounded-md tw-p-4 tw-border tw-border-border-subtle"
             >
-              <div className="text-slate-400 text-sm mb-3">{m.title}</div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-red-400">Bear</span>
-                <span className="text-sm font-mono text-white">
-                  {m.data.bear} ₽
+              <div className="tw-text-text-secondary tw-text-[13px] tw-mb-3">{m.title}</div>
+              <div className="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                <span className="tw-text-[12px] tw-text-danger tw-inline-flex tw-items-center tw-gap-1">
+                  <span aria-hidden="true">▼</span>Консерв.
+                </span>
+                <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-secondary">
+                  {formatMoney(m.data.bear, { decimals: 0 })}
                 </span>
               </div>
-              <div className="flex justify-between items-center mb-2 bg-indigo-500/10 -mx-2 px-2 py-1 rounded border border-indigo-500/20">
-                <span className="text-xs text-indigo-300 font-bold">Base</span>
-                <span className="text-base font-bold font-mono text-white">
-                  {m.data.base} ₽
+              <div className="tw-flex tw-justify-between tw-items-center tw-mb-2 tw-bg-accent-soft -tw-mx-2 tw-px-2 tw-py-1 tw-rounded-sm">
+                <span className="tw-text-[12px] tw-text-accent tw-font-semibold">База</span>
+                <span className="tw-text-[15px] tw-font-semibold tw-font-mono tw-tabular-nums tw-text-text-primary">
+                  {formatMoney(m.data.base, { decimals: 0 })}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-green-400">Bull</span>
-                <span className="text-sm font-mono text-white">
-                  {m.data.bull} ₽
+              <div className="tw-flex tw-justify-between tw-items-center">
+                <span className="tw-text-[12px] tw-text-success tw-inline-flex tw-items-center tw-gap-1">
+                  <span aria-hidden="true">▲</span>Оптим.
+                </span>
+                <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-secondary">
+                  {formatMoney(m.data.bull, { decimals: 0 })}
                 </span>
               </div>
             </div>
           ))}
         </div>
+      </Card>
+
+      {/* SECOND TIER — context cards: "что происходит" + макро/политика */}
+      <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-4">
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-3">
+            <Activity size={18} />
+            <span>Что происходит с акцией?</span>
+          </div>
+          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">
+            {data.overview.action}
+          </p>
+        </Card>
+
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-info tw-font-semibold tw-mb-3">
+            <Globe size={18} />
+            <span>Макро и Геополитика</span>
+          </div>
+          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed tw-mb-2">
+            <span className="tw-text-text-tertiary tw-font-medium">Макро:</span>{" "}
+            {data.overview.macro}
+          </p>
+          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">
+            <span className="tw-text-text-tertiary tw-font-medium">Политика:</span>{" "}
+            {data.overview.politics}
+          </p>
+        </Card>
       </div>
+
+      {/* THIRD TIER — arguments for / against, semantic glyphs */}
+      <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-success tw-font-semibold tw-mb-4">
+            <TrendingUp size={18} />
+            <span>Аргументы ЗА</span>
+          </div>
+          <ul className="tw-flex tw-flex-col tw-gap-4">
+            {data.pros.map((p, i) => (
+              <li key={i} className="tw-flex tw-items-start tw-gap-2">
+                <span aria-hidden="true" className="tw-text-success tw-mt-0.5 tw-shrink-0">✓</span>
+                <div>
+                  <div className="tw-text-text-primary tw-text-[14px] tw-font-medium tw-mb-1">
+                    {p.title}
+                  </div>
+                  <div className="tw-text-text-tertiary tw-text-[12px]">{p.desc}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-text-danger tw-font-semibold tw-mb-4">
+            <TrendingDown size={18} />
+            <span>Аргументы ПРОТИВ</span>
+          </div>
+          <ul className="tw-flex tw-flex-col tw-gap-4">
+            {data.cons.map((p, i) => (
+              <li key={i} className="tw-flex tw-items-start tw-gap-2">
+                <span aria-hidden="true" className="tw-text-danger tw-mt-0.5 tw-shrink-0">✗</span>
+                <div>
+                  <div className="tw-text-text-primary tw-text-[14px] tw-font-medium tw-mb-1">
+                    {p.title}
+                  </div>
+                  <div className="tw-text-text-tertiary tw-text-[12px]">{p.desc}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+
+      {/* RISKS — table via primitive, signed effect + sign badge */}
+      <Card>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-text-warning tw-font-semibold tw-mb-4">
+          <ShieldAlert size={18} />
+          <span>Основные риски</span>
+        </div>
+        <Table
+          columns={[
+            { key: "title", label: "Событие" },
+            { key: "prob", label: "Вероятность" },
+            {
+              key: "effect",
+              label: "Влияние на цену",
+              render: (v, r) => (
+                <span className={r.sign === "positive" ? "tw-text-success" : "tw-text-danger"}>
+                  <span aria-hidden="true">{r.sign === "positive" ? "▲ " : "▼ "}</span>
+                  {v}
+                </span>
+              ),
+            },
+            { key: "type", label: "Тип" },
+            {
+              key: "sign",
+              label: "Знак",
+              render: (v) => (
+                <Badge tone={v === "positive" ? "success" : "danger"}>
+                  {v === "positive" ? "Позитив" : "Негатив"}
+                </Badge>
+              ),
+            },
+          ]}
+          rows={data.risks}
+        />
+      </Card>
     </div>
     );
   };
