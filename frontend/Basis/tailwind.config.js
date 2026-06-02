@@ -7,6 +7,14 @@
 // single source of truth stays the token file (themed via .dark).
 module.exports = {
   darkMode: "class",
+  // PREFIX is mandatory here: src/styles.css already hand-implements ~249
+  // utility-like classes (.flex, .grid, .p-2, .rounded-lg, .bg-slate-900 ...).
+  // Without a prefix Tailwind would regenerate those names with its own values
+  // and (loaded last) override the entire existing UI. `tw-` isolates new
+  // utilities so Phase 2 primitives can use them WITHOUT touching legacy code.
+  prefix: "tw-",
+  // No preflight: Tailwind's global reset would clobber the hand-written CSS.
+  corePlugins: { preflight: false },
   content: ["./src/**/*.{js,jsx}", "./public/index.html"],
   theme: {
     extend: {
