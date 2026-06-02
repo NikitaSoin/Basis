@@ -5639,7 +5639,7 @@ export default function App() {
   };
 
   return (
-    <div data-theme={theme} className="app-layout">
+    <div data-theme={theme} className="app-layout tw-bg-bg-base tw-text-text-primary">
       <Sidebar
         activeTab={selectedCompany ? null : activeTab}
         setActiveTab={navigate}

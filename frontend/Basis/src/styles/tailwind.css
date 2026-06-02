@@ -1,0 +1,10 @@
+/* =============================================================
+   Tailwind utilities layer (Phase 1 finish).
+   Imported LAST in index.js so prefixed utilities (tw-*) win the
+   cascade for NEW components. Preflight is disabled in the config,
+   and a `tw-` prefix keeps these from colliding with the ~249
+   hand-written utility classes already in styles.css.
+   `@tailwind base` is intentionally omitted (no global reset).
+   ============================================================= */
+@tailwind components;
+@tailwind utilities;
