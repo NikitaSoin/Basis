@@ -2467,12 +2467,14 @@ const CompanyCard = ({ company, onBack }) => {
       {
         key: "rec",
         label: "Рекомендация",
-        render: (v) => <Badge tone={v === "Покупать" ? "success" : "warning"}>{v}</Badge>,
+        render: (v) => (
+          <Badge tone={v === "Покупать" ? "success" : v === "Продавать" ? "danger" : "neutral"}>{v}</Badge>
+        ),
       },
       {
         key: "target",
         label: "Target",
-        render: (v) => formatMoney(v, { decimals: 0 }),
+        render: (v) => (typeof v === "number" ? formatMoney(v, { decimals: 0 }) : (v ?? "—")),
       },
       {
         key: "args",
