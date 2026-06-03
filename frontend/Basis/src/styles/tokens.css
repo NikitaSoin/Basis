@@ -95,6 +95,7 @@
      (radial atmosphere invisible) on landing AND pricing. */
   --decor-opacity: 0;            /* light: orbit hidden */
   --decor-glow:    transparent;  /* light: glow hidden */
+  --decor-glow-2:  transparent;  /* light: corner hue-shift stop hidden */
 
   /* ===========================================================
      LEGACY ALIASES → new tokens (DO NOT remove; 5652 lines rely
@@ -237,7 +238,8 @@
      On warm near-black #111110 a thin accent ring at light opacity
      disappears, so lift opacity and use a brighter accent glow. */
   --decor-opacity: 0.22;   /* hero orbit ring on dark bg (more to read through near-black) */
-  --decor-glow:    rgba(91,121,255,0.16);  /* soft accent glow behind hero title */
+  --decor-glow:    rgba(91,121,255,0.20);  /* corner glow brightest at the very top-right corner */
+  --decor-glow-2:  rgba(139,92,246,0.10);  /* mid-stop: slight violet (--accent-2) hue shift */
 
   /* ---- Categorical palette (dark): hues lightened a touch so they
      keep contrast against the near-black surface. Same PURPOSE rule:
