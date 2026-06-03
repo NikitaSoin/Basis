@@ -32,7 +32,7 @@ import {
 } from "./textblocks";
 import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
 import { LiveDepthBody, LiveDepthPreamble } from "./LiveDepthShowcase";
-import { LogomarkBody } from "./logomarks";
+import { LogomarkBody, MonogramPaletteBody } from "./logomarks";
 
 // classnames join helper (used by VisibilityTag etc.)
 const cx = (...parts) => parts.filter(Boolean).join(" ");
@@ -674,6 +674,17 @@ function Gallery() {
           </p>
         </div>
         <LogomarkBody />
+
+        {/* --- chosen direction: colour explorations of Monogram B --- */}
+        <div className="tw-mt-8 tw-mb-4 tw-max-w-[68ch]">
+          <h3 className="tw-text-[16px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mb-1.5">
+            Монограмма B — палитра (выбранное направление)
+          </h3>
+          <p className="tw-text-[14px] tw-text-text-secondary tw-m-0">
+            Геометрия знака — утверждённый концепт «слои-фундамент» (буква из горизонтальных слоёв на опорной линии); меняем <strong className="tw-text-text-primary">только цвет буквы и фон-плашку</strong>. 8 вариантов, каждый — в размере презентации и фавикона (32/16px), в обеих темах. Всё на токенах: кобальт <code>--accent</code>, нейтрали, <code>--accent-2</code>/<code>--accent-soft</code> дозированно.
+          </p>
+        </div>
+        <MonogramPaletteBody />
       </Section>
     </div>
   );
