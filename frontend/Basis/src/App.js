@@ -5512,36 +5512,41 @@ const PricingView = ({ user, onShowAuth }) => {
   );
 
   return (
-    <div>
+    // The PAGE (not the short header) owns the decor now. The pricing header is
+    // only ~76px tall, so a full orbit placed inside it had its lower half clipped
+    // by overflow-hidden (owner: «орбита со спутником пропала»). Lifting the decor
+    // to the page gives it vertical room: a full-size orbit + accent glow live in
+    // the top-right corner, behind the cards (content is tw-relative → above decor),
+    // so the WHOLE ring + its tracing satellite read. pointer-events-none, no layout
+    // shift; overflow-hidden clips only the decorative bleed (no h-scroll), and the
+    // orbit is inset enough that card hover-lift is never clipped.
+    <div className="tw-relative tw-overflow-hidden">
+      {DECOR_ENABLED && (
+        <div
+          aria-hidden="true"
+          className="tw-pointer-events-none tw-absolute tw-right-[-90px] tw-top-[-70px]"
+          style={{
+            zIndex: 0,
+            width: 380,
+            height: 380,
+            background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
+          }}
+        />
+      )}
+      {/* Full-size orbit in the top-right corner of the PAGE, where the plan-card
+          column gives it height. Positive offsets keep the whole circle on-page;
+          the full ring + planet + satellite are visible. Visibility via the
+          per-theme --decor-opacity token (visible in BOTH themes); reduced-motion
+          keeps the ring static (guarded globally in tokens.css). */}
+      <PageDecor
+        variant="orbit"
+        className="tw-right-4 tw-top-8"
+        style={{ width: 220, height: 220, opacity: "var(--decor-opacity)" }}
+      />
       {/* Hero header — MARKETING surface (conversion / first touch). Same language
           as the landing hero: violet→cobalt gradient title clipped into the glyphs
-          + one-time sweep, a faint orbit decor + accent glow tucked into the corner.
-          reduced-motion is handled globally in tokens.css (sweep & basis-orbit →
-          static), and the decor stays behind content (content is tw-relative). */}
-      <div className="tw-relative tw-overflow-hidden tw-pb-2 tw-mb-6">
-        {DECOR_ENABLED && (
-          <div
-            aria-hidden="true"
-            className="tw-pointer-events-none tw-absolute tw-right-[-110px] tw-top-[-130px]"
-            style={{
-              zIndex: 0,
-              width: 420,
-              height: 420,
-              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
-            }}
-          />
-        )}
-        {/* Pricing header is SHORT, so a big orbit (320px, negative offsets)
-            had its lower half clipped by overflow-hidden — only the top arc
-            showed. Use a COMPACT orbit that fits entirely inside the header
-            height, tucked in the right corner and vertically centred, so the
-            full ring + its tracing satellite are visible all the way round.
-            Positive offsets keep the whole circle inside the clip box. */}
-        <PageDecor
-          variant="orbit"
-          className="tw-right-3 tw-top-1/2 -tw-translate-y-1/2"
-          style={{ width: 72, height: 72, opacity: "var(--decor-opacity)" }}
-        />
+          + one-time sweep. Content sits above the page decor (tw-relative). */}
+      <div className="tw-relative tw-pb-2 tw-mb-6">
         <h1
           className="tw-relative tw-font-display tw-m-0 tw-mb-2"
           style={{
@@ -5566,7 +5571,7 @@ const PricingView = ({ user, onShowAuth }) => {
         </p>
       </div>
 
-      <AppearGroup gate={appearGate.current} groupId="pricing" stagger={70} rise={16} className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
+      <AppearGroup gate={appearGate.current} groupId="pricing" stagger={70} rise={16} className="tw-relative tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
         {/* FREE */}
         <Card className={isFree ? "tw-ring-1 tw-ring-accent" : ""}>
           <div className="tw-flex tw-flex-col tw-gap-2">
