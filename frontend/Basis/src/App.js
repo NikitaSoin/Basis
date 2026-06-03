@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
+import { BasisLogomark } from "./design/logomarks";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -5826,13 +5827,14 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   return (
     <aside className="sidebar">
       <Tooltip label="На главную" side="right">
-        <IconButton
-          aria-label="На главную"
+        <button
+          type="button"
+          aria-label="Basis — на главную"
           onClick={() => setActiveTab("landing")}
-          className="tw-mb-3 tw-bg-accent-soft tw-text-accent hover:tw-bg-accent hover:tw-text-on-accent"
+          className="tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
         >
-          <Activity size={20} />
-        </IconButton>
+          <BasisLogomark size={30} slit="var(--bg-card)" />
+        </button>
       </Tooltip>
 
       <div className="sidebar-divider" />

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="Basis">
+  <!-- App-icon variant of the approved «Слои-фундамент» mark: cobalt
+       plate + white B from layers on a base line. Self-contained and
+       theme-independent (favicons sit outside the app theme); hex is
+       brand-cobalt --accent. Reads cleanly down to 16px. -->
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="#4F5BD5"/>
+  <!-- B spine -->
+  <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill="#FFFFFF"/>
+  <!-- upper bowl (slightly lighter — top layers) -->
+  <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill="#FFFFFF" fill-opacity="0.82"/>
+  <!-- lower bowl (the heavier "foundation") -->
+  <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill="#FFFFFF"/>
+  <!-- knockout slits = the layer separation (back to the cobalt plate) -->
+  <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill="#4F5BD5"/>
+  <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill="#4F5BD5"/>
+  <!-- base line under the mark — the "basis" -->
+  <rect x="7" y="26.4" width="18" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.9"/>
+</svg>
