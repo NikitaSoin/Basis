@@ -28,6 +28,7 @@ module.exports = {
         border: {
           subtle: "var(--border-subtle)",
           strong: "var(--border-strong)",
+          hover: "var(--border-hover)",
         },
         text: {
           primary: "var(--text-primary)",
