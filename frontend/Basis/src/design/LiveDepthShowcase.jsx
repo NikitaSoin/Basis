@@ -41,7 +41,7 @@ function useInView(threshold = 0.35) {
 
 /* ---------- count-up via requestAnimationFrame ---------- */
 // Animates 0 → value over ~700ms. reduced-motion or !active → final value.
-function useCountUp(value, active, reduced, duration = 700) {
+function useCountUp(value, active, reduced, duration = 250) {
   const [n, setN] = useState(reduced ? value : 0);
   useEffect(() => {
     if (reduced || !active) {
