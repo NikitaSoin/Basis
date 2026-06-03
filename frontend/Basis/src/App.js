@@ -5493,22 +5493,69 @@ const PricingView = ({ user, onShowAuth }) => {
     "Ранний доступ к новым функциям",
   ];
 
-  // Feature row: success-coloured check glyph + label. Consistent across both plans.
-  const FeatureItem = ({ children }) => (
+  // Feature row: coloured check glyph + label. `tone` lets premium-exclusive
+  // perks read in cobalt-accent (dosed colour) while base perks stay success-green.
+  const FeatureItem = ({ children, tone = "success" }) => (
     <li className="tw-flex tw-items-start tw-gap-2 tw-text-[14px] tw-leading-[22px] tw-text-text-secondary">
-      <Check size={16} className="tw-shrink-0 tw-mt-0.5 tw-text-success" aria-hidden="true" />
+      <Check
+        size={16}
+        className={`tw-shrink-0 tw-mt-0.5 ${tone === "accent" ? "tw-text-accent" : "tw-text-success"}`}
+        aria-hidden="true"
+      />
       <span>{children}</span>
     </li>
   );
 
   return (
     <div>
-      <div className="view-header">
-        <h1 className="view-title">Тарифные планы</h1>
-        <p className="view-subtitle">Выберите уровень доступа, который вам подходит</p>
+      {/* Hero header — MARKETING surface (conversion / first touch). Same language
+          as the landing hero: violet→cobalt gradient title clipped into the glyphs
+          + one-time sweep, a faint orbit decor + accent glow tucked into the corner.
+          reduced-motion is handled globally in tokens.css (sweep & basis-orbit →
+          static), and the decor stays behind content (content is tw-relative). */}
+      <div className="tw-relative tw-overflow-hidden tw-pb-2 tw-mb-6">
+        {DECOR_ENABLED && (
+          <div
+            aria-hidden="true"
+            className="tw-pointer-events-none tw-absolute tw-right-[-110px] tw-top-[-130px]"
+            style={{
+              zIndex: 0,
+              width: 420,
+              height: 420,
+              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
+            }}
+          />
+        )}
+        <PageDecor
+          variant="orbit"
+          className="tw-right-[-80px] tw-top-[-90px]"
+          style={{ width: 320, height: 320, opacity: "var(--decor-opacity)" }}
+        />
+        <h1
+          className="tw-relative tw-font-display tw-m-0 tw-mb-2"
+          style={{
+            fontSize: 36,
+            lineHeight: "44px",
+            letterSpacing: "-0.01em",
+            fontWeight: 600,
+            backgroundImage: "linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%)",
+            backgroundSize: "200% 100%",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            color: "transparent",
+            display: "inline-block",
+            animation: "basis-hero-sweep 600ms var(--ease-out) both",
+          }}
+        >
+          Тарифные планы
+        </h1>
+        <p className="tw-relative tw-text-text-secondary tw-m-0" style={{ fontSize: 16, lineHeight: "24px" }}>
+          Выберите уровень доступа, который вам подходит
+        </p>
       </div>
 
-      <AppearGroup gate={appearGate.current} groupId="pricing" className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
+      <AppearGroup gate={appearGate.current} groupId="pricing" stagger={70} rise={16} className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
         {/* FREE */}
         <Card className={isFree ? "tw-ring-1 tw-ring-accent" : ""}>
           <div className="tw-flex tw-flex-col tw-gap-2">
@@ -5538,12 +5585,23 @@ const PricingView = ({ user, onShowAuth }) => {
           </div>
         </Card>
 
-        {/* PREMIUM */}
-        <Card className={isPremium ? "tw-ring-1 tw-ring-accent" : ""}>
+        {/* PREMIUM — recommended plan, highlighted BRIGHTER (marketing): a 2px
+            accent ring + a soft accent-tinted surface + a violet→cobalt gradient
+            "Рекомендуем" badge. Colour lives in the ring/badge/accent checks ONLY;
+            the CTA button stays the single cobalt primary (untouched). */}
+        <Card className={`tw-relative tw-ring-2 tw-ring-accent ${isPremium ? "" : "tw-bg-accent-soft"}`}>
+          {/* Gradient "recommended" badge — top-right corner ribbon, marketing accent. */}
+          <span
+            className="tw-absolute tw-top-3 tw-right-3 tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-px-2.5 tw-py-0.5 tw-text-[11px] tw-font-semibold tw-leading-[18px] tw-text-on-accent tw-shadow-sm"
+            style={{ backgroundImage: "linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%)" }}
+          >
+            <Zap size={11} aria-hidden="true" />
+            Рекомендуем
+          </span>
           <div className="tw-flex tw-flex-col tw-gap-2">
-            <div className="tw-flex tw-items-center tw-justify-between tw-gap-2">
+            <div className="tw-flex tw-items-center tw-gap-2">
               <p className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0">Максимум</p>
-              {isPremium ? <Badge tone="accent">Активен</Badge> : <Badge tone="accent">Premium</Badge>}
+              {isPremium ? <Badge tone="success">Активен</Badge> : <Badge tone="accent">Premium</Badge>}
             </div>
             <p className="tw-text-[14px] tw-text-text-tertiary tw-m-0">Полный арсенал аналитика</p>
             <div className="tw-mt-2 tw-mb-4 tw-flex tw-items-baseline tw-gap-1.5">
@@ -5557,7 +5615,7 @@ const PricingView = ({ user, onShowAuth }) => {
             </div>
             <ul className="tw-flex tw-flex-col tw-gap-2.5 tw-list-none tw-p-0 tw-m-0">
               {premiumFeatures.map((f, i) => (
-                <FeatureItem key={i}>{f}</FeatureItem>
+                <FeatureItem key={i} tone="accent">{f}</FeatureItem>
               ))}
             </ul>
             {!isPremium && (
