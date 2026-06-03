@@ -21,7 +21,15 @@ import {
   Table,
   Delta,
   KpiTile,
+  usePrefersReducedMotion,
 } from "./primitives";
+import {
+  Prose,
+  LeadStatement,
+  KeyTakeaway,
+  Disclosure,
+  StatInline,
+} from "./textblocks";
 import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
 import { LiveDepthBody, LiveDepthPreamble } from "./LiveDepthShowcase";
 
@@ -63,12 +71,216 @@ const Bolt = (
   </svg>
 );
 
+/* =============================================================
+   READABILITY — «Читаемость плотного контента» showcase.
+   Shows each text primitive, then a through-sample on a realistic
+   long analyst comment («комментарий по Сберу»): «было простынёй /
+   стало навигируемым». Rule honoured: Lead + honest caveat are
+   ALWAYS visible; only second-order detail goes under Disclosure.
+   ============================================================= */
+
+// Small tag used to point out WHAT is always visible vs collapsed.
+function VisibilityTag({ tone = "open", children }) {
+  const map = {
+    open: "tw-bg-success-soft tw-text-success",
+    collapsed: "tw-bg-bg-base tw-text-text-tertiary tw-border tw-border-border-subtle",
+  };
+  return (
+    <span className={cx("tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-px-2 tw-py-0.5 tw-text-[11px] tw-font-medium", map[tone])}>
+      {children}
+    </span>
+  );
+}
+
+// Realistic, NON-gutted analyst comment for the «before» wall of text.
+const SBER_WALL =
+  "Сбербанк остаётся ключевой историей в индексе и фундаментально выглядит недорого: при текущей цене акция торгуется примерно по 0,9 капитала и около 4× прибыли, что заметно ниже исторических средних. В то же время котировки последние месяцы под давлением из-за жёсткой денежно-кредитной политики ЦБ: высокая ставка одновременно поддерживает процентную маржу банка и тормозит кредитование, особенно розничное и ипотечное, поэтому итоговый эффект на прибыль неоднозначен. Качество активов пока остаётся приемлемым, стоимость риска (cost of risk) держится около 1,3 %, но при затяжном периоде высоких ставок возможен рост просрочки в необеспеченной рознице, что съест часть маржи. Менеджмент подтверждает цель по дивидендам в 50 % чистой прибыли по МСФО, что при текущей цене даёт двузначную дивидендную доходность, однако фактическая выплата зависит от достаточности капитала и позиции регулятора. Дополнительный фактор неопределённости — траектория ставки: рынок закладывает снижение во втором полугодии, но если инфляция окажется устойчивее ожиданий, смягчение сдвинется, и переоценка вверх затянется. Отдельно стоит учитывать регуляторные и геополитические риски, которые исторически давили на мультипликатор сектора.";
+
+function ReadabilityBody({ reduced }) {
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-10">
+      {/* --- Each primitive --- */}
+      <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
+        {/* LeadStatement */}
+        <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+            <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">LeadStatement · вывод сверху (BLUF)</span>
+            <VisibilityTag tone="open">всегда на виду</VisibilityTag>
+          </div>
+          <LeadStatement>
+            Акция под давлением из-за высокой ставки ЦБ, но фундаментально недооценена: ~0,9 капитала и ~4× прибыли — ниже исторических средних.
+          </LeadStatement>
+        </div>
+
+        {/* KeyTakeaway tones */}
+        <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+            <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">KeyTakeaway · честная оговорка (info), сила (positive), риск (caution)</span>
+            <VisibilityTag tone="open">всегда раскрыт</VisibilityTag>
+          </div>
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <KeyTakeaway tone="info">
+              Данные по стоимости риска противоречивы: при жёсткой ДКП маржа растёт, но кредитный рост тормозит — итог зависит от траектории ставки, которую точно не предсказать.
+            </KeyTakeaway>
+            <KeyTakeaway tone="positive">
+              Экосистема и доля рынка дают устойчивое преимущество по марже относительно конкурентов.
+            </KeyTakeaway>
+            <KeyTakeaway tone="caution">
+              Регуляторное и геополитическое давление исторически сжимает мультипликатор сектора.
+            </KeyTakeaway>
+          </div>
+        </div>
+
+        {/* StatInline */}
+        <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+            <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">StatInline · число из прозы → мини-визуал</span>
+          </div>
+          <div className="tw-flex tw-flex-wrap tw-gap-3">
+            <StatInline value={formatMultiple(0.9)} label="P/B" tone="accent" />
+            <StatInline value={formatMultiple(4)} label="P/E" tone="accent" />
+            <StatInline value={formatPercent(1.3)} label="Cost of risk" tone="neutral" />
+            <StatInline value={formatPercent(50, { decimals: 0 })} label="Payout" tone="positive" />
+          </div>
+          <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0">Табличные цифры, продукт-формат (ru-RU). Дублируют число из текста, не заменяя его.</p>
+        </div>
+
+        {/* Disclosure */}
+        <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+            <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">Disclosure · сворачиваемая деталь второго порядка</span>
+            <VisibilityTag tone="collapsed">под сворачиванием</VisibilityTag>
+          </div>
+          <Disclosure summary="Чувствительность прибыли к ставке ЦБ — детали">
+            <Prose>
+              <p>
+                При ставке выше 18 % процентная маржа банка расширяется на горизонте 1–2 кварталов за счёт быстрой переоценки активов, но кредитный портфель в рознице сжимается с лагом 2–3 квартала. Чистый эффект на прибыль зависит от длительности периода высоких ставок: короткий пик — выигрыш по марже; затяжное плато — рост стоимости риска перевешивает.
+              </p>
+            </Prose>
+          </Disclosure>
+          <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+            Нативный <code>&lt;details&gt;/&lt;summary&gt;</code> — открывается мышью, клавишей Enter/Space, доступен скринридеру. Сюда — ТОЛЬКО детали, не вывод.
+          </p>
+        </div>
+      </div>
+
+      {/* --- Prose: измеритель строки --- */}
+      <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+        <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">Prose · воздух, межстрочный 1.6, ширина строки ~68 символов</span>
+        <div className="tw-mt-3">
+          <Prose>
+            <p>
+              Сбербанк остаётся ключевой историей в индексе и фундаментально выглядит недорого. Текстовый блок оборачивается в <strong>Prose</strong>: межстрочный интервал 1.6, ограниченная ширина строки (~68 символов) и ритм абзацев по 8pt делают плотный текст комфортным для чтения.
+            </p>
+            <ul>
+              <li>списки получают аккуратный отступ и приглушённый маркер;</li>
+              <li>ключевые фразы выделяются <strong>полужирным</strong> и поднимаются к основному цвету текста;</li>
+              <li>годится и для обёртки отрендеренного markdown.</li>
+            </ul>
+          </Prose>
+        </div>
+      </div>
+
+      {/* --- Through sample: было простынёй / стало навигируемо --- */}
+      <div>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+          <span className="tw-text-[13px] tw-font-semibold tw-text-text-primary">Сквозной образец · «комментарий аналитика по Сберу»</span>
+        </div>
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-6">
+          {/* BEFORE — wall of text */}
+          <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4">
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
+              Было · простыня
+            </div>
+            <p className="tw-text-[13px] tw-leading-[1.45] tw-text-text-secondary tw-m-0">{SBER_WALL}</p>
+          </div>
+
+          {/* AFTER — navigable */}
+          <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none tw-p-4 tw-flex tw-flex-col tw-gap-4">
+            <div className="tw-flex tw-items-center tw-gap-2">
+              <span className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>
+                Стало · навигируемо
+              </span>
+            </div>
+
+            {/* 1. Lead — always visible */}
+            <div>
+              <VisibilityTag tone="open">1 · вывод — на виду</VisibilityTag>
+              <div className="tw-mt-2">
+                <LeadStatement>
+                  Фундаментально недооценён (~0,9 капитала, ~4× прибыли), но под давлением высокой ставки ЦБ — переоценка вверх зависит от траектории ставки.
+                </LeadStatement>
+              </div>
+            </div>
+
+            {/* 2. Numbers lifted out */}
+            <div>
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.05em" }}>
+                2 · числа из текста — наглядно
+              </div>
+              <div className="tw-flex tw-flex-wrap tw-gap-2">
+                <StatInline value={formatMultiple(0.9)} label="P/B" tone="accent" />
+                <StatInline value={formatMultiple(4)} label="P/E" tone="accent" />
+                <StatInline value={formatPercent(1.3)} label="Cost of risk" />
+                <StatInline value={formatPercent(50, { decimals: 0 })} label="Payout" tone="positive" />
+              </div>
+            </div>
+
+            {/* 3. Full prose with all nuance preserved */}
+            <div>
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.05em" }}>
+                3 · полный комментарий — воздух, все нюансы
+              </div>
+              <Prose>
+                <p>
+                  Котировки под давлением из-за жёсткой ДКП ЦБ: высокая ставка <strong>одновременно</strong> поддерживает процентную маржу и тормозит кредитование (розница, ипотека), поэтому итоговый эффект на прибыль неоднозначен. Качество активов пока приемлемо, стоимость риска держится около 1,3 %.
+                </p>
+                <p>
+                  Менеджмент подтверждает дивиденды в 50 % прибыли по МСФО — двузначная доходность при текущей цене, но фактическая выплата зависит от достаточности капитала и позиции регулятора.
+                </p>
+              </Prose>
+            </div>
+
+            {/* 4. Honest caveat — always expanded, framed as trust feature */}
+            <div>
+              <VisibilityTag tone="open">4 · честная оговорка — на виду</VisibilityTag>
+              <div className="tw-mt-2">
+                <KeyTakeaway tone="info">
+                  Данные противоречивы: при жёсткой ДКП маржа растёт, но кредитный рост тормозит, а при затяжном плато высоких ставок возможен рост просрочки в необеспеченной рознице. Итог зависит от траектории ставки, которую точно не предсказать.
+                </KeyTakeaway>
+              </div>
+            </div>
+
+            {/* 5. Second-order detail — collapsed */}
+            <div>
+              <VisibilityTag tone="collapsed">5 · детали второго порядка — свёрнуто</VisibilityTag>
+              <div className="tw-mt-2">
+                <Disclosure summary="Регуляторные и геополитические факторы, траектория ставки">
+                  <Prose>
+                    <p>
+                      Рынок закладывает снижение ставки во втором полугодии, но если инфляция окажется устойчивее ожиданий, смягчение сдвинется и переоценка вверх затянется. Отдельно стоит учитывать регуляторные и геополитические риски, которые исторически давили на мультипликатор сектора.
+                    </p>
+                  </Prose>
+                </Disclosure>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0 tw-max-w-[68ch]">
+          Текст НЕ сокращён — все нюансы и оговорки на месте, 1:1. Изменилась только подача: вывод и честная оговорка <strong className="tw-text-text-primary">на виду</strong>, числа продублированы визуалом, второстепенное — под раскрытие. {reduced ? "Reduced-motion активен — раскрытие мгновенное." : "Раскрытие плавное (200 мс), reduced-motion отключает анимацию."}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ---- the actual gallery body (rendered once per theme) ---- */
 
 function Gallery() {
   const [modalOpen, setModalOpen] = useState(false);
   const [tab, setTab] = useState("overview");
   const [chips, setChips] = useState({ growth: true, value: false, dividend: false });
+  const reduced = usePrefersReducedMotion();
 
   const plRows = [
     { metric: "Выручка", y2023: 1240, y2024: 1388, delta: 11.9 },
@@ -238,6 +450,15 @@ function Gallery() {
       <Section title="13 · Живость и глубина (язык: сдержанность + точки жизни)">
         <LiveDepthPreamble />
         <LiveDepthBody />
+      </Section>
+
+      <Section title="14 · Читаемость плотного контента (текстовые примитивы)">
+        <div className="tw-mb-4 tw-max-w-[68ch]">
+          <p className="tw-text-[14px] tw-text-text-secondary tw-m-0">
+            Плотный аналитический текст становится <strong className="tw-text-text-primary">навигируемым</strong>, не теряя смысла. Вывод и честные оговорки — всегда на виду; под сворачивание уходит только второстепенное. Меньше текста — это провал; задача — иерархия и сканируемость.
+          </p>
+        </div>
+        <ReadabilityBody reduced={reduced} />
       </Section>
     </div>
   );
