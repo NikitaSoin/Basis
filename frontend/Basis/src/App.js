@@ -1614,7 +1614,7 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={onKey}
-      className="tw-cursor-pointer hover:tw-shadow-md hover:-tw-translate-y-0.5 tw-transition-all tw-duration-150 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+      className="tw-cursor-pointer hover:tw-shadow-lg hover:-tw-translate-y-0.5 tw-transition-all tw-duration-150 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
     >
       <div className="tw-font-mono tw-text-[15px] tw-font-semibold tw-text-text-primary">{company.ticker}</div>
       <div className="tw-text-[14px] tw-text-text-secondary tw-mt-0.5">{company.name}</div>
@@ -5240,10 +5240,15 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
             }}
           />
         )}
+        {/* Landing hero is tall, but the 360px orbit at negative offsets had
+            its TOP arc clipped by overflow-hidden (only the lower part showed).
+            Use a self-contained orbit with POSITIVE offsets in the top-right
+            corner so the full ring + its tracing satellite are visible all the
+            way round. Still sits behind content (content is tw-relative). */}
         <PageDecor
           variant="orbit"
-          className="tw-right-[-90px] tw-top-[-90px]"
-          style={{ width: 360, height: 360, opacity: "var(--decor-opacity)" }}
+          className="tw-right-6 tw-top-6"
+          style={{ width: 200, height: 200, opacity: "var(--decor-opacity)" }}
         />
         <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
@@ -5526,10 +5531,16 @@ const PricingView = ({ user, onShowAuth }) => {
             }}
           />
         )}
+        {/* Pricing header is SHORT, so a big orbit (320px, negative offsets)
+            had its lower half clipped by overflow-hidden — only the top arc
+            showed. Use a COMPACT orbit that fits entirely inside the header
+            height, tucked in the right corner and vertically centred, so the
+            full ring + its tracing satellite are visible all the way round.
+            Positive offsets keep the whole circle inside the clip box. */}
         <PageDecor
           variant="orbit"
-          className="tw-right-[-80px] tw-top-[-90px]"
-          style={{ width: 320, height: 320, opacity: "var(--decor-opacity)" }}
+          className="tw-right-3 tw-top-1/2 -tw-translate-y-1/2"
+          style={{ width: 72, height: 72, opacity: "var(--decor-opacity)" }}
         />
         <h1
           className="tw-relative tw-font-display tw-m-0 tw-mb-2"

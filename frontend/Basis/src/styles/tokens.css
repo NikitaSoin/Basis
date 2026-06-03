@@ -50,11 +50,15 @@
   --info:           #0284C7;
   --info-soft:      rgba(2,132,199,0.10);
 
-  /* ---- Elevation (light = soft warm-neutral shadows) ---- */
-  --shadow-sm:      0 1px 2px rgba(30,25,20,0.05);
-  --shadow-md:      0 4px 12px rgba(30,25,20,0.08);
-  --shadow-lg:      0 12px 32px rgba(30,25,20,0.12);
-  --shadow-xl:      0 24px 48px rgba(30,25,20,0.16);
+  /* ---- Elevation (light = soft warm-neutral shadows).
+     Layered: a tight near shadow (defines the edge) + a softer far
+     shadow (the lift). Stronger than before so cards — incl. the Market
+     square cards — clearly rise off the warm background, but still clean
+     (no muddy halo). ---- */
+  --shadow-sm:      0 1px 2px rgba(30,25,20,0.06), 0 1px 1px rgba(30,25,20,0.04);
+  --shadow-md:      0 1px 3px rgba(30,25,20,0.10), 0 6px 16px rgba(30,25,20,0.12);
+  --shadow-lg:      0 2px 6px rgba(30,25,20,0.12), 0 14px 36px rgba(30,25,20,0.18);
+  --shadow-xl:      0 4px 10px rgba(30,25,20,0.14), 0 24px 52px rgba(30,25,20,0.22);
 
   /* ---- Radius ---- */
   --radius-xs:      4px;
@@ -202,11 +206,16 @@
   --info:           #38BDF8;
   --info-soft:      rgba(56,189,248,0.14);
 
-  /* ---- Elevation (dark = layered surfaces + 1px borders, minimal shadow) ---- */
-  --shadow-sm:      0 0 0 1px var(--border-subtle);
-  --shadow-md:      0 0 0 1px var(--border-strong);
-  --shadow-lg:      0 8px 28px rgba(0,0,0,0.45);
-  --shadow-xl:      0 24px 48px rgba(0,0,0,0.55);
+  /* ---- Elevation (dark).
+     Owner wants depth in the dark theme too. So each level keeps its
+     crisp 1px border (the layered-surface language) AND adds a soft dark
+     drop for lift — layer + border + gentle shadow, never a muddy black
+     halo. The 1px border is the FIRST layer so it stays sharp on top of
+     the soft shadow. ---- */
+  --shadow-sm:      0 0 0 1px var(--border-subtle), 0 1px 4px rgba(0,0,0,0.35);
+  --shadow-md:      0 0 0 1px var(--border-strong), 0 2px 8px rgba(0,0,0,0.45);
+  --shadow-lg:      0 0 0 1px var(--border-strong), 0 10px 30px rgba(0,0,0,0.55);
+  --shadow-xl:      0 0 0 1px var(--border-strong), 0 20px 44px rgba(0,0,0,0.62);
 
   /* ---- Legacy aliases that need dark-specific raw values ---- */
   --bg-surface:    #252523;
