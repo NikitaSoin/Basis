@@ -2180,21 +2180,20 @@ const CompanyCard = ({ company, onBack }) => {
       );
     }
 
-    // Consensus base fair value = mean of the three method base scenarios.
-    // Drives the hero number (count-up once) + upside/downside vs current price.
+    // Headline fair value = Historical P/E method (base). Methodology to be
+    // revisited by the owner; for now the hero number is the historical-P/E base.
     const fvMethods = [
       { title: "По модели DCF", data: data.fairValue.dcf },
       { title: "Исторический P/E", data: data.fairValue.pe },
       { title: "Доходность vs Ставка", data: data.fairValue.yield },
     ];
-    const fvBases = fvMethods.map((m) => m.data.base).filter((v) => typeof v === "number");
-    const fvConsensus = fvBases.length
-      ? Math.round(fvBases.reduce((a, b) => a + b, 0) / fvBases.length)
+    const fvFair = typeof data.fairValue.pe?.base === "number"
+      ? Math.round(data.fairValue.pe.base)
       : null;
     const curPrice = livePrice ?? company.price ?? null;
     const upside =
-      fvConsensus != null && typeof curPrice === "number" && curPrice > 0
-        ? ((fvConsensus - curPrice) / curPrice) * 100
+      fvFair != null && typeof curPrice === "number" && curPrice > 0
+        ? ((fvFair - curPrice) / curPrice) * 100
         : null;
 
     return (
@@ -2212,9 +2211,9 @@ const CompanyCard = ({ company, onBack }) => {
                 className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums"
                 style={{ fontSize: "44px", lineHeight: "1", letterSpacing: "-1px" }}
               >
-                {fvConsensus != null ? (
+                {fvFair != null ? (
                   <FinCountUp
-                    value={fvConsensus}
+                    value={fvFair}
                     gate={ovwCountGate}
                     render={(n) => formatMoney(Math.round(n), { decimals: 0 })}
                   />
@@ -2232,7 +2231,7 @@ const CompanyCard = ({ company, onBack }) => {
               )}
             </div>
             <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">
-              Консенсус трёх методов (база)
+              По историческому P/E (база)
               {typeof curPrice === "number" ? ` · текущая ${formatMoney(curPrice, { decimals: 0 })}` : ""}
             </div>
           </div>
