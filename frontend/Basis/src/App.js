@@ -5264,7 +5264,7 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         <PageDecor
           variant="orbit"
           className=""
-          style={{ position: "fixed", top: 16, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
+          style={{ position: "fixed", top: 72, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
         />
         {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
             CLEAN cobalt B straight on the page, NO plate / NO border (owner
@@ -5571,7 +5571,7 @@ const PricingView = ({ user, onShowAuth }) => {
       <PageDecor
         variant="orbit"
         className=""
-        style={{ position: "fixed", top: 16, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
+        style={{ position: "fixed", top: 72, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
       />
       {/* Hero header — MARKETING surface (conversion / first touch). Same language
           as the landing hero: violet→cobalt gradient title clipped into the glyphs
