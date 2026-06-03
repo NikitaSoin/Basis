@@ -15,7 +15,15 @@ const cx = (...parts) => parts.filter(Boolean).join(" ");
 
 // Respect the user's OS motion preference once, reactively.
 export function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
+  // Initialise SYNCHRONOUSLY so `reduced` is correct on the very first render
+  // (no 1-frame flash of motion before an effect flips it). Falls back to false
+  // when matchMedia is unavailable (SSR/old browsers).
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      !!window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
