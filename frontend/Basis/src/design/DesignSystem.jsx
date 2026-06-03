@@ -277,6 +277,199 @@ function ReadabilityBody({ reduced }) {
   );
 }
 
+/* =============================================================
+   MARKETING ACCENTS — landing-only variants for the owner to pick.
+   Mocks ONLY (real LandingView / Sidebar untouched). Two groups:
+   A) «Базис» hero title — 3 gradient treatments (violet→cobalt).
+   B) Sidebar rail — 2 icon-colour options (restraint vs light tint).
+   Violet end of the gradient uses --accent-2 (defined per theme so it
+   reads on both the warm-cream and near-black backgrounds).
+   ============================================================= */
+
+// The violet→cobalt fill, shared by all three title variants.
+const HERO_GRADIENT = "linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%)";
+
+// Base text style: large display weight, gradient clipped into glyphs.
+const heroBase = {
+  fontFamily: "var(--font-display)",
+  fontWeight: 600,
+  fontSize: "52px",
+  lineHeight: 1.05,
+  letterSpacing: "-0.02em",
+  margin: 0,
+  backgroundImage: HERO_GRADIENT,
+  backgroundSize: "100% 100%",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  color: "transparent",
+  display: "inline-block",
+};
+
+function HeroTitleVariant({ label, note, style, reduced, animated = false }) {
+  const animStyle =
+    animated && !reduced
+      ? {
+          backgroundSize: "200% 100%",
+          animation: "basis-hero-sweep 600ms var(--ease-out) both",
+        }
+      : {};
+  return (
+    <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-lg tw-shadow-sm dark:tw-shadow-none tw-p-6">
+      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-4" style={{ letterSpacing: "0.06em" }}>
+        {label}
+      </div>
+      <div className="tw-py-3">
+        <h1 style={{ ...heroBase, ...style, ...animStyle }}>Базис</h1>
+      </div>
+      <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-4 tw-mb-0 tw-max-w-[34ch]">{note}</p>
+    </div>
+  );
+}
+
+/* --- Sidebar rail mock (icons + labels), two colour treatments --- */
+
+const HomeIcon = (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path d="M3 9l7-6 7 6M5 8v8h10V8" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+  </svg>
+);
+const ChartIcon = (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path d="M3 17V3M3 17h14M7 13v-4M11 13V6M15 13v-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const FolderIcon = (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path d="M3 5h5l2 2h7v8H3V5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+  </svg>
+);
+const GlobeIcon = (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M3 10h14M10 3c2 2.3 2 11.7 0 14M10 3c-2 2.3-2 11.7 0 14" stroke="currentColor" strokeWidth="1.6" />
+  </svg>
+);
+
+const SIDEBAR_ITEMS = [
+  { icon: HomeIcon, label: "Главная" },
+  { icon: ChartIcon, label: "Компании" },
+  { icon: FolderIcon, label: "Портфель" },
+  { icon: GlobeIcon, label: "Рынок" },
+];
+
+function SidebarRailMock({ variant }) {
+  // active index fixed to 1 ("Компании") for the mock
+  const activeIdx = 1;
+  return (
+    <div
+      className="tw-inline-flex tw-flex-col tw-gap-1 tw-rounded-lg tw-border tw-border-border-subtle tw-bg-bg-elevated tw-shadow-sm dark:tw-shadow-none tw-p-2"
+      style={{ width: "72px" }}
+    >
+      {SIDEBAR_ITEMS.map((it, i) => {
+        const active = i === activeIdx;
+        // colour resolution per variant
+        let color;
+        if (active) color = "var(--accent)";
+        else if (variant === "tint") color = "color-mix(in srgb, var(--accent) 38%, var(--text-tertiary))";
+        else color = "var(--text-tertiary)"; // restraint: neutral
+        return (
+          <div
+            key={it.label}
+            className="tw-relative tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 tw-rounded-md tw-py-2 tw-px-1"
+            style={{
+              background: active ? "var(--accent-soft)" : "transparent",
+            }}
+          >
+            {active && (
+              <span
+                aria-hidden="true"
+                className="tw-absolute tw-left-0 tw-top-1/2 tw--translate-y-1/2 tw-rounded-pill"
+                style={{ width: "3px", height: "20px", background: "var(--accent)" }}
+              />
+            )}
+            <span style={{ color }}>{it.icon}</span>
+            <span className="tw-text-[9px] tw-leading-none" style={{ color: active ? "var(--accent)" : "var(--text-tertiary)" }}>
+              {it.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MarketingAccentsBody({ reduced }) {
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-10">
+      {/* ---- A. Hero title variants ---- */}
+      <div>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+          <span className="tw-text-[13px] tw-font-semibold tw-text-text-primary">A · Заголовок «Базис» — 3 варианта эффекта (на выбор)</span>
+        </div>
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4 tw-max-w-[68ch]">
+          Самый выразительный элемент первого экрана лендинга: яркий перелив сиреневый→кобальт, а не строгий чёрный. Градиент залит в буквы (<code>background-clip: text</code>). Выберите вариант — эффектнее.
+        </p>
+        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
+          <HeroTitleVariant
+            reduced={reduced}
+            label="Вариант 1 · Градиент"
+            note="Статичная заливка сиреневый→кобальт. Спокойно, но уже не строгий чёрный."
+          />
+          <HeroTitleVariant
+            reduced={reduced}
+            label="Вариант 2 · Градиент + свечение"
+            style={{ filter: "drop-shadow(0 6px 18px var(--decor-glow))" }}
+            note="Тот же градиент + мягкое акцентное свечение под словом. Объёмнее, «герой» экрана."
+          />
+          <HeroTitleVariant
+            reduced={reduced}
+            animated
+            label="Вариант 3 · Градиент + анимация появления"
+            note={
+              reduced
+                ? "Reduced-motion активен → статичный градиент + свечение, без анимации."
+                : "Перелив градиента слева направо + нарастание свечения, ОДИН раз (~600 мс). Перезагрузите для повтора."
+            }
+          />
+        </div>
+        <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-3 tw-mb-0 tw-max-w-[68ch]">
+          В тёмной теме сиреневый конец берётся из <code>--accent-2</code> в осветлённом значении (#A78BFA), чтобы перелив читался на почти-чёрном фоне; в светлой — насыщенный #8B5CF6. Свечение завязано на <code>--decor-glow</code> (тоже по теме).
+        </p>
+      </div>
+
+      {/* ---- B. Sidebar rail variants ---- */}
+      <div>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+          <span className="tw-text-[13px] tw-font-semibold tw-text-text-primary">B · Сайдбар — цвет иконок (одобрить перед глобальной раскаткой)</span>
+        </div>
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4 tw-max-w-[68ch]">
+          Сайдбар глобальный — он же на аналитических экранах, где держим сдержанность. Цвет должен оживить, но не сделать рабочие экраны пёстрыми. Активный пункт — «Компании».
+        </p>
+        <div className="tw-flex tw-flex-wrap tw-gap-8">
+          <div className="tw-flex tw-flex-col tw-items-center tw-gap-3">
+            <SidebarRailMock variant="restraint" />
+            <div className="tw-text-center tw-max-w-[180px]">
+              <div className="tw-text-[12px] tw-font-medium tw-text-text-primary">Вариант 1 · Сдержанный</div>
+              <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-1 tw-mb-0">Активный — кобальт-акцент; неактивные — нейтраль (как сейчас). Для сравнения.</p>
+            </div>
+          </div>
+          <div className="tw-flex tw-flex-col tw-items-center tw-gap-3">
+            <SidebarRailMock variant="tint" />
+            <div className="tw-text-center tw-max-w-[180px]">
+              <div className="tw-text-[12px] tw-font-medium tw-text-text-primary">Вариант 2 · Лёгкий тинт</div>
+              <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-1 tw-mb-0">Активный — кобальт; неактивные — лёгкая акцентная примесь (не мёртвый серый, не радуга).</p>
+            </div>
+          </div>
+        </div>
+        <p className="tw-text-[12px] tw-text-text-tertiary tw-mt-4 tw-mb-0 tw-max-w-[68ch]">
+          Активный пункт в обоих вариантах одинаков: кобальт-иконка, мягкая <code>--accent-soft</code> подложка и тонкий вертикальный индикатор слева. Различие — только в неактивных иконках. Тинт даёт «примесь» через <code>color-mix</code> кобальта в <code>--text-tertiary</code> (38%).
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ---- the actual gallery body (rendered once per theme) ---- */
 
 function Gallery() {
@@ -462,6 +655,15 @@ function Gallery() {
           </p>
         </div>
         <ReadabilityBody reduced={reduced} />
+      </Section>
+
+      <Section title="15 · Маркетинг-акценты лендинга (варианты на выбор)">
+        <div className="tw-mb-4 tw-max-w-[68ch]">
+          <p className="tw-text-[14px] tw-text-text-secondary tw-m-0">
+            Только моки для выбора владельцем. Заголовок «Базис» — <strong className="tw-text-text-primary">яркий акцент</strong> первого экрана лендинга; сайдбар — глобальный, поэтому цвет дозирован, чтобы не рябило на аналитических экранах. Реальные страницы не тронуты.
+          </p>
+        </div>
+        <MarketingAccentsBody reduced={reduced} />
       </Section>
     </div>
   );
