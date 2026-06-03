@@ -155,19 +155,39 @@ export function IconButton({
 }
 
 /* =============================================================
-   3. Card — elevated surface.
-   Light: thin border + soft shadow (per constitution).
-   Dark:  layered surface + exactly ONE 1px border. The dark
-   --shadow-sm token resolves to a 1px border-as-shadow, which would
-   double the real border, so we drop the shadow in dark
-   (dark:tw-shadow-none) and keep the single tw-border instead.
+   3. Card — elevated surface (depth per «Живость и глубина»).
+   Light: thin --border-strong + soft --shadow-md base, lifting to
+   --shadow-lg on hover (matches the /_design DepthTile «стало»).
+   Dark:  layered surface + exactly ONE 1px border, NO drop-shadow
+   (constitution: dark uses layer+border, not shadow). The dark
+   --shadow-* tokens resolve to border-as-shadow which would double
+   the real border, so we drop shadow in dark (dark:tw-shadow-none);
+   on hover we deepen the border instead of casting a shadow.
+   Motion is --motion-fast and gated by prefers-reduced-motion.
+
+   Clickable/consumer cards often supply their OWN hover (e.g.
+   `hover:tw-shadow-md hover:-translate-y`); to avoid a double / fighting
+   hover, the built-in hover-lift is suppressed automatically when the
+   passed className already declares a `hover:tw-shadow` (or via the
+   explicit `noHoverLift` prop).
    ============================================================= */
 
-export function Card({ children, header = null, footer = null, className = "", ...rest }) {
+export function Card({ children, header = null, footer = null, className = "", noHoverLift = false, ...rest }) {
+  const reduced = usePrefersReducedMotion();
+  // Consumer already owns the hover (clickable cards) → don't add ours.
+  const consumerHasHover = /hover:tw-shadow/.test(className);
+  const lift = !noHoverLift && !consumerHasHover;
   return (
     <div
       className={cx(
-        "tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md tw-shadow-sm dark:tw-shadow-none",
+        "tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md",
+        // base depth: soft shadow in light, layer+border (no drop) in dark
+        "tw-shadow-md dark:tw-shadow-none",
+        // single transition covers BOTH box-shadow and border-color (two
+        // separate tw-transition-* would override each other → shadow wouldn't animate)
+        !reduced && "tw-transition tw-duration-150",
+        // hover-lift: deeper shadow + border in light; in dark deepen border only (no drop-shadow)
+        lift && "hover:tw-shadow-lg hover:tw-border-border-hover",
         "tw-overflow-hidden",
         className
       )}
