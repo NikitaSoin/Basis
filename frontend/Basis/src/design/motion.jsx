@@ -39,7 +39,7 @@ const DEFAULT_STAGGER = 30;
 // Wraps ONE appearing child. Owns the start→final flip and clears its
 // inline animation styles once the transition ends, so nothing (e.g. a
 // hover transform class) stays overridden by a leftover inline transform.
-function AppearItem({ child, index, stagger, maxStagger }) {
+function AppearItem({ child, index, stagger, maxStagger, rise = 8 }) {
   const [done, setDone] = useState(false); // animation complete → drop inline anim styles
   const [shown, setShown] = useState(false); // start (false) → final (true)
 
@@ -61,7 +61,7 @@ function AppearItem({ child, index, stagger, maxStagger }) {
   const animStyle = {
     ...baseStyle,
     opacity: shown ? 1 : 0,
-    transform: shown ? "translateY(0)" : "translateY(8px)",
+    transform: shown ? "translateY(0)" : `translateY(${rise}px)`,
     transition: TRANSITION,
     transitionDelay: `${delayN * stagger}ms`,
   };
@@ -108,6 +108,7 @@ export function AppearGroup({
   style,
   stagger = DEFAULT_STAGGER,
   maxStagger = Infinity,
+  rise = 8,
   children,
   ...rest
 }) {
@@ -140,6 +141,7 @@ export function AppearGroup({
           index={i}
           stagger={stagger}
           maxStagger={maxStagger}
+          rise={rise}
         />
       ))}
     </Tag>
