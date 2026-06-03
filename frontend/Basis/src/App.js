@@ -43,6 +43,7 @@ import {
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
+import { Prose } from "./design/textblocks";
 
 // =========================
 // HELPERS
@@ -2128,7 +2129,9 @@ const CompanyCard = ({ company, onBack }) => {
                   <Activity size={18} />
                   <span>Аналитическая заметка</span>
                 </div>
-                <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">{analysis.analyst_note}</p>
+                <Prose>
+                  <p>{analysis.analyst_note}</p>
+                </Prose>
               </Card>
             )}
             <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
@@ -2278,9 +2281,9 @@ const CompanyCard = ({ company, onBack }) => {
             <Activity size={18} />
             <span>Что происходит с акцией?</span>
           </div>
-          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">
-            {data.overview.action}
-          </p>
+          <Prose>
+            <p>{data.overview.action}</p>
+          </Prose>
         </Card>
 
         <Card>
@@ -2288,14 +2291,14 @@ const CompanyCard = ({ company, onBack }) => {
             <Globe size={18} />
             <span>Макро и Геополитика</span>
           </div>
-          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed tw-mb-2">
-            <span className="tw-text-text-tertiary tw-font-medium">Макро:</span>{" "}
-            {data.overview.macro}
-          </p>
-          <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed">
-            <span className="tw-text-text-tertiary tw-font-medium">Политика:</span>{" "}
-            {data.overview.politics}
-          </p>
+          <Prose>
+            <p>
+              <strong>Макро:</strong> {data.overview.macro}
+            </p>
+            <p>
+              <strong>Политика:</strong> {data.overview.politics}
+            </p>
+          </Prose>
         </Card>
       </div>
 
