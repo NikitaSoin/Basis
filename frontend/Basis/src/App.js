@@ -3124,7 +3124,7 @@ const CompanyCard = ({ company, onBack }) => {
           {cardHead(Wallet, "Дивиденды")}
           {(div.policy_text || div.policy_base) && (
             <div className="tw-bg-bg-base tw-rounded-md tw-p-3 tw-mb-3.5">
-              <div className="tw-text-[13px] tw-text-text-primary tw-leading-normal">{div.policy_text || "—"}</div>
+              <Prose className="tw-text-text-primary"><p>{div.policy_text || "—"}</p></Prose>
               <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1.5 tw-flex tw-flex-wrap" style={{ gap: "2px 14px" }}>
                 {div.policy_base && <span>База: {div.policy_base}</span>}
                 {typeof div.policy_min_payout_pct === "number" && <span>Мин. payout: {div.policy_min_payout_pct}%</span>}
@@ -3162,7 +3162,7 @@ const CompanyCard = ({ company, onBack }) => {
             return (
               <div className="tw-mt-3.5 tw-rounded-md tw-px-3 tw-py-2.5" style={{ background: tone.bg, borderLeft: `3px solid ${tone.c}` }}>
                 {div.regularity_note && <div className="tw-text-[13px] tw-font-bold tw-text-text-primary">Политика vs практика: {div.regularity_note}</div>}
-                {div.policy_vs_practice && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-normal tw-mt-1.5">{div.policy_vs_practice}</div>}
+                {div.policy_vs_practice && <Prose className="tw-mt-1.5"><p>{div.policy_vs_practice}</p></Prose>}
               </div>
             );
           })()}
@@ -3171,7 +3171,7 @@ const CompanyCard = ({ company, onBack }) => {
         {/* СЕКЦИЯ 3 — качество управления */}
         <Card>
           {cardHead(ShieldCheck, "Качество управления", flagRight)}
-          {meta.governance_quality_note && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-normal tw-mb-3.5">{meta.governance_quality_note}</div>}
+          {meta.governance_quality_note && <Prose className="tw-mb-3.5"><p>{meta.governance_quality_note}</p></Prose>}
           {mt.length > 0 && (
             <div className="tw-mb-3.5">
               <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary tw-mb-2"><Scale size={14} className="tw-text-accent" />Отношение к миноритариям</div>
@@ -3185,7 +3185,7 @@ const CompanyCard = ({ company, onBack }) => {
                         <span className="tw-font-semibold tw-text-text-primary tw-text-[13px]">{p.event}</span>
                         {p.period && <span className="tw-ml-auto tw-text-[11px] tw-text-text-tertiary tw-font-mono">{p.period}</span>}
                       </div>
-                      {p.description && <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-normal" style={{ margin: "6px 0 0 16px" }}>{p.description}</div>}
+                      {p.description && <div style={{ margin: "6px 0 0 16px" }}><Prose><p>{p.description}</p></Prose></div>}
                       {p.implication && <div className="tw-text-[12px] tw-leading-snug" style={{ color: tone.c, margin: "4px 0 0 16px" }}>{p.implication}</div>}
                     </div>
                   );
@@ -3232,9 +3232,9 @@ const CompanyCard = ({ company, onBack }) => {
             <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
               <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
-            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
+            <Prose>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
-            </div>
+            </Prose>
           </Card>
         ))}
       </div>
@@ -3333,7 +3333,7 @@ const CompanyCard = ({ company, onBack }) => {
               </div>
             );
           }
-          return <p style={{fontSize:14, lineHeight:1.7, color:"var(--text-1)", margin:"0 0 10px 0"}}>{children}</p>;
+          return <p>{children}</p>;
         },
 
         table: ({children}) => {
@@ -3404,15 +3404,15 @@ const CompanyCard = ({ company, onBack }) => {
                   display:"flex", alignItems:"center", justifyContent:"center",
                   fontSize:12, fontWeight:700, flexShrink:0,
                 }}>{idx + 1}</span>
-                <div style={{fontSize:14, lineHeight:1.6, color:"var(--text-1)"}}>{children}</div>
+                <div className="tw-text-[14px] tw-leading-[1.6] tw-text-text-primary">{children}</div>
               </div>
             );
           }
-          return <li style={{fontSize:14, color:"var(--text-1)", marginBottom:5, lineHeight:1.6}}>{children}</li>;
+          return <li>{children}</li>;
         },
         ul: ({children}) => {
           listMode = "ul";
-          return <ul style={{paddingLeft:20, margin:"0 0 10px 0"}}>{children}</ul>;
+          return <ul>{children}</ul>;
         },
         ol: ({children}) => {
           listMode = "ol";
@@ -3423,9 +3423,7 @@ const CompanyCard = ({ company, onBack }) => {
             </div>
           );
         },
-        strong: ({children}) => (
-          <strong style={{color:"var(--text-1)", fontWeight:700}}>{children}</strong>
-        ),
+        strong: ({children}) => <strong>{children}</strong>,
         hr: () => (
           <hr style={{borderColor:"var(--border-mid)", margin:"20px 0", borderStyle:"solid", borderWidth:"0 0 1px 0"}} />
         ),
@@ -3488,9 +3486,9 @@ const CompanyCard = ({ company, onBack }) => {
                       <ChevronDown size={15} className="bm-section-chevron tw-text-text-tertiary tw-shrink-0" />
                     </div>
                   </summary>
-                  <div className="tw-pt-1">
+                  <Prose className="tw-max-w-none tw-pt-1">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{body}</ReactMarkdown>
-                  </div>
+                  </Prose>
                 </details>
               </Card>
             );
@@ -3531,14 +3529,14 @@ const CompanyCard = ({ company, onBack }) => {
               <Badge tone="neutral">Данные: {meta.data_as_of}</Badge>
             )}
           </div>
-          {desc.short && <p className="tw-text-text-secondary tw-text-[14px] tw-leading-relaxed tw-mb-3">{desc.short}</p>}
+          {desc.short && <Prose className="tw-mb-3"><p>{desc.short}</p></Prose>}
           {be.what_company_does && (
-            <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed tw-border-t tw-border-border-subtle tw-pt-3">{be.what_company_does}</p>
+            <Prose className="tw-border-t tw-border-border-subtle tw-pt-3"><p>{be.what_company_does}</p></Prose>
           )}
           {be.value_proposition && (
-            <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed tw-mt-2">
-              <span className="tw-text-text-secondary tw-font-medium">Ценность для клиентов: </span>{be.value_proposition}
-            </p>
+            <Prose className="tw-mt-2">
+              <p><strong>Ценность для клиентов: </strong>{be.value_proposition}</p>
+            </Prose>
           )}
         </Card>
 
@@ -3565,7 +3563,7 @@ const CompanyCard = ({ company, onBack }) => {
                       <div className="tw-h-1.5 tw-rounded-pill" style={{ width: `${Math.min(s.share_pct, 100)}%`, background: `var(--cat-${cat})` }} />
                     </div>
                     {s.description && (
-                      <p className="tw-text-text-tertiary tw-text-[13px] tw-mt-1.5 tw-leading-relaxed">{s.description}</p>
+                      <Prose className="tw-mt-1.5"><p>{s.description}</p></Prose>
                     )}
                   </div>
                 );
@@ -3630,7 +3628,7 @@ const CompanyCard = ({ company, onBack }) => {
                       {m.direction === "positive" ? "▲ позитив" : m.direction === "negative" ? "▼ негатив" : "↔ смешанно"}
                     </span>
                   </div>
-                  <p className="tw-text-text-tertiary tw-text-[13px] tw-leading-relaxed">{m.channel}</p>
+                  <Prose><p>{m.channel}</p></Prose>
                 </div>
               ))}
             </div>
@@ -3648,8 +3646,8 @@ const CompanyCard = ({ company, onBack }) => {
               {km.map((k, i) => (
                 <div key={i} className="tw-border-b tw-border-border-subtle tw-pb-4 last:tw-border-0 last:tw-pb-0">
                   <div className="tw-text-text-primary tw-text-[14px] tw-font-semibold tw-mb-1">{k.metric}</div>
-                  <div className="tw-text-text-tertiary tw-text-[13px] tw-mb-1 tw-leading-relaxed">{k.why_important}</div>
-                  <div className="tw-text-text-tertiary tw-text-[13px] tw-italic tw-leading-relaxed">{k.what_to_look_for}</div>
+                  <Prose><p>{k.why_important}</p></Prose>
+                  <Prose className="tw-mt-1"><p><em>{k.what_to_look_for}</em></p></Prose>
                 </div>
               ))}
             </div>
