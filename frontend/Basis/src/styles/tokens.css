@@ -74,6 +74,12 @@
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --motion-decor: 18s;     /* slow breathing/orbit decor (sparingly; Phase 4d, optional) */
 
+  /* ---- Decor visibility (per-theme) — LIGHT.
+     Marketing surfaces (landing/pricing) lift these so the hero decor
+     reads as atmosphere. Analytical pages keep their own muted opacity. */
+  --decor-opacity: 0.15;   /* hero orbit ring on light bg */
+  --decor-glow:    rgba(35,71,217,0.10);  /* soft accent glow behind hero title */
+
   /* ===========================================================
      LEGACY ALIASES → new tokens (DO NOT remove; 5652 lines rely
      on these names). Mapping reflects real usage found via grep.
@@ -194,6 +200,12 @@
   --bg-overlay:    rgba(0,0,0,0.65);
   --accent-border: rgba(91,121,255,0.30);
   --gold-border:   rgba(245,158,11,0.30);
+
+  /* ---- Decor visibility (per-theme) — DARK.
+     On warm near-black #111110 a thin accent ring at light opacity
+     disappears, so lift opacity and use a brighter accent glow. */
+  --decor-opacity: 0.22;   /* hero orbit ring on dark bg (more to read through near-black) */
+  --decor-glow:    rgba(91,121,255,0.16);  /* soft accent glow behind hero title */
 
   /* ---- Categorical palette (dark): hues lightened a touch so they
      keep contrast against the near-black surface. Same PURPOSE rule:

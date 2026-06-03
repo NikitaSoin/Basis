@@ -44,7 +44,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose } from "./design/textblocks";
-import { AppearGroup, PageDecor } from "./design/motion";
+import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
 // =========================
 // HELPERS
@@ -5192,8 +5192,28 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
     <div className="tw-mx-auto" style={{ maxWidth: 880 }}>
       {/* Hero */}
       <div className="tw-relative tw-overflow-hidden tw-text-center tw-pt-16 tw-pb-12">
-        {/* Phase 4d: one quiet rotating decor behind the hero (kill-switch DECOR_ENABLED) */}
-        <PageDecor variant="orbit" />
+        {/* Phase 4d: hero decor (kill-switch DECOR_ENABLED). MARKETING surface →
+            larger, centred behind the "Базис" title, brighter than analytics.
+            Two dosed layers: a soft accent glow (atmosphere) + the orbit ring.
+            Both non-interactive, behind content (content is tw-relative), per-theme
+            opacity via --decor-opacity / --decor-glow tokens (visible in BOTH themes). */}
+        {DECOR_ENABLED && (
+          <div
+            aria-hidden="true"
+            className="tw-pointer-events-none tw-absolute tw-left-1/2 tw-top-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2"
+            style={{
+              zIndex: 0,
+              width: 520,
+              height: 520,
+              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 62%)",
+            }}
+          />
+        )}
+        <PageDecor
+          variant="orbit"
+          className="tw-left-1/2 tw-top-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2"
+          style={{ width: 420, height: 420, opacity: "var(--decor-opacity)" }}
+        />
         <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
         </div>
@@ -5228,7 +5248,7 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
       </div>
 
       {/* Feature tiles — bento: герой крупнее (2 колонки), остальные мельче */}
-      <AppearGroup gate={appearGate.current} groupId="landing-features" className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
+      <AppearGroup gate={appearGate.current} groupId="landing-features" stagger={55} rise={16} className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
         {/* Герой — занимает 2 колонки на широком экране */}
         <Card className={`sm:tw-col-span-2 tw-shadow-md ${hoverFx}`}>
           <div className="tw-flex tw-flex-col tw-gap-4">
