@@ -33,6 +33,11 @@
   --accent-soft:    rgba(35,71,217,0.10);
   --on-accent:      #FFFFFF;
 
+  /* ---- Accent-2 (violet — marketing only: landing hero gradient).
+     Pairs with --accent (cobalt) for the siren→cobalt title sweep.
+     NOT for chrome/data — marketing surfaces (landing/pricing) only. */
+  --accent-2:       #8B5CF6;   /* violet */
+
   /* ---- Semantic ---- */
   --success:        #15803D;
   --success-soft:   rgba(21,128,61,0.10);
@@ -177,6 +182,9 @@
   --accent-soft:    rgba(91,121,255,0.12);
   --on-accent:      #0B1220;
 
+  /* ---- Accent-2 (violet, lightened so the gradient reads on near-black) ---- */
+  --accent-2:       #A78BFA;   /* violet (lighter for dark bg) */
+
   /* ---- Semantic ---- */
   --success:        #22C55E;
   --success-soft:   rgba(34,197,94,0.14);
@@ -241,6 +249,15 @@
   to   { transform: rotate(360deg); }
 }
 
+/* Marketing landing hero — gradient title reveal (variant 3 on /_design).
+   Plays ONCE: the gradient sweeps across the word and a soft glow rises.
+   Reduced-motion users skip straight to the static final state. */
+@keyframes basis-hero-sweep {
+  from { background-position: 100% 50%; filter: drop-shadow(0 0 0 transparent); }
+  to   { background-position: 0% 50%;   filter: drop-shadow(0 6px 18px var(--decor-glow)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   [style*="basis-orbit"] { animation: none !important; }
+  [style*="basis-hero-sweep"] { animation: none !important; }
 }
