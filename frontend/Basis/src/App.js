@@ -5882,8 +5882,12 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
                 {active && (
                   <span
                     aria-hidden="true"
-                    className="tw-absolute tw-left-[-12px] tw-top-1/2 -tw-translate-y-1/2 tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
-                    style={{ transition: reducedMotion ? "none" : "opacity var(--motion-base) var(--ease-out)" }}
+                    /* Centred via INLINE top/transform (not tw-top-1/2 / -tw-translate-y-1/2):
+                       preflight is OFF, so Tailwind never declares the default
+                       --tw-translate-x:0, which makes the class-based transform
+                       invalid → the bar dropped ~12px. Inline transform is immune. */
+                    className="tw-absolute tw-left-[-12px] tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
+                    style={{ top: "50%", transform: "translateY(-50%)", transition: reducedMotion ? "none" : "opacity var(--motion-base) var(--ease-out)" }}
                   />
                 )}
                 <Icon size={20} />
