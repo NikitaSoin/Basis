@@ -9,7 +9,10 @@
    .dark / [data-theme="dark"] = DARK theme (toggle)
    ============================================================= */
 
-:root {
+:root, .light {
+  /* `.light` re-asserts light token values on a subtree even inside a `.dark`
+     ancestor — lets the /_design gallery force a light scope regardless of the
+     user's globally-saved theme. */
   /* ---- Surfaces (warm hybrid: prior cream/beige) ---- */
   --bg-base:        #F8F7F4;   /* app background (warm cream — restored) */
   --bg-elevated:    #FFFFFF;   /* cards / panels */
