@@ -158,11 +158,11 @@ export function IconButton({
    3. Card — elevated surface (depth per «Живость и глубина»).
    Light: thin --border-strong + soft --shadow-md base, lifting to
    --shadow-lg on hover (matches the /_design DepthTile «стало»).
-   Dark:  layered surface + exactly ONE 1px border, NO drop-shadow
-   (constitution: dark uses layer+border, not shadow). The dark
-   --shadow-* tokens resolve to border-as-shadow which would double
-   the real border, so we drop shadow in dark (dark:tw-shadow-none);
-   on hover we deepen the border instead of casting a shadow.
+   Dark:  layered surface + 1px border PLUS a soft dark drop for lift
+   (owner wants depth in dark too). The dark --shadow-md/lg tokens now
+   bundle a crisp 1px border AS THE FIRST layer + a gentle shadow, so the
+   token alone gives border+depth without doubling — no dark:tw-shadow-none
+   needed. Hover deepens both the shadow (--shadow-lg) and the border.
    Motion is --motion-fast and gated by prefers-reduced-motion.
 
    Clickable/consumer cards often supply their OWN hover (e.g.
@@ -181,8 +181,10 @@ export function Card({ children, header = null, footer = null, className = "", n
     <div
       className={cx(
         "tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-md",
-        // base depth: soft shadow in light, layer+border (no drop) in dark
-        "tw-shadow-md dark:tw-shadow-none",
+        // base depth: soft layered shadow (light) / 1px border + soft dark
+        // drop (dark) — both come from the --shadow-md token, so cards lift
+        // in BOTH themes.
+        "tw-shadow-md",
         // single transition covers BOTH box-shadow and border-color (two
         // separate tw-transition-* would override each other → shadow wouldn't animate)
         !reduced && "tw-transition tw-duration-150",
