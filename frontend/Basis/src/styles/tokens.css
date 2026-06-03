@@ -19,9 +19,14 @@
   --bg-overlay-srf: #FFFFFF;   /* modals / dropdowns (paired with shadow) */
 
   /* ---- Borders (warm-neutral, softer than cool blue-grey) ---- */
-  --border-subtle:  rgba(0,0,0,0.08);   /* hairlines */
-  --border-strong:  rgba(0,0,0,0.14);   /* card borders */
-  --border-hover:   rgba(0,0,0,0.22);   /* card border on hover (depth, no extra shadow) */
+  --border-subtle:  rgba(0,0,0,0.08);   /* hairlines (internal rows / sub-dividers) */
+  --border-strong:  rgba(0,0,0,0.20);   /* card/block OUTER border — lifted so every
+                                           tile reads as a distinct «плитка» off the warm
+                                           background (landing-tile separation), not a
+                                           hairline that melts into --bg-base. Internal
+                                           dividers stay on --border-subtle, so tables
+                                           don't turn into a heavy grid. */
+  --border-hover:   rgba(0,0,0,0.30);   /* card border on hover (depth, no extra shadow) */
 
   /* ---- Text ---- */
   --text-primary:   #0A1428;
@@ -174,8 +179,11 @@
 
   /* ---- Borders (soft warm hairlines) ---- */
   --border-subtle:  rgba(255,255,255,0.10);
-  --border-strong:  rgba(255,255,255,0.15);
-  --border-hover:   rgba(255,255,255,0.26);   /* card border on hover (dark depth, no drop-shadow) */
+  --border-strong:  rgba(255,255,255,0.24);   /* card/block OUTER border — lifted so tiles
+                                                 visibly separate from the warm near-black
+                                                 --bg-base (landing-tile separation in dark
+                                                 too). Internal dividers stay --border-subtle. */
+  --border-hover:   rgba(255,255,255,0.34);   /* card border on hover (dark depth, no drop-shadow) */
 
   /* ---- Text ----
      Muted tones lifted for WCAG: on --bg-base #111110
