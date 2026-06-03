@@ -31,6 +31,26 @@ body {
 button, input, textarea, select { font: inherit; }
 a { color: inherit; text-decoration: none; }
 
+/* Tailwind transform-variable defaults.
+   Tailwind's transform utilities compose ONE property:
+     transform: translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(...) skewY(...) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+   Those var() defaults are normally provided by Tailwind PREFLIGHT — but preflight
+   is disabled here (corePlugins.preflight:false). Without the defaults, ANY single
+   transform utility (e.g. -tw-translate-y-1/2 for vertical centring) yields an
+   INVALID transform (unset vars), so centring/rotation/scale silently break — e.g.
+   the sidebar tooltip and the active-nav bar dropped below the icon centre.
+   Re-declare just the transform defaults (not the rest of preflight) to fix every
+   transform utility app-wide. */
+*, ::before, ::after {
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+}
+
 /* =============================================
    APP LAYOUT
    ============================================= */
