@@ -242,6 +242,24 @@ export function MonogramB({
   );
 }
 
+/* =============================================================
+   PRODUCTION LOGOMARK — the approved «Слои-фундамент (моно-кобальт)».
+   Re-usable export wired into the real Sidebar (App.js). Geometry is
+   the same approved B-from-layers on a base line; the foundation
+   gradient makes upper layers lighter and the lower bowl + base line
+   full-strength cobalt. Token-only colour → correct in BOTH themes.
+   `slit` knocks the layer separations out to the surface behind the
+   mark (sidebar uses the elevated rail surface). Static — no motion,
+   safe for prefers-reduced-motion by construction.
+   ============================================================= */
+export function BasisLogomark({
+  size = 28,
+  slit = "var(--bg-elevated)",
+  title = "Basis",
+}) {
+  return <MonogramBGrad size={size} kind="foundation" plate="none" slit={slit} title={title} />;
+}
+
 /* Gradient-aware monogram: injects a per-instance linearGradient and
    uses it for the requested target ("letter" cobalt→violet, or
    "foundation" cobalt-light→cobalt for the heavier bottom layers).
