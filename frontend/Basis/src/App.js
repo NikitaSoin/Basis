@@ -1896,6 +1896,7 @@ function FinAreaChart({ data = [], years = [], colorVar = "--cat-5", suffix = ""
     ` L${xAt(seg[seg.length - 1].i).toFixed(1)},${zeroY.toFixed(1)} Z`;
   const last = seg[seg.length - 1];
   const gradId = `fin-area-${uid}`;
+  const glowId = `fin-glow-${uid}`;
   const color = `var(${colorVar})`;
   // approximate path length for the draw-in dash
   let len = 0;
@@ -1907,15 +1908,23 @@ function FinAreaChart({ data = [], years = [], colorVar = "--cat-5", suffix = ""
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
       <defs>
+        {/* base vertical fade (line → transparent), brighter top per /_design «стало» */}
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.32" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+        {/* atmospheric glow: brightens the fill toward the right edge (latest period) */}
+        <linearGradient id={glowId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={color} stopOpacity="0" />
+          <stop offset="60%" stopColor={color} stopOpacity="0" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.16" />
         </linearGradient>
       </defs>
       {min < 0 && max > 0 && (
         <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-subtle)" strokeWidth="1" />
       )}
       <path d={areaD} fill={`url(#${gradId})`} stroke="none" style={{ opacity: drawn ? 1 : 0, transition: reduced ? undefined : "opacity 500ms ease 200ms" }} />
+      <path d={areaD} fill={`url(#${glowId})`} stroke="none" style={{ opacity: drawn ? 1 : 0, transition: reduced ? undefined : "opacity 500ms ease 200ms" }} />
       <path
         d={lineD}
         fill="none"
