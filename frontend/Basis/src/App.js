@@ -44,7 +44,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose } from "./design/textblocks";
-import { AppearGroup } from "./design/motion";
+import { AppearGroup, PageDecor } from "./design/motion";
 
 // =========================
 // HELPERS
@@ -1775,8 +1775,10 @@ const CompaniesView = ({ onSelectCompany }) => {
 
   return (
     <div>
-      <div className="tw-mb-6">
-        <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+      <div className="tw-relative tw-overflow-hidden tw-mb-6">
+        {/* Phase 4d: one quiet rotating decor behind the page header (kill-switch DECOR_ENABLED) */}
+        <PageDecor variant="arcs" style={{ width: 200, height: 200 }} className="tw-right-[-40px] tw-top-1/2 -tw-translate-y-1/2" />
+        <div className="tw-relative tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
           <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">
             Рынок
           </h1>
@@ -1787,7 +1789,7 @@ const CompaniesView = ({ onSelectCompany }) => {
             </span>
           )}
         </div>
-        <p className="tw-text-[14px] tw-text-text-secondary tw-mt-1">
+        <p className="tw-relative tw-text-[14px] tw-text-text-secondary tw-mt-1">
           Котировки и аналитика российского фондового рынка
         </p>
       </div>
@@ -5189,23 +5191,25 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
   return (
     <div className="tw-mx-auto" style={{ maxWidth: 880 }}>
       {/* Hero */}
-      <div className="tw-text-center tw-pt-16 tw-pb-12">
-        <div className="tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
+      <div className="tw-relative tw-overflow-hidden tw-text-center tw-pt-16 tw-pb-12">
+        {/* Phase 4d: one quiet rotating decor behind the hero (kill-switch DECOR_ENABLED) */}
+        <PageDecor variant="orbit" />
+        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
         </div>
         <h1
-          className="tw-font-display tw-font-medium tw-text-text-primary tw-m-0 tw-mb-3"
+          className="tw-relative tw-font-display tw-font-medium tw-text-text-primary tw-m-0 tw-mb-3"
           style={{ fontSize: 40, lineHeight: "44px", letterSpacing: "-0.5px" }}
         >
           Базис
         </h1>
         <p
-          className="tw-text-text-secondary tw-mx-auto tw-mb-8"
+          className="tw-relative tw-text-text-secondary tw-mx-auto tw-mb-8"
           style={{ fontSize: 18, lineHeight: "26px" }}
         >
           Профессиональная аналитика российского рынка
         </p>
-        <div className="tw-flex tw-gap-3 tw-justify-center tw-flex-wrap">
+        <div className="tw-relative tw-flex tw-gap-3 tw-justify-center tw-flex-wrap">
           <Button variant="primary" iconLeft={<BarChart2 size={15} />} onClick={() => onNavigate("companies")}>
             Компании
           </Button>
