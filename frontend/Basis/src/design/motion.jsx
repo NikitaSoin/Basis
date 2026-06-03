@@ -156,3 +156,81 @@ export function Appear({ gate, groupId, children, ...rest }) {
     </AppearGroup>
   );
 }
+
+// =============================================================
+// BASIS PAGE DECOR — Phase 4d: ONE quiet rotating background mark
+// per major screen (Fiscal-style "planet"). "Liveliness without
+// function": a faint, slow ring that reads as texture, never draws
+// the eye. Non-interactive, behind content, no layout impact.
+//
+// ⛔ SINGLE KILL-SWITCH: set DECOR_ENABLED = false below → <PageDecor>
+// returns null EVERYWHERE in one edit. No JSX needs to be touched to
+// remove the decor — every placement is the same <PageDecor/> guarded
+// by this one flag.
+//
+// reduced-motion → STATIC mark (no spin): the rotation is driven by
+// the global `basis-orbit` keyframe, and tokens.css already guards
+// `[style*="basis-orbit"] { animation: none }` under
+// prefers-reduced-motion, so the ring renders still.
+// =============================================================
+
+// Turn decor off everywhere → set to false (one edit, no markup changes).
+export const DECOR_ENABLED = true;
+
+/**
+ * PageDecor — a single faint, slowly-rotating SVG mark used as a
+ * background texture for a hero / header section.
+ *
+ * Placement contract: put it as the FIRST child of a container that is
+ * `position: relative; overflow: hidden`. It is absolutely positioned,
+ * `pointer-events: none`, `aria-hidden`, sits behind content (z-index 0),
+ * and does NOT participate in layout (it never pushes content).
+ *
+ * Props:
+ *  • variant ("orbit" | "arcs"): which mark to draw. Default "orbit".
+ *  • className: extra positioning classes (override default corner/size).
+ *  • style: merged onto the wrapper (e.g. custom opacity/placement).
+ */
+export function PageDecor({ variant = "orbit", className, style }) {
+  // Single kill-switch: nothing renders anywhere when disabled.
+  if (!DECOR_ENABLED) return null;
+
+  // Colour: accent token, kept very quiet via low opacity — visible
+  // softly in BOTH light and dark themes. Rotation via the global
+  // `basis-orbit` keyframe (reduced-motion guarded in tokens.css).
+  const spin = { transformOrigin: "50% 50%", animation: "basis-orbit var(--motion-decor) linear infinite" };
+
+  return (
+    <div
+      aria-hidden="true"
+      className={
+        "tw-pointer-events-none tw-absolute " +
+        (className || "tw-right-[-60px] tw-top-1/2 -tw-translate-y-1/2")
+      }
+      style={{ zIndex: 0, opacity: 0.05, width: 320, height: 320, ...style }}
+    >
+      {variant === "arcs" ? (
+        // Concentric dotted arcs + one small dot — a quieter, line-only mark.
+        <svg viewBox="0 0 200 200" width="100%" height="100%" focusable="false">
+          <g style={spin}>
+            <circle cx="100" cy="100" r="92" fill="none" stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 8" />
+            <circle cx="100" cy="100" r="66" fill="none" stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 6" />
+            <circle cx="100" cy="8" r="4" fill="var(--accent)" />
+          </g>
+          <circle cx="100" cy="100" r="38" fill="none" stroke="var(--accent)" strokeWidth="1.5" />
+        </svg>
+      ) : (
+        // ORBIT — a thin ring with a small "planet" dot tracing it, plus a
+        // still inner ring. Restrained, like the Fiscal planet.
+        <svg viewBox="0 0 200 200" width="100%" height="100%" focusable="false">
+          <g style={spin}>
+            <circle cx="100" cy="100" r="90" fill="none" stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 7" />
+            <circle cx="100" cy="10" r="6" fill="var(--accent)" />
+            <circle cx="190" cy="100" r="3.5" fill="var(--accent)" />
+          </g>
+          <circle cx="100" cy="100" r="30" fill="none" stroke="var(--accent)" strokeWidth="1.5" />
+        </svg>
+      )}
+    </div>
+  );
+}
