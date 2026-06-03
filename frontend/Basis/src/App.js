@@ -5842,28 +5842,12 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
     { id: "pricing",   icon: CreditCard, label: "Тарифы" },
   ];
 
-  // Active-indicator slide: a thin accent bar parks left of the active nav
-  // item and glides between items on tab change. Earlier this used a fixed
-  // STEP=44 (40px item + 4px gap), but the Tooltip wrapper is inline-flex →
-  // an inline strut adds sub-pixel height per row, so the bar drifted DOWN
-  // progressively. We now MEASURE the active button's real offsetTop/height
-  // from the DOM and centre the bar on it → exact centre on every item,
-  // robust to strut/line-height/sub-pixel. Slide is preserved.
-  const navRef = useRef(null);
-  const activeNavIndex = NAV.findIndex((n) => n.id === activeTab);
-  const showIndicator = activeNavIndex !== -1;
-  const [barY, setBarY] = useState(0);
-  useEffect(() => {
-    if (activeNavIndex === -1 || !navRef.current) return;
-    const items = navRef.current.querySelectorAll("[data-nav-item]");
-    const el = items[activeNavIndex];
-    if (!el) return;
-    // centre of the active item relative to the nav container, measured from
-    // real geometry (offsetTop is relative to the Tooltip wrapper, so use rects).
-    const containerRect = navRef.current.getBoundingClientRect();
-    const itemRect = el.getBoundingClientRect();
-    setBarY(itemRect.top - containerRect.top + itemRect.height / 2);
-  }, [activeNavIndex]);
+  // Active-indicator: a thin accent bar on the LEFT of the active nav icon.
+  // Rendered as a child of the active IconButton (which becomes tw-relative)
+  // and centred with top-1/2 / -translate-y-1/2, so its vertical centre always
+  // sits EXACTLY on the icon centre — no DOM measurement / fixed-STEP math that
+  // could drift (the earlier measured & STEP=44 approaches drifted DOWN because
+  // the Tooltip wrapper is inline-flex and adds a sub-pixel strut per row).
 
   return (
     <aside className="sidebar">
@@ -5872,7 +5856,11 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
           type="button"
           aria-label="Basis — на главную"
           onClick={() => setActiveTab("landing")}
-          className="tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
+          /* appearance-none + bg-transparent + border-0 + p-0: preflight is OFF,
+             so a raw <button> would otherwise show the browser's native chrome
+             (grey/beige ButtonFace square + border) behind the mark. Strip it →
+             clean cobalt B straight on the sidebar background. */
+          className="tw-appearance-none tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
         >
           <BasisLogomark size={30} slit="var(--bg-base)" crisp />
         </button>
@@ -5880,33 +5868,24 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
 
       <div className="sidebar-divider" />
 
-      <div ref={navRef} className="tw-relative tw-flex tw-flex-col tw-gap-1">
-        {showIndicator && (
-          <span
-            aria-hidden="true"
-            className="tw-absolute tw--left-3 tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
-            style={{
-              // top:0 + measured centre, pulled up by half the bar height →
-              // the bar's vertical centre sits exactly on the icon centre.
-              top: 0,
-              transform: `translateY(${barY}px) translateY(-50%)`,
-              transition: reducedMotion
-                ? "none"
-                : "transform var(--motion-base) var(--ease-out)",
-            }}
-          />
-        )}
+      <div className="tw-flex tw-flex-col tw-gap-1">
         {NAV.map(({ id, icon: Icon, label }) => {
           const active = activeTab === id;
           return (
             <Tooltip key={id} label={label} side="right">
               <IconButton
-                data-nav-item
                 aria-label={label}
                 onClick={() => setActiveTab(id)}
-                className={active ? "tw-bg-accent-soft" : ""}
+                className={active ? "tw-relative tw-bg-accent-soft" : ""}
                 style={{ color: active ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
               >
+                {active && (
+                  <span
+                    aria-hidden="true"
+                    className="tw-absolute tw-left-[-12px] tw-top-1/2 -tw-translate-y-1/2 tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
+                    style={{ transition: reducedMotion ? "none" : "opacity var(--motion-base) var(--ease-out)" }}
+                  />
+                )}
                 <Icon size={20} />
               </IconButton>
             </Tooltip>
