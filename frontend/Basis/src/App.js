@@ -5232,16 +5232,20 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         {DECOR_ENABLED && (
           <div
             aria-hidden="true"
-            className="tw-pointer-events-none tw-absolute tw-right-0 tw-top-0"
+            className="tw-pointer-events-none tw-fixed tw-right-0 tw-top-0"
             style={{
               zIndex: 0,
               width: 520,
               height: 520,
-              /* CORNER-ANCHORED glow: the radial centre sits at the very top-right
-                 corner (at 100% 0%), brightest there and fading smoothly toward the
-                 page centre — a glow streaming OUT of the corner, not a floating
-                 circle. Pinned to top:0/right:0 so it reaches the actual corner edge.
-                 Three stops add a subtle violet (--accent-2) hue shift mid-way. */
+              /* CORNER-ANCHORED glow, FIXED to the window's top-right corner so it
+                 streams out of the actual window corner and fades toward the centre
+                 — no vertical cut. Previously this sat inside the narrow
+                 overflow-hidden hero (maxWidth 880) → its right edge was sliced into
+                 a hard vertical line. position:fixed pulls it OUT of that clipping
+                 box, anchors it to the viewport corner, and adds no horizontal
+                 scroll. Behind content (content is tw-relative). Three stops add a
+                 subtle violet (--accent-2) hue shift mid-way; in the light theme
+                 --decor-glow/-2 are transparent → invisible (dark-only decor). */
               background:
                 "radial-gradient(120% 120% at 100% 0%, var(--decor-glow) 0%, var(--decor-glow-2) 35%, transparent 70%)",
             }}
@@ -5258,12 +5262,14 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
           style={{ width: 200, height: 200, opacity: "var(--decor-opacity)" }}
         />
         {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
-            Like the gallery «Слои-фундамент»: NEUTRAL plate (--bg-elevated) and
-            slit = --bg-elevated so the layer-cuts read as neutral gaps BETWEEN
-            the cobalt layers → пустоты/слои буквы чётко видны (не сплошная B).
-            Token-only → correct in both themes. */}
-        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-bg-elevated tw-border tw-border-border-strong tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5 tw-shadow-sm dark:tw-shadow-none">
-          <BasisLogomark size={40} slit="var(--bg-elevated)" />
+            CLEAN cobalt B straight on the page, NO plate / NO border (owner
+            wanted «как в галерее»). The hero sits on the page surface (--bg-base),
+            so slit = --bg-base + crisp → the layer-cuts read as page-coloured gaps
+            BETWEEN the crisp cobalt layers (пустоты/слои видны), no grey plate.
+            Token-only → correct in both themes. The wrapper is now transparent and
+            only centres the (slightly larger, 48px) mark. */}
+        <div className="tw-relative tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5" style={{ width: 48, height: 48 }}>
+          <BasisLogomark size={48} slit="var(--bg-base)" crisp />
         </div>
         {/* Hero title — marketing accent (showcase variant 3): violet→cobalt
             gradient clipped into the glyphs + a one-time sweep on appear.
@@ -5536,15 +5542,18 @@ const PricingView = ({ user, onShowAuth }) => {
       {DECOR_ENABLED && (
         <div
           aria-hidden="true"
-          className="tw-pointer-events-none tw-absolute tw-right-0 tw-top-0"
+          className="tw-pointer-events-none tw-fixed tw-right-0 tw-top-0"
           style={{
             zIndex: 0,
             width: 480,
             height: 480,
-            /* Same corner-anchored language as the landing hero: radial centre at
-               the very top-right corner (100% 0%), brightest there, fading to the
-               page centre. Pinned to top:0/right:0 to reach the corner edge; the
-               mid violet (--accent-2) stop adds a subtle hue shift. */
+            /* Same corner-anchored language as the landing hero, and FIXED to the
+               window's top-right corner for the same reason: inside the narrow
+               overflow-hidden wrapper its right edge was sliced into a hard vertical
+               line. position:fixed pulls it out of the clipping box, anchors it to
+               the viewport corner, no horizontal scroll, behind content. The mid
+               violet (--accent-2) stop adds a subtle hue shift; light-theme tokens
+               are transparent → dark-only decor. */
             background:
               "radial-gradient(120% 120% at 100% 0%, var(--decor-glow) 0%, var(--decor-glow-2) 35%, transparent 70%)",
           }}
@@ -5834,11 +5843,27 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   ];
 
   // Active-indicator slide: a thin accent bar parks left of the active nav
-  // item and glides between items on tab change. Items are 40px tall with a
-  // 4px gap (tw-gap-1), so each step is 44px; the bar is 24px tall, centred.
-  const STEP = 44;
+  // item and glides between items on tab change. Earlier this used a fixed
+  // STEP=44 (40px item + 4px gap), but the Tooltip wrapper is inline-flex →
+  // an inline strut adds sub-pixel height per row, so the bar drifted DOWN
+  // progressively. We now MEASURE the active button's real offsetTop/height
+  // from the DOM and centre the bar on it → exact centre on every item,
+  // robust to strut/line-height/sub-pixel. Slide is preserved.
+  const navRef = useRef(null);
   const activeNavIndex = NAV.findIndex((n) => n.id === activeTab);
   const showIndicator = activeNavIndex !== -1;
+  const [barY, setBarY] = useState(0);
+  useEffect(() => {
+    if (activeNavIndex === -1 || !navRef.current) return;
+    const items = navRef.current.querySelectorAll("[data-nav-item]");
+    const el = items[activeNavIndex];
+    if (!el) return;
+    // centre of the active item relative to the nav container, measured from
+    // real geometry (offsetTop is relative to the Tooltip wrapper, so use rects).
+    const containerRect = navRef.current.getBoundingClientRect();
+    const itemRect = el.getBoundingClientRect();
+    setBarY(itemRect.top - containerRect.top + itemRect.height / 2);
+  }, [activeNavIndex]);
 
   return (
     <aside className="sidebar">
@@ -5855,14 +5880,16 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
 
       <div className="sidebar-divider" />
 
-      <div className="tw-relative tw-flex tw-flex-col tw-gap-1">
+      <div ref={navRef} className="tw-relative tw-flex tw-flex-col tw-gap-1">
         {showIndicator && (
           <span
             aria-hidden="true"
             className="tw-absolute tw--left-3 tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
             style={{
-              top: 8,
-              transform: `translateY(${activeNavIndex * STEP}px)`,
+              // top:0 + measured centre, pulled up by half the bar height →
+              // the bar's vertical centre sits exactly on the icon centre.
+              top: 0,
+              transform: `translateY(${barY}px) translateY(-50%)`,
               transition: reducedMotion
                 ? "none"
                 : "transform var(--motion-base) var(--ease-out)",
@@ -5874,6 +5901,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
           return (
             <Tooltip key={id} label={label} side="right">
               <IconButton
+                data-nav-item
                 aria-label={label}
                 onClick={() => setActiveTab(id)}
                 className={active ? "tw-bg-accent-soft" : ""}
