@@ -19,7 +19,7 @@ const cx = (...p) => p.filter(Boolean).join(" ");
 // even if THIS component remounts (e.g. a tab panel is closed and reopened).
 // Keep the gate in a ref that outlives remounts (e.g. at the PAGE level) so the
 // number animates once per page visit and snaps on every tab/click/refresh.
-export function useCountUp(value, duration = 700, gate = null) {
+export function useCountUp(value, duration = 250, gate = null) {
   const reduced = usePrefersReducedMotion();
   const alreadyPlayed = reduced || (gate ? gate.played : false);
   const [n, setN] = useState(alreadyPlayed ? value : 0);

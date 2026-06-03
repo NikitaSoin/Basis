@@ -66,6 +66,13 @@
   --font-display: "Inter Display", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
+  /* ---- Motion (Phase 4) — dosed, short, single base timing ---- */
+  --motion-fast:  150ms;   /* hover / micro */
+  --motion-base:  250ms;   /* appears, count-up, tab-slide — UNIFIED default */
+  --motion-slow:  320ms;   /* modal / page */
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-decor: 18s;     /* slow breathing/orbit decor (sparingly; Phase 4d, optional) */
+
   /* ===========================================================
      LEGACY ALIASES → new tokens (DO NOT remove; 5652 lines rely
      on these names). Mapping reflects real usage found via grep.
