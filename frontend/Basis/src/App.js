@@ -3791,7 +3791,7 @@ const CompanyCard = ({ company, onBack }) => {
         const tabClass = (active) =>
           [
             "tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap",
-            "tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200",
+            "tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-[250ms]",
             active
               ? "tw-text-accent tw-border-accent"
               : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary",
@@ -4257,7 +4257,7 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
                   padding: "8px 0", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
                   background: side === s.id ? (s.id === "buy" ? "var(--positive)" : "var(--negative)") : "transparent",
                   color: side === s.id ? "var(--on-accent)" : "var(--text-2)",
-                  transition: "all 0.15s",
+                  transition: "all var(--motion-fast)",
                 }}
               >{s.label}</button>
             ))}
@@ -4351,7 +4351,7 @@ const PortfolioTabBar = ({ tabs, value, onChange }) => {
         className="tw-absolute tw-bottom-0 tw-h-0.5 tw-bg-accent tw-rounded-pill"
         style={{
           left: bar.left, width: bar.width,
-          transition: reduced ? undefined : "left 220ms cubic-bezier(0.16,1,0.3,1), width 220ms cubic-bezier(0.16,1,0.3,1)",
+          transition: reduced ? undefined : "left var(--motion-base) var(--ease-out), width var(--motion-base) var(--ease-out)",
         }}
       />
     </div>
@@ -5184,7 +5184,7 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
   // Hover: лёгкий подъём (scale 1.0→1.015) + акцентный тинт; reduced-motion → без трансформа.
   const hoverFx = reducedMotion
     ? "hover:tw-bg-accent-soft tw-transition-colors tw-duration-150"
-    : "hover:tw-bg-accent-soft hover:tw-scale-[1.015] tw-transition tw-duration-200";
+    : "hover:tw-bg-accent-soft hover:tw-scale-[1.015] tw-transition tw-duration-[150ms]";
 
   return (
     <div className="tw-mx-auto" style={{ maxWidth: 880 }}>
@@ -5716,7 +5716,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
               transform: `translateY(${activeNavIndex * STEP}px)`,
               transition: reducedMotion
                 ? "none"
-                : "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                : "transform var(--motion-base) var(--ease-out)",
             }}
           />
         )}
