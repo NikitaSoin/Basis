@@ -5256,10 +5256,15 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
             Use a self-contained orbit with POSITIVE offsets in the top-right
             corner so the full ring + its tracing satellite are visible all the
             way round. Still sits behind content (content is tw-relative). */}
+        {/* Orbit decor pinned to the SAME window top-right corner as the glow
+            above (position:fixed overrides PageDecor's default tw-absolute), so
+            the ring + planet sit INSIDE the glow and read as one unified corner
+            element that scrolls/positions together. Dark-only via --decor-opacity
+            (0 in light). */}
         <PageDecor
           variant="orbit"
-          className="tw-right-6 tw-top-6"
-          style={{ width: 200, height: 200, opacity: "var(--decor-opacity)" }}
+          className=""
+          style={{ position: "fixed", top: 16, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
         />
         {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
             CLEAN cobalt B straight on the page, NO plate / NO border (owner
@@ -5559,15 +5564,14 @@ const PricingView = ({ user, onShowAuth }) => {
           }}
         />
       )}
-      {/* Full-size orbit in the top-right corner of the PAGE, where the plan-card
-          column gives it height. Positive offsets keep the whole circle on-page;
-          the full ring + planet + satellite are visible. Visibility via the
-          per-theme --decor-opacity token (visible in BOTH themes); reduced-motion
-          keeps the ring static (guarded globally in tokens.css). */}
+      {/* Orbit pinned to the SAME window top-right corner as the glow above
+          (position:fixed overrides PageDecor's default tw-absolute) so ring +
+          planet sit inside the glow as one unified corner element. Dark-only via
+          --decor-opacity (0 in light); reduced-motion keeps the ring static. */}
       <PageDecor
         variant="orbit"
-        className="tw-right-4 tw-top-8"
-        style={{ width: 220, height: 220, opacity: "var(--decor-opacity)" }}
+        className=""
+        style={{ position: "fixed", top: 16, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
       />
       {/* Hero header — MARKETING surface (conversion / first touch). Same language
           as the landing hero: violet→cobalt gradient title clipped into the glyphs
