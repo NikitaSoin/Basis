@@ -5232,16 +5232,18 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         {DECOR_ENABLED && (
           <div
             aria-hidden="true"
-            className="tw-pointer-events-none tw-absolute tw-right-6 tw-top-6"
+            className="tw-pointer-events-none tw-absolute tw-right-0 tw-top-0"
             style={{
               zIndex: 0,
-              width: 360,
-              height: 360,
-              /* Glow sits with POSITIVE offsets and fully fades to transparent
-                 (transparent stop at 55%, well inside its own box) BEFORE the box
-                 reaches any container edge → overflow-hidden has nothing solid to
-                 clip, so no hard square corner. Soft atmosphere in the top-right. */
-              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 55%)",
+              width: 520,
+              height: 520,
+              /* CORNER-ANCHORED glow: the radial centre sits at the very top-right
+                 corner (at 100% 0%), brightest there and fading smoothly toward the
+                 page centre — a glow streaming OUT of the corner, not a floating
+                 circle. Pinned to top:0/right:0 so it reaches the actual corner edge.
+                 Three stops add a subtle violet (--accent-2) hue shift mid-way. */
+              background:
+                "radial-gradient(120% 120% at 100% 0%, var(--decor-glow) 0%, var(--decor-glow-2) 35%, transparent 70%)",
             }}
           />
         )}
@@ -5256,10 +5258,12 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
           style={{ width: 200, height: 200, opacity: "var(--decor-opacity)" }}
         />
         {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
-            slit = --accent-soft so the letter's layer-cuts vanish into the soft
-            plate behind it. Reads correctly in both themes (token-only). */}
-        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
-          <BasisLogomark size={38} slit="var(--accent-soft)" />
+            Like the gallery «Слои-фундамент»: NEUTRAL plate (--bg-elevated) and
+            slit = --bg-elevated so the layer-cuts read as neutral gaps BETWEEN
+            the cobalt layers → пустоты/слои буквы чётко видны (не сплошная B).
+            Token-only → correct in both themes. */}
+        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-bg-elevated tw-border tw-border-border-strong tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5 tw-shadow-sm dark:tw-shadow-none">
+          <BasisLogomark size={40} slit="var(--bg-elevated)" />
         </div>
         {/* Hero title — marketing accent (showcase variant 3): violet→cobalt
             gradient clipped into the glyphs + a one-time sweep on appear.
@@ -5532,15 +5536,17 @@ const PricingView = ({ user, onShowAuth }) => {
       {DECOR_ENABLED && (
         <div
           aria-hidden="true"
-          className="tw-pointer-events-none tw-absolute tw-right-6 tw-top-6"
+          className="tw-pointer-events-none tw-absolute tw-right-0 tw-top-0"
           style={{
             zIndex: 0,
-            width: 320,
-            height: 320,
-            /* Positive offsets + transparent stop at 55% → glow dies inside its
-               own box before any container edge, so overflow-hidden never carves
-               a hard square corner. Soft top-right atmosphere. */
-            background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 55%)",
+            width: 480,
+            height: 480,
+            /* Same corner-anchored language as the landing hero: radial centre at
+               the very top-right corner (100% 0%), brightest there, fading to the
+               page centre. Pinned to top:0/right:0 to reach the corner edge; the
+               mid violet (--accent-2) stop adds a subtle hue shift. */
+            background:
+              "radial-gradient(120% 120% at 100% 0%, var(--decor-glow) 0%, var(--decor-glow-2) 35%, transparent 70%)",
           }}
         />
       )}
@@ -5843,7 +5849,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
           onClick={() => setActiveTab("landing")}
           className="tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
         >
-          <BasisLogomark size={30} slit="var(--bg-base)" />
+          <BasisLogomark size={30} slit="var(--bg-base)" crisp />
         </button>
       </Tooltip>
 
