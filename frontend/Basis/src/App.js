@@ -1848,7 +1848,7 @@ const CompaniesView = ({ onSelectCompany }) => {
 // Single number that counts up to its value on first mount via the
 // caller-owned gate; snaps (no replay) on later mounts / reduced-motion.
 function FinCountUp({ value, render, gate }) {
-  const n = useCountUp(typeof value === "number" ? value : 0, 250, gate ? gate.current : null);
+  const n = useCountUp(typeof value === "number" ? value : 0, 320, gate ? gate.current : null);
   if (typeof value !== "number") return <>{render(value)}</>;
   return <>{render(n)}</>;
 }
@@ -4300,7 +4300,7 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
 // first-load count-up isn't replayed. `gate` carries the once-per-page-visit
 // flag (a ref owned by PortfolioView).
 const HeadlineNum = ({ value, gate }) => {
-  const n = useCountUp(value, 250, gate);
+  const n = useCountUp(value, 320, gate);
   return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
 };
 
@@ -4345,7 +4345,7 @@ const PortfolioTabBar = ({ tabs, value, onChange }) => {
 
 // Big score dial with once-per-page-visit count-up (gated via PortfolioView ref).
 const ScoreCard = ({ score, gate }) => {
-  const n = useCountUp(score, 250, gate);
+  const n = useCountUp(score, 320, gate);
   return (
     <Card className="lg:tw-col-span-1 tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
       <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
