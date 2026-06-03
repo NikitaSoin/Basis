@@ -5775,11 +5775,8 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
               <IconButton
                 aria-label={label}
                 onClick={() => setActiveTab(id)}
-                className={cx(
-                  active
-                    ? "tw-bg-accent-soft tw-text-accent"
-                    : "tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
-                )}
+                className={active ? "tw-bg-accent-soft" : ""}
+                style={{ color: active ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
               >
                 <Icon size={20} />
               </IconButton>
@@ -5794,7 +5791,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
         <IconButton
           aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
           onClick={toggleTheme}
-          className="tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
+          style={{ color: "var(--sidebar-icon-idle)" }}
         >
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </IconButton>
@@ -5804,12 +5801,8 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
         <IconButton
           aria-label={user ? "Профиль" : "Войти"}
           onClick={() => setActiveTab("profile")}
-          className={cx(
-            "tw-mb-1",
-            activeTab === "profile"
-              ? "tw-bg-accent-soft tw-text-accent"
-              : "tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
-          )}
+          className={cx("tw-mb-1", activeTab === "profile" && "tw-bg-accent-soft")}
+          style={{ color: activeTab === "profile" ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
         >
           {user ? (
             <span className="tw-inline-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-pill tw-bg-accent tw-text-on-accent tw-text-[12px] tw-font-bold tw-leading-none">
