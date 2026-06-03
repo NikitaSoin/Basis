@@ -2078,14 +2078,14 @@ const CompanyCard = ({ company, onBack }) => {
   }, [company.ticker, company.sector]);
 
   const renderComingSoon = (label) => (
-    <div className="bg-slate-800 p-10 text-center rounded-xl border border-slate-700">
-      <Info size={48} className="mx-auto text-slate-500 mb-4" />
-      <h3 className="text-xl text-white font-medium mb-2">{label}</h3>
-      <p className="text-slate-400 max-w-md mx-auto">
+    <Card className="tw-text-center">
+      <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
+      <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">{label}</h3>
+      <p className="tw-text-text-secondary tw-max-w-md tw-mx-auto">
         Эта вкладка в разработке. В MVP детальные данные заполнены только для{" "}
-        <b>МКПАО Яндекс (YDEX)</b>.
+        <b className="tw-text-text-primary">МКПАО Яндекс (YDEX)</b>.
       </p>
-    </div>
+    </Card>
   );
 
   const renderOverview = () => {
@@ -2421,31 +2421,34 @@ const CompanyCard = ({ company, onBack }) => {
     });
 
     return (
-      <div className="space-y-4">
-        <div className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 p-4 rounded-xl flex items-start gap-3">
-          <Info size={20} className="mt-0.5 flex-shrink-0" />
-          <p className="text-sm">
+      <div className="tw-flex tw-flex-col tw-gap-4">
+        <div className="tw-flex tw-items-start tw-gap-3 tw-rounded-md tw-border tw-border-accent-soft tw-bg-accent-soft tw-p-4 tw-text-accent">
+          <Info size={20} className="tw-mt-0.5 tw-shrink-0" />
+          <p className="tw-text-[14px] tw-text-text-secondary">
             Глубокий разбор собирает данные по бизнес-модели, финансам и
             макро-среде, формируя фундамент для оценки.
           </p>
         </div>
 
         {analysisLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-slate-400 animate-pulse">Загружаем данные...</div>
+          <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+            <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем данные...</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="tw-grid tw-grid-cols-1 tw-gap-4">
             {sections.map((s, i) => (
-              <div key={i} className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
-                  <Layers size={16} className="text-indigo-400" />
-                  {s.label}
-                </h4>
-                <p className={`text-sm leading-relaxed ${s.isPlaceholder ? "text-slate-500 italic" : "text-slate-300"}`}>
+              <Card key={i}>
+                <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
+                  <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-text-primary tw-font-semibold">
+                    <Layers size={16} className="tw-text-accent" />
+                    {s.label}
+                  </h4>
+                  {s.isPlaceholder && <Badge tone="neutral">В разработке</Badge>}
+                </div>
+                <p className={`tw-text-[14px] tw-leading-relaxed ${s.isPlaceholder ? "tw-text-text-tertiary tw-italic" : "tw-text-text-secondary"}`}>
                   {s.content}
                 </p>
-              </div>
+              </Card>
             ))}
           </div>
         )}
@@ -2453,69 +2456,56 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
-  const renderConsilium = () => (
-    <div className="space-y-4">
-      <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-          <Users size={18} className="text-indigo-400" />
-          Консилиум аналитиков
-        </h4>
+  const renderConsilium = () => {
+    const consiliumColumns = [
+      { key: "broker", label: "Брокер" },
+      {
+        key: "date",
+        label: "Дата",
+        render: (v) => <span className="tw-text-text-tertiary">{v}</span>,
+      },
+      {
+        key: "rec",
+        label: "Рекомендация",
+        render: (v) => <Badge tone={v === "Покупать" ? "success" : "warning"}>{v}</Badge>,
+      },
+      {
+        key: "target",
+        label: "Target",
+        render: (v) => formatMoney(v, { decimals: 0 }),
+      },
+      {
+        key: "args",
+        label: "Аргументы",
+        render: (v) => (
+          <span className="tw-block tw-max-w-xs tw-truncate tw-text-text-secondary tw-text-left tw-font-sans">
+            {v}
+          </span>
+        ),
+      },
+      {
+        key: "match",
+        label: "Платформа",
+        render: (v) => (
+          <span className={`tw-font-semibold ${v === "Согласны" ? "tw-text-success" : "tw-text-warning"}`}>
+            {v}
+          </span>
+        ),
+      },
+    ];
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-slate-400 uppercase border-b border-slate-700">
-              <tr>
-                <th className="px-4 py-3">Брокер</th>
-                <th className="px-4 py-3">Дата</th>
-                <th className="px-4 py-3">Рекомендация</th>
-                <th className="px-4 py-3 text-right">Target</th>
-                <th className="px-4 py-3">Аргументы</th>
-                <th className="px-4 py-3">Платформа</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.consilium.map((c, i) => (
-                <tr key={i} className="border-b border-slate-700/50">
-                  <td className="px-4 py-3 text-white font-medium">
-                    {c.broker}
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">{c.date}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-1 rounded text-xs ${
-                        c.rec === "Покупать"
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-amber-500/20 text-amber-400"
-                      }`}
-                    >
-                      {c.rec}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono text-white">
-                    {c.target} ₽
-                  </td>
-                  <td className="px-4 py-3 text-slate-300 text-xs max-w-xs truncate">
-                    {c.args}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`text-xs font-semibold ${
-                        c.match === "Согласны"
-                          ? "text-green-400"
-                          : "text-amber-400"
-                      }`}
-                    >
-                      {c.match}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    return (
+      <div className="tw-flex tw-flex-col tw-gap-4">
+        <Card>
+          <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-text-primary tw-font-semibold tw-mb-4">
+            <Users size={18} className="tw-text-accent" />
+            Консилиум аналитиков
+          </h4>
+          <Table columns={consiliumColumns} rows={data.consilium} />
+        </Card>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderStressTest = () => {
     const results = {
@@ -2551,14 +2541,14 @@ const CompanyCard = ({ company, onBack }) => {
     const result = stressScenario ? results[stressScenario] : null;
 
     return (
-      <div className="space-y-6">
-        <div className="bg-slate-800 p-5 rounded-xl border border-slate-700">
-          <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Zap size={18} className="text-indigo-400" />
+      <div className="tw-flex tw-flex-col tw-gap-6">
+        <Card>
+          <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-text-primary tw-font-semibold tw-mb-4">
+            <Zap size={18} className="tw-text-accent" />
             Выберите сценарий шока
           </h4>
 
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mb-6">
             {[
               { id: "rate_up", label: "Ставка +2 п.п." },
               { id: "inflation", label: "Рост инфляции" },
@@ -2567,10 +2557,10 @@ const CompanyCard = ({ company, onBack }) => {
               <button
                 key={scen.id}
                 onClick={() => setStressScenario(scen.id)}
-                className={`px-4 py-2 rounded-lg text-sm transition-colors border ${
+                className={`tw-px-4 tw-py-2 tw-rounded-sm tw-text-[14px] tw-font-medium tw-transition-colors tw-duration-150 tw-border focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
                   stressScenario === scen.id
-                    ? "bg-indigo-600 border-indigo-500 text-white"
-                    : "bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200"
+                    ? "tw-bg-accent tw-border-transparent tw-text-on-accent"
+                    : "tw-bg-bg-elevated tw-border-border-strong tw-text-text-secondary hover:tw-bg-accent-soft hover:tw-text-text-primary"
                 }`}
               >
                 {scen.label}
@@ -2579,59 +2569,59 @@ const CompanyCard = ({ company, onBack }) => {
           </div>
 
           {result ? (
-            <div className="bg-slate-900 p-5 rounded-xl border border-slate-700 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <div className="tw-relative tw-overflow-hidden tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-p-5">
+              <div className="tw-absolute tw-top-0 tw-right-0 tw-p-4 tw-opacity-10 tw-pointer-events-none tw-text-text-tertiary">
                 <ShieldAlert size={100} />
               </div>
 
-              <h5 className="text-indigo-400 font-semibold mb-4">
+              <h5 className="tw-text-accent tw-font-semibold tw-mb-4">
                 Результат симуляции: {result.title}
               </h5>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div className="bg-slate-800 p-3 rounded">
-                  <div className="text-slate-400 text-xs mb-1">
+              <div className="tw-grid tw-grid-cols-2 md:tw-grid-cols-4 tw-gap-4 tw-mb-4">
+                <div className="tw-rounded-md tw-bg-bg-elevated tw-border tw-border-border-subtle tw-p-3">
+                  <div className="tw-text-text-tertiary tw-text-[12px] tw-mb-1">
                     Выручка 2027
                   </div>
-                  <div className="text-white font-mono">{result.revenue}</div>
+                  <div className="tw-text-text-primary tw-font-mono tw-tabular-nums">{result.revenue}</div>
                 </div>
-                <div className="bg-slate-800 p-3 rounded">
-                  <div className="text-slate-400 text-xs mb-1">
+                <div className="tw-rounded-md tw-bg-bg-elevated tw-border tw-border-border-subtle tw-p-3">
+                  <div className="tw-text-text-tertiary tw-text-[12px] tw-mb-1">
                     EBITDA margin
                   </div>
-                  <div className="text-white font-mono">{result.margin}</div>
+                  <div className="tw-text-text-primary tw-font-mono tw-tabular-nums">{result.margin}</div>
                 </div>
-                <div className="bg-slate-800 p-3 rounded">
-                  <div className="text-slate-400 text-xs mb-1">
+                <div className="tw-rounded-md tw-bg-bg-elevated tw-border tw-border-border-subtle tw-p-3">
+                  <div className="tw-text-text-tertiary tw-text-[12px] tw-mb-1">
                     Чистая прибыль
                   </div>
-                  <div className="text-red-400 font-mono">{result.profit}</div>
+                  <div className="tw-text-danger tw-font-mono tw-tabular-nums">{result.profit}</div>
                 </div>
-                <div className="bg-slate-800 p-3 rounded border border-red-500/30">
-                  <div className="text-slate-400 text-xs mb-1">Цена по DCF</div>
-                  <div className="text-white font-mono text-lg">
+                <div className="tw-rounded-md tw-bg-bg-elevated tw-border tw-border-danger-soft tw-p-3">
+                  <div className="tw-text-text-tertiary tw-text-[12px] tw-mb-1">Цена по DCF</div>
+                  <div className="tw-text-text-primary tw-font-mono tw-tabular-nums tw-text-[18px]">
                     {result.fair}{" "}
-                    <span className="text-red-400 text-sm">
+                    <span className="tw-text-danger tw-text-[14px]">
                       ({result.delta})
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-red-500/10 border-l-4 border-red-500 p-3 rounded-r text-sm text-slate-300">
-                <span className="font-semibold text-red-400">
+              <div className="tw-rounded-r tw-border-l-4 tw-border-danger tw-bg-danger-soft tw-p-3 tw-text-[14px] tw-text-text-secondary">
+                <span className="tw-font-semibold tw-text-danger">
                   Интерпретация платформы:{" "}
                 </span>
                 {result.text}
               </div>
             </div>
           ) : (
-            <div className="text-center py-10 text-slate-500 text-sm bg-slate-900 rounded-xl border border-slate-700 border-dashed">
+            <div className="tw-text-center tw-py-10 tw-text-text-tertiary tw-text-[14px] tw-rounded-md tw-bg-bg-base tw-border tw-border-dashed tw-border-border-strong">
               Выберите сценарий выше, чтобы запустить пересчёт финансовой модели
               компании.
             </div>
           )}
-        </div>
+        </Card>
       </div>
     );
   };
