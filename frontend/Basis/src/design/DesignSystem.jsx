@@ -32,6 +32,7 @@ import {
 } from "./textblocks";
 import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
 import { LiveDepthBody, LiveDepthPreamble } from "./LiveDepthShowcase";
+import { LogomarkBody } from "./logomarks";
 
 // classnames join helper (used by VisibilityTag etc.)
 const cx = (...parts) => parts.filter(Boolean).join(" ");
@@ -664,6 +665,15 @@ function Gallery() {
           </p>
         </div>
         <MarketingAccentsBody reduced={reduced} />
+      </Section>
+
+      <Section title="16 · Логомарк «Basis» — концепты фирменного знака (на выбор)">
+        <div className="tw-mb-4 tw-max-w-[68ch]">
+          <p className="tw-text-[14px] tw-text-text-secondary tw-m-0">
+            Только моки для выбора владельцем — текущий логотип (иконка <code>Activity</code>) это заглушка. Знак должен нести ценности бренда: <strong className="tw-text-text-primary">доверие, логика, основа/базис, снижение неопределённости, второе мнение</strong>. Каждый концепт показан в разных размерах (вкл. фавикон 16/32px) и обеих темах. На токенах: кобальт <code>--accent</code> + нейтрали, акцент-2 дозированно. Реальный сайдбар/фавикон не тронуты.
+          </p>
+        </div>
+        <LogomarkBody />
       </Section>
     </div>
   );
