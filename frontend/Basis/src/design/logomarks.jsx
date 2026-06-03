@@ -163,6 +163,226 @@ export function MarkAxes({ size = 32, title = "Basis — оси данных" })
   );
 }
 
+/* =============================================================
+   MONOGRAM «B» — COLOUR EXPLORATIONS (gallery-only)
+   The owner picked Concept 1 («слои-фундамент»). Before locking the
+   final, he wants to see COLOUR variants. The letter geometry is the
+   SAME approved mark (B from horizontal layers on a base line) — we
+   vary ONLY two dimensions: (1) the colour of the B itself, (2) the
+   plate/background behind it.
+
+   `MonogramB` below is the approved geometry, fully parameterised by
+   tokens. Each variant passes a different palette. A unique gradient
+   id per render avoids <defs> collisions when many marks share a page.
+   ============================================================= */
+let __mbUID = 0;
+
+/**
+ * Approved «слои-фундамент» B, colour-parameterised.
+ * Props (all token strings, no raw hex):
+ *  - letter:   fill of the B strokes/bowls (can be a url(#grad))
+ *  - letterBottom: optional darker/denser fill for the LOWER bowl +
+ *                  base line ("foundation" — bottom layers heavier);
+ *                  defaults to `letter`.
+ *  - plate:    fill of the rounded-square container (or "none")
+ *  - slit:     knockout colour for the two layer slits (must read as
+ *              "cut out of the B" — usually = plate, or bg when plate
+ *              is transparent)
+ *  - border:   optional stroke colour for the plate (neutral chip look)
+ *  - baseOpacity: opacity of the under-mark base line (default 0.55)
+ */
+export function MonogramB({
+  size = 32,
+  letter = "var(--accent)",
+  letterBottom,
+  plate = "none",
+  slit = "var(--bg-elevated)",
+  border = "none",
+  baseOpacity = 0.55,
+  title = "Basis — монограмма B",
+}) {
+  const lower = letterBottom || letter;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      role="img"
+      aria-label={title}
+      fill="none"
+    >
+      {/* plate-container behind the letter */}
+      {plate !== "none" && (
+        <rect x="1" y="1" width="30" height="30" rx="7" fill={plate} />
+      )}
+      {border !== "none" && (
+        <rect
+          x="1.5"
+          y="1.5"
+          width="29"
+          height="29"
+          rx="6.5"
+          fill="none"
+          stroke={border}
+          strokeWidth="1.4"
+        />
+      )}
+      {/* B spine */}
+      <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill={letter} />
+      {/* upper bowl */}
+      <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill={letter} />
+      {/* lower bowl (wider — the "foundation"; can be heavier) */}
+      <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill={lower} />
+      {/* knockout slits = the layer separation */}
+      <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill={slit} />
+      <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill={slit} />
+      {/* base line under the mark — the "basis" */}
+      <rect x="7" y="26.4" width="18" height="2" rx="1" fill={lower} opacity={baseOpacity} />
+    </svg>
+  );
+}
+
+/* Gradient-aware monogram: injects a per-instance linearGradient and
+   uses it for the requested target ("letter" cobalt→violet, or
+   "foundation" cobalt-light→cobalt for the heavier bottom layers).
+   Kept separate so the simple MonogramB stays gradient-free. */
+function MonogramBGrad({ size = 32, kind = "letter", plate = "none", slit = "var(--bg-elevated)", border = "none", whiteOnPlate = false, title }) {
+  const uid = React.useMemo(() => `mb-${++__mbUID}`, []);
+  const top = whiteOnPlate ? "var(--on-accent)" : "var(--accent)";
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label={title || "Basis — монограмма B"} fill="none">
+      <defs>
+        {/* cobalt → violet, used across the whole letter */}
+        <linearGradient id={`${uid}-cv`} x1="8" y1="7" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--accent)" />
+          <stop offset="1" stopColor="var(--accent-2)" />
+        </linearGradient>
+        {/* foundation: lighter cobalt up top → full cobalt at the base */}
+        <linearGradient id={`${uid}-fd`} x1="16" y1="7" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--accent)" stopOpacity="0.62" />
+          <stop offset="1" stopColor="var(--accent)" stopOpacity="1" />
+        </linearGradient>
+      </defs>
+      {plate !== "none" && <rect x="1" y="1" width="30" height="30" rx="7" fill={plate} />}
+      {border !== "none" && (
+        <rect x="1.5" y="1.5" width="29" height="29" rx="6.5" fill="none" stroke={border} strokeWidth="1.4" />
+      )}
+      {kind === "letter" ? (
+        <>
+          <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill={`url(#${uid}-cv)`} />
+          <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill={`url(#${uid}-cv)`} />
+          <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill={`url(#${uid}-cv)`} />
+          <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill={slit} />
+          <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill={slit} />
+          <rect x="7" y="26.4" width="18" height="2" rx="1" fill="var(--accent-2)" opacity="0.55" />
+        </>
+      ) : (
+        <>
+          {/* foundation gradient: top layers light, bottom bowl + base full cobalt */}
+          <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill={`url(#${uid}-fd)`} />
+          <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill={top} opacity="0.62" />
+          <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill={top} />
+          <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill={slit} />
+          <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill={slit} />
+          <rect x="7" y="26.4" width="18" height="2" rx="1" fill={top} opacity="0.9" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/* Plate with a cobalt→violet gradient fill (for the "градиент-плашка"
+   variant) + a white B on top. Per-instance gradient id. */
+function MonogramBPlateGrad({ size = 32, title }) {
+  const uid = React.useMemo(() => `mp-${++__mbUID}`, []);
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label={title || "Basis — монограмма B, градиент-плашка"} fill="none">
+      <defs>
+        <linearGradient id={`${uid}-pg`} x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="var(--accent)" />
+          <stop offset="1" stopColor="var(--accent-2)" />
+        </linearGradient>
+      </defs>
+      <rect x="1" y="1" width="30" height="30" rx="7" fill={`url(#${uid}-pg)`} />
+      <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill="var(--on-accent)" />
+      <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill="var(--on-accent)" />
+      <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill="var(--on-accent)" />
+      {/* slits knock out to the gradient → fill with a translucent dark so
+          they read as cuts regardless of where on the gradient they sit */}
+      <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill={`url(#${uid}-pg)`} />
+      <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill={`url(#${uid}-pg)`} />
+      <rect x="7" y="26.4" width="18" height="2" rx="1" fill="var(--on-accent)" opacity="0.5" />
+    </svg>
+  );
+}
+
+/* ---- registry of COLOUR variants of monogram B (6–8 tasty pairs) ----
+   Each `render(size)` returns the mark at that size. Caption = letter × bg. */
+export const MONOGRAM_VARIANTS = [
+  {
+    key: "cobalt-transparent",
+    name: "Кобальт на прозрачном",
+    note: "Буква: кобальт --accent · Фон: прозрачный",
+    render: (size) => (
+      <MonogramB size={size} letter="var(--accent)" plate="none" slit="var(--bg-base)" baseOpacity={0.5} />
+    ),
+  },
+  {
+    key: "white-on-cobalt",
+    name: "Белая B на кобальтовой плашке",
+    note: "Буква: белая --on-accent · Фон: плашка --accent (app-icon)",
+    render: (size) => (
+      <MonogramB size={size} letter="var(--on-accent)" plate="var(--accent)" slit="var(--accent)" baseOpacity={0.5} />
+    ),
+  },
+  {
+    key: "cobalt-on-soft",
+    name: "Кобальт на мягкой плашке",
+    note: "Буква: кобальт --accent · Фон: мягкая плашка --accent-soft",
+    render: (size) => (
+      <MonogramB size={size} letter="var(--accent)" plate="var(--accent-soft)" slit="var(--bg-elevated)" baseOpacity={0.5} />
+    ),
+  },
+  {
+    key: "cobalt-on-neutral",
+    name: "Кобальт на нейтральной плашке",
+    note: "Буква: кобальт --accent · Фон: нейтраль --bg-elevated + рамка --border-strong",
+    render: (size) => (
+      <MonogramB size={size} letter="var(--accent)" plate="var(--bg-elevated)" border="var(--border-strong)" slit="var(--bg-elevated)" baseOpacity={0.5} />
+    ),
+  },
+  {
+    key: "foundation-mono",
+    name: "Слои-фундамент (моно-кобальт)",
+    note: "Буква: верхние слои светлее → нижний слой и база насыщенный кобальт · Фон: прозрачный",
+    render: (size) => (
+      <MonogramBGrad size={size} kind="foundation" plate="none" slit="var(--bg-base)" />
+    ),
+  },
+  {
+    key: "letter-gradient",
+    name: "Градиент буквы (кобальт→violet)",
+    note: "Буква: градиент --accent→--accent-2 · Фон: прозрачный (акцент-2 дозированно)",
+    render: (size) => (
+      <MonogramBGrad size={size} kind="letter" plate="none" slit="var(--bg-base)" />
+    ),
+  },
+  {
+    key: "gradient-plate",
+    name: "Градиент-плашка + белая B",
+    note: "Буква: белая --on-accent · Фон: градиентная плашка --accent→--accent-2",
+    render: (size) => <MonogramBPlateGrad size={size} />,
+  },
+  {
+    key: "deep-plate",
+    name: "Тёмная фирменная плашка",
+    note: "Буква: светлый кобальт --accent · Фон: глубокая плашка --text-primary",
+    render: (size) => (
+      <MonogramB size={size} letter="var(--accent)" letterBottom="var(--accent)" plate="var(--text-primary)" slit="var(--text-primary)" baseOpacity={0.6} />
+    ),
+  },
+];
+
 /* ---- registry of concepts ---- */
 export const LOGOMARKS = [
   {
@@ -282,6 +502,72 @@ export function LogomarkBody() {
     <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-5">
       {LOGOMARKS.map((c) => (
         <ConceptCard key={c.key} concept={c} />
+      ))}
+    </div>
+  );
+}
+
+/* =============================================================
+   MONOGRAM B — PALETTE showcase. One card per colour variant.
+   Shows: presentation size (~60px), favicon 32 + 16, a 16px row to
+   judge tiny legibility, and the caption (letter × bg). Rendered once
+   per theme by the gallery, so both themes are covered automatically.
+   ============================================================= */
+function PaletteSizeSwatch({ render, px, note }) {
+  return (
+    <div className="tw-flex tw-flex-col tw-items-center tw-gap-1.5">
+      <div
+        className="tw-flex tw-items-center tw-justify-center tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-base"
+        style={{ width: "72px", height: "72px" }}
+      >
+        {render(px)}
+      </div>
+      <span className="tw-text-[11px] tw-text-text-tertiary tw-leading-none">{note}</span>
+    </div>
+  );
+}
+
+function PaletteVariantCard({ variant }) {
+  const { render, name, note } = variant;
+  return (
+    <div className="tw-bg-bg-elevated tw-border tw-border-border-strong tw-rounded-lg tw-shadow-sm dark:tw-shadow-none tw-p-5 tw-flex tw-flex-col tw-gap-4">
+      {/* header: name + presentation-size mark */}
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3">
+        <div>
+          <div className="tw-text-[14px] tw-font-semibold tw-text-text-primary">{name}</div>
+          <p className="tw-text-[12px] tw-text-text-secondary tw-mt-1 tw-mb-0 tw-max-w-[40ch]">{note}</p>
+        </div>
+        {/* presentation — ~60px */}
+        <div className="tw-shrink-0">{render(60)}</div>
+      </div>
+
+      {/* size ramp incl. favicon sizes */}
+      <div className="tw-flex tw-flex-wrap tw-items-end tw-gap-4 tw-pt-1">
+        <PaletteSizeSwatch render={render} px={56} note="56 · презентация" />
+        <PaletteSizeSwatch render={render} px={32} note="32 · фавикон" />
+        <PaletteSizeSwatch render={render} px={16} note="16 · фавикон" />
+      </div>
+
+      {/* 16px legibility strip — judge whether the B reads tiny */}
+      <div className="tw-flex tw-items-center tw-gap-3 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-2">
+        <span className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.05em" }}>
+          16px в ряд
+        </span>
+        {render(16)}
+        {render(16)}
+        {render(16)}
+        <span className="tw-text-[11px] tw-text-text-tertiary">— читается ли B мелко</span>
+      </div>
+    </div>
+  );
+}
+
+/* The palette showcase body — rendered inside section «16 · Логомарк». */
+export function MonogramPaletteBody() {
+  return (
+    <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-5">
+      {MONOGRAM_VARIANTS.map((v) => (
+        <PaletteVariantCard key={v.key} variant={v} />
       ))}
     </div>
   );
