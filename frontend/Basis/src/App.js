@@ -5149,37 +5149,57 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
   const reducedMotion = usePrefersReducedMotion();
   // Appear gate (Phase 4b): page-level so feature tiles stagger once on entry.
   const appearGate = useRef(new Set());
-  // Hero feature (bento — занимает 2 колонки) + остальные плитки мельче.
-  const heroFeature = {
-    icon: BarChart2,
-    title: "AI-анализ компаний",
-    desc: "Глубокий разбор 45 российских акций через Claude: бизнес-модель, риски, справедливая цена.",
-  };
+  // Маркетинг-витрина → цвет уместен: каждой фиче СМЫСЛОВОЙ цвет из cat-палитры
+  // (soft-фон + насыщенная иконка). Кнопки остаются единым кобальтом — цвет
+  // только в иконках/акцентах, не в хроме. Все плитки РАВНОГО размера.
   const features = [
+    {
+      icon: BarChart2,
+      title: "AI-анализ компаний",
+      desc: "Глубокий AI-разбор российских акций: бизнес-модель, риски, справедливая цена — с прозрачной методикой и честными оговорками.",
+      // AI — кобальт-accent (флагман платформы)
+      iconBg: "tw-bg-accent-soft",
+      iconFg: "tw-text-accent",
+    },
     {
       icon: Activity,
       title: "Котировки MOEX",
       desc: "Данные Московской биржи с автоматическим обновлением. Цена, динамика, исторические данные.",
+      // cat-5 синий — рыночные данные
+      iconBg: "tw-bg-cat-5-soft",
+      iconFg: "tw-text-cat-5",
     },
     {
       icon: Briefcase,
       title: "Портфельная аналитика",
       desc: "Оценка здоровья портфеля, матрица корреляций, структура рисков и диверсификация.",
+      // cat-3 зелёный — здоровье/диверсификация
+      iconBg: "tw-bg-cat-3-soft",
+      iconFg: "tw-text-cat-3",
     },
     {
       icon: ShieldAlert,
       title: "Стресс-тестирование",
       desc: "Сценарии кризиса: что будет с портфелем при обвале нефти, росте ставки или чёрном лебеде.",
+      // cat-6 vermillion — кризис/тревога
+      iconBg: "tw-bg-cat-6-soft",
+      iconFg: "tw-text-cat-6",
     },
     {
       icon: Globe,
       title: "Обозреватель рынка",
       desc: "Экспресс, детальный и глубокий AI-обзор рыночного фона — всегда актуальный контекст.",
+      // cat-2 sky-blue — широкий обзор рынка
+      iconBg: "tw-bg-cat-2-soft",
+      iconFg: "tw-text-cat-2",
     },
     {
       icon: Users,
       title: "Консилиум аналитиков",
       desc: "Сводка рекомендаций брокеров с целевыми ценами и собственной позицией платформы.",
+      // cat-7 purple — мнения аналитиков
+      iconBg: "tw-bg-cat-7-soft",
+      iconFg: "tw-text-cat-7",
     },
   ];
 
@@ -5193,26 +5213,28 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
       {/* Hero */}
       <div className="tw-relative tw-overflow-hidden tw-text-center tw-pt-16 tw-pb-12">
         {/* Phase 4d: hero decor (kill-switch DECOR_ENABLED). MARKETING surface →
-            larger, centred behind the "Базис" title, brighter than analytics.
-            Two dosed layers: a soft accent glow (atmosphere) + the orbit ring.
-            Both non-interactive, behind content (content is tw-relative), per-theme
-            opacity via --decor-opacity / --decor-glow tokens (visible in BOTH themes). */}
+            colour is welcome here. The decor is moved OUT of the centre into the
+            top-right CORNER so it never competes with the "Базис" title (a brighter
+            title effect arrives separately). A faint accent glow sits in the same
+            corner as atmosphere. Both non-interactive, behind content (content is
+            tw-relative), per-theme opacity via --decor-opacity / --decor-glow tokens
+            (visible in BOTH themes); reduced-motion keeps the ring static. */}
         {DECOR_ENABLED && (
           <div
             aria-hidden="true"
-            className="tw-pointer-events-none tw-absolute tw-left-1/2 tw-top-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2"
+            className="tw-pointer-events-none tw-absolute tw-right-[-120px] tw-top-[-120px]"
             style={{
               zIndex: 0,
-              width: 520,
-              height: 520,
-              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 62%)",
+              width: 440,
+              height: 440,
+              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
             }}
           />
         )}
         <PageDecor
           variant="orbit"
-          className="tw-left-1/2 tw-top-1/2 -tw-translate-x-1/2 -tw-translate-y-1/2"
-          style={{ width: 420, height: 420, opacity: "var(--decor-opacity)" }}
+          className="tw-right-[-90px] tw-top-[-90px]"
+          style={{ width: 360, height: 360, opacity: "var(--decor-opacity)" }}
         />
         <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
@@ -5247,28 +5269,13 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         </div>
       </div>
 
-      {/* Feature tiles — bento: герой крупнее (2 колонки), остальные мельче */}
+      {/* Feature tiles — симметричная сетка РАВНЫХ плиток (AI больше не герой).
+          Цвет — только в иконках (cat-палитра, soft-фон + насыщенная иконка). */}
       <AppearGroup gate={appearGate.current} groupId="landing-features" stagger={55} rise={16} className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
-        {/* Герой — занимает 2 колонки на широком экране */}
-        <Card className={`sm:tw-col-span-2 tw-shadow-md ${hoverFx}`}>
-          <div className="tw-flex tw-flex-col tw-gap-4">
-            <div className="tw-w-12 tw-h-12 tw-rounded-md tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-shrink-0">
-              <heroFeature.icon size={24} />
-            </div>
-            <div>
-              <div className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-mb-2" style={{ lineHeight: "30px" }}>
-                {heroFeature.title}
-              </div>
-              <div className="tw-text-[14px] tw-text-text-secondary" style={{ lineHeight: "22px" }}>
-                {heroFeature.desc}
-              </div>
-            </div>
-          </div>
-        </Card>
-        {features.map(({ icon: Icon, title, desc }) => (
+        {features.map(({ icon: Icon, title, desc, iconBg, iconFg }) => (
           <Card key={title} className={hoverFx}>
             <div className="tw-flex tw-gap-4 tw-items-start">
-              <div className="tw-w-10 tw-h-10 tw-rounded-md tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-shrink-0">
+              <div className={`tw-w-10 tw-h-10 tw-rounded-md ${iconBg} ${iconFg} tw-flex tw-items-center tw-justify-center tw-shrink-0`}>
                 <Icon size={20} />
               </div>
               <div>
