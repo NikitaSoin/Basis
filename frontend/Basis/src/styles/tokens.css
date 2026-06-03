@@ -121,6 +121,10 @@
   --teal-fade:     var(--info-soft);
 
   --sidebar-w:     64px;
+  /* Idle sidebar nav icons: a light cobalt tint (not dead grey, not loud) —
+     enlivens the rail without making analytical screens motley. Resolves
+     per-theme via the --accent / --text-tertiary values at the point of use. */
+  --sidebar-icon-idle: color-mix(in srgb, var(--accent) 38%, var(--text-tertiary));
 
   /* ===========================================================
      CATEGORICAL PALETTE — Okabe-Ito (colorblind-safe, 8 hues).
