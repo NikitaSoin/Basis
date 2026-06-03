@@ -44,6 +44,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose } from "./design/textblocks";
+import { AppearGroup } from "./design/motion";
 
 // =========================
 // HELPERS
@@ -1660,6 +1661,9 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
 };
 
 const CompaniesView = ({ onSelectCompany }) => {
+  // Appear gate (Phase 4b): page-level Set so the market grid's staggered
+  // appear plays once on entry, never on filter change / price-poll re-render.
+  const appearGate = useRef(new Set());
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -1750,7 +1754,14 @@ const CompaniesView = ({ onSelectCompany }) => {
   }
 
   const renderGrid = (cards) => (
-    <div className="company-grid">
+    // Long list → cap the stagger to the first 12 cards so there is no long
+    // wave through the whole market; single groupId → plays once per entry.
+    <AppearGroup
+      gate={appearGate.current}
+      groupId="market-grid"
+      className="company-grid"
+      maxStagger={12}
+    >
       {cards.map((c) => (
         <CompanyGridCard
           key={c.ticker}
@@ -1759,7 +1770,7 @@ const CompaniesView = ({ onSelectCompany }) => {
           onSelect={() => onSelectCompany(c)}
         />
       ))}
-    </div>
+    </AppearGroup>
   );
 
   return (
@@ -1975,6 +1986,10 @@ const CompanyCard = ({ company, onBack }) => {
   // Count-up gate for the Overview tab: the fair-value hero number animates
   // once per card visit on the FIRST time the tab is opened, then snaps.
   const ovwCountGate = useRef({ played: false });
+  // Appear gate (Phase 4b): a page-level Set of tab groups whose cards have
+  // already played their staggered appear. Lives for the whole card visit, so
+  // switching tabs back-and-forth / re-renders / price polling never replay it.
+  const appearGate = useRef(new Set());
 
   const data = company.overview ? company : MOCK_COMPANIES[0];
 
@@ -2200,7 +2215,7 @@ const CompanyCard = ({ company, onBack }) => {
         : null;
 
     return (
-    <div className="tw-flex tw-flex-col tw-gap-4">
+    <AppearGroup gate={appearGate.current} groupId="overview" className="tw-flex tw-flex-col tw-gap-4">
       {/* HERO — fair value: largest, accent-ringed, count-up number + upside delta */}
       <Card className="tw-shadow-md dark:tw-shadow-none tw-ring-1 tw-ring-accent-soft">
         <div className="tw-flex tw-flex-col md:tw-flex-row md:tw-items-end md:tw-justify-between tw-gap-6">
@@ -2379,7 +2394,7 @@ const CompanyCard = ({ company, onBack }) => {
           rows={data.risks}
         />
       </Card>
-    </div>
+    </AppearGroup>
     );
   };
 
@@ -2918,7 +2933,7 @@ const CompanyCard = ({ company, onBack }) => {
     const cySym = meta.currency || "₽";
 
     return (
-      <div className="tw-flex tw-flex-col tw-gap-4">
+      <AppearGroup gate={appearGate.current} groupId="finance" className="tw-flex tw-flex-col tw-gap-4">
         {finJson && (
           <Card>
             {cardHead(BarChart2, "Ключевые мультипликаторы", typeof meta.last_price === "number" && (
@@ -3029,7 +3044,7 @@ const CompanyCard = ({ company, onBack }) => {
         )}
 
         {renderSectorComparison()}
-      </div>
+      </AppearGroup>
     );
   };
 
@@ -3087,7 +3102,7 @@ const CompanyCard = ({ company, onBack }) => {
     const govSections = splitH2(govMd);
 
     return (
-      <div className="tw-flex tw-flex-col tw-gap-4">
+      <AppearGroup gate={appearGate.current} groupId="governance" className="tw-flex tw-flex-col tw-gap-4">
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
 
         {/* СЕКЦИЯ 1 — структура владения */}
@@ -3237,7 +3252,7 @@ const CompanyCard = ({ company, onBack }) => {
             </Prose>
           </Card>
         ))}
-      </div>
+      </AppearGroup>
     );
   };
 
@@ -3517,7 +3532,7 @@ const CompanyCard = ({ company, onBack }) => {
     const trendColor = (t) => t === "growing" ? "tw-text-success" : t === "declining" ? "tw-text-danger" : "tw-text-text-tertiary";
 
     return (
-      <div className="tw-flex tw-flex-col tw-gap-5">
+      <AppearGroup gate={appearGate.current} groupId="business" className="tw-flex tw-flex-col tw-gap-5">
         {/* Суть бизнеса */}
         <Card className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
           <div className="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
@@ -3702,7 +3717,7 @@ const CompanyCard = ({ company, onBack }) => {
             </Card>
           )}
         </div>
-      </div>
+      </AppearGroup>
     );
   };
 
@@ -4504,6 +4519,10 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   // do not remount them.
   const valueGate = useRef({ played: false });
   const scoreGate = useRef({ played: false });
+  // Appear gate (Phase 4b): page-level Set keyed by tab, so each tab's cards
+  // stagger once on first open and never replay on tab switch / re-render /
+  // background price refresh.
+  const appearGate = useRef(new Set());
 
   const stressMap = {
     black_swan: {
@@ -4538,7 +4557,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   });
 
   const renderHoldings = () => (
-    <div className="tw-flex tw-flex-col tw-gap-3 tw-p-1">
+    <AppearGroup gate={appearGate.current} groupId="pf-holdings" className="tw-flex tw-flex-col tw-gap-3 tw-p-1">
       {/* Portfolio switcher */}
       <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
         {portfolioList.map(p => (
@@ -4627,11 +4646,11 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           ]}
         />
       </Card>
-    </div>
+    </AppearGroup>
   );
 
   const renderAggregate = () => (
-    <div className="tw-p-4">
+    <AppearGroup gate={appearGate.current} groupId="pf-metrics" as="div" className="tw-p-4">
       <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0">
         Агрегирующие метрики и Индекс портфеля
       </h3>
@@ -4660,14 +4679,14 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           </div>
         </Card>
       </div>
-    </div>
+    </AppearGroup>
   );
 
   const renderCorrelation = () => {
     const labels = ["SBER", "LKOH", "YDEX"];
 
     return (
-      <div className="tw-p-4">
+      <AppearGroup gate={appearGate.current} groupId="pf-correlation" as="div" className="tw-p-4">
         <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-2 tw-mt-0">
           Оценка диверсификации и скрытой концентрации
         </h3>
@@ -4704,7 +4723,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             хорошим диверсификатором.
           </p>
         </div>
-      </div>
+      </AppearGroup>
     );
   };
 
@@ -4720,7 +4739,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
       "Отсутствие защитных активов при высоких ставках на рынке.",
     ];
     return (
-      <div className="tw-p-6">
+      <AppearGroup gate={appearGate.current} groupId="pf-ai" as="div" className="tw-p-6">
         <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
           <Zap size={20} className="tw-text-accent" />
           Общий диагноз портфеля
@@ -4768,12 +4787,12 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             инструментов.
           </p>
         </Card>
-      </div>
+      </AppearGroup>
     );
   };
 
   const renderStress = () => (
-    <div className="tw-p-6 tw-flex tw-flex-col tw-gap-6">
+    <AppearGroup gate={appearGate.current} groupId="pf-stress" as="div" className="tw-p-6 tw-flex tw-flex-col tw-gap-6">
       <Card>
         <h4 className="tw-text-[16px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
           <ShieldAlert size={18} className="tw-text-accent" />
@@ -4823,7 +4842,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           </p>
         </div>
       </Card>
-    </div>
+    </AppearGroup>
   );
 
   // Empty states
@@ -5126,6 +5145,8 @@ const AuthModal = ({ onClose, onSuccess }) => {
 
 const LandingView = ({ onNavigate, onShowAuth, user }) => {
   const reducedMotion = usePrefersReducedMotion();
+  // Appear gate (Phase 4b): page-level so feature tiles stagger once on entry.
+  const appearGate = useRef(new Set());
   // Hero feature (bento — занимает 2 колонки) + остальные плитки мельче.
   const heroFeature = {
     icon: BarChart2,
@@ -5203,7 +5224,7 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
       </div>
 
       {/* Feature tiles — bento: герой крупнее (2 колонки), остальные мельче */}
-      <div className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
+      <AppearGroup gate={appearGate.current} groupId="landing-features" className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
         {/* Герой — занимает 2 колонки на широком экране */}
         <Card className={`sm:tw-col-span-2 tw-shadow-md ${hoverFx}`}>
           <div className="tw-flex tw-flex-col tw-gap-4">
@@ -5233,7 +5254,7 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
             </div>
           </Card>
         ))}
-      </div>
+      </AppearGroup>
 
       {/* Footer note */}
       <p className="tw-text-center tw-text-[12px] tw-text-text-tertiary tw-mt-12 tw-mb-2" style={{ lineHeight: "18px" }}>
@@ -5394,6 +5415,8 @@ const ProfileView = ({ user, token, onLogout, onNavigate, onShowAuth }) => {
 // =========================
 
 const PricingView = ({ user, onShowAuth }) => {
+  // Appear gate (Phase 4b): page-level so the plan cards stagger once on entry.
+  const appearGate = useRef(new Set());
   const isPremium = user?.subscription_type === "premium";
   const isFree = !isPremium && !!user;
 
@@ -5428,7 +5451,7 @@ const PricingView = ({ user, onShowAuth }) => {
         <p className="view-subtitle">Выберите уровень доступа, который вам подходит</p>
       </div>
 
-      <div className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
+      <AppearGroup gate={appearGate.current} groupId="pricing" className="tw-grid tw-gap-6 tw-grid-cols-1 md:tw-grid-cols-2 tw-max-w-3xl">
         {/* FREE */}
         <Card className={isFree ? "tw-ring-1 tw-ring-accent" : ""}>
           <div className="tw-flex tw-flex-col tw-gap-2">
@@ -5492,7 +5515,7 @@ const PricingView = ({ user, onShowAuth }) => {
             )}
           </div>
         </Card>
-      </div>
+      </AppearGroup>
     </div>
   );
 };
@@ -5504,6 +5527,8 @@ const PricingView = ({ user, onShowAuth }) => {
 // =========================
 
 function OverviewView({ token }) {
+  // Appear gate (Phase 4b): page-level so the overview cards stagger once on entry.
+  const appearGate = useRef(new Set());
   const [overviewType, setOverviewType] = useState("express");
   const [overviews, setOverviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -5600,7 +5625,7 @@ function OverviewView({ token }) {
           <div className="tw-text-text-secondary tw-animate-pulse">Загружаем обзор...</div>
         </div>
       ) : overviews.length > 0 ? (
-        <div className="space-y-4">
+        <AppearGroup gate={appearGate.current} groupId="overview-cards" className="space-y-4">
           {overviews.map((item) => (
             <Card key={item.id}>
               <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
@@ -5612,7 +5637,7 @@ function OverviewView({ token }) {
               <p className="tw-text-[14px] tw-leading-[22px] tw-text-text-secondary">{item.content}</p>
             </Card>
           ))}
-        </div>
+        </AppearGroup>
       ) : (
         <div className="space-y-4">
           <p className="tw-text-[12px] tw-italic tw-text-text-tertiary tw-mb-2">
