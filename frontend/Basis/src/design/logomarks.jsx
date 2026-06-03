@@ -255,18 +255,24 @@ export function MonogramB({
 export function BasisLogomark({
   size = 28,
   slit = "var(--bg-elevated)",
+  crisp = false,
   title = "Basis",
 }) {
-  return <MonogramBGrad size={size} kind="foundation" plate="none" slit={slit} title={title} />;
+  return <MonogramBGrad size={size} kind="foundation" plate="none" slit={slit} crisp={crisp} title={title} />;
 }
 
 /* Gradient-aware monogram: injects a per-instance linearGradient and
    uses it for the requested target ("letter" cobalt→violet, or
    "foundation" cobalt-light→cobalt for the heavier bottom layers).
    Kept separate so the simple MonogramB stays gradient-free. */
-function MonogramBGrad({ size = 32, kind = "letter", plate = "none", slit = "var(--bg-elevated)", border = "none", whiteOnPlate = false, title }) {
+function MonogramBGrad({ size = 32, kind = "letter", plate = "none", slit = "var(--bg-elevated)", border = "none", whiteOnPlate = false, crisp = false, title }) {
   const uid = React.useMemo(() => `mb-${++__mbUID}`, []);
   const top = whiteOnPlate ? "var(--on-accent)" : "var(--accent)";
+  /* `crisp` режим (сайдбар): верхние слои фундамента почти полностью кобальтовые
+     (0.85 вместо 0.62) → на near-black знак читается чётким кобальтом без серого
+     ореола, но всё ещё чуть легче сверху → «слои-фундамент» сохраняются. */
+  const fdTopOpacity = crisp ? "0.85" : "0.62";
+  const bowlTopOpacity = crisp ? "0.85" : "0.62";
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" role="img" aria-label={title || "Basis — монограмма B"} fill="none">
       <defs>
@@ -277,7 +283,7 @@ function MonogramBGrad({ size = 32, kind = "letter", plate = "none", slit = "var
         </linearGradient>
         {/* foundation: lighter cobalt up top → full cobalt at the base */}
         <linearGradient id={`${uid}-fd`} x1="16" y1="7" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="var(--accent)" stopOpacity="0.62" />
+          <stop offset="0" stopColor="var(--accent)" stopOpacity={fdTopOpacity} />
           <stop offset="1" stopColor="var(--accent)" stopOpacity="1" />
         </linearGradient>
       </defs>
@@ -298,7 +304,7 @@ function MonogramBGrad({ size = 32, kind = "letter", plate = "none", slit = "var
         <>
           {/* foundation gradient: top layers light, bottom bowl + base full cobalt */}
           <rect x="8.5" y="7" width="3.2" height="18" rx="1.2" fill={`url(#${uid}-fd)`} />
-          <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill={top} opacity="0.62" />
+          <path d="M11.7 7h6.4c2.7 0 4.6 1.7 4.6 4.2 0 2.5-1.9 4.1-4.6 4.1h-6.4V7z" fill={top} opacity={bowlTopOpacity} />
           <path d="M11.7 15.3h7.1c2.9 0 4.9 1.8 4.9 4.4 0 2.6-2 4.3-4.9 4.3h-7.1v-8.7z" fill={top} />
           <rect x="13.4" y="9.4" width="6.2" height="2.4" rx="1.2" fill={slit} />
           <rect x="13.4" y="17.7" width="6.8" height="2.6" rx="1.3" fill={slit} />
