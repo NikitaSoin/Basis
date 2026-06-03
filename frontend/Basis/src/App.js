@@ -5232,12 +5232,16 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         {DECOR_ENABLED && (
           <div
             aria-hidden="true"
-            className="tw-pointer-events-none tw-absolute tw-right-[-120px] tw-top-[-120px]"
+            className="tw-pointer-events-none tw-absolute tw-right-6 tw-top-6"
             style={{
               zIndex: 0,
-              width: 440,
-              height: 440,
-              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
+              width: 360,
+              height: 360,
+              /* Glow sits with POSITIVE offsets and fully fades to transparent
+                 (transparent stop at 55%, well inside its own box) BEFORE the box
+                 reaches any container edge → overflow-hidden has nothing solid to
+                 clip, so no hard square corner. Soft atmosphere in the top-right. */
+              background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 55%)",
             }}
           />
         )}
@@ -5251,8 +5255,11 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
           className="tw-right-6 tw-top-6"
           style={{ width: 200, height: 200, opacity: "var(--decor-opacity)" }}
         />
-        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
-          <Activity size={32} />
+        {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
+            slit = --accent-soft so the letter's layer-cuts vanish into the soft
+            plate behind it. Reads correctly in both themes (token-only). */}
+        <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
+          <BasisLogomark size={38} slit="var(--accent-soft)" />
         </div>
         {/* Hero title — marketing accent (showcase variant 3): violet→cobalt
             gradient clipped into the glyphs + a one-time sweep on appear.
@@ -5525,12 +5532,15 @@ const PricingView = ({ user, onShowAuth }) => {
       {DECOR_ENABLED && (
         <div
           aria-hidden="true"
-          className="tw-pointer-events-none tw-absolute tw-right-[-90px] tw-top-[-70px]"
+          className="tw-pointer-events-none tw-absolute tw-right-6 tw-top-6"
           style={{
             zIndex: 0,
-            width: 380,
-            height: 380,
-            background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 64%)",
+            width: 320,
+            height: 320,
+            /* Positive offsets + transparent stop at 55% → glow dies inside its
+               own box before any container edge, so overflow-hidden never carves
+               a hard square corner. Soft top-right atmosphere. */
+            background: "radial-gradient(circle, var(--decor-glow) 0%, transparent 55%)",
           }}
         />
       )}
@@ -5833,7 +5843,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
           onClick={() => setActiveTab("landing")}
           className="tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
         >
-          <BasisLogomark size={30} slit="var(--bg-card)" />
+          <BasisLogomark size={30} slit="var(--bg-base)" />
         </button>
       </Tooltip>
 

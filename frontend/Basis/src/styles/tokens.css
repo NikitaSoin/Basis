@@ -90,10 +90,11 @@
   --motion-decor: 18s;     /* slow breathing/orbit decor (sparingly; Phase 4d, optional) */
 
   /* ---- Decor visibility (per-theme) — LIGHT.
-     Marketing surfaces (landing/pricing) lift these so the hero decor
-     reads as atmosphere. Analytical pages keep their own muted opacity. */
-  --decor-opacity: 0.15;   /* hero orbit ring on light bg */
-  --decor-glow:    rgba(35,71,217,0.10);  /* soft accent glow behind hero title */
+     Owner: decor lives ONLY in the dark theme. In light it is fully OFF —
+     orbit opacity 0 (ring + satellite invisible) and glow transparent
+     (radial atmosphere invisible) on landing AND pricing. */
+  --decor-opacity: 0;            /* light: orbit hidden */
+  --decor-glow:    transparent;  /* light: glow hidden */
 
   /* ===========================================================
      LEGACY ALIASES → new tokens (DO NOT remove; 5652 lines rely

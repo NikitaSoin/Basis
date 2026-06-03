@@ -112,7 +112,10 @@ input, textarea, select { font-size: 16px; }
 .sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: var(--bg-card);
+  /* Same surface as the whole platform (var(--bg-base)) so the brand mark
+     reads on a unified background — no «серовато-бежевое» pane behind it in
+     dark; cream (not white) in light. border-right keeps it visually separated. */
+  background: var(--bg-base);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
