@@ -5239,9 +5239,26 @@ const LandingView = ({ onNavigate, onShowAuth, user }) => {
         <div className="tw-relative tw-w-16 tw-h-16 tw-rounded-xl tw-bg-accent-soft tw-text-accent tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5">
           <Activity size={32} />
         </div>
+        {/* Hero title — marketing accent (showcase variant 3): violet→cobalt
+            gradient clipped into the glyphs + a one-time sweep on appear.
+            reduced-motion is handled globally in tokens.css (animation:none on
+            [style*="basis-hero-sweep"]) → static gradient. */}
         <h1
-          className="tw-relative tw-font-display tw-font-medium tw-text-text-primary tw-m-0 tw-mb-3"
-          style={{ fontSize: 40, lineHeight: "44px", letterSpacing: "-0.5px" }}
+          className="tw-relative tw-font-display tw-m-0 tw-mb-3"
+          style={{
+            fontSize: 48,
+            lineHeight: "52px",
+            letterSpacing: "-0.02em",
+            fontWeight: 600,
+            backgroundImage: "linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%)",
+            backgroundSize: "200% 100%",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            color: "transparent",
+            display: "inline-block",
+            animation: "basis-hero-sweep 600ms var(--ease-out) both",
+          }}
         >
           Базис
         </h1>
@@ -5761,7 +5778,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
                 className={cx(
                   active
                     ? "tw-bg-accent-soft tw-text-accent"
-                    : "tw-text-text-tertiary hover:tw-text-text-primary"
+                    : "tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
                 )}
               >
                 <Icon size={20} />
@@ -5777,7 +5794,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
         <IconButton
           aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
           onClick={toggleTheme}
-          className="tw-text-text-tertiary hover:tw-text-text-primary"
+          className="tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
         >
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </IconButton>
@@ -5791,7 +5808,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
             "tw-mb-1",
             activeTab === "profile"
               ? "tw-bg-accent-soft tw-text-accent"
-              : "tw-text-text-tertiary hover:tw-text-text-primary"
+              : "tw-text-[var(--sidebar-icon-idle)] hover:tw-text-text-primary"
           )}
         >
           {user ? (

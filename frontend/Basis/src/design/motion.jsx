@@ -219,18 +219,16 @@ export function PageDecor({ variant = "orbit", className, style }) {
             <circle cx="100" cy="100" r="66" fill="none" stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 6" />
             <circle cx="100" cy="8" r="4" fill="var(--accent)" />
           </g>
-          <circle cx="100" cy="100" r="38" fill="none" stroke="var(--accent)" strokeWidth="1.5" />
         </svg>
       ) : (
-        // ORBIT — a thin ring with a small "planet" dot tracing it, plus a
-        // still inner ring. Restrained, like the Fiscal planet.
+        // ORBIT — a thin ring with a small "planet" dot tracing it + a tiny
+        // satellite. No central disc (removed per owner). Like a Fiscal planet.
         <svg viewBox="0 0 200 200" width="100%" height="100%" focusable="false">
           <g style={spin}>
             <circle cx="100" cy="100" r="90" fill="none" stroke="var(--accent)" strokeWidth="1" strokeDasharray="2 7" />
             <circle cx="100" cy="10" r="6" fill="var(--accent)" />
             <circle cx="190" cy="100" r="3.5" fill="var(--accent)" />
           </g>
-          <circle cx="100" cy="100" r="30" fill="none" stroke="var(--accent)" strokeWidth="1.5" />
         </svg>
       )}
     </div>
