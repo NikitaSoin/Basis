@@ -470,7 +470,7 @@ export default function DesignSystem() {
   const [page, setPage] = useState("light"); // overall page toggle
 
   return (
-    <div className={page === "dark" ? "dark" : ""}>
+    <div className={page === "dark" ? "dark" : "light"}>
       <div className="tw-min-h-screen tw-bg-bg-base tw-text-text-primary">
         <header className="tw-sticky tw-top-0 tw-z-40 tw-bg-bg-elevated tw-border-b tw-border-border-subtle tw-shadow-sm">
           <div className="tw-max-w-[1280px] tw-mx-auto tw-px-6 tw-py-4 tw-flex tw-items-center tw-justify-between">
@@ -493,8 +493,8 @@ export default function DesignSystem() {
         </header>
 
         <main className="tw-px-2 tw-py-2">
-          {/* LIGHT section */}
-          <div className="tw-bg-bg-base">
+          {/* LIGHT section — `.light` forces light tokens regardless of global theme */}
+          <div className="light tw-bg-bg-base">
             <div className="tw-max-w-[1280px] tw-mx-auto tw-px-6 tw-pt-6">
               <Badge tone="accent">Светлая тема</Badge>
             </div>
