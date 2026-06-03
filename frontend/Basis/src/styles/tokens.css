@@ -68,8 +68,9 @@
 
   /* ---- Motion (Phase 4) — dosed, short, single base timing ---- */
   --motion-fast:  150ms;   /* hover / micro */
-  --motion-base:  250ms;   /* appears, count-up, tab-slide — UNIFIED default */
-  --motion-slow:  320ms;   /* modal / page */
+  --motion-base:  250ms;   /* tab-slide, micro transitions — UNIFIED default */
+  --motion-appear:300ms;   /* card/section appear (a touch slower to read as "alive") */
+  --motion-slow:  320ms;   /* count-up of large hero numbers, modal / page */
   --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
   --motion-decor: 18s;     /* slow breathing/orbit decor (sparingly; Phase 4d, optional) */
 

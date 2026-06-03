@@ -31,7 +31,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "./primitives";
 
 const TRANSITION =
-  "opacity var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out)";
+  "opacity var(--motion-appear) var(--ease-out), transform var(--motion-appear) var(--ease-out)";
 
 // Stagger (ms) between adjacent children. Dosed — light "coming alive".
 const DEFAULT_STAGGER = 30;
@@ -61,7 +61,7 @@ function AppearItem({ child, index, stagger, maxStagger }) {
   const animStyle = {
     ...baseStyle,
     opacity: shown ? 1 : 0,
-    transform: shown ? "translateY(0)" : "translateY(4px)",
+    transform: shown ? "translateY(0)" : "translateY(8px)",
     transition: TRANSITION,
     transitionDelay: `${delayN * stagger}ms`,
   };
