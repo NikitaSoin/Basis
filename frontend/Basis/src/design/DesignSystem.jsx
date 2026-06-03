@@ -33,6 +33,9 @@ import {
 import { formatNumber, formatMoney, formatPercent, formatMultiple } from "./format";
 import { LiveDepthBody, LiveDepthPreamble } from "./LiveDepthShowcase";
 
+// classnames join helper (used by VisibilityTag etc.)
+const cx = (...parts) => parts.filter(Boolean).join(" ");
+
 /* ---- small layout helpers (gallery chrome only) ---- */
 
 function Section({ title, children }) {
