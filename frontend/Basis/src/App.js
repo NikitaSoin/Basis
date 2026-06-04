@@ -1990,6 +1990,9 @@ const CompanyCard = ({ company, onBack }) => {
   const [macroMd, setMacroMd] = useState(null);
   const [macroJson, setMacroJson] = useState(null);
   const [macroLoading, setMacroLoading] = useState(true);
+  const [geoMd, setGeoMd] = useState(null);
+  const [geoJson, setGeoJson] = useState(null);
+  const [geoLoading, setGeoLoading] = useState(true);
   const [peersJson, setPeersJson] = useState(null);
   const [peersShowAll, setPeersShowAll] = useState(false);
   const [livePrice, setLivePrice] = useState(null);
@@ -2128,6 +2131,22 @@ const CompanyCard = ({ company, onBack }) => {
       setMacroMd(md);
       setMacroJson(js);
       setMacroLoading(false);
+    });
+  }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setGeoLoading(true);
+    setGeoMd(null);
+    setGeoJson(null);
+    const base = `${apiUrl}/api/companies/by-ticker/${company.ticker}`;
+    Promise.all([
+      fetch(`${base}/geo-summary`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}/geo`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([md, js]) => {
+      setGeoMd(md);
+      setGeoJson(js);
+      setGeoLoading(false);
     });
   }, [company.ticker]);
 
@@ -3848,6 +3867,265 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  const renderGeo = () => {
+    if (geoLoading) return (
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем геополитический анализ...</div>
+      </div>
+    );
+    if (!geoMd && !geoJson) return renderComingSoon("Геополитика");
+
+    const meta = geoJson?.meta || {};
+    const exposure = Array.isArray(geoJson?.exposure_profile) ? geoJson.exposure_profile : [];
+    const factors = Array.isArray(geoJson?.factors) ? geoJson.factors : [];
+    const bottom = geoJson?.bottom_line || {};
+    const sources = Array.isArray(geoJson?.sources) ? geoJson.sources : [];
+    const flags = Array.isArray(geoJson?.data_flags) ? geoJson.data_flags : [];
+
+    // Три уровня достоверности — в гео-блоке это главный смысловой слой:
+    // здесь неопределённость выше, чем где-либо, и факт/логика/суждение
+    // должны быть различимы с одного взгляда.
+    const CERT = {
+      fact:      { c: "var(--success)", bg: "var(--success-soft)", t: "факт",     title: "Факт с источником — действующая санкция/ограничение/зависимость" },
+      logic:     { c: "var(--accent)",  bg: "var(--accent-soft)",  t: "логика",   title: "Системная логика — структурные стимулы и цепочка влияния" },
+      judgement: { c: "var(--warning)", bg: "var(--warning-soft)", t: "суждение", title: "Суждение/прогноз — вероятность сценариев; не факт, без дат и исходов" },
+    };
+    const cert = (lvl) => {
+      const m = CERT[lvl]; if (!m) return null;
+      return (
+        <span title={m.title} className="tw-inline-flex tw-items-center tw-rounded-pill tw-text-[10px] tw-font-bold tw-px-1.5 tw-py-0.5 tw-leading-none tw-shrink-0"
+          style={{ color: m.c, background: m.bg }}>{m.t}</span>
+      );
+    };
+    const srcOf = (ref) => sources.find((s) => s.id === ref);
+    const srcLink = (ref) => {
+      const s = srcOf(ref); if (!s) return null;
+      return s.url
+        ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-[11px] tw-text-accent hover:tw-underline tw-truncate">{s.title || s.url}</a>
+        : <span className="tw-text-[11px] tw-text-text-tertiary tw-truncate">{s.title}</span>;
+    };
+    const cardHead = (Icon, title, right) => (
+      <div className="tw-flex tw-justify-between tw-items-baseline tw-flex-wrap tw-gap-2 tw-mb-3.5">
+        <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
+          <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
+        </h4>
+        {right}
+      </div>
+    );
+    const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
+    const mdSections = splitH2(geoMd);
+
+    // Знак гео-эффекта: риск / нейтрально / возможность × сила.
+    const EFF = {
+      strong_risk:          { c: "var(--danger)",  bg: "var(--danger-soft)",  t: "сильный риск", Icon: ShieldAlert, border: "var(--danger)" },
+      moderate_risk:        { c: "var(--danger)",  bg: "var(--danger-soft)",  t: "умеренный риск", Icon: ShieldAlert, border: "var(--danger)" },
+      mixed:                { c: "var(--warning)", bg: "var(--warning-soft)", t: "смешанный", Icon: ArrowRightLeft, border: "var(--warning)" },
+      neutral:              { c: "var(--text-tertiary)", bg: "var(--bg-base)", t: "нейтрально", Icon: Activity, border: "var(--border-strong)" },
+      moderate_opportunity: { c: "var(--success)", bg: "var(--success-soft)", t: "умеренная возможность", Icon: TrendingUp, border: "var(--success)" },
+      strong_opportunity:   { c: "var(--success)", bg: "var(--success-soft)", t: "сильная возможность", Icon: TrendingUp, border: "var(--success)" },
+    };
+    const OVERALL = {
+      risk:        { c: "var(--danger)",  bg: "var(--danger-soft)",  t: "риск", Icon: ShieldAlert },
+      mixed:       { c: "var(--warning)", bg: "var(--warning-soft)", t: "смешанный фон", Icon: ArrowRightLeft },
+      neutral:     { c: "var(--text-tertiary)", bg: "var(--bg-base)", t: "нейтрален", Icon: Activity },
+      opportunity: { c: "var(--success)", bg: "var(--success-soft)", t: "возможность", Icon: TrendingUp },
+    };
+    const EXPOSURE_LVL = {
+      high:     { t: "высокая гео-экспозиция",     c: "var(--danger)",        bg: "var(--danger-soft)" },
+      moderate: { t: "умеренная гео-экспозиция",   c: "var(--warning)",       bg: "var(--warning-soft)" },
+      minimal:  { t: "минимальная гео-экспозиция", c: "var(--text-tertiary)", bg: "var(--bg-base)" },
+    };
+    // Развилка сценариев конфликта: эскалация / статус-кво / деэскалация.
+    const SCEN = {
+      "эскалация":   { Icon: TrendingDown, c: "var(--danger)" },
+      "статус-кво":  { Icon: Activity,     c: "var(--text-tertiary)" },
+      "деэскалация": { Icon: TrendingUp,   c: "var(--success)" },
+    };
+    const ov = OVERALL[meta.overall_effect || bottom.effect] || null;
+    const lvl = EXPOSURE_LVL[meta.exposure_level] || null;
+
+    return (
+      <AppearGroup gate={appearGate.current} groupId="geo" className="tw-flex tw-flex-col tw-gap-4">
+        {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
+
+        {/* Шапка: гео-экспозиция + итоговый знак + легенда достоверности */}
+        <Card>
+          {cardHead(Globe, "Геополитика и компания", (
+            <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+              {lvl && <span className="tw-inline-flex tw-items-center tw-rounded-pill tw-px-2.5 tw-py-1 tw-text-[12px] tw-font-bold" style={{ color: lvl.c, background: lvl.bg }}>{lvl.t}</span>}
+              {ov && <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-pill tw-px-2.5 tw-py-1 tw-text-[12px] tw-font-bold" style={{ color: ov.c, background: ov.bg }}><ov.Icon size={14} />{ov.t}</span>}
+            </div>
+          ))}
+          {meta.geo_summary && <Prose className="tw-mb-3"><p>{meta.geo_summary}</p></Prose>}
+          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-pt-2 tw-border-t tw-border-border-subtle">
+            <span className="tw-font-semibold">Достоверность:</span>
+            {cert("fact")}<span>— факт с источником</span>
+            {cert("logic")}<span>— системная логика</span>
+            {cert("judgement")}<span>— наше суждение, не предсказание</span>
+          </div>
+        </Card>
+
+        {/* Карта внешних зависимостей (факты) */}
+        {exposure.length > 0 && (
+          <Card>
+            {cardHead(Layers, "Внешние зависимости компании")}
+            <div className="tw-flex tw-flex-col tw-gap-2">
+              {exposure.map((e, i) => (
+                <div key={i} className="tw-flex tw-items-start tw-gap-2.5 tw-p-2.5 tw-rounded-md tw-bg-bg-base">
+                  <span className="tw-text-[11px] tw-font-bold tw-text-text-secondary tw-uppercase tw-shrink-0 tw-mt-0.5 tw-min-w-[80px]">{e.dimension}</span>
+                  <div className="tw-flex-1 tw-text-[12.5px] tw-text-text-primary tw-leading-normal">{e.text}</div>
+                  <div className="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-shrink-0">
+                    {cert(e.certainty)}
+                    {e.source_ref && srcLink(e.source_ref)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Главные геофакторы — карточки со знаком риск/нейтрально/возможность */}
+        {factors.map((f, i) => {
+          const E = EFF[f.effect_sign] || EFF.neutral;
+          const steps = String(f.channel || "").split(/\s*(?:→|->)\s*/).filter(Boolean);
+          const scen = Array.isArray(f.scenarios) ? f.scenarios : [];
+          return (
+            <Card key={i} style={{ borderLeft: `3px solid ${E.border}` }}>
+              <div className="tw-flex tw-justify-between tw-items-start tw-gap-2 tw-mb-3">
+                <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
+                  <Zap size={16} className="tw-text-accent tw-shrink-0" />{f.factor}
+                </h4>
+                <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-px-2 tw-py-1 tw-text-[11px] tw-font-bold tw-shrink-0" style={{ color: E.c, background: E.bg }}><E.Icon size={13} />{E.t}</span>
+              </div>
+
+              {/* Текущее состояние (факт) */}
+              {f.current_state?.text && (
+                <div className="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-mb-3 tw-p-2.5 tw-rounded-md tw-bg-bg-base">
+                  <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">{f.current_state.text}</div>
+                  <div className="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-shrink-0">
+                    {cert(f.current_state.certainty)}
+                    {f.current_state.source_ref && srcLink(f.current_state.source_ref)}
+                  </div>
+                </div>
+              )}
+
+              {/* Цепочка передачи к компании */}
+              {steps.length > 0 && (
+                <div className="tw-mb-2">
+                  <div className="tw-flex tw-items-center tw-gap-1.5 tw-mb-1.5">
+                    <span className="tw-text-[11px] tw-font-bold tw-text-text-secondary">Как доходит до компании</span>
+                    {cert(f.channel_certainty || "logic")}
+                  </div>
+                  <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-1 tw-gap-y-1.5">
+                    {steps.map((step, k) => (
+                      <React.Fragment key={k}>
+                        <span className="tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-sm tw-bg-bg-base tw-text-text-primary tw-border tw-border-border-subtle">{step}</span>
+                        {k < steps.length - 1 && <ChevronRight size={13} className="tw-text-text-tertiary tw-shrink-0" />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Развилка сценариев (для конфликтов): эскалация / статус-кво / деэскалация */}
+              {scen.length > 0 && (
+                <div className="tw-mt-3">
+                  <div className="tw-text-[11px] tw-font-bold tw-text-text-secondary tw-mb-1.5">Сценарии — что это значит для компании</div>
+                  <div className="tw-grid tw-gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
+                    {scen.map((s, k) => {
+                      const SC = SCEN[String(s.scenario || "").toLowerCase()] || SCEN["статус-кво"];
+                      const SE = EFF[s.effect_sign] || EFF.neutral;
+                      return (
+                        <div key={k} className="tw-p-2.5 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle">
+                          <div className="tw-flex tw-items-center tw-justify-between tw-gap-1 tw-mb-1">
+                            <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[11.5px] tw-font-bold" style={{ color: SC.c }}>
+                              <SC.Icon size={13} />{s.scenario}
+                            </span>
+                            <span className="tw-inline-flex tw-rounded-pill tw-px-1.5 tw-py-0.5 tw-text-[10px] tw-font-bold" style={{ color: SE.c, background: SE.bg }}>{SE.t}</span>
+                          </div>
+                          <div className="tw-text-[12px] tw-text-text-secondary tw-leading-normal">{s.impact_on_company}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {f.likely_judgement?.text && (
+                    <div className="tw-flex tw-items-start tw-gap-1.5 tw-mt-2 tw-p-2.5 tw-rounded-md" style={{ background: "var(--warning-soft)" }}>
+                      <div className="tw-flex-1 tw-text-[12px] tw-text-text-primary tw-leading-normal">{f.likely_judgement.text}</div>
+                      {cert(f.likely_judgement.certainty || "judgement")}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Суждение о траектории для не-конфликтных факторов */}
+              {scen.length === 0 && f.likely_judgement?.text && (
+                <div className="tw-flex tw-items-start tw-gap-1.5 tw-mt-2 tw-p-2.5 tw-rounded-md" style={{ background: "var(--warning-soft)" }}>
+                  <div className="tw-flex-1 tw-text-[12px] tw-text-text-primary tw-leading-normal">{f.likely_judgement.text}</div>
+                  {cert(f.likely_judgement.certainty || "judgement")}
+                </div>
+              )}
+
+              {/* Оценка силы эффекта (суждение) */}
+              {f.note && (
+                <div className="tw-flex tw-items-start tw-gap-1.5 tw-mt-2">
+                  <div className="tw-flex-1 tw-text-[12px] tw-text-text-secondary tw-italic tw-leading-normal">{f.note}</div>
+                  {cert(f.effect_strength_certainty || "judgement")}
+                </div>
+              )}
+            </Card>
+          );
+        })}
+
+        {/* Итог: риск / нейтрален / возможность + главная уязвимость */}
+        {(bottom.text || bottom.effect) && (() => {
+          const B = OVERALL[bottom.effect] || OVERALL.mixed;
+          return (
+            <Card style={{ background: B.bg, border: `1px solid ${B.c}` }}>
+              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2">
+                <Target size={17} style={{ color: B.c }} />
+                <h4 className="tw-text-[15px] tw-font-bold tw-text-text-primary tw-m-0">Итог: геополитический фон — {B.t}</h4>
+                {cert(bottom.certainty || "judgement")}
+              </div>
+              {bottom.text && <Prose><p>{bottom.text}</p></Prose>}
+              {bottom.main_vulnerability && <div className="tw-mt-2 tw-text-[12.5px] tw-text-text-secondary">Главная уязвимость: <b className="tw-text-text-primary">{bottom.main_vulnerability}</b></div>}
+            </Card>
+          );
+        })()}
+
+        {/* Источники — с пометкой перспективы (гео-источники ангажированы по определению) */}
+        {sources.length > 0 && (
+          <Card>
+            {cardHead(Info, "Источники")}
+            <div className="tw-flex tw-flex-col tw-gap-1.5">
+              {sources.map((s, i) => (
+                <div key={i} className="tw-flex tw-items-baseline tw-gap-2 tw-text-[12px] tw-flex-wrap">
+                  <span className="tw-font-mono tw-text-text-tertiary tw-shrink-0">{s.id}</span>
+                  {s.url
+                    ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-accent hover:tw-underline">{s.title || s.url}</a>
+                    : <span className="tw-text-text-secondary">{s.title}</span>}
+                  {s.period && <span className="tw-text-text-tertiary">· {s.period}</span>}
+                  {s.perspective && <span className="tw-text-[11px] tw-text-text-tertiary tw-italic">({s.perspective})</span>}
+                  {s.reliability && <span className="tw-text-text-tertiary tw-ml-auto tw-shrink-0">надёжность: {s.reliability}</span>}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Сопроводительный текст summary.md */}
+        {mdSections.length > 0 && mdSections.map((sec, i) => (
+          <Card key={`md-${i}`}>
+            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
+              <Info size={16} className="tw-text-accent" />{sec.heading}
+            </h4>
+            <Prose>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+            </Prose>
+          </Card>
+        ))}
+      </AppearGroup>
+    );
+  };
+
   const renderBusinessProfile = () => {
     const isLoading = bmMdLoading && profileLoading;
     if (isLoading) return (
@@ -4375,6 +4653,7 @@ const CompanyCard = ({ company, onBack }) => {
           { id: "governance", label: "Корп. управление" },
           { id: "markets", label: "Рынки" },
           { id: "macro", label: "Макро" },
+          { id: "geo", label: "Геополитика" },
         ];
         const SECONDARY = [
           { id: "deep", label: "Глубокий разбор" },
@@ -4452,6 +4731,7 @@ const CompanyCard = ({ company, onBack }) => {
         {tab === "governance" && renderGovernance()}
         {tab === "markets" && renderMarket()}
         {tab === "macro" && renderMacro()}
+        {tab === "geo" && renderGeo()}
         {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
         {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
         {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}
