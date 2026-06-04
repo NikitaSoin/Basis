@@ -1,0 +1,192 @@
+{
+  "meta": {
+    "ticker": "RTKM",
+    "name": "Ростелеком",
+    "as_of": "2026-06-04",
+    "data_quality": "medium",
+    "market_position_summary": "Ростелеком работает на нескольких связанных телеком- и цифровых рынках России: безусловный лидер фиксированного широкополосного доступа (ШПД), четвёртый федеральный мобильный оператор (Tele2/Т2), лидер рынка коммерческих ЦОД и заметный игрок в облаках и кибербезопасности. Бизнес почти полностью внутрироссийский, во многих сегментах опирается на госспрос.",
+    "certainty_legend": {
+      "fact": "Факт с источником — найдено в поиске (размер рынка, доли, история)",
+      "estimate": "Оценка-ориентир — данные есть, но разнятся/устарели; диапазон, «ориентировочно»",
+      "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
+    }
+  },
+
+  "markets": [
+    {
+      "name": "Мобильная связь РФ (Tele2/Т2)",
+      "tier": "primary",
+      "geography": "domestic",
+      "role_for_company": "Крупнейший по выручке сегмент группы — около 33% выручки (Т2 ~288–306 млрд руб. в 2025).",
+      "current": {
+        "size": { "value": "около 1,33 трлн руб. выручки мобильной связи в 2025 (+7% г/г)", "certainty": "fact", "source_ref": "src_mob1", "note": "Мобильный сегмент телеком-рынка РФ" },
+        "size_metric": "выручка отрасли мобильной связи (руб./год)",
+        "players": [
+          { "name": "МТС", "share_pct": 33, "share_low": 30, "share_high": 35, "certainty": "estimate", "source_ref": "src_mob2", "is_company": false, "note": "лидер по выручке, ориентировочно" },
+          { "name": "МегаФон", "share_pct": null, "share_low": 20, "share_high": 23, "certainty": "estimate", "source_ref": "src_mob2", "is_company": false, "note": "сервисная выручка ~445 млрд руб." },
+          { "name": "Билайн (ВымпелКом)", "share_pct": null, "share_low": 17, "share_high": 22, "certainty": "estimate", "source_ref": "src_mob2", "is_company": false, "note": "ориентировочно" },
+          { "name": "Tele2/Т2 (Ростелеком)", "share_pct": null, "share_low": 18, "share_high": 23, "certainty": "estimate", "source_ref": "src_mob1", "is_company": true, "note": "выручка мобильного сегмента Т2 ~306 млрд руб. (+10,3%); абонбаза 48,9 млн; лучшая в отрасли маржа OIBDA 46,1%" }
+        ],
+        "players_note": "Рынок — устойчивая «большая четвёрка» (МТС, МегаФон, Билайн, Т2). Точные доли по выручке источники приводят расплывчато; Т2 — четвёртый по выручке, но с лидирующей рентабельностью и растущей абонбазой (среди молодёжи Т2 лидирует ~32%).",
+        "company_position": "challenger",
+        "company_position_note": "Т2 — четвёртый федеральный оператор по выручке, но растёт быстрее рынка (+10,3% при рынке +7%), лидер по марже OIBDA (46,1%) и по доле молодёжной аудитории."
+      },
+      "history": {
+        "trend": "growing",
+        "metric": "выручка мобильной связи РФ, трлн руб./год (оценка по отраслевым обзорам)",
+        "points": [
+          { "period": "2022", "value": 1.05, "certainty": "estimate", "source_ref": "src_mob3", "note": "ориентир" },
+          { "period": "2023", "value": 1.15, "certainty": "estimate", "source_ref": "src_mob3", "note": "ориентир" },
+          { "period": "2024", "value": 1.24, "certainty": "estimate", "source_ref": "src_mob1", "note": "ориентир, рынок ~+6–7%" },
+          { "period": "2025", "value": 1.33, "certainty": "fact", "source_ref": "src_mob1", "note": "+7% г/г" }
+        ],
+        "key_shifts": [
+          "Рынок зрелый: рост выручки идёт за счёт повышения тарифов (инфляция, рост стоимости оборудования), а не за счёт новых абонентов — проникновение сотовой связи давно выше 100%.",
+          "Т2 обошёл Билайн по числу абонентов ещё в 2023 году и закрепился как четвёртый-третий игрок по базе."
+        ],
+        "history_certainty": "estimate"
+      },
+      "drivers": [
+        { "factor": "повышение тарифов и индексация на фоне инфляции и удорожания оборудования", "direction": "support", "type": "macro", "note": "главный драйвер денежного роста на зрелом рынке" },
+        { "factor": "рост потребления мобильного трафика и развитие B2B/IoT-сервисов", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "насыщение рынка: проникновение >100%, новых абонентов почти нет", "direction": "constrain", "type": "competition", "note": "" },
+        { "factor": "дефицит и удорожание сетевого оборудования из-за санкций/импортозамещения, ограниченное развёртывание 5G (частоты)", "direction": "constrain", "type": "regulation", "note": "" }
+      ],
+      "forecast": {
+        "direction": "рост",
+        "horizon": "3–5 лет",
+        "growth_orientation": "умеренный рост выручки, ориентировочно средний однозначный темп в год — преимущественно за счёт тарифов, а не абонентов; натуральный рынок близок к насыщению",
+        "certainty": "model",
+        "logic": {
+          "supporting": ["индексация тарифов выше или вровень с инфляцией", "рост дата-трафика и цифровых допуслуг", "B2B/IoT и экосистемные сервисы"],
+          "constraining": ["насыщение абонентской базы", "конкуренция четырёх крупных игроков сдерживает рост тарифов", "ограничения на оборудование и 5G"]
+        },
+        "source_refs": [],
+        "note": "наша оценка по факторам"
+      },
+      "company_outlook": {
+        "share_trajectory": "удержит",
+        "certainty": "estimate",
+        "reasoning": "Т2 растёт чуть быстрее рынка и имеет лучшую в отрасли маржу OIBDA, что говорит о здоровой конкурентной позиции. Но как четвёртый игрок на зрелом, поделённом рынке кардинально нарастить долю сложно — реалистично удержание/умеренное усиление позиции."
+      },
+      "international_expansion": {
+        "applicable": true,
+        "status": "нет планов / неактуально",
+        "external_markets": [
+          { "market": "—", "note": "Бизнес почти полностью внутрироссийский (~99% выручки группы — РФ); зарубежной мобильной экспансии нет, оператор инфраструктурный национальный.", "certainty": "fact", "source_ref": "src_bm" }
+        ],
+        "note": "Международная экспансия в мобильной связи не является частью стратегии."
+      }
+    },
+
+    {
+      "name": "Фиксированный широкополосный доступ (ШПД) РФ",
+      "tier": "primary",
+      "geography": "domestic",
+      "role_for_company": "Высокомаржинальное ядро: ШПД ~120 млрд руб. (~14% выручки группы, +10,5% г/г); Ростелеком — безусловный лидер рынка.",
+      "current": {
+        "size": { "value": "около 260 млрд руб. (B2C+B2B/B2G) в 2025; B2C-сегмент ~170–180 млрд руб.", "certainty": "estimate", "source_ref": "src_shpd1", "note": "оценки источников по охвату сегментов различаются" },
+        "size_metric": "выручка рынка фиксированного ШПД, руб./год; абонбаза B2C ~36–37 млн",
+        "players": [
+          { "name": "Ростелеком", "share_pct": null, "share_low": 35, "share_high": 40, "certainty": "estimate", "source_ref": "src_shpd2", "is_company": true, "note": "лидер по абонбазе; точную долю ТМТ-Консалтинг публикует в платном отчёте — ориентир ~35–40%" },
+          { "name": "ЭР-Телеком (Дом.ru)", "share_pct": null, "share_low": 10, "share_high": 13, "certainty": "estimate", "source_ref": "src_shpd2", "is_company": false, "note": "ориентировочно" },
+          { "name": "МТС (МГТС)", "share_pct": null, "share_low": 9, "share_high": 12, "certainty": "estimate", "source_ref": "src_shpd2", "is_company": false, "note": "ориентировочно" },
+          { "name": "Билайн (ВымпелКом)", "share_pct": null, "share_low": 5, "share_high": 8, "certainty": "estimate", "source_ref": "src_shpd2", "is_company": false, "note": "ориентировочно" },
+          { "name": "ТТК и региональные провайдеры", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_shpd2", "is_company": false, "note": "остаток базы; топ-5 формируют ~70% абонбазы B2C" }
+        ],
+        "players_note": "Топ-5 операторов формируют около 70% абонентской базы B2C. Ростелеком — устойчивый лидер по числу абонентов; точные процентные доли в публичных источниках не раскрываются (платные отчёты ТМТ-Консалтинг).",
+        "company_position": "leader",
+        "company_position_note": "Ростелеком прямо назван лидером рынка фиксированного ШПД в России по абонбазе; собственная база ШПД растёт ~+5,5% г/г."
+      },
+      "history": {
+        "trend": "stagnating",
+        "metric": "абонентская база ШПД B2C РФ, млн абонентов",
+        "points": [
+          { "period": "2022", "value": 34.5, "certainty": "estimate", "source_ref": "src_shpd3", "note": "ориентир" },
+          { "period": "2023", "value": 35.5, "certainty": "estimate", "source_ref": "src_shpd3", "note": "ориентир" },
+          { "period": "2024", "value": 36.5, "certainty": "fact", "source_ref": "src_shpd2", "note": "Q2 2024: 36,5 млн абонентов B2C" },
+          { "period": "2025", "value": 37.0, "certainty": "estimate", "source_ref": "src_shpd1", "note": "рынок почти перестал расти в штуках" }
+        ],
+        "key_shifts": [
+          "Рынок ШПД вошёл в стадию насыщения: рост абонбазы замедлился до ~1–2% в год, денежный рост идёт в основном за счёт ARPU и тарифов.",
+          "В деньгах B2C-выручка растёт быстрее штук (рост ARPU): объём рынка в 2025 рос ощутимо быстрее абонбазы."
+        ],
+        "history_certainty": "estimate"
+      },
+      "drivers": [
+        { "factor": "рост ARPU и тарифов, переход на более скоростные тарифы и оптику (FTTx)", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "конвергентные пакеты (ШПД+мобайл+ТВ) удерживают абонента", "direction": "support", "type": "competition", "note": "" },
+        { "factor": "насыщение: проникновение домохозяйств близко к пределу, прирост абонентов почти исчерпан", "direction": "constrain", "type": "demography", "note": "" },
+        { "factor": "конкуренция с мобильным интернетом и региональными провайдерами сдерживает рост тарифов", "direction": "constrain", "type": "competition", "note": "" }
+      ],
+      "forecast": {
+        "direction": "стагнация",
+        "horizon": "3–5 лет",
+        "growth_orientation": "стагнация по числу абонентов (рост ориентировочно 1–2% в год) при умеренном денежном росте за счёт ARPU; рынок зрелый",
+        "certainty": "model",
+        "logic": {
+          "supporting": ["рост ARPU и апселл на скорость", "конвергентные пакеты повышают удержание и средний чек"],
+          "constraining": ["насыщение домохозяйств", "конкуренция давит на тарифы"]
+        },
+        "source_refs": ["src_shpd1"],
+        "note": "наша оценка по факторам; стадия насыщения подтверждается источниками"
+      },
+      "company_outlook": {
+        "share_trajectory": "удержит",
+        "certainty": "estimate",
+        "reasoning": "На зрелом рынке Ростелеком как лидер защищает долю за счёт инфраструктуры, оптики и конвергентных пакетов (связка с Т2 и ТВ). Кардинального роста доли ждать неоткуда, но позиция лидера устойчива; апсайд — рост денежной выручки через ARPU, а не штуки."
+      },
+      "international_expansion": null
+    },
+
+    {
+      "name": "Коммерческие ЦОД и облака РФ (РТК-ЦОД)",
+      "tier": "secondary",
+      "geography": "domestic",
+      "role_for_company": "Быстрорастущий сегмент-кандидат на IPO: РТК-ЦОД ~76 млрд руб. (~9% выручки группы, +8,7% г/г); группа — лидер рынка ЦОД.",
+      "brief": [
+        { "point": "Рынок коммерческих ЦОД РФ вырос с 65 млрд руб. (2021) до ~148 млрд руб. (2025); прирост в 2025 замедлился до ~14% г/г", "certainty": "fact", "source_ref": "src_cod1" },
+        { "point": "РТК-ЦОД (Ростелеком) — лидер по числу введённых стойко-мест; топ-5 (РТК-ЦОД, IXcellerate, Атомдата/Росатом, DataPro, Selectel) держат ~74% мощности", "certainty": "fact", "source_ref": "src_cod1" },
+        { "point": "На смежном облачном рынке (IaaS+PaaS ~226 млрд руб. в 2025) РТК-ЦОД — №2 c долей ~13,7% (после Cloud.ru ~32,5%, перед Yandex Cloud ~11%)", "certainty": "fact", "source_ref": "src_cloud1" },
+        { "point": "Прогноз: рынок облаков в РФ растёт двузначно, к 2030 ориентир ~1,2 трлн руб. (CAGR ~24%); ЦОД сдерживает дефицит мощностей и удорожание оборудования — спрос превышает предложение (наша оценка по факторам — растущий двузначный темп)", "certainty": "model", "source_ref": "src_cloud2" },
+        { "point": "Перспектива компании: удержит лидерство в ЦОД и сильную позицию в облаках; потенциальный апсайд — IPO РТК-ЦОД (раскрытие стоимости, снижение долга группы), но сроки зависят от рынка", "certainty": "estimate", "source_ref": "src_bm" }
+      ]
+    },
+
+    {
+      "name": "Кибербезопасность РФ (Солар)",
+      "tier": "secondary",
+      "geography": "domestic",
+      "role_for_company": "Небольшой, но быстрорастущий сегмент-кандидат на IPO: Солар ~26 млрд руб. (~3% выручки группы, +15,3% г/г).",
+      "brief": [
+        { "point": "Рынок кибербезопасности РФ в 2025 превысил ~364 млрд руб. (рост ~20–25% г/г)", "certainty": "fact", "source_ref": "src_cyber1" },
+        { "point": "Лидеры по продажам средств защиты: Лаборатория Касперского (~20,1%), Positive Technologies (~16,8%); Солар и Bi.Zone — ключевые игроки в сервисах ИБ (MSSP)", "certainty": "fact", "source_ref": "src_cyber1" },
+        { "point": "Доля Ростелеком/Солар на всём рынке ИБ ориентировочно несколько процентов — заметный игрок прежде всего в сервисной ИБ, а не нишевый лидер по продуктам", "certainty": "estimate", "source_ref": "src_cyber1" },
+        { "point": "Прогноз: сильный двузначный рост на импортозамещении и ужесточении регулирования; к 2030–2031 рынок может достичь ~968 млрд – 1 трлн руб. (CAGR ~21%)", "certainty": "fact", "source_ref": "src_cyber2" },
+        { "point": "Перспектива компании: нарастит долю на быстрорастущем рынке; потенциальный апсайд — IPO Солара (раскрытие стоимости)", "certainty": "estimate", "source_ref": "src_bm" }
+      ]
+    }
+  ],
+
+  "sources": [
+    { "id": "src_mob1", "type": "media", "title": "Итоги телекома 2025 г. МТС, МегаФон, Билайн и Т2: главные цифры; Телеком-рынок РФ 2025 — мобильная связь ~1,33 трлн руб.", "period": "2026-03", "url": "https://www.comnews.ru/content/244174/2026-03-12/2026-w11/1008/itogi-telekoma-2025-g-mts-megafon-bilayn-i-t2-glavnye-cifry", "reliability": "high" },
+    { "id": "src_mob2", "type": "industry_report", "title": "NCR (Эксперт РА): Телеком — «Битва титанов», доли и финансы операторов", "period": "2025-10", "url": "https://ratings.ru/files/research/corps/NCR_Telecom_Oct2025.pdf", "reliability": "high" },
+    { "id": "src_mob3", "type": "industry_report", "title": "Связь (рынок России) — TAdviser, динамика рынка связи", "period": "2025", "url": "https://www.tadviser.ru/index.php/Статья:Связь_(рынок_России)", "reliability": "medium" },
+    { "id": "src_shpd1", "type": "media", "title": "Российский рынок ШПД почти перестал расти (3DNews / ТМТ-Консалтинг)", "period": "2025", "url": "https://3dnews.ru/1066819/rossiyskiy-rinok-shirokopolosnogo-dostupa-v-internet-pochti-perestal-rasti", "reliability": "medium" },
+    { "id": "src_shpd2", "type": "industry_report", "title": "Российский рынок ШПД B2C: итоги II кв. 2024 (ICT.Moscow / ТМТ-Консалтинг) — 36,5 млн абонентов, 42,2 млрд руб./кв., топ-5 ~70%", "period": "2024", "url": "https://ict.moscow/analytics/rossiiskii-rynok-shpd-v-segmente-b2c-itogi-ii-kvartala-2024-goda/", "reliability": "high" },
+    { "id": "src_shpd3", "type": "media", "title": "Количество абонентов ШПД в России выросло до 35,5 млн (Content-Review)", "period": "2024", "url": "https://www.content-review.com/articles/61797/", "reliability": "medium" },
+    { "id": "src_cod1", "type": "industry_report", "title": "Российский рынок коммерческих дата-центров в 2025 (ICT.Moscow / iKS-Consulting) — ~148 млрд руб., РТК-ЦОД лидер, топ-5 ~74% мощности", "period": "2025", "url": "https://ict.moscow/analytics/rossiiskii-rynok-kommercheskikh-data-tsentrov-v-2025-godu/", "reliability": "high" },
+    { "id": "src_cloud1", "type": "industry_report", "title": "Российский рынок облачных инфраструктурных сервисов 2025 (iKS-Consulting): IaaS+PaaS, Cloud.ru 32,5%, РТК-ЦОД 13,7%, Yandex Cloud 11%", "period": "2025", "url": "https://ict.moscow/analytics/rossiiskii-rynok-oblachnykh-infrastrukturnykh-servisov-v-2025-godu/", "reliability": "high" },
+    { "id": "src_cloud2", "type": "media", "title": "Объём российского облачного рынка к 2030 г. перейдёт за 1 трлн руб. (ComNews / iKS-Consulting), ориентир 1,2 трлн, CAGR ~24%", "period": "2025-11", "url": "https://www.comnews.ru/content/242275/2025-11-12/2025-w46/1008/obem-rossiyskogo-oblachnogo-rynka-k-2030-g-pereydet-za-1-trln-rub", "reliability": "high" },
+    { "id": "src_cyber1", "type": "industry_report", "title": "ЦСР: российский рынок кибербезопасности превысил 364 млрд руб. (доли: Касперский 20,1%, Positive 16,8%; Солар, Bi.Zone — сервисы ИБ)", "period": "2026-06", "url": "https://www.novostiitkanala.ru/news/detail.php?ID=196154", "reliability": "high" },
+    { "id": "src_cyber2", "type": "industry_report", "title": "ЦСР: прогноз развития рынка кибербезопасности РФ — к 2030–2031 до ~968 млрд – 1 трлн руб., CAGR ~21%", "period": "2025-11", "url": "https://www.csr.ru/upload/iblock/233/lio2l8p775bu8lhddpaja8f6fto01x8s.pdf", "reliability": "high" },
+    { "id": "src_bm", "type": "official", "title": "Ростелеком — финансовые и операционные результаты 2025 (МСФО), структура сегментов и стратегия (бизнес-модель компании)", "period": "2026-02", "url": "https://www.company.rt.ru/press/news_ir/", "reliability": "high" }
+  ],
+  "data_flags": [
+    "Точные процентные доли операторов мобильной связи РФ по выручке за 2025 публично не раскрыты — даны диапазоны-ориентиры (estimate); жёсткие проценты держат платные отраслевые отчёты.",
+    "Точная рыночная доля Ростелеком на рынке фиксированного ШПД не публикуется в открытых источниках (отчёты ТМТ-Консалтинг платные) — дан ориентир 35–40% по статусу лидера и абонбазе.",
+    "Объём рынка ШПД различается между источниками в зависимости от охвата (только B2C vs B2C+B2B/B2G) — поэтому certainty:estimate.",
+    "Доля Солара на рынке кибербезопасности по группе точно не выделена; оценена как «несколько процентов, заметный игрок в сервисах ИБ».",
+    "Исторические точки динамики мобильного рынка и абонбазы ШПД до 2024 — реконструкция по обзорам (estimate), не точные годовые ряды одного источника."
+  ]
+}
