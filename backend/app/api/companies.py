@@ -343,6 +343,27 @@ async def get_macro_summary_md(ticker: str):
     )
 
 
+@router.get("/companies/by-ticker/{ticker}/geo")
+async def get_geo_json(ticker: str):
+    """Блок «Геополитика» в виде JSON (его рисует фронтенд: факторы, сценарии, знаки)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "geo.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Geo not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+@router.get("/companies/by-ticker/{ticker}/geo-summary", response_class=PlainTextResponse)
+async def get_geo_summary_md(ticker: str):
+    """Текстовая интерпретация блока «Геополитика» (markdown)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "geo_summary.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Geo summary not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
+
+
 @router.get("/sectors/{sector_key}/peers")
 async def get_sector_peers(sector_key: str):
     """Сравнение конкурентов по сектору + данные для карт-координат."""
