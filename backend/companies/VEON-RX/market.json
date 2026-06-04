@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "ticker": "VEON-RX",
+    "name": "VEON Ltd. (расписки на Мосбирже)",
+    "as_of": "2026-06-04",
+    "data_quality": "medium",
+    "market_position_summary": "VEON — мобильный и цифровой оператор-лидер на рынках развивающихся стран: №1 в Пакистане (Jazz) и №1 в Украине (Kyivstar), плюс №1 в Казахстане и Узбекистане (Beeline) и №3 в Бангладеш (Banglalink). Главные рынки — Пакистан и Украина; ставка группы — переход от классической связи к цифровым super-app и финтех-сервисам.",
+    "certainty_legend": {
+      "fact": "Факт с источником — найдено в поиске (размер рынка, доли, история)",
+      "estimate": "Оценка-ориентир — данные есть, но разнятся/устарели; диапазон, «ориентировочно»",
+      "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
+    }
+  },
+
+  "markets": [
+    {
+      "name": "Мобильная связь и цифровые сервисы Пакистана (Jazz / JazzCash)",
+      "tier": "primary",
+      "geography": "regional",
+      "role_for_company": "Крупнейший рынок группы (оценочно ~40%+ выручки VEON); бренд Jazz — оператор №1 по абонентам и выручке, финтех JazzCash — один из крупнейших в стране.",
+      "current": {
+        "size": { "value": "~4,5 млрд USD выручки телеком-отрасли в 2025 году", "certainty": "fact", "source_ref": "src_3", "note": "оценка размера телеком-рынка Пакистана в долларах" },
+        "size_metric": "выручка телеком-отрасли в долларах; рынок ~192 млн абонентов мобильной связи",
+        "players": [
+          { "name": "Jazz (VEON)", "share_pct": 37, "share_low": 36, "share_high": 37, "certainty": "fact", "source_ref": "src_1", "is_company": true, "note": "~73–75 млн абонентов, доля по абонентам ~37% (2025–нач.2026)" },
+          { "name": "Zong (China Mobile)", "share_pct": 26, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_1", "is_company": false, "note": "~50 млн абонентов" },
+          { "name": "Telenor Pakistan", "share_pct": 22, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_1", "is_company": false, "note": "идёт слияние с Ufone/PTCL — может изменить расстановку" },
+          { "name": "Ufone (PTCL)", "share_pct": 14, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_1", "is_company": false, "note": "сливается с Telenor — будущий объединённый игрок №2" }
+        ],
+        "players_note": "Объявленное слияние Telenor Pakistan и Ufone/PTCL создаст крупного второго игрока, сопоставимого с Jazz по масштабу — главный сдвиг в конкуренции на горизонте.",
+        "company_position": "leader",
+        "company_position_note": "Jazz — №1 по абонентам (~37%) и по выручке; первым перешёл к стратегии «цифрового оператора» (JazzCash, Tamasha и др.)."
+      },
+      "history": {
+        "trend": "growing",
+        "metric": "выручка телеком-отрасли Пакистана, млрд USD (порядок величины)",
+        "points": [
+          { "period": "2022", "value": 4.0, "certainty": "estimate", "source_ref": "src_3", "note": "оценка по отраслевым обзорам" },
+          { "period": "2023", "value": 4.2, "certainty": "estimate", "source_ref": "src_3", "note": "оценка" },
+          { "period": "2024", "value": 4.3, "certainty": "estimate", "source_ref": "src_3", "note": "оценка" },
+          { "period": "2025", "value": 4.52, "certainty": "fact", "source_ref": "src_3", "note": "оценка отраслевого обзора" }
+        ],
+        "key_shifts": [
+          "Передача выручки от голоса к данным: в 2024 году доступ к данным/интернету впервые превысил голос (~52% выручки отрасли)",
+          "Запуск 5G запланирован/идёт с 2025 года — стимул для обновления сетей",
+          "Слияние Telenor + Ufone/PTCL консолидирует рынок из 4 игроков ближе к 3 крупным"
+        ],
+        "history_certainty": "estimate"
+      },
+      "drivers": [
+        { "factor": "Рост проникновения смартфонов и потребления мобильного интернета", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "Быстрый рост мобильных финансовых сервисов (JazzCash, цифровые платежи, ~13% ВВП в транзакциях)", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "Девальвация пакистанской рупии размывает выручку в долларовом выражении", "direction": "constrain", "type": "macro", "note": "рост в местной валюте выше долларового" },
+        { "factor": "Зрелость и насыщенность абонентской базы (~192 млн SIM), ограниченный прирост новых абонентов", "direction": "constrain", "type": "competition", "note": "" },
+        { "factor": "Консолидация конкурентов (Telenor+Ufone) усилит второго игрока", "direction": "constrain", "type": "competition", "note": "" }
+      ],
+      "forecast": {
+        "direction": "рост",
+        "horizon": "3–5 лет",
+        "growth_orientation": "Умеренный рост телеком-рынка в долларовом выражении (ориентировочно низкий–средний однозначный темп в год); внутри него — заметно более быстрый рост цифрового/финтех-сегмента (двузначные темпы). Долларовая динамика сильно зависит от курса рупии.",
+        "certainty": "estimate",
+        "logic": {
+          "supporting": ["переток выручки в данные и цифровые сервисы", "рост финтех-платежей", "запуск 5G"],
+          "constraining": ["девальвация рупии", "насыщение рынка", "усиление второго игрока после слияния"]
+        },
+        "source_refs": ["src_3"],
+        "note": "Отраслевые обзоры дают CAGR порядка 3–4% по телеком-MNO в долларах; разброс между источниками значимый, поэтому даём диапазон, а не точную цифру."
+      },
+      "company_outlook": {
+        "share_trajectory": "удержит долю",
+        "certainty": "model",
+        "reasoning": "Jazz — устойчивый лидер с самой развитой цифровой вертикалью (JazzCash, контент). Базовый сценарий — удержание доли №1 при опережающем росте цифровой выручки. Риск понижения — после слияния Telenor+Ufone объединённый игрок может усилить ценовую конкуренцию. Наша оценка по факторам, не прогноз с источником."
+      },
+      "international_expansion": null
+    },
+
+    {
+      "name": "Мобильная связь и цифровые сервисы Украины (Kyivstar)",
+      "tier": "primary",
+      "geography": "regional",
+      "role_for_company": "Второй ключевой рынок группы; Kyivstar — оператор №1 в Украине. В 2025 году Kyivstar отдельно вышел на Nasdaq (тикер KYIV), VEON сохранил ~89,6% доли.",
+      "current": {
+        "size": { "value": "~1,9 млрд USD выручки телеком-MNO в 2025 году", "certainty": "fact", "source_ref": "src_5", "note": "оценка отраслевого обзора по мобильному рынку" },
+        "size_metric": "выручка мобильного рынка в долларах; ~47–48 млн мобильных подключений",
+        "players": [
+          { "name": "Kyivstar (VEON)", "share_pct": 47, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_2", "is_company": true, "note": "~22,4 млн мобильных абонентов, лидер по выручке (UAH 44,16 млрд в 2025)" },
+          { "name": "Vodafone Ukraine", "share_pct": null, "share_low": 25, "share_high": 30, "certainty": "estimate", "source_ref": "src_6", "is_company": false, "note": "выручка UAH 25,59 млрд в 2025; доля оценочно" },
+          { "name": "lifecell (DVL/NJJ)", "share_pct": null, "share_low": 15, "share_high": 20, "certainty": "estimate", "source_ref": "src_6", "is_company": false, "note": "выручка UAH 15,74 млрд; в 2024 куплен консорциумом Xavier Niel" }
+        ],
+        "players_note": "Доли Kyivstar даны по абонентам (~47%); по выручке лидерство ещё заметнее. У Vodafone и lifecell доли по выручке оцениваем по соотношению UAH-выручки операторов.",
+        "company_position": "leader",
+        "company_position_note": "Kyivstar — №1 по абонентам (~22,4 млн, ~47%) и по выручке; крупнейшая цифровая экосистема (Helsi — здоровье, Kyivstar TV, Uklon — такси/доставка)."
+      },
+      "history": {
+        "trend": "growing",
+        "metric": "рост выручки операторов в местной валюте (гривна), г/г, %",
+        "points": [
+          { "period": "2025: Kyivstar", "value": 20.3, "certainty": "fact", "source_ref": "src_6", "note": "рост выручки Kyivstar +20,3% г/г в 2025" },
+          { "period": "2025: Vodafone UA", "value": 13.1, "certainty": "fact", "source_ref": "src_6", "note": "+13,1% г/г" },
+          { "period": "2025: lifecell", "value": 19.1, "certainty": "fact", "source_ref": "src_6", "note": "+19,1% г/г" }
+        ],
+        "key_shifts": [
+          "Рекордный рост выручки операторов в 2025 году несмотря на войну (Kyivstar +20,3% в гривне)",
+          "Kyivstar в 2Q25 — выручка 284 млн USD, +20,9% г/г; 13,4 млн цифровых MAU",
+          "Август 2025: Kyivstar выходит на Nasdaq (KYIV) — первая чисто украинская компания на бирже США",
+          "Консолидация Uklon (такси) резко увеличила цифровую выручку Kyivstar"
+        ],
+        "history_certainty": "fact"
+      },
+      "drivers": [
+        { "factor": "Цифровая экосистема (Helsi, Kyivstar TV, Uklon) повышает выручку на абонента и маржу", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "Восстановление спроса и инвестиции в сети (Kyivstar нарастил капвложения в 1,5 раза)", "direction": "support", "type": "competition", "note": "" },
+        { "factor": "Военный конфликт: разрушение инфраструктуры, миграция населения, риск эскалации", "direction": "constrain", "type": "regulation", "note": "ключевой страновой риск" },
+        { "factor": "Девальвация и инфляция гривны размывают долларовую выручку", "direction": "constrain", "type": "macro", "note": "" },
+        { "factor": "Запуск Starlink direct-to-cell — новые сервисы и устойчивость связи", "direction": "support", "type": "tech", "note": "" }
+      ],
+      "forecast": {
+        "direction": "рост",
+        "horizon": "3–5 лет",
+        "growth_orientation": "В местной валюте — уверенный рост (в 2025 году операторы показали двузначные темпы), драйвер — цифровые сервисы. Долларовая динамика и устойчивость целиком зависят от хода и исхода военного конфликта: при стабилизации/восстановлении — сильный потенциал, при эскалации — риск спада. Точный прогноз невозможен из-за войны.",
+        "certainty": "model",
+        "logic": {
+          "supporting": ["лидерство Kyivstar", "цифровая экосистема и Uklon", "потенциал послевоенного восстановления", "доступ к капиталу через листинг на Nasdaq"],
+          "constraining": ["военные риски и разрушение инфраструктуры", "девальвация гривны", "демография/миграция населения"]
+        },
+        "source_refs": ["src_5", "src_6"],
+        "note": "Отраслевой обзор даёт CAGR ~3,5% по рынку в долларах до 2030, но в условиях войны это сценарий, а не факт; наша оценка по факторам."
+      },
+      "company_outlook": {
+        "share_trajectory": "удержит долю",
+        "certainty": "model",
+        "reasoning": "Kyivstar — устойчивый лидер с самой развитой цифровой платформой и теперь отдельным листингом на Nasdaq (доступ к капиталу). Базовый сценарий — удержание доли №1 и опережающий рост цифровой выручки. Главная неопределённость — не конкуренция, а ход войны. Наша оценка по факторам."
+      },
+      "international_expansion": null
+    },
+
+    {
+      "name": "Мобильная связь и финтех Казахстана (Beeline)",
+      "tier": "secondary",
+      "geography": "regional",
+      "role_for_company": "Средний по масштабу, но стабильный рынок; Beeline — лидер по абонентам.",
+      "brief": [
+        { "point": "Beeline (VEON) — №1 по абонентам, доля ~45% (2024); Kcell ~42%, Tele2/Altel ~13%", "certainty": "fact", "source_ref": "src_4" },
+        { "point": "Рынок ~4 операторов, насыщенный; конкуренция смещается в качество сети и цифровые сервисы (Beeline использует app-стек VEON)", "certainty": "fact", "source_ref": "src_4" },
+        { "point": "Драйвер — 5G (ограниченный запуск Kcell и Tele2 в начале 2025) и цифровые/финтех-сервисы; покупка Altel Power International усиливает конкуренцию", "certainty": "fact", "source_ref": "src_4" },
+        { "point": "Прогноз: умеренный рост рынка, для Beeline — удержание лидерства за счёт цифровизации; девальвация тенге — фактор давления на долларовую выручку (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+      ]
+    },
+
+    {
+      "name": "Мобильная связь Бангладеш (Banglalink)",
+      "tier": "secondary",
+      "geography": "regional",
+      "role_for_company": "Средний рынок; Banglalink — №3, выручка в 2025 снижалась, но рентабельность (EBITDA) выросла.",
+      "brief": [
+        { "point": "Рынок ~180+ млн абонентов; Grameenphone ~45%, Robi ~31%, Banglalink (VEON) ~20%, Teletalk ~4%", "certainty": "fact", "source_ref": "src_7" },
+        { "point": "Banglalink — №3 и теряет абонентов (минус ~6 млн за 3 года); позиция challenger/догоняющего", "certainty": "fact", "source_ref": "src_7" },
+        { "point": "Драйверы: 5G-пилоты с 2025, рост данных; VEON планирует direct-to-cell спутниковую связь через Starlink", "certainty": "fact", "source_ref": "src_7" },
+        { "point": "Прогноз: для Banglalink ставка не на долю абонентов, а на рост рентабельности и цифровые сервисы; конкурентная позиция слабее, чем у Jazz/Kyivstar (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+      ]
+    },
+
+    {
+      "name": "Мобильная связь Узбекистана (Beeline)",
+      "tier": "secondary",
+      "geography": "regional",
+      "role_for_company": "Растущий рынок; Beeline — крупнейший оператор по абонентам и охвату.",
+      "brief": [
+        { "point": "Рынок ~35–36 млн абонентов, проникновение ~94%; Beeline (VEON) — лидер, ~8,2 млн абонентов", "certainty": "fact", "source_ref": "src_8" },
+        { "point": "Конкуренты: Mobiuz/UMS (~21%, ~8 млн), Ucell (Telia), Uzmobile (госхолдинг); тройка лидеров покрывает ~96% базы", "certainty": "fact", "source_ref": "src_8" },
+        { "point": "Beeline — лучшая по качеству и скорости сети (Opensignal); драйвер — рост данных и цифровых сервисов в растущей экономике", "certainty": "fact", "source_ref": "src_8" },
+        { "point": "Прогноз: один из самых перспективных рынков группы по росту проникновения данных; приватизация Mobiuz привлечёт иностранного стратега и усилит конкуренцию (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+      ]
+    }
+  ],
+
+  "sources": [
+    { "id": "src_1", "type": "media", "title": "Pakistan Telecom Market Share & Revenue 2025; PhoneWorld/Jazz рыночные доли", "period": "2025–2026", "url": "https://digitalpakistan.pk/pakistan-telecom-market-share-revenue-2025/", "reliability": "medium" },
+    { "id": "src_2", "type": "official", "title": "Kyivstar/VEON: листинг на Nasdaq, абоненты и цифровые MAU (пресс-релизы)", "period": "2025", "url": "https://www.veon.com/kyivstar", "reliability": "high" },
+    { "id": "src_3", "type": "industry_report", "title": "Pakistan Telecom MNO Market Size & Share Forecast (Mordor Intelligence)", "period": "2025–2031", "url": "https://www.mordorintelligence.com/industry-reports/pakistan-telecom-market", "reliability": "medium" },
+    { "id": "src_4", "type": "industry_report", "title": "Kazakhstan Telecom MNO Market Size, Share, 2025-2030 (Mordor Intelligence)", "period": "2024–2030", "url": "https://www.mordorintelligence.com/industry-reports/kazakhstan-telecom-mno-market", "reliability": "medium" },
+    { "id": "src_5", "type": "industry_report", "title": "Ukraine Telecom MNO Market Size, Share & 2030 Trends (Mordor Intelligence)", "period": "2025–2030", "url": "https://www.mordorintelligence.com/industry-reports/ukraine-telecom-mno-market", "reliability": "medium" },
+    { "id": "src_6", "type": "regulator", "title": "Telecom revenues of Kyivstar/Vodafone/lifecell 2025 (регулятор НКЭК, Interfax-Ukraine)", "period": "2025", "url": "https://en.interfax.com.ua/news/telecom/1156661.html", "reliability": "high" },
+    { "id": "src_7", "type": "media", "title": "Bangladesh mobile market 2025: доли GP/Robi/Banglalink/Teletalk (The Daily Star / AMTOB)", "period": "2025", "url": "https://www.thedailystar.net/business/economy/news/mobile-subscribers-see-slight-dip-2025-4116061", "reliability": "medium" },
+    { "id": "src_8", "type": "industry_report", "title": "Uzbekistan Telecom MNO Market Size, Share, 2025-2030 (Mordor Intelligence) + Opensignal", "period": "2024–2030", "url": "https://www.mordorintelligence.com/industry-reports/uzbekistan-telecom-mno-market", "reliability": "medium" }
+  ],
+  "data_flags": [
+    "Точные доли по выручке (а не по абонентам) по каждому рынку публично не раскрываются единообразно — доли Vodafone Ukraine и lifecell оценены по соотношению гривневой выручки.",
+    "Размер телеком-рынков в долларах по странам зависит от источника и курса местных валют; даны порядки величины с пометкой estimate.",
+    "Долларовая выручка VEON по странам в разбивке — оценка (компания раскрывает темпы роста, не абсолютные доли); см. business_model.md.",
+    "Прогнозы по Украине принципиально неопределённы из-за военного конфликта — помечены как model/сценарий.",
+    "CAGR из агрегаторов (Mordor и др.) — пониженной надёжности, использованы как ориентир порядка величины, не как точный расчёт.",
+    "Слияние Telenor Pakistan + Ufone/PTCL на момент анализа в процессе — будущие доли игроков могут измениться."
+  ]
+}
