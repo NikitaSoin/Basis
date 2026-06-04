@@ -322,6 +322,27 @@ async def get_market_summary_md(ticker: str):
     )
 
 
+@router.get("/companies/by-ticker/{ticker}/macro")
+async def get_macro_json(ticker: str):
+    """Блок «Макро» в виде JSON (его рисует фронтенд: факторы, знаки эффекта)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "macro.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Macro not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+@router.get("/companies/by-ticker/{ticker}/macro-summary", response_class=PlainTextResponse)
+async def get_macro_summary_md(ticker: str):
+    """Текстовая интерпретация блока «Макро» (markdown)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "macro_summary.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Macro summary not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
+
+
 @router.get("/sectors/{sector_key}/peers")
 async def get_sector_peers(sector_key: str):
     """Сравнение конкурентов по сектору + данные для карт-координат."""
