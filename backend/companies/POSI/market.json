@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "ticker": "POSI",
+    "name": "Positive Technologies (Группа Позитив)",
+    "as_of": "2026-06-04",
+    "data_quality": "high",
+    "market_position_summary": "Positive Technologies работает на российском рынке кибербезопасности (информационной безопасности, ИБ) — это её единственный значимый рынок. По итогам 2025 года компания вышла на второе место по доле рынка средств защиты информации (~16,8%), уступая только Лаборатории Касперского. В ядре — рынок SIEM/VM, где компания исторический лидер; точка роста — молодой рынок межсетевых экранов нового поколения (NGFW), где Positive — догоняющий игрок.",
+    "certainty_legend": {
+      "fact": "Факт с источником — найдено в поиске (размер рынка, доли, история)",
+      "estimate": "Оценка-ориентир — данные есть, но разнятся/устарели; диапазон, «ориентировочно»",
+      "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
+    }
+  },
+
+  "markets": [
+    {
+      "name": "Рынок кибербезопасности РФ (информационная безопасность, ИБ)",
+      "tier": "primary",
+      "geography": "domestic",
+      "role_for_company": "Единственный значимый рынок компании: ~95%+ выручки — Россия. Сюда входят все продукты Positive (SIEM, VM, NAD, AF, NGFW, EDR).",
+
+      "current": {
+        "size": { "value": "364 млрд руб. за 2025 год (СЗИ 271 млрд + услуги 93,5 млрд)", "certainty": "fact", "source_ref": "src_csr", "note": "Оценка ЦСР (ноябрь 2025). Альтернативные оценки выше — TAdviser >400 млрд, B1/Forbes 369 млрд; разброс методологий." },
+        "size_metric": "объём рынка ИБ РФ в год (продажи средств защиты информации + услуги), млрд руб.",
+        "players": [
+          { "name": "Лаборатория Касперского", "share_pct": 20.1, "share_low": null, "share_high": null,
+            "certainty": "fact", "source_ref": "src_csr", "is_company": false, "note": "лидер, +0,5 п.п. за 2025; доля по продажам СЗИ" },
+          { "name": "Positive Technologies", "share_pct": 16.8, "share_low": null, "share_high": null,
+            "certainty": "fact", "source_ref": "src_csr", "is_company": true, "note": "№2, наибольший прирост доли среди игроков (+3,2 п.п. за 2025)" },
+          { "name": "ГК «Солар»", "share_pct": null, "share_low": null, "share_high": null,
+            "certainty": "estimate", "source_ref": "src_csr", "is_company": false, "note": "в числе лидеров, сильна в ИБ-сервисах (MSS/MDR); точная доля не раскрыта" },
+          { "name": "BI.ZONE", "share_pct": null, "share_low": null, "share_high": null,
+            "certainty": "estimate", "source_ref": "src_csr", "is_company": false, "note": "в числе лидеров, сервисная модель; точная доля не раскрыта" },
+          { "name": "ИнфоТеКС", "share_pct": null, "share_low": null, "share_high": null,
+            "certainty": "estimate", "source_ref": "src_csr", "is_company": false, "note": "сетевая безопасность (VPN/ViPNet); точная доля не раскрыта" },
+          { "name": "Код Безопасности", "share_pct": null, "share_low": null, "share_high": null,
+            "certainty": "estimate", "source_ref": "src_csr", "is_company": false, "note": "сетевая безопасность, NGFW (Континент); точная доля не раскрыта" },
+          { "name": "UserGate", "share_pct": null, "share_low": null, "share_high": null,
+            "certainty": "estimate", "source_ref": "src_csr", "is_company": false, "note": "сетевая безопасность, лидер NGFW; точная доля общего рынка не раскрыта" }
+        ],
+        "players_note": "Рынок фрагментирован по нишам: Касперский и Positive — продуктовые гиганты широкого профиля; Солар и BI.ZONE сильны в сервисах; ИнфоТеКС, Код Безопасности, UserGate — в сетевой безопасности. Доля отечественных поставщиков СЗИ превысила 94%.",
+        "company_position": "challenger",
+        "company_position_note": "№2 по доле всего рынка СЗИ (16,8%) — устойчивый challenger к лидеру Касперскому; при этом абсолютный лидер в отдельных нишах (SIEM/VM, см. вторичные рынки)."
+      },
+
+      "history": {
+        "trend": "growing",
+        "metric": "объём рынка ИБ РФ, млрд руб. в год",
+        "points": [
+          { "period": "2021", "value": 113, "certainty": "estimate", "source_ref": "src_tadviser_it", "note": "ориентир до санкционного скачка" },
+          { "period": "2022", "value": 212, "certainty": "estimate", "source_ref": "src_globalcio", "note": "разные оценки 192-212 млрд" },
+          { "period": "2023", "value": 248, "certainty": "fact", "source_ref": "src_b1", "note": "+~28% г/г" },
+          { "period": "2024", "value": 299, "certainty": "fact", "source_ref": "src_drussia", "note": "+~23% г/г (по части оценок до 339 млрд)" },
+          { "period": "2025", "value": 364, "certainty": "fact", "source_ref": "src_csr", "note": "+16,1% г/г по ЦСР" }
+        ],
+        "key_shifts": [
+          "2022: уход западных вендоров (Cisco, Fortinet, Palo Alto, IBM QRadar, Splunk) запустил скачок спроса на отечественные решения — главный структурный сдвиг.",
+          "2023-2024: пик роста (+23-28% в год) на волне импортозамещения и ужесточения требований ФСТЭК/ФСБ/ЦБ.",
+          "2025: темп роста начал нормализовываться (~16% по ЦСР) по мере насыщения базовых ниш — эффект разового замещения постепенно исчерпывается."
+        ],
+        "history_certainty": "estimate"
+      },
+
+      "drivers": [
+        { "factor": "Импортозамещение и регуляторное требование отечественных сертифицированных решений (ФСТЭК/ФСБ) для КИИ и госсектора", "direction": "support", "type": "regulation", "note": "структурный, законодательно защищённый спрос" },
+        { "factor": "Рост числа и сложности кибератак, цифровизация бизнеса", "direction": "support", "type": "tech", "note": "" },
+        { "factor": "Острый дефицит ИБ-специалистов → спрос на сервисы (MSS/MDR) и продукты-автопилоты", "direction": "support", "type": "demography", "note": "по ЦСР — заметный драйвер сервисного сегмента" },
+        { "factor": "Насыщение базовых ниш (SIEM/VM) после разового эффекта ухода западных вендоров", "direction": "constrain", "type": "competition", "note": "" },
+        { "factor": "Высокая ключевая ставка ЦБ сжимает IT-бюджеты корпоративных клиентов, закупки откладываются", "direction": "constrain", "type": "macro", "note": "проявилось в провале отгрузок 2024 года" }
+      ],
+
+      "forecast": {
+        "direction": "рост",
+        "horizon": "5-6 лет (до 2030-2031)",
+        "growth_orientation": "Рост продолжится, но темпом ниже бума 2022-2024: ориентировочно средне-высокий двузначный темп в год (порядка ~15-19% в год по отраслевым прогнозам). К 2030-2031 рынок отраслевые аналитики оценивают в районе 1 трлн руб.",
+        "certainty": "estimate",
+        "logic": {
+          "supporting": [
+            "регуляторное давление (импортозамещение в КИИ ещё не завершено, доля иностранных решений может упасть до ~4-15% к 2030)",
+            "продолжающийся рост киберугроз и обязательность ИБ для бизнеса",
+            "развитие сервисных сегментов (MSS/MDR) на дефиците кадров"
+          ],
+          "constraining": [
+            "разовый эффект импортозамещения исчерпывается, темп роста уже снижается (с ~28% к ~16%)",
+            "макро-давление (высокая ставка, IT-бюджеты)"
+          ]
+        },
+        "source_refs": ["src_csr", "src_comnews_2030"],
+        "note": "Прогноз ЦСР (CAGR 19,4% до 2031, >1 трлн руб.) и B1 (681 млрд к 2030) — это отраслевые оценки с источником, но между собой расходятся, поэтому certainty=estimate."
+      },
+
+      "company_outlook": {
+        "share_trajectory": "удержит",
+        "certainty": "model",
+        "reasoning": "Наша оценка по факторам. Positive растёт быстрее рынка (отгрузки +40% в 2025 против +16% рынка) и уже нарастила долю на 3,2 п.п. за год — это аргумент за дальнейший рост доли. НО: ядро (SIEM/VM) насыщается, а дальнейший прирост доли упирается в успех на новых, более конкурентных рынках (NGFW), где Positive пока догоняющий. Базовый сценарий — удержание/умеренное наращивание доли №2; агрессивный рост доли не гарантирован и зависит от того, выстрелит ли NGFW и удержится ли дисциплина расходов (урок 2024 года)."
+      },
+
+      "international_expansion": {
+        "applicable": true,
+        "status": "может выйти / экспорт в зачаточном состоянии",
+        "external_markets": [
+          { "market": "СНГ, Ближний Восток, Юго-Восточная Азия, Латинская Америка", "note": "Компания заявляет о развитии экспорта в дружественные юрисдикции, но вклад в выручку <5% и отдельно не раскрывается. Внешние рынки конкурентны (там работают глобальные вендоры), для российского ИБ-вендора это пока нишевое и рискованное направление, а не значимый драйвер.", "certainty": "estimate", "source_ref": "src_pt_release" }
+        ],
+        "note": "Бизнес сконцентрирован на РФ (~95%+ выручки). Экспорт — опциональная долгосрочная история, не закладывать в базовый сценарий."
+      }
+    },
+
+    {
+      "name": "Рынок SIEM / управления уязвимостями (VM) РФ — ядро бизнеса",
+      "tier": "secondary",
+      "geography": "domestic",
+      "role_for_company": "Историческое ядро: MaxPatrol SIEM (34% продаж) + MaxPatrol VM (16%) — около половины выручки компании. Здесь Positive — абсолютный лидер.",
+      "brief": [
+        { "point": "Объём рынка SIEM РФ ориентировочно 18-24 млрд руб. в год (оценки 2023-2024 расходятся); VM — отдельный смежный сегмент.", "certainty": "estimate", "source_ref": "src_siem_market" },
+        { "point": "Positive Technologies (MaxPatrol SIEM) — лидер рынка с большим отрывом (по данным 2022 — ~57% среди SIEM-поставщиков после ухода QRadar/ArcSight); используется 700+ компаниями.", "certainty": "estimate", "source_ref": "src_siem_market" },
+        { "point": "Ключевые конкуренты: Kaspersky KUMA, RuSIEM, R-Vision, Security Vision — догоняющие.", "certainty": "fact", "source_ref": "src_siem_market" },
+        { "point": "Перспектива: это зрелая, насыщающаяся ниша — главный риск для роста компании. Прогноз: умеренный рост на продлениях и допродажах, без взрывной динамики (наша оценка по факторам — ядро уже захвачено).", "certainty": "model", "source_ref": null }
+      ]
+    },
+
+    {
+      "name": "Рынок межсетевых экранов нового поколения (NGFW) РФ — точка роста",
+      "tier": "secondary",
+      "geography": "domestic",
+      "role_for_company": "Новый, крупнейший денежный сегмент сетевой безопасности, в который Positive зашла с PT NGFW. Главный драйвер будущего роста сверх насыщенного ядра.",
+      "brief": [
+        { "point": "Объём рынка NGFW РФ в 2024 — ~52 млрд руб. (+30% г/г); оценки на 2025 расходятся: 47-60 млрд руб. К 2030 прогноз ~146 млрд руб. (CAGR ~18%).", "certainty": "estimate", "source_ref": "src_ngfw_market" },
+        { "point": "Лидеры рынка на конец 2024: UserGate (~23%), Код Безопасности (Континент, ~18%), Check Point (~14%, иностранный, уходит). Доля отечественных решений выросла с 28% (2021) до ~70% (2024).", "certainty": "estimate", "source_ref": "src_ngfw_market" },
+        { "point": "Positive (PT NGFW) — НОВЫЙ догоняющий игрок: >2 млрд руб. накопленных отгрузок за 2 года, 130 клиентов, рост >2x в 2025 (>1 млрд руб.). Доля рынка пока единицы процентов.", "certainty": "estimate", "source_ref": "src_pt_release" },
+        { "point": "Перспектива: пик перехода на отечественные NGFW ожидается в 2025-2026 — окно возможностей. Но NGFW = «железо+софт», маржа ниже софта, конкуренция жёстче (UserGate, Код Безопасности впереди). Успех Positive не гарантирован — это ставка, а не свершившийся факт (наша оценка по факторам).", "certainty": "model", "source_ref": null }
+      ]
+    }
+  ],
+
+  "sources": [
+    { "id": "src_csr", "type": "industry_report", "title": "ЦСР: прогноз развития рынка кибербезопасности РФ (рынок 364 млрд руб. за 2025, доли Касперский 20,1% / Positive 16,8%, CAGR 19,4% до 2031)", "period": "ноябрь 2025", "url": "https://www.csr.ru/upload/iblock/233/lio2l8p775bu8lhddpaja8f6fto01x8s.pdf", "reliability": "high" },
+    { "id": "src_comnews_2030", "type": "industry_report", "title": "Объём рынка кибербезопасности РФ к 2030 может достичь 968 млрд руб. (ComNews по ЦСР)", "period": "2025-11-17", "url": "https://www.comnews.ru/content/242393/2025-11-17/2025-w47/1010/obem-rossiyskogo-rynka-kiberbezopasnosti-k-2030-g-mozhet-dostich-968-mlrd-rub", "reliability": "high" },
+    { "id": "src_b1", "type": "industry_report", "title": "B1: рынок ИБ РФ может достичь 681 млрд руб. к 2030 (2023 — 248,5 млрд)", "period": "март 2025", "url": "https://b1.ru/insights/news/media-center/b1-russian-information-security-market-survey-press-release-19-march-2025/", "reliability": "high" },
+    { "id": "src_drussia", "type": "industry_report", "title": "Российский рынок ИБ в 2024 году вырос на 27%, составил ~339 млрд руб.", "period": "2024", "url": "https://d-russia.ru/rossijskij-rynok-ib-v-2024-godu-vyros-na-27-i-sostavil-339-mln-rub-issledovanie.html", "reliability": "medium" },
+    { "id": "src_globalcio", "type": "industry_report", "title": "Объём рынка ИБ РФ достиг 212 млрд руб. (2022), выручка топ-100 +26%", "period": "2022-2023", "url": "https://globalcio.ru/news/35695/", "reliability": "medium" },
+    { "id": "src_tadviser_it", "type": "industry_report", "title": "ИТ-рынок и рынок ИБ России — обзор TAdviser (динамика по годам)", "period": "2021-2025", "url": "https://www.tadviser.ru/index.php/Статья:Российский_рынок_ИБ_2025._Обзор_TAdviser", "reliability": "medium" },
+    { "id": "src_ngfw_market", "type": "industry_report", "title": "Российский рынок NGFW 2024-2025: объём ~52 млрд (2024), доли UserGate 23% / Код Безопасности 18% / Check Point 14%, прогноз до 2030 (Anti-Malware / TAdviser / Kommersant)", "period": "2024-2025", "url": "https://www.anti-malware.ru/analytics/Market_Analysis/NGFW-market-overview-AMLive", "reliability": "medium" },
+    { "id": "src_siem_market", "type": "industry_report", "title": "Рынок SIEM в России: лидерство Positive Technologies (MaxPatrol SIEM ~57% среди поставщиков, 700+ компаний), объём 18-24 млрд руб. (TAdviser/Positive, Anti-Malware)", "period": "2023-2025", "url": "https://ptsecurity.com/research/analytics/siem-market-in-of-russia/", "reliability": "medium" },
+    { "id": "src_pt_release", "type": "official", "title": "Positive Technologies: итоги 2025 — отгрузки 33,6 млрд (+40%), NIC 2,7 млрд, PT NGFW >1 млрд (рост >2x), рост вдвое выше рынка", "period": "апрель 2026", "url": "https://www.cnews.ru/news/line/2026-04-08_positive_technologies_po_itogam_2025", "reliability": "high" }
+  ],
+  "data_flags": [
+    "Точные доли отдельных игроков (Солар, BI.ZONE, ИнфоТеКС, Код Безопасности, UserGate) в общем рынке СЗИ публично не раскрыты — указаны как «в числе лидеров» (estimate).",
+    "Оценки объёма рынка ИБ РФ сильно расходятся между домами (ЦСР 364 млрд / TAdviser >400 млрд / B1 369 млрд за 2025) из-за разной методологии (включать ли услуги/импорт). Историческая динамика по годам — ориентир (estimate), точки 2021-2022 особенно.",
+    "Объём рынка SIEM РФ оценки расходятся (18-24 млрд); доля Positive в SIEM ~57% — данные 2022, могли измениться.",
+    "Доля Positive в NGFW не раскрыта точно — оценена как единицы процентов от объёма накопленных отгрузок (>2 млрд) против рынка ~52 млрд.",
+    "Доля экспорта (<5%) компанией не раскрывается, оценка по бизнес-модели.",
+    "Прогнозы рынка (>1 трлн к 2031, CAGR 19,4%) — отраслевые оценки ЦСР; реализация зависит от макро и регуляторики, поэтому certainty=estimate, не fact."
+  ]
+}
