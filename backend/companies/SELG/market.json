@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "ticker": "SELG",
+    "name": "Селигдар",
+    "as_of": "2026-06-04",
+    "data_quality": "medium",
+    "market_position_summary": "Селигдар зарабатывает прежде всего на мировом рынке золота (~89% выручки), где он мелкий игрок (топ-10 в России, ~0,2% мировой добычи), и доминирует на узком российском рынке олова через «Русолово» (~80–90% страны), который глобально остаётся нишевым (~1% мирового производства). Цены на оба металла в 2025–2026 на исторических максимумах.",
+    "certainty_legend": {
+      "fact": "Факт с источником — найдено в поиске (размер рынка, доли, история)",
+      "estimate": "Оценка-ориентир — данные есть, но разнятся/устарели; диапазон, «ориентировочно»",
+      "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
+    }
+  },
+
+  "markets": [
+    {
+      "name": "Мировой рынок золота",
+      "tier": "primary",
+      "geography": "global",
+      "role_for_company": "Главный рынок: ~89% выручки (77,7 млрд руб в 2025). Цена золота — главный драйвер экономики компании.",
+      "current": {
+        "size": { "value": "~555 млрд $ годового спроса; ~3 672 т добычи в год (мировая цена золота определяется глобально)", "certainty": "fact", "source_ref": "src_wgc_fy25", "note": "Спрос 2025 +45% г/г, добыча — рекорд" },
+        "size_metric": "Стоимость годового спроса (млрд $) и объём добычи (тонны); цена — глобальный бенчмарк (LBMA)",
+        "players": [
+          { "name": "Селигдар", "share_pct": null, "share_low": 0.2, "share_high": 0.25, "certainty": "estimate", "source_ref": "src_inn_producers", "is_company": true, "note": "8,27 т добычи / ~3 672 т мировой добычи ≈ 0,2%. На мировом рынке цены — price-taker, не влияет на цену." },
+          { "name": "Россия (страна, 2-й добытчик в мире)", "share_pct": null, "share_low": 8, "share_high": 9, "certainty": "fact", "source_ref": "src_inn_producers", "is_company": false, "note": "~310 т, ~2-е место в мире после Китая" },
+          { "name": "Polyus (крупнейший в РФ)", "share_pct": null, "share_low": 2, "share_high": 2.5, "certainty": "fact", "source_ref": "src_inn_producers", "is_company": false, "note": "78,65 т в 2025; для сравнения масштаба внутри РФ" }
+        ],
+        "players_note": "Мировой рынок золота фрагментирован: ни одна компания не имеет значимой доли. Цена формируется глобально (LBMA), производители — price-takers. Доля Селигдара символическая.",
+        "company_position": "niche",
+        "company_position_note": "8,27 т добычи — топ-10 в России (~2,5% страны), но <0,3% мировой добычи. На цену не влияет, полностью зависит от глобального бенчмарка."
+      },
+      "history": {
+        "trend": "growing",
+        "metric": "Средняя годовая цена золота, $/унция (LBMA), ориентир по кварталам/годам",
+        "points": [
+          { "period": "2021", "value": 1799, "certainty": "estimate", "source_ref": "src_wgc_fy25", "note": "средняя за год, округлённо" },
+          { "period": "2022", "value": 1800, "certainty": "estimate", "source_ref": "src_wgc_fy25", "note": "стагнация на фоне роста ставок ФРС" },
+          { "period": "2023", "value": 1940, "certainty": "estimate", "source_ref": "src_wgc_fy25", "note": "" },
+          { "period": "2024", "value": 2390, "certainty": "estimate", "source_ref": "src_wgc_fy25", "note": "сильный рост на покупках ЦБ" },
+          { "period": "2025", "value": 3600, "certainty": "fact", "source_ref": "src_wgc_fy25", "note": "53 новых исторических максимума; средняя Q4 — $4 135/унц" }
+        ],
+        "key_shifts": [
+          "2024–2025: мощное ралли — золото обновило десятки исторических максимумов, средняя цена Q4 2025 ~$4 135/унц",
+          "Рекордные покупки центробанков (863 т в 2025) и приток в ETF (+801 т) — структурный сдвиг спроса",
+          "Стоимость мирового спроса достигла $555 млрд (+45% г/г)"
+        ],
+        "history_certainty": "estimate"
+      },
+      "drivers": [
+        { "factor": "Рекордные покупки золота центробанками (863 т в 2025, ~585 т/квартал ожидается в 2026)", "direction": "support", "type": "macro", "note": "структурный спрос, мало зависит от цены" },
+        { "factor": "Геополитическая и монетарная неопределённость, спрос на защитный актив", "direction": "support", "type": "macro", "note": "" },
+        { "factor": "Приток в золотые ETF и розничный спрос (12-летний максимум по слиткам/монетам)", "direction": "support", "type": "macro", "note": "" },
+        { "factor": "Возможное снижение ставок ведущих ЦБ удешевляет владение золотом", "direction": "support", "type": "macro", "note": "" },
+        { "factor": "Резкое падение цены при развороте монетарного цикла / укреплении доллара", "direction": "constrain", "type": "macro", "note": "главный риск — цена уже на экстремумах" },
+        { "factor": "Для российских производителей — закрытые рынки сбыта (санкции G7 с 2022), продажи внутри РФ/в дружественные страны", "direction": "constrain", "type": "regulation", "note": "" }
+      ],
+      "forecast": {
+        "direction": "рост",
+        "horizon": "1–2 года",
+        "growth_orientation": "Консенсус аналитиков на 2026 — дальнейший рост цены, ориентировочно к $4 900–6 300/унц (медиана опроса Reuters ~$4 916, банки J.P. Morgan/Wells Fargo выше $6 000). На 2027 прогнозы ещё выше ($5 200–6 500). Это прогнозы с источниками, но разброс большой и уровни уже исторические — риск коррекции реален.",
+        "certainty": "estimate",
+        "logic": {
+          "supporting": ["устойчивые покупки ЦБ", "геополитика и спрос на защиту", "ожидания смягчения монетарной политики"],
+          "constraining": ["цены на исторических максимумах — высокая база и риск разворота", "разброс прогнозов очень широкий"]
+        },
+        "source_refs": ["src_jpm_forecast", "src_goldsilver_forecast"],
+        "note": "Прогнозы банков есть, но разнятся и относятся к экстремальным уровням — берём как estimate с честной оговоркой о неопределённости."
+      },
+      "company_outlook": {
+        "share_trajectory": "удержит долю",
+        "certainty": "model",
+        "reasoning": "Наша оценка по факторам: запуск ЗИФ «Хвойное» (+2,5 т/год) и развитие Кючуса могут поднять добычу до 10+ т, что слегка увеличит долю внутри РФ, но в мировом масштабе Селигдар остаётся незаметным price-taker'ом. Главное для компании — не доля, а уровень цены золота: при высоких ценах операционно очень прибылен, но из-за золотых облигаций показывает бухгалтерский убыток."
+      },
+      "international_expansion": {
+        "applicable": true,
+        "status": "экспорт ограничен санкциями; золото в основном продаётся внутри РФ",
+        "external_markets": [
+          { "market": "Мировой рынок золота (продажи в дружественные юрисдикции)", "note": "G7 запретили импорт российского золота с 2022; сбыт переориентирован на внутренний рынок (банки, ЦБ РФ) и страны вне санкций (Китай, Турция, ОАЭ). С мая 2026 РФ ограничивает экспорт золотых слитков. Доступ к премиальным западным рынкам закрыт.", "certainty": "fact", "source_ref": "src_ru_gold_sanctions" }
+        ],
+        "note": "Цена реализации привязана к мировому бенчмарку, но каналы сбыта сужены санкциями."
+      }
+    },
+
+    {
+      "name": "Рынок олова (Россия + мировой)",
+      "tier": "primary",
+      "geography": "global",
+      "role_for_company": "Второй по значимости рынок: ~9% выручки. Через «Русолово» Селигдар — практически монополист в РФ (~80–90%), но глобально нишевой игрок.",
+      "current": {
+        "size": { "value": "Мировое производство первичного рафинированного олова ~380 тыс т/год; цена LME ~$45–50 тыс/т в начале 2026 (исторические максимумы)", "certainty": "fact", "source_ref": "src_ita_supply", "note": "Россия в этом объёме — доли процента" },
+        "size_metric": "Мировое производство рафинированного олова (тыс т) и цена LME ($/т); в РФ — объём добычи в концентрате (т)",
+        "players": [
+          { "name": "Русолово (Селигдар) — в России", "share_pct": null, "share_low": 80, "share_high": 90, "certainty": "fact", "source_ref": "src_rusolovo_2025", "is_company": true, "note": "~80% (2023) — 90% по более свежим данным; 3 500 т концентрата в 2025 (+42% г/г), исторический рекорд. В мировом масштабе ~0,9% (3,5 тыс т / 380 тыс т)." },
+          { "name": "Yunnan Tin (Китай) — мировой лидер", "share_pct": null, "share_low": 20, "share_high": 23, "certainty": "fact", "source_ref": "src_ita_producers", "is_company": false, "note": "~85 тыс т рафинированного олова — крупнейший в мире" },
+          { "name": "Индонезия (PT Timah и др.)", "share_pct": null, "share_low": 18, "share_high": 19, "certainty": "fact", "source_ref": "src_ita_producers", "is_company": false, "note": "~70 тыс т; квоты растут с 53 до 60 тыс т в 2026" },
+          { "name": "Minsur (Перу)", "share_pct": null, "share_low": 9, "share_high": 10, "certainty": "fact", "source_ref": "src_ita_producers", "is_company": false, "note": "~36 тыс т" }
+        ],
+        "players_note": "Россия покрывает значимую часть внутреннего спроса, но часть олова импортируется. Глобально рынок концентрирован в Китае и Индонезии; Селигдар/Русолово — национальный лидер при микроскопической мировой доле.",
+        "company_position": "leader",
+        "company_position_note": "Лидер (фактически монополист) в России — ~80–90% добычи; но это «leader на узком национальном рынке», глобально — niche (~1%)."
+      },
+      "history": {
+        "trend": "growing",
+        "metric": "Цена олова LME, $/т (ориентир по годам)",
+        "points": [
+          { "period": "2022", "value": 31000, "certainty": "estimate", "source_ref": "src_ita_supply", "note": "после пика 2021–2022 и последующей коррекции, округлённо" },
+          { "period": "2023", "value": 26000, "certainty": "estimate", "source_ref": "src_ita_supply", "note": "ослабление спроса в электронике" },
+          { "period": "2024", "value": 30000, "certainty": "estimate", "source_ref": "src_ita_supply", "note": "восстановление; падение мирового производства на сбоях поставок" },
+          { "period": "2025", "value": 37000, "certainty": "estimate", "source_ref": "src_ita_supply", "note": "+34% г/г; дефицит и низкие запасы LME" },
+          { "period": "2026 (н.г.)", "value": 49000, "certainty": "fact", "source_ref": "src_tin_forecast", "note": "3M LME ~$49,7 тыс/т в феврале 2026, кратковременно >$54 тыс в январе" }
+        ],
+        "key_shifts": [
+          "Сбои поставок из Мьянмы (отгрузки в Китай за 9 мес 2025 −70,7% г/г) и борьба с нелегальной добычей в Индонезии резко сократили предложение",
+          "Запасы на LME упали ниже 5 000 т — несколько дней мирового потребления",
+          "Рост спроса от электроники, ИИ-дата-центров и энергоперехода (припой) толкает цену к историческим максимумам"
+        ],
+        "history_certainty": "estimate"
+      },
+      "drivers": [
+        { "factor": "Структурный дефицит: предложение растёт ~3%, спрос ~3,5% (2026), к 2030 дефицит ~40 тыс т (~9,5% спроса)", "direction": "support", "type": "competition", "note": "ITA" },
+        { "factor": "Спрос от электроники, ИИ-дата-центров (~2 500 т нового потребления в 2026) и энергоперехода", "direction": "support", "type": "tech", "note": "припой — ключевое применение" },
+        { "factor": "Сбои поставок (Мьянма, Конго) и критически низкие запасы LME", "direction": "support", "type": "other", "note": "поддерживают высокую цену" },
+        { "factor": "В России — ограниченный круг покупателей концентрата, узкий внутренний рынок сбыта", "direction": "constrain", "type": "competition", "note": "рыночная сила покупателей умеренная" },
+        { "factor": "Рост квот Индонезии (53→60 тыс т) и возможное восстановление поставок частично смягчат дефицит", "direction": "constrain", "type": "competition", "note": "" }
+      ],
+      "forecast": {
+        "direction": "рост",
+        "horizon": "3–5 лет",
+        "growth_orientation": "Рынок олова идёт в структурный дефицит — большинство прогнозов на 2026 указывают на сохранение высоких цен (ориентиры аналитиков от ~$35 тыс до ~$45–55 тыс/т, разброс большой). Дефицит до ~2030 поддерживает цену. Это прогноз с источниками, но с широким разбросом — берём как estimate.",
+        "certainty": "estimate",
+        "logic": {
+          "supporting": ["структурный дефицит предложения до 2030", "спрос от ИИ/электроники/энергоперехода", "низкие запасы LME"],
+          "constraining": ["рост квот Индонезии", "очень широкий разброс прогнозов цены", "цена уже на исторических максимумах"]
+        },
+        "source_refs": ["src_ita_supply", "src_tin_forecast"],
+        "note": "Дефицитный нарратив надёжен; конкретные ценовые цели расходятся — без ложной точности."
+      },
+      "company_outlook": {
+        "share_trajectory": "нарастит долю",
+        "certainty": "model",
+        "reasoning": "Наша оценка по факторам: «Русолово» уже национальный лидер и активно наращивает добычу (+42% в 2025, цель 3,7–4 тыс т в 2026). Запуск Амурского металлургического комплекса (~5 500 т, 2027) добавит передел плавки и увеличит выпуск металла. На фоне дефицитного и дорогого мирового рынка олова это сильный попутный ветер для маржи, хотя в глобальной доле компания остаётся нишевой."
+      },
+      "international_expansion": {
+        "applicable": true,
+        "status": "часть концентрата экспортируется; основной фокус — внутренний рынок и собственный передел",
+        "external_markets": [
+          { "market": "Мировой рынок олова (LME-бенчмарк)", "note": "Цена реализации привязана к мировому рынку (дефицитному и дорогому). Часть оловянного/медного концентрата идёт на экспорт, но точная доля не раскрывается. Строительство Амурского комплекса нацелено на переход от концентрата к рафинированному металлу.", "certainty": "estimate", "source_ref": "src_rusolovo_2025" }
+        ],
+        "note": ""
+      }
+    },
+
+    {
+      "name": "Медь и вольфрам (попутная добыча)",
+      "tier": "secondary",
+      "geography": "global",
+      "role_for_company": "Небольшой попутный сегмент (~1–2% выручки), добывается на оловянных месторождениях.",
+      "brief": [
+        { "point": "Объёмы малы: медь ~2 380 т (+16% в 2025), вольфрам ~127 т (+87%); доля в выручке ~1–2%", "certainty": "fact", "source_ref": "src_rusolovo_2025" },
+        { "point": "Мировые рынки меди и вольфрама крупные и ликвидные; Селигдар на них — микроскопический игрок (price-taker)", "certainty": "estimate", "source_ref": "src_ita_supply" },
+        { "point": "Вольфрам — критический металл с напряжённым предложением (доминирование Китая), что поддерживает цены", "certainty": "estimate", "source_ref": "src_ita_supply" },
+        { "point": "Прогноз: сегмент остаётся попутным; компания заявляла планы нарастить долю меди/вольфрама в выручке, но это второстепенный драйвер (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+      ]
+    }
+  ],
+
+  "sources": [
+    { "id": "src_wgc_fy25", "type": "industry_report", "title": "Gold Demand Trends: Q4 and Full Year 2025 — World Gold Council", "period": "2025", "url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-full-year-2025", "reliability": "high" },
+    { "id": "src_inn_producers", "type": "industry_report", "title": "10 Largest Producers of Gold by Country / Top Gold-mining Companies — Investing News Network", "period": "2025", "url": "https://investingnews.com/daily/resource-investing/precious-metals-investing/gold-investing/top-gold-producing-countries/", "reliability": "medium" },
+    { "id": "src_jpm_forecast", "type": "industry_report", "title": "Gold price predictions from J.P. Morgan Global Research", "period": "2026", "url": "https://www.jpmorgan.com/insights/global-research/commodities/gold-prices", "reliability": "high" },
+    { "id": "src_goldsilver_forecast", "type": "media", "title": "Gold Price Forecast 2026–2027: Key Predictions from Top Analysts — GoldSilver", "period": "2026", "url": "https://goldsilver.com/industry-news/article/gold-price-forecast-2026-2027-key-predictions-from-top-analysts/", "reliability": "medium" },
+    { "id": "src_ru_gold_sanctions", "type": "media", "title": "Russia Gold Export Rules / What's happening to Russian gold (санкции G7, переориентация сбыта)", "period": "2022–2026", "url": "https://discoveryalert.com.au/russia-gold-production-global-powerhouse-2025/", "reliability": "medium" },
+    { "id": "src_ita_supply", "type": "industry_report", "title": "Global Tin Supply and Demand Forecast / ITA Market Analysis (дефицит, размер рынка ~380 тыс т)", "period": "2025–2026", "url": "https://www.internationaltin.org/market-analysis/", "reliability": "high" },
+    { "id": "src_ita_producers", "type": "industry_report", "title": "Global tin production / крупнейшие производители (Yunnan Tin, Timah, Minsur) — ITA / USGS", "period": "2024–2025", "url": "https://www.internationaltin.org/global-tin-production-falls-in-2024-on-supply-disruptions/", "reliability": "high" },
+    { "id": "src_rusolovo_2025", "type": "media", "title": "Русолово увеличило производство олова за 2025 на 42% до 3,5 тыс т; доля РФ; планы (Амурский комплекс) — Smart-Lab / Ведомости / ПРАЙМ", "period": "2025", "url": "https://smart-lab.ru/blog/news/1256682.php", "reliability": "medium" },
+    { "id": "src_tin_forecast", "type": "media", "title": "Tin price 2026 forecast / LME 3M ~$49,7 тыс/т, дефицит, ИИ-спрос — Coface / Discovery Alert / EBC", "period": "2026", "url": "https://www.coface.com/news-economy-and-insights/tin-is-riding-high-on-the-metals-market-s-latest-surge", "reliability": "medium" }
+  ],
+
+  "data_flags": [
+    "Доля Селигдара в мировой добыче золота оценена расчётом (8,27 т / ~3 672 т) — ориентир, не официальная цифра.",
+    "Доля Русолово в РФ: источники дают разброс 80% (2023) — 90% (свежие данные); взят диапазон.",
+    "Исторические точки цен золота и олова — округлённые средние/ориентиры по годам, не точные биржевые средние (certainty: estimate).",
+    "Прогнозы цен золота и олова на 2026–2027 имеют очень широкий разброс между банками/аналитиками; уровни исторические — риск коррекции существенный.",
+    "Точная доля экспорта золота и концентратов Селигдаром не раскрывается компанией.",
+    "Размер российского внутреннего рынка олова (спрос, импорт) точно не найден — оценочно компания покрывает значимую, но не всю потребность РФ."
+  ]
+}
