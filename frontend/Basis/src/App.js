@@ -2786,7 +2786,7 @@ const CompanyCard = ({ company, onBack }) => {
     const years = meta.fiscal_years || [];
     const at = (arr, i) => (Array.isArray(arr) ? (arr[i] ?? null) : null);
     const isBank = meta.profile === "bank";
-    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return formatNumber(v / 1000000, { decimals: 2 }) + " трлн"; if (a >= 1000) return formatNumber(v / 1000, { decimals: 1 }) + " млрд"; return formatNumber(v); };
+    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return formatNumber(v / 1000000, { decimals: 2 }) + " трлн"; if (a >= 1000) return formatNumber(v / 1000, { decimals: 1 }) + " млрд"; return formatNumber(v) + " млн"; };
     const yoy = (c, p) => (typeof c === "number" && typeof p === "number" && p !== 0) ? ((c - p) / Math.abs(p)) * 100 : null;
     // Section card header: accent icon + title + optional right slot.
     const cardHead = (Icon, title, right) => (
