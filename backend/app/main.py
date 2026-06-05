@@ -24,6 +24,19 @@ async def _quotes_job():
         logger.exception("Ошибка планировщика котировок: %s", e)
 
 
+async def _history_job():
+    """Ежедневное доедание ИСТОРИИ котировок (пропущенные дни + финализация
+    live-снапшотов официальными дневными свечами). Отдельный cron-job в ТОМ ЖЕ
+    планировщике, а не внутри 5-минутного _quotes_job: дообновление — это
+    ~261 поштучный запрос к ISS (минуты работы), его место — раз в день
+    вечером после закрытия торгов, а не в горячем цикле котировок."""
+    try:
+        from app.services.moex_history import catch_up_history
+        await asyncio.get_event_loop().run_in_executor(None, catch_up_history)
+    except Exception as e:
+        logger.exception("Ошибка дообновления истории котировок: %s", e)
+
+
 async def _tinkoff_warmup():
     """Прогревает Tinkoff: загружает инструменты и первичные цены."""
     if not os.environ.get("TINKOFF_API_TOKEN"):
@@ -69,8 +82,11 @@ async def _tinkoff_warmup():
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
+    # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
+    # пропущенные дни и финализируем live-снапшоты официальными свечами.
+    scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
     scheduler.start()
-    logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал)")
+    logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
     asyncio.create_task(_tinkoff_warmup())
 
