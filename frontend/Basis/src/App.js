@@ -5253,6 +5253,36 @@ const ScoreCard = ({ score, gate }) => {
   );
 };
 
+// Donut-диаграмма распределения: «цвет только в данных» — cat-палитра токенов.
+// SVG-кольцо без библиотек, в духе остальных чартов App.js.
+const DonutChart = ({ slices, size = 168, thickness = 26 }) => {
+  const r = (size - thickness) / 2;
+  const C = 2 * Math.PI * r;
+  let acc = 0;
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Распределение портфеля">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-subtle)" strokeWidth={thickness} />
+      {slices.map((s, i) => {
+        const frac = Math.max(0, s.pct) / 100;
+        const seg = (
+          <circle
+            key={i}
+            cx={size / 2} cy={size / 2} r={r}
+            fill="none" stroke={s.color} strokeWidth={thickness}
+            strokeDasharray={`${frac * C} ${C}`}
+            strokeDashoffset={-acc * C}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        );
+        acc += frac;
+        return seg;
+      })}
+    </svg>
+  );
+};
+
+const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4)", "var(--cat-5)", "var(--cat-6)", "var(--cat-7)", "var(--cat-8)"];
+
 const PortfolioView = ({ token, onAuthRequired }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -5269,6 +5299,9 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   const [quotes, setQuotes] = useState({});
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
+  // Этап 1 аналитики: метрики из company_metrics (P/E, дивдоходность,
+  // секторное распределение, концентрация) — GET /portfolios/{id}/metrics
+  const [pfMetrics, setPfMetrics] = useState(null);
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
 
@@ -5328,11 +5361,18 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             setPositions([]);
             setRawPositions([]);
           }
+
+          // Лёгкие метрики портфеля (Этап 1) — одним запросом из company_metrics
+          fetch(`${apiUrl}/api/portfolios/${active.id}/metrics`, { headers: authHeaders })
+            .then(r => r.ok ? r.json() : null)
+            .then(m => setPfMetrics(m))
+            .catch(() => setPfMetrics(null));
         } else {
           setPortfolioList([]);
           setPortfolio(null);
           setPositions([]);
           setRawPositions([]);
+          setPfMetrics(null);
         }
       } finally {
         setPortfolioLoading(false);
@@ -5423,6 +5463,25 @@ const PortfolioView = ({ token, onAuthRequired }) => {
 
   const currentStress = stressMap[stressScenario];
 
+  // Метрики по тикерам из company_metrics + примечание о покрытии («по n из m»)
+  const metricByTicker = useMemo(() => {
+    const map = {};
+    (pfMetrics?.positions || []).forEach((p) => { map[p.ticker] = p; });
+    return map;
+  }, [pfMetrics]);
+  const metricsCoverageNote = useMemo(() => {
+    const w = pfMetrics?.portfolio;
+    if (!w) return null;
+    const parts = [];
+    if (w.pe_current && w.pe_current.n < w.pe_current.m)
+      parts.push(`P/E тек. рассчитан по ${w.pe_current.n} из ${w.pe_current.m} позиций`);
+    if (w.pe_historical && w.pe_historical.n < w.pe_historical.m)
+      parts.push(`P/E ист. — по ${w.pe_historical.n} из ${w.pe_historical.m}`);
+    if (w.div_yield && w.div_yield.n < w.div_yield.m)
+      parts.push(`дивдоходность — по ${w.div_yield.n} из ${w.div_yield.m}`);
+    return parts.length ? `Строка «Портфель» — средневзвешенное по долям; ${parts.join("; ")} (у остальных метрика не рассчитана).` : null;
+  }, [pfMetrics]);
+
   // Holdings rows enriched with derived value / weight / P&L for the Table.
   const holdingRows = displayPositions.map((p) => {
     const value = p.shares * p.currentPrice;
@@ -5501,7 +5560,8 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         rows={holdingRows}
       />
 
-      {/* Per-asset analytic metrics */}
+      {/* Per-asset analytic metrics — числа из company_metrics (Этап 1).
+          Ожид. доходность / StdDev / Beta — Этап 2 (история котировок). */}
       <Card header="Аналитические метрики портфеля" className="tw-mt-1">
         <Table
           columns={[
@@ -5514,14 +5574,71 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v) },
           ]}
           rows={[
-            ...displayPositions,
+            ...displayPositions.map((p) => {
+              const m = metricByTicker[p.ticker];
+              return m ? { ...p, pe: m.pe_current, pe_hist: m.pe_historical, divYield: m.div_yield } : p;
+            }),
             {
-              ticker: "Портфель", expReturn: stats.portExp, stdDev: stats.portStd,
-              pe: null, pe_hist: null, beta: stats.avgBeta, divYield: stats.avgYield,
+              ticker: "Портфель",
+              expReturn: null, stdDev: null, beta: null,
+              pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
+              pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
+              divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             },
           ]}
         />
+        {metricsCoverageNote && (
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">{metricsCoverageNote}</div>
+        )}
       </Card>
+
+      {/* Распределение и концентрация (Этап 1) — из /portfolios/{id}/metrics */}
+      {pfMetrics && pfMetrics.sector_allocation.length > 0 && (
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-3 tw-mt-1">
+          <Card header="Распределение по секторам" className="lg:tw-col-span-2">
+            <div className="tw-flex tw-items-center tw-gap-5 tw-flex-wrap">
+              <DonutChart
+                slices={pfMetrics.sector_allocation.map((s, i) => ({ pct: s.share_pct, color: CAT_COLORS[i % CAT_COLORS.length] }))}
+              />
+              <div className="tw-flex tw-flex-col tw-gap-2 tw-min-w-[200px] tw-flex-1">
+                {pfMetrics.sector_allocation.map((s, i) => (
+                  <div key={s.sector} className="tw-flex tw-items-center tw-gap-2 tw-text-[13px]">
+                    <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill tw-shrink-0" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
+                    <span className="tw-text-text-primary tw-flex-1">{s.sector}</span>
+                    <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(s.share_pct, { decimals: 1 })}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <Card header="Классы активов">
+              {pfMetrics.asset_classes.map((a) => (
+                <div key={a.name} className="tw-flex tw-items-center tw-justify-between tw-text-[13px] tw-mb-1.5">
+                  <span className="tw-text-text-primary">{a.name}</span>
+                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(a.share_pct, { decimals: 0 })}</span>
+                </div>
+              ))}
+              <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">
+                Облигации и фонды появятся после расширения модели портфеля.
+              </div>
+            </Card>
+            {pfMetrics.concentration && (
+              <Card header="Концентрация">
+                <div className="tw-flex tw-items-center tw-justify-between tw-text-[13px] tw-mb-1.5">
+                  <span className="tw-text-text-primary">Крупнейшая позиция ({pfMetrics.concentration.largest_ticker})</span>
+                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(pfMetrics.concentration.largest_pct, { decimals: 1 })}</span>
+                </div>
+                <div className="tw-flex tw-items-center tw-justify-between tw-text-[13px]">
+                  <span className="tw-text-text-primary">Топ-3 позиции</span>
+                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(pfMetrics.concentration.top3_pct, { decimals: 1 })}</span>
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
     </AppearGroup>
   );
 
@@ -5833,7 +5950,15 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             { label: "Диверсификация", value: 72, colorVar: "--cat-5" },
             { label: "Доходность", value: 65, colorVar: "--cat-3" },
             { label: "Риск", value: 58, colorVar: "--danger" },
-            { label: "Концентрация", value: 70, colorVar: "--cat-1" },
+            // Концентрация — реальный расчёт (Этап 1): 100 − доля крупнейшей
+            // позиции; чем выше балл, тем меньше портфель зависит от одной бумаги.
+            {
+              label: "Концентрация",
+              value: pfMetrics?.concentration
+                ? Math.max(0, Math.round(100 - pfMetrics.concentration.largest_pct))
+                : 70,
+              colorVar: "--cat-1",
+            },
           ].map((m) => (
             <MetricBar key={m.label} label={m.label} value={m.value} colorVar={m.colorVar} />
           ))}
