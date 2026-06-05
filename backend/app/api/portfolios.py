@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.schemas.portfolio import PortfolioCreate, PortfolioResponse, PositionCreate, PositionResponse
+from app.schemas.portfolio import (
+    PortfolioCreate, PortfolioMetricsResponse, PortfolioResponse,
+    PositionCreate, PositionResponse,
+)
 from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
     create_portfolio, add_position, delete_position,
+    compute_portfolio_metrics,
 )
 from app.auth import get_current_user, get_current_user_optional
 from app.models.user import User, SubscriptionType
@@ -67,6 +71,23 @@ def add_position_endpoint(
             )
 
     return add_position(db, portfolio_id, data)
+
+
+@router.get("/portfolios/{portfolio_id}/metrics", response_model=PortfolioMetricsResponse)
+def portfolio_metrics_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Лёгкие аналитические метрики портфеля (Этап 1): P/E и дивдоходность
+    позиций из company_metrics, средневзвешенные по портфелю, распределение
+    по секторам/классам активов, концентрация."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    return compute_portfolio_metrics(db, portfolio_id)
 
 
 @router.delete("/portfolios/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)

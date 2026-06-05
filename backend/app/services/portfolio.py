@@ -1,4 +1,7 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
+from app.models.company import Company, Quote
+from app.models.company_metrics import CompanyMetrics
 from app.models.portfolio import Portfolio, PortfolioPosition
 from app.schemas.portfolio import PortfolioCreate, PositionCreate
 
@@ -39,6 +42,129 @@ def add_position(db: Session, portfolio_id: int, data: PositionCreate) -> Portfo
     db.commit()
     db.refresh(position)
     return position
+
+
+def _weighted_avg(items: list[tuple[float, float | None]]) -> dict:
+    """Средневзвешенное с честной обработкой пропусков.
+
+    items: [(стоимость позиции, значение метрики | None), ...]
+    Позиции без метрики НЕ входят в сумму, и веса нормируются только на
+    позиции с метрикой (иначе пропуски занижали бы среднее). Возвращает
+    value + «рассчитано по n из m позиций», чтобы фронт показал это честно.
+    """
+    m = len(items)
+    known = [(v, x) for v, x in items if x is not None and v > 0]
+    n = len(known)
+    total = sum(v for v, _ in known)
+    if n == 0 or total <= 0:
+        return {"value": None, "n": n, "m": m}
+    return {"value": round(sum(v * x for v, x in known) / total, 2), "n": n, "m": m}
+
+
+def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
+    """Аналитика портфеля из company_metrics одним запросом (Этап 1).
+
+    Лёгкие метрики: P/E тек./ист. и дивдоходность по позициям, средневзвешенные
+    по портфелю, распределение по секторам и классам активов, концентрация.
+    Стоимость позиции = количество × последняя цена закрытия из quotes.
+    Риск-метрики (beta/volatility) — Этап 2, здесь не считаются.
+    """
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        return None
+
+    company_ids = [p.company_id for p in portfolio.positions]
+    if not company_ids:
+        return {
+            "positions": [], "portfolio": {}, "sector_allocation": [],
+            "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
+            "concentration": None,
+        }
+
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+
+    # Последняя цена закрытия по каждой компании портфеля
+    latest_sq = (
+        db.query(Quote.company_id, func.max(Quote.date).label("max_date"))
+        .filter(Quote.company_id.in_(company_ids))
+        .group_by(Quote.company_id)
+        .subquery()
+    )
+    price_rows = (
+        db.query(Quote.company_id, Quote.close)
+        .join(latest_sq, (Quote.company_id == latest_sq.c.company_id) & (Quote.date == latest_sq.c.max_date))
+        .all()
+    )
+    prices = {r.company_id: float(r.close) for r in price_rows if r.close is not None}
+
+    # Метрики — ОДНИМ запросом по тикерам портфеля (не из файлов)
+    tickers = [companies[cid].ticker for cid in company_ids if cid in companies]
+    metrics = {
+        m.ticker: m
+        for m in db.query(CompanyMetrics).filter(CompanyMetrics.ticker.in_(tickers)).all()
+    }
+
+    positions = []
+    for p in portfolio.positions:
+        c = companies.get(p.company_id)
+        if not c:
+            continue
+        price = prices.get(p.company_id)
+        value = float(p.quantity) * price if price is not None else None
+        m = metrics.get(c.ticker)
+        positions.append({
+            "ticker": c.ticker,
+            "name": c.name,
+            "sector": c.sector or "Прочее",
+            "value": round(value, 2) if value is not None else None,
+            "pe_current": float(m.pe_current) if m and m.pe_current is not None else None,
+            "pe_historical": float(m.pe_historical) if m and m.pe_historical is not None else None,
+            "div_yield": float(m.div_yield) if m and m.div_yield is not None else None,
+        })
+
+    total_value = sum(p["value"] for p in positions if p["value"] is not None)
+    for p in positions:
+        p["weight_pct"] = round(p["value"] / total_value * 100, 2) if p["value"] and total_value > 0 else None
+
+    # Средневзвешенные по портфелю (нормировка только на позиции с метрикой)
+    valued = [p for p in positions if p["value"] is not None]
+    portfolio_row = {
+        "pe_current": _weighted_avg([(p["value"], p["pe_current"]) for p in valued]),
+        "pe_historical": _weighted_avg([(p["value"], p["pe_historical"]) for p in valued]),
+        "div_yield": _weighted_avg([(p["value"], p["div_yield"]) for p in valued]),
+    }
+
+    # Распределение по секторам — по текущей стоимости
+    by_sector: dict[str, float] = {}
+    for p in valued:
+        by_sector[p["sector"]] = by_sector.get(p["sector"], 0.0) + p["value"]
+    sector_allocation = sorted(
+        (
+            {"sector": s, "value": round(v, 2), "share_pct": round(v / total_value * 100, 2)}
+            for s, v in by_sector.items()
+        ),
+        key=lambda x: -x["value"],
+    ) if total_value > 0 else []
+
+    # Концентрация: крупнейшая позиция и топ-3 по стоимости
+    concentration = None
+    if total_value > 0 and valued:
+        top = sorted(valued, key=lambda p: -p["value"])
+        concentration = {
+            "largest_ticker": top[0]["ticker"],
+            "largest_pct": round(top[0]["value"] / total_value * 100, 2),
+            "top3_pct": round(sum(p["value"] for p in top[:3]) / total_value * 100, 2),
+        }
+
+    return {
+        "positions": positions,
+        "portfolio": portfolio_row,
+        "sector_allocation": sector_allocation,
+        # Пока в модели только акции; блок готов принять облигации/фонды,
+        # когда позиции получат класс актива (отдельный трек).
+        "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
+        "concentration": concentration,
+    }
 
 
 def delete_position(db: Session, portfolio_id: int, position_id: int) -> bool:
