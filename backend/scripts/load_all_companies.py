@@ -99,7 +99,28 @@ SECTOR_RULES: list[tuple[str, list[str]]] = [
 ]
 
 
-def classify_sector(emitent_name: str) -> str:
+# Точечные оверрайды по тикеру — побеждают ключевые слова.
+# Синхронизированы с миграцией a9f31c20d4e1_fix_company_sectors.
+TICKER_SECTOR_OVERRIDES: dict[str, str] = {
+    "NKNC": "Химия", "NKNCP": "Химия",          # нефтехимия, не добыча
+    "CARM": "Финансы",                            # МФО CarMoney
+    "OZPH": "Здравоохранение",                    # фарма
+    "DZRD": "Машиностроение", "DZRDP": "Машиностроение",
+    "BAZA": "IT-сектор",
+    "NKSH": "Машиностроение",                     # шины — автокомпоненты
+    "EUTR": "Нефть и газ",                        # сеть АЗС
+    "TRNFP": "Транспорт и логистика",             # трубопроводная монополия
+    "RTGZ": "Транспорт и логистика",              # газораспределение
+    "ELMT": "Машиностроение",                     # микроэлектроника
+    "URKZ": "Машиностроение",                     # кузнечно-прессовое пр-во
+    "RBCM": "Прочее",                             # медиа
+    "PRFN": "Металлургия",                        # Теплант Восток — переработка стали
+}
+
+
+def classify_sector(emitent_name: str, ticker: str = "") -> str:
+    if ticker and ticker in TICKER_SECTOR_OVERRIDES:
+        return TICKER_SECTOR_OVERRIDES[ticker]
     lower = emitent_name.lower()
     for sector, keywords in SECTOR_RULES:
         for kw in keywords:
@@ -215,7 +236,7 @@ def main():
             cap_raw = row[idx["SECURITYCAPITALIZATION"]].strip() if "SECURITYCAPITALIZATION" in idx else ""
             market_cap = parse_russian_float(cap_raw)
 
-            sector = classify_sector(emitent or raw_name)
+            sector = classify_sector(emitent or raw_name, ticker)
 
             try:
                 # Upsert company (ON CONFLICT DO NOTHING)
