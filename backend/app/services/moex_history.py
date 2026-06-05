@@ -183,8 +183,13 @@ def upsert_share_rows(db: Session, company_id: int, rows: list[dict]) -> int:
             continue
         change_abs = change_pct = None
         if prev_close:
-            change_abs = round(float(close) - float(prev_close), 4)
-            change_pct = round((float(close) - float(prev_close)) / float(prev_close) * 100, 4)
+            pct = (float(close) - float(prev_close)) / float(prev_close) * 100
+            # Разрыв ряда из-за корпоративного действия (сплит/консолидация,
+            # как у VTBR 1:5000 в 2024): сравнение цен бессмысленно, а огромный
+            # процент не влезает в Numeric(8,4) — изменение не записываем.
+            if abs(pct) <= 200:
+                change_abs = round(float(close) - float(prev_close), 4)
+                change_pct = round(pct, 4)
         db.execute(_UPSERT_QUOTE_SQL, {
             "company_id": company_id,
             "date": r["TRADEDATE"],
