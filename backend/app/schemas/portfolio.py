@@ -50,6 +50,7 @@ class PortfolioResponse(BaseModel):
 class PositionMetrics(BaseModel):
     ticker: str
     name: str
+    company_id: int | None = None   # для перехода в карточку компании из портфеля
     sector: str
     value: float | None          # текущая стоимость позиции, ₽
     weight_pct: float | None     # доля в портфеле, %
