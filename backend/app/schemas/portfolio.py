@@ -1,12 +1,20 @@
 from datetime import datetime
 from decimal import Decimal
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PositionCreate(BaseModel):
     company_id: int
-    quantity: Decimal
-    avg_buy_price: Decimal
+    # gt=0: позиция с нулём/минусом акций ломала расчёт долей и метрик —
+    # такие значения отбрасываются на входе (защита в корне)
+    quantity: Decimal = Field(gt=0)
+    avg_buy_price: Decimal = Field(gt=0)
+
+
+class PositionUpdate(BaseModel):
+    """Прямое редактирование позиции (количество / средняя цена)."""
+    quantity: Decimal | None = Field(default=None, gt=0)
+    avg_buy_price: Decimal | None = Field(default=None, gt=0)
 
 
 class PositionResponse(BaseModel):

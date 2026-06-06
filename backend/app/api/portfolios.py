@@ -3,17 +3,20 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.schemas.portfolio import (
     PortfolioCreate, PortfolioMetricsResponse, PortfolioResponse,
-    PositionCreate, PositionResponse,
+    PositionCreate, PositionResponse, PositionUpdate,
 )
 from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
-    create_portfolio, add_position, delete_position,
+    create_portfolio, add_position, delete_position, update_position,
     compute_portfolio_metrics,
 )
 from app.auth import get_current_user, get_current_user_optional
 from app.models.user import User, SubscriptionType
 
-FREE_POSITION_LIMIT = 5
+# Подписок/оплаты на платформе пока нет (тарифы — витрина), лимит в 5 позиций
+# блокировал реальное использование (баг «6-я позиция не добавляется»).
+# Технический потолок оставлен; вернуть продуктовый лимит — при запуске тарифов.
+FREE_POSITION_LIMIT = 50
 
 router = APIRouter()
 
@@ -71,6 +74,27 @@ def add_position_endpoint(
             )
 
     return add_position(db, portfolio_id, data)
+
+
+@router.patch("/portfolios/{portfolio_id}/positions/{position_id}", response_model=PositionResponse)
+def update_position_endpoint(
+    portfolio_id: int,
+    position_id: int,
+    data: PositionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Прямое редактирование позиции: количество и/или средняя цена покупки."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    position = update_position(
+        db, portfolio_id, position_id,
+        quantity=data.quantity, avg_buy_price=data.avg_buy_price,
+    )
+    if not position:
+        raise HTTPException(status_code=404, detail="Позиция не найдена")
+    return position
 
 
 @router.get("/portfolios/{portfolio_id}/metrics", response_model=PortfolioMetricsResponse)
