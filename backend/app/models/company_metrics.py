@@ -37,6 +37,11 @@ class CompanyMetrics(Base):
     downside_vol: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))   # σ доходностей <0, ×√252, %
     var_95: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))         # ист. VaR 95%, дневной, % потери
     earnings_yield: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))  # 1/PE, %
+    # ── Этап 3: полная доходность и коэффициенты на базе безрисковой ставки ──
+    return_total_3y: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))  # цена + дивиденды, % годовых
+    alpha_3y: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))         # альфа Дженсена, % годовых
+    sortino_3y: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))        # (R_total − Rf)/downside
+    capm_expected: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))    # модельное ожидание, %
     updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
