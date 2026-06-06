@@ -609,7 +609,7 @@ export function Delta({ value, suffix = "%", decimals = 1, className = "" }) {
   );
 }
 
-export function Table({ columns = [], rows = [], caption }) {
+export function Table({ columns = [], rows = [], caption, onRowClick }) {
   return (
     <div className="tw-overflow-x-auto tw-border tw-border-border-strong tw-rounded-md">
       <table className="tw-w-full tw-border-collapse tw-text-[13px]">
@@ -635,7 +635,11 @@ export function Table({ columns = [], rows = [], caption }) {
           {rows.map((r, ri) => (
             <tr
               key={ri}
-              className="tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-bg-hover tw-transition-colors tw-duration-150"
+              onClick={onRowClick ? () => onRowClick(r) : undefined}
+              className={cx(
+                "tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-bg-hover tw-transition-colors tw-duration-150",
+                onRowClick && "tw-cursor-pointer"
+              )}
             >
               {columns.map((c, i) => (
                 <td
