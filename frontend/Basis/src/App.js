@@ -40,6 +40,7 @@ import {
   Trash2,
   ChevronDown,
   Check,
+  Pencil,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -5047,6 +5048,125 @@ const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
 };
 
 // =========================
+// EDIT POSITION MODAL — прямое редактирование (кол-во / средняя / удалить)
+// =========================
+
+const EditPositionModal = ({ portfolioId, position, token, onClose, onSuccess }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const [quantity, setQuantity] = useState(String(position.shares ?? ""));
+  const [avgPrice, setAvgPrice] = useState(String(position.avgPrice ?? ""));
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const check = async (resp, action) => {
+    if (resp.ok) return resp;
+    const body = await resp.json().catch(() => ({}));
+    throw new Error(body.detail || `Не удалось ${action} (HTTP ${resp.status})`);
+  };
+
+  const handleSave = async () => {
+    setError(null);
+    const qty = parseFloat(quantity);
+    const avg = parseFloat(avgPrice);
+    if (!(qty > 0) || !(avg > 0)) { setError("Количество и средняя цена должны быть больше нуля"); return; }
+    setLoading(true);
+    try {
+      await check(
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${position.id}`, {
+          method: "PATCH", headers: authHeaders,
+          body: JSON.stringify({ quantity: qty, avg_buy_price: avg }),
+        }),
+        "сохранить изменения"
+      );
+      onSuccess();
+    } catch (e) {
+      setError(e.message || "Ошибка");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await check(
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${position.id}`, {
+          method: "DELETE", headers: authHeaders,
+        }),
+        "удалить позицию"
+      );
+      onSuccess();
+    } catch (e) {
+      setError(e.message || "Ошибка");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-box" style={{ maxWidth: 420, width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 16px", borderBottom: "1px solid var(--border)" }}>
+          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "var(--text-1)" }}>
+            {position.ticker} — изменить позицию
+          </h3>
+          <button onClick={onClose} className="btn btn-ghost" style={{ padding: "4px 8px", minWidth: 0 }}><X size={16} /></button>
+        </div>
+
+        <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+          {[
+            { label: "Количество акций", value: quantity, onChange: (e) => setQuantity(e.target.value) },
+            { label: "Средняя цена покупки, ₽", value: avgPrice, onChange: (e) => setAvgPrice(e.target.value) },
+          ].map(({ label, value, onChange }) => (
+            <div key={label}>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+              <input
+                type="number"
+                value={value}
+                onChange={onChange}
+                style={{
+                  width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+                  outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+          ))}
+
+          {error && (
+            <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
+              {error}
+            </p>
+          )}
+
+          <Button onClick={handleSave} disabled={loading} style={{ width: "100%", justifyContent: "center" }}>
+            {loading ? "Сохраняем…" : "Сохранить"}
+          </Button>
+
+          {!confirmDelete ? (
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)} disabled={loading}
+              iconLeft={<Trash2 size={14} />} style={{ width: "100%", justifyContent: "center", color: "var(--danger)" }}>
+              Удалить позицию
+            </Button>
+          ) : (
+            <div className="tw-flex tw-items-center tw-gap-2">
+              <span className="tw-text-[13px] tw-text-text-secondary tw-flex-1">Удалить {position.ticker} из портфеля?</span>
+              <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)} disabled={loading}>Отмена</Button>
+              <Button size="sm" onClick={handleDelete} disabled={loading}
+                style={{ background: "var(--danger)", borderColor: "var(--danger)" }}>
+                Удалить
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =========================
 // ADD POSITION MODAL
 // =========================
 
@@ -5076,34 +5196,45 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
       if (!company) throw new Error(`Тикер «${ticker.trim().toUpperCase()}» не найден в базе`);
 
       const existing = existingPositions.find(p => p.company_id === company.id);
+      // Бэк отдаёт Decimal строками — приводим к числам ДО сравнений
+      // (раньше qty === existing.quantity сравнивало число со строкой,
+      // «продажа всех» не распознавалась и в портфеле застревала позиция с 0 шт.)
+      const exQty = existing ? parseFloat(existing.quantity) : 0;
+      const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
+
+      // Любая ошибка запроса — наружу, не молча (раньше 403 лимита глотался)
+      const check = async (resp, action) => {
+        if (resp.ok) return resp;
+        const body = await resp.json().catch(() => ({}));
+        throw new Error(body.detail || `Не удалось ${action} (HTTP ${resp.status})`);
+      };
+      const del = async () => check(
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders }),
+        "удалить позицию"
+      );
+      const post = async (body) => check(
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) }),
+        "сохранить позицию"
+      );
 
       if (side === "sell") {
         if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
-        if (qty > existing.quantity) throw new Error(`Нельзя продать больше чем есть (${existing.quantity} шт.)`);
-        if (qty === existing.quantity) {
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
-        } else {
-          const newQty = existing.quantity - qty;
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
-            method: "POST", headers: authHeaders,
-            body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: existing.avg_buy_price }),
-          });
+        if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
+        const newQty = exQty - qty;
+        await del();
+        // продажа в ноль (или из-за округления почти в ноль) = позиция удалена,
+        // нулевые строки в портфеле не появляются
+        if (newQty > 1e-9) {
+          await post({ company_id: company.id, quantity: newQty, avg_buy_price: exAvg });
         }
       } else {
         if (existing) {
-          const newQty = existing.quantity + qty;
-          const newAvg = (existing.quantity * existing.avg_buy_price + qty * prc) / newQty;
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders });
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
-            method: "POST", headers: authHeaders,
-            body: JSON.stringify({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) }),
-          });
+          const newQty = exQty + qty;
+          const newAvg = (exQty * exAvg + qty * prc) / newQty;
+          await del();
+          await post({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
         } else {
-          await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, {
-            method: "POST", headers: authHeaders,
-            body: JSON.stringify({ company_id: company.id, quantity: qty, avg_buy_price: prc }),
-          });
+          await post({ company_id: company.id, quantity: qty, avg_buy_price: prc });
         }
       }
       onSuccess();
@@ -5255,27 +5386,39 @@ const ScoreCard = ({ score, gate }) => {
 
 // Donut-диаграмма распределения: «цвет только в данных» — cat-палитра токенов.
 // SVG-кольцо без библиотек, в духе остальных чартов App.js.
-const DonutChart = ({ slices, size = 168, thickness = 26 }) => {
+const DonutChart = ({ slices, size = 188, thickness = 30 }) => {
   const r = (size - thickness) / 2;
   const C = 2 * Math.PI * r;
   let acc = 0;
+  const cx = size / 2, cy = size / 2;
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Распределение портфеля">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-subtle)" strokeWidth={thickness} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border-subtle)" strokeWidth={thickness} />
       {slices.map((s, i) => {
         const frac = Math.max(0, s.pct) / 100;
-        const seg = (
-          <circle
-            key={i}
-            cx={size / 2} cy={size / 2} r={r}
-            fill="none" stroke={s.color} strokeWidth={thickness}
-            strokeDasharray={`${frac * C} ${C}`}
-            strokeDashoffset={-acc * C}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          />
-        );
+        const startAcc = acc;
         acc += frac;
-        return seg;
+        // подпись процента на самом сегменте — там, где влезает (от ~9%)
+        const midAngle = 2 * Math.PI * (startAcc + frac / 2) - Math.PI / 2;
+        const lx = cx + r * Math.cos(midAngle);
+        const ly = cy + r * Math.sin(midAngle);
+        return (
+          <g key={i}>
+            <circle
+              cx={cx} cy={cy} r={r}
+              fill="none" stroke={s.color} strokeWidth={thickness}
+              strokeDasharray={`${frac * C} ${C}`}
+              strokeDashoffset={-startAcc * C}
+              transform={`rotate(-90 ${cx} ${cy})`}
+            />
+            {s.pct >= 9 && (
+              <text x={lx} y={ly + 3.5} textAnchor="middle" fontSize="11" fontWeight="700"
+                fill="var(--text-on-accent, #fff)" style={{ paintOrder: "stroke", stroke: "rgba(0,0,0,0.25)", strokeWidth: 2 }}>
+                {Math.round(s.pct)}%
+              </text>
+            )}
+          </g>
+        );
       })}
     </svg>
   );
@@ -5355,6 +5498,8 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   // Этап 1 аналитики: метрики из company_metrics (P/E, дивдоходность,
   // секторное распределение, концентрация) — GET /portfolios/{id}/metrics
   const [pfMetrics, setPfMetrics] = useState(null);
+  // Прямое редактирование позиции (строка таблицы «Состав»)
+  const [editPosition, setEditPosition] = useState(null);
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
 
@@ -5573,7 +5718,8 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         </Button>
       </div>
 
-      {/* Positions table */}
+      {/* Positions table — собственная плитка на фоне */}
+      <Card header="Состав портфеля">
       <Table
         columns={[
           {
@@ -5592,6 +5738,10 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           { key: "avgPrice", label: "Средняя", render: (v) => formatMoney(v, { decimals: 1 }) },
           { key: "currentPrice", label: "Текущая", render: (v) => <span className="tw-text-text-primary tw-font-medium">{formatMoney(v, { decimals: 1 })}</span> },
           {
+            key: "value", label: "Стоимость",
+            render: (v) => <span className="tw-text-text-primary tw-font-medium">{formatMoney(v, { decimals: 0 })}</span>,
+          },
+          {
             key: "weight", label: "Доля",
             render: (v, r) => (
               <div className="tw-flex tw-items-center tw-justify-end tw-gap-2">
@@ -5609,9 +5759,34 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             ),
           },
           { key: "profitPct", label: "Результат %", render: (v) => <Delta value={v} /> },
+          {
+            key: "_edit", label: "",
+            render: (_, r) => r.id == null ? null : (
+              <IconButton
+                size="sm"
+                aria-label={`Изменить позицию ${r.ticker}`}
+                onClick={() => setEditPosition(r)}
+              >
+                <Pencil size={13} />
+              </IconButton>
+            ),
+          },
         ]}
         rows={holdingRows}
       />
+
+      {/* Явный способ добавить бумагу — сразу в режиме покупки */}
+      <div className="tw-mt-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={<Plus size={14} />}
+          onClick={() => (portfolio && token ? setShowAddModal(true) : onAuthRequired())}
+        >
+          Добавить позицию
+        </Button>
+      </div>
+      </Card>
 
       {/* Per-asset analytic metrics — Этап 1 (P/E, дивдоходность из company_metrics)
           + Этап 2 (волатильность/бета/доходность из истории котировок).
@@ -5752,12 +5927,15 @@ const PortfolioView = ({ token, onAuthRequired }) => {
               <DonutChart
                 slices={pfMetrics.sector_allocation.map((s, i) => ({ pct: s.share_pct, color: CAT_COLORS[i % CAT_COLORS.length] }))}
               />
-              <div className="tw-flex tw-flex-col tw-gap-2 tw-min-w-[200px] tw-flex-1">
+              <div className="tw-flex tw-flex-col tw-gap-2.5 tw-min-w-[220px] tw-flex-1">
                 {pfMetrics.sector_allocation.map((s, i) => (
-                  <div key={s.sector} className="tw-flex tw-items-center tw-gap-2 tw-text-[13px]">
-                    <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill tw-shrink-0" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
-                    <span className="tw-text-text-primary tw-flex-1">{s.sector}</span>
-                    <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(s.share_pct, { decimals: 1 })}</span>
+                  <div key={s.sector} className="tw-flex tw-items-center tw-gap-2.5 tw-text-[14px]">
+                    <span className="tw-inline-block tw-w-3 tw-h-3 tw-rounded-sm tw-shrink-0" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
+                    {/* название + процент вместе, читаемо */}
+                    <span className="tw-text-text-primary tw-font-medium">
+                      {s.sector} <span className="tw-font-mono tw-tabular-nums">{fmtPercent(s.share_pct, { decimals: s.share_pct < 10 ? 1 : 0 })}</span>
+                    </span>
+                    <span className="tw-text-[12px] tw-text-text-tertiary tw-ml-auto tw-font-mono tw-tabular-nums">{formatMoney(s.value, { decimals: 0 })}</span>
                   </div>
                 ))}
               </div>
@@ -6186,13 +6364,16 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         ]}
       />
 
-      <Card style={{ minHeight: 400 }} className="tw-p-1">
+      {/* Без внешней белой обёртки: внутренние карточки (таблицы, диаграмма,
+          концентрация) лежат плитками прямо на фоне, как на других страницах —
+          двойной «коробки в коробке» нет */}
+      <div style={{ minHeight: 400 }}>
         {tab === "holdings" && renderHoldings()}
         {tab === "metrics" && renderAggregate()}
         {tab === "correlation" && renderCorrelation()}
         {tab === "ai" && renderAiDiagnosis()}
         {tab === "stress" && renderStress()}
-      </Card>
+      </div>
 
       {showUploadModal && (
         <PortfolioImportModal
@@ -6214,6 +6395,16 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           token={token}
           onClose={() => setShowAddModal(false)}
           onSuccess={reloadPortfolio}
+        />
+      )}
+
+      {editPosition && portfolio && (
+        <EditPositionModal
+          portfolioId={portfolio.id}
+          position={editPosition}
+          token={token}
+          onClose={() => setEditPosition(null)}
+          onSuccess={() => { setEditPosition(null); setReloadKey(k => k + 1); }}
         />
       )}
 
