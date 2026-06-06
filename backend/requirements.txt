@@ -15,3 +15,4 @@ apscheduler==3.11.2
 python-jose[cryptography]==3.5.0
 python-multipart==0.0.28
 # Tinkoff Invest API (pure HTTP, no gRPC SDK needed — см. tinkoff_quotes.py)
+numpy==2.4.6
