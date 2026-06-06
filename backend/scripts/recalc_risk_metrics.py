@@ -33,13 +33,34 @@ logger = logging.getLogger(__name__)
 
 _UPDATE_SQL = text("""
     UPDATE company_metrics
-    SET beta = :beta, volatility = :volatility, return_3y = :return_3y,
-        history_years = :history_years, updated_at = :updated_at
+    SET beta_calc = :beta_calc,
+        volatility = :volatility,
+        return_3y = :return_3y,
+        history_years = :history_years,
+        downside_vol = :downside_vol,
+        var_95 = :var_95,
+        r_squared = COALESCE(r_squared_moex, :r_squared_calc),
+        earnings_yield = CASE WHEN pe_current IS NOT NULL AND pe_current > 0
+                              THEN ROUND(100.0 / pe_current, 2) END,
+        beta = COALESCE(beta_moex, :beta_calc),
+        beta_source = CASE WHEN beta_moex IS NOT NULL THEN 'moex'
+                           WHEN :beta_calc IS NOT NULL THEN 'calc' END,
+        updated_at = :updated_at
     WHERE ticker = :ticker
 """)
 
 
 def main() -> None:
+    # 1) Официальные беты MOEX (приоритетный источник; при недоступности
+    #    URL и локального файла — работаем на своём расчёте)
+    try:
+        from app.services.moex_coefficients import sync_official_betas
+        res = sync_official_betas()
+        logger.info("Официальные беты MOEX: %s, файл %s, обновлено %d",
+                    res["source"] or "недоступны", res["date"], res["updated"])
+    except Exception as e:
+        logger.warning("Официальные беты MOEX: пропуск (%s)", e)
+
     db = SessionLocal()
     try:
         since = window_start()
@@ -53,7 +74,7 @@ def main() -> None:
 
         companies = db.query(Company).order_by(Company.ticker).all()
         now = datetime.now(timezone.utc)
-        filled = {"volatility": 0, "beta": 0, "return_3y": 0}
+        filled = {"volatility": 0, "beta_calc": 0, "return_3y": 0, "downside_vol": 0, "var_95": 0}
         short_history, empty = [], []
 
         for c in companies:
@@ -75,6 +96,28 @@ def main() -> None:
             logger.info("  %-12s заполнено %3d / %d", k, v, total)
         logger.info("  история <1 года (в UI «*»): %d — %s", len(short_history), ", ".join(short_history) or "—")
         logger.info("  без истории (NULL): %d — %s", len(empty), ", ".join(empty) or "—")
+
+        # 3) Контроль качества фолбэка: расхождение beta_calc vs beta_moex
+        rows = db.execute(text("""
+            SELECT ticker, beta_calc, beta_moex,
+                   ABS(beta_calc - beta_moex) AS gap
+            FROM company_metrics
+            WHERE beta_calc IS NOT NULL AND beta_moex IS NOT NULL
+            ORDER BY gap DESC
+        """)).all()
+        if rows:
+            gaps = [float(r.gap) for r in rows]
+            logger.info("  сверка с MOEX: %d бумаг, средний |разрыв| %.3f, медианный %.3f",
+                        len(rows), sum(gaps) / len(gaps), sorted(gaps)[len(gaps) // 2])
+            logger.info("  топ-10 расхождений (сигнал качества нашего расчёта):")
+            for r in rows[:10]:
+                logger.info("    %-6s calc=%.3f moex=%.3f Δ=%.3f",
+                            r.ticker, float(r.beta_calc), float(r.beta_moex), float(r.gap))
+        src = db.execute(text(
+            "SELECT beta_source, count(*) FROM company_metrics WHERE beta IS NOT NULL GROUP BY beta_source"
+        )).all()
+        logger.info("  источник показываемой беты: %s",
+                    ", ".join(f"{s or '—'}: {n}" for s, n in src))
     finally:
         db.close()
 

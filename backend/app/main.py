@@ -24,6 +24,17 @@ async def _quotes_job():
         logger.exception("Ошибка планировщика котировок: %s", e)
 
 
+async def _coefficients_job():
+    """Еженедельная выгрузка официальных бет/корреляций MOEX (fortscoefficients)
+    в company_metrics. Файл на бирже обновляется нерегулярно — еженедельного
+    опроса достаточно; при недоступности URL остаёмся на своём расчёте."""
+    try:
+        from app.services.moex_coefficients import sync_official_betas
+        await asyncio.get_event_loop().run_in_executor(None, sync_official_betas)
+    except Exception as e:
+        logger.exception("Ошибка выгрузки коэффициентов MOEX: %s", e)
+
+
 async def _history_job():
     """Ежедневное доедание ИСТОРИИ котировок (пропущенные дни + финализация
     live-снапшотов официальными дневными свечами). Отдельный cron-job в ТОМ ЖЕ
@@ -85,6 +96,8 @@ async def lifespan(app: FastAPI):
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
     scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
+    # Официальные беты MOEX — раз в неделю (файл обновляется нерегулярно)
+    scheduler.add_job(_coefficients_job, "cron", day_of_week="mon", hour=8, minute=30, id="moex_coefficients")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
