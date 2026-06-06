@@ -5283,6 +5283,50 @@ const DonutChart = ({ slices, size = 168, thickness = 26 }) => {
 
 const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4)", "var(--cat-5)", "var(--cat-6)", "var(--cat-7)", "var(--cat-8)"];
 
+// Сравнение накопленной доходности портфеля с бенчмарком (Этап 3).
+// Мультилинейный SVG: портфель и MCFTR — основные, IMOEX — тонкая справочная.
+const BenchmarkChart = ({ series }) => {
+  const { dates = [], portfolio = [], mcftr = [], imoex = [] } = series || {};
+  if (!dates.length) return null;
+  const W = 640, H = 220, padL = 44, padR = 12, padT = 12, padB = 24;
+  const all = [...portfolio, ...mcftr, ...imoex].filter((v) => typeof v === "number");
+  const max = Math.max(...all, 0), min = Math.min(...all, 0), span = (max - min) || 1;
+  const n = dates.length;
+  const xAt = (i) => padL + (n <= 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
+  const yAt = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
+  const line = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+  const zeroY = yAt(0);
+  const fmtD = (iso) => { const [y, m] = iso.split("-"); return `${m}.${y.slice(2)}`; };
+  const LINES = [
+    { d: line(portfolio), color: "var(--accent)", w: 2.25, label: "Портфель" },
+    { d: line(mcftr), color: "var(--cat-1)", w: 2, label: "MCFTR (с дивидендами)" },
+    { d: line(imoex), color: "var(--cat-8)", w: 1.25, label: "IMOEX (ценовой)" },
+  ];
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Портфель против бенчмарка">
+        {[max, (max + min) / 2, min].map((v, k) => (
+          <g key={k}>
+            <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray={v === 0 ? "" : "3 4"} />
+            <text x={padL - 6} y={yAt(v) + 4} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{Math.round(v)}%</text>
+          </g>
+        ))}
+        {min < 0 && max > 0 && <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-strong)" strokeWidth="1" />}
+        {LINES.map((l, k) => <path key={k} d={l.d} fill="none" stroke={l.color} strokeWidth={l.w} strokeLinejoin="round" />)}
+        <text x={padL} y={H - 8} fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[0])}</text>
+        <text x={W - padR} y={H - 8} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[dates.length - 1])}</text>
+      </svg>
+      <div className="tw-flex tw-flex-wrap tw-gap-4 tw-mt-2 tw-text-[12px] tw-text-text-secondary">
+        {LINES.map((l) => (
+          <span key={l.label} className="tw-inline-flex tw-items-center tw-gap-1.5">
+            <span className="tw-inline-block tw-w-4 tw-h-0.5 tw-rounded-pill" style={{ background: l.color, height: l.w }} />{l.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Честная подпись фактического периода метрики: «за 2 мес.», «за 1,9 г», «за 3 г»
 const fmtHistoryPeriod = (years) => {
   if (years == null) return null;
@@ -5579,9 +5623,33 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             {
               key: "return3y", label: "Доходность",
               render: (v, row) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Факт прошлого (CAGR), не прогноз">
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность: цена + дивиденды (CAGR). Факт прошлого, не прогноз">
                   {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
                   {row?.periodLabel && <span className="tw-text-text-tertiary tw-font-normal"> {row.periodLabel}</span>}
+                </span>
+              ),
+            },
+            {
+              key: "capm", label: "CAPM (модель)",
+              render: (v) => v == null ? "—" : (
+                <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf + β×(Rm − Rf). Оценка, не факт и не прогноз; чувствительна к рыночной премии">
+                  {fmtPercent(v, { sign: true })}
+                </span>
+              ),
+            },
+            {
+              key: "alpha", label: "α",
+              render: (v) => v == null ? "—" : (
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Альфа Дженсена: фактическая полная доходность минус «положенная» за риск по CAPM. >0 — бумага дала больше">
+                  {fmtPercent(v, { sign: true })}
+                </span>
+              ),
+            },
+            {
+              key: "sortino", label: "Сортино",
+              render: (v) => v == null ? "—" : (
+                <span title="(Полная доходность − ставка ОФЗ) / нисходящая волатильность. Штрафует только падения">
+                  {fmtNumber(v, { decimals: 2 })}
                 </span>
               ),
             },
@@ -5629,7 +5697,10 @@ const PortfolioView = ({ token, onAuthRequired }) => {
               return m ? {
                 ...p,
                 pe: m.pe_current, divYield: m.div_yield,
-                return3y: m.return_3y, volatility: m.volatility, beta: m.beta,
+                // главная цифра — ПОЛНАЯ доходность (с дивидендами); ценовая в тултипе периода
+                return3y: m.return_total_3y ?? m.return_3y,
+                capm: m.capm_expected, alpha: m.alpha_3y, sortino: m.sortino_3y,
+                volatility: m.volatility, beta: m.beta,
                 betaSource: m.beta_source, rSquared: m.r_squared,
                 var95: m.var_95, earningsYield: m.earnings_yield,
                 shortHistory: m.short_history,
@@ -5638,7 +5709,10 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             }),
             {
               ticker: "Портфель",
-              return3y: pfMetrics?.portfolio?.return_3y?.value ?? null,
+              return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? pfMetrics?.portfolio?.return_3y?.value ?? null,
+              capm: null,
+              alpha: pfMetrics?.portfolio?.alpha ?? null,
+              sortino: pfMetrics?.portfolio?.sortino ?? null,
               periodLabel: null,
               // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
               volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
@@ -5653,11 +5727,19 @@ const PortfolioView = ({ token, onAuthRequired }) => {
             <span>* рассчитано на истории менее года — значение неустойчиво; доходность за период короче года не приводится к годовой.</span>
           )}
           <span>
-            «Доходность» — фактический среднегодовой результат (CAGR) за указанный период, не прогноз.
+            «Доходность» — фактическая ПОЛНАЯ доходность (цена + дивиденды, CAGR) за указанный период, не прогноз.
+            «CAPM (модель)» — модельная forward-оценка Rf + β×(Rm − Rf): оценка, не факт; шумная, зависит от премии.
             Окно риск-метрик — 3 года дневных данных. Волатильность портфеля учитывает корреляции
-            (ковариационная матрица) — поэтому ниже простого среднего. VaR 95% — дневной горизонт.
-            Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.
+            (ковариационная матрица). VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.
           </span>
+          {pfMetrics?.rates?.risk_free_1y != null && (
+            <span>
+              Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
+              Доходность рынка (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)};
+              рыночная премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}
+              {pfMetrics.rates.market_premium < 0 && " — за это окно рынок проиграл ОФЗ, поэтому CAPM-оценки ниже ставки"}.
+            </span>
+          )}
           {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
         </div>
       </Card>
@@ -5717,6 +5799,48 @@ const PortfolioView = ({ token, onAuthRequired }) => {
       <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0">
         Агрегирующие метрики и Индекс портфеля
       </h3>
+
+      {/* Этап 3: коэффициенты на базе безрисковой ставки */}
+      {pfMetrics?.portfolio?.sharpe != null && (
+        <div className="tw-grid tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3 tw-mb-4">
+          <KpiTile
+            caption="Шарп"
+            value={<span title="(Полная доходность − ставка ОФЗ) / волатильность. >1 — хорошо; около 0 и ниже — риск не вознаграждается">{fmtNumber(pfMetrics.portfolio.sharpe, { decimals: 2 })}</span>}
+          />
+          <KpiTile
+            caption="Сортино"
+            value={pfMetrics.portfolio.sortino == null ? "—" : <span title="Как Шарп, но штрафует только падения (нисходящая волатильность)">{fmtNumber(pfMetrics.portfolio.sortino, { decimals: 2 })}</span>}
+          />
+          <KpiTile
+            caption="Альфа (3г)"
+            value={pfMetrics.portfolio.alpha == null ? "—" : <span title="Сверх «положенного» за риск по CAPM, % годовых">{fmtPercent(pfMetrics.portfolio.alpha, { sign: true })}</span>}
+          />
+          <KpiTile
+            caption="Безрисковая ставка"
+            value={pfMetrics?.rates?.risk_free_1y == null ? "—" : <span title={`ОФЗ ~1 год, кривая ZCYC МосБиржи, на ${pfMetrics.rates.risk_free_as_of}`}>{fmtPercent(pfMetrics.rates.risk_free_1y)}</span>}
+          />
+        </div>
+      )}
+
+      {/* Этап 3: если бы держал портфель — против MCFTR (обе стороны с дивидендами) */}
+      {pfMetrics?.benchmark?.dates?.length > 1 && (
+        <Card
+          header={`Если бы держал этот портфель ${String(pfMetrics.benchmark.period_years).replace(".", ",")} г`}
+          className="tw-mb-4"
+        >
+          <BenchmarkChart series={pfMetrics.benchmark} />
+          <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-1 tw-text-[13px]">
+            <span>Портфель: <b className={pfMetrics.benchmark.portfolio_total_pct >= 0 ? "tw-text-success" : "tw-text-danger"}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct, { sign: true })}</b></span>
+            <span>MCFTR: <b className="tw-text-text-primary">{fmtPercent(pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
+            <span>Разница: <b className={(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct) >= 0 ? "tw-text-success" : "tw-text-danger"}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
+          </div>
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">
+            Обе кривые — полная доходность (портфель с дивидендами против индекса полной доходности MCFTR); IMOEX — ценовой, для справки.
+            {pfMetrics.benchmark.limited_by && ` Период ограничен историей ${pfMetrics.benchmark.limited_by}.`}
+            {" "}{pfMetrics.benchmark.note}.
+          </div>
+        </Card>
+      )}
 
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
         {/* Score dial */}
