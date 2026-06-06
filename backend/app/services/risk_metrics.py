@@ -75,6 +75,29 @@ def log_returns(series: dict[date, float]) -> dict[date, float]:
     return out
 
 
+def normalize_splits(series: dict[date, float]) -> dict[date, float]:
+    """Склеивает ряд через сплиты/консолидации в непрерывный.
+
+    Движение в разы за день (|r| > SPLIT_THRESHOLD) — корпоративное действие
+    (кейс T −89,8% при сплите), а не рынок: рыночные обвалы 24.02.2022 (−36%)
+    и ковид (−22%) ниже порога и не трогаются. Цены ДО разрыва домножаются на
+    коэффициент сплита (отношение цен после/до), история сохраняется целиком —
+    CAGR считается по полному окну, как у бумаг без сплитов.
+    """
+    dates = sorted(series)
+    if len(dates) < 2:
+        return dict(series)
+    out = dict(series)
+    for prev, cur in zip(dates, dates[1:]):
+        ratio = series[cur] / series[prev]
+        if abs(math.log(ratio)) > math.log(1 + SPLIT_THRESHOLD):
+            # всё, что до разрыва, приводим к послесплитовому масштабу
+            for d in dates:
+                if d <= prev:
+                    out[d] = out[d] * ratio
+    return out
+
+
 def annualized_volatility(returns: dict[date, float]) -> float | None:
     """Годовая волатильность, % (СКО дневных лог-доходностей × √252)."""
     if len(returns) < MIN_OVERLAP:
@@ -98,24 +121,24 @@ def beta_vs_index(stock_returns: dict[date, float], index_returns: dict[date, fl
 
 
 def cagr_pct(series: dict[date, float]) -> float | None:
-    """CAGR за период серии, % годовых. Через сплит не считаем — берём
-    самый длинный отрезок ПОСЛЕ последнего разрыва."""
+    """Доходность за период серии, %.
+
+    Ряд предварительно склеивается через сплиты (normalize_splits) — история
+    НЕ отбрасывается, CAGR по полному окну. Защита от взрыва аннуализации:
+    при истории < 1 года НЕ возводим в годовую степень — возвращаем простой %
+    за период (раньше хвост T в 0,13 года давал дикие ±50% годовых).
+    """
+    series = normalize_splits(series)
     dates = sorted(series)
-    if len(dates) < 2:
-        return None
-    # последний разрыв-сплит → старт отрезка после него
-    start_idx = 0
-    for k, (prev, cur) in enumerate(zip(dates, dates[1:]), start=1):
-        ratio = series[cur] / series[prev]
-        if abs(math.log(ratio)) > math.log(1 + SPLIT_THRESHOLD):
-            start_idx = k
-    dates = dates[start_idx:]
     if len(dates) < 2:
         return None
     p0, p1 = series[dates[0]], series[dates[-1]]
     years = (dates[-1] - dates[0]).days / 365.25
-    if years < 0.1 or p0 <= 0:
+    if p0 <= 0 or years <= 0:
         return None
+    if years < 1.0:
+        # простой % за фактический период, без аннуализации
+        return round((p1 / p0 - 1) * 100, 2)
     return round(((p1 / p0) ** (1 / years) - 1) * 100, 2)
 
 
