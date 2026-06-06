@@ -50,10 +50,16 @@ class PositionMetrics(BaseModel):
     div_yield: float | None      # %
     # Этап 2 — риск-метрики из истории котировок
     volatility: float | None = None    # годовая, %
-    beta: float | None = None          # против IMOEX
+    beta: float | None = None          # итоговая (MOEX, иначе расчёт)
     return_3y: float | None = None     # CAGR, % годовых (факт, не прогноз)
     history_years: float | None = None
     short_history: bool = False        # история <1 года → «*» в UI
+    # Этап 2.2 — источник беты и доп. коэффициенты
+    beta_source: str | None = None     # 'moex' | 'calc'
+    r_squared: float | None = None     # доля движения, объяснённая рынком (0..1)
+    downside_vol: float | None = None  # нисходящая σ (порог 0), годовая %
+    var_95: float | None = None        # ист. VaR 95%, дневной, % потери
+    earnings_yield: float | None = None  # 1/PE, %
 
 
 class WeightedMetric(BaseModel):
