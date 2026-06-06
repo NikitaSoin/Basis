@@ -107,7 +107,7 @@ def annualized_volatility(returns: dict[date, float]) -> float | None:
 
 
 def beta_vs_index(stock_returns: dict[date, float], index_returns: dict[date, float]) -> float | None:
-    """cov/var на пересечении торговых дат."""
+    """Простая бета: cov/var на пересечении торговых дат."""
     common = sorted(set(stock_returns) & set(index_returns))
     if len(common) < MIN_OVERLAP:
         return None
@@ -118,6 +118,71 @@ def beta_vs_index(stock_returns: dict[date, float], index_returns: dict[date, fl
         return None
     cov = float(np.cov(s, i, ddof=1)[0][1])
     return round(cov / var, 4)
+
+
+def dimson_beta(stock_returns: dict[date, float], index_returns: dict[date, float]) -> float | None:
+    """Бета с поправкой Диммсона против занижения от асинхронной торговли.
+
+    Неликвид реагирует на движение индекса с задержкой → дневная ковариация
+    «размазывается» по соседним дням и простая бета занижается. Диммсон:
+    бета = Σ коэффициентов регрессии доходности бумаги на доходность индекса
+    с лагами −1, 0, +1 (β = β₋₁ + β₀ + β₊₁). Стандартный метод (Dimson, 1979).
+    """
+    common = sorted(set(stock_returns) & set(index_returns))
+    if len(common) < MIN_OVERLAP + 2:
+        return None
+    s = np.array([stock_returns[d] for d in common])
+    i = np.array([index_returns[d] for d in common])
+    # выравниваем по позициям в общем ряду: lag −1 (индекс вчера),
+    # 0 (сегодня), +1 (индекс завтра — ловит опережение бумаги)
+    y = s[1:-1]
+    x = np.column_stack([i[:-2], i[1:-1], i[2:]])
+    x = np.column_stack([np.ones(len(y)), x])
+    try:
+        coef, *_ = np.linalg.lstsq(x, y, rcond=None)
+    except np.linalg.LinAlgError:
+        return None
+    b = float(coef[1] + coef[2] + coef[3])
+    if math.isnan(b) or math.isinf(b):
+        return None
+    return round(b, 4)
+
+
+def r_squared_vs_index(stock_returns: dict[date, float], index_returns: dict[date, float]) -> float | None:
+    """R² = corr² с индексом — доля движения бумаги, объяснённая рынком."""
+    common = sorted(set(stock_returns) & set(index_returns))
+    if len(common) < MIN_OVERLAP:
+        return None
+    s = np.array([stock_returns[d] for d in common])
+    i = np.array([index_returns[d] for d in common])
+    if float(np.std(s)) == 0.0 or float(np.std(i)) == 0.0:
+        return None  # «замёрзшая» цена неликвида — корреляция не определена
+    corr = float(np.corrcoef(s, i)[0][1])
+    if math.isnan(corr):
+        return None
+    return round(corr * corr, 4)
+
+
+def downside_volatility(returns: dict[date, float]) -> float | None:
+    """Нисходящая волатильность (порог 0): σ только по дням с доходностью <0,
+    ×√252, годовая в %. Самостоятельная метрика; полный Сортино — Этап 3
+    (числителю нужна безрисковая ставка ОФЗ)."""
+    vals = [r for r in returns.values() if r < 0]
+    if len(vals) < MIN_OVERLAP:
+        return None
+    sd = float(np.std(vals, ddof=1))
+    return round(sd * math.sqrt(TRADING_DAYS) * 100, 2)
+
+
+def var_95_daily(returns: dict[date, float]) -> float | None:
+    """Исторический VaR 95%, дневной горизонт: 5-й перцентиль дневных
+    доходностей, знак перевёрнут (положительное число = величина потери, %).
+    На горизонт T дней масштабируется ×√T."""
+    vals = list(returns.values())
+    if len(vals) < MIN_OVERLAP:
+        return None
+    p5 = float(np.percentile(vals, 5))
+    return round(-p5 * 100, 2)
 
 
 def cagr_pct(series: dict[date, float]) -> float | None:
@@ -151,16 +216,21 @@ def history_years_of(series: dict[date, float]) -> float | None:
 
 def compute_for_company(db: Session, company_id: int, index_returns: dict[date, float],
                         since: date) -> dict:
-    """Все риск-метрики одной бумаги: volatility/beta/return_3y/history_years."""
+    """Все риск-метрики одной бумаги (Этап 2 + 2.2)."""
     series = load_price_series(db, company_id, since)
     if len(series) < 2:
-        return {"volatility": None, "beta": None, "return_3y": None, "history_years": None}
+        return {"volatility": None, "beta_calc": None, "return_3y": None,
+                "history_years": None, "r_squared_calc": None,
+                "downside_vol": None, "var_95": None}
     rets = log_returns(series)
     return {
         "volatility": annualized_volatility(rets),
-        "beta": beta_vs_index(rets, index_returns),
+        "beta_calc": dimson_beta(rets, index_returns),   # Диммсон −1..+1
         "return_3y": cagr_pct(series),
         "history_years": history_years_of(series),
+        "r_squared_calc": r_squared_vs_index(rets, index_returns),
+        "downside_vol": downside_volatility(rets),
+        "var_95": var_95_daily(rets),
     }
 
 
@@ -183,8 +253,11 @@ def pairwise_correlation(returns_by_ticker: dict[str, dict[date, float]]) -> tup
                 continue
             va = np.array([ra[d] for d in common])
             vb = np.array([rb[d] for d in common])
+            if float(np.std(va)) == 0.0 or float(np.std(vb)) == 0.0:
+                continue  # «замёрзшая» цена — корреляция не определена
             corr = float(np.corrcoef(va, vb)[0][1])
-            matrix[a][b] = matrix[b][a] = round(corr, 2)
+            if not math.isnan(corr):
+                matrix[a][b] = matrix[b][a] = round(corr, 2)
     return tickers, matrix, (0 if min_overlap == 10 ** 9 else min_overlap)
 
 
