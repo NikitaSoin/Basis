@@ -60,6 +60,11 @@ class PositionMetrics(BaseModel):
     downside_vol: float | None = None  # нисходящая σ (порог 0), годовая %
     var_95: float | None = None        # ист. VaR 95%, дневной, % потери
     earnings_yield: float | None = None  # 1/PE, %
+    # Этап 3 — полная доходность и коэффициенты на базе безрисковой ставки
+    return_total_3y: float | None = None  # цена + дивиденды, % годовых (факт)
+    alpha_3y: float | None = None         # альфа Дженсена, % годовых
+    sortino_3y: float | None = None       # (R_total − Rf) / downside_vol
+    capm_expected: float | None = None    # CAPM-ожидание (модель), % годовых
 
 
 class WeightedMetric(BaseModel):
@@ -74,8 +79,32 @@ class PortfolioWeighted(BaseModel):
     pe_historical: WeightedMetric | None = None
     div_yield: WeightedMetric | None = None
     beta: WeightedMetric | None = None          # средневзвешенная (бета линейна по весам)
-    return_3y: WeightedMetric | None = None     # средневзвешенный факт 3 лет
+    return_3y: WeightedMetric | None = None     # средневзвешенный факт 3 лет (ценовая)
+    return_total_3y: WeightedMetric | None = None  # полная (с дивидендами)
     volatility: WeightedMetric | None = None    # σ_p = √(wᵀΣw) — через ковариации, не среднее
+    # Этап 3 — на базе безрисковой ставки (все члены годовые, %)
+    sharpe: float | None = None                 # (R_total − Rf) / σ_p
+    sortino: float | None = None                # (R_total − Rf) / downside-σ портфеля
+    alpha: float | None = None                  # альфа Дженсена портфеля
+
+
+class MarketRates(BaseModel):
+    risk_free_1y: float | None = None           # ОФЗ ~1г, точка G-curve, %
+    risk_free_as_of: str | None = None
+    market_return_3y: float | None = None       # CAGR MCFTR за окно, %
+    market_premium: float | None = None         # Rm − Rf, %
+
+
+class BenchmarkSeries(BaseModel):
+    dates: list[str]
+    portfolio: list[float]                      # накопленная total-доходность, %
+    mcftr: list[float]                          # бенчмарк полной доходности, %
+    imoex: list[float]                          # ценовой индекс, для справки
+    period_years: float
+    limited_by: str | None = None               # тикер самой молодой бумаги
+    portfolio_total_pct: float | None = None
+    benchmark_total_pct: float | None = None
+    note: str | None = None
 
 
 class CorrelationMatrix(BaseModel):
@@ -108,3 +137,5 @@ class PortfolioMetricsResponse(BaseModel):
     asset_classes: list[AssetClassSlice]
     concentration: Concentration | None
     correlation: CorrelationMatrix | None = None
+    rates: MarketRates | None = None
+    benchmark: BenchmarkSeries | None = None
