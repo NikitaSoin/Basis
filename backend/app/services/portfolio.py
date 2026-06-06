@@ -147,8 +147,11 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     for p in positions:
         p["weight_pct"] = round(p["value"] / total_value * 100, 2) if p["value"] and total_value > 0 else None
 
-    # Средневзвешенные по портфелю (нормировка только на позиции с метрикой)
-    valued = [p for p in positions if p["value"] is not None]
+    # Средневзвешенные по портфелю (нормировка только на позиции с метрикой).
+    # Вырожденные случаи не валят расчёт: позиции с нулевой стоимостью
+    # (0 шт. — застрявшие до фикса валидации) исключаются из весов; пустой
+    # портфель и портфель из одной бумаги обрабатываются штатно.
+    valued = [p for p in positions if p["value"]]
     portfolio_row = {
         "pe_current": _weighted_avg([(p["value"], p["pe_current"]) for p in valued]),
         "pe_historical": _weighted_avg([(p["value"], p["pe_historical"]) for p in valued]),
@@ -322,6 +325,28 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "rates": rates,
         "benchmark": benchmark,
     }
+
+
+def update_position(db: Session, portfolio_id: int, position_id: int,
+                    quantity=None, avg_buy_price=None) -> PortfolioPosition | None:
+    """Прямое редактирование позиции (UX: клик по строке → правка)."""
+    position = (
+        db.query(PortfolioPosition)
+        .filter(
+            PortfolioPosition.id == position_id,
+            PortfolioPosition.portfolio_id == portfolio_id,
+        )
+        .first()
+    )
+    if not position:
+        return None
+    if quantity is not None:
+        position.quantity = quantity
+    if avg_buy_price is not None:
+        position.avg_buy_price = avg_buy_price
+    db.commit()
+    db.refresh(position)
+    return position
 
 
 def delete_position(db: Session, portfolio_id: int, position_id: int) -> bool:
