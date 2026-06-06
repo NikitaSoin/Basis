@@ -25,14 +25,35 @@ async def _quotes_job():
 
 
 async def _coefficients_job():
-    """Еженедельная выгрузка официальных бет/корреляций MOEX (fortscoefficients)
-    в company_metrics. Файл на бирже обновляется нерегулярно — еженедельного
-    опроса достаточно; при недоступности URL остаёмся на своём расчёте."""
-    try:
+    """Еженедельные параметры с MOEX: официальные беты (fortscoefficients),
+    безрисковая ставка ОФЗ-1г (G-curve) и свежие дивиденды. Всё меняется
+    нечасто — еженедельного опроса достаточно; при недоступности ISS
+    остаёмся на последних сохранённых значениях."""
+    def _run():
         from app.services.moex_coefficients import sync_official_betas
-        await asyncio.get_event_loop().run_in_executor(None, sync_official_betas)
+        from app.services.moex_dividends import sync_dividends_for, update_risk_free_rate
+        from app.db.session import SessionLocal
+        from app.models.company import Company
+        import time as _time
+
+        sync_official_betas()
+        db = SessionLocal()
+        try:
+            update_risk_free_rate(db)
+            for c in db.query(Company).order_by(Company.ticker).all():
+                try:
+                    sync_dividends_for(db, c.ticker)
+                    db.commit()
+                except Exception:
+                    db.rollback()
+                _time.sleep(0.2)
+        finally:
+            db.close()
+
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
     except Exception as e:
-        logger.exception("Ошибка выгрузки коэффициентов MOEX: %s", e)
+        logger.exception("Ошибка еженедельных параметров MOEX: %s", e)
 
 
 async def _history_job():

@@ -207,6 +207,58 @@ def cagr_pct(series: dict[date, float]) -> float | None:
     return round(((p1 / p0) ** (1 / years) - 1) * 100, 2)
 
 
+def total_return_pct(series: dict[date, float], dividends: dict[date, float]) -> float | None:
+    """ПОЛНАЯ доходность за период, % годовых: цена + дивиденды.
+
+    Модель реинвестирования: TR = (P_end/P_start) × Π(1 + D_i/P_i), где
+    D_i/P_i — дивиденд к цене на дату отсечки. Сплиты согласованы с
+    нормировкой Этапа 2.2 автоматически: дивиденд и цена на одну дату — в
+    одном масштабе («дореформенные» дивиденды делятся на «дореформенную»
+    цену), поэтому отношение D/P инвариантно к сплиту; ценовое плечо берётся
+    по склеенному ряду (normalize_splits). История <1 года — простой % за
+    период, без аннуализации (как у ценовой доходности).
+    """
+    dates = sorted(series)
+    if len(dates) < 2:
+        return None
+    norm = normalize_splits(series)
+    p0, p1 = norm[dates[0]], norm[dates[-1]]
+    years = (dates[-1] - dates[0]).days / 365.25
+    if p0 <= 0 or years <= 0:
+        return None
+
+    div_factor = 1.0
+    for d, amount in dividends.items():
+        if d < dates[0] or d > dates[-1]:
+            continue
+        # цена на дату отсечки (или ближайший торговый день до неё) в ИСХОДНОМ
+        # масштабе — том же, в котором объявлен дивиденд
+        price_dates = [x for x in dates if x <= d]
+        if not price_dates:
+            continue
+        p = series[price_dates[-1]]
+        if p > 0 and 0 < amount / p < 1:   # защита от мусорных выплат >100% цены
+            div_factor *= 1 + amount / p
+
+    growth = (p1 / p0) * div_factor
+    if years < 1.0:
+        return round((growth - 1) * 100, 2)
+    return round((growth ** (1 / years) - 1) * 100, 2)
+
+
+def market_return_3y(db: Session, ticker: str = "MCFTR") -> float | None:
+    """R_m: CAGR индекса ПОЛНОЙ доходности MCFTR за то же окно (дивиденды
+    внутри индекса — согласовано с total return бумаг)."""
+    series = load_index_series(db, ticker, window_start())
+    dates = sorted(series)
+    if len(dates) < 2:
+        return None
+    years = (dates[-1] - dates[0]).days / 365.25
+    if years < 1.0:
+        return None
+    return round(((series[dates[-1]] / series[dates[0]]) ** (1 / years) - 1) * 100, 2)
+
+
 def history_years_of(series: dict[date, float]) -> float | None:
     dates = sorted(series)
     if len(dates) < 2:
@@ -215,18 +267,19 @@ def history_years_of(series: dict[date, float]) -> float | None:
 
 
 def compute_for_company(db: Session, company_id: int, index_returns: dict[date, float],
-                        since: date) -> dict:
-    """Все риск-метрики одной бумаги (Этап 2 + 2.2)."""
+                        since: date, dividends: dict[date, float] | None = None) -> dict:
+    """Все риск-метрики одной бумаги (Этап 2 + 2.2 + 3)."""
     series = load_price_series(db, company_id, since)
     if len(series) < 2:
         return {"volatility": None, "beta_calc": None, "return_3y": None,
                 "history_years": None, "r_squared_calc": None,
-                "downside_vol": None, "var_95": None}
+                "downside_vol": None, "var_95": None, "return_total_3y": None}
     rets = log_returns(series)
     return {
         "volatility": annualized_volatility(rets),
         "beta_calc": dimson_beta(rets, index_returns),   # Диммсон −1..+1
         "return_3y": cagr_pct(series),
+        "return_total_3y": total_return_pct(series, dividends or {}),
         "history_years": history_years_of(series),
         "r_squared_calc": r_squared_vs_index(rets, index_returns),
         "downside_vol": downside_volatility(rets),
