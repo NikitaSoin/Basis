@@ -1,0 +1,200 @@
+"""Риск-метрики из истории котировок (Этап 2 аналитики портфеля).
+
+Методика (согласована с владельцем):
+  - Окно: 3 года дневных данных (меньше — считаем на доступном, history_years
+    фиксирует фактическую глубину; <1 года → UI ставит «*»).
+  - Доходности: ЛОГАРИФМИЧЕСКИЕ r_t = ln(close_t / close_{t-1}) — аддитивны
+    во времени, стандарт для оценки волатильности; от простых отличаются
+    на доли процента на дневном шаге.
+  - Волатильность: СКО дневных лог-доходностей × √252 → годовая, в %.
+  - Бета: cov(бумага, IMOEX) / var(IMOEX) на пересечении торговых дат
+    (дни, когда торговались оба ряда). Против IMOEX — рублёвого индекса
+    Мосбиржи; RTSI долларовый, MCFTR дивидендный — не подходят.
+  - Доходность за 3 года: CAGR = (P_конец / P_начало)^(1/лет) − 1 — честно
+    отражает «сколько реально заработал держатель» (средняя дневных
+    переоценивает при волатильности). Это ФАКТ прошлого, не прогноз.
+  - Сплиты/консолидации (разрыв цены, как VTBR 1:5000): дневная доходность
+    |r| > 50% за день считается корпоративным действием и исключается из
+    рядов; CAGR через сплит не считается — берём отрезок после разрыва.
+
+Минимум 30 совпадающих торговых дней для беты/корреляции — иначе NULL.
+"""
+import logging
+import math
+from datetime import date, timedelta
+
+import numpy as np
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.models.company import Quote
+from app.models.market import IndexHistory
+
+logger = logging.getLogger(__name__)
+
+WINDOW_YEARS = 3
+TRADING_DAYS = 252
+MIN_OVERLAP = 30          # минимум совпадающих дней для беты/корреляции
+SPLIT_THRESHOLD = 0.50    # |дневная доходность| выше — разрыв (сплит), не рынок
+
+
+def window_start(today: date | None = None) -> date:
+    today = today or date.today()
+    return today - timedelta(days=int(WINDOW_YEARS * 365.25))
+
+
+def load_price_series(db: Session, company_id: int, since: date) -> dict[date, float]:
+    """Цены закрытия по датам (только положительные)."""
+    rows = (
+        db.query(Quote.date, Quote.close)
+        .filter(Quote.company_id == company_id, Quote.date >= since, Quote.close.isnot(None))
+        .order_by(Quote.date)
+        .all()
+    )
+    return {r.date: float(r.close) for r in rows if r.close and float(r.close) > 0}
+
+
+def load_index_series(db: Session, ticker: str, since: date) -> dict[date, float]:
+    rows = (
+        db.query(IndexHistory.date, IndexHistory.close)
+        .filter(IndexHistory.ticker == ticker, IndexHistory.date >= since)
+        .order_by(IndexHistory.date)
+        .all()
+    )
+    return {r.date: float(r.close) for r in rows if r.close and float(r.close) > 0}
+
+
+def log_returns(series: dict[date, float]) -> dict[date, float]:
+    """Дневные лог-доходности по датам; разрывы-сплиты выброшены."""
+    dates = sorted(series)
+    out: dict[date, float] = {}
+    for prev, cur in zip(dates, dates[1:]):
+        r = math.log(series[cur] / series[prev])
+        if abs(r) <= math.log(1 + SPLIT_THRESHOLD):
+            out[cur] = r
+    return out
+
+
+def annualized_volatility(returns: dict[date, float]) -> float | None:
+    """Годовая волатильность, % (СКО дневных лог-доходностей × √252)."""
+    if len(returns) < MIN_OVERLAP:
+        return None
+    sd = float(np.std(list(returns.values()), ddof=1))
+    return round(sd * math.sqrt(TRADING_DAYS) * 100, 2)
+
+
+def beta_vs_index(stock_returns: dict[date, float], index_returns: dict[date, float]) -> float | None:
+    """cov/var на пересечении торговых дат."""
+    common = sorted(set(stock_returns) & set(index_returns))
+    if len(common) < MIN_OVERLAP:
+        return None
+    s = np.array([stock_returns[d] for d in common])
+    i = np.array([index_returns[d] for d in common])
+    var = float(np.var(i, ddof=1))
+    if var <= 0:
+        return None
+    cov = float(np.cov(s, i, ddof=1)[0][1])
+    return round(cov / var, 4)
+
+
+def cagr_pct(series: dict[date, float]) -> float | None:
+    """CAGR за период серии, % годовых. Через сплит не считаем — берём
+    самый длинный отрезок ПОСЛЕ последнего разрыва."""
+    dates = sorted(series)
+    if len(dates) < 2:
+        return None
+    # последний разрыв-сплит → старт отрезка после него
+    start_idx = 0
+    for k, (prev, cur) in enumerate(zip(dates, dates[1:]), start=1):
+        ratio = series[cur] / series[prev]
+        if abs(math.log(ratio)) > math.log(1 + SPLIT_THRESHOLD):
+            start_idx = k
+    dates = dates[start_idx:]
+    if len(dates) < 2:
+        return None
+    p0, p1 = series[dates[0]], series[dates[-1]]
+    years = (dates[-1] - dates[0]).days / 365.25
+    if years < 0.1 or p0 <= 0:
+        return None
+    return round(((p1 / p0) ** (1 / years) - 1) * 100, 2)
+
+
+def history_years_of(series: dict[date, float]) -> float | None:
+    dates = sorted(series)
+    if len(dates) < 2:
+        return None
+    return round((dates[-1] - dates[0]).days / 365.25, 2)
+
+
+def compute_for_company(db: Session, company_id: int, index_returns: dict[date, float],
+                        since: date) -> dict:
+    """Все риск-метрики одной бумаги: volatility/beta/return_3y/history_years."""
+    series = load_price_series(db, company_id, since)
+    if len(series) < 2:
+        return {"volatility": None, "beta": None, "return_3y": None, "history_years": None}
+    rets = log_returns(series)
+    return {
+        "volatility": annualized_volatility(rets),
+        "beta": beta_vs_index(rets, index_returns),
+        "return_3y": cagr_pct(series),
+        "history_years": history_years_of(series),
+    }
+
+
+def pairwise_correlation(returns_by_ticker: dict[str, dict[date, float]]) -> tuple[list[str], list[list[float | None]], int]:
+    """Матрица попарных корреляций на пересечении доступных дат каждой пары.
+
+    Возвращает (tickers, matrix, min_overlap_found). Пары с пересечением
+    короче MIN_OVERLAP получают None (UI покажет прочерк)."""
+    tickers = list(returns_by_ticker)
+    n = len(tickers)
+    matrix: list[list[float | None]] = [[None] * n for _ in range(n)]
+    min_overlap = 10 ** 9
+    for a in range(n):
+        matrix[a][a] = 1.0
+        for b in range(a + 1, n):
+            ra, rb = returns_by_ticker[tickers[a]], returns_by_ticker[tickers[b]]
+            common = sorted(set(ra) & set(rb))
+            min_overlap = min(min_overlap, len(common))
+            if len(common) < MIN_OVERLAP:
+                continue
+            va = np.array([ra[d] for d in common])
+            vb = np.array([rb[d] for d in common])
+            corr = float(np.corrcoef(va, vb)[0][1])
+            matrix[a][b] = matrix[b][a] = round(corr, 2)
+    return tickers, matrix, (0 if min_overlap == 10 ** 9 else min_overlap)
+
+
+def portfolio_volatility(returns_by_ticker: dict[str, dict[date, float]],
+                         weights: dict[str, float]) -> float | None:
+    """Волатильность портфеля через ковариационную матрицу: σ_p = √(wᵀ Σ w) × √252.
+
+    НЕ взвешенное среднее волатильностей: ковариация учитывает корреляции,
+    поэтому портфельная волатильность ниже среднего — эффект диверсификации.
+    Ковариации пар — на пересечении доступных дат пары (молодые бумаги
+    участвуют тем, что есть); дисперсии — на собственном ряду бумаги.
+    """
+    tickers = [t for t in returns_by_ticker if weights.get(t)]
+    if not tickers:
+        return None
+    w = np.array([weights[t] for t in tickers])
+    w = w / w.sum()
+    n = len(tickers)
+    cov = np.zeros((n, n))
+    for a in range(n):
+        ra = returns_by_ticker[tickers[a]]
+        if len(ra) < MIN_OVERLAP:
+            return None  # без дисперсии одной из бумаг портфельная σ не определена
+        cov[a][a] = float(np.var(list(ra.values()), ddof=1))
+        for b in range(a + 1, n):
+            rb = returns_by_ticker[tickers[b]]
+            common = sorted(set(ra) & set(rb))
+            if len(common) >= MIN_OVERLAP:
+                va = np.array([ra[d] for d in common])
+                vb = np.array([rb[d] for d in common])
+                cov[a][b] = cov[b][a] = float(np.cov(va, vb, ddof=1)[0][1])
+            # иначе 0 — консервативно считаем пару некоррелированной
+    var_p = float(w @ cov @ w)
+    if var_p < 0:
+        return None
+    return round(math.sqrt(var_p) * math.sqrt(TRADING_DAYS) * 100, 2)
