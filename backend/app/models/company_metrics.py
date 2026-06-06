@@ -24,7 +24,9 @@ class CompanyMetrics(Base):
     div_yield: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))
     fair_value: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     beta: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))
-    volatility: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))
+    volatility: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))      # годовая, %
+    return_3y: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))     # CAGR за 3 года, % (факт, не прогноз)
+    history_years: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))  # глубина истории для пометки «*»
     updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
