@@ -221,6 +221,15 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "market_premium": round(rm_row[0] - rf_row[0], 2) if rf_row and rm_row else None,
     }
 
+    # Шарп на бумагу (для группы «Риск»): (полная доходность − Rf) / её волатильность
+    _rf = rates["risk_free_1y"]
+    for p in positions:
+        p["sharpe_3y"] = (
+            round((p["return_total_3y"] - _rf) / p["volatility"], 2)
+            if _rf is not None and p.get("return_total_3y") is not None
+            and p.get("volatility") else None
+        )
+
     r_total_p = portfolio_row["return_total_3y"]["value"]
     beta_p = portfolio_row["beta"]["value"]
     rf = rates["risk_free_1y"]
