@@ -177,6 +177,10 @@ export function MetricBar({ label, value, max = 100, colorVar, suffix = `/${100}
 function corrCell(v) {
   // v in [-1, 1]; map magnitude → opacity, sign of (v-0.5)ish → warm/cool.
   // We treat >0.5 as "concentrated/warm" (danger hint), <0.3 as "diversifying/cool".
+  if (v == null || typeof v !== "number") {
+    // мало совпадающих торговых дат у пары — корреляция не рассчитана
+    return { bg: "var(--bg-elevated)", fg: "var(--text-tertiary)" };
+  }
   if (v >= 0.999) {
     return { bg: "color-mix(in srgb, var(--cat-8) 22%, var(--bg-elevated))", fg: "var(--text-secondary)" };
   }
@@ -238,9 +242,9 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
                     opacity: reduced || appeared ? 1 : 0,
                     transition: reduced ? undefined : `opacity 280ms ease ${(i * n + j) * 22}ms`,
                   }}
-                  title={`${rowLabel} · ${labels[j]}: ${formatNumber(v, { decimals: 2 })}`}
+                  title={v == null ? `${rowLabel} · ${labels[j]}: мало совпадающих дат` : `${rowLabel} · ${labels[j]}: ${formatNumber(v, { decimals: 2 })}`}
                 >
-                  {formatNumber(v, { decimals: 2 })}
+                  {v == null ? "—" : formatNumber(v, { decimals: 2 })}
                 </div>
               );
             })}
