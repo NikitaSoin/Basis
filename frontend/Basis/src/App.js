@@ -5283,6 +5283,15 @@ const DonutChart = ({ slices, size = 168, thickness = 26 }) => {
 
 const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4)", "var(--cat-5)", "var(--cat-6)", "var(--cat-7)", "var(--cat-8)"];
 
+// Честная подпись фактического периода метрики: «за 2 мес.», «за 1,9 г», «за 3 г»
+const fmtHistoryPeriod = (years) => {
+  if (years == null) return null;
+  if (years >= 2.95) return "за 3 г";
+  if (years >= 1) return `за ${String(Math.round(years * 10) / 10).replace(".", ",")} г`;
+  const months = Math.max(1, Math.round(years * 12));
+  return `за ${months} мес.`;
+};
+
 const PortfolioView = ({ token, onAuthRequired }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -5568,22 +5577,49 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           columns={[
             { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
             {
-              key: "return3y", label: "Доходность (3г)",
+              key: "return3y", label: "Доходность",
               render: (v, row) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"}>
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Факт прошлого (CAGR), не прогноз">
                   {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
+                  {row?.periodLabel && <span className="tw-text-text-tertiary tw-font-normal"> {row.periodLabel}</span>}
                 </span>
               ),
             },
             {
               key: "volatility", label: "Волатильность",
-              render: (v, row) => v == null ? "—" : `${fmtPercent(v)}${row?.shortHistory ? "*" : ""}`,
+              render: (v, row) => v == null ? "—" : (
+                <span title="СКО дневных доходностей × √252, годовая">
+                  {fmtPercent(v)}{row?.shortHistory ? "*" : ""}
+                  {row?.shortHistory && row?.periodLabel && <span className="tw-text-text-tertiary"> {row.periodLabel}</span>}
+                </span>
+              ),
             },
-            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}×` },
-            { key: "pe_hist", label: "P/E ист.", render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
             {
               key: "beta", label: "Beta",
-              render: (v, row) => v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}${row?.shortHistory ? "*" : ""}`,
+              render: (v, row) => v == null ? "—" : (
+                <span title={row?.betaSource === "moex" ? "Данные Мосбиржи (файл коэффициентов срочного рынка)" : "Расчёт Basis (Диммсон, окно 3 года)"}>
+                  {fmtNumber(v, { decimals: 2 })}{row?.shortHistory ? "*" : ""}
+                  {row?.betaSource && <span className="tw-text-text-tertiary"> {row.betaSource === "moex" ? "ᴹ" : "ᴮ"}</span>}
+                </span>
+              ),
+            },
+            {
+              key: "rSquared", label: "R²",
+              render: (v) => v == null ? "—" : (
+                <span title="Доля движения, объяснённая рынком: >0,6 — бета надёжна; ниже — у бумаги много своих факторов"
+                  className={v >= 0.6 ? "tw-text-text-secondary" : "tw-text-text-tertiary"}>
+                  {fmtNumber(v, { decimals: 2 })}
+                </span>
+              ),
+            },
+            {
+              key: "var95", label: "VaR 95%",
+              render: (v) => v == null ? "—" : <span title="Исторический VaR: дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
+            },
+            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}×` },
+            {
+              key: "earningsYield", label: "Дох. прибыли",
+              render: (v) => v == null ? "—" : <span title="Earnings yield = 1 / P/E (из фундаментальных данных)">{fmtPercent(v)}</span>,
             },
             { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v) },
           ]}
@@ -5592,31 +5628,35 @@ const PortfolioView = ({ token, onAuthRequired }) => {
               const m = metricByTicker[p.ticker];
               return m ? {
                 ...p,
-                pe: m.pe_current, pe_hist: m.pe_historical, divYield: m.div_yield,
+                pe: m.pe_current, divYield: m.div_yield,
                 return3y: m.return_3y, volatility: m.volatility, beta: m.beta,
+                betaSource: m.beta_source, rSquared: m.r_squared,
+                var95: m.var_95, earningsYield: m.earnings_yield,
                 shortHistory: m.short_history,
+                periodLabel: fmtHistoryPeriod(m.history_years),
               } : { ...p, return3y: null, volatility: null, beta: p.beta ?? null };
             }),
             {
               ticker: "Портфель",
               return3y: pfMetrics?.portfolio?.return_3y?.value ?? null,
+              periodLabel: null,
               // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
               volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
               beta: pfMetrics?.portfolio?.beta?.value ?? null,
               pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
-              pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
               divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             },
           ]}
         />
         <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
           {pfMetrics?.positions?.some((p) => p.short_history) && (
-            <span>* рассчитано на истории менее года — значение неустойчиво.</span>
+            <span>* рассчитано на истории менее года — значение неустойчиво; доходность за период короче года не приводится к годовой.</span>
           )}
           <span>
-            «Доходность (3г)» — фактический среднегодовой результат (CAGR) за 3 года, не прогноз.
-            Волатильность портфеля учитывает корреляции между бумагами (ковариационная матрица) —
-            поэтому она ниже простого среднего.
+            «Доходность» — фактический среднегодовой результат (CAGR) за указанный период, не прогноз.
+            Окно риск-метрик — 3 года дневных данных. Волатильность портфеля учитывает корреляции
+            (ковариационная матрица) — поэтому ниже простого среднего. VaR 95% — дневной горизонт.
+            Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.
           </span>
           {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
         </div>

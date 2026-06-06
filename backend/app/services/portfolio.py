@@ -127,6 +127,12 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "return_3y": float(m.return_3y) if m and m.return_3y is not None else None,
             "history_years": hy,
             "short_history": hy is not None and hy < 1.0,  # «*» в UI
+            # Этап 2.2 — источник беты, R² и доп. коэффициенты
+            "beta_source": m.beta_source if m else None,
+            "r_squared": float(m.r_squared) if m and m.r_squared is not None else None,
+            "downside_vol": float(m.downside_vol) if m and m.downside_vol is not None else None,
+            "var_95": float(m.var_95) if m and m.var_95 is not None else None,
+            "earnings_yield": float(m.earnings_yield) if m and m.earnings_yield is not None else None,
         })
 
     total_value = sum(p["value"] for p in positions if p["value"] is not None)
