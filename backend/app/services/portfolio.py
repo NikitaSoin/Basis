@@ -78,7 +78,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         return {
             "positions": [], "portfolio": {}, "sector_allocation": [],
             "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
-            "concentration": None,
+            "concentration": None, "correlation": None,
         }
 
     companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
@@ -112,6 +112,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         price = prices.get(p.company_id)
         value = float(p.quantity) * price if price is not None else None
         m = metrics.get(c.ticker)
+        hy = float(m.history_years) if m and m.history_years is not None else None
         positions.append({
             "ticker": c.ticker,
             "name": c.name,
@@ -120,6 +121,12 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "pe_current": float(m.pe_current) if m and m.pe_current is not None else None,
             "pe_historical": float(m.pe_historical) if m and m.pe_historical is not None else None,
             "div_yield": float(m.div_yield) if m and m.div_yield is not None else None,
+            # Этап 2 — риск-метрики из company_metrics (предрасчёт recalc_risk_metrics)
+            "volatility": float(m.volatility) if m and m.volatility is not None else None,
+            "beta": float(m.beta) if m and m.beta is not None else None,
+            "return_3y": float(m.return_3y) if m and m.return_3y is not None else None,
+            "history_years": hy,
+            "short_history": hy is not None and hy < 1.0,  # «*» в UI
         })
 
     total_value = sum(p["value"] for p in positions if p["value"] is not None)
@@ -132,7 +139,43 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "pe_current": _weighted_avg([(p["value"], p["pe_current"]) for p in valued]),
         "pe_historical": _weighted_avg([(p["value"], p["pe_historical"]) for p in valued]),
         "div_yield": _weighted_avg([(p["value"], p["div_yield"]) for p in valued]),
+        # бета и доходность портфеля линейны по весам → честное средневзвешенное
+        "beta": _weighted_avg([(p["value"], p["beta"]) for p in valued]),
+        "return_3y": _weighted_avg([(p["value"], p["return_3y"]) for p in valued]),
     }
+
+    # Этап 2: корреляции и волатильность портфеля — НА ЛЕТУ (зависят от состава).
+    # σ_p = √(wᵀΣw): НЕ среднее волатильностей — ковариация учитывает корреляции,
+    # поэтому портфельная σ ниже за счёт диверсификации.
+    from app.services.risk_metrics import (
+        load_price_series, log_returns, pairwise_correlation,
+        portfolio_volatility, window_start,
+    )
+    since = window_start()
+    returns_by_ticker = {}
+    for p in valued:
+        cid = next((i for i, c in companies.items() if c.ticker == p["ticker"]), None)
+        if cid is None:
+            continue
+        series = load_price_series(db, cid, since)
+        rets = log_returns(series)
+        if rets:
+            returns_by_ticker[p["ticker"]] = rets
+
+    correlation = None
+    if len(returns_by_ticker) >= 2:
+        corr_tickers, matrix, min_overlap = pairwise_correlation(returns_by_ticker)
+        correlation = {
+            "tickers": corr_tickers,
+            "matrix": matrix,
+            # мало пересечения дат (молодые бумаги) — честно предупреждаем
+            "low_overlap": 0 < min_overlap < 126,   # < полугода совпадающих дней
+        }
+
+    weights = {p["ticker"]: p["value"] for p in valued if p["value"]}
+    pf_volatility = portfolio_volatility(returns_by_ticker, weights) if returns_by_ticker else None
+    portfolio_row["volatility"] = {"value": pf_volatility,
+                                   "n": len(returns_by_ticker), "m": len(valued)}
 
     # Распределение по секторам — по текущей стоимости
     by_sector: dict[str, float] = {}
@@ -164,6 +207,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         # когда позиции получат класс актива (отдельный трек).
         "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
         "concentration": concentration,
+        "correlation": correlation,
     }
 
 
