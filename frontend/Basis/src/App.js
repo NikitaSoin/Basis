@@ -45,7 +45,7 @@ import {
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
-import { Prose } from "./design/textblocks";
+import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
 // =========================
@@ -5430,6 +5430,8 @@ const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4
 // Мультилинейный SVG: портфель и MCFTR — основные, IMOEX — тонкая справочная.
 const BenchmarkChart = ({ series }) => {
   const { dates = [], portfolio = [], mcftr = [], imoex = [] } = series || {};
+  const svgRef = useRef(null);
+  const [hover, setHover] = useState(null);   // индекс точки под курсором
   if (!dates.length) return null;
   const W = 640, H = 220, padL = 44, padR = 12, padT = 12, padB = 24;
   const all = [...portfolio, ...mcftr, ...imoex].filter((v) => typeof v === "number");
@@ -5445,9 +5447,34 @@ const BenchmarkChart = ({ series }) => {
     { d: line(mcftr), color: "var(--cat-1)", w: 2, label: "MCFTR (с дивидендами)" },
     { d: line(imoex), color: "var(--cat-8)", w: 1.25, label: "IMOEX (ценовой)" },
   ];
+  // Тултип: ближайшая точка по X под курсором
+  const handleMove = (e) => {
+    const el = svgRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const xSvg = ((e.clientX - rect.left) / rect.width) * W;
+    const i = Math.round(((xSvg - padL) / (W - padL - padR)) * (n - 1));
+    setHover(i >= 0 && i < n ? i : null);
+  };
+  const fmtFullD = (iso) => { const [y, m, d] = iso.split("-"); return `${d}.${m}.${y}`; };
+
   return (
-    <div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Портфель против бенчмарка">
+    <div className="tw-relative">
+      {hover != null && (
+        <div
+          className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-md tw-shadow-lg tw-px-3 tw-py-2 tw-text-[12px]"
+          style={{ left: `${(xAt(hover) / W) * 100}%`, top: 0, transform: xAt(hover) > W * 0.6 ? "translateX(-105%)" : "translateX(8px)" }}
+        >
+          <div className="tw-text-text-tertiary tw-font-mono tw-mb-1">{fmtFullD(dates[hover])}</div>
+          <div className="tw-text-text-primary">Портфель <b className="tw-font-mono tw-tabular-nums">{fmtPercent(portfolio[hover], { sign: true })}</b></div>
+          <div className="tw-text-text-secondary">MCFTR <b className="tw-font-mono tw-tabular-nums">{fmtPercent(mcftr[hover], { sign: true })}</b></div>
+          {typeof imoex[hover] === "number" && (
+            <div className="tw-text-text-tertiary">IMOEX <span className="tw-font-mono tw-tabular-nums">{fmtPercent(imoex[hover], { sign: true })}</span></div>
+          )}
+        </div>
+      )}
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Портфель против бенчмарка"
+        onMouseMove={handleMove} onMouseLeave={() => setHover(null)}>
         {[max, (max + min) / 2, min].map((v, k) => (
           <g key={k}>
             <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray={v === 0 ? "" : "3 4"} />
@@ -5456,6 +5483,13 @@ const BenchmarkChart = ({ series }) => {
         ))}
         {min < 0 && max > 0 && <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-strong)" strokeWidth="1" />}
         {LINES.map((l, k) => <path key={k} d={l.d} fill="none" stroke={l.color} strokeWidth={l.w} strokeLinejoin="round" />)}
+        {hover != null && (
+          <g>
+            <line x1={xAt(hover)} x2={xAt(hover)} y1={padT} y2={H - padB} stroke="var(--border-strong)" strokeWidth="1" strokeDasharray="3 3" />
+            <circle cx={xAt(hover)} cy={yAt(portfolio[hover])} r="3.5" fill="var(--accent)" />
+            <circle cx={xAt(hover)} cy={yAt(mcftr[hover])} r="3" fill="var(--cat-1)" />
+          </g>
+        )}
         <text x={padL} y={H - 8} fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[0])}</text>
         <text x={W - padR} y={H - 8} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[dates.length - 1])}</text>
       </svg>
@@ -5470,6 +5504,57 @@ const BenchmarkChart = ({ series }) => {
   );
 };
 
+// ─── Объяснения метрик (Блок 4) — читаемые примитивы с витрины /_design ───
+// СТРУКТУРА под выверенные тексты владельца (НЕ сочинять самим!):
+//   what     — «Что это», одна фраза простым языком
+//   reading  — «Что значит ваше значение»: (value) => текст по простым порогам
+//              (пороги согласовываются вместе с текстами)
+//   soWhat   — «Что с этим делать» (кратко; подробно — ИИ-диагноз)
+//   formula  — свёрнутый блок «для любопытных»: формула + как считается
+// Заполнять по ключам метрик; пока текстов нет — показывается заглушка.
+const METRIC_EXPLANATIONS = {
+  // Пример структуры (тексты придут от владельца отдельным документом):
+  // sharpe: {
+  //   title: "Коэффициент Шарпа",
+  //   what: "…",
+  //   reading: (v) => v == null ? null : v >= 1 ? "…" : v >= 0 ? "…" : "…",
+  //   soWhat: "…",
+  //   formula: "…",
+  // },
+};
+
+// Список метрик группы → раскрывающиеся объяснения (LeadStatement/Disclosure).
+const MetricExplainers = ({ metricKeys, values = {} }) => {
+  const items = metricKeys
+    .map((k) => ({ key: k, def: METRIC_EXPLANATIONS[k] }))
+    .filter((x) => x.def);
+  if (!items.length) return null;
+  return (
+    <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2">
+      {items.map(({ key, def }) => (
+        <Disclosure key={key} summary={def.title}>
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <LeadStatement>{def.what}</LeadStatement>
+            {def.reading && def.reading(values[key]) && (
+              <KeyTakeaway tone="info" title="Что значит ваше значение">
+                {def.reading(values[key])}
+              </KeyTakeaway>
+            )}
+            {def.soWhat && (
+              <KeyTakeaway tone="info" title="Что с этим делать">{def.soWhat}</KeyTakeaway>
+            )}
+            {def.formula && (
+              <Disclosure summary="Формула — для любопытных">
+                <Prose>{def.formula}</Prose>
+              </Disclosure>
+            )}
+          </div>
+        </Disclosure>
+      ))}
+    </div>
+  );
+};
+
 // Честная подпись фактического периода метрики: «за 2 мес.», «за 1,9 г», «за 3 г»
 const fmtHistoryPeriod = (years) => {
   if (years == null) return null;
@@ -5479,7 +5564,7 @@ const fmtHistoryPeriod = (years) => {
   return `за ${months} мес.`;
 };
 
-const PortfolioView = ({ token, onAuthRequired }) => {
+const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
   const [tab, setTab] = useState("holdings");
@@ -5680,6 +5765,41 @@ const PortfolioView = ({ token, onAuthRequired }) => {
     return parts.length ? `Строка «Портфель» — средневзвешенное по долям; ${parts.join("; ")} (у остальных метрика не рассчитана).` : null;
   }, [pfMetrics]);
 
+  // Ряды аналитики (метрики из company_metrics поверх позиций) — общие для
+  // двух групповых таблиц «Доходность и оценка» и «Риск» (вкладка Агрегирующая)
+  const analyticRows = useMemo(() => ([
+    ...displayPositions.map((p) => {
+      const m = metricByTicker[p.ticker];
+      return m ? {
+        ...p,
+        pe: m.pe_current, peHist: m.pe_historical, divYield: m.div_yield,
+        return3y: m.return_total_3y ?? m.return_3y,
+        capm: m.capm_expected, alpha: m.alpha_3y,
+        sortino: m.sortino_3y, sharpe: m.sharpe_3y,
+        volatility: m.volatility, downsideVol: m.downside_vol, beta: m.beta,
+        betaSource: m.beta_source, rSquared: m.r_squared,
+        var95: m.var_95, earningsYield: m.earnings_yield,
+        shortHistory: m.short_history,
+        periodLabel: fmtHistoryPeriod(m.history_years),
+      } : { ...p, return3y: null, volatility: null, beta: p.beta ?? null };
+    }),
+    {
+      ticker: "Портфель", _isTotal: true,
+      return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
+      capm: null,
+      alpha: pfMetrics?.portfolio?.alpha ?? null,
+      sortino: pfMetrics?.portfolio?.sortino ?? null,
+      sharpe: pfMetrics?.portfolio?.sharpe ?? null,
+      periodLabel: null,
+      // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
+      volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
+      beta: pfMetrics?.portfolio?.beta?.value ?? null,
+      pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
+      peHist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
+      divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
+    },
+  ]), [displayPositions, metricByTicker, pfMetrics]);
+
   // Holdings rows enriched with derived value / weight / P&L for the Table.
   const holdingRows = displayPositions.map((p) => {
     const value = p.shares * p.currentPrice;
@@ -5718,20 +5838,33 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         </Button>
       </div>
 
-      {/* Positions table — собственная плитка на фоне */}
+      {/* Positions table — собственная плитка на фоне.
+          Клик разведён: актив (первый столбец) — ссылка «вглубь» в карточку
+          компании; остальная строка — редактирование позиции. */}
       <Card header="Состав портфеля">
       <Table
+        onRowClick={(r) => { if (r.id != null) setEditPosition(r); }}
         columns={[
           {
             key: "ticker", label: "Актив",
             render: (_, r) => (
-              <div className="tw-flex tw-items-center tw-gap-2.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (r.company_id != null && onOpenCompany) {
+                    onOpenCompany({ id: r.company_id, ticker: r.ticker, name: r.name, sector: r.sector });
+                  }
+                }}
+                className="tw-flex tw-items-center tw-gap-2.5 tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-left tw-group"
+                title={`Открыть карточку ${r.ticker}`}
+              >
                 <TickerBadge ticker={r.ticker} />
                 <div>
-                  <div className="tw-font-semibold tw-text-text-primary">{r.ticker}</div>
+                  <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.ticker}</div>
                   <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
                 </div>
-              </div>
+              </button>
             ),
           },
           { key: "shares", label: "Кол-во", render: (v) => fmtNumber(v) },
@@ -5786,137 +5919,6 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           Добавить позицию
         </Button>
       </div>
-      </Card>
-
-      {/* Per-asset analytic metrics — Этап 1 (P/E, дивдоходность из company_metrics)
-          + Этап 2 (волатильность/бета/доходность из истории котировок).
-          «Доходность (3г)» — ФАКТ прошлого (CAGR), не прогноз. «*» — история <1 года. */}
-      <Card header="Аналитические метрики портфеля" className="tw-mt-1">
-        <Table
-          columns={[
-            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
-            {
-              key: "return3y", label: "Доходность",
-              render: (v, row) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность: цена + дивиденды (CAGR). Факт прошлого, не прогноз">
-                  {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
-                  {row?.periodLabel && <span className="tw-text-text-tertiary tw-font-normal"> {row.periodLabel}</span>}
-                </span>
-              ),
-            },
-            {
-              key: "capm", label: "CAPM (модель)",
-              render: (v) => v == null ? "—" : (
-                <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf + β×(Rm − Rf). Оценка, не факт и не прогноз; чувствительна к рыночной премии">
-                  {fmtPercent(v, { sign: true })}
-                </span>
-              ),
-            },
-            {
-              key: "alpha", label: "α",
-              render: (v) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Альфа Дженсена: фактическая полная доходность минус «положенная» за риск по CAPM. >0 — бумага дала больше">
-                  {fmtPercent(v, { sign: true })}
-                </span>
-              ),
-            },
-            {
-              key: "sortino", label: "Сортино",
-              render: (v) => v == null ? "—" : (
-                <span title="(Полная доходность − ставка ОФЗ) / нисходящая волатильность. Штрафует только падения">
-                  {fmtNumber(v, { decimals: 2 })}
-                </span>
-              ),
-            },
-            {
-              key: "volatility", label: "Волатильность",
-              render: (v, row) => v == null ? "—" : (
-                <span title="СКО дневных доходностей × √252, годовая">
-                  {fmtPercent(v)}{row?.shortHistory ? "*" : ""}
-                  {row?.shortHistory && row?.periodLabel && <span className="tw-text-text-tertiary"> {row.periodLabel}</span>}
-                </span>
-              ),
-            },
-            {
-              key: "beta", label: "Beta",
-              render: (v, row) => v == null ? "—" : (
-                <span title={row?.betaSource === "moex" ? "Данные Мосбиржи (файл коэффициентов срочного рынка)" : "Расчёт Basis (Диммсон, окно 3 года)"}>
-                  {fmtNumber(v, { decimals: 2 })}{row?.shortHistory ? "*" : ""}
-                  {row?.betaSource && <span className="tw-text-text-tertiary"> {row.betaSource === "moex" ? "ᴹ" : "ᴮ"}</span>}
-                </span>
-              ),
-            },
-            {
-              key: "rSquared", label: "R²",
-              render: (v) => v == null ? "—" : (
-                <span title="Доля движения, объяснённая рынком: >0,6 — бета надёжна; ниже — у бумаги много своих факторов"
-                  className={v >= 0.6 ? "tw-text-text-secondary" : "tw-text-text-tertiary"}>
-                  {fmtNumber(v, { decimals: 2 })}
-                </span>
-              ),
-            },
-            {
-              key: "var95", label: "VaR 95%",
-              render: (v) => v == null ? "—" : <span title="Исторический VaR: дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
-            },
-            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}×` },
-            {
-              key: "earningsYield", label: "Дох. прибыли",
-              render: (v) => v == null ? "—" : <span title="Earnings yield = 1 / P/E (из фундаментальных данных)">{fmtPercent(v)}</span>,
-            },
-            { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v) },
-          ]}
-          rows={[
-            ...displayPositions.map((p) => {
-              const m = metricByTicker[p.ticker];
-              return m ? {
-                ...p,
-                pe: m.pe_current, divYield: m.div_yield,
-                // главная цифра — ПОЛНАЯ доходность (с дивидендами); ценовая в тултипе периода
-                return3y: m.return_total_3y ?? m.return_3y,
-                capm: m.capm_expected, alpha: m.alpha_3y, sortino: m.sortino_3y,
-                volatility: m.volatility, beta: m.beta,
-                betaSource: m.beta_source, rSquared: m.r_squared,
-                var95: m.var_95, earningsYield: m.earnings_yield,
-                shortHistory: m.short_history,
-                periodLabel: fmtHistoryPeriod(m.history_years),
-              } : { ...p, return3y: null, volatility: null, beta: p.beta ?? null };
-            }),
-            {
-              ticker: "Портфель",
-              return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? pfMetrics?.portfolio?.return_3y?.value ?? null,
-              capm: null,
-              alpha: pfMetrics?.portfolio?.alpha ?? null,
-              sortino: pfMetrics?.portfolio?.sortino ?? null,
-              periodLabel: null,
-              // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
-              volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-              beta: pfMetrics?.portfolio?.beta?.value ?? null,
-              pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
-              divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
-            },
-          ]}
-        />
-        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
-          {pfMetrics?.positions?.some((p) => p.short_history) && (
-            <span>* рассчитано на истории менее года — значение неустойчиво; доходность за период короче года не приводится к годовой.</span>
-          )}
-          <span>
-            «Доходность» — фактическая ПОЛНАЯ доходность (цена + дивиденды, CAGR) за указанный период, не прогноз.
-            «CAPM (модель)» — модельная forward-оценка Rf + β×(Rm − Rf): оценка, не факт; шумная, зависит от премии.
-            Окно риск-метрик — 3 года дневных данных. Волатильность портфеля учитывает корреляции
-            (ковариационная матрица). VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.
-          </span>
-          {pfMetrics?.rates?.risk_free_1y != null && (
-            <span>
-              Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
-              Доходность рынка (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)};
-              рыночная премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}
-              {pfMetrics.rates.market_premium < 0 && " — за это окно рынок проиграл ОФЗ, поэтому CAPM-оценки ниже ставки"}.
-            </span>
-          )}
-          {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
-        </div>
       </Card>
 
       {/* Распределение и концентрация (Этап 1) — из /portfolios/{id}/metrics */}
@@ -6019,6 +6021,122 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           </div>
         </Card>
       )}
+
+      {/* Метрики в двух смысловых группах (вместо одной широкой «каши») */}
+      <Card header="Доходность и оценка" className="tw-mb-4">
+        <Table
+          columns={[
+            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
+            {
+              key: "return3y", label: "Доходность",
+              render: (v, row) => v == null ? "—" : (
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность: цена + дивиденды (CAGR). Факт прошлого, не прогноз">
+                  {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
+                  {row?.periodLabel && <span className="tw-text-text-tertiary tw-font-normal"> {row.periodLabel}</span>}
+                </span>
+              ),
+            },
+            {
+              key: "capm", label: "CAPM (модель)",
+              render: (v) => v == null ? "—" : (
+                <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf + β×(Rm − Rf). Оценка, не факт и не прогноз">
+                  {fmtPercent(v, { sign: true })}
+                </span>
+              ),
+            },
+            { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v, { decimals: 1 }) },
+            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : <span title="Пересчитывается от текущей котировки">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
+            { key: "peHist", label: "P/E ист.", render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary" title="Медиана P/E за 5 лет">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
+            {
+              key: "earningsYield", label: "Дох. прибыли",
+              render: (v) => v == null ? "—" : <span title="Earnings yield = 1 / P/E">{fmtPercent(v, { decimals: 1 })}</span>,
+            },
+          ]}
+          rows={analyticRows}
+        />
+        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
+          {pfMetrics?.positions?.some((p) => p.short_history) && (
+            <span>* рассчитано на истории менее года — значение неустойчиво; доходность короче года не приводится к годовой.</span>
+          )}
+          {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
+        </div>
+        <MetricExplainers
+          metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
+          values={{ pe: pfMetrics?.portfolio?.pe_current?.value }}
+        />
+      </Card>
+
+      <Card header="Риск" className="tw-mb-4">
+        <Table
+          columns={[
+            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
+            {
+              key: "volatility", label: "Волатильность",
+              render: (v, row) => v == null ? "—" : (
+                <span title="СКО дневных доходностей × √252, годовая; у портфеля — через ковариационную матрицу">
+                  {fmtPercent(v)}{row?.shortHistory ? "*" : ""}
+                </span>
+              ),
+            },
+            {
+              key: "var95", label: "VaR 95%",
+              render: (v) => v == null ? "—" : <span title="Дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
+            },
+            {
+              key: "downsideVol", label: "Нисх. волат.",
+              render: (v) => v == null ? "—" : <span title="Волатильность только по дням падения (порог 0), годовая">{fmtPercent(v)}</span>,
+            },
+            {
+              key: "beta", label: "Beta",
+              render: (v, row) => v == null ? "—" : (
+                <span title={row?.betaSource === "moex" ? "Данные Мосбиржи (файл коэффициентов срочного рынка)" : "Расчёт Basis (Диммсон, окно 3 года)"}>
+                  {fmtNumber(v, { decimals: 2 })}{row?.shortHistory ? "*" : ""}
+                  {row?.betaSource && <span className="tw-text-text-tertiary"> {row.betaSource === "moex" ? "ᴹ" : "ᴮ"}</span>}
+                </span>
+              ),
+            },
+            {
+              key: "rSquared", label: "R²",
+              render: (v) => v == null ? "—" : (
+                <span title="Доля движения, объяснённая рынком: >0,6 — бета надёжна" className={v >= 0.6 ? "tw-text-text-secondary" : "tw-text-text-tertiary"}>
+                  {fmtNumber(v, { decimals: 2 })}
+                </span>
+              ),
+            },
+            {
+              key: "sharpe", label: "Шарп",
+              render: (v) => v == null ? "—" : <span title="(Полная доходность − ставка ОФЗ) / волатильность. >1 — хорошо; ≤0 — риск не вознаграждается">{fmtNumber(v, { decimals: 2 })}</span>,
+            },
+            {
+              key: "alpha", label: "α",
+              render: (v) => v == null ? "—" : (
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Альфа Дженсена: сверх «положенного» за риск по CAPM, % годовых">
+                  {fmtPercent(v, { sign: true })}
+                </span>
+              ),
+            },
+            {
+              key: "sortino", label: "Сортино",
+              render: (v) => v == null ? "—" : <span title="(Полная доходность − ставка ОФЗ) / нисходящая волатильность">{fmtNumber(v, { decimals: 2 })}</span>,
+            },
+          ]}
+          rows={analyticRows}
+        />
+        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
+          <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
+          {pfMetrics?.rates?.risk_free_1y != null && (
+            <span>
+              Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
+              Рынок (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)}; премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}
+              {pfMetrics.rates.market_premium < 0 && " — за это окно рынок проиграл ОФЗ, поэтому CAPM-оценки ниже ставки"}.
+            </span>
+          )}
+        </div>
+        <MetricExplainers
+          metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
+          values={{ sharpe: pfMetrics?.portfolio?.sharpe }}
+        />
+      </Card>
 
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
         {/* Score dial */}
@@ -7393,7 +7511,7 @@ export default function App() {
       case "overview":
         return <OverviewView token={token} />;
       case "portfolio":
-        return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} />;
+        return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "pricing":
         return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
       case "profile":

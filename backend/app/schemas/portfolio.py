@@ -73,6 +73,7 @@ class PositionMetrics(BaseModel):
     return_total_3y: float | None = None  # цена + дивиденды, % годовых (факт)
     alpha_3y: float | None = None         # альфа Дженсена, % годовых
     sortino_3y: float | None = None       # (R_total − Rf) / downside_vol
+    sharpe_3y: float | None = None        # (R_total − Rf) / volatility
     capm_expected: float | None = None    # CAPM-ожидание (модель), % годовых
 
 
