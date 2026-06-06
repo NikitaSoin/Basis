@@ -116,14 +116,28 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         value = float(p.quantity) * price if price is not None else None
         m = metrics.get(c.ticker)
         hy = float(m.history_years) if m and m.history_years is not None else None
+
+        # Динамические мультипликаторы: P/E, дивдоходность и earnings yield
+        # пересчитываются от СВЕЖЕЙ цены через подразумеваемые EPS/DPS
+        # (цена меняется постоянно, прибыль/дивиденд — редко). Округление до
+        # десятых: сотые дёргались бы шумом цены. Без якоря — статика из файла.
+        eps = float(m.eps_implied) if m and m.eps_implied is not None else None
+        dps = float(m.dps_implied) if m and m.dps_implied is not None else None
+        pe_dynamic = round(price / eps, 1) if price and eps and eps > 0 else (
+            round(float(m.pe_current), 1) if m and m.pe_current is not None else None)
+        dy_dynamic = round(dps / price * 100, 1) if price and dps else (
+            round(float(m.div_yield), 1) if m and m.div_yield is not None else None)
+        ey_dynamic = round(100 / pe_dynamic, 1) if pe_dynamic and pe_dynamic > 0 else None
+
         positions.append({
             "ticker": c.ticker,
             "name": c.name,
+            "company_id": p.company_id,
             "sector": c.sector or "Прочее",
             "value": round(value, 2) if value is not None else None,
-            "pe_current": float(m.pe_current) if m and m.pe_current is not None else None,
+            "pe_current": pe_dynamic,
             "pe_historical": float(m.pe_historical) if m and m.pe_historical is not None else None,
-            "div_yield": float(m.div_yield) if m and m.div_yield is not None else None,
+            "div_yield": dy_dynamic,
             # Этап 2 — риск-метрики из company_metrics (предрасчёт recalc_risk_metrics)
             "volatility": float(m.volatility) if m and m.volatility is not None else None,
             "beta": float(m.beta) if m and m.beta is not None else None,
@@ -135,7 +149,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "r_squared": float(m.r_squared) if m and m.r_squared is not None else None,
             "downside_vol": float(m.downside_vol) if m and m.downside_vol is not None else None,
             "var_95": float(m.var_95) if m and m.var_95 is not None else None,
-            "earnings_yield": float(m.earnings_yield) if m and m.earnings_yield is not None else None,
+            "earnings_yield": ey_dynamic,
             # Этап 3 — полная доходность и коэффициенты на базе Rf
             "return_total_3y": float(m.return_total_3y) if m and m.return_total_3y is not None else None,
             "alpha_3y": float(m.alpha_3y) if m and m.alpha_3y is not None else None,
