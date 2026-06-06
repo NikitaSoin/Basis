@@ -5560,36 +5560,66 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         rows={holdingRows}
       />
 
-      {/* Per-asset analytic metrics — числа из company_metrics (Этап 1).
-          Ожид. доходность / StdDev / Beta — Этап 2 (история котировок). */}
+      {/* Per-asset analytic metrics — Этап 1 (P/E, дивдоходность из company_metrics)
+          + Этап 2 (волатильность/бета/доходность из истории котировок).
+          «Доходность (3г)» — ФАКТ прошлого (CAGR), не прогноз. «*» — история <1 года. */}
       <Card header="Аналитические метрики портфеля" className="tw-mt-1">
         <Table
           columns={[
             { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
-            { key: "expReturn", label: "Ожид. доходность", render: (v) => v == null ? "—" : <span className="tw-text-success">{fmtPercent(v, { sign: true })}</span> },
-            { key: "stdDev", label: "Std Deviation", render: (v) => v == null ? "—" : fmtPercent(v) },
+            {
+              key: "return3y", label: "Доходность (3г)",
+              render: (v, row) => v == null ? "—" : (
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"}>
+                  {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
+                </span>
+              ),
+            },
+            {
+              key: "volatility", label: "Волатильность",
+              render: (v, row) => v == null ? "—" : `${fmtPercent(v)}${row?.shortHistory ? "*" : ""}`,
+            },
             { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}×` },
             { key: "pe_hist", label: "P/E ист.", render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
-            { key: "beta", label: "Beta", render: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+            {
+              key: "beta", label: "Beta",
+              render: (v, row) => v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}${row?.shortHistory ? "*" : ""}`,
+            },
             { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v) },
           ]}
           rows={[
             ...displayPositions.map((p) => {
               const m = metricByTicker[p.ticker];
-              return m ? { ...p, pe: m.pe_current, pe_hist: m.pe_historical, divYield: m.div_yield } : p;
+              return m ? {
+                ...p,
+                pe: m.pe_current, pe_hist: m.pe_historical, divYield: m.div_yield,
+                return3y: m.return_3y, volatility: m.volatility, beta: m.beta,
+                shortHistory: m.short_history,
+              } : { ...p, return3y: null, volatility: null, beta: p.beta ?? null };
             }),
             {
               ticker: "Портфель",
-              expReturn: null, stdDev: null, beta: null,
+              return3y: pfMetrics?.portfolio?.return_3y?.value ?? null,
+              // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
+              volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
+              beta: pfMetrics?.portfolio?.beta?.value ?? null,
               pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
               pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
               divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             },
           ]}
         />
-        {metricsCoverageNote && (
-          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">{metricsCoverageNote}</div>
-        )}
+        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
+          {pfMetrics?.positions?.some((p) => p.short_history) && (
+            <span>* рассчитано на истории менее года — значение неустойчиво.</span>
+          )}
+          <span>
+            «Доходность (3г)» — фактический среднегодовой результат (CAGR) за 3 года, не прогноз.
+            Волатильность портфеля учитывает корреляции между бумагами (ковариационная матрица) —
+            поэтому она ниже простого среднего.
+          </span>
+          {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
+        </div>
       </Card>
 
       {/* Распределение и концентрация (Этап 1) — из /portfolios/{id}/metrics */}
@@ -5676,7 +5706,22 @@ const PortfolioView = ({ token, onAuthRequired }) => {
   );
 
   const renderCorrelation = () => {
-    const labels = ["SBER", "LKOH", "YDEX"];
+    // Реальные попарные корреляции из /portfolios/{id}/metrics (Этап 2);
+    // мок остаётся только как демо без портфеля.
+    const corr = pfMetrics?.correlation;
+    const labels = corr?.tickers?.length ? corr.tickers : ["SBER", "LKOH", "YDEX"];
+    const matrix = corr?.tickers?.length ? corr.matrix : MOCK_CORRELATION;
+    // средняя внедиагональная корреляция — для вывода простым языком
+    const offDiag = [];
+    matrix.forEach((row, i) => row.forEach((v, j) => { if (i < j && typeof v === "number") offDiag.push(v); }));
+    const avgCorr = offDiag.length ? offDiag.reduce((a, b) => a + b, 0) / offDiag.length : null;
+    const verdict = avgCorr == null
+      ? "Недостаточно данных для оценки связей между бумагами."
+      : avgCorr >= 0.6
+        ? `Средняя корреляция между бумагами высокая (${fmtNumber(avgCorr, { decimals: 2 })}): портфель склонен падать целиком — диверсификация слабая.`
+        : avgCorr >= 0.3
+          ? `Средняя корреляция умеренная (${fmtNumber(avgCorr, { decimals: 2 })}): бумаги частично движутся вместе — диверсификация есть, но связь с общим рынком заметна.`
+          : `Средняя корреляция низкая (${fmtNumber(avgCorr, { decimals: 2 })}): бумаги движутся независимо — хорошая диверсификация.`;
 
     return (
       <AppearGroup gate={appearGate.current} groupId="pf-correlation" as="div" className="tw-p-4">
@@ -5690,7 +5735,7 @@ const PortfolioView = ({ token, onAuthRequired }) => {
         </p>
 
         <Card className="tw-max-w-lg tw-mx-auto">
-          <CorrelationHeatmap labels={labels} matrix={MOCK_CORRELATION} />
+          <CorrelationHeatmap labels={labels} matrix={matrix} />
           <div className="tw-mt-4 tw-flex tw-items-center tw-gap-4 tw-text-[12px] tw-text-text-tertiary">
             <span className="tw-inline-flex tw-items-center tw-gap-1.5">
               <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--danger) 45%, var(--bg-elevated))" }} />
@@ -5711,9 +5756,8 @@ const PortfolioView = ({ token, onAuthRequired }) => {
           <ShieldAlert size={18} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
           <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
             <span className="tw-font-semibold tw-text-text-primary">Вывод: </span>
-            У портфеля средняя корреляция между Сбером и Лукойлом (0,45) из-за
-            общей макро-зависимости от курса рубля и ставки. Яндекс выступает
-            хорошим диверсификатором.
+            {verdict} Корреляции рассчитаны по дневным доходностям за 3 года.
+            {corr?.low_overlap && " У части пар мало совпадающих торговых дат (молодые бумаги) — их значения менее надёжны."}
           </p>
         </div>
       </AppearGroup>
