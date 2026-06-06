@@ -36,6 +36,7 @@ _UPDATE_SQL = text("""
     SET beta_calc = :beta_calc,
         volatility = :volatility,
         return_3y = :return_3y,
+        return_total_3y = :return_total_3y,
         history_years = :history_years,
         downside_vol = :downside_vol,
         var_95 = :var_95,
@@ -77,8 +78,10 @@ def main() -> None:
         filled = {"volatility": 0, "beta_calc": 0, "return_3y": 0, "downside_vol": 0, "var_95": 0}
         short_history, empty = [], []
 
+        from app.services.moex_dividends import load_dividends_map
         for c in companies:
-            m = compute_for_company(db, c.id, index_returns, since)
+            divs = load_dividends_map(db, c.ticker)
+            m = compute_for_company(db, c.id, index_returns, since, dividends=divs)
             db.execute(_UPDATE_SQL, {"ticker": c.ticker, "updated_at": now, **m})
             for k in filled:
                 if m[k] is not None:
@@ -97,7 +100,37 @@ def main() -> None:
         logger.info("  история <1 года (в UI «*»): %d — %s", len(short_history), ", ".join(short_history) or "—")
         logger.info("  без истории (NULL): %d — %s", len(empty), ", ".join(empty) or "—")
 
-        # 3) Контроль качества фолбэка: расхождение beta_calc vs beta_moex
+        # 3) Этап 3: безрисковая ставка, доходность рынка → альфа/Сортино/CAPM.
+        #    Все члены годовые, %. Бета — показываемая (moex || calc).
+        from app.services.moex_dividends import update_risk_free_rate
+        from app.services.risk_metrics import market_return_3y
+        rf = update_risk_free_rate(db)
+        rm = market_return_3y(db, "MCFTR")
+        if rf is not None and rm is not None:
+            db.execute(text("""
+                INSERT INTO market_params (key, value, as_of, note, updated_at)
+                VALUES ('market_return_3y', :rm, CURRENT_DATE,
+                        'CAGR MCFTR (полная доходность) за окно 3 года', :now)
+                ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value,
+                    as_of=EXCLUDED.as_of, updated_at=EXCLUDED.updated_at
+            """), {"rm": rm, "now": now})
+            db.execute(text("""
+                UPDATE company_metrics SET
+                    capm_expected = ROUND((:rf + beta * (:rm - :rf))::numeric, 2),
+                    alpha_3y = CASE WHEN return_total_3y IS NOT NULL AND beta IS NOT NULL
+                        THEN ROUND((return_total_3y - (:rf + beta * (:rm - :rf)))::numeric, 2) END,
+                    sortino_3y = CASE WHEN return_total_3y IS NOT NULL
+                                       AND downside_vol IS NOT NULL AND downside_vol > 0
+                        THEN ROUND(((return_total_3y - :rf) / downside_vol)::numeric, 2) END
+                WHERE beta IS NOT NULL
+            """), {"rf": rf, "rm": rm})
+            db.commit()
+            logger.info("Коэффициенты Этапа 3: Rf=%.2f%% (ОФЗ-1г), Rm=%.2f%% (MCFTR 3г), премия=%.2f%%",
+                        rf, rm, rm - rf)
+        else:
+            logger.warning("Альфа/Сортино/CAPM пропущены: Rf=%s, Rm=%s", rf, rm)
+
+        # 4) Контроль качества фолбэка: расхождение beta_calc vs beta_moex
         rows = db.execute(text("""
             SELECT ticker, beta_calc, beta_moex,
                    ABS(beta_calc - beta_moex) AS gap
