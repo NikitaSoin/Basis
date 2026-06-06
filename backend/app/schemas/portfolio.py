@@ -48,6 +48,12 @@ class PositionMetrics(BaseModel):
     pe_current: float | None
     pe_historical: float | None
     div_yield: float | None      # %
+    # Этап 2 — риск-метрики из истории котировок
+    volatility: float | None = None    # годовая, %
+    beta: float | None = None          # против IMOEX
+    return_3y: float | None = None     # CAGR, % годовых (факт, не прогноз)
+    history_years: float | None = None
+    short_history: bool = False        # история <1 года → «*» в UI
 
 
 class WeightedMetric(BaseModel):
@@ -61,6 +67,15 @@ class PortfolioWeighted(BaseModel):
     pe_current: WeightedMetric | None = None
     pe_historical: WeightedMetric | None = None
     div_yield: WeightedMetric | None = None
+    beta: WeightedMetric | None = None          # средневзвешенная (бета линейна по весам)
+    return_3y: WeightedMetric | None = None     # средневзвешенный факт 3 лет
+    volatility: WeightedMetric | None = None    # σ_p = √(wᵀΣw) — через ковариации, не среднее
+
+
+class CorrelationMatrix(BaseModel):
+    tickers: list[str]
+    matrix: list[list[float | None]]   # None — мало совпадающих дат у пары
+    low_overlap: bool = False          # есть пары с пересечением < полугода
 
 
 class SectorSlice(BaseModel):
@@ -86,3 +101,4 @@ class PortfolioMetricsResponse(BaseModel):
     sector_allocation: list[SectorSlice]
     asset_classes: list[AssetClassSlice]
     concentration: Concentration | None
+    correlation: CorrelationMatrix | None = None
