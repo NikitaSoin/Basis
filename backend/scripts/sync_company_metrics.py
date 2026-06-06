@@ -40,15 +40,17 @@ COMPANIES_DIR = Path(__file__).parent.parent / "companies"
 
 _UPSERT_SQL = text("""
     INSERT INTO company_metrics (ticker, sector, pe_current, pe_historical,
-                                 div_yield, fair_value, updated_at)
+                                 div_yield, fair_value, eps_implied, dps_implied, updated_at)
     VALUES (:ticker, :sector, :pe_current, :pe_historical,
-            :div_yield, :fair_value, :updated_at)
+            :div_yield, :fair_value, :eps_implied, :dps_implied, :updated_at)
     ON CONFLICT (ticker) DO UPDATE SET
         sector        = EXCLUDED.sector,
         pe_current    = EXCLUDED.pe_current,
         pe_historical = EXCLUDED.pe_historical,
         div_yield     = EXCLUDED.div_yield,
         fair_value    = EXCLUDED.fair_value,
+        eps_implied   = EXCLUDED.eps_implied,
+        dps_implied   = EXCLUDED.dps_implied,
         updated_at    = EXCLUDED.updated_at
 """)
 # beta/volatility намеренно не трогаем: их заполнит Этап 2, синк их не затирает.
@@ -100,11 +102,21 @@ def extract_metrics(ticker: str) -> dict:
 
     fair_value = _num(((fin.get("valuation") or {}).get("fair_value_range") or {}).get("base"))
 
+    # Якоря динамических мультипликаторов: подразумеваемые EPS/DPS через
+    # цену на дату файла (last_price). EPS = P_файла / P/E_файла — та же
+    # прибыль, что закладывал аналитик; портфель пересчитывает P/E и
+    # дивдоходность от СВЕЖЕЙ котировки (цена меняется постоянно, EPS — редко).
+    price_at_file = _num((fin.get("meta") or {}).get("last_price"))
+    eps_implied = round(price_at_file / pe_current, 4) if price_at_file and pe_current else None
+    dps_implied = round(div_yield * price_at_file / 100, 4) if price_at_file and div_yield else None
+
     return {
         "pe_current": pe_current,
         "pe_historical": pe_historical,
         "div_yield": div_yield,
         "fair_value": fair_value,
+        "eps_implied": eps_implied,
+        "dps_implied": dps_implied,
     }
 
 

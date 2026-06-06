@@ -37,6 +37,9 @@ class CompanyMetrics(Base):
     downside_vol: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))   # σ доходностей <0, ×√252, %
     var_95: Mapped[Decimal | None] = mapped_column(Numeric(8, 4))         # ист. VaR 95%, дневной, % потери
     earnings_yield: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))  # 1/PE, %
+    # Якоря динамических мультипликаторов (P/E, дивдоходность от свежей цены)
+    eps_implied: Mapped[Decimal | None] = mapped_column(Numeric(14, 4))   # = цена_файла / P/E_файла
+    dps_implied: Mapped[Decimal | None] = mapped_column(Numeric(14, 4))   # = DY_файла × цена_файла / 100
     # ── Этап 3: полная доходность и коэффициенты на базе безрисковой ставки ──
     return_total_3y: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))  # цена + дивиденды, % годовых
     alpha_3y: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))         # альфа Дженсена, % годовых
