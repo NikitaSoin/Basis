@@ -280,9 +280,30 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                 pf_daily.append(r)
             # портфельный Сортино: годовая downside-σ взвешенного ряда
             neg = [r for r in pf_daily if r < 0]
-            if len(neg) >= 30 and None not in (r_total_p, rf):
+            if len(neg) >= 30:
                 dvol = float(np.std(neg, ddof=1)) * (252 ** 0.5) * 100
-                sortino_p = round((r_total_p - rf) / dvol, 2) if dvol > 0 else None
+                portfolio_row["downside_vol"] = round(dvol, 2)
+                if r_total_p is not None and rf is not None and dvol > 0:
+                    sortino_p = round((r_total_p - rf) / dvol, 2)
+
+            # портфельный VaR 95% (дневной): −5-й перцентиль дневных доходностей
+            if len(pf_daily) >= 30:
+                portfolio_row["var_95"] = round(-float(np.percentile(pf_daily, 5)) * 100, 2)
+
+            # портфельный R²: corr² дневного ряда портфеля с рынком (IMOEX)
+            imoex_s = load_index_series(db, "IMOEX", since)
+            idx_dates = sorted(imoex_s)
+            idx_ret = {idx_dates[k]: math.log(imoex_s[idx_dates[k]] / imoex_s[idx_dates[k - 1]])
+                       for k in range(1, len(idx_dates))}
+            pf_by_date = dict(zip(common_dates, pf_daily))
+            common_idx = sorted(set(pf_by_date) & set(idx_ret))
+            if len(common_idx) >= 30:
+                a = np.array([pf_by_date[d] for d in common_idx])
+                b = np.array([idx_ret[d] for d in common_idx])
+                if float(np.std(a)) > 0 and float(np.std(b)) > 0:
+                    corr = float(np.corrcoef(a, b)[0][1])
+                    if not math.isnan(corr):
+                        portfolio_row["r_squared"] = round(corr * corr, 4)
 
             # накопленные кривые: портфель vs MCFTR (обе с дивидендами) + IMOEX
             mcftr = load_index_series(db, "MCFTR", since)
@@ -313,6 +334,14 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                 "note": "веса позиций зафиксированы текущими долями (приближение)",
             }
     portfolio_row["sortino"] = sortino_p
+
+    # CAPM-ожидание портфеля (модель) и earnings yield от портфельного P/E
+    portfolio_row["capm"] = (
+        round(rf + beta_p * (rm - rf), 2)
+        if None not in (rf, rm, beta_p) else None
+    )
+    pe_p = portfolio_row["pe_current"]["value"]
+    portfolio_row["earnings_yield"] = round(100 / pe_p, 1) if pe_p and pe_p > 0 else None
 
     # Распределение по секторам — по текущей стоимости
     by_sector: dict[str, float] = {}

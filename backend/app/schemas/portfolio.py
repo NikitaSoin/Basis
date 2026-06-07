@@ -96,6 +96,11 @@ class PortfolioWeighted(BaseModel):
     sharpe: float | None = None                 # (R_total − Rf) / σ_p
     sortino: float | None = None                # (R_total − Rf) / downside-σ портфеля
     alpha: float | None = None                  # альфа Дженсена портфеля
+    capm: float | None = None                   # CAPM-ожидание портфеля (модель)
+    earnings_yield: float | None = None         # 1 / P/E портфеля, %
+    var_95: float | None = None                 # дневной VaR 95% портфеля, % потери
+    downside_vol: float | None = None           # нисходящая σ портфеля, годовая %
+    r_squared: float | None = None              # R² портфеля против IMOEX
 
 
 class MarketRates(BaseModel):

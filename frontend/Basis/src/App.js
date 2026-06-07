@@ -5612,7 +5612,7 @@ const METRIC_EXPLANATIONS = {
     formula: { expr: "VaR 95% = −(5-й перцентиль дневных доходностей)", note: "Исторический метод: берётся распределение дневных доходностей за период, VaR 95% — граница худших 5% дней. На другой горизонт масштабируется через корень из времени." },
   },
   downside_vol: {
-    title: "Downside-волатильность",
+    title: "Нисходящая волатильность",
     what: "Как обычная волатильность, но считает только колебания вниз — «плохой» риск. Рост в расчёт не идёт, потому что инвестора пугают просадки, а не подъёмы.",
     reading: (v, ctx = {}) => {
       if (v == null) return null;
@@ -5697,7 +5697,13 @@ const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
   return (
     <div className="tw-flex tw-flex-col tw-gap-3">
       {items.map(({ key, def }) => (
-        <Card key={key} header={def.title}>
+        <Card key={key}>
+          {/* Крупный заголовок плиты: акцентная полоса + название 18px bold
+              на лёгкой акцентной подложке — метрика читается как раздел */}
+          <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+            <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+            <h4 className="tw-m-0 tw-text-[18px] tw-font-bold tw-text-text-primary">{def.title}</h4>
+          </div>
           <div className="tw-flex tw-flex-col tw-gap-3">
             <KeyTakeaway tone="neutral" title="Что это">{def.what}</KeyTakeaway>
 
@@ -5799,7 +5805,7 @@ const RISK_COLUMNS = [
               render: (v) => v == null ? "—" : <span title="Дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
             },
             {
-              key: "downsideVol", label: "Нисх. волат.",
+              key: "downsideVol", label: "Нисходящая волатильность",
               render: (v) => v == null ? "—" : <span title="Волатильность только по дням падения (порог 0), годовая">{fmtPercent(v)}</span>,
             },
             {
@@ -6068,17 +6074,21 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     {
       ticker: "Портфель", _isTotal: true,
       return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-      capm: null,
+      capm: pfMetrics?.portfolio?.capm ?? null,
       alpha: pfMetrics?.portfolio?.alpha ?? null,
       sortino: pfMetrics?.portfolio?.sortino ?? null,
       sharpe: pfMetrics?.portfolio?.sharpe ?? null,
       periodLabel: null,
       // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
       volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
+      downsideVol: pfMetrics?.portfolio?.downside_vol ?? null,
+      var95: pfMetrics?.portfolio?.var_95 ?? null,
+      rSquared: pfMetrics?.portfolio?.r_squared ?? null,
       beta: pfMetrics?.portfolio?.beta?.value ?? null,
       pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
       peHist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
       divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
+      earningsYield: pfMetrics?.portfolio?.earnings_yield ?? null,
     },
   ]), [displayPositions, metricByTicker, pfMetrics]);
 
@@ -6288,7 +6298,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
           values={{
             return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-            capm: null,
+            capm: pfMetrics?.portfolio?.capm ?? null,
             div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
             pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
@@ -6325,10 +6335,10 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
           values={{
             volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-            var_95: null,
-            downside_vol: null,
+            var_95: pfMetrics?.portfolio?.var_95 ?? null,
+            downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
             beta: pfMetrics?.portfolio?.beta?.value ?? null,
-            r_squared: null,
+            r_squared: pfMetrics?.portfolio?.r_squared ?? null,
             sharpe: pfMetrics?.portfolio?.sharpe ?? null,
             alpha: pfMetrics?.portfolio?.alpha ?? null,
             sortino: pfMetrics?.portfolio?.sortino ?? null,
@@ -6405,7 +6415,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
           values={{
             return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-            capm: null,
+            capm: pfMetrics?.portfolio?.capm ?? null,
             div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
             pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
@@ -6438,10 +6448,10 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
           values={{
             volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-            var_95: null,
-            downside_vol: null,
+            var_95: pfMetrics?.portfolio?.var_95 ?? null,
+            downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
             beta: pfMetrics?.portfolio?.beta?.value ?? null,
-            r_squared: null,
+            r_squared: pfMetrics?.portfolio?.r_squared ?? null,
             sharpe: pfMetrics?.portfolio?.sharpe ?? null,
             alpha: pfMetrics?.portfolio?.alpha ?? null,
             sortino: pfMetrics?.portfolio?.sortino ?? null,
