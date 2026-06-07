@@ -6529,6 +6529,19 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
             </div>
           </Card>
         </div>
+        {/* как сложился общий балл + навигация к слабому звену */}
+        {(() => {
+          const weighted = q.subindices.map((s) => `${Math.round((q.weights[s.key] || 0) * 100)}% ${s.label}`).join(" + ");
+          const lowest = [...q.subindices].sort((a, b) => a.score - b.score)[0];
+          return (
+            <div className="tw-text-[13px] tw-text-text-secondary tw-px-1">
+              Общий балл — взвешенное среднее: {weighted}.{" "}
+              {lowest && (
+                <>Сильнее всего тянет вниз — <b className="tw-text-text-primary">«{lowest.label}»</b> ({lowest.score}/100): с него стоит начать, если хотите улучшить портфель.</>
+              )}
+            </div>
+          );
+        })()}
         {/* честная подпись: не магическое число */}
         <KeyTakeaway tone="neutral" title="Как читать индекс">{q.note}</KeyTakeaway>
       </div>
