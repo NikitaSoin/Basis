@@ -3,6 +3,7 @@ from app.models.company import Company, CompanyAnalysis, Quote
 from app.models.portfolio import Portfolio, PortfolioPosition
 from app.models.market import MarketUpdate, MarketOverview
 from app.models.company_profile import CompanyProfile
+from app.models.bond import Bond
 
 __all__ = [
     "User",
@@ -10,4 +11,5 @@ __all__ = [
     "Portfolio", "PortfolioPosition",
     "MarketUpdate", "MarketOverview",
     "CompanyProfile",
+    "Bond",
 ]
