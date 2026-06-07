@@ -5684,29 +5684,23 @@ const METRIC_EXPLANATIONS = {
 // Сноска про текущий режим высокой ставки — показывается рядом с группой «Риск»
 const RISK_REGIME_NOTE = "В 2023–2026 безрисковая ставка (ОФЗ) держится высоко — около 12–13% годовых. Когда «безопасные» гособлигации дают так много, риск акций вознаграждается слабее, и метрики вроде Шарпа и Сортино по всему рынку оказываются низкими или отрицательными. Это особенность периода высокой ставки, а не обязательно слабость конкретного портфеля. В периоды низкой ставки картина обычно иная.";
 
-// Список метрик группы → раскрывающиеся объяснения.
-// Единая типографика: все смысловые части — 14px; разные части — разные
-// плашки по цвету (голубая — персональное «ваше значение», зелёная — действие),
-// формула — отдельной моноширинной плашкой с пояснением обычным текстом.
+// Объяснения метрик: каждая метрика — ОТДЕЛЬНАЯ белая плита (Card).
+// Внутри все смысловые части — равноправные плашки: нейтральная «Что это»,
+// тонированная по значению «Что значит ваше значение» (есть не у всех метрик —
+// только где есть число пользователя), зелёная «Что с этим делать»,
+// формула — свёрнутой плашкой.
 const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
   const items = metricKeys
     .map((k) => ({ key: k, def: METRIC_EXPLANATIONS[k] }))
     .filter((x) => x.def);
   if (!items.length) return null;
   return (
-    <div className="tw-flex tw-flex-col tw-gap-2">
+    <div className="tw-flex tw-flex-col tw-gap-3">
       {items.map(({ key, def }) => (
-        <Disclosure key={key} summary={def.title}>
-          <div className="tw-flex tw-flex-col tw-gap-3 tw-pt-1 tw-pb-1">
-            {/* Что это — спокойное определение, тем же размером, что и всё */}
-            <div>
-              <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
-                Что это
-              </div>
-              <p className="tw-m-0 tw-text-[14px] tw-leading-[1.55] tw-text-text-primary">{def.what}</p>
-            </div>
+        <Card key={key} header={def.title}>
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <KeyTakeaway tone="neutral" title="Что это">{def.what}</KeyTakeaway>
 
-            {/* Ваше значение — голубая плашка (персональная интерпретация) */}
             {def.reading && def.reading(values[key], ctx) && (
               <KeyTakeaway
                 tone={def.tone ? def.tone(values[key], ctx) : "info"}
@@ -5716,13 +5710,10 @@ const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
               </KeyTakeaway>
             )}
 
-            {/* Что делать — зелёная плашка (действие) */}
             {def.soWhat && (
               <KeyTakeaway tone="positive" title="Что с этим делать">{def.soWhat}</KeyTakeaway>
             )}
 
-            {/* Формула — отдельной читаемой плашкой: выражение моноширинным,
-                пояснение обычным текстом */}
             {def.formula && (
               <Disclosure summary="Формула — для любопытных">
                 <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-strong tw-p-3 tw-mt-1">
@@ -5738,16 +5729,37 @@ const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
               </Disclosure>
             )}
           </div>
-        </Disclosure>
+        </Card>
       ))}
     </div>
   );
 };
 
+// Колонка «Актив» как в «Составе»: иконка + тикер + название, клик —
+// переход в карточку компании. Строка «Портфель» — просто жирный итог.
+const makeAssetColumn = (onOpenCompany) => ({
+  key: "ticker", label: "Актив",
+  render: (_, r) => r._isTotal || r.company_id == null ? (
+    <span className="tw-text-text-primary tw-font-semibold">{r.ticker}</span>
+  ) : (
+    <button
+      type="button"
+      onClick={() => onOpenCompany && onOpenCompany({ id: r.company_id, ticker: r.ticker, name: r.name, sector: r.sector })}
+      className="tw-flex tw-items-center tw-gap-2.5 tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-left tw-group"
+      title={`Открыть карточку ${r.ticker}`}
+    >
+      <TickerBadge ticker={r.ticker} />
+      <div>
+        <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.ticker}</div>
+        <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
+      </div>
+    </button>
+  ),
+});
+
 // Колонки групповых таблиц — общие для «Агрегирующей» и отдельных вкладок
 const RETURN_COLUMNS = [
-            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
-            {
+                        {
               key: "return3y", label: "Доходность",
               render: (v, row) => v == null ? "—" : (
                 <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность: цена + дивиденды (CAGR). Факт прошлого, не прогноз">
@@ -5774,8 +5786,7 @@ const RETURN_COLUMNS = [
           ];
 
 const RISK_COLUMNS = [
-            { key: "ticker", label: "Актив", render: (v) => <span className="tw-text-text-primary tw-font-semibold">{v}</span> },
-            {
+                        {
               key: "volatility", label: "Волатильность",
               render: (v, row) => v == null ? "—" : (
                 <span title="СКО дневных доходностей × √252, годовая; у портфеля — через ковариационную матрицу">
@@ -6245,6 +6256,9 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     </AppearGroup>
   );
 
+  // Колонка «Актив» с переходом в карточку — общая для групповых таблиц
+  const assetColumn = useMemo(() => makeAssetColumn(onOpenCompany), [onOpenCompany]);
+
   // Контекст пороговых текстов объяснений (значения портфеля + ставки)
   const explainCtx = {
     rf: pfMetrics?.rates?.risk_free_1y ?? null,
@@ -6260,7 +6274,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   const renderReturnsTab = () => (
     <AppearGroup gate={appearGate.current} groupId="pf-returns" as="div" className="tw-p-1 tw-flex tw-flex-col tw-gap-3">
       <Card header="Доходность и оценка">
-        <Table columns={RETURN_COLUMNS} rows={analyticRows} />
+        <Table columns={[assetColumn, ...RETURN_COLUMNS]} rows={analyticRows} />
         <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
           {pfMetrics?.positions?.some((p) => p.short_history) && (
             <span>* рассчитано на истории менее года — значение неустойчиво; доходность короче года не приводится к годовой.</span>
@@ -6268,7 +6282,8 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
         </div>
       </Card>
-      <Card header="Что значат эти метрики">
+      <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
+
         <MetricExplainers
           metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
           values={{
@@ -6282,7 +6297,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           }}
           ctx={explainCtx}
         />
-      </Card>
+
     </AppearGroup>
   );
 
@@ -6290,7 +6305,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   const renderRiskTab = () => (
     <AppearGroup gate={appearGate.current} groupId="pf-risk" as="div" className="tw-p-1 tw-flex tw-flex-col tw-gap-3">
       <Card header="Риск">
-        <Table columns={RISK_COLUMNS} rows={analyticRows} />
+        <Table columns={[assetColumn, ...RISK_COLUMNS]} rows={analyticRows} />
         <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
           <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
           {pfMetrics?.rates?.risk_free_1y != null && (
@@ -6304,7 +6319,8 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
       <KeyTakeaway tone="info" title="Почему многие риск-метрики сейчас выглядят слабо">
         {RISK_REGIME_NOTE}
       </KeyTakeaway>
-      <Card header="Что значат эти метрики">
+      <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
+
         <MetricExplainers
           metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
           values={{
@@ -6319,7 +6335,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           }}
           ctx={explainCtx}
         />
-      </Card>
+
     </AppearGroup>
   );
 
@@ -6374,7 +6390,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
       {/* Метрики в двух смысловых группах (вместо одной широкой «каши») */}
       <Card header="Доходность и оценка" className="tw-mb-4">
         <Table
-          columns={RETURN_COLUMNS}
+          columns={[assetColumn, ...RETURN_COLUMNS]}
           rows={analyticRows}
         />
         <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
@@ -6383,15 +6399,27 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           )}
           {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
         </div>
+      </Card>
+      <div className="tw-mb-4">
         <MetricExplainers
           metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
-          values={{ pe: pfMetrics?.portfolio?.pe_current?.value }}
+          values={{
+            return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
+            capm: null,
+            div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
+            pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
+            pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
+            earnings_yield: pfMetrics?.portfolio?.pe_current?.value > 0
+              ? Math.round(1000 / pfMetrics.portfolio.pe_current.value) / 10 : null,
+          }}
+          ctx={explainCtx}
         />
-      </Card>
+      </div>
+
 
       <Card header="Риск" className="tw-mb-4">
         <Table
-          columns={RISK_COLUMNS}
+          columns={[assetColumn, ...RISK_COLUMNS]}
           rows={analyticRows}
         />
         <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
@@ -6404,11 +6432,24 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
             </span>
           )}
         </div>
+      </Card>
+      <div className="tw-mb-4">
         <MetricExplainers
           metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
-          values={{ sharpe: pfMetrics?.portfolio?.sharpe }}
+          values={{
+            volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
+            var_95: null,
+            downside_vol: null,
+            beta: pfMetrics?.portfolio?.beta?.value ?? null,
+            r_squared: null,
+            sharpe: pfMetrics?.portfolio?.sharpe ?? null,
+            alpha: pfMetrics?.portfolio?.alpha ?? null,
+            sortino: pfMetrics?.portfolio?.sortino ?? null,
+          }}
+          ctx={explainCtx}
         />
-      </Card>
+      </div>
+
 
       <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
         {/* Score dial */}
