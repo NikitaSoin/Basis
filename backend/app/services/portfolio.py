@@ -46,6 +46,147 @@ def add_position(db: Session, portfolio_id: int, data: PositionCreate) -> Portfo
     return position
 
 
+def _clamp01(x: float) -> float:
+    return max(0.0, min(1.0, x))
+
+
+def _lin_score(value: float | None, best: float, worst: float) -> float | None:
+    """Линейная шкала 0..100 «от максимума»: value=best → 100, value=worst → 0.
+    best может быть больше или меньше worst (направление задаётся знаком)."""
+    if value is None or best == worst:
+        return None
+    return round(_clamp01((value - worst) / (best - worst)) * 100)
+
+
+def compute_quality_index(*, weights: dict, correlation: dict | None,
+                          sector_allocation: list, concentration: dict | None,
+                          volatility: float | None, beta: float | None,
+                          var_95: float | None, sharpe: float | None,
+                          sortino: float | None, alpha: float | None) -> dict | None:
+    """Индекс качества портфеля и субиндексы (методика Basis — НАШ подход).
+
+    Методика и обоснование порогов/весов — docs/portfolio-indices-methodology.md.
+    Строится ТОЛЬКО из реально посчитанных метрик; чего нет — субиндекс/компонента
+    выпадает с честной пометкой, не имитируется. Шкала 0–100, «от максимума».
+    """
+    if not weights:
+        return None
+
+    def band(score: int) -> str:
+        return ("Сильный" if score >= 75 else "Умеренный" if score >= 60
+                else "Ниже среднего" if score >= 40 else "Слабый")
+
+    subindices = []
+
+    # ── 1. Диверсификация: эффективное число позиций (HHI), сектора, корреляция ──
+    w = list(weights.values())
+    tot = sum(w)
+    comps_div = []
+    if tot > 0:
+        norm = [x / tot for x in w]
+        eff_n = 1.0 / sum(x * x for x in norm)         # 1/HHI — «эффективное» число бумаг
+        comps_div.append(("Эффективное число позиций", f"{eff_n:.1f}", _lin_score(eff_n, best=8, worst=1)))
+    n_sectors = len([s for s in sector_allocation if s.get("value")])
+    if n_sectors:
+        comps_div.append(("Число секторов", str(n_sectors), _lin_score(n_sectors, best=5, worst=1)))
+    avg_corr = None
+    if correlation and correlation.get("matrix"):
+        m = correlation["matrix"]
+        off = [m[i][j] for i in range(len(m)) for j in range(i + 1, len(m))
+               if isinstance(m[i][j], (int, float))]
+        if off:
+            avg_corr = sum(off) / len(off)
+            comps_div.append(("Средняя корреляция", f"{avg_corr:.2f}", _lin_score(avg_corr, best=0.2, worst=0.7)))
+    div_score = _avg_scores([c[2] for c in comps_div])
+    if div_score is not None:
+        subindices.append({
+            "key": "diversification", "label": "Диверсификация", "score": div_score,
+            "confidence": "факт",   # веса и корреляции наблюдаемы, минимум допущений
+            "components": [{"name": n, "value": v, "score": s} for n, v, s in comps_div if s is not None],
+            "verdict": (
+                "Риск распределён: бумаги из разных секторов и движутся по-разному."
+                if div_score >= 60 else
+                "Средняя диверсификация: часть риска сконцентрирована — в одной-двух бумагах, секторе или общем движении."
+                if div_score >= 40 else
+                "Слабая диверсификация: портфель завязан на узкий набор/сектор или бумаги ходят вместе — просадки приходят одновременно."
+            ),
+        })
+
+    # ── 2. Доходность-к-риску: ОТНОСИТЕЛЬНО РЫНКА (регим-нейтрально) ──
+    #    Якорь — альфа (фактическая доходность − ожидание CAPM за свой риск):
+    #    альфа≈0 → «как рынок за такой риск» = 50 баллов. В режиме высокой ставки
+    #    абсолютные Шарп/Сортино отрицательны по ВСЕМУ рынку — мапить их в лоб
+    #    значило бы всем ставить «плохо». Поэтому Шарп/Сортино показываем как
+    #    КОНТЕКСТ (без балла), а оценку ведём от альфы.
+    rr_score = _lin_score(alpha, best=6, worst=-6) if alpha is not None else None
+    if rr_score is not None:
+        comps_rr = [{"name": "Альфа (к рынку за свой риск)", "value": f"{alpha:+.1f}%", "score": rr_score}]
+        if sharpe is not None:
+            comps_rr.append({"name": "Коэффициент Шарпа", "value": f"{sharpe:.2f}", "score": None})
+        if sortino is not None:
+            comps_rr.append({"name": "Коэффициент Сортино", "value": f"{sortino:.2f}", "score": None})
+        subindices.append({
+            "key": "return_risk", "label": "Доходность к риску", "score": rr_score,
+            "confidence": "суждение",  # зависит от модели, окна и режима ставки
+            "components": comps_rr,
+            "verdict": (
+                "Портфель обгоняет рынок за свой уровень риска — риск отрабатывает с запасом."
+                if rr_score >= 60 else
+                "Портфель идёт примерно вровень с рынком за свой риск. Абсолютные Шарп/Сортино сейчас низкие из-за высокой ставки ОФЗ — это режим всего рынка, оценка же сравнивает вас именно с рынком."
+                if rr_score >= 40 else
+                "За свой уровень риска портфель пока отстаёт от рынка. Это сравнение с рынком, оно не зависит от режима ставки — стоит посмотреть, какие бумаги тянут вниз."
+            ),
+        })
+
+    # ── 3. Устойчивость к рыночному риску: волатильность, бета, VaR ──
+    #    ВАЖНО: это РЫНОЧНЫЙ риск, не макро/гео (портфель не связан с макро/гео-
+    #    экспозициями компаний) — ограничение зафиксировано в методике.
+    comps_mr = []
+    if volatility is not None:
+        comps_mr.append(("Волатильность портфеля", f"{volatility:.1f}%", _lin_score(volatility, best=15, worst=45)))
+    if beta is not None:
+        comps_mr.append(("Бета", f"{beta:.2f}", _lin_score(beta, best=0.6, worst=1.4)))
+    if var_95 is not None:
+        comps_mr.append(("VaR 95% (дневной)", f"{var_95:.1f}%", _lin_score(var_95, best=1.5, worst=4)))
+    mr_score = _avg_scores([c[2] for c in comps_mr])
+    if mr_score is not None:
+        subindices.append({
+            "key": "market_resilience", "label": "Устойчивость к рынку", "score": mr_score,
+            "confidence": "оценка",   # волатильность/бета/VaR на исторических данных
+            "components": [{"name": n, "value": v, "score": s} for n, v, s in comps_mr if s is not None],
+            "verdict": (
+                "Портфель спокойнее рынка: умеренные колебания и невысокая чувствительность к общим движениям."
+                if mr_score >= 60 else
+                "Средняя чувствительность к рынку: колебания заметны, в просадки рынка портфель пойдёт вместе с ним."
+                if mr_score >= 40 else
+                "Портфель резко реагирует на рынок: высокая волатильность/бета — глубокие просадки в плохие периоды."
+            ),
+            "limitation": "Это рыночный риск (волатильность, бета, VaR). Устойчивость к макро- и геополитическим шокам сюда пока НЕ входит — портфель ещё не связан с макро/гео-профилями компаний.",
+        })
+
+    if not subindices:
+        return None
+
+    # ── Общий индекс качества: взвешенная композиция (веса — наш выбор) ──
+    WEIGHTS = {"diversification": 0.35, "return_risk": 0.35, "market_resilience": 0.30}
+    num = sum(WEIGHTS[s["key"]] * s["score"] for s in subindices)
+    den = sum(WEIGHTS[s["key"]] for s in subindices)
+    overall = round(num / den) if den else None
+
+    return {
+        "overall": overall,
+        "label": band(overall) if overall is not None else None,
+        "subindices": subindices,
+        "weights": {s["key"]: WEIGHTS[s["key"]] for s in subindices},
+        "note": "Индекс — наш подход к оценке качества, не объективная истина: пороги и веса выбраны нами и объяснены в методике. Он сложен только из реально посчитанных метрик; смотрите, какой субиндекс тянет его вверх или вниз.",
+    }
+
+
+def _avg_scores(scores: list) -> int | None:
+    vals = [s for s in scores if s is not None]
+    return round(sum(vals) / len(vals)) if vals else None
+
+
 def _weighted_avg(items: list[tuple[float, float | None]]) -> dict:
     """Средневзвешенное с честной обработкой пропусков.
 
@@ -196,11 +337,22 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     correlation = None
     if len(returns_by_ticker) >= 2:
         corr_tickers, matrix, min_overlap = pairwise_correlation(returns_by_ticker)
+        # Интерпретация: средняя корреляция + самая связанная и самая
+        # «разбавляющая» пары (для человеческого вывода о диверсификации)
+        pairs = [(corr_tickers[i], corr_tickers[j], matrix[i][j])
+                 for i in range(len(matrix)) for j in range(i + 1, len(matrix))
+                 if isinstance(matrix[i][j], (int, float))]
+        avg_corr = round(sum(p[2] for p in pairs) / len(pairs), 2) if pairs else None
+        strongest = max(pairs, key=lambda p: p[2]) if pairs else None
+        weakest = min(pairs, key=lambda p: p[2]) if pairs else None
         correlation = {
             "tickers": corr_tickers,
             "matrix": matrix,
             # мало пересечения дат (молодые бумаги) — честно предупреждаем
             "low_overlap": 0 < min_overlap < 126,   # < полугода совпадающих дней
+            "avg": avg_corr,
+            "strongest_pair": {"a": strongest[0], "b": strongest[1], "value": round(strongest[2], 2)} if strongest else None,
+            "weakest_pair": {"a": weakest[0], "b": weakest[1], "value": round(weakest[2], 2)} if weakest else None,
         }
 
     weights = {p["ticker"]: p["value"] for p in valued if p["value"]}
@@ -365,6 +517,17 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "top3_pct": round(sum(p["value"] for p in top[:3]) / total_value * 100, 2),
         }
 
+    quality = compute_quality_index(
+        weights=weights, correlation=correlation, sector_allocation=sector_allocation,
+        concentration=concentration,
+        volatility=portfolio_row["volatility"]["value"],
+        beta=portfolio_row["beta"]["value"],
+        var_95=portfolio_row.get("var_95"),
+        sharpe=portfolio_row.get("sharpe"),
+        sortino=portfolio_row.get("sortino"),
+        alpha=portfolio_row.get("alpha"),
+    )
+
     return {
         "positions": positions,
         "portfolio": portfolio_row,
@@ -376,6 +539,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "correlation": correlation,
         "rates": rates,
         "benchmark": benchmark,
+        "quality": quality,
     }
 
 
