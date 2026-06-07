@@ -122,10 +122,43 @@ class BenchmarkSeries(BaseModel):
     note: str | None = None
 
 
+class CorrPair(BaseModel):
+    a: str
+    b: str
+    value: float
+
+
 class CorrelationMatrix(BaseModel):
     tickers: list[str]
     matrix: list[list[float | None]]   # None — мало совпадающих дат у пары
     low_overlap: bool = False          # есть пары с пересечением < полугода
+    avg: float | None = None           # средняя попарная корреляция
+    strongest_pair: CorrPair | None = None  # самая связанная (мало диверсификации)
+    weakest_pair: CorrPair | None = None     # самая «разбавляющая» риск
+
+
+class QualityComponent(BaseModel):
+    name: str
+    value: str
+    score: int | None = None           # None — показатель-контекст без балла
+
+
+class QualitySubindex(BaseModel):
+    key: str
+    label: str
+    score: int
+    confidence: str | None = None      # факт | оценка | суждение
+    components: list[QualityComponent] = []
+    verdict: str
+    limitation: str | None = None
+
+
+class QualityIndex(BaseModel):
+    overall: int | None
+    label: str | None
+    subindices: list[QualitySubindex]
+    weights: dict[str, float]
+    note: str
 
 
 class SectorSlice(BaseModel):
@@ -154,3 +187,4 @@ class PortfolioMetricsResponse(BaseModel):
     correlation: CorrelationMatrix | None = None
     rates: MarketRates | None = None
     benchmark: BenchmarkSeries | None = None
+    quality: QualityIndex | None = None
