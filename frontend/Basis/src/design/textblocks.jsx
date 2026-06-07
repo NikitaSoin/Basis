@@ -88,6 +88,14 @@ export function LeadStatement({ children, icon = null, className = "" }) {
    ============================================================= */
 
 const TAKEAWAY_TONES = {
+  neutral: {
+    // спокойная справочная плашка («что это») — рамка без сигнального цвета
+    wrap: "tw-bg-bg-base tw-border-border-strong",
+    icon: "tw-text-text-tertiary",
+    label: "tw-text-text-secondary",
+    glyph: "ℹ",
+    title: "Что это",
+  },
   info: {
     wrap: "tw-bg-info-soft tw-border-info",
     icon: "tw-text-info",
