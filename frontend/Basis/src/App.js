@@ -5366,20 +5366,26 @@ const PortfolioTabBar = ({ tabs, value, onChange }) => {
 };
 
 // Big score dial with once-per-page-visit count-up (gated via PortfolioView ref).
-const ScoreCard = ({ score, gate }) => {
-  const n = useCountUp(score, 320, gate);
+const QUALITY_TONE = (score) =>
+  score == null ? "neutral" : score >= 75 ? "success" : score >= 60 ? "info" : score >= 40 ? "neutral" : "danger";
+// Цвет шкалы субиндекса по баллу (полоса «от максимума»)
+const QUALITY_BAR = (score) =>
+  score == null ? "--cat-8" : score >= 75 ? "--success" : score >= 60 ? "--cat-3" : score >= 40 ? "--cat-1" : "--danger";
+
+const ScoreCard = ({ score, label, gate }) => {
+  const n = useCountUp(score ?? 0, 320, gate);
   return (
     <Card className="lg:tw-col-span-1 tw-flex tw-flex-col tw-items-center tw-justify-center tw-text-center">
       <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.06em" }}>
-        Индекс портфеля
+        Индекс качества
       </div>
       <div className="tw-flex tw-items-baseline tw-gap-1 tw-mb-3">
         <span className="tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums" style={{ fontSize: 56, lineHeight: 1, letterSpacing: "-1.5px" }}>
-          {fmtNumber(Math.round(n))}
+          {score == null ? "—" : fmtNumber(Math.round(n))}
         </span>
         <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
       </div>
-      <Badge tone="neutral">Умеренное качество (Fair)</Badge>
+      {label && <Badge tone={QUALITY_TONE(score)}>{label}</Badge>}
     </Card>
   );
 };
@@ -5997,7 +6003,6 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     return { totalValue, totalCost, totalProfit, profitPct, avgBeta: 0, avgYield: 0, portExp: 0, portStd: 0 };
   }, [displayPositions]);
 
-  const portfolioScore = 68;
 
   // Count-up gates live at PAGE level (refs survive tab switches / re-renders),
   // so the headline value and the index animate ONCE per page visit and snap
@@ -6461,32 +6466,74 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
       </div>
 
 
-      <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-        {/* Score dial */}
-        <ScoreCard score={portfolioScore} gate={scoreGate.current} />
-
-        {/* Sub-indices as coloured health bars */}
-        <Card className="lg:tw-col-span-2">
-          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-4" style={{ letterSpacing: "0.06em" }}>
-            Здоровье портфеля · субиндексы
-          </div>
-          <div className="tw-flex tw-flex-col tw-gap-4">
-            {[
-              { label: "Соответствие риску", val: 80, colorVar: "--cat-3", desc: "Подходит для консервативного инвестора" },
-              { label: "Доходность к риску", val: 45, colorVar: "--danger", desc: "Низкая премия за риск" },
-              { label: "Защита от просадок", val: 70, colorVar: "--cat-1", desc: "Хорошая дивидендная подушка" },
-              { label: "Диверсификация", val: 30, colorVar: "--danger", desc: "Сильный перекос в РФ Финансы" },
-            ].map((m) => (
-              <div key={m.label} className="tw-flex tw-flex-col tw-gap-1">
-                <MetricBar label={m.label} value={m.val} colorVar={m.colorVar} />
-                <span className="tw-text-[12px] tw-text-text-tertiary tw-pl-[140px]">{m.desc}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      {renderQuality()}
     </AppearGroup>
   );
+
+  // Индекс качества + субиндексы (реальный расчёт, методика — docs).
+  // Декомпозиция видна: общий балл, вклад каждого субиндекса, что внутри.
+  const renderQuality = () => {
+    const q = pfMetrics?.quality;
+    if (!q || q.overall == null) {
+      return (
+        <Card>
+          <div className="tw-text-[13px] tw-text-text-secondary">
+            Индекс качества появится, когда в портфеле будут позиции с историей котировок.
+          </div>
+        </Card>
+      );
+    }
+    const CONF_TONE = { "факт": "tw-text-success", "оценка": "tw-text-info", "суждение": "tw-text-text-tertiary" };
+    return (
+      <div className="tw-flex tw-flex-col tw-gap-4">
+        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4">
+          <ScoreCard score={q.overall} label={q.label} gate={scoreGate.current} />
+
+          {/* Декомпозиция: субиндексы шкалами «от максимума» + что внутри */}
+          <Card className="lg:tw-col-span-2">
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-4" style={{ letterSpacing: "0.06em" }}>
+              Из чего сложился · субиндексы
+            </div>
+            <div className="tw-flex tw-flex-col tw-gap-5">
+              {q.subindices.map((s) => (
+                <div key={s.key} className="tw-flex tw-flex-col tw-gap-1.5">
+                  <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
+                    <span className="tw-text-[14px] tw-font-semibold tw-text-text-primary">{s.label}</span>
+                    <span className="tw-flex tw-items-baseline tw-gap-2">
+                      {s.confidence && <span className={`tw-text-[11px] ${CONF_TONE[s.confidence] || "tw-text-text-tertiary"}`}>{s.confidence}</span>}
+                      <span className="tw-text-[14px] tw-font-mono tw-tabular-nums tw-font-bold" style={{ color: `var(${QUALITY_BAR(s.score)})` }}>{s.score}</span>
+                    </span>
+                  </div>
+                  {/* шкала от максимума */}
+                  <div className="tw-h-2 tw-rounded-pill tw-bg-bg-base tw-overflow-hidden">
+                    <div className="tw-h-full tw-rounded-pill" style={{ width: `${s.score}%`, background: `var(${QUALITY_BAR(s.score)})` }} />
+                  </div>
+                  {/* компоненты — что внутри субиндекса (значения + мини-баллы) */}
+                  <div className="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-0.5 tw-mt-0.5">
+                    {s.components.map((c) => (
+                      <span key={c.name} className="tw-text-[12px] tw-text-text-tertiary">
+                        {c.name}: <span className="tw-text-text-secondary tw-font-mono">{c.value}</span>
+                        {c.score != null && <span className="tw-text-text-tertiary"> ({c.score})</span>}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="tw-m-0 tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.verdict}</p>
+                  {s.limitation && (
+                    <div className="tw-flex tw-gap-1.5 tw-text-[12px] tw-text-text-tertiary tw-mt-0.5">
+                      <ShieldAlert size={13} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
+                      <span>{s.limitation}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+        {/* честная подпись: не магическое число */}
+        <KeyTakeaway tone="neutral" title="Как читать индекс">{q.note}</KeyTakeaway>
+      </div>
+    );
+  };
 
   const renderCorrelation = () => {
     // Реальные попарные корреляции из /portfolios/{id}/metrics (Этап 2);
@@ -6498,6 +6545,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     const offDiag = [];
     matrix.forEach((row, i) => row.forEach((v, j) => { if (i < j && typeof v === "number") offDiag.push(v); }));
     const avgCorr = offDiag.length ? offDiag.reduce((a, b) => a + b, 0) / offDiag.length : null;
+    const divSub = pfMetrics?.quality?.subindices?.find((s) => s.key === "diversification");
     const verdict = avgCorr == null
       ? "Недостаточно данных для оценки связей между бумагами."
       : avgCorr >= 0.6
@@ -6535,13 +6583,44 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           </div>
         </Card>
 
-        <div className="tw-mt-6 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-warning-soft tw-border tw-border-warning-soft">
-          <ShieldAlert size={18} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
-          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
-            <span className="tw-font-semibold tw-text-text-primary">Вывод: </span>
+        {/* Интерпретация человеческим языком: вывод + крайние пары + связь
+            с субиндексом диверсификации */}
+        <div className="tw-mt-6 tw-flex tw-flex-col tw-gap-3">
+          <KeyTakeaway tone={avgCorr == null ? "neutral" : avgCorr >= 0.6 ? "caution" : avgCorr >= 0.3 ? "info" : "positive"} title="Что это значит для диверсификации">
             {verdict} Корреляции рассчитаны по дневным доходностям за 3 года.
             {corr?.low_overlap && " У части пар мало совпадающих торговых дат (молодые бумаги) — их значения менее надёжны."}
-          </p>
+          </KeyTakeaway>
+
+          {(corr?.strongest_pair || corr?.weakest_pair) && (
+            <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
+              {corr?.strongest_pair && (
+                <Card>
+                  <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Где диверсификации нет</div>
+                  <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary">
+                    {corr.strongest_pair.a} ↔ {corr.strongest_pair.b}
+                    <span className="tw-ml-2 tw-font-mono tw-text-danger">{fmtNumber(corr.strongest_pair.value, { decimals: 2 })}</span>
+                  </div>
+                  <p className="tw-m-0 tw-mt-1 tw-text-[12.5px] tw-text-text-secondary">Самая связанная пара — эти бумаги ходят почти заодно, друг друга не подстраховывают.</p>
+                </Card>
+              )}
+              {corr?.weakest_pair && (
+                <Card>
+                  <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Что реально разбавляет риск</div>
+                  <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary">
+                    {corr.weakest_pair.a} ↔ {corr.weakest_pair.b}
+                    <span className="tw-ml-2 tw-font-mono tw-text-success">{fmtNumber(corr.weakest_pair.value, { decimals: 2 })}</span>
+                  </div>
+                  <p className="tw-m-0 tw-mt-1 tw-text-[12.5px] tw-text-text-secondary">Наименее связанная пара — именно она снижает общий риск портфеля.</p>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {divSub && (
+            <div className="tw-text-[12.5px] tw-text-text-tertiary">
+              Эта картина учтена в субиндексе <b className="tw-text-text-secondary">«Диверсификация»</b> (вкладка «Агрегирующая таблица»): средняя корреляция — одна из его компонент, сейчас балл {divSub.score}/100.
+            </div>
+          )}
         </div>
       </AppearGroup>
     );
@@ -6762,35 +6841,29 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           value={<span className="tw-tabular-nums">{(stats.totalProfit >= 0 ? "▲ " : "▼ ") + formatMoney(Math.abs(stats.totalProfit), { decimals: 0 })}</span>}
           delta={stats.profitPct}
         />
-        <KpiTile caption="Beta (Риск)" value="—" />
-        <KpiTile caption="Див. доходность" value="—" />
+        <KpiTile caption="Beta (Риск)" value={pfMetrics?.portfolio?.beta?.value != null ? fmtNumber(pfMetrics.portfolio.beta.value, { decimals: 2 }) : "—"} />
+        <KpiTile caption="Див. доходность" value={pfMetrics?.portfolio?.div_yield?.value != null ? fmtPercent(pfMetrics.portfolio.div_yield.value, { decimals: 1 }) : "—"} />
       </div>
 
-      {/* Health Score */}
-      <Card>
-        <div className="tw-flex tw-items-baseline tw-gap-2 tw-mb-4">
-          <span className="tw-text-[15px] tw-font-semibold tw-text-text-primary">Здоровье портфеля</span>
-          <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-tertiary">{portfolioScore}/100</span>
-        </div>
-        <div className="tw-flex tw-flex-col tw-gap-3">
-          {[
-            { label: "Диверсификация", value: 72, colorVar: "--cat-5" },
-            { label: "Доходность", value: 65, colorVar: "--cat-3" },
-            { label: "Риск", value: 58, colorVar: "--danger" },
-            // Концентрация — реальный расчёт (Этап 1): 100 − доля крупнейшей
-            // позиции; чем выше балл, тем меньше портфель зависит от одной бумаги.
-            {
-              label: "Концентрация",
-              value: pfMetrics?.concentration
-                ? Math.max(0, Math.round(100 - pfMetrics.concentration.largest_pct))
-                : 70,
-              colorVar: "--cat-1",
-            },
-          ].map((m) => (
-            <MetricBar key={m.label} label={m.label} value={m.value} colorVar={m.colorVar} />
-          ))}
-        </div>
-      </Card>
+      {/* Здоровье портфеля — реальный индекс качества (сводка; полная
+          декомпозиция и объяснения — во вкладке «Агрегирующая таблица») */}
+      {pfMetrics?.quality?.overall != null && (
+        <Card>
+          <div className="tw-flex tw-items-baseline tw-gap-2 tw-mb-4">
+            <span className="tw-text-[15px] tw-font-semibold tw-text-text-primary">Индекс качества</span>
+            <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-tertiary">{pfMetrics.quality.overall}/100</span>
+            <Badge tone={QUALITY_TONE(pfMetrics.quality.overall)} className="tw-ml-auto">{pfMetrics.quality.label}</Badge>
+          </div>
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            {pfMetrics.quality.subindices.map((s) => (
+              <MetricBar key={s.key} label={s.label} value={s.score} colorVar={QUALITY_BAR(s.score)} />
+            ))}
+          </div>
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
+            Из чего сложился и почему — во вкладке «Агрегирующая таблица».
+          </div>
+        </Card>
+      )}
 
       {/* Tab bar — ARIA tablist with sliding accent underline (live language) */}
       <PortfolioTabBar
