@@ -1662,10 +1662,253 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
   );
 };
 
+// ── Облигации (класс активов в модуле «Рынок») ──
+// Переключатель классов активов — расширяемый (фонды/фьючерсы/металлы добавятся
+// сюда же новыми пунктами, навигацию переделывать не нужно).
+const ASSET_CLASSES = [
+  { id: "stocks", label: "Акции" },
+  { id: "bonds", label: "Облигации" },
+];
+
+const RISK_TIER_BADGE = {
+  gov: { tone: "info", label: "Госдолг" },
+  high: { tone: "success", label: "Надёжный" },
+  medium: { tone: "warning", label: "Средний риск" },
+  speculative: { tone: "danger", label: "ВДО" },
+};
+const BOND_TYPE_LABEL = { ofz: "ОФЗ", corporate: "Корпорат", muni: "Муници" };
+
+const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+// Карточка облигации: 3 плитки (надёжность → YTM/спред → дюрация) + 4 блока
+// (надёжность, доходность, чувствительность к ставке, денежный поток).
+const BondCard = ({ secid, onBack }) => {
+  const [data, setData] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const base = `${apiBase()}/api/bonds/${secid}`;
+    Promise.all([
+      fetch(base).then((r) => (r.ok ? r.json() : null)),
+      fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
+    ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
+  }, [secid]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигацию...</div>;
+  if (!data?.bond) return <div className="tw-py-12 tw-text-text-tertiary">Облигация не найдена. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
+
+  const b = data.bond;
+  const r = RISK_TIER_BADGE[b.risk_tier] || { tone: "neutral", label: b.risk_tier };
+  const faceRub = b.face_value && b.last_price ? (b.face_value * b.last_price / 100) : null;
+  const horizon = b.offer_date || b.maturity_date;
+  const ytmKind = b.offer_date ? "к оферте" : "к погашению";
+
+  const Tile = ({ caption, children, hint }) => (
+    <Card className="tw-flex tw-flex-col tw-gap-1">
+      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
+      {children}
+      {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
+    </Card>
+  );
+
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0">
+        <ChevronRight size={16} className="tw-rotate-180" /> К списку облигаций
+      </button>
+
+      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{b.short_name}</h1>
+        <Badge tone="neutral">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</Badge>
+        <Badge tone={r.tone}>{r.label}</Badge>
+        {b.issuer_name && <span className="tw-text-[14px] tw-text-text-secondary">{b.issuer_name}</span>}
+        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
+      </div>
+
+      {/* 3 плитки — пятисекундный ответ: надёжность → доходность → дюрация */}
+      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+        <Tile caption="Надёжность" hint={b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный" : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.). Агентский рейтинг — следующий шаг.` : "Оценка надёжности")}>
+          <Badge tone={r.tone} className="tw-self-start tw-text-[14px]">{r.label}</Badge>
+        </Tile>
+        <Tile caption={`Доходность ${ytmKind}`} hint={b.bond_type !== "ofz" && b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п. — плата за кредитный риск, не «подарок».` : "YTM с учётом реинвестирования купонов (оценка)."}>
+          <div className="tw-flex tw-items-baseline tw-gap-2">
+            <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.ytm == null ? "—" : `${fmtNumber(b.ytm, { decimals: 1 })}%`}</span>
+            {b.yield_anomaly && <span className="tw-text-danger" title="Экстремальная доходность — вероятен дистресс">⚠</span>}
+          </div>
+        </Tile>
+        <Tile caption="Дюрация (риск к ставке)" hint={data.sensitivity ? `При росте ставки на 1 п.п. цена ≈ ${data.sensitivity.scenarios.find(s => s.rate_change_pp === 1)?.price_change_pct}%` : "Чувствительность тела к ставке"}>
+          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
+        </Tile>
+      </div>
+
+      {/* Блок: параметры выпуска + цена в рублях (снимает путаницу % номинала) */}
+      <Card header="Параметры выпуска">
+        <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-x-6 tw-gap-y-3 tw-text-[13px]">
+          {[
+            ["Купон", b.coupon_percent != null ? `${fmtNumber(b.coupon_percent, { decimals: 2 })}% годовых` : "—"],
+            ["Номинал", b.face_value != null ? `${fmtNumber(b.face_value, { decimals: 0 })} ${b.currency || "₽"}` : "—"],
+            ["Цена", b.last_price != null ? `${fmtNumber(b.last_price, { decimals: 1 })}%${faceRub ? ` ≈ ${fmtNumber(faceRub, { decimals: 0 })} ₽` : ""}` : "—"],
+            ["НКД", b.accrued_int != null ? `${fmtNumber(b.accrued_int, { decimals: 2 })} ₽` : "—"],
+            ["Погашение", b.maturity_date || "—"],
+            ["Оферта (put/call)", b.offer_date || "нет"],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <div className="tw-text-text-tertiary tw-text-[11px] tw-uppercase" style={{ letterSpacing: "0.04em" }}>{k}</div>
+              <div className="tw-text-text-primary tw-font-mono tw-mt-0.5">{v}</div>
+            </div>
+          ))}
+        </div>
+        {faceRub && b.accrued_int != null && (
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
+            К оплате за бумагу ≈ {fmtNumber(faceRub + Number(b.accrued_int), { decimals: 0 })} ₽ (цена {fmtNumber(b.last_price, { decimals: 1 })}% + НКД {fmtNumber(b.accrued_int, { decimals: 2 })} ₽).
+          </div>
+        )}
+      </Card>
+
+      {/* Блок: чувствительность к ставке (сценарии переоценки от дюрации) */}
+      {data.sensitivity && (
+        <Card header="Чувствительность к ставке">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+            Модифицированная дюрация {fmtNumber(data.sensitivity.modified_duration, { decimals: 1 })}: насколько изменится ЦЕНА тела при изменении ключевой ставки.
+            <span className="tw-text-text-tertiary"> (оценка — линейное приближение)</span>
+          </div>
+          <div className="tw-grid tw-grid-cols-4 tw-gap-2">
+            {data.sensitivity.scenarios.map((s) => (
+              <div key={s.rate_change_pp} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
+                <div className="tw-text-[12px] tw-text-text-tertiary">ставка {s.rate_change_pp > 0 ? "+" : ""}{s.rate_change_pp} п.п.</div>
+                <div className={`tw-text-[16px] tw-font-mono tw-font-semibold ${s.price_change_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>{s.price_change_pct >= 0 ? "+" : ""}{fmtNumber(s.price_change_pct, { decimals: 1 })}%</div>
+              </div>
+            ))}
+          </div>
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
+            Если додержите до погашения — тело вернут номиналом (100%). Эти сценарии — про переоценку при досрочной продаже.
+          </div>
+        </Card>
+      )}
+
+      {/* Блок: денежный поток (купоны / оферты) */}
+      {data.cashflow && (
+        <Card header="Денежный поток держателя">
+          {data.cashflow.coupons_upcoming?.length > 0 ? (
+            <div className="tw-flex tw-flex-wrap tw-gap-2">
+              {data.cashflow.coupons_upcoming.map((c, i) => (
+                <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-text-[12px]">
+                  <span className="tw-text-text-tertiary">{c.date}</span>
+                  {c.value != null && <span className="tw-text-text-primary tw-font-mono tw-ml-2">{fmtNumber(c.value, { decimals: 2 })} ₽</span>}
+                </div>
+              ))}
+            </div>
+          ) : <div className="tw-text-[13px] tw-text-text-tertiary">Нет предстоящих купонов в данных.</div>}
+          {data.cashflow.offers?.length > 0 && (
+            <div className="tw-mt-3 tw-text-[12px] tw-text-warning">Оферта: {data.cashflow.offers.map((o) => o.date).join(", ")} — реальный горизонт до оферты, доходность считается к ней.</div>
+          )}
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Ближайшие купоны (факт эмиссии). Всего купонов за весь срок: {data.cashflow.coupons_total}.</div>
+        </Card>
+      )}
+
+      {/* Текстовая аналитика bond-analyst (если есть) */}
+      {summary && (
+        <Card header="Разбор аналитика">
+          <Prose>{summary}</Prose>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+// Список облигаций — таблица (5 колонок под главный вопрос: надёжность → YTM/
+// спред → дюрация → цена/срок), сгруппирован по типу (ОФЗ / Корпоративные).
+const BondsList = ({ onSelectBond }) => {
+  const [bonds, setBonds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch(`${apiBase()}/api/bonds`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { setBonds(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!search) return bonds;
+    const q = search.toLowerCase();
+    return bonds.filter((b) => (b.short_name || "").toLowerCase().includes(q) || (b.secid || "").toLowerCase().includes(q) || (b.issuer_name || "").toLowerCase().includes(q));
+  }, [bonds, search]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигации...</div>;
+
+  const groups = [
+    { type: "ofz", title: "ОФЗ (государственные)" },
+    { type: "corporate", title: "Корпоративные" },
+  ];
+
+  const columns = [
+    {
+      key: "name", label: "Выпуск",
+      render: (_, b) => (
+        <div className="tw-flex tw-flex-col">
+          <span className="tw-font-semibold tw-text-text-primary">{b.short_name}</span>
+          <span className="tw-text-[11px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.issuer_name ? ` · ${b.issuer_name}` : ""}</span>
+        </div>
+      ),
+    },
+    {
+      key: "risk_tier", label: "Надёжность",
+      render: (v) => { const r = RISK_TIER_BADGE[v] || { tone: "neutral", label: v }; return <Badge tone={r.tone}>{r.label}</Badge>; },
+    },
+    {
+      key: "ytm", label: "Доходность (YTM)",
+      // нейтральный тон даже для высокого YTM — это плата за риск, не «выгода»
+      render: (v, b) => v == null ? "—" : (
+        <span title={b.yield_anomaly ? "Экстремальная доходность — вероятен дистресс/неликвид, не «выгода»" : (b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п.` : "")}>
+          <span className="tw-font-mono tw-text-text-primary">{fmtPercent(v, { decimals: 1 })}</span>
+          {b.yield_anomaly && <span className="tw-text-danger tw-ml-1" title="Флаг риска">⚠</span>}
+          {b.spread_bp != null && !b.yield_anomaly && <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-1">+{b.spread_bp}бп</span>}
+        </span>
+      ),
+    },
+    { key: "duration_years", label: "Дюрация", render: (v) => v == null ? "—" : <span className="tw-font-mono">{fmtNumber(v, { decimals: 1 })} г</span> },
+    {
+      key: "last_price", label: "Цена · погашение",
+      render: (v, b) => (
+        <div className="tw-flex tw-flex-col tw-items-end">
+          <span className="tw-font-mono tw-text-text-secondary">{v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%`}</span>
+          <span className="tw-text-[11px] tw-text-text-tertiary">{b.offer_date ? `оферта ${b.offer_date}` : (b.maturity_date || "")}</span>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <div className="tw-relative tw-mb-5 tw-max-w-md">
+        <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
+        <Input type="text" placeholder="Поиск по выпуску / эмитенту / ISIN..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+      </div>
+      {groups.map((g) => {
+        const rows = filtered.filter((b) => b.bond_type === g.type);
+        if (!rows.length) return null;
+        return (
+          <div key={g.type} className="tw-mb-8">
+            <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
+              {g.title} · {rows.length}
+            </div>
+            <Table columns={columns} rows={rows} onRowClick={(b) => onSelectBond(b.secid)} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
   const appearGate = useRef(new Set());
+  const [assetClass, setAssetClass] = useState("stocks");  // акции | облигации
+  const [selectedBond, setSelectedBond] = useState(null);   // SECID открытой облигации
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -1747,7 +1990,7 @@ const CompaniesView = ({ onSelectCompany }) => {
     return list;
   }, [search, activeSector, companies]);
 
-  if (loading) {
+  if (loading && assetClass === "stocks") {
     return (
       <div className="tw-flex tw-items-center tw-justify-center tw-py-24">
         <div className="tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем компании...</div>
@@ -1796,6 +2039,25 @@ const CompaniesView = ({ onSelectCompany }) => {
         </p>
       </div>
 
+      {/* Переключатель классов активов (расширяемый: фонды/фьючерсы добавятся сюда) */}
+      <div className="tw-flex tw-gap-1 tw-mb-5 tw-border-b tw-border-border-subtle">
+        {ASSET_CLASSES.map((a) => (
+          <button
+            key={a.id}
+            onClick={() => { setAssetClass(a.id); setSelectedBond(null); }}
+            className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+
+      {assetClass === "bonds" ? (
+        selectedBond
+          ? <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} />
+          : <BondsList onSelectBond={setSelectedBond} />
+      ) : (
+      <>
       <div className="tw-relative tw-mb-4 tw-max-w-md">
         <Search
           size={16}
@@ -1848,6 +2110,8 @@ const CompaniesView = ({ onSelectCompany }) => {
             );
           })}
         </div>
+      )}
+      </>
       )}
     </div>
   );
