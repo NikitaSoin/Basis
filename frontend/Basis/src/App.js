@@ -1685,6 +1685,7 @@ const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const BondCard = ({ secid, onBack }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
+  const [analysis, setAnalysis] = useState(null);  // analysis.json — рейтинг/вердикты для плиток
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -1692,17 +1693,23 @@ const BondCard = ({ secid, onBack }) => {
     Promise.all([
       fetch(base).then((r) => (r.ok ? r.json() : null)),
       fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
-    ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
+      fetch(`${base}/analysis`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([d, s, a]) => { setData(d); setSummary(s); setAnalysis(a); setLoading(false); }).catch(() => setLoading(false));
   }, [secid]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигацию...</div>;
-  if (!data?.bond) return <div className="tw-py-12 tw-text-text-tertiary">Облигация не найдена. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
+  if (!data?.bond) return <div className="tw-py-12 tw-text-text-tertiary">Облигация не найдена. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
 
   const b = data.bond;
   const r = RISK_TIER_BADGE[b.risk_tier] || { tone: "neutral", label: b.risk_tier };
   const faceRub = b.face_value && b.last_price ? (b.face_value * b.last_price / 100) : null;
   const horizon = b.offer_date || b.maturity_date;
   const ytmKind = b.offer_date ? "к оферте" : "к погашению";
+  // вердикты/рейтинг из аналитики — чтобы плитки давали ВЫВОД, а не метод
+  const rel = analysis?.reliability;
+  const ratingStr = rel?.rating ? [rel.rating.agency, rel.rating.level, rel.rating.as_of].filter(Boolean).join(" ") : null;
+  // нисходящий сценарий ставки для подсказки дюрации (рост ставки = падение цены)
+  const up1 = data.sensitivity?.scenarios?.find((s) => s.rate_change_pp === 1)?.price_change_pct;
 
   const Tile = ({ caption, children, hint }) => (
     <Card className="tw-flex tw-flex-col tw-gap-1">
@@ -1714,7 +1721,7 @@ const BondCard = ({ secid, onBack }) => {
 
   return (
     <div className="tw-flex tw-flex-col tw-gap-4">
-      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
         <ChevronRight size={16} className="tw-rotate-180" /> К списку облигаций
       </button>
 
@@ -1726,18 +1733,30 @@ const BondCard = ({ secid, onBack }) => {
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
       </div>
 
-      {/* 3 плитки — пятисекундный ответ: надёжность → доходность → дюрация */}
+      {/* 3 плитки — пятисекундный ответ: надёжность → доходность → дюрация.
+          Подсказки — ВЫВОД (рейтинг/вердикт из аналитики), не метод. */}
       <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
-        <Tile caption="Надёжность" hint={b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный" : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.). Агентский рейтинг — следующий шаг.` : "Оценка надёжности")}>
+        <Tile caption="Надёжность" hint={
+          b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный"
+          : ratingStr ? `Рейтинг ${ratingStr}.${rel?.verdict ? " " + rel.verdict : ""}`
+          : rel?.verdict ? rel.verdict
+          : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.); агентский рейтинг публично недоступен.` : "Оценка надёжности")
+        }>
           <Badge tone={r.tone} className="tw-self-start tw-text-[14px]">{r.label}</Badge>
         </Tile>
-        <Tile caption={`Доходность ${ytmKind}`} hint={b.bond_type !== "ofz" && b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п. — плата за кредитный риск, не «подарок».` : "YTM с учётом реинвестирования купонов (оценка)."}>
+        <Tile caption={`Доходность ${ytmKind}`} hint={
+          b.risk_tier === "speculative" ? `Высокая доходность — это ПЛАТА ЗА РИСК (спред +${b.spread_bp} б.п. к ОФЗ), не «подарок».`
+          : b.bond_type !== "ofz" && b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п. — премия за кредитный риск эмитента.`
+          : "YTM с учётом реинвестирования купонов (оценка)."
+        }>
           <div className="tw-flex tw-items-baseline tw-gap-2">
             <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.ytm == null ? "—" : `${fmtNumber(b.ytm, { decimals: 1 })}%`}</span>
-            {b.yield_anomaly && <span className="tw-text-danger" title="Экстремальная доходность — вероятен дистресс">⚠</span>}
+            {(b.yield_anomaly || b.risk_tier === "speculative") && <span className="tw-text-danger" title="Плата за риск">⚠</span>}
           </div>
         </Tile>
-        <Tile caption="Дюрация (риск к ставке)" hint={data.sensitivity ? `При росте ставки на 1 п.п. цена ≈ ${data.sensitivity.scenarios.find(s => s.rate_change_pp === 1)?.price_change_pct}%` : "Чувствительность тела к ставке"}>
+        <Tile caption="Дюрация (риск к ставке)" hint={
+          up1 != null ? `Реагирует на ставку ${Math.abs(up1) >= 5 ? "сильно" : Math.abs(up1) >= 2 ? "умеренно" : "слабо"}: при росте ставки на 1 п.п. цена ≈ ${up1}%.` : "Чувствительность тела к ставке"
+        }>
           <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
         </Tile>
       </div>
@@ -1752,6 +1771,7 @@ const BondCard = ({ secid, onBack }) => {
             ["НКД", b.accrued_int != null ? `${fmtNumber(b.accrued_int, { decimals: 2 })} ₽` : "—"],
             ["Погашение", b.maturity_date || "—"],
             ["Оферта (put/call)", b.offer_date || "нет"],
+            ["Реальный горизонт", b.offer_date ? `${b.offer_date} (оферта)` : (b.maturity_date || "—")],
           ].map(([k, v]) => (
             <div key={k}>
               <div className="tw-text-text-tertiary tw-text-[11px] tw-uppercase" style={{ letterSpacing: "0.04em" }}>{k}</div>
@@ -1760,8 +1780,9 @@ const BondCard = ({ secid, onBack }) => {
           ))}
         </div>
         {faceRub && b.accrued_int != null && (
-          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
-            К оплате за бумагу ≈ {fmtNumber(faceRub + Number(b.accrued_int), { decimals: 0 })} ₽ (цена {fmtNumber(b.last_price, { decimals: 1 })}% + НКД {fmtNumber(b.accrued_int, { decimals: 2 })} ₽).
+          <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary">
+            <b>К оплате за бумагу ≈ {fmtNumber(faceRub + Number(b.accrued_int), { decimals: 0 })} ₽</b>
+            <span className="tw-text-text-secondary"> = цена {fmtNumber(b.last_price, { decimals: 1 })}% ({fmtNumber(faceRub, { decimals: 0 })} ₽) + НКД {fmtNumber(b.accrued_int, { decimals: 2 })} ₽.</span>
           </div>
         )}
       </Card>
@@ -1770,14 +1791,18 @@ const BondCard = ({ secid, onBack }) => {
       {data.sensitivity && (
         <Card header="Чувствительность к ставке">
           <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
-            Модифицированная дюрация {fmtNumber(data.sensitivity.modified_duration, { decimals: 1 })}: насколько изменится ЦЕНА тела при изменении ключевой ставки.
-            <span className="tw-text-text-tertiary"> (оценка — линейное приближение)</span>
+            Если ключевая ставка изменится, вот как переоценится тело облигации.
+            {up1 != null && Math.abs(up1) >= 5 && " Бумага сильно реагирует на ставку — фактически ставка на её разворот."}
+            {up1 != null && Math.abs(up1) < 2 && " Бумага слабо реагирует на ставку — процентный риск низкий."}
+            <span className="tw-text-text-tertiary"> (оценка от модиф. дюрации {fmtNumber(data.sensitivity.modified_duration, { decimals: 1 })}, линейное приближение)</span>
           </div>
           <div className="tw-grid tw-grid-cols-4 tw-gap-2">
             {data.sensitivity.scenarios.map((s) => (
               <div key={s.rate_change_pp} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
                 <div className="tw-text-[12px] tw-text-text-tertiary">ставка {s.rate_change_pp > 0 ? "+" : ""}{s.rate_change_pp} п.п.</div>
-                <div className={`tw-text-[16px] tw-font-mono tw-font-semibold ${s.price_change_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>{s.price_change_pct >= 0 ? "+" : ""}{fmtNumber(s.price_change_pct, { decimals: 1 })}%</div>
+                <div className={`tw-text-[16px] tw-font-mono tw-font-semibold ${s.price_change_pct >= 0 ? "tw-text-success" : "tw-text-danger"}`}>
+                  <span aria-hidden="true">{s.price_change_pct >= 0 ? "▲ " : "▼ "}</span>{s.price_change_pct >= 0 ? "+" : ""}{fmtNumber(s.price_change_pct, { decimals: 1 })}%
+                </div>
               </div>
             ))}
           </div>
@@ -1791,13 +1816,16 @@ const BondCard = ({ secid, onBack }) => {
       {data.cashflow && (
         <Card header="Денежный поток держателя">
           {data.cashflow.coupons_upcoming?.length > 0 ? (
-            <div className="tw-flex tw-flex-wrap tw-gap-2">
-              {data.cashflow.coupons_upcoming.map((c, i) => (
+            <div className="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+              {data.cashflow.coupons_upcoming.slice(0, 6).map((c, i) => (
                 <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-text-[12px]">
                   <span className="tw-text-text-tertiary">{c.date}</span>
                   {c.value != null && <span className="tw-text-text-primary tw-font-mono tw-ml-2">{fmtNumber(c.value, { decimals: 2 })} ₽</span>}
                 </div>
               ))}
+              {data.cashflow.coupons_total > 6 && (
+                <span className="tw-text-[12px] tw-text-text-tertiary">+ ещё {data.cashflow.coupons_total - 6} до погашения</span>
+              )}
             </div>
           ) : <div className="tw-text-[13px] tw-text-text-tertiary">Нет предстоящих купонов в данных.</div>}
           {data.cashflow.offers?.length > 0 && (
@@ -1859,13 +1887,22 @@ const BondsList = ({ onSelectBond }) => {
       render: (v) => { const r = RISK_TIER_BADGE[v] || { tone: "neutral", label: v }; return <Badge tone={r.tone}>{r.label}</Badge>; },
     },
     {
+      key: "spread_bp", label: "Спред к ОФЗ",
+      // спред ДО доходности: сначала премия за риск, потом цифра дохода
+      render: (v, b) => b.bond_type === "ofz" ? <span className="tw-text-text-tertiary">—</span> : v == null ? "—" : (
+        <Tooltip content="Спред — насколько доходность облигации выше ОФЗ того же срока. Это и есть плата за кредитный риск эмитента: чем больше спред, тем рискованнее.">
+          <span className={`tw-font-mono ${v > 600 ? "tw-text-danger" : v > 250 ? "tw-text-warning" : "tw-text-text-secondary"}`}>+{v} б.п.</span>
+        </Tooltip>
+      ),
+    },
+    {
       key: "ytm", label: "Доходность (YTM)",
-      // нейтральный тон даже для высокого YTM — это плата за риск, не «выгода»
+      // нейтральный тон даже для высокого YTM — это плата за риск, не «выгода».
+      // ⚠ у ВДО и аномального YTM, чтобы число не читалось как «выгода».
       render: (v, b) => v == null ? "—" : (
-        <span title={b.yield_anomaly ? "Экстремальная доходность — вероятен дистресс/неликвид, не «выгода»" : (b.spread_bp != null ? `Спред к ОФЗ +${b.spread_bp} б.п.` : "")}>
+        <span title={b.yield_anomaly ? "Экстремальная доходность — вероятен дистресс/неликвид, не «выгода»" : (b.risk_tier === "speculative" ? "Высокая доходность — плата за риск дефолта (ВДО), не «выгода»" : "Доходность к погашению/оферте (оценка)")}>
           <span className="tw-font-mono tw-text-text-primary">{fmtPercent(v, { decimals: 1 })}</span>
-          {b.yield_anomaly && <span className="tw-text-danger tw-ml-1" title="Флаг риска">⚠</span>}
-          {b.spread_bp != null && !b.yield_anomaly && <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-1">+{b.spread_bp}бп</span>}
+          {(b.yield_anomaly || b.risk_tier === "speculative") && <span className="tw-text-danger tw-ml-1" title="Плата за риск">⚠</span>}
         </span>
       ),
     },
@@ -2045,7 +2082,7 @@ const CompaniesView = ({ onSelectCompany }) => {
           <button
             key={a.id}
             onClick={() => { setAssetClass(a.id); setSelectedBond(null); }}
-            className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
+            className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
           >
             {a.label}
           </button>
