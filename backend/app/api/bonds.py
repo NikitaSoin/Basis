@@ -149,7 +149,30 @@ def _row_to_dict(r) -> dict:
         else:
             divergence = "aligned"
     d["rating_divergence"] = divergence
+    d["risk_verdict"] = _risk_verdict(d)
     return d
+
+
+def _risk_verdict(d: dict) -> str | None:
+    """Системный вердикт «оплачен ли риск» по каждой бумаге (3 уровня, без
+    «купить/продать»). Применим ко всем, включая ВДО без публичного эмитента."""
+    if d.get("bond_type") == "ofz":
+        return "Госдолг РФ — кредитный риск минимальный; основной риск тут процентный (дюрация)."
+    if d.get("is_defaulted"):
+        return "Дефолт / режим Д — возврат тела под вопросом; доходность нерелевантна."
+    tier, spread, ytm = d.get("risk_tier"), d.get("spread_bp"), d.get("ytm")
+    if d.get("yield_anomaly"):
+        return "Экстремальная доходность — почти всегда дистресс/неликвид, а не «выгода»; вероятны потери тела."
+    if tier == "speculative":
+        s = f" (спред +{spread} б.п.)" if spread is not None else ""
+        return f"ВДО{s}: высокая доходность — это плата за реальный риск дефолта, а не «подарок». Сначала вопрос «вернут ли тело»."
+    if tier == "high":
+        return "Надёжный корпорат: небольшой спред за чуть большую доходность, чем у ОФЗ."
+    if tier == "medium":
+        return "Средний риск: доходность выше ОФЗ как премия за умеренный кредитный риск эмитента."
+    if spread is None and d.get("bond_type") != "ofz":
+        return "Нет рыночной оценки (неликвид / нет YTM) — оценить «риск за доходность» по рынку нельзя."
+    return None
 
 
 @router.get("/bonds")
