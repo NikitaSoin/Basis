@@ -1,12 +1,20 @@
 """Загрузка облигаций с MOEX ISS (класс активов «Облигации»).
 
-Ночной срез: все ОФЗ (TQOB, ~60) + ликвидные корпораты (TQCB, листинг 1-2
-уровня с рассчитанной доходностью). Полную раскатку на все ~3000 корпоратов —
-после ОК владельца.
+Полный охват торгуемого рынка: ОФЗ + корпораты/биржевые + субфедеральные/
+муниципальные + юаневые/долларовые + дефолтные (режим Д). Для каждого выпуска:
+- параметры и рыночные данные (YTM/дюрация/цена) — с бордов MOEX;
+- тип купона (фикс/флоатер/линкер) и метка YTM (к погашению/к оферте) — из
+  описания выпуска (per-security, бережно к rate limit);
+- ДВОЙНОЙ рейтинг: рыночная оценка по спреду к ОФЗ + агентский рейтинг (smart-lab).
+
+Запросы к MOEX — ПОСЛЕДОВАТЕЛЬНО с паузой (не параллель сотнями): прошлый заход
+падал на rate limit именно из-за плотного потока.
 
 Запуск (из каталога backend):
-  python -m scripts.load_bonds                 # ОФЗ + корпораты листинга 1-2
+  python -m scripts.load_bonds                 # полный охват + типы купонов + рейтинги
   python -m scripts.load_bonds --ofz-only
+  python -m scripts.load_bonds --no-meta       # без описаний (быстро, без типов купонов)
+  python -m scripts.load_bonds --sleep 0.4     # пауза между запросами описаний
 """
 import argparse
 import logging
@@ -19,7 +27,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app.db.session import SessionLocal
-from app.services.moex_bonds import fetch_board, load_ofz_curve, upsert_bond
+from app.services.moex_bonds import (
+    TRADE_BOARDS, fetch_board, fetch_meta_map, load_agency_ratings,
+    load_ofz_curve, upsert_bond,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
@@ -28,42 +39,66 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--ofz-only", action="store_true")
-    p.add_argument("--max-corp", type=int, default=400, help="лимит корпоратов (ночной срез)")
+    p.add_argument("--no-meta", action="store_true", help="не тянуть описания (без типов купонов)")
+    p.add_argument("--no-ratings", action="store_true", help="не тянуть агентские рейтинги")
+    p.add_argument("--sleep", type=float, default=0.3, help="пауза между запросами описаний, сек")
+    p.add_argument("--limit", type=int, default=None, help="ограничить число выпусков (отладка)")
     args = p.parse_args()
 
     curve = load_ofz_curve()
     logger.info("Кривая ОФЗ: %d точек", len(curve))
 
+    ratings = {} if args.no_ratings else load_agency_ratings()
+
+    # 1) собрать выпуски со всех торговых бордов (дедуп по SECID)
+    boards = [("TQOB", "ofz")] if args.ofz_only else TRADE_BOARDS
+    recs: dict[str, dict] = {}
+    for board, btype in boards:
+        try:
+            board_recs = fetch_board(board, btype)
+        except Exception as e:
+            logger.warning("борд %s недоступен: %s", board, e)
+            continue
+        for rec in board_recs:
+            recs.setdefault(rec["s"]["SECID"], rec)
+        logger.info("Борд %s: %d выпусков (всего уникальных %d)", board, len(board_recs), len(recs))
+
+    secids = list(recs)
+    if args.limit:
+        secids = secids[: args.limit]
+        recs = {s: recs[s] for s in secids}
+
+    # 2) описания (тип купона / метка YTM / класс / дефолт) — последовательно
+    meta = {}
+    if not args.no_meta:
+        logger.info("Тяну описания по %d выпускам (пауза %.2fс)…", len(secids), args.sleep)
+        meta = fetch_meta_map(secids, sleep=args.sleep)
+
+    # 3) запись батчами
     db = SessionLocal()
     try:
-        ofz = fetch_board("TQOB", "ofz")
-        for rec in ofz:
-            upsert_bond(db, rec, curve)
+        for i, secid in enumerate(secids):
+            upsert_bond(db, recs[secid], curve, meta.get(secid), ratings)
+            if (i + 1) % 200 == 0:
+                db.commit()
+                logger.info("  записано %d/%d", i + 1, len(secids))
         db.commit()
-        logger.info("ОФЗ: загружено %d", len(ofz))
 
-        n_corp = 0
-        if not args.ofz_only:
-            corp = fetch_board("TQCB", "corporate")
-            # ночной срез: ликвидные (листинг 1-2) с рассчитанной доходностью,
-            # рублёвые — чтобы спред к ОФЗ был осмыслен
-            liquid = [r for r in corp
-                      if (r["s"].get("LISTLEVEL") in (1, 2, "1", "2"))
-                      and r["m"].get("YIELD") not in (None, "", 0)
-                      and (r["s"].get("FACEUNIT") in (None, "SUR", "RUB"))]
-            liquid = liquid[:args.max_corp]
-            for rec in liquid:
-                upsert_bond(db, rec, curve)
-            db.commit()
-            n_corp = len(liquid)
-            logger.info("Корпораты (ликвидные): загружено %d из %d на борде", n_corp, len(corp))
-
-        # сводка по риск-тирам
         from sqlalchemy import text
-        rows = db.execute(text("SELECT risk_tier, count(*) FROM bonds GROUP BY risk_tier ORDER BY count(*) DESC")).all()
         logger.info("─" * 50)
-        logger.info("Всего облигаций: %d (ОФЗ %d + корпораты %d)", len(ofz) + n_corp, len(ofz), n_corp)
-        logger.info("По надёжности: %s", ", ".join(f"{t or '—'}: {n}" for t, n in rows))
+        logger.info("Всего облигаций в БД: %d", db.execute(text("SELECT count(*) FROM bonds")).scalar())
+        for title, q in [
+            ("по типу", "SELECT bond_type, count(*) FROM bonds GROUP BY bond_type ORDER BY 2 DESC"),
+            ("по купону", "SELECT coupon_type, count(*) FROM bonds GROUP BY coupon_type ORDER BY 2 DESC"),
+            ("по надёжности", "SELECT risk_tier, count(*) FROM bonds GROUP BY risk_tier ORDER BY 2 DESC"),
+            ("с агентским рейтингом", "SELECT count(*) FROM bonds WHERE agency_rating IS NOT NULL"),
+            ("дефолтных", "SELECT count(*) FROM bonds WHERE is_defaulted"),
+        ]:
+            rows = db.execute(text(q)).all()
+            if len(rows) == 1 and len(rows[0]) == 1:
+                logger.info("%s: %s", title, rows[0][0])
+            else:
+                logger.info("%s: %s", title, ", ".join(f"{t or '—'}: {n}" for t, n in rows))
     finally:
         db.close()
 

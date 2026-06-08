@@ -27,4 +27,14 @@ python -m scripts.load_all_companies data/rates.csv
 echo "[import] импортирую профили компаний в БД..."
 python -m scripts.import_profiles_to_db --all
 
+# 3. Таблица bonds — класс активов «Облигации» (полный охват ~3100 выпусков).
+#    Источник: MOEX ISS (борды TQOB/TQCB/TQOY/TQOD/TQRD) + типы купонов из
+#    описаний выпусков + агентские рейтинги (smart-lab). Запросы последовательные
+#    с паузой — операция идёт ~15-20 мин (бережно к rate limit MOEX). Idempotent
+#    (upsert по SECID). Чтобы пропустить: SKIP_BONDS=1 ./import_data.sh
+if [ "${SKIP_BONDS:-0}" != "1" ]; then
+  echo "[import] загружаю облигации с MOEX (полный охват, ~15-20 мин)..."
+  python -m scripts.load_bonds
+fi
+
 echo "[import] готово."
