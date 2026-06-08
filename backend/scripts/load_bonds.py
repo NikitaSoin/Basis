@@ -77,12 +77,22 @@ def main() -> None:
     # 3) запись батчами
     db = SessionLocal()
     try:
+        bad = 0
         for i, secid in enumerate(secids):
-            upsert_bond(db, recs[secid], curve, meta.get(secid), ratings)
+            try:
+                # SAVEPOINT на строку: откат битой НЕ теряет хорошие строки батча
+                with db.begin_nested():
+                    upsert_bond(db, recs[secid], curve, meta.get(secid), ratings)
+            except Exception as e:
+                bad += 1
+                logger.warning("пропускаю %s: %s", secid, e)
+                continue
             if (i + 1) % 200 == 0:
                 db.commit()
                 logger.info("  записано %d/%d", i + 1, len(secids))
         db.commit()
+        if bad:
+            logger.warning("пропущено битых строк: %d", bad)
 
         from sqlalchemy import text
         logger.info("─" * 50)
