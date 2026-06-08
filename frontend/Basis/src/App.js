@@ -1678,6 +1678,25 @@ const RISK_TIER_BADGE = {
 };
 const BOND_TYPE_LABEL = { ofz: "ОФЗ", corporate: "Корпорат", muni: "Муници" };
 
+// тип купона — определяет смысл процентного риска (у флоатера его почти нет)
+const COUPON_BADGE = {
+  floater: { tone: "info", label: "Флоатер", short: "ПК" },
+  linker: { tone: "info", label: "Линкер", short: "ИН" },
+  structured: { tone: "warning", label: "Структурная", short: "СТР" },  // сложный/рисковый продукт — помечаем
+  fixed: null,   // фикс — норма, не маркируем (чтобы не зашумлять)
+  other: null,
+};
+
+// агентскую букву → цвет (как у рыночного тира): AAA/AA — успех, A/BBB —
+// внимание, ниже — опасность. Для сверки «рынок vs агентство».
+const ratingTone = (rt) => {
+  if (!rt) return "neutral";
+  const base = rt.replace(/[+-]$/, "").toUpperCase();
+  if (base === "AAA" || base === "AA") return "success";
+  if (base === "A" || base === "BBB") return "warning";
+  return "danger";
+};
+
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // Карточка облигации: 3 плитки (надёжность → YTM/спред → дюрация) + 4 блока
@@ -1701,10 +1720,14 @@ const BondCard = ({ secid, onBack }) => {
   if (!data?.bond) return <div className="tw-py-12 tw-text-text-tertiary">Облигация не найдена. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
 
   const b = data.bond;
-  const r = RISK_TIER_BADGE[b.risk_tier] || { tone: "neutral", label: b.risk_tier };
+  const r = RISK_TIER_BADGE[b.risk_tier] || { tone: "neutral", label: "Нет оценки" };
   const faceRub = b.face_value && b.last_price ? (b.face_value * b.last_price / 100) : null;
   const horizon = b.offer_date || b.maturity_date;
-  const ytmKind = b.offer_date ? "к оферте" : "к погашению";
+  const ytmKind = b.ytm_kind || (b.offer_date ? "к оферте" : "к погашению");
+  const couponBadge = COUPON_BADGE[b.coupon_type];
+  const isFloater = b.coupon_type === "floater";
+  const isLinker = b.coupon_type === "linker";
+  const isStructured = b.coupon_type === "structured";
   // вердикты/рейтинг из аналитики — чтобы плитки давали ВЫВОД, а не метод
   const rel = analysis?.reliability;
   const ratingStr = rel?.rating ? [rel.rating.agency, rel.rating.level, rel.rating.as_of].filter(Boolean).join(" ") : null;
@@ -1729,9 +1752,17 @@ const BondCard = ({ secid, onBack }) => {
         <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{b.short_name}</h1>
         <Badge tone="neutral">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</Badge>
         <Badge tone={r.tone}>{r.label}</Badge>
+        {couponBadge && <Badge tone={couponBadge.tone}>{couponBadge.label}</Badge>}
+        {b.is_defaulted && <Badge tone="danger">Дефолт / режим Д</Badge>}
         {b.issuer_name && <span className="tw-text-[14px] tw-text-text-secondary">{b.issuer_name}</span>}
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
       </div>
+
+      {isStructured && (
+        <div className="tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">
+          <b>Структурная облигация.</b> Выплата и возврат тела привязаны к формуле / событию (курс, индекс, корзина активов), а не к простому купону. Тело может быть <b>не защищено</b> — это не обычная облигация «дал в долг → получил с процентом». YTM/спред для неё некорректны и могут вводить в заблуждение. Подходит только тем, кто понимает конкретные условия выпуска.
+        </div>
+      )}
 
       {/* 3 плитки — пятисекундный ответ: надёжность → доходность → дюрация.
           Подсказки — ВЫВОД (рейтинг/вердикт из аналитики), не метод. */}
@@ -1740,7 +1771,8 @@ const BondCard = ({ secid, onBack }) => {
           b.bond_type === "ofz" ? "Госдолг РФ — риск дефолта минимальный"
           : ratingStr ? `Рейтинг ${ratingStr}.${rel?.verdict ? " " + rel.verdict : ""}`
           : rel?.verdict ? rel.verdict
-          : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.); агентский рейтинг публично недоступен.` : "Оценка надёжности")
+          : b.agency_rating ? `Агентский рейтинг ${b.agency_rating} + рыночная оценка по спреду${b.spread_bp != null ? ` (+${b.spread_bp} б.п.)` : ""}. См. блок «Двойной рейтинг».`
+          : (b.spread_bp != null ? `Оценка по спреду к ОФЗ (+${b.spread_bp} б.п.); агентский рейтинг не загружен.` : "Оценка надёжности")
         }>
           <Badge tone={r.tone} className="tw-self-start tw-text-[14px]">{r.label}</Badge>
         </Tile>
@@ -1755,11 +1787,56 @@ const BondCard = ({ secid, onBack }) => {
           </div>
         </Tile>
         <Tile caption="Дюрация (риск к ставке)" hint={
-          up1 != null ? `Реагирует на ставку ${Math.abs(up1) >= 5 ? "сильно" : Math.abs(up1) >= 2 ? "умеренно" : "слабо"}: при росте ставки на 1 п.п. цена ≈ ${up1}%.` : "Чувствительность тела к ставке"
+          isFloater ? "У флоатера купон следует за ставкой — процентный риск тела минимален."
+          : up1 != null ? `Реагирует на ставку ${Math.abs(up1) >= 5 ? "сильно" : Math.abs(up1) >= 2 ? "умеренно" : "слабо"}: при росте ставки на 1 п.п. цена ≈ ${up1}%.` : "Чувствительность тела к ставке"
         }>
           <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{b.duration_years == null ? "—" : `${fmtNumber(b.duration_years, { decimals: 1 })} г`}</span>
         </Tile>
       </div>
+
+      {/* Двойной рейтинг: рыночная оценка (спред) vs агентский рейтинг — и их
+          расхождение. Две независимые опоры надёжности — главного вопроса. */}
+      {b.bond_type !== "ofz" && (
+        <Card header="Двойной рейтинг надёжности">
+          <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
+            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>Рыночная оценка (по спреду)</div>
+              <div className="tw-mt-1 tw-flex tw-items-center tw-gap-2">
+                {b.spread_bp != null
+                  ? <><Badge tone={r.tone}>{r.label}</Badge><span className="tw-font-mono tw-text-text-secondary tw-text-[13px]">+{b.spread_bp} б.п. к ОФЗ</span></>
+                  : <span className="tw-text-text-tertiary tw-text-[13px]">нет оценки (неликвид / нет YTM)</span>}
+              </div>
+              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-tertiary">{b.spread_bp != null ? "Как рынок оценивает риск эмитента «здесь и сейчас» — через премию к госдолгу." : "Для этого выпуска биржа не рассчитала доходность (низкая ликвидность) — рыночной премии нет."}</div>
+            </div>
+            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>Агентский рейтинг</div>
+              <div className="tw-mt-1 tw-flex tw-items-center tw-gap-2">
+                {b.agency_rating
+                  ? <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>
+                  : <span className="tw-text-text-tertiary tw-text-[13px]">не загружен</span>}
+              </div>
+              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-tertiary">
+                {b.agency_rating
+                  ? `Кредитный рейтинг по нац. шкале${b.agency_rating_source ? ` · ${b.agency_rating_source}` : ""}.`
+                  : "Публичный рейтинг АКРА/Эксперт РА для этого выпуска не найден."}
+              </div>
+            </div>
+          </div>
+          {b.rating_divergence === "market_stricter" && (
+            <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">
+              ⚠ Рынок оценивает риск <b>строже</b> агентства: требует спред выше, чем подразумевает рейтинг {b.agency_rating}. Бывает при свежих проблемах эмитента, которые рейтинг ещё не отразил, — повод присмотреться.
+            </div>
+          )}
+          {b.rating_divergence === "market_milder" && (
+            <div className="tw-mt-3 tw-p-2.5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary">
+              Рынок оценивает риск <b>мягче</b> агентства: спред уже, чем подразумевает рейтинг {b.agency_rating}. Либо рынок видит улучшение, либо доходность не вполне компенсирует риск по рейтингу.
+            </div>
+          )}
+          {b.rating_divergence === "aligned" && (
+            <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Рыночная оценка и агентский рейтинг согласуются.</div>
+          )}
+        </Card>
+      )}
 
       {/* Блок: параметры выпуска + цена в рублях (снимает путаницу % номинала) */}
       <Card header="Параметры выпуска">
@@ -1791,9 +1868,13 @@ const BondCard = ({ secid, onBack }) => {
       {data.sensitivity && (
         <Card header="Чувствительность к ставке">
           <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
-            Если ключевая ставка изменится, вот как переоценится тело облигации.
-            {up1 != null && Math.abs(up1) >= 5 && " Бумага сильно реагирует на ставку — фактически ставка на её разворот."}
-            {up1 != null && Math.abs(up1) < 2 && " Бумага слабо реагирует на ставку — процентный риск низкий."}
+            {isFloater
+              ? "Купон флоатера следует за ключевой ставкой, поэтому тело почти не переоценивается — это ЗАЩИТА от роста ставки, а не угроза. Сценарии ниже — лишь остаточная чувствительность."
+              : isLinker
+              ? "У линкера номинал индексируется на инфляцию — это защита от инфляции; чувствительность к ключевой ставке ниже, чем у обычной бумаги той же дюрации."
+              : "Если ключевая ставка изменится, вот как переоценится тело облигации."}
+            {!isFloater && !isLinker && up1 != null && Math.abs(up1) >= 5 && " Бумага сильно реагирует на ставку — фактически ставка на её разворот."}
+            {!isFloater && !isLinker && up1 != null && Math.abs(up1) < 2 && " Бумага слабо реагирует на ставку — процентный риск низкий."}
             <span className="tw-text-text-tertiary"> (оценка от модиф. дюрации {fmtNumber(data.sensitivity.modified_duration, { decimals: 1 })}, линейное приближение)</span>
           </div>
           <div className="tw-grid tw-grid-cols-4 tw-gap-2">
@@ -1847,10 +1928,44 @@ const BondCard = ({ secid, onBack }) => {
 
 // Список облигаций — таблица (5 колонок под главный вопрос: надёжность → YTM/
 // спред → дюрация → цена/срок), сгруппирован по типу (ОФЗ / Корпоративные).
+const BOND_GROUPS = [
+  { type: "ofz", title: "ОФЗ (государственные)" },
+  { type: "corporate", title: "Корпоративные" },
+  { type: "muni", title: "Субфедеральные / муниципальные" },
+];
+const COUPON_FILTERS = [
+  { id: "all", label: "Любой купон" },
+  { id: "fixed", label: "Фикс" },
+  { id: "floater", label: "Флоатеры" },
+  { id: "linker", label: "Линкеры" },
+];
+const RISK_FILTERS = [
+  { id: "all", label: "Любая надёжность" },
+  { id: "high", label: "Надёжные" },
+  { id: "medium", label: "Средний риск" },
+  { id: "speculative", label: "ВДО" },
+];
+const BONDS_PAGE = 60;   // показываем порциями — на рынке тысячи выпусков
+
+const FilterChips = ({ options, value, onChange }) => (
+  <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+    {options.map((o) => (
+      <button key={o.id} onClick={() => onChange(o.id)}
+        className={`tw-text-[12px] tw-px-2.5 tw-py-1 tw-rounded-full tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
+          value === o.id ? "tw-bg-accent tw-text-white tw-border-accent" : "tw-bg-transparent tw-text-text-secondary tw-border-border-subtle hover:tw-border-text-tertiary"}`}>
+        {o.label}
+      </button>
+    ))}
+  </div>
+);
+
 const BondsList = ({ onSelectBond }) => {
   const [bonds, setBonds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [couponF, setCouponF] = useState("all");
+  const [riskF, setRiskF] = useState("all");
+  const [shown, setShown] = useState({});   // лимит показа по группам
 
   useEffect(() => {
     fetch(`${apiBase()}/api/bonds`)
@@ -1860,35 +1975,49 @@ const BondsList = ({ onSelectBond }) => {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!search) return bonds;
     const q = search.toLowerCase();
-    return bonds.filter((b) => (b.short_name || "").toLowerCase().includes(q) || (b.secid || "").toLowerCase().includes(q) || (b.issuer_name || "").toLowerCase().includes(q));
-  }, [bonds, search]);
+    return bonds.filter((b) => {
+      if (q && !((b.short_name || "").toLowerCase().includes(q) || (b.secid || "").toLowerCase().includes(q) || (b.issuer_name || "").toLowerCase().includes(q) || (b.isin || "").toLowerCase().includes(q))) return false;
+      if (couponF !== "all" && b.coupon_type !== couponF) return false;
+      if (riskF !== "all" && b.risk_tier !== riskF) return false;
+      return true;
+    });
+  }, [bonds, search, couponF, riskF]);
+
+  // сброс лимитов показа при смене фильтра/поиска
+  useEffect(() => { setShown({}); }, [search, couponF, riskF]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигации...</div>;
-
-  const groups = [
-    { type: "ofz", title: "ОФЗ (государственные)" },
-    { type: "corporate", title: "Корпоративные" },
-  ];
 
   const columns = [
     {
       key: "name", label: "Выпуск",
-      render: (_, b) => (
-        <div className="tw-flex tw-flex-col">
-          <span className="tw-font-semibold tw-text-text-primary">{b.short_name}</span>
-          <span className="tw-text-[11px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.issuer_name ? ` · ${b.issuer_name}` : ""}</span>
-        </div>
-      ),
+      render: (_, b) => {
+        const cb = COUPON_BADGE[b.coupon_type];
+        return (
+          <div className="tw-flex tw-flex-col">
+            <span className="tw-font-semibold tw-text-text-primary tw-flex tw-items-center tw-gap-1.5">
+              {b.short_name}
+              {cb && <span className={`tw-text-[10px] tw-px-1 tw-py-0.5 tw-rounded tw-bg-accent-soft tw-text-accent tw-font-medium`} title={cb.label}>{cb.short}</span>}
+              {b.is_defaulted && <span className="tw-text-[10px] tw-px-1 tw-py-0.5 tw-rounded tw-bg-danger-soft tw-text-danger tw-font-medium" title="Дефолт / режим Д">Д</span>}
+            </span>
+            <span className="tw-text-[11px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.issuer_name ? ` · ${b.issuer_name}` : ""}</span>
+          </div>
+        );
+      },
     },
     {
-      key: "risk_tier", label: "Надёжность",
-      render: (v) => { const r = RISK_TIER_BADGE[v] || { tone: "neutral", label: v }; return <Badge tone={r.tone}>{r.label}</Badge>; },
+      key: "risk_tier", label: "Надёжность · рейтинг",
+      // двойной рейтинг в списке: рыночный тир + агентская буква рядом
+      render: (v, b) => { const rt = RISK_TIER_BADGE[v] || { tone: "neutral", label: "Нет оценки" }; return (
+        <div className="tw-flex tw-items-center tw-gap-1.5">
+          {(v || !b.agency_rating) && <Badge tone={rt.tone}>{rt.label}</Badge>}
+          {b.agency_rating && <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>}
+        </div>
+      ); },
     },
     {
       key: "spread_bp", label: "Спред к ОФЗ",
-      // спред ДО доходности: сначала премия за риск, потом цифра дохода
       render: (v, b) => b.bond_type === "ofz" ? <span className="tw-text-text-tertiary">—</span> : v == null ? "—" : (
         <Tooltip content="Спред — насколько доходность облигации выше ОФЗ того же срока. Это и есть плата за кредитный риск эмитента: чем больше спред, тем рискованнее.">
           <span className={`tw-font-mono ${v > 600 ? "tw-text-danger" : v > 250 ? "tw-text-warning" : "tw-text-text-secondary"}`}>+{v} б.п.</span>
@@ -1897,8 +2026,6 @@ const BondsList = ({ onSelectBond }) => {
     },
     {
       key: "ytm", label: "Доходность (YTM)",
-      // нейтральный тон даже для высокого YTM — это плата за риск, не «выгода».
-      // ⚠ у ВДО и аномального YTM, чтобы число не читалось как «выгода».
       render: (v, b) => v == null ? "—" : (
         <span title={b.yield_anomaly ? "Экстремальная доходность — вероятен дистресс/неликвид, не «выгода»" : (b.risk_tier === "speculative" ? "Высокая доходность — плата за риск дефолта (ВДО), не «выгода»" : "Доходность к погашению/оферте (оценка)")}>
           <span className="tw-font-mono tw-text-text-primary">{fmtPercent(v, { decimals: 1 })}</span>
@@ -1920,22 +2047,37 @@ const BondsList = ({ onSelectBond }) => {
 
   return (
     <div>
-      <div className="tw-relative tw-mb-5 tw-max-w-md">
-        <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
-        <Input type="text" placeholder="Поиск по выпуску / эмитенту / ISIN..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+      <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
+        <div className="tw-relative tw-max-w-md">
+          <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
+          <Input type="text" placeholder="Поиск по выпуску / эмитенту / ISIN..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+        </div>
+        <div className="tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-2">
+          <FilterChips options={COUPON_FILTERS} value={couponF} onChange={setCouponF} />
+          <FilterChips options={RISK_FILTERS} value={riskF} onChange={setRiskF} />
+        </div>
       </div>
-      {groups.map((g) => {
+      {BOND_GROUPS.map((g) => {
         const rows = filtered.filter((b) => b.bond_type === g.type);
         if (!rows.length) return null;
+        const limit = shown[g.type] || BONDS_PAGE;
+        const visible = rows.slice(0, limit);
         return (
           <div key={g.type} className="tw-mb-8">
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
               {g.title} · {rows.length}
             </div>
-            <Table columns={columns} rows={rows} onRowClick={(b) => onSelectBond(b.secid)} />
+            <Table columns={columns} rows={visible} onRowClick={(b) => onSelectBond(b.secid)} />
+            {rows.length > limit && (
+              <button onClick={() => setShown((s) => ({ ...s, [g.type]: limit + BONDS_PAGE * 2 }))}
+                className="tw-mt-3 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+                Показать ещё {Math.min(BONDS_PAGE * 2, rows.length - limit)} из {rows.length - limit}
+              </button>
+            )}
           </div>
         );
       })}
+      {filtered.length === 0 && <div className="tw-py-12 tw-text-center tw-text-text-tertiary">Ничего не найдено по заданным фильтрам.</div>}
     </div>
   );
 };
