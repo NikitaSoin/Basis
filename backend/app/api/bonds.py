@@ -25,6 +25,25 @@ RISK_LABEL = {
     "speculative": "Высокий риск (ВДО)",
 }
 
+COUPON_LABEL = {
+    "fixed": "Фикс. купон",
+    "floater": "Флоатер (плавающий)",
+    "linker": "Линкер (инфляция)",
+    "structured": "Структурная (выплата по формуле)",
+    "other": "—",
+}
+
+# буква рейтинга → грубый тир для сверки с рыночной оценкой по спреду
+def _rating_tier(rating: str | None) -> str | None:
+    if not rating:
+        return None
+    base = rating.rstrip("+-").upper()
+    if base in ("AAA", "AA"):
+        return "high"
+    if base in ("A", "BBB"):
+        return "medium"
+    return "speculative"  # BB и ниже — спекулятивный (ВДО)
+
 
 def _safe(s: str) -> str:
     return "".join(c for c in s if c.isalnum() or c in "-_").upper()
@@ -38,10 +57,29 @@ def _row_to_dict(r) -> dict:
         elif hasattr(v, "real") and not isinstance(v, (int, float, bool)):
             d[k] = float(v)
     d["risk_label"] = RISK_LABEL.get(d.get("risk_tier"))
+    d["coupon_label"] = COUPON_LABEL.get(d.get("coupon_type"))
     if d.get("duration_days"):
         d["duration_years"] = round(d["duration_days"] / 365, 1)
     # экстремальная доходность — флаг дистресса/неликвида (не «выгодно»!)
     d["yield_anomaly"] = bool(d.get("ytm") and d["ytm"] > 40)
+
+    # ── двойной рейтинг: рынок (спред) vs агентство — и их расхождение ──
+    market_tier = d.get("risk_tier")
+    agency_tier = _rating_tier(d.get("agency_rating"))
+    d["agency_tier"] = agency_tier
+    divergence = None
+    # расхождение считаем только когда есть РЕАЛЬНАЯ рыночная оценка (спред)
+    if d.get("spread_bp") is not None and market_tier in ("high", "medium", "speculative") and agency_tier:
+        order = {"high": 3, "medium": 2, "speculative": 1}
+        diff = order[market_tier] - order[agency_tier]
+        if diff <= -1:
+            # рынок оценивает НИЖЕ агентства (требует больший спред) — настороже
+            divergence = "market_stricter"
+        elif diff >= 1:
+            divergence = "market_milder"
+        else:
+            divergence = "aligned"
+    d["rating_divergence"] = divergence
     return d
 
 
