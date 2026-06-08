@@ -37,4 +37,12 @@ if [ "${SKIP_BONDS:-0}" != "1" ]; then
   python -m scripts.load_bonds
 fi
 
+# 4. Таблица futures — класс активов «Фьючерсы» (срочный рынок FORTS, ~560
+#    контрактов). Источник: MOEX ISS (engine=futures). Один запрос, быстро.
+#    Idempotent (upsert по SECID). Чтобы пропустить: SKIP_FUTURES=1 ./import_data.sh
+if [ "${SKIP_FUTURES:-0}" != "1" ]; then
+  echo "[import] загружаю фьючерсы с MOEX (FORTS)..."
+  python -m scripts.load_futures
+fi
+
 echo "[import] готово."

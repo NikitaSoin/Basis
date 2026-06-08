@@ -13,6 +13,7 @@ from app.api.portfolios import router as portfolios_router
 from app.api.market import router as market_router
 from app.api.debug import router as debug_router
 from app.api.bonds import router as bonds_router
+from app.api.futures import router as futures_router
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,7 @@ app.include_router(portfolios_router, prefix="/api")
 app.include_router(market_router, prefix="/api")
 app.include_router(debug_router, prefix="/api")
 app.include_router(bonds_router, prefix="/api")
+app.include_router(futures_router, prefix="/api")
 
 
 @app.get("/")
