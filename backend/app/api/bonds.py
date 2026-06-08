@@ -17,6 +17,75 @@ from app.db.session import get_db
 
 router = APIRouter()
 BONDS_DIR = Path(__file__).parent.parent.parent / "bonds"
+COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+
+
+def _last(seq):
+    """Последнее не-None значение временного ряда (актуальный год)."""
+    if not isinstance(seq, list):
+        return None
+    for v in reversed(seq):
+        if v is not None:
+            return v
+    return None
+
+
+def _issuer_debt_block(ticker: str) -> dict | None:
+    """Долговая нагрузка эмитента из его financials.json: «сможет ли расплатиться».
+    Только для публичных эмитентов, что есть в нашей базе. None — если нет файла."""
+    fpath = COMPANIES_DIR / ticker / "financials.json"
+    if not fpath.exists():
+        return None
+    try:
+        fin = json.loads(fpath.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    bs = fin.get("balance_sheet", {}) or {}
+    ratios = bs.get("ratios", {}) or {}
+    inc = fin.get("income_statement", {}) or {}
+    years = (fin.get("meta", {}) or {}).get("fiscal_years") or []
+    as_of_year = years[-1] if years else None
+    nd_ebitda = _last(ratios.get("net_debt_ebitda"))
+    d_to_e = _last(ratios.get("debt_to_equity"))
+    cur = _last(ratios.get("current_ratio"))
+    ebitda = _last(inc.get("ebitda"))
+    fin_costs = _last(inc.get("finance_costs"))
+    coverage = None
+    if ebitda is not None and fin_costs:
+        try:
+            coverage = round(abs(ebitda) / abs(fin_costs), 1)
+        except (ZeroDivisionError, TypeError):
+            coverage = None
+
+    # вердикт «сможет ли расплатиться» — по долгу/EBITDA и покрытию процентов.
+    # Это ОЦЕНКА от данных эмитента, не рейтинг. Банки (нет nd/ebitda) — отдельно.
+    flag, verdict = "amber", None
+    if nd_ebitda is not None:
+        if nd_ebitda <= 2:
+            flag = "green"; verdict = f"Долг/EBITDA {nd_ebitda} — низкая нагрузка, обслуживать долг комфортно."
+        elif nd_ebitda <= 4:
+            flag = "amber"; verdict = f"Долг/EBITDA {nd_ebitda} — умеренная нагрузка, в пределах нормы."
+        elif nd_ebitda <= 6:
+            flag = "amber"; verdict = f"Долг/EBITDA {nd_ebitda} — повышенная нагрузка, чувствительна к ставке и выручке."
+        else:
+            flag = "red"; verdict = f"Долг/EBITDA {nd_ebitda} — высокая нагрузка, риск с обслуживанием долга."
+        if coverage is not None and coverage < 2:
+            flag = "red"; verdict += f" Покрытие процентов EBITDA лишь {coverage}× — мало."
+    elif coverage is not None:
+        verdict = f"Покрытие процентов EBITDA {coverage}×."
+        flag = "green" if coverage >= 4 else "amber" if coverage >= 2 else "red"
+
+    return {
+        "ticker": ticker,
+        "net_debt_ebitda": nd_ebitda,
+        "interest_coverage": coverage,
+        "debt_to_equity": d_to_e,
+        "current_ratio": cur,
+        "as_of_year": as_of_year,
+        "flag": flag,
+        "verdict": verdict,
+        "certainty": "оценка",
+    }
 
 RISK_LABEL = {
     "gov": "Госдолг",
@@ -143,7 +212,17 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow}
+    # Блок «Эмитент»: долговая нагрузка компании-эмитента (сможет ли расплатиться)
+    # + переход в её карточку. Только для публичных эмитентов из нашей базы.
+    issuer = None
+    if bond.get("issuer_ticker"):
+        comp = db.execute(text("SELECT ticker, name, sector FROM companies WHERE ticker = :t"),
+                          {"t": bond["issuer_ticker"]}).first()
+        if comp:
+            debt = _issuer_debt_block(bond["issuer_ticker"])
+            issuer = {"ticker": comp[0], "name": comp[1], "sector": comp[2], "debt": debt}
+
+    return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow, "issuer": issuer}
 
 
 @router.get("/bonds/{secid}/summary", response_class=PlainTextResponse)

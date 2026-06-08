@@ -20,6 +20,7 @@ class Bond(Base):
     isin: Mapped[str | None] = mapped_column(String(12))
     short_name: Mapped[str] = mapped_column(String(255), nullable=False)
     issuer_name: Mapped[str | None] = mapped_column(String(255))
+    issuer_ticker: Mapped[str | None] = mapped_column(String(20))  # тикер компании-эмитента в нашей базе
     # ofz | corporate | muni | other — определяет главный вопрос инвестора
     bond_type: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     board: Mapped[str | None] = mapped_column(String(12))      # TQOB / TQCB / TQIR …
