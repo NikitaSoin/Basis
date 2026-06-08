@@ -45,4 +45,10 @@ if [ "${SKIP_FUTURES:-0}" != "1" ]; then
   python -m scripts.load_futures
 fi
 
+# 5. Таблица funds — биржевые фонды (БПИФ/ETF, борд TQTF, ~100). Один запрос.
+if [ "${SKIP_FUNDS:-0}" != "1" ]; then
+  echo "[import] загружаю фонды с MOEX (TQTF)..."
+  python -m scripts.load_funds
+fi
+
 echo "[import] готово."

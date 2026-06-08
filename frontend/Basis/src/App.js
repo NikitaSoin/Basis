@@ -1669,6 +1669,7 @@ const ASSET_CLASSES = [
   { id: "stocks", label: "Акции" },
   { id: "bonds", label: "Облигации" },
   { id: "futures", label: "Фьючерсы" },
+  { id: "funds", label: "Фонды" },
 ];
 
 const RISK_TIER_BADGE = {
@@ -2399,6 +2400,195 @@ const FuturesList = ({ onSelectFuture }) => {
   );
 };
 
+// ── Фонды (БПИФ/ETF — класс активов в модуле «Рынок») ──
+// Фонд — упаковка (корзина активов). Главный вопрос: что внутри → сколько стоит
+// (TER) → честно ли следует → нужен ли поверх портфеля. docs/funds-methodology.md
+const FUND_TYPE = {
+  equity: { label: "Акции", title: "Фонды акций" },
+  bonds: { label: "Облигации", title: "Облигационные" },
+  gold: { label: "Золото", title: "Золото" },
+  money_market: { label: "Денежный рынок", title: "Денежный рынок" },
+  currency: { label: "Валютный", title: "Валютные" },
+  mixed: { label: "Смешанный", title: "Смешанные / прочие" },
+};
+const FUND_TYPE_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "equity", label: "Акции" },
+  { id: "bonds", label: "Облигации" },
+  { id: "money_market", label: "Денежный рынок" },
+  { id: "gold", label: "Золото" },
+];
+const FUND_GROUP_ORDER = ["money_market", "equity", "bonds", "gold", "currency", "mixed"];
+const fmtMln = (v) => v == null ? "—" : v >= 1e9 ? `${(v / 1e9).toFixed(1)} млрд` : v >= 1e6 ? `${(v / 1e6).toFixed(0)} млн` : `${fmtNumber(v, { decimals: 0 })}`;
+
+const FundCard = ({ secid, onBack }) => {
+  const [data, setData] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const base = `${apiBase()}/api/funds/${secid}`;
+    Promise.all([
+      fetch(base).then((r) => (r.ok ? r.json() : null)),
+      fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
+    ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
+  }, [secid]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем фонд...</div>;
+  if (!data?.fund) return <div className="tw-py-12 tw-text-text-tertiary">Фонд не найден. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
+
+  const f = data.fund;
+  const t = FUND_TYPE[f.fund_type] || { label: f.fund_type };
+  const cost = data.ter_cost;
+
+  const Tile = ({ caption, children, hint }) => (
+    <Card className="tw-flex tw-flex-col tw-gap-1">
+      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
+      {children}
+      {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
+    </Card>
+  );
+
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+        <ChevronRight size={16} className="tw-rotate-180" /> К списку фондов
+      </button>
+
+      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{f.short_name}</h1>
+        <Badge tone="neutral">{t.label}</Badge>
+        {f.sec_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.sec_name}</span>}
+        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{f.secid}{f.isin ? ` · ${f.isin}` : ""}</span>
+      </div>
+
+      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+        <Tile caption="Что внутри" hint="Фонд — это корзина активов в одной бумаге.">
+          <span className="tw-text-[20px] tw-font-medium tw-text-text-primary tw-leading-tight">{t.label}</span>
+        </Tile>
+        <Tile caption="Комиссия фонда (TER)" hint={f.ter != null ? "Тихий враг доходности: берётся каждый год независимо от результата." : "Не на MOEX — уточните на сайте УК фонда."}>
+          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{f.ter != null ? `${fmtNumber(f.ter, { decimals: 2 })}%` : "—"}</span>
+        </Tile>
+        <Tile caption="Ликвидность (оборот/день)" hint={f.num_trades != null ? `${fmtNumber(f.num_trades, { decimals: 0 })} сделок за день` : "Чем больше оборот, тем легче вход/выход."}>
+          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{f.val_today != null ? `${fmtMln(f.val_today)} ₽` : "—"}</span>
+        </Tile>
+      </div>
+
+      {/* TER в деньгах — перевод «невидимого 1%» в осязаемые потери (ценность Basis) */}
+      {cost && (
+        <Card header="Во что обходится комиссия (TER в деньгах)">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+            На каждые 100 000 ₽ вложений комиссия фонда {fmtNumber(f.ter, { decimals: 2 })}% в год накопит примерно (без учёта роста — чистая иллюстрация «тихого врага»):
+          </div>
+          <div className="tw-grid tw-grid-cols-3 tw-gap-2">
+            {[["за 1 год", cost["1"]], ["за 5 лет", cost["5"]], ["за 10 лет", cost["10"]]].map(([k, v]) => (
+              <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
+                <div className="tw-text-[12px] tw-text-text-tertiary">{k}</div>
+                <div className="tw-text-[16px] tw-font-mono tw-font-semibold tw-text-text-primary">{fmtNumber(v, { decimals: 0 })} ₽</div>
+              </div>
+            ))}
+          </div>
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Оценка. У фондов на тот же актив TER бывает заметно ниже — сравнивайте комиссии аналогов того же типа: на длинном горизонте это прямая разница в доходности.</div>
+        </Card>
+      )}
+
+      {!cost && (
+        <Card header="Комиссия фонда (TER)">
+          <div className="tw-text-[13px] tw-text-text-secondary">Комиссия этого фонда <b>не публикуется на MOEX</b> — уточните на сайте управляющей компании. В РФ TER биржевых фондов обычно <b>0,5–1% годовых</b>, и именно она — главный фактор отставания фонда от индекса на длинном горизонте. Basis добавляет TER по мере сбора данных по фондам; для сравнения комиссий уже доступны крупнейшие фонды каждого типа.</div>
+        </Card>
+      )}
+
+      {summary && (
+        <Card header="Разбор аналитика">
+          <Prose>{summary}</Prose>
+        </Card>
+      )}
+      {!summary && (
+        <Card header="Разбор аналитика">
+          <div className="tw-text-[13px] tw-text-text-tertiary tw-leading-snug">Детальный разбор этого фонда — что именно внутри (топ-позиции), ошибка слежения за индексом и дублирование с вашим портфелем — в очереди. Сейчас доступен паспорт: тип, комиссия и ликвидность выше. Этого достаточно, чтобы сравнить фонд с аналогами того же типа по главному критерию — комиссии.</div>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+const FundsList = ({ onSelectFund }) => {
+  const [funds, setFunds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [typeF, setTypeF] = useState("all");
+
+  useEffect(() => {
+    fetch(`${apiBase()}/api/funds`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { setFunds(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return funds.filter((f) => {
+      if (q && !((f.short_name || "").toLowerCase().includes(q) || (f.secid || "").toLowerCase().includes(q) || (f.sec_name || "").toLowerCase().includes(q))) return false;
+      if (typeF !== "all" && f.fund_type !== typeF) return false;
+      return true;
+    });
+  }, [funds, search, typeF]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем фонды...</div>;
+
+  const columns = [
+    {
+      key: "name", label: "Фонд",
+      render: (_, f) => (
+        <div className="tw-flex tw-flex-col">
+          <span className="tw-font-semibold tw-text-text-primary">{f.short_name}</span>
+          <span className="tw-text-[11px] tw-text-text-tertiary">{f.sec_name}</span>
+        </div>
+      ),
+    },
+    { key: "type_label", label: "Тип", render: (v, f) => <Badge tone="neutral">{(FUND_TYPE[f.fund_type] || {}).label || v}</Badge> },
+    {
+      key: "ter", label: "Комиссия (TER)",
+      render: (v) => v == null ? <Tooltip content="Комиссия (TER) не публикуется на MOEX — уточните на сайте УК. В РФ обычно 0,5–1% годовых. Добавляем по мере сбора."><span className="tw-text-text-tertiary">—</span></Tooltip> : (
+        <Tooltip content="TER — совокупные годовые расходы фонда. Берётся каждый год независимо от результата; на длинном горизонте — главный фактор отставания от индекса.">
+          <span className={`tw-font-mono ${v >= 1 ? "tw-text-warning" : "tw-text-text-secondary"}`}>{fmtNumber(v, { decimals: 2 })}%</span>
+        </Tooltip>
+      ),
+    },
+    { key: "val_today", label: "Оборот/день", render: (v) => <span className="tw-font-mono tw-text-text-tertiary">{v == null ? "—" : `${fmtMln(v)} ₽`}</span> },
+    { key: "last_price", label: "Цена пая", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-secondary">{fmtNumber(v, { decimals: 2 })} ₽</span> },
+  ];
+
+  const groups = FUND_GROUP_ORDER.filter((k) => filtered.some((f) => f.fund_type === k));
+
+  return (
+    <div>
+      <div className="tw-p-3 tw-mb-5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        Фонд (БПИФ/ETF) — это <b>упаковка</b>: корзина активов в одной бумаге. Главное о фонде — что у него <b>внутри</b>, сколько стоит его <b>комиссия (TER)</b> и не <b>дублирует</b> ли он то, что у вас уже есть. Basis показывает это, а не «какой фонд купить».
+      </div>
+      <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
+        <div className="tw-relative tw-max-w-md">
+          <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
+          <Input type="text" placeholder="Поиск по фонду / типу..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+        </div>
+        <FilterChips options={FUND_TYPE_FILTERS} value={typeF} onChange={setTypeF} />
+      </div>
+      {groups.map((k) => {
+        const rows = filtered.filter((f) => f.fund_type === k);
+        return (
+          <div key={k} className="tw-mb-8">
+            <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
+              {(FUND_TYPE[k] || {}).title || k} · {rows.length}
+            </div>
+            <Table columns={columns} rows={rows} onRowClick={(f) => onSelectFund(f.secid)} />
+          </div>
+        );
+      })}
+      {filtered.length === 0 && <div className="tw-py-12 tw-text-center tw-text-text-tertiary">Ничего не найдено.</div>}
+    </div>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
@@ -2406,6 +2596,7 @@ const CompaniesView = ({ onSelectCompany }) => {
   const [assetClass, setAssetClass] = useState("stocks");  // акции | облигации
   const [selectedBond, setSelectedBond] = useState(null);   // SECID открытой облигации
   const [selectedFuture, setSelectedFuture] = useState(null); // SECID открытого фьючерса
+  const [selectedFund, setSelectedFund] = useState(null);     // SECID открытого фонда
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -2541,7 +2732,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         {ASSET_CLASSES.map((a) => (
           <button
             key={a.id}
-            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); }}
+            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); setSelectedFund(null); }}
             className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
           >
             {a.label}
@@ -2557,6 +2748,10 @@ const CompaniesView = ({ onSelectCompany }) => {
         selectedFuture
           ? <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={onSelectCompany} />
           : <FuturesList onSelectFuture={setSelectedFuture} />
+      ) : assetClass === "funds" ? (
+        selectedFund
+          ? <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />
+          : <FundsList onSelectFund={setSelectedFund} />
       ) : (
       <>
       <div className="tw-relative tw-mb-4 tw-max-w-md">
