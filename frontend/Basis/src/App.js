@@ -1668,6 +1668,7 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
 const ASSET_CLASSES = [
   { id: "stocks", label: "Акции" },
   { id: "bonds", label: "Облигации" },
+  { id: "futures", label: "Фьючерсы" },
 ];
 
 const RISK_TIER_BADGE = {
@@ -2082,12 +2083,269 @@ const BondsList = ({ onSelectBond }) => {
   );
 };
 
+// ── Фьючерсы (класс активов в модуле «Рынок») ──
+// Дериватив: контракт с экспирацией, ГО и встроенным плечом. Главный вопрос —
+// «что это, чем рискует (плечо+экспирация) и как связано с тем, что у меня есть»,
+// НЕ «сколько заработаю». Без сигналов/таргетов (docs/futures-methodology.md).
+const FUT_KIND = {
+  currency: { label: "Валюта", title: "Валютные" },
+  index: { label: "Индекс", title: "На индексы" },
+  commodity: { label: "Сырьё", title: "На сырьё" },
+  stock: { label: "На акцию", title: "На акции" },
+  rate: { label: "Ставка", title: "На ставки" },
+  other: { label: "Другое", title: "Прочие" },
+};
+const FUT_KIND_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "currency", label: "Валюта" },
+  { id: "index", label: "Индексы" },
+  { id: "commodity", label: "Сырьё" },
+  { id: "stock", label: "На акции" },
+];
+const FUT_GROUP_ORDER = ["currency", "index", "commodity", "stock", "rate", "other"];
+const levTone = (l) => (l == null ? "neutral" : l >= 8 ? "danger" : l >= 5 ? "warning" : "info");
+
+const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
+  const [data, setData] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const base = `${apiBase()}/api/futures/${secid}`;
+    Promise.all([
+      fetch(base).then((r) => (r.ok ? r.json() : null)),
+      fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
+    ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
+  }, [secid]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем контракт...</div>;
+  if (!data?.future) return <div className="tw-py-12 tw-text-text-tertiary">Контракт не найден. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
+
+  const f = data.future;
+  const ts = data.term_structure;
+  const kind = FUT_KIND[f.asset_kind] || { label: f.asset_kind };
+  const lev = f.leverage;
+  const expSoon = f.days_to_expiry != null && f.days_to_expiry <= 14;
+
+  const Tile = ({ caption, children, hint }) => (
+    <Card className="tw-flex tw-flex-col tw-gap-1">
+      <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>{caption}</div>
+      {children}
+      {hint && <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-snug">{hint}</div>}
+    </Card>
+  );
+
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+        <ChevronRight size={16} className="tw-rotate-180" /> К списку фьючерсов
+      </button>
+
+      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{f.short_name}</h1>
+        <Badge tone="neutral">{kind.label}</Badge>
+        {lev != null && <Badge tone={levTone(lev)}>Плечо ~{fmtNumber(lev, { decimals: 1 })}×</Badge>}
+        {f.asset_name && <span className="tw-text-[14px] tw-text-text-secondary">{f.asset_name}</span>}
+        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{f.secid}</span>
+      </div>
+
+      {/* Честная этикетка о риске плеча — ВСЕГДА и заметно (позиционирование) */}
+      <div className="tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        <b>Это дериватив, не «вложение».</b> Фьючерс — контракт со встроенным плечом{lev != null ? ` ~${fmtNumber(lev, { decimals: 1 })}×` : ""} и датой экспирации. Вы вносите только ГО{f.initial_margin != null ? ` (${fmtNumber(f.initial_margin, { decimals: 0 })} ₽)` : ""}, но движение базового актива считается с ПОЛНОЙ стоимости контракта{f.contract_value != null ? ` (${fmtNumber(f.contract_value, { decimals: 0 })} ₽)` : ""}. Движение против позиции усиливается плечом — возможен убыток больше внесённого и принудительное закрытие. Basis показывает риск инструмента, а не советует сделку.
+      </div>
+
+      {/* 3 плитки — пятисекундный ответ: на что ставка → плечо → срок жизни */}
+      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+        <Tile caption="Базовый актив (на что ставка)" hint={f.asset_kind === "stock" && data.linked_company ? "Фьючерс на акцию — открыть карточку компании ниже." : "Цена контракта следует за этим активом."}>
+          <span className="tw-text-[20px] tw-font-medium tw-text-text-primary tw-leading-tight">{f.asset_name || f.asset_code}</span>
+        </Tile>
+        <Tile caption="Эффективное плечо (риск)" hint={lev != null ? `На каждый рубль ГО приходится ~${fmtNumber(lev, { decimals: 1 })} ₽ базового актива.` : "Номинал/ГО"}>
+          <div className="tw-flex tw-items-baseline tw-gap-2">
+            <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{lev == null ? "—" : `${fmtNumber(lev, { decimals: 1 })}×`}</span>
+            {lev != null && lev >= 8 && <span className="tw-text-danger" title="Высокое плечо">⚠</span>}
+          </div>
+        </Tile>
+        <Tile caption="До экспирации" hint={expSoon ? "Скоро экспирация — контракт прекратит существование." : "Позиция не вечна — у контракта есть дата окончания."}>
+          <span className={`tw-text-[26px] tw-font-medium tw-tabular-nums ${expSoon ? "tw-text-warning" : "tw-text-text-primary"}`}>{f.days_to_expiry == null ? "—" : `${f.days_to_expiry} дн`}</span>
+          {f.expiration_date && <span className="tw-text-[12px] tw-text-text-tertiary">до {f.expiration_date}</span>}
+        </Tile>
+      </div>
+
+      {/* Параметры контракта */}
+      <Card header="Параметры контракта">
+        <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-x-6 tw-gap-y-3 tw-text-[13px]">
+          {[
+            ["Расчётная цена", f.settle_price != null ? fmtNumber(f.settle_price, { decimals: 2 }) : "—"],
+            ["Номинал контракта", f.contract_value != null ? `${fmtNumber(f.contract_value, { decimals: 0 })} ₽` : "—"],
+            ["Гарантийное обеспечение", f.initial_margin != null ? `${fmtNumber(f.initial_margin, { decimals: 0 })} ₽` : "—"],
+            ["Открытые позиции", f.open_position != null ? fmtNumber(f.open_position, { decimals: 0 }) : "—"],
+            ["Экспирация", f.expiration_date || "—"],
+            ["Базовый актив", f.asset_name || f.asset_code],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <div className="tw-text-text-tertiary tw-text-[11px] tw-uppercase" style={{ letterSpacing: "0.04em" }}>{k}</div>
+              <div className="tw-text-text-primary tw-font-mono tw-mt-0.5">{v}</div>
+            </div>
+          ))}
+        </div>
+        <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">ГО — сумма, которую биржа замораживает под позицию (биржа может менять его). Номинал — полная стоимость базового актива в контракте; именно от него считается прибыль и убыток. В дату экспирации позиция закрывается автоматически по расчётной цене на тот день — она может отличаться от сегодняшней.</div>
+      </Card>
+
+      {/* Срочная структура: контанго/бэквордация как КОНТЕКСТ ожиданий, не сигнал */}
+      {ts && (
+        <Card header="Срочная структура (стоимость удержания)">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+            {ts.shape === "contango" && <>Дальние контракты <b>дороже</b> ближних — <b>контанго</b>. Удержание длинной позиции с переносом обходится в деньги (≈ {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}). Это нормально для валюты и металлов при высокой ставке.</>}
+            {ts.shape === "backwardation" && <>Дальние контракты <b>дешевле</b> ближних — <b>бэквордация</b>. Часто значит «сейчас актив в дефиците/дорог» или близкий дивиденд (для акций). Перенос длинной позиции даёт выигрыш (≈ {ts.annualized_pct != null ? `${fmtNumber(ts.annualized_pct, { decimals: 1 })}% годовых` : `${fmtNumber(ts.diff_pct, { decimals: 2 })}% за период`}).</>}
+            {ts.shape === "flat" && <>Кривая почти плоская — заметной стоимости удержания между сериями нет.</>}
+            <span className="tw-text-text-tertiary"> Это контекст ожиданий рынка, а не сигнал к сделке.</span>
+          </div>
+          <div className="tw-flex tw-flex-wrap tw-gap-2">
+            {ts.series.map((s, i) => (
+              <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-1.5 tw-text-[12px] tw-text-center">
+                <div className="tw-text-text-tertiary">{s.short_name}</div>
+                <div className="tw-text-text-primary tw-font-mono">{s.settle != null ? fmtNumber(s.settle, { decimals: 2 }) : "—"}</div>
+                <div className="tw-text-text-tertiary tw-text-[10px]">{s.days_to_expiry != null ? `${s.days_to_expiry} дн` : ""}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Чувствительность к плечу — в НЕГАТИВНОЙ рамке (риск убытка) */}
+      {data.sensitivity && (
+        <Card header="Риск плеча: что если рынок пойдёт против вас">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+            При плече ~{fmtNumber(data.sensitivity.leverage, { decimals: 1 })}× даже небольшое движение базового актива против позиции бьёт по ГО усиленно:
+          </div>
+          <div className="tw-grid tw-grid-cols-3 tw-gap-2">
+            {data.sensitivity.scenarios.map((s) => (
+              <div key={s.asset_move_pct} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
+                <div className="tw-text-[12px] tw-text-text-tertiary">актив −{s.asset_move_pct}%</div>
+                <div className="tw-text-[16px] tw-font-mono tw-font-semibold tw-text-danger">{fmtNumber(s.margin_change_pct, { decimals: 1 })}%</div>
+                <div className="tw-text-[10px] tw-text-text-tertiary">от ГО</div>
+              </div>
+            ))}
+          </div>
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Оценка от текущего плеча (линейно). Симметрично работает и в плюс — но риск плеча в том, что убыток тоже умножается, а ГО может потребовать пополнения.</div>
+        </Card>
+      )}
+
+      {/* Связь с базовым активом: для фьючерса на акцию — карточка компании */}
+      {data.linked_company && (
+        <Card header="Связь с базовым активом">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-2">Это фьючерс на акцию <b>{data.linked_company.name}</b>. Понять, что происходит с самим бизнесом и справедлива ли цена акции, — в её карточке (фундаментал, финансы, риски):</div>
+          <button onClick={() => onSelectCompany && onSelectCompany(data.linked_company.ticker)} className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus hover:tw-underline">
+            Открыть карточку {data.linked_company.ticker} <ChevronRight size={16} />
+          </button>
+        </Card>
+      )}
+
+      {summary && (
+        <Card header="Разбор аналитика">
+          <Prose>{summary}</Prose>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+const FuturesList = ({ onSelectFuture }) => {
+  const [futures, setFutures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [kindF, setKindF] = useState("all");
+  const [shown, setShown] = useState({});
+
+  useEffect(() => {
+    fetch(`${apiBase()}/api/futures`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { setFutures(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return futures.filter((f) => {
+      if (q && !((f.short_name || "").toLowerCase().includes(q) || (f.secid || "").toLowerCase().includes(q) || (f.asset_name || "").toLowerCase().includes(q) || (f.asset_code || "").toLowerCase().includes(q))) return false;
+      if (kindF !== "all" && f.asset_kind !== kindF) return false;
+      return true;
+    });
+  }, [futures, search, kindF]);
+
+  useEffect(() => { setShown({}); }, [search, kindF]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем фьючерсы...</div>;
+
+  const columns = [
+    {
+      key: "name", label: "Контракт",
+      render: (_, f) => (
+        <div className="tw-flex tw-flex-col">
+          <span className="tw-font-semibold tw-text-text-primary">{f.short_name}</span>
+          <span className="tw-text-[11px] tw-text-text-tertiary">{f.asset_name || f.asset_code}</span>
+        </div>
+      ),
+    },
+    {
+      key: "leverage", label: "Плечо",
+      render: (v) => v == null ? "—" : (
+        <Tooltip content="Эффективное плечо = полная стоимость контракта / ГО. Показывает, во сколько раз усилены и прибыль, и убыток. Главный риск фьючерса.">
+          <Badge tone={levTone(v)}>{fmtNumber(v, { decimals: 1 })}×</Badge>
+        </Tooltip>
+      ),
+    },
+    { key: "days_to_expiry", label: "До экспирации", render: (v, f) => v == null ? "—" : <span className={`tw-font-mono ${v <= 14 ? "tw-text-warning" : "tw-text-text-secondary"}`}>{v} дн</span> },
+    { key: "initial_margin", label: "ГО", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-secondary">{fmtNumber(v, { decimals: 0 })} ₽</span> },
+    { key: "contract_value", label: "Номинал", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-secondary">{fmtNumber(v, { decimals: 0 })} ₽</span> },
+    { key: "open_position", label: "Откр. позиции", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-tertiary">{fmtNumber(v, { decimals: 0 })}</span> },
+  ];
+
+  const groups = FUT_GROUP_ORDER.filter((k) => filtered.some((f) => f.asset_kind === k));
+
+  return (
+    <div>
+      <div className="tw-p-3 tw-mb-5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        <b>Высокорисковый инструмент.</b> Фьючерс — дериватив со встроенным <b>плечом</b> (усиливает и прибыль, и <b>убыток</b>) и <b>датой экспирации</b>; для хеджа и спекуляции, а НЕ «вложение». Не для новичков без опыта. Basis показывает анатомию риска (плечо, ГО, срок, стоимость удержания), а не торговые сигналы и не «куда пойдёт цена».
+      </div>
+      <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
+        <div className="tw-relative tw-max-w-md">
+          <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
+          <Input type="text" placeholder="Поиск по контракту / базовому активу..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+        </div>
+        <FilterChips options={FUT_KIND_FILTERS} value={kindF} onChange={setKindF} />
+      </div>
+      {groups.map((k) => {
+        const rows = filtered.filter((f) => f.asset_kind === k);
+        const limit = shown[k] || BONDS_PAGE;
+        const visible = rows.slice(0, limit);
+        return (
+          <div key={k} className="tw-mb-8">
+            <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
+              {(FUT_KIND[k] || {}).title || k} · {rows.length}
+            </div>
+            <Table columns={columns} rows={visible} onRowClick={(f) => onSelectFuture(f.secid)} />
+            {rows.length > limit && (
+              <button onClick={() => setShown((s) => ({ ...s, [k]: limit + BONDS_PAGE * 2 }))}
+                className="tw-mt-3 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+                Показать ещё {Math.min(BONDS_PAGE * 2, rows.length - limit)} из {rows.length - limit}
+              </button>
+            )}
+          </div>
+        );
+      })}
+      {filtered.length === 0 && <div className="tw-py-12 tw-text-center tw-text-text-tertiary">Ничего не найдено.</div>}
+    </div>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
   const appearGate = useRef(new Set());
   const [assetClass, setAssetClass] = useState("stocks");  // акции | облигации
   const [selectedBond, setSelectedBond] = useState(null);   // SECID открытой облигации
+  const [selectedFuture, setSelectedFuture] = useState(null); // SECID открытого фьючерса
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -2223,7 +2481,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         {ASSET_CLASSES.map((a) => (
           <button
             key={a.id}
-            onClick={() => { setAssetClass(a.id); setSelectedBond(null); }}
+            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); }}
             className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
           >
             {a.label}
@@ -2235,6 +2493,10 @@ const CompaniesView = ({ onSelectCompany }) => {
         selectedBond
           ? <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} />
           : <BondsList onSelectBond={setSelectedBond} />
+      ) : assetClass === "futures" ? (
+        selectedFuture
+          ? <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={onSelectCompany} />
+          : <FuturesList onSelectFuture={setSelectedFuture} />
       ) : (
       <>
       <div className="tw-relative tw-mb-4 tw-max-w-md">
