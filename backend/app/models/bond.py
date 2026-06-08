@@ -42,9 +42,18 @@ class Bond(Base):
     duration_days: Mapped[int | None] = mapped_column(Integer)            # дюрация, дней
     accrued_int: Mapped[Decimal | None] = mapped_column(Numeric(14, 4))    # НКД, ₽
 
-    # ── оценка надёжности (НАШ подход; ОФЗ=госдолг, корпораты по спреду к ОФЗ) ──
+    # ── тип купона (определяет смысл блока чувствительности к ставке) ──
+    coupon_type: Mapped[str | None] = mapped_column(String(12))            # fixed | floater | linker | other
+    ytm_kind: Mapped[str | None] = mapped_column(String(16))               # «к погашению» | «к оферте»
+    is_defaulted: Mapped[bool | None] = mapped_column(Boolean)             # режим Д / отметка дефолта
+
+    # ── двойной рейтинг надёжности ──
+    # (1) рыночная оценка по спреду — risk_tier (НАШ подход; ОФЗ=госдолг)
     risk_tier: Mapped[str | None] = mapped_column(String(20))             # gov | high | medium | speculative
     spread_bp: Mapped[int | None] = mapped_column(Integer)                # спред YTM к ОФЗ той же дюрации, б.п.
+    # (2) агентский рейтинг — независимая от спреда оценка (АКРА/ЭкспертРА/НКР/НРА)
+    agency_rating: Mapped[str | None] = mapped_column(String(16))          # AAA … D (нац. шкала)
+    agency_rating_source: Mapped[str | None] = mapped_column(String(32))   # источник рейтинга
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)

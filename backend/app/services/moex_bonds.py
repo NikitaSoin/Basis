@@ -17,7 +17,9 @@
 """
 import json
 import logging
+import re
 import ssl
+import time
 import urllib.request
 from datetime import date, datetime, timezone
 
@@ -30,6 +32,12 @@ _ssl_ctx = ssl.create_default_context()
 _ssl_ctx.check_hostname = False
 _ssl_ctx.verify_mode = ssl.CERT_NONE
 _HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Accept": "application/json"}
+
+# Борды рынка облигаций MOEX с осмысленными рыночными данными (YTM/дюрация/цена).
+# TQOB — ОФЗ ₽; TQCB — корпораты/биржевые/субфед/муни ₽; TQOY — юаневые; TQOD — USD;
+# TQRD — режим Д (дефолтные/проблемные, важно для честной надёжности).
+TRADE_BOARDS = [("TQOB", "ofz"), ("TQCB", "corporate"),
+                ("TQOY", "corporate"), ("TQOD", "corporate"), ("TQRD", "corporate")]
 
 BONDS_URL = ("https://iss.moex.com/iss/engines/stock/markets/bonds/boards/{board}/securities.json"
              "?iss.meta=off&iss.only=securities,marketdata"
@@ -85,16 +93,123 @@ def ofz_yield_at(curve: list[tuple[float, float]], years: float) -> float | None
     return None
 
 
-def classify_risk(bond_type: str, spread_bp: int | None) -> str:
+def classify_risk(bond_type: str, spread_bp: int | None) -> str | None:
     if bond_type == "ofz":
         return "gov"
     if spread_bp is None:
-        return "medium"
+        return None   # нет YTM/дюрации → нет рыночной оценки (честно, не «medium»)
     if spread_bp < 250:
         return "high"
     if spread_bp <= 600:
         return "medium"
     return "speculative"
+
+
+def map_coupon_type(bond_type_raw: str | None) -> str:
+    """Тип купона из поля BOND_TYPE описания выпуска MOEX.
+
+    «Флоатер» → floater (плавающая ставка к КС/RUONIA — проц. риска почти нет);
+    «Линкер…»  → linker (номинал индексируется на инфляцию — ОФЗ-ИН);
+    «Фикс…»    → fixed (постоянный/заранее известный купон);
+    иначе      → other.
+    """
+    if not bond_type_raw:
+        return "other"
+    s = bond_type_raw.lower()
+    if "флоат" in s or "плавающ" in s or "переменн" in s:
+        return "floater"
+    if "линкер" in s or "индексир" in s:
+        return "linker"
+    # «Структурная облигация» — выплата привязана к формуле/событию; тело может
+    # быть НЕ защищено. Это отдельный, более рисковый класс — помечаем явно.
+    if "структурн" in s:
+        return "structured"
+    # «Валютные облигации» — про валюту номинала (она в currency), не про купон;
+    # «Амортизируемые» — про возврат тела частями (это в has_amortization), купон
+    # при этом фиксированный. Оба по процентному риску ведут себя как фикс.
+    if "фикс" in s or "постоянн" in s or "валютн" in s or "амортиз" in s:
+        return "fixed"
+    return "other"
+
+
+def map_ytm_kind(subtype_raw: str | None) -> str | None:
+    """Метка вида доходности из BOND_SUBTYPE: к погашению / к оферте."""
+    if not subtype_raw:
+        return None
+    return "к оферте" if "оферт" in subtype_raw.lower() else "к погашению"
+
+
+# муниципальные/субфедеральные торгуются на TQCB вместе с корпоратами — их класс
+# виден только в глобальном type выпуска (subfederal_bond/municipal_bond)
+_MUNI_TYPES = {"subfederal_bond", "municipal_bond"}
+
+
+def fetch_meta_map(secids: list[str], sleep: float = 0.3) -> dict[str, dict]:
+    """Тип купона / метка YTM / класс / дефолт по каждому выпуску — из описания
+    MOEX (per-security). Последовательно, с паузой (бережно к rate limit).
+    Возвращает {secid: {coupon_type, ytm_kind, glob_type, defaulted}}."""
+    out: dict[str, dict] = {}
+    for i, secid in enumerate(secids):
+        try:
+            d = _get(f"https://iss.moex.com/iss/securities/{secid}.json?iss.meta=off&iss.only=description")
+            m = {r[0]: r[2] for r in d["description"]["data"]}
+            out[secid] = {
+                "coupon_type": map_coupon_type(m.get("BOND_TYPE")),
+                "ytm_kind": map_ytm_kind(m.get("BOND_SUBTYPE")),
+                "glob_type": m.get("TYPE"),
+                "defaulted": str(m.get("HASDEFAULT")) in ("1", "True"),
+            }
+        except Exception as e:
+            if "429" in str(e) or "too many" in str(e).lower():
+                logger.warning("rate limit на %s — пауза 30с", secid)
+                time.sleep(30)
+            else:
+                logger.warning("описание %s недоступно: %s", secid, e)
+            out[secid] = {}
+        if (i + 1) % 200 == 0:
+            logger.info("  описания: %d/%d", i + 1, len(secids))
+        time.sleep(sleep)
+    return out
+
+
+# ── Агентский рейтинг (вторая, независимая от спреда оценка надёжности) ──
+# Источник — smart-lab.ru: агрегированный по нац. шкале рейтинг (сводит АКРА /
+# Эксперт РА / НКР / НРА в одну букву). Это вторая опора «двойного рейтинга»;
+# точное агентство/дата — следующий шаг (per-issue у bond-analyst).
+_RATING_RE = re.compile(r"(RU000[A-Z0-9]{7}|SU[0-9A-Z]{10})")
+_VALID_RATING = re.compile(r"^(AAA|AA|A|BBB|BB|B|CCC|CC|C|D|RD|SD)[+-]?$", re.I)
+
+
+def load_agency_ratings(max_pages: int = 20, sleep: float = 0.6) -> dict[str, tuple[str, str]]:
+    """ISIN → (рейтинг, источник) со списка облигаций smart-lab (нац. шкала)."""
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    out: dict[str, tuple[str, str]] = {}
+    for n in range(1, max_pages + 1):
+        url = ("https://smart-lab.ru/q/bonds/order_by_yield/desc/"
+               + (f"page{n}/" if n > 1 else ""))
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            html = urllib.request.urlopen(req, timeout=30, context=_ssl_ctx).read().decode("utf-8", "ignore")
+        except Exception as e:
+            logger.warning("smart-lab page%d недоступна: %s", n, e)
+            break
+        page_hits = 0
+        for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+            tds = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)
+            if len(tds) < 8:
+                continue
+            m = _RATING_RE.search(tr)
+            if not m:
+                continue
+            rating = re.sub("<.*?>", "", tds[7]).strip()
+            if rating and _VALID_RATING.match(rating):
+                out[m.group(1)] = (rating.upper(), "smart-lab (агрегат агентств)")
+                page_hits += 1
+        if page_hits == 0:
+            break
+        time.sleep(sleep)
+    logger.info("Агентские рейтинги: %d выпусков", len(out))
+    return out
 
 
 def fetch_board(board: str, bond_type: str) -> list[dict]:
@@ -114,36 +229,55 @@ _UPSERT = text("""
     INSERT INTO bonds (secid, isin, short_name, issuer_name, bond_type, board, currency,
         face_value, coupon_percent, coupon_value, coupon_period, maturity_date, offer_date,
         has_amortization, lot_size, listing_level, last_price, ytm, duration_days, accrued_int,
-        risk_tier, spread_bp, updated_at)
+        coupon_type, ytm_kind, is_defaulted, risk_tier, spread_bp, agency_rating,
+        agency_rating_source, updated_at)
     VALUES (:secid, :isin, :short_name, :issuer_name, :bond_type, :board, :currency,
         :face_value, :coupon_percent, :coupon_value, :coupon_period, :maturity_date, :offer_date,
         :has_amortization, :lot_size, :listing_level, :last_price, :ytm, :duration_days, :accrued_int,
-        :risk_tier, :spread_bp, :updated_at)
+        :coupon_type, :ytm_kind, :is_defaulted, :risk_tier, :spread_bp, :agency_rating,
+        :agency_rating_source, :updated_at)
     ON CONFLICT (secid) DO UPDATE SET
         short_name=EXCLUDED.short_name, issuer_name=EXCLUDED.issuer_name, bond_type=EXCLUDED.bond_type,
         board=EXCLUDED.board, currency=EXCLUDED.currency, face_value=EXCLUDED.face_value,
         coupon_percent=EXCLUDED.coupon_percent, coupon_value=EXCLUDED.coupon_value,
         coupon_period=EXCLUDED.coupon_period, maturity_date=EXCLUDED.maturity_date,
-        offer_date=EXCLUDED.offer_date, lot_size=EXCLUDED.lot_size, listing_level=EXCLUDED.listing_level,
+        offer_date=EXCLUDED.offer_date, has_amortization=EXCLUDED.has_amortization,
+        lot_size=EXCLUDED.lot_size, listing_level=EXCLUDED.listing_level,
         last_price=EXCLUDED.last_price, ytm=EXCLUDED.ytm, duration_days=EXCLUDED.duration_days,
-        accrued_int=EXCLUDED.accrued_int, risk_tier=EXCLUDED.risk_tier, spread_bp=EXCLUDED.spread_bp,
+        accrued_int=EXCLUDED.accrued_int, coupon_type=EXCLUDED.coupon_type, ytm_kind=EXCLUDED.ytm_kind,
+        is_defaulted=EXCLUDED.is_defaulted, risk_tier=EXCLUDED.risk_tier, spread_bp=EXCLUDED.spread_bp,
+        agency_rating=EXCLUDED.agency_rating, agency_rating_source=EXCLUDED.agency_rating_source,
         updated_at=EXCLUDED.updated_at
 """)
 
 
-def upsert_bond(db: Session, rec: dict, curve: list) -> None:
+def upsert_bond(db: Session, rec: dict, curve: list,
+                meta: dict | None = None, ratings: dict | None = None) -> None:
     s, m = rec["s"], rec["m"]
+    meta = meta or {}
+    ratings = ratings or {}
     ytm = _f(m.get("YIELD"))
     dur_days = int(m.get("DURATION")) if m.get("DURATION") not in (None, "", 0) else None
     dur_years = dur_days / 365 if dur_days else None
+
+    # класс выпуска: муни/субфед видны только в глобальном type (торгуются на TQCB)
+    bond_type = rec["bond_type"]
+    if meta.get("glob_type") in _MUNI_TYPES:
+        bond_type = "muni"
+
+    # дефолт: режим Д (борд TQRD) или отметка дефолта в описании
+    is_defaulted = rec["board"] == "TQRD" or bool(meta.get("defaulted"))
+
     spread_bp = None
-    if rec["bond_type"] != "ofz" and ytm is not None and dur_years:
+    if bond_type != "ofz" and ytm is not None and dur_years:
         base = ofz_yield_at(curve, dur_years)
         if base is not None:
             spread_bp = round((ytm - base) * 100)   # п.п. → б.п.
+
+    rating = ratings.get(s.get("ISIN"))
     db.execute(_UPSERT, {
         "secid": s["SECID"], "isin": s.get("ISIN"), "short_name": s.get("SHORTNAME") or s["SECID"],
-        "issuer_name": s.get("EMITENT_TITLE"), "bond_type": rec["bond_type"], "board": rec["board"],
+        "issuer_name": s.get("EMITENT_TITLE"), "bond_type": bond_type, "board": rec["board"],
         "currency": s.get("FACEUNIT"), "face_value": _f(s.get("FACEVALUE")),
         "coupon_percent": _f(s.get("COUPONPERCENT")), "coupon_value": _f(s.get("COUPONVALUE")),
         "coupon_period": int(s["COUPONPERIOD"]) if s.get("COUPONPERIOD") else None,
@@ -152,7 +286,11 @@ def upsert_bond(db: Session, rec: dict, curve: list) -> None:
         "listing_level": int(s["LISTLEVEL"]) if s.get("LISTLEVEL") else None,
         "last_price": _f(m.get("LCURRENTPRICE") or m.get("LAST")), "ytm": ytm,
         "duration_days": dur_days, "accrued_int": _f(s.get("ACCRUEDINT")),
-        "risk_tier": classify_risk(rec["bond_type"], spread_bp), "spread_bp": spread_bp,
+        "coupon_type": meta.get("coupon_type"), "ytm_kind": meta.get("ytm_kind"),
+        "is_defaulted": is_defaulted,
+        "risk_tier": classify_risk(bond_type, spread_bp), "spread_bp": spread_bp,
+        "agency_rating": rating[0] if rating else None,
+        "agency_rating_source": rating[1] if rating else None,
         "updated_at": datetime.now(timezone.utc),
     })
 
