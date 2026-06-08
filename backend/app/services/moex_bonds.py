@@ -257,6 +257,12 @@ def upsert_bond(db: Session, rec: dict, curve: list,
     meta = meta or {}
     ratings = ratings or {}
     ytm = _f(m.get("YIELD"))
+    # YTM-артефакт: у бумаги на пороге оферты/погашения MOEX аннуализирует доходность
+    # в абсурд (тысячи %). Это не доходность, а мусор — обнуляем (каскадом спред/тир
+    # тоже None: «нет осмысленной рыночной оценки»). Заодно спасает от переполнения
+    # числового поля. Реальные ВДО (до ~100-300%) сохраняем — их ловит yield_anomaly.
+    if ytm is not None and (ytm > 300 or ytm < -100):
+        ytm = None
     dur_days = int(m.get("DURATION")) if m.get("DURATION") not in (None, "", 0) else None
     dur_years = dur_days / 365 if dur_days else None
 
