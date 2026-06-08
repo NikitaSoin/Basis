@@ -113,6 +113,18 @@ async def _tinkoff_warmup():
         logger.exception("Tinkoff: ошибка прогрева: %s", e)
 
 
+async def _asset_data_job():
+    """Авто-обновление данных классов активов (облигации/фьючерсы/фонды) с MOEX.
+    Грузит только устаревшее/пустое (идемпотентно) — поэтому после деплоя с новой
+    миграцией данные подтягиваются САМИ, без ручной команды на консоли. Тяжёлая
+    загрузка (облигации ~15-20 мин) идёт в executor-потоке и НЕ блокирует сервер."""
+    try:
+        from app.services.asset_data import refresh_all_if_stale
+        await asyncio.get_event_loop().run_in_executor(None, refresh_all_if_stale)
+    except Exception as e:
+        logger.exception("Ошибка авто-обновления данных классов активов: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
@@ -122,10 +134,17 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
     # Официальные беты MOEX — раз в неделю (файл обновляется нерегулярно)
     scheduler.add_job(_coefficients_job, "cron", day_of_week="mon", hour=8, minute=30, id="moex_coefficients")
+    # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
+    # утром; плюс разовый прогон при старте (ниже) для авто-наполнения после деплоя.
+    scheduler.add_job(_asset_data_job, "cron", hour=6, minute=0, id="asset_data_refresh")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
     asyncio.create_task(_tinkoff_warmup())
+    # Авто-наполнение данных классов активов при старте (в фоне, грузит только
+    # пустое/устаревшее) — чтобы после деплоя данные оказались на бою без ручной
+    # команды import_data.sh.
+    asyncio.create_task(_asset_data_job())
 
     yield
     scheduler.shutdown()
