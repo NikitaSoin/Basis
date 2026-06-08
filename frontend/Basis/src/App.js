@@ -1764,6 +1764,12 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
       </div>
 
+      {/* Системный вывод «оплачен ли риск» — для не-рисковых (у ВДО/дефолта свой
+          красный баннер ниже, не дублируем) */}
+      {b.risk_verdict && !creditRiskFirst && (
+        <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug -tw-mt-1">{b.risk_verdict}</div>
+      )}
+
       {isStructured && (
         <div className="tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">
           <b>Структурная облигация.</b> Выплата и возврат тела привязаны к формуле / событию (курс, индекс, корзина активов), а не к простому купону. Тело может быть <b>не защищено</b> — это не обычная облигация «дал в долг → получил с процентом». YTM/спред для неё некорректны и могут вводить в заблуждение. Подходит только тем, кто понимает конкретные условия выпуска.
@@ -2021,12 +2027,26 @@ const FilterChips = ({ options, value, onChange }) => (
   </div>
 );
 
+const BOND_SORTS = [
+  { id: "default", label: "По умолчанию" },
+  { id: "rate_reaction", label: "Реакция на ставку ↓" },
+  { id: "ytm", label: "Доходность ↓" },
+  { id: "spread", label: "Спред к ОФЗ ↓" },
+];
+// сортировки облигаций: по убыванию метрики, nulls в конец
+const BOND_SORT_FN = {
+  rate_reaction: (a, b) => (b.duration_years ?? -1) - (a.duration_years ?? -1),  // дюрация = сила переоценки от ставки
+  ytm: (a, b) => (b.ytm ?? -1) - (a.ytm ?? -1),
+  spread: (a, b) => (b.spread_bp ?? -1) - (a.spread_bp ?? -1),
+};
+
 const BondsList = ({ onSelectBond }) => {
   const [bonds, setBonds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [couponF, setCouponF] = useState("all");
   const [riskF, setRiskF] = useState("all");
+  const [sortBy, setSortBy] = useState("default");
   const [shown, setShown] = useState({});   // лимит показа по группам
 
   useEffect(() => {
@@ -2038,16 +2058,18 @@ const BondsList = ({ onSelectBond }) => {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return bonds.filter((b) => {
+    const out = bonds.filter((b) => {
       if (q && !((b.short_name || "").toLowerCase().includes(q) || (b.secid || "").toLowerCase().includes(q) || (b.issuer_name || "").toLowerCase().includes(q) || (b.isin || "").toLowerCase().includes(q))) return false;
       if (couponF !== "all" && b.coupon_type !== couponF) return false;
       if (riskF !== "all" && b.risk_tier !== riskF) return false;
       return true;
     });
-  }, [bonds, search, couponF, riskF]);
+    if (BOND_SORT_FN[sortBy]) out.sort(BOND_SORT_FN[sortBy]);
+    return out;
+  }, [bonds, search, couponF, riskF, sortBy]);
 
-  // сброс лимитов показа при смене фильтра/поиска
-  useEffect(() => { setShown({}); }, [search, couponF, riskF]);
+  // сброс лимитов показа при смене фильтра/поиска/сортировки
+  useEffect(() => { setShown({}); }, [search, couponF, riskF, sortBy]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигации...</div>;
 
@@ -2071,12 +2093,12 @@ const BondsList = ({ onSelectBond }) => {
     {
       key: "risk_tier", label: "Надёжность · рейтинг",
       // двойной рейтинг в списке: рыночный тир + агентская буква рядом
-      render: (v, b) => { const rt = RISK_TIER_BADGE[v] || { tone: "neutral", label: "Нет оценки" }; return (
+      render: (v, b) => { const rt = RISK_TIER_BADGE[v] || { tone: "neutral", label: "Нет оценки" }; const inner = (
         <div className="tw-flex tw-items-center tw-gap-1.5">
           {(v || !b.agency_rating) && <Badge tone={rt.tone}>{rt.label}</Badge>}
           {b.agency_rating && <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>}
         </div>
-      ); },
+      ); return b.risk_verdict ? <Tooltip content={b.risk_verdict}>{inner}</Tooltip> : inner; },
     },
     {
       key: "spread_bp", label: "Спред к ОФЗ",
@@ -2118,7 +2140,18 @@ const BondsList = ({ onSelectBond }) => {
           <FilterChips options={COUPON_FILTERS} value={couponF} onChange={setCouponF} />
           <FilterChips options={RISK_FILTERS} value={riskF} onChange={setRiskF} />
         </div>
+        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+          <span className="tw-text-[12px] tw-text-text-tertiary">Сортировка:</span>
+          <FilterChips options={BOND_SORTS} value={sortBy} onChange={setSortBy} />
+        </div>
       </div>
+      {sortBy !== "default" && (
+        <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3 -tw-mt-2">
+          {sortBy === "rate_reaction" && "Вверху — бумаги с наибольшей дюрацией: их тело сильнее всего переоценится при изменении ключевой ставки (ставка на разворот ставки / наибольший процентный риск)."}
+          {sortBy === "ytm" && "Вверху — наибольшая доходность. Помните: высокий YTM почти всегда = плата за повышенный кредитный риск, не «выгода» (⚠ у ВДО/аномалий)."}
+          {sortBy === "spread" && "Вверху — наибольший спред к ОФЗ: рынок требует максимальную премию за кредитный риск эмитента."}
+        </div>
+      )}
       {BOND_GROUPS.map((g) => {
         const rows = filtered.filter((b) => b.bond_type === g.type);
         if (!rows.length) return null;
