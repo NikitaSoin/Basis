@@ -1702,7 +1702,8 @@ const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // Карточка облигации: 3 плитки (надёжность → YTM/спред → дюрация) + 4 блока
 // (надёжность, доходность, чувствительность к ставке, денежный поток).
-const BondCard = ({ secid, onBack }) => {
+const DEBT_FLAG_BG = { green: "tw-bg-success-soft", amber: "tw-bg-warning-soft", red: "tw-bg-danger-soft" };
+const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
   const [analysis, setAnalysis] = useState(null);  // analysis.json — рейтинг/вердикты для плиток
@@ -1729,6 +1730,9 @@ const BondCard = ({ secid, onBack }) => {
   const isFloater = b.coupon_type === "floater";
   const isLinker = b.coupon_type === "linker";
   const isStructured = b.coupon_type === "structured";
+  // ВДО/проблемный кредит: главный риск — кредитный (вернут ли тело), не ставка
+  const issuerDebt = data.issuer?.debt;
+  const creditRiskFirst = b.risk_tier === "speculative" || b.is_defaulted || issuerDebt?.flag === "red";
   // вердикты/рейтинг из аналитики — чтобы плитки давали ВЫВОД, а не метод
   const rel = analysis?.reliability;
   const ratingStr = rel?.rating ? [rel.rating.agency, rel.rating.level, rel.rating.as_of].filter(Boolean).join(" ") : null;
@@ -1795,6 +1799,18 @@ const BondCard = ({ secid, onBack }) => {
         </Tile>
       </div>
 
+      {/* Главный вывод для рискованной бумаги: кредитный риск важнее ставки.
+          Выносим наверх, чтобы инвестор не зацепился за доходность и не прошёл
+          мимо вопроса «вернут ли тело». */}
+      {creditRiskFirst && (
+        <div className="tw-p-3 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+          <b>Главный риск здесь — кредитный, а не ставка.</b> {b.is_defaulted ? "По бумаге зафиксирован дефолт / режим Д — возврат тела под вопросом. " : ""}
+          {issuerDebt?.flag === "red" ? `Долговая нагрузка эмитента высокая (${issuerDebt.verdict ? issuerDebt.verdict.toLowerCase() : "см. блок «Эмитент»"}). ` : ""}
+          {b.risk_tier === "speculative" ? `Высокая доходность (YTM ${b.ytm != null ? fmtNumber(b.ytm, { decimals: 0 }) + "%" : ""}, спред ${b.spread_bp != null ? "+" + b.spread_bp + " б.п." : ""}) — это плата за риск НЕвозврата тела, а не «выгода». ` : ""}
+          Вопрос №1 — «вернут ли деньги» (блоки «Двойной рейтинг» и «Эмитент» ниже); переоценка от ставки здесь второстепенна.
+        </div>
+      )}
+
       {/* Двойной рейтинг: рыночная оценка (спред) vs агентский рейтинг — и их
           расхождение. Две независимые опоры надёжности — главного вопроса. */}
       {b.bond_type !== "ofz" && (
@@ -1839,6 +1855,45 @@ const BondCard = ({ secid, onBack }) => {
         </Card>
       )}
 
+      {/* Блок: эмитент — долговая нагрузка («сможет ли расплатиться») + переход
+          в карточку компании-эмитента. Только для публичных эмитентов из базы. */}
+      {data.issuer && (
+        <Card header="Эмитент: сможет ли расплатиться">
+          <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-mb-3">
+            <span className="tw-text-[15px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
+            {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
+            <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus hover:tw-underline">
+              Карточка {data.issuer.ticker} <ChevronRight size={14} />
+            </button>
+          </div>
+          {data.issuer.debt ? (
+            <>
+              <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3 tw-mb-3">
+                {[
+                  ["Чистый долг / EBITDA", data.issuer.debt.net_debt_ebitda, "× — во сколько лет прибыли укладывается долг"],
+                  ["Покрытие процентов", data.issuer.debt.interest_coverage, "× — во сколько раз EBITDA покрывает проценты"],
+                  ["Долг / капитал", data.issuer.debt.debt_to_equity, ""],
+                  ["Тек. ликвидность", data.issuer.debt.current_ratio, ""],
+                ].map(([k, v, tip]) => (
+                  <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
+                    <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>{k}</div>
+                    <div className="tw-text-[18px] tw-font-mono tw-text-text-primary tw-mt-0.5">{v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}×`}</div>
+                  </div>
+                ))}
+              </div>
+              {data.issuer.debt.verdict && (
+                <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>
+                  {data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}
+                  <span className="tw-text-text-tertiary"> (оценка по отчётности эмитента{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""}; подробности — в карточке компании)</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="tw-text-[13px] tw-text-text-tertiary">Эмитент есть в базе, но нет финансовых данных для оценки долга — см. карточку компании.</div>
+          )}
+        </Card>
+      )}
+
       {/* Блок: параметры выпуска + цена в рублях (снимает путаницу % номинала) */}
       <Card header="Параметры выпуска">
         <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 tw-gap-x-6 tw-gap-y-3 tw-text-[13px]">
@@ -1868,6 +1923,11 @@ const BondCard = ({ secid, onBack }) => {
       {/* Блок: чувствительность к ставке (сценарии переоценки от дюрации) */}
       {data.sensitivity && (
         <Card header="Чувствительность к ставке">
+          {creditRiskFirst && (
+            <div className="tw-mb-3 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[12px] tw-text-text-primary tw-leading-snug">
+              Для этой бумаги ставка — НЕ главное. Главный риск кредитный: при дефолте/реструктуризации тело падает на десятки процентов независимо от ключевой ставки. Сценарии ниже — лишь переоценка платёжеспособной бумаги.
+            </div>
+          )}
           <div className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
             {isFloater
               ? "Купон флоатера следует за ключевой ставкой, поэтому тело почти не переоценивается — это ЗАЩИТА от роста ставки, а не угроза. Сценарии ниже — лишь остаточная чувствительность."
@@ -2491,7 +2551,7 @@ const CompaniesView = ({ onSelectCompany }) => {
 
       {assetClass === "bonds" ? (
         selectedBond
-          ? <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} />
+          ? <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={onSelectCompany} />
           : <BondsList onSelectBond={setSelectedBond} />
       ) : assetClass === "futures" ? (
         selectedFuture

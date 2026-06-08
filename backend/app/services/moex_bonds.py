@@ -105,6 +105,49 @@ def classify_risk(bond_type: str, spread_bp: int | None) -> str | None:
     return "speculative"
 
 
+# Связка выпуск → эмитент-компания в нашей базе. Матч по подстроке в имени
+# выпуска (поле NAME описания MOEX, напр. «ПАО НК Роснефть 002P-06»). Порядок
+# важен: более специфичные ключи выше (Газпром нефть прежде Газпром). Покрывает
+# крупных публичных эмитентов — у них есть financials.json для оценки долга;
+# мелкие/ВДО эмитенты не публичны (нет в базе) → разбираются bond-analyst.
+ISSUER_TICKER_MAP = [
+    ("газпром нефть", "SIBN"), ("газпромнефть", "SIBN"),
+    ("газпром", "GAZP"), ("роснефть", "ROSN"), ("лукойл", "LKOH"),
+    ("газпромбанк", "GAZP"),  # ГПБ — дочка Газпрома (грубо)
+    ("сбербанк", "SBER"), ("сбер", "SBER"),
+    ("втб", "VTBR"), ("система", "AFKS"),
+    ("мобильные телесистемы", "MTSS"), ("мтс-банк", "MBNK"),
+    ("ростелеком", "RTKM"), ("магнит", "MGNT"), ("северсталь", "CHMF"),
+    ("нлмк", "NLMK"), ("новолипецк", "NLMK"), ("алроса", "ALRS"),
+    ("транснефть", "TRNFP"), ("татнефть", "TATN"), ("сегежа", "SGZH"),
+    ("самолет", "SMLT"), ("аэрофлот", "AFLT"), ("совкомфлот", "FLOT"),
+    ("русгидро", "HYDR"), ("россети", "FEES"), ("фосагро", "PHOR"),
+    ("европлан", "LEAS"), ("эталон", "ETLN"),
+    ("норильский никель", "GMKN"), ("норникель", "GMKN"), ("гмк", "GMKN"),
+    ("полюс", "PLZL"), ("камаз", "KMAZ"), ("соллерс", "SVAV"),
+    ("совкомбанк", "SVCB"), ("хэдхантер", "HEAD"), ("хедхантер", "HEAD"),
+    ("новабев", "BELU"), ("белуга", "BELU"), ("позитив", "POSI"),
+    ("озон", "OZON"), ("яндекс", "YDEX"), ("вуш", "WUSH"), ("whoosh", "WUSH"),
+    ("делимобиль", "DELI"), ("каршеринг", "DELI"),
+    ("россельхозбанк", "RSHB"), ("альфа-банк", "ALFA"),
+    ("пик", "PIKK"), ("лср", "LSRG"), ("мечел", "MTLR"),
+    ("ленэнерго", "LSNG"), ("мосэнерго", "MSNG"), ("огк-2", "OGKB"),
+    ("юнипро", "UPRO"), ("фск", "FEES"), ("россети", "FEES"),
+]
+
+
+def match_issuer_ticker(name: str | None) -> str | None:
+    """Тикер компании-эмитента по имени выпуска (NAME из MOEX). None, если не
+    нашли в курируемом словаре (мелкий/непубличный эмитент)."""
+    if not name:
+        return None
+    s = name.lower()
+    for key, ticker in ISSUER_TICKER_MAP:
+        if key in s:
+            return ticker
+    return None
+
+
 def map_coupon_type(bond_type_raw: str | None) -> str:
     """Тип купона из поля BOND_TYPE описания выпуска MOEX.
 
@@ -158,6 +201,7 @@ def fetch_meta_map(secids: list[str], sleep: float = 0.3) -> dict[str, dict]:
                 "ytm_kind": map_ytm_kind(m.get("BOND_SUBTYPE")),
                 "glob_type": m.get("TYPE"),
                 "defaulted": str(m.get("HASDEFAULT")) in ("1", "True"),
+                "name": m.get("NAME"),   # полное имя выпуска с эмитентом → связка с компанией
             }
         except Exception as e:
             if "429" in str(e) or "too many" in str(e).lower():
@@ -226,18 +270,19 @@ def fetch_board(board: str, bond_type: str) -> list[dict]:
 
 
 _UPSERT = text("""
-    INSERT INTO bonds (secid, isin, short_name, issuer_name, bond_type, board, currency,
+    INSERT INTO bonds (secid, isin, short_name, issuer_name, issuer_ticker, bond_type, board, currency,
         face_value, coupon_percent, coupon_value, coupon_period, maturity_date, offer_date,
         has_amortization, lot_size, listing_level, last_price, ytm, duration_days, accrued_int,
         coupon_type, ytm_kind, is_defaulted, risk_tier, spread_bp, agency_rating,
         agency_rating_source, updated_at)
-    VALUES (:secid, :isin, :short_name, :issuer_name, :bond_type, :board, :currency,
+    VALUES (:secid, :isin, :short_name, :issuer_name, :issuer_ticker, :bond_type, :board, :currency,
         :face_value, :coupon_percent, :coupon_value, :coupon_period, :maturity_date, :offer_date,
         :has_amortization, :lot_size, :listing_level, :last_price, :ytm, :duration_days, :accrued_int,
         :coupon_type, :ytm_kind, :is_defaulted, :risk_tier, :spread_bp, :agency_rating,
         :agency_rating_source, :updated_at)
     ON CONFLICT (secid) DO UPDATE SET
-        short_name=EXCLUDED.short_name, issuer_name=EXCLUDED.issuer_name, bond_type=EXCLUDED.bond_type,
+        short_name=EXCLUDED.short_name, issuer_name=EXCLUDED.issuer_name,
+        issuer_ticker=EXCLUDED.issuer_ticker, bond_type=EXCLUDED.bond_type,
         board=EXCLUDED.board, currency=EXCLUDED.currency, face_value=EXCLUDED.face_value,
         coupon_percent=EXCLUDED.coupon_percent, coupon_value=EXCLUDED.coupon_value,
         coupon_period=EXCLUDED.coupon_period, maturity_date=EXCLUDED.maturity_date,
@@ -281,9 +326,11 @@ def upsert_bond(db: Session, rec: dict, curve: list,
             spread_bp = round((ytm - base) * 100)   # п.п. → б.п.
 
     rating = ratings.get(s.get("ISIN"))
+    issuer_name = meta.get("name") or s.get("EMITENT_TITLE")
+    issuer_ticker = match_issuer_ticker(issuer_name or s.get("SHORTNAME"))
     db.execute(_UPSERT, {
         "secid": s["SECID"], "isin": s.get("ISIN"), "short_name": s.get("SHORTNAME") or s["SECID"],
-        "issuer_name": s.get("EMITENT_TITLE"), "bond_type": bond_type, "board": rec["board"],
+        "issuer_name": issuer_name, "issuer_ticker": issuer_ticker, "bond_type": bond_type, "board": rec["board"],
         "currency": s.get("FACEUNIT"), "face_value": _f(s.get("FACEVALUE")),
         "coupon_percent": _f(s.get("COUPONPERCENT")), "coupon_value": _f(s.get("COUPONVALUE")),
         "coupon_period": int(s["COUPONPERIOD"]) if s.get("COUPONPERIOD") else None,
