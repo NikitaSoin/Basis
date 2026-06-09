@@ -1862,10 +1862,10 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
                   ? <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>
                   : <span className="tw-text-text-tertiary tw-text-[13px]">не загружен</span>}
               </div>
-              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-tertiary">
+              <div className="tw-mt-1.5 tw-text-[12px] tw-text-text-secondary tw-leading-snug">
                 {b.agency_rating
-                  ? `Кредитный рейтинг по нац. шкале${b.agency_rating_source ? ` · ${b.agency_rating_source}` : ""}.`
-                  : "Публичный рейтинг АКРА/Эксперт РА для этого выпуска не найден."}
+                  ? <><b className="tw-text-text-primary">Сможет ли расплатиться:</b> {b.agency_rating_meaning || "кредитный рейтинг по нац. шкале"}<span className="tw-text-text-tertiary">{b.agency_rating_source ? ` · ${b.agency_rating_source}` : ""}</span></>
+                  : "Публичный рейтинг АКРА/Эксперт РА для этого выпуска не найден — ориентируйтесь на рыночную оценку по спреду слева."}
               </div>
             </div>
           </div>
