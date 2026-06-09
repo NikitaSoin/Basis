@@ -1936,6 +1936,18 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               {y.divergence_note && <div className="tw-mt-2.5 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">⚠ {y.divergence_note}</div>}
               {y.debt_facts && <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Долг эмитента: {y.debt_facts}.</div>}
             </Card>
+            {/* прозрачная деривация Risk Score — как мы получили оценку (за прозрачность) */}
+            {y.derivation?.length > 0 && (
+              <Card header="Как мы получили эту оценку">
+                <ol className="tw-text-[13px] tw-text-text-secondary tw-leading-snug tw-space-y-1.5 tw-pl-4 tw-list-decimal">
+                  {y.derivation.map((step, i) => <li key={i}>{step}</li>)}
+                </ol>
+                {y.score_method && <div className="tw-mt-2.5 tw-pt-2.5 tw-border-t tw-border-border-subtle tw-text-[12px] tw-text-text-tertiary">{y.score_method}</div>}
+                {y.has_deep_analysis === false && (
+                  <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Это <b>систематическая оценка</b> — полные блоки бизнеса, собственников и макро по этому эмитенту ещё не разобраны вручную (в работе). Числовая часть (рейтинг, долг, спред, ожидаемые потери) посчитана.</div>
+                )}
+              </Card>
+            )}
             {/* проверка ожидаемыми потерями */}
             <Card header="Проверка здравым смыслом (ожидаемые потери)">
               <div className="tw-text-[13px] tw-text-text-secondary">{y.expected_loss_note}</div>

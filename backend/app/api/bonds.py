@@ -356,6 +356,8 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     if yvr and yvr.get("risk_score") is not None:
         bond["basis_score"] = yvr["risk_score"]
         bond["basis_group"] = yvr.get("implied_group")
+    if yvr:
+        yvr["has_deep_analysis"] = (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists()
 
     return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow,
             "issuer": issuer, "yield_vs_risk": yvr}
