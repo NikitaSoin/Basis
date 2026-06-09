@@ -138,7 +138,9 @@ def refresh_all_if_stale(bonds_max_age_hours: float = 22.0) -> None:
     db = SessionLocal()
     try:
         # дешёвые классы — всегда (но только если таблица уже существует)
-        for table, fn, name in (("futures", refresh_futures, "фьючерсы"), ("funds", refresh_funds, "фонды")):
+        from app.services.moex_spot import refresh_spot
+        for table, fn, name in (("futures", refresh_futures, "фьючерсы"), ("funds", refresh_funds, "фонды"),
+                                ("spot_assets", refresh_spot, "валюта/металлы")):
             try:
                 if _table_exists(db, table):
                     fn(db)

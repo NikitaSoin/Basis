@@ -1670,6 +1670,7 @@ const ASSET_CLASSES = [
   { id: "bonds", label: "Облигации" },
   { id: "futures", label: "Фьючерсы" },
   { id: "funds", label: "Фонды" },
+  { id: "spot", label: "Валюта и металлы" },
 ];
 
 const RISK_TIER_BADGE = {
@@ -2666,6 +2667,88 @@ const FundsList = ({ onSelectFund }) => {
   );
 };
 
+// ── Валюта и металлы (спот — класс активов в модуле «Рынок») ──
+// Главный вопрос: что дальше с курсом/ценой и роль в портфеле, НЕ «справедливая
+// цена». docs/currency-metals-positioning.md
+const SPOT_KIND = { currency: { label: "Валюта", title: "Валюты" }, metal: { label: "Драгметалл", title: "Драгметаллы" } };
+
+const SpotCard = ({ secid, onBack }) => {
+  const [data, setData] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const base = `${apiBase()}/api/spot/${secid}`;
+    Promise.all([
+      fetch(base).then((r) => (r.ok ? r.json() : null)),
+      fetch(`${base}/summary`).then((r) => (r.ok ? r.text() : null)).catch(() => null),
+    ]).then(([d, s]) => { setData(d); setSummary(s); setLoading(false); }).catch(() => setLoading(false));
+  }, [secid]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем...</div>;
+  if (!data?.asset) return <div className="tw-py-12 tw-text-text-tertiary">Не найдено. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
+  const a = data.asset;
+  const ch = a.change_pct;
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+        <ChevronRight size={16} className="tw-rotate-180" /> К списку
+      </button>
+      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+        <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{a.name}</h1>
+        <Badge tone="neutral">{(SPOT_KIND[a.kind] || {}).label || a.kind}</Badge>
+        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{a.secid}</span>
+      </div>
+      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
+        <Card className="tw-flex tw-flex-col tw-gap-1">
+          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>Цена (₽)</div>
+          <span className="tw-text-[26px] tw-font-medium tw-tabular-nums tw-text-text-primary">{a.last_price == null ? "—" : fmtNumber(a.last_price, { decimals: a.kind === "currency" ? 3 : 2 })}</span>
+          {ch != null && <span className={`tw-text-[13px] ${ch >= 0 ? "tw-text-success" : "tw-text-danger"}`}>{ch >= 0 ? "▲ +" : "▼ "}{fmtNumber(ch, { decimals: 2 })}% за день</span>}
+        </Card>
+        <Card className="tw-flex tw-flex-col tw-gap-1">
+          <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>Что это</div>
+          <span className="tw-text-[14px] tw-text-text-secondary tw-leading-snug">{a.kind === "currency" ? "Биржевой курс к рублю. Это макро-индикатор (зависит от ставки ЦБ, нефти, платёжного баланса), а не «актив со справедливой ценой»." : "Цена металла за грамм в рублях = мировая цена × курс рубля. Защитный актив: слабо коррелирует с акциями, хедж от инфляции и девальвации."}</span>
+        </Card>
+      </div>
+      {summary ? (
+        <Card header="Что дальше · роль в портфеле"><AnalystProse md={summary} /></Card>
+      ) : (
+        <Card header="Что дальше · роль в портфеле"><div className="tw-text-[13px] tw-text-text-tertiary">Подробный разбор (факторы курса/цены, что закладывает рынок, роль в портфеле) готовится.</div></Card>
+      )}
+    </div>
+  );
+};
+
+const SpotList = ({ onSelectSpot }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch(`${apiBase()}/api/spot`).then((r) => (r.ok ? r.json() : [])).then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем...</div>;
+  const columns = [
+    { key: "name", label: "Инструмент", render: (_, a) => <span className="tw-font-semibold tw-text-text-primary">{a.name}</span> },
+    { key: "last_price", label: "Цена (₽)", render: (v, a) => v == null ? "—" : <span className="tw-font-mono tw-text-text-primary">{fmtNumber(v, { decimals: a.kind === "currency" ? 3 : 2 })}</span> },
+    { key: "change_pct", label: "За день", render: (v) => v == null ? "—" : <span className={`tw-font-mono ${v >= 0 ? "tw-text-success" : "tw-text-danger"}`}>{v >= 0 ? "+" : ""}{fmtNumber(v, { decimals: 2 })}%</span> },
+  ];
+  const groups = ["currency", "metal"].filter((k) => items.some((a) => a.kind === k));
+  return (
+    <div>
+      <div className="tw-p-3 tw-mb-5 tw-rounded-md tw-bg-accent-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        Валюта и металлы — это <b>не «актив со справедливой ценой»</b>, а макро-индикаторы. Курс рубля зависит от ставки ЦБ, нефти и платёжного баланса; золото/серебро — защитные активы (хедж от инфляции и девальвации). Basis объясняет, что закладывает рынок и какова роль в портфеле, а не «куда пойдёт цена».
+      </div>
+      {groups.map((k) => {
+        const rows = items.filter((a) => a.kind === k);
+        return (
+          <div key={k} className="tw-mb-8">
+            <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>{(SPOT_KIND[k] || {}).title || k} · {rows.length}</div>
+            <Table columns={columns} rows={rows} onRowClick={(a) => onSelectSpot(a.secid)} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
@@ -2674,6 +2757,7 @@ const CompaniesView = ({ onSelectCompany }) => {
   const [selectedBond, setSelectedBond] = useState(null);   // SECID открытой облигации
   const [selectedFuture, setSelectedFuture] = useState(null); // SECID открытого фьючерса
   const [selectedFund, setSelectedFund] = useState(null);     // SECID открытого фонда
+  const [selectedSpot, setSelectedSpot] = useState(null);     // SECID валюты/металла
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -2809,7 +2893,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         {ASSET_CLASSES.map((a) => (
           <button
             key={a.id}
-            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); setSelectedFund(null); }}
+            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); setSelectedFund(null); setSelectedSpot(null); }}
             className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
           >
             {a.label}
@@ -2829,6 +2913,10 @@ const CompaniesView = ({ onSelectCompany }) => {
         selectedFund
           ? <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />
           : <FundsList onSelectFund={setSelectedFund} />
+      ) : assetClass === "spot" ? (
+        selectedSpot
+          ? <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />
+          : <SpotList onSelectSpot={setSelectedSpot} />
       ) : (
       <>
       <div className="tw-relative tw-mb-4 tw-max-w-md">
