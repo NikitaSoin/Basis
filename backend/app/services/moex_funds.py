@@ -35,6 +35,7 @@ FUNDS_URL = ("https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTF/
 TER_MAP = {
     "LQDT": 0.40, "AKMM": 0.34, "SBMM": 0.33, "TMON": 0.30,   # денежный рынок
     "SBMX": 1.00, "EQMX": 0.67, "TMOS": 0.79, "AKME": 1.05,   # акции/индекс Мосбиржи
+    "DIVD": 1.30, "TDIV": 1.49,                               # дивидендные смарт-бета
     "OBLG": 0.80, "SBGB": 0.82, "AKFB": 0.78,                 # облигации
     "GOLD": 0.66, "AKGD": 1.06, "SBGD": 0.69, "TGLD": 0.69,   # золото
 }
