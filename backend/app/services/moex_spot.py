@@ -25,9 +25,12 @@ _HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit
 SPOT_INSTRUMENTS = [
     ("USD000UTSTOM", "Доллар США / рубль", "currency", "USD"),
     ("CNYRUB_TOM", "Китайский юань / рубль", "currency", "CNY"),
-    # EUR_RUB__TOM — биржевые торги евро на MOEX остановлены (санкции 2024), нет свечей.
+    # EUR/GBP/HKD — биржевые торги на MOEX остановлены (санкции 2024), свечей нет.
+    # На бирже ликвидны только доллар и юань — это и есть «значимые пары» сейчас.
     ("GLDRUB_TOM", "Золото / рубль (грамм)", "metal", "GLD"),
     ("SLVRUB_TOM", "Серебро / рубль (грамм)", "metal", "SLV"),
+    ("PLTRUB_TOM", "Платина / рубль (грамм)", "metal", "PLT"),
+    ("PLDRUB_TOM", "Палладий / рубль (грамм)", "metal", "PLD"),
 ]
 
 
