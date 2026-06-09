@@ -9145,9 +9145,17 @@ function OverviewView({ token }) {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
+  const [calendar, setCalendar] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/calendar?days=75`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => setCalendar(d))
+      .catch(() => setCalendar(null));
+  }, []);
 
   const loadOverviews = () => {
     setLoading(true);
@@ -9194,6 +9202,35 @@ function OverviewView({ token }) {
         <h1 className="view-title">Обозреватель рынка</h1>
         <p className="view-subtitle">Контекстное понимание рыночного фона</p>
       </div>
+
+      {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
+          облигаций + экспирации фьючерсов. Всегда заполнен. */}
+      {calendar?.events?.length > 0 && (
+        <div className="tw-mb-8">
+          <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-3">
+            <h2 className="tw-text-[17px] tw-font-medium tw-text-text-primary">Календарь событий рынка</h2>
+            <span className="tw-text-[12px] tw-text-text-tertiary">ближайшие {calendar.horizon_days} дней · {calendar.count} событий</span>
+          </div>
+          <Card>
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3">Оферта — точка решения держателя (предъявить к выкупу по номиналу или остаться под новый купон). Погашение — возврат тела. Экспирация — последний день обращения фьючерса. Данные — из нашей базы по биржевым инструментам.</div>
+            <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
+              {calendar.events.slice(0, 30).map((e, i) => {
+                const d = e.date ? `${e.date.slice(8, 10)}.${e.date.slice(5, 7)}` : "—";
+                const toneByType = { offer: "warning", maturity: "neutral", expiration: "info" };
+                return (
+                  <div key={i} className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-[13px]">
+                    <span className="tw-font-mono tw-text-text-secondary tw-w-12 tw-shrink-0">{d}</span>
+                    <Badge tone={toneByType[e.type] || "neutral"}>{e.label}</Badge>
+                    <span className="tw-text-text-primary tw-truncate">{e.name}</span>
+                    {e.rating && <span className="tw-text-text-tertiary tw-text-[11px] tw-ml-auto tw-shrink-0">{e.rating}</span>}
+                    {e.asset_name && !e.rating && <span className="tw-text-text-tertiary tw-text-[11px] tw-ml-auto tw-shrink-0">{e.asset_name}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </div>
+      )}
 
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
         {TABS.map((tab) => {
