@@ -177,6 +177,32 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
                f"минимально нужно ~{min_spread_el} б.п. только за ожидаемые потери. "
                f"Бумага платит {spread} б.п.")
 
+    # Прозрачная деривация Risk Score — «за прозрачность»: показываем, КАК получили
+    # оценку (методика docs/bond_analys.md), а не отдаём число «из чёрного ящика».
+    derivation = []
+    if bond.get("is_defaulted"):
+        derivation.append("Эмитент в дефолте (режим Д / отметка MOEX) → Risk Score = 5,0 из 5 (максимум). Доходность к погашению нерелевантна — вопрос в проценте возврата тела.")
+    else:
+        if bond.get("agency_rating"):
+            derivation.append(f"Якорь — агентский рейтинг {bond.get('agency_rating')} (группа {agency_g}): базовый Risk Score {SCORE_BY_GROUP.get(agency_g, '—')} из 5.")
+        else:
+            tier_base = {"gov": 1.2, "high": 2.2, "medium": 3.2, "speculative": 4.2}.get(bond.get("risk_tier"), 3.5)
+            derivation.append(f"Рейтинга агентств нет → якорь по рыночному тиру «{bond.get('risk_tier') or 'н/д'}» (спред к ОФЗ): базовый Risk Score {tier_base} из 5.")
+        if debt_facts:
+            derivation.append(f"Блок A — платёжеспособность (из отчётности эмитента): {debt_facts}. Поправка к Score {debt_adj:+.1f}.")
+        elif bond.get("issuer_ticker"):
+            derivation.append("Блок A — платёжеспособность: в отчётности эмитента нет ключевых метрик долга, поправка не применена.")
+        else:
+            derivation.append("Блок A — платёжеспособность: эмитент непубличный, выверенной отчётности в базе нет (нужен глубокий разбор для оценки долга из РСБУ).")
+        if bond.get("yield_anomaly"):
+            derivation.append("Стоп-флаг: аномальная доходность (>40% годовых) → Risk Score поднят минимум до 4,6 (маркер дистресса/неликвида).")
+        derivation.append(f"Итог: Risk Score {str(score).replace('.', ',')} из 5 → оценка Basis ~{implied}.")
+
+    score_method = ("Систематическая оценка по методике Basis: рейтинг-якорь + блок A "
+                    "(долговая нагрузка из отчётности, для публичных) + стоп-флаги. "
+                    "Блоки бизнеса, собственников, макро/PESTEL и параметров выпуска "
+                    "учитываются в полном объёме в «Разборе аналитика» (если он есть по бумаге).")
+
     return {
         "spread_bp": spread, "required_bp": required, "premium_bp": premium,
         "light": light, "label": label,
@@ -186,5 +212,6 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
         "adjustments": adj_notes, "debt_facts": debt_facts,
         "expected_loss_note": el_note, "min_spread_el_bp": min_spread_el,
         "stops": stops,
+        "derivation": derivation, "score_method": score_method,
         "certainty": "оценка (методика Basis по нашей базе)",
     }
