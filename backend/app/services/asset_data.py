@@ -158,5 +158,16 @@ def refresh_all_if_stale(bonds_max_age_hours: float = 22.0) -> None:
         except Exception as e:
             logger.exception("Авто-обновление облигаций упало: %s", e)
             db.rollback()
+        # опционы — по свежести (тянем большую доску, считаем греки; не на каждый рестарт)
+        try:
+            from app.services.moex_options import refresh_options
+            if _table_exists(db, "options") and _stale(db, "options", bonds_max_age_hours):
+                logger.info("Авто-обновление: опционы устарели/пусты — гружу…")
+                refresh_options(db)
+            else:
+                logger.info("Авто-обновление: опционы свежие — пропускаю")
+        except Exception as e:
+            logger.exception("Авто-обновление опционов упало: %s", e)
+            db.rollback()
     finally:
         db.close()
