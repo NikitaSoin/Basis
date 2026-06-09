@@ -1753,11 +1753,13 @@ const AnalystProse = ({ md }) => (
 );
 
 const DEBT_FLAG_BG = { green: "tw-bg-success-soft", amber: "tw-bg-warning-soft", red: "tw-bg-danger-soft" };
+const BOND_LIGHT = { green: { bg: "tw-bg-success-soft", dot: "🟢" }, amber: { bg: "tw-bg-warning-soft", dot: "🟡" }, orange: { bg: "tw-bg-warning-soft", dot: "🟠" }, red: { bg: "tw-bg-danger-soft", dot: "🔴" }, gray: { bg: "tw-bg-bg-base", dot: "⚪" } };
 const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
   const [analysis, setAnalysis] = useState(null);  // analysis.json — рейтинг/вердикты для плиток
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("overview");
 
   useEffect(() => {
     const base = `${apiBase()}/api/bonds/${secid}`;
@@ -1867,8 +1869,119 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         </div>
       )}
 
-      {/* Двойной рейтинг: рыночная оценка (спред) vs агентский рейтинг — и их
-          расхождение. Две независимые опоры надёжности — главного вопроса. */}
+      {/* Вкладки карточки облигации (по образцу карточки акции) */}
+      {(() => {
+        const yvr = data.yield_vs_risk;
+        const TABS = [
+          { id: "overview", label: "Обзор" },
+          { id: "yield_risk", label: "Доходность vs риск" },
+          ...(data.issuer ? [{ id: "issuer_biz", label: "Бизнес эмитента" }, { id: "issuer_fin", label: "Финансы эмитента" }] : []),
+        ];
+        return (
+          <div className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto" role="tablist">
+            {TABS.map((t) => (
+              <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+                className={`tw-px-3.5 tw-py-2 tw-text-[13px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-whitespace-nowrap tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${tab === t.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
+
+      {/* ===== Вкладка ДОХОДНОСТЬ VS РИСК (методика bond_analys.md) ===== */}
+      {tab === "yield_risk" && (() => {
+        const y = data.yield_vs_risk;
+        if (!y) return <div className="tw-text-[13px] tw-text-text-tertiary">Нет данных для оценки.</div>;
+        if (y.is_ofz) return <Card><div className="tw-text-[14px] tw-text-text-secondary">{y.verdict}</div></Card>;
+        if (y.no_data) return <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>;
+        const L = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
+        return (
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            {/* вердикт-плитка */}
+            <div className={`tw-p-4 tw-rounded-md ${L.bg}`}>
+              <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">{L.dot} {y.label}</div>
+              <div className="tw-text-[14px] tw-text-text-secondary tw-mt-1">
+                Доходность платит <b>{y.spread_bp} б.п.</b> сверх ОФЗ; за такой риск нужно ~<b>{y.required_bp} б.п.</b> → премия <b className={y.premium_bp >= 0 ? "tw-text-success" : "tw-text-danger"}>{y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п.</b>
+              </div>
+            </div>
+            {/* арифметика 3 строки */}
+            <Card header="Арифметика">
+              <div className="tw-text-[13px] tw-text-text-secondary tw-space-y-1.5">
+                <div>1. <b>Фактический спред</b>: {y.spread_bp} б.п. к ОФЗ той же дюрации.</div>
+                <div>2. <b>Требуемый спред</b>: ~{y.required_bp} б.п. = медиана группы {y.rating_group} в нашей базе (~{y.group_median_bp} б.п.){y.adjustments?.length ? `, ${y.adjustments.join(", ")}` : ""}.</div>
+                <div>3. <b>Премия/дисконт</b>: {y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п. → {y.label.toLowerCase()}.</div>
+              </div>
+            </Card>
+            {/* три взгляда на надёжность */}
+            <Card header="Надёжность — три взгляда">
+              <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-text-center">
+                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
+                  <div className="tw-text-[11px] tw-text-text-tertiary">Рынок (спред)</div>
+                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{r.label}</div>
+                </div>
+                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
+                  <div className="tw-text-[11px] tw-text-text-tertiary">Агентство</div>
+                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{b.agency_rating || "—"}</div>
+                </div>
+                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
+                  <div className="tw-text-[11px] tw-text-text-tertiary">Оценка Basis</div>
+                  <div className="tw-text-[14px] tw-text-text-primary tw-mt-1">{y.implied_group} <span className="tw-text-text-tertiary tw-text-[11px]">({y.risk_score})</span></div>
+                </div>
+              </div>
+              {y.divergence_note && <div className="tw-mt-2.5 tw-p-2.5 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">⚠ {y.divergence_note}</div>}
+              {y.debt_facts && <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Долг эмитента: {y.debt_facts}.</div>}
+            </Card>
+            {/* проверка ожидаемыми потерями */}
+            <Card header="Проверка здравым смыслом (ожидаемые потери)">
+              <div className="tw-text-[13px] tw-text-text-secondary">{y.expected_loss_note}</div>
+            </Card>
+            {y.stops?.length > 0 && (
+              <div className="tw-p-2.5 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary">⚠ Стоп-сигналы: {y.stops.join("; ")}.</div>
+            )}
+            <div className="tw-text-[12px] tw-text-text-tertiary">Оценка по методике Basis (медианы нашей базы ~3100 бумаг + долговая нагрузка эмитента). Качественные риски (мошенничество, споры с властью) методика числами не ловит — см. «Разбор аналитика» ниже, если есть.</div>
+            {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+          </div>
+        );
+      })()}
+
+      {/* ===== Вкладка БИЗНЕС ЭМИТЕНТА ===== */}
+      {tab === "issuer_biz" && data.issuer && (
+        <div className="tw-flex tw-flex-col tw-gap-3">
+          <Card>
+            <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+              <span className="tw-text-[16px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
+              {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
+              <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>
+            </div>
+          </Card>
+          {data.issuer.business_md ? <Card header="Бизнес-модель"><AnalystProse md={data.issuer.business_md} /></Card> : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Бизнес-модель эмитента не загружена.</div></Card>}
+          {data.issuer.governance_md && <Card header="Собственники и управление"><AnalystProse md={data.issuer.governance_md} /></Card>}
+        </div>
+      )}
+
+      {/* ===== Вкладка ФИНАНСЫ ЭМИТЕНТА ===== */}
+      {tab === "issuer_fin" && data.issuer && (
+        <div className="tw-flex tw-flex-col tw-gap-3">
+          {data.issuer.debt ? (
+            <Card header="Долговая нагрузка — сможет ли расплатиться">
+              <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3 tw-mb-3">
+                {[["Чистый долг / EBITDA", data.issuer.debt.net_debt_ebitda], ["Покрытие процентов", data.issuer.debt.interest_coverage], ["Долг / капитал", data.issuer.debt.debt_to_equity], ["Тек. ликвидность", data.issuer.debt.current_ratio]].map(([k, v]) => (
+                  <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
+                    <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>{k}</div>
+                    <div className="tw-text-[18px] tw-font-mono tw-text-text-primary tw-mt-0.5">{v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}×`}</div>
+                  </div>
+                ))}
+              </div>
+              {data.issuer.debt.verdict && <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>{data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}<span className="tw-text-text-tertiary"> (по отчётности{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""})</span></div>}
+            </Card>
+          ) : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Финансовых данных эмитента нет в базе.</div></Card>}
+          <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полные финансы — в карточке компании {data.issuer.ticker} <ChevronRight size={14} /></button>
+        </div>
+      )}
+
+      {/* ===== Вкладка ОБЗОР ===== */}
+      {tab === "overview" && (<>
       {b.bond_type !== "ofz" && (
         <Card header="Двойной рейтинг надёжности">
           <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
@@ -1907,45 +2020,6 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           )}
           {b.rating_divergence === "aligned" && (
             <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">Рыночная оценка и агентский рейтинг согласуются.</div>
-          )}
-        </Card>
-      )}
-
-      {/* Блок: эмитент — долговая нагрузка («сможет ли расплатиться») + переход
-          в карточку компании-эмитента. Только для публичных эмитентов из базы. */}
-      {data.issuer && (
-        <Card header="Эмитент: сможет ли расплатиться">
-          <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-mb-3">
-            <span className="tw-text-[15px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
-            {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
-            <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus hover:tw-underline">
-              Карточка {data.issuer.ticker} <ChevronRight size={14} />
-            </button>
-          </div>
-          {data.issuer.debt ? (
-            <>
-              <div className="tw-grid tw-grid-cols-2 sm:tw-grid-cols-4 tw-gap-3 tw-mb-3">
-                {[
-                  ["Чистый долг / EBITDA", data.issuer.debt.net_debt_ebitda, "× — во сколько лет прибыли укладывается долг"],
-                  ["Покрытие процентов", data.issuer.debt.interest_coverage, "× — во сколько раз EBITDA покрывает проценты"],
-                  ["Долг / капитал", data.issuer.debt.debt_to_equity, ""],
-                  ["Тек. ликвидность", data.issuer.debt.current_ratio, ""],
-                ].map(([k, v, tip]) => (
-                  <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5">
-                    <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.04em" }}>{k}</div>
-                    <div className="tw-text-[18px] tw-font-mono tw-text-text-primary tw-mt-0.5">{v == null ? "—" : `${fmtNumber(v, { decimals: 2 })}×`}</div>
-                  </div>
-                ))}
-              </div>
-              {data.issuer.debt.verdict && (
-                <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>
-                  {data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}
-                  <span className="tw-text-text-tertiary"> (оценка по отчётности эмитента{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""}; подробности — в карточке компании)</span>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="tw-text-[13px] tw-text-text-tertiary">Эмитент есть в базе, но нет финансовых данных для оценки долга — см. карточку компании.</div>
           )}
         </Card>
       )}
@@ -2032,13 +2106,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Ближайшие купоны (факт эмиссии). Всего купонов за весь срок: {data.cashflow.coupons_total}.</div>
         </Card>
       )}
-
-      {/* Текстовая аналитика bond-analyst (если есть) */}
-      {summary && (
-        <Card header="Разбор аналитика">
-          <AnalystProse md={summary} />
-        </Card>
-      )}
+      </>)}{/* конец вкладки Обзор */}
     </div>
   );
 };
@@ -2144,12 +2212,13 @@ const BondsList = ({ onSelectBond }) => {
       },
     },
     {
-      key: "risk_tier", label: "Надёжность · рейтинг",
-      // двойной рейтинг в списке: рыночный тир + агентская буква рядом
+      key: "risk_tier", label: "Надёжность: рынок · агентство · Basis",
+      // ТРИ взгляда: рыночный тир (спред) / агентский рейтинг / оценка Basis (Risk Score)
       render: (v, b) => { const rt = RISK_TIER_BADGE[v] || { tone: "neutral", label: "Нет оценки" }; const inner = (
-        <div className="tw-flex tw-items-center tw-gap-1.5">
+        <div className="tw-flex tw-items-center tw-gap-1.5 tw-flex-wrap">
           {(v || !b.agency_rating) && <Badge tone={rt.tone}>{rt.label}</Badge>}
           {b.agency_rating && <Badge tone={ratingTone(b.agency_rating)}>{b.agency_rating}</Badge>}
+          {b.basis_group && b.bond_type !== "ofz" && <Badge tone={ratingTone(b.basis_group.split("-")[0])}>Basis {b.basis_group}</Badge>}
         </div>
       ); return b.risk_verdict ? <Tooltip content={b.risk_verdict}>{inner}</Tooltip> : inner; },
     },

@@ -14,10 +14,22 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.services import bond_risk
 
 router = APIRouter()
 BONDS_DIR = Path(__file__).parent.parent.parent / "bonds"
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+
+# кэш медианных спредов по рейтинговым группам (требуемый спред-базис из нашей базы)
+_group_medians = {"data": None}
+
+
+def _get_group_medians(db: Session) -> dict:
+    if _group_medians["data"] is None:
+        rows = [dict(r._mapping) for r in db.execute(text(
+            "SELECT bond_type, risk_tier, agency_rating, spread_bp, is_defaulted FROM bonds"))]
+        _group_medians["data"] = bond_risk.group_median_spreads(rows)
+    return _group_medians["data"]
 
 
 def _last(seq):
@@ -138,6 +150,17 @@ def _safe(s: str) -> str:
     return "".join(c for c in s if c.isalnum() or c in "-_").upper()
 
 
+def _read_company_file(ticker: str, fname: str) -> str | None:
+    """Текст файла аналитики компании-эмитента (для вкладок бизнес/финансы)."""
+    p = COMPANIES_DIR / ticker / fname
+    if not p.exists():
+        return None
+    try:
+        return p.read_text(encoding="utf-8")
+    except Exception:
+        return None
+
+
 def _row_to_dict(r) -> dict:
     d = dict(r._mapping)
     for k, v in d.items():
@@ -172,6 +195,11 @@ def _row_to_dict(r) -> dict:
     d["agency_rating_meaning"] = _rating_meaning(d.get("agency_rating"))
     d["risk_verdict"] = _risk_verdict(d)
     d["arbitrage_note"] = _arbitrage_note(d, divergence)
+    # 3-й взгляд надёжности — оценка Basis (Risk Score → группа), лёгкая (без чтения
+    # файлов): якорь по рейтингу/тиру + стоп-флаги; полная (с долгом) — в карточке
+    if d.get("bond_type") != "ofz":
+        d["basis_score"] = bond_risk.compute_risk_score(d, 0.0)
+        d["basis_group"] = bond_risk.score_to_group(d["basis_score"])
     return d
 
 
@@ -274,17 +302,31 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     except Exception:
         pass
 
-    # Блок «Эмитент»: долговая нагрузка компании-эмитента (сможет ли расплатиться)
-    # + переход в её карточку. Только для публичных эмитентов из нашей базы.
+    # Блок «Эмитент» (для вкладок «Бизнес эмитента» / «Финансы эмитента»):
+    # долговая нагрузка + бизнес-модель + управление компании-эмитента + переход в
+    # её карточку. Только для публичных эмитентов из нашей базы (переиспользуем).
     issuer = None
     if bond.get("issuer_ticker"):
         comp = db.execute(text("SELECT ticker, name, sector FROM companies WHERE ticker = :t"),
                           {"t": bond["issuer_ticker"]}).first()
         if comp:
-            debt = _issuer_debt_block(bond["issuer_ticker"])
-            issuer = {"ticker": comp[0], "name": comp[1], "sector": comp[2], "debt": debt}
+            tk = bond["issuer_ticker"]
+            issuer = {
+                "ticker": comp[0], "name": comp[1], "sector": comp[2],
+                "debt": _issuer_debt_block(tk),
+                "business_md": _read_company_file(tk, "business_model.md"),
+                "governance_md": _read_company_file(tk, "governance_summary.md"),
+            }
 
-    return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow, "issuer": issuer}
+    # Вкладка «Доходность vs риск» — методика docs/bond_analys.md (расчёт кодом)
+    yvr = bond_risk.yield_vs_risk(bond, _get_group_medians(db))
+    # обогащаем basis-оценку в bond полным score (с учётом долга эмитента)
+    if yvr and yvr.get("risk_score") is not None:
+        bond["basis_score"] = yvr["risk_score"]
+        bond["basis_group"] = yvr.get("implied_group")
+
+    return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow,
+            "issuer": issuer, "yield_vs_risk": yvr}
 
 
 @router.get("/bonds/{secid}/summary", response_class=PlainTextResponse)
