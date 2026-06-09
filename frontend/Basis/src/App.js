@@ -2342,11 +2342,11 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
         </Card>
       )}
 
-      {/* Парные стратегии: как фьючерс используют в связке (аналитически) */}
+      {/* Парные стратегии: УЧЕБНОЕ объяснение применения (не сигнал) */}
       {data.pair_strategy && (
-        <Card header="Парные стратегии (как используют в связке)">
+        <Card header="Как инструмент используют (учебно)">
+          <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-2">Ликбез: типичное применение этого вида фьючерса. <b>Не рекомендация сделки и не сигнал</b> — Basis не советует «купить/продать».</div>
           <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">{data.pair_strategy}</div>
-          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Это объяснение применения инструмента, а не рекомендация сделки.</div>
         </Card>
       )}
 
