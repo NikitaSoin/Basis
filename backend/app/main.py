@@ -17,6 +17,7 @@ from app.api.futures import router as futures_router
 from app.api.funds import router as funds_router
 from app.api.spot import router as spot_router
 from app.api.options import router as options_router
+from app.api.screener import router as screener_router
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +180,7 @@ app.include_router(futures_router, prefix="/api")
 app.include_router(funds_router, prefix="/api")
 app.include_router(spot_router, prefix="/api")
 app.include_router(options_router, prefix="/api")
+app.include_router(screener_router, prefix="/api")
 
 
 @app.get("/")
