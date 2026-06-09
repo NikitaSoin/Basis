@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import { BasisLogomark } from "./design/logomarks";
 import ReactMarkdown from "react-markdown";
@@ -1704,6 +1704,29 @@ const ratingTone = (rt) => {
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+// ── UX: сохранение состояния списков при навигации в карточку и обратно ──
+// Модульный кэш переживает размонтирование компонента списка (когда открыта
+// карточка). Фильтры/сортировка/поиск/данные/прокрутка восстанавливаются.
+const _listCache = {};
+const _scrollCache = {};
+// Персистентное состояние списка: как useState, но начальное значение и запись —
+// через модульный кэш по ключу (напр. "bonds.filters").
+function usePersistedState(key, initial) {
+  const [v, setV] = useState(() => (key in _listCache ? _listCache[key] : initial));
+  useEffect(() => { _listCache[key] = v; }, [key, v]);
+  return [v, setV];
+}
+// Сохранить прокрутку перед уходом в карточку и восстановить при возврате.
+function saveScroll(key) { _scrollCache[key] = window.scrollY; }
+function useScrollRestore(key, ready) {
+  useLayoutEffect(() => {
+    if (ready && _scrollCache[key] != null) {
+      const y = _scrollCache[key];
+      requestAnimationFrame(() => window.scrollTo(0, y));
+    }
+  }, [key, ready]);
+}
+
 // Карточка облигации: 3 плитки (надёжность → YTM/спред → дюрация) + 4 блока
 // (надёжность, доходность, чувствительность к ставке, денежный поток).
 // Общий markdown-рендерер для разборов аналитика (облигации/фьючерсы/фонды).
@@ -2067,15 +2090,18 @@ const BOND_SORT_FN = {
 };
 
 const BondsList = ({ onSelectBond }) => {
-  const [bonds, setBonds] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [couponF, setCouponF] = useState("all");
-  const [riskF, setRiskF] = useState("all");
-  const [sortBy, setSortBy] = useState("default");
-  const [shown, setShown] = useState({});   // лимит показа по группам
+  const [bonds, setBonds] = usePersistedState("bonds.data", []);
+  const [loading, setLoading] = useState(bonds.length === 0);
+  const [search, setSearch] = usePersistedState("bonds.search", "");
+  const [couponF, setCouponF] = usePersistedState("bonds.couponF", "all");
+  const [riskF, setRiskF] = usePersistedState("bonds.riskF", "all");
+  const [sortBy, setSortBy] = usePersistedState("bonds.sortBy", "default");
+  const [shown, setShown] = usePersistedState("bonds.shown", {});   // лимит показа по группам
+  useScrollRestore("bonds", !loading);
+  const openBond = (secid) => { saveScroll("bonds"); onSelectBond(secid); };
 
   useEffect(() => {
+    if (bonds.length > 0) { setLoading(false); return; }   // данные из кэша — не дёргаем сеть
     fetch(`${apiBase()}/api/bonds`)
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setBonds(Array.isArray(d) ? d : []); setLoading(false); })
@@ -2095,7 +2121,8 @@ const BondsList = ({ onSelectBond }) => {
   }, [bonds, search, couponF, riskF, sortBy]);
 
   // сброс лимитов показа при смене фильтра/поиска/сортировки
-  useEffect(() => { setShown({}); }, [search, couponF, riskF, sortBy]);
+  const _bondsMounted = useRef(false);
+  useEffect(() => { if (_bondsMounted.current) setShown({}); else _bondsMounted.current = true; }, [search, couponF, riskF, sortBy]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем облигации...</div>;
 
@@ -2188,7 +2215,7 @@ const BondsList = ({ onSelectBond }) => {
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
               {g.title} · {rows.length}
             </div>
-            <Table columns={columns} rows={visible} onRowClick={(b) => onSelectBond(b.secid)} />
+            <Table columns={columns} rows={visible} onRowClick={(b) => openBond(b.secid)} />
             {rows.length > limit && (
               <button onClick={() => setShown((s) => ({ ...s, [g.type]: limit + BONDS_PAGE * 2 }))}
                 className="tw-mt-3 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
@@ -2392,13 +2419,16 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
 };
 
 const FuturesList = ({ onSelectFuture }) => {
-  const [futures, setFutures] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [kindF, setKindF] = useState("all");
-  const [shown, setShown] = useState({});
+  const [futures, setFutures] = usePersistedState("futures.data", []);
+  const [loading, setLoading] = useState(futures.length === 0);
+  const [search, setSearch] = usePersistedState("futures.search", "");
+  const [kindF, setKindF] = usePersistedState("futures.kindF", "all");
+  const [shown, setShown] = usePersistedState("futures.shown", {});
+  useScrollRestore("futures", !loading);
+  const openFuture = (secid) => { saveScroll("futures"); onSelectFuture(secid); };
 
   useEffect(() => {
+    if (futures.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/futures`)
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setFutures(Array.isArray(d) ? d : []); setLoading(false); })
@@ -2414,7 +2444,8 @@ const FuturesList = ({ onSelectFuture }) => {
     });
   }, [futures, search, kindF]);
 
-  useEffect(() => { setShown({}); }, [search, kindF]);
+  const _futMounted = useRef(false);
+  useEffect(() => { if (_futMounted.current) setShown({}); else _futMounted.current = true; }, [search, kindF]);
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем фьючерсы...</div>;
 
@@ -2465,7 +2496,7 @@ const FuturesList = ({ onSelectFuture }) => {
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
               {(FUT_KIND[k] || {}).title || k} · {rows.length}
             </div>
-            <Table columns={columns} rows={visible} onRowClick={(f) => onSelectFuture(f.secid)} />
+            <Table columns={columns} rows={visible} onRowClick={(f) => openFuture(f.secid)} />
             {rows.length > limit && (
               <button onClick={() => setShown((s) => ({ ...s, [k]: limit + BONDS_PAGE * 2 }))}
                 className="tw-mt-3 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-underline tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
@@ -2593,12 +2624,15 @@ const FundCard = ({ secid, onBack }) => {
 };
 
 const FundsList = ({ onSelectFund }) => {
-  const [funds, setFunds] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [typeF, setTypeF] = useState("all");
+  const [funds, setFunds] = usePersistedState("funds.data", []);
+  const [loading, setLoading] = useState(funds.length === 0);
+  const [search, setSearch] = usePersistedState("funds.search", "");
+  const [typeF, setTypeF] = usePersistedState("funds.typeF", "all");
+  useScrollRestore("funds", !loading);
+  const openFund = (secid) => { saveScroll("funds"); onSelectFund(secid); };
 
   useEffect(() => {
+    if (funds.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/funds`)
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setFunds(Array.isArray(d) ? d : []); setLoading(false); })
@@ -2660,7 +2694,7 @@ const FundsList = ({ onSelectFund }) => {
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>
               {(FUND_TYPE[k] || {}).title || k} · {rows.length}
             </div>
-            <Table columns={columns} rows={rows} onRowClick={(f) => onSelectFund(f.secid)} />
+            <Table columns={columns} rows={rows} onRowClick={(f) => openFund(f.secid)} />
           </div>
         );
       })}
@@ -2721,9 +2755,12 @@ const SpotCard = ({ secid, onBack }) => {
 };
 
 const SpotList = ({ onSelectSpot }) => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = usePersistedState("spot.data", []);
+  const [loading, setLoading] = useState(items.length === 0);
+  useScrollRestore("spot", !loading);
+  const openSpot = (secid) => { saveScroll("spot"); onSelectSpot(secid); };
   useEffect(() => {
+    if (items.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/spot`).then((r) => (r.ok ? r.json() : [])).then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем...</div>;
@@ -2743,7 +2780,7 @@ const SpotList = ({ onSelectSpot }) => {
         return (
           <div key={k} className="tw-mb-8">
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>{(SPOT_KIND[k] || {}).title || k} · {rows.length}</div>
-            <Table columns={columns} rows={rows} onRowClick={(a) => onSelectSpot(a.secid)} />
+            <Table columns={columns} rows={rows} onRowClick={(a) => openSpot(a.secid)} />
           </div>
         );
       })}
@@ -2837,10 +2874,13 @@ const OptionCard = ({ secid, onBack }) => {
 };
 
 const OptionsList = ({ onSelectOption }) => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [assetF, setAssetF] = useState("all");
+  const [items, setItems] = usePersistedState("options.data", []);
+  const [loading, setLoading] = useState(items.length === 0);
+  const [assetF, setAssetF] = usePersistedState("options.assetF", "all");
+  useScrollRestore("options", !loading);
+  const openOption = (secid) => { saveScroll("options"); onSelectOption(secid); };
   useEffect(() => {
+    if (items.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/options`).then((r) => (r.ok ? r.json() : [])).then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем опционы...</div>;
@@ -2866,7 +2906,7 @@ const OptionsList = ({ onSelectOption }) => {
         return (
           <div key={a} className="tw-mb-8">
             <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>{name} · {rows.length} (страйки около денег, ближняя экспирация)</div>
-            <Table columns={columns} rows={rows} onRowClick={(o) => onSelectOption(o.secid)} />
+            <Table columns={columns} rows={rows} onRowClick={(o) => openOption(o.secid)} />
           </div>
         );
       })}
@@ -2894,15 +2934,18 @@ const SCR_FILTERS = [
 ];
 
 const ScreenerView = ({ onSelectCompany }) => {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [sector, setSector] = useState("Все");
-  const [quick, setQuick] = useState("all");
-  const [sortKey, setSortKey] = useState("upside_pct");
-  const [sortDir, setSortDir] = useState("desc");
+  const [rows, setRows] = usePersistedState("screener.data", []);
+  const [loading, setLoading] = useState(rows.length === 0);
+  const [search, setSearch] = usePersistedState("screener.search", "");
+  const [sector, setSector] = usePersistedState("screener.sector", "Все");
+  const [quick, setQuick] = usePersistedState("screener.quick", "all");
+  const [sortKey, setSortKey] = usePersistedState("screener.sortKey", "upside_pct");
+  const [sortDir, setSortDir] = usePersistedState("screener.sortDir", "desc");
+  useScrollRestore("screener", !loading);
+  const openCompany = (t) => { saveScroll("screener"); onSelectCompany && onSelectCompany(t); };
 
   useEffect(() => {
+    if (rows.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/screener/stocks`).then((r) => (r.ok ? r.json() : [])).then((d) => { setRows(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
@@ -2957,7 +3000,7 @@ const ScreenerView = ({ onSelectCompany }) => {
           })),
         ]}
         rows={view}
-        onRowClick={(r) => onSelectCompany && onSelectCompany(r.ticker)}
+        onRowClick={(r) => openCompany(r.ticker)}
       />
     </div>
   );
@@ -2967,21 +3010,26 @@ const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
   const appearGate = useRef(new Set());
-  const [assetClass, setAssetClass] = useState("stocks");  // акции | облигации
+  // persist класс/поиск/сектор/данные — чтобы при возврате из карточки акции
+  // (CompaniesView размонтируется на уровне App) состояние не слетало.
+  const [assetClass, setAssetClass] = usePersistedState("market.assetClass", "stocks");
   const [selectedBond, setSelectedBond] = useState(null);   // SECID открытой облигации
   const [selectedFuture, setSelectedFuture] = useState(null); // SECID открытого фьючерса
   const [selectedFund, setSelectedFund] = useState(null);     // SECID открытого фонда
   const [selectedSpot, setSelectedSpot] = useState(null);     // SECID валюты/металла
   const [selectedOption, setSelectedOption] = useState(null); // SECID опциона
-  const [search, setSearch] = useState("");
-  const [activeSector, setActiveSector] = useState("Все");
-  const [companies, setCompanies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = usePersistedState("stocks.search", "");
+  const [activeSector, setActiveSector] = usePersistedState("stocks.sector", "Все");
+  const [companies, setCompanies] = usePersistedState("stocks.data", []);
+  const [loading, setLoading] = useState(companies.length === 0);
   const [liveQuotes, setLiveQuotes] = useState({});
   const [isLive, setIsLive] = useState(false);
   const [moexTime, setMoexTime] = useState(null);
+  useScrollRestore("stocks", !loading);
+  const openCompany = (c) => { saveScroll("stocks"); onSelectCompany(c); };
 
   useEffect(() => {
+    if (companies.length > 0) { setLoading(false); return; }   // данные из кэша
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
     fetch(`${apiUrl}/api/companies`)
       .then((r) => r.json())
@@ -3076,11 +3124,19 @@ const CompaniesView = ({ onSelectCompany }) => {
           key={c.ticker}
           company={c}
           liveQuote={liveQuotes[c.ticker]}
-          onSelect={() => onSelectCompany(c)}
+          onSelect={() => openCompany(c)}
         />
       ))}
     </AppearGroup>
   );
+
+  // 1б UX: при открытой карточке любого класса прячем верхнюю шапку «Рынок» и
+  // переключатель классов — карточка занимает экран (как у акций). Иначе они «режут».
+  if (selectedBond) return <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={onSelectCompany} />;
+  if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={onSelectCompany} />;
+  if (selectedFund) return <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />;
+  if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
+  if (selectedOption) return <OptionCard secid={selectedOption} onBack={() => setSelectedOption(null)} />;
 
   return (
     <div>
