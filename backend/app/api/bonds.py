@@ -150,6 +150,29 @@ def _safe(s: str) -> str:
     return "".join(c for c in s if c.isalnum() or c in "-_").upper()
 
 
+def _issuer_type_guess(name: str | None) -> str:
+    """Грубый тип эмитента по имени выпуска (для непубличных — чтобы вкладка
+    «Бизнес эмитента» не была пустой; это ОЦЕНКА по названию, не факт)."""
+    s = (name or "").lower()
+    pairs = [
+        (("микрофин", "мфк", "мфо", "займер", "быстроденьги", "вэббанкир"), "Микрофинансовая организация (МФО)"),
+        (("лизинг",), "Лизинговая компания"),
+        (("банк", "кредит союз"), "Банк / кредитная организация"),
+        (("девелоп", "строит", "жилье", "жилищ", "недвиж", "девелопмент", "сз ", "гк "), "Девелопер / строительство"),
+        (("агро", "урожай", "зерн", "мясо", "сельхоз", "птиц", "свин", "молоч"), "АПК / сельское хозяйство"),
+        (("транс", "логист", "перевоз", "автоколонна", "экспедици"), "Транспорт / логистика"),
+        (("нефт", "газ", "топлив", "энерг", "ресурс"), "Энергетика / топливо / сырьё"),
+        (("лес", "дерев", "пиломат", "целлюлоз"), "Лесопромышленность"),
+        (("торг", "ритейл", "магазин", "маркет", "сеть"), "Торговля / ритейл"),
+        (("девел", "концесс", "дорог", "инфраструктур"), "Инфраструктура / концессия"),
+        (("финанс", "капитал", "инвест", "холдинг"), "Финансовый холдинг / SPV"),
+    ]
+    for keys, label in pairs:
+        if any(k in s for k in keys):
+            return label
+    return "Компания (профиль уточняется)"
+
+
 def _read_company_file(ticker: str, fname: str) -> str | None:
     """Текст файла аналитики компании-эмитента (для вкладок бизнес/финансы)."""
     p = COMPANIES_DIR / ticker / fname
@@ -306,17 +329,26 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     # долговая нагрузка + бизнес-модель + управление компании-эмитента + переход в
     # её карточку. Только для публичных эмитентов из нашей базы (переиспользуем).
     issuer = None
+    comp = None
     if bond.get("issuer_ticker"):
         comp = db.execute(text("SELECT ticker, name, sector FROM companies WHERE ticker = :t"),
                           {"t": bond["issuer_ticker"]}).first()
-        if comp:
-            tk = bond["issuer_ticker"]
-            issuer = {
-                "ticker": comp[0], "name": comp[1], "sector": comp[2],
-                "debt": _issuer_debt_block(tk),
-                "business_md": _read_company_file(tk, "business_model.md"),
-                "governance_md": _read_company_file(tk, "governance_summary.md"),
-            }
+    if comp:
+        tk = bond["issuer_ticker"]
+        issuer = {
+            "ticker": comp[0], "name": comp[1], "sector": comp[2], "is_public": True,
+            "debt": _issuer_debt_block(tk),
+            "business_md": _read_company_file(tk, "business_model.md"),
+            "governance_md": _read_company_file(tk, "governance_summary.md"),
+        }
+    elif bond.get("bond_type") != "ofz":
+        # непубличный эмитент — краткий профиль, чтобы вкладки не были пустыми
+        issuer = {
+            "ticker": None, "name": bond.get("issuer_name") or bond.get("short_name"),
+            "sector": None, "is_public": False,
+            "type_guess": _issuer_type_guess(bond.get("issuer_name") or bond.get("short_name")),
+            "has_deep": (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists(),
+        }
 
     # Вкладка «Доходность vs риск» — методика docs/bond_analys.md (расчёт кодом)
     yvr = bond_risk.yield_vs_risk(bond, _get_group_medians(db))

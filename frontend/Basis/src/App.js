@@ -1952,11 +1952,19 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
               <span className="tw-text-[16px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
               {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
-              <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>
+              {!data.issuer.is_public && data.issuer.type_guess && <Badge tone="neutral">{data.issuer.type_guess}</Badge>}
+              {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>}
             </div>
           </Card>
-          {data.issuer.business_md ? <Card header="Бизнес-модель"><AnalystProse md={data.issuer.business_md} /></Card> : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Бизнес-модель эмитента не загружена.</div></Card>}
-          {data.issuer.governance_md && <Card header="Собственники и управление"><AnalystProse md={data.issuer.governance_md} /></Card>}
+          {data.issuer.is_public ? (<>
+            {data.issuer.business_md ? <Card header="Бизнес-модель"><AnalystProse md={data.issuer.business_md} /></Card> : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Бизнес-модель эмитента не загружена.</div></Card>}
+            {data.issuer.governance_md && <Card header="Собственники и управление"><AnalystProse md={data.issuer.governance_md} /></Card>}
+          </>) : (
+            <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
+              <b>Непубличный эмитент</b> — отдельной карточки компании в базе нет (это типично для ВДО). Профиль по названию выпуска: <b>{data.issuer.type_guess}</b>.
+              {data.issuer.has_deep ? <> Детальный разбор «кто это, кто владельцы, нет ли схем» — во вкладке <b>«Доходность vs риск» → «Разбор аналитика»</b>.</> : <> Детальный разбор бизнеса и собственников этого эмитента готовится; пока главное — рыночная оценка кредитного риска во вкладке <b>«Доходность vs риск»</b>.</>}
+            </div></Card>
+          )}
         </div>
       )}
 
@@ -1975,8 +1983,12 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               </div>
               {data.issuer.debt.verdict && <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>{data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}<span className="tw-text-text-tertiary"> (по отчётности{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""})</span></div>}
             </Card>
-          ) : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Финансовых данных эмитента нет в базе.</div></Card>}
-          <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полные финансы — в карточке компании {data.issuer.ticker} <ChevronRight size={14} /></button>
+          ) : (
+            <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
+              <b>Непубличный эмитент</b> — выверенной отчётности в нашей базе нет (МСФО малые ВДО часто не публикуют). Оценка платёжеспособности здесь идёт <b>от рынка</b>: спред к ОФЗ + агентский рейтинг + методика Basis — всё во вкладке <b>«Доходность vs риск»</b>{data.issuer.has_deep ? <>, а долговая нагрузка из отчётности эмитента разобрана в <b>«Разбор аналитика»</b> там же</> : <></>}.
+            </div></Card>
+          )}
+          {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полные финансы — в карточке компании {data.issuer.ticker} <ChevronRight size={14} /></button>}
         </div>
       )}
 
