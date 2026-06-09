@@ -57,4 +57,10 @@ if [ "${SKIP_SPOT:-0}" != "1" ]; then
   python -m scripts.load_spot
 fi
 
+# 7. Таблица options — опционы (урезанная витрина, греки Блэк-76). ~1-2 мин.
+if [ "${SKIP_OPTIONS:-0}" != "1" ]; then
+  echo "[import] загружаю опционы с MOEX..."
+  python -m scripts.load_options
+fi
+
 echo "[import] готово."

@@ -1671,6 +1671,7 @@ const ASSET_CLASSES = [
   { id: "futures", label: "Фьючерсы" },
   { id: "funds", label: "Фонды" },
   { id: "spot", label: "Валюта и металлы" },
+  { id: "options", label: "Опционы" },
 ];
 
 const RISK_TIER_BADGE = {
@@ -2749,6 +2750,129 @@ const SpotList = ({ onSelectSpot }) => {
   );
 };
 
+// ── Опционы (на фьючерсы — самый сложный/рискованный класс) ──
+// Главный вопрос: что будет с деньгами и оправдан ли риск. Витрина урезана.
+// docs/options-methodology.md. Без сигналов/таргетов.
+const OptionCard = ({ secid, onBack }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    fetch(`${apiBase()}/api/options/${secid}`).then((r) => (r.ok ? r.json() : null)).then((d) => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+  }, [secid]);
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем опцион...</div>;
+  if (!data?.option) return <div className="tw-py-12 tw-text-text-tertiary">Не найдено. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">Назад</button></div>;
+  const o = data.option; const isCall = o.option_type === "C";
+  const P = data.payoff, D = data.decomposition, G = data.greeks;
+  return (
+    <div className="tw-flex tw-flex-col tw-gap-4">
+      <button onClick={onBack} className="tw-self-start tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-text-secondary hover:tw-text-text-primary tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+        <ChevronRight size={16} className="tw-rotate-180" /> К списку опционов
+      </button>
+      <div className="tw-flex tw-items-center tw-gap-3 tw-flex-wrap">
+        <h1 className="tw-text-[24px] tw-leading-[30px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{o.asset_name}</h1>
+        <Badge tone={isCall ? "info" : "warning"}>{o.type_label}</Badge>
+        <Badge tone="neutral">страйк {fmtNumber(o.strike, { decimals: 0 })}</Badge>
+        {o.days_to_expiry != null && <Badge tone={o.days_to_expiry <= 14 ? "warning" : "neutral"}>до экспирации {o.days_to_expiry} дн</Badge>}
+        <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{o.secid}</span>
+      </div>
+
+      {/* Сильный риск-баннер — опцион опаснее фьючерса */}
+      <div className="tw-p-3 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        <b>Самый сложный и рискованный инструмент.</b> Опцион — это право, а не вложение. Покупатель теряет <b>до 100% премии</b>, и теряет её <b>даже будучи правым по направлению</b> — из-за распада времени (тета) и падения волатильности (вега). Продавец опциона рискует <b>неограниченно</b>. Чаще всего на опционах теряют именно новички. Basis объясняет, как это устроено, и НЕ советует сделок.
+      </div>
+
+      {/* Профиль выплаты — центр на УБЫТКЕ */}
+      {P && (
+        <Card header="Что будет с деньгами (профиль выплаты)">
+          <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 tw-gap-3">
+            <div className="tw-rounded-md tw-bg-danger-soft tw-p-3">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary">Максимальный убыток</div>
+              <div className="tw-text-[20px] tw-font-mono tw-font-semibold tw-text-danger">−{fmtNumber(P.max_loss, { decimals: 0 })} ₽</div>
+              <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1">вся премия (100%)</div>
+            </div>
+            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary">Точка безубытка</div>
+              <div className="tw-text-[20px] tw-font-mono tw-text-text-primary">{P.breakeven != null ? fmtNumber(P.breakeven, { decimals: 0 }) : "—"}</div>
+              <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1">{isCall ? "БА выше этого — в плюс" : "БА ниже этого — в плюс"}</div>
+            </div>
+            <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-3">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary">Потенциал прибыли</div>
+              <div className="tw-text-[14px] tw-text-text-primary tw-mt-1 tw-leading-snug">{P.upside}</div>
+            </div>
+          </div>
+          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">{P.seller_warning}</div>
+        </Card>
+      )}
+
+      {/* Разложение премии + тета */}
+      {D && (
+        <Card header="Сколько стоит и почему (премия)">
+          <div className="tw-grid tw-grid-cols-3 tw-gap-2 tw-mb-3">
+            {[["Премия", D.premium], ["Внутренняя стоимость", D.intrinsic_value], ["Временная стоимость («воздух»)", D.time_value]].map(([k, v]) => (
+              <div key={k} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-p-2.5 tw-text-center">
+                <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-tight">{k}</div>
+                <div className="tw-text-[16px] tw-font-mono tw-text-text-primary tw-mt-1">{v != null ? fmtNumber(v, { decimals: 0 }) : "—"}</div>
+              </div>
+            ))}
+          </div>
+          <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">{D.note}</div>
+        </Card>
+      )}
+
+      {/* Греки человеческим языком */}
+      {G && (
+        <Card header="Чувствительности (греки) простыми словами">
+          <ul className="tw-list-disc tw-pl-5 tw-space-y-1.5 tw-text-[13px] tw-text-text-secondary">
+            {G.delta_note && <li>{G.delta_note}</li>}
+            {G.theta_note && <li>{G.theta_note}</li>}
+            {G.vega_note && <li>{G.vega_note}</li>}
+            {G.iv_note && <li>{G.iv_note}</li>}
+          </ul>
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Оценка по модели Блэк-76 (расчёт Basis от цены фьючерса). У неликвидных/дальних страйков может быть шумной.</div>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+const OptionsList = ({ onSelectOption }) => {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [assetF, setAssetF] = useState("all");
+  useEffect(() => {
+    fetch(`${apiBase()}/api/options`).then((r) => (r.ok ? r.json() : [])).then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем опционы...</div>;
+  const assets = Array.from(new Set(items.map((o) => o.asset_code)));
+  const shown = assetF === "all" ? assets : assets.filter((a) => a === assetF);
+  const columns = [
+    { key: "type_label", label: "Тип", render: (v, o) => <Badge tone={o.option_type === "C" ? "info" : "warning"}>{o.option_type === "C" ? "Колл" : "Пут"}</Badge> },
+    { key: "strike", label: "Страйк", render: (v, o) => <span className={`tw-font-mono ${o.strike === o.central_strike ? "tw-text-accent tw-font-semibold" : "tw-text-text-secondary"}`}>{fmtNumber(v, { decimals: 0 })}</span> },
+    { key: "premium", label: "Премия ₽", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-primary">{fmtNumber(v, { decimals: 0 })}</span> },
+    { key: "iv", label: "IV", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-tertiary">{fmtNumber(v, { decimals: 0 })}%</span> },
+    { key: "delta", label: "Дельта", render: (v) => v == null ? "—" : <span className="tw-font-mono tw-text-text-tertiary">{fmtNumber(v, { decimals: 2 })}</span> },
+  ];
+  return (
+    <div>
+      <div className="tw-p-3 tw-mb-5 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary tw-leading-snug">
+        <b>Опционы — самый сложный и рискованный класс.</b> Покупатель может потерять 100% премии (и теряет её даже будучи правым по направлению — из-за распада времени), продавец рискует неограниченно. Basis показывает урезанную витрину (страйки около денег) и объясняет МЕХАНИКУ и РИСК, а не «какой купить». Без сигналов.
+      </div>
+      <div className="tw-mb-5"><FilterChips options={[{ id: "all", label: "Все БА" }, ...assets.map((a) => ({ id: a, label: a }))]} value={assetF} onChange={setAssetF} /></div>
+      {shown.map((a) => {
+        const rows = items.filter((o) => o.asset_code === a);
+        if (!rows.length) return null;
+        const name = rows[0].asset_name || a;
+        return (
+          <div key={a} className="tw-mb-8">
+            <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-border-b tw-border-border-subtle tw-pb-1.5 tw-mb-3" style={{ letterSpacing: "0.08em" }}>{name} · {rows.length} (страйки около денег, ближняя экспирация)</div>
+            <Table columns={columns} rows={rows} onRowClick={(o) => onSelectOption(o.secid)} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
@@ -2758,6 +2882,7 @@ const CompaniesView = ({ onSelectCompany }) => {
   const [selectedFuture, setSelectedFuture] = useState(null); // SECID открытого фьючерса
   const [selectedFund, setSelectedFund] = useState(null);     // SECID открытого фонда
   const [selectedSpot, setSelectedSpot] = useState(null);     // SECID валюты/металла
+  const [selectedOption, setSelectedOption] = useState(null); // SECID опциона
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("Все");
   const [companies, setCompanies] = useState([]);
@@ -2893,7 +3018,7 @@ const CompaniesView = ({ onSelectCompany }) => {
         {ASSET_CLASSES.map((a) => (
           <button
             key={a.id}
-            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); setSelectedFund(null); setSelectedSpot(null); }}
+            onClick={() => { setAssetClass(a.id); setSelectedBond(null); setSelectedFuture(null); setSelectedFund(null); setSelectedSpot(null); setSelectedOption(null); }}
             className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-duration-200 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${assetClass === a.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}
           >
             {a.label}
@@ -2917,6 +3042,10 @@ const CompaniesView = ({ onSelectCompany }) => {
         selectedSpot
           ? <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />
           : <SpotList onSelectSpot={setSelectedSpot} />
+      ) : assetClass === "options" ? (
+        selectedOption
+          ? <OptionCard secid={selectedOption} onBack={() => setSelectedOption(null)} />
+          : <OptionsList onSelectOption={setSelectedOption} />
       ) : (
       <>
       <div className="tw-relative tw-mb-4 tw-max-w-md">
