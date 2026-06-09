@@ -35,6 +35,78 @@ def _safe(s: str) -> str:
     return "".join(c for c in s if c.isalnum() or c in "-_")
 
 
+# Ориентиры ставок для теоретического базиса (cost-of-carry / паритет ставок).
+# Приблизительно, на ~2026-06; ключевая ставка ЦБ сверена с CBR (14.5%).
+KEY_RATE_RUB = 14.5
+FOREIGN_RATE = {"Si": 4.5, "Eu": 2.5, "CNY": 3.0, "ED": 0.0}
+INDEX_DIV_YIELD = 7.5
+
+
+def _fair_value(fut: dict, ts: dict | None) -> dict | None:
+    """Справедлив ли базис фьючерса (теория cost-of-carry) и есть ли расхождение
+    с фактическим (потенциальный арбитраж). ОЦЕНКА с оговорками — настоящий
+    арбитраж требует одновременных позиций и учёта комиссий/ГО."""
+    if not ts or ts.get("annualized_pct") is None:
+        return None
+    observed = ts["annualized_pct"]
+    kind, code = fut.get("asset_kind"), fut.get("asset_code")
+    theoretical, basis_explain = None, None
+    if kind == "currency":
+        fr = FOREIGN_RATE.get(code, 4.0)
+        theoretical = round(KEY_RATE_RUB - fr, 1)
+        basis_explain = (f"Паритет ставок: рублёвая ставка {KEY_RATE_RUB}% − ставка валюты ~{fr}% "
+                         f"≈ {theoretical}% годового контанго — столько «по теории» должна стоить премия фьючерса.")
+    elif kind == "index":
+        if code in ("MIX", "MXI"):  # рублёвый индекс МосБиржи — паритет применим
+            theoretical = round(KEY_RATE_RUB - INDEX_DIV_YIELD, 1)
+            basis_explain = (f"Cost-of-carry: ставка {KEY_RATE_RUB}% − дивдоходность ~{INDEX_DIV_YIELD}% "
+                             f"≈ {theoretical}% — теоретический базис рублёвого индексного фьючерса.")
+        else:  # RTS — ДОЛЛАРОВЫЙ индекс: carry считается по долларовой ставке, а
+               # не рублёвой; прямой рублёвый паритет неприменим, вердикт не даём
+            basis_explain = ("RTS — долларовый индекс: его базис определяется долларовой ставкой и ожиданиями "
+                             "по рублю, а не рублёвым cost-of-carry. Прямую «справедливость» по рублёвой ставке "
+                             "тут считать некорректно — базис отражает в основном ожидания по курсу рубля.")
+    elif kind == "stock":
+        basis_explain = ("Базис фьючерса на акцию = ставка минус ожидаемые дивиденды до экспирации. "
+                         "Бэквордация у дивидендной акции — это в основном будущий дивиденд, а не «дешевизна».")
+    elif kind == "commodity":
+        basis_explain = ("Базис сырья = ставка + стоимость хранения − convenience yield (премия за наличие). "
+                         "Бэквордация = премия за немедленную поставку (текущий дефицит).")
+    verdict = None
+    if theoretical is not None:
+        gap = round(observed - theoretical, 1)
+        if abs(gap) <= 2:
+            verdict = f"Фактический базис (~{observed}% год.) близок к теоретическому (~{theoretical}%) — оценён справедливо, явного арбитража нет."
+        elif gap < 0:
+            verdict = (f"Фактический базис (~{observed}% год.) НИЖЕ теоретического (~{theoretical}%) на ~{abs(gap)} п.п.: "
+                       "фьючерс дешевле справедливого (потенциальный кэш-энд-керри), с поправкой на комиссии, ГО и доступность шорта.")
+        else:
+            verdict = (f"Фактический базис (~{observed}% год.) ВЫШЕ теоретического (~{theoretical}%) на ~{gap} п.п.: "
+                       "фьючерс дороже справедливого (обратный кэш-энд-керри), с поправкой на издержки.")
+    return {"observed_annual_pct": observed, "theoretical_annual_pct": theoretical,
+            "basis_explain": basis_explain, "verdict": verdict, "certainty": "оценка"}
+
+
+def _pair_strategy(fut: dict) -> str | None:
+    """Как фьючерс используют в паре активов (аналитически, не сигнал)."""
+    kind = fut.get("asset_kind")
+    if kind == "stock":
+        nm = fut.get("asset_name") or "акция"
+        return (f"Кэш-энд-керри: длинная позиция в акции ({nm}) + ШОРТ этого фьючерса фиксирует базис "
+                "(≈ ставка − дивиденды) почти независимо от движения цены акции — нейтральная к рынку позиция "
+                "на доходность базиса. Зеркально, фьючерс заменяет акцию с плечом, высвобождая капитал.")
+    if kind == "index":
+        return ("Хедж портфеля: ШОРТ индексного фьючерса против портфеля акций гасит рыночную просадку "
+                "(контрактов ≈ стоимость портфеля × бета / номинал) — см. бету в портфельной аналитике.")
+    if kind == "currency":
+        return ("Управление валютной экспозицией: позиция по валютному фьючерсу хеджирует (или усиливает) "
+                "валютный риск рублёвых активов/обязательств без конвертации на спот-рынке.")
+    if kind == "commodity":
+        return ("Связь с сырьевыми акциями: фьючерс на сырьё против акций сектора (нефтегаз/металлурги) — "
+                "ставка на расхождение «цена сырья vs акции производителя».")
+    return None
+
+
 def _row_to_dict(r) -> dict:
     d = dict(r._mapping)
     for k, v in d.items():
@@ -127,7 +199,11 @@ def get_future(secid: str, db: Session = Depends(get_db)):
         if comp:
             linked = {"ticker": comp[0], "name": comp[1]}
 
-    return {"future": fut, "term_structure": term_structure, "sensitivity": sensitivity, "linked_company": linked}
+    fair_value = _fair_value(fut, term_structure)
+    pair_strategy = _pair_strategy(fut)
+
+    return {"future": fut, "term_structure": term_structure, "sensitivity": sensitivity,
+            "linked_company": linked, "fair_value": fair_value, "pair_strategy": pair_strategy}
 
 
 @router.get("/futures/{secid}/summary", response_class=PlainTextResponse)
