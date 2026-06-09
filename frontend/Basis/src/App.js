@@ -2444,7 +2444,9 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
             </Card>
             {data.linked_company.business_md && <Card header="Бизнес компании"><AnalystProse md={data.linked_company.business_md} /></Card>}
             {data.linked_company.market_md && <Card header="Рынки компании"><AnalystProse md={data.linked_company.market_md} /></Card>}
-          </>) : summary ? (
+          </>) : data.base_asset_md ? (
+            <Card header={`Базовый актив: ${f.asset_name || f.asset_code}`}><AnalystProse md={data.base_asset_md} /></Card>
+          ) : summary ? (
             <Card header="Что движет базовым активом"><AnalystProse md={summary} /></Card>
           ) : (
             <Card header={`Что движет базовым активом: ${f.asset_name || f.asset_code}`}>
