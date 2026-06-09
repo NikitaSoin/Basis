@@ -15,6 +15,7 @@ from app.api.debug import router as debug_router
 from app.api.bonds import router as bonds_router
 from app.api.futures import router as futures_router
 from app.api.funds import router as funds_router
+from app.api.spot import router as spot_router
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +176,7 @@ app.include_router(debug_router, prefix="/api")
 app.include_router(bonds_router, prefix="/api")
 app.include_router(futures_router, prefix="/api")
 app.include_router(funds_router, prefix="/api")
+app.include_router(spot_router, prefix="/api")
 
 
 @app.get("/")
