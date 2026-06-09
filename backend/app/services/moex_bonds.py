@@ -160,6 +160,20 @@ def _norm_issuer(s: str | None) -> str:
     return s
 
 
+_SERIES_DIGIT = re.compile(r"\d")
+_SERIES_DROP = {"бо", "об", "обл", "серия", "сер", "класс", "выпуск", "п", "r",
+                "пк", "биржевые", "облигации", "ин", "ра", "ао", "пбо", "оа"}
+
+
+def issuer_slug(name: str | None) -> str | None:
+    """Стабильный слаг ЭМИТЕНТА из имени выпуска (без серии). Группирует все серии
+    одного эмитента → один профиль бизнеса/финансов на эмитента. Напр.
+    «ГПБ (АО) БО 004Р-26» и «ГПБ (АО) БО 001Р-26Р» → 'гпб'."""
+    k = _norm_issuer(name)
+    words = [w for w in k.split() if w and not _SERIES_DIGIT.search(w) and w not in _SERIES_DROP]
+    return "-".join(words) if words else None
+
+
 def build_company_keys(db) -> None:
     """Заполнить кэш ключей публичных компаний из таблицы companies (один раз)."""
     global _COMPANY_KEYS

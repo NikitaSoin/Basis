@@ -15,10 +15,20 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.services import bond_risk
+from app.services.moex_bonds import issuer_slug
 
 router = APIRouter()
 BONDS_DIR = Path(__file__).parent.parent.parent / "bonds"
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+ISSUERS_DIR = Path(__file__).parent.parent.parent / "bond_issuers"
+
+
+def _read_issuer_file(slug: str | None, fname: str) -> str | None:
+    """Профиль непубличного эмитента (бизнес/финансы), общий для всех его серий."""
+    if not slug:
+        return None
+    p = ISSUERS_DIR / slug / fname
+    return p.read_text(encoding="utf-8") if p.exists() else None
 
 # кэш медианных спредов по рейтинговым группам (требуемый спред-базис из нашей базы)
 _group_medians = {"data": None}
@@ -342,11 +352,15 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
             "governance_md": _read_company_file(tk, "governance_summary.md"),
         }
     elif bond.get("bond_type") != "ofz":
-        # непубличный эмитент — краткий профиль, чтобы вкладки не были пустыми
+        # непубличный эмитент — профиль из bond_issuers/<slug> (общий для всех серий
+        # эмитента), заполняется субагентом bond-issuer-analyst. Пока пусто — заглушка.
+        slug = issuer_slug(bond.get("issuer_name") or bond.get("short_name"))
         issuer = {
             "ticker": None, "name": bond.get("issuer_name") or bond.get("short_name"),
-            "sector": None, "is_public": False,
+            "sector": None, "is_public": False, "issuer_slug": slug,
             "type_guess": _issuer_type_guess(bond.get("issuer_name") or bond.get("short_name")),
+            "issuer_business_md": _read_issuer_file(slug, "business.md"),
+            "issuer_financials_md": _read_issuer_file(slug, "financials.md"),
             "has_deep": (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists(),
         }
 
