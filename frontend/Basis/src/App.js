@@ -1782,9 +1782,13 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const isFloater = b.coupon_type === "floater";
   const isLinker = b.coupon_type === "linker";
   const isStructured = b.coupon_type === "structured";
-  // ВДО/проблемный кредит: главный риск — кредитный (вернут ли тело), не ставка
+  // ВДО/проблемный кредит: главный риск — кредитный (вернут ли тело), не ставка.
+  // Включаем и преддефолтные имена (оценка Basis B/CCC- или агентский C-грейд),
+  // чтобы рейтинг C/техдефолтная бумага не выглядела «обычной» в шапке.
   const issuerDebt = data.issuer?.debt;
-  const creditRiskFirst = b.risk_tier === "speculative" || b.is_defaulted || issuerDebt?.flag === "red";
+  const agencyBase = (b.agency_rating || "").replace(/[+-]$/, "").toUpperCase();
+  const creditRiskFirst = b.risk_tier === "speculative" || b.is_defaulted || issuerDebt?.flag === "red"
+    || (b.basis_score && b.basis_score >= 4.0) || ["CCC", "CC", "C", "D", "RD"].includes(agencyBase);
   // вердикты/рейтинг из аналитики — чтобы плитки давали ВЫВОД, а не метод
   const rel = analysis?.reliability;
   const ratingStr = rel?.rating ? [rel.rating.agency, rel.rating.level, rel.rating.as_of].filter(Boolean).join(" ") : null;
