@@ -212,8 +212,19 @@ def get_future(secid: str, db: Session = Depends(get_db)):
     fair_value = _fair_value(fut, term_structure)
     pair_strategy = _pair_strategy(fut)
 
+    # Детальный разбор базового актива (общий для всех контрактов на этот актив):
+    # futures_assets/<asset_code>/analysis.md — нефть/золото/валюта/индекс/ставка.
+    base_asset_md = None
+    if fut.get("asset_code"):
+        bp = Path(__file__).parent.parent.parent / "futures_assets" / _safe(fut["asset_code"]) / "analysis.md"
+        try:
+            base_asset_md = bp.read_text(encoding="utf-8") if bp.exists() else None
+        except Exception:
+            base_asset_md = None
+
     return {"future": fut, "term_structure": term_structure, "sensitivity": sensitivity,
-            "linked_company": linked, "fair_value": fair_value, "pair_strategy": pair_strategy}
+            "linked_company": linked, "fair_value": fair_value, "pair_strategy": pair_strategy,
+            "base_asset_md": base_asset_md}
 
 
 @router.get("/futures/{secid}/summary", response_class=PlainTextResponse)
