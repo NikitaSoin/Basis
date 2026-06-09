@@ -51,4 +51,10 @@ if [ "${SKIP_FUNDS:-0}" != "1" ]; then
   python -m scripts.load_funds
 fi
 
+# 6. Таблица spot_assets — валюта и металлы (USD/CNY + золото/серебро). Быстро.
+if [ "${SKIP_SPOT:-0}" != "1" ]; then
+  echo "[import] загружаю спот валюту/металлы с MOEX..."
+  python -m scripts.load_spot
+fi
+
 echo "[import] готово."
