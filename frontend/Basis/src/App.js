@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
   Search,
+  SlidersHorizontal,
   Scale,
   Wallet,
   AlertTriangle,
@@ -2869,6 +2870,95 @@ const OptionsList = ({ onSelectOption }) => {
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// ── Скрининг акций (поверх готовых метрик company_metrics) ──
+const SCR_COLS = [
+  { key: "upside_pct", label: "Апсайд к спр.", fmt: (v) => v == null ? "—" : `${v > 0 ? "+" : ""}${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
+  { key: "pe_current", label: "P/E", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 1 }) },
+  { key: "div_yield", label: "Дивдох.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
+  { key: "earnings_yield", label: "EY", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
+  { key: "return_total_3y", label: "Доход. 3г", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
+  { key: "sortino_3y", label: "Сортино", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+  { key: "beta", label: "Бета", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+  { key: "volatility", label: "Волат.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%` },
+];
+const SCR_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "undervalued", label: "Апсайд > 0", test: (r) => r.upside_pct != null && r.upside_pct > 0 },
+  { id: "dividend", label: "Дивдох. ≥ 8%", test: (r) => r.div_yield != null && r.div_yield >= 8 },
+  { id: "cheap_pe", label: "P/E < 6", test: (r) => r.pe_current != null && r.pe_current > 0 && r.pe_current < 6 },
+  { id: "lowvol", label: "Бета < 0.8", test: (r) => r.beta != null && r.beta < 0.8 },
+];
+
+const ScreenerView = ({ onSelectCompany }) => {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sector, setSector] = useState("Все");
+  const [quick, setQuick] = useState("all");
+  const [sortKey, setSortKey] = useState("upside_pct");
+  const [sortDir, setSortDir] = useState("desc");
+
+  useEffect(() => {
+    fetch(`${apiBase()}/api/screener/stocks`).then((r) => (r.ok ? r.json() : [])).then((d) => { setRows(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  const sectors = useMemo(() => ["Все", ...Array.from(new Set(rows.map((r) => r.sector).filter(Boolean))).sort()], [rows]);
+  const view = useMemo(() => {
+    const q = search.toLowerCase();
+    const qf = SCR_FILTERS.find((f) => f.id === quick);
+    let out = rows.filter((r) => {
+      if (q && !((r.ticker || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q))) return false;
+      if (sector !== "Все" && r.sector !== sector) return false;
+      if (qf && qf.test && !qf.test(r)) return false;
+      return true;
+    });
+    out.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (av == null) return 1; if (bv == null) return -1;
+      return sortDir === "desc" ? bv - av : av - bv;
+    });
+    return out;
+  }, [rows, search, sector, quick, sortKey, sortDir]);
+
+  const toggleSort = (k) => { if (sortKey === k) setSortDir((d) => d === "desc" ? "asc" : "desc"); else { setSortKey(k); setSortDir("desc"); } };
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем скринер...</div>;
+
+  return (
+    <div>
+      <div className="tw-flex tw-items-center tw-gap-3 tw-mb-2">
+        <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">Скрининг</h1>
+        <Badge tone="neutral">{view.length} из {rows.length}</Badge>
+      </div>
+      <p className="tw-text-[14px] tw-text-text-secondary tw-mb-5">Фильтрация и сортировка акций по готовым метрикам Basis (справедливая цена, P/E, дивдоходность, доходность/риск). Клик по строке — карточка компании. Это инструмент поиска, выводы за вами.</p>
+      <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
+        <div className="tw-flex tw-flex-wrap tw-gap-3 tw-items-center">
+          <div className="tw-relative tw-w-full sm:tw-w-64">
+            <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
+            <Input type="text" placeholder="Тикер / название..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+          </div>
+          <select value={sector} onChange={(e) => setSector(e.target.value)} className="tw-text-[13px] tw-px-3 tw-py-2 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+            {sectors.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+        <FilterChips options={SCR_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={quick} onChange={setQuick} />
+      </div>
+      <Table
+        columns={[
+          { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.ticker}</span><span className="tw-text-[11px] tw-text-text-tertiary">{r.name}</span></div>) },
+          ...SCR_COLS.map((c) => ({
+            key: c.key,
+            label: (<button onClick={() => toggleSort(c.key)} className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-secondary hover:tw-text-text-primary tw-p-0 tw-font-semibold tw-text-[12px]">{c.label}{sortKey === c.key && <span className="tw-text-accent">{sortDir === "desc" ? "▼" : "▲"}</span>}</button>),
+            render: (v) => <span className={`tw-font-mono ${c.tone ? c.tone(v) : "tw-text-text-secondary"}`}>{c.fmt(v)}</span>,
+          })),
+        ]}
+        rows={view}
+        onRowClick={(r) => onSelectCompany && onSelectCompany(r.ticker)}
+      />
     </div>
   );
 };
@@ -9009,11 +9099,32 @@ function OverviewView({ token }) {
 // SIDEBAR
 // =========================
 
+// Резолвер: открыть карточку компании по тикеру ИЛИ по объекту. Ссылки
+// эмитент→компания (облигации/фьючерсы) и скринер дают тикер; грид — объект.
+const CompanyCardResolver = ({ value, onBack }) => {
+  const [obj, setObj] = useState(typeof value === "object" && value ? value : null);
+  const [notFound, setNotFound] = useState(false);
+  useEffect(() => {
+    if (typeof value === "object" && value) { setObj(value); return; }
+    if (typeof value !== "string") return;
+    let alive = true;
+    fetch(`${apiBase()}/api/companies`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list) => { if (!alive) return; const c = (list || []).find((x) => x.ticker === value); c ? setObj(c) : setNotFound(true); })
+      .catch(() => alive && setNotFound(true));
+    return () => { alive = false; };
+  }, [value]);
+  if (obj) return <CompanyCard company={obj} onBack={onBack} />;
+  if (notFound) return <div className="tw-py-12 tw-text-text-tertiary">Компания «{String(value)}» не найдена в базе. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
+  return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Открываем карточку...</div>;
+};
+
 const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   const cx = (...parts) => parts.filter(Boolean).join(" ");
   const reducedMotion = usePrefersReducedMotion();
   const NAV = [
     { id: "companies", icon: BarChart2, label: "Рынок" },
+    { id: "screener",  icon: SlidersHorizontal, label: "Скрининг" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
     { id: "portfolio", icon: Briefcase, label: "Портфель" },
     { id: "pricing",   icon: CreditCard, label: "Тарифы" },
@@ -9168,13 +9279,18 @@ export default function App() {
 
   const renderView = () => {
     if (selectedCompany) {
-      return <CompanyCard company={selectedCompany} onBack={() => setSelectedCompany(null)} />;
+      // selectedCompany может быть ОБЪЕКТОМ (из грида) или ТИКЕРОМ-строкой (из
+      // ссылок эмитент→компания в облигациях/фьючерсах и из скринера) — резолвер
+      // приводит к объекту, который ждёт CompanyCard.
+      return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} />;
     }
     switch (activeTab) {
       case "landing":
         return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
       case "companies":
         return <CompaniesView onSelectCompany={setSelectedCompany} />;
+      case "screener":
+        return <ScreenerView onSelectCompany={setSelectedCompany} />;
       case "overview":
         return <OverviewView token={token} />;
       case "portfolio":
