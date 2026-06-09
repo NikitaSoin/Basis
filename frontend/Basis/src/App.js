@@ -2325,6 +2325,7 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("overview");
 
   useEffect(() => {
     const base = `${apiBase()}/api/futures/${secid}`;
@@ -2386,6 +2387,40 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
           {f.expiration_date && <span className="tw-text-[12px] tw-text-text-tertiary">до {f.expiration_date}</span>}
         </Tile>
       </div>
+
+      {/* Вкладки: Обзор / Анализ базового актива */}
+      <div className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle" role="tablist">
+        {[{ id: "overview", label: "Обзор" }, { id: "base", label: "Анализ базового актива" }].map((t) => (
+          <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+            className={`tw-px-3.5 tw-py-2 tw-text-[13px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${tab === t.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ===== Вкладка АНАЛИЗ БАЗОВОГО АКТИВА ===== */}
+      {tab === "base" && (
+        <div className="tw-flex tw-flex-col tw-gap-3">
+          {data.linked_company ? (<>
+            <Card>
+              <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+                <span className="tw-text-[15px] tw-font-medium tw-text-text-primary">Базовый актив — акция {data.linked_company.name}</span>
+                {data.linked_company.sector && <Badge tone="neutral">{data.linked_company.sector}</Badge>}
+                <button onClick={() => onSelectCompany && onSelectCompany(data.linked_company.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.linked_company.ticker} <ChevronRight size={14} /></button>
+              </div>
+              <div className="tw-mt-2 tw-text-[13px] tw-text-text-secondary">Фьючерс следует за ценой акции. Справедлива ли цена самой акции, что с бизнесом — в её карточке (фундаментал, финансы, риски). Ниже — выжимка.</div>
+            </Card>
+            {data.linked_company.business_md && <Card header="Бизнес компании"><AnalystProse md={data.linked_company.business_md} /></Card>}
+            {data.linked_company.market_md && <Card header="Рынки компании"><AnalystProse md={data.linked_company.market_md} /></Card>}
+          </>) : summary ? (
+            <Card header="Что движет базовым активом"><AnalystProse md={summary} /></Card>
+          ) : (
+            <Card><div className="tw-text-[13px] tw-text-text-tertiary">Подробный анализ базового актива ({f.asset_name || f.asset_code}) готовится. Сейчас доступны параметры контракта, плечо, срочная структура и риск во вкладке «Обзор».</div></Card>
+          )}
+        </div>
+      )}
+
+      {tab === "overview" && (<>
 
       {/* Параметры контракта */}
       <Card header="Параметры контракта">
@@ -2468,21 +2503,7 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
         </Card>
       )}
 
-      {/* Связь с базовым активом: для фьючерса на акцию — карточка компании */}
-      {data.linked_company && (
-        <Card header="Связь с базовым активом">
-          <div className="tw-text-[13px] tw-text-text-secondary tw-mb-2">Это фьючерс на акцию <b>{data.linked_company.name}</b>. Понять, что происходит с самим бизнесом и справедлива ли цена акции, — в её карточке (фундаментал, финансы, риски):</div>
-          <button onClick={() => onSelectCompany && onSelectCompany(data.linked_company.ticker)} className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[14px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-px-0 tw-rounded-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus hover:tw-underline">
-            Открыть карточку {data.linked_company.ticker} <ChevronRight size={16} />
-          </button>
-        </Card>
-      )}
-
-      {summary && (
-        <Card header="Разбор аналитика">
-          <AnalystProse md={summary} />
-        </Card>
-      )}
+      </>)}{/* конец вкладки Обзор */}
     </div>
   );
 };
