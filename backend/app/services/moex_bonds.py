@@ -136,15 +136,62 @@ ISSUER_TICKER_MAP = [
 ]
 
 
-def match_issuer_ticker(name: str | None) -> str | None:
-    """Тикер компании-эмитента по имени выпуска (NAME из MOEX). None, если не
-    нашли в курируемом словаре (мелкий/непубличный эмитент)."""
+# Авто-связка: имя выпуска → публичная компания из нашей базы (companies). Курируемая
+# карта ловит крупных, но компаний 262 — остальных доберём нормализацией имени.
+# Кэш строится один раз из БД (build_company_keys), матч — по целому слову.
+_COMPANY_KEYS: list[tuple[str, str]] = []   # [(нормализованный ключ, ticker)], длинные раньше
+
+# Слишком общие/короткие ключи, дающие ложные совпадения — не матчим по ним.
+_KEY_STOPLIST = {"система", "группа", "финанс", "капитал", "инвест", "русские",
+                 "первый", "регион", "центр", "восток", "запад", "юг", "сибирь"}
+
+
+def _norm_issuer(s: str | None) -> str:
+    """Нормализация имени для матчинга: убрать орг-формы, кавычки, пунктуацию."""
+    if not s:
+        return ""
+    s = s.lower()
+    for w in ("публичное акционерное общество", "акционерное общество",
+              "общество с ограниченной ответственностью", "коммерческий банк",
+              " пао", " оао", " ооо", " ао ", " нао", " зао", "пао ", "оао ", "ооо "):
+        s = s.replace(w, " ")
+    s = re.sub(r"[\"«»()\,\.\-–—_]", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def build_company_keys(db) -> None:
+    """Заполнить кэш ключей публичных компаний из таблицы companies (один раз)."""
+    global _COMPANY_KEYS
+    rows = db.execute(text("SELECT ticker, name FROM companies")).all()
+    keys: list[tuple[str, str]] = []
+    for ticker, name in rows:
+        k = _norm_issuer(name)
+        # берём первые 1-2 значимых слова как ключ (точнее, чем всё имя)
+        if len(k) < 5 or k in _KEY_STOPLIST:
+            continue
+        keys.append((k, ticker))
+    # длинные ключи раньше — более специфичные матчатся первыми
+    keys.sort(key=lambda kt: len(kt[0]), reverse=True)
+    _COMPANY_KEYS = keys
+    logger.info("Авто-связка эмитентов: загружено %d ключей компаний", len(keys))
+
+
+def match_issuer_ticker(name: str | None, allow_auto: bool = True) -> str | None:
+    """Тикер компании-эмитента по имени выпуска (NAME из MOEX). Сначала курируемая
+    карта (надёжно), затем авто-матч против ключей компаний из БД (если allow_auto).
+    None — мелкий/непубличный эмитент (доберётся кампанией bond-analyst)."""
     if not name:
         return None
     s = name.lower()
     for key, ticker in ISSUER_TICKER_MAP:
         if key in s:
             return ticker
+    if allow_auto and _COMPANY_KEYS:
+        ln = " " + _norm_issuer(name) + " "
+        for key, ticker in _COMPANY_KEYS:
+            if " " + key + " " in ln:
+                return ticker
     return None
 
 
@@ -327,7 +374,8 @@ def upsert_bond(db: Session, rec: dict, curve: list,
 
     rating = ratings.get(s.get("ISIN"))
     issuer_name = meta.get("name") or s.get("EMITENT_TITLE")
-    issuer_ticker = match_issuer_ticker(issuer_name or s.get("SHORTNAME"))
+    issuer_ticker = match_issuer_ticker(issuer_name or s.get("SHORTNAME"),
+                                        allow_auto=(bond_type not in ("muni", "ofz")))
     db.execute(_UPSERT, {
         "secid": s["SECID"], "isin": s.get("ISIN"), "short_name": s.get("SHORTNAME") or s["SECID"],
         "issuer_name": issuer_name, "issuer_ticker": issuer_ticker, "bond_type": bond_type, "board": rec["board"],

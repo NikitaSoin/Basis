@@ -28,7 +28,7 @@ load_dotenv()
 
 from app.db.session import SessionLocal
 from app.services.moex_bonds import (
-    TRADE_BOARDS, fetch_board, fetch_meta_map, load_agency_ratings,
+    TRADE_BOARDS, build_company_keys, fetch_board, fetch_meta_map, load_agency_ratings,
     load_ofz_curve, upsert_bond,
 )
 
@@ -77,6 +77,7 @@ def main() -> None:
     # 3) запись батчами
     db = SessionLocal()
     try:
+        build_company_keys(db)   # авто-связка выпуск → публичная компания (по именам из БД)
         bad = 0
         for i, secid in enumerate(secids):
             try:
