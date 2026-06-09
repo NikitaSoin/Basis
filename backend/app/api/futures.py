@@ -191,13 +191,23 @@ def get_future(secid: str, db: Session = Depends(get_db)):
             ],
         }
 
-    # Связь с базовым активом: для фьючерса на акцию — переход в карточку компании.
+    # Связь с базовым активом: для фьючерса на акцию — выжимка из карточки компании
+    # (бизнес + рынки) + переход в неё (переиспользуем, не дублируем).
     linked = None
     if fut.get("linked_ticker"):
-        comp = db.execute(text("SELECT ticker, name FROM companies WHERE ticker = :t"),
+        comp = db.execute(text("SELECT ticker, name, sector FROM companies WHERE ticker = :t"),
                           {"t": fut["linked_ticker"]}).first()
         if comp:
-            linked = {"ticker": comp[0], "name": comp[1]}
+            tk = comp[0]
+            cdir = Path(__file__).parent.parent.parent / "companies" / tk
+            def _rd(fn):
+                p = cdir / fn
+                try:
+                    return p.read_text(encoding="utf-8") if p.exists() else None
+                except Exception:
+                    return None
+            linked = {"ticker": tk, "name": comp[1], "sector": comp[2],
+                      "business_md": _rd("business_model.md"), "market_md": _rd("market_summary.md")}
 
     fair_value = _fair_value(fut, term_structure)
     pair_strategy = _pair_strategy(fut)
