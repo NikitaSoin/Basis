@@ -2329,6 +2329,27 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
         </Card>
       )}
 
+      {/* Справедливость базиса и арбитраж: факт vs теория (cost-of-carry) */}
+      {data.fair_value && (
+        <Card header="Справедлив ли базис · арбитраж">
+          {data.fair_value.basis_explain && (
+            <div className="tw-text-[13px] tw-text-text-secondary tw-mb-2 tw-leading-snug">{data.fair_value.basis_explain}</div>
+          )}
+          {data.fair_value.verdict && (
+            <div className="tw-p-2.5 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-text-[13px] tw-text-text-primary tw-leading-snug">{data.fair_value.verdict}</div>
+          )}
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Оценка. «Арбитраж» здесь — академическое расхождение факта и теории; реальная сделка требует одновременных позиций, учёта комиссий, ГО и доступности шорта. Не сигнал к сделке.</div>
+        </Card>
+      )}
+
+      {/* Парные стратегии: как фьючерс используют в связке (аналитически) */}
+      {data.pair_strategy && (
+        <Card header="Парные стратегии (как используют в связке)">
+          <div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">{data.pair_strategy}</div>
+          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">Это объяснение применения инструмента, а не рекомендация сделки.</div>
+        </Card>
+      )}
+
       {/* Чувствительность к плечу — в НЕГАТИВНОЙ рамке (риск убытка) */}
       {data.sensitivity && (
         <Card header="Риск плеча: что если рынок пойдёт против вас">
