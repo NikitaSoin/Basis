@@ -368,7 +368,7 @@ function AssemblyBlock({ bodyText }) {
             </thead>
             <tbody>
               {rows.map((row, ri) => (
-                <tr key={ri} className="tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-bg-base tw-transition-colors tw-duration-150">
+                <tr key={ri} className="tw-border-b tw-border-border-subtle last:tw-border-0 hover:tw-bg-bg-base">
                   {row.map((cell, ci) => {
                     // Колонка "Оценка" — окрашиваем по значению
                     const isScoreCol = headers[ci]?.toLowerCase() === "оценка";
@@ -520,7 +520,7 @@ const ANALYST_MD_COMPONENTS = {
   ol: ({ children }) => <ol className="tw-text-[13px] tw-text-text-secondary tw-leading-[1.6] tw-mt-2 tw-pl-5 tw-list-decimal tw-space-y-1">{children}</ol>,
   li: ({ children }) => <li className="tw-pl-1">{children}</li>,
   strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
-  a: ({ href, children }) => <a href={href} className="tw-text-accent tw-underline hover:tw-text-accent-hover" target="_blank" rel="noopener noreferrer">{children}</a>,
+  a: ({ href, children }) => <a href={href} className="tw-text-accent tw-underline hover:tw-text-accent-hover focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-xs" target="_blank" rel="noopener noreferrer">{children}</a>,
   blockquote: ({ children }) => <blockquote className="tw-border-l-2 tw-border-border-strong tw-pl-3 tw-my-2 tw-italic tw-text-text-tertiary">{children}</blockquote>,
   hr: () => <hr className="tw-my-5 tw-border-border-subtle" />,
   table: ({ children }) => <div className="tw-overflow-x-auto tw-my-3 tw-rounded-md tw-border tw-border-border-subtle"><table className="tw-w-full tw-border-collapse tw-text-[13px]">{children}</table></div>,
