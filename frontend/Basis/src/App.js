@@ -1880,7 +1880,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           { id: "overview", label: "Обзор" },
           { id: "yield_risk", label: "Доходность vs риск" },
           ...(data.issuer ? (data.issuer.is_category_profile
-            ? [{ id: "issuer_biz", label: "Что это" }, { id: "issuer_fin", label: "Надёжность и риск" }]
+            ? [{ id: "issuer_biz", label: "Что это" }]  // у госбумаг надёжность сведена в «Доходность vs риск»
             : [{ id: "issuer_biz", label: "Бизнес эмитента" }, { id: "issuer_fin", label: "Финансы эмитента" }]) : []),
         ];
         return (
@@ -1899,7 +1899,15 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
       {tab === "yield_risk" && (() => {
         const y = data.yield_vs_risk;
         if (!y) return <div className="tw-text-[13px] tw-text-text-tertiary">Нет данных для оценки.</div>;
-        if (y.is_ofz) return <Card><div className="tw-text-[14px] tw-text-text-secondary">{y.verdict}</div></Card>;
+        // Госбумаги/категории: короткая логика (не три вкладки) — суть надёжности здесь.
+        if (y.is_ofz || data.issuer?.is_category_profile) return (
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <Card><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">{y.verdict}</div></Card>
+            {data.issuer?.issuer_financials_md && (
+              <Card header="Надёжность инструмента"><AnalystProse md={data.issuer.issuer_financials_md} /></Card>
+            )}
+          </div>
+        );
         if (y.no_data) return <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>;
         if (y.is_defaulted_verdict) return (
           <div className="tw-flex tw-flex-col tw-gap-3">
@@ -1920,13 +1928,20 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
                 Доходность платит <b>{y.spread_bp} б.п.</b> сверх ОФЗ; за такой риск нужно ~<b>{y.required_bp} б.п.</b> → премия <b className={y.premium_bp >= 0 ? "tw-text-success" : "tw-text-danger"}>{y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п.</b>
               </div>
             </div>
-            {/* вердикт-описание — нормальная читаемая оценка по методике */}
-            {y.verdict_prose?.length > 0 && (
-              <Card header="Вердикт: доходность за риск">
-                <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">
-                  {y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}
-                </div>
+            {/* качественный разбор по методике (пер-эмитент, веб-исследование блоков A–F) */}
+            {y.qualitative_md ? (
+              <Card header="Разбор по методике: доходность за риск">
+                <AnalystProse md={y.qualitative_md} />
               </Card>
+            ) : (
+              /* авто-вердикт (числовая оценка), пока нет ручного разбора по методике */
+              y.verdict_prose?.length > 0 && (
+                <Card header="Вердикт: доходность за риск">
+                  <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">
+                    {y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}
+                  </div>
+                </Card>
+              )
             )}
             {/* арифметика 3 строки */}
             <Card header="Арифметика">

@@ -362,11 +362,13 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     # её карточку. Только для публичных эмитентов из нашей базы (переиспользуем).
     issuer = None
     comp = None
+    risk_md = None  # качественный вердикт «доходность за риск» по методике (пер-эмитент)
     if bond.get("issuer_ticker"):
         comp = db.execute(text("SELECT ticker, name, sector FROM companies WHERE ticker = :t"),
                           {"t": bond["issuer_ticker"]}).first()
     if comp:
         tk = bond["issuer_ticker"]
+        risk_md = _read_company_file(tk, "bond_risk.md")
         issuer = {
             "ticker": comp[0], "name": comp[1], "sector": comp[2], "is_public": True,
             "debt": _issuer_debt_block(tk),
@@ -381,12 +383,14 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
         slug = issuer_slug(name)
         bus = _read_issuer_file(slug, "business.md")
         fin = _read_issuer_file(slug, "financials.md")
+        risk_md = _read_issuer_file(slug, "risk.md")
         is_category = False
         if not bus and not fin:
             cat = _category_slug(name, bond.get("bond_type"))
             if cat:
                 bus = _read_issuer_file(cat, "business.md")
                 fin = _read_issuer_file(cat, "financials.md")
+                risk_md = _read_issuer_file(cat, "risk.md")
                 is_category = bool(bus or fin)
         if bus or fin or bond.get("bond_type") != "ofz":
             issuer = {
@@ -405,7 +409,11 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
         bond["basis_score"] = yvr["risk_score"]
         bond["basis_group"] = yvr.get("implied_group")
     if yvr:
-        yvr["has_deep_analysis"] = (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists()
+        per_secid_deep = (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists()
+        # «разобрано по методике» = есть качественный вердикт пер-эмитент (risk.md)
+        # ИЛИ индивидуальный глубокий разбор по конкретной бумаге.
+        yvr["qualitative_md"] = risk_md
+        yvr["has_deep_analysis"] = bool(risk_md) or per_secid_deep
 
     return {"bond": bond, "sensitivity": sensitivity, "cashflow": cashflow,
             "issuer": issuer, "yield_vs_risk": yvr}
