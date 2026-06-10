@@ -59,7 +59,8 @@ _group_medians = {"data": None}
 def _get_group_medians(db: Session) -> dict:
     if _group_medians["data"] is None:
         rows = [dict(r._mapping) for r in db.execute(text(
-            "SELECT bond_type, risk_tier, agency_rating, spread_bp, is_defaulted FROM bonds"))]
+            "SELECT bond_type, risk_tier, agency_rating, spread_bp, is_defaulted, "
+            "coupon_type, offer_date, maturity_date, ytm, last_price FROM bonds"))]
         _group_medians["data"] = bond_risk.group_median_spreads(rows)
     return _group_medians["data"]
 
