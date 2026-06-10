@@ -1,0 +1,30 @@
+[
+  {
+    "ticker": "SBER",
+    "status": "ok",
+    "validation_errors": [],
+    "timestamp": "2026-05-15T00:33:21.189766",
+    "error": null
+  },
+  {
+    "ticker": "LKOH",
+    "status": "ok",
+    "validation_errors": [],
+    "timestamp": "2026-05-15T00:35:24.113881",
+    "error": null
+  },
+  {
+    "ticker": "YDEX",
+    "status": "ok",
+    "validation_errors": [],
+    "timestamp": "2026-05-15T00:37:32.810319",
+    "error": null
+  },
+  {
+    "ticker": "GMKN",
+    "status": "ok",
+    "validation_errors": [],
+    "timestamp": "2026-05-15T00:39:40.749180",
+    "error": null
+  }
+]
