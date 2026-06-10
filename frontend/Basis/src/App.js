@@ -1899,6 +1899,15 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         if (!y) return <div className="tw-text-[13px] tw-text-text-tertiary">Нет данных для оценки.</div>;
         if (y.is_ofz) return <Card><div className="tw-text-[14px] tw-text-text-secondary">{y.verdict}</div></Card>;
         if (y.no_data) return <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>;
+        if (y.is_defaulted_verdict) return (
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <div className="tw-p-4 tw-rounded-md tw-bg-danger-soft">
+              <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">🔴 {y.label}</div>
+            </div>
+            {y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
+            {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+          </div>
+        );
         const L = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
         return (
           <div className="tw-flex tw-flex-col tw-gap-3">
@@ -1909,6 +1918,14 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
                 Доходность платит <b>{y.spread_bp} б.п.</b> сверх ОФЗ; за такой риск нужно ~<b>{y.required_bp} б.п.</b> → премия <b className={y.premium_bp >= 0 ? "tw-text-success" : "tw-text-danger"}>{y.premium_bp >= 0 ? "+" : ""}{y.premium_bp} б.п.</b>
               </div>
             </div>
+            {/* вердикт-описание — нормальная читаемая оценка по методике */}
+            {y.verdict_prose?.length > 0 && (
+              <Card header="Вердикт: доходность за риск">
+                <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">
+                  {y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}
+                </div>
+              </Card>
+            )}
             {/* арифметика 3 строки */}
             <Card header="Арифметика">
               <div className="tw-text-[13px] tw-text-text-secondary tw-space-y-1.5">
