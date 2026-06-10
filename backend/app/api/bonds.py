@@ -41,7 +41,7 @@ def _category_slug(name: str | None, bond_type: str | None) -> str | None:
     if bond_type == "ofz" or "ОВОЗ РФ" in up or "ГОВОЗ РФ" in up:
         return "_cat-sovereign-rf"
     # иностранные суверены — ДО муниципалитетов (иначе «Республика Казахстан» уйдёт в муни)
-    if re.search(r"(КАЗАХСТАН|РЕСБЕЛ|БЕЛАРУС|РЕСПУБЛИКА БЕЛАРУСЬ)", up):
+    if re.search(r"(КАЗАХСТАН|KAZAKHSTAN|РЕСБЕЛ|БЕЛАРУС|BELARUS|РЕСПУБЛИКА БЕЛАРУСЬ)", up):
         return "_cat-sovereign-foreign"
     if bond_type == "muni" or re.search(
             r"(ОБЛАСТЬ|ОБЛ\.|РЕСПУБЛИКА|МИНФИН|КРАЙ\b|АВТОНОМН|Г\.МОСКВ|МОСКВА \d|САНКТ-ПЕТЕРБУРГ)", up):
