@@ -1914,7 +1914,9 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             <div className="tw-p-4 tw-rounded-md tw-bg-danger-soft">
               <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">🔴 {y.label}</div>
             </div>
-            {y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
+            {y.qualitative_md
+              ? <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>
+              : y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
             {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
           </div>
         );
