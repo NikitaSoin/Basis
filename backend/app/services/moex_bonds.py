@@ -414,9 +414,12 @@ def upsert_bond(db: Session, rec: dict, curve: list,
     # Иначе spread=None → «нет осмысленной рыночной оценки» (каскадом risk_tier=None).
     price = _f(m.get("LCURRENTPRICE") or m.get("LAST"))
     offer_d = _d(s.get("OFFERDATE"))
+    mat_d = _d(s.get("MATDATE"))
     coupon_type = meta.get("coupon_type")
-    _d_off = (offer_d - date.today()).days if offer_d else None
-    near_offer = (_d_off is not None and 0 <= _d_off <= 120 and ytm is not None
+    # ближайшее событие: оферта ИЛИ погашение — короткий хвост раздувает YTM одинаково
+    _tails = [(d - date.today()).days for d in (offer_d, mat_d) if d]
+    _d_near = min(_tails) if _tails else None
+    near_offer = (_d_near is not None and 0 <= _d_near <= 120 and ytm is not None
                   and ytm > 35 and (price is None or price >= 93))
     spread_bp = None
     if (bond_type != "ofz" and ytm is not None and dur_years
