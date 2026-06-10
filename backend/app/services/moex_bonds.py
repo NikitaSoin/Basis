@@ -186,7 +186,18 @@ def issuer_slug(name: str | None) -> str | None:
     k = _norm_issuer(name)
     words = [w for w in k.split()
              if w and len(w) > 1 and not _SERIES_DIGIT.search(w) and w not in _SERIES_DROP]
-    return "-".join(words) if words else None
+    if words:
+        return "-".join(words)
+    # фоллбэк для брендов «буква+цифра» (А101): все токены отброшены. Берём первый
+    # токен с буквой и приклеиваем сразу следующий числовой токен (а+101 → а101),
+    # чтобы не потерять эмитента
+    toks = k.split()
+    for i, w in enumerate(toks):
+        if re.search(r"[а-яёa-z]", w):
+            if i + 1 < len(toks) and toks[i + 1].isdigit():
+                return w + toks[i + 1]
+            return w
+    return None
 
 
 def build_company_keys(db) -> None:
