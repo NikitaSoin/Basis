@@ -1733,20 +1733,20 @@ function useScrollRestore(key, ready) {
 // БЕЗ него сырой markdown (##, **, таблицы |) показывался плоской «простынёй».
 const ANALYST_MD = {
   h1: () => null,
-  h2: ({ children }) => <h2 className="tw-text-[15px] tw-font-bold tw-text-text-primary tw-mt-5 tw-mb-2 tw-pt-3 tw-border-t tw-border-border-subtle first:tw-border-0 first:tw-pt-0 first:tw-mt-0">{children}</h2>,
-  h3: ({ children }) => <h3 className="tw-text-[13px] tw-font-semibold tw-text-text-secondary tw-mt-3 tw-mb-1.5">{children}</h3>,
-  p: ({ children }) => <p className="tw-text-[13.5px] tw-leading-[1.6] tw-text-text-secondary tw-my-2">{children}</p>,
-  ul: ({ children }) => <ul className="tw-list-disc tw-pl-5 tw-my-2 tw-space-y-1">{children}</ul>,
-  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-2 tw-space-y-1">{children}</ol>,
-  li: ({ children }) => <li className="tw-text-[13.5px] tw-leading-[1.55] tw-text-text-secondary marker:tw-text-text-tertiary">{children}</li>,
+  h2: ({ children }) => <h2 className="tw-text-[15.5px] tw-font-bold tw-text-text-primary tw-mt-6 tw-mb-2.5 tw-pt-3.5 tw-border-t tw-border-border-subtle first:tw-border-0 first:tw-pt-0 first:tw-mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="tw-text-[14px] tw-font-semibold tw-text-text-primary tw-mt-4 tw-mb-1.5">{children}</h3>,
+  p: ({ children }) => <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-2.5">{children}</p>,
+  ul: ({ children }) => <ul className="tw-list-disc tw-pl-5 tw-my-2.5 tw-space-y-1.5">{children}</ul>,
+  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-2.5 tw-space-y-1.5">{children}</ol>,
+  li: ({ children }) => <li className="tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary marker:tw-text-text-tertiary tw-pl-1">{children}</li>,
   strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
   em: ({ children }) => <em className="tw-italic">{children}</em>,
-  blockquote: ({ children }) => <blockquote className="tw-border-l-2 tw-border-accent tw-pl-3 tw-my-2 tw-text-text-secondary">{children}</blockquote>,
-  hr: () => <hr className="tw-my-4 tw-border-border-subtle" />,
-  table: ({ children }) => <div className="tw-overflow-x-auto tw-my-2.5"><table className="tw-w-full tw-border-collapse tw-text-[12.5px]">{children}</table></div>,
-  th: ({ children }) => <th className="tw-text-left tw-px-2 tw-py-1.5 tw-border-b tw-border-border-strong tw-text-text-secondary tw-font-semibold">{children}</th>,
-  td: ({ children }) => <td className="tw-px-2 tw-py-1.5 tw-border-b tw-border-border-subtle tw-text-text-secondary tw-align-top">{children}</td>,
-  code: ({ children }) => <code className="tw-bg-bg-base tw-px-1.5 tw-py-0.5 tw-rounded-xs tw-text-[12px] tw-font-mono">{children}</code>,
+  blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-bg-base tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2 tw-my-3 tw-text-text-secondary">{children}</blockquote>,
+  hr: () => <hr className="tw-my-5 tw-border-border-subtle" />,
+  table: ({ children }) => <div className="tw-overflow-x-auto tw-my-3 tw-rounded-md tw-border tw-border-border-subtle"><table className="tw-w-full tw-border-collapse tw-text-[13px]">{children}</table></div>,
+  th: ({ children }) => <th className="tw-text-left tw-px-2.5 tw-py-2 tw-bg-bg-base tw-border-b tw-border-border-strong tw-text-text-secondary tw-font-semibold">{children}</th>,
+  td: ({ children }) => <td className="tw-px-2.5 tw-py-2 tw-border-b tw-border-border-subtle tw-text-text-secondary tw-align-top tw-leading-[1.5]">{children}</td>,
+  code: ({ children }) => <code className="tw-bg-bg-base tw-px-1.5 tw-py-0.5 tw-rounded-xs tw-text-[12.5px] tw-font-mono">{children}</code>,
 };
 const AnalystProse = ({ md }) => (
   <div className="tw-max-w-[72ch]"><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{md}</ReactMarkdown></div>
