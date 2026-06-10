@@ -47,6 +47,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
+import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
 // =========================
@@ -1911,7 +1912,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         if (y.no_data) return (
           <div className="tw-flex tw-flex-col tw-gap-3">
             <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>
-            {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>}
+            {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
           </div>
         );
         // near-offer артефакт / флоатер — без светофор-арифметики премии
@@ -1926,7 +1927,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               {y.verdict_prose?.length > 0 && (
                 <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
               )}
-              {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>}
+              {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
               {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
             </div>
           );
@@ -1937,7 +1938,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">🔴 {y.label}</div>
             </div>
             {y.qualitative_md
-              ? <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>
+              ? <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>
               : y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
             {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
           </div>
@@ -1955,7 +1956,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {/* качественный разбор по методике (пер-эмитент, веб-исследование блоков A–F) */}
             {y.qualitative_md ? (
               <Card header="Разбор по методике: доходность за риск">
-                <AnalystProse md={y.qualitative_md} />
+                <BondRiskAnalysis md={y.qualitative_md} />
               </Card>
             ) : (
               /* авто-вердикт (числовая оценка), пока нет ручного разбора по методике */
