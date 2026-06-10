@@ -1879,7 +1879,9 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         const TABS = [
           { id: "overview", label: "Обзор" },
           { id: "yield_risk", label: "Доходность vs риск" },
-          ...(data.issuer ? [{ id: "issuer_biz", label: "Бизнес эмитента" }, { id: "issuer_fin", label: "Финансы эмитента" }] : []),
+          ...(data.issuer ? (data.issuer.is_category_profile
+            ? [{ id: "issuer_biz", label: "Что это" }, { id: "issuer_fin", label: "Надёжность и риск" }]
+            : [{ id: "issuer_biz", label: "Бизнес эмитента" }, { id: "issuer_fin", label: "Финансы эмитента" }]) : []),
         ];
         return (
           <div className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle tw-overflow-x-auto" role="tablist">
@@ -1985,7 +1987,8 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
               <span className="tw-text-[16px] tw-font-medium tw-text-text-primary">{data.issuer.name}</span>
               {data.issuer.sector && <Badge tone="neutral">{data.issuer.sector}</Badge>}
-              {!data.issuer.is_public && data.issuer.type_guess && <Badge tone="neutral">{data.issuer.type_guess}</Badge>}
+              {!data.issuer.is_public && !data.issuer.is_category_profile && data.issuer.type_guess && <Badge tone="neutral">{data.issuer.type_guess}</Badge>}
+              {data.issuer.is_category_profile && <Badge tone="neutral">типовой инструмент</Badge>}
               {data.issuer.is_public && <button onClick={() => onSelectCompany && onSelectCompany(data.issuer.ticker)} className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[13px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-underline">Полная карточка {data.issuer.ticker} <ChevronRight size={14} /></button>}
             </div>
           </Card>
@@ -1993,7 +1996,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {data.issuer.business_md ? <Card header="Бизнес-модель"><AnalystProse md={data.issuer.business_md} /></Card> : <Card><div className="tw-text-[13px] tw-text-text-tertiary">Бизнес-модель эмитента не загружена.</div></Card>}
             {data.issuer.governance_md && <Card header="Собственники и управление"><AnalystProse md={data.issuer.governance_md} /></Card>}
           </>) : data.issuer.issuer_business_md ? (
-            <Card header="Бизнес эмитента"><AnalystProse md={data.issuer.issuer_business_md} /></Card>
+            <Card header={data.issuer.is_category_profile ? "Что это за инструмент" : "Бизнес эмитента"}><AnalystProse md={data.issuer.issuer_business_md} /></Card>
           ) : (
             <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
               <b>Непубличный эмитент</b> — отдельной карточки компании в базе нет (это типично для ВДО). Профиль по названию выпуска: <b>{data.issuer.type_guess}</b>.
@@ -2019,7 +2022,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               {data.issuer.debt.verdict && <div className={`tw-p-2.5 tw-rounded-md tw-text-[13px] tw-text-text-primary ${DEBT_FLAG_BG[data.issuer.debt.flag] || "tw-bg-bg-base"}`}>{data.issuer.debt.flag === "red" ? "⚠ " : ""}{data.issuer.debt.verdict}<span className="tw-text-text-tertiary"> (по отчётности{data.issuer.debt.as_of_year ? ` за ${data.issuer.debt.as_of_year}` : ""})</span></div>}
             </Card>
           ) : data.issuer.issuer_financials_md ? (
-            <Card header="Финансы эмитента"><AnalystProse md={data.issuer.issuer_financials_md} /></Card>
+            <Card header={data.issuer.is_category_profile ? "Надёжность и риск" : "Финансы эмитента"}><AnalystProse md={data.issuer.issuer_financials_md} /></Card>
           ) : (
             <Card><div className="tw-text-[13px] tw-text-text-secondary tw-leading-snug">
               <b>Непубличный эмитент</b> — выверенной отчётности в нашей базе нет (МСФО малые ВДО часто не публикуют). Оценка платёжеспособности здесь идёт <b>от рынка</b>: спред к ОФЗ + агентский рейтинг + методика Basis — всё во вкладке <b>«Доходность vs риск»</b>{data.issuer.has_deep ? <>, а долговая нагрузка из отчётности эмитента разобрана в <b>«Разбор аналитика»</b> там же</> : <></>}.
