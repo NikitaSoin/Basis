@@ -5,6 +5,7 @@
 денежный поток. Текстовая аналитика (bond-analyst) — из файлов backend/bonds/.
 """
 import json
+import re
 from datetime import date
 from pathlib import Path
 
@@ -29,6 +30,27 @@ def _read_issuer_file(slug: str | None, fname: str) -> str | None:
         return None
     p = ISSUERS_DIR / slug / fname
     return p.read_text(encoding="utf-8") if p.exists() else None
+
+
+def _category_slug(name: str | None, bond_type: str | None) -> str | None:
+    """Категорийный пояснитель для типовых эмитентов без индивидуального профиля:
+    суверенный долг РФ (ОФЗ/замещающие ОВОЗ-ГОВОЗ), иностранные суверены,
+    секьюритизация (СФО/ИА — ипотечные агенты), структурные ноты. Возвращает слаг
+    директории-категории в bond_issuers/ или None."""
+    up = (name or "").upper()
+    if bond_type == "ofz" or "ОВОЗ РФ" in up or "ГОВОЗ РФ" in up:
+        return "_cat-sovereign-rf"
+    # иностранные суверены — ДО муниципалитетов (иначе «Республика Казахстан» уйдёт в муни)
+    if re.search(r"(КАЗАХСТАН|РЕСБЕЛ|БЕЛАРУС|РЕСПУБЛИКА БЕЛАРУСЬ)", up):
+        return "_cat-sovereign-foreign"
+    if bond_type == "muni" or re.search(
+            r"(ОБЛАСТЬ|ОБЛ\.|РЕСПУБЛИКА|МИНФИН|КРАЙ\b|АВТОНОМН|Г\.МОСКВ|МОСКВА \d|САНКТ-ПЕТЕРБУРГ)", up):
+        return "_cat-muni"
+    if re.search(r"(^|\b)(СФО|ИА |ИА-|ИПОТЕЧНЫЙ АГЕНТ)", up) or up.startswith("ИА"):
+        return "_cat-securitization"
+    if re.search(r"(СТРУКТУРН|ИНВЕСТИЦИОНН[ЫО].{0,4} ОБЛИГАЦ|ЦИФРОВ.{0,4} ОБЛИГАЦ|\bCIB\b|БСПБ.*НОТ)", up):
+        return "_cat-structured-note"
+    return None
 
 # кэш медианных спредов по рейтинговым группам (требуемый спред-базис из нашей базы)
 _group_medians = {"data": None}
@@ -351,18 +373,30 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
             "business_md": _read_company_file(tk, "business_model.md"),
             "governance_md": _read_company_file(tk, "governance_summary.md"),
         }
-    elif bond.get("bond_type") != "ofz":
-        # непубличный эмитент — профиль из bond_issuers/<slug> (общий для всех серий
-        # эмитента), заполняется субагентом bond-issuer-analyst. Пока пусто — заглушка.
-        slug = issuer_slug(bond.get("issuer_name") or bond.get("short_name"))
-        issuer = {
-            "ticker": None, "name": bond.get("issuer_name") or bond.get("short_name"),
-            "sector": None, "is_public": False, "issuer_slug": slug,
-            "type_guess": _issuer_type_guess(bond.get("issuer_name") or bond.get("short_name")),
-            "issuer_business_md": _read_issuer_file(slug, "business.md"),
-            "issuer_financials_md": _read_issuer_file(slug, "financials.md"),
-            "has_deep": (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists(),
-        }
+    else:
+        # непубличный/суверенный эмитент — индивидуальный профиль из bond_issuers/<slug>
+        # (общий для всех серий эмитента), иначе категорийный пояснитель (ОФЗ/суверены/
+        # секьюритизация/структурные ноты), иначе заглушка.
+        name = bond.get("issuer_name") or bond.get("short_name")
+        slug = issuer_slug(name)
+        bus = _read_issuer_file(slug, "business.md")
+        fin = _read_issuer_file(slug, "financials.md")
+        is_category = False
+        if not bus and not fin:
+            cat = _category_slug(name, bond.get("bond_type"))
+            if cat:
+                bus = _read_issuer_file(cat, "business.md")
+                fin = _read_issuer_file(cat, "financials.md")
+                is_category = bool(bus or fin)
+        if bus or fin or bond.get("bond_type") != "ofz":
+            issuer = {
+                "ticker": None, "name": name, "sector": None, "is_public": False,
+                "issuer_slug": slug, "is_category_profile": is_category,
+                "type_guess": _issuer_type_guess(name),
+                "issuer_business_md": bus,
+                "issuer_financials_md": fin,
+                "has_deep": (BONDS_DIR / _safe(secid) / "analysis_summary.md").exists(),
+            }
 
     # Вкладка «Доходность vs риск» — методика docs/bond_analys.md (расчёт кодом)
     yvr = bond_risk.yield_vs_risk(bond, _get_group_medians(db))

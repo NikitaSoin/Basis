@@ -165,13 +165,17 @@ def _norm_issuer(s: str | None) -> str:
               " пао", " оао", " ооо", " ао ", " нао", " зао", "пао ", "оао ", "ооо "):
         s = s.replace(w, " ")
     s = re.sub(r"[\"«»()\,\.\-–—_]", " ", s)
+    # разлепить склеенные «имя+серия» (ТАЛКлизинг001P-03 → талклизинг 001 p 03)
+    s = re.sub(r"(?<=[а-яёa-z])(?=\d)", " ", s)
+    s = re.sub(r"(?<=\d)(?=[а-яёa-z])", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
 
 _SERIES_DIGIT = re.compile(r"\d")
 _SERIES_DROP = {"бо", "об", "обл", "серия", "сер", "класс", "выпуск", "п", "r",
-                "пк", "биржевые", "облигации", "ин", "ра", "ао", "пбо", "оа"}
+                "пк", "биржевые", "облигации", "ин", "ра", "ао", "пбо", "оа",
+                "р", "рс", "кл", "об"}
 
 
 def issuer_slug(name: str | None) -> str | None:
@@ -179,7 +183,8 @@ def issuer_slug(name: str | None) -> str | None:
     одного эмитента → один профиль бизнеса/финансов на эмитента. Напр.
     «ГПБ (АО) БО 004Р-26» и «ГПБ (АО) БО 001Р-26Р» → 'гпб'."""
     k = _norm_issuer(name)
-    words = [w for w in k.split() if w and not _SERIES_DIGIT.search(w) and w not in _SERIES_DROP]
+    words = [w for w in k.split()
+             if w and len(w) > 1 and not _SERIES_DIGIT.search(w) and w not in _SERIES_DROP]
     return "-".join(words) if words else None
 
 
