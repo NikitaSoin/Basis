@@ -407,8 +407,20 @@ def upsert_bond(db: Session, rec: dict, curve: list,
     # дефолт: режим Д (борд TQRD) или отметка дефолта в описании
     is_defaulted = rec["board"] == "TQRD" or bool(meta.get("defaulted"))
 
+    # G-spread к ОФЗ считаем только там, где он осмыслен:
+    #  • не ОФЗ, есть YTM и дюрация;
+    #  • НЕ флоатер (купон привязан к КС → спред к фикс-ОФЗ бессмыслен);
+    #  • НЕ near-offer артефакт (близкая пут-оферта + цена у номинала раздувают YTM).
+    # Иначе spread=None → «нет осмысленной рыночной оценки» (каскадом risk_tier=None).
+    price = _f(m.get("LCURRENTPRICE") or m.get("LAST"))
+    offer_d = _d(s.get("OFFERDATE"))
+    coupon_type = meta.get("coupon_type")
+    _d_off = (offer_d - date.today()).days if offer_d else None
+    near_offer = (_d_off is not None and 0 <= _d_off <= 120 and ytm is not None
+                  and ytm > 35 and (price is None or price >= 93))
     spread_bp = None
-    if bond_type != "ofz" and ytm is not None and dur_years:
+    if (bond_type != "ofz" and ytm is not None and dur_years
+            and coupon_type != "floater" and not near_offer):
         base = ofz_yield_at(curve, dur_years)
         if base is not None:
             spread_bp = round((ytm - base) * 100)   # п.п. → б.п.

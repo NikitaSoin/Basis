@@ -1908,7 +1908,29 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             )}
           </div>
         );
-        if (y.no_data) return <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>;
+        if (y.no_data) return (
+          <div className="tw-flex tw-flex-col tw-gap-3">
+            <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>
+            {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>}
+          </div>
+        );
+        // near-offer артефакт / флоатер — без светофор-арифметики премии
+        if (y.simple_verdict) {
+          const Ls = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
+          return (
+            <div className="tw-flex tw-flex-col tw-gap-3">
+              <div className={`tw-p-4 tw-rounded-md ${Ls.bg}`}>
+                <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">{Ls.dot} {y.label}</div>
+              </div>
+              {y.verdict && <Card><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">{y.verdict}</div></Card>}
+              {y.verdict_prose?.length > 0 && (
+                <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
+              )}
+              {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><AnalystProse md={y.qualitative_md} /></Card>}
+              {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+            </div>
+          );
+        }
         if (y.is_defaulted_verdict) return (
           <div className="tw-flex tw-flex-col tw-gap-3">
             <div className="tw-p-4 tw-rounded-md tw-bg-danger-soft">
