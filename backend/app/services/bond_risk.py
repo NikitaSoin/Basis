@@ -8,9 +8,34 @@
 честная деградация (помечается). Без «купить/продать».
 """
 import json
+from datetime import date
 from pathlib import Path
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+
+
+def _days_to(d) -> int | None:
+    """Дней до даты (offer_date). Принимает date/ISO-строку. None — если нет/прошло давно."""
+    if not d:
+        return None
+    try:
+        if isinstance(d, str):
+            d = date.fromisoformat(d[:10])
+        elif hasattr(d, "date"):
+            d = d.date()
+        return (d - date.today()).days
+    except Exception:
+        return None
+
+
+def is_near_offer_artifact(bond: dict) -> bool:
+    """YTM-артефакт близкой пут-оферты: до оферты считаные дни/месяцы, цена у номинала,
+    а YTM к ПОГАШЕНИЮ технически раздут коротким горизонтом. Это НЕ премия за риск и
+    НЕ дистресс (дистресс = цена сильно ниже номинала). Дискриминатор — цена ≥ ~93%."""
+    d_off = _days_to(bond.get("offer_date"))
+    ytm, price = bond.get("ytm"), bond.get("last_price")
+    return (d_off is not None and 0 <= d_off <= 120 and ytm is not None and ytm > 35
+            and (price is None or price >= 93))
 
 # рейтинговая группа по букве (нац. шкала)
 def rating_group(rating: str | None) -> str | None:
@@ -114,6 +139,12 @@ def group_median_spreads(rows: list[dict]) -> dict:
     for b in rows:
         if b.get("bond_type") == "ofz" or b.get("spread_bp") is None or b.get("is_defaulted"):
             continue
+        # чистим базис требуемого спреда: флоатеры/линкеры (G-spread к фикс-ОФЗ
+        # бессмыслен), near-offer артефакты и аномалии не должны раздувать медиану
+        if b.get("coupon_type") in ("floater", "linker"):
+            continue
+        if is_near_offer_artifact(b):
+            continue
         g = rating_group(b.get("agency_rating")) or _tier_group(b.get("risk_tier"))
         if g:
             buckets.setdefault(g, []).append(b["spread_bp"])
@@ -134,6 +165,43 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
                 "verdict_prose": ["**Эмитент в дефолте** (режим Д / отметка MOEX). Доходность к погашению здесь нерелевантна — вопрос не «сколько заработаю», а «какую часть тела удастся вернуть». Цена обычно отражает ожидаемый процент возврата (recovery), а не доход. Risk Score = 5,0 из 5. Подробности — в «Разборе аналитика», если он есть."],
                 "risk_score": 5.0, "stops": ["дефолт/режим Д"],
                 "certainty": "факт (дефолт по данным MOEX)"}
+    # near-offer артефакт: близкая пут-оферта раздувает YTM к погашению — это не
+    # премия за риск и не дистресс. Светофор-вердикт по премии не строим.
+    if is_near_offer_artifact(bond):
+        d_off = _days_to(bond.get("offer_date"))
+        return {"light": "gray", "near_offer": True, "simple_verdict": True,
+                "label": "Доходность искажена близкой офертой",
+                "verdict": (f"До пут-оферты ~{d_off} дн., бумага у номинала — поэтому «доходность к погашению» "
+                            f"({bond.get('ytm'):.0f}%) технически раздута коротким сроком и НЕ отражает ни риска, "
+                            "ни реальной отдачи. Это не дистресс. Корректно оценивать доходность можно только после "
+                            "оферты, когда эмитент назначит новый купон. Кредитное качество — см. рейтинг и разбор ниже."),
+                "certainty": "оценка (артефакт near-offer)"}
+
+    # флоатер: купон привязан к ставке (КС/RUONIA), G-spread к фиксированной ОФЗ
+    # бессмыслен. Премию-арифметику не строим — даём кредитную оценку по Risk Score.
+    if bond.get("coupon_type") == "floater":
+        debt_adj_f, debt_facts_f = issuer_debt_adjustment(bond.get("issuer_ticker"))
+        score_f = compute_risk_score(bond, debt_adj_f)
+        implied_f = score_to_group(score_f)
+        agency_f = rating_group(bond.get("agency_rating"))
+        if score_f < 2.6: light_f, lab_f = "green", "Кредитный риск умеренный (плавающий купон)"
+        elif score_f < 3.4: light_f, lab_f = "amber", "Кредитный риск средний (плавающий купон)"
+        elif score_f < 4.2: light_f, lab_f = "orange", "Повышенный кредитный риск (ВДО, плавающий купон)"
+        else: light_f, lab_f = "red", "Высокий кредитный риск (плавающий купон)"
+        _gm = {"AAA-AA": "высшая надёжность", "A": "крепкий инвестуровень", "BBB": "нижний инвестуровень",
+               "BB": "спекулятивный (ВДО)", "B": "высокий риск (ВДО)", "CCC-": "близко к дефолту"}.get(implied_f, "")
+        vp_f = [(f"**Плавающий купон (флоатер).** Процентного риска тела почти нет — купон подстраивается под "
+                 "ключевую ставку, поэтому YTM/спред к фиксированной ОФЗ для такой бумаги некорректны. Плата за "
+                 "риск здесь — это надбавка купона к ставке (КС/RUONIA), а весь оставшийся риск — **кредитный**."),
+                (f"**Кредитная оценка Basis: {implied_f}{(' — ' + _gm) if _gm else ''}** (Risk Score "
+                 f"{str(score_f).replace('.', ',')} из 5)" + (f"; агентство — {bond.get('agency_rating')}." if agency_f else "; рейтинга агентств нет."))]
+        if debt_facts_f:
+            vp_f.append(f"**Долг эмитента:** {debt_facts_f}.")
+        return {"light": light_f, "label": lab_f, "floater_verdict": True, "simple_verdict": True,
+                "risk_score": score_f, "implied_group": implied_f, "agency_group": agency_f,
+                "debt_facts": debt_facts_f, "verdict_prose": vp_f,
+                "certainty": "оценка (флоатер: кредитный риск без G-спреда)"}
+
     spread = bond.get("spread_bp")
     if spread is None:
         return {"verdict": "Нет рыночной оценки (неликвид / нет YTM) — соответствие доходности риску оценить нельзя.", "light": "gray", "no_data": True}
@@ -166,15 +234,32 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
     elif premium >= -200: light, label = "orange", "Риск недоплачен"
     else: light, label = "red", "Риск существенно недоплачен"
 
-    # стоп-правила
+    # стоп-правила (перекрывают арифметику премии — методика 3.4)
     stops = []
+    _ytm, _price = bond.get("ytm"), bond.get("last_price")
+    anomaly = bool(bond.get("yield_anomaly")) or (_ytm is not None and _ytm > 40)
+    distress_price = _price is not None and _price < 90  # цена сильно ниже номинала = рынок ждёт потерь
+    distress = False
     if bond.get("is_defaulted"):
-        light, label = "red", "Дефолт — доходность нерелевантна"; stops.append("дефолт/режим Д")
-    if bond.get("yield_anomaly"):
-        if light in ("green", "amber"): light = "orange"
-        stops.append("аномальная доходность (>40%) — вероятен дистресс/неликвид")
+        light, label = "red", "Дефолт — доходность нерелевантна"; stops.append("дефолт/режим Д"); distress = True
+    if distress_price:
+        # дистресс: огромная «премия» — это не оплата риска, а дисконт под ожидаемые потери
+        if light in ("green", "amber", "orange"):
+            light, label = "red", "Дистресс — цена сильно ниже номинала"
+        stops.append(f"цена ~{_price:.0f}% номинала — рынок закладывает потери (recovery), а не премию")
+        distress = True
+    if anomaly:
+        if light in ("green", "amber"):
+            light, label = "orange", "Риск недоплачен (аномальная доходность)"
+        stops.append("аномальная доходность (>40% годовых) — маркер дистресса/неликвида, не премии")
+        if premium > 200:  # большой спред + аномалия = почти всегда дистресс
+            light = "red" if distress_price else light
+            distress = True
     if premium > 400 and (score >= 4.2):
+        if light in ("green", "amber"):
+            light, label = "orange", "Большая премия — рынок видит риск выше"
         stops.append("очень большая премия при высоком риске — спросите «что знает рынок?»")
+        distress = True
 
     # проверка ожидаемыми потерями — по худшей группе (консервативно)
     pd = PD_BY_GROUP.get(req_group, PD_BY_GROUP.get(implied, 0.05))
@@ -200,6 +285,19 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
     vp = []
     if bond.get("is_defaulted"):
         vp.append("**Эмитент в дефолте.** Доходность к погашению здесь нерелевантна — вопрос не «сколько заработаю», а «какую часть тела удастся вернуть». Цена обычно отражает ожидаемый процент возврата, а не доход.")
+    elif distress:
+        _why = []
+        if distress_price: _why.append(f"цена ~{_price:.0f}% номинала")
+        if anomaly: _why.append(f"доходность ~{_ytm:.0f}% годовых")
+        _w = ", ".join(_why) or "аномальный спред"
+        vp.append(f"**Риск НЕ оплачен — это ценник дистресса, а не премия.** Спред **{spread} б.п.** к ОФЗ выглядит огромным, но это не «доходность с запасом»: {_w} означают, что рынок закладывает высокую вероятность потерь (recovery), а не дарит премию. По стоп-правилам методики аномально широкий спред при таких признаках трактуется как сигнал близости к дефолту/дистресса, а не как выгодная сделка.")
+        if divergence_note:
+            vp.append(divergence_note)
+        vp.append(f"**Проверка здравым смыслом:** на одни ожидаемые потери для группы {grp}{gm_s} нужно ~**{min_spread_el} б.п.**; рынок же требует {spread} б.п. — это и есть мера того, насколько он не доверяет этой бумаге. Здесь вопрос смещается с «какая доходность» на «сколько удастся вернуть».")
+        if bond.get("coupon_type") == "floater":
+            vp.append("Купон плавающий — процентного риска тела почти нет; весь риск здесь кредитный.")
+        if not bond.get("agency_rating"):
+            vp.append("⚠ У выпуска нет рейтинга агентств — оценка идёт от рынка и методики Basis.")
     else:
         if light == "green":
             vp.append(f"**Риск оплачен.** Бумага даёт спред **{spread} б.п.** к ОФЗ, а за её уровень кредитного риска (группа {grp}{gm_s}) рынок обычно требует около **{required} б.п.** Премия **{premium:+d} б.п.** в пользу держателя: доходность с запасом покрывает риск этого эмитента.")
