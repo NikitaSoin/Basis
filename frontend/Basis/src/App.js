@@ -1596,6 +1596,126 @@ function ScatterMap({ map, currentTicker }) {
   );
 }
 
+// Интерактивный scatter-график: пользователь выбирает метрику на ось X и ось Y.
+// Источник данных — comparison_table.rows из peers.json (year="2025").
+// Аномалии (row.anomaly) отображаются приглушённо + "*", преф-акции (row.is_pref) — значком "ап".
+function InteractiveScatter({ rows, metrics, currentTicker, defaultX, defaultY, title }) {
+  const [xKey, setXKey] = useState(defaultX || (metrics[0]?.key ?? ""));
+  const [yKey, setYKey] = useState(defaultY || (metrics[1]?.key ?? ""));
+  const [hover, setHover] = useState(null);
+
+  const getLbl = (key) => metrics.find((m) => m.key === key)?.label || key;
+
+  // Строим точки из rows — фильтруем null/NaN для выбранных осей
+  const pts = (rows || []).filter((r) => {
+    const d = r["2025"] || {};
+    const xv = d[xKey], yv = d[yKey];
+    return xv != null && yv != null && isFinite(xv) && isFinite(yv);
+  }).map((r) => {
+    const d = r["2025"] || {};
+    return { ticker: r.ticker, name: r.name || r.ticker, x: d[xKey], y: d[yKey], anomaly: !!r.anomaly, is_pref: !!r.is_pref };
+  });
+
+  const W = 360, H = 300, padL = 46, padR = 16, padT = 16, padB = 40;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  const dynamicTitle = title || `${getLbl(yKey)} vs ${getLbl(xKey)}`;
+
+  if (!pts.length) {
+    return (
+      <div>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-1)", marginBottom: 6 }}>{dynamicTitle}</div>
+        <div style={{ padding: 24, textAlign: "center", color: "var(--text-3)", fontSize: 12 }}>Недостаточно данных</div>
+      </div>
+    );
+  }
+
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+  const pad = (lo, hi) => { const d = (hi - lo) || Math.abs(hi) || 1; return [lo - d * 0.08, hi + d * 0.08]; };
+  const [xMin, xMax] = pad(Math.min(...xs), Math.max(...xs));
+  const [yMin, yMax] = pad(Math.min(...ys), Math.max(...ys));
+  const sx = (v) => padL + ((v - xMin) / (xMax - xMin || 1)) * plotW;
+  const sy = (v) => padT + (1 - (v - yMin) / (yMax - yMin || 1)) * plotH;
+  const ticks = (lo, hi, n = 4) => Array.from({ length: n + 1 }, (_, i) => lo + ((hi - lo) * i) / n);
+  const fmtTick = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
+
+  // Форматирование значения в тултипе: ROE — %, мультипликаторы — ×
+  const PCT_KEYS = new Set(["roe", "margin_net", "margin_ebitda", "margin_gross", "revenue_growth"]);
+  const fmtVal = (key, val) => {
+    if (val == null || !isFinite(val)) return "—";
+    if (PCT_KEYS.has(key)) return (val * 100).toFixed(1) + "%";
+    return val.toFixed(2) + "×";
+  };
+
+  const selectCls = "tw-text-[12px] tw-px-2 tw-py-1 tw-rounded tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus";
+
+  return (
+    <div style={{ position: "relative" }}>
+      {/* Заголовок динамический */}
+      <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-1)", marginBottom: 8 }}>{dynamicTitle}</div>
+      {/* Контролы выбора осей */}
+      <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mb-3 tw-items-end">
+        <div className="tw-flex tw-flex-col tw-gap-0.5">
+          <span className="tw-text-[11px] tw-text-text-tertiary tw-leading-none">Ось X</span>
+          <select value={xKey} onChange={(e) => { setXKey(e.target.value); setHover(null); }} className={selectCls} aria-label="Метрика по оси X">
+            {metrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+          </select>
+        </div>
+        <div className="tw-flex tw-flex-col tw-gap-0.5">
+          <span className="tw-text-[11px] tw-text-text-tertiary tw-leading-none">Ось Y</span>
+          <select value={yKey} onChange={(e) => { setYKey(e.target.value); setHover(null); }} className={selectCls} aria-label="Метрика по оси Y">
+            {metrics.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+          </select>
+        </div>
+      </div>
+      {/* SVG-график */}
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} onMouseLeave={() => setHover(null)}>
+        {ticks(yMin, yMax).map((t, i) => (
+          <g key={`y${i}`}>
+            <line x1={padL} y1={sy(t)} x2={W - padR} y2={sy(t)} stroke="var(--border)" strokeWidth="0.5" />
+            <text x={padL - 6} y={sy(t) + 3} textAnchor="end" fontSize="9" fill="var(--text-3)" style={{ fontVariantNumeric: "tabular-nums" }}>{fmtTick(t)}</text>
+          </g>
+        ))}
+        {ticks(xMin, xMax).map((t, i) => (
+          <g key={`x${i}`}>
+            <line x1={sx(t)} y1={padT} x2={sx(t)} y2={H - padB} stroke="var(--border)" strokeWidth="0.5" />
+            <text x={sx(t)} y={H - padB + 14} textAnchor="middle" fontSize="9" fill="var(--text-3)" style={{ fontVariantNumeric: "tabular-nums" }}>{fmtTick(t)}</text>
+          </g>
+        ))}
+        {/* Лейблы осей */}
+        <text x={padL + plotW / 2} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--text-2)">{getLbl(xKey)}</text>
+        <text x={12} y={padT + plotH / 2} textAnchor="middle" fontSize="10" fill="var(--text-2)" transform={`rotate(-90 12 ${padT + plotH / 2})`}>{getLbl(yKey)}</text>
+        {/* Точки: текущая компания рисуется поверх всех */}
+        {pts.slice().sort((a, b) => (a.ticker === currentTicker ? 1 : 0) - (b.ticker === currentTicker ? 1 : 0)).map((p) => {
+          const isCur = p.ticker === currentTicker;
+          const cx = sx(p.x), cy = sy(p.y);
+          const fill = isCur ? "var(--accent)" : p.anomaly ? "var(--text-3)" : "var(--text-2)";
+          const r = isCur ? 6 : 4;
+          const label = p.ticker + (p.anomaly ? " *" : "") + (p.is_pref ? " ап" : "");
+          return (
+            <g key={p.ticker} onMouseEnter={() => setHover({ ...p, px: cx, py: cy })} style={{ cursor: "default" }}>
+              <circle cx={cx} cy={cy} r={11} fill="transparent" />
+              <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={isCur ? 1 : p.anomaly ? 0.45 : 0.85} stroke={isCur ? "var(--bg-surface)" : "none"} strokeWidth={isCur ? 1.5 : 0} />
+              <text x={cx + r + 3} y={cy + 3} fontSize={isCur ? 10 : 9} fontWeight={isCur ? 600 : 400} fill={isCur ? "var(--accent-text)" : p.anomaly ? "var(--text-3)" : "var(--text-2)"}>{label}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {/* Hover-тултип */}
+      {hover && (
+        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 9px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}>
+          <div style={{ fontWeight: 600, marginBottom: 2 }}>{hover.ticker}{hover.anomaly ? " *" : ""}{hover.is_pref ? <span style={{ color: "var(--text-3)", fontSize: 10 }}> ап</span> : null}</div>
+          <div style={{ color: "var(--text-2)", fontSize: 10.5, marginBottom: 1 }}>{hover.name}</div>
+          <div style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
+            {getLbl(xKey)}: {fmtVal(xKey, hover.x)}<br />
+            {getLbl(yKey)}: {fmtVal(yKey, hover.y)}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Clickable company tile for the Market grid. Consumes live quote if present
 // (no count-up / flashing — calm by constitution). Keyboard-activatable.
 const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
@@ -4551,10 +4671,24 @@ const CompanyCard = ({ company, onBack }) => {
             <h4 className="tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">Сравнение с сектором</h4>
           </div>
           <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3.5">{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы 2025 (мелким — 2024)</div>
-          <div className="tw-grid tw-gap-4 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
-            <ScatterMap map={peersJson.maps?.map_1_debt_vs_valuation} currentTicker={company.ticker} />
-            <ScatterMap map={peersJson.maps?.map_2_quality_vs_price} currentTicker={company.ticker} />
-          </div>
+          {(() => {
+            // Строим список доступных метрик из comparison_table.metrics (динамически),
+            // используя METRICS-лейблы как fallback, добавляя неизвестные ключи с ключом-лейблом.
+            const ctMetrics = ct?.metrics || METRICS.map((m) => m.key);
+            const scatterMetrics = ctMetrics.map((key) => ({ key, label: METRICS.find((m) => m.key === key)?.label || key }));
+            // Убеждаемся, что дефолтные ключи есть в доступных метриках; если нет — берём первые два
+            const hasKey = (k) => scatterMetrics.some((m) => m.key === k);
+            const defX1 = hasKey("net_debt_ebitda") ? "net_debt_ebitda" : scatterMetrics[0]?.key;
+            const defY1 = hasKey("ev_ebitda") ? "ev_ebitda" : scatterMetrics[1]?.key;
+            const defX2 = hasKey("roe") ? "roe" : scatterMetrics[0]?.key;
+            const defY2 = hasKey("pb") ? "pb" : scatterMetrics[1]?.key;
+            return (
+              <div className="tw-grid tw-gap-4 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+                <InteractiveScatter rows={ordered} metrics={scatterMetrics} currentTicker={company.ticker} defaultX={defX1} defaultY={defY1} />
+                <InteractiveScatter rows={ordered} metrics={scatterMetrics} currentTicker={company.ticker} defaultX={defX2} defaultY={defY2} />
+              </div>
+            );
+          })()}
           <div className="tw-text-[11px] tw-leading-relaxed tw-text-text-tertiary tw-mb-4 tw-pt-2 tw-border-t tw-border-border-subtle">
             <b className="tw-text-text-secondary">*</b> — мультипликаторы искажены (внутригрупповые операции, разовые статьи, низкий free-float, регулируемый тариф и т.п.). Такие компании исключены из расчёта медианы и среднего; сравнивать с ними напрямую некорректно.
           </div>
