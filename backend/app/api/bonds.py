@@ -231,6 +231,22 @@ def _row_to_dict(r) -> dict:
     # экстремальная доходность — флаг дистресса/неликвида (не «выгодно»!)
     d["yield_anomaly"] = bool(d.get("ytm") and d["ytm"] > 40)
 
+    # near-maturity / near-offer: до ближайшего события (оферта или погашение) ≤120 дн.
+    # На коротком хвосте YTM/спред технически раздуты — это НЕ премия за риск.
+    tails = []
+    for fld in ("offer_date", "maturity_date"):
+        v = d.get(fld)
+        if v:
+            try:
+                tails.append((date.fromisoformat(v[:10]) - date.today()).days)
+            except Exception:
+                pass
+    d_near = min([t for t in tails if t is not None], default=None)
+    d["near_offer"] = bool(d_near is not None and 0 <= d_near <= 120)
+    # спред/YTM как «премия за риск» осмыслены только у фикс-купона вне near-зоны
+    d["spread_artifact"] = bool(
+        d.get("coupon_type") in ("floater", "linker", "structured") or d["near_offer"])
+
     # ── двойной рейтинг: рынок (спред) vs агентство — и их расхождение ──
     market_tier = d.get("risk_tier")
     agency_tier = _rating_tier(d.get("agency_rating"))
@@ -286,6 +302,13 @@ def _risk_verdict(d: dict) -> str | None:
     tier, spread, ytm = d.get("risk_tier"), d.get("spread_bp"), d.get("ytm")
     if d.get("yield_anomaly"):
         return "Экстремальная доходность — почти всегда дистресс/неликвид, а не «выгода»; вероятны потери тела."
+    if d.get("coupon_type") in ("floater", "linker", "structured"):
+        return ("Плавающий/индексируемый купон: YTM и G-спред к ОФЗ здесь не «премия за риск» "
+                "(купон сам идёт за ставкой). Смотреть надо надбавку купона к ключевой ставке, "
+                "а не доходность к погашению.")
+    if d.get("near_offer"):
+        return ("До ближайшего события (оферта/погашение) считаные недели — YTM технически раздут "
+                "коротким хвостом, это не плата за кредитный риск. Вопрос здесь — вернут ли тело в срок.")
     if tier == "speculative":
         s = f" (спред +{spread} б.п.)" if spread is not None else ""
         return f"ВДО{s}: высокая доходность — это плата за реальный риск дефолта, а не «подарок». Сначала вопрос «вернут ли тело»."
