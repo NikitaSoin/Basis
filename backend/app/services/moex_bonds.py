@@ -425,13 +425,35 @@ def propagate_issuer_ratings(db, seed: dict[str, tuple[str, str]] | None = None)
         "WHERE bond_type<>'ofz' AND spread_bp IS NOT NULL AND ytm IS NOT NULL "
         "AND (ytm - spread_bp/100.0) < 11.5")).rowcount
 
+    # инвариант: G-спред к рублёвой ОФЗ неприменим к ВАЛЮТНОМУ номиналу. У замещающих/
+    # CNY/USD бумаг YTM — это валютная доходность (2–8%), и спред к рублёвой кривой даёт
+    # бессмысленный большой минус (ГТЛК ЗО-Д, ГПБ CNY, ЮГК, Автомое CNY, АгроЗерноЮг USD,
+    # Инвест-КЦ). Якорь для них — валютная/замещающая кривая (отдельный режим, пока не
+    # реализован). Обнуляем рублёвый спред: честнее «нет рублёвой оценки», чем минус-мусор.
+    # ВАЖНО: MOEX кодирует рубль как 'SUR' (ISO-историческое), реже 'RUB' — оба считаем рублём.
+    # Валюта = всё прочее (USD/CNY/EUR/CHF).
+    fx_fix = db.execute(_text(
+        "UPDATE bonds SET spread_bp=NULL "
+        "WHERE currency IS NOT NULL AND currency NOT IN ('RUB','SUR') AND spread_bp IS NOT NULL")).rowcount
+
+    # страховка от аномально ОТРИЦАТЕЛЬНОГО спреда (< −50 б.п.) у корпората: кредитный
+    # инструмент не может легитимно давать 50+ б.п. НИЖЕ ОФЗ. Причины — те же артефакты:
+    # near-maturity pull-to-par (высокий купон + цена>номинала, ПСБ Лизинг −250), стале-цена
+    # неликвида (Петербургснаб BB- ниже ОФЗ), структурные инвест-облигации (Совком БО-И,
+    # YTM−53%), битый YTM (МОЭК −0,05%). Это не премия за риск — обнуляем спред и risk_tier.
+    neg_fix = db.execute(_text(
+        "UPDATE bonds SET spread_bp=NULL, risk_tier=NULL "
+        "WHERE bond_type<>'ofz' AND spread_bp IS NOT NULL AND spread_bp < -50")).rowcount
+
     db.commit()
     logger.info("Пропагация рейтинга эмитента: +%d серий, seed +%d, конфликтов пропущено %d, "
-                "floater spread обнулён %d, битых спредов (низкая база ОФЗ) обнулено %d",
-                filled_prop, filled_seed, skipped_conflict, floater_fix, glitch_fix)
+                "floater spread обнулён %d, битых спредов (низкая база ОФЗ) обнулено %d, "
+                "валютных спредов обнулено %d, отрицательных-аномалий обнулено %d",
+                filled_prop, filled_seed, skipped_conflict, floater_fix, glitch_fix, fx_fix, neg_fix)
     return {"propagated": filled_prop, "seeded": filled_seed,
             "skipped_conflict": skipped_conflict, "floater_spread_nulled": floater_fix,
-            "glitch_spread_nulled": glitch_fix}
+            "glitch_spread_nulled": glitch_fix, "fx_spread_nulled": fx_fix,
+            "neg_spread_nulled": neg_fix}
 
 
 def fetch_board(board: str, bond_type: str) -> list[dict]:
