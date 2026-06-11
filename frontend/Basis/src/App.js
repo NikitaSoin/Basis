@@ -1639,13 +1639,18 @@ function InteractiveScatter({ rows, metrics, currentTicker, defaultX, defaultY, 
   const ticks = (lo, hi, n = 4) => Array.from({ length: n + 1 }, (_, i) => lo + ((hi - lo) * i) / n);
   const fmtTick = (v) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
 
-  // Форматирование значения в тултипе: ROE — %, мультипликаторы — ×
-  const PCT_KEYS = new Set(["roe", "margin_net", "margin_ebitda", "margin_gross", "revenue_growth"]);
+  // Форматирование значения в тултипе: ROE/маржи — %, мультипликаторы — ×.
+  // ВАЖНО: в peers.json ROE/маржи УЖЕ в процентах (5,38 = 5,38%), на 100 не умножать
+  // (как в таблице сравнения — formatPercent добавляет «%» без домножения).
+  const PCT_KEYS = new Set(["roe", "margin_net", "margin_ebitda", "margin_gross", "margin_oper", "revenue_growth", "ebitda_growth"]);
   const fmtVal = (key, val) => {
     if (val == null || !isFinite(val)) return "—";
-    if (PCT_KEYS.has(key)) return (val * 100).toFixed(1) + "%";
+    if (PCT_KEYS.has(key)) return val.toFixed(1) + " %";
     return val.toFixed(2) + "×";
   };
+  // Лейбл оси с единицей измерения (× для мультипликаторов, % для долей) — чтобы
+  // пользователь сразу понимал размерность шкалы (правка по ОТК-персоне).
+  const axLbl = (key) => getLbl(key) + (PCT_KEYS.has(key) ? ", %" : ", ×");
 
   const selectCls = "tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-sm tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus";
 
@@ -1683,8 +1688,8 @@ function InteractiveScatter({ rows, metrics, currentTicker, defaultX, defaultY, 
           </g>
         ))}
         {/* Лейблы осей */}
-        <text x={padL + plotW / 2} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--text-2)">{getLbl(xKey)}</text>
-        <text x={12} y={padT + plotH / 2} textAnchor="middle" fontSize="10" fill="var(--text-2)" transform={`rotate(-90 12 ${padT + plotH / 2})`}>{getLbl(yKey)}</text>
+        <text x={padL + plotW / 2} y={H - 4} textAnchor="middle" fontSize="10" fill="var(--text-2)">{axLbl(xKey)}</text>
+        <text x={12} y={padT + plotH / 2} textAnchor="middle" fontSize="10" fill="var(--text-2)" transform={`rotate(-90 12 ${padT + plotH / 2})`}>{axLbl(yKey)}</text>
         {/* Точки: текущая компания рисуется поверх всех */}
         {pts.slice().sort((a, b) => (a.ticker === currentTicker ? 1 : 0) - (b.ticker === currentTicker ? 1 : 0)).map((p) => {
           const isCur = p.ticker === currentTicker;
