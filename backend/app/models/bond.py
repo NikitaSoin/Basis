@@ -51,7 +51,10 @@ class Bond(Base):
     # ── двойной рейтинг надёжности ──
     # (1) рыночная оценка по спреду — risk_tier (НАШ подход; ОФЗ=госдолг)
     risk_tier: Mapped[str | None] = mapped_column(String(20))             # gov | high | medium | speculative
-    spread_bp: Mapped[int | None] = mapped_column(Integer)                # спред YTM к ОФЗ той же дюрации, б.п.
+    spread_bp: Mapped[int | None] = mapped_column(Integer)                # G-спред YTM к ОФЗ той же дюрации, б.п. (только фикс!)
+    # для флоатеров G-спред к фикс-ОФЗ бессмыслен (купон плавает с КС) → spread_bp=NULL,
+    # а реальная плата за риск = надбавка купона к ключевой ставке (храним здесь)
+    floater_spread_bp: Mapped[int | None] = mapped_column(Integer)        # спред купона к КС/RUONIA, б.п. (только флоатеры)
     # (2) агентский рейтинг — независимая от спреда оценка (АКРА/ЭкспертРА/НКР/НРА)
     agency_rating: Mapped[str | None] = mapped_column(String(16))          # AAA … D (нац. шкала)
     agency_rating_source: Mapped[str | None] = mapped_column(String(32))   # источник рейтинга

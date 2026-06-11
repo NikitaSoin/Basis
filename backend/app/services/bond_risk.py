@@ -13,6 +13,10 @@ from pathlib import Path
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
+# Ключевая ставка ЦБ — база для спреда флоатеров (купон = КС + маржа).
+# На 11.06.2026 КС = 14,5% (с 24.04.2026). Обновлять при смене ставки.
+KEY_RATE_PCT = 14.5
+
 
 def _days_to(d) -> int | None:
     """Дней до даты (offer_date). Принимает date/ISO-строку. None — если нет/прошло давно."""
@@ -203,15 +207,20 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
         else: light_f, lab_f = "red", "Высокий кредитный риск (плавающий купон)"
         _gm = {"AAA-AA": "высшая надёжность", "A": "крепкий инвестуровень", "BBB": "нижний инвестуровень",
                "BB": "спекулятивный (ВДО)", "B": "высокий риск (ВДО)", "CCC-": "близко к дефолту"}.get(implied_f, "")
+        fl_sp = bond.get("floater_spread_bp")
+        _fl_txt = (f" Текущая надбавка купона к ключевой ставке ≈ **{fl_sp:+d} б.п.** "
+                   f"(купон {bond.get('coupon_percent')}% при КС {str(KEY_RATE_PCT).replace('.', ',')}%)."
+                   if fl_sp is not None else "")
         vp_f = [(f"**Плавающий купон (флоатер).** Процентного риска тела почти нет — купон подстраивается под "
                  "ключевую ставку, поэтому YTM/спред к фиксированной ОФЗ для такой бумаги некорректны. Плата за "
-                 "риск здесь — это надбавка купона к ставке (КС/RUONIA), а весь оставшийся риск — **кредитный**."),
+                 f"риск здесь — это надбавка купона к ставке (КС/RUONIA), а весь оставшийся риск — **кредитный**.{_fl_txt}"),
                 (f"**Кредитная оценка Basis: {implied_f}{(' — ' + _gm) if _gm else ''}** (Risk Score "
                  f"{str(score_f).replace('.', ',')} из 5)" + (f"; агентство — {bond.get('agency_rating')}." if agency_f else "; рейтинга агентств нет."))]
         if debt_facts_f:
             vp_f.append(f"**Долг эмитента:** {debt_facts_f}.")
         return {"light": light_f, "label": lab_f, "floater_verdict": True, "simple_verdict": True,
                 "risk_score": score_f, "implied_group": implied_f, "agency_group": agency_f,
+                "floater_spread_bp": fl_sp,
                 "debt_facts": debt_facts_f, "verdict_prose": vp_f,
                 "certainty": "оценка (флоатер: кредитный риск без G-спреда)"}
 
@@ -273,6 +282,15 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
             light, label = "orange", "Большая премия — рынок видит риск выше"
         stops.append("очень большая премия при высоком риске — спросите «что знает рынок?»")
         distress = True
+    # Очень широкий АБСОЛЮТНЫЙ спред у фикс-бумаги (глубокий ВДО, ≥1000 б.п.) не может
+    # читаться как «риск оплачен с запасом»: либо рынок закладывает высокий риск
+    # (стоп-правило 3.3 — «что знает рынок?»), либо YTM искажён (амортизация/неликвид
+    # раздувают расчётную доходность). Зелёный снимаем.
+    if spread is not None and spread >= 1000 and bond.get("coupon_type") != "floater":
+        if light == "green":
+            light, label = "orange", "Очень широкий спред — рынок видит риск выше / возможно искажение YTM"
+            stops.append("спред ≥1000 б.п.: глубокий ВДО (рынок закладывает риск) либо искажение YTM "
+                         "амортизацией/неликвидом — не «премия с запасом»")
 
     # проверка ожидаемыми потерями — по худшей группе (консервативно)
     pd = PD_BY_GROUP.get(req_group, PD_BY_GROUP.get(implied, 0.05))
@@ -372,3 +390,89 @@ def yield_vs_risk(bond: dict, group_medians: dict) -> dict | None:
         "derivation": derivation, "score_method": score_method,
         "certainty": "оценка (методика Basis по нашей базе)",
     }
+
+
+# ── Пересчёт рыночных полей без обращения к MOEX (фикс очереди №1) ──
+def _ofz_curve_from_db(db) -> list[tuple[float, float]]:
+    """Кривая ОФЗ из НАШЕЙ базы: (срок в годах, YTM %). Самодостаточно — не нужен
+    запрос к MOEX. Точки усредняются по году дюрации и сортируются."""
+    from sqlalchemy import text
+    rows = db.execute(text(
+        "SELECT duration_days, ytm FROM bonds "
+        "WHERE bond_type='ofz' AND ytm IS NOT NULL AND duration_days IS NOT NULL AND duration_days>0"
+    )).all()
+    pts: dict[float, list[float]] = {}
+    for dur_days, ytm in rows:
+        yrs = round(float(dur_days) / 365, 2)
+        if 0 < yrs <= 40 and -5 < float(ytm) < 60:
+            pts.setdefault(yrs, []).append(float(ytm))
+    return sorted((y, sum(v) / len(v)) for y, v in pts.items())
+
+
+def _ofz_at(curve: list[tuple[float, float]], years: float):
+    if not curve or years is None:
+        return None
+    if years <= curve[0][0]:
+        return curve[0][1]
+    if years >= curve[-1][0]:
+        return curve[-1][1]
+    for (x0, y0), (x1, y1) in zip(curve, curve[1:]):
+        if x0 <= years <= x1:
+            return y0 + (y1 - y0) * (years - x0) / (x1 - x0) if x1 != x0 else y0
+    return None
+
+
+def recalc_market_fields(db) -> int:
+    """Идемпотентный пересчёт spread_bp / risk_tier / floater_spread_bp по тем же
+    правилам, что и загрузчик, но БЕЗ MOEX (кривая ОФЗ берётся из нашей базы).
+    Чинит исторические строки, загруженные старой логикой (фикс очереди №1):
+      • флоатер/линкер/структурная → spread_bp=NULL, risk_tier=NULL (G-спред к
+        фикс-ОФЗ бессмыслен), для флоатера считаем спред купона к КС;
+      • near-offer/near-maturity артефакт → spread_bp=NULL (YTM раздут коротким хвостом);
+      • фикс → G-спред к ОФЗ той же дюрации.
+    Возвращает число изменённых строк. Безопасно вызывать на каждом старте."""
+    from sqlalchemy import text
+    curve = _ofz_curve_from_db(db)
+    rows = db.execute(text(
+        "SELECT secid, bond_type, coupon_type, ytm, duration_days, last_price, "
+        "offer_date, maturity_date, coupon_percent, spread_bp, risk_tier, floater_spread_bp FROM bonds"
+    )).mappings().all()
+    changed = 0
+    for b in rows:
+        if b["bond_type"] == "ofz":
+            continue
+        ytm = float(b["ytm"]) if b["ytm"] is not None else None
+        dur_years = (b["duration_days"] / 365) if b["duration_days"] else None
+        bd = {"offer_date": b["offer_date"], "maturity_date": b["maturity_date"],
+              "ytm": ytm, "last_price": float(b["last_price"]) if b["last_price"] is not None else None}
+        near = is_near_offer_artifact(bd)
+        ct = b["coupon_type"]
+        new_spread = None
+        if (ytm is not None and dur_years and ct not in ("floater", "linker", "structured") and not near):
+            base = _ofz_at(curve, dur_years)
+            if base is not None:
+                new_spread = round((ytm - base) * 100)
+        new_tier = classify_risk_local(b["bond_type"], new_spread)
+        new_fl = None
+        if ct == "floater" and b["coupon_percent"] is not None and KEY_RATE_PCT is not None:
+            new_fl = round((float(b["coupon_percent"]) - KEY_RATE_PCT) * 100)
+        if (new_spread != b["spread_bp"] or new_tier != b["risk_tier"]
+                or new_fl != b["floater_spread_bp"]):
+            db.execute(text("UPDATE bonds SET spread_bp=:s, risk_tier=:t, floater_spread_bp=:f WHERE secid=:id"),
+                       {"s": new_spread, "t": new_tier, "f": new_fl, "id": b["secid"]})
+            changed += 1
+    db.commit()
+    return changed
+
+
+def classify_risk_local(bond_type: str, spread_bp):
+    """Локальная копия classify_risk (без импорта moex_bonds, чтобы избежать цикла)."""
+    if bond_type == "ofz":
+        return "gov"
+    if spread_bp is None:
+        return None
+    if spread_bp < 250:
+        return "high"
+    if spread_bp <= 600:
+        return "medium"
+    return "speculative"
