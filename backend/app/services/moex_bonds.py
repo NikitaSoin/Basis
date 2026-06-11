@@ -344,6 +344,81 @@ def load_agency_ratings(max_pages: int = 20, sleep: float = 0.6) -> dict[str, tu
     return out
 
 
+# Рейтинг агентства — атрибут ЭМИТЕНТА, а не выпуска: smart-lab-скрап покрывает
+# рейтингом лишь часть ISIN, поэтому у одного эмитента часть серий с рейтингом,
+# часть без (ГТЛК 2P-13=AA-, а 2P-03=NULL). Распространяем рейтинг по всем сериям
+# эмитента (группировка по issuer_slug). Идемпотентно: ставим только там, где пусто.
+# seed — рейтинги полностью-нерейтингованных эмитентов, верифицированные вне скрапа
+# (напр. голубые фишки, которых нет на страницах smart-lab); ключ — issuer_slug.
+SEED_RATINGS: dict[str, tuple[str, str]] = {
+    # slug: (рейтинг, источник). Только web-верифицированные действующие рейтинги
+    # эмитентов, у которых в БД нет НИ ОДНОЙ рейтингованной серии.
+    "металлоинвест":    ("AAA", "Basis: АКРА AAA(RU)/НКР AAA.ru (web, 2025)"),
+    "новые-технологии": ("A-",  "Basis: АКРА/ЭкспертРА/НКР A-(RU) (web, 2025)"),
+    "энерготехсервис":  ("BBB+", "Basis: ЭкспертРА ruBBB+ (web, 2026)"),
+    "енисейагросоюз":   ("BB",  "Basis: АКРА BB(RU) (web, 2024)"),
+}
+
+
+def propagate_issuer_ratings(db, seed: dict[str, tuple[str, str]] | None = None) -> dict:
+    """Распространить агентский рейтинг по всем сериям эмитента и засеять блок голубых
+    фишек. Чинит «нет рейтинга» у выпусков, чьи сёстры рейтингованы. Также страхует
+    инвариант: spread_bp = NULL для флоатеров/линкеров (G-спред к фикс-ОФЗ бессмыслен).
+    Возвращает счётчики. Идемпотентно — повторный вызов ничего не меняет."""
+    from collections import Counter, defaultdict
+    from sqlalchemy import text as _text
+
+    seed = SEED_RATINGS if seed is None else seed
+    rows = db.execute(_text(
+        "SELECT secid, issuer_name, agency_rating, coupon_type FROM bonds "
+        "WHERE bond_type IN ('corporate','muni')")).all()
+
+    groups: dict[str, dict] = defaultdict(lambda: {"rated": Counter(), "unrated": []})
+    for secid, iname, rating, ctype in rows:
+        s = issuer_slug(iname)
+        if not s:
+            continue
+        if rating:
+            groups[s]["rated"][rating] += 1
+        else:
+            groups[s]["unrated"].append(secid)
+
+    filled_prop = filled_seed = skipped_conflict = 0
+    for s, g in groups.items():
+        if not g["unrated"]:
+            continue
+        if g["rated"]:
+            # пропагация только при ОДНОЗНАЧНОМ рейтинге эмитента (конфликт = разные
+            # транши секьюритизации или коллизия slug → не трогаем)
+            if len(g["rated"]) > 1:
+                skipped_conflict += 1
+                continue
+            rating, src = next(iter(g["rated"])), "issuer-propagation"
+        elif s in seed:
+            rating, src = seed[s]
+        else:
+            continue
+        for secid in g["unrated"]:
+            db.execute(_text(
+                "UPDATE bonds SET agency_rating=:r, agency_rating_source=:src "
+                "WHERE secid=:sid AND agency_rating IS NULL"),
+                {"r": rating, "src": src, "sid": secid})
+        if g["rated"]:
+            filled_prop += len(g["unrated"])
+        else:
+            filled_seed += len(g["unrated"])
+
+    # инвариант: G-спред неприменим к плавающему/индексируемому купону
+    floater_fix = db.execute(_text(
+        "UPDATE bonds SET spread_bp=NULL "
+        "WHERE coupon_type IN ('floater','linker','structured') AND spread_bp IS NOT NULL")).rowcount
+    db.commit()
+    logger.info("Пропагация рейтинга эмитента: +%d серий, seed +%d, конфликтов пропущено %d, "
+                "floater spread обнулён %d", filled_prop, filled_seed, skipped_conflict, floater_fix)
+    return {"propagated": filled_prop, "seeded": filled_seed,
+            "skipped_conflict": skipped_conflict, "floater_spread_nulled": floater_fix}
+
+
 def fetch_board(board: str, bond_type: str) -> list[dict]:
     """Сырые записи облигаций одного борда (объединяет securities + marketdata)."""
     data = _get(BONDS_URL.format(board=board))

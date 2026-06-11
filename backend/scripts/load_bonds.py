@@ -29,7 +29,7 @@ load_dotenv()
 from app.db.session import SessionLocal
 from app.services.moex_bonds import (
     TRADE_BOARDS, build_company_keys, fetch_board, fetch_meta_map, load_agency_ratings,
-    load_ofz_curve, upsert_bond,
+    load_ofz_curve, propagate_issuer_ratings, upsert_bond,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -94,6 +94,11 @@ def main() -> None:
         db.commit()
         if bad:
             logger.warning("пропущено битых строк: %d", bad)
+
+        # рейтинг агентства — атрибут эмитента: распространяем по всем сериям +
+        # засеваем голубые фишки (smart-lab покрывает не все ISIN). Идемпотентно.
+        if not args.no_ratings:
+            propagate_issuer_ratings(db)
 
         from sqlalchemy import text
         logger.info("─" * 50)
