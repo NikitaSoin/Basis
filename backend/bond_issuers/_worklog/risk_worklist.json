@@ -4709,7 +4709,8 @@
     "near_offer": false,
     "clean_spread": 344,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "cny_currency_mismatch"
   },
   {
     "issuer": "ГосТранспортЛизингКомп 001P-03",
@@ -5226,7 +5227,7 @@
   },
   {
     "issuer": "Левенгук ПАО БО-01",
-    "slug": null,
+    "slug": "левенгук",
     "ticker": "LVHK",
     "secid": "RU000A0ZYHW0",
     "spread": 306,
