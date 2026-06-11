@@ -5607,7 +5607,7 @@
   },
   {
     "issuer": "Группа ЛСР ПАО БО 001Р-09",
-    "slug": null,
+    "slug": "лср",
     "ticker": "LSRG",
     "secid": "RU000A1082X0",
     "spread": 270,
@@ -6348,7 +6348,7 @@
   },
   {
     "issuer": "БГПБ (АО) БО 004P-38",
-    "slug": "бгпб",
+    "slug": "гпб",
     "ticker": null,
     "secid": "RU000A10E5V4",
     "spread": 214,
@@ -6367,7 +6367,7 @@
   },
   {
     "issuer": "\"Российские ЖД\" БО-001P-04R",
-    "slug": "российские-жд",
+    "slug": "ржд",
     "ticker": null,
     "secid": "RU000A0JXZB2",
     "spread": 169,
@@ -6572,7 +6572,8 @@
     "near_offer": false,
     "clean_spread": 50,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "usd_currency_mismatch"
   },
   {
     "issuer": "Трансмашхолдинг АО ПБО-08",
