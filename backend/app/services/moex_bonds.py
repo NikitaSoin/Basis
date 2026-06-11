@@ -361,12 +361,12 @@ _UPSERT = text("""
     INSERT INTO bonds (secid, isin, short_name, issuer_name, issuer_ticker, bond_type, board, currency,
         face_value, coupon_percent, coupon_value, coupon_period, maturity_date, offer_date,
         has_amortization, lot_size, listing_level, last_price, ytm, duration_days, accrued_int,
-        coupon_type, ytm_kind, is_defaulted, risk_tier, spread_bp, agency_rating,
+        coupon_type, ytm_kind, is_defaulted, risk_tier, spread_bp, floater_spread_bp, agency_rating,
         agency_rating_source, updated_at)
     VALUES (:secid, :isin, :short_name, :issuer_name, :issuer_ticker, :bond_type, :board, :currency,
         :face_value, :coupon_percent, :coupon_value, :coupon_period, :maturity_date, :offer_date,
         :has_amortization, :lot_size, :listing_level, :last_price, :ytm, :duration_days, :accrued_int,
-        :coupon_type, :ytm_kind, :is_defaulted, :risk_tier, :spread_bp, :agency_rating,
+        :coupon_type, :ytm_kind, :is_defaulted, :risk_tier, :spread_bp, :floater_spread_bp, :agency_rating,
         :agency_rating_source, :updated_at)
     ON CONFLICT (secid) DO UPDATE SET
         short_name=EXCLUDED.short_name, issuer_name=EXCLUDED.issuer_name,
@@ -379,6 +379,7 @@ _UPSERT = text("""
         last_price=EXCLUDED.last_price, ytm=EXCLUDED.ytm, duration_days=EXCLUDED.duration_days,
         accrued_int=EXCLUDED.accrued_int, coupon_type=EXCLUDED.coupon_type, ytm_kind=EXCLUDED.ytm_kind,
         is_defaulted=EXCLUDED.is_defaulted, risk_tier=EXCLUDED.risk_tier, spread_bp=EXCLUDED.spread_bp,
+        floater_spread_bp=EXCLUDED.floater_spread_bp,
         agency_rating=EXCLUDED.agency_rating, agency_rating_source=EXCLUDED.agency_rating_source,
         updated_at=EXCLUDED.updated_at
 """)
@@ -422,11 +423,22 @@ def upsert_bond(db: Session, rec: dict, curve: list,
     near_offer = (_d_near is not None and 0 <= _d_near <= 120 and ytm is not None
                   and ytm > 35 and (price is None or price >= 93))
     spread_bp = None
+    # G-spread к фикс-ОФЗ осмыслен только для фикс-купона. Флоатер (купон к КС),
+    # линкер (тело к инфляции) и структурная (выплата по формуле) — НЕ сюда:
+    # YTM таких бумаг к фикс-ОФЗ вводит в заблуждение (см. фикс очереди №1).
     if (bond_type != "ofz" and ytm is not None and dur_years
-            and coupon_type != "floater" and not near_offer):
+            and coupon_type not in ("floater", "linker", "structured") and not near_offer):
         base = ofz_yield_at(curve, dur_years)
         if base is not None:
             spread_bp = round((ytm - base) * 100)   # п.п. → б.п.
+    # Спред флоатера к ключевой ставке: реальная плата за риск = надбавка купона
+    # к КС (купон = КС + маржа). coupon_percent — текущая ставка купона.
+    floater_spread_bp = None
+    if coupon_type == "floater":
+        from app.services.bond_risk import KEY_RATE_PCT
+        cp = _f(s.get("COUPONPERCENT"))
+        if cp is not None and KEY_RATE_PCT is not None:
+            floater_spread_bp = round((cp - KEY_RATE_PCT) * 100)
 
     rating = ratings.get(s.get("ISIN"))
     issuer_name = meta.get("name") or s.get("EMITENT_TITLE")
@@ -446,6 +458,7 @@ def upsert_bond(db: Session, rec: dict, curve: list,
         "coupon_type": meta.get("coupon_type"), "ytm_kind": meta.get("ytm_kind"),
         "is_defaulted": is_defaulted,
         "risk_tier": classify_risk(bond_type, spread_bp), "spread_bp": spread_bp,
+        "floater_spread_bp": floater_spread_bp,
         "agency_rating": rating[0] if rating else None,
         "agency_rating_source": rating[1] if rating else None,
         "updated_at": datetime.now(timezone.utc),
