@@ -155,6 +155,13 @@ def refresh_all_if_stale(bonds_max_age_hours: float = 22.0) -> None:
                 refresh_bonds(db)
             else:
                 logger.info("Авто-обновление: облигации свежие — пропускаю")
+            # Пересчёт рыночных полей БЕЗ MOEX (дёшево, идемпотентно): чинит
+            # исторические строки со старой логикой (флоатеры с ложным G-спредом,
+            # near-offer артефакты) — фикс очереди №1. Делаем ВСЕГДА после загрузки.
+            if _table_exists(db, "bonds"):
+                from app.services.bond_risk import recalc_market_fields
+                n = recalc_market_fields(db)
+                logger.info("Пересчёт спредов облигаций (флоатеры к КС / near-offer): изменено %d строк", n)
         except Exception as e:
             logger.exception("Авто-обновление облигаций упало: %s", e)
             db.rollback()
