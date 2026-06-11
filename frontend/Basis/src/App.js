@@ -4649,9 +4649,331 @@ const CompanyCard = ({ company, onBack }) => {
 
     // методы оценки
     const methods = finJson?.valuation?.methods || [];
-    const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", relative_peers: "По пирам", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
+    const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", historical_pb: "Истор. P/B", relative_peers: "По пирам", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
     const HORIZON_RU = { intrinsic_now: "сейчас", "12m": "12 мес." };
-    const statusBadge = (s) => { const map = { ok: { t: "ок", tone: "success" }, insufficient_data: { t: "мало данных", tone: "neutral" }, not_applicable: { t: "n/a", tone: "neutral" }, reference_only: { t: "справочно", tone: "neutral" } }; const x = map[s] || map.ok; return <Badge tone={x.tone}>{x.t}</Badge>; };
+    const statusBadge = (s) => { const map = { ok: { t: "ок", tone: "success" }, low_confidence: { t: "низкая уверен.", tone: "warning" }, insufficient_data: { t: "мало данных", tone: "neutral" }, not_applicable: { t: "n/a", tone: "neutral" }, reference_only: { t: "справочно", tone: "neutral" } }; const x = map[s] || map.ok; return <Badge tone={x.tone}>{x.t}</Badge>; };
+
+    // ── Бейдж уровня достоверности (факт / оценка / суждение) ──
+    const CERTAINTY_STYLE = {
+      fact:      { bg: "tw-bg-bg-base",     text: "tw-text-text-tertiary", border: "tw-border-border-subtle", label: "факт" },
+      logic:     { bg: "tw-bg-info-soft",   text: "tw-text-info",          border: "tw-border-info",          label: "оценка" },
+      judgement: { bg: "tw-bg-accent-soft", text: "tw-text-accent",        border: "tw-border-accent",        label: "суждение" },
+    };
+    const CertaintyBadge = ({ certainty }) => {
+      const s = CERTAINTY_STYLE[certainty] || CERTAINTY_STYLE.fact;
+      return (
+        <span className={cx(
+          "tw-inline-block tw-text-[10px] tw-font-semibold tw-px-1.5 tw-py-px tw-rounded-xs tw-border tw-uppercase tw-tracking-wide tw-shrink-0",
+          s.bg, s.text, s.border
+        )} style={{ letterSpacing: "0.05em" }}>
+          {s.label}
+        </span>
+      );
+    };
+
+    // ── Плита нормализации прибыли (мост reported → adjusted) ──
+    const renderBridgePlate = () => {
+      const adj = finJson?.adjusted;
+      if (!adj || !Array.isArray(adj.bridge) || adj.bridge.length === 0) return null;
+      const bridge = adj.bridge;
+      const netProfitArr = finJson?.income_statement?.net_profit || [];
+      const netProfitAdj = adj.net_profit_adj || [];
+      const bridgeNote = adj.bridge_note || null;
+
+      // Для каждого уникального года из моста покажем reported / adjustments / adjusted
+      const bridgeYears = [...new Set(bridge.map((b) => b.year))].sort();
+
+      return (
+        <Card>
+          <details>
+            <summary className={cx(
+              "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-list-none",
+              "tw-text-[14px] tw-font-bold tw-text-text-primary",
+              "[&::-webkit-details-marker]:tw-hidden",
+              "focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm"
+            )}>
+              <Scale size={15} className="tw-text-accent tw-shrink-0" />
+              Нормализация прибыли: отчётная → скорректированная
+              <ChevronDown size={14} className="tw-text-text-tertiary tw-ml-auto group-open:tw-rotate-180" />
+            </summary>
+            <div className="tw-mt-3 tw-space-y-3">
+              {bridgeNote && (
+                <div className="tw-flex tw-gap-2.5 tw-items-start tw-rounded-md tw-border-l-2 tw-border-warning tw-bg-warning-soft tw-p-3">
+                  <AlertTriangle size={14} className="tw-text-warning tw-shrink-0 tw-mt-px" />
+                  <p className="tw-text-[13px] tw-leading-relaxed tw-text-text-primary tw-m-0">{bridgeNote}</p>
+                </div>
+              )}
+              <div className="tw-overflow-x-auto tw-rounded-md tw-border tw-border-border-strong">
+                <table className="tw-w-full tw-border-collapse" style={{ minWidth: 480 }}>
+                  <thead className="tw-bg-bg-base">
+                    <tr>
+                      <th className="tw-text-left tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Год</th>
+                      <th className="tw-text-left tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong">Корректировка</th>
+                      <th className="tw-text-right tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Сумма, млн ₽</th>
+                      <th className="tw-text-center tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Уровень</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bridge.map((b, bi) => {
+                      const yi = (finJson?.meta?.fiscal_years || []).indexOf(b.year);
+                      const reported = yi >= 0 ? (netProfitArr[yi] ?? null) : null;
+                      const adjusted = yi >= 0 ? (netProfitAdj[yi] ?? null) : null;
+                      const isFirst = bi === 0 || bridge[bi - 1].year !== b.year;
+                      return (
+                        <React.Fragment key={bi}>
+                          {isFirst && (
+                            <tr className="tw-bg-bg-base tw-border-t tw-border-border-strong">
+                              <td colSpan={4} className="tw-px-3 tw-py-2">
+                                <div className="tw-flex tw-flex-wrap tw-gap-4 tw-items-baseline">
+                                  <span className="tw-text-[13px] tw-font-bold tw-text-text-primary">{b.year}</span>
+                                  {reported != null && (
+                                    <span className="tw-text-[12px] tw-text-text-secondary tw-font-mono tw-tabular-nums">
+                                      Отчётная ЧП: <span className={cx("tw-font-semibold", reported < 0 ? "tw-text-danger" : "tw-text-text-primary")}>{fmtBig(reported)}</span>
+                                    </span>
+                                  )}
+                                  {adjusted != null && (
+                                    <span className="tw-text-[12px] tw-text-text-secondary tw-font-mono tw-tabular-nums">
+                                      Нормализованная: <span className="tw-font-semibold tw-text-success">{fmtBig(adjusted)}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                          <tr className={bi % 2 === 0 ? "" : "tw-bg-bg-base"}>
+                            <td className="tw-px-3 tw-py-2 tw-text-[12px] tw-text-text-tertiary tw-font-mono tw-tabular-nums tw-whitespace-nowrap">{isFirst ? "" : b.year}</td>
+                            <td className="tw-px-3 tw-py-2 tw-text-[13px] tw-text-text-secondary tw-leading-snug">{b.item}</td>
+                            <td className="tw-px-3 tw-py-2 tw-text-right tw-font-mono tw-tabular-nums tw-text-[13px] tw-whitespace-nowrap">
+                              <span className={b.added_back ? "tw-text-success tw-font-semibold" : "tw-text-danger tw-font-semibold"}>
+                                {b.added_back ? "+" : "−"}{fmtBig(Math.abs(b.amount))}
+                              </span>
+                            </td>
+                            <td className="tw-px-3 tw-py-2 tw-text-center">
+                              <CertaintyBadge certainty={b.certainty} />
+                            </td>
+                          </tr>
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="tw-text-[11px] tw-text-text-tertiary tw-m-0 tw-pt-1">
+                <span className="tw-font-semibold">факт</span> — из отчётности; <span className="tw-font-semibold">оценка</span> — расчётная корректировка; <span className="tw-font-semibold">суждение</span> — аналитическое мнение.
+              </p>
+            </div>
+          </details>
+        </Card>
+      );
+    };
+
+    // ── Двухэтажный блок «Методы оценки» ──
+    const renderMethodsBlock = () => {
+      if (!methods.length) return null;
+      const adj = finJson?.adjusted;
+
+      // Разбирает "значение — описание, src_N" → { value, desc, src }
+      const parseInputEntry = (raw) => {
+        const srcMatch = raw.match(/,?\s*(src_[\w/,\s]+)$/i);
+        const src = srcMatch ? srcMatch[1].trim() : null;
+        const withoutSrc = src ? raw.slice(0, raw.lastIndexOf(srcMatch[0])).trimEnd() : raw;
+        const dashIdx = withoutSrc.indexOf(" — ");
+        if (dashIdx === -1) return { value: withoutSrc.trim(), desc: "", src };
+        return {
+          value: withoutSrc.slice(0, dashIdx).trim(),
+          desc: withoutSrc.slice(dashIdx + 3).trim(),
+          src,
+        };
+      };
+
+      return (
+        <Card>
+          {cardHead(Scale, "Методы оценки")}
+          <div className="tw-space-y-2">
+            {methods.map((mt, idx) => {
+              const name = METHOD_RU[mt.method] || mt.method;
+              const horizon = HORIZON_RU[mt.horizon] || mt.horizon || "—";
+              const hasPrice = typeof mt.fair_value_per_share === "number";
+              const expl = mt.explain || null;
+              const isNA = mt.status === "not_applicable";
+
+              // Строка-заголовок аккордеона (Этаж 1)
+              const summaryContent = (
+                <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-3 tw-gap-y-1 tw-w-full">
+                  <span className="tw-font-semibold tw-text-text-primary">{name}</span>
+                  <span className="tw-text-text-tertiary tw-text-[12px]">{horizon}</span>
+                  <span className="tw-flex-1" />
+                  {hasPrice
+                    ? <span className="tw-font-mono tw-tabular-nums tw-font-bold tw-text-text-primary">{formatMoney(mt.fair_value_per_share, { currency: cySym })}</span>
+                    : <span className="tw-text-text-tertiary tw-text-[12px]">—</span>
+                  }
+                  {statusBadge(mt.status)}
+                </div>
+              );
+
+              // Если not_applicable — без раскрытия, просто строка с причиной
+              if (isNA) {
+                const naNote = expl?.caveats?.[0] || mt.note || null;
+                return (
+                  <div key={idx} className="tw-flex tw-flex-col tw-gap-1 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-px-3 tw-py-2.5">
+                    {summaryContent}
+                    {naNote && <p className="tw-text-[12px] tw-text-text-tertiary tw-m-0 tw-pl-0.5">{naNote}</p>}
+                  </div>
+                );
+              }
+
+              // Этаж 2 — структурное раскрытие
+              const inputs = expl?.inputs || null;
+              const steps = Array.isArray(expl?.steps) ? expl.steps : null;
+              const caveats = Array.isArray(expl?.caveats) ? expl.caveats : null;
+              const tvShare = typeof mt.tv_share_of_value_pct === "number" ? mt.tv_share_of_value_pct : null;
+
+              // Если нет explain — деградируем на key_assumptions
+              const fallbackAssumptions = (!expl && mt.key_assumptions)
+                ? Object.entries(mt.key_assumptions)
+                : null;
+
+              const hasContent = inputs || steps || caveats || fallbackAssumptions || tvShare;
+
+              return (
+                <details
+                  key={idx}
+                  className="tw-group tw-border tw-border-border-subtle tw-rounded-md tw-bg-bg-elevated"
+                >
+                  <summary className={cx(
+                    "tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-select-none tw-list-none",
+                    "tw-px-3 tw-py-2.5 tw-rounded-md",
+                    "hover:tw-bg-bg-hover tw-transition-colors tw-duration-150",
+                    "[&::-webkit-details-marker]:tw-hidden",
+                    "focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+                  )}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"
+                      className="tw-shrink-0 tw-text-text-tertiary group-open:tw-rotate-90 tw-transition-transform tw-duration-150">
+                      <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    {summaryContent}
+                    {hasContent && <span className="tw-text-[11px] tw-text-text-tertiary tw-font-normal tw-whitespace-nowrap group-open:tw-hidden tw-ml-1">раскрыть</span>}
+                  </summary>
+                  {hasContent && (
+                    <div className="tw-border-t tw-border-border-subtle tw-px-3 tw-pb-4 tw-pt-3 tw-space-y-4">
+
+                      {/* ── Входные данные ── */}
+                      {inputs && Object.keys(inputs).length > 0 && (
+                        <div>
+                          <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.07em" }}>
+                            Входные данные
+                          </div>
+                          <div className="tw-space-y-1.5">
+                            {Object.entries(inputs).map(([key, raw]) => {
+                              const parsed = parseInputEntry(raw);
+                              return (
+                                <div key={key} className="tw-flex tw-gap-2.5 tw-items-start tw-text-[13px]">
+                                  <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">
+                                    {key}
+                                  </code>
+                                  <span className="tw-text-text-primary tw-font-semibold tw-font-mono tw-tabular-nums tw-whitespace-nowrap">
+                                    {parsed.value}
+                                  </span>
+                                  {parsed.desc && (
+                                    <span className="tw-text-text-secondary tw-leading-snug">{parsed.desc}</span>
+                                  )}
+                                  {parsed.src && (
+                                    <span className="tw-text-[10px] tw-text-text-tertiary tw-font-mono tw-shrink-0 tw-mt-px">
+                                      [{parsed.src}]
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {tvShare != null && (
+                            <div className="tw-mt-2 tw-text-[12px] tw-text-text-secondary">
+                              Терминальная стоимость: <span className="tw-font-semibold tw-text-text-primary tw-font-mono tw-tabular-nums">{tvShare}%</span> от стоимости
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* ── Шаги решения ── */}
+                      {steps && steps.length > 0 && (
+                        <div>
+                          <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2.5" style={{ letterSpacing: "0.07em" }}>
+                            Решение по шагам
+                          </div>
+                          <ol className="tw-space-y-2 tw-list-none tw-m-0 tw-p-0">
+                            {steps.map((step, si) => {
+                              // Убираем ведущую нумерацию "1) " если есть
+                              const numMatch = step.match(/^(\d+)\)\s*/);
+                              const num = numMatch ? numMatch[1] : String(si + 1);
+                              const text = numMatch ? step.slice(numMatch[0].length) : step;
+                              return (
+                                <li key={si} className="tw-flex tw-gap-2.5 tw-items-start">
+                                  <span className={cx(
+                                    "tw-shrink-0 tw-inline-flex tw-items-center tw-justify-center",
+                                    "tw-w-5 tw-h-5 tw-rounded-full tw-text-[11px] tw-font-bold tw-font-mono tw-tabular-nums",
+                                    "tw-bg-accent-soft tw-text-accent tw-mt-0.5"
+                                  )}>
+                                    {num}
+                                  </span>
+                                  <span className="tw-text-[13px] tw-leading-relaxed tw-text-text-secondary">
+                                    {text}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        </div>
+                      )}
+
+                      {/* ── Оговорки / слабости ── */}
+                      {caveats && caveats.length > 0 && (
+                        <div>
+                          <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.07em" }}>
+                            Оговорки
+                          </div>
+                          <ul className="tw-space-y-1.5 tw-list-none tw-m-0 tw-p-0">
+                            {caveats.map((cav, ci) => (
+                              <li key={ci} className="tw-flex tw-gap-2 tw-items-start">
+                                <span className="tw-text-warning tw-shrink-0 tw-text-[13px] tw-leading-relaxed" aria-hidden="true">⚠</span>
+                                <span className="tw-text-[13px] tw-leading-relaxed tw-text-text-secondary">{cav}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* ── Деградация: key_assumptions (старые карточки без explain) ── */}
+                      {fallbackAssumptions && fallbackAssumptions.length > 0 && (
+                        <div>
+                          <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.07em" }}>
+                            Допущения
+                          </div>
+                          <div className="tw-space-y-1">
+                            {fallbackAssumptions.map(([k, v]) => (
+                              <div key={k} className="tw-flex tw-gap-2 tw-text-[13px]">
+                                <code className="tw-text-[11px] tw-font-mono tw-text-accent tw-shrink-0">{k}</code>
+                                <span className="tw-text-text-secondary tw-font-mono tw-tabular-nums">{typeof v === "number" ? String(v) : v}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  )}
+                </details>
+              );
+            })}
+          </div>
+          {finJson?.valuation?.methods_divergence_note && (
+            <div className="tw-mt-3 tw-flex tw-gap-2 tw-items-start tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-base tw-p-3">
+              <span className="tw-text-text-tertiary tw-shrink-0 tw-text-[13px]" aria-hidden="true">ℹ</span>
+              <p className="tw-text-[12px] tw-leading-relaxed tw-text-text-secondary tw-m-0">{finJson.valuation.methods_divergence_note}</p>
+            </div>
+          )}
+        </Card>
+      );
+    };
 
     // ── секторное сравнение ──
     const renderSectorComparison = () => {
@@ -4774,27 +5096,9 @@ const CompanyCard = ({ company, onBack }) => {
 
         {fairValueBar()}
 
-        {methods.length > 0 && (
-          <Card>
-            {cardHead(Scale, "Методы оценки")}
-            <Table
-              columns={[
-                { key: "method", label: "Метод" },
-                { key: "price", label: "Справедливая цена", render: (v) => v },
-                { key: "horizon", label: "Горизонт" },
-                { key: "status", label: "Статус", render: (v) => v },
-              ]}
-              rows={methods.map((mt) => ({
-                method: METHOD_RU[mt.method] || mt.method,
-                price: typeof mt.fair_value_per_share === "number"
-                  ? <span className="tw-text-text-primary tw-font-semibold">{formatMoney(mt.fair_value_per_share, { currency: cySym })}</span>
-                  : <span className="tw-text-text-tertiary">—</span>,
-                horizon: HORIZON_RU[mt.horizon] || mt.horizon || "—",
-                status: statusBadge(mt.status),
-              }))}
-            />
-          </Card>
-        )}
+        {renderBridgePlate()}
+
+        {renderMethodsBlock()}
 
         {hasCharts && (
           <Card>
