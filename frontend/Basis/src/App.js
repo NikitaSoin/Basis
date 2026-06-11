@@ -1584,7 +1584,7 @@ function ScatterMap({ map, currentTicker }) {
         })}
       </svg>
       {hover && (
-        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 9px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}>
+        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 8px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "var(--shadow-md)" }}>
           <div style={{ fontWeight: 600, marginBottom: 2 }}>{hover.ticker}{hover.anomaly ? " *" : ""}</div>
           <div style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
             {map.x_axis?.label}: {hover.x?.toFixed(2)}<br />
@@ -1647,7 +1647,7 @@ function InteractiveScatter({ rows, metrics, currentTicker, defaultX, defaultY, 
     return val.toFixed(2) + "×";
   };
 
-  const selectCls = "tw-text-[12px] tw-px-2 tw-py-1 tw-rounded tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus";
+  const selectCls = "tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-sm tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus";
 
   return (
     <div style={{ position: "relative" }}>
@@ -1703,7 +1703,7 @@ function InteractiveScatter({ rows, metrics, currentTicker, defaultX, defaultY, 
       </svg>
       {/* Hover-тултип */}
       {hover && (
-        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 9px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}>
+        <div style={{ position: "absolute", left: `${(hover.px / W) * 100}%`, top: `${(hover.py / H) * 100}%`, transform: "translate(8px, -50%)", pointerEvents: "none", background: "var(--bg-app)", border: "1px solid var(--border-mid)", borderRadius: 8, padding: "6px 8px", fontSize: 11, color: "var(--text-1)", whiteSpace: "nowrap", zIndex: 5, boxShadow: "var(--shadow-md)" }}>
           <div style={{ fontWeight: 600, marginBottom: 2 }}>{hover.ticker}{hover.anomaly ? " *" : ""}{hover.is_pref ? <span style={{ color: "var(--text-3)", fontSize: 10 }}> ап</span> : null}</div>
           <div style={{ color: "var(--text-2)", fontSize: 10.5, marginBottom: 1 }}>{hover.name}</div>
           <div style={{ color: "var(--text-2)", fontVariantNumeric: "tabular-nums" }}>
