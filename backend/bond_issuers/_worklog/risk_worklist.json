@@ -2524,7 +2524,8 @@
     "near_offer": false,
     "clean_spread": -6693,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "structured_investment_bond"
   },
   {
     "issuer": "Первый ЮвелирЛомб БО-01",
@@ -6991,7 +6992,8 @@
     "near_offer": false,
     "clean_spread": -137,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "glitch_belowOFZ_needs_recompute"
   },
   {
     "issuer": "ТБанк TCS-perp1",
@@ -7200,7 +7202,8 @@
     "near_offer": false,
     "clean_spread": -1327,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "glitch_negative_ytm_needs_recompute"
   },
   {
     "issuer": "Ред Софт БО 002Р-05",
@@ -7257,7 +7260,8 @@
     "near_offer": false,
     "clean_spread": -542,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "fx_currency_mismatch"
   },
   {
     "issuer": "ГТЛК ЗО27-Д",
@@ -7276,7 +7280,8 @@
     "near_offer": false,
     "clean_spread": -617,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "fx_currency_mismatch"
   },
   {
     "issuer": "ТАЛКлизинг001P-02",
@@ -7333,7 +7338,8 @@
     "near_offer": false,
     "clean_spread": -695,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "fx_currency_mismatch"
   },
   {
     "issuer": "ГПБ (АО) БО 003Р-06CNY",
@@ -7352,7 +7358,8 @@
     "near_offer": false,
     "clean_spread": -1067,
     "floater_spread_bp": null,
-    "artifact": false
+    "artifact": true,
+    "artifact_reason": "fx_currency_mismatch"
   },
   {
     "issuer": "Русский Свет БО-01",
