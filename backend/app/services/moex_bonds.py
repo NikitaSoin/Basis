@@ -412,11 +412,26 @@ def propagate_issuer_ratings(db, seed: dict[str, tuple[str, str]] | None = None)
     floater_fix = db.execute(_text(
         "UPDATE bonds SET spread_bp=NULL "
         "WHERE coupon_type IN ('floater','linker','structured') AND spread_bp IS NOT NULL")).rowcount
+
+    # страховка от битой кривой ОФЗ: G-спред = YTM − база_ОФЗ(дюрация). Если при
+    # прошлой загрузке кривая была пустой/искажённой, база занижалась → spread_bp
+    # завышался в разы (ПГК AA+ показывал 1517 б.п. вместо ~180). Признак — арифметически
+    # невозможная подразумеваемая база ОФЗ: implied = YTM − spread_bp/100 < 11,5% (ниже
+    # любой реальной точки ОФЗ при КС 14,5%). Такие спреды обнуляем (вместе с risk_tier):
+    # честнее «нет рыночной оценки», чем неверное число. Дистресс ловит yield_anomaly (YTM>40).
+    # На следующей загрузке со свежей кривой спред пересчитается корректно (guard ничего не тронет).
+    glitch_fix = db.execute(_text(
+        "UPDATE bonds SET spread_bp=NULL, risk_tier=NULL "
+        "WHERE bond_type<>'ofz' AND spread_bp IS NOT NULL AND ytm IS NOT NULL "
+        "AND (ytm - spread_bp/100.0) < 11.5")).rowcount
+
     db.commit()
     logger.info("Пропагация рейтинга эмитента: +%d серий, seed +%d, конфликтов пропущено %d, "
-                "floater spread обнулён %d", filled_prop, filled_seed, skipped_conflict, floater_fix)
+                "floater spread обнулён %d, битых спредов (низкая база ОФЗ) обнулено %d",
+                filled_prop, filled_seed, skipped_conflict, floater_fix, glitch_fix)
     return {"propagated": filled_prop, "seeded": filled_seed,
-            "skipped_conflict": skipped_conflict, "floater_spread_nulled": floater_fix}
+            "skipped_conflict": skipped_conflict, "floater_spread_nulled": floater_fix,
+            "glitch_spread_nulled": glitch_fix}
 
 
 def fetch_board(board: str, bond_type: str) -> list[dict]:
