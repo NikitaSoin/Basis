@@ -1407,7 +1407,7 @@
   },
   {
     "issuer": "ГК Сегежа 002P-01R",
-    "slug": null,
+    "slug": "гк-сегежа",
     "ticker": "SGZH",
     "secid": "RU000A1041B2",
     "spread": 1690,
@@ -3592,7 +3592,7 @@
   },
   {
     "issuer": "Банк ВТБ ПАО СУБ-Т2-2",
-    "slug": null,
+    "slug": "банк-втб-суб",
     "ticker": "VTBR",
     "secid": "RU000A102887",
     "spread": 939,
@@ -5055,7 +5055,7 @@
   },
   {
     "issuer": "Софтлайн 002Р-02",
-    "slug": null,
+    "slug": "софтлайн",
     "ticker": "SOFL",
     "secid": "RU000A10EA08",
     "spread": 880,
@@ -5169,7 +5169,7 @@
   },
   {
     "issuer": "ТМК 002P-01",
-    "slug": null,
+    "slug": "тмк",
     "ticker": "TRMK",
     "secid": "RU000A10EAS2",
     "spread": 964,
