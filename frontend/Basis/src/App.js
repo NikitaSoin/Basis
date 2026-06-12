@@ -5226,6 +5226,19 @@ const CompanyCard = ({ company, onBack }) => {
           </Card>
         )}
 
+        {(() => {
+          // Подпись над отчётностью, если часть постатейных данных ещё не добыта
+          // (по ОТК-персоне: пустые «—» без контекста читаются как «недоделано»).
+          const incomplete = !isBank && (
+            !(Array.isArray(is.cogs) && is.cogs.some((x) => x != null)) ||
+            !(Array.isArray(cf.cfi) && cf.cfi.some((x) => x != null)));
+          return incomplete ? (
+            <div className="tw-flex tw-gap-2 tw-items-start tw-text-[12px] tw-text-text-tertiary tw-mb-1 tw-px-1">
+              <Info size={13} className="tw-shrink-0 tw-mt-px" />
+              <span>Постатейные данные добираются из первичной отчётности — строки с «—» заполнятся автоматически по мере загрузки. Заполнены ключевые показатели и итоги.</span>
+            </div>
+          ) : null;
+        })()}
         {isBank ? (
           <>
             {tableSection(BarChart2, "Отчёт о прибылях (банк)", bankPnlRows, true)}
