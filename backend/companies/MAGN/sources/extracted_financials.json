@@ -1,0 +1,421 @@
+{
+  "meta": {
+    "ticker": "MAGN",
+    "name": "ПАО \"ММК\" (Магнитогорский металлургический комбинат)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "converted_years": [],
+    "conversion_note": "ММК до 2021 включительно публиковал пресс-релизы в USD; первичный рублёвый МСФО-отчёт введён с 2022 г. Инфографика (ручной PDF-источник) содержит все годы уже в рублях; конвертация сделана составителем инфографики. Converted_years не заполнены, т.к. единый рублёвый ряд взят из инфографики.",
+    "source": {
+      "type": "manual_pdf + smart-lab + press_releases",
+      "primary_url": "local: backend/companies/MAGN/sources/ММК (МСФО 2025) на 14.05.2026г.pdf",
+      "supplementary": [
+        "https://smart-lab.ru/q/MAGN/f/y/ (себестоимость 2021-2025)",
+        "https://financemarker.ru/stocks/MOEX/MAGN/reports/cashflow/ (CFO, capex 2019-2025)",
+        "https://smart-lab.ru/blog/1133702.php (детали P&L 2024)",
+        "https://www.vedomosti.ru/business/articles/2025/03/20/1099252-mmk-snizila-pribil (2024 данные)"
+      ],
+      "doc_title": "ММК (МСФО 2025) на 14.05.2026г. — инфографика-агрегатор + первичные источники",
+      "retrieved": "2026-06-12"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + smart-lab-table + web-press-releases",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      460180,
+      873189,
+      699817,
+      763390,
+      768466,
+      609865
+    ],
+    "cogs": [
+      null,
+      517000,
+      527200,
+      543400,
+      592400,
+      509600
+    ],
+    "gross_profit": [
+      null,
+      356189,
+      172617,
+      219990,
+      176066,
+      100265
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (коммерческие + административные + прочие, агрегированно)",
+        "values": [
+          null,
+          80000,
+          60700,
+          74300,
+          76400,
+          80400
+        ]
+      }
+    ],
+    "operating_profit": [
+      67912,
+      276174,
+      109928,
+      146184,
+      99699,
+      21444
+    ],
+    "da": [
+      34750,
+      37533,
+      43607,
+      48348,
+      54290,
+      60064
+    ],
+    "ebitda": [
+      102662,
+      313707,
+      153535,
+      194532,
+      153989,
+      81508
+    ],
+    "finance_costs": [
+      3129,
+      2689,
+      5969,
+      6514,
+      5500,
+      7537
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      14600,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      43359,
+      229322,
+      70174,
+      118177,
+      79856,
+      -14061
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        63352,
+        62649,
+        144214,
+        161809,
+        114435,
+        38107
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      553575,
+      721800,
+      737785,
+      902002,
+      913176,
+      877943
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        278885,
+        408589,
+        478665,
+        597778,
+        618899,
+        605562
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        339828,
+        470214,
+        535434,
+        663309,
+        689812,
+        664719
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        40516,
+        39225,
+        20249,
+        12624,
+        12578,
+        15513
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        30372,
+        32200,
+        53062,
+        57704,
+        34744,
+        22801
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      213747,
+      251586,
+      202351,
+      238693,
+      223364,
+      213224
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      89403,
+      198844,
+      142649,
+      114845,
+      113463,
+      80472
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      50350,
+      83106,
+      79477,
+      94859,
+      101244,
+      113463
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020: себестоимость и валовая прибыль null — отчётность публиковалась в USD; рублевый первичный МСФО за 2020 недоступен из открытых источников без загрузки PDF с mmk.ru (сайт таймаутит из sandbox)",
+    "Детали баланса (PP&E, запасы, дебиторка, кредиторка, состав оборотных/внеоборотных, доли капитала) — null: не извлечены из первичного PDF; для получения нужна ручная загрузка первичного МСФО PDF (консолидированная финотчётность, не инфографика)",
+    "CFI и CFF — null: данные из investemika не прошли арифметическую проверку (расхождение с реальным изменением кэша); capex + CFO надёжны и сверены",
+    "finance_income: данные только за 2024 (14 600 млн из статьи); за остальные годы null",
+    "pre_tax_profit и income_tax — null: нет надёжных данных из открытых источников",
+    "Операционные расходы expense_lines: только агрегированные данные 2021-2025 (без разбивки на коммерческие/административные); 2020 null",
+    "Источник инфографики является агрегатором, не первичной отчётностью; ключевые агрегаты (выручка, ОП, EBITDA, ЧП, активы, капитал, CFO, capex) верифицированы перекрёстной проверкой с пресс-релизами и smart-lab",
+    "EBITDA = EBIT + D&A проверено (0% расхождение по всем годам)",
+    "FCF = CFO - Capex = данные инфографики (0 расхождение по всем 6 годам)",
+    "ММК публиковал пресс-релизы в USD до 2022 включительно; инфографика автора уже сконвертировала в рубли по среднегодовому курсу"
+  ]
+}
