@@ -1,0 +1,426 @@
+{
+  "meta": {
+    "ticker": "SELG",
+    "name": "ПАО СЕЛИГДАР",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (первичная валюта отчётности)",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf + smart-lab + e-disclosure",
+      "url": "Селигдар (МСФО 2025) на 25.05.2026г.pdf (загруженный вручную в sources/) + https://smart-lab.ru/q/SELG/f/y/",
+      "doc_title": "Консолидированная финансовая отчётность МСФО + Динамика основных показателей 2016-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "manual_pdf (таблица) + smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      33314,
+      35616,
+      34722,
+      55974,
+      59289,
+      87854
+    ],
+    "cogs": [
+      null,
+      18700,
+      20900,
+      37200,
+      31600,
+      47100
+    ],
+    "gross_profit": [
+      null,
+      16900,
+      13800,
+      18800,
+      27700,
+      39800
+    ],
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          null,
+          5500,
+          6000,
+          10100,
+          8300,
+          9700
+        ]
+      },
+      {
+        "name": "Финансовые расходы (процентные)",
+        "values": [
+          null,
+          2040,
+          3360,
+          4920,
+          8410,
+          16100
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      12300,
+      4340,
+      4930,
+      12900,
+      19900
+    ],
+    "da": [
+      null,
+      5500,
+      6000,
+      10100,
+      8300,
+      9700
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      21200,
+      27700,
+      44200
+    ],
+    "finance_costs": [
+      null,
+      2040,
+      3360,
+      4920,
+      8410,
+      16100
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      241,
+      10081,
+      4795,
+      -10862,
+      -11545,
+      -7937
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      75404,
+      85304,
+      136133,
+      134944,
+      179171,
+      213021
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        3056,
+        11156,
+        9882,
+        -2262,
+        -19484,
+        -27373
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        23067,
+        31495,
+        38355,
+        25621,
+        21602,
+        10623
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      52337,
+      53809,
+      97778,
+      109323,
+      157569,
+      202397
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      7330,
+      14500,
+      16600,
+      9280,
+      -24300
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2024: Reported МСФО чистая прибыль (убыток) = -11,545 млн (уточнено из PDF); ранее в пресс-релизах упоминали -12,825 млн (возможно расхождение в дате консолидирования)",
+    "2025: Reported МСФО чистая прибыль = -7,937 млн; adjusted (без переоценки FX/gold debt revaluation) ~+5,200 млн",
+    "2023: Чистая прибыль была убыток -10,862 млн (не прибыль 2,840 как в ранних таблицах smart-lab); вероятно, позже переклассифицирован",
+    "Золотой долг: 68% от total debt номинировано в драгметаллах; абсолютный объём ~60.7 млрд руб (конец 2024); ~104 млрд (конец 2025 из интерполяции)",
+    "2024-2025: Резкий рост финансовых расходов (8.4→16.1 млрд) из-за повышения ставок ЦБ РФ (19.2% avg) и девальвации рубля",
+    "CFO 2025: -24.3 млрд (отрицательный cash flow) на фоне macroeconomic стресса и долговых обслуживаний",
+    "Retained Earnings (Нераспределённая прибыль) показывает накопленный убыток: 2020: +3.056 млрд → 2025: -27.373 млрд (критическая динамика из-за переоценок золотого долга)",
+    "Debt/EBITDA вырос: 2.19x (2021) → 5.15x (2025), что указывает на критическую долговую нагрузку",
+    "2020 данные: только total_assets/total_liabilities/total_equity; COGS и детали P&L не раскрыты (начало МСФО отчётности для компании)",
+    "Детали активов/пассивов (разбивка на current/non_current): отсутствуют в публичных источниках, требуют полного консолидированного отчёта"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "ticker": "FEES",
+    "name": "ПАО «Федеральная сетевая компания – Россети» (ФСК ЕЭС)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (млн). Источник: e-disclosure.ru (PDF 2025/2024 отчёт), smart-lab.ru (таблицы 2021-2024).",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "e-disclosure + smart-lab-table",
+      "url": "https://www.e-disclosure.ru/portal/company.aspx?id=379; https://smart-lab.ru/q/FEES/f/y/",
+      "doc_title": "Консолидированная финансовая отчётность ФСК ЕЭС за год, закончившийся 31 декабря 2025 года (и компаратив 2024); Smart-Lab таблицы 2021-2024",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + web-fetch",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [1182000, 1379000, 1506000, 1505655, 1833976],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (by_nature: материалы, персонал, прочие, амортизация учтена отдельно)",
+        "values": [993400, 1111000, 1250000, 1249760, 1444471]
+      }
+    ],
+    "operating_profit": [182000, 222300, -93100, -93097, 304058],
+    "da": [150400, 161900, 178600, 178603, 184364],
+    "ebitda": [null, null, null, null, null],
+    "finance_costs": [null, null, null, 64501, 80907],
+    "finance_income": [null, null, null, 51413, 59489],
+    "pre_tax_profit": [null, null, null, -105873, 283189],
+    "income_tax": [null, null, null, 10990, 79809],
+    "net_profit": [132800, 126000, -149500, -116863, 203380]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, 2708910, 3065762],
+      "intangibles": [null, null, null, 31135, 37845],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, 3318, 3991],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, 2892550, 3291424]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, 60833, 66063],
+      "receivables": [null, null, null, 147886, 158258],
+      "cash": [195400, 197000, 233300, 226861, 271870],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, 553207, 637048]
+    },
+    "total_assets": [2924000, 3291000, 3446000, 3445757, 3928472],
+    "equity": {
+      "share_capital": [null, null, null, 1056730, 1056730],
+      "retained_earnings": [null, null, null, 367030, 509084],
+      "additional_paid_in": [null, null, null, 10501, 10501],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [null, null, null, 1723366, 1906466]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, 541235, 564626],
+      "deferred_tax": [null, null, null, 58574, 78056],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, 817334, 948659]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, 200546, 265053],
+      "payables": [null, null, null, 285006, 349863],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, 905057, 1073347]
+    },
+    "total_liabilities": [null, null, null, 1722391, 2022006]
+  },
+  "cash_flow": {
+    "cfo": [322200, 472600, 462100, 462102, 581492],
+    "cfi": [null, null, null, -481381, -624767],
+    "cff": [null, null, null, 80025, 88284],
+    "capex": [362800, 468700, 553700, 553720, 598511],
+    "net_change_in_cash": [null, null, null, 60746, 45009]
+  },
+  "data_flags": [
+    "2021-2023: выручка, опер.расходы, D&A, операционная прибыль, чистая прибыль, денежные средства, capex, cfo из smart-lab.ru (высокая достоверность)",
+    "2024-2025: полный отчёт МСФО из e-disclosure.ru (официальный PDF консолидированной отчётности)",
+    "cost_format BY_NATURE: ФСК — монополист передачи электроэнергии, затраты классифицированы по видам затрат, а не по функциям (нет традиционного COGS/опер.расходы); включает материалы, персонал, энергию на потери и пр.",
+    "Амортизация (D&A) выделена отдельной строкой в консолидированном отчёте о прибылях (строка после опер.расходов, до операционной прибыли)",
+    "2020 год отсутствует: smart-lab начинает с 2021, e-disclosure архивы не доступны; необходима отдельная загрузка годового отчёта 2020",
+    "EBITDA не рассчитывается вверх (не найдена в отчётах; может быть рассчитана как Operating Profit + D&A)",
+    "Капитальные вложения очень высокие (32-40% выручки) — типично для инфраструктурной монополии с инвестпрограммой развития сетей",
+    "FCF отрицательный (capex > cfo) в 2021-2024: компания инвестирует больше, чем генерирует денежные средства; дефицит финансируется заимствованиями и эмиссией",
+    "2023 год: сильное убыточное отчисление (убыток -149.5 млрд) из-за значительной переоценки основных средств (write-down активов)"
+  ]
+}

@@ -1,0 +1,410 @@
+{
+  "meta": {
+    "ticker": "UPRO",
+    "name": "ПАО Юнипро",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://unipro.energy/shareholders/reports/finance_reports/",
+      "doc_title": "Консолидированная финансовая отчетность МСФО",
+      "retrieved": "2026-06-13T01:47:32.841652"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual inspection",
+    "arithmetic_check": "partial",
+    "notes": "2025 данные из smart-lab (промежуточный отчёт); 2020-2021 требуют полной проверки баланса"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      75316.709,
+      88129.314,
+      105798.884,
+      118631.946,
+      128250.902,
+      134300.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (прямые и косвенные)",
+        "values": [
+          58630.946,
+          78322.418,
+          81664.816,
+          95642.999,
+          101815.613,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      16838.97,
+      10021.831,
+      25220.877,
+      23527.274,
+      27739.356,
+      31300.0
+    ],
+    "da": [
+      6139.908,
+      7876.78,
+      7566.371,
+      8129.864,
+      5783.691,
+      null
+    ],
+    "ebitda": [
+      22978.878,
+      17898.611,
+      32787.248,
+      31657.138,
+      33523.047,
+      null
+    ],
+    "finance_income": [
+      314.086,
+      179.272,
+      1248.34,
+      4391.534,
+      13039.21,
+      null
+    ],
+    "finance_costs": [
+      330.218,
+      189.484,
+      247.413,
+      355.199,
+      393.804,
+      null
+    ],
+    "pre_tax_profit": [
+      17027.426,
+      10292.496,
+      26315.408,
+      27599.631,
+      39736.68,
+      null
+    ],
+    "income_tax": [
+      3277.709,
+      2059.641,
+      5047.686,
+      5556.775,
+      7809.206,
+      null
+    ],
+    "net_profit": [
+      13749.717,
+      8232.855,
+      21267.722,
+      22042.856,
+      31927.474,
+      39380.0
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        87625.501,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        8016.069,
+        null
+      ],
+      "cash": [
+        192.36,
+        29737.0,
+        27077.433,
+        50136.997,
+        27100.815,
+        92000.0
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        66425.232,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      127400.0,
+      null,
+      null,
+      238800.0,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        25219.482,
+        25219.482,
+        25219.482,
+        25219.482,
+        25219.482,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        43122.79,
+        null,
+        86433.368,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        40052.405,
+        40052.405,
+        40052.405,
+        40052.405,
+        40052.405,
+        null
+      ],
+      "other_equity": [
+        null,
+        258.392,
+        null,
+        790.3,
+        null,
+        null
+      ],
+      "total_equity": [
+        120544.441,
+        108653.069,
+        null,
+        152495.555,
+        184124.704,
+        223700.0
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      22099.594,
+      27698.136,
+      34700.609,
+      31432.418,
+      35832.365,
+      null
+    ],
+    "cfi": [
+      -8579.842,
+      -10367.776,
+      -4088.102,
+      -8496.245,
+      -58617.731,
+      null
+    ],
+    "cff": [
+      -16461.653,
+      -17485.972,
+      -3499.556,
+      -202.821,
+      -295.472,
+      null
+    ],
+    "capex": [
+      9999.328,
+      11245.906,
+      5895.396,
+      14193.504,
+      13236.343,
+      null
+    ],
+    "net_change_in_cash": [
+      -2901.169,
+      -162623.0,
+      -2659.6,
+      23059.564,
+      -23036.182,
+      null
+    ]
+  },
+  "data_flags": [
+    "cost_format=by_nature: операционные расходы не разбиты по видам (топливо, персонал, амортизация), требуют доработки примечаний 18-20",
+    "2020-2021: денежные средства на начало периода указаны странными цифрами (192360 тыс 2021г), требует проверки vs smart-lab",
+    "2025: прогноз из press-release и smart-lab (промежуточный отчёт), не из полной консолидированной отчётности",
+    "Баланс: total_assets, equity, liabilities не полностью распарсены; используются частичные данные из примечаний и smart-lab",
+    "ВАЖНО: компания накапливает cash ('кубышка') с 2022г из-за дивидендной политики Uniper; cash 2025 ~ 92 млрд (остановлена выплата дивидендов с 2022)",
+    "arithmetic_check: P&L пройдена полностью; CFO/CFI/CFF арифметика проверена для 2024; 2020-2021 требуют валидации по примечаниям 24-26"
+  ]
+}

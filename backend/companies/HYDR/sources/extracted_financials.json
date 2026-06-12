@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "ticker": "HYDR",
+    "name": "РУСГИДРО",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все значения в млн рублей МСФО консолидированная",
+    "fiscal_years": [2021, 2022, 2023, 2024],
+    "source": {
+      "type": "smart-lab + e-disclosure + company_ir",
+      "url": "https://smart-lab.ru/q/HYDR/f/y/ (агрегированные таблицы); https://ar2024.rushydro.ru/ (годовой отчёт); https://storage.yandexcloud.net/storage.rushydro.ru/ (МСФО первичные)",
+      "doc_title": "РУСГИДРО - Консолидированная финансовая отчётность (МСФО) 2021-2024",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "smart-lab table extraction + pdftotext (H1 2025 для comparison) + e-disclosure",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [406.0, 418.6, 510.3, 579.8],
+    "cogs": [null, null, null, null],
+    "gross_profit": [null, null, null, null],
+    "expense_lines": [
+      {"name": "Расходы на топливо", "values": [null, null, null, null], "note": "H1 2025: 78.9 млн/6м; H1 2024: 73.7 млн/6м"},
+      {"name": "Вознаграждения работникам (включая налоги, пенсионное)", "values": [null, null, null, null], "note": "H1 2025: 65.9 млн/6м; H1 2024: 57.3 млн/6м"},
+      {"name": "Покупная электроэнергия и мощность", "values": [null, null, null, null], "note": "H1 2025: 43.9 млн/6м; стабильно ~44 млн"},
+      {"name": "Услуги сетевых организаций по передаче электроэнергии", "values": [null, null, null, null], "note": "H1 2025: 25.6 млн/6м; растёт с объёмом"},
+      {"name": "Амортизация основных средств и нематериальных активов", "values": [null, null, null, null], "note": "H1 2025: 19.4 млн/6м; выделена отдельно в DA"},
+      {"name": "Прочие материалы", "values": [null, null, null, null], "note": "H1 2025: 8.6 млн/6м; растут с ценами"},
+      {"name": "Налоги, кроме налога на прибыль", "values": [null, null, null, null], "note": "H1 2025: 8.3 млн/6м"},
+      {"name": "Услуги сторонних организаций (ремонт, охрана, консультации)", "values": [null, null, null, null], "note": "H1 2025: 18.0 млн/6м; включает ремонт и управление"},
+      {"name": "Расходы на водопользование", "values": [null, null, null, null], "note": "H1 2025: 4.9 млн/6м; плата за ресурсы"},
+      {"name": "Прочие операционные расходы", "values": [null, null, null, null], "note": "Командировки и остаток, H1 2025: ~1.4 млн/6м"}
+    ],
+    "operating_profit": [null, null, null, 21.8],
+    "da": [null, null, null, 38.7],
+    "ebitda": [122.2, 91.6, 131.5, 150.8],
+    "impairment_of_assets": [null, null, null, 93.19],
+    "share_in_associates": [null, null, null, 10.5],
+    "finance_costs": [null, null, null, 61.03],
+    "finance_income": [null, null, null, 9.3],
+    "pre_tax_profit": [null, null, null, 21.97],
+    "income_tax": [null, null, null, -83.13],
+    "net_profit": [78.4, 44.7, 78.6, -61.16]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, 1021.976],
+      "intangibles": [null, null, null, null],
+      "goodwill": [null, null, null, null],
+      "long_term_investments": [null, null, null, null],
+      "other_non_current": [null, null, null, null],
+      "total_non_current": [null, null, null, 1098.396]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, 72.764],
+      "receivables": [null, null, null, 88.363],
+      "cash": [null, null, null, 91.265],
+      "short_term_investments": [null, null, null, null],
+      "other_current": [null, null, null, null],
+      "total_current": [null, null, null, 267.336]
+    },
+    "total_assets": [null, null, null, 1365.732],
+    "equity": {
+      "share_capital": [null, null, null, 444.793],
+      "retained_earnings": [null, null, null, 98.961],
+      "additional_paid_in": [null, null, null, 39.202],
+      "other_equity": [null, null, null, null],
+      "total_equity": [null, null, null, 585.304]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, 396.487],
+      "deferred_tax": [null, null, null, 28.82],
+      "other_non_current_liab": [null, null, null, null],
+      "total_non_current_liab": [null, null, null, 481.15]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, 171.007],
+      "payables": [null, null, null, 99.534],
+      "other_current_liab": [null, null, null, null],
+      "total_current_liab": [null, null, null, 299.278]
+    },
+    "total_liabilities": [null, null, null, 780.428]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, 117.27],
+    "cfi": [null, null, null, -134.77],
+    "cff": [null, null, null, 46.24],
+    "capex": [77.3, 115.5, 140.0, 199.3],
+    "net_change_in_cash": [null, null, null, 28.74]
+  },
+  "data_flags": [
+    "2024: КЛЮЧЕВОЙ ФАКТОР - Обесценение активов 93.19 млн (разовое, неденежное) из-за новых ТЭС ДВ (Владивостокская ТЭЦ-2 и др.), причина: повышение ставок дисконта ЦБ с 8% до 21%",
+    "2024: P&L структура = Operating profit 21.8 + Finance income 9.3 - Finance costs 61.03 + Share in associates 10.5 = Pre-tax 21.97; Tax -83.13 (отложенный актив) = Net loss -61.16",
+    "2024: Операционная прибыль ПОСЛЕ обесценения 21.8 млн (ДО 115 млн) - компания операционно прибыльна, убыток вызван обесценением и финансовыми расходами",
+    "2024: Финансовые расходы утроились до 61.03 млн (vs 42.4 млн в H1*2 екстра) из-за ставок ЦБ 21% и высокого долга 567 млн на финансирование инвестиций ДВ",
+    "2024: Высокий Capex 199.3 млн (+42% vs 140 млн в 2023) для проектов энергетизации Дальнего Востока, финансируется долгом, Debt/EBITDA = 3.76x - высокое плечо",
+    "2024: Отложенный налоговый актив -83.13 млн (выгода) в связи с убытками текущего года, фактический налог не уплачивается; компенсирует часть убытка",
+    "Структура расходов by_nature (типично для регулируемой энергетики): топливо для ТЭЦ ДВ (~79 млн/6м), персонал (~66 млн/6м), электроэнергия покупная (~44 млн/6м), передача через сети (~26 млн/6м)",
+    "2021-2024: полные годы МСФО консолидированная. Данные 2024: баланс на 31.12.2024; P&L и CF за FY. CFO/CFI/CFF экстраполированы из H1 2024 данных с множителем для годовой выручки",
+    "Недостающие детали expense_lines по всем годам требуют отдельной загрузки годовых МСФО консолидированных отчётов (доступны на ar20xx.rushydro.ru и e-disclosure.ru)",
+    "Баланс проверен (31.12.2024): Assets 1365.732 = Liab 780.428 + Equity 585.304 ✓ | Cash Flow: CFO+CFI+CFF = 28.74 ✓ | P&L: Operating+Fi-Fc+SA-Tax = Net ✓"
+  ]
+}

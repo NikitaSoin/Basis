@@ -1,0 +1,692 @@
+{
+  "meta": {
+    "ticker": "SMLT",
+    "name": "ПАО ГК Самолет",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2022,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/",
+      "doc_title": "Консолидированная финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber + text parsing",
+    "arithmetic_check": "passed",
+    "converted_years": [],
+    "conversion_note": "All in RUB millions; no currency conversions needed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      {
+        "year": 2022,
+        "value": 172210
+      },
+      {
+        "year": 2024,
+        "value": 339056
+      },
+      {
+        "year": 2025,
+        "value": 366816
+      }
+    ],
+    "cogs": [
+      {
+        "year": 2022,
+        "value": 120226
+      },
+      {
+        "year": 2024,
+        "value": 228775
+      },
+      {
+        "year": 2025,
+        "value": 235849
+      }
+    ],
+    "gross_profit": [
+      {
+        "year": 2022,
+        "value": 51984
+      },
+      {
+        "year": 2024,
+        "value": 110281
+      },
+      {
+        "year": 2025,
+        "value": 130967
+      }
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          {
+            "year": 2022,
+            "value": 5322
+          },
+          {
+            "year": 2024,
+            "value": null
+          },
+          {
+            "year": 2025,
+            "value": null
+          }
+        ]
+      },
+      {
+        "name": "Административные расходы",
+        "values": [
+          {
+            "year": 2022,
+            "value": 10015
+          },
+          {
+            "year": 2024,
+            "value": null
+          },
+          {
+            "year": 2025,
+            "value": null
+          }
+        ]
+      }
+    ],
+    "operating_profit": [
+      {
+        "year": 2022,
+        "value": 36647
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "da": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": 2295
+      },
+      {
+        "year": 2025,
+        "value": 3754
+      }
+    ],
+    "ebitda": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "finance_costs": [
+      {
+        "year": 2022,
+        "value": 22759
+      },
+      {
+        "year": 2024,
+        "value": 79979
+      },
+      {
+        "year": 2025,
+        "value": 106129
+      }
+    ],
+    "finance_income": [
+      {
+        "year": 2022,
+        "value": 1929
+      },
+      {
+        "year": 2024,
+        "value": 7308
+      },
+      {
+        "year": 2025,
+        "value": 6147
+      }
+    ],
+    "pre_tax_profit": [
+      {
+        "year": 2022,
+        "value": 19257
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "income_tax": [
+      {
+        "year": 2022,
+        "value": 3974
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": 1887
+      }
+    ],
+    "net_profit": [
+      {
+        "year": 2022,
+        "value": 15283
+      },
+      {
+        "year": 2024,
+        "value": 8158
+      },
+      {
+        "year": 2025,
+        "value": -2291
+      }
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        {
+          "year": 2022,
+          "value": 1858
+        },
+        {
+          "year": 2024,
+          "value": 7937
+        },
+        {
+          "year": 2025,
+          "value": 12157
+        }
+      ],
+      "intangibles": [
+        {
+          "year": 2022,
+          "value": 22566
+        },
+        {
+          "year": 2024,
+          "value": 34020
+        },
+        {
+          "year": 2025,
+          "value": 35985
+        }
+      ],
+      "goodwill": [
+        {
+          "year": 2022,
+          "value": null
+        },
+        {
+          "year": 2024,
+          "value": null
+        },
+        {
+          "year": 2025,
+          "value": null
+        }
+      ],
+      "long_term_investments": [
+        {
+          "year": 2022,
+          "value": 16127
+        },
+        {
+          "year": 2024,
+          "value": 20188
+        },
+        {
+          "year": 2025,
+          "value": 22307
+        }
+      ],
+      "other_non_current": [
+        {
+          "year": 2022,
+          "value": 7539
+        },
+        {
+          "year": 2024,
+          "value": 22519
+        },
+        {
+          "year": 2025,
+          "value": 39642
+        }
+      ],
+      "total_non_current": [
+        {
+          "year": 2022,
+          "value": 48090
+        },
+        {
+          "year": 2024,
+          "value": 104664
+        },
+        {
+          "year": 2025,
+          "value": 110091
+        }
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        {
+          "year": 2022,
+          "value": 163669
+        },
+        {
+          "year": 2024,
+          "value": 527860
+        },
+        {
+          "year": 2025,
+          "value": 558856
+        }
+      ],
+      "receivables": [
+        {
+          "year": 2022,
+          "value": 9777
+        },
+        {
+          "year": 2024,
+          "value": 28982
+        },
+        {
+          "year": 2025,
+          "value": 17695
+        }
+      ],
+      "cash": [
+        {
+          "year": 2022,
+          "value": 9864
+        },
+        {
+          "year": 2024,
+          "value": 25378
+        },
+        {
+          "year": 2025,
+          "value": 7671
+        }
+      ],
+      "short_term_investments": [
+        {
+          "year": 2022,
+          "value": 1848
+        },
+        {
+          "year": 2024,
+          "value": 6095
+        },
+        {
+          "year": 2025,
+          "value": 3837
+        }
+      ],
+      "other_current": [
+        {
+          "year": 2022,
+          "value": 176532
+        },
+        {
+          "year": 2024,
+          "value": 268143
+        },
+        {
+          "year": 2025,
+          "value": 321497
+        }
+      ],
+      "total_current": [
+        {
+          "year": 2022,
+          "value": 361690
+        },
+        {
+          "year": 2024,
+          "value": 856458
+        },
+        {
+          "year": 2025,
+          "value": 909556
+        }
+      ]
+    },
+    "total_assets": [
+      {
+        "year": 2022,
+        "value": 409780
+      },
+      {
+        "year": 2024,
+        "value": 961122
+      },
+      {
+        "year": 2025,
+        "value": 1019647
+      }
+    ],
+    "equity": {
+      "share_capital": [
+        {
+          "year": 2022,
+          "value": 1539
+        },
+        {
+          "year": 2024,
+          "value": 1539
+        },
+        {
+          "year": 2025,
+          "value": 1539
+        }
+      ],
+      "retained_earnings": [
+        {
+          "year": 2022,
+          "value": 14919
+        },
+        {
+          "year": 2024,
+          "value": 26267
+        },
+        {
+          "year": 2025,
+          "value": 23898
+        }
+      ],
+      "additional_paid_in": [
+        {
+          "year": 2022,
+          "value": 1272
+        },
+        {
+          "year": 2024,
+          "value": 1272
+        },
+        {
+          "year": 2025,
+          "value": 1272
+        }
+      ],
+      "other_equity": [
+        {
+          "year": 2022,
+          "value": 9370
+        },
+        {
+          "year": 2024,
+          "value": 23556
+        },
+        {
+          "year": 2025,
+          "value": 23465
+        }
+      ],
+      "total_equity": [
+        {
+          "year": 2022,
+          "value": 27100
+        },
+        {
+          "year": 2024,
+          "value": 52634
+        },
+        {
+          "year": 2025,
+          "value": 50174
+        }
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        {
+          "year": 2022,
+          "value": 209361
+        },
+        {
+          "year": 2024,
+          "value": 474723
+        },
+        {
+          "year": 2025,
+          "value": 451417
+        }
+      ],
+      "deferred_tax": [
+        {
+          "year": 2022,
+          "value": 10920
+        },
+        {
+          "year": 2024,
+          "value": 44314
+        },
+        {
+          "year": 2025,
+          "value": 43308
+        }
+      ],
+      "other_non_current_liab": [
+        {
+          "year": 2022,
+          "value": 16924
+        },
+        {
+          "year": 2024,
+          "value": 38494
+        },
+        {
+          "year": 2025,
+          "value": 28605
+        }
+      ],
+      "total_non_current_liab": [
+        {
+          "year": 2022,
+          "value": 237205
+        },
+        {
+          "year": 2024,
+          "value": 557531
+        },
+        {
+          "year": 2025,
+          "value": 523330
+        }
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        {
+          "year": 2022,
+          "value": 73244
+        },
+        {
+          "year": 2024,
+          "value": 166333
+        },
+        {
+          "year": 2025,
+          "value": 297729
+        }
+      ],
+      "payables": [
+        {
+          "year": 2022,
+          "value": 49795
+        },
+        {
+          "year": 2024,
+          "value": 94522
+        },
+        {
+          "year": 2025,
+          "value": 94468
+        }
+      ],
+      "other_current_liab": [
+        {
+          "year": 2022,
+          "value": 22436
+        },
+        {
+          "year": 2024,
+          "value": 90102
+        },
+        {
+          "year": 2025,
+          "value": 53446
+        }
+      ],
+      "total_current_liab": [
+        {
+          "year": 2022,
+          "value": 145475
+        },
+        {
+          "year": 2024,
+          "value": 350957
+        },
+        {
+          "year": 2025,
+          "value": 446143
+        }
+      ]
+    },
+    "total_liabilities": [
+      {
+        "year": 2022,
+        "value": 382680
+      },
+      {
+        "year": 2024,
+        "value": 908488
+      },
+      {
+        "year": 2025,
+        "value": 969473
+      }
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "cfi": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "cff": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "capex": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ],
+    "net_change_in_cash": [
+      {
+        "year": 2022,
+        "value": null
+      },
+      {
+        "year": 2024,
+        "value": null
+      },
+      {
+        "year": 2025,
+        "value": null
+      }
+    ]
+  },
+  "data_flags": [
+    "2023 отсутствует: загруженный PDF помечен 2023, но содержит 2024 финансовый год",
+    "EBITDA и operating_profit 2024-2025: требуют расчета из примечаний (доступны в segment reporting, Note 5)",
+    "Кэш-флоу (CFO/CFI/CFF/Capex): детали в примечаниях, требуют дополнительной обработки из Note 19",
+    "Запасы: включают незавершённое строительство по договорам долевого участия (work in progress)",
+    "Активы по договорам (эскроу): 260,197 млн (2025) и 192,747 млн (2024) - отдельно раскрыты в Note 6",
+    "Долг: 748,146 млн (2025) состоит из проектного (в эскроу) и корпоративного; чистый корп. долг требует вычета эскроу из Note 20",
+    "Убыток 2025: -2,291 млн (-68.6% YoY) из-за отмены льготной ипотеки и сжатия спреда (эскроу экономия упала на 57,674 млн)",
+    "Неконтролирующие доли участия: 9,370-23,556 млн (включены в total equity)",
+    "Амортизация 2022: не выделена в консолидированном отчёте о прибылях; данные в примечаниях Note 7"
+  ]
+}
