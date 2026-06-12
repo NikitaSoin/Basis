@@ -259,22 +259,33 @@ async def get_business_model_md(ticker: str):
     )
 
 
+def _flat_ok(te) -> bool:
+    return (isinstance(te, list) and any(x is not None for x in te)) or isinstance(te, (int, float))
+
+
 def _normalize_financials(fin: dict) -> dict:
     """Нормализация на отдаче — чтобы не латать руками после каждого прогона агента.
-    total_equity витрина читает ПЛОСКИМ полем balance_sheet.total_equity; агент иногда
-    кладёт его только вложенным в equity.total_equity. Восстанавливаем плоское из
-    вложенного, если плоского нет (идемпотентно, без записи на диск)."""
+    total_equity витрина читает ПЛОСКИМ полем balance_sheet.total_equity; агент кладёт
+    его по-разному: вложенным в equity.total_equity (обычный профиль) или в
+    bank_balance.total_equity (банк). Восстанавливаем плоское из любого источника,
+    создавая balance_sheet при необходимости. Идемпотентно, без записи на диск."""
     bs = fin.get("balance_sheet")
-    if isinstance(bs, dict):
-        te = bs.get("total_equity")
-        flat_ok = isinstance(te, list) and any(x is not None for x in te) or isinstance(te, (int, float))
-        if not flat_ok:
-            eq = bs.get("equity")
-            src = eq.get("total_equity") if isinstance(eq, dict) else None
-            if isinstance(src, list) and any(x is not None for x in src):
-                bs["total_equity"] = src
-            elif isinstance(src, (int, float)):
-                bs["total_equity"] = src
+    if not isinstance(bs, dict):
+        bs = {}
+    te = bs.get("total_equity")
+    if not _flat_ok(te):
+        # источники по приоритету: equity.total_equity → bank_balance.total_equity
+        src = None
+        eq = bs.get("equity")
+        if isinstance(eq, dict) and _flat_ok(eq.get("total_equity")):
+            src = eq.get("total_equity")
+        if src is None:
+            bb = fin.get("bank_balance")
+            if isinstance(bb, dict) and _flat_ok(bb.get("total_equity")):
+                src = bb.get("total_equity")
+        if src is not None:
+            bs["total_equity"] = src
+            fin["balance_sheet"] = bs
     return fin
 
 
