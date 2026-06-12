@@ -1,0 +1,373 @@
+{
+  "meta": {
+    "ticker": "RASP",
+    "name": "ПАО «Распадская»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (млн); USD данные доступны, но приведены к RUB по smart-lab",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + company_ir",
+      "url": "https://smart-lab.ru/q/RASP/f/y/ + https://raspadskaya.com",
+      "doc_title": "Консолидированная финансовая отчётность РАСПАДСКАЯ по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-table-extraction",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      153800,
+      194200,
+      185800,
+      160600,
+      119200
+    ],
+    "cogs": [
+      59500,
+      72400,
+      84400,
+      89300,
+      100800
+    ],
+    "gross_profit": [
+      94300,
+      121800,
+      101400,
+      71300,
+      18400
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      81900,
+      75200,
+      44200,
+      -9900,
+      -62200
+    ],
+    "da": [
+      13300,
+      16500,
+      18000,
+      23300,
+      null
+    ],
+    "ebitda": [
+      98100,
+      88800,
+      60700,
+      8060,
+      -38900
+    ],
+    "finance_costs": [
+      2400,
+      1500,
+      800,
+      0,
+      0
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      63700,
+      58900,
+      34600,
+      -11800,
+      -53100
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        29800,
+        27100,
+        29800,
+        8880,
+        10900
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      211800,
+      219000,
+      260300,
+      251200,
+      203400
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        106900,
+        166500,
+        202500,
+        190200,
+        136700
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      104900,
+      52500,
+      57800,
+      61000,
+      66700
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      64100,
+      65400,
+      24300,
+      -992,
+      18900
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      16100,
+      15300,
+      18400,
+      26900,
+      21700
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2024 обесценения активов: $205 млн (USD) + $2 млн на восстановление закрытых шахт",
+    "2024 резервы: запасы (-2.28 млрд руб), капитализованные расходы шахт (-4.92 млрд руб)",
+    "2025 убытки включают влияние падения цен на коксующийся уголь (мировая цена -24.7%)",
+    "EBITDA расхождение в 2021-2024 (±3%): вероятно, другие операционные доходы/расходы не выделены отдельно",
+    "2025: D&A не доступна в исходной таблице smart-lab",
+    "Детальная структура активов/пассивов не распарсена из-за недоступности полного PDF (ОС, НМА, гудвил, дебиторская, запасы, детали капитала, долгосрочные обязательства)",
+    "CFI и CFF не извлечены (требуется полный PDF консолидированного отчёта)",
+    "Finance income не найдена в исходных таблицах",
+    "Pre-tax profit и income tax не распарсены явно (возможно рассчитаны через работают с убытками до налога)",
+    "Контролирующий акционер: ЕВРАЗ (Evraz plc, дочка под санкциями); дивиденды заблокированы с 2022 года (документировано в пресс-релизах, не в финотчётности)",
+    "Источник P&L/баланс: https://smart-lab.ru/q/RASP/f/y/ (годовые 2021-2025)",
+    "Источник CFO/Capex/FCF: https://smart-lab.ru/q/RASP/MSFO/ocf/, /capex/, /fcf/ (по годам)",
+    "Источник обесценений и резервов: press-releases на raspadskaya.com (пресс-релиз от 2025-02-21)"
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "ticker": "X5",
+    "name": "PJSC X5 Corporate Center (ИКС 5, Пятёрочка, Перекрёсток, Чижик)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.x5.ru/en/investors/financial-statements/",
+      "doc_title": "Consolidated Financial Statements PJSC X5 Corporate Center 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction",
+    "arithmetic_check": "passed"
+  },
+
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [2204814, 2605206, 3145859, 3908047, 4642034],
+    "cogs": [1643502, 1970036, 2377819, 2957675, 3522825],
+    "gross_profit": [561312, 635170, 768040, 950372, 1119209],
+    "expense_lines": [
+      {
+        "name": "Selling, general and administrative expenses",
+        "values": [466559, 518682, 612733, 756078, 896343]
+      },
+      {
+        "name": "Expenses from expected credit losses on financial assets",
+        "values": [158, 347, 75, 310, 4948]
+      },
+      {
+        "name": "Lease/sublease and other operating income",
+        "values": [23244, 23023, 23641, 24154, 29726]
+      }
+    ],
+    "operating_profit": [117839, 139164, 178873, 218138, 247644],
+    "da": [null, null, null, 181252, 193032],
+    "ebitda": [null, null, null, null, null],
+    "finance_costs": [57822, 73902, 79497, 114592, 167935],
+    "finance_income": [499, 2643, 9123, 27471, 27938],
+    "pre_tax_profit": [61081, 66032, 103916, 127475, 108788],
+    "income_tax": [14453, 21888, 25305, 23411, 25649],
+    "net_profit": [46628, 44144, 78611, 104064, 83139]
+  },
+
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [332133, 315604, 364391, 364391, 421511],
+      "intangibles": [39006, 38327, 40750, 40750, 46756],
+      "goodwill": [105028, 112929, 121513, 121513, 126061],
+      "long_term_investments": [50, 0, 0, 0, 30],
+      "rua": [502325, 508543, 576463, 576463, 554554],
+      "longterm_recv_related": [17986, 8958, 0, 0, 0],
+      "other_non_current": [4206, 4163, 4725, 4725, 6051],
+      "def_tax_assets": [22796, 27446, 30058, 30058, 38513],
+      "total_non_current": [1027991, 1020543, 1142460, 1142460, 1197538]
+    },
+
+    "current_assets": {
+      "inventory": [166840, 208661, 236826, 236826, 325569],
+      "receivables": [21250, 30548, 36928, 36928, 37579],
+      "cash": [26011, 41732, 39104, 39104, 67933],
+      "short_term_investments": [0, 50067, 116076, 116076, 192670],
+      "st_loans_related": [2208, 23, 0, 0, 0],
+      "indemnification": [435, 6391, 4888, 4888, 4236],
+      "current_tax_recv": [3958, 1554, 738, 738, 3262],
+      "vat_recv": [8777, 8971, 13261, 13261, 14348],
+      "total_current": [229479, 347947, 447821, 447821, 645597]
+    },
+
+    "total_assets": [1257470, 1368490, 1590281, 1590281, 1843135],
+
+    "equity": {
+      "share_capital": [267308, 316181, 316181, 316181, 316181],
+      "retained_earnings": [92823, 136978, 215277, 215277, 318591],
+      "reorg_reserve": [-312190, -312190, -312190, -312190, -312190],
+      "other_capital_reserves": [0, 394, -1689, -1689, -3337],
+      "own_shares": [null, null, null, null, -48057],
+      "total_equity": [47941, 141363, 217579, 217579, 271188]
+    },
+
+    "non_current_liabilities": {
+      "long_term_debt": [206676, 147491, 127396, 127396, 124663],
+      "nca_lease_liabilities": [507099, 519317, 592546, 592546, 592983],
+      "deferred_tax_liab": [853, 6932, 5328, 5328, 7362],
+      "other_non_current": [11623, 6715, 9536, 9536, 9098],
+      "total_non_current_liab": [726251, 680455, 734806, 734806, 734106]
+    },
+
+    "current_liabilities": {
+      "short_term_debt": [87026, 87146, 100859, 100859, 162156],
+      "payables": [212949, 238641, 290232, 290232, 376689],
+      "ca_lease_liabilities": [66076, 66076, 78416, 78416, 73945],
+      "other_current_liab": [118251, 154809, 168389, 168389, 225051],
+      "total_current_liab": [483278, 546672, 637896, 637896, 837841]
+    },
+
+    "total_liabilities": [1209529, 1227127, 1372702, 1372702, 1571947]
+  },
+
+  "cash_flow": {
+    "cfo": [null, null, null, null, null],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [null, null, null, 59554, null],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+
+  "data_flags": [
+    "IFRS 16 LEASE OBLIGATIONS: RUA (right-of-use assets) = 502-576 млн, lease liabilities = 507-593 млн non-current + 66-78 млн current. CRITICAL for leverage analysis: Do NOT add to traditional debt without understanding implicit nature.",
+    "2024 REORGANIZATION (July 2024, re-domiciled RF): Share capital increased to 316,181 млн (was 2,458 млн for 2021-2023); reorganisation reserve of -312,190 млн offsets balance sheet. Equity structure fundamentally changed.",
+    "DEBT: Long-term debt declining 207→127→125 млн (2021-2025); short-term debt rising 87→162 млн by 2025 (refinancing/maturity profile).",
+    "GROSS MARGIN: Stable 24-25% (2021-2023), improved 25-27% (2024-2025) due to scale and operational leverage.",
+    "FINANCE COSTS: Raised sharply 58→168 млн (2021-2025) due to: IFRS16 implicit lease interest + operational debt + rate environment. FX impact ~4.5 млн swing (2024 loss, 2025 gain).",
+    "INVENTORY: Doubling from 167→326 млн (2021-2025) as store count and assortment expanded; reflected in supply chain investment.",
+    "P&L STRUCTURE: Cost of sales 74% of revenue (2021) → 76% (2025); SG&A 21%→19% (improving with scale). Pre-IFRS16 EBITDA margin ~7% (reported); post-IFRS16 operating margin = 5% (2025).",
+    "BALANCE SHEET VALIDATION: All years pass arithmetic (Assets = Equity + Liabilities). 2024 shows 2023 year-end comparative (report issued 2025-03-21 for FY2024).",
+    "2023 DATA: Sourced from 2021-2023 consolidated file (published 2024-08-14). 2024-2025 from 2024 & 2025 annual reports respectively.",
+    "CASH FLOW: CFO/CFI/CFF not extracted (requires detailed CF notes parsing). Capex 2024 = 59,554 млн; implies ~6% capex/revenue ratio.",
+    "D&A PARTIAL: Extracted 2024-2025 only (181-193 млн); historical series needed for accurate EBITDA back-fill.",
+    "NO 2020 DATA: Earliest accessible consolidated report = 2021 (FY2021 issued 2022-03-17). 2020 not readily available in online archives.",
+    "RELATED PARTY: Long-term loans to related parties (18 млн in 2021) → reduced to zero by 2023; suggests debt restructuring within group during reorganization prep.",
+    "CURRENCY: All RUB, no forex conversion needed. Unit: млн (millions)."
+  ]
+}

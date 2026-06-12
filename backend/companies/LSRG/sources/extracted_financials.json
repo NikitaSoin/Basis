@@ -1,0 +1,433 @@
+{
+  "meta": {
+    "ticker": "LSRG",
+    "name": "ПАО Группа ЛСР",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir + e-disclosure",
+      "url": "https://www.lsrgroup.ru/raskryitie-informaczii/buxgalterskaya-otchetnost-po-msfo",
+      "doc_title": "Консолидированная финансовая отчётность ПАО Группа ЛСР (МСФО)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext (2025, 2024, 2023, 2022) + табличная справка (2021, 2020)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      118052,
+      130515,
+      139662,
+      236197,
+      239227,
+      252074
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      139793,
+      160017
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      99434,
+      92057
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          14293,
+          13273
+        ]
+      },
+      {
+        "name": "Административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          19279,
+          20792
+        ]
+      }
+    ],
+    "operating_profit": [
+      22745,
+      31675,
+      34397,
+      62535,
+      65766,
+      58859
+    ],
+    "da": [
+      1920,
+      1940,
+      1863,
+      1905,
+      2139,
+      2300
+    ],
+    "ebitda": null,
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      3876,
+      3784
+    ],
+    "finance_costs": [
+      9967,
+      10953,
+      17878,
+      23501,
+      32115,
+      47968
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      37527,
+      14675
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      8929,
+      3897
+    ],
+    "net_profit": [
+      12025,
+      16266,
+      13366,
+      28343,
+      28604,
+      10783
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        56128,
+        83589
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        3644,
+        3657
+      ],
+      "goodwill": null,
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        1237,
+        2919
+      ],
+      "deferred_tax_asset": [
+        null,
+        null,
+        null,
+        null,
+        6071,
+        10219
+      ],
+      "other_non_current": null,
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        71811,
+        103346
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        297715,
+        310977
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        132186,
+        215664
+      ],
+      "cash": [
+        73803,
+        55472,
+        25109,
+        51506,
+        46307,
+        27724
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        702,
+        1755
+      ],
+      "other_current": null,
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        476910,
+        556120
+      ]
+    },
+    "total_assets": [
+      282405,
+      348876,
+      404658,
+      457565,
+      548721,
+      659466
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        35,
+        35
+      ],
+      "retained_earnings": [
+        50062,
+        62764,
+        74874,
+        77614,
+        94934,
+        97848
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        26408,
+        26408
+      ],
+      "treasury_stock": [
+        null,
+        null,
+        null,
+        null,
+        -1851,
+        -2570
+      ],
+      "currency_translation_reserve": [
+        null,
+        null,
+        null,
+        null,
+        4070,
+        -5132
+      ],
+      "minority_interest": [
+        null,
+        null,
+        null,
+        null,
+        27,
+        22
+      ],
+      "total_equity": [
+        91728,
+        93007,
+        96801,
+        118674,
+        140472,
+        133460
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        91586,
+        135846,
+        114055,
+        197402,
+        206587,
+        328256
+      ],
+      "deferred_tax_liability": [
+        null,
+        null,
+        null,
+        null,
+        4585,
+        4590
+      ],
+      "long_term_payables": [
+        null,
+        null,
+        null,
+        null,
+        50576,
+        58961
+      ],
+      "other_non_current_liab": null,
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        261848,
+        391940
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        11042,
+        33441,
+        101033,
+        26733,
+        50372,
+        35876
+      ],
+      "current_payables": [
+        null,
+        null,
+        null,
+        null,
+        87804,
+        90803
+      ],
+      "current_reserves": [
+        null,
+        null,
+        null,
+        null,
+        8225,
+        7387
+      ],
+      "other_current_liab": null,
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        146401,
+        134066
+      ]
+    },
+    "total_liabilities": [
+      190677,
+      255869,
+      307857,
+      338891,
+      408249,
+      526006
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      236,
+      -56044,
+      -70561,
+      29818,
+      -40108,
+      -109696
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      -12267,
+      -31326
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      46247,
+      126359
+    ],
+    "capex": [
+      2438,
+      6015,
+      5394,
+      10509,
+      18113,
+      32098
+    ]
+  },
+  "developer_specific": {
+    "escrow_cash": [
+      null,
+      null,
+      null,
+      null,
+      137899,
+      217501
+    ],
+    "operating_cf_incl_escrow": [
+      null,
+      null,
+      null,
+      null,
+      -23233,
+      -30094
+    ],
+    "note": "Девелопер: эскроу денежные средства учитываются отдельно (не в Cash and cash equivalents). По состоянию на 31.12.2025: 217,501 млн руб. эскроу в распоряжении уполномоченного банка. Для анализа работающего капитала: используйте operating_cf_incl_escrow вместо основного operating_cf."
+  },
+  "data_flags": [
+    "2025-2024: полный МСФО отчёт (все строки)",
+    "2023: табличная справка (COGS и gross_profit отсутствуют, expense_lines не детализированы)",
+    "2022: табличная справка (только итого operating profit, детали отсутствуют)",
+    "2021-2020: табличная справка (только ключевые строки)",
+    "Все годы: EBITDA не вычисляется отдельно (следует считать как Operating profit + D&A)",
+    "Balance Sheet Details (по строкам): только 2025-2024 полностью",
+    "CFI и CFF: 2025-2024 из ОДДС, 2023-2020 отсутствуют",
+    "Валюта единообразна (RUB): расчёты в млн РУБ для всех периодов"
+  ]
+}
