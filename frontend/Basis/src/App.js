@@ -4618,9 +4618,14 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
       { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+    // total_equity витрина читает плоским; финансист иногда кладёт его вложенным
+    // (equity.total_equity) — берём из любого, чтобы строка «Капитал» не пропадала.
+    const totalEquityArr = (Array.isArray(bs.total_equity) && bs.total_equity.some((x) => x != null))
+      ? bs.total_equity
+      : (bs.equity && Array.isArray(bs.equity.total_equity) ? bs.equity.total_equity : bs.total_equity);
     const bsRows = [
       { label: "Активы", arr: bs.total_assets, bold: true },
-      { label: "Капитал", arr: bs.total_equity },
+      { label: "Капитал", arr: totalEquityArr },
       { label: "Обязательства", arr: bs.total_liabilities },
       { label: "Чистый долг", arr: bs.net_debt },
       { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
