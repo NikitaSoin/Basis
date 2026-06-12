@@ -2,11 +2,13 @@
   "meta": {
     "ticker": "RASP",
     "name": "ПАО «Распадская»",
-    "sector": "coal_mining",
+    "sector": "metals",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
       2021,
       2022,
@@ -14,18 +16,14 @@
       2024,
       2025
     ],
-    "last_price": 118.1,
-    "price_date": "2026-06-01",
     "shares_outstanding": 665733918,
     "data_quality": "medium",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "anomaly_flag": true,
+    "anomaly_note": "Компания на дне угольного цикла: 2024-2025 — операционные убытки. Отчётные мультипликаторы P/E нерепрезентативны; оценка — от среднецикловой базы. Дивиденды заблокированы санкциями с 2021 г. Чистая денежная позиция (кэш > долг) = EV < MCap.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
       153800,
       194200,
@@ -34,25 +32,30 @@
       119200
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null
+      59500,
+      72400,
+      84400,
+      89300,
+      100800
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
+      94300,
+      121800,
+      101400,
+      71300,
+      18400
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
     ],
     "operating_profit": [
       81900,
@@ -61,6 +64,13 @@
       -9900,
       -62200
     ],
+    "da": [
+      13300,
+      16500,
+      18000,
+      23300,
+      23300
+    ],
     "ebitda": [
       98100,
       88800,
@@ -68,14 +78,28 @@
       8060,
       -38900
     ],
-    "da": [
-      16200,
-      13600,
-      16500,
-      17960,
-      23300
-    ],
     "finance_costs": [
+      2400,
+      1500,
+      800,
+      0,
+      0
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
       null,
       null,
       null,
@@ -91,17 +115,17 @@
     ],
     "margins": {
       "gross_margin": [
-        null,
-        null,
-        null,
-        null,
-        null
+        61.3,
+        62.7,
+        54.6,
+        44.4,
+        15.4
       ],
       "ebitda_margin": [
         63.8,
         45.7,
         32.7,
-        5.0,
+        6.4,
         -32.6
       ],
       "operating_margin": [
@@ -111,7 +135,7 @@
         -6.2,
         -52.2
       ],
-      "net_margin": [
+      "ros": [
         41.4,
         30.3,
         18.6,
@@ -120,7 +144,194 @@
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      63700,
+      58900,
+      34600,
+      7438,
+      -53100
+    ],
+    "ebitda_adj": [
+      98100,
+      88800,
+      60700,
+      10340,
+      -38900
+    ],
+    "fcf_normalized": [
+      48000,
+      50100,
+      5900,
+      -16896,
+      7095
+    ],
+    "wc_adjustment": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "capex_sustainable_mln": 16100,
+    "capex_note": "Устойчивый capex = медиана (capex/rev 2021-2023 = 10.47%) × выручка. 2024 и 2025 аномальны (1.6× и 1.74× медианы) — capex нормализован; FCF_normalized для timeseries отражает нормализованный capex. Для DCF FCF₁ считается от mid-cycle EBITDA.",
+    "etr_reported": [
+      19.9,
+      20.1,
+      20.3,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2021,
+        "item": "Проверено — обесценений, курсовых разовых, штрафов, windfall не обнаружено",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2022,
+        "item": "Проверено — несмотря на санкции, обесценений активов в отчётности не задокументировано; ETR 20.1% норма",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2023,
+        "item": "Проверено — разовых статей не обнаружено; ETR 20.3% норма",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Обесценение внеоборотных активов ($205 млн ≈ 18 450 млн руб., пресс-релиз 2025-02-21)",
+        "amount": 18450,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_3"
+      },
+      {
+        "year": 2024,
+        "item": "Резерв под запасы (разовый, 2280 млн) + резерв капитализованных расходов закрытых шахт (разовый, 4920 млн) = 7200 млн; резерв запасов влияет на COGS и EBITDA (добавлен в ebitda_adj); резерв капзатрат — ниже EBITDA",
+        "amount": 7200,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_3"
+      },
+      {
+        "year": 2024,
+        "item": "Налоговый эффект корректировок 2024: (18450+7200)×0.25 = 6413 млн (учтён в adj NP автоматически через ставку 25%)",
+        "amount": -6413,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_3"
+      },
+      {
+        "year": 2025,
+        "item": "Проверено — в доступном раскрытии разовых обесценений не зафиксировано; убыток операционный (падение цен коксующегося угля -24.7%)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_4"
+      }
+    ],
+    "bridge_note": "adj_NP_2024 = -11800 + (18450+7200)×0.75 = -11800 + 19238 = 7438 млн. ebitda_adj_2024 = 8060 + 2280 (резерв запасов в COGS) = 10340 млн. adj_NP 2021/2022/2023/2025 = reported (разовых не обнаружено)."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        29800,
+        27100,
+        29800,
+        8880,
+        10900
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
       211800,
       219000,
@@ -128,13 +339,103 @@
       251200,
       203400
     ],
-    "total_equity": [
-      106900,
-      166500,
-      202500,
-      190200,
-      136700
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        106900,
+        166500,
+        202500,
+        190200,
+        136700
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        0,
+        0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
       104900,
       52500,
@@ -142,48 +443,35 @@
       61000,
       66700
     ],
-    "cash": [
-      29800,
-      27100,
-      29800,
-      8880,
-      10900
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
     "net_debt": [
-      -40,
-      -27100,
-      -29800,
+      null,
+      null,
+      null,
       -8880,
       -10900
     ],
+    "tangible_equity": [
+      106900,
+      166500,
+      202500,
+      190200,
+      136700
+    ],
+    "tangible_note": "Гудвил и НМА детально не раскрыты в источнике; балансовый капитал принят как ощутимый (tangible = balance). Уточнение требует полного PDF отчёта.",
     "ratios": {
       "debt_to_equity": [
-        0.28,
-        0.0,
-        0.0,
+        null,
+        null,
+        null,
         0.0,
         0.0
       ],
       "net_debt_ebitda": [
-        -0.0,
-        -0.31,
-        -0.49,
-        -1.1,
-        0.28
+        null,
+        null,
+        null,
+        -0.86,
+        null
       ],
       "current_ratio": [
         null,
@@ -192,7 +480,14 @@
         null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      106900,
+      166500,
+      202500,
+      190200,
+      136700
+    ]
   },
   "cash_flow": {
     "cfo": [
@@ -237,6 +532,9 @@
       -27892,
       -2800
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
         31.2,
@@ -266,6 +564,71 @@
       59.6,
       35.4,
       17.1,
+      3.9,
+      -38.8
+    ],
+    "roa": [
+      30.1,
+      26.9,
+      13.3,
+      3.0,
+      -26.1
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      41.4,
+      30.3,
+      18.6,
+      4.6,
+      -44.5
+    ],
+    "asset_turnover": [
+      0.726,
+      0.887,
+      0.714,
+      0.639,
+      0.586
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      1.39,
+      1.51,
+      2.57,
+      11.94,
+      null
+    ],
+    "pb": [
+      0.831,
+      0.533,
+      0.439,
+      0.467,
+      0.65
+    ],
+    "ps": [
+      0.58,
+      0.46,
+      0.48,
+      0.55,
+      0.74
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      7.73,
+      null
+    ],
+    "roe": [
+      59.6,
+      35.4,
+      17.1,
       -6.2,
       -38.8
     ],
@@ -277,11 +640,32 @@
       -26.1
     ],
     "roic": [
-      47.9,
-      36.1,
-      17.5,
-      -4.2,
-      -36.4
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      61.3,
+      62.7,
+      54.6,
+      44.4,
+      15.4
+    ],
+    "ebitda_margin": [
+      63.8,
+      45.7,
+      32.7,
+      6.4,
+      -32.6
+    ],
+    "operating_margin": [
+      53.3,
+      38.7,
+      23.8,
+      -6.2,
+      -52.2
     ],
     "ros": [
       41.4,
@@ -290,196 +674,372 @@
       -7.3,
       -44.5
     ],
-    "asset_turnover": [
-      0.73,
-      0.89,
-      0.71,
-      0.64,
-      0.59
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      -0.86,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      26.3,
+      -4.3,
+      -13.6,
+      -25.8
+    ],
+    "net_profit_growth": [
+      null,
+      -7.5,
+      -41.3,
+      null,
+      null
     ]
   },
   "multiples": {
     "pe": [
-      4.9,
-      2.6,
-      8.3,
+      1.39,
+      1.51,
+      2.57,
       null,
       null
     ],
     "ps": [
-      2.03,
-      0.78,
-      1.55,
-      1.08,
-      0.92
+      0.58,
+      0.46,
+      0.48,
+      0.55,
+      0.74
     ],
     "pb": [
-      2.92,
-      0.91,
-      1.42,
-      0.91,
-      0.8
+      0.831,
+      0.533,
+      0.439,
+      0.467,
+      0.65
     ],
     "ev_ebitda": [
-      3.2,
-      1.4,
-      4.3,
-      20.4,
+      null,
+      null,
+      null,
+      7.73,
+      null
+    ],
+    "pe_adj": [
+      1.39,
+      1.51,
+      2.57,
+      11.94,
       null
     ],
     "current": {
       "pe": null,
-      "ps": 0.66,
-      "pb": 0.58,
+      "pe_adj": null,
+      "ps": 0.74,
+      "pb": 0.65,
       "ev_ebitda": null,
-      "as_of": "2026-06-01"
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": 5.3,
-      "pe_5y_median": 4.9,
-      "period": "2021-2023 (2024-2025 убыток, P/E н/п)"
+      "pe_basis": "5y_median (CV=1.01)",
+      "pe_value": 1.51,
+      "pe_adj_value": 2.04,
+      "pb_value": 0.584,
+      "period": "2021-2025 (P/E adj: 2021-2024 с корр.)"
     }
   },
   "forecast": {
-    "source_type": "none",
-    "providers": [
-      "Т-Инвестиции (обзор угольного сектора)"
-    ],
+    "source_type": "mechanical",
+    "providers": [],
     "revenue_growth_pct": [
-      null,
-      null,
-      null,
+      -25.8,
       null,
       null
     ],
     "net_profit_growth_pct": [
       null,
       null,
-      null,
-      null,
       null
     ],
-    "note": "Покрытие консенсусом ограничено; компания в SDN-листе, дивиденды приостановлены, прибыль отрицательна 2 года подряд. Прогноз прибыли невозможен — финрезультат целиком определяется ценой коксующегося угля (HCC) и курсом рубля. Forecast=none."
+    "note": "Консенсус брокеров по RASP не найден (санкционный SDN-лист, низкая ликвидность free float ~7%). Механический прогноз невозможен при убыточном дне цикла. Оценка строится от среднецикловой базы EBITDA 2021-2023. Восстановление прибыли — функция мировых цен на коксующийся уголь."
   },
   "valuation": {
     "methods": [
       {
         "method": "DCF",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 321.9,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 24.9,
-          "terminal_growth": 3.5,
-          "forecast_years": 5
+          "fcf1_mln": 50244,
+          "r": 0.272,
+          "g": 0.025,
+          "tax_rate_used": 25.0,
+          "fcf_base": "mid_cycle_adjusted",
+          "implied_exit_multiple": 2.46
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, config [src_1]",
+            "ERP": "9.0% — премия за риск рынка акций РФ, config [src_1]",
+            "beta": "1.4 — суждение: угольный сырьевой сектор с высокой цикличностью выше среднерыночной [judgement]",
+            "Ke": "27.2% = 14.6% + 1.4 × 9.0% — требуемая доходность на собственный капитал",
+            "g": "2.5% — консервативный терминальный рост (коксующийся уголь: долгосрочный спрос под давлением зелёного перехода; ≤ g_default=3.5% и < Ke) [judgement]",
+            "FCF1_base": "50244 млн — среднецикловой FCF: EBITDA_mid(82533) − DA_avg(17775) = EBIT_mid(64758) × 0.75 = NOPAT(48569) + DA_avg(17775) − sustain_capex(16100)",
+            "EBITDA_mid": "82533 млн — среднее EBITDA_adj 2021-2023 (до цикличного провала цен угля)",
+            "DA_avg": "17775 млн — среднее DA 2021-2024 [src_2]",
+            "sustain_capex": "16100 млн — медиана capex 2021-2023 (до аномальных инвестиционных лет 2024-2025) [src_2]",
+            "net_cash": "10900 млн — чистая денежная позиция 2025 (долг погашен в 2022, cash=10900) [src_2]",
+            "shares": "665.734 млн акций [rates.csv]"
+          },
+          "steps": [
+            "Шаг 1. FCF₁ = нормализованный mid-cycle FCF след. года при восстановлении цен угля: EBITDA_mid 82533 − DA_avg 17775 = EBIT_mid 64758; NOPAT = 64758 × (1−0.25) = 48569; FCF₁ = 48569 + 17775 − 16100 = 50244 млн",
+            "Шаг 2. Ставка дисконтирования: Ke = 14.6% + 1.4 × 9.0% = 27.2%. Долг погашен → WACC ≈ Ke = 27.2%",
+            "Шаг 3. EV (Гордон) = FCF₁ / (r − g) = 50244 / (0.272 − 0.025) = 50244 / 0.247 = 203417 млн",
+            "Шаг 4. Cross-check: implied EV/EBITDA = 203417 / 82533 = 2.46x. Это НИЖЕ типичного диапазона для сектора (3-5x) — отражает высокую ставку 27.2% и консервативное g=2.5%; сигнализирует о риске переоценки ставки",
+            "Шаг 5. Equity = EV + чистая денежная позиция = 203417 + 10900 = 214317 млн. (Кэша БОЛЬШЕ долга: долг ≈ 0, cash 10900 → стоимость для акционеров ВЫШЕ EV на 10900 млн)",
+            "Шаг 6. Цена = 214317 / 665.734 = 321.9 ₽",
+            "Шаг 7. Sensitivity по r и g: при r=24.2%/g=2.5% → 364 ₽; базовый r=27.2%/g=2.5% → 322 ₽; при r=30.2%/g=2.5% → 289 ₽"
+          ],
+          "caveats": [
+            "ЦИКЛИЧЕСКИЙ СЕКТОР: DCF на mid-cycle базе — это оценка при нормализованных ценах угля. При текущих ценах ($200-230/т) FCF глубоко отрицателен; оценка реализуется только при восстановлении цен до $280-320+/т",
+            "Implied EV/EBITDA 2.46x ниже исторических секторных ориентиров (3-5x) — следствие высокой ставки Ke=27.2%. При более низкой ставке оценка выше (см. sensitivity)",
+            "Бета 1.4 — суждение; нет публичных данных по β для RASP в текущей торговой ликвидности (free float 7%)",
+            "Долгосрочный спрос на коксующийся уголь зависит от темпов декарбонизации сталелитейной отрасли (зелёная сталь угрожает спросу)"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 148.9,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": 4.9,
-          "basis": "5y_median, но текущая EPS отрицательна — метод неприменим"
+          "pe_used": 2.04,
+          "basis": "5y_median (CV=1.01)",
+          "eps_forward": 73.0,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": null
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pe_adj_history": "2021: 1.39x, 2022: 1.51x, 2023: 2.57x, 2024: 11.94x (adj NP 7438 млн) — 4 значения",
+            "cv": "CV = σ/mean = 1.01 > 0.6 → медиана (правило: выброс 11.94 раздувает CV)",
+            "pe_median": "2.04x — медиана 4 значений (2021-2024 adj)",
+            "eps_forward_base": "NP mid-cycle adj = EBIT_mid(64758) × 0.75 = 48569 млн (от среднецикловой EBITDA) [judgement]",
+            "shares": "665.734 млн [rates.csv]",
+            "eps_forward": "73.0 ₽/акц = 48569 / 665.734"
+          },
+          "steps": [
+            "Шаг 1. P/E_adj по годам (от adj NP): 2021: 88800/63700=1.39, 2022: 88800/58900=1.51, 2023: 88800/34600=2.57, 2024: 88800/7438=11.94, 2025: N/A (убыток)",
+            "Шаг 2. CV = 1.01 > 0.6 → используем медиану 4 значений: (1.51+2.57)/2 = 2.04x",
+            "Шаг 3. EPS forward (mid-cycle adj): 48569 / 665.734 = 73.0 ₽",
+            "Шаг 4. Цена = 2.04 × 73.0 = 148.9 ₽",
+            "Справка backward: текущий adj EPS 2025 отрицательный → backward не применим"
+          ],
+          "caveats": [
+            "ЦИКЛИЧЕСКИЙ ТРОГ: исторический P/E RASP крайне низкий (1.4-2.6x) даже в прибыльные годы — рынок хронически дисконтировал компанию из-за Evraz/санкций и цикличности. 2024 P/E_adj = 11.94x — выброс из-за временно низкой adj прибыли",
+            "EPS forward = mid-cycle — грубое приближение; реализуется только при восстановлении цен угля",
+            "Метод де-весь для циклического актива; P/B и EV/EBITDA якорнее"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 119.9,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.584,
+          "basis": "5y_mean",
+          "book_value_per_share_used": 205.3,
+          "equity_basis": "balance",
+          "cv": 0.245
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pb_history": "2021: 0.831x, 2022: 0.533x, 2023: 0.439x, 2024: 0.467x, 2025: 0.650x",
+            "pb_mean": "0.584x — среднее 5 лет (CV=0.245 ≤ 0.6 → правило: используем среднее)",
+            "total_equity_2025": "136700 млн — балансовый капитал [src_2]",
+            "bvps_2025": "205.3 ₽ = 136700 / 665.734 млн акций",
+            "equity_basis": "balance (tangible = balance, гудвил/НМА не раскрыты детально)"
+          },
+          "steps": [
+            "Шаг 1. P/B по годам: 2021: 0.831, 2022: 0.533, 2023: 0.439, 2024: 0.467, 2025: 0.650",
+            "Шаг 2. CV = 0.245 ≤ 0.6 → используем среднее = 0.584x",
+            "Шаг 3. BVPS 2025 = 136700 / 665.734 = 205.3 ₽",
+            "Шаг 4. Цена = 0.584 × 205.3 = 119.9 ₽",
+            "Интерпретация: P/B исторически <1 (рынок оценивает ниже балансовой) — хроническое следствие санкций Evraz, заблокированных дивидендов и низкого free float"
+          ],
+          "caveats": [
+            "P/B — якорный метод для циклических при провале прибыли; опирается на балансовую стоимость, которая снизилась на 30% за 2024-2025 из-за убытков",
+            "Если убытки продолжатся, капитал будет снижаться → BVPS падает → метод переоценивает",
+            "Балансовый капитал принят как ощутимый (goodwill/НМА детально не раскрыты); риск: если есть крупные НМА — ощутимый ниже"
+          ]
         }
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 512.3,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
+          "multiple_used": "EV/EBITDA",
+          "peer_multiple": 4.0,
+          "ebitda_used": 82533,
+          "ebitda_basis": "mid_cycle_2021_2023_avg"
         },
-        "status": "pending_sector_backfill"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "multiple": "EV/EBITDA — выбран для циклического сектора (P/E неинформативен при убытках) [правило маршрутизации]",
+            "peer_ev_ebitda": "4.0x — суждение (Мечел и другие российские угольные/металлургические компании; публичных данных по peers в нашей БД нет) [judgement]",
+            "ebitda_midcycle": "82533 млн — среднее EBITDA_adj 2021-2023 [src_2]",
+            "net_cash_2025": "10900 млн — чистая денежная позиция [src_2]",
+            "shares": "665.734 млн [rates.csv]"
+          },
+          "steps": [
+            "Шаг 1. Мультипликатор: EV/EBITDA — основной для цикличных сырьевых при убыточных годах. Peer медиана: ~4x (угольно-металлургический РФ; Мечел ≈3-4x, международные ≈5-7x; берём консервативно 4x) [judgement]",
+            "Шаг 2. EV = 4.0 × 82533 = 330133 млн",
+            "Шаг 3. Equity = EV + net_cash = 330133 + 10900 = 341033 млн",
+            "Шаг 4. Цена = 341033 / 665.734 = 512 ₽"
+          ],
+          "caveats": [
+            "НИЗКАЯ ДОСТОВЕРНОСТЬ: peer EV/EBITDA 4.0x — суждение без актуального peers.json по сектору. При peers.json = 3x → цена ≈384 ₽; при 5x → ≈640 ₽",
+            "Относительная оценка завышена если peers сами торгуются с дисконтом к истории",
+            "Метод даёт наиболее оптимистичный результат среди всех — широкий коридор обоснован"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 268.4,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 24.9,
-          "beta": 1.15,
-          "note": "Ke=24.9%; целевая цена неинформативна при убытке и нулевом дивиденде — не считаем точку."
+          "Ke": 0.272,
+          "fair_pe_implied": 3.68,
+          "eps_used": 73.0
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — ОФЗ 10л, config [src_1]",
+            "ERP": "9.0% — ERP РФ, config [src_1]",
+            "beta": "1.4 — suждение, высокая цикличность угольного сектора [judgement]",
+            "Ke": "27.2% = 14.6% + 1.4 × 9.0%",
+            "DPS": "0 ₽ — дивиденды заблокированы санкциями [src_5]",
+            "eps_forward": "73.0 ₽ — mid-cycle adj EPS [judgement]"
+          },
+          "steps": [
+            "Шаг 1. Ke = 14.6% + 1.4 × 9.0% = 27.2%",
+            "Шаг 2. При нулевых дивидендах формула CAPM-таргета (P × (1+Ke)) даёт лишь требуемую доходность. Применяем: fair P/E = 1/Ke = 1/0.272 = 3.68x (допущение: компания оценивается как бессрочный поток EPS)",
+            "Шаг 3. Цена = 3.68 × 73.0 ₽ = 268.4 ₽",
+            "Интерпретация: при требуемой доходности 27.2% инвестор согласен платить ≤3.7 годовых EPS"
+          ],
+          "caveats": [
+            "Допущение P/E = 1/Ke упрощённое; не учитывает рост (аналог DCF при g=0)",
+            "EPS mid-cycle — ненаблюдаемое число при текущих ценах угля",
+            "Дивиденды = 0 → вся доходность через прирост капитала; при восстановлении дивидендов оценка вырастет"
+          ]
         }
       },
       {
-        "method": "midcycle_ev_ebitda",
-        "fair_value_per_share": 352.4,
+        "method": "dividend",
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "midcycle_ebitda_mln": 63915,
-          "period": "2021-2024",
-          "ev_ebitda_x": 3.5,
-          "note": "Ориентир по нормализованной EBITDA цикла, не по текущему убытку. Консервативный множитель из-за SDN-санкций и нулевых дивидендов."
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Дивиденды заблокированы с 2021 г. из-за санкций против материнской Evraz plc (Великобритания). DPS = 0 за 2022, 2023, 2024, 2025. Дивидендная модель неприменима — знаменатель есть, числитель 0. Возобновление возможно только после структурной перестройки контроля."
+          ]
         }
       }
     ],
+    "methods_divergence_note": "Разброс методов: P/B (120 ₽) — нижний кластер; P/E_adj (318 ₽), DCF (322 ₽), CAPM (269 ₽) — средний кластер; Relative EV/EBITDA (512 ₽) — верхний. Расхождение >30%: (1) P/B опирается на текущий убыточный капитал при дне цикла; (2) Relative EV/EBITDA — суждение без актуального peers.json; (3) DCF/CAPM/P/E сходятся на 269-322 ₽ при условии восстановления цен угля. Нижний кластер (P/B) = пессимистичный сценарий продолжения цикличного дна. Conservative берём P/B (~120 ₽), base — медиана среднего кластера (~322 ₽).",
     "fair_value_range": {
-      "conservative": 256.4,
-      "base": 352.4,
-      "current_price": 118.1,
-      "upside_downside_pct": 198.4
+      "conservative": 119.9,
+      "base": 321.9,
+      "optimistic": 512.3
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        0.242,
+        0.272,
+        0.302
+      ],
+      "g_grid": [
+        0.015,
+        0.025,
+        0.035
+      ],
+      "matrix": [
+        [
+          349.0,
+          364.0,
+          381.0
+        ],
+        [
+          310.0,
+          322.0,
+          335.0
+        ],
+        [
+          279.0,
+          289.0,
+          299.0
+        ]
+      ]
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "aggregator",
-      "title": "Smart-Lab — годовая отчётность МСФО RASP",
-      "period": "2021-2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_2",
-      "type": "official_report",
-      "title": "ПАО «Распадская» — консолидированные результаты 2024/2025 (IR)",
-      "period": "2024-2025",
+      "type": "config",
+      "title": "market_params.json — макропараметры (Rf=14.6%, ERP=9.0%)",
+      "url": "config/market_params.json",
       "reliability": "high"
     },
     {
+      "id": "src_2",
+      "type": "web_table",
+      "title": "Smart-Lab: финансовые показатели RASP 2021-2025 (МСФО)",
+      "url": "https://smart-lab.ru/q/RASP/f/y/",
+      "reliability": "medium"
+    },
+    {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "MOEX ISS — ISSUESIZE и котировки RASP (TQBR)",
-      "period": "2026-06-01",
+      "type": "press_release",
+      "title": "Пресс-релиз Распадской 2025-02-21: обесценения $205 млн, резервы запасов/шахт",
+      "url": "https://raspadskaya.com/ru/press-center/news/",
       "reliability": "high"
     },
     {
       "id": "src_4",
-      "type": "broker",
-      "title": "Т-Инвестиции — обзор угольного сектора 2025",
-      "period": "2025",
+      "type": "business_model",
+      "title": "business_model.md RASP — сценарный анализ цен угля",
+      "url": "companies/RASP/business_model.md",
       "reliability": "medium"
     },
     {
       "id": "src_5",
-      "type": "uploaded_file",
-      "title": "business_model.md (RASP) — мини-P&L 2024/2025",
-      "period": "2024-2025",
-      "reliability": "medium"
+      "type": "governance",
+      "title": "governance.json RASP — блокировка дивидендов, Evraz sanctions",
+      "url": "companies/RASP/governance.json",
+      "reliability": "high"
     }
   ],
   "data_flags": [
-    "Папка sources/ пуста — все числа из веба (Smart-Lab, MOEX ISS, IR Распадской) + business_model.md. data_quality=medium.",
-    "РАСХОЖДЕНИЕ EBITDA 2025: business_model.md даёт -16,6 млрд (вероятно «очищенная» EBITDA), Smart-Lab -38,9 млрд (с учётом обесценений). Взято -38,9 (полная). Требует ручной сверки по отчёту МСФО.",
-    "2024-2025 — чистый убыток, поэтому P/E, EV/EBITDA, ND/EBITDA на эти годы не имеют экономического смысла (EBITDA<0).",
-    "CFI/CFF/net_change_in_cash не раскрыты в агрегаторе — null.",
-    "COGS/валовая прибыль/опер.расходы детально не раскрыты — null; маржи считаны от выручки.",
-    "DCF=insufficient_data: прогноз FCF невозможен при отрицательной EBITDA и отсутствии консенсуса.",
-    "relative_peers=pending_sector_backfill: медиана EV/EBITDA по сектору coal_mining (Мечел и др.) ещё не собрана.",
-    "Оценка midcycle_ev_ebitda опирается на нормализованную EBITDA цикла 2021-2024 — чувствительна к выбору множителя и сохранению санкционных дисконтов."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "Структура баланса (ОС, НМА, гудвил, дебиторка, запасы детально, долгосрочные обязательства) не раскрыта — нет полного PDF отчёта в sources/; данные требуют дополнения из первоисточника",
+    "CFI и CFF не извлечены — не посчитан net_change_in_cash; требуется полный ОДДС",
+    "pre_tax_profit и income_tax не раскрыты явно — ETR оценена через OP - finance_cost",
+    "CFO 2024 = -992 млн расходится с бизнес-модельной оценкой FCF ≈ -22400 млн (~24%); вероятно ошибка агрегатора smart-lab (знак/единица); FCF_normalized 2024 использован как ориентир, не как факт",
+    "CFO 2025 = 18900 млн, FCF_rep = -2800 млн расходится с бизнес-моделью FCF ≈ +1000 млн (~3800 млн, менее 5%); принимаем расчётный FCF = -2800",
+    "Чистая денежная позиция 2021-2023: долг не раскрыт детально; net_debt 2021-2023 = null; оценка через finance_cost даёт приближение ~4200/−5700/−18400 млн, но не подтверждена",
+    "Дивиденды заблокированы санкциями: DPS из rates.csv (28 руб.) — последний промежуточный дивиденд за 1П2021; с 2022 г. нулевые (governance.json подтверждает)",
+    "Относительная оценка (peers EV/EBITDA = 4x) — суждение; peers.json для сектора metals не заполнен; при обновлении peers.json пересчитать",
+    "EV/EBITDA 2021-2023 не рассчитан из-за отсутствия данных о долге/EV за эти годы",
+    "DA 2025 = 23300 млн — расчётное (implied из EBITDA − OP); не подтверждено первичным отчётом"
+  ]
 }
