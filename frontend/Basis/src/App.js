@@ -4578,17 +4578,24 @@ const CompanyCard = ({ company, onBack }) => {
       </Card>
     ) : null;
 
+    // Живая цена для апсайда: из realtime-котировки (rates.csv), затем из карточки,
+    // и только в последнюю очередь — запечённое в JSON (legacy). Апсайд считаем здесь,
+    // а НЕ берём из financials.json, чтобы он не устаревал.
+    const liveCurp = livePrice ?? company?.price ?? fvr.current_price ?? meta.last_price ?? null;
+    const upsideLive = (typeof fvr.base === "number" && typeof liveCurp === "number" && liveCurp > 0)
+      ? ((fvr.base - liveCurp) / liveCurp) * 100
+      : (typeof upside === "number" ? upside : null);
     const fairValueBar = () => {
-      const lo = fvr.conservative, hi = fvr.base, curp = fvr.current_price ?? meta.last_price;
+      const lo = fvr.conservative, hi = fvr.base, curp = liveCurp;
       if (typeof lo !== "number" || typeof hi !== "number" || typeof curp !== "number") return null;
       const mn = Math.min(lo, curp) * 0.92, mx = Math.max(hi, curp) * 1.08;
       const pos = (v) => ((v - mn) / (mx - mn || 1)) * 100;
       const cySym = meta.currency || "₽";
       return (
         <Card>
-          {cardHead(Target, "Справедливая стоимость", typeof upside === "number" && (
-            <span className={cx("tw-inline-flex tw-items-center tw-gap-1 tw-text-[15px] tw-font-bold tw-font-mono tw-tabular-nums", upside >= 0 ? "tw-text-success" : "tw-text-danger")}>
-              <span aria-hidden="true">{upside >= 0 ? "▲" : "▼"}</span>{fmtPercent(Math.abs(upside), { decimals: 0 })} {upside >= 0 ? "апсайд" : "даунсайд"}
+          {cardHead(Target, "Справедливая стоимость", typeof upsideLive === "number" && (
+            <span className={cx("tw-inline-flex tw-items-center tw-gap-1 tw-text-[15px] tw-font-bold tw-font-mono tw-tabular-nums", upsideLive >= 0 ? "tw-text-success" : "tw-text-danger")}>
+              <span aria-hidden="true">{upsideLive >= 0 ? "▲" : "▼"}</span>{fmtPercent(Math.abs(upsideLive), { decimals: 0 })} {upsideLive >= 0 ? "апсайд" : "даунсайд"}
             </span>
           ))}
           <div className="tw-relative tw-h-12 tw-mt-2">
@@ -4603,9 +4610,12 @@ const CompanyCard = ({ company, onBack }) => {
             <span>Консервативно: <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">{formatMoney(lo, { currency: cySym })}</b></span>
             <span>База: <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">{formatMoney(hi, { currency: cySym })}</b></span>
           </div>
-          {typeof rel.fair_value_per_share === "number" && (
-            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1.5">По сектору (EV/EBITDA пиров): ~{formatMoney(rel.fair_value_per_share, { currency: cySym })}{typeof rel.upside_downside_pct === "number" ? ` (${rel.upside_downside_pct > 0 ? "+" : ""}${formatNumber(rel.upside_downside_pct)} %)` : ""}</div>
-          )}
+          {typeof rel.fair_value_per_share === "number" && (() => {
+            const relUp = (typeof liveCurp === "number" && liveCurp > 0) ? ((rel.fair_value_per_share - liveCurp) / liveCurp) * 100 : null;
+            return (
+              <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1.5">По сектору (EV/EBITDA пиров): ~{formatMoney(rel.fair_value_per_share, { currency: cySym })}{typeof relUp === "number" ? ` (${relUp > 0 ? "+" : ""}${formatNumber(relUp)} %)` : ""}</div>
+            );
+          })()}
         </Card>
       );
     };
@@ -4955,8 +4965,8 @@ const CompanyCard = ({ company, onBack }) => {
                     : <span className="tw-text-text-tertiary tw-text-[12px]">—</span>
                   }
                   {(() => {
-                    // Апсайд метода к текущей цене: >10% зелёный ↑, 0–10% оранжевый ↑, <0 красный ↓
-                    const curp = fvr.current_price ?? meta.last_price;
+                    // Апсайд метода к ЖИВОЙ цене: >10% зелёный ↑, 0–10% оранжевый ↑, <0 красный ↓
+                    const curp = liveCurp;
                     if (!hasPrice || typeof curp !== "number" || curp <= 0) return null;
                     const up = (mt.fair_value_per_share - curp) / curp * 100;
                     const cls = up < 0 ? "tw-text-danger" : (up <= 10 ? "tw-text-warning" : "tw-text-success");

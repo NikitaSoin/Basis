@@ -259,13 +259,32 @@ async def get_business_model_md(ticker: str):
     )
 
 
+def _normalize_financials(fin: dict) -> dict:
+    """Нормализация на отдаче — чтобы не латать руками после каждого прогона агента.
+    total_equity витрина читает ПЛОСКИМ полем balance_sheet.total_equity; агент иногда
+    кладёт его только вложенным в equity.total_equity. Восстанавливаем плоское из
+    вложенного, если плоского нет (идемпотентно, без записи на диск)."""
+    bs = fin.get("balance_sheet")
+    if isinstance(bs, dict):
+        te = bs.get("total_equity")
+        flat_ok = isinstance(te, list) and any(x is not None for x in te) or isinstance(te, (int, float))
+        if not flat_ok:
+            eq = bs.get("equity")
+            src = eq.get("total_equity") if isinstance(eq, dict) else None
+            if isinstance(src, list) and any(x is not None for x in src):
+                bs["total_equity"] = src
+            elif isinstance(src, (int, float)):
+                bs["total_equity"] = src
+    return fin
+
+
 @router.get("/companies/by-ticker/{ticker}/financials")
 async def get_financials_json(ticker: str):
     """Блок «Финансы и оценка» в виде JSON (его рисует фронтенд)."""
     path = COMPANIES_DIR / _safe(ticker).upper() / "financials.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Financials not found")
-    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+    return JSONResponse(content=_normalize_financials(json.loads(path.read_text(encoding="utf-8"))))
 
 
 @router.get("/companies/by-ticker/{ticker}/financials-summary", response_class=PlainTextResponse)
