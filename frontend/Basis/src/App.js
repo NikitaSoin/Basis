@@ -3714,6 +3714,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [geoLoading, setGeoLoading] = useState(true);
   const [peersJson, setPeersJson] = useState(null);
   const [peersShowAll, setPeersShowAll] = useState(false);
+  const [peersYear, setPeersYear] = useState(null);
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -4534,10 +4535,10 @@ const CompanyCard = ({ company, onBack }) => {
         if (ci === 0) {
           return { ...c, render: (_v, r) => (
             <span className={cx(
-              r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]",
+              r._row.accent ? "tw-text-accent tw-text-[12px]" : (r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]"),
               r._row.bold ? "tw-font-semibold" : "tw-font-normal",
               "tw-whitespace-nowrap"
-            )}>{r._row.label}</span>
+            )} style={r._row.indent ? { paddingLeft: 14 } : undefined}>{r._row.label}</span>
           ) };
         }
         const i = ci - 1;
@@ -4546,7 +4547,7 @@ const CompanyCard = ({ company, onBack }) => {
           const d = row.delta ? yoy(v, at(row.arr, i - 1)) : null;
           return (
             <span className="tw-inline-flex tw-flex-col tw-items-end">
-              <span className={cx("tw-font-mono tw-tabular-nums tw-whitespace-nowrap", row.bold ? "tw-text-text-primary tw-font-semibold" : "tw-text-text-secondary")}>
+              <span className={cx("tw-font-mono tw-tabular-nums tw-whitespace-nowrap", row.accent ? "tw-text-accent tw-font-semibold" : (row.bold ? "tw-text-text-primary tw-font-semibold" : "tw-text-text-secondary"))}>
                 {v == null ? <span className="tw-text-text-tertiary">—</span> : f(v)}
               </span>
               {d != null && (
@@ -4609,33 +4610,88 @@ const CompanyCard = ({ company, onBack }) => {
     // Нормализованная ЧП — отдельной строкой в P&L (рядом с отчётной); показывается
     // только если есть нормализация (массив непустой). Мост корректировок — в плите ниже.
     const npAdjRow = { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, muted: true, accent: true };
+    // --- Хелперы постатейных таблиц (graceful degradation: строка всегда видна,
+    //     null = «—»; итог группы = явное поле ИЛИ сумма непустых компонент) ---
+    const ga = (o, k) => (o && Array.isArray(o[k]) && o[k].some((x) => x != null)) ? o[k] : null;
+    const sumYears = (...arrs) => years.map((_, i) => {
+      let s = null;
+      for (const a of arrs) { const v = a && a[i]; if (typeof v === "number" && isFinite(v)) s = (s ?? 0) + v; }
+      return s;
+    });
+    const orSum = (explicit, comps) => (Array.isArray(explicit) && explicit.some((x) => x != null))
+      ? explicit : sumYears(...comps.filter(Boolean));
+    // total_equity иногда лежит вложенно (equity.total_equity) — берём из любого.
+    const eqb = bs.equity || {}, nca = bs.non_current_assets || {}, cua = bs.current_assets || {};
+    const ncl = bs.non_current_liabilities || {}, cul = bs.current_liabilities || {};
+    const totalEquityArr = ga(bs, "total_equity") || ga(eqb, "total_equity") || bs.total_equity;
+
+    // P&L — ПОЛНАЯ цепочка статей (всегда показывается, без фильтра)
     const pnlRows = !isBank ? [
       { label: "Выручка", arr: is.revenue, bold: true, delta: true },
-      { label: "EBITDA", arr: is.ebitda, delta: true },
-      { label: "Операц. прибыль", arr: is.operating_profit, delta: true },
+      { label: "Себестоимость", arr: is.cogs, indent: true, muted: true },
+      { label: "Валовая прибыль", arr: orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), bold: true },
+      { label: "Операционные расходы", arr: is.operating_expenses, indent: true, muted: true },
+      { label: "Операционная прибыль (EBIT)", arr: is.operating_profit, bold: true, delta: true },
+      { label: "Амортизация", arr: is.da, indent: true, muted: true },
+      { label: "EBITDA", arr: is.ebitda, bold: true, delta: true },
+      { label: "Финансовые расходы", arr: is.finance_costs, indent: true, muted: true },
+      { label: "Финансовые доходы", arr: is.finance_income, indent: true, muted: true },
+      { label: "Прибыль до налога", arr: is.pre_tax_profit },
+      { label: "Налог на прибыль", arr: is.income_tax, indent: true, muted: true },
       { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
-      npAdjRow,
+      { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, accent: true },
       { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
       { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
-    // total_equity витрина читает плоским; финансист иногда кладёт его вложенным
-    // (equity.total_equity) — берём из любого, чтобы строка «Капитал» не пропадала.
-    const totalEquityArr = (Array.isArray(bs.total_equity) && bs.total_equity.some((x) => x != null))
-      ? bs.total_equity
-      : (bs.equity && Array.isArray(bs.equity.total_equity) ? bs.equity.total_equity : bs.total_equity);
-    const bsRows = [
-      { label: "Активы", arr: bs.total_assets, bold: true },
-      { label: "Капитал", arr: totalEquityArr },
-      { label: "Обязательства", arr: bs.total_liabilities },
+    ] : [];
+
+    // Баланс — детально по группам (для не-банков; у банков структура иная → компактно)
+    const bsRows = !isBank ? [
+      { label: "Внеоборотные активы", arr: orSum(ga(nca, "total_non_current"), [nca.ppe, nca.intangibles, nca.goodwill, nca.long_term_investments, nca.other_non_current]), bold: true },
+      { label: "Основные средства", arr: nca.ppe, indent: true, muted: true },
+      { label: "Нематериальные активы", arr: nca.intangibles, indent: true, muted: true },
+      { label: "Гудвил", arr: nca.goodwill, indent: true, muted: true },
+      { label: "Долгосрочные вложения", arr: nca.long_term_investments, indent: true, muted: true },
+      { label: "Прочие внеоборотные", arr: nca.other_non_current, indent: true, muted: true },
+      { label: "Оборотные активы", arr: orSum(ga(cua, "total_current"), [cua.inventory, cua.receivables, cua.cash, cua.short_term_investments, cua.other_current]), bold: true },
+      { label: "Запасы", arr: cua.inventory, indent: true, muted: true },
+      { label: "Дебиторская задолженность", arr: cua.receivables, indent: true, muted: true },
+      { label: "Денежные средства", arr: cua.cash || bs.cash, indent: true, muted: true },
+      { label: "Краткосрочные вложения", arr: cua.short_term_investments, indent: true, muted: true },
+      { label: "Прочие оборотные", arr: cua.other_current, indent: true, muted: true },
+      { label: "ИТОГО АКТИВЫ", arr: bs.total_assets, bold: true },
+      { label: "Капитал", arr: totalEquityArr, bold: true },
+      { label: "Уставный капитал", arr: eqb.share_capital, indent: true, muted: true },
+      { label: "Нераспределённая прибыль", arr: eqb.retained_earnings, indent: true, muted: true },
+      { label: "Добавочный капитал", arr: eqb.additional_paid_in, indent: true, muted: true },
+      { label: "Прочий капитал", arr: eqb.other_equity, indent: true, muted: true },
+      { label: "Долгосрочные обязательства", arr: orSum(ga(ncl, "total_non_current_liab"), [ncl.long_term_debt, ncl.deferred_tax, ncl.other_non_current_liab]), bold: true },
+      { label: "Долгосрочный долг", arr: ncl.long_term_debt || bs.long_term_debt, indent: true, muted: true },
+      { label: "Отложенный налог", arr: ncl.deferred_tax, indent: true, muted: true },
+      { label: "Прочие долгосрочные", arr: ncl.other_non_current_liab, indent: true, muted: true },
+      { label: "Краткосрочные обязательства", arr: orSum(ga(cul, "total_current_liab"), [cul.short_term_debt, cul.payables, cul.other_current_liab]), bold: true },
+      { label: "Краткосрочный долг", arr: cul.short_term_debt || bs.short_term_debt, indent: true, muted: true },
+      { label: "Кредиторская задолженность", arr: cul.payables, indent: true, muted: true },
+      { label: "Прочие краткосрочные", arr: cul.other_current_liab, indent: true, muted: true },
+      { label: "ИТОГО ОБЯЗАТЕЛЬСТВА", arr: bs.total_liabilities, bold: true },
       { label: "Чистый долг", arr: bs.net_debt },
       { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
-    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null));
+    ] : [
+      { label: "Активы", arr: bs.total_assets, bold: true },
+      { label: "Капитал", arr: totalEquityArr, bold: true },
+      { label: "Обязательства", arr: bs.total_liabilities },
+      { label: "Балансовая ст-ть / акция", arr: bs.book_value_per_share, muted: true },
+    ];
+
+    // ОДДС — три потока явно + итог (= сумма трёх, если явного нет)
     const cfRows = !isBank ? [
-      { label: "Операц. поток (CFO)", arr: cf.cfo, bold: true },
-      { label: "CapEx", arr: cf.capex },
-      { label: "FCF", arr: cf.fcf, bold: true, delta: true },
+      { label: "Операционный поток (CFO)", arr: cf.cfo, bold: true, delta: true },
+      { label: "CapEx", arr: cf.capex, indent: true, muted: true },
+      { label: "Свободный поток (FCF)", arr: cf.fcf, bold: true, delta: true },
+      { label: "Инвестиционный поток (CFI)", arr: cf.cfi, bold: true },
+      { label: "Финансовый поток (CFF)", arr: cf.cff, bold: true },
+      { label: "Чистое изменение ДС", arr: orSum(cf.net_change_in_cash, [cf.cfo, cf.cfi, cf.cff]), bold: true },
       { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+    ] : [];
     const bankPnlRows = isBank ? [
       { label: "Чистый проц. доход", arr: bp.net_interest_income, bold: true, delta: true },
       { label: "Чистый комис. доход", arr: bp.net_fee_income, delta: true },
@@ -4650,6 +4706,23 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "ROE, %", arr: bmx.roe, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
       { label: "Достаточность кап., %", arr: bmx.capital_adequacy, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+
+    // Мультипликаторы компании по годам (строки = метрики, столбцы = годы)
+    const ml = finJson?.multiples || {}, rt = finJson?.returns || {};
+    const fM = (v) => formatMultiple(v, { decimals: 2 });
+    const fP = (v) => fmtPercent(v, { decimals: 1 });
+    const multiplesRows = [
+      { label: "P/E", arr: ml.pe, fmt: fM },
+      { label: "P/E (норм.)", arr: ml.pe_adj, fmt: fM, accent: true },
+      { label: "P/S", arr: ml.ps, fmt: fM },
+      { label: "P/B", arr: ml.pb, fmt: fM },
+      { label: "EV/EBITDA", arr: ml.ev_ebitda, fmt: fM },
+      { label: "ROE, %", arr: rt.roe, fmt: fP, muted: true },
+      { label: "ROA, %", arr: rt.roa, fmt: fP, muted: true },
+      { label: "ROIC, %", arr: rt.roic, fmt: fP, muted: true },
+      { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: fP, muted: true },
+      { label: "Чистая маржа, %", arr: mg.net_margin, fmt: fP, muted: true },
+    ];
 
     // графики
     const chartRevenue = isBank ? bp.net_interest_income : is.revenue;
@@ -5000,6 +5073,9 @@ const CompanyCard = ({ company, onBack }) => {
       const ct = peersJson.comparison_table, aggs = peersJson.sector_aggregates || {};
       const rows = ct?.rows || [];
       if (!rows.length) return null;
+      // Доступные годы из comparison_table.years; выбранный — из стейта (дефолт первый).
+      const ctYears = (ct?.years || [2025, 2024]).map(String);
+      const pYear = (peersYear && ctYears.includes(peersYear)) ? peersYear : ctYears[0];
       const METRICS = [{ key: "pe", label: "P/E" }, { key: "ps", label: "P/S" }, { key: "pb", label: "P/B" }, { key: "ev_ebitda", label: "EV/EBITDA" }, { key: "net_debt_ebitda", label: "ND/EBITDA" }, { key: "roe", label: "ROE" }];
       const num = (v, isPct) => (typeof v === "number" ? (isPct ? fmtPercent(v, { decimals: 2 }) : formatNumber(v, { decimals: 2 })) : "—");
       const ordered = rows.slice().sort((a, b) => { const cur = (r) => (r.ticker === company.ticker ? 0 : 1); const an = (r) => (r.anomaly ? 1 : 0); return cur(a) - cur(b) || an(a) - an(b) || a.ticker.localeCompare(b.ticker); });
@@ -5010,13 +5086,25 @@ const CompanyCard = ({ company, onBack }) => {
           {METRICS.map((m) => (<td key={m.key} className="tw-px-2.5 tw-py-2 tw-text-right tw-text-[12px] tw-font-mono tw-tabular-nums tw-font-semibold tw-text-text-secondary tw-whitespace-nowrap">{num(agg?.[m.key], m.key === "roe")}</td>))}
         </tr>
       );
+      const YearTabs = () => (
+        <div className="tw-inline-flex tw-rounded-sm tw-border tw-border-border-subtle tw-overflow-hidden">
+          {ctYears.map((y) => (
+            <button key={y} onClick={() => setPeersYear(y)}
+              className={cx("tw-text-[12px] tw-px-2.5 tw-py-1 tw-font-mono tw-tabular-nums tw-bg-transparent tw-border-0 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-shadow-focus",
+                y === pYear ? "tw-bg-accent-soft tw-text-accent tw-font-semibold" : "tw-text-text-tertiary hover:tw-text-text-primary")}>
+              {y}
+            </button>
+          ))}
+        </div>
+      );
       return (
         <Card>
           <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
             <Users size={16} className="tw-text-accent tw-shrink-0" />
             <h4 className="tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">Сравнение с сектором</h4>
+            <div className="tw-ml-auto"><YearTabs /></div>
           </div>
-          <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3.5">{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы 2025 (мелким — 2024)</div>
+          <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3.5">{peersJson.meta?.sector} · {peersJson.meta?.n} компаний · мультипликаторы за {pYear}</div>
           {(() => {
             // Строим список доступных метрик из comparison_table.metrics (динамически),
             // используя METRICS-лейблы как fallback, добавляя неизвестные ключи с ключом-лейблом.
@@ -5047,21 +5135,20 @@ const CompanyCard = ({ company, onBack }) => {
                 </tr>
               </thead>
               <tbody>
-                {visible.map((r, i) => { const isCur = r.ticker === company.ticker; const d25 = r["2025"] || {}, d24 = r["2024"] || {}; return (
+                {visible.map((r, i) => { const isCur = r.ticker === company.ticker; const d = r[pYear] || {}; return (
                   <tr key={r.ticker} className={cx(isCur ? "tw-bg-accent-soft" : (i % 2 ? "" : "tw-bg-bg-base"))} style={{ borderLeft: isCur ? "3px solid var(--accent)" : "3px solid transparent" }}>
                     <td className={cx("tw-sticky tw-left-0 tw-px-2.5 tw-py-2 tw-text-[12px] tw-whitespace-nowrap tw-font-mono", isCur ? "tw-bg-accent-soft tw-font-semibold tw-text-accent" : (r.anomaly ? "tw-bg-bg-elevated tw-text-text-tertiary" : "tw-bg-bg-elevated tw-text-text-primary"))}>{r.ticker}{r.anomaly ? " *" : ""}{r.is_pref ? <span className="tw-text-text-tertiary tw-text-[10px]"> ап</span> : null}</td>
-                    {METRICS.map((m) => { const v25 = d25[m.key], v24 = d24[m.key]; return (
+                    {METRICS.map((m) => { const v = d[m.key]; return (
                       <td key={m.key} className={cx("tw-px-2.5 tw-py-2 tw-text-right tw-text-[12px] tw-font-mono tw-tabular-nums tw-whitespace-nowrap", (r.anomaly && !isCur) ? "tw-text-text-tertiary" : "tw-text-text-primary")}>
-                        <div>{num(v25, m.key === "roe")}</div>
-                        <div className="tw-text-[10px] tw-text-text-tertiary tw-mt-px">{num(v24, m.key === "roe")}</div>
+                        {num(v, m.key === "roe")}
                       </td>
                     ); })}
                   </tr>
                 ); })}
               </tbody>
               <tfoot>
-                <AggRow title="Медиана сектора" agg={aggs["2025"]?.median} />
-                <AggRow title="Среднее сектора" agg={aggs["2025"]?.mean} />
+                <AggRow title="Медиана сектора" agg={aggs[pYear]?.median} />
+                <AggRow title="Среднее сектора" agg={aggs[pYear]?.mean} />
               </tfoot>
             </table>
           </div>
@@ -5167,6 +5254,8 @@ const CompanyCard = ({ company, onBack }) => {
             )) : <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>}
           </Card>
         )}
+
+        {tableSection(TrendingUp, "Мультипликаторы и рентабельность по годам", multiplesRows, false)}
 
         {renderSectorComparison()}
       </AppearGroup>
