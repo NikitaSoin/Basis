@@ -1,0 +1,2143 @@
+{
+  "generated_at": "2026-06-12T13:06:42.056440+00:00",
+  "current_year": 2026,
+  "criteria": "data_quality=low | отчётность>12мес | неполные статьи | нет v2-explain",
+  "note": "Очередь обновления. Добыча выполняется в сессии Claude: report-fetcher <TICKER> → financial-analyst <TICKER>. Cron не запускает субагентов (LLM). Сначала тикеры без has_extracted.",
+  "total_companies": 262,
+  "stale_count": 256,
+  "items": [
+    {
+      "ticker": "GTRK",
+      "reasons": [
+        "data_quality=low",
+        "отчётность устарела (последний год 2024 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LIFE",
+      "reasons": [
+        "data_quality=low",
+        "отчётность устарела (последний год 2023 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PAZA",
+      "reasons": [
+        "data_quality=low",
+        "отчётность устарела (последний год 2024 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RKKE",
+      "reasons": [
+        "data_quality=low",
+        "отчётность устарела (последний год 2024 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SNGSP",
+      "reasons": [
+        "data_quality=low",
+        "отчётность устарела (последний год 2024 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AMEZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "APTK",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ARSA",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AVAN",
+      "reasons": [
+        "data_quality=low",
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BLNG",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BRZL",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BTBR",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CHGZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DIOD",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DZRD",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DZRDP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZA",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZAP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZC",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZS",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZT",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GEMA",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "HIMCP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "IGST",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "IGSTP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "IRKT",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "JNOS",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "JNOSP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KCHE",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KCHEP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KGKC",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KGKCP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KLSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KLVZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KOGK",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KRKN",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KRKNP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KRKOP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KROTP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KRSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KRSBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KUZB",
+      "reasons": [
+        "data_quality=low",
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LNZL",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LNZLP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LPSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LVHK",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MAGE",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MAGEP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MFGS",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MFGSP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MGNZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MISB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MISBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKK",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKS",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKU",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKY",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NFAZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NKSH",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NNSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NNSBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "OMZZP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PRMB",
+      "reasons": [
+        "data_quality=low",
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RBCM",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RDRB",
+      "reasons": [
+        "data_quality=low",
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ROST",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RTGZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RUSI",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RZSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SAGO",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SAGOP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SLEN",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "STSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "STSBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SVET",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SVETP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TNSE",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TORS",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TORSP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UKUZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UNKL",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "URKZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VEON-RX",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VJGZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VJGZP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VLHZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VRSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VRSBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VSYD",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VSYDP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YKEN",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YKENP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YRSB",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YRSBP",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ZILL",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ZVEZ",
+      "reasons": [
+        "data_quality=low",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ABIO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ABRD",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AFLT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AKRN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "APRI",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AQUA",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ASSB",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ASTR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BANEP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BAZA",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BELU",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BISVP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BSPB",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BSPBP",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CARM",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CBOM",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CHKZ",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CHMF",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CHMK",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CNRU",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CNTL",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "CNTLP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DATA",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DELI",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DIAS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DOMRF",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "DVEC",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "EELT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ELFV",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ELMT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ENPG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ETLN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "EUTR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "FEES",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "FESH",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "FIXR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "FLOT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GCHE",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GECO",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GEMC",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GLRX",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GMKN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "HEAD",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "HYDR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "IVAT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KAZT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KAZTP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KBSB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KFBA",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KMAZ",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KMEZ",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KROT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KZOS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "KZOSP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LEAS",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LMBZ",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LSNG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LSNGP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LSRG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MAGN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MBNK",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MDMG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MGNT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MGTS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MGTSP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MOEX",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKC",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKV",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MRKZ",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MSNG",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MSRS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MSTT",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MTLRP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MTSS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "MVID",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NAUK",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NKHP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NKNC",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NKNCP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NMTP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NSVZ",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "OGKB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "OKEY",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "OZON",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "OZPH",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PIKK",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PLZL",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PMSB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PMSBP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "POSI",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PRFN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PRMD",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RAGR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RASP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RENI",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RGSS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RHYD",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RNFT",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ROLO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RTKM",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RTKMP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RTSB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RTSBP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "RUAL",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SARE",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SAREP",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SBERP",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SELG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SFIN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SGZH",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SNGS",
+      "reasons": [
+        "отчётность устарела (последний год 2024 < 2025)",
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SOFL",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SPBE",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SVAV",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SVCB",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "T",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TASB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TASBP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TATNP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TGKA",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TGKB",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TGKBP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TGKN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TRMK",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TRNFP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TTLK",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "TUZA",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UGLD",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UNAC",
+      "reasons": [
+        "data_quality=low",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UPRO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "USBN",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UTAR",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "UWGN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VKCO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VSMO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "WTCM",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "WTCMP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "WUSH",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YAKG",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "YDEX",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ZAYM",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher",
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "AFKS",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ALRS",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "BANE",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "GAZP",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "HNFG",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "IRAO",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "LENT",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "NVTK",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "PHOR",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "ROSN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SIBN",
+      "reasons": [
+        "неполные статьи (cogs/cfi пусты) — кандидат на report-fetcher"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SMLT",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VGSB",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VGSBP",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "VSEH",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "X5",
+      "reasons": [
+        "нет valuation.explain (старый формат, не пересчитан по v2)"
+      ],
+      "has_extracted": false
+    },
+    {
+      "ticker": "SBER",
+      "reasons": [
+        "банк: нет постатейного bank_pnl (кандидат на report-fetcher)"
+      ],
+      "has_extracted": true
+    }
+  ]
+}

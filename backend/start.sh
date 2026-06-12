@@ -31,6 +31,12 @@ run_migrations() {
 # Миграции — в фоне, чтобы НЕ блокировать старт сервера операциями с БД.
 run_migrations &
 
+# Детектор устаревших/неполных финансовых данных → очередь обновления
+# (companies/_refresh_queue.json). Идемпотентно, без сети/БД, в фоне; неуспех НЕ роняет
+# старт. ВНИМАНИЕ: это только ДЕТЕКЦИЯ — report-fetcher/financial-analyst это AI-субагенты,
+# cron их не запускает; добыча/дозаполнение выполняется в сессии Claude по очереди.
+( python -m scripts.refresh_financials || python3 -m scripts.refresh_financials || true ) &
+
 # Веб-сервер — на переднем плане. exec → uvicorn становится PID 1 и корректно
 # получает сигналы остановки от платформы.
 exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"
