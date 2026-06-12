@@ -33,7 +33,9 @@ model: claude-opus-4-8
    short_term_debt,long_term_debt,ratios}` (total_equity держи ПЛОСКИМ полем, даже
    если добавляешь вложенный equity-блок), `cash_flow.{cfo,capex,fcf,ratios}`,
    `relative_peers_sector`, `peer_multiples`, `anomaly_flag`, `anomaly_note`,
-   `bank_pnl`, `bank_metrics` (для банков). Если добавляешь вложенную детализацию
+   `bank_pnl`, `bank_metrics` (для банков). `anomaly_flag`/`anomaly_note` держи
+   на TOP-LEVEL файла (витрина читает оттуда), можешь продублировать в meta.
+   Если добавляешь вложенную детализацию
    (non_current_assets, equity.{...}) — ДОБАВЛЯЙ рядом, плоские агрегаты оставляй.
 2. Что было непустым — не зануляй без причины. Нашёл лучше данные — обнови значение,
    но не теряй ряд. null ставь только там, где данных реально нет и не было.
