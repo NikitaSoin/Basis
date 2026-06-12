@@ -1,0 +1,472 @@
+{
+  "meta": {
+    "ticker": "OZON",
+    "name": "Ozon Holdings PLC (ОЗОН)",
+    "profile": "standard",
+    "reporting_standard": "МСФО (IFRS)",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + company_ir + e-disclosure",
+      "url": "https://smart-lab.ru/q/OZON/f/y/, https://ir.ozon.com/, https://www.e-disclosure.ru/",
+      "doc_title": "Consolidated Financial Statements IFRS (МСФО)",
+      "retrieved": "2026-06-12"
+    },
+    "data_quality": "high",
+    "parse_method": "smart-lab-table + pdfplumber + web_search",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      178.2,
+      277.1,
+      424.3,
+      615.7,
+      998.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      99.9,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Себестоимость реализованных товаров и прочие расходы, связанные с товарами (Cost of goods sold and other expenses related to goods)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          182.5,
+          null
+        ]
+      },
+      {
+        "name": "Себестоимость услуг и прочей выручки - Фулфилмент и доставка (Cost of services and other revenue - Fulfillment and delivery)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          333.4,
+          null
+        ]
+      },
+      {
+        "name": "Общехозяйственные и административные расходы (General and administrative expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Маркетинговые и рекламные расходы (Marketing and advertising expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Технологические и контентные расходы (Technology and content expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Амортизация и износ основных средств (Depreciation and amortization)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      -58.9,
+      -44.1,
+      -32.8,
+      -9.5,
+      71.4
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      -41.2,
+      -3.2,
+      4.2,
+      40.1,
+      156.4
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      44.7,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      48.3,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      -55.1,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      -4.3,
+      null
+    ],
+    "net_profit": [
+      -22.3,
+      -56.8,
+      -58.2,
+      -42.7,
+      -59.4,
+      -0.9
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        126.0,
+        null,
+        null,
+        null,
+        845.5
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        12.1,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      241.3,
+      null,
+      null,
+      null,
+      1430.0
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        -132.5,
+        -140.3
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      -13.6,
+      -18.8,
+      87.7,
+      286.3,
+      503.6
+    ],
+    "cfi": [
+      null,
+      null,
+      -27.3,
+      null,
+      -77.5,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      18.6,
+      null,
+      -28.6,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      55.0,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020: Partial data from market searches; consolidated financials for FY2020 not found separately",
+    "2021-2022: EBITDA is adjusted (non-IFRS) metric; reported by company",
+    "2023: Some balance sheet and cash flow details not available in press releases",
+    "2024: P&L expense lines partially detailed from press release (COGS/Fulfillment breakdown); full balance sheet not extracted from available PDF",
+    "2025: Preliminary data from H1 and FY 2025 announcements; may include guidance vs actuals",
+    "Fintech segment consolidated: Interest income/expenses from Ozon Bank included in consolidated figures",
+    "cost_format: by_nature (E-commerce + Fintech hybrid) - expense_lines show commodity costs, fulfilment/delivery separately",
+    "Negative equity 2024-2025: Company has accumulated losses exceeding capital (typical for high-growth e-commerce platforms)",
+    "Missing items: Full detailed balance sheet breakdown (current/non-current assets components), full COGS/SG&A/Amortization separately",
+    "Source integrity: 2024 data from press release with audit statement; 2023 from official reports; 2020-2022 from market sources (less reliable)",
+    "2024 P&L: Revenue (615.7) - Total Operating Costs (515.8) = Gross Profit (99.9); by_nature format doesn't separate COGS per se",
+    "Expense lines 2024: COGS items split between goods (182.5) and services/fulfillment/delivery (333.4)"
+  ]
+}

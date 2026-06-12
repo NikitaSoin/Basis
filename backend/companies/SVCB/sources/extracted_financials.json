@@ -1,0 +1,644 @@
+{
+  "meta": {
+    "ticker": "SVCB",
+    "name": "ПАО Совкомбанк",
+    "profile": "bank",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf + web sources",
+      "url": "companies/SVCB/sources/Совкомбанк (МСФО 2025) на 16.05.2026г.pdf + smart-lab.ru + investor reports",
+      "doc_title": "Совкомбанк: консолидированная финансовая отчётность МСФО 2020-2025",
+      "retrieved": "2026-06-12"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber + web scraping",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      341534,
+      651092,
+      807408,
+      null,
+      722000,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Резерв под кредитные убытки (Provisions for credit losses)",
+        "values": [
+          32513,
+          73907,
+          80721,
+          null,
+          74000,
+          null
+        ]
+      },
+      {
+        "name": "Административные и расходы на персонал (Admin & Personnel expenses)",
+        "values": [
+          94059,
+          132131,
+          159140,
+          null,
+          132000,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      94138,
+      75592,
+      48910,
+      95000,
+      77234,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      3188985,
+      4046267,
+      4520011,
+      3200000,
+      4046267,
+      4520011
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        298357,
+        389991,
+        415497,
+        264000,
+        389991,
+        415497
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      2890628,
+      3656276,
+      4104514,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      5281,
+      9112,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "bank_pnl": {
+    "interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_interest_income": [
+      138862,
+      158061,
+      176519,
+      139000,
+      158000,
+      null
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      39000,
+      null
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_fee_income": [
+      23799,
+      35483,
+      24810,
+      26822,
+      39451,
+      34000
+    ],
+    "provisions": [
+      32513,
+      73907,
+      80721,
+      null,
+      74000,
+      null
+    ],
+    "operating_income": [
+      182926,
+      167890,
+      169971,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      94059,
+      132131,
+      159140,
+      null,
+      132000,
+      null
+    ],
+    "other_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      94138,
+      75592,
+      48910,
+      95000,
+      77234,
+      35400
+    ]
+  },
+  "bank_balance": {
+    "loans_gross": [
+      1915252,
+      2685703,
+      3054907,
+      null,
+      null,
+      null
+    ],
+    "loans_net": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash_and_cb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      3188985,
+      4046267,
+      4520011,
+      3200000,
+      4046267,
+      4520011
+    ],
+    "deposits": [
+      2639222,
+      3276446,
+      3710809,
+      null,
+      null,
+      null
+    ],
+    "debt_issued": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liab": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      2890628,
+      3656276,
+      4104514,
+      null,
+      null,
+      null
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "retained_earnings": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      298357,
+      389991,
+      415497,
+      264000,
+      389991,
+      415497
+    ]
+  },
+  "data_flags": [
+    "SOURCE: Загруженный вручную PDF (инфографика за 2016-2025) + веб-источники (smart-lab, пресс-релизы компании, аналитические отчёты investemika.ru, tbank.ru, Forbes, Kommersant).",
+    "2020-2022: Данные из инфографики PDF (ключевые показатели с графиков)",
+    "2023: Net profit (95 млрд) из Forbes/Kommersant; Net interest income (139 млрд) и Assets (3.2 трлн); Equity (264 млрд) до IPO",
+    "2024: Полные данные из пресс-релизов компании (Revenue 722 млрд, Net profit 77.234 млрд, Operating expenses 132 млрд, Provisions 74 млрд, Fee income 39 млрд, Net interest income 158 млрд, Assets 4.046 трлн, Equity ~390 млрд)",
+    "2025: Данные за 9М2025 из отчётов компании (Net profit 35.4 млрд, Net interest income 121 млрд, Net fee income 34 млрд) - НЕПОЛНЫЙ ГОД",
+    "ДЕФИЦИТЫ: (1) Процентные доходы/расходы (interest_income, interest_expense) отсутствуют - есть только net_interest_income. (2) Комиссионные расходы не разбиты. (3) Капитальные активы (ППЕ, НМА, Гудвил) не парсятся. (4) Денежные потоки отсутствуют полностью. (5) Долговые инструменты не разбиты по срокам. (6) 2025 - неполный год (9М2025).",
+    "АРИФМЕТИЧЕСКАЯ ПРОВЕРКА: assets ≈ equity + liabilities — для 2020-2022 не может быть проведена (liabilities неполные); для 2024 данные есть, но total_liabilities пропущены в bank_balance.",
+    "ПРИМЕЧАНИЕ: Данные 2023-2024 имеют некоторую неопределённость в разделении по подстатьям (частично из Q1 отчётов, частично из годовых). Требуется полная консолидированная отчётость для полной верификации."
+  ]
+}

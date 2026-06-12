@@ -1,16 +1,15 @@
 {
   "meta": {
     "ticker": "OZON",
-    "name": "МКПАО «Озон»",
-    "sector": "E-commerce / Маркетплейсы",
+    "name": "МКПАО «Озон» (Ozon)",
+    "sector": "ecommerce",
     "profile": "standard",
-    "anomaly_flag": true,
-    "anomaly_note": "Исторически убыточная компания роста: P/E неинформативен (прибыль ~0 или отрицательна), оценивать по GMV, EV/Sales и EV/EBITDA. Внутри группы — банковский сегмент (Ozon Банк): денежные средства 650,7 млрд руб. сильно раздуты привлечёнными средствами клиентов банка (~505,8 млрд руб.), из-за чего «чистый долг» по отчётности глубоко отрицательный (-569,3 млрд руб.) и завышает equity value. Для оценки используется «очищенный» чистый долг без клиентских средств банка. Капитал группы отрицательный (накопленный убыток -311 млрд руб.), поэтому P/BV и ROE искажены.",
     "currency": "RUB",
-    "unit": "млн",
-    "reporting_standard": "МСФО",
+    "unit": "млрд",
+    "reporting_standard": "МСФО (IFRS)",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
@@ -18,29 +17,31 @@
       2024,
       2025
     ],
-    "last_price": 4253,
-    "price_date": "2026-05-22",
-    "shares_outstanding": 216410000,
+    "last_price": 3846.5,
+    "price_date": "2026-06-11",
+    "shares_outstanding": 216413733,
     "data_quality": "medium",
     "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+      "Ozon IR пресс-релизы МСФО (FY2025, FY2024)",
+      "smart-lab/Market Power агрегация отчётности",
+      "веб-сверка ключевых хедлайнов",
+      "консенсус аналитиков для прогноза"
+    ],
+    "anomaly_flag": true,
+    "anomaly_note": "Компания в точке перелома: 5 лет убытков сменились почти безубыточностью в 2025 (ЧП -0.9 млрд) и прибылью 3 квартала подряд. Капитал ОТРИЦАТЕЛЬНЫЙ (-140.3 млрд, накопленные убытки), поэтому P/B неприменим; убытки делают P/E неприменимым; денежные средства (845.5) и FCF (445.5) РАЗДУТЫ средствами клиентов Ozon Банка (финтех консолидирован) — для оценки акционерной стоимости они несвободны.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
-      60104,
-      104435,
-      178215,
-      277115,
-      424291,
-      613324,
-      997989
+      104.4,
+      178.2,
+      277.1,
+      424.3,
+      615.7,
+      998.0
     ],
     "cogs": [
-      null,
       null,
       null,
       null,
@@ -53,12 +54,64 @@
       null,
       null,
       null,
-      null,
-      null,
-      230000
+      99.9,
+      230.1
     ],
-    "operating_expenses": [
+    "expense_lines": [
+      {
+        "name": "Выручка сегмента E-commerce",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          547.6,
+          838.3
+        ]
+      },
+      {
+        "name": "Выручка сегмента Финтех (Ozon Банк)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          91.4,
+          197.3
+        ]
+      },
+      {
+        "name": "Себестоимость реализованных товаров и прочие расходы по товарам",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          182.5,
+          null
+        ]
+      },
+      {
+        "name": "Себестоимость услуг — фулфилмент и доставка",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          333.4,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
       null,
+      -58.9,
+      -44.1,
+      -32.8,
+      -9.5,
+      71.4
+    ],
+    "da": [
       null,
       null,
       null,
@@ -66,50 +119,53 @@
       null,
       null
     ],
-    "operating_profit": [
-      -18612,
-      -17323,
-      -58856,
-      -44149,
-      -32755,
-      -9508,
-      71370
-    ],
     "ebitda": [
-      -16022,
-      -12360,
-      -48976,
-      -24379,
-      -4673,
-      33774,
-      133577
-    ],
-    "da": [
-      2590,
-      4963,
-      9880,
-      19770,
-      28082,
-      43282,
-      62207
+      null,
+      -41.2,
+      -3.2,
+      4.2,
+      40.1,
+      156.4
     ],
     "finance_costs": [
-      980,
-      2115,
-      5802,
-      17186,
-      5772,
-      44697,
-      65328
+      null,
+      null,
+      null,
+      null,
+      44.7,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      48.3,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      -55.1,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      -4.3,
+      null
     ],
     "net_profit": [
-      -19363,
-      -22264,
-      -56779,
-      -58187,
-      -42665,
-      -59442,
-      -938
+      -22.3,
+      -56.8,
+      -58.2,
+      -42.7,
+      -59.4,
+      -0.9
     ],
     "margins": {
       "gross_margin": [
@@ -117,124 +173,362 @@
         null,
         null,
         null,
-        null,
-        null,
-        23.05
+        16.23,
+        23.06
       ],
       "ebitda_margin": [
-        -26.66,
-        -11.84,
-        -27.48,
-        -8.8,
-        -1.1,
-        5.51,
-        13.38
+        null,
+        -23.12,
+        -1.15,
+        0.99,
+        6.51,
+        15.67
       ],
       "operating_margin": [
-        -30.97,
-        -16.59,
-        -33.03,
-        -15.93,
-        -7.72,
-        -1.55,
+        null,
+        -33.05,
+        -15.91,
+        -7.73,
+        -1.54,
         7.15
       ],
-      "net_margin": [
-        -32.22,
-        -21.32,
-        -31.86,
+      "ros": [
+        -21.36,
+        -31.87,
         -21.0,
         -10.06,
-        -9.69,
+        -9.65,
         -0.09
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_adj": [
+      null,
+      -41.2,
+      -3.2,
+      4.2,
+      40.1,
+      156.4
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": 104.0,
+    "capex_note": "Фактический capex 2024 ~55 млрд (8.9% выручки); для DCF-базы 2026 взят устойчивый capex ~8% выручки 2026 = ~104 млрд (растущая логистическая платформа).",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2025,
+        "item": "EBITDA публикуется как СКОРРЕКТИРОВАННАЯ (non-IFRS): исключает SBC и разовые. Самостоятельных крупных разовых в ЧП 2025 не выявлено — ЧП почти ноль (-0.9 млрд) операционно",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2025,
+        "item": "Денежный поток/кэш искажён средствами клиентов финтеха (Ozon Банк): репортный FCF 445.5 млрд и cash 845.5 млрд несвободны для акционеров — для DCF FCF строится от устойчивой EBITDA, а не от репортного CFO",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_2"
+      }
+    ],
+    "bridge_note": "Разовых искажений ЧП по годам не выявлено (убытки операционные, не от списаний); ключевая нормализация — НЕ брать репортный FCF (раздут средствами клиентов финтеха) как FCF₁, а строить устойчивый FCF от EBITDA e-commerce."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        14.4
+      ],
+      "cash": [
+        null,
+        126.0,
+        null,
+        null,
+        null,
+        845.5
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        12.1,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
-      38435,
-      154608,
-      241338,
-      284821,
-      476026,
-      890235,
-      1429778
+      null,
+      241.3,
+      null,
+      null,
+      null,
+      1430.0
     ],
-    "total_equity": [
-      817,
-      79257,
-      220265,
-      -16647,
-      -66577,
-      -132500,
-      -148406
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        -132.5,
+        -140.3
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      37618,
-      75351,
-      21073,
-      301468,
-      542603,
-      1022735,
-      1578184
-    ],
-    "cash": [
-      3003,
-      103702,
-      108037,
-      90469,
-      169814,
-      349198,
-      650730
-    ],
-    "short_term_debt": [
-      166,
-      2323,
-      50577,
-      55215,
-      16043,
-      41844,
-      80380
-    ],
-    "long_term_debt": [
-      3950,
-      7125,
-      11539,
-      38900,
-      88328,
-      76606,
-      1032
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "net_debt": [
-      1113,
-      -94254,
-      -45921,
-      3646,
-      -65443,
-      -230748,
-      -569318
+      null,
+      null,
+      null,
+      null,
+      254.6,
+      293.7
     ],
+    "total_equity": -140.3,
+    "tangible_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "tangible_note": "Капитал отрицательный (-140.3 млрд в 2025) из-за накопленных убытков за годы инвестиций в рост; ощутимый капитал также отрицателен — P/B и оценки от капитала неприменимы.",
     "ratios": {
       "debt_to_equity": [
-        5.04,
-        0.12,
-        0.28,
-        -5.65,
-        -1.57,
-        -0.89,
-        -0.55
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "net_debt_ebitda": [
-        -0.07,
-        7.63,
-        0.94,
-        -0.15,
-        14.0,
-        -6.83,
-        -4.26
+        null,
+        null,
+        null,
+        null,
+        6.35,
+        1.88
       ],
       "current_ratio": [
-        null,
         null,
         null,
         null,
@@ -246,30 +540,27 @@
   },
   "cash_flow": {
     "cfo": [
-      -14312,
-      6570,
-      -13626,
-      -21513,
-      83598,
-      286283,
-      503629
+      null,
+      -13.6,
+      -18.8,
+      87.7,
+      286.3,
+      503.6
     ],
     "cfi": [
       null,
       null,
+      -27.3,
       null,
-      null,
-      null,
-      null,
+      -77.5,
       null
     ],
     "cff": [
       null,
       null,
+      18.6,
       null,
-      null,
-      null,
-      null,
+      -28.6,
       null
     ],
     "net_change_in_cash": [
@@ -278,78 +569,72 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "capex": [
-      4768,
-      6840,
-      19341,
-      35813,
-      29672,
-      70421,
-      58164
+      null,
+      null,
+      null,
+      null,
+      55.0,
+      null
     ],
     "fcf": [
-      -19080,
-      -270,
-      -32967,
-      -57326,
-      53926,
-      215862,
-      445465
+      null,
+      null,
+      null,
+      null,
+      231.3,
+      445.5
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        -31.75,
-        -0.26,
-        -18.5,
-        -20.69,
-        12.71,
-        35.2,
-        44.64
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "cfo_to_capex": [
-        -3.0,
-        0.96,
-        -0.7,
-        -0.6,
-        2.82,
-        4.07,
-        8.66
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "capex_to_revenue": [
-        7.93,
-        6.55,
-        10.85,
-        12.92,
-        6.99,
-        11.48,
-        5.83
+        null,
+        null,
+        null,
+        null,
+        8.9,
+        null
       ]
     }
   },
   "returns": {
     "roe": [
-      -2370.01,
-      -28.09,
-      -25.78,
-      349.53,
-      64.08,
-      44.86,
-      0.63
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "roa": [
-      -50.38,
-      -14.4,
-      -23.53,
-      -20.43,
-      -8.96,
-      -6.68,
-      -0.07
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "roic": [
-      null,
       null,
       null,
       null,
@@ -358,27 +643,32 @@
       null
     ],
     "ros": [
-      -32.22,
-      -21.32,
-      -31.86,
+      -21.36,
+      -31.87,
       -21.0,
       -10.06,
-      -9.69,
+      -9.65,
       -0.09
     ],
     "asset_turnover": [
-      2.13,
-      0.11,
-      0.9,
-      1.05,
-      1.12,
-      0.9,
-      0.86
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
       null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
       null,
       null,
       null,
@@ -392,77 +682,17 @@
       null,
       null,
       null,
-      null,
-      0.92
-    ],
-    "pb": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      -6.2
+      null
     ],
     "ev_ebitda": [
-      -25.65,
-      -62.87,
-      -6.87,
-      -33.76,
-      -172.08,
-      22.21,
-      2.63
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.2
     ],
-    "ev_sales": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.35
-    ],
-    "current": {
-      "pe": null,
-      "ps": 0.92,
-      "pb": -6.2,
-      "ev_ebitda": 2.63,
-      "ev_sales": 0.35,
-      "as_of": "2026-05-22"
-    },
-    "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "ps_7y_avg": 14.29,
-      "period": "P/E неинформативен (убыток весь период); P/S за 7 лет искажён первыми годами после IPO 2020"
-    }
-  },
-  "peer_multiples": {
-    "_note": "Собственные мультипликаторы OZON за 2 последних года для будущего сравнения с сектором. pe=null — убыток; добавлен ps. EV/EBITDA и EV/Sales — по очищенному EV.",
-    "2025": {
-      "pe": null,
-      "ps": 0.92,
-      "pb": -6.2,
-      "ev_ebitda": 2.63,
-      "ev_sales": 0.35,
-      "roe": 0.63
-    },
-    "2024": {
-      "pe": null,
-      "ps": null,
-      "pb": -7.4,
-      "ev_ebitda": 22.21,
-      "ev_sales": null,
-      "roe": 44.86
-    }
-  },
-  "forecast": {
-    "source_type": "broker_consensus",
-    "providers": [
-      "Ozon (гайденс компании)"
-    ],
-    "revenue_growth_pct": [
-      null,
+    "roe": [
       null,
       null,
       null,
@@ -470,129 +700,436 @@
       null,
       null
     ],
-    "net_profit_growth_pct": [],
-    "note": "Гайденс самой компании на 2026: рост GMV (с услугами) ~25–30%, скорр. EBITDA ~200 млрд руб. История нерепрезентативна (компания только вышла из убытка, денежный поток искажён притоком средств банка), поэтому полноценный многолетний прогноз FCF не строился."
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      16.23,
+      23.06
+    ],
+    "ebitda_margin": [
+      null,
+      -23.12,
+      -1.15,
+      0.99,
+      6.51,
+      15.67
+    ],
+    "operating_margin": [
+      null,
+      -33.05,
+      -15.91,
+      -7.73,
+      -1.54,
+      7.15
+    ],
+    "ros": [
+      -21.36,
+      -31.87,
+      -21.0,
+      -10.06,
+      -9.65,
+      -0.09
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      6.35,
+      1.88
+    ],
+    "revenue_growth": [
+      null,
+      70.7,
+      55.5,
+      53.1,
+      45.1,
+      62.1
+    ],
+    "net_profit_growth": [
+      null,
+      154.7,
+      2.5,
+      -26.6,
+      39.1,
+      -98.5
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      7.2
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "current": {
+      "pe": null,
+      "pe_adj": null,
+      "ps": 0.83,
+      "pb": null,
+      "ev_ebitda": 7.2,
+      "ev_sales": 1.13,
+      "as_of": "2026-06-11"
+    },
+    "historical_avg": {
+      "pe_5y_avg": null,
+      "pe_5y_median": null,
+      "pe_adj_5y_median": null,
+      "pb_5y_median": null,
+      "period": "исторические мультипликаторы P/E и P/B неинформативны (убытки + отрицательный капитал)"
+    }
+  },
+  "forecast": {
+    "source_type": "consensus",
+    "providers": [
+      "Т-Инвестиции",
+      "БКС",
+      "Freedom Finance",
+      "консенсус 11 аналитиков"
+    ],
+    "revenue_next_mln": 1297.0,
+    "ebitda_next_mln": 200.0,
+    "net_profit_next_mln": null,
+    "note": "Гайденс компании на 2026: GMV +25–30%, скорр EBITDA ~200 млрд, выход на чистую прибыль. Выручка 2026 оценена ~1 297 млрд (+30%, монетизация растёт быстрее GMV). База прогноза — устойчивая EBITDA, не репортный FCF."
   },
   "valuation": {
     "methods": [
       {
-        "method": "DCF",
-        "fair_value_per_share": null,
+        "method": "EV/Sales (forward)",
+        "fair_value_per_share": 5835,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 26.3,
-          "terminal_growth": 3.5,
-          "forecast_years": 5
+          "ev_sales_used": 1.2,
+          "revenue_2026_mln": 1297.0,
+          "net_debt_mln": 293.7,
+          "range_x": "1.0–1.5"
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Текущий EV/Sales": "1.13x — EV 1126 / выручка 998 млрд (2025) [src_3]",
+            "Выручка 2026": "1297 млрд — оценка при росте ~30% (гайденс GMV +25–30%, монетизация быстрее) [src_4]",
+            "Чистый долг": "293.7 млрд — на конец 2025, репортный [src_2]",
+            "Акций": "216.4 млн шт [src_5]",
+            "Множитель forward": "1.2x — справедливый для прибыльного растущего маркетплейса, диапазон 1.0–1.5 [judgement]"
+          },
+          "steps": [
+            "Маршрутизация: растущий e-commerce с тонкой прибылью → EV/Sales основной якорь (P/E и P/B неприменимы).",
+            "Текущий EV/Sales = EV 1126 / выручка 998 = 1.13x — рынок уже оценивает с премией за рост.",
+            "Forward-база: выручка 2026 ≈ 1297 млрд (рост ~30%).",
+            "Справедливый множитель 1.2x: EV = 1.2 × 1297 = 1556 млрд.",
+            "EV → equity: 1556 − чистый долг 293.7 = 1262 млрд (стоимость для акционеров).",
+            "Цена = 1262 млрд / 216.4 млн = 5835 руб.",
+            "Диапазон: 1.0x → 4636 руб; 1.5x → 7633 руб."
+          ],
+          "caveats": [
+            "Чистый долг 293.7 искажён финтехом (кэш вкл. средства клиентов), но взят как репортный — консервативно.",
+            "Множитель forward — judgement; чувствителен к темпу выручки 2026."
+          ]
+        }
       },
       {
-        "method": "historical_pe",
-        "fair_value_per_share": null,
+        "method": "EV/EBITDA (forward)",
+        "fair_value_per_share": 5112,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "не применим — убыток весь период"
+          "ev_ebitda_used": 7.0,
+          "ebitda_2026_mln": 200.0,
+          "net_debt_mln": 293.7,
+          "range_x": "6–8"
         },
-        "status": "not_applicable"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Скорр EBITDA 2025": "156.4 млрд — отчётная скорр EBITDA (non-IFRS) [src_1]",
+            "EBITDA 2026 (гайденс)": "200 млрд — прогноз компании [src_4]",
+            "Текущий EV/EBITDA": "7.2x — EV 1126 / EBITDA 156.4 [src_3]",
+            "Чистый долг": "293.7 млрд [src_2]",
+            "Акций": "216.4 млн шт [src_5]",
+            "Множитель forward": "7.0x — диапазон 6–8 для растущего платформенного бизнеса [judgement]"
+          },
+          "steps": [
+            "Скорр EBITDA вышла в устойчивый плюс (4.2 → 40.1 → 156.4 млрд за 2023–2025), гайденс 2026 ~200 млрд.",
+            "Текущий EV/EBITDA(adj) = 1126 / 156.4 = 7.2x.",
+            "Forward-база EBITDA 2026 = 200 млрд; множитель 7.0x → EV = 1400 млрд.",
+            "EV → equity: 1400 − 293.7 = 1106 млрд.",
+            "Цена = 1106 / 216.4 млн = 5112 руб.",
+            "Диапазон: 6x → 4188 руб; 8x → 6036 руб."
+          ],
+          "caveats": [
+            "EBITDA — СКОРРЕКТИРОВАННАЯ (non-IFRS): исключает SBC и разовые, реальный денежный результат ниже.",
+            "Гайденс 200 млрд — прогноз менеджмента, не факт."
+          ]
+        }
+      },
+      {
+        "method": "DCF",
+        "fair_value_per_share": 119,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "fcf1_mln": 68.7,
+          "r": 0.272,
+          "g": 0.035,
+          "tax_rate_used": 25.0,
+          "fcf_base": "устойчивый от EBITDA 2026",
+          "implied_exit_multiple": 1.4
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "FCFF₁": "68.7 млрд — устойчивый FCF 2026 от EBITDA 200, не от репортного FCF (раздут финтехом) [src_4]",
+            "Безрисковая ставка": "14.6% — доходность 10-летних ОФЗ, config [src_6]",
+            "ERP": "9.0% — премия за риск рынка РФ, config [src_6]",
+            "Бета": "1.4 — высокая для растущего волатильного e-commerce [judgement]",
+            "Ставка дисконтирования r": "27.2% — Ke = 14.6% + 1.4×9.0% [src_6]",
+            "Терминальный рост g": "3.5% — terminal_growth_default, config [src_6]",
+            "Чистый долг": "293.7 млрд [src_2]"
+          },
+          "steps": [
+            "FCFF₁ строим от устойчивой базы (репортный FCF 445.5 млрд раздут средствами клиентов финтеха — несвободен).",
+            "EBIT 2026 = EBITDA 200 − D&A 90 = 110 млрд; налог 25% = 27.5 млрд.",
+            "FCFF₁ = EBIT×(1−0.25) 82.5 + D&A 90 − устойчивый capex 104 = 68.7 млрд.",
+            "r = Ke = 14.6% + 1.4×9.0% = 27.2%; g = 3.5%.",
+            "EV = 68.7 / (0.272 − 0.035) = 290 млрд.",
+            "EV → equity: 290 − чистый долг 293.7 = −4 млрд → цена ≈ 119 руб (нижний сценарий r=25%).",
+            "Implied EV/EBITDA = 290/200 = 1.4x — АНОМАЛЬНО низко против сектора 6–8x.",
+            "Вывод: одностадийный Гордон от ТОНКОГО FCF₁ в точке перелома систематически занижает (предполагает рост FCF лишь 3.5% навсегда, игнорируя расширение маржи). DCF здесь — лишь нижний флор, НЕ якорь."
+          ],
+          "caveats": [
+            "Гордон от FCF₁ неадекватен для компании на старте монетизации: FCF растёт кратно, а не на 3.5%.",
+            "Implied EV/EBITDA 1.4x против 6–8x подтверждает заниженность — метод дерейтингован.",
+            "Расхождение с relative-методами >30% — см. methods_divergence_note."
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_sales / ev_ebitda",
-          "peer_median": null
+          "note": "в секторе e-commerce РФ нет публичного прямого аналога с сопоставимым профилем (WB не торгуется); peers.json по ecommerce не сформирован"
         },
-        "status": "pending_sector_backfill"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {
+            "Сектор": "e-commerce РФ — нет публичных прямых аналогов (Wildberries частная) [judgement]"
+          },
+          "steps": [
+            "Относительная оценка по peers невозможна: нет публичных сопоставимых маркетплейсов РФ; вместо неё использованы forward EV/Sales и EV/EBITDA от собственной траектории."
+          ],
+          "caveats": [
+            "При появлении публичных аналогов добавить."
+          ]
+        }
       },
       {
-        "method": "EV/EBITDA_own_corridor",
-        "fair_value_per_share": 6798,
+        "method": "historical_pe",
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "adj_ebitda_2025": 156400,
-          "multiple_range": [
-            6.0,
-            9.0
-          ],
-          "clean_net_debt": -63518,
-          "note": "EV считается на очищенном чистом долге (без средств клиентов банка)"
+          "reason": "убытки 2020–2025"
         },
-        "status": "ok"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {
+            "ЧП": "-0.9 млрд (2025) и убытки все предыдущие годы [src_1]"
+          },
+          "steps": [
+            "P/E неприменим: компания убыточна весь ряд (ЧП 2025 −0.9 млрд, ранее −42…−59 млрд). Капитализировать отрицательную/нулевую прибыль нельзя."
+          ],
+          "caveats": [
+            "Станет применим после устойчивой положительной ЧП (ожидается с 2026)."
+          ]
+        }
       },
       {
-        "method": "EV/Sales_own_corridor",
-        "fair_value_per_share": 6289,
+        "method": "historical_pb",
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "revenue_2025": 997989,
-          "multiple_range": [
-            0.8,
-            1.3
-          ],
-          "clean_net_debt": -63518
+          "reason": "отрицательный капитал + платформа asset-light"
         },
-        "status": "ok"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {
+            "Капитал": "-140.3 млрд (2025), отрицательный [src_2]"
+          },
+          "steps": [
+            "P/B неприменим: капитал ОТРИЦАТЕЛЬНЫЙ (-140.3 млрд, накопленные убытки), к тому же ценность платформы в людях/бренде/технологиях, а не в балансовых активах."
+          ],
+          "caveats": [
+            "Капитал восстановится по мере накопления прибыли."
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 4893,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 26.3,
-          "beta": 1.3
+          "ke": 0.272,
+          "dividend_yield": 0.0
         },
-        "status": "insufficient_data"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Безрисковая ставка": "14.6% — ОФЗ-10, config [src_6]",
+            "ERP": "9.0% — config [src_6]",
+            "Бета": "1.4 — judgement [judgement]",
+            "Ke": "27.2% — 14.6% + 1.4×9.0% [src_6]",
+            "Текущая цена": "3846.5 руб [src_5]",
+            "Ожид. дивдоходность": "~0% (исторически дивидендов нет; разовая рекомендация Q4 2025 не делает базу) [src_2]"
+          },
+          "steps": [
+            "Ke = 14.6% + 1.4×9.0% = 27.2% — требуемая годовая доходность.",
+            "Дивдоходность ≈ 0 → весь требуемый возврат через рост цены.",
+            "12-мес. ориентир = 3846.5 × (1+0.272) = 4893 руб.",
+            "Это требуемый уровень для компенсации риска, не внутренняя стоимость."
+          ],
+          "caveats": [
+            "CAPM даёт требуемую доходность, а не справедливую стоимость; бета judgement."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "DCF (≈119–192 руб) расходится с relative-методами (4 600–7 600 руб) в разы. Причина: одностадийный Гордон от ТОНКОГО FCF₁ (68.7 млрд) в точке перелома предполагает рост этого потока лишь на 3.5% навсегда и игнорирует кратное расширение маржи/FCF по мере монетизации (implied EV/EBITDA 1.4x против рыночных 6–8x подтверждает заниженность). Поэтому DCF дерейтингован до нижнего флора, а коридор справедливой цены опирается на forward EV/Sales и EV/EBITDA, согласующиеся с консенсусом аналитиков (среднее ~5 948 руб).",
     "fair_value_range": {
-      "conservative": 3983,
-      "base": 6543,
-      "current_price": 4253,
-      "upside_downside_pct": 54
+      "conservative": 4412,
+      "base": 5474,
+      "optimistic": 7633,
+      "current_price": 3846.5,
+      "upside_downside_pct": 42.3
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "wacc_grid": [
+        0.25,
+        0.27,
+        0.29
+      ],
+      "growth_grid": [
+        0.025,
+        0.035,
+        0.045
+      ],
+      "matrix": [
+        [
+          54,
+          120,
+          192
+        ],
+        [
+          -61,
+          -6,
+          54
+        ],
+        [
+          -159,
+          -112,
+          -61
+        ]
+      ],
+      "note": "Sensitivity DCF (цена руб) по r×g — иллюстрирует, что одностадийный DCF от тонкого FCF₁ крайне неустойчив и близок к нулю; не используется как якорь."
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "uploaded_file",
-      "title": "OZON (МСФО 2025) на 22.05.2026 — инфографика по отчётности 2016–2025 (МКПАО «Озон»)",
-      "period": "2016–2025",
-      "reliability": "high"
+      "title": "Ozon IR — финрезультаты FY2025 МСФО (выручка 998, скорр EBITDA 156.4, ЧП -0.9, валовая 230.1)",
+      "url": "https://ir.ozon.com/ru/",
+      "type": "company_ir"
     },
     {
       "id": "src_2",
-      "type": "official_report",
-      "title": "Пресс-релизы Ozon по МСФО за 2025 и 4 кв. 2025 (GMV, скорр. EBITDA по сегментам, финтех)",
-      "period": "2024–2025",
-      "reliability": "high"
+      "title": "Market Power / smart-lab — баланс и долг Ozon 2025 (чистый долг 293.7, капитал -140.3, кэш 845.5 вкл. средства клиентов финтеха)",
+      "url": "https://marketpower.pro/post/ozon-otchet-za-2025-po-msfo",
+      "type": "aggregator+ir"
+    },
+    {
+      "id": "src_3",
+      "title": "Расчёт мультипликаторов (EV, P/S, EV/Sales, EV/EBITDA) — собственный код",
+      "url": "",
+      "type": "calc"
+    },
+    {
+      "id": "src_4",
+      "title": "Гайденс Ozon 2026 (GMV +25–30%, скорр EBITDA ~200 млрд, выход на чистую прибыль) + консенсус",
+      "url": "https://www.tbank.ru/invest/",
+      "type": "company_guidance+consensus"
+    },
+    {
+      "id": "src_5",
+      "title": "MOEX — цена OZON 3846.5 руб (11.06.2026), акций 216 413 733",
+      "url": "https://www.moex.com/en/issue.aspx?board=tqbr&code=ozon",
+      "type": "exchange"
+    },
+    {
+      "id": "src_6",
+      "title": "config/market_params.json — ОФЗ 14.6%, ERP 9.0%, g 3.5%, налог 25%",
+      "url": "",
+      "type": "config"
     }
   ],
   "data_flags": [
-    "Денежные средства 650,7 млрд руб. включают привлечённые средства клиентов Ozon Банка (~505,8 млрд руб.); отчётный чистый долг -569,3 млрд руб. завышает equity value. Для оценки взят очищенный чистый долг -63,5 млрд руб.",
-    "Капитал группы отрицательный (накопленный убыток -311 млрд руб.) → P/BV (-6,2) и ROE (0,63%) формально неинформативны.",
-    "P/E неприменим: компания убыточна весь период 2019–2025 (чистый убыток 2025 = -0,9 млрд руб., около нуля).",
-    "Различают reported EBITDA (133,6 млрд по инфографике) и скорр. EBITDA компании (156,4 млрд) — оценочный коридор построен на скорр. EBITDA.",
-    "Финтех (Ozon Банк) сидит внутри группы как сегмент; корректная оценка требует SOTP (отдельно банк по P/BV×ROE, отдельно e-commerce по EV/EBITDA) — здесь дана упрощённая групповая оценка.",
-    "FCF в отчёте сильно искажён: CFO 503,6 млрд раздут притоком клиентских средств банка (+162% г/г), а не операционной прибылью маркетплейса.",
-    "relative_peers в статусе pending_sector_backfill — медианные мультипликаторы сектора e-commerce ещё не собраны.",
-    "2020 total_liabilities (21 073) по инфографике выглядит заниженным относительно соседних лет — требует сверки с полным отчётом.",
-    "Гросс-маржа и постатейная разбивка OpEx в инфографике не раскрыты (null)."
-  ],
-  "anomaly_flag": true,
-  "anomaly_note": "Убыточная компания роста; финтех Ozon Банк раздувает кэш клиентскими средствами → P/E/P/B/чистый долг нерепрезентативны. Оценка по EV/Sales.",
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 6.29,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "Баланс тонкий: детализация активов/обязательств (ОС, НМА, гудвил, кредиты) не извлечена из первички — много null. data_quality=medium.",
+    "Единица — МЛРД руб (haiku ошибочно указал 'млн'; значения проверены вебом как млрд).",
+    "2020 и часть рядов — из сравнительных данных/агрегаторов, ниже надёжность.",
+    "Капитал ОТРИЦАТЕЛЬНЫЙ (-140.3 млрд) → P/B неприменим.",
+    "Все годы убыточны → P/E неприменим до устойчивой прибыли (ожидается 2026).",
+    "Денежные средства 845.5 млрд и репортный FCF 445.5 млрд РАЗДУТЫ средствами клиентов Ozon Банка (финтех консолидирован) — несвободны для акционеров; в DCF FCF₁ строится от устойчивой EBITDA, не от репортного CFO.",
+    "EBITDA — СКОРРЕКТИРОВАННАЯ (non-IFRS), как публикует компания; реальный денежный результат ниже.",
+    "DCF дерейтингован (одностадийный Гордон от тонкого FCF₁ в точке перелома занижает); якоря — forward EV/Sales и EV/EBITDA.",
+    "Чистый долг 293.7 включает эффект финтеха; EV = mktcap 832 + ЧД 293.7 = 1126 млрд (кубышка не задвоена)."
+  ]
 }

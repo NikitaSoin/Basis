@@ -1,0 +1,470 @@
+{
+  "meta": {
+    "ticker": "VKCO",
+    "name": "МКПАО ВК",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в млн российских рублей, консолидированная финансовая отчётность по МСФО",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir+press_release+smart_lab",
+      "url": "https://vk.company/ru/investors/results/ | https://corp.vkcdn.ru/ | https://smart-lab.ru/q/VKCO/f/y/",
+      "doc_title": "Consolidated IFRS FS 2023 (PDF, pdfplumber), 2024-2025 press-releases & smart-lab aggregator",
+      "retrieved": "2026-06-12"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber+web_scrape",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      126100,
+      97770,
+      132770,
+      147600,
+      160000
+    ],
+    "revenue_breakdown": [
+      {
+        "name": "Онлайн реклама",
+        "values": [
+          null,
+          56917,
+          79749,
+          96100,
+          null
+        ]
+      },
+      {
+        "name": "Пользовательские платежи",
+        "values": [
+          null,
+          17008,
+          19268,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Образовательные технологии",
+        "values": [
+          null,
+          11190,
+          15824,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочая выручка",
+        "values": [
+          null,
+          12655,
+          17929,
+          null,
+          null
+        ]
+      }
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы на персонал",
+        "values": [
+          null,
+          -38847,
+          -55861,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Вознаграждение агентам/партнерам и медиаконтент",
+        "values": [
+          null,
+          -23988,
+          -40690,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Маркетинговые расходы",
+        "values": [
+          null,
+          -14018,
+          -24643,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Расходы на хостинг серверов",
+        "values": [
+          null,
+          -636,
+          -1137,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Профессиональные услуги",
+        "values": [
+          null,
+          -1229,
+          -1687,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          null,
+          -5055,
+          -9572,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      -3211,
+      -615,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      -18113,
+      -23714,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      14902,
+      23099,
+      null,
+      null
+    ],
+    "share_in_associates": [
+      null,
+      -16994,
+      684,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      6561,
+      10288,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      -12379,
+      -17759,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      -29497,
+      -34208,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      -3149,
+      -83,
+      null,
+      null
+    ],
+    "net_profit": [
+      -15500,
+      -3910,
+      -34291,
+      -94948,
+      -22000
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        48759,
+        51294,
+        28424,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      20900,
+      6870,
+      -10700,
+      null,
+      2990
+    ],
+    "cfi": [
+      null,
+      -20332,
+      -23637,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      -20332,
+      -32404,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      2535,
+      2535,
+      -22870,
+      null
+    ]
+  },
+  "data_flags": [
+    "2021: только выручка (126.1B), net_profit (-15.5B), CFO (20.9B), total_debt (57.9B) из smart-lab; детализация P&L/BS отсутствует",
+    "2022-2023: P&L детализирована (expense_lines по видам затрат: персонал, маркетинг, агенты/контент, хостинг, услуги, прочие); специальные статьи (доля в ассоциированных, финансовые, обесценения) отражены",
+    "2024-2025: данные из пресс-релизов (выручка, чистая прибыль, CFO) и smart-lab агрегатора; детализация P&L отсутствует",
+    "cost_format = by_nature: COGS и gross_profit не применимы (это по_nature формат, а не by_function); расходы перечислены по видам, не по функциям",
+    "Operating profit 2023 = -615 млн (revenue 132770 - operating_expenses_net 133385); EBITDA рассчитана как OP + D&A = -615 + 23714 = 23099",
+    "Баланс: детализированные активы/обязательства (ppe, intangibles, goodwill, debt и т.д.) не извлечены из PDF — требуется ручной парсинг или OCR финотчётности",
+    "ОДДС 2022-2023: CFO/CFI/capex приблизительно; CFF (financing cash flow) не извлечён; net_change_in_cash проверен (2022: 48759-46224=2535; 2023: 51294-48759=2535 ✓)",
+    "Associates: VK имеет доли в совместных предприятиях и ассоциированных компаниях; их результаты влияют на P&L (share_in_associates: убыток -16.9B в 2022, доход +0.7B в 2023)",
+    "Высокая волатильность прибыли: обесценения гудвила (-9.7B в 2022), переоценки финансовых активов (-10.5B в 2022, -4.6B в 2023), курсовые разницы — много спецэффектов",
+    "2024-2025: компания в убытке и отрицательных денежных потоках; 2024 loss (-94.9B) — значительный из-за факторов (долг выглядит выросшим до 202.7B); 2025 улучшение (loss -22B, CFO +3B, debt снизилась до 114.8B)",
+    "Нет валютных конвертаций: все годы в RUB"
+  ]
+}
