@@ -451,3 +451,34 @@ SIBN 369-494 | SNGS 6,2-22,5 (кубышка) | SBER 279-340 (P/BV×ROE) | VTBR 
 (батч ~4 → финансист финал → verify explain-строки+регрессии → commit → push).
 Очередь приоритета: SNGSP, TATN/TATNP, ROSN, NVTK, BANE/BANEP, TCSG/T, SVCB, MOEX,
 AFLT, SGZH, OZON, RTKM, потом по секторам с пересборкой peers.json.
+
+=== БАТЧ C (нефтегаз) + ИТОГ СЕССИИ ===
+13/264 по финальной методике: 9 эталонов (LKOH/GAZP/SBER/VTBR/SNGS/IRAO/AFKS/MTLR/SIBN)
++ нефтегаз ROSN/TATN/NVTK/BANE. Все: explain строго строки (0 нестроковых), DCF Гордон
+от FCF_normalized с предохранителем 1,5×, forward P/E, EV→equity подача, sensitivity r×g,
+нормализация в мост, anomaly_flag top-level, плоский total_equity.
+
+DURABLE-ФИКСЫ ВИТРИНЫ (чтобы регрессии агентов не ломали бой):
+- parseInputEntry/шаги — приведение к строке (краш-защита).
+- total_equity — фолбэк: читать плоский ИЛИ equity.total_equity (агенты периодически
+  вкладывают, витрина читала плоский → «Капитал» пропадал). Теперь не пропадёт.
+- adjusted ЧП строкой в P&L; relative_peers→«Оценка по мультипликаторам сектора».
+Бандл с фиксами задеплоен (см. последние коммиты).
+
+ГРАБЛИ ДЛЯ СЛЕД. СЕССИЙ (verify обязателен после каждого батча):
+1. explain type-check: 0 нестроковых inputs/steps/caveats (иначе краш — теперь рендер
+   защищён, но данные всё равно приводить к контракту).
+2. balance_sheet.total_equity ПЛОСКИЙ (агенты вкладывают → восстанавливать из
+   equity.total_equity; в витрине фолбэк уже есть).
+3. anomaly_flag top-level (не только meta).
+VERIFY-СКРИПТ (одной командой по батчу): explain非строк + rev + equity_flat + anomaly +
+fcf_norm — см. историю команд.
+
+ГЭП (полные статьи): у части нефтегаза cogs/opex/cfi/cff null (источник=инфографика-
+хедлайны/краткая МСФО). Нужна первичная МСФО PDF (e-disclosure) в sources/ или
+глубокий веб — кандидат на отдельный проход или загрузку владельцем.
+
+ОСТАЛОСЬ ~251. Нефтегаз почти полон (LKOH/GAZP/SIBN/SNGS/ROSN/TATN/NVTK/BANE) —
+след. шаг по сектору: добить RNFT/остатки → ПЕРЕСОБРАТЬ sectors/oil_gas/peers.json
+по всем (снимет relative_peers «pending/preliminary»). Дальше: банки (TCSG/T/SVCB/MOEX),
+кубышки/преф (SNGSP/TATNP/BANEP), AFLT/SGZH (дистресс), потом секторами.
