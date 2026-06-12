@@ -4524,10 +4524,11 @@ const CompanyCard = ({ company, onBack }) => {
 
     // Build a year-column Table from row specs. Numbers right-aligned mono;
     // optional YoY delta (signed, success/danger by sign) under bold rows.
-    const finTable = (rows) => {
+    const finTable = (rows, starYears) => {
+      const starSet = new Set((starYears || []).map(String));
       const columns = [
         { key: "label", label: "Показатель" },
-        ...years.map((y, i) => ({ key: `y${i}`, label: String(y) })),
+        ...years.map((y, i) => ({ key: `y${i}`, label: String(y) + (starSet.has(String(y)) ? " *" : "") })),
       ];
       const tableRows = rows.map((row) => {
         const r = { label: row.label, _row: row };
@@ -4562,14 +4563,15 @@ const CompanyCard = ({ company, onBack }) => {
       });
       return <Table columns={cols} rows={tableRows} />;
     };
-    const tableSection = (Icon, title, rows, open) => (rows && rows.length) ? (
+    const tableSection = (Icon, title, rows, open, starYears, footnote) => (rows && rows.length) ? (
       <Card>
         <details open={open}>
           <summary className="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-list-none tw-text-[14px] tw-font-bold tw-text-text-primary">
             <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
             <ChevronDown size={15} className="tw-text-text-tertiary tw-ml-auto" />
           </summary>
-          <div className="tw-mt-3">{finTable(rows)}</div>
+          <div className="tw-mt-3">{finTable(rows, starYears)}</div>
+          {footnote && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2 tw-leading-relaxed">{footnote}</div>}
         </details>
       </Card>
     ) : null;
@@ -4629,6 +4631,11 @@ const CompanyCard = ({ company, onBack }) => {
     const totalEquityArr = ga(bs, "total_equity") || ga(eqb, "total_equity") || bs.total_equity;
     // B1: динамика г/г у КАЖДОЙ строки — включаем delta там, где явно не задано.
     const withDelta = (rs) => rs.map((r) => ("delta" in r ? r : { ...r, delta: true }));
+    // A3: годы, пересчитанные из иностранной валюты в ₽ — помечаются * и сноской.
+    const convYears = Array.isArray(meta.converted_years) ? meta.converted_years : null;
+    const convNote = convYears && convYears.length
+      ? (meta.conversion_note || meta.currency_note || "Годы со * — отчётность базово в иностранной валюте, пересчитана в ₽ по среднегодовому курсу ЦБ.")
+      : null;
 
     // P&L — гибкий формат затрат (A2): by_function (есть себестоимость/валовая) vs
     // by_nature (нефтяники — затраты по видам, себестоимость/валовая «не выделяются»,
@@ -5311,10 +5318,11 @@ const CompanyCard = ({ company, onBack }) => {
                   Формат отчёта — затраты по видам: себестоимость и валовая прибыль не выделяются; статьи затрат — как в отчётности компании.
                 </div>
               )}
-              <div className="tw-mt-2">{finTable(withDelta(pnlRows))}</div>
+              <div className="tw-mt-2">{finTable(withDelta(pnlRows), convYears)}</div>
+              {convNote && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2 tw-leading-relaxed">{convNote}</div>}
             </Card>
-            {tableSection(Scale, "Баланс", withDelta(bsRows), false)}
-            {tableSection(Wallet, "Денежные потоки (ОДДС)", withDelta(cfRows), false)}
+            {tableSection(Scale, "Баланс", withDelta(bsRows), false, convYears, convNote)}
+            {tableSection(Wallet, "Денежные потоки (ОДДС)", withDelta(cfRows), false, convYears, convNote)}
           </>
         )}
 
