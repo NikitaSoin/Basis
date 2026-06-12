@@ -4538,7 +4538,7 @@ const CompanyCard = ({ company, onBack }) => {
               r._row.accent ? "tw-text-accent tw-text-[12px]" : (r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]"),
               r._row.bold ? "tw-font-semibold" : "tw-font-normal",
               "tw-whitespace-nowrap"
-            )} style={r._row.indent ? { paddingLeft: 14 } : undefined}>{r._row.label}</span>
+            )} style={r._row.indent ? { paddingLeft: 12 } : undefined}>{r._row.label}</span>
           ) };
         }
         const i = ci - 1;
