@@ -104,29 +104,29 @@
       53526
     ],
     "finance_income": [
+      25134,
+      13051,
+      16519,
       null,
-      null,
-      null,
-      null,
-      null,
+      79526,
       null,
       null
     ],
     "pre_tax_profit": [
+      793354,
+      98787,
+      966964,
       null,
-      null,
-      null,
-      null,
-      null,
+      1408350,
       null,
       219300
     ],
     "income_tax": [
+      151133,
+      82154,
+      191451,
       null,
-      null,
-      null,
-      null,
-      null,
+      248079,
       null,
       -122648
     ],
@@ -289,12 +289,12 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
+        4026007,
+        4264474,
+        4263130,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        4723002,
+        5016584,
         null
       ],
       "intangibles": [
@@ -307,59 +307,59 @@
         null
       ],
       "goodwill": [
+        43108,
+        50159,
+        44342,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        77413,
+        94622,
         null
       ],
       "long_term_investments": [
+        258235,
+        350329,
+        343270,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        689256,
+        725452,
         null
       ],
       "other_non_current": [
+        65513,
+        50157,
+        64850,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        116220,
+        136508,
         null
       ],
       "total_non_current": [
+        4392863,
+        4715119,
+        4715592,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        5605891,
+        5973166,
         null
       ]
     },
     "current_assets": {
       "inventory": [
+        413910,
+        426536,
+        467960,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        563180,
+        640360,
         null
       ],
       "receivables": [
+        437052,
+        370271,
+        741872,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        714450,
+        700050,
         null
       ],
       "cash": [
@@ -372,30 +372,30 @@
         543815
       ],
       "short_term_investments": [
+        49706,
+        8350,
+        12289,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        74366,
+        100254,
         null
       ],
       "other_current": [
+        137487,
+        127471,
         null,
         null,
-        null,
-        null,
-        null,
-        null,
+        462613,
+        442525,
         null
       ],
       "total_current": [
+        1554187,
+        1276460,
+        2149157,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        2994282,
+        3309453,
         null
       ]
     },
@@ -410,12 +410,12 @@
     ],
     "equity": {
       "share_capital": [
+        968,
+        938,
+        938,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        938,
+        938,
         null
       ],
       "retained_earnings": [
@@ -428,21 +428,21 @@
         4072539
       ],
       "additional_paid_in": [
+        39277,
+        39298,
+        39398,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        38901,
+        40393,
         null
       ],
       "other_equity": [
+        -269934,
+        232473,
+        202622,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        802519,
+        1137444,
         null
       ],
       "total_equity": [
@@ -466,30 +466,30 @@
         237122
       ],
       "deferred_tax": [
+        264159,
+        268956,
+        303435,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        317021,
+        425600,
         null
       ],
       "other_non_current_liab": [
+        78833,
+        129123,
+        115751,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        126152,
+        152222,
         null
       ],
       "total_non_current_liab": [
+        765924,
+        975154,
+        1096885,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        757110,
+        903872,
         null
       ]
     },
@@ -504,30 +504,30 @@
         80890
       ],
       "payables": [
+        607734,
+        597932,
+        786463,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        599177,
+        609419,
         null
       ],
       "other_current_liab": [
+        469643,
+        205091,
+        377966,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        760462,
+        823364,
         null
       ],
       "total_current_liab": [
+        1207677,
+        885659,
+        1244680,
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        1441830,
+        1486739,
         null
       ]
     },
@@ -636,21 +636,21 @@
       1414523
     ],
     "cfi": [
+      -510126,
+      -492769,
+      -438055,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      -960179,
+      -811907,
       null
     ],
     "cff": [
+      -582344,
+      -514005,
+      -354377,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      -741437,
+      -854284,
       null
     ],
     "net_change_in_cash": [
@@ -1284,7 +1284,8 @@
     "Бета по источникам сильно расходится (0.02 / 0.45 / 1.04); для CAPM/DCF принята β=1.0 (крупная индексная голубая фишка) — оценка к этому чувствительна.",
     "Налог в DCF/NOPAT — нормативные 25% (РФ с 01.01.2025); историческая ETR ~20% в прогноз НЕ переносилась.",
     "Расхождение методов: исторический P/E (2 914) — выброс −40% из-за трогового 2025; де-весён, в коридор не входит. Надёжный кластер (DCF/P/B/relative/dividend) расходится лишь 24%.",
-    "Цена обновлена на 2026-06-11 (~4 721 ₽); все ценозависимые мультипликаторы current и оценки пересчитаны от неё."
+    "Цена обновлена на 2026-06-11 (~4 721 ₽); все ценозависимые мультипликаторы current и оценки пересчитаны от неё.",
+    "ДОЗАПОЛНЕНО из первичной МСФО (sources/extracted_financials.json, report-fetcher): постатейные P&L (finance_income, pre_tax_profit, income_tax — 2019/2020/2021/2023), детальный баланс (ОС, запасы, дебиторка, краткосрочные фин.вложения, прочие активы, капитал по статьям, отложенный налог, кредиторка, прочие обязательства, итоги разделов) за 2019/2020/2021/2023/2024, ОДДС CFI/CFF/net_change за 2019/2020/2021/2023/2024. Баланс сходится (активы=капитал+обязательства, суммы статей=итоги) для всех лет, ОДДС cfo+cfi+cff. 2024: заполнены ТОЛЬКО баланс и ОДДС (совпадают с первичкой группы); P&L-детализация 2024 НЕ заполнена из extracted, т.к. income_statement 2024 в карточке — российский ПРОДОЛЖАЮЩИЙСЯ периметр (выручка 4 420 565), а extracted — полная группа с LIG (выручка 8 621 561), перемешивать строки нельзя. 2025 — нет в extracted (первичная МСФО за 2025 ещё не в источнике), детализация P&L/баланса/ОДДС остаётся как была. COGS/gross_profit/operating_expenses остаются null — ЛУКОЙЛ не раскрывает их (постатейная структура расходов в МСФО). BS.goodwill за 2019-2024 = объединённая статья «Гудвил и прочие НМА» (intangibles отдельно не раскрыты, поле intangibles=null). other_current 2021 = null (в первичке за 2021 строка отдельно не выделена; total_current корректен)."
   ],
   "relative_peers_sector": {
     "peer_median_ev_ebitda_2025": 4.13,

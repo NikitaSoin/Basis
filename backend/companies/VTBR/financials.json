@@ -56,9 +56,9 @@
       440600,
       531700,
       646300,
-      298000,
+      321000.0,
       761400,
-      463300,
+      487200.0,
       190400
     ],
     "net_fee_income": [
@@ -264,9 +264,9 @@
       440600,
       531700,
       646300,
-      298000,
+      321000.0,
       761400,
-      463300,
+      487200.0,
       190400
     ],
     "net_fee_income": [
@@ -352,7 +352,140 @@
       2671400,
       4370900,
       5283200
-    ]
+    ],
+    "interest_income_eir": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      1128600.0,
+      1558000.0,
+      2356200.0,
+      3979400.0,
+      null
+    ],
+    "other_interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      92300.0,
+      100300.0,
+      98200.0,
+      122500.0,
+      null
+    ],
+    "total_interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      1220900.0,
+      1658300.0,
+      2454400.0,
+      4101900.0,
+      null
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -547200.0,
+      -1305700.0,
+      -1648200.0,
+      -3555100.0,
+      null
+    ],
+    "deposit_insurance_payments": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -27400.0,
+      -31600.0,
+      -44800.0,
+      -59600.0,
+      null
+    ],
+    "nii_after_provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      551200.0,
+      -103400.0,
+      585800.0,
+      463300.0,
+      null
+    ],
+    "total_non_interest_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -338400.0,
+      -350000.0,
+      -468000.0,
+      -581800.0,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      397900.0,
+      -850500.0,
+      518200.0,
+      575100.0,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      -70500.0,
+      183000.0,
+      -86000.0,
+      -22500.0,
+      null
+    ],
+    "net_profit_group": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      327400.0,
+      -667500.0,
+      432200.0,
+      551400.0,
+      null
+    ],
+    "net_profit_shareholders": [
+      null,
+      null,
+      null,
+      202000.0,
+      80600.0,
+      325300.0,
+      -674400.0,
+      420600.0,
+      535300.0,
+      483700.0
+    ],
+    "pnl_detail_note": "Детальный P&L (проц.доходы EIR, прочие проц.доходы, всего проц.доходы, проц.расходы, платежи ДСВ, ЧПД после резервов, всего непроц.расходы, прибыль до налога, налог, ЧП группы и акционеров) дозаполнен из первичных МСФО-PDF за 2021–2024 (млрд→млн ×1000); 2019–2020 и 2025 — детальная разбивка не публиковалась (null). ЧПД 2022 и 2024 приведены к первичному отчёту (321 000 и 487 200 млн), см. data_flags. bank_pnl агрегаты/net_profit_adj не менялись."
   },
   "bank_metrics": {
     "nim": [
@@ -577,7 +710,284 @@
         0.93,
         0.93
       ]
-    }
+    },
+    "cash_and_equivalents": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      918800.0,
+      1210800.0,
+      2018100.0,
+      null
+    ],
+    "mandatory_reserves_cbr": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      31900.0,
+      54200.0,
+      104100.0,
+      null
+    ],
+    "interbank_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      818900.0,
+      1082900.0,
+      1680500.0,
+      null
+    ],
+    "loans_to_clients_net": [
+      null,
+      null,
+      null,
+      11384200.0,
+      13102300.0,
+      15016700.0,
+      17129500.0,
+      19857700.0,
+      22606700.0,
+      24564500.0
+    ],
+    "loans_to_clients_gross": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      20999600.0,
+      23763700.0,
+      null
+    ],
+    "investment_securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4324200.0,
+      3901600.0,
+      5406100.0,
+      null
+    ],
+    "investments_in_associates": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      289400.0,
+      364300.0,
+      391800.0,
+      null
+    ],
+    "ppe_and_intangibles": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      968600.0,
+      1122800.0,
+      null
+    ],
+    "goodwill": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      548200.0,
+      654000.0,
+      null
+    ],
+    "deferred_tax_asset": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      388900.0,
+      543300.0,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1684500.0,
+      1923100.0,
+      2965800.0,
+      null
+    ],
+    "client_deposits": [
+      null,
+      null,
+      null,
+      12151400.0,
+      13924000.0,
+      16823300.0,
+      18545900.0,
+      22346800.0,
+      26926800.0,
+      30021000.0
+    ],
+    "interbank_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1617500.0,
+      1677300.0,
+      2383900.0,
+      null
+    ],
+    "other_borrowed_funds": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      853200.0,
+      1048900.0,
+      1473800.0,
+      null
+    ],
+    "issued_debt_securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      187800.0,
+      316900.0,
+      426100.0,
+      null
+    ],
+    "subordinated_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      219700.0,
+      122900.0,
+      98700.0,
+      null
+    ],
+    "insurance_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1101500.0,
+      1146300.0,
+      null
+    ],
+    "other_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1482700.0,
+      1705100.0,
+      2071600.0,
+      null
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      659500.0,
+      659500.0,
+      798400.0,
+      798400.0,
+      null
+    ],
+    "emission_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      433800.0,
+      433800.0,
+      540600.0,
+      540600.0,
+      null
+    ],
+    "other_equity_components": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      742000.0,
+      604700.0,
+      null
+    ],
+    "total_equity_shareholders": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1432400.0,
+      2121300.0,
+      2643700.0,
+      null
+    ],
+    "non_controlling_interests": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      39100.0,
+      43000.0,
+      45600.0,
+      null
+    ],
+    "bank_detail_note": "Банковский баланс дозаполнен из extracted (млрд→млн ×1000): активы — ДС, обяз.резервы ЦБ, межбанк, кредиты клиентам нетто/гросс, инвест.ц/б, инвестиции в ассоциированные, ОС+НМА, гудвил, ОНА, прочие; обязательства — депозиты клиентов, средства банков, прочие привлечённые, выпущенные долговые ц/б, субординированный долг, страховые, прочие; капитал — уставный, эмиссионный доход, прочие компоненты, капитал акционеров, доля меньшинства. Полная разбивка за 2022–2024 (первичные PDF); 2019–2021 и 2025 по большинству статей null (2022 в обобщённой отчётности без полной разбивки активов; 2025 — инфографика). Плоские total_*, retained_earnings, shares_outstanding, BVPS не менялись."
   },
   "returns": {
     "roe": [
@@ -1241,6 +1651,84 @@
     "ДИВИДЕНДЫ нестабильны: FY2024 = 25.58 ₽ (возврат к выплатам), FY2025 объявлен 9.71 ₽ (≈25% вместо целевых 50% из-за слабого капитала). Дивидендный метод даёт нижнюю границу коридора.",
     "РАСХОЖДЕНИЕ МЕТОДОВ >400% (дивидендная 37–48 ₽ vs CAPM/P/BV 144–209 ₽) — намеренно отражено широким коридором; см. methods_divergence_note.",
     "DCF = not_applicable (банк): нет свободного FCFF, экономика определяется регуляторным капиталом и резервами.",
-    "relative_peers: сектор «Банки» не прогнан целиком — статус pending_sector_backfill, медиана пиров предварительная (стр.19 отчёта)."
-  ]
+    "relative_peers: сектор «Банки» не прогнан целиком — статус pending_sector_backfill, медиана пиров предварительная (стр.19 отчёта).",
+    "ЧПД 2022 и 2024 ПРИВЕДЕНЫ К ПЕРВИЧНОМУ ОТЧЁТУ при дозаполнении детального P&L: 2022 = 321 000 млн (было 298 000 — агрегат smart-lab), 2024 = 487 200 млн (было 463 300 — агрегат). Первичный детальный P&L даёт ЧПД = всего проц.доходы − проц.расходы − платежи ДСВ и сходится в extracted_financials.json (2022: 1 658 300−1 305 700−31 600=321 000; 2024: 4 101 900−3 555 100−59 600=487 200). bank_metrics/ROE/valuation НЕ пересчитывались (оценка зафиксирована).",
+    "ДОЗАПОЛНЕНО (банковские постатейные): детальный P&L (проц.доходы/расходы/ДСВ/прибыль до налога/налог/ЧП группы) за 2021–2024; банковский баланс (ДС, межбанк, кредиты нетто/гросс, ц/б, депозиты, средства банков, субдолг, выпущенные ц/б, компоненты капитала) преимущественно за 2022–2024, кредиты клиентам нетто и депозиты — за все 7 лет 2019–2025. Источник — extracted_financials.json (млрд→млн ×1000). ОДДС остаётся null (ВТБ не публиковал).",
+    "КАПИТАЛ 2021: total_equity_shareholders из инфографики (1779800 млн) не сходится с плоским total_equity (2 222 000 млн) — разрыв 442 200 млн не объясняется долей меньшинства (источник внутренне противоречив за 2021). Поле обнулено (null), чтобы не публиковать небьющуюся декомпозицию; плоский total_equity 2021 (надёжный) сохранён. За 2022–2024 декомпозиция капитала (акционеры+меньшинство=итог) сходится точно."
+  ],
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "ОДДС не дозаполнен: ВТБ не публиковал полный отчёт о движении денежных средств в обобщённой МСФО-отчётности 2022–2025 (решение СД ЦБ РФ от 29.12.2022 о сокращённом раскрытии). cfo/cfi/cff/net_change_in_cash/capex/fcf = null. Для банковского профиля FCFF неприменим (DCF=not_applicable), поэтому отсутствие ОДДС не влияет на оценку."
+  }
 }
