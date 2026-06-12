@@ -3718,6 +3718,8 @@ const CompanyCard = ({ company, onBack }) => {
   const [peersYear, setPeersYear] = useState(null);       // для таблицы конкурентов (C2)
   const [peersChartYear, setPeersChartYear] = useState(null); // для графиков сектора (C1)
   const [pnlExpanded, setPnlExpanded] = useState(false);  // раскрытие статей затрат (B2)
+  const [bsExpanded, setBsExpanded] = useState(false);    // раскрытие детальных статей баланса
+  const [cfExpanded, setCfExpanded] = useState(false);    // раскрытие детальных статей ОДДС
   const [livePrice, setLivePrice] = useState(null);
   const [liveChange, setLiveChange] = useState(null);
   const [liveChangeAbs, setLiveChangeAbs] = useState(null);
@@ -4636,6 +4638,29 @@ const CompanyCard = ({ company, onBack }) => {
     const convNote = convYears && convYears.length
       ? (meta.conversion_note || meta.currency_note || "Годы со * — отчётность базово в иностранной валюте, пересчитана в ₽ по среднегодовому курсу ЦБ.")
       : null;
+    // Сворачиваемая карточка отчёта (P&L/баланс/ОДДС): свёрнуто — строки без отступа
+    // (итоги/потоки), раскрыто — все статьи. Сама карточка базово ОТКРЫТА.
+    const collapStmt = (Icon, title, fullRows, expanded, setExpanded, sY, fN, expandLabel, headNote) => {
+      const collapsed = fullRows.filter((r) => !r.indent);
+      const hasDetail = fullRows.length > collapsed.length;
+      return (
+        <Card>
+          <div className="tw-flex tw-items-center tw-gap-2">
+            <Icon size={16} className="tw-text-accent tw-shrink-0" />
+            <span className="tw-text-[14px] tw-font-bold tw-text-text-primary">{title}</span>
+            {hasDetail && (
+              <button onClick={() => setExpanded((e) => !e)}
+                className="tw-ml-auto tw-bg-transparent tw-border-0 tw-text-accent tw-text-[12px] tw-font-semibold tw-cursor-pointer tw-py-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm">
+                {expanded ? "Свернуть ↑" : (expandLabel || "Раскрыть статьи") + " ↓"}
+              </button>
+            )}
+          </div>
+          {headNote && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1 tw-mb-1">{headNote}</div>}
+          <div className="tw-mt-2">{finTable(withDelta(expanded ? fullRows : collapsed), sY)}</div>
+          {fN && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2 tw-leading-relaxed">{fN}</div>}
+        </Card>
+      );
+    };
 
     // P&L — гибкий формат затрат (A2): by_function (есть себестоимость/валовая) vs
     // by_nature (нефтяники — затраты по видам, себестоимость/валовая «не выделяются»,
@@ -4645,39 +4670,31 @@ const CompanyCard = ({ company, onBack }) => {
     const isByFunc = costFmt === "by_function";
     const expLines = Array.isArray(is.expense_lines) ? is.expense_lines : [];
     const rosArr = (mg.ros && mg.ros.some && mg.ros.some((x) => x != null)) ? mg.ros : mg.net_margin;
-    const pnlRows = !isBank ? (
-      pnlExpanded ? [
-        { label: "Выручка", arr: is.revenue, bold: true, delta: true },
-        ...(isByFunc
-          ? [
-              { label: "Себестоимость", arr: is.cogs, indent: true, muted: true, delta: true },
-              { label: "Валовая прибыль", arr: orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), bold: true, delta: true },
-              { label: "Операционные расходы", arr: is.operating_expenses, indent: true, muted: true, delta: true },
-            ]
-          : expLines.map((el) => ({ label: el.name, arr: el.values, indent: true, muted: true, delta: true }))),
-        { label: "Операционная прибыль (EBIT)", arr: is.operating_profit, bold: true, delta: true },
-        { label: "Амортизация", arr: is.da, indent: true, muted: true, delta: true },
-        { label: "EBITDA", arr: is.ebitda, bold: true, delta: true },
-        { label: "Финансовые расходы", arr: is.finance_costs, indent: true, muted: true, delta: true },
-        { label: "Финансовые доходы", arr: is.finance_income, indent: true, muted: true, delta: true },
-        { label: "Прибыль до налога", arr: is.pre_tax_profit, delta: true },
-        { label: "Налог на прибыль", arr: is.income_tax, indent: true, muted: true, delta: true },
-        { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
-        { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, accent: true, delta: true },
-        ...(isByFunc ? [{ label: "Валовая маржа, %", arr: mg.gross_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true }] : []),
-        { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-        { label: "Операционная маржа, %", arr: mg.operating_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-        { label: "Рентабельность (ROS), %", arr: rosArr, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-      ] : [
-        { label: "Выручка", arr: is.revenue, bold: true, delta: true },
-        ...(isByFunc ? [{ label: "Валовая прибыль", arr: orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), bold: true, delta: true }] : []),
-        { label: "EBITDA", arr: is.ebitda, bold: true, delta: true },
-        { label: "Операционная прибыль (EBIT)", arr: is.operating_profit, bold: true, delta: true },
-        { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
-        { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, accent: true, delta: true },
-        { label: "Рентабельность (ROS), %", arr: rosArr, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-      ]
-    ) : [];
+    // Единый ПОЛНЫЙ список; collapStmt свернёт по !indent (свёрнуто — ключевая цепочка,
+    // раскрыто — детальные статьи затрат/маржи). indent=деталь.
+    const pnlRows = !isBank ? [
+      { label: "Выручка", arr: is.revenue, bold: true, delta: true },
+      ...(isByFunc
+        ? [
+            { label: "Себестоимость", arr: is.cogs, indent: true, muted: true, delta: true },
+            { label: "Валовая прибыль", arr: orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), bold: true, delta: true },
+            { label: "Операционные расходы", arr: is.operating_expenses, indent: true, muted: true, delta: true },
+          ]
+        : expLines.map((el) => ({ label: el.name, arr: el.values, indent: true, muted: true, delta: true }))),
+      { label: "EBITDA", arr: is.ebitda, bold: true, delta: true },
+      { label: "Амортизация", arr: is.da, indent: true, muted: true, delta: true },
+      { label: "Операционная прибыль (EBIT)", arr: is.operating_profit, bold: true, delta: true },
+      { label: "Финансовые расходы", arr: is.finance_costs, indent: true, muted: true, delta: true },
+      { label: "Финансовые доходы", arr: is.finance_income, indent: true, muted: true, delta: true },
+      { label: "Прибыль до налога", arr: is.pre_tax_profit, indent: true, muted: true, delta: true },
+      { label: "Налог на прибыль", arr: is.income_tax, indent: true, muted: true, delta: true },
+      { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
+      { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, accent: true, delta: true },
+      ...(isByFunc ? [{ label: "Валовая маржа, %", arr: mg.gross_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true, indent: true }] : []),
+      { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true, indent: true },
+      { label: "Операционная маржа, %", arr: mg.operating_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true, indent: true },
+      { label: "Рентабельность (ROS), %", arr: rosArr, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
+    ] : [];
 
     // Баланс — детально по группам (для не-банков; у банков структура иная → компактно)
     const bsRows = !isBank ? [
@@ -4717,14 +4734,20 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Балансовая ст-ть / акция", arr: bs.book_value_per_share, muted: true },
     ];
 
-    // ОДДС — три потока явно + итог (= сумма трёх, если явного нет)
+    // ОДДС — три потока + итог; детальные статьи каждого потока (cfo/cfi/cff_lines)
+    // показываются с отступом при раскрытии. Свёрнуто (filter !indent) — только потоки.
+    const cfoLines = Array.isArray(cf.cfo_lines) ? cf.cfo_lines : [];
+    const cfiLines = Array.isArray(cf.cfi_lines) ? cf.cfi_lines : [];
+    const cffLines = Array.isArray(cf.cff_lines) ? cf.cff_lines : [];
     const cfRows = !isBank ? [
       { label: "Операционный поток (CFO)", arr: cf.cfo, bold: true, delta: true },
-      { label: "CapEx", arr: cf.capex, indent: true, muted: true },
-      { label: "Свободный поток (FCF)", arr: cf.fcf, bold: true, delta: true },
-      { label: "Инвестиционный поток (CFI)", arr: cf.cfi, bold: true },
-      { label: "Финансовый поток (CFF)", arr: cf.cff, bold: true },
+      ...cfoLines.map((l) => ({ label: l.name, arr: l.values, indent: true, muted: true, delta: true })),
+      { label: "Инвестиционный поток (CFI)", arr: cf.cfi, bold: true, delta: true },
+      ...(cfiLines.length ? cfiLines.map((l) => ({ label: l.name, arr: l.values, indent: true, muted: true, delta: true })) : [{ label: "CapEx", arr: cf.capex, indent: true, muted: true, delta: true }]),
+      { label: "Финансовый поток (CFF)", arr: cf.cff, bold: true, delta: true },
+      ...cffLines.map((l) => ({ label: l.name, arr: l.values, indent: true, muted: true, delta: true })),
       { label: "Чистое изменение ДС", arr: orSum(cf.net_change_in_cash, [cf.cfo, cf.cfi, cf.cff]), bold: true },
+      { label: "Свободный поток (FCF)", arr: cf.fcf, bold: true, delta: true },
       { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ] : [];
     const bankPnlRows = isBank ? [
@@ -4931,6 +4954,19 @@ const CompanyCard = ({ company, onBack }) => {
                     ? <span className="tw-font-mono tw-tabular-nums tw-font-bold tw-text-text-primary">{formatMoney(mt.fair_value_per_share, { currency: cySym })}</span>
                     : <span className="tw-text-text-tertiary tw-text-[12px]">—</span>
                   }
+                  {(() => {
+                    // Апсайд метода к текущей цене: >10% зелёный ↑, 0–10% оранжевый ↑, <0 красный ↓
+                    const curp = fvr.current_price ?? meta.last_price;
+                    if (!hasPrice || typeof curp !== "number" || curp <= 0) return null;
+                    const up = (mt.fair_value_per_share - curp) / curp * 100;
+                    const cls = up < 0 ? "tw-text-danger" : (up <= 10 ? "tw-text-warning" : "tw-text-success");
+                    const arr = up < 0 ? "▼" : "▲";
+                    return (
+                      <span className={cx("tw-inline-flex tw-items-center tw-gap-0.5 tw-font-mono tw-tabular-nums tw-text-[12px] tw-font-semibold tw-w-16 tw-justify-end", cls)}>
+                        <span aria-hidden="true">{arr}</span>{up >= 0 ? "+" : ""}{up.toFixed(0)}%
+                      </span>
+                    );
+                  })()}
                   {statusBadge(mt.status)}
                 </div>
               );
@@ -5259,8 +5295,6 @@ const CompanyCard = ({ company, onBack }) => {
 
         {fairValueBar()}
 
-        {renderBridgePlate()}
-
         {renderMethodsBlock()}
 
         {hasCharts && (
@@ -5298,31 +5332,18 @@ const CompanyCard = ({ company, onBack }) => {
         })()}
         {isBank ? (
           <>
-            {tableSection(BarChart2, "Отчёт о прибылях (банк)", withDelta(bankPnlRows), true)}
-            {tableSection(Target, "Банковские метрики", bankMetricRows, false)}
-            {tableSection(Scale, "Баланс", withDelta(bsRows), false)}
+            {collapStmt(BarChart2, "Отчёт о прибылях (банк)", bankPnlRows, pnlExpanded, setPnlExpanded, null, null, "Раскрыть статьи")}
+            {renderBridgePlate()}
+            {tableSection(Target, "Банковские метрики", bankMetricRows, true)}
+            {collapStmt(Scale, "Баланс", bsRows, bsExpanded, setBsExpanded, null, null, "Раскрыть статьи")}
           </>
         ) : (
           <>
-            <Card>
-              <div className="tw-flex tw-items-center tw-gap-2">
-                <BarChart2 size={16} className="tw-text-accent tw-shrink-0" />
-                <span className="tw-text-[14px] tw-font-bold tw-text-text-primary">Прибыли и убытки (P&L)</span>
-                <button onClick={() => setPnlExpanded((e) => !e)}
-                  className="tw-ml-auto tw-bg-transparent tw-border-0 tw-text-accent tw-text-[12px] tw-font-semibold tw-cursor-pointer tw-py-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm">
-                  {pnlExpanded ? "Свернуть ↑" : "Раскрыть статьи затрат ↓"}
-                </button>
-              </div>
-              {!isByFunc && (
-                <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1 tw-mb-1">
-                  Формат отчёта — затраты по видам: себестоимость и валовая прибыль не выделяются; статьи затрат — как в отчётности компании.
-                </div>
-              )}
-              <div className="tw-mt-2">{finTable(withDelta(pnlRows), convYears)}</div>
-              {convNote && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2 tw-leading-relaxed">{convNote}</div>}
-            </Card>
-            {tableSection(Scale, "Баланс", withDelta(bsRows), false, convYears, convNote)}
-            {tableSection(Wallet, "Денежные потоки (ОДДС)", withDelta(cfRows), false, convYears, convNote)}
+            {collapStmt(BarChart2, "Прибыли и убытки (P&L)", pnlRows, pnlExpanded, setPnlExpanded, convYears, convNote, "Раскрыть статьи затрат",
+              !isByFunc ? "Формат отчёта — затраты по видам: себестоимость и валовая прибыль не выделяются; статьи затрат — как в отчётности компании." : null)}
+            {renderBridgePlate()}
+            {collapStmt(Scale, "Баланс", bsRows, bsExpanded, setBsExpanded, convYears, convNote, "Раскрыть статьи")}
+            {collapStmt(Wallet, "Денежные потоки (ОДДС)", cfRows, cfExpanded, setCfExpanded, convYears, convNote, "Раскрыть детализацию потоков")}
           </>
         )}
 
@@ -5341,7 +5362,7 @@ const CompanyCard = ({ company, onBack }) => {
           </Card>
         )}
 
-        {tableSection(TrendingUp, "Мультипликаторы и рентабельность по годам", withDelta(multiplesRows), false)}
+        {tableSection(TrendingUp, "Мультипликаторы и рентабельность по годам", withDelta(multiplesRows), true)}
 
         {renderSectorCharts()}
         {renderSectorTable()}
