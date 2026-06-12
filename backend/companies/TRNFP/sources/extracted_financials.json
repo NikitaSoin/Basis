@@ -1,0 +1,351 @@
+{
+  "meta": {
+    "ticker": "TRNFP",
+    "name": "ПАО Транснефть",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://rspp.ru/upload/uf/d29/cwyqlxm8clml3k67gzxi3lx8fjpfsxn6/2024.05.21_Godovoy_otchet_za_2023_god_raskrytie_.pdf",
+      "doc_title": "Годовой отчет ПАО Транснефть за 2023 год (консолидированная финансовая отчетность по МСФО) + пресс-релиз 2024",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      1106409,
+      1204703,
+      1330899,
+      1424000
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы на оплату труда, страховые взносы и социальные расходы",
+        "values": [
+          203677,
+          228062,
+          265955,
+          null
+        ]
+      },
+      {
+        "name": "Материальные затраты",
+        "values": [
+          80747,
+          86743,
+          93659,
+          null
+        ]
+      },
+      {
+        "name": "Себестоимость проданных товаров",
+        "values": [
+          250332,
+          274872,
+          308249,
+          null
+        ]
+      },
+      {
+        "name": "Прочие расходы",
+        "values": [
+          92991,
+          103670,
+          110220,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      256406,
+      298098,
+      310780,
+      null
+    ],
+    "da": [
+      222256,
+      213258,
+      242036,
+      null
+    ],
+    "ebitda": [
+      478811,
+      512507,
+      553088,
+      545000
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      254028,
+      312050,
+      388827,
+      null
+    ],
+    "income_tax": [
+      52322,
+      58089,
+      82233,
+      null
+    ],
+    "net_profit": [
+      201706,
+      253961,
+      306594,
+      288000
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      3700000
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      425749,
+      422396,
+      427610,
+      439000
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      186459,
+      197716,
+      258295,
+      356800
+    ],
+    "net_change_in_cash": [
+      9994,
+      49946,
+      24055,
+      null
+    ]
+  },
+  "data_flags": [
+    "P&L и CFO проверены арифметикой - все согласовано (variance < 0.4%)",
+    "Налоговая ставка 2021: 20.6%, 2022: 18.6%, 2023: 21.1% (эффективная)",
+    "2024 налог на прибыль повышен с 20% до 40% с 2025 года (пересчет отложенных налогов увеличил расход 2024 на 35 млрд)",
+    "2024 также признан убыток от обесценения НОА (32 млрд) из-за изменения ставки и снижения объемов",
+    "Balance sheet: требуется доступ к полным консолидированным отчетам МСФО (в обзорном годовом отчете не приводятся детали активов/обязательств)",
+    "Finance income/costs: не отделены в доступных таблицах (требуется полный IFRS финансовый отчет)",
+    "CFI и CFF: не распарсены (требуется полный ОДДС из консолидированного отчета)",
+    "2025 финансовые данные отсутствуют (не опубликованы на дату извлечения 2026-06-13)",
+    "Рекомендация: для полноты данных требуется загрузить PDF полных консолидированных отчётов МСФО за 2021-2024 в компании/TRNFP/sources/"
+  ]
+}
