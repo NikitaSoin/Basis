@@ -4605,11 +4605,16 @@ const CompanyCard = ({ company, onBack }) => {
     // данные таблиц
     const is = finJson?.income_statement || {}, bs = finJson?.balance_sheet || {}, cf = finJson?.cash_flow || {}, mg = is.margins || {};
     const bp = finJson?.bank_pnl || {}, bmx = finJson?.bank_metrics || {};
+    const adjBlk = finJson?.adjusted || {};
+    // Нормализованная ЧП — отдельной строкой в P&L (рядом с отчётной); показывается
+    // только если есть нормализация (массив непустой). Мост корректировок — в плите ниже.
+    const npAdjRow = { label: "Чистая прибыль (норм.)", arr: adjBlk.net_profit_adj, bold: true, muted: true, accent: true };
     const pnlRows = !isBank ? [
       { label: "Выручка", arr: is.revenue, bold: true, delta: true },
       { label: "EBITDA", arr: is.ebitda, delta: true },
       { label: "Операц. прибыль", arr: is.operating_profit, delta: true },
       { label: "Чистая прибыль", arr: is.net_profit, bold: true, delta: true },
+      npAdjRow,
       { label: "Маржа EBITDA, %", arr: mg.ebitda_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
       { label: "Чистая маржа, %", arr: mg.net_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
@@ -4649,7 +4654,7 @@ const CompanyCard = ({ company, onBack }) => {
 
     // методы оценки
     const methods = finJson?.valuation?.methods || [];
-    const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", historical_pb: "Истор. P/B", relative_peers: "По пирам", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
+    const METHOD_RU = { DCF: "DCF", historical_pe: "Истор. P/E", historical_pb: "Истор. P/B", relative_peers: "Оценка по мультипликаторам сектора", relative: "Оценка по мультипликаторам сектора", SOTP: "SOTP (сумма частей)", NAV: "NAV (чистые активы)", CAPM: "CAPM", dividend: "Дивидендный", dividend_gordon: "Дивид. (Гордон)", pbv_roe: "P/BV×ROE", "P/BV×ROE": "P/BV×ROE" };
     const HORIZON_RU = { intrinsic_now: "сейчас", "12m": "12 мес." };
     const statusBadge = (s) => { const map = { ok: { t: "ок", tone: "success" }, low_confidence: { t: "низкая уверен.", tone: "warning" }, insufficient_data: { t: "мало данных", tone: "neutral" }, not_applicable: { t: "n/a", tone: "neutral" }, reference_only: { t: "справочно", tone: "neutral" } }; const x = map[s] || map.ok; return <Badge tone={x.tone}>{x.t}</Badge>; };
 
@@ -4773,7 +4778,13 @@ const CompanyCard = ({ company, onBack }) => {
       const adj = finJson?.adjusted;
 
       // Разбирает "значение — описание, src_N" → { value, desc, src }
-      const parseInputEntry = (raw) => {
+      // Защита: значение из данных может прийти не строкой (число/объект/массив) —
+      // приводим к строке, иначе .match роняет всю вкладку (был баг бежевого экрана).
+      const parseInputEntry = (rawAny) => {
+        const raw = typeof rawAny === "string"
+          ? rawAny
+          : (rawAny == null ? "—"
+            : (typeof rawAny === "object" ? JSON.stringify(rawAny) : String(rawAny)));
         const srcMatch = raw.match(/,?\s*(src_[\w/,\s]+)$/i);
         const src = srcMatch ? srcMatch[1].trim() : null;
         const withoutSrc = src ? raw.slice(0, raw.lastIndexOf(srcMatch[0])).trimEnd() : raw;
@@ -4901,7 +4912,10 @@ const CompanyCard = ({ company, onBack }) => {
                             Решение по шагам
                           </div>
                           <ol className="tw-space-y-2 tw-list-none tw-m-0 tw-p-0">
-                            {steps.map((step, si) => {
+                            {steps.map((stepAny, si) => {
+                              // Защита от нестроковых шагов (см. parseInputEntry)
+                              const step = typeof stepAny === "string" ? stepAny
+                                : (stepAny == null ? "" : (typeof stepAny === "object" ? JSON.stringify(stepAny) : String(stepAny)));
                               // Убираем ведущую нумерацию "1) " если есть
                               const numMatch = step.match(/^(\d+)\)\s*/);
                               const num = numMatch ? numMatch[1] : String(si + 1);
