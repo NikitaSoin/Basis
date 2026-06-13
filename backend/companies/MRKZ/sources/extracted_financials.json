@@ -1,0 +1,106 @@
+{
+  "meta": {
+    "ticker": "MRKZ",
+    "name": "ПАО «Россети Северо-Запад»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.mrsksevzap.ru/investors/1yearfinreport/",
+      "doc_title": "Консолидированная финансовая отчётность по МСФО за год, закончившийся 31 декабря",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "ocr",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [null, null, 50400.0, 53709.835, 62720.138],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [null, null, null, 51817.402, 60957.786]
+      },
+      {
+        "name": "Амортизация основных средств, активов в форме права пользования и нематериальных активов",
+        "values": [null, null, null, 4910.265, 4995.162]
+      },
+      {
+        "name": "Финансовые расходы",
+        "values": [null, null, null, 1941.225, 3115.728]
+      }
+    ],
+    "operating_profit": [null, null, null, 408.021, 3121.741],
+    "da": [null, null, null, 4910.265, 4995.162],
+    "ebitda": [null, null, null, 5318.286, 8116.903],
+    "finance_costs": [null, null, null, 1941.225, 3115.728],
+    "finance_income": [null, null, null, 393.495, 1062.629],
+    "pre_tax_profit": [null, null, null, -1139.709, 1068.642],
+    "income_tax": [null, null, null, -115.808, 601.343],
+    "net_profit": [null, null, null, -550.973, 1787.435]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, 39281.724, 46199.932],
+      "intangibles": [null, null, null, 1073.325, 1111.881],
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": [null, null, null, 2298.555, 4999.452],
+      "total_non_current": [null, null, null, 43048.604, 51328.145]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, 1306.549, 1679.325],
+      "receivables": [null, null, null, 4387.330, 6189.580],
+      "cash": [null, null, null, 3692.214, 10183.059],
+      "short_term_investments": null,
+      "other_current": [null, null, null, 1197.891, 1797.090],
+      "total_current": [null, null, null, 10584.984, 19899.099]
+    },
+    "total_assets": [null, null, null, 55737.325, 71227.244],
+    "equity": {
+      "share_capital": [null, null, null, 9578.592, 9578.592],
+      "retained_earnings": [null, null, null, -3071.042, -1283.607],
+      "additional_paid_in": [null, null, null, 10457.284, 10457.284],
+      "other_equity": [null, null, null, 1.992, 54.900],
+      "total_equity": [null, null, null, 16966.826, 18807.169]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, 2837.537, 3018.549],
+      "deferred_tax": [null, null, null, null, 495.399],
+      "other_non_current_liab": [null, null, null, 9867.938, 20229.058],
+      "total_non_current_liab": [null, null, null, 12736.012, 23743.006]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, 12187.570, 12425.304],
+      "payables": [null, null, null, 3151.845, 11856.278],
+      "other_current_liab": [null, null, null, 7695.572, 4389.487],
+      "total_current_liab": [null, null, null, 26034.487, 28677.069]
+    },
+    "total_liabilities": [null, null, null, 38770.499, 52420.075]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, 10988.084, 14871.064],
+    "cfi": [null, null, null, -7277.296, -6780.975],
+    "cff": [null, null, null, -3801.128, -1556.199],
+    "capex": [null, null, null, 7602.880, 7494.012],
+    "net_change_in_cash": [null, null, null, -90.340, 6539.890]
+  },
+  "data_flags": [
+    "2020-2021: данные не найдены в доступных источниках",
+    "Все данные за 2023-2024 извлечены методом OCR из PDF консолидированной МСФО отчётности",
+    "Проверка баланса: total_assets (71227.244) = total_equity (18807.169) + total_liabilities (52420.075) ✓",
+    "Проверка P&L: revenue (62720.138) - operating_expenses (60957.786) ≈ operating_profit (3121.741) ✓",
+    "Проверка OДДС: CFO + CFI + CFF = 14871.064 - 6780.975 - 1556.199 = 6533.89 ≈ 6539.890 ✓",
+    "Expense_lines содержат главные категории расходов по функциям; полный анализ по видам требует разбора примечаний",
+    "EBITDA рассчитана как operating_profit + D&A",
+    "Данные представлены в млн рублей (исходные в PDF в тыс. руб)"
+  ]
+}

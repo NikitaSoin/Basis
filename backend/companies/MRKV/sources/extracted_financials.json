@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "ticker": "MRKV",
+    "name": "ПАО Россети Волга (МРСК Волги)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.rossetivolga.ru/i/files/2025/3/18/otchetnost_po_msfo_12mes2024.pdf",
+      "doc_title": "Консолидированная финансовая отчётность ПАО Россети Волга за год, закончившийся 31 декабря 2024 года",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "partial",
+    "parse_method": "pdftotext + manual extraction from text",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      64900000,
+      66800000,
+      77044745,
+      83411189
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы на вознаграждения работникам",
+        "values": [
+          null,
+          null,
+          18385782,
+          20634304
+        ]
+      },
+      {
+        "name": "Электроэнергия для компенсации технологических потерь",
+        "values": [
+          null,
+          null,
+          10003866,
+          10454220
+        ]
+      },
+      {
+        "name": "Услуги по передаче электроэнергии",
+        "values": [
+          null,
+          null,
+          30826144,
+          31103142
+        ]
+      },
+      {
+        "name": "Амортизация основных средств",
+        "values": [
+          null,
+          null,
+          5690902,
+          5884483
+        ]
+      },
+      {
+        "name": "Прочие материальные расходы",
+        "values": [
+          null,
+          null,
+          2416733,
+          2728083
+        ]
+      },
+      {
+        "name": "Услуги по ремонту и техническому обслуживанию",
+        "values": [
+          null,
+          null,
+          446084,
+          396557
+        ]
+      },
+      {
+        "name": "Налоги и сборы, кроме налога на прибыль",
+        "values": [
+          null,
+          null,
+          945821,
+          987941
+        ]
+      },
+      {
+        "name": "Амортизация нематериальных активов",
+        "values": [
+          null,
+          null,
+          178645,
+          99427
+        ]
+      },
+      {
+        "name": "Амортизация активов в форме права пользования",
+        "values": [
+          null,
+          null,
+          332866,
+          393505
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      4596136,
+      7350259
+    ],
+    "da": [
+      null,
+      null,
+      6202413,
+      6377415
+    ],
+    "ebitda": [
+      null,
+      null,
+      10798549,
+      13727674
+    ],
+    "finance_costs": [
+      null,
+      null,
+      941553,
+      1669250
+    ],
+    "finance_income": [
+      null,
+      null,
+      254688,
+      628723
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      3841284,
+      5914498
+    ],
+    "income_tax": [
+      null,
+      null,
+      869091,
+      2284851
+    ],
+    "net_profit": [
+      null,
+      null,
+      2972193,
+      3629647
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        57967454,
+        62940680
+      ],
+      "intangibles": [
+        null,
+        null,
+        406604,
+        517144
+      ],
+      "goodwill": [
+        null,
+        null,
+        0,
+        0
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        0,
+        0
+      ],
+      "other_non_current": [
+        null,
+        null,
+        2898829,
+        3190540
+      ],
+      "total_non_current": [
+        null,
+        null,
+        61272887,
+        67148164
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        1611727,
+        2182998
+      ],
+      "receivables": [
+        null,
+        null,
+        5631485,
+        6325994
+      ],
+      "cash": [
+        null,
+        null,
+        2855306,
+        4813129
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        0,
+        0
+      ],
+      "other_current": [
+        null,
+        null,
+        364858,
+        400554
+      ],
+      "total_current": [
+        null,
+        null,
+        10463376,
+        13722675
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      71736263,
+      80870839
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        18830796,
+        18830796
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        24384683,
+        26846820
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        0,
+        0
+      ],
+      "other_equity": [
+        null,
+        null,
+        -1077388,
+        -740957
+      ],
+      "total_equity": [
+        null,
+        null,
+        42138091,
+        44936659
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        7403588,
+        5707922
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        3605178,
+        4914746
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        4110562,
+        7030969
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        15119328,
+        18652637
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        330255,
+        3160516
+      ],
+      "payables": [
+        null,
+        null,
+        11594380,
+        11496786
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        2554209,
+        2624241
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        14478844,
+        17281543
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      29598172,
+      35934180
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      13651654,
+      12977963
+    ],
+    "cfi": [
+      null,
+      null,
+      -8356087,
+      -10812162
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      8598452,
+      11393964
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2023-2024: полные данные, все арифметические проверки пройдены",
+    "2021-2022: только выручка (из smart-lab), остальное требует первичных отчётов",
+    "2020: нет данных, требуется дополнительный поиск",
+    "cost_format=by_nature: распределительная сетевая компания (регулируемая тариф)",
+    "Все суммы в тысячах рублей"
+  ]
+}

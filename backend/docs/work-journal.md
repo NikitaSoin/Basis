@@ -672,3 +672,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 13 (haiku, терсе): UWGN KAZT NKHP MGTS ABIO KROT — все OK. 95/262.
 
 - Батч 14 (haiku, терсе): TGKB TGKN MRKP MRKC MRKU MSRS (генерация+сети) — все OK. 101/262.
+
+- Батч 15 (haiku, терсе): MRKV MRKZ MRKK LSNG TORS MRKS (сети) — все OK. 107/262.

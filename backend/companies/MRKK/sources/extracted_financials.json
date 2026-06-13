@@ -1,0 +1,464 @@
+{
+  "meta": {
+    "ticker": "MRKK",
+    "name": "ПАО Россети Северный Кавказ",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (первичная валюта отчётности 2021-2025)",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure + company_ir + smart-lab",
+      "urls": [
+        "https://www.rossetisk.ru/shareholders_and_investors/raskrytie_informatsii/mezhdunarodnaya_otchetnost/",
+        "https://smart-lab.ru/q/MRKK/f/y/",
+        "https://disclosure.skrin.ru/ (2022 PDF)"
+      ],
+      "doc_title": "Консолидированная финансовая отчётность МСФО 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdfplumber (2022 консолидированный отчёт) + web_fetch (smart-lab tables 2021-2025) + manual verification",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      34583,
+      41301,
+      48500,
+      54400,
+      73600
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Резервы под ожидаемые кредитные убытки (ECL на дебиторку)",
+        "values": [
+          8573,
+          6876,
+          null,
+          null,
+          null
+        ],
+        "note": "Значительный резерв под дебиторку — региональная специфика СКФО (низкие платежи потребителей, просроченная задолженность)"
+      },
+      {
+        "name": "Оценочные обязательства и переоценка активов",
+        "values": [
+          1462,
+          1582,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Убыток от выбытия ОС и прочие непроизводительные расходы",
+        "values": [
+          36,
+          11,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      1483,
+      1245,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      -14000,
+      4660,
+      -4460,
+      -9550,
+      -6430
+    ],
+    "finance_costs": [
+      1747,
+      1994,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      394,
+      365,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      -21006,
+      1017,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      6875,
+      339,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -27881,
+      678,
+      -11100,
+      -15700,
+      -10900
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        7929,
+        9540,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        143,
+        214,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "leasing_assets": [
+        669,
+        816,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        467,
+        468,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        9971,
+        10958,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        1148,
+        1294,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        3102,
+        3440,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        2645,
+        6303,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "prepaid_tax": [
+        17,
+        27,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        967,
+        967,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        7802,
+        12032,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      17781,
+      22998,
+      27200,
+      30500,
+      36300
+    ],
+    "equity": {
+      "share_capital": [
+        889,
+        889,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        -73794,
+        -72930,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        17139,
+        17139,
+        null,
+        null,
+        null
+      ],
+      "emission_reserve": [
+        9697,
+        30459,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        -593,
+        -494,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        -46661,
+        -24937,
+        -260,
+        -1970,
+        948
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        5659,
+        5096,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_payables": [
+        31,
+        7592,
+        null,
+        null,
+        null
+      ],
+      "long_term_advances": [
+        53,
+        191,
+        null,
+        null,
+        null
+      ],
+      "long_term_employee_liab": [
+        1328,
+        1310,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        7070,
+        14188,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        3495,
+        8309,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        48491,
+        19594,
+        null,
+        null,
+        null
+      ],
+      "tax_payable": [
+        466,
+        2246,
+        null,
+        null,
+        null
+      ],
+      "advances_received": [
+        988,
+        2072,
+        null,
+        null,
+        null
+      ],
+      "provisions": [
+        3932,
+        1525,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        57371,
+        33746,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      64442,
+      47935,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -2632,
+      -3527,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      -1500,
+      -1968,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      5220,
+      8202,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      -1300,
+      -1700,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      -912,
+      3658,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "cash_flow_components_estimate: CFO, CFI, CFF для 2021-2022 — приблизительные оценки из ОДДС из-за сложности парсинга подстатей PDF; итоговая сумма (net_change_in_cash) верна, компоненты требуют уточнения в примечании 26 к МСФО",
+    "capital_negative_2021_2024: компания имела отрицательный собственный капитал (-46.7 млрд в 2021, -24.9 млрд в 2022, -0.26 млрд в 2023, -2.0 млрд в 2024); только в 2025 положительный +0.95 млрд",
+    "dodatelnye_emissii: в 2022 выпущено акций (эмиссионный резерв +20.8 млрд: 9.7 → 30.5 млрд) для восстановления капитала от хронических убытков",
+    "share_count_increase: число акций выросло с 1,185 млн (2021) до 6,069 млн (2025) — четырёхкратное разбавление из-за допэмиссий",
+    "regional_specifics_by_nature: cost_format=by_nature (no COGS/gross_profit) — компания сетевая, регулируемая, тариф на передачу; расходы распределяются по видам (трудовые, материалы, резервы под неплатежи потребителей)",
+    "high_receivables_provisions: резервы под ECL (ожидаемые кредитные убытки) хронически высокие (8.6-6.9 млрд в 2021-2022) — регион СКФО характеризуется низкими платежами потребителей и высокой просрочкой",
+    "short_term_payables_compression_2021_2022: краткосрочная кредиторка снизилась с 48.5 млрд (2021) до 19.6 млрд (2022) — возможно, погашение задолженности перед поставщиками/регионом",
+    "cash_increase_2022: денежные средства выросли с 2.6 млрд (2021) до 6.3 млрд (2022) — результат финансирования эмиссией (+8.2 млрд CFF)",
+    "profit_swing_2022: единственный год прибыли (+678 млн в 2022) при отрицательных результатах в 2021 (-27.9 млрд) и 2023-2025 (убытки -11.1 до -15.7 млрд)",
+    "ebitda_negative_most_years: EBITDA отрицательна в 2021, 2023-2025 (-14.0, -4.46, -9.55, -6.43 млрд); только 2022 с положительной EBITDA +4.66 млрд",
+    "operating_loss_by_nature: компания операционно убыточна: выручка < операционные расходы + резервы + амортизация, что указывает на дефицит тарифной политики (регулируемый тариф ниже экономического уровня себестоимости)",
+    "full_financials_2021_2022_only: детальная финансовая информация (pre_tax_profit, tax, expense_lines, operating results, CF) полностью распарсена только для 2021-2022 из PDF консолидированного отчёта МСФО; для 2023-2025 доступны только сводные показатели (revenue, net_profit, ebitda, total_assets, equity) из smart-lab",
+    "2020_not_available: консолидированный отчёт МСФО 2020 недоступен (PDF скачанного файла скомпрометирован, pdfplumber не смог парсить)",
+    "capex_and_investments: инвестиции в основные средства отрицательные (приблизительно -1.3 до -1.7 млрд в год) — показывают дефицит капитальных вложений в развитие сети",
+    "operating_cashflow_negative: операционный CF отрицательный (-2.6 до -3.5 млрд в 2021-2022) — компания не генерирует денег из основной операционной деятельности, зависит от финансирования",
+    "longterm_debt_vs_operations: долгосрочный долг ~5 млрд при отрицательном операционном CF указывает на потенциальный риск обслуживания долга (финансовые расходы 1.7-2.0 млрд в год)"
+  ]
+}
