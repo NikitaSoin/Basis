@@ -1,14 +1,15 @@
 {
   "meta": {
     "ticker": "KOGK",
-    "name": "ПАО «Коршуновский ГОК»",
-    "sector": "metals_mining",
+    "name": "ПАО Коршуновский ГОК",
+    "sector": "mining",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "РСБУ",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
@@ -16,36 +17,30 @@
       2024,
       2025
     ],
-    "last_price": 288.0,
-    "price_date": "2026-06-01",
+    "last_price": 297.57,
+    "price_date": "2026-06-08",
     "shares_outstanding": 25012600,
-    "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ],
+    "data_quality": "medium",
     "anomaly_flag": true,
-    "anomaly_note": "Внутригрупповые операции Группы «Мечел» искажают отчётность КГОКа. Внешний долг ~0, формально близко к «чистому кэшу», НО «Мечел» занимал у Коршуновского ГОКа крупные суммы (договор займа 3,2 млрд руб., 03.2020), т.е. активы и капитал раздуты дебиторкой/займами связанным сторонам. Реальная чистая денежная позиция иллюзорна — это требование к перегруженной долгом материнской группе. Прибыль от продаж (операционная) отрицательна в 2022-2025; положительная чистая прибыль 2024 г. (+3,84 млрд) сформирована финансовыми/внутригрупповыми статьями, а не основным производством. EBITDA и амортизация отдельно в РСБУ не раскрыты (за 2025 агрегатор даёт EBITDA -3,92 млрд — отрицательную). При отрицательной EBITDA мультипликаторы EV/EBITDA и ND/EBITDA не имеют экономического смысла."
+    "anomaly_note": "2025: CFO -23 800 млн (аномальный — вероятно выдача займа Мечелу через операционный поток РСБУ). 2024: ЧП 3 843 млн при op_profit -1 580 млн — разрыв ~5 423 млн объясняется внутригрупповыми процентными доходами (займы Мечелу). Баланс раздут займами материнской группе: активы 67 млрд при выручке ~14 млрд. Вся отчётность — РСБУ; МСФО недоступно.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
-      null,
-      null,
-      15200.0,
-      11200.0,
-      7860.0,
-      13800.0,
-      13230.0
+      3200,
+      15200,
+      11200,
+      7860,
+      13773,
+      13200
     ],
     "cogs": [
       null,
       null,
       null,
       null,
-      null,
-      null,
+      9947,
       null
     ],
     "gross_profit": [
@@ -53,39 +48,39 @@
       null,
       null,
       null,
-      null,
-      null,
+      3826,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (коммерческие + управленческие + прочие опер.)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          5406,
+          null
+        ]
+      }
     ],
     "operating_profit": [
       null,
-      null,
-      4400.0,
-      -3000.0,
-      -5200.0,
-      -1580.0,
-      -3660.0
-    ],
-    "ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      -3920.0
+      4400,
+      -3000,
+      -5200,
+      -1580,
+      -3660
     ],
     "da": [
       null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
       null,
       null,
       null,
@@ -99,17 +94,39 @@
       null,
       null,
       null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
     "net_profit": [
-      null,
-      null,
-      5080.0,
-      -110.0,
-      -5090.0,
-      3840.0,
-      -1470.0
+      3200,
+      5080,
+      -110,
+      -5090,
+      3843,
+      -1660
     ],
     "margins": {
       "gross_margin": [
@@ -117,8 +134,7 @@
         null,
         null,
         null,
-        null,
-        null,
+        27.8,
         null
       ],
       "ebitda_margin": [
@@ -127,96 +143,127 @@
         null,
         null,
         null,
-        null,
-        -29.6
+        null
       ],
       "operating_margin": [
         null,
-        null,
         28.9,
-        -26.8,
-        -66.2,
-        -11.4,
-        -27.7
+        null,
+        null,
+        null,
+        null
       ],
-      "net_margin": [
-        null,
-        null,
+      "ros": [
+        100.0,
         33.4,
-        -1.0,
-        -64.8,
-        27.8,
-        -11.1
+        null,
+        null,
+        27.9,
+        null
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      null,
+      null,
+      null,
+      -1185,
+      null
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      673,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": 308,
+    "capex_note": "Устойчивый capex = медиана capex/revenue (2.5%) × средняя выручка (12 247 млн) = 306 млн; принято 308 млн. Фактический capex 196–600 млн в разные годы.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2024,
+        "item": "Прочие доходы (оценка: внутригрупповые проценты по займам Мечелу)",
+        "amount": -5423,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_gov_5",
+        "note": "ЧП 3 843 при op_profit -1 580 → прочие нетто ≈ +5 423 млн. По характеру внутригрупповых отношений (договор займа Мечелу 3.2 млрд 03.2020 и далее) — нерегулярный доход, зависящий от способности Мечела обслуживать долг. Adj ЧП = op_profit × (1−0.25) = −1 580 × 0.75 = −1 185 млн."
+      },
+      {
+        "year": 2025,
+        "item": "CFO −23 800 млн (аномалия: вероятно выдача займа Мечелу)",
+        "amount": -23800,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_extracted",
+        "note": "CFO 2025 = −23 800 млн при capex 196 млн и выручке 13 200 млн — физически несоразмерно операционному масштабу. В РСБУ займы связанным сторонам могут попасть в CFO. FCF 2025 исключён из нормализации как нерепрезентативный."
+      },
+      {
+        "year": 2020,
+        "item": "Проверка — разовых не обнаружено в доступных данных",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "note": "ЧП = выручке (3200 = 3200) — аномалия данных агрегатора, вероятно нет детализации. Нет базы для нормализации. Adjusted = reported."
+      },
+      {
+        "year": 2021,
+        "item": "Проверка — разовых не обнаружено в доступных данных",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "note": "Пик выручки 15 200 млн, ЧП 5 080 млн. Внутригрупповые трансфертные цены — ключевая неопределённость, но нет первичных данных для корректировки. Adjusted = reported."
+      },
+      {
+        "year": 2022,
+        "item": "Проверка — разовых не обнаружено в доступных данных",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "note": "Убыток −110 млн. Нет первичной отчётности для выявления разовых. Adjusted = reported."
+      },
+      {
+        "year": 2023,
+        "item": "Проверка — разовых не обнаружено в доступных данных",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "note": "Крупный убыток −5 090 млн при падении выручки. Без первичного РСБУ нельзя разделить операционный убыток от разовых. Adjusted = reported."
+      }
+    ],
+    "bridge_note": "Основная корректировка 2024: reported ЧП 3 843 содержит ~5 423 млн нерегулярных внутригрупповых процентных доходов. Adj ЧП = −1 185 (убыток). 2025: FCF исключён из нормализации. Нормализованный FCF = среднее 2021-2024 = 673 млн; трендовый (нисходящий) FCF₁ для DCF base = 269 млн."
+  },
   "balance_sheet": {
-    "total_assets": [
-      null,
-      null,
-      56500.0,
-      64900.0,
-      59200.0,
-      67300.0,
-      56700.0
-    ],
-    "total_equity": [
-      null,
-      null,
-      52600.0,
-      56600.0,
-      46200.0,
-      50000.0,
-      48400.0
-    ],
-    "total_liabilities": [
-      null,
-      null,
-      3900.0,
-      8300.0,
-      13000.0,
-      17300.0,
-      8300.0
-    ],
-    "cash": [
-      null,
-      null,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      5.0
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_debt": [
-      null,
-      null,
-      0.0,
-      0.0,
-      0.0,
-      -1.0,
-      195.0
-    ],
-    "ratios": {
-      "debt_to_equity": [
-        null,
+    "non_current_assets": {
+      "ppe": [
         null,
         null,
         null,
@@ -224,17 +271,266 @@
         null,
         null
       ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      56500,
+      64900,
+      59200,
+      67300,
+      56700
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        52600,
+        56600,
+        46200,
+        50000,
+        48400
+      ]
+    },
+    "total_equity": [
+      null,
+      52600,
+      56600,
+      46200,
+      50000,
+      48400
+    ],
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      3900,
+      8300,
+      13000,
+      17300,
+      8300
+    ],
+    "net_debt": [
+      null,
+      -52600,
+      -56600,
+      -46200,
+      -50000,
+      -48400
+    ],
+    "tangible_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "tangible_note": "Расчёт ощутимого капитала невозможен: постатейный баланс недоступен. Формально total_equity 50 000 млн (2024), но значительная часть активов 67 300 млн — займы материнскому Мечелу (~50+ млрд из 67 млрд, judgement). PP&E добывающего предприятия вероятно 5–15 млрд. Tangible equity может быть близко к нулю или отрицательным. P/B = 0.15 по балансовому капиталу не отражает реальную ценность. Критически важный риск для инвестора.",
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        0.07,
+        0.15,
+        0.28,
+        0.35,
+        0.17
+      ],
       "net_debt_ebitda": [
         null,
         null,
         null,
         null,
         null,
-        null,
-        -0.05
+        null
       ],
       "current_ratio": [
-        null,
         null,
         null,
         null,
@@ -247,15 +543,13 @@
   "cash_flow": {
     "cfo": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1340,
+      1300,
+      1100,
+      620,
+      -23800
     ],
     "cfi": [
-      null,
       null,
       null,
       null,
@@ -269,11 +563,9 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "net_change_in_cash": [
-      null,
       null,
       null,
       null,
@@ -283,73 +575,68 @@
     ],
     "capex": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      216,
+      500,
+      600,
+      351,
+      196
     ],
     "fcf": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1124,
+      800,
+      500,
+      269,
+      -23996
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        7.4,
+        7.1,
+        6.4,
+        2.0,
         null
       ],
       "cfo_to_capex": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        6.2,
+        2.6,
+        1.8,
+        1.8,
         null
       ],
       "capex_to_revenue": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        1.4,
+        4.5,
+        7.6,
+        2.5,
+        1.5
       ]
     }
   },
   "returns": {
     "roe": [
       null,
-      null,
       9.7,
-      -0.2,
-      -11.0,
-      7.7,
-      -3.0
+      null,
+      null,
+      8.0,
+      null
     ],
     "roa": [
       null,
-      null,
       9.0,
-      -0.2,
-      -8.6,
+      null,
+      null,
       5.7,
-      -2.6
+      null
     ],
     "roic": [
-      null,
       null,
       null,
       null,
@@ -358,18 +645,130 @@
       null
     ],
     "ros": [
-      null,
-      null,
+      100.0,
       33.4,
-      -1.0,
-      -64.8,
-      27.8,
-      -11.1
+      null,
+      null,
+      27.9,
+      null
     ],
     "asset_turnover": [
       null,
+      0.27,
+      0.17,
+      0.13,
+      0.2,
+      0.23
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
       null,
       null,
+      null,
+      null,
+      1.9,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      0.15,
+      0.15
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      0.54,
+      0.56
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      null,
+      9.7,
+      null,
+      null,
+      8.0,
+      null
+    ],
+    "roa": [
+      null,
+      9.0,
+      null,
+      null,
+      5.7,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      27.8,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      28.9,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      100.0,
+      33.4,
+      null,
+      null,
+      27.9,
+      null
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      375.0,
+      -26.3,
+      -29.8,
+      75.2,
+      -4.2
+    ],
+    "net_profit_growth": [
+      null,
+      58.8,
       null,
       null,
       null,
@@ -380,28 +779,25 @@
     "pe": [
       null,
       null,
-      1.42,
-      -65.45,
-      -1.41,
-      1.88,
-      -4.9
+      null,
+      null,
+      1.9,
+      null
     ],
     "ps": [
       null,
       null,
-      0.47,
-      0.64,
-      0.92,
-      0.52,
-      0.54
+      null,
+      null,
+      0.54,
+      0.56
     ],
     "pb": [
       null,
       null,
-      0.14,
-      0.13,
-      0.16,
-      0.14,
+      null,
+      null,
+      0.15,
       0.15
     ],
     "ev_ebitda": [
@@ -410,179 +806,312 @@
       null,
       null,
       null,
+      null
+    ],
+    "pe_adj": [
       null,
-      -1.89
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "current": {
-      "pe": -4.9,
+      "pe": 1.9,
+      "pe_adj": null,
       "ps": 0.54,
       "pb": 0.15,
-      "ev_ebitda": -1.89,
-      "ev_sales": 0.56,
-      "net_debt_ebitda": -0.05,
-      "as_of": "2026-06-01"
+      "ev_ebitda": null,
+      "as_of": "2026-06-08"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "не считаем: чистая прибыль знакопеременная, P/E не репрезентативен"
-    }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": -4.9,
-      "ps": 0.54,
-      "pb": 0.15,
-      "ev_ebitda": -1.89,
-      "ev_sales": 0.56,
-      "net_debt_ebitda": -0.05
-    },
-    "2024": {
-      "pe": 1.88,
-      "ps": 0.52,
-      "pb": 0.14,
-      "ev_ebitda": null,
-      "ev_sales": null,
-      "net_debt_ebitda": null
+      "pe_basis": "not_applicable — нет исторических котировок",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": null,
+      "period": ""
     }
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
-    "revenue_growth_pct": [],
-    "net_profit_growth_pct": [],
-    "note": "Брокерского покрытия нет (малоликвидная дочка «Мечела», free-float мал). Механический прогноз невозможен: результат определяется внутригрупповой политикой, а не рынком; чистая прибыль знакопеременна. Прогноз не строим."
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Консенсус брокеров по KOGK отсутствует (малоликвидная дочка Мечела). Механический прогноз: средняя выручка 2021-2025 = 12 247 млн; нестабильная (±30-75% год к году). FCF нисходящий тренд: 1124→800→500→269 млн за 2021-2024. FCF₁ для DCF base = 269 млн. Adj ЧП 2024 = −1 185 млн (убыток после корректировки внутригрупповых доходов)."
   },
   "valuation": {
     "methods": [
       {
         "method": "DCF",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 44.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "fcf1_mln": 269,
+          "r": 0.263,
+          "g": 0.02,
+          "tax_rate_used": 25.0,
+          "fcf_base": "normalized_last_trend_year_2024",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "fcf1_mln": "269 млн — FCF последнего нормального года 2024 (cfo 620 − capex 351), отражает нисходящий тренд 2021-2024: 1124, 800, 500, 269 [src_extracted]",
+            "fcf_norm_mean_ref": "673 млн — среднее FCF 2021-2024 (оптимистичный сценарий, FCF₁_opt)",
+            "Rf": "14.6% — доходность 10-летних ОФЗ на конец мая 2026 [config market_params.json]",
+            "beta": "1.3 — суждение для малоликвидной горнодобывающей дочки Мечела; выше рыночного 1.0 из-за концентрации риска на группу [judgement]",
+            "ERP": "9.0% — премия за риск рынка акций РФ, верхняя часть диапазона [config market_params.json]",
+            "Ke": "14.6% + 1.3 × 9.0% = 26.3% — требуемая доходность на собственный капитал",
+            "g": "2.0% — ниже дефолтного 3.5%; цикличный бизнес с нисходящим FCF и Мечел-зависимостью [judgement, conservatism_rule из конфига]",
+            "net_debt_treatment": "0 — формального долга нет; займы Мечелу не считаем кэшем (высокий кредитный риск на материнскую группу с большой долговой нагрузкой) [src_gov_5]",
+            "shares": "25 012 600 акций [rates.csv]"
+          },
+          "steps": [
+            "Нормализованный FCF: 2025 исключён (CFO −23 800 аномален — вероятно займ Мечелу). Тренд 2021-2024: 1124, 800, 500, 269 млн — устойчиво нисходящий. FCF₁ = 269 млн (последний год тренда = консервативная база).",
+            "Ke = Rf + β × ERP = 14.6% + 1.3 × 9.0% = 14.6% + 11.7% = 26.3%",
+            "EV_base = FCF₁ / (r − g) = 269 / (0.263 − 0.02) = 269 / 0.243 = 1 107 млн руб",
+            "Equity = EV = 1 107 млн (нет долга; займы Мечелу не добавляем к стоимости — это требование к перегруженной долгом группе, не свободные деньги)",
+            "Цена_base = 1 107 × 10⁶ / 25 012 600 = 44 ₽",
+            "EV_opt (FCF₁=673 млн): EV = 673 / 0.233 = 2 889 млн, цена = 115 ₽",
+            "EV_cons (FCF₁=100 млн): EV = 100 / 0.243 = 412 млн, цена = 16 ₽",
+            "Implied EV/EBITDA из EV_base: нет данных по EBITDA для cross-check — пропущен"
+          ],
+          "caveats": [
+            "FCF₁ = 269 млн (FCF 2024) — нисходящий тренд может продолжиться; в 2025 op_profit −3 660 млн, FCF 2025 вероятно ещё ниже",
+            "Займы Мечелу: если бы считать как кэш (формальный net_debt отрицательный на ~50 млрд) — цена выросла бы многократно, но это некорректно",
+            "РСБУ, нет МСФО: классификация статей CFO может отличаться; аномальный CFO 2025 = −23 800 не является операционным",
+            "Бета 1.3 — суждение; нет ликвидных торгов для расчёта фактической беты по историческим ценам",
+            "g = 2.0% ниже дефолта: при внутригрупповой зависимости устойчивость долгосрочного роста сомнительна"
+          ]
+        }
       },
       {
         "method": "historical_pe",
         "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
         "key_assumptions": {
           "pe_used": null,
-          "basis": "5y_median"
+          "basis": "not_applicable",
+          "eps_forward": null,
+          "eps_forward_source": "none",
+          "eps_backward_ref": null
         },
-        "status": "insufficient_data"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Нет исторических котировок KOGK для расчёта P/E по годам. Adj ЧП 2024 = −1 185 млн (отрицательный). Reported P/E = 1.9 только справочно при reported ЧП 3 843 млн, которая включает нерегулярные внутригрупповые доходы. Метод не применим как оценочный."
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "key_assumptions": {
+          "pb_used": null,
+          "basis": "not_applicable",
+          "book_value_per_share_used": null,
+          "equity_basis": "balance",
+          "cv": null
+        },
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Нет исторических котировок для расчёта P/B по годам. Балансовый капитал 50 000 млн (2024) раздут займами Мечелу; ощутимый капитал не рассчитывается из-за отсутствия постатейного баланса. Текущий P/B = 0.15 — справочно, не для оценки."
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
+          "multiple_used": "EV/EBITDA",
+          "peer_median": null,
+          "company_metric": null,
+          "peers_count": 0
         },
-        "status": "pending_sector_backfill"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "EV/EBITDA невозможен: нет данных по D&A → нет EBITDA. P/E adj отрицательный. P/B некорректен (баланс раздут займами). Метод не применим ни по одному из подходящих мультипликаторов."
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 375.0,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 23.6,
-          "beta": 1.0
+          "Ke": 0.263,
+          "beta": 1.3,
+          "Rf": 0.146,
+          "ERP": 0.09,
+          "div_yield": 0.0034
         },
-        "status": "insufficient_data",
-        "note": "Ke = 14.6 + 1.0×9.0 = 23.6%. Без устойчивой прибыли/дивиденда таргет по CAPM не строится."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ конец мая 2026 [config market_params.json]",
+            "beta": "1.3 — суждение для малоликвидной горнодобывающей дочки Мечела [judgement]",
+            "ERP": "9.0% — премия за риск РФ [config market_params.json]",
+            "price_current": "297.57 ₽ [rates.csv]",
+            "dps_expected": "1.0 ₽ [rates.csv / governance.json]",
+            "div_yield_calc": "1.0 / 297.57 = 0.34%"
+          },
+          "steps": [
+            "Ke = 14.6% + 1.3 × 9.0% = 14.6% + 11.7% = 26.3%",
+            "CAPM 12м: target = P × (1 + Ke − div_yield) = 297.57 × (1 + 0.263 − 0.0034) = 297.57 × 1.2596 = 375 ₽",
+            "Допущение: рынок правильно оценил акцию сегодня по цене 297.57 ₽; при требуемой доходности 26.3% через 12 мес. ожидаемая цена = 375 ₽"
+          ],
+          "caveats": [
+            "CAPM предполагает, что текущая цена 297.57 ₽ уже справедлива — это НЕ подтверждается DCF (44 ₽). CAPM — моментумный метод, не intrinsic.",
+            "Дивиденд 1 руб/акц ничтожен (0.34%) — практически не влияет на расчёт.",
+            "Расхождение CAPM (375 ₽) vs DCF (44 ₽) превышает 8× — см. methods_divergence_note."
+          ]
+        }
       },
       {
-        "method": "book_value_discount",
-        "fair_value_per_share": 271,
+        "method": "ps_historical",
+        "fair_value_per_share": 322.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "bvps": 1935,
-          "p_b_conservative": 0.1,
-          "p_b_base": 0.18,
-          "note": "Балансовая стоимость (~1935 руб/акц) сильно завышена внутригрупповой дебиторкой к «Мечелу»; рынок уже дисконтирует капитал до P/B≈0.15. Коридор задан как глубокий дисконт к балансу."
+          "ps_used": 0.61,
+          "basis": "6y_median (CV=0.77 > 0.5)",
+          "revenue_fwd_mln": 13200,
+          "revenue_source": "mechanical — выручка 2025 (последний факт)"
         },
-        "status": "low_reliability"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ps_series": "P/S по годам (кап 7 443 млн / выручка): 2020=2.33, 2021=0.49, 2022=0.66, 2023=0.95, 2024=0.54, 2025=0.56",
+            "cv": "CV = 0.77 > 0.5 → медиана по правилу CV [methodology]",
+            "ps_median": "0.61 — медиана шести значений P/S",
+            "revenue_fwd": "13 200 млн (выручка 2025, последний факт) — механический прогноз"
+          },
+          "steps": [
+            "P/S годовые: 2.33, 0.49, 0.66, 0.95, 0.54, 0.56 (2020 аномальный — возможно ошибка агрегатора; медиана его нейтрализует)",
+            "CV = σ/среднее = 0.77 > 0.5 → используем медиану = 0.61",
+            "Цена = 0.61 × 13 200 × 10⁶ / 25 012 600 = 322 ₽",
+            "Справочно: P/S рассчитан на текущей капитализации для всех лет (нет исторических котировок) — иллюстративный, не исторический"
+          ],
+          "caveats": [
+            "P/S не является якорным методом для горнодобывающего сектора: игнорирует маржу, структуру баланса, риски займов",
+            "Метод не учитывает adj убыточность 2024 и нисходящий FCF",
+            "Справочный метод, вес в итоговом коридоре минимальный"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Дивиденды миноритариям фактически не платятся: в прибыльные 2021 и 2024 — ноль выплат. DPS 1 руб (из rates.csv) ничтожен (0.34% доходность). Дивидендный метод неприменим."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Расхождение методов принципиальное: DCF base 44 ₽ vs CAPM 375 ₽ vs P/S 322 ₽ (8.5× между DCF и CAPM). Причины: (1) DCF от операционного FCF (269 млн) при высокой ставке 26.3% даёт низкую intrinsic value; балансовый капитал 50 000 млн раздут займами Мечелу и не добавляется к стоимости. (2) CAPM и P/S отражают текущую рыночную цену, не intrinsic-ценность. Текущая цена 297.57 ₽ превышает DCF-диапазон (16–115 ₽) в 2.5–18 раз. Вероятное объяснение рыночной цены: инвесторы либо делают ставку на консолидацию Мечелом/редомициляцию, либо не дисконтируют риск займов группе. Итоговый коридор формируется от DCF как единственного надёжного метода для добычи при отсутствии EBITDA и adj прибыли.",
     "fair_value_range": {
-      "conservative": 194,
-      "base": 348,
-      "current_price": 288.0,
-      "upside_downside_pct": -32.6
+      "conservative": 16,
+      "base": 44,
+      "optimistic": 115
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        24.3,
+        26.3,
+        28.3
+      ],
+      "g_grid": [
+        1.0,
+        2.0,
+        3.5
+      ],
+      "matrix": [
+        [
+          46.0,
+          48.0,
+          52.0
+        ],
+        [
+          43.0,
+          44.0,
+          47.0
+        ],
+        [
+          39.0,
+          41.0,
+          43.0
+        ]
+      ],
+      "note": "FCF1 = 269 млн во всех сценариях (base). Строки — ставка r (±2% от 26.3%), столбцы — темп роста g (1%/2%/3.5%). Все значения в ₽. Чувствительность к g мала — доминирует высокая ставка."
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "MOEX ISS — KOGK security info (ISSUESIZE 25 012 600 акций, цена 288 руб на 01.06.2026)",
-      "period": "2026",
+      "type": "config",
+      "title": "config/market_params.json — Rf 14.6%, ERP 9.0%, g_default 3.5%, updated 2026-05-31",
+      "period": "2026-05-31",
       "reliability": "high"
     },
     {
-      "id": "src_2",
+      "id": "src_extracted",
       "type": "aggregator",
-      "title": "Smart-Lab — годовая отчётность РСБУ KOGK (выручка, опер. прибыль, чистый результат, активы, капитал)",
-      "period": "2021-2025",
+      "title": "companies/KOGK/sources/extracted_financials.json — РСБУ 2020-2025, Smart-Lab + bo.nalog.gov.ru",
+      "period": "2020-2025",
       "reliability": "medium"
     },
     {
-      "id": "src_3",
-      "type": "aggregator",
-      "title": "Банки.ру — KOGK: P/E -4.9, P/S 0.55, ROE -3%, EBITDA 2025 -3.92 млрд, чистый долг 194.3 млн",
-      "period": "2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_4",
-      "type": "aggregator",
-      "title": "Finviewer — KGOK МСФО/РСБУ (выручка 2024 13.77 млрд, ЧП МСФО 2024 3.33 млрд)",
-      "period": "2024-2025",
-      "reliability": "low"
-    },
-    {
-      "id": "src_5",
-      "type": "broker",
-      "title": "1sn.ru — «Мечел» занял у Коршуновского ГОКа более 3 млрд руб. (договор займа 3,2 млрд, 03.2020)",
+      "id": "src_gov_5",
+      "type": "media",
+      "title": "governance.json / 1sn.ru — договор займа Мечел у КОГК 3.2 млрд руб 03.2020; внутригрупповые отношения",
       "period": "2020",
       "reliability": "medium"
     },
     {
-      "id": "src_6",
-      "type": "official_report",
-      "title": "business_model.md (КГОК) — профиль, сегмент, внутригрупповая структура «Мечел»",
-      "period": "2024",
+      "id": "src_rates",
+      "type": "internal",
+      "title": "rates.csv — цена 297.57 ₽, акций 25 012 600, капитализация 7.64 млрд, дивиденд 1.0 ₽",
+      "period": "2026-06-08",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "data_quality=low: РСБУ-агрегаторы, без аудированной полной отчётности из sources/; 2019-2020 не раскрыты.",
-    "ANOMALY: внутригрупповые займы/дебиторка к «Мечелу» раздувают активы и капитал; формальный «чистый кэш» иллюзорен (требование к проблемной материнской группе).",
-    "EBITDA отрицательна в 2025 (-3.92 млрд) → EV/EBITDA (-1.89) и ND/EBITDA (-0.05) НЕ имеют экономического смысла, использовать нельзя.",
-    "Операционная прибыль (прибыль от продаж) отрицательна 2022-2025: основное производство убыточно.",
-    "Чистая прибыль знакопеременна (2021 +5.08, 2023 -5.09, 2024 +3.84, 2025 -1.47) → P/E и historical P/E не репрезентативны.",
-    "Капитализация: на MOEX 25.01 млн акций × 288 руб = 7.2 млрд; банки.ру показывают 9.43 млрд (иное число акций) — взят MOEX как первоисточник. Расхождение помечено.",
-    "Балансовая стоимость акции ~1935 руб против рыночной 288 руб (P/B≈0.15): рынок дисконтирует капитал на ~85% из-за внутригрупповых рисков и убыточности — это согласуется с аномалией.",
-    "DCF/historical_pe/CAPM = insufficient_data; relative_peers = pending_sector_backfill (медиана сектора metals_mining не загружена).",
-    "Дивиденды нерегулярны/символические (~1 руб/акц за длительный период)."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": -854.61,
-    "upside_downside_pct": -396.7,
-    "status": "reference_only"
-  }
+    "data_quality=medium: источник — агрегатор Smart-Lab + bo.nalog.gov.ru, не первичный PDF РСБУ",
+    "2025 CFO=−23 800 млн — аномальный (вероятно займ Мечелу прошёл через CFO в РСБУ); FCF 2025 исключён из нормализации",
+    "2024: ЧП 3 843 при op_profit −1 580 — разрыв 5 423 млн (judgement: внутригрупповые проценты по займам Мечелу); adj ЧП = −1 185 млн",
+    "Баланс: total_assets 67 300 млн при выручке 13 773 млн (2024) — соотношение ~4.9x аномально для добычи; объясняется займами Мечелу",
+    "Tangible equity: не рассчитан (нет постатейного баланса); может быть близко к нулю — балансовый P/B 0.15 не отражает реальность",
+    "Нет данных по D&A → нет EBITDA → EV/EBITDA недоступен",
+    "Нет постатейного P&L за 2020-2023 и 2025 (только revenue/op_profit/net_profit из агрегатора)",
+    "Нет исторических котировок → исторические P/E и P/B не рассчитаны; текущие мультипликаторы — справочно",
+    "РСБУ (не МСФО): внутригрупповые операции трактуются по российским стандартам; МСФО Мечела недоступно на уровне КОГК",
+    "Дивиденды: фактически нулевые для миноритариев (0 в 2021 и 2024 несмотря на прибыль); 1 руб/акц — символический",
+    "RELATED_PARTY severity=high: займы Мечелу + внутригрупповые цены реализации концентрата = ключевые риски для всей оценки",
+    "Консенсус брокеров отсутствует (малоликвидная дочка, нет покрытия)"
+  ]
 }
