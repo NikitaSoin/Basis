@@ -701,3 +701,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 27 (haiku, терсе): GEMA CNTL ZVEZ AMEZ SLEN BLNG — все OK. 177/262. ZVEZ/BLNG отриц.капитал/холдинг-инвестиция; AMEZ спецдивиденд-2024 разовый помечен.
 
 - Батч 28 (haiku, терсе): HNFG SPBE ZAYM ARSA MISB KUZB — все OK. 183/262. Доделаны ликвидные: HNFG ритейл, SPBE биржа (санкции/кубышка), ZAYM МФО, ARSA УК. KUZB банк.
+
+- Батч 29 (haiku, терсе): YAKG PRMB NAUK VSYD LPSB DZRD — все OK. 189/262. YAKG газ/СПГ; PRMB банк В КРИЗИСЕ (нарушение нормативов ЦБ, риск санации — помечено); VSYD судзавод отриц.капитал.
