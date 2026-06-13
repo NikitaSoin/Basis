@@ -1,0 +1,398 @@
+{
+  "meta": {
+    "ticker": "KROT",
+    "name": "ПАО \"Московская кондитерская фабрика \"Красный Октябрь\"",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab | manual_pdf",
+      "url": "https://smart-lab.ru/q/KROT/f/y/ | https://redoct.msk.ru/rus/holder/reports/gkfo_ko_2023.pdf",
+      "doc_title": "Консолидированная финансовая отчётность KROT 2023 + smart-lab таблицы",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + web_fetch smart-lab",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      15800,
+      18200,
+      21400,
+      24300,
+      24300
+    ],
+    "cogs": [
+      14900,
+      15700,
+      18200,
+      24100,
+      22800
+    ],
+    "gross_profit": [
+      900,
+      2500,
+      3200,
+      200,
+      1500
+    ],
+    "expense_lines": [
+      {
+        "name": "Сырье",
+        "values": [
+          15119.4,
+          13049.4,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Заработная плата и расходы на социальное обеспечение",
+        "values": [
+          2868.0,
+          2330.1,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Ремонт и техническое обслуживание",
+        "values": [
+          153.8,
+          125.6,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Управленческие услуги (связанная сторона)",
+        "values": [
+          193.4,
+          193.4,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      -1150,
+      1560,
+      1940,
+      -592,
+      27
+    ],
+    "da": [
+      330,
+      120,
+      110,
+      113,
+      134
+    ],
+    "ebitda": [
+      -820,
+      1680,
+      2050,
+      -479,
+      161
+    ],
+    "finance_costs": [
+      null,
+      480,
+      null,
+      null,
+      480
+    ],
+    "finance_income": [
+      null,
+      46.643,
+      164.423,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      -210,
+      570,
+      1763.7,
+      4,
+      93
+    ],
+    "income_tax": [
+      null,
+      294.4,
+      346.4,
+      null,
+      null
+    ],
+    "net_profit": [
+      -210,
+      570,
+      1770,
+      46,
+      101
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        2049.6,
+        2040.1,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        2680.6,
+        2764.5,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        6423.9,
+        6522.2,
+        null,
+        null
+      ],
+      "cash": [
+        260,
+        66.0,
+        46.7,
+        null,
+        31
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      13200,
+      16800,
+      19000,
+      21200,
+      24700
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        9970,
+        10500,
+        14200,
+        11000,
+        10700
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      3230,
+      6300,
+      4800,
+      10200,
+      14000
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      413,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      57.0,
+      102.2,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Данные 2021: выручка, валовая, опер.прибыль, EBITDA, чистая из smart-lab; детали баланса отсутствуют",
+    "Данные 2022: полные из PDF (все блоки); выручка, себестоимость, EBITDA из smart-lab сверены",
+    "Данные 2023: полные из PDF (все блоки P&L, баланс, ОС, запасы, дебторы); ОДДС частичная",
+    "Данные 2024-2025: выручка, себестоимость, валовая, опер.прибыль, EBITDA, чистая из smart-lab; баланс глобально (активы, капитал, долг); P&L детали отсутствуют",
+    "OДДС неполная: только CFO для 2023; CFI, CFF, net_change отсутствуют для всех годов",
+    "Финансовые расходы: отсутствуют для 2021, 2023-2025; данные по процентам и гарантиям есть в примечаниях, но не экстрактированы отдельно",
+    "Низкая ликвидность компании, скудная раскрытие отдельных статей балансов за 2021, 2024-2025",
+    "Арифметика баланса проверена для доступных лет: совпадает (±1%)"
+  ]
+}

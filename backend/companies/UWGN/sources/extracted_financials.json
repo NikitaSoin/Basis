@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "ticker": "UWGN",
+    "name": "Объединённая Вагонная Компания / ОВК",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure + smart-lab",
+      "url": "https://smart-lab.ru/q/UWGN/f/y/, https://e-disclosure.ru/portal/company.aspx?id=35102",
+      "doc_title": "Консолидированная финансовая отчётность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + web-fetch smart-lab",
+    "arithmetic_check": "partial",
+    "notes": [
+      "2021-2022: полные данные из PDF (ОВК МСФО 2022 годовой отчёт, аудировано)",
+      "2023-2024: данные из smart-lab таблиц (выручка, операционная прибыль, CFO, долг, Capex)",
+      "2023: год реструктуризации с допэмиссией 25х (116M → 2.95B акций)",
+      "2024: полная реструктуризация долга (долг упал с 15.3B до 0)",
+      "COGS классифицируется как by_function (есть Себестоимость и Валовая прибыль)",
+      "Ковенанты нарушены в 2021-2022, влияние на финансовую позицию значительно"
+    ]
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      69624,
+      41900,
+      82000,
+      145000
+    ],
+    "cogs": [
+      69355,
+      44547,
+      null,
+      null
+    ],
+    "gross_profit": [
+      269,
+      -2647,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          2984,
+          2488,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Доля в убытках ассоциированных предприятий",
+        "values": [
+          131,
+          120,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      -2914,
+      -11431,
+      9650,
+      30100
+    ],
+    "da": [
+      4723,
+      4038,
+      null,
+      null
+    ],
+    "ebitda": [
+      1809,
+      -7393,
+      10900,
+      46200
+    ],
+    "finance_costs": [
+      7269,
+      7297,
+      null,
+      null
+    ],
+    "finance_income": [
+      3502,
+      2435,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      -6697,
+      -16380,
+      null,
+      null
+    ],
+    "income_tax": [
+      109,
+      2376,
+      null,
+      null
+    ],
+    "net_profit": [
+      -6329,
+      -18769,
+      null,
+      32050
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        44619,
+        31184,
+        null,
+        null
+      ],
+      "intangibles": [
+        2834,
+        2107,
+        null,
+        null
+      ],
+      "goodwill": [
+        41,
+        0,
+        null,
+        null
+      ],
+      "deferred_tax_assets": [
+        2357,
+        851,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        942,
+        516,
+        null,
+        null
+      ],
+      "other_non_current": [
+        2026,
+        1125,
+        null,
+        null
+      ],
+      "total_non_current": [
+        52819,
+        36402,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        13306,
+        10141,
+        null,
+        null
+      ],
+      "receivables": [
+        2372,
+        741,
+        null,
+        null
+      ],
+      "cash": [
+        2457,
+        8084,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        9911,
+        10740,
+        null,
+        null
+      ],
+      "total_current": [
+        27021,
+        27706,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      87554,
+      64989,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        116,
+        116,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        -53381,
+        -71602,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        22993,
+        22993,
+        null,
+        null
+      ],
+      "revaluation_reserve": [
+        11362,
+        7182,
+        null,
+        null
+      ],
+      "other_equity": [
+        0,
+        -898,
+        null,
+        null
+      ],
+      "total_equity": [
+        -18910,
+        -42209,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        13053,
+        0,
+        null,
+        null
+      ],
+      "bonds_long_term": [
+        11377,
+        0,
+        null,
+        null
+      ],
+      "deferred_tax_liabilities": [
+        3077,
+        2044,
+        null,
+        null
+      ],
+      "lease_liabilities_long": [
+        525,
+        277,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        0,
+        22,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        28032,
+        2343,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        32655,
+        45370,
+        null,
+        null
+      ],
+      "bonds_short_term": [
+        16526,
+        30101,
+        null,
+        null
+      ],
+      "payables": [
+        3930,
+        2002,
+        null,
+        null
+      ],
+      "advances_received": [
+        16443,
+        27281,
+        null,
+        null
+      ],
+      "lease_liabilities_short": [
+        387,
+        101,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        0,
+        0,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        69941,
+        104855,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      106464,
+      107198,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -7653,
+      5029,
+      31800,
+      7200
+    ],
+    "cfi": [
+      -335,
+      -73,
+      null,
+      null
+    ],
+    "cff": [
+      8412,
+      610,
+      null,
+      null
+    ],
+    "capex": [
+      322,
+      230,
+      1000,
+      1260
+    ],
+    "net_change_in_cash": [
+      424,
+      5566,
+      null,
+      null
+    ]
+  },
+  "share_capital": {
+    "ordinary_shares_count": [
+      115996689,
+      115996689,
+      2905885544,
+      2905885544
+    ],
+    "notes": "2023: допэмиссия 25х (116M → 2.95B). До 2023 было 115,996,689. После 2023: 2,905,885,544 акций."
+  },
+  "data_flags": [
+    "2023-2024: неполные данные P&L (COGS, валовая прибыль не извлечены из smart-lab, это web-таблицы без деталей)",
+    "2023: год реструктуризации (допэмиссия, смена собственника) — финансовые показатели искажены",
+    "Долг в 2023 упал на 80% (с 75.5 до 15.3 млрд), в 2024 упал на 100% (к 0) → реструктуризация долга и благоприятные условия",
+    "EBITDA 2023: 10.9B из smart-lab (Operating profit 9.65B + предполагаемая D&A)",
+    "Net profit 2023: не извлечён (требуется доступ к полному PDF отчёта)",
+    "Баланс 2023-2024: не извлечён (требуется доступ к полным консолидированным отчётам МСФО)",
+    "CFI, CFF 2023-2024: не извлечены",
+    "Арифметика 2021-2022: проверена кодом — Assets = Equity + Liab (perfect match), CFO+CFI+CFF = ΔCash (perfect match), Gross profit = Revenue - COGS (perfect match) — PASSED",
+    "Арифметика 2023-2024: не проверена (неполные данные)"
+  ]
+}

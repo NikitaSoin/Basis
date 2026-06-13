@@ -1,0 +1,380 @@
+{
+  "meta": {
+    "ticker": "MGTS",
+    "name": "Московская городская телефонная сеть",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/MGTS/f/y/",
+      "doc_title": "МГТС: годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      41100,
+      42600,
+      43600,
+      44800,
+      48600
+    ],
+    "cogs": [
+      16200,
+      17000,
+      17000,
+      17100,
+      18900
+    ],
+    "gross_profit": [
+      24900,
+      25600,
+      26600,
+      27700,
+      29700
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (по функциям)",
+        "values": [
+          5800,
+          5670,
+          5940,
+          5550,
+          6210
+        ]
+      },
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          9000,
+          8100,
+          8400,
+          8200,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      15600,
+      15100,
+      15700,
+      15600,
+      17500
+    ],
+    "da": [
+      9000,
+      8100,
+      8400,
+      8200,
+      null
+    ],
+    "ebitda": [
+      24500,
+      24100,
+      23800,
+      24000,
+      25700
+    ],
+    "finance_costs": [
+      1150,
+      1260,
+      1220,
+      1220,
+      1600
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      15100,
+      16500,
+      18600,
+      24500,
+      28700
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        2420,
+        1280,
+        650,
+        550,
+        710
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      131900,
+      144900,
+      165200,
+      191700,
+      227500
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        192100
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      12200,
+      19400,
+      18900,
+      16600,
+      21500
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "EBITDA-D&A check: 2022 и 2023 не точны (возможно округление или прочие доходы/расходы)",
+    "Баланс: детали ОС, НМА, дебиторка, кредиторка отсутствуют (требуется полный PDF отчёта)",
+    "Собственный капитал заполнен только для 2025 (192.1B); остальные годы требуют доступа к e-disclosure или МГТС IR",
+    "Долг: по поиску 32.9B МСФО на 31.12.2024, но нет разбора на краткосрочный/долгосрочный",
+    "CFI, CFF, capex не заполнены (нет доступа к полной ОДДС)",
+    "Finance income (финдоходы) не найдены в smart-lab (вероятно минимальны)",
+    "Tax и pre_tax_profit не распарсены (вычисляются из P&L, но нет прямых цифр)",
+    "D&A за 2025 отсутствует в smart-lab",
+    "e-disclosure требует авторизации (403), mgts.ru/investors требует навигации",
+    "Данные валидированы через cross-check с cbonds/poisk: выручка 44.8B (✓ совпадает), прибыль 24.5B (✓ совпадает)"
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "meta": {
+    "ticker": "ABIO",
+    "name": "Артген биотех (ПАО)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тысячи",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (тысячи)",
+    "fiscal_years": [2022, 2023],
+    "source": {
+      "type": "company_ir",
+      "url": "https://artgen.ru/investors/raskrytie-informaczii/msfo/",
+      "doc_title": "Консолидированная финансовая отчётность ПАО Артген биотех МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext_layout",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [1136904, 1368551],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (включая амортизацию)",
+        "values": [1025990, 1093036]
+      },
+      {
+        "name": "Процентный расход",
+        "values": [67814, 49234]
+      },
+      {
+        "name": "Чистые прочие внеоперационные расходы",
+        "values": [46060, 25068]
+      },
+      {
+        "name": "Процентный доход",
+        "values": [-12479, -32334]
+      }
+    ],
+    "operating_profit": [110914, 275515],
+    "da": [53479, 70896],
+    "ebitda": [164393, 346411],
+    "finance_costs": [67814, 49234],
+    "finance_income": [12479, 32334],
+    "other_external_expenses": [46060, 25068],
+    "assoc_share": [23142, -24171],
+    "fx_differences": [-3356, 2017],
+    "pre_tax_profit": [29305, 211393],
+    "income_tax": [6230, -16736],
+    "net_profit": [23075, 194657],
+    "net_profit_parent": [46118, 168858],
+    "net_profit_non_controlling": [-23043, 25799]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [177170, 184628],
+      "intangibles": [736722, 806252],
+      "lease_assets": [103341, 131239],
+      "goodwill": null,
+      "assoc_investments": [92720, 81297],
+      "other_investments": [100615, 80037],
+      "other_financial_assets_nca": [61200, 52538],
+      "deferred_tax_assets": [83027, 90826],
+      "other_non_current": null,
+      "total_non_current": [1354795, 1426817]
+    },
+    "current_assets": {
+      "inventory": [223869, 226309],
+      "receivables": [67861, 81828],
+      "advance_given": [48531, 104139],
+      "other_receivables": [66898, 81657],
+      "short_term_investments": null,
+      "other_financial_assets_ca": [80952, 78366],
+      "cash": [201658, 544938],
+      "other_current": null,
+      "total_current": [689769, 1117237]
+    },
+    "total_assets": [2044564, 2544054],
+    "equity": {
+      "share_capital": [9265, 9265],
+      "share_premium": [612097, 625127],
+      "treasury_stock": [-447849, -421985],
+      "retained_earnings": [146453, 318145],
+      "fair_value_reserves": null,
+      "other_equity": [21073, 20241],
+      "other_comprehensive_income": [0, -50305],
+      "total_equity_parent": [341039, 500488],
+      "non_controlling_interests": [229216, 474245],
+      "total_equity": [570255, 974733]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [14200, 308],
+      "bonds_issued": [587175, 426896],
+      "deferred_tax_liab": null,
+      "advance_received_lt": [366002, 460955],
+      "lease_liabilities_lt": [111363, 119765],
+      "other_non_current_liab": null,
+      "total_non_current_liab": [1078740, 1007924]
+    },
+    "current_liabilities": {
+      "short_term_debt": [22734, 734],
+      "bonds_current": [84435, 219720],
+      "advance_received_st": [185306, 213823],
+      "payables": [66836, 82744],
+      "taxes_payable": [24565, 24844],
+      "lease_liabilities_st": [11693, 19532],
+      "other_current_liab": null,
+      "total_current_liab": [395569, 561397]
+    },
+    "total_liabilities": [1474309, 1569321],
+    "total_equity_and_liabilities": [2044564, 2544054]
+  },
+  "cash_flow": {
+    "cfo": [220299, 434847],
+    "investing_activities": {
+      "capex": [135926, 204292],
+      "other_investing": [346776, 216968]
+    },
+    "cfi": [-346776, -216968],
+    "cff": [138308, 124941],
+    "net_change_in_cash": [11832, 342820],
+    "cash_beginning": [201658, 201658],
+    "cash_ending": [201658, 544938]
+  },
+  "data_flags": [
+    "extracted_years: 2022-2023 only (2020-2021 balance sheet totals did not match; marked as suspect)",
+    "cost_format=by_nature: затраты по видам (опер.расходы, процентные, прочие), нет себестоимости/валовой прибыли (R&D биотех)",
+    "2024-2025: PDF сканированные (текст не извлекается); требует OCR или ручной загрузки",
+    "assoc_share: доля в результатах ассоциированной компании (инвестиции в Genetico и др.)",
+    "non_controlling_interests: консолидированная отчётность дочек; неконтрольные доли отдельной строкой",
+    "lease_assets/lease_liabilities: МСФО 16 (аренда помещений)",
+    "fair_value_reserves 2023: переоценка ФА через ПСД (изменение справедливой стоимости финансовых инструментов)",
+    "арифметика P&L: pre_tax = op_profit ± finance ± other ± assoc ± fx; pass 2022-2023",
+    "арифметика Balance: assets = equity + liabilities; pass 2022-2023 (diff=0)",
+    "арифметика CF: net_change = cfo + cfi + cff; pass 2022-2023 (diff<1k)",
+    "все значения в тысячах RUB; МСФО консолидированная"
+  ]
+}
