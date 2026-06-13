@@ -1815,7 +1815,7 @@ const COUPON_BADGE = {
   floater: { tone: "info", label: "Флоатер", short: "ПК" },
   linker: { tone: "info", label: "Линкер", short: "ИН" },
   structured: { tone: "warning", label: "Структурная", short: "СТР" },  // сложный/рисковый продукт — помечаем
-  fixed: null,   // фикс — норма, не маркируем (чтобы не зашумлять)
+  fixed: { tone: "neutral", label: "Фикс. купон", short: "ФИКС" },
   other: null,
 };
 
@@ -1940,7 +1940,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         <h1 className="tw-text-[28px] tw-leading-[34px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">{b.short_name}</h1>
         <Badge tone="neutral">{BOND_TYPE_LABEL[b.bond_type] || b.bond_type}</Badge>
         <Badge tone={r.tone}>{r.label}</Badge>
-        {couponBadge && <Badge tone={couponBadge.tone}>{couponBadge.label}</Badge>}
+        {couponBadge && <Badge tone={couponBadge.tone}>{couponBadge.label}{(isFloater || b.coupon_type === "fixed") && b.coupon_formula ? ` · ${b.coupon_formula}` : ""}</Badge>}
         {b.is_defaulted && <Badge tone="danger">Дефолт / режим Д</Badge>}
         {b.issuer_name && <span className="tw-text-[14px] tw-text-text-secondary">{b.issuer_name}</span>}
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
@@ -2416,7 +2416,7 @@ const BondsList = ({ onSelectBond }) => {
     {
       key: "name", label: "Выпуск",
       render: (_, b) => {
-        const cb = COUPON_BADGE[b.coupon_type];
+        const cb = b.coupon_type === "fixed" ? null : COUPON_BADGE[b.coupon_type];
         return (
           <div className="tw-flex tw-flex-col">
             <span className="tw-font-semibold tw-text-text-primary tw-flex tw-items-center tw-gap-1.5">
