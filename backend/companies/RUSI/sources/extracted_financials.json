@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "ticker": "RUSI",
+    "name": "ИК Русс-Инвест (Инвестиционная компания)",
+    "profile": "investment",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.russ-invest.com/investors/emitent/financial-statements/int_standart/",
+      "doc_title": "Консолидированная финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "investment_company",
+    "revenue": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": null,
+      "2025": null
+    },
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Процентные расходы",
+        "values": {
+          "2021": null,
+          "2022": null,
+          "2023": null,
+          "2024": 119,
+          "2025": null
+        }
+      },
+      {
+        "name": "Нереализованный расход/(доход) от операций с ценными бумагами",
+        "values": {
+          "2021": null,
+          "2022": null,
+          "2023": null,
+          "2024": 826115,
+          "2025": null
+        }
+      },
+      {
+        "name": "Амортизация и износ ОС и НМА",
+        "values": {
+          "2021": null,
+          "2022": null,
+          "2023": null,
+          "2024": 7269,
+          "2025": null
+        }
+      },
+      {
+        "name": "Резерв под обесценение",
+        "values": {
+          "2021": null,
+          "2022": null,
+          "2023": null,
+          "2024": 489379,
+          "2025": null
+        }
+      }
+    ],
+    "operating_profit": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": null,
+      "2025": null
+    },
+    "da": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": 7269,
+      "2025": null
+    },
+    "finance_costs": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": 119,
+      "2025": null
+    },
+    "finance_income": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": null,
+      "2025": null
+    },
+    "pre_tax_profit": {
+      "2021": null,
+      "2022": null,
+      "2023": 678448,
+      "2024": -734906,
+      "2025": null
+    },
+    "income_tax": {
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": -3913,
+      "2025": null
+    },
+    "net_profit": {
+      "2021": 407883,
+      "2022": -672909,
+      "2023": 526237,
+      "2024": -552556,
+      "2025": null
+    }
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "debt_securities_long_term": null,
+      "equity_securities_long_term": null,
+      "ppe": null,
+      "intangibles": null,
+      "investment_property": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "debt_securities": null,
+      "equity_securities": null,
+      "receivables": null,
+      "cash": {
+        "2021": null,
+        "2022": null,
+        "2023": 3652,
+        "2024": 2154,
+        "2025": null
+      },
+      "total_current": null
+    },
+    "total_assets": {
+      "2021": 4351963,
+      "2022": 3629162,
+      "2023": 4249865,
+      "2024": null,
+      "2025": null
+    },
+    "equity": {
+      "share_capital": {
+        "2021": null,
+        "2022": null,
+        "2023": 1492376,
+        "2024": 1492376,
+        "2025": null
+      },
+      "retained_earnings": {
+        "2021": null,
+        "2022": null,
+        "2023": 2649786,
+        "2024": 2098278,
+        "2025": null
+      },
+      "revaluation_reserve": {
+        "2021": null,
+        "2022": null,
+        "2023": -6485,
+        "2024": -5095,
+        "2025": null
+      },
+      "other_equity": {
+        "2021": null,
+        "2022": null,
+        "2023": 1297,
+        "2024": 1274,
+        "2025": null
+      },
+      "total_equity": {
+        "2021": 3590734,
+        "2022": 3629526,
+        "2023": 4133126,
+        "2024": 3582987,
+        "2025": null
+      }
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": {
+      "2021": 761229,
+      "2022": 736636,
+      "2023": 116739,
+      "2024": null,
+      "2025": null
+    }
+  },
+  "cash_flow": {
+    "cfo": {
+      "2021": null,
+      "2022": null,
+      "2023": -627040,
+      "2024": -339102,
+      "2025": null
+    },
+    "cfi": {
+      "2021": null,
+      "2022": null,
+      "2023": -47,
+      "2024": -7617,
+      "2025": null
+    },
+    "cff": {
+      "2021": null,
+      "2022": null,
+      "2023": 16922,
+      "2024": 931,
+      "2025": null
+    },
+    "capex": null,
+    "net_change_in_cash": {
+      "2021": null,
+      "2022": null,
+      "2023": -610165,
+      "2024": -345788,
+      "2025": null
+    }
+  },
+  "data_flags": [
+    "2020 год пропущен — PDF сканированный без текстового слоя",
+    "2025 год не полный (краткий отчёт, данные отсутствуют)",
+    "Инвестиционная компания: ЧП волатильна (переоценка портфеля); стоимость = NAV",
+    "Единицы: тысячи рублей"
+  ]
+}

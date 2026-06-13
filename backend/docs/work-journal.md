@@ -690,3 +690,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 22 (haiku, терсе): RBCM NSVZ DIOD LIFE ROST SVET (микрокапы) — все OK. 147/262. Тонкие данные/РСБУ честно low/partial; LIFE/RBCM/ROST — отриц.капитал/допэмиссии помечены.
 
 - Батч 23 (haiku, терсе): ROLO ZILL KMEZ VLHZ YRSB ASSB — все OK. 153/262. ZILL — NAV-девелопмент земли (P/NAV 0.32); ROLO олово убытки; KMEZ атом-госзаказ.
+
+- Батч 24 (haiku, терсе): CHMK MGNZ UKUZ IGST RUSI NKSH — все OK. 159/262. Мечел-дочки (CHMK/UKUZ/IGST) искажены внутригруппой/долгом — риск помечен; MGNZ национализация; RUSI премия к NAV 2x флаг.

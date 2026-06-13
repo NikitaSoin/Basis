@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "ticker": "IGST",
+    "name": "ПАО ИЖСТАЛЬ",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/IGST/f/y/RSBU/",
+      "doc_title": "ИЖСТАЛЬ: РСБУ годовая отчетность",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed",
+    "notes": [
+      "Данные из smart-lab (вторичный источник)",
+      "2021 частичные (2021 для выручки отсутствует)",
+      "2020 не найден в доступных источниках",
+      "Первичный PDF с e-disclosure не загрузился",
+      "Дочерняя компания Мечела (группа не консолидирует автономные РСБУ)"
+    ]
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      27800,
+      32900,
+      33200,
+      28800
+    ],
+    "cogs": [
+      null,
+      25700,
+      24000,
+      25400,
+      null
+    ],
+    "gross_profit": [
+      null,
+      2100,
+      8900,
+      7800,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          2570,
+          2840,
+          2880,
+          3070,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      2790,
+      4360,
+      5200,
+      4660,
+      1950
+    ],
+    "da": [],
+    "ebitda": [],
+    "finance_costs": [
+      0,
+      0,
+      0,
+      0,
+      null
+    ],
+    "finance_income": [],
+    "pre_tax_profit": [],
+    "income_tax": [],
+    "net_profit": [
+      null,
+      2520,
+      3600,
+      3350,
+      1190
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [],
+      "intangibles": [],
+      "goodwill": [],
+      "long_term_investments": [],
+      "other_non_current": [],
+      "total_non_current": []
+    },
+    "current_assets": {
+      "inventory": [],
+      "receivables": [],
+      "cash": [],
+      "short_term_investments": [],
+      "other_current": [],
+      "total_current": []
+    },
+    "total_assets": [
+      15400,
+      17200,
+      20700,
+      24100,
+      26700
+    ],
+    "equity": {
+      "share_capital": [],
+      "retained_earnings": [],
+      "additional_paid_in": [],
+      "other_equity": [],
+      "total_equity": [
+        null,
+        -1200,
+        2390,
+        9060
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [],
+      "deferred_tax": [],
+      "other_non_current_liab": [],
+      "total_non_current_liab": []
+    },
+    "current_liabilities": {
+      "short_term_debt": [],
+      "payables": [],
+      "other_current_liab": [],
+      "total_current_liab": []
+    },
+    "total_liabilities": [
+      null,
+      18400,
+      18310,
+      15040,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      -1600,
+      2350,
+      1200,
+      -3170
+    ],
+    "cfi": [],
+    "cff": [],
+    "capex": [
+      null,
+      100,
+      280,
+      158,
+      66
+    ],
+    "net_change_in_cash": []
+  },
+  "data_flags": [
+    "2021: выручка отсутствует в таблице (источник отмечает '?' ), чистая прибыль тоже",
+    "Себестоимость и опер.расходы взяты из таблицы, но детализация ограничена",
+    "Финансовые доходы/расходы не найдены кроме процентных расходов (все 0)",
+    "D&A (амортизация) не найдена",
+    "EBITDA не вычисляется без D&A",
+    "Состав капитала (share capital, retained earnings) не детализирован",
+    "Первичный PDF не загрузился, используется вторичный источник (smart-lab)",
+    "2020 и более ранние годы недоступны",
+    "2025: LTM (last 12 months), данные неполные"
+  ]
+}

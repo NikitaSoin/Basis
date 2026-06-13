@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "ticker": "CHMK",
+    "name": "ПАО Челябинский металлургический комбинат",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/CHMK/f/y/",
+      "doc_title": "ЧМК МСФО годовые финансовые отчёты",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [176.3, 168.0, 161.5, 172.1, 143.1],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [],
+    "operating_profit": [10.7, 8.82, 16.1, 2.76, -7.17],
+    "da": [null, null, null, null, null],
+    "ebitda": [14.3, 12.1, 19.6, 6.81, -2.72],
+    "finance_costs": [null, null, null, null, null],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [6.49, 12.9, 4.18, -7.12, -17.4]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [4.74, null, null, 0.148, null],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [null, null, null, 268.0, null],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [67.6, null, null, 54.9, 62.9]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [0.045, -2.34, 29.1, 27.0, 21.4],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [1.24, 1.80, 6.89, 4.14, 2.41],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "МСФО консолидированная (2021-2025), smart-lab агрегированные таблицы",
+    "Себестоимость (COGS), амортизация, финансовые расходы/доходы НЕ извлечены (smart-lab не публикует в агрегатах)",
+    "Баланс неполный: общие активы/капитал только для 2024, долг из smart-lab (151-153 млрд)",
+    "Expense_lines пусто: первичная отчётность (e-disclosure, chelmk.ru, mechel.ru) недоступна по IP",
+    "Долг высокий (151.9 млрд 2024) vs выручка (172.1 млрд), маржа операционная 1.6% и отрицательная в 2025",
+    "Дочка Мечела: внутригрупповые цены, прибыль на материнскую",
+    "РСБУ доступна отдельно (более высокие убытки: -19.4 млрд 2025 vs -17.4 МСФО)",
+    "Арифметика: CFO + Capex не даёт полноту (CFF, CFI отсутствуют); EBITDA > EBIT (ожидаемо за счёт DA)"
+  ]
+}

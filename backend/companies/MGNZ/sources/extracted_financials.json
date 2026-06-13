@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "ticker": "MGNZ",
+    "name": "ПАО Соликамский магниевый завод (СМЗ)",
+    "profile": "standard",
+    "reporting_standard": "МСФО (консолидированная) + РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab-table",
+      "url_primary": "https://smart-lab.ru/q/MGNZ/f/y/",
+      "url_secondary_rsbu": "https://smart-lab.ru/q/MGNZ/f/y/RSBU/",
+      "url_assets": "https://smart-lab.ru/q/MGNZ/MSFO/assets/",
+      "url_net_assets": "https://smart-lab.ru/q/MGNZ/MSFO/net_assets/",
+      "doc_title": "СМЗ (MGNZ): годовая финансовая отчетность МСФО + РСБУ",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial",
+    "notes": "Данные извлечены из smart-lab.ru (сводные таблицы МСФО и РСБУ). Первичные PDF отчёты (e-disclosure.ru заблокирован HTTP 403, smz.ru не публикует прямые ссылки) недоступны. Баланс собран с разных источников (total_assets из assets/, total_equity из net_assets/, total_liabilities для 2024-2025 неполные - только долг без кредиторки). Национализация 2023-2024 (Росатом + Росимущество). Тренд: убытки нарастают, кэш падает, финансовое состояние критично."
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [9190, 13100, 12400, 11000, 9440],
+    "cogs": [7480, 8000, 10000, 10600, 10600],
+    "gross_profit": [1710, 5100, 2400, 400, -1160],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (не детализировано - требуется доступ к PDF)",
+        "values": [null, null, null, null, null]
+      }
+    ],
+    "operating_profit": [null, null, null, -1550, -2930],
+    "da": [null, null, null, null, null],
+    "ebitda": [4330, null, null, null, -2220],
+    "finance_costs": [null, null, null, null, null],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit_ifrs": [730, 3650, 753, -907, -2940],
+    "net_profit_rsbu": [null, 3510, 753, -1100, -3210]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [null, 3430, null, null, 156],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [6120, 9810, 9470, 8580, 8070],
+    "equity": {
+      "share_capital": [99.568, 99.568, 99.568, 99.568, 99.568],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity_ifrs": [3860, 7520, 6910, 6000, 3060]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, 432.2, 395.2],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, 432.2, 395.2]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, 2500, 2400],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, -2350],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "expense_lines: операционные расходы не детализированы по видам (коммерческие, административные, прочие) - требуется полный отчёт",
+    "balance_sheet: данные частичные и собраны с разных источников (assets/, net_assets/, отдельные сведения о долге)",
+    "balance_sheet 2024-2025: total_liabilities не заполнены (данные неполные - только долг без кредиторки и прочих текущих). Баланс не прошёл проверку Assets=Equity+Liab (2024 расхождение 3.94%, 2025 27.44%)",
+    "non_current_liabilities 2024-2025: данные только по долгосрочному долгу, прочие неполные",
+    "current_liabilities 2024-2025: данные только по краткосрочному долгу (2.5 млрд 2024, 2.4 млрд 2025), кредиторская задолженность и прочие не заполнены",
+    "cash_flow: только CFO 2025 (-2350 млн) - остальные потоки требуют доступа к отчёту ОДДС",
+    "operating_profit 2024-2025 вычислены косвенно (выручка - себестоимость), требуется подтверждение из P&L отчёта",
+    "D&A (амортизация/износ): не заполнены - требуется доступ к полному отчёту",
+    "finance_costs/finance_income: не заполнены - требуется доступ к полному отчёту",
+    "расхождение net_profit 2023: МСФО 753 млн = РСБУ 753 млн (совпадают по РСБУ интерфакс); возможна разница по деталям МСФО",
+    "убыточность нарастает 2024-2025: выручка падает (13.1 млрд 2022 → 9.4 млрд 2025, -28%), себестоимость зафиксирована (~10.6 млрд), операционная прибыль отрицательна",
+    "ликвидность критична: кэш упал с 3.43 млрд (2022) до 156 млн (2025, -95%), дефицит операционного кэш-флоу -2.35 млрд (2025)",
+    "уставный капитал микроскопичен (99.6 млн, всего 398K акций по 0.25 руб), вся стоимость в нераспределённой прибыли (до убытков 2024-2025)",
+    "национализация: изъятие акций миноритариев 2023-2024 (Росатом, Росимущество), судебные споры, выплаты минимальны",
+    "первичные PDF отчёты недоступны: e-disclosure.ru возвращает HTTP 403, smz.ru не публикует прямые ссылки на PDF. РЕКОМЕНДУЕТСЯ РУЧНАЯ ЗАГРУЗКА PDF на smw.ru"
+  ]
+}

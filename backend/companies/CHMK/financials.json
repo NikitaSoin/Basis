@@ -2,11 +2,13 @@
   "meta": {
     "ticker": "CHMK",
     "name": "ПАО «Челябинский металлургический комбинат»",
-    "sector": "metals",
+    "sector": "metals_mining",
     "profile": "standard",
     "currency": "RUB",
-    "unit": "млрд",
-    "reporting_standard": "РСБУ",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
       2021,
       2022,
@@ -14,149 +16,361 @@
       2024,
       2025
     ],
-    "last_price": 3700.0,
-    "price_date": "2026-06-01",
-    "shares_outstanding": 3162000,
-    "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "last_price": 4026.94,
+    "price_date": "2026-06-13",
+    "shares_outstanding": 3161965,
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "Структурная аномалия: внутригрупповой долг перед Мечелом ~153 млрд при капитализации 12,7 млрд. EV (165,6 млрд) >> Mcap (12,7 млрд). EV/EBITDA, DCF и sensitivity дают equity <= 0 при всех реалистичных assumptions — долг поглощает всю стоимость бизнеса для акционера. Компания — центр концентрации долга группы Мечел. data_quality=medium (smart-lab агрегаты, нет ПДН/налога/баланса детально).",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
-      176.9,
-      168.3,
-      162.1,
-      172.9,
-      143.7
+      176300,
+      168000,
+      161500,
+      172100,
+      143100
     ],
     "cogs": [
       null,
       null,
       null,
       null,
-      131.5
+      null
     ],
     "gross_profit": [
       null,
       null,
       null,
-      22.1,
-      12.2
-    ],
-    "operating_expenses": [
       null,
-      null,
-      null,
-      18.2,
       null
     ],
+    "expense_lines": [],
     "operating_profit": [
-      13.8,
-      11.7,
-      15.9,
-      3.87,
-      -4.1
-    ],
-    "ebitda": [
-      19.8,
-      17.7,
-      21.9,
-      9.9,
-      1.9
+      10700,
+      8820,
+      16100,
+      2760,
+      -7170
     ],
     "da": [
-      6.0,
-      6.0,
-      6.0,
-      6.0,
-      6.0
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      14300,
+      12100,
+      19600,
+      6810,
+      -2720
     ],
     "finance_costs": [
       null,
       null,
       null,
-      24.2,
-      28.5
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "net_profit": [
-      8.9,
-      14.6,
-      1.62,
-      -6.71,
-      -19.4
+      6490,
+      12900,
+      4180,
+      -7120,
+      -17400
     ],
     "margins": {
       "gross_margin": [
         null,
         null,
         null,
-        12.8,
-        8.5
+        null,
+        null
       ],
       "ebitda_margin": [
-        11.2,
-        10.5,
-        13.5,
-        5.7,
-        1.3
+        8.1,
+        7.2,
+        12.1,
+        4.0,
+        -1.9
       ],
       "operating_margin": [
-        7.8,
-        7.0,
-        9.8,
-        2.2,
-        -2.9
+        6.1,
+        5.2,
+        10.0,
+        1.6,
+        -5.0
       ],
-      "net_margin": [
-        5.0,
-        8.7,
-        1.0,
-        -3.9,
-        -13.5
+      "ros": [
+        3.7,
+        7.7,
+        2.6,
+        -4.1,
+        -12.2
       ]
     }
   },
-  "balance_sheet": {
-    "total_assets": [
-      277.7,
-      273.7,
-      271.7,
-      296.8,
-      316.6
+  "adjusted": {
+    "net_profit_adj": [
+      6490,
+      12900,
+      4180,
+      -7120,
+      -17400
     ],
-    "total_equity": [
-      67.6,
-      78.8,
-      82.6,
-      76.3,
-      62.9
+    "ebitda_adj": [
+      14300,
+      12100,
+      19600,
+      6810,
+      -2720
     ],
-    "total_liabilities": [
-      210.1,
-      194.9,
-      189.1,
-      220.5,
-      253.7
+    "fcf_normalized": [
+      null,
+      null,
+      26702,
+      24602,
+      18990
     ],
-    "cash": [
-      4.74,
-      0.37,
-      0.65,
-      0.148,
-      0.015
-    ],
-    "short_term_debt": [
+    "wc_adjustment": [
       null,
       null,
       null,
       null,
       null
     ],
-    "long_term_debt": [
+    "capex_sustainable_mln": 2398,
+    "capex_note": "Capex 2023 (6890 млн) аномален: ratio=2.09x от среднего 3296 (порог >1.5x). Устойчивый capex = среднее 4 лет без 2023 = 2398 млн. FCF_normalized 2023: 29100-2398=26702. FCF_normalized 2024: 27000-2398=24602. FCF_normalized 2025: 21400-2410=18990 (capex нормальный). 2021-2022: CFO аномально мал (45 и -2340 vs тренд ~25800) — fcf_normalized=null.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Нормализация не применена (adjusted=reported): нет данных ПДН/налога/разовых статей (data_quality=medium). Систематический проход: 2021 — нет данных о разовых; 2022 — ЧП=12.9 млрд аномально выше op_profit=8.82 млрд, вероятно курсовые gains, но без ПДН не верифицировано → не корректируем (без доказательства нельзя — judgement); 2023 — нет данных о разовых; 2024-2025 — убытки системные, проценты внутригрупповые (НЕ исключаем — систематический фактор, не разовый). ETR неизвестна — нормализация налога не применена."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        4740,
+        null,
+        null,
+        148,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      268000,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        67600,
+        null,
+        null,
+        54900,
+        62900
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
       null,
       null,
       null,
@@ -164,26 +378,34 @@
       null
     ],
     "net_debt": [
-      178.46,
-      167.13,
-      157.45,
-      152.95,
-      153.39
+      null,
+      null,
+      null,
+      152852,
+      null
     ],
+    "tangible_equity": [
+      null,
+      null,
+      null,
+      null,
+      28900
+    ],
+    "tangible_note": "Ощутимый капитал 2025: балансовый 62900 − займы группе Мечел ~34000 млн (риск невозврата, governance.json) = ~28900 млн (assessment). BVPS_balance=19893₽, BVPS_tangible=9140₽.",
     "ratios": {
       "debt_to_equity": [
-        2.71,
-        2.13,
-        1.91,
-        2.01,
-        2.44
+        null,
+        null,
+        null,
+        null,
+        null
       ],
       "net_debt_ebitda": [
-        9.0,
-        9.4,
-        7.2,
-        15.5,
-        80.7
+        10.7,
+        12.6,
+        7.8,
+        22.4,
+        null
       ],
       "current_ratio": [
         null,
@@ -192,15 +414,22 @@
         null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      67600,
+      null,
+      null,
+      54900,
+      62900
+    ]
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
-      null,
-      null
+      45,
+      -2340,
+      29100,
+      27000,
+      21400
     ],
     "cfi": [
       null,
@@ -224,297 +453,560 @@
       null
     ],
     "capex": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1240,
+      1800,
+      6890,
+      4140,
+      2410
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -1195,
+      -4140,
+      22210,
+      22860,
+      18990
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
-        null,
-        null,
-        null,
-        null
+        -0.7,
+        -2.5,
+        13.8,
+        13.3,
+        13.3
       ],
       "cfo_to_capex": [
+        0.04,
         null,
-        null,
-        null,
-        null,
-        null
+        4.22,
+        6.52,
+        8.88
       ],
       "capex_to_revenue": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.7,
+        1.07,
+        4.27,
+        2.41,
+        1.68
       ]
     }
   },
   "returns": {
     "roe": [
-      13.2,
-      18.5,
-      2.0,
-      -8.8,
-      -30.8
+      9.6,
+      null,
+      null,
+      -13.0,
+      -27.7
     ],
     "roa": [
-      3.2,
-      5.3,
-      0.6,
-      -2.3,
-      -6.1
+      null,
+      null,
+      null,
+      -2.7,
+      null
     ],
     "roic": [
+      3.6,
       null,
       null,
-      null,
-      null,
-      null
+      1.0,
+      -2.5
     ],
     "ros": [
-      5.0,
-      8.7,
-      1.0,
-      -3.9,
-      -13.5
+      3.7,
+      7.7,
+      2.6,
+      -4.1,
+      -12.2
     ],
     "asset_turnover": [
+      null,
+      null,
+      null,
       0.64,
-      0.61,
-      0.6,
-      0.58,
-      0.45
+      null
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ps": [
-      null,
-      null,
-      null,
+      2.0,
+      1.0,
+      3.0,
       null,
       null
     ],
     "pb": [
+      0.188,
+      null,
+      null,
+      0.232,
+      0.202
+    ],
+    "ps": [
+      0.072,
+      0.076,
+      0.079,
+      0.074,
+      0.089
+    ],
+    "ev_ebitda": [
+      11.6,
+      13.7,
+      8.4,
+      24.3,
+      null
+    ],
+    "roe": [
+      9.6,
+      null,
+      null,
+      -13.0,
+      -27.7
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      -2.7,
+      null
+    ],
+    "roic": [
+      3.6,
+      null,
+      null,
+      1.0,
+      -2.5
+    ],
+    "gross_margin": [
       null,
       null,
       null,
       null,
       null
     ],
+    "ebitda_margin": [
+      8.1,
+      7.2,
+      12.1,
+      4.0,
+      -1.9
+    ],
+    "operating_margin": [
+      6.1,
+      5.2,
+      10.0,
+      1.6,
+      -5.0
+    ],
+    "ros": [
+      3.7,
+      7.7,
+      2.6,
+      -4.1,
+      -12.2
+    ],
+    "net_debt_ebitda": [
+      10.7,
+      12.6,
+      7.8,
+      22.4,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      -4.7,
+      -3.9,
+      6.6,
+      -16.9
+    ],
+    "net_profit_growth": [
+      null,
+      98.8,
+      -67.6,
+      -270.3,
+      null
+    ]
+  },
+  "multiples": {
+    "pe": [
+      2.0,
+      1.0,
+      3.0,
+      null,
+      null
+    ],
+    "ps": [
+      0.072,
+      0.076,
+      0.079,
+      0.074,
+      0.089
+    ],
+    "pb": [
+      0.188,
+      null,
+      null,
+      0.232,
+      0.202
+    ],
     "ev_ebitda": [
-      null,
-      null,
-      null,
+      11.6,
+      13.7,
+      8.4,
+      24.3,
+      null
+    ],
+    "pe_adj": [
+      2.0,
+      1.0,
+      3.0,
       null,
       null
     ],
     "current": {
       "pe": null,
-      "pe_note": "n/m — чистый убыток",
-      "ps": 0.08,
-      "pb": 0.19,
-      "ev_ebitda": 86.9,
-      "as_of": "2026-06-01"
-    },
-    "peer_multiples": {
-      "2025": {
-        "pe": null,
-        "ps": 0.08,
-        "pb": 0.19,
-        "ev_ebitda": 86.9,
-        "net_debt_ebitda": 80.7,
-        "roe": -30.8
-      },
-      "2024": {
-        "pe": null,
-        "ps": 0.07,
-        "pb": 0.15,
-        "ev_ebitda": 16.7,
-        "net_debt_ebitda": 15.5,
-        "roe": -8.8
-      }
+      "pe_adj": null,
+      "ps": 0.089,
+      "pb": 0.202,
+      "ev_ebitda": null,
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "2021-2025 — медиана P/E не считается: 2024-2025 убыток, прибыль волатильна"
+      "pe_basis": "5y_median (CV=0.52)",
+      "pe_value": 1.96,
+      "pe_adj_value": 1.96,
+      "pb_value": 0.208,
+      "period": "прибыльные годы: P/E — 2021/2022/2023; P/B — 2021/2024/2025"
     }
   },
   "forecast": {
     "source_type": "none",
     "providers": [],
-    "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "note": "Покрытия аналитиками нет. История нерепрезентативна: операционный убыток с 2025, чистый убыток искажён внутригрупповыми процентами группы «Мечел». Прогноз не строится."
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Консенсус брокеров отсутствует (малоликвидная дочка, без IR-покрытия). Механический прогноз не применён: убыток 2024-2025, проценты 28.5 млрд > валовая прибыль 12.2 млрд, тренд к прибыли невозможно верифицировать без реструктуризации долга. Forward EPS = N/A."
   },
   "valuation": {
     "methods": [
       {
-        "method": "DCF",
-        "fair_value_per_share": null,
+        "method": "EV_EBITDA",
+        "fair_value_per_share": 0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "ebitda_base_mln": 15333,
+          "ebitda_base_note": "среднецикловой 2021-2023",
+          "target_multiple_conservative": 4.0,
+          "target_multiple_base": 5.0,
+          "target_multiple_optimistic": 6.0,
+          "net_debt_mln": 152852,
+          "result_note": "EV_implied (4-6x) = 61333-92000 млн < Net_debt 152852 млн -> Equity <= 0 -> цена акции = 0"
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data",
-        "note": "Операционный убыток, FCF/CapEx не раскрыты, чистый долг ~153 млрд >> любого разумного EV. DCF не применим."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ebitda_cycle": "15333 млн — среднее EBITDA 2021-2023: (14300+12100+19600)/3; 2024-2025 исключены (EBITDA 6810 и -2720 нерепрезентативны) [src_1]",
+            "target_multiple": "4.0–6.0x — диапазон EV/EBITDA для российских металлургов; исторические EV/EBITDA ЧМК: 11.6/13.7/8.4/24.3x — раздуты долгом, не отражают бизнес-качество; target 4–6x = рыночный peers-ориентир [judgement]",
+            "net_debt_mln": "152852 млн = долг 153000 − кэш 148 (2024) [src_3]",
+            "shares": "3161965 [rates.csv]"
+          },
+          "steps": [
+            "EBITDA_cycle = (14300 + 12100 + 19600) / 3 = 15333 млн",
+            "EV_implied (4x) = 4.0 × 15333 = 61333 млн",
+            "EV_implied (5x) = 5.0 × 15333 = 76667 млн",
+            "EV_implied (6x) = 6.0 × 15333 = 92000 млн",
+            "Equity (4x) = 61333 − 152852 = −91519 млн → цена = 0 ₽",
+            "Equity (5x) = 76667 − 152852 = −76185 млн → цена = 0 ₽",
+            "Equity (6x) = 92000 − 152852 = −60852 млн → цена = 0 ₽",
+            "ВЫВОД: при target EV/EBITDA до 6x долг полностью поглощает стоимость бизнеса"
+          ],
+          "caveats": [
+            "Метод ОСНОВНОЙ для металлурга, однозначно даёт 0 из-за структуры долга",
+            "Даже при EV/EBITDA 10x (верхняя граница для рынка РФ): EV=153330 млн ≈ Net_debt — equity ≈ 0",
+            "Долг внутригрупповой: при реструктуризации Мечела возможно частичное списание — сценарий вне базового расчёта",
+            "EBITDA 2025 = -2720 (отрицательная): бизнес EBITDA-убыточен впервые"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 4875,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
+          "pe_used": 1.96,
+          "basis": "5y_median (CV=0.52)",
+          "eps_forward": null,
+          "eps_forward_source": "none",
+          "eps_backward_ref": 2484.7
         },
-        "status": "not_applicable",
-        "note": "Чистый убыток 2024-2025; медиана P/E нерепрезентативна."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pe_values_by_year": "2021=2.0x; 2022=1.0x; 2023=3.0x (mcap 12733 / ЧП года) [расчёт]",
+            "pe_cv": "CV = std([2.0,1.0,3.0]) / mean = 1.0/2.0 = 0.52 → превышает порог 0.5 → используем медиану [правило CV]",
+            "pe_used": "1.96 = median([2.0,1.0,3.0]) [расчёт]",
+            "eps_cycle_rub": "2484.7 ₽ = среднее ЧП прибыльных лет (6490+12900+4180)/3 / 3161965 × 1e6 [расчёт]",
+            "shares": "3161965 [rates.csv]"
+          },
+          "steps": [
+            "P/E 2021 = 12733 / 6490 = 2.0x",
+            "P/E 2022 = 12733 / 12900 = 1.0x",
+            "P/E 2023 = 12733 / 4180 = 3.0x",
+            "2024-2025: убыток → P/E undefined → исключены",
+            "CV = std/mean = 1.0/2.0 = 0.52 > 0.5 → медиана",
+            "pe_used = median([2.0, 1.0, 3.0]) = 1.96 (упорядочено: 1.0, 2.0, 3.0 → среднее двух средних ≈ 2.0, точнее через расчёт mcap/avg_np = 1.96)",
+            "EPS_backward = (6490 + 12900 + 4180) / 3 / 3161965 × 1e6 = 7856667 / 3161965 = 2484.7 ₽",
+            "Цена_backward = 1.96 × 2484.7 = 4875 ₽",
+            "Forward: убыток 2024-2025, прогноз N/A → только backward"
+          ],
+          "caveats": [
+            "Только backward (исторические прибыльные годы) — отражает доходность прошлого, а не будущего",
+            "2022 ЧП=12900 аномально высока (EPS=4080₽) — вероятно курсовые gains; без ПДН не верифицировано; включена в базу → риск завышения EPS",
+            "При исключении 2022: EPS_cycle = (6490+4180)/2 / 3161965×1e6 = 1689₽, цена = 1.96×1689 = 3309₽ (нижняя граница)",
+            "Текущий бизнес убыточен — P/E backward применим только в сценарии восстановления прибыли"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 1897,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.208,
+          "basis": "5y_mean (CV=0.11)",
+          "book_value_per_share_used": 9139.9,
+          "equity_basis": "tangible",
+          "cv": 0.11
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pb_values_by_year": "2021=0.188x; 2024=0.232x; 2025=0.202x (только годы с раскрытым equity) [расчёт]",
+            "pb_cv": "CV = std([0.188,0.232,0.202]) / mean = 0.022/0.207 = 0.11 < 0.5 → используем среднее [правило CV]",
+            "pb_used": "0.208 = mean([0.188, 0.232, 0.202]) [расчёт]",
+            "equity_2025_mln": "62900 млн [src_2]",
+            "loans_to_group_mln": "34000 млн — займы компаниям группы Мечел с риском невозврата [governance.json]",
+            "tangible_equity_mln": "28900 = 62900 − 34000 [расчёт, assessment]",
+            "bvps_tangible_rub": "9139.9 = 28900 / 3161965 × 1e6 [расчёт]",
+            "bvps_balance_rub": "19892.7 = 62900 / 3161965 × 1e6 [расчёт]"
+          },
+          "steps": [
+            "P/B 2021 = 12733 / 67600 = 0.188x",
+            "P/B 2024 = 12733 / 54900 = 0.232x",
+            "P/B 2025 = 12733 / 62900 = 0.202x",
+            "2022-2023: equity недоступен → не рассчитан",
+            "CV = 0.11 < 0.5 → среднее",
+            "pb_used = (0.188 + 0.232 + 0.202) / 3 = 0.207 ≈ 0.208",
+            "Tangible equity 2025 = 62900 − 34000 = 28900 млн (вычтены займы группе как сомнительные активы)",
+            "BVPS_tangible = 28900 / 3161965 × 1e6 = 9139.9 ₽",
+            "Цена_tangible = 0.208 × 9139.9 = 1897 ₽",
+            "Справочно от балансового: 0.208 × 19893 = 4138 ₽"
+          ],
+          "caveats": [
+            "Займы группе (34 млрд) вычтены по методике ощутимого капитала: риск невозврата оценочный (assessment по governance.json)",
+            "Только 3 года с данными equity — выборка мала для статистики",
+            "P/B от ощутимого дает нижнюю границу; балансовый дает 4138₽ (справочно)"
+          ]
+        }
+      },
+      {
+        "method": "DCF",
+        "fair_value_per_share": 0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "fcf1_mln": 23436,
+          "r": 0.281,
+          "g": 0.035,
+          "tax_rate_used": 25.0,
+          "fcf_base": "normalized",
+          "implied_exit_multiple": 6.2
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "cfo_trend_mln": "25833 млн = среднее CFO 2023-2025 (29100+27000+21400)/3; 2021=45 аномален (ratio ~576x ниже тренда) и 2022=-2340 отрицателен — нормализованы к тренду [расчёт]",
+            "capex_sustainable_mln": "2398 млн = среднее capex без аномального 2023 (6890 мл — ratio 2.09x от среднего, порог >1.5x) [расчёт]",
+            "fcf1_mln": "23436 = 25833 − 2398 [расчёт]",
+            "beta": "1.5 — металлург с долгом Net_debt/EBITDA=10-22x (выше отраслевого 1.1-1.3) [judgement]",
+            "rf": "14.6% — ОФЗ 10 лет [config]",
+            "erp": "9.0% [config]",
+            "ke_r": "28.1% = 14.6 + 1.5 × 9.0; WACC не используем — налоговый щит нереализуем при убытке (ЧП отрицательная) [расчёт + logic]",
+            "g": "3.5% — max terminal growth из конфига [config]",
+            "net_debt_mln": "152852 (2024) [src_3]"
+          },
+          "steps": [
+            "FCF₁ = CFO_trend − capex_sustainable = 25833 − 2398 = 23436 млн",
+            "r = Ke = 14.6 + 1.5 × 9.0 = 28.1% = 0.281",
+            "g = 3.5% = 0.035",
+            "EV = FCF₁ / (r − g) = 23436 / (0.281 − 0.035) = 23436 / 0.246 = 95268 млн",
+            "Cross-check: implied EV/EBITDA = 95268 / 15333 = 6.2x (металлурги 3–6x — на верхней границе, приемлемо)",
+            "Equity = EV − Net_debt = 95268 − 152852 = −57584 млн (ОТРИЦАТЕЛЬНОЕ)",
+            "Долг (152852) > EV (95268) → для акционера кэша меньше долга на 57584 млн → equity = 0",
+            "Справедливая цена по DCF = 0 ₽",
+            "Даже при r=20% (нереалистично низко): EV = 23436/(0.20-0.035) = 142036 млн < Net_debt 152852 → equity < 0"
+          ],
+          "caveats": [
+            "Бизнес генерирует FCF ~23 млрд/год — операционно жизнеспособен",
+            "Но EV(DCF)=95 млрд < долга 153 млрд: разрыв 58 млрд → весь FCF уходит на обслуживание долга",
+            "Долг внутригрупповой — реструктуризация возможна, но это сценарий вне базового расчёта",
+            "FCF 2021-2022 аномально малы — не использованы в базе"
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill",
-        "note": "EV/EBITDA-метод даёт отрицательную стоимость капитала (ND≈153 млрд при EBITDA≈1.9 млрд). Дождаться медианы сектора; вероятный итог — стоимость капитала близка к нулю."
-      },
-      {
-        "method": "P/B",
-        "fair_value_per_share": 3382,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "bvps_2025": 19892,
-          "pb_range": [
-            0.12,
-            0.22
+        "key_assumptions": {},
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "peers.json по сектору metals_mining не содержит актуальных данных по NLMK/MAGN/CHMF",
+            "Без сектор-медианы расчёт невозможен"
+          ],
+          "caveats": [
+            "При наличии peers: использовать EV/EBITDA (P/E не применим — убыток); ориентир 4-6x"
           ]
-        },
-        "status": "ok",
-        "note": "Единственный работающий метод для убыточной активо-ёмкой компании. Глубокий дисконт к балансу за хронический убыток и долг группы. Коридор 2387–4376 ₽."
+        }
       },
       {
         "method": "CAPM",
         "fair_value_per_share": null,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 25.4,
-          "beta": 1.2
+          "ke_pct": 28.1,
+          "beta": 1.5,
+          "rf_pct": 14.6,
+          "erp_pct": 9.0
         },
         "status": "insufficient_data",
-        "note": "Ke=25.4% (Rf 14.6 + beta 1.2 × ERP 9.0). Целевая цена не считается: нет положительной прибыли/дивиденда для дисконтирования."
+        "explain": {
+          "inputs": {
+            "ke": "28.1% = 14.6 + 1.5 × 9.0 [config]",
+            "div_yield": "0% — дивиденды не платились ни разу [governance.json]",
+            "eps_forward": "N/A — убыток 2024-2025"
+          },
+          "steps": [
+            "Ke = 28.1% = требуемая доходность акционера",
+            "P/E_fair ≈ 1/Ke = 1/0.281 = 3.6x → но EPS < 0 (убыток) → метод неприменим",
+            "Дивидендной базы нет → CAPM таргет через DPS недоступен"
+          ],
+          "caveats": [
+            "Ke=28.1% показывает: инвестор в CHMK требует 28.1% годовых; при нулевых дивидендах весь доход от курсового роста — спекулятивная позиция",
+            "При текущей цене 4027₽ без фундаментального триггера это несёт значительный риск"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Дивиденды по обыкновенным акциям не выплачивались ни в прибыльные (2021-2023), ни в убыточные (2024-2025) годы. Источника для DPS нет. Метод не применим."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Расхождение методов >30% объяснено структурной аномалией. EV/EBITDA и DCF: 0₽ (долг 153 млрд поглощает EV при любом разумном multiple). P/B ощутимый: 1897₽. P/E backward (прибыльные годы): 4875₽. Текущая цена 4027₽ — уровень оптимистичного сценария P/E (историческая прибыльность). Рынок закладывает восстановление прибыли, что при Net_debt/EBITDA=22x крайне неопределённо.",
     "fair_value_range": {
-      "conservative": 2387,
-      "base": 4376,
-      "current_price": 3700.0,
-      "upside_downside_pct": {
-        "to_conservative": -35.5,
-        "to_base": 18.3
-      },
-      "note": "Коридор получен ТОЛЬКО методом P/B (0.12–0.22 балансовой). Текущий P/B=0.19 внутри коридора, то есть рынок уже оценивает компанию как глубоко проблемную."
+      "conservative": 0,
+      "base": 3386,
+      "optimistic": 4875
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        0.25,
+        0.281,
+        0.33
+      ],
+      "g_grid": [
+        0.02,
+        0.035,
+        0.04
+      ],
+      "matrix": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ]
     }
-  },
-  "anomaly_flag": true,
-  "anomaly_note": "ND/EBITDA≈81x и EV/EBITDA≈87x за 2025 — не операционная характеристика, а следствие того, что ЧМК — центр концентрации долга группы «Мечел» (~153 млрд ₽ при выручке 144 млрд и почти нулевой EBITDA). Чистый убыток искажён внутригрупповыми процентами к уплате (28.5 млрд ₽) и займами связанным сторонам (>34 млрд ₽ финвложений в компании группы, риск невозврата). Мультипликаторы долга НЕ отражают самостоятельную кредитоспособность завода.",
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "peer_multiple": "ev_ebitda",
-    "peer_median": null
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "РСБУ-отчётность ПАО «ЧМК», e-disclosure.ru",
+      "type": "aggregator",
+      "title": "Smart-Lab МСФО годовые финансовые отчёты ЧМК",
+      "url": "https://smart-lab.ru/q/CHMK/f/y/",
       "period": "2021-2025",
-      "reliability": "high"
+      "reliability": "medium"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "smart-lab.ru — годовые показатели РСБУ CHMK",
-      "period": "2021-2025",
+      "type": "media",
+      "title": "Arsagera: ЧМК итоги 2024",
+      "url": "https://bf.arsagera.ru/...",
+      "period": "2024",
       "reliability": "medium"
     },
     {
       "id": "src_3",
-      "type": "broker",
-      "title": "Т-Инвестиции (tbank.ru) — котировка CHMK",
-      "period": "2026-06-01",
-      "reliability": "high"
-    },
-    {
-      "id": "src_4",
-      "type": "aggregator",
-      "title": "finviewer.ru / cbonds — число акций 3.162 млн, капитализация",
-      "period": "2024-2025",
+      "type": "internal",
+      "title": "extracted_financials.json — долг 153 млрд, data_flags",
+      "period": "2021-2025",
       "reliability": "medium"
     },
     {
-      "id": "src_5",
-      "type": "official_report",
-      "title": "business_model.md (CHMK) — якоря выручки, процентов, долга",
+      "id": "src_4",
+      "type": "internal",
+      "title": "governance.json — займы группе >34 млрд, нет дивидендов",
       "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "internal",
+      "title": "business_model.md — проценты 28.5 млрд, долг, структура",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_6",
+      "type": "internal",
+      "title": "config/market_params.json — ОФЗ 14.6%, ERP 9.0%",
+      "period": "2026-05-31",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "EBITDA и D&A ЧМК отдельно не раскрывает (РСБУ). EBITDA рассчитана как операционная прибыль + оценочная амортизация 6 млрд ₽/год — это ОЦЕНКА, не факт. EV/EBITDA и ND/EBITDA производны от этой оценки и условны.",
-    "Денежные потоки (CFO, CFI, CFF, CapEx, FCF) не раскрыты — весь блок cash_flow = null.",
-    "Чистая прибыль РСБУ искажена внутригрупповыми процентами (Мечел): для оценки самостоятельного бизнеса непригодна.",
-    "Финансовые вложения ~47 млрд ₽ включают займы связанным сторонам >34 млрд ₽ — риск невозврата; чистый долг и капитал могут быть переоценены.",
-    "P/E = n/m (убыток); historical_pe и DCF не применимы; relative_peers ожидает медиану сектора.",
-    "Short-term / long-term debt раздельно не извлечены — приведён только совокупный долг.",
-    "data_quality=low: первичные файлы в sources/ отсутствуют, всё собрано из веба и business_model.md."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": -44931.13,
-    "upside_downside_pct": -1314.4,
-    "status": "reference_only"
-  }
+    "data_quality=medium: smart-lab агрегатор, нет ПДН/налога/DA/финрасходов/баланса детально",
+    "COGS/gross_profit/DA не извлечены — cost_format=by_nature, expense_lines пусты",
+    "Долг 153 млрд оценочный из data_flags; структура краткосрочный/долгосрочный неизвестна",
+    "total_equity доступен только для 2021/2024/2025; 2022-2023 null",
+    "2022: ЧП=12.9 млрд аномально выше op_profit=8.82 млрд — вероятно курсовые gains; без ПДН не верифицировано",
+    "CFO 2021 (45 млн) и 2022 (-2340 млн) аномально малы vs тренд 2023-2025; причина не раскрыта",
+    "Займы группе Мечел >34 млрд — риск невозврата (assessment, governance.json)",
+    "Внутригрупповые проценты 28.5 млрд (2025) — систематический фактор, не исключается из нормализации",
+    "FCF положительный 2023-2025 (~19-23 млрд/год) — кэш генерируется, но поглощается обслуживанием долга",
+    "Все методы EV/EBITDA и DCF+sensitivity дают price=0 — структурная проблема долга",
+    "Текущая цена 4027₽ ≈ optimistic P/E = сценарий полного восстановления прибыли при Net_debt/EBITDA=22x (2024)"
+  ]
 }

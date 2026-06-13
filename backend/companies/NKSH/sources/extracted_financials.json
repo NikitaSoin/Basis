@@ -1,0 +1,238 @@
+{
+  "meta": {
+    "ticker": "NKSH",
+    "name": "НИЖНЕКАМСКШИНА",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://shina-kama.ru/consolidated",
+      "doc_title": "Консолидированная финансовая отчётность ПАО «Нижнекамскшина» по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + regex",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      11155.307,
+      12061.705
+    ],
+    "cogs": [
+      9823.293,
+      10507.276
+    ],
+    "gross_profit": [
+      1332.014,
+      1554.429
+    ],
+    "expense_lines": [
+      {
+        "name": "Административные расходы",
+        "values": [
+          840.827,
+          843.854
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          130.138,
+          61.863
+        ]
+      }
+    ],
+    "operating_profit": [
+      557.141,
+      772.616
+    ],
+    "da": [
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null
+    ],
+    "finance_costs": [
+      76.219,
+      46.662
+    ],
+    "finance_income": [
+      0.088,
+      1.258
+    ],
+    "pre_tax_profit": [
+      481.01,
+      727.212
+    ],
+    "income_tax": [
+      145.822,
+      198.742
+    ],
+    "net_profit": [
+      335.188,
+      528.47
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        2402.016,
+        2328.024
+      ],
+      "intangibles": [
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        747.691,
+        763.748
+      ],
+      "receivables": [
+        15.963,
+        156.399
+      ],
+      "cash": [
+        9.318,
+        37.926
+      ],
+      "short_term_investments": [
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        1013.16,
+        1013.16
+      ],
+      "retained_earnings": [
+        2383.289,
+        3009.292
+      ],
+      "additional_paid_in": [
+        null,
+        null
+      ],
+      "other_equity": [
+        844.035,
+        766.595
+      ],
+      "total_equity": [
+        4240.484,
+        4789.047
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      1979.0,
+      1982.0
+    ],
+    "cfi": [
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Только 2023-2024 полностью из консолидированной отчёты МСФО",
+    "Амортизация и EBITDA не выделены отдельно в таблице",
+    "Составные части expense_lines собраны из примечаний",
+    "Balance Sheet: некоторые статьи получены из примечаний (неполная таблица)",
+    "Cash Flow: только основные потоки (подробные статьи не распарсены)",
+    "Данные за 2020-2022 требуют отдельной загрузки (Google Drive ссылки)"
+  ]
+}
