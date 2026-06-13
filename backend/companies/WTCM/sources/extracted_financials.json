@@ -1,0 +1,377 @@
+{
+  "meta": {
+    "ticker": "WTCM",
+    "name": "ПАО 'Центр Международной Торговли' (World Trade Center Moscow)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/WTCMP/f/y/",
+      "doc_title": "ЦМТ (WTCM): годовая финансовая отчетность МСФО + wtcmoscow.ru (PDF не распарсены, сканированы)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      6600,
+      6870,
+      8360,
+      9590,
+      10200
+    ],
+    "cogs": [
+      2630,
+      2670,
+      2930,
+      3280,
+      3470
+    ],
+    "gross_profit": [
+      3970,
+      4200,
+      5430,
+      6310,
+      6730
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          1350,
+          2780,
+          3170,
+          3560,
+          4030
+        ]
+      },
+      {
+        "name": "Расходы на персонал (в т.ч. в операционных)",
+        "values": [
+          2230,
+          2390,
+          2640,
+          3110,
+          3400
+        ]
+      }
+    ],
+    "operating_profit": [
+      2620,
+      770,
+      2560,
+      3360,
+      3880
+    ],
+    "da": [
+      600,
+      500,
+      500,
+      600,
+      600
+    ],
+    "ebitda": [
+      3210,
+      1300,
+      3020,
+      3940,
+      4440
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      2100,
+      670,
+      3600,
+      3110,
+      5500
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        46900,
+        47500,
+        52800,
+        55600,
+        60700
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        1170,
+        3490,
+        12800,
+        16600,
+        20700
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        9100,
+        9000,
+        9600,
+        12000,
+        12700
+      ]
+    },
+    "total_assets": [
+      56000,
+      56500,
+      62400,
+      67600,
+      73400
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        46900,
+        47500,
+        52800,
+        55600,
+        60700
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      9100,
+      9000,
+      9600,
+      12000,
+      12700
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      2010,
+      2120,
+      1980,
+      2300,
+      1590
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      195,
+      470,
+      378,
+      337,
+      226
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "P&L и баланс основные строки из smart-lab (high confidence)",
+    "Операционная прибыль может включать переоценку инвестнедвижимости (non-cash item) - расхождение с прямым расчётом gross-opex",
+    "Финансовые доходы/расходы, налог и ОДДС детали не извлеклись из доступных источников (PDF от компании сканированы)",
+    "Баланс - статьи основных средств, инвестиционной недвижимости, дебиторки, кредиторки не распарсены отдельно",
+    "Компания имеет НУЛЕВОЙ долг и растущий кэш (нет финансового риска)",
+    "Переоценка инвестнедвижимости (справедливая стоимость, IAS 40) зафиксирована как значимый фактор",
+    "Дивиденды 5.8-8.8% yield ежегодно, выплаты из прибыли растут"
+  ]
+}

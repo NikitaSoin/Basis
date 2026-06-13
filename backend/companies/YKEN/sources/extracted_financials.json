@@ -1,0 +1,395 @@
+{
+  "meta": {
+    "ticker": "YKEN",
+    "name": "ПАО Якутскэнерго",
+    "profile": "standard",
+    "reporting_standard": "МСФО (2022-2025) + РСБУ (2021)",
+    "currency": "RUB",
+    "unit": "млрд",
+    "converted_years": [],
+    "conversion_note": "Единая валюта RUB",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/YKEN/f/y/MSFO/ + https://smart-lab.ru/q/YKEN/f/y/RSBU/",
+      "doc_title": "Yakutskenergo (YKEN): годовая финансовая отчетность МСФО (2022-2025) и РСБУ (2021)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table (агрегатор)",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "mixed: РСБУ 2021 by_function (COGS), МСФО 2022-2025 by_nature (opex агрегированн)",
+    "revenue": [
+      32.6,
+      22.6,
+      25.3,
+      32.2,
+      33.6
+    ],
+    "cogs": [
+      33.7,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Себестоимость производства (РСБУ 2021)",
+        "values": [
+          33.7,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Операционные расходы (МСФО 2022-2025) / Прочие расходы (РСБУ 2021)",
+        "values": [
+          1.64,
+          37.5,
+          38.2,
+          47.0,
+          54.2
+        ]
+      },
+      {
+        "name": "  в том числе: расходы на персонал",
+        "values": [
+          6.58,
+          12.1,
+          13.7,
+          15.4,
+          16.8
+        ]
+      }
+    ],
+    "operating_profit": [
+      -2.77,
+      -9.43,
+      12.1,
+      7.2,
+      -18.3
+    ],
+    "da": [
+      null,
+      null,
+      1.9,
+      2.7,
+      3.5
+    ],
+    "ebitda": [
+      null,
+      4.19,
+      5.3,
+      5.9,
+      -14.7
+    ],
+    "finance_costs": [
+      0.55,
+      1.13,
+      1.92,
+      3.1,
+      6.65
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -3.05,
+      -10.2,
+      8.0,
+      3.0,
+      -25.3
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        0.15,
+        0.54,
+        0.26,
+        0.78,
+        0.497
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      39.3,
+      56.9,
+      52.4,
+      64.5,
+      60.0
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        7.63,
+        -8.89,
+        -0.75,
+        7.0,
+        -20.2
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      31.67,
+      65.79,
+      53.15,
+      57.5,
+      80.2
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -0.37,
+      4.43,
+      0.67,
+      5.12,
+      -1.39
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      2.22,
+      461.0,
+      5.95,
+      10.3,
+      11.2
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Источник: smart-lab (агрегатор таблиц из МСФО отчётов и РСБУ отчётов)",
+    "2021 из РСБУ (не МСФО): переклассификации, консолидация могут отличаться от МСФО 2022+",
+    "РСБУ 2021 показывает себестоимость (33.7), МСФО 2022-2025 не показывают COGS отдельно",
+    "Cost_format: РСБУ 2021 — by_function (COGS+opex отдельно); МСФО 2022-2025 — потенциально by_nature (только opex показан)",
+    "CAPEX 2022 (461 млрд vs revenue 22.6 млрд = 2037%) — проверить источник/переклассификацию",
+    "Амортизация D&A за 2022 в smart-lab отсутствует (отмечено пусто); 2021 РСБУ не показывает",
+    "Денежные потоки: только CFO найден (smart-lab), CFI и CFF требуют первичного ОДДС",
+    "2020 не найден ни в МСФО, ни в РСБУ (smart-lab начинается с 2021 для РСБУ)",
+    "Долг (debt) показан агрегированно; структура краткоср./долгоср. и график погашения требуют баланса",
+    "Детали баланса (ОС, НМА, гудвил, структура капитала, ДЗ, КЗ) требуют первичных отчётов",
+    "Проверка арифметики затруднена: opex smart-lab не совпадает с (revenue - oper.income) → возм. агрегирование",
+    "Арифметика баланса (Assets = Equity + Liabilities): PASSED для всех лет (0% расхождение)",
+    "Арифметика P&L (Revenue - Opex ≈ OI): FAILED для 2022-2024 (расхождение 58-306%) — опер.расходы smart-lab переклассифицированы или содержат дополнительные статьи",
+    "РСБУ 2021: P&L арифметика OK (1% расхождение) — себестоимость и прочие расходы корректны",
+    "ОДДС: только CFO найден, CFI/CFF/Net Change отсутствуют (требуют первичного отчёта)"
+  ]
+}

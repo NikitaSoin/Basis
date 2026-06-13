@@ -1,0 +1,384 @@
+{
+  "meta": {
+    "ticker": "APTK",
+    "name": "ПАО Аптечная сеть 36,6",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/APTK/f/y/",
+      "doc_title": "Аптеки 36 и 6 (APTK): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      44100,
+      59100,
+      67400,
+      87200,
+      105600
+    ],
+    "cogs": [
+      29000,
+      38900,
+      45100,
+      58700,
+      70700
+    ],
+    "gross_profit": [
+      15100,
+      20200,
+      22300,
+      28500,
+      34900
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы на продажу и администрирование (SG&A)",
+        "values": [
+          18100,
+          22000,
+          25300,
+          18540,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      4270,
+      6770,
+      9960,
+      null
+    ],
+    "da": [
+      5800,
+      5800,
+      6000,
+      6600,
+      6400
+    ],
+    "ebitda": [
+      null,
+      10070,
+      12770,
+      16560,
+      16300
+    ],
+    "finance_costs": [
+      4920,
+      4270,
+      2440,
+      3950,
+      4970
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -950,
+      223,
+      921,
+      866,
+      263
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        -7300
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "income_statement: полные данные P&L за 2021-2025 извлечены из smart-lab (выручка, себестоимость, валовая прибыль, D&A, финансовые расходы, ЧП)",
+    "cost_format: by_function подтверждён (GP = Revenue - COGS проверено для всех лет)",
+    "operating_profit: доступен для 2022-2024 как прямое значение; для 2021 и 2025 требуется полный отчёт",
+    "SG&A (expense_lines): восстановлена логически для 2021-2024 из разницы GP - OpProfit, но требует верификации",
+    "balance_sheet: полностью отсутствует в источнике smart-lab; e-disclosure.ru блокируется по auth; PDF на CDN финмаркета не найден",
+    "total_equity 2025: -7.3млрд (из публичных данных smart-lab), указывает на технич. несостоятельность",
+    "net_debt 2025: 21.8млрд (из smart-lab); долг/EBITDA = 1.33x",
+    "cash: 1.36млрд (2025) из smart-lab; детальное разбиение по статьям отсутствует",
+    "cash_flow statement: полностью отсутствует в доступных источниках; требуется PDF отчёта",
+    "IFRS16 operating lease ROU asset: критично для аптечного ритейла (арендные обязательства); не распарсено",
+    "arithmetic_check: GP = Revenue - COGS OK для всех лет (±0.1%); Operating profit расчёты содержат прочие операционные статьи (не только SG&A), поэтому прямая проверка OpProfit = GP - SG&A не сходится",
+    "data_quality medium: основные P&L цифры надёжны (из агрегатора с лицензией), баланс и ОДДС требуют полного отчёта",
+    "SGA_reconciliation: 2022-2023 SGA из таблицы smart-lab (22000, 25300) больше чем (GP-OP), указывает на наличие прочих операционных доходов в OP; не пересчитываю, берём как факт",
+    "2024: SGA = 18540 точно сходится с (GP - OP), предполагая отсутствие прочих операционных статей в этот год"
+  ]
+}
