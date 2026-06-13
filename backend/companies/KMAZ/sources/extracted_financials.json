@@ -1,0 +1,259 @@
+{
+  "meta": {
+    "ticker": "KMAZ",
+    "name": "ПАО КАМАЗ",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://kamaz.ru/investors-and-shareholders/financial-statements/ifrs/",
+      "doc_title": "Обобщенная консолидированная финансовая отчётность по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      213341,
+      269238,
+      370312,
+      393654
+    ],
+    "cogs": [
+      187701,
+      238397,
+      311916,
+      332222
+    ],
+    "gross_profit": [
+      29257,
+      33425,
+      58797,
+      61945
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          7411,
+          10572,
+          13951,
+          15727
+        ]
+      },
+      {
+        "name": "Общие и административные расходы",
+        "values": [
+          11486,
+          12239,
+          18528,
+          21448
+        ]
+      },
+      {
+        "name": "Расходы на исследования и разработки",
+        "values": [
+          2098,
+          2475,
+          1707,
+          3361
+        ]
+      },
+      {
+        "name": "Доля в прибыли ассоциированных компаний и совместных предприятий",
+        "values": [
+          443,
+          2545,
+          -3363,
+          -5022
+        ]
+      },
+      {
+        "name": "Резерв под ожидаемые кредитные убытки",
+        "values": [
+          null,
+          null,
+          -5830,
+          4040
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          4800,
+          4537,
+          15863,
+          6104
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          -4254,
+          -2902,
+          -2428,
+          -3706
+        ]
+      }
+    ],
+    "operating_profit": [
+      9251,
+      12319,
+      28853,
+      22825
+    ],
+    "da": [
+      5779,
+      5975,
+      9243,
+      10785
+    ],
+    "ebitda": null,
+    "finance_costs": [
+      7484,
+      6817,
+      10745,
+      25837
+    ],
+    "finance_income": [
+      1152,
+      750,
+      3876,
+      6483
+    ],
+    "pre_tax_profit": [
+      2919,
+      6252,
+      21984,
+      3471
+    ],
+    "income_tax": [
+      -185,
+      1619,
+      1505,
+      2740
+    ],
+    "net_profit": [
+      3104,
+      4633,
+      20479,
+      731
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        39573,
+        null,
+        61040,
+        39573
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": null,
+    "equity": {
+      "share_capital": [
+        35361,
+        35361,
+        35361,
+        35361
+      ],
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": null
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        105088,
+        null,
+        105088,
+        138810
+      ],
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        38833,
+        null,
+        38833,
+        86769
+      ],
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": [
+      15308,
+      25393,
+      56462,
+      -51285
+    ],
+    "cfi": [
+      -8869,
+      -14833,
+      -51889,
+      -117699
+    ],
+    "cff": [
+      -4903,
+      -9221,
+      8089,
+      107299
+    ],
+    "capex": [
+      8869,
+      8742,
+      8869,
+      10697
+    ],
+    "net_change_in_cash": [
+      1536,
+      1339,
+      12662,
+      -61685
+    ]
+  },
+  "data_flags": [
+    "2022 отсутствует - отчёт за этот год не опубликован в доступных источниках",
+    "Balance Sheet: только ключевые строки долга и капитала извлечены. Полный баланс (активы, запасы, дебиторы) требует ручного парсинга PDF страницы 5 отчёта 2024.",
+    "Gross Profit vs (Revenue - COGS): расхождение ~513 млн в 2024 (вероятно, 'Прочие поступления' влияют на расчёт валовой прибыли)",
+    "2024: Чистая убыль акционеров -178 млн (за счёт неконтролирующего интереса +909 млн получена прибыль +731 млн)",
+    "2024: Finance costs выросли в 2.4x (25.8 млрд vs 10.7 млрд в 2023) - влияние высокого долга (225.6 млрд) и высоких ставок (11-25% по облигациям/кредитам)",
+    "2024: CFO отрицательный (-51.3 млрд) - запасы увеличились на 56.9 млрд, дебиторы на 18.9 млрд - сильное связывание оборотного капитала",
+    "2024: Кредиты и займы выросли на 81.7 млрд (+57% vs 2023) на фоне 225.6 млрд абсолютной суммы долга",
+    "2024: Денежные средства упали на 21.5 млн (39.6 млрд) vs 61.0 млрд в 2023 - стресс по ликвидности",
+    "Арифметика Cash Flow: CFO + CFI + CFF = -61.7 млрд совпадает с Net Change in Cash (проверено для 2024)",
+    "DA (Depreciation & Amortization) для 2024: ОС+НМА+АПАО = 8757+1525+503 = 10785 млн"
+  ]
+}

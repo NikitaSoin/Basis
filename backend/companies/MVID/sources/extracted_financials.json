@@ -1,0 +1,364 @@
+{
+  "meta": {
+    "ticker": "MVID",
+    "name": "Публичное акционерное общество М.видео",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB млн",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx",
+      "doc_title": "Консолидированная финансовая отчётность ПАО М.видео за год, закончившийся 31 декабря",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + PyPDF2 + manual verification from PDF tables",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      null,
+      402462,
+      434390,
+      451642
+    ],
+    "cogs": [
+      null,
+      null,
+      -319355,
+      -343012,
+      -360677
+    ],
+    "gross_profit": [
+      null,
+      null,
+      83107,
+      91378,
+      90965
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          null,
+          null,
+          -76417,
+          -75241,
+          -80430
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          null,
+          null,
+          2090,
+          430,
+          1520
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          null,
+          null,
+          -1032,
+          -270,
+          -105
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      7748,
+      16297,
+      11950
+    ],
+    "da": null,
+    "ebitda": null,
+    "finance_income": [
+      null,
+      null,
+      1367,
+      532,
+      1227
+    ],
+    "finance_costs": [
+      null,
+      null,
+      -21472,
+      -24603,
+      -40353
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      -13370,
+      -7774,
+      -27388
+    ],
+    "income_tax": [
+      null,
+      null,
+      3071,
+      1161,
+      7267
+    ],
+    "net_profit": [
+      null,
+      null,
+      -10299,
+      -6613,
+      -20121
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        13104,
+        10765,
+        9348
+      ],
+      "intangibles": [
+        null,
+        null,
+        26484,
+        23399,
+        20893
+      ],
+      "goodwill": [
+        null,
+        null,
+        50007,
+        50007,
+        50007
+      ],
+      "long_term_investments": null,
+      "other_non_current": [
+        null,
+        null,
+        60324,
+        63388,
+        69953
+      ],
+      "total_non_current": [
+        null,
+        null,
+        159749,
+        147511,
+        150201
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        112871,
+        139702,
+        138256
+      ],
+      "receivables": [
+        null,
+        null,
+        18069,
+        31023,
+        37546
+      ],
+      "cash": [
+        null,
+        null,
+        30196,
+        18662,
+        22659
+      ],
+      "short_term_investments": null,
+      "other_current": [
+        null,
+        null,
+        13106,
+        22911,
+        18789
+      ],
+      "total_current": [
+        null,
+        null,
+        174242,
+        212298,
+        217250
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      333991,
+      359809,
+      367451
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        1798,
+        1798,
+        1798
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        532,
+        -6081,
+        -26202
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        4576,
+        4576,
+        4576
+      ],
+      "other_equity": [
+        null,
+        null,
+        -526,
+        -526,
+        -526
+      ],
+      "total_equity": [
+        null,
+        null,
+        6380,
+        -233,
+        -20354
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        13951,
+        11922,
+        3674
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        50,
+        57,
+        60
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        58157,
+        47357,
+        48684
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        72158,
+        59336,
+        52418
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        81715,
+        74513,
+        104785
+      ],
+      "payables": [
+        null,
+        null,
+        135668,
+        181588,
+        187352
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        22408,
+        44605,
+        51250
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        255453,
+        300706,
+        335387
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      327611,
+      360042,
+      387805
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      16799,
+      -392
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      -6066,
+      -5367
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      -22267,
+      9756
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      2355,
+      3806
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      -11534,
+      3997
+    ]
+  },
+  "data_flags": [
+    "2020-2021: данные не извлечены (требуют дополнительного парсинга PDF)",
+    "2022-2024: полная постатейная информация из МСФО консолидированных отчётов",
+    "Кризис компании: 2022-2024 только убытки (-10.3, -6.6, -20.1 млрд млн); капитал стал отрицательным в 2023",
+    "Долг резко вырос: краткосрочный долг (104.8 млрд в 2024 vs 81.7 млрд в 2022); финансовые расходы на 64% выше",
+    "IFRS16 аренда магазинов: обязательства по аренде 48 млрд (долгосрочные) + 19 млрд (краткосрочные)",
+    "Запасы товара высокие (139-113 млрд) — большой риск обесценения в кризис онлайн-торговли",
+    "Гудвил 50 млрд (приобретение Эльдорадо в 2015) — потенциальный убыток от обесценения в будущем",
+    "Налоговый актив 19 млрд в 2024 (накопленные убытки) может быть не реализован без восстановления прибыльности"
+  ]
+}

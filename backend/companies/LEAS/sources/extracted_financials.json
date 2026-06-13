@@ -1,0 +1,461 @@
+{
+  "meta": {
+    "ticker": "LEAS",
+    "name": "ПАО «Лизинговая компания «Европлан»",
+    "profile": "leasing",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure + smart-lab",
+      "url": "https://europlan.ru/investor/download/3498?format=pdf (2023/2022) + https://smart-lab.ru/q/LEAS/f/y/MSFO/ (исторические)",
+      "doc_title": "Консолидированная финансовая отчетность ПАО «ЛК «Европлан» за 2023 год (с 2022 сравнением) + Smart-Lab финансовые таблицы МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + web-fetch агрегированная",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      null,
+      27755452,
+      35488134,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Процентные расходы на привлеченные кредиты",
+        "values": [
+          null,
+          null,
+          -9634081,
+          -13413576,
+          null
+        ]
+      },
+      {
+        "name": "Процентные расходы на выпущенные облигации",
+        "values": [
+          null,
+          null,
+          -4144088,
+          -4236933,
+          null
+        ]
+      },
+      {
+        "name": "Процентные расходы по обязательствам по аренде",
+        "values": [
+          null,
+          null,
+          -103630,
+          -144835,
+          null
+        ]
+      },
+      {
+        "name": "Доход от организации услуг",
+        "values": [
+          null,
+          null,
+          3270931,
+          4498973,
+          null
+        ]
+      },
+      {
+        "name": "Дополнительные доходы по договорам лизинга",
+        "values": [
+          null,
+          null,
+          2808027,
+          3787618,
+          null
+        ]
+      },
+      {
+        "name": "Агентские комиссии по страхованию",
+        "values": [
+          null,
+          null,
+          2680024,
+          3592583,
+          null
+        ]
+      },
+      {
+        "name": "Расходы на персонал",
+        "values": [
+          null,
+          null,
+          -6262538,
+          -7357290,
+          null
+        ]
+      },
+      {
+        "name": "Общие и административные расходы",
+        "values": [
+          null,
+          null,
+          -1686377,
+          -1955289,
+          null
+        ]
+      },
+      {
+        "name": "Резерв под ожидаемые кредитные убытки по лизингу",
+        "values": [
+          null,
+          null,
+          -1046965,
+          -1759058,
+          null
+        ]
+      },
+      {
+        "name": "Резерв под прочие убытки",
+        "values": [
+          null,
+          null,
+          -290136,
+          -540970,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      -545230,
+      -608924,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      -13913391,
+      -17797355,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      1152912,
+      1078724,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      14865567,
+      18817289,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      -2975060,
+      -4021407,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      11890507,
+      14795882,
+      14900000
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        3331812,
+        3825237,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        4301014,
+        3662387,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        181896,
+        228090,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        10172629,
+        11561804,
+        15800000
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        1210458,
+        5007240,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      189293303,
+      264706262,
+      302100000
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        120000,
+        120000,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        32916681,
+        41911763,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        1000000,
+        1000000,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        -216434,
+        1653737,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        33820247,
+        44685500,
+        50600000
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        133300000,
+        94209259,
+        155179354,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        3237386,
+        6390077,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        4361530,
+        4694255,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        4321540,
+        5576235,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      155473056,
+      220020762,
+      226700000
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      -3161562,
+      -52699078,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      7805,
+      -157993,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      4711714,
+      54247453,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      168512,
+      172049,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      1561485,
+      1389175,
+      null
+    ]
+  },
+  "data_flags": [
+    "2023/2022 данные из полного PDF (e-disclosure ссылка), арифметика валидирована полностью (баланс совпадает на 100%, CF различие <1%)",
+    "2024 год: ключевые цифры из smart-lab и официального пресс-релиза (чистая прибыль 14.9B, активы 302.1B, капитал 50.6B). Полный PDF отчета 2024 на момент поиска не найден (может быть еще не загружен на e-disclosure).",
+    "2021 год: агрегированные цифры из smart-lab (выручка 17.7B, но нет полного отчета с разложением по статьям). Только итоговые показатели.",
+    "2020 год: данные отсутствуют или разреженные. IPO компании был в марте 2024, история до 2021 ограничена в публичных источниках.",
+    "cost_format = by_nature: статьи затрат разложены по видам источников, а не по функциям (процентные расходы по источникам фондирования - кредиты/облигации/аренда; непроцентные доходы по видам услуг - лизинг, страхование, услуги)",
+    "Лизинговый портфель (чистые инвестиции в лизинг - главный актив компании): 2022: 164.2B → 2023: 229.7B → 2024: ~256B (из пресс-релиза). Это основной источник процентного дохода.",
+    "Фондирование: долг (привлеченные кредиты + облигации выпущенные) растет: 2022: 141.7B → 2023: 202.3B → 2024: 226.7B. Краткосрочные авансы от лизингополучателей (4.4-4.7B) - вспомогательный источник.",
+    "Структура доходов (2023): процентные доходы 35.5B (по лизингу 33.8B) + непроцентные доходы 13.9B (услуги 4.5B, страхование 3.6B, доход от реализации имущества 1.1B). Процентные расходы 17.8B (на кредиты 13.4B, облигации 4.2B).",
+    "Резервы под кредитные убытки растут (2022: 1.07B → 2023: 1.79B), отражая ужесточение условий (высокие ставки, давление на лизингополучателей).",
+    "Отсутствуют: полный годовой отчет за 2024, детальные отчеты за 2021 и 2020 (ранние годы, недостаточное раскрытие в публичных источниках).",
+    "profile=leasing (не standard, не bank): профиль компании специфичен - это специализированная лизинговая компания, не банк, поэтому структура отчетности отличается от стандартного P&L: доминируют процентные доходы/расходы, важны резервы и управление лизинговым портфелем."
+  ]
+}

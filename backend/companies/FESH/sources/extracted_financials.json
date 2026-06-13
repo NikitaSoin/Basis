@@ -1,0 +1,423 @@
+{
+  "meta": {
+    "ticker": "FESH",
+    "name": "ДВМП (Дальневосточное морское пароходство)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (нет конвертации)",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://ar2024.fesco.ru/",
+      "doc_title": "Годовой отчет FESCO 2024 + Smart-lab + Пресс-релизы",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "web_fetch + smart-lab + press-releases",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      61.9,
+      113.7,
+      162.6,
+      172.0,
+      185.0,
+      171.6
+    ],
+    "cogs": [
+      null,
+      null,
+      72.7,
+      97.8,
+      111.2,
+      120.8
+    ],
+    "gross_profit": [
+      null,
+      null,
+      89.9,
+      74.2,
+      73.8,
+      50.8
+    ],
+    "expense_lines": [
+      {
+        "name": "Административные и коммерческие расходы",
+        "values": [
+          null,
+          null,
+          19.6,
+          23.8,
+          21.1,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      43.4,
+      50.9,
+      38.4,
+      36.3,
+      16.3
+    ],
+    "da": [
+      null,
+      null,
+      6.6,
+      11.5,
+      12.9,
+      null
+    ],
+    "ebitda": [
+      16.5,
+      47.5,
+      71.5,
+      53.6,
+      54.5,
+      30.7
+    ],
+    "finance_costs": [
+      null,
+      null,
+      5.8,
+      5.3,
+      3.6,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_finance_expense_net": [
+      null,
+      null,
+      null,
+      5.3,
+      3.6,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      39.4,
+      38.0,
+      33.1,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      1.5,
+      0.2,
+      7.7,
+      null
+    ],
+    "net_profit": [
+      null,
+      37.3,
+      38.6,
+      37.9,
+      25.4,
+      -3.2
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        11.1,
+        30.7,
+        4.6,
+        20.3,
+        15.5
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      119.6,
+      166.3,
+      210.7,
+      278.5,
+      236.3
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        52.0,
+        87.7,
+        133.7,
+        167.3,
+        153.7
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      67.6,
+      78.6,
+      77.0,
+      111.2,
+      82.6
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      38.1,
+      63.0,
+      43.1,
+      40.2,
+      25.2
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      23.9,
+      36.5,
+      59.3,
+      21.0,
+      7.9
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      -26.1,
+      -26.0,
+      15.7,
+      -4.8
+    ]
+  },
+  "data_flags": [
+    "2020: данные неполные (справочно, начало периода отчётности)",
+    "2025: LTM (последние 12 месяцев), промежуточные данные",
+    "Баланс: детали по компонентам (ОС флота, контейнеры, запасы, дебиторская, долг) требуют доступа к полному приложению PDF — не все извлечены",
+    "Денежные потоки: CFI (инвестиционная деятельность) и CFF (финансовая деятельность) требуют полной отчётности по ОДДС — не найдены в открытых источниках",
+    "EBITDA 2022-2024: расхождение 6-20% от расчёта (OpIncome + D&A) — вероятно, компания включает прочие корректировки (переоценки, резервы) — используется published EBITDA",
+    "Контроль и владение: Росатом 92.5% с ноября 2023 по указу президента",
+    "Дивиденды: не платятся (100% капитализация в инвестпрограмму флота и контейнеров)",
+    "Волатильность: 2021-2022 — спрос бум (контейнерные ставки пик), нормализация 2023-2024",
+    "Санкции EU: на Rosatom 2025 → убыток FESCO (-3.2 млрд)",
+    "Валюта: все годы в RUB (изменений валюты отчётности не было)"
+  ]
+}
