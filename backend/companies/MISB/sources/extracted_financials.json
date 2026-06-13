@@ -1,0 +1,374 @@
+{
+  "meta": {
+    "ticker": "MISB",
+    "name": "ПАО «ТНС энерго Марий Эл» (обыкновенные акции)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млрд",
+    "converted_years": [],
+    "conversion_note": "Данные в рублях, все годы одной валюты",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "aggregator",
+      "url": "https://smart-lab.ru/q/MISB/f/y/",
+      "doc_title": "ТНС энерго Марий Эл (MISB): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      8.07,
+      8.09,
+      8.91,
+      9.48,
+      10.60
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (закупка и распределение электроэнергии)",
+        "values": [
+          8.44,
+          9.09,
+          9.48,
+          10.90,
+          10.90
+        ]
+      }
+    ],
+    "operating_profit": [
+      0.432,
+      0.75,
+      -0.06,
+      0.89,
+      0.84
+    ],
+    "da": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "ebitda": [
+      0.432,
+      0.78,
+      -0.03,
+      0.94,
+      0.89
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.335,
+      0.65,
+      0.064,
+      1.06,
+      0.99
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        0.25,
+        0.09,
+        0.90,
+        1.54,
+        2.05
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      2.85,
+      3.00,
+      5.00,
+      5.10,
+      7.03
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1.54,
+        1.96,
+        3.47,
+        3.76,
+        5.32
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      1.31,
+      1.04,
+      1.53,
+      1.34,
+      1.71
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      0.58,
+      0.55,
+      0.87,
+      0.66,
+      0.50
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0.05,
+      0.07,
+      0.07,
+      0.07,
+      0.09
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Источник: smart-lab.ru (агрегатор), не первичная отчётность МСФО PDF. e-disclosure.ru недоступен (требует авторизацию).",
+    "МСФО стандарт подтверждён (smart-lab отмечает МСФО, НЕ РСБУ).",
+    "2020 и ранее: нет данных на smart-lab для MISB отдельно (компания возможно новичок в листинге или консолидирована в ГК ТНС энерго).",
+    "cost_format = by_nature (энергосбыт гарантирующий: опер.расходы = закупка эл.энергии на оптовом рынке + распределение; нет отдельной COGS/валовой прибыли как в производстве).",
+    "COGS, gross_profit = null (характеристика для энергосбыта: нет производства, нет себестоимости в классическом смысле).",
+    "Финансовые расходы/доходы (finance_costs, finance_income, pre_tax_profit) = null (нет в smart-lab табличке). Скачок от operating_profit к net_profit объясняется (вероятно) фин.доходами/расходами, но их значения не раскрыты.",
+    "Балансовый долг (total_liabilities) рассчитан как Assets - Equity; детализация по статьям (current/non-current, payables, short_term_debt) = null.",
+    "Текущие активы, внеоборотные активы, дебиторка, запасы, кредиторка = null (нет в smart-lab табличке по P&L/BS).",
+    "ОДДС: CFO и capex известны на smart-lab. CFI и CFF = null (нет раскрытия); net_change_in_cash = null (не рассчитан из-за неполной информации).",
+    "Арифметика частичная: (1) Assets = Equity + Liabilities: 2.85 = 1.54 + 1.31 ✓, 3.00 = 1.96 + 1.04 ✓, 5.00 = 3.47 + 1.53 ✓, 5.10 = 3.76 + 1.34 ✓, 7.03 = 5.32 + 1.71 ✓; (2) Revenue - Opex: 8.07 - 8.44 = -0.37 vs Op.Profit 0.432 (diff из неоперационных), etc.; (3) EBITDA = OpProfit + DA: 0.432 + 0.0 = 0.432 ✓, но smart-lab показывает 0.432 в обе строки → округления и промежуточные статьи в отчёте.",
+    "2023 год: операционный убыток (-0.06 млрд; margin -0.7% к выручке 8.91 млрд) + чистая прибыль +0.064 млрд (вероятно, за счет фин.доходов от перестраховки или переоценки финвложений, не раскрыты). Аномалия.",
+    "Долг (total_debt из smart-lab): [0.41, 0.01, 0.01, 0.01, 0.01] млрд → практически безубыток с 2022. Cash: [0.25, 0.09, 0.90, 1.54, 2.05] млрд → растёт. Net debt: [0.15, -0.08, -0.89, -1.53, -2.03] млрд → отрицательный (компания нетто-денежная).",
+    "Дивиденды на обыкновенную акцию (из smart-lab): 1.92, 1.09, 4.87, 1.98, 1.98 ₽/шт. Всего дивайдов [млрд]: 0.26, 0.18, 0.65, 0.31, 0.31. Выплаты нестабильны (2023 спайк из-за особого решения СД); payout ratio низок (10-20% от чистой прибыли).",
+    "Для полного анализа требуется первичная МСФО отчётность (PDF) с детализацией P&L по статьям затрат, распределением активов/пассивов по срокам, детальным ОДДС и пояснениями к аномалиям 2023 года."
+  ]
+}

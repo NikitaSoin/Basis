@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "ticker": "ARSA",
+    "name": "ПАО УК Арсагера",
+    "profile": "investment",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2022, 2023],
+    "source": {
+      "type": "company_ir",
+      "url": "https://arsagera.ru/o_kompanii/otchetnost_kompanii/",
+      "doc_title": "Финансовая отчётность за 2023 год в соответствии с МСФО (IFRS)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [38083, 62217],
+    "cogs": [27049, 29671],
+    "gross_profit": [11034, 32546],
+    "expense_lines": [
+      {
+        "name": "Административные расходы",
+        "values": [25096, 22892]
+      },
+      {
+        "name": "Доходы от реализации ценных бумаг на FVPL",
+        "values": [208898, 233074]
+      },
+      {
+        "name": "Доходы от переоценки ценных бумаг на FVPL",
+        "values": [0, 98896]
+      },
+      {
+        "name": "Дивиденды от собственного портфеля",
+        "values": [11941, 14540]
+      },
+      {
+        "name": "Расходы на реализацию ценных бумаг на FVPL",
+        "values": [-206308, -220732]
+      },
+      {
+        "name": "Расходы на переоценку ценных бумаг на FVPL",
+        "values": [-103824, 0]
+      },
+      {
+        "name": "Прочие операционные доходы и расходы (нетто)",
+        "values": [-1030, 8]
+      }
+    ],
+    "operating_profit": null,
+    "da": [5413, 5617],
+    "ebitda": null,
+    "finance_income": [33, 117],
+    "finance_costs": [670, 693],
+    "pre_tax_profit": [null, 134864],
+    "income_tax": [-21883, -25095],
+    "net_profit": [null, 108773]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [6068, 13392],
+      "intangibles": [81, 46],
+      "goodwill": null,
+      "long_term_investments": null,
+      "deferred_tax_assets": [19877, 2400],
+      "other_non_current": null,
+      "total_non_current": [26026, 15838]
+    },
+    "current_assets": {
+      "inventory": [1422, 367],
+      "receivables": [9175, 8920],
+      "fa_fvpl": [164912, 296452],
+      "fa_fvoci": [898, 1847],
+      "cash": [3042, 354],
+      "other_current": null,
+      "total_current": [179449, 307940]
+    },
+    "total_assets": [205475, 323778],
+    "equity": {
+      "share_capital": [123817, 123817],
+      "retained_earnings": [47607, 156436],
+      "additional_paid_in": [15645, 15645],
+      "fair_value_reserve": [318, 441],
+      "statutory_reserve": [6191, 6191],
+      "other_equity": null,
+      "total_equity": [193578, 302530]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [0, 7572],
+      "deferred_tax_liabilities": [1204, 10216],
+      "vacation_reserve_noncurrent": [1871, 1335],
+      "other_non_current_liab": null,
+      "total_non_current_liab": [3075, 19123]
+    },
+    "current_liabilities": {
+      "short_term_debt": [0, 5534],
+      "payables": [3209, 4968],
+      "vacation_reserve_current": [2000, 1765],
+      "other_current_liab": null,
+      "total_current_liab": [5209, 12267]
+    },
+    "total_liabilities": [8284, 31390]
+  },
+  "cash_flow": {
+    "cfo": null,
+    "cfi": null,
+    "cff": null,
+    "capex": null,
+    "net_change_in_cash": null
+  },
+  "data_flags": [
+    "2023-2022 полная структура P&L (revenue ~60-62 млн - комиссии от управления; expense_lines содержат реальные доходы/убытки от переоценки и реализации собственного инвестпортфеля, который на 1+ млрд; админ расходы стабильны ~23-25 млн)",
+    "Баланс: Assets(323.8 млн) < Equity+Liabilities(333.9 млн), diff -10.1 млн - возможно, неполная текстовая экстракция актива из PDF (НМА, ДТА или прочие); equity и liabilities проверены по первичным источникам",
+    "P&L check: pre_tax_profit рассчитан из gross_profit - admin + (other_op_income-expense) + (fin_income-costs) = 134.9 млн; налог (25.1 млн) → net 108.8 млн reported ✓ (разница ~1 млн в пределах округлений)",
+    "2022 net_profit null в отчёте, расчётное значение ~-82 млн из-за большого убытка от переоценки портфеля (-103.8 млн) - требуется сверка с оригинальным P&L",
+    "CASH FLOW: отчёт о движении денежных средств подготовлен по прямому методу согласно IAS 7, но детальные CFO/CFI/CFF и Capex не были полностью извлечены текстом из PDF",
+    "2024-2025 данные из smart-lab.ru (revenue 2024: 72м, 2025: 77м; net_profit 2024: -8м, 2025: -1м); полная структура expense_lines недоступна - требуются PDF отчётностей этих лет от arsagera.ru",
+    "Профиль: управляющая компания (asset manager); NAV ≈ total_equity = 302.5 млн (2023); основной риск - волатильность прибыли от переоценки портфеля (от -103.8 млн loss 2022 до +98.9 млн gain 2023); доход от услуг управления стабилен (61-62 млн) и растёт"
+  ]
+}

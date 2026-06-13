@@ -1,0 +1,203 @@
+{
+  "meta": {
+    "ticker": "ZAYM",
+    "name": "ПАО МФК Займер",
+    "profile": "mfo",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab-table + ir.zaymer.ru",
+      "url": "https://smart-lab.ru/q/ZAYM/f/y/ + https://ir.zaymer.ru/news/company-news/post-28",
+      "doc_title": "Займер: годовая финансовая отчётность МСФО (smart-lab) + пресс-релиз 2023 (ir.zaymer.ru)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "smart-lab-table + web-fetch",
+    "arithmetic_check": "failed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      16150,
+      18669,
+      15850,
+      17070
+    ],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Резервы под убытки по кредитам (provision for loan losses)",
+        "values": [
+          null,
+          3922,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Операционные расходы (operating expenses)",
+        "values": [
+          4830,
+          6490,
+          7590,
+          7150
+        ]
+      },
+      {
+        "name": "Финансовые расходы (interest expenses)",
+        "values": [
+          242,
+          169,
+          39,
+          71
+        ]
+      }
+    ],
+    "operating_profit": [
+      7190,
+      7800,
+      5370,
+      5820
+    ],
+    "da": null,
+    "ebitda": null,
+    "finance_costs": [
+      242,
+      169,
+      39,
+      71
+    ],
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [
+      5760,
+      6090,
+      3930,
+      4350
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        1910,
+        2150,
+        1900,
+        3270
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": [
+      15400,
+      15600,
+      16500,
+      17800
+    ],
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [
+        11400,
+        11900,
+        12600,
+        14500
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1490,
+        880,
+        40,
+        5
+      ],
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": [
+      3400,
+      6650,
+      2990,
+      6000
+    ],
+    "cfi": null,
+    "cff": null,
+    "capex": [
+      160,
+      152,
+      331,
+      878
+    ],
+    "net_change_in_cash": null
+  },
+  "mfo_specific": {
+    "net_loan_portfolio": [
+      null,
+      12615,
+      null,
+      null
+    ],
+    "loan_loss_provisions": [
+      null,
+      3922,
+      null,
+      null
+    ],
+    "interest_income": null,
+    "net_interest_income": [
+      16150,
+      18669,
+      15850,
+      17070
+    ]
+  },
+  "data_flags": [
+    "INCOMPLETE: процентные доходы не выделены отдельно; используются агрегированные показатели выручки",
+    "INCOMPLETE: финансовые доходы (interest income) не выделены отдельно",
+    "SOURCE_ISSUE: e-disclosure.ru (ID 38344) требует аутентификации; invest.zaymer.ru и ir.zaymer.ru — JS-рендеринг; полные PDF не извлечены",
+    "LIMITATION: IPO апр.2024; МСФО отчётность доступна только с 2022 (финансовый год 2021 не опубликован публично в МСФО)",
+    "FAILED_ARITHMETIC: Income statement (2023) — Revenue 18669 - OpEx 6490 - Provisions 3922 - IntExp 169 = 8088, но reported operating_profit = 7800 (разница 288). Возможно, пропущены промежуточные статьи (налоговые вычеты, комиссионные, иные доходы/расходы).",
+    "INCOMPLETE: налоги не распарсены (не указаны в источниках)",
+    "INCOMPLETE: ОДДС (CFF, CFI) не распарсены отдельно, только CFO и CAPEX",
+    "INCOMPLETE: резервы (provision for loan losses) известны только за 2023 (3922 млн); 2022, 2024, 2025 — нет",
+    "CRITICAL_DATA_ISSUE: Без полного доступа к PDF МСФО на e-disclosure/invest.zaymer.ru невозможно распарсить полную структуру баланса и P&L. Smart-lab таблица агрегирует и не раскрывает все статьи.",
+    "RECOMMENDATION: Требуется ручная загрузка годового аудированного отчёта МСФО за 2022-2025 в companies/ZAYM/sources/ для полного extraction. Текущие данные пригодны только для базовых метрик (ЧП, ОДДС, основные активы).",
+    "FAILED_ARITHMETIC: Balance sheet (all years) — total_assets != total_equity + short_term_debt. Пример 2023: 15600 != 11900 + 880. Разница ~2800 млн — это нераспарсённые пассивы (возможно, кредиторская задолженность, депозиты, иные обязательства).",
+    "UNRELIABLE: валюта млн RUB во всех годах, но нет прямого доступа к исходным МСФО PDF для верификации",
+    "INCOMPLETE: баланс — есть 'net assets' из smart-lab, но истинная структура капитала неизвестна (share capital, retained earnings отдельно)",
+    "UNRELIABLE: smart-lab 'net_assets' не равны (total_assets - total_debt); возможна иная классификация пассивов"
+  ]
+}

@@ -1,0 +1,444 @@
+{
+  "meta": {
+    "ticker": "SPBE",
+    "name": "PAO SPB Birzha (Saint Petersburg Exchange)",
+    "profile": "exchange",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + e-disclosure МСФО",
+      "url": "https://smart-lab.ru/q/SPBE/f/y/ ; https://www.e-disclosure.ru/portal/",
+      "doc_title": "МСФО Consolidated Financial Statements 2020-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "smart-lab-table + pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      7600000,
+      7740000,
+      7240000,
+      3950000,
+      4100000
+    ],
+    "commission_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "interest_income": [
+      null,
+      null,
+      null,
+      2578585,
+      2818657,
+      3341952
+    ],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Процентные расходы (Interest expense)",
+        "values": [
+          null,
+          null,
+          null,
+          661432,
+          464768,
+          506121
+        ]
+      },
+      {
+        "name": "Прямые операционные расходы (Direct operating costs)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Административные расходы (Administrative expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Создание резервов (Provisions/Impairment)",
+        "values": [
+          null,
+          null,
+          null,
+          1142284,
+          195554,
+          32286
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      5260000,
+      5970000,
+      4740000,
+      3080000,
+      3200000
+    ],
+    "da": null,
+    "ebitda": [
+      null,
+      998000,
+      2900000,
+      5260000,
+      3640000,
+      3760000
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      661432,
+      464768,
+      506121
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      2578585,
+      2818657,
+      3341952
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      1270396,
+      917337,
+      213642
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      -592137,
+      147934,
+      null
+    ],
+    "net_profit": [
+      null,
+      2580000,
+      1500000,
+      678259,
+      1065271,
+      627868
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        2236754,
+        2161908,
+        1656103,
+        1493989
+      ],
+      "intangibles": [
+        null,
+        null,
+        802573,
+        1129397,
+        1204398,
+        1412323
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        20300000,
+        32911834,
+        30483713,
+        14557493,
+        15361920
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      42300000,
+      74884565,
+      112857624,
+      90162189,
+      88976841
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        498165,
+        498165,
+        498165,
+        498165
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        5429542,
+        6012387,
+        7004116,
+        7557133
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        13342210,
+        13342210,
+        13342210,
+        13342210
+      ],
+      "other_equity": [
+        null,
+        null,
+        195676,
+        195675,
+        -361651,
+        22974
+      ],
+      "total_equity": [
+        null,
+        17600000,
+        20034612,
+        20947489,
+        21402339,
+        22437615
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        34455,
+        36887,
+        3171,
+        61
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      54849953,
+      91910135,
+      68759850,
+      66539226
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      5810335,
+      -15385365,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      -3250163,
+      -484402,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      -574740,
+      -61710,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      -377184,
+      -324224,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      1985432,
+      -15931477,
+      804427
+    ]
+  },
+  "data_flags": [
+    "2020: no data available",
+    "2021-2022: limited detailed P&L; revenue from smart-lab",
+    "2023-2025: full МСФО data from official reports",
+    "Sanctions impact Nov 2023: foreign exchange trading frozen; revenue collapsed from 7.24B (2023) to 3.95B (2024)",
+    "Profile: exchange (not bank); commission-based business model with financial services",
+    "Interest income/expense from cash management (deposits, investments), not loans",
+    "2024 P&L: negative CFO due to large changes in client money balances (operating liabilities)",
+    "2025: pre-tax profit collapsed 77% YoY (from 917M to 214M) due to sanctions impact persistence",
+    "2024 arithmetic: Assets=Liabilities+Equity verified (90,162,189 = 68,759,850 + 21,402,339)",
+    "2023 arithmetic: Assets=Liabilities+Equity verified (112,857,624 = 91,910,135 + 20,947,489)",
+    "Consolidated includes docheri: SPB Clearing (НКО-ЦК) and SPB Bank subsidiaries"
+  ]
+}

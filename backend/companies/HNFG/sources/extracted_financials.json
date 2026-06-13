@@ -1,0 +1,235 @@
+{
+  "meta": {
+    "ticker": "HNFG",
+    "name": "ПАО ХЭНДЕРСОН ФЭШН ГРУПП",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://e-disclosure.ru/portal/company.aspx?id=38967",
+      "doc_title": "Консолидированная финансовая отчетность ПАО ХЭНДЕРСОН ФЭШН ГРУПП (МСФО)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext+regex",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      9521805,
+      12432544,
+      16762043,
+      20839998,
+      23937648
+    ],
+    "cogs": [
+      3645127,
+      3966787,
+      5132138,
+      6621642,
+      7728785
+    ],
+    "gross_profit": [
+      5876678,
+      8465757,
+      11629905,
+      14218356,
+      16208863
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          4675806,
+          5487734,
+          7236109,
+          9027725,
+          10997122
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          54641,
+          70772,
+          156422,
+          188092,
+          175824
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          62518,
+          121780,
+          320106,
+          333456,
+          134410
+        ]
+      }
+    ],
+    "operating_profit": [
+      1208749,
+      3029031,
+      4557480,
+      5335995,
+      5170327
+    ],
+    "da": [
+      280266,
+      435653,
+      649958,
+      837545,
+      1108530
+    ],
+    "ebitda": [
+      1488815,
+      3464684,
+      5207438,
+      6173540,
+      6278857
+    ],
+    "finance_costs": [
+      652405,
+      1088871,
+      1178665,
+      1551041,
+      2278425
+    ],
+    "finance_income": [
+      22349,
+      51608,
+      66473,
+      282776,
+      221402
+    ],
+    "exchange_diff": [
+      2518,
+      306133,
+      -428237,
+      -308719,
+      -23357
+    ],
+    "pre_tax_profit": [
+      581211,
+      2297901,
+      3017051,
+      3759011,
+      3089947
+    ],
+    "income_tax": [
+      124809,
+      466102,
+      665121,
+      709342,
+      799025
+    ],
+    "net_profit": [
+      456402,
+      1831799,
+      2351930,
+      3049669,
+      2290922
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        198862,
+        562126,
+        2574878,
+        1562946,
+        745338
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": null,
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": null
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": [
+      2510798,
+      1678726,
+      4511714,
+      4296647,
+      4776646
+    ],
+    "cfi": [
+      -535777,
+      -1746842,
+      -1298907,
+      -1887392,
+      -3472010
+    ],
+    "cff": [
+      -1874233,
+      420580,
+      -1167496,
+      -3292196,
+      -2017732
+    ],
+    "capex": [
+      465124,
+      1487769,
+      1252042,
+      1678139,
+      3094342
+    ],
+    "net_change_in_cash": [
+      100788,
+      352464,
+      2045311,
+      -882941,
+      -713096
+    ]
+  },
+  "data_flags": [
+    "Баланс: частичное извлечение (стр. 8 в отчёте — скан, требуется OCR). Денежные средства (end of year) извлечены из ОДДС.",
+    "Аренда IFRS16: учтена в амортизации активов в форме права пользования (ROU) и финансовых расходах. EBITDA IFRS16 margin 2024 = 37.5%, IAS17 = 25.8%.",
+    "ДА (D&A): амортизация ОС + НМА за год (без отдельной строки ROU амортизации, которая в примечаниях).",
+    "IPO: ноябрь 2023. Структура капитала до IPO (2021-2022) отличается от пост-IPO (2023+) — отражено в отчётах.",
+    "Все данные в тысячах РУБ. Валюта RUB. Коммерческая деятельность в РФ.",
+    "Арифметика P&L: все формулы пройдены (±1 тыс.). Арифметика ОДДС: CFO+CFI+CFF = net_change ✓ для всех лет."
+  ]
+}

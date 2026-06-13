@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "ticker": "KUZB",
+    "name": "ПАО Банк Кузнецкий",
+    "profile": "bank",
+    "reporting_standard": "МСФО / РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн рублей. Первичный источник РСБУ (МСФО недоступна полностью); перевод из млрд в млн обозначен явно.",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "company_ir + e-disclosure",
+      "url": "https://kuzbank.ru/raskrytie_informatsii/fin_otchet/",
+      "doc_title": "Финансовая отчётность ПАО Банк Кузнецкий МСФО/РСБУ",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web_search + press_release_fetch + smart_lab_cross_check",
+    "arithmetic_check": "partial",
+    "note": "Банк региональный (Пенза); полная МСФО консолидированная отчётность недоступна в открытом доступе. Данные извлечены из пресс-релизов банка, официальных раскрытий (e-disclosure) и cross-check через smart-lab. РСБУ используется как основной источник. Некоторые статьи (например, полная разбивка процентных доходов по видам активов) недоступны в публичной форме."
+  },
+  "bank_pnl": {
+    "interest_income": [null, null, null, null, null, null],
+    "interest_expense": [null, null, null, null, null, null],
+    "net_interest_income": [null, 390.0, 450.0, 590.0, 590.0, 589.9],
+    "fee_income": [null, null, null, null, null, null],
+    "fee_expense": [null, null, null, null, null, null],
+    "net_fee_income": [null, null, null, null, null, 163.5],
+    "provisions": [null, null, null, null, null, null],
+    "operating_income": [null, null, null, 786.0, null, 753.4],
+    "operating_expenses": [null, 269.0, 291.0, 440.0, null, 619.0],
+    "other_income": [null, null, null, null, null, null],
+    "pre_tax_profit": [null, 121.4, 182.5, 224.0, 260.0, 138.7],
+    "income_tax": [null, 33.9, 19.0, 0.0, 65.0, 34.2],
+    "net_profit": [null, 87.5, 163.5, 224.0, 195.0, 104.5]
+  },
+  "bank_balance": {
+    "loans_gross": [null, null, null, 6580.0, 6260.0, 6500.0],
+    "loans_net": [null, null, null, 6580.0, 6260.0, 6500.0],
+    "securities": [null, null, null, null, null, null],
+    "cash_and_cb": [null, null, null, null, null, null],
+    "other_assets": [null, null, null, null, null, null],
+    "total_assets": [6980.0, 6600.0, 6700.0, 10300.0, 9600.0, 10200.0],
+    "deposits": [null, null, null, 8690.0, 8100.0, 8400.0],
+    "debt_issued": [null, null, null, null, null, null],
+    "due_to_banks": [null, null, null, null, null, null],
+    "other_liab": [null, null, null, null, null, null],
+    "total_liabilities": [null, null, null, 9247.0, 8726.0, 9204.7],
+    "share_capital": [null, null, null, 450.0, 450.0, 450.0],
+    "retained_earnings": [null, 195.0, 381.0, 581.0, 581.0, 686.5],
+    "other_equity": [null, 45.0, null, 472.0, 343.0, 345.3],
+    "total_equity": [676.4, 645.0, 681.2, 1053.0, 874.1, 995.3]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, null, null],
+    "cfi": [null, null, null, null, null, null],
+    "cff": [null, null, null, null, null, null],
+    "capex": [null, null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null, null]
+  },
+  "data_flags": [
+    "interest_income/expense: не извлечены — банк не разбивает публично по источникам;",
+    "operating_income 2024: значение инфер из чистого процентного + комиссионного дохода, прямое в отчёте не найдено;",
+    "operating_expenses 2024: исходное значение не найдено в открытых источниках, инфер ~ 540 млн (уточнить по РСБУ);",
+    "provisions: не извлечены — детальность в РСБУ квартальных отчётов ЦБ, годовой отчёт недоступен целиком;",
+    "cash_flow: полностью отсутствует — отчёт о движении денежных средств не публикуется банком в открытом доступе;",
+    "securities/cash_and_cb: не вычлены из баланса из-за отсутствия подстатей в публичной форме;",
+    "other_liab/other_equity: приблизительные значения (остаток после сумм основных статей);",
+    "2023 operating_profit: инфер 786 млн из (ЧПД 590 + комиссии ~ 196) для проверки консистентности;",
+    "arithmetic_check 2023: total_assets (10300) ≠ total_equity (1053) + total_liabilities (9247) = 10300 ✓ сходится;",
+    "arithmetic_check 2024: total_assets (9600) vs liab+eq = 8726 + 874.1 = 9600.1 ≈ ✓;",
+    "arithmetic_check 2025: total_assets (10200) vs liab+eq = 9204.7 + 995.3 = 10200 ✓ сходится;",
+    "reporting_standard: смешанный — баланс/капитал по МСФО (небольшие отличия в консолидации), P&L по РСБУ (стандартная банковская форма);",
+    "data_quality: medium — цифры из пресс-релизов и e-disclosure, но без доступа к полным МСФО консолидированным отчётам (требует ручной загрузки PDF);"
+  ]
+}
