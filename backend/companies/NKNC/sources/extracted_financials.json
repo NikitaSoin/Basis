@@ -1,0 +1,334 @@
+{
+  "meta": {
+    "ticker": "NKNC",
+    "name": "ПАО Нижнекамскнефтехим",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure + smart-lab + business-gazeta",
+      "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1871684 (2024) + https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1828559 (2023) + https://smart-lab.ru/q/NKNC/f/y/ + https://www.business-gazeta.ru/article/669971",
+      "doc_title": "Консолидированная финансовая отчётность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext (2023) + smart-lab-table (2021-2022) + web-search (2024)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      236200.0,
+      269700.0,
+      254800.0,
+      269700.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      204300.0
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      65400.0
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (включая распределённые и SG&A)",
+        "values": [
+          197100.0,
+          223600.0,
+          233600.0,
+          null
+        ]
+      },
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          26200.0,
+          23700.0,
+          27200.0,
+          12500.0
+        ]
+      }
+    ],
+    "operating_profit": [
+      39200.0,
+      46200.0,
+      21100.0,
+      null
+    ],
+    "ebitda": [
+      65400.00000000001,
+      69900.0,
+      48300.0,
+      null
+    ],
+    "da": [
+      26200.0,
+      23700.0,
+      27200.0,
+      12500.0
+    ],
+    "finance_costs": [
+      3450.0,
+      7240.0,
+      18700.0,
+      5300.0
+    ],
+    "finance_income": [
+      null,
+      null,
+      1743.0,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      22037.0,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      5456.0,
+      7700.0
+    ],
+    "net_profit": [
+      16600.0,
+      30700.0,
+      16639.0,
+      30800.0
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        394861.0,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        4356.0,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        1074.0,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        9630.999999999998,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        410827.0,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        28175.0,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        58121.0,
+        74200.0
+      ],
+      "cash": [
+        13600.0,
+        null,
+        3363.0,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        10481.0,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        96917.0,
+        null
+      ]
+    },
+    "total_assets": [
+      508000.0,
+      605500.0,
+      507975.0,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        6332.0,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        208408.0,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        97835.0,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        222.0,
+        null
+      ],
+      "total_equity": [
+        312600.0,
+        333400.0,
+        312797.0,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        32200.000000000004,
+        63000.0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        27703.0,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        905.0,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        60808.0,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        94372.0,
+        127700.0
+      ],
+      "payables": [
+        null,
+        null,
+        36969.0,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        3029.0,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        134370.0,
+        null
+      ]
+    },
+    "total_liabilities": [
+      195399.99999999997,
+      272100.0,
+      195178.0,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -46680.0,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      23610.0,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      -30795.0,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      79700.0
+    ],
+    "net_change_in_cash": [
+      -8684.0,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "COGS отсутствует в явном виде для 2021-2023 (only 2024 из business-gazeta)",
+    "По PDF 2023: используется операционный формат отчёта (Revenue - OperatingExpenses = EBIT)",
+    "OperatingExpenses 233.6 млн за 2023 включают распределённые затраты и SG&A (не раздельно)",
+    "Gross Profit явно есть только за 2024 (65.4 млрд) из business-gazeta",
+    "cost_format: 'by_function' означает наличие Gross Profit (у нефтехимии); COGS неполный",
+    "2023: ОДДС CFO = -46.7 млрд (отрицательный) из-за роста оборотного капитала и инвестиций",
+    "2024: Долг растёт LT 63.0 + ST 127.7 = 190.7 млрд (финансирование ЭП-600)",
+    "Capex 2024: 79.7 млрд RUB (проект строительства олефинового комплекса)",
+    "Санкции на экспорт: выручка 2023 ниже 2022 несмотря на объёмы; восстановление 2024",
+    "Источник: e-disclosure PDF 2023 (100% надёжный) + smart-lab таблицы 2021-2022 + business-gazeta 2024"
+  ]
+}

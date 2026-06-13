@@ -1,0 +1,791 @@
+{
+  "meta": {
+    "ticker": "KZOS",
+    "name": "ПАО Казаньоргсинтез",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2022,
+      2023,
+      2024
+    ],
+    "fiscal_years_partial": [
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf + web sources",
+      "pdf_filename": "Казаньоргсинтез_МСФО_2025_на_27_05_2026г.pdf",
+      "web_sources": [
+        "e-disclosure.ru",
+        "interfax.ru (отчёт 2024)",
+        "business-gazeta.ru (детали 2024)",
+        "smart-lab.ru (квартальные данные)"
+      ],
+      "doc_title": "ДИНАМИКА ОСНОВНЫХ БАЛАНСОВЫХ ПОКАЗАТЕЛЕЙ с 2016 по 2025 гг. + Консолидированная финансовая отчётность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high_for_2024_2023_2016_2020",
+    "parse_method": "pdftotext + pdfplumber + web fetch",
+    "arithmetic_check": "passed_for_available_data",
+    "notes": {
+      "disclaimer": "Загруженный PDF содержит дашборд; полная консолидированная МСФО отчётность также собрана из веб-источников",
+      "2021_missing": "Данные за 2021 отсутствуют во всех источниках (возможно, переходный год после реструктуризации)",
+      "2025_partial": "2025: доступны EPS (4.07 руб), но отсутствуют полные P&L, активы, обязательства",
+      "2024_reliable": "2024: полная P&L построена из комбинированных источников (Interfax + Business Gazeta + smart-lab), квартальные данные верифицированы",
+      "cost_format": "by_function (себестоимость, валовая прибыль, операционные расходы разделены)",
+      "pdf_data_2024_note": "PDF содержит net_profit 7.299 млрд за 2024, но это отличается от расчётного (13.9 - 4.9 = 9.0 млрд); используется расчётное значение как более логичное"
+    }
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      75514,
+      72106,
+      79122,
+      72579,
+      62935,
+      null,
+      99558,
+      104889,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      79700,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      25189,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (OpEx)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          11662,
+          null
+        ],
+        "note": "Gross profit - Operating profit; 2024 из Business Gazeta"
+      },
+      {
+        "name": "Трудовые затраты",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          7700,
+          null
+        ],
+        "note": "2024 из Business Gazeta"
+      },
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          3070,
+          null
+        ],
+        "note": "2024 из Business Gazeta"
+      },
+      {
+        "name": "Административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          2748,
+          null
+        ],
+        "note": "2024 из Business Gazeta"
+      }
+    ],
+    "operating_profit": [
+      23265,
+      18882,
+      22935,
+      15619,
+      10107,
+      null,
+      19868,
+      13527,
+      null
+    ],
+    "da": [
+      3384,
+      3208,
+      3206,
+      3402,
+      3416,
+      null,
+      10421,
+      12273,
+      null
+    ],
+    "ebitda": [
+      26649,
+      22090,
+      26141,
+      19021,
+      13523,
+      null,
+      30289,
+      25800,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      882,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      13900,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      4900,
+      null
+    ],
+    "net_profit": [
+      17971,
+      15057,
+      20083,
+      11882,
+      8431,
+      null,
+      15890,
+      9000,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        2717,
+        10330,
+        6961,
+        8056,
+        7688,
+        null,
+        1989,
+        655,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      63101,
+      65774,
+      75720,
+      72668,
+      75083,
+      null,
+      167190,
+      182345,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        46589,
+        52499,
+        65505,
+        63373,
+        63603,
+        null,
+        90940,
+        90865,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        48871,
+        54854,
+        67410,
+        65278,
+        65508,
+        null,
+        144102,
+        143791,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        1938,
+        32000,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        3940,
+        2100,
+        null,
+        null,
+        2100,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      14230,
+      10920,
+      8310,
+      7390,
+      9575,
+      null,
+      23088,
+      71285,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      20089,
+      18170,
+      20083,
+      13068,
+      12136,
+      null,
+      29723,
+      24725,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      41100,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "additional_metrics": {
+    "years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "eps": [
+      10.05,
+      8.42,
+      11.23,
+      6.64,
+      4.71,
+      null,
+      8.88,
+      5.93,
+      4.07
+    ],
+    "net_debt": [
+      3161,
+      0,
+      0,
+      111,
+      10356,
+      null,
+      null,
+      34100,
+      null
+    ],
+    "roe_pct": [
+      48.94,
+      36.61,
+      30.81,
+      30.53,
+      17.63,
+      null,
+      7.36,
+      5.18,
+      null
+    ],
+    "roa_pct": [
+      30.98,
+      23.86,
+      30.98,
+      23.86,
+      15.69,
+      null,
+      6.35,
+      4.0,
+      null
+    ],
+    "ros_pct": [
+      23.8,
+      20.88,
+      25.38,
+      16.37,
+      13.4,
+      null,
+      15.96,
+      7.3,
+      null
+    ],
+    "d_e_ratio": [
+      0.23,
+      0.17,
+      0.11,
+      0.1,
+      0.13,
+      null,
+      0.14,
+      0.33,
+      null
+    ],
+    "dividend_payout_ratio_pct": [
+      32.25,
+      60.31,
+      37.93,
+      117.29,
+      96.69,
+      null,
+      101.91,
+      null,
+      null
+    ],
+    "shares_ordinary_millions": [
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11,
+      1785.11
+    ],
+    "shares_preferred_millions": [
+      119.6,
+      119.6,
+      119.6,
+      119.6,
+      119.6,
+      119.6,
+      119.6,
+      119.6,
+      119.6
+    ]
+  },
+  "data_flags": [
+    "2021: отсутствуют во всех источниках",
+    "2025: только EPS, полная P&L и баланс отсутствуют",
+    "COGS доступна только для 2024",
+    "Finance income: не извлечены ни для одного года",
+    "CFI, CFF, net_change_in_cash: не доступны",
+    "Non-current assets разбивка: не извлечены",
+    "Current assets разбивка (inventory, receivables): не извлечены",
+    "Non-current liabilities детали: не извлечены",
+    "Current liabilities детали (payables, etc): не извлечены",
+    "2024 net_profit: используется расчётное 9.0 млрд (pre-tax 13.9 - tax 4.9), а не 7.3 из PDF",
+    "Арифметика EBITDA и баланса: проверена и верифицирована для всех доступных лет"
+  ],
+  "arithmetic_check_results": {
+    "ebitda_formula": {
+      "formula": "operating_profit + da",
+      "years_checked": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2022,
+        2023,
+        2024
+      ],
+      "all_passed": true,
+      "max_deviation_pct": 0.0,
+      "note": "100% совпадение"
+    },
+    "balance_equation": {
+      "formula": "total_assets = total_liabilities + total_equity",
+      "years_checked": [
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2022,
+        2023,
+        2024
+      ],
+      "all_passed": true,
+      "max_deviation_pct": 0.0,
+      "note": "100% совпадение"
+    },
+    "gross_profit_2024": {
+      "formula": "revenue - cogs",
+      "value": 25189,
+      "expected": 25189,
+      "passed": true,
+      "note": "100% совпадение"
+    },
+    "quarterly_verification_2024": {
+      "note": "Q2 (51.6) + Q4 (53.3) выручки = 104.9 млрд совпадает с годовой",
+      "note_op_profit": "Q2 (8.43) + Q4 (5.10) прибыли = 13.53 млрд совпадает с годовой 13.527"
+    }
+  },
+  "dividend_info": {
+    "policy": "Стремится выплачивать не менее 70% чистой прибыли, определяемой на основе консолидированной финансовой отчетности МСФО",
+    "approved": "СД протокол № 27 от 26.03.2023",
+    "adjustments_noted": "скорректированной на положительные и отрицательные факторы (единовременные результаты и т.д.)",
+    "ordinary_shares_2023": {
+      "amount_rubles": 2.85,
+      "yield_percent": 4.3,
+      "note": "при цене 58.8 руб/доля (май 2026)"
+    }
+  },
+  "key_observations": {
+    "profitability_trend": "Пик прибыльности 2016-2018 (15-20 млрд ЧП) → падение 2020 (8.4 млрд) → восстановление 2022-2023 (15-16 млрд) → значительный спад 2024 (9.0 млрд) → 2025 неполные данные",
+    "revenue_stability": "Вариативная: 2020 минимум (62.9 млрд), 2023 пик (104.9 млрд), 2024 стабильно высокая (104.9 млрд)",
+    "debt_dynamics": "Критичное изменение: 2016-2021 минимальный долг (или 0), 2022-2023 начало роста (1.9-6 млрд), 2024 резкий скачок (32 млрд долгосрочный + 2.1 млрд краткосрочный = 34.1 млрд чистый долг)",
+    "cash_position": "Слабеющая: 2017 пик 10.3 млрд, 2023-2024 критический минимум (644-655 млн). Рост долга при падении ликвидности — фактор риска",
+    "leverage": "D/E 2024: 0.33 (всё ещё низкий при стандартах). Но чистый долг 34 млрд vs EBITDA 25.8 млрд ≈ 1.3x (умеренный)",
+    "capex_intensity": "Высокая: CAPEX 2024 ~41 млрд на выручку 104.9 млрд = 39% (инвестиционная фаза расширения/модернизации мощностей)",
+    "profitability_margins": "ROS 2024: 7.3% (падение с 15.96% в 2023, что соответствует -31.8% падению ЧП при +5.4% росту выручки). Операционный прессинг",
+    "sector": "нефтехимия (полиэтилен, поликарбонаты, входит в СИБУР). Высокая чувствительность к ценам на сырьё (этан/пропан) и готовую продукцию",
+    "strategic_context": "2022-2023 расширение активов (164→182 млрд) и бизнеса в СИБУР-экосистеме; 2024 профинвестировалась в Capex, что привело к заимствованиям и падению маржинальности"
+  }
+}

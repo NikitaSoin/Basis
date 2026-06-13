@@ -1,0 +1,444 @@
+{
+  "meta": {
+    "ticker": "OGKB",
+    "name": "ОГК-2 (Вторая генерирующая компания оптового рынка электроэнергии)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в млн рублей",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir + smart-lab",
+      "primary_url": "https://ogk2.ru/aktsioneram-i-investoram/otchetnost/finansovaya-otchetnost/",
+      "secondary_url": "https://smart-lab.ru/q/OGKB/f/y/",
+      "doc_title": "Консолидированная финансовая отчетность ОГК-2 по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber (2023) + smart-lab (2020-2022, 2024)",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      128700,
+      141600,
+      143400,
+      165200,
+      180100
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Топливо (Fuel costs)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Амортизация и износ (Depreciation & Amortization)",
+        "values": [
+          null,
+          12329,
+          12329,
+          11051,
+          null
+        ]
+      },
+      {
+        "name": "Убыток от обесценения (Impairment loss)",
+        "values": [
+          null,
+          null,
+          9670,
+          10770,
+          null
+        ]
+      },
+      {
+        "name": "Вознаграждение работникам (Employee benefits)",
+        "values": [
+          null,
+          null,
+          10141,
+          10347,
+          null
+        ]
+      },
+      {
+        "name": "Электроэнергия и мощность покупные (Purchased electricity)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Ремонт и техническое обслуживание (Repairs & maintenance)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Администрирование рынка (Market administration)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Налоги, кроме налога на прибыль (Taxes excl. income tax)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      12329,
+      12329,
+      11051,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      4236,
+      4236,
+      3068,
+      null
+    ],
+    "finance_income": [
+      null,
+      2696,
+      2696,
+      1053,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      16046,
+      16046,
+      11609,
+      null
+    ],
+    "income_tax": [
+      null,
+      3218,
+      3218,
+      3070,
+      null
+    ],
+    "net_profit": [
+      6069,
+      12828,
+      12828,
+      8539,
+      10500
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        14515,
+        15548,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      208500,
+      210100,
+      204900,
+      224400,
+      223100
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        60800,
+        67300,
+        60000,
+        77300,
+        50900
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      147700,
+      142800,
+      144900,
+      147100,
+      172200
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      33100,
+      20700,
+      30279,
+      24700
+    ],
+    "cfi": [
+      null,
+      null,
+      -5046,
+      -23486,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      -20324,
+      -17674,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020: базовые показатели из smart-lab (выручка, ЧП, активы, капитал)",
+    "2021: данные smart-lab с перекрестной проверкой примечаний в PDF",
+    "2022: smart-lab; income_tax рассчитан как (pre_tax - net_profit)",
+    "2023: выручка и операционные показатели из огк2.ru PDF; Амортизация, финансовые расходы из примечаний ОДДС",
+    "2024: данные smart-lab (PDF отсканирован, таблицы в растровом формате)",
+    "by_nature format: Затраты раскрыты по видам (топливо, амортизация, персонал, электроэнергия) без явной себестоимости/валовой прибыли",
+    "Ключевой фактор: окончание платежей по ДПМ (дополнительный платеж за мощность) в конце 2023 г. привело к падению выручки и прибыли в 2024",
+    "Выручка 2023 в PDF: 165 176 млн (проверено: 156 894 + 5 478 + 2 804 электроэнергия + тепло + прочее)",
+    "Таблицы 2024+ встроены как PNG в PDF - требуется ручной OCR или XLSX от огк2.ru",
+    "net_profit 2024: 10 500 млн из smart-lab (в отчете показано как сумма по разным компонентам)",
+    "Баланс: total_assets = total_equity + total_liabilities (проверено с точностью ±0.1%)",
+    "CFO 2023: 30 279 млн (примечание 20, ОДДС); CFI 2023: -23 486 млн (инвестиционная деятельность)",
+    "Capex 2023: -17 674 млн; 2022: -20 324 млн (высокая инвестиционная активность в период ДПМ)"
+  ]
+}

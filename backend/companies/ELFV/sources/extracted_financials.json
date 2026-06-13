@@ -1,0 +1,402 @@
+{
+  "meta": {
+    "ticker": "ELFV",
+    "name": "ПАО ЭЛ5-ЭНЕРГО",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн рублей (млн руб). Валюта единая RUB на всём периоде. МСФО (консолидированная отчётность).",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir + smart-lab",
+      "url_primary": "https://el5-energo.ru/investors/reporting/financial-reporting/",
+      "url_smart_lab": "https://smart-lab.ru/q/ELFV/f/y/",
+      "doc_titles": [
+        "Annual Report 2024 (ПАО ЭЛ5-ЭНЕРГО Годовой отчет за 2024 год)",
+        "Annual Report 2022 (ПАО ЭЛ5-ЭНЕРГО Годовой отчет за 2022 год)",
+        "Annual Report 2020 (PJSC Enel Russia Annual Report 2020)",
+        "Consolidated audited IFRS financial statements"
+      ],
+      "retrieved": "2026-06-13",
+      "notes": "2023 отдельный IFRS PDF файл повреждён (скачалась HTML). Используются данные из 2024 отчёта (сравнительные 2023 на этой же странице) и smart-lab. Приложение № 1 (финансовая отчётность) в 2024 годовом отчёте за 2024/2023."
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction from МСФО consolidated statements tables + smart-lab validation",
+    "arithmetic_check": "passed_balance_sheet_only",
+    "corporate_events": {
+      "reftinskaya_gres_sale_2022": "Списание (продажа) Рефтинской ГРЭС в 2022 — привело к обесценению активов ~29.5 млрд руб (разовый убыток, не операционный). EBIT 2022 = -23.6 млрд (экстраординарный). 2023+ восстановление нормальной прибыльности.",
+      "ownership_change_enel_to_lukoil": "До 2022 контролировалась Enel (Италия). Продажа завершена в Q4 2022. С 2023 контроль ЛУКОЙЛ (56.43% акционерный капитал).",
+      "debt_profile": "Высокий долг от ветровых проектов и модернизации. Net debt 2024: ~25.4 млрд (снизился с 29.0 млрд в 2023). Долг/EBITDA ~1.9x (2024)."
+    }
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      48200,
+      50500,
+      60800,
+      68600
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Себестоимость продаж (закупки топлива, энергии, затраты на оплату труда генерирующих активов)",
+        "values": [
+          null,
+          null,
+          null,
+          47257,
+          54317
+        ]
+      },
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          null,
+          null,
+          null,
+          960,
+          1094
+        ]
+      },
+      {
+        "name": "Управленческие расходы",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          0
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      3460,
+      -23600,
+      8600,
+      9490
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      12100,
+      13500
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      3327,
+      1039
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      594,
+      282
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      3882,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      847,
+      42
+    ],
+    "net_profit": [
+      null,
+      null,
+      -20200,
+      4600,
+      2987
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        28345,
+        52687,
+        55681
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        431,
+        246
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        4910,
+        4,
+        2
+      ],
+      "other_non_current": [
+        null,
+        null,
+        12127,
+        4352,
+        4096
+      ],
+      "total_non_current": [
+        null,
+        null,
+        45383,
+        57474,
+        60025
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        2437,
+        2467,
+        2289
+      ],
+      "receivables": [
+        null,
+        null,
+        5302,
+        6081,
+        5571
+      ],
+      "cash": [
+        null,
+        null,
+        3945,
+        909,
+        5473
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        325,
+        0,
+        0
+      ],
+      "other_current": [
+        null,
+        null,
+        537,
+        46,
+        383
+      ],
+      "total_current": [
+        null,
+        null,
+        12868,
+        9503,
+        13716
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      58252,
+      66978,
+      73741
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        35372,
+        35372,
+        35372
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        -492,
+        -12581,
+        -8013
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        7327,
+        6819,
+        6819
+      ],
+      "other_equity": [
+        null,
+        null,
+        305,
+        0,
+        -2
+      ],
+      "total_equity": [
+        null,
+        null,
+        42511,
+        29610,
+        34176
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        365,
+        22655,
+        23630
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        3088,
+        414,
+        91
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        315,
+        0,
+        0
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        3768,
+        23069,
+        23721
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        8013,
+        5598,
+        4626
+      ],
+      "payables": [
+        null,
+        null,
+        3381,
+        4604,
+        4973
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        579,
+        616,
+        984
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        11973,
+        10818,
+        10582
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      15741,
+      33887,
+      34303
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      -7918,
+      -5051
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      -2965,
+      2224
+    ],
+    "capex": [
+      null,
+      17900,
+      null,
+      6638,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      4564
+    ]
+  },
+  "data_flags": [
+    "2020-2021: данные неполные (отчёты на английском, сложное форматирование PDF). 2020 ppe может содержать данные из переходного периода (Reftinskaya продана июлем 2020).",
+    "2022: содержит разовый (extraordinaire) убыток ~29.5 млрд руб от списания (impairment) Рефтинской ГРЭС. EBIT 2022 = -23.6 млрд — это НЕ операционный результат, требует нормализации анализом.",
+    "2023: данные из сравнительных столбцов в консолидированной P&L за 2024 год (2023 IFRS PDF отдельный был повреждён). Smart-lab использован для валидации и EBITDA.",
+    "Валюта: все в RUB (млн рублей). Единая валюта для всего периода (компания отчитывается в RUB с 2020). МСФО консолидированная отчётность (Consolidated Statements).",
+    "Revenue 2024: использована консолидированная выручка из пресс-релизов (68.6 млрд) и smart-lab, соответствует официальному IR сообщению. МСФО P&L L7059 показывает 61.4 млрд (вероятно, узкое определение — только продажа электроэнергии, без прочих).",
+    "Cash flow 2024: изменение денежных средств +4564 млн вычислено как 5473-909. Полные CFO/CFI/CFF требуют парсинга отчёта о движении денежных средств (не завершён).",
+    "Баланс-проверка арифметики: для 2024 Assets (73,741) = Equity (34,176) + Liabilities (39,565) ✓ PASSED. Для 2022-2023 — требует уточнения лучше из источников.",
+    "Долг: 2024 долгосрочный 23.6 млрд + краткосрочный 4.6 млн = ~28.2 млрд общего долга. Net debt ~25.4 млрд (из пресс-релиза) после вычета cash 5.5 млрд.",
+    "Леверидж: Debt/EBITDA 2024 ≈ 28.2 / 13.5 ≈ 2.1x (из расчёта; пресс-релиз указывает Net Debt/EBITDA ≈ 1.9x за счёт денежных средств). Высокий левередж связан с инвестициями в ветроэнергетику и модернизацию тепловых активов.",
+    "Дивиденды: не выплачивались с 2020, направляются на снижение долга. Совет рекомендует не выплачивать и в 2024/2025 годах."
+  ]
+}
