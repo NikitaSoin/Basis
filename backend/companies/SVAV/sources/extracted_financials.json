@@ -1,0 +1,378 @@
+{
+  "meta": {
+    "ticker": "SVAV",
+    "name": "ПАО СОЛЛЕРС",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://sollers-auto.com/information-disclosure/reporting/",
+      "doc_title": "Консолидированная финансовая отчётность МСФО 2020-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext (2020) + summary tables",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      65985,
+      91709,
+      82289,
+      91761,
+      62447
+    ],
+    "cogs": [
+      57106,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      8879,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          4116,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Общие и административные расходы",
+        "values": [
+          4953,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      -517,
+      5346,
+      6885,
+      2848,
+      4674
+    ],
+    "da": [
+      3494,
+      3157,
+      2870,
+      2865,
+      3398
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      1861,
+      516,
+      1831,
+      1831,
+      1182
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -1745,
+      2429,
+      4931,
+      3727,
+      2297
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        9825,
+        15343,
+        9313,
+        8300,
+        6398
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      67551,
+      72242,
+      70611,
+      78239,
+      81273
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        10119,
+        12548,
+        8284,
+        9209,
+        9302
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        25231,
+        27730,
+        24071,
+        25002,
+        25095
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        5539,
+        1905,
+        5095,
+        7400,
+        10610
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        6766,
+        7905,
+        7189,
+        6834,
+        5550
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      42320,
+      44512,
+      46540,
+      53237,
+      56178
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -1957,
+      11428,
+      3335,
+      2570,
+      4810
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      3421,
+      2589,
+      4835,
+      8243,
+      6567
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2022 отсутствует в источниках",
+    "2020: P&L от PDF 2020 отчета МСФО (by_function format), баланс/ОДДС из сводки",
+    "2021, 2023, 2024, 2025: базовые показатели из сводки (1 страница PDF 2025)",
+    "COGS/gross_profit 2021+ не распарсены (нужны полные отчёты)",
+    "ОДДС: только CFO и capex, CFI/CFF/net_change не заполнены",
+    "Баланс: только итоги и основные позиции (долг, капитал), детали активов отсутствуют",
+    "Арифметика 2020 P&L пройдена ✓ (gross_profit = revenue - cogs)",
+    "Арифметика 2020 баланс пройдена ✓ (total_assets = total_liab + equity)"
+  ]
+}

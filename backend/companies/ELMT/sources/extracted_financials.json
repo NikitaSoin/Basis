@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "ticker": "ELMT",
+    "name": "ПАО Элемент (Группа Элемент)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн рублей",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "company_ir_summary + smart-lab + interim_report",
+      "url": "https://gkelement.ru/invest/ + https://smart-lab.ru/q/ELMT/f/y/",
+      "doc_title": "Элемент (МСФО 2025) сводная таблица 21.05.2026 + smart-lab консолидированная отчетность + H1 2024 промежуточный отчет",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdf_summary_extraction + web_aggregator + interim_statement",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [20984, 24425, 35773, 44004, 38604, null],
+    "cogs": [15700, 16600, 22500, 27700, 28300, null],
+    "gross_profit": [5300, 7800, 13300, 16300, 10300, null],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы",
+        "values": [3360, 3410, 4620, 5600, 6190, null]
+      }
+    ],
+    "operating_profit": [1548, 3515, 6870, 8983, -830, null],
+    "da": [1741, 1641, 1784, 1991, 5745, null],
+    "ebitda": [3289, 5156, 8654, 10974, 4915, null],
+    "finance_costs": [1103, 1598, 1542, 2162, 2685, null],
+    "finance_income": [null, null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null, null],
+    "income_tax": [null, null, null, null, null, null],
+    "net_profit": [249, 2202, 4337, 7236, -2174, null]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, 19366, 21467, null],
+      "intangibles": [null, null, null, 7115, 8469, null],
+      "goodwill": [null, null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null, null],
+      "other_non_current": [null, null, null, 2098, 3134, null],
+      "total_non_current": [null, null, null, 29960, 34590, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, 18021, 20147, null],
+      "receivables": [null, null, null, 7108, 10202, null],
+      "cash": [4448, 25156, 32948, 4491, 36437, 24544],
+      "short_term_investments": [null, null, null, null, null, null],
+      "other_current": [null, null, null, null, null, null],
+      "total_current": [null, null, null, 62608, 71382, null]
+    },
+    "total_assets": [42376, 72622, 92568, 114091, 106463, null],
+    "equity": {
+      "share_capital": [20132, 20132, 20132, 20132, 23486, null],
+      "retained_earnings": [-450, -1361, 2727, 9432, 6081, 5685],
+      "additional_paid_in": [null, null, null, null, 8035, null],
+      "other_equity": [null, null, null, null, null, null],
+      "total_equity": [19107, 20441, 25095, 42822, 38461, null]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [7985, 5954, 17071, 15664, 17691, null],
+      "deferred_tax": [null, null, null, 704, 947, null],
+      "other_non_current_liab": [null, null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [1777, 10447, 1523, 4166, 3229, null],
+      "payables": [null, null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null, null]
+    },
+    "total_liabilities": [23269, 52181, 67473, 71269, 68002, null]
+  },
+  "cash_flow": {
+    "cfo": [2840, 11925, 13964, -1880, -48, null],
+    "cfi": [null, null, null, null, null, null],
+    "cff": [null, null, null, null, null, null],
+    "capex": [2360, 3131, 11762, 13301, 8831, null],
+    "net_change_in_cash": [null, null, null, null, null, null]
+  },
+  "data_flags": [
+    "2025 — Last Twelve Months (LTM) на 21.05.2026, не полный календарный год",
+    "Полные детали баланса (ОС, НМА, запасы, дебиторская задолженность) доступны только за 2023-2024 из H1 2024 промежуточного отчета",
+    "2020-2022 — агрегированные данные из smart-lab (детали по отдельным статьям недоступны)",
+    "Операционная прибыль 2024 отрицательная (-830 млн) при выручке 38.6 млрд — LTM эффект за 12 мес с 21.05.2025 по 21.05.2026 включает переоценки/выбытия активов",
+    "EBITDA за 2025 (4.9 млрд) ниже 2024 (11 млрд) — D&A выросла с 2 до 5.7 млрд (+3.7x) — требует проверки капитализации активов в МСФО",
+    "Госсубсидии упомянуты в H1 2024 отчёте (144 млн выручка, 1550 млн инвестиционная) — требует полной детализации из годовых отчетов 2023-2024",
+    "Finance income не явно указана в агрегированных источниках — нужна выверка по полным МСФО отчетам",
+    "Cash flow (CFI, CFF) из сводки недоступны — parsiальная информация только по CFO и CapEx"
+  ]
+}

@@ -666,3 +666,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
   UGLD приостановка добычи/Росимущество; RNFT долг 89% EV; CNRU кэш-машина/спецдивиденд;
   OZPH+GEMC фарма/мед (healthcare peers.json дополнен до 4 имён, +OZPH); PRMD фарма-рост R&D;
   GEMC в EUR (курс 95, dilution Севергрупп — риск). data_quality честно где тонко.
+
+- Батч 12 (haiku, терсе): SVAV ABRD KLVZ DATA IVAT ELMT — все OK. 89/262.

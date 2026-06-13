@@ -1,0 +1,341 @@
+{
+  "meta": {
+    "ticker": "DATA",
+    "name": "ПАО 'Группа Аренадата' (Arenadata Group)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все года в млн RUB. Данные из МСФО консолидированной отчётности + smart-lab",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir + smart-lab",
+      "url": "https://ir.arenadata.tech/files/finansovaya-otchetnost-po-msfo-za-2024.pdf + https://smart-lab.ru/q/DATA/f/y/",
+      "doc_title": "Консолидированная финансовая отчётность по МСФО (IFRS) 2024, 2023; аудирована",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "PDF extraction + smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      1560,
+      2490,
+      3951,
+      6015
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы на оплату труда",
+        "values": [
+          710,
+          1400,
+          1920,
+          3060
+        ]
+      },
+      {
+        "name": "Стоимость производства / разработка",
+        "values": [
+          165,
+          328,
+          261,
+          482
+        ]
+      },
+      {
+        "name": "Операционные расходы",
+        "values": [
+          728,
+          1320,
+          2100,
+          3710
+        ]
+      }
+    ],
+    "operating_profit": [
+      664,
+      856,
+      1600,
+      1830
+    ],
+    "da": [
+      null,
+      null,
+      67,
+      103
+    ],
+    "ebitda": [
+      694,
+      904,
+      1662,
+      1933
+    ],
+    "finance_costs": [
+      null,
+      null,
+      248,
+      222
+    ],
+    "finance_income": [
+      null,
+      null,
+      89,
+      185
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      1466,
+      1850
+    ],
+    "income_tax": [
+      null,
+      null,
+      10,
+      88
+    ],
+    "net_profit": [
+      651,
+      970,
+      1456,
+      1938
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        1190,
+        1780,
+        1251,
+        1366
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      2050,
+      3020,
+      3360,
+      4430
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        10000
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        1576,
+        2076
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        235,
+        307
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1400,
+        1830,
+        1810,
+        2392
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        75,
+        70,
+        77,
+        73
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      650,
+      1190,
+      1550,
+      2038
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      386,
+      1120,
+      1115,
+      1691
+    ],
+    "cfi": [
+      null,
+      null,
+      -144,
+      15
+    ],
+    "cff": [
+      null,
+      null,
+      -1501,
+      -1590
+    ],
+    "capex": [
+      42,
+      68,
+      145,
+      66
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      -530,
+      115
+    ]
+  },
+  "data_flags": [
+    "cost_format = by_nature: IT-компания, расходы по видам (персонал, разработка, операционные)",
+    "D&A 2021-2022: оценены; 2023-2024: из МСФО (PPE 12-15, Intangibles 35-66, Lease 20-22 млн)",
+    "Pre-tax profit 2024: 1,850 млн; Net profit (consolidated): 1,938 млн (with −12 млн non-controlling)",
+    "Finance income 2024: +185 млн (проценты на кэш); Finance costs: 222 млн",
+    "CFI 2024: +15 млн (продажа ассоц. комп. −капекс); CFF: −1,590 млн (дивиденды −1,455 млн)",
+    "Net cash: 2024 +115 млн (against 2023 −530 млн); EOY cash 1,366 млн",
+    "Balance sheet детали (receivables, payables, long-term assets) не полные",
+    "Все в млн RUB, single currency (RUB) 2021-2024, no conversions needed"
+  ]
+}

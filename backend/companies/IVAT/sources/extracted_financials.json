@@ -1,0 +1,394 @@
+{
+  "meta": {
+    "ticker": "IVAT",
+    "name": "IVA Technologies (ПАО ИВА)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://iva.ru/assets/content/otchetnost-pao-iva-12m24.pdf",
+      "doc_title": "Консолидированная финансовая отчётность ПАО ИВА за 12 месяцев 31 декабря 2024 г.",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      560000,
+      1380000,
+      2453814,
+      3326768
+    ],
+    "cogs": [
+      190000,
+      215000,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Заработная плата и социальные отчисления",
+        "values": [
+          null,
+          null,
+          215396,
+          414141
+        ]
+      },
+      {
+        "name": "Услуги сторонних организаций",
+        "values": [
+          null,
+          null,
+          162752,
+          149826
+        ]
+      },
+      {
+        "name": "Амортизация нематериальных активов",
+        "values": [
+          null,
+          null,
+          155405,
+          197613
+        ]
+      },
+      {
+        "name": "Стоимость материалов и программных продуктов",
+        "values": [
+          null,
+          null,
+          51040,
+          239469
+        ]
+      },
+      {
+        "name": "Рекламные и представительские расходы",
+        "values": [
+          null,
+          null,
+          40590,
+          172765
+        ]
+      },
+      {
+        "name": "Расходы на аренду и содержание помещений",
+        "values": [
+          null,
+          null,
+          2474,
+          5596
+        ]
+      },
+      {
+        "name": "Амортизация активов в форме права пользования",
+        "values": [
+          null,
+          null,
+          4751,
+          44927
+        ]
+      },
+      {
+        "name": "Командировочные расходы",
+        "values": [
+          null,
+          null,
+          3730,
+          7754
+        ]
+      },
+      {
+        "name": "Расходы на программное обеспечение",
+        "values": [
+          null,
+          null,
+          837,
+          6188
+        ]
+      },
+      {
+        "name": "Амортизация основных средств",
+        "values": [
+          null,
+          null,
+          6426,
+          14712
+        ]
+      },
+      {
+        "name": "Курсовые разницы, нетто",
+        "values": [
+          null,
+          null,
+          -1411,
+          -96
+        ]
+      },
+      {
+        "name": "Начисление резерва по сомнительным долгам",
+        "values": [
+          null,
+          null,
+          -1285,
+          18116
+        ]
+      },
+      {
+        "name": "Результаты инвентаризации обязательств и недостачи",
+        "values": [
+          null,
+          null,
+          0,
+          11197
+        ]
+      },
+      {
+        "name": "Прочие расходы, нетто",
+        "values": [
+          null,
+          null,
+          56539,
+          91378
+        ]
+      }
+    ],
+    "operating_profit": [
+      198000,
+      1030000,
+      1756570,
+      1953182
+    ],
+    "da": [
+      234000,
+      40000,
+      166582,
+      257252
+    ],
+    "ebitda": [
+      432000,
+      1070000,
+      1923152,
+      2210434
+    ],
+    "finance_costs": [
+      null,
+      null,
+      677,
+      27795
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      1763706,
+      1914367
+    ],
+    "income_tax": [
+      null,
+      null,
+      0,
+      16460
+    ],
+    "net_profit": [
+      188000,
+      1000000,
+      1763706,
+      1897907
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        30962,
+        258574
+      ],
+      "intangibles": [
+        2070077,
+        3431833
+      ],
+      "goodwill": [
+        null,
+        null
+      ],
+      "long_term_investments": [
+        34887,
+        34249
+      ],
+      "other_non_current": [
+        null,
+        null
+      ],
+      "total_non_current": [
+        2135926,
+        3724656
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        31091,
+        171949
+      ],
+      "receivables": [
+        1291475,
+        2036323
+      ],
+      "cash": [
+        265519,
+        236528
+      ],
+      "short_term_investments": [
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null
+      ],
+      "total_current": [
+        1588085,
+        2444800
+      ]
+    },
+    "total_assets": [
+      1980000,
+      3340000,
+      3724011,
+      6169456
+    ],
+    "equity": {
+      "share_capital": [
+        10,
+        10000
+      ],
+      "retained_earnings": [
+        3790000,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null
+      ],
+      "total_equity": [
+        1810000,
+        2600000,
+        3790000,
+        5100000
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        6040,
+        159629
+      ],
+      "deferred_tax": [
+        null,
+        68838
+      ],
+      "other_non_current_liab": [
+        311664,
+        340180
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        317704,
+        568647
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        204078,
+        35026
+      ],
+      "payables": [
+        227857,
+        458762
+      ],
+      "other_current_liab": [
+        292520,
+        352612
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        724455,
+        846400
+      ]
+    },
+    "total_liabilities": [
+      170000,
+      740000,
+      1042159,
+      1415047
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      219000,
+      1050000,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      203000,
+      592000,
+      648000,
+      1500000
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2021-2022 данные из smart-lab (агрегированные, без детализации expense_lines)",
+    "2023 ОДДС полностью не извлечён; требуется парсинг таблицы",
+    "2024 ОДДС не извлечён из PDF",
+    "Финансовые доходы не найдены в примечаниях (возможно, нулевые)",
+    "Баланс для 2021-2022 частичный (только total_assets, equity, debt)",
+    "Cost format для 2021-2022 отличается (smart-lab показал COGS; 2023-2024 = by_nature)"
+  ]
+}
