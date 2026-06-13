@@ -661,3 +661,8 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
   MDMG чистая позиция/healthcare (создан sectors/healthcare/peers.json); GCHE биоактивы нормализованы;
   SOFL оборот vs выручка МСФО/дилюция; WUSH кикшеринг капиталоёмкий; SFIN холдинг SOTP (Европлан+ВСК);
   DIAS IT фискальный год апр-мар.
+
+- Батч 11 (haiku): UGLD RNFT CNRU OZPH PRMD GEMC. 83/262.
+  UGLD приостановка добычи/Росимущество; RNFT долг 89% EV; CNRU кэш-машина/спецдивиденд;
+  OZPH+GEMC фарма/мед (healthcare peers.json дополнен до 4 имён, +OZPH); PRMD фарма-рост R&D;
+  GEMC в EUR (курс 95, dilution Севергрупп — риск). data_quality честно где тонко.
