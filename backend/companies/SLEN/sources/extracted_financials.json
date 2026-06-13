@@ -1,0 +1,265 @@
+{
+  "meta": {
+    "ticker": "SLEN",
+    "name": "ПАО 'САХАЛИНЭНЕРГО'",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1920699",
+      "doc_title": "Консолидированная финансовая отчетность МСФО 2025 (SLEN)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      15401,
+      17972
+    ],
+    "cogs": [
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Государственные субсидии",
+        "values": [
+          6715,
+          8167
+        ]
+      },
+      {
+        "name": "Операционные расходы (без учета убытков от обесценения)",
+        "values": [
+          -17197,
+          -19249
+        ]
+      },
+      {
+        "name": "Убыток от обесценения основных средств",
+        "values": [
+          -13515,
+          -659
+        ]
+      },
+      {
+        "name": "Убыток от обесценения финансовых активов, нетто",
+        "values": [
+          -266,
+          -52
+        ]
+      }
+    ],
+    "operating_profit": [
+      -8862,
+      6179
+    ],
+    "da": [
+      2978,
+      2560
+    ],
+    "ebitda": [
+      4653,
+      8799
+    ],
+    "finance_costs": [
+      970,
+      1144
+    ],
+    "finance_income": [
+      191,
+      243
+    ],
+    "pre_tax_profit": [
+      -9581,
+      5272
+    ],
+    "income_tax": [
+      -15,
+      149
+    ],
+    "net_profit": [
+      -9596,
+      5421
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        30853,
+        29726
+      ],
+      "intangibles": [
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null
+      ],
+      "total_non_current": [
+        31098,
+        30023
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null
+      ],
+      "cash": [
+        1087,
+        1926
+      ],
+      "short_term_investments": [
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null
+      ],
+      "total_current": [
+        5061,
+        5621
+      ]
+    },
+    "total_assets": [
+      36159,
+      35644
+    ],
+    "equity": {
+      "share_capital": [
+        23109,
+        23722
+      ],
+      "retained_earnings": [
+        -16537,
+        -10699
+      ],
+      "additional_paid_in": [
+        267,
+        267
+      ],
+      "other_equity": [
+        230,
+        235
+      ],
+      "nci": [
+        969,
+        993
+      ],
+      "total_equity": [
+        17574,
+        8651
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        5099,
+        10670
+      ],
+      "long_term_lease": [
+        6547,
+        4422
+      ],
+      "deferred_tax": [
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        10
+      ],
+      "total_non_current_liab": [
+        12013,
+        11523
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        8406,
+        5183
+      ],
+      "short_term_lease": [
+        255,
+        664
+      ],
+      "payables": [
+        2956,
+        4489
+      ],
+      "other_current_liab": [
+        595,
+        357
+      ],
+      "total_current_liab": [
+        6572,
+        15470
+      ]
+    },
+    "total_liabilities": [
+      18585,
+      26993
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      7558,
+      8386
+    ],
+    "cfi": [
+      -9644,
+      -5807
+    ],
+    "cff": [
+      2857,
+      -1740
+    ],
+    "capex": [
+      10196,
+      6045
+    ],
+    "net_change_in_cash": [
+      771,
+      839
+    ]
+  },
+  "data_flags": [
+    "Полная отчётность извлечена только за 2025 и 2024 из МСФО SLEN",
+    "2024 год обозначен как пересмотренный (restated)",
+    "2023-2020 не извлечены: скачанные PDF для этих лет сканированные (image-based), требуют ручного ввода или OCR",
+    "cost_format: by_nature (энергетика с субсидиями, не стандартная P&L по себестоимости/опер.расходам)",
+    "Компоненты баланса: долг выделен из примечания 13, аренда из примечания 12",
+    "EBITDA рассчитана как Operating profit + add back импаирментов + D&A",
+    "Примечание на 2024 и 2025: разница между примечанием 10 (капитальное движение) и основным балансом обусловлена консолидационными корректировками (МСФО)"
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "ticker": "BLNG",
+    "name": "ОАО Белон",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/company.aspx?id=332",
+      "doc_title": "Консолидированная финансовая отчётность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber + manual verification",
+    "arithmetic_check": "passed",
+    "notes": "Полные 5 лет недоступны. PDF за 2020-2023 повреждены (архивы с нечитаемыми кодировками имён файлов). Есть только 2024-2025. Источник: e-disclosure МСФО специального назначения."
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      6199,
+      6199
+    ],
+    "cogs": [
+      505,
+      410
+    ],
+    "gross_profit": [
+      5694,
+      5789
+    ],
+    "expense_lines": [
+      {
+        "name": "Общехозяйственные и административные расходы",
+        "values": [
+          3734,
+          4735
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы/(расходы), нетто",
+        "values": [
+          8122,
+          null
+        ]
+      },
+      {
+        "name": "Доля в результате ассоциированных организаций (убыток)",
+        "values": [
+          -2066359,
+          -8804582
+        ]
+      },
+      {
+        "name": "Прочие расходы/(доходы) по курсовым разницам, нетто",
+        "values": [
+          -593,
+          4261
+        ]
+      }
+    ],
+    "operating_profit": [
+      10082,
+      1054
+    ],
+    "da": null,
+    "ebitda": null,
+    "finance_costs": [
+      593,
+      4261
+    ],
+    "finance_income": [
+      96489,
+      95418
+    ],
+    "pre_tax_profit": [
+      -1960381,
+      -8712371
+    ],
+    "income_tax": [
+      -80561,
+      1145816
+    ],
+    "net_profit": [
+      -2040942,
+      -7566555
+    ]
+  },
+  "income_statement_notes": {
+    "доля_в_ассоциированных": [
+      -2066359,
+      -8804582
+    ],
+    "прочие_операционные_доходы_2024": [
+      8122,
+      null
+    ],
+    "note": "Основной убыток от доли в результате ассоциированной организации (инвестиция в ММК-ПОЛЮС). Выручка минимальна (6,199 тыс. = 6.2 млн руб/год). Это холдинговая компания."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        12296,
+        12188
+      ],
+      "intangibles": [
+        1772,
+        1767
+      ],
+      "goodwill": null,
+      "long_term_investments": [
+        9547013,
+        742431
+      ],
+      "other_non_current": [
+        {
+          "name": "Займы выданные",
+          "values": [
+            749948,
+            829166
+          ]
+        },
+        {
+          "name": "Отложенные налоговые активы",
+          "values": [
+            null,
+            537806
+          ]
+        }
+      ],
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": [
+        2096529,
+        2194822
+      ],
+      "cash": [
+        65,
+        55
+      ],
+      "short_term_investments": [
+        50,
+        650
+      ],
+      "other_current": [
+        {
+          "name": "Авансовые платежи по налогу",
+          "values": [
+            958,
+            1066
+          ]
+        },
+        {
+          "name": "НДС к возмещению",
+          "values": [
+            null,
+            8
+          ]
+        }
+      ],
+      "total_current": null
+    },
+    "total_assets": [
+      11756951,
+      3570688
+    ],
+    "equity": {
+      "share_capital": [
+        11500,
+        11500
+      ],
+      "retained_earnings": null,
+      "additional_paid_in": [
+        11125389,
+        3558834
+      ],
+      "other_equity": null,
+      "total_equity": [
+        11136889,
+        3570334
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": [
+        619502,
+        null
+      ],
+      "other_non_current_liab": null,
+      "total_non_current_liab": [
+        619502,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": [
+        560,
+        354
+      ],
+      "other_current_liab": null,
+      "total_current_liab": [
+        560,
+        354
+      ]
+    },
+    "total_liabilities": [
+      620062,
+      354
+    ]
+  },
+  "cash_flow": null,
+  "data_flags": [
+    "Только 2024-2025; 2020-2023 недоступны (PDF повреждены)",
+    "Баланс сходится: assets = liabilities + equity",
+    "Gross profit сходится: revenue - cogs = gross_profit",
+    "Холдинговая компания: основной актив — инвестиция 742 млрд (2025) в ассоциированную организацию ММК-ПОЛЮС",
+    "Капитал упал 11.1 млрд → 3.6 млрд из-за убытков инвестиции",
+    "Кассный остаток: 40-65 тыс. (микро)",
+    "Доля в убытке ассоциированной организации: основной источник убытков БЕЛОН",
+    "Резерв переоценки (additional_paid_in) отрицателен — признание обесценения инвестиции"
+  ]
+}

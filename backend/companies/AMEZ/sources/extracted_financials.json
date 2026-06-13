@@ -1,0 +1,268 @@
+{
+  "meta": {
+    "ticker": "AMEZ",
+    "name": "ПАО Ашинский металлургический завод",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.amet.ru/invest/financial-statements/",
+      "doc_title": "Консолидированная финансовая отчетность по МСФО за 2020-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdfplumber + manual",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      24587.85,
+      40073.262,
+      46542.202,
+      37310.582,
+      27189.524
+    ],
+    "cogs": [
+      20489.077,
+      27402.87,
+      31899.97,
+      29286.501,
+      23857.254
+    ],
+    "gross_profit": [
+      4098.773,
+      12670.392,
+      14642.232,
+      8024.081,
+      3332.27
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          1374.953,
+          1610.709,
+          1886.546,
+          1809.502,
+          1605.211
+        ]
+      },
+      {
+        "name": "Административные расходы",
+        "values": [
+          894.779,
+          1022.581,
+          1582.807,
+          1774.423,
+          1842.621
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы и расходы (нетто)",
+        "values": [
+          50.468,
+          -4625.965,
+          387.916,
+          267.314,
+          1102.481
+        ]
+      }
+    ],
+    "operating_profit": [
+      1778.573,
+      14663.067,
+      10784.963,
+      4172.842,
+      -1218.043
+    ],
+    "da": [
+      767.834,
+      593.717,
+      920.134,
+      926.681,
+      944.907
+    ],
+    "ebitda": [
+      2546.407,
+      15256.784,
+      11705.097,
+      5099.523,
+      -273.136
+    ],
+    "finance_income": [
+      191.076,
+      507.404,
+      2189.092,
+      3906.138,
+      2070.625
+    ],
+    "finance_costs": [
+      1308.955,
+      259.565,
+      166.872,
+      1589.052,
+      2599.614
+    ],
+    "pre_tax_profit": [
+      660.694,
+      14910.906,
+      12807.183,
+      6489.928,
+      -1747.032
+    ],
+    "income_tax": [
+      122.116,
+      3236.669,
+      2592.274,
+      1683.856,
+      -358.732
+    ],
+    "super_tax": [
+      0,
+      0,
+      486.155,
+      0,
+      0
+    ],
+    "net_profit": [
+      538.578,
+      11674.237,
+      9728.754,
+      4806.072,
+      -1388.3
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        3811.606,
+        null,
+        6109.948,
+        3298.917,
+        null
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": null,
+    "equity": {
+      "share_capital": [
+        3104.708,
+        3104.708,
+        3104.708,
+        3104.708,
+        3104.708
+      ],
+      "retained_earnings": [
+        5633.042,
+        17307.279,
+        35751.468,
+        10575.228,
+        9186.928
+      ],
+      "additional_paid_in": [
+        45.887,
+        45.887,
+        45.887,
+        45.887,
+        45.887
+      ],
+      "other_equity": [
+        -35.025,
+        -58.536,
+        -4026.533,
+        -3875.793,
+        -3875.793
+      ],
+      "total_equity": [
+        8748.612,
+        20399.338,
+        34875.53,
+        9850.03,
+        8461.73
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": [
+      3228.873,
+      10562.052,
+      7693.282,
+      -4112.558,
+      null
+    ],
+    "cfi": [
+      -519.451,
+      null,
+      -11935.919,
+      15427.915,
+      null
+    ],
+    "cff": [
+      -1004.921,
+      null,
+      -150.74,
+      -14109.49,
+      null
+    ],
+    "capex": [
+      399.528,
+      483.686,
+      798.77,
+      1883.251,
+      null
+    ],
+    "net_change_in_cash": [
+      1704.501,
+      null,
+      -4393.377,
+      -2794.133,
+      null
+    ]
+  },
+  "data_flags": [
+    "2022: отчёт не найден в иерархии e-disclosure → amet.ru → smart-lab",
+    "2025: данные за H1 (полугодие), полный год ещё не опубликован",
+    "Balance Sheet: только капитал полный; активы и обязательства требуют дополнительной экстракции из PDF",
+    "Cash Flow: 2021, 2025 неполные (CFI, CFF не извлечены)",
+    "EBITDA: рассчитана как OP + DA (проверено арифметически)",
+    "Арифметика P&L: все проверки пройдены (±0.1 млн)",
+    "Дивиденды 2024: 29944.632 млн (спецдивиденды отсутствовали в 2020-2023)"
+  ]
+}
