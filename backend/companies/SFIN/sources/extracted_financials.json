@@ -1,0 +1,560 @@
+{
+  "meta": {
+    "ticker": "SFIN",
+    "name": "ПАО \"ЭсЭфАй\"",
+    "profile": "holding",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf",
+      "url": "https://sfiholding.ru/upload/iblock/b5f/5pgh5s342evue2d1kwxblb8bxs3x6tit/SFI_godovoy-otchet_2024.pdf",
+      "doc_title": "Годовой отчет ПАО ЭсЭфАй 2024 (Консолидированный МСФО)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext_manual_table_extraction",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      18720000,
+      26258000,
+      39012000,
+      38453000,
+      3910000,
+      2788000
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Процентные расходы (Interest expenses)",
+        "values": [
+          6789000,
+          9395000,
+          15334000,
+          19108000,
+          30847398,
+          null
+        ]
+      },
+      {
+        "name": "Расходы на персонал (Employee expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          7739822,
+          8963368,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы (Other operating expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          2154537,
+          2663551,
+          null
+        ]
+      },
+      {
+        "name": "Расходы по ожидаемым кредитным убыткам (ECL provisions)",
+        "values": [
+          null,
+          null,
+          null,
+          2750991,
+          7935831,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      17316000,
+      13232000,
+      15635000,
+      34923000,
+      7423000,
+      4677000
+    ],
+    "da": [
+      465000,
+      640000,
+      512000,
+      572000,
+      null,
+      17000
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      6789000,
+      9395000,
+      15334000,
+      19108000,
+      30847398,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      59112906,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      24529365,
+      28888532,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      4986888,
+      7485729,
+      null
+    ],
+    "net_profit": [
+      -3719000,
+      4173000,
+      6177000,
+      19456000,
+      20856471,
+      20196000
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        3891880,
+        4650586,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        33247708,
+        null,
+        null,
+        33247708,
+        36437013,
+        null
+      ],
+      "other_non_current": [
+        {
+          "name": "Чистые инвестиции в лизинг (Net lease investments)",
+          "values": [
+            null,
+            null,
+            null,
+            229660814,
+            255936740,
+            null
+          ]
+        },
+        {
+          "name": "Отложенные налоговые активы (Deferred tax assets)",
+          "values": [
+            null,
+            null,
+            null,
+            1332751,
+            868593,
+            null
+          ]
+        }
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        {
+          "name": "Займы выданные (Loans given)",
+          "values": [
+            null,
+            null,
+            null,
+            2402321,
+            2767703,
+            null
+          ]
+        },
+        {
+          "name": "Производные финансовые инструменты (Derivatives)",
+          "values": [
+            null,
+            null,
+            null,
+            2453376,
+            3225485,
+            null
+          ]
+        }
+      ],
+      "cash": [
+        3610000,
+        8792000,
+        10297000,
+        13485327,
+        17298200,
+        7016000
+      ],
+      "short_term_investments": [
+        {
+          "name": "Финансовые инструменты по справедливой стоимости (Fair value instruments)",
+          "values": [
+            null,
+            null,
+            null,
+            7536233,
+            3043071,
+            null
+          ]
+        }
+      ],
+      "other_current": [
+        {
+          "name": "Активы для сдачи в лизинг (Lease assets for sale)",
+          "values": [
+            null,
+            null,
+            null,
+            3662387,
+            2145447,
+            null
+          ]
+        },
+        {
+          "name": "Возвращенные объекты лизинга (Returned lease objects)",
+          "values": [
+            null,
+            null,
+            null,
+            3419472,
+            11389128,
+            null
+          ]
+        },
+        {
+          "name": "Прочие активы (Other assets)",
+          "values": [
+            null,
+            null,
+            null,
+            5498820,
+            14978161,
+            null
+          ]
+        }
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      425795000,
+      217106000,
+      229878000,
+      311974396,
+      353866517,
+      67610000
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        74797,
+        33659,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        66035133,
+        71302425,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        46986703,
+        21978996,
+        null
+      ],
+      "other_equity": [
+        {
+          "name": "Собственные выкупленные акции (Treasury shares)",
+          "values": [
+            null,
+            null,
+            null,
+            -33783943,
+            -1235888,
+            null
+          ]
+        },
+        {
+          "name": "Резерв хеджирования (Hedge reserve)",
+          "values": [
+            null,
+            null,
+            null,
+            1944237,
+            1674780,
+            null
+          ]
+        }
+      ],
+      "total_equity": [
+        61233000,
+        56977000,
+        61798000,
+        80713807,
+        101379813,
+        64772000
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        19576000,
+        54764000,
+        47442000,
+        47086889,
+        48333402,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        6418272,
+        11837991,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        1180804,
+        1183229,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        74085000,
+        92325000,
+        106500000,
+        165876956,
+        178322691,
+        null
+      ],
+      "payables": [
+        {
+          "name": "Авансы от лизингополучателей (Advances from lessees)",
+          "values": [
+            null,
+            null,
+            null,
+            4694255,
+            4278935,
+            null
+          ]
+        },
+        {
+          "name": "НДС к уплате (VAT payable)",
+          "values": [
+            null,
+            null,
+            null,
+            317943,
+            4188809,
+            null
+          ]
+        },
+        {
+          "name": "Производные финансовые инструменты (Derivatives liab.)",
+          "values": [
+            null,
+            null,
+            null,
+            1591,
+            765148,
+            null
+          ]
+        }
+      ],
+      "other_current_liab": [
+        {
+          "name": "Прочие обязательства (Other liabilities)",
+          "values": [
+            null,
+            null,
+            null,
+            5575054,
+            3576499,
+            null
+          ]
+        }
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      364563000,
+      160129000,
+      168080000,
+      231260589,
+      252486704,
+      2838000
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "profile=holding: SFIN - инвестиционный холдинг со сложной структурой (Европлан 87.5%, ВСК 49%, М.Видео 9.87%)",
+    "cost_format=by_nature: холдинг применяет консолидированный учёт; процентные расходы (лизинг), комиссии (страховка), операционные расходы",
+    "2024-2025: M.Video reclassified as discontinued operations; выручка и активы снизились из-за диспозиции (продажа)",
+    "2024: Европлан IPO; переоценка инвестиций в справедливую стоимость",
+    "2023-2024: Погашение казначейских акций (111.64 млн → 50.24 млн акций)",
+    "2025: 9 месяцев в overview table (неполный год); полный отчёт за 2025 еще не издан",
+    "Equity компонент: treasury_shares существенны (-33.8 млрд в 2023, -1.2 млрд в 2024)",
+    "non_controlling_interests в 2023: отрицательные (-543 млн), в 2024: положительные (+7.6 млрд) из-за сделок с дочками",
+    "Cash flow: детальные данные за 2020-2022 отсутствуют в overview table",
+    "Finance_income: учитывается доля в прибыли ассоциированных компаний (5.5-5.7 млрд/год)"
+  ]
+}

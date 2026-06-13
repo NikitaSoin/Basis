@@ -1,0 +1,302 @@
+{
+  "meta": {
+    "ticker": "DIAS",
+    "name": "ПАО «Диасофт» (PAO Diasoft)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "fiscal_year_type": "April-March (April 1 - March 31)",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://e-disclosure.ru/portal/FileLoad.ashx?Fileid=1887751",
+      "doc_title": "Консолидированная финансовая отчетность ПАО Диасофт за год, закончившийся 31 марта 2025 года (МСФО)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "mixed",
+    "parse_method": "pdftotext + manual notes extraction",
+    "arithmetic_check": "partial",
+    "notes": [
+      "Fiscal year ends March 31 (not December 31)",
+      "IPO: February 2024 (100 shares issued at IPO)",
+      "FY2024 data: Apr 1, 2023 - Mar 31, 2024",
+      "FY2025 data: Apr 1, 2024 - Mar 31, 2025",
+      "IT company with R&D capitalization as intangible assets",
+      "Special tax regime for IT companies (3-10% profit tax vs standard 20-25%)",
+      "Deferr ed tax assets/liabilities included in NCA/NCL",
+      "Lease obligations under IFRS 16",
+      "CFO data validated: net change in cash = CFO + CFI + CFF matches reported",
+      "FY2021-2023 data from smart-lab.ru (aggregated, not poststateid); FY2024-2025 from e-disclosure МСФО reports (detailed)"
+    ]
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      6600000,
+      7190000,
+      9140000,
+      9139675,
+      10055982
+    ],
+    "cogs": [
+      2730000,
+      2780000,
+      3570000,
+      3567320,
+      5225514
+    ],
+    "gross_profit": [
+      3870000,
+      4410000,
+      5570000,
+      5572355,
+      4830468
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы (Commercial expenses)",
+        "values": [
+          451980,
+          645282
+        ]
+      },
+      {
+        "name": "Общие и административные расходы (General & administrative)",
+        "values": [
+          2066109,
+          1795058
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы (Other operating income)",
+        "values": [
+          -64153,
+          -3040
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы (Other operating expenses)",
+        "values": [
+          30238,
+          45083
+        ]
+      }
+    ],
+    "operating_profit": [
+      2120000,
+      2620000,
+      3090000,
+      3088181,
+      2348085
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      542552,
+      570277
+    ],
+    "ebitda": null,
+    "finance_costs": [
+      90133,
+      55451
+    ],
+    "finance_income": [
+      139661,
+      235842
+    ],
+    "pre_tax_profit": [
+      3131860,
+      2556524
+    ],
+    "income_tax": [
+      73594,
+      157364
+    ],
+    "net_profit": [
+      2000000,
+      2480000,
+      3060000,
+      3058266,
+      2391207
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        280569,
+        294412
+      ],
+      "intangibles": [
+        2342904,
+        3361694
+      ],
+      "goodwill": [
+        null,
+        null
+      ],
+      "long_term_investments": [
+        83197,
+        107177
+      ],
+      "deferred_tax_assets": [
+        40107,
+        111005
+      ],
+      "other_non_current": [
+        457520,
+        16018
+      ],
+      "total_non_current": [
+        3204297,
+        3890306
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        14177,
+        12516
+      ],
+      "receivables": [
+        1979798,
+        3243311
+      ],
+      "cash": [
+        3137993,
+        809093
+      ],
+      "short_term_investments": [
+        266623,
+        65434
+      ],
+      "other_current": [
+        null,
+        null
+      ],
+      "total_current": [
+        5398591,
+        4130354
+      ]
+    },
+    "total_assets": [
+      4230000,
+      8620000,
+      null,
+      8602888,
+      8020660
+    ],
+    "equity": {
+      "share_capital": [
+        105,
+        105
+      ],
+      "retained_earnings": [
+        3830446,
+        4408360
+      ],
+      "additional_paid_in": [
+        2249995,
+        2249995
+      ],
+      "other_equity": [
+        201,
+        -3060
+      ],
+      "total_equity": [
+        2850000,
+        6080000,
+        null,
+        6082200,
+        6655400
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0,
+        0
+      ],
+      "deferred_tax_liabilities": [
+        25426,
+        170380
+      ],
+      "lease_obligations_non_current": [
+        184891,
+        118825
+      ],
+      "other_non_current_liab": [
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        210317,
+        289205
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0,
+        0
+      ],
+      "payables": [
+        2310192,
+        1527030
+      ],
+      "other_current_liab": [
+        null,
+        null
+      ],
+      "total_current_liab": [
+        2310192,
+        1527030
+      ]
+    },
+    "total_liabilities": [
+      2520509,
+      1816235
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      2850599,
+      1619159
+    ],
+    "cfi": [
+      -1202797,
+      -1277822
+    ],
+    "cff": [
+      853340,
+      -2666976
+    ],
+    "capex": [
+      87432,
+      1608569
+    ],
+    "net_change_in_cash": [
+      2501142,
+      -2325639
+    ]
+  },
+  "data_flags": [
+    "2025 balance sheet: ~5% discrepancy between assets and liab+equity (likely minor balance sheet items not fully extracted from notes)",
+    "2024 balance sheet: arithmetic check passed (0.17% variance, rounding)",
+    "Cash flow arithmetic: 2024 has 6,730 K diff (0.27% - rounding/timing), 2025 perfect match",
+    "Deferred taxes significant in 2025 (111 M assets, 170 M liabilities) due to IT tax regime differences",
+    "Capitalized software R&D included in intangible assets (1.4 B in FY2025, 1.0 B in FY2024)",
+    "Fiscal year is April 1 - March 31, not calendar year",
+    "Number of shares: 10,500,000 (unchanged in both periods)",
+    "D&A: Includes both PPE depreciation and intangible amortization",
+    "Finance costs reduced in FY2025 (no significant debt burden, IT company)",
+    "FY2021-2023: Smart-lab aggregated data (no detailed P&L/BS breakdown, only totals)",
+    "FY2024-2025: Full МСФО consolidated financial statements from e-disclosure"
+  ]
+}

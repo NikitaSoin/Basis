@@ -1,0 +1,431 @@
+{
+  "meta": {
+    "ticker": "GCHE",
+    "name": "ПАО «Группа Черкизово»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2025,
+      2024,
+      2023,
+      2022,
+      2021,
+      2020
+    ],
+    "source": {
+      "primary": "manual_pdf (user uploaded)",
+      "primary_url": "companies/GCHE/sources/Черкизово (МСФО 2025) на 13.05.2026г.pdf",
+      "secondary": "e-disclosure",
+      "secondary_url": "https://www.e-disclosure.ru/portal/company.aspx?id=6652",
+      "doc_title": "Консолидированная финансовая отчётность (МСФО) с исторической динамикой 2020-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "manual_pdf table + pdfplumber for detailed e-disclosure statements",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      288739,
+      259281,
+      228066,
+      184344,
+      160176,
+      128803
+    ],
+    "cogs": [
+      null,
+      190404,
+      162523,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      68440,
+      72920,
+      null,
+      null,
+      null
+    ],
+    "operating_profit": [
+      49512,
+      30554,
+      40443,
+      17515,
+      19366,
+      18701
+    ],
+    "da": [
+      17687,
+      15843,
+      14198,
+      11367,
+      8703,
+      8235
+    ],
+    "ebitda": [
+      67199,
+      46397,
+      54641,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      21463,
+      12421,
+      6671,
+      5028,
+      3155,
+      4023
+    ],
+    "finance_income": [
+      null,
+      1122,
+      1507,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": null,
+    "income_tax": [
+      null,
+      -179,
+      3369,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      29926,
+      19910,
+      33054,
+      14820,
+      16898,
+      15177
+    ],
+    "expense_lines": [
+      {
+        "name": "Чистое изменение справедливой стоимости биологических активов",
+        "values": [
+          null,
+          -942,
+          5977,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Чистая переоценка непроданного урожая",
+        "values": [
+          null,
+          505,
+          1400,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          null,
+          38607,
+          32926,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        190453,
+        154283,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        5973,
+        5539,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        2723,
+        2325,
+        null,
+        null,
+        null
+      ],
+      "biological_assets": [
+        null,
+        3253,
+        3998,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        217351,
+        177082,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "biological_assets": [
+        null,
+        33815,
+        30047,
+        null,
+        null,
+        null
+      ],
+      "inventory": [
+        null,
+        39559,
+        37890,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        14332,
+        11589,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        23270,
+        10359,
+        15262,
+        32742,
+        10884,
+        6718
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        110124,
+        106610,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      360761,
+      327475,
+      283692,
+      259067,
+      194818,
+      166269
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        0,
+        0,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        5435,
+        5460,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        145167,
+        119431,
+        114193,
+        86139,
+        77337,
+        69181
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        150822,
+        125146,
+        119982,
+        91957,
+        80316,
+        71902
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        84994,
+        79481,
+        48164,
+        50345,
+        41264,
+        41856
+      ],
+      "deferred_tax": [
+        null,
+        1641,
+        1883,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        8368,
+        5759,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        89490,
+        55806,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        71533,
+        63689,
+        62495,
+        73094,
+        42755,
+        27173
+      ],
+      "payables": [
+        null,
+        31068,
+        24653,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        18082,
+        20756,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        112839,
+        107904,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      209939,
+      202329,
+      163710,
+      167110,
+      114502,
+      94367
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      31763,
+      31520,
+      34193,
+      26245,
+      21000,
+      16770
+    ],
+    "cfi": [
+      null,
+      -47495,
+      -34539,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      10140,
+      -19162,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      24259,
+      36884,
+      34076,
+      16886,
+      16159,
+      10197
+    ],
+    "net_change_in_cash": [
+      null,
+      -5835,
+      -19508,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Источник приоритета: ручная загрузка PDF с исторической динамикой 2016-2025",
+    "Полная детализация (структура расходов, биоактивы, резервы) из e-disclosure МСФО 2024, 2023",
+    "Валовая прибыль включает переоценку биоактивов (non-cash)",
+    "Биоактивы разделены на основное стадо (внеоборотные) и животные на откорме (текущие)",
+    "Долг умеренный: 2025 = 156.5 млрд (КР+ДР), 2024 = 143.2 млрд, 2023 = 110.7 млрд (рост)",
+    "Дивиденды выплачивались (примечание в ОДДС)",
+    "Налоговая ставка отличается из-за льгот АПК",
+    "Госсубсидии на компенсацию процентов отражены в финансовых расходах",
+    "Года 2022, 2021, 2020 = основные показатели из ручной таблицы, детали недоступны"
+  ]
+}

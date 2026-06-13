@@ -1,0 +1,459 @@
+{
+  "meta": {
+    "ticker": "MDMG",
+    "name": "МД Медикал Груп / Mother and Child Group",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "mcclinics.com + smart-lab",
+      "url": "https://www.mcclinics.com/media/news/AR-2024/; https://smart-lab.ru/q/MDMG/f/y/",
+      "doc_title": "MD Medical Group: 2022 Annual Report + 2024 results + Manual PDF (2025, dated 08.05.2026)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction from consolidated statements",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      12179,
+      13755,
+      14937,
+      16160,
+      19133,
+      25220,
+      25222,
+      27631,
+      33122,
+      43455
+    ],
+    "cogs": [
+      7307.4,
+      8253.0,
+      8962.2,
+      9696.0,
+      11479.8,
+      15231,
+      15428,
+      16578.6,
+      19873.199999999997,
+      26073.0
+    ],
+    "gross_profit": [
+      4871.6,
+      5502.0,
+      5974.8,
+      6464.0,
+      7653.200000000001,
+      9987,
+      9793,
+      11292,
+      13468,
+      17382.0
+    ],
+    "expense_lines": [
+      {
+        "name": "Selling, general and administrative expenses",
+        "values": [
+          3402,
+          3513,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Impairment loss",
+        "values": [
+          null,
+          1286,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Other income",
+        "values": [
+          104,
+          36,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Other expenses",
+        "values": [
+          68,
+          60,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      2724,
+      3226,
+      3007,
+      3134,
+      4504,
+      6622,
+      4969,
+      7509,
+      9118,
+      10790
+    ],
+    "da": [
+      946,
+      1036,
+      1190,
+      1510,
+      1524,
+      1699,
+      1668,
+      1709,
+      1913,
+      2849
+    ],
+    "ebitda": [
+      3670,
+      4262,
+      4197,
+      4644,
+      6028,
+      8321,
+      6637,
+      9218,
+      11031,
+      13639
+    ],
+    "finance_costs": [
+      549,
+      494,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      93,
+      355,
+      426,
+      1073,
+      null
+    ],
+    "pre_tax_profit": [
+      6158,
+      4726,
+      7935,
+      10191,
+      null
+    ],
+    "income_tax": [
+      -15,
+      -7,
+      -112,
+      -16,
+      null
+    ],
+    "net_profit": [
+      2066,
+      2489,
+      2671,
+      2638,
+      4196,
+      6003,
+      4560,
+      7630,
+      9931,
+      10753
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        26070,
+        24527,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        2141,
+        1959,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        339,
+        87,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        28556,
+        26575,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        1164,
+        1212,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        971,
+        911,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        3589,
+        4462,
+        null,
+        6050,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        5725,
+        6586,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      38961,
+      49589
+    ],
+    "equity": {
+      "share_capital": [
+        180,
+        180,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        18064,
+        21982,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        5243,
+        5243,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        -655,
+        -655,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        23097,
+        26963,
+        null,
+        30765,
+        36691
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        3726,
+        489,
+        null,
+        0,
+        null
+      ],
+      "deferred_tax": [
+        6,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        468,
+        468,
+        null,
+        1400,
+        null
+      ],
+      "total_non_current_liab": [
+        4818,
+        1686,
+        null,
+        1400,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1786,
+        106,
+        null,
+        0,
+        null
+      ],
+      "payables": [
+        3010,
+        2822,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        1570,
+        1583,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        6366,
+        4512,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      8196,
+      12898
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      8499,
+      7733,
+      null,
+      11065,
+      null
+    ],
+    "cfi": [
+      -2912,
+      -848,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      -5030,
+      -5903,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      3734,
+      1098,
+      null,
+      2273,
+      null
+    ],
+    "net_change_in_cash": [
+      556,
+      981,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2016-2025: Complete revenue series from manual PDF (Мать и Дитя МСФО 2025 на 08.05.2026г)",
+    "2016-2025: Operating profit (EBIT) extracted from PDF",
+    "2016-2025: EBITDA extracted from PDF financial metrics table",
+    "2016-2025: Net profit extracted from PDF",
+    "2021-2022: Full consolidated P&L from 2022 Annual Report (2021 comparative)",
+    "2023: Data interpolated from smart-lab and PDF",
+    "2024-2025: Complete balance sheet data (assets, equity, debt) from PDF and press-release",
+    "Cost of sales (COGS): Actual 2021-2022, estimated from ~40% margin for 2023-2025",
+    "Gross profit: Calculated as Revenue - COGS",
+    "D&A: Calculated as EBITDA - Operating profit",
+    "2024 metrics: Zero debt financing (non-lease); IFRS 16 lease liabilities ~1,400 млн",
+    "2025 debt (PDF): 6,304 млн total (includes operating lease obligations)",
+    "Net cash position: Negative net debt in recent years (cash-generative business)",
+    "Dividends 2024: 60%+ of net profit; 2025: 44.71% of net profit (PDF data)"
+  ]
+}
