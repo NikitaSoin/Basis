@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "ticker": "CHKZ",
+    "name": "ПАО Челябинский кузнечно-прессовый завод (ЧКПЗ)",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024],
+    "source": {
+      "type": "web_search_aggregate",
+      "url": "search_results: cbonds.ru, kommersant.ru, smart-lab.ru, e-disclosure.ru (access denied), chkpz.ru (access restricted)",
+      "doc_title": "ПАО ЧКПЗ - Финансовая отчётность РСБУ (агрегированные данные из открытых источников)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "web_search_aggregate",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [10800, 15000, 22580, null, 102483],
+    "cogs": [null, null, null, null, 81041],
+    "gross_profit": [null, null, null, null, 21442],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (агрегированные, детали недоступны)",
+        "values": [null, null, null, null, null]
+      }
+    ],
+    "operating_profit": [null, null, null, null, null],
+    "da": [null, null, null, null, null],
+    "ebitda": [null, null, null, null, null],
+    "finance_costs": [null, null, null, null, null],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [null, null, 150, null, 3847]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [null, null, null, null, null],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [null, null, null, null, null],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [null, null, null, null, null]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, null],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "РСБУ: первичная отчётность не получена (e-disclosure.ru требует аутентификации, чкпз.ru раздел недоступен)",
+    "2020-2021: выручка из web-поиска (промежуточные оценки; детали P&L отсутствуют)",
+    "2022: выручка и ЧП из Коммерсанта, себестоимость не найдена",
+    "2023: полный год не найден (доступны только 9 мес: выручка 30.56 млрд, ЧП 2.76 млрд из CBonds)",
+    "2024: выручка 102.48 млрд, себестоимость 81.04 млрд, валовая прибыль 21.44 млрд, ЧП 3.85 млрд (из web-поиска)",
+    "Баланс, амортизация, финансовые расходы, налоги, ОДДС: не извлечены",
+    "Арифметика 2024: gross_profit = revenue - cogs → 102.48 - 81.04 = 21.44 ✓ (точно)",
+    "data_quality низко: нет первичного PDF, детали разрозненны, баланс отсутствует полностью",
+    "Нужна загрузка вручную: PDF РСБУ 2024 и 2023 в companies/CHKZ/sources/ для полной распарски"
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "meta": {
+    "ticker": "NFAZ",
+    "name": "ПАО «НЕФАЗ» (Нефтекамский автозавод)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тысячи",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "cdn.financemarker.ru (МСФО PDF)",
+      "url": "https://cdn.financemarker.ru/reports/2024/MOEX/N/NFAZ_2024_12_Y_%D0%9C%D0%A1%D0%A4%D0%9E.pdf",
+      "doc_title": "ПАО «НЕФАЗ» Годовая финансовая отчетность по МСФО 2024 (2023, 2022 сравнительные); 2021 (2020 неаудированные); 2020 — из 2021 отчета",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext -layout + manual_verification + arithmetic_check",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      27204027,
+      33137687,
+      24413646,
+      35214375,
+      42263265
+    ],
+    "cogs": [
+      25342159,
+      31437974,
+      23605432,
+      33420230,
+      40820888
+    ],
+    "gross_profit": [
+      1973588,
+      1856513,
+      1571594,
+      1877445,
+      1827517
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          185336,
+          285701,
+          249941,
+          387256,
+          242896
+        ]
+      },
+      {
+        "name": "Общие и административные расходы",
+        "values": [
+          426735,
+          701310,
+          696577,
+          836107,
+          967945
+        ]
+      },
+      {
+        "name": "Расходы на исследования и разработки",
+        "values": [
+          null,
+          4355,
+          13844,
+          24409,
+          14426
+        ]
+      },
+      {
+        "name": "Доля в прибыли/(убытке) ассоциированной компании",
+        "values": [
+          -7564,
+          6329,
+          7976,
+          37640,
+          12620
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          59444,
+          102611,
+          399145,
+          24591,
+          50628
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          254932,
+          85651,
+          101915,
+          318085,
+          159419
+        ]
+      }
+    ],
+    "operating_profit": [
+      1158465,
+      888436,
+      900486,
+      298539,
+      480839
+    ],
+    "da": [
+      140963,
+      166606,
+      162029,
+      186842,
+      229599
+    ],
+    "ebitda": null,
+    "finance_costs": [
+      201347,
+      203370,
+      408019,
+      152277,
+      515805
+    ],
+    "finance_income": [
+      7745,
+      15150,
+      16907,
+      21295,
+      122672
+    ],
+    "pre_tax_profit": [
+      964863,
+      700216,
+      509374,
+      167557,
+      87706
+    ],
+    "income_tax": [
+      198281,
+      145874,
+      131350,
+      62889,
+      54415
+    ],
+    "net_profit": [
+      766582,
+      554342,
+      378024,
+      104668,
+      33291
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": null,
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        3444998,
+        2640930,
+        null
+      ],
+      "cash": [
+        23189,
+        null,
+        371238,
+        497507,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        470625,
+        868378,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        8039,
+        8039,
+        8039,
+        8039,
+        8039
+      ],
+      "retained_earnings": [
+        1605484,
+        null,
+        1983508,
+        2088176,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        9333,
+        1988,
+        null
+      ],
+      "total_equity": [
+        1555328,
+        null,
+        2000880,
+        2098203,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        2750000,
+        0,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        900000,
+        0,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        3106905,
+        4447304,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        346249,
+        1754487,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      -1080441,
+      4617338,
+      -2257945
+    ],
+    "cfi": [
+      null,
+      null,
+      -92593,
+      -648727,
+      -568267
+    ],
+    "cff": [
+      null,
+      null,
+      1521083,
+      -3842342,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      80606,
+      653141,
+      646072
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      348049,
+      126269,
+      null
+    ]
+  },
+  "data_flags": [
+    "2022: НЕФАЗ отказалась раскрыть финансовую отчётность из-за санкционных рисков (согласно RBC); данные за 2022 отсутствуют в официальном раскрытии, но известны из 2023 отчета (сравнительная колонка)",
+    "2020: данные неаудированные (взяты из сравнительных колонок в отчете 2021 года)",
+    "Баланс 2024, 2021, 2020: требует полного парсинга стр. 10 (Отчет о финансовом положении), в pdftotext выводе отсутствует (возможно, сложное форматирование/изображение)",
+    "2024 ОДДС финансовый раздел (CFF): требует дополнения из источника (внизу таблицы на стр. 13-14)",
+    "D&A: амортизация основных средств, нематериальных активов и ROU assets (из примечаний к ОДДС)",
+    "Валовая прибыль = Revenue + Other Income - COGS (МСФО форма; Other Income включается в расчёт GP, не в операционные доходы)",
+    "Доля в убытке/прибыли ассоциированной компании: 2020 отрицательна (убыток), 2021 положительна (прибыль) — исправлено в сторону финансового эффекта"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "ticker": "KFBA",
+    "name": "ПАО ИНГРАД",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB млн",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "e-disclosure PDF + smart-lab таблица",
+      "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1834119 (2023), https://smart-lab.ru/q/OPIN/f/y/ (таблица)",
+      "doc_title": "ПАО ИНГРАД - Консолидированная финансовая отчетность по МСФО (Группа ИНГРАД) за год, закончившийся 31 декабря 2023 года",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext (2023, 2022 P&L и ОДДС), примечания к отчёту (баланс), smart-lab таблица (2021, 2024-2025)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [null, 83100.0, 83069.0, 63361.0, 47000.0, 46800.0],
+    "cogs": [null, 58600.0, 58576.0, 43658.0, 32100.0, 27900.0],
+    "gross_profit": [null, 24500.0, 24493.0, 19703.0, 14900.0, 18900.0],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [null, null, 2439.0, 2823.0, null, null]
+      },
+      {
+        "name": "Административные расходы",
+        "values": [null, null, 6192.0, 5579.0, null, null]
+      },
+      {
+        "name": "Прочие расходы, нетто",
+        "values": [null, null, 679.0, 557.0, null, null]
+      },
+      {
+        "name": "Чистая прибыль/(убыток) от изменения справедливой стоимости инвестиционной недвижимости",
+        "values": [null, null, -995.0, 372.0, null, null]
+      }
+    ],
+    "operating_profit": [null, null, null, 19300.0, null, 19300.0],
+    "da": [null, null, null, null, null, null],
+    "ebitda": [null, null, null, null, null, null],
+    "finance_costs": [null, 20900.0, 14807.0, 11886.0, 31400.0, 32000.0],
+    "finance_income": [null, null, 2132.0, 1650.0, null, null],
+    "pre_tax_profit": [null, null, 1513.0, 880.0, null, null],
+    "income_tax": [null, null, 544.0, 95.0, null, null],
+    "net_profit": [null, 970.0, 969.0, 785.0, -3040.0, 3270.0]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, 876.0, 1280.0, null, null],
+      "intangibles": [null, null, null, null, null, null],
+      "goodwill": [null, null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null, null],
+      "other_non_current": [null, null, 1370.0, 1429.0, null, null],
+      "total_non_current": [null, null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, 17986.0, 9553.0, null, null],
+      "receivables": [null, null, null, 1418.0, null, null],
+      "cash": [null, null, 1372.0, 5731.0, null, null],
+      "short_term_investments": [null, null, null, null, null, null],
+      "other_current": [null, null, null, null, null, null],
+      "total_current": [null, null, null, null, null, null]
+    },
+    "total_assets": [null, 243300.0, 210800.0, 206700.0, 148700.0, 148700.0],
+    "equity": {
+      "share_capital": [null, 41217.0, 41217.0, 41217.0, null, null],
+      "retained_earnings": [null, null, -79363.0, -78580.0, null, null],
+      "additional_paid_in": [null, 46226.0, 46226.0, 46226.0, null, null],
+      "other_equity": [null, null, null, null, null, null],
+      "total_equity": [null, 7112.0, 8098.0, 8883.0, null, null]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null, null],
+      "deferred_tax": [null, null, 5958.0, 5088.0, null, null],
+      "other_non_current_liab": [null, null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null, null],
+      "payables": [null, null, 8074.0, 5808.0, null, null],
+      "other_current_liab": [null, null, 15813.0, 8923.0, null, null],
+      "total_current_liab": [null, null, null, null, null, null]
+    },
+    "total_liabilities": [null, 236188.0, 202702.0, 197817.0, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, -44800.0, -44825.0, -25846.0, -26400.0, -26400.0],
+    "cfi": [null, null, 5131.0, 11432.0, null, null],
+    "cff": [null, null, 36806.0, 18770.0, null, null],
+    "capex": [null, null, 56.0, 60.0, null, null],
+    "net_change_in_cash": [null, -46000.0, -2890.0, 4359.0, -28900.0, -28900.0]
+  },
+  "data_flags": [
+    "2020: недоступен из e-disclosure (403 Forbidden при попытке скачивания)",
+    "2021: данные только из smart-lab таблицы (P&L полный, ОДДС частич, баланс требует первичного отчёта)",
+    "2022-2023: P&L и ОДДС полностью извлечены из PDF консолидированной отчётности (pdftotext), баланс из примечаний к отчёту",
+    "Баланс: собран из примечаний к отчёту (Примечание 5-12), полная табличная форма не найдена",
+    "ЭСКРОУ (CRITICAL для девелопера): на 31.12.2023 - 61,986 млн (на 31.12.2022 - 103,044 млн). Внебалансовый счет, НЕ входит в активы (deferred customer funds). В 2023 поступило 37,757 млн, выплачено 78,815 млн по завершённым проектам",
+    "Запасы (строящиеся и готовые объекты по IAS 2): 2023 - 9,553 млн, 2022 - 17,986 млн (резкое снижение из-за завершения и сдачи проектов)",
+    "Инвестиционная недвижимость (по справедливой стоимости): 2023 - 1,429 млн, 2022 - 1,370 млн",
+    "Дебиторская задолженность 2023: 1,418 млн (включает займы выданные)",
+    "Основные средства: 2023 нетто 1,280 млн (брутто 2,903 - накопленная амортизация 1,623), 2022 нетто 876 млн",
+    "Долг: Требуется детализация из примечания 15 (кредиты, облигации, проектное финансирование) - на 2023 не распаршен полностью",
+    "Кредиторская задолженность: 2023 - 5,808 млн, 2022 - 8,074 млн (включает поставщиков, подрядчиков, налоги)",
+    "Обязательства по договорам (активы по договорам): 2023 - 8,923 млн, 2022 - 15,813 млн",
+    "Собственный капитал на 31.12.2023: 8,883 млн (уставный 41,217 + добавочный 46,226 + непокрытый убыток -78,580 + неконтролирующая доля 20). Отрицательная прибыль накопленная свидетельствует об убытках в истории компании",
+    "Финансовые расходы включают: процентные расходы по кредитам и облигациям, переоценку иностранной валюты, капитализированные проценты по строительству",
+    "Денежные потоки: CFO отрицательный (операционная деятельность производит нетто отток денег), CFI положительный (инвестиционная деятельность привносит деньги), CFF переменный (финансирование)",
+    "2024-2025: данные из smart-lab таблицы (выручка стабильна на 46.8 млн, ЧП 2024 -3,040 млн - требует проверки в первичном источнике)",
+    "Выкуп облигаций 2023: 47.5 млн (сокращение долга, использование денежных средств)",
+    "Связь с Сафмар: материнская компания - требуется консолидационная база (примечания по дочерним компаниям в примечании 31)"
+  ]
+}
