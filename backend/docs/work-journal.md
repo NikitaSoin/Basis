@@ -703,3 +703,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 28 (haiku, терсе): HNFG SPBE ZAYM ARSA MISB KUZB — все OK. 183/262. Доделаны ликвидные: HNFG ритейл, SPBE биржа (санкции/кубышка), ZAYM МФО, ARSA УК. KUZB банк.
 
 - Батч 29 (haiku, терсе): YAKG PRMB NAUK VSYD LPSB DZRD — все OK. 189/262. YAKG газ/СПГ; PRMB банк В КРИЗИСЕ (нарушение нормативов ЦБ, риск санации — помечено); VSYD судзавод отриц.капитал.
+
+- Батч 30 (haiku, терсе): YDEX MBNK OKEY EUTR FIXR TTLK — все OK. 195/262. Доделаны крупные: Яндекс, МТС Банк, О Кей, ЕвроТранс, Fix Price, Таттелеком.
