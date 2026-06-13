@@ -1,0 +1,469 @@
+{
+  "meta": {
+    "ticker": "MSNG",
+    "name": "ПАО Мосэнерго",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/files.aspx?id=936&type=4",
+      "doc_title": "ПАО Мосэнерго - Консолидированная финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdfplumber",
+    "arithmetic_check": "passed",
+    "notes": "2022 год отсутствует (санкции, правительственный указ от 5 марта 2024), 2020 год не загружался (SSL ошибка Газпрома)"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      225200,
+      247731,
+      262973,
+      290700
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Топливо",
+        "values": [
+          null,
+          150953,
+          166797,
+          null
+        ]
+      },
+      {
+        "name": "Амортизация",
+        "values": [
+          null,
+          32007,
+          29308,
+          null
+        ]
+      },
+      {
+        "name": "Электроэнергия и мощность",
+        "values": [
+          null,
+          19045,
+          21894,
+          null
+        ]
+      },
+      {
+        "name": "Вознаграждения работникам",
+        "values": [
+          null,
+          14580,
+          16166,
+          null
+        ]
+      },
+      {
+        "name": "Ремонт, техническое и сервисное обслуживание",
+        "values": [
+          null,
+          8654,
+          9094,
+          null
+        ]
+      },
+      {
+        "name": "Изменение справедливой стоимости нефинансовых активов",
+        "values": [
+          null,
+          4764,
+          6364,
+          null
+        ]
+      },
+      {
+        "name": "Налоги, кроме налога на прибыль",
+        "values": [
+          null,
+          2358,
+          2505,
+          null
+        ]
+      },
+      {
+        "name": "Администрирование рынка электроэнергии",
+        "values": [
+          null,
+          2158,
+          2447,
+          null
+        ]
+      },
+      {
+        "name": "Водопользование",
+        "values": [
+          null,
+          1788,
+          2107,
+          null
+        ]
+      },
+      {
+        "name": "Прочие материалы",
+        "values": [
+          null,
+          1679,
+          1564,
+          null
+        ]
+      },
+      {
+        "name": "Охрана и пожарная безопасность",
+        "values": [
+          null,
+          1259,
+          1274,
+          null
+        ]
+      },
+      {
+        "name": "Программное обеспечение и техобслуживание",
+        "values": [
+          null,
+          1076,
+          1040,
+          null
+        ]
+      },
+      {
+        "name": "Изменение оценочных обязательств",
+        "values": [
+          null,
+          1469,
+          604,
+          null
+        ]
+      },
+      {
+        "name": "Транспортировка тепловой энергии",
+        "values": [
+          null,
+          544,
+          507,
+          null
+        ]
+      },
+      {
+        "name": "Убыток от выбытия ОС и прочих внеоборотных активов",
+        "values": [
+          null,
+          1133,
+          187,
+          null
+        ]
+      },
+      {
+        "name": "Убыток от обесценения нефинансовых активов",
+        "values": [
+          null,
+          419,
+          -51,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы",
+        "values": [
+          null,
+          2739,
+          3232,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      2590,
+      512,
+      -1830,
+      1040
+    ],
+    "da": [
+      null,
+      32007,
+      29308,
+      null
+    ],
+    "ebitda": [
+      null,
+      32519,
+      27478,
+      null
+    ],
+    "finance_costs": [
+      null,
+      828,
+      999,
+      null
+    ],
+    "finance_income": [
+      null,
+      4833,
+      7708,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      4227,
+      5884,
+      null
+    ],
+    "income_tax": [
+      null,
+      -558,
+      2562,
+      null
+    ],
+    "net_profit": [
+      2890,
+      3669,
+      8446,
+      6300
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        224,
+        0,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      379100,
+      465650,
+      448184,
+      447200
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        316000,
+        391439,
+        374581,
+        378900
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      74211,
+      73603,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      34200,
+      40376,
+      18050,
+      17400
+    ],
+    "cfi": [
+      null,
+      -32272,
+      -11518,
+      null
+    ],
+    "cff": [
+      null,
+      -8064,
+      -6756,
+      null
+    ],
+    "capex": [
+      22700,
+      26753,
+      25789,
+      23700
+    ],
+    "net_change_in_cash": [
+      null,
+      40,
+      -224,
+      null
+    ]
+  },
+  "data_flags": [
+    "2021: выручка из smart-lab; опер.прибыль, ЧП из smart-lab; расходы недоступны",
+    "2022: отсутствует (правительственный указ России, санкции)",
+    "2023-2024: постатейные расходы из примечания 23 PDF",
+    "2024: налоговое воздействие - эффект изменения ставки с 20% на 25% (введено с 1.1.2025) отражено в прочем совокупном доходе (-12213), не в чистой прибыли",
+    "Баланс 2023-2024: арифметика сходится (активы = капитал + обязательства)",
+    "ОДДС 2023-2024: арифметика сходится (CFO + CFI + CFF = net change in cash)",
+    "ДПМ (доплаты за мощность): уменьшаются в течение периода (давление на прибыль)",
+    "2025: неполные данные из smart-lab (выручка, опер.прибыль, ЧП, CFO, CAPEX)",
+    "Долг минимален или отсутствует (0 млн в 2023-2024 из smart-lab)"
+  ]
+}
