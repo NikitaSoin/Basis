@@ -1,0 +1,92 @@
+{
+  "sector": "Здравоохранение / Частная медицина",
+  "updated_at": "2026-06-13",
+  "currency": "RUB",
+  "unit": "млн",
+  "companies": [
+    {
+      "ticker": "MDMG",
+      "name": "МД Медикал Груп (Мать и дитя)",
+      "mcap_mln": 100464,
+      "anomaly_flag": true,
+      "anomaly_note": "ETR аномально низкая → pe_adj основной; чистая денежная позиция → EV < mcap",
+      "multiples_2024": {
+        "pe": null,
+        "pe_adj": null,
+        "pb": 3.27,
+        "ps": null,
+        "ev_ebitda": null
+      },
+      "multiples_2025": {
+        "pe": 9.34,
+        "pe_adj": 10.23,
+        "pb": 2.74,
+        "ps": 2.31,
+        "ev_ebitda": 7.02
+      },
+      "metrics_2025": {
+        "revenue": 43455,
+        "ebitda": 13639,
+        "net_profit_adj": 9818,
+        "roe": 26.76,
+        "roa": 19.8,
+        "ros": 22.59,
+        "ebitda_margin": 31.39,
+        "net_debt_ebitda": null,
+        "net_cash_mln": 4650,
+        "revenue_growth": 31.2
+      }
+    },
+    {
+      "ticker": "GEMC",
+      "name": "Юнайтед Медикал Груп (ЕМЦ)",
+      "mcap_mln": 71955,
+      "anomaly_flag": true,
+      "anomaly_note": "Евровая выручка/функциональная валюта; рублёвые данные включают курсовой эффект; не выплачивал дивиденды 2022-2025",
+      "multiples_2024": {
+        "pe": 7.74,
+        "pe_adj": null,
+        "pb": null,
+        "ps": null,
+        "ev_ebitda": 6.97
+      },
+      "multiples_2025": {
+        "pe": 12.17,
+        "pe_adj": null,
+        "pb": null,
+        "ps": 2.78,
+        "ev_ebitda": 6.83
+      },
+      "metrics_2025": {
+        "revenue": 25883,
+        "ebitda": 10541,
+        "net_profit_adj": null,
+        "roe": null,
+        "roa": null,
+        "ros": null,
+        "ebitda_margin": 40.73,
+        "net_debt_ebitda": null,
+        "net_cash_mln": null,
+        "revenue_growth": 13.8
+      }
+    }
+  ],
+  "sector_stats": {
+    "note": "2 компании — медиана = среднее; оба с anomaly_flag (нет надёжного pe_adj для GEMC; MDMG ETR нормализована). Статистики индикативны.",
+    "ev_ebitda_median_2025": 6.93,
+    "ev_ebitda_mean_2025": 6.93,
+    "pe_adj_median_2025": null,
+    "ebitda_margin_mean_2025": 36.06,
+    "revenue_growth_mean_2025": 22.5
+  },
+  "axis_metrics": [
+    "pe", "pe_adj", "pb", "ps", "ev_ebitda",
+    "roe", "roa", "ros", "ebitda_margin",
+    "net_debt_ebitda", "revenue_growth"
+  ],
+  "data_flags": [
+    "GEMC EV аппроксимирован как mcap (нет точных данных о кэше/долге из financials.json GEMC)",
+    "GEMC pe_adj недоступен (нет нормализации ETR в financials.json GEMC на дату составления)",
+    "GEMC мультипликаторы 2025 рассчитаны от mcap 71955 млн (цена 804.39 × 90 млн акций)"
+  ]
+}
