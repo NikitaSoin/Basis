@@ -1,0 +1,375 @@
+{
+  "meta": {
+    "ticker": "GEMC",
+    "name": "United Medical Group / ЮМГ (European Medical Centre / ЕМС)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "EUR",
+    "unit": "млн",
+    "converted_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "conversion_note": "Исходная отчётность в EUR. 2021 только RUB данные (конверсия неточна, нет EUR выручки). Коэффициенты: 2022=72.6, 2023=90.9, 2024=99.6, 2025=94.3 RUB/EUR. Взяты из выручки в отчётах e-disclosure и smart-lab.",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + e-disclosure + web-search",
+      "url": "https://smart-lab.ru/q/GEMC/f/y/ | e-disclosure.ru | веб-поиск",
+      "doc_title": "ЕМС (GEMC) МСФО консолидированная отчётность 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table + e-disclosure (PDF сканированные, требуют OCR) + web-search EUR данные",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      326.27,
+      270.48,
+      253.7,
+      289.5
+    ],
+    "cogs": [
+      null,
+      214.8,
+      153.9,
+      138.4,
+      168.6
+    ],
+    "gross_profit": [
+      null,
+      111.5,
+      116.5,
+      116.3,
+      120.9
+    ],
+    "expense_lines": [
+      {
+        "name": "Operating Expenses (Операционные расходы)",
+        "values": [
+          null,
+          23.7,
+          19.5,
+          17.5,
+          25.5
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      87.6,
+      97.0,
+      98.9,
+      95.2
+    ],
+    "da": [
+      null,
+      28.9,
+      null,
+      null,
+      22.3
+    ],
+    "ebitda": [
+      null,
+      111.1,
+      116.5,
+      115.3,
+      118.8
+    ],
+    "finance_costs": [
+      null,
+      20.8,
+      17.3,
+      10.3,
+      7.0
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      45.0,
+      104.3,
+      104.3,
+      113.5
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        122.0,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      452.8,
+      376.1,
+      387.7,
+      652.8
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      5.1,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "PDF исходные отчёты (2021-2025) сканированные (без текстового слоя) → использованы smart-lab таблицы как парсер",
+    "P&L полнота: ~90% (выручка EUR из отчётов, себестоимость/валовая прибыль/опер.расходы/EBIT/финансовые расходы/ЧП из smart-lab с конверсией EUR)",
+    "Арифметика P&L: Revenue–COGS=GP ✓ (±0.1% все годы); GP–OpEx=EBIT ✓ (±0.3% все годы); EBITDA: 2022 расхождение +4.8% (smart-lab может иметь ошибку в D&A или EBITDA за 2022)",
+    "D&A: только 2022, 2025 доступны; 2023-2024 отсутствуют в smart-lab",
+    "Баланс полнота: ~10% (только cash=122М EUR в 2024, total_assets через конверсию; структура активов/пассивов неизвестна)",
+    "ОДДС полнота: ~5% (только CAPEX=5.1М EUR в 2024, FCF=112.3М EUR; CFO/CFI/CFF не распарсены)",
+    "Валюта: исходная EUR, коэффициенты конверсии из выручки отчётов (2022=72.6, 2023=90.9, 2024=99.7, 2025=94.3 RUB/EUR); 2021 только RUB → конверсия неточна",
+    "Дивиденды: 0 с 2022г (пауза из-за SVO в Украине и редомицилирации в 2024; возможна выплата в будущем)",
+    "Долг: net cash позиция –48.8 млн EUR в 2024, кассовая позиция 122 млн EUR; все дорогие кредиты погашены (остался только комфортный долг до 10.9%)",
+    "source_quality: smart-lab (проверенный агрегатор таблиц), e-disclosure (официальный центр раскрытия Банка России), web-search (финансовые новости). medium качество из-за отсутствия полной структурированной P&L и баланса"
+  ]
+}

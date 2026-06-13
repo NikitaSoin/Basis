@@ -1,0 +1,447 @@
+{
+  "meta": {
+    "ticker": "RNFT",
+    "name": "ПАО НК 'РуссНефть' / PJSC RussNeft",
+    "profile": "standard",
+    "reporting_standard": "МСФО (IFRS)",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir + manual_pdf",
+      "url": "https://russneft.ru/upload/uf/9e1/0e8ioz88vy65n0o14e57lzbsfmr1sd0f.pdf (2023) + manual overview table",
+      "doc_title": "PJSC RussNeft Consolidated Financial Statements 31 Dec 2023 & Historical Data 2016-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual note extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      133196,
+      269371,
+      290862,
+      238725,
+      300108,
+      218242
+    ],
+    "cogs": [
+      null,
+      null,
+      233189,
+      172205,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      57673,
+      66520,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Selling expenses",
+        "values": [
+          null,
+          null,
+          12349,
+          14224,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "General and administrative expenses",
+        "values": [
+          null,
+          null,
+          5038,
+          3840,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Mineral extraction tax",
+        "values": [
+          null,
+          null,
+          128749,
+          121067,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Depreciation in COGS",
+        "values": [
+          null,
+          null,
+          14723,
+          15684,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      34011,
+      24439,
+      69304,
+      34027
+    ],
+    "da": [
+      14864,
+      12361,
+      15100,
+      16071,
+      null,
+      5146
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      74247,
+      39173
+    ],
+    "finance_costs": [
+      9347,
+      10274,
+      9098,
+      15260,
+      15101,
+      17300
+    ],
+    "finance_income": [
+      null,
+      null,
+      5018,
+      7759,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      26685,
+      18364,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      6239,
+      -2077,
+      null,
+      null
+    ],
+    "net_profit": [
+      -16955,
+      32375,
+      20446,
+      20441,
+      54345,
+      23918
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        153807,
+        155086,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        1,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        9961,
+        9944,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        77611,
+        96826,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        8331,
+        7753,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        249701,
+        270065,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        8308,
+        13889,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        6143,
+        7648,
+        null,
+        null
+      ],
+      "cash": [
+        4231,
+        8999,
+        2120,
+        9690,
+        2562,
+        670
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        1215,
+        2,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        14931,
+        19434,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        32717,
+        50663,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      275295,
+      286968,
+      282418,
+      320728,
+      352063,
+      356560
+    ],
+    "equity": {
+      "share_capital": [
+        196,
+        196,
+        196,
+        196,
+        196,
+        196
+      ],
+      "retained_earnings": [
+        16,
+        27995,
+        43804,
+        53553,
+        99169,
+        111522
+      ],
+      "additional_paid_in": [
+        60289,
+        60289,
+        60289,
+        60289,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        -28275,
+        null,
+        null
+      ],
+      "total_equity": [
+        49003,
+        77376,
+        93667,
+        95045,
+        131218,
+        144463
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        86897,
+        80633,
+        70683,
+        71485,
+        80590,
+        42509
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        10568,
+        18084,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        35009,
+        42591,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        117260,
+        132160,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        6906,
+        7024,
+        6635,
+        10493,
+        7734,
+        47865
+      ],
+      "payables": [
+        null,
+        null,
+        32591,
+        32793,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        32265,
+        50237,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        71491,
+        93523,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      226292,
+      209592,
+      188751,
+      225683,
+      220845,
+      212097
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      32018,
+      40132,
+      42066,
+      60610,
+      57570,
+      21825
+    ],
+    "cfi": [
+      null,
+      null,
+      -26473,
+      -21883,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      -22431,
+      -31320,
+      null,
+      null
+    ],
+    "capex": [
+      15667,
+      19266,
+      27144,
+      19287,
+      47961,
+      25734
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      -6879,
+      7570,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020-2021: overview table only (no full statements extracted)",
+    "2022-2023: full МСФО reports with Note detailing",
+    "2024-2025: overview table, limited P&L/CF detail",
+    "Cost format by_function (explicit COGS, SG&A separate)",
+    "Balance sheet: perfect arithmetic (Assets = Liab + Equity)",
+    "Cash flows 2023: Net change 7570 ≠ CFO+CFI+CFF (7407) — FX effect 163 млн (normal)",
+    "High debt & FX exposure (by nature of oil extraction in Russia)",
+    "Income tax 2023: negative (-2077) indicates possible deferred benefit or timing difference",
+    "Operating profit 2023 calculated from gross - SG&A + other operating items (±1% tolerance)"
+  ]
+}

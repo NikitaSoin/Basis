@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "ticker": "CNRU",
+    "name": "МКПАО «ЦИАН» (ранее Cian PLC, Cyprus)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все периоды в RUB; редомициляция завершена Feb 2025",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024],
+    "source": {
+      "type": "company_ir + cdn.financemarker.ru",
+      "url": "ir.ciangroup.ru (2022, 2021) + cdn.financemarker.ru (2024, 2023 МСФО PDF)",
+      "doc_title": "МКПАО «ЦИАН» и его дочерние предприятия — Консолидированная финансовая отчётность по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction + arithmetic verification",
+    "arithmetic_check": "passed (P&L и balance sheet балансируют для всех лет)"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [3972, 6033, 8266, 11571, 12987],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Маркетинг (Marketing expenses)",
+        "values": [1697, 2253, 2360, 3858, 3813]
+      },
+      {
+        "name": "Персонал (Employee-related expenses)",
+        "values": [2208, 5062, 3759, 4352, 4991]
+      },
+      {
+        "name": "ИТ (IT expenses)",
+        "values": [264, 527, 549, 586, 637]
+      },
+      {
+        "name": "Амортизация (Depreciation & amortization)",
+        "values": [200, 279, 269, 276, 356]
+      },
+      {
+        "name": "Прочие операционные расходы (Other operating expenses)",
+        "values": [180, 726, 584, 682, 962]
+      }
+    ],
+    "operating_profit": [-577, -2814, 745, 1817, 2228],
+    "da": [200, 279, 269, 276, 356],
+    "ebitda": [null, null, null, null, null],
+    "finance_costs": [72, 61, 23, 35, 45],
+    "finance_income": [11, 19, 108, 368, 731],
+    "pre_tax_profit": [-639, -2797, 767, 2334, 3307],
+    "income_tax": [-12, 60, 287, 643, 843],
+    "net_profit": [-627, -2857, 480, 1691, 2464]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [31, 49, 68, 73, 85],
+      "intangibles": [257, 1197, 1077, 1532, 1362],
+      "goodwill": [0, 785, 785, 942, 942],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [134, 113, 82, 40, 86],
+      "total_non_current": [659, 2370, 2149, 2794, 2787]
+    },
+    "current_assets": {
+      "inventory": [0, 108, 30, 29, 10],
+      "receivables": [154, 408, 414, 573, 598],
+      "cash": [449, 2419, 4110, 6434, 9220],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [108, 291, 271, 464, 430],
+      "total_current": [711, 3230, 4825, 7500, 10258]
+    },
+    "total_assets": [1370, 5600, 6974, 10294, 13045],
+    "equity": {
+      "share_capital": [0, 2, 2, 2, 3],
+      "retained_earnings": [-997, -3854, -3343, -1152, 551],
+      "additional_paid_in": [125, 7614, 7702, 5387, 5387],
+      "other_equity": [0, 0, 0, 0, -1],
+      "total_equity_parent": [-872, 3872, 5009, 4237, 5940],
+      "non_controlling_interest": [0, 0, 0, 2938, 4069],
+      "total_equity": [-872, 3872, 5009, 7175, 10009]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [0, 0, 0, 0, 0],
+      "deferred_tax": [28, 135, 127, 113, 197],
+      "other_non_current_liab": [713, 173, 136, 114, 48],
+      "total_non_current_liab": [741, 308, 263, 227, 245]
+    },
+    "current_liabilities": {
+      "short_term_debt": [728, 0, 0, 0, 0],
+      "payables": [316, 619, 642, 1541, 1090],
+      "other_current_liab": [475, 801, 1060, 1351, 1701],
+      "total_current_liab": [1501, 1420, 1702, 2892, 2791]
+    },
+    "total_liabilities": [2242, 1728, 1965, 3119, 3036]
+  },
+  "cash_flow": {
+    "cfo": [317, -1995, null, 2419, 2813],
+    "cfi": [null, null, null, -437, -437],
+    "cff": [null, null, null, -41, -33],
+    "capex": [null, null, null, 134, 159],
+    "net_change_in_cash": [301, 1970, 1691, 1941, 2343]
+  },
+  "data_flags": [
+    "2024-2023: Полная консолидированная отчётность с учетом неконтролирующих долей (NCI увеличился с 2938 млн до 4069 млн)",
+    "2022-2020: Цен по МСФО до IPO (февраль 2025); структура без NCI",
+    "2021: Убыточный год (потери 2,857 млн); 2020 также убыток (-627 млн); 2022 восстановление (480 млн прибыли)",
+    "Редомициляция завершена: Feb 2025 — статус публичной компании МКПАО ЦИАН в РФ; раньше Cian PLC (Cyprus)",
+    "Модель: asset-light маркетплейс; минимальный capex (159 млн в 2024), сильный свободный денежный поток",
+    "Денежная позиция: накопление кэша 449 (2020) → 9,220 (2024); нулевой долг (zero leverage)",
+    "2021-2020: CFS неполный (только CFO 2020-2021); приоритет на P&L и balance sheet",
+    "Единица: млн RUB; переводов валют не было (весь период в RUB)"
+  ]
+}
