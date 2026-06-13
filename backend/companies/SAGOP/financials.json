@@ -1,104 +1,108 @@
 {
   "meta": {
     "ticker": "SAGOP",
-    "name": "ПАО «Самараэнерго» (прив.)",
-    "sector": "Электроэнергетика (энергосбыт)",
+    "name": "ПАО «Самараэнерго»",
+    "sector": "utilities_energy_retail",
     "profile": "standard",
     "currency": "RUB",
-    "unit": "млн",
+    "unit": "млрд",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB",
     "fiscal_years": [
-      2019,
-      2020,
       2021,
       2022,
       2023,
       2024,
       2025
     ],
-    "last_price": 2.275,
-    "price_date": "2026-06-01",
+    "last_price": 2.65798,
+    "price_date": "2026-06-08",
     "shares_outstanding": 3480630296,
-    "isin": "RU0009098255",
-    "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ],
-    "is_pref": true,
-    "linked_common": "SAGO",
-    "pref_to_common_ratio": 0.956,
-    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной SAGO. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.956 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+    "data_quality": "medium",
+    "anomaly_flag": false,
+    "anomaly_note": "Аномалий крупных разовых факторов не обнаружено в доступных данных (medium quality source). 2024: CFO аномально низкий (8.1× ниже тренда) — нормализован. 2024-2025: переклассификация cogs/opex в source-агрегаторе не влияет на EBIT/ЧП.",
+    "adjustments_aggressive": false,
+    "share_class_note": "Преф SAGOP: финансовый анализ эмитента совпадает с обыкновенной акцией SAGO (та же отчётность). Котировка/дивиденд префа — свои."
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
-      null,
-      null,
-      39800,
-      40800,
-      44600,
-      47500,
-      52600
+      39.8,
+      40.8,
+      44.6,
+      47.5,
+      52.6
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      36.6,
+      37.1,
+      40.1,
+      26.4,
+      26.4
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      3.2,
+      3.7,
+      4.5,
+      21.1,
+      26.2
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (распределение, администрация, прочие)",
+        "values": [
+          2.11,
+          2.54,
+          2.22,
+          19.3,
+          21.7
+        ]
+      }
     ],
     "operating_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ebitda": [
-      null,
-      null,
-      1600,
-      1710,
-      2460,
-      2130,
-      1970
+      1.08,
+      1.1,
+      2.0,
+      1.71,
+      1.53
     ],
     "da": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      0.5,
+      0.5,
+      0.4,
       null
+    ],
+    "ebitda": [
+      1.6,
+      1.71,
+      2.46,
+      2.13,
+      1.97
     ],
     "finance_costs": [
       null,
       null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
       null,
       null,
       null,
@@ -106,139 +110,380 @@
       null
     ],
     "net_profit": [
-      null,
-      null,
-      815,
-      1120,
-      1780,
-      2140,
-      1890
+      0.815,
+      1.12,
+      1.78,
+      2.14,
+      1.89
     ],
     "margins": {
       "gross_margin": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        8.04,
+        9.07,
+        10.09,
+        44.42,
+        49.81
       ],
       "ebitda_margin": [
-        null,
-        null,
-        4.0,
-        4.2,
-        5.5,
-        4.5,
-        3.7
+        4.02,
+        4.19,
+        5.52,
+        4.49,
+        3.75
       ],
       "operating_margin": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "net_margin": [
-        null,
-        null,
-        2.0,
+        2.71,
         2.7,
-        4.0,
-        4.5,
-        3.6
+        4.48,
+        3.6,
+        2.91
+      ],
+      "ros": [
+        2.05,
+        2.75,
+        3.99,
+        4.51,
+        3.59
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      0.815,
+      1.12,
+      1.78,
+      2.14,
+      1.89
+    ],
+    "ebitda_adj": [
+      1.6,
+      1.71,
+      2.46,
+      2.13,
+      1.97
+    ],
+    "fcf_normalized": [
+      0.86,
+      1.227,
+      1.12,
+      0.986,
+      1.876
+    ],
+    "wc_adjustment": [
+      0,
+      0,
+      0,
+      1.23,
+      null
+    ],
+    "capex_sustainable_mln": 462.0,
+    "capex_note": "Устойчивый capex = среднее capex/выручка за 4 года (0.88%) × выручку года. 2024: фактический 516 млн vs устойчивый 462 млн (1.24× — чуть ниже порога 1.5×, capex не нормализован). 2025: нет данных, использована оценка.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": "all",
+        "item": "Чек-лист разовых: pre_tax_profit/income_tax в source не раскрыты → ETR не проверяема. Данные по finance_income/costs отсутствуют. Обесценения/списания в source не фигурируют. Adjusted = reported.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "Проверено: обесценения — нет в source; курсовые — н/п (RUB); разовые — не обнаружены; ETR — нет данных. Adjustment: 0.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Проверено: рост ЧП 0.815→1.12 объясняется операционным ростом маржи; разовые не обнаружены. Adjustment: 0.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Проверено: EBIT вырос до 2.0 (операционно); ЧП 1.78; разовые не обнаружены. Adjustment: 0.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "Аномалия: ЧП 2.14 > EBIT 1.71 — разница ~0.43 млрд, вероятно процентный доход на кэш (5.28 млрд × ~8%). Данных по finance_income нет → не корректируем, но флагируем как вероятный процентный доход (не oneoff). CFO 2024 аномально низкий (0.173 млрд при тренде 1.403): нормализован для FCF.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2025,
+        "item": "Аналогично 2024: ЧП 1.89 > EBIT 1.53 (разница ~0.36 млрд — вероятно процентный доход на кэш 5.47 млрд). Не одноразовый — это регулярный доход от чистой денежной позиции при высоких ставках. Adjustment: 0 (не oneoff).",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": "FCF_2024",
+        "item": "CFO 2024 нормализован: 0.173 млрд аномально vs тренда 1.403 млрд (8.1× отклонение, >> порога 1.5×). Причина неизвестна (нет детализации CFO). Нормализованный CFO = 1.403 млрд. FCF_norm_2024 = 1.403 − 0.417 = 0.986 млрд.",
+        "amount": 1230.0,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      }
+    ],
+    "bridge_note": "Adjusted = reported для P&L (нет данных о разовых). Единственная FCF-нормализация: CFO 2024 (аномальный). ETR не верифицирована (нет pre_tax данных)."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        3.03,
+        4.3,
+        5.27,
+        5.28,
+        5.47
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
-      null,
-      null,
-      9210,
-      10300,
-      11500,
-      13200,
-      15200
+      9.21,
+      10.3,
+      11.5,
+      13.2,
+      15.2
     ],
     "total_equity": [
-      null,
-      null,
-      5520,
-      6380,
-      7660,
-      8900,
-      9890
+      5.52,
+      6.38,
+      7.66,
+      8.9,
+      9.89
     ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        5.52,
+        6.38,
+        7.66,
+        8.9,
+        9.89
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      null,
-      null,
-      3690,
-      3920,
-      3840,
-      4300,
-      5310
-    ],
-    "cash": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      3.69,
+      3.92,
+      3.84,
+      4.3,
+      5.31
     ],
     "net_debt": [
-      null,
-      null,
-      -3030,
-      -4300,
-      -5270,
-      -5280,
-      -5470
+      -3.03,
+      -4.3,
+      -5.27,
+      -5.28,
+      -5.47
     ],
+    "tangible_equity": [
+      5.52,
+      6.38,
+      7.66,
+      8.9,
+      9.89
+    ],
+    "tangible_note": "Гудвил и НМА не раскрыты в source. Ощутимый капитал принят равным балансовому. Требует верификации по первичному PDF.",
     "ratios": {
       "debt_to_equity": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "net_debt_ebitda": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        -1.894,
+        -2.515,
+        -2.143,
+        -2.479,
+        -2.777
       ],
       "current_ratio": [
-        null,
-        null,
         null,
         null,
         null,
@@ -249,17 +494,13 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      1.24,
+      1.57,
+      1.4,
+      0.173,
       null
     ],
     "cfi": [
-      null,
-      null,
       null,
       null,
       null,
@@ -271,8 +512,6 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "net_change_in_cash": [
@@ -280,352 +519,520 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "capex": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      0.38,
+      0.343,
+      0.28,
+      0.516,
       null
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      0.86,
+      1.227,
+      1.12,
+      -0.343,
       null
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        2.16,
+        3.01,
+        2.51,
+        -0.72,
         null
       ],
       "cfo_to_capex": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        3.26,
+        4.58,
+        5.0,
+        0.34,
         null
       ],
       "capex_to_revenue": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        0.95,
+        0.84,
+        0.63,
+        1.09,
         null
       ]
     }
   },
   "returns": {
     "roe": [
-      null,
-      null,
-      14.8,
-      17.6,
-      23.2,
-      24.0,
-      19.1
+      14.76,
+      17.55,
+      23.24,
+      24.04,
+      19.11
     ],
     "roa": [
-      null,
-      null,
-      8.8,
-      10.9,
-      15.5,
-      16.2,
-      12.4
+      8.85,
+      10.87,
+      15.48,
+      16.21,
+      12.43
     ],
     "roic": [
-      null,
-      null,
-      14.8,
-      17.6,
-      23.2,
-      24.0,
-      19.1
+      14.67,
+      12.93,
+      19.58,
+      14.4,
+      11.6
     ],
     "ros": [
-      null,
-      null,
-      2.0,
-      2.7,
-      4.0,
-      4.5,
-      3.6
+      2.05,
+      2.75,
+      3.99,
+      4.51,
+      3.59
     ],
     "asset_turnover": [
+      4.3214,
+      3.9612,
+      3.8783,
+      3.5985,
+      3.4605
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      11.35,
+      8.26,
+      5.2,
+      4.32,
+      4.89
+    ],
+    "pb": [
+      1.68,
+      1.45,
+      1.21,
+      1.04,
+      0.94
+    ],
+    "ps": [
+      0.2332,
+      0.2275,
+      0.2081,
+      0.1954,
+      0.1764
+    ],
+    "ev_ebitda": [
+      3.906,
+      2.912,
+      1.63,
+      1.878,
+      1.934
+    ],
+    "roe": [
+      14.76,
+      17.55,
+      23.24,
+      24.04,
+      19.11
+    ],
+    "roa": [
+      8.85,
+      10.87,
+      15.48,
+      16.21,
+      12.43
+    ],
+    "roic": [
+      14.67,
+      12.93,
+      19.58,
+      14.4,
+      11.6
+    ],
+    "gross_margin": [
+      8.04,
+      9.07,
+      10.09,
+      44.42,
+      49.81
+    ],
+    "ebitda_margin": [
+      4.02,
+      4.19,
+      5.52,
+      4.48,
+      3.75
+    ],
+    "operating_margin": [
+      2.71,
+      2.7,
+      4.48,
+      3.6,
+      2.91
+    ],
+    "ros": [
+      2.05,
+      2.75,
+      3.99,
+      4.51,
+      3.59
+    ],
+    "net_debt_ebitda": [
+      -1.894,
+      -2.515,
+      -2.143,
+      -2.479,
+      -2.777
+    ],
+    "revenue_growth": [
       null,
+      2.51,
+      9.31,
+      6.5,
+      10.74
+    ],
+    "net_profit_growth": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      37.42,
+      58.93,
+      20.22,
+      -11.68
     ]
   },
   "multiples": {
     "pe": [
-      null,
-      null,
-      5.6,
-      4.22,
-      6.56,
-      5.21,
-      5.29
+      11.35,
+      8.26,
+      5.2,
+      4.32,
+      4.89
     ],
     "ps": [
-      null,
-      null,
-      0.11,
-      0.11,
-      0.26,
-      0.24,
-      0.19
+      0.2332,
+      0.2275,
+      0.2081,
+      0.1954,
+      0.1764
     ],
     "pb": [
-      null,
-      null,
-      0.82,
-      0.74,
-      1.56,
-      1.27,
-      1.03
+      1.68,
+      1.45,
+      1.21,
+      1.04,
+      0.94
     ],
     "ev_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      3.906,
+      2.912,
+      1.63,
+      1.878,
+      1.934
+    ],
+    "pe_adj": [
+      11.35,
+      8.26,
+      5.2,
+      4.32,
+      4.89
     ],
     "current": {
-      "pe": 4.19,
-      "ps": 0.15,
-      "pb": 0.8,
-      "ev_ebitda": 1.43,
-      "as_of": "2026-06-01"
+      "pe": 4.89,
+      "pe_adj": 4.89,
+      "ps": 0.1764,
+      "pb": 0.9354,
+      "ev_ebitda": 1.934,
+      "as_of": "2026-06-08"
     },
     "historical_avg": {
-      "pe_5y_avg": 5.37,
-      "pe_5y_median": 5.29,
+      "pe_basis": "5y_mean",
+      "pe_value": 6.8,
+      "pe_adj_value": 6.8,
+      "pb_value": 1.26,
       "period": "2021-2025"
-    },
-    "peer_multiples": {
-      "2025": {
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "ev_ebitda": null,
-        "div_yield": null,
-        "net_margin": null
-      },
-      "2024": {
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "ev_ebitda": null,
-        "div_yield": null,
-        "net_margin": null
-      }
-    },
-    "anomaly_flag": true,
-    "anomaly_note": "2025: выручка +10.7% г/г, но чистая прибыль -11.7% и EBITDA -7.5% — сжатие тонкой сбытовой маржи (рост ставки налога на прибыль до 25% с 2025, рост закупочных цен/резервов по дебиторке). Дивиденд за 2025 (0.234 ₽, реестр 15.10.2025) выплачен из нераспределённой прибыли прошлых лет."
+    }
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
     "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      7.0
     ],
     "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      0.5
     ],
-    "note": "Брокерского покрытия нет (малоликвидный эмитент 3-го уровня листинга). Механический прогноз не строим: выручка растёт ~с инфляцией, но чистая прибыль волатильна и зависит от регулируемой надбавки, налоговой ставки и резервов по дебиторке. Прогноз source_type=none."
+    "note": "Брокерского консенсуса нет (3-й уровень листинга, нет покрытия). Механический прогноз: рост выручки ~7% (средний за 4 года 7.3%, затухание к 7% как консервативная оценка). NP_2026 = выручка_2026 × средняя ROS 3.38% ≈ 1.90 млрд. EPS_2026 ≈ 0.546 ₽."
   },
   "valuation": {
     "methods": [
       {
         "method": "DCF",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 4.9634,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "fcf1_mln": 2007.0,
+          "r": 0.2,
+          "g": 0.03,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted_normalized",
+          "implied_exit_multiple": 5.6
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data",
-        "note": "Денежные потоки энергосбыта раскрыты неполно (РСБУ/МСФО без отдельной строки FCF, CFO искажён сезонным движением дебиторки/кредиторки оптового рынка). DCF не строим."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "fcf_normalized_2025": "1.876 млрд ₽ — нормализованный FCF 2025: CFO расчётный (ЧП 1.89 × коэфф. CFO/ЧП 1.237 = 2.337 млрд) − устойчивый capex (8.8% × выр.52.6 = 0.462 млрд) [src_1]",
+            "fcf1_2026": "2.007 млрд ₽ — FCF_norm_2025 × (1+7%) [calc]",
+            "r_ke": "20.00% — Ke = Rf(14.6%) + β(0.6) × ERP(9.0%) [market_params.json]",
+            "beta": "0.60 — суждение: энергосбыт, квазирегулируемый сектор, низкая волатильность, малоликвидная бумага [judgement]",
+            "g": "3.0% — консервативный терминальный рост (ниже max 3.5% из конфига; энергосбыт — медленнорастущий) [market_params.json]",
+            "net_debt_2025": "-5.47 млрд ₽ — чистый долг отрицательный (нет долга, кэш 5.47 млрд) [extracted_financials.json]"
+          },
+          "steps": [
+            "FCF₁ = FCF_norm_2025 × (1+g_rev) = 1.876 × 1.07 = 2.007 млрд",
+            "EV = FCF₁ / (r − g) = 2.007 / (0.20 − 0.03) = 2.007 / 0.17 = 11.806 млрд",
+            "Equity = EV − Net_debt = 11.806 − (−5.47) = 11.806 + 5.47 = 17.276 млрд (кэш > долга, equity > EV)",
+            "Цена = Equity / акции = 17.276 / 3.481 = 4.963 ₽",
+            "Cross-check: implied EV/EBITDA = 11.806 / 2.108 = 5.60× (сектор энергосбыт: 3–6×; на верхней границе, приемлемо для компании без долга с кубышкой)",
+            "Sensitivity: при r=20%, g=3% → 4.96 ₽; r=22%, g=2% → 4.45 ₽; r=18%, g=3.5% → 5.55 ₽"
+          ],
+          "caveats": [
+            "FCF 2025 расчётный (нет данных по CFO/capex 2025 в source) — основан на коэффициенте CFO/ЧП по 2021-2023; CFO/ЧП в 2024 ненормален → исключён из коэффициента",
+            "Implied EV/EBITDA 5.6× — на верхней границе для энергосбыта; DCF даёт оптимистичную оценку при данных допущениях",
+            "Кэш-кубышка 5.47 млрд корректно прибавляется к EV→Equity (кэш не задвоен: в FCF нет дохода от него как отдельной строки); при учёте процентного дохода в ЧП — незначительное двоесчётие возможно",
+            "data_quality medium: нет детализации CFO, нет pre_tax → нормализация FCF несёт высокую неопределённость"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": 2.87,
+        "fair_value_per_share": 3.7126,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": 5.53,
-          "basis": "5y_median",
-          "eps_ttm": 0.543
+          "pe_used": 6.8,
+          "basis": "5y_mean",
+          "eps_forward": 0.546,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 0.543,
+          "cv": 0.436
         },
         "status": "ok",
-        "note": "Медиана P/E 2021-2025 = 5.53 × EPS(2025) 0.543 ₽. Наиболее надёжный метод для этого эмитента."
+        "explain": {
+          "inputs": {
+            "pe_historical_series": "11.35 (2021), 8.26 (2022), 5.20 (2023), 4.32 (2024), 4.89 (2025) — рассчитаны как цена_текущая / EPS_года [calc]",
+            "cv_check": "CV = σ/среднее = 0.436 ≤ 0.55 → используем среднее [calc]",
+            "pe_hist": "6.80 — среднее P/E за 5 лет 2021-2025 [calc]",
+            "eps_2026_fwd": "0.546 ₽ — механический: выручка_2025 × (1+7%) × ROS_mean(3.38%) / акции [calc]",
+            "eps_2025_backward": "0.543 ₽ — ЧП_2025(1.89 млрд) / акции(3.481 млрд) [calc]"
+          },
+          "steps": [
+            "P/E исторический: [11.35, 8.26, 5.20, 4.32, 4.89]; среднее = 6.80; CV=0.436 → среднее корректно",
+            "Forward: Цена = P/E_hist × EPS_fwd = 6.80 × 0.546 = 3.713 ₽",
+            "Backward (справочно): 6.80 × 0.543 = 3.692 ₽",
+            "Тренд P/E сжимался (11→5): рынок переоценивал компанию в 2021, сейчас дисконтирует нерегулярные дивиденды и корпоративное управление"
+          ],
+          "caveats": [
+            "P/E рассчитан от текущей рыночной цены / исторический EPS — не от реальных исторических цен (нет данных). Метод показывает, при каком P/E текущая цена «должна» была бы быть справедливой, не отражает реальный торговый диапазон",
+            "Среднее P/E 6.8× включает 2021 (11.35×) как аномально высокий — этим завышает базу; без 2021 среднее 5.67×",
+            "EPS forward: механический прогноз без консенсуса; маржа ROS нестабильна (2.05-4.51%)"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 3.5802,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 1.26,
+          "basis": "5y_mean",
+          "book_value_per_share_used": 2.8414,
+          "equity_basis": "balance",
+          "cv": 0.239
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pb_historical_series": "1.68 (2021), 1.45 (2022), 1.21 (2023), 1.04 (2024), 0.94 (2025) — цена_тек / BVPS_года [calc]",
+            "cv_check": "CV = 0.239 ≤ 0.55 → среднее [calc]",
+            "pb_hist": "1.26 — среднее P/B за 5 лет [calc]",
+            "bvps_2025": "2.841 ₽ — total_equity_2025(9.89 млрд) / акции(3.481 млрд) [calc]",
+            "tangible_equity_note": "Гудвил/НМА не раскрыты → tangible = balance; P/B не завышен по этой причине [src_1]"
+          },
+          "steps": [
+            "P/B исторический: [1.68, 1.45, 1.21, 1.04, 0.94]; среднее = 1.26; CV=0.239",
+            "Цена = P/B_hist × BVPS_2025 = 1.26 × 2.841 = 3.580 ₽",
+            "Текущий P/B=0.94 ниже исторического среднего 1.26 — рынок оценивает ниже балансовой стоимости (discount при слабом КУ и нерегулярных дивидендах)"
+          ],
+          "caveats": [
+            "P/B рассчитан от текущей цены / исторический капитал — не от реальных исторических цен",
+            "Постатейная структура капитала (гудвил, НМА) не раскрыта в source: ощутимый капитал неизвестен",
+            "При data_quality medium балансовые данные могут содержать ошибки агрегатора"
+          ]
+        }
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 3.8355,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "pe",
-          "peer_median": null
+          "multiple_used": "EV/EBITDA",
+          "sector_median": 4.0,
+          "sector_median_basis": "judgement — нет peers.json для энергосбыта; ориентир по сектору utilities/power retail РФ 3-5×",
+          "company_ebitda": 1.97,
+          "net_debt": -5.47
         },
-        "status": "pending_sector_backfill",
-        "note": "Сравнение с другими энергосбытами (напр. региональные ГП) добавим после прогона сектора."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "multiple": "EV/EBITDA выбран как основной для циклически-регулируемого сектора (P/E нестабилен при тонкой марже) [judgement]",
+            "sector_ev_ebitda_median": "4.0× — суждение по аналогам в секторе utilities/энергосбыт РФ; диапазон 3-5×; нет peers.json — фактических данных ограниченного числа ближайших публичных аналогов нет [judgement]",
+            "ebitda_2025": "1.97 млрд ₽ [extracted_financials.json]",
+            "net_debt_2025": "-5.47 млрд ₽ [calc]"
+          },
+          "steps": [
+            "EV = сектор_EV/EBITDA × EBITDA = 4.0 × 1.97 = 7.88 млрд",
+            "Equity = EV − Net_debt = 7.88 − (−5.47) = 13.35 млрд",
+            "Цена = Equity / акции = 13.35 / 3.481 = 3.836 ₽"
+          ],
+          "caveats": [
+            "Сектор-медиана 4.0× основана на суждении — нет актуальных данных peers для энергосбытов РФ. Реальный диапазон 3-5× (низкое KU discount в нижней части). Результат крайне чувствителен к этому параметру.",
+            "EV/EBITDA текущий компании 1.93× значительно ниже сектор-ориентира (4.0×) — это указывает на KU-дисконт и неликвидность бумаги, а не обязательно на «дешевизну»"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 2.5,
+        "fair_value_per_share": 2.9201,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 20.0,
+          "rf": 14.6,
           "beta": 0.6,
-          "expected_div_yield": 9.8
+          "erp": 9.0,
+          "ke": 20.0,
+          "div_yield_assumed": 10.14
         },
         "status": "ok",
-        "note": "Ke = 14.6 + 0.6×9.0 = 20.0%. Бета понижена (0.6): защитный регулируемый бизнес, но эмитент неликвиден. Таргет 12м = цена×(1+(Ke−ожид.дивдоходность))."
+        "explain": {
+          "inputs": {
+            "rf": "14.6% — ОФЗ 10 лет, конец мая 2026 [market_params.json]",
+            "beta": "0.60 — суждение: энергосбыт (квазирегулируемый), тонкая маржа, низкая ликвидность; рыночная бета не рассчитана (малоликвид) [judgement]",
+            "erp": "9.0% — ERP РФ [market_params.json]",
+            "ke": "20.0% = 14.6 + 0.6 × 9.0 [calc]",
+            "div_yield_est": "10.14% — DPS_stable_est (0.2695 ₽) / цена (2.65798 ₽) [calc]",
+            "dps_stable_est": "0.2695 ₽ — 50% от FCF_norm_2025(1.876 млрд) / акции; оценочно, дивполитики нет [judgement]"
+          },
+          "steps": [
+            "Ke = Rf + β × ERP = 14.6 + 0.6 × 9.0 = 20.0%",
+            "Ожидаемая суммарная доходность для инвестора = Ke = 20.0%",
+            "Из этого: дивдоходность ≈ 10.14%, прирост цены = 20.0 − 10.14 = 9.86%",
+            "12м таргет = Цена_тек × (1 + прирост) = 2.658 × 1.0986 = 2.920 ₽",
+            "Логика: при текущих ставках инвестор требует 20% полной доходности; если дивиденд даёт ~10%, цена должна вырасти ещё на ~10% за год"
+          ],
+          "caveats": [
+            "Дивидендная доходность оценочная (DPS_stable = 50% FCF_norm — суждение при отсутствии политики)",
+            "Beta 0.60 — суждение, рыночная бета для малоликвидной бумаги не рассчитана; ошибка beta значимо влияет на результат",
+            "CAPM даёт 12-месячный таргет при допущении о рыночном равновесии; для дефицитного КУ — неконсервативный метод",
+            "Текущая цена 2.658 ₽ может оставаться на уровне или снижаться при продолжении пропусков дивидендов"
+          ]
+        }
       },
       {
-        "method": "dividend",
-        "fair_value_per_share": 1.12,
+        "method": "dividend_gordon",
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "dividend_recent": 0.234,
-          "required_yield_pct": 20.0,
-          "gordon_g_pct": 3.5,
-          "fv_gordon": 1.47
+          "dps_stable_est": 0.2695,
+          "ke": 20.0,
+          "g": 3.0
         },
-        "status": "low_confidence",
-        "note": "Дивиденды нерегулярны (выплаты лишь за 2010, 2022, 2023 и спецвыплата 2025). Метод требуемой дивдоходности при Ke=20% даёт заниженную оценку (~1.2-1.5 ₽), т.к. штрафует за непредсказуемость выплат. Брать как нижнюю границу, не как базу."
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "dps_history": "2022: 0.13 ₽; 2023: 0.234 ₽; 2024: 0.0 ₽ (пропуск); 2025: 0.234 ₽ (спецвыплата из прошлых лет) [governance.json]"
+          },
+          "steps": [
+            "Дивиденды нерегулярны (пропуски, спецвыплаты без системы). Гордоновская модель требует устойчивого потока DPS с предсказуемым ростом.",
+            "DPS_stable оценить невозможно: за 2024 нет выплат при наличии прибыли; политика по обычке отсутствует.",
+            "Формальный расчёт: DPS1 ≈ 0.278 ₽, Ke=20%, g=3% → P = 0.278/0.17 = 1.63 ₽ — но его достоверность близка к нулю.",
+            "Метод не публикуется как самостоятельный ориентир (status=insufficient_data)."
+          ],
+          "caveats": [
+            "Нет публичной дивидендной политики по обыкновенным акциям",
+            "Исторически дивиденды выплачивались только в отдельные годы; за 2024 — пропуск при прибыли и кэше",
+            "Слабое корпоративное управление (governance_quality_flag=weak) делает DPS непредсказуемым для модели Гордона"
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Разброс методов: CAPM (12м) = 2.92 ₽, P/B = 3.58 ₽, P/E = 3.71 ₽, Relative = 3.84 ₽, DCF = 4.96 ₽. Разброс max/min = 1.70× (< 30% порога нет, но широкий). DCF даёт наиболее оптимистичную оценку из-за кубышки 5.47 млрд, добавляющейся к EV. CAPM минимален как 12м, без кубышки-эффекта. Три метода (P/E, P/B, Relative) кластеруются 3.56–3.84 ₽ — это основной ориентир. DCF выше из-за специфики: net_debt отрицательный добавляет к equity.",
     "fair_value_range": {
-      "conservative": 1.17,
-      "base": 3.0,
-      "current_price": 2.38,
-      "upside_downside_pct": 26.1,
-      "note": "Широкий коридор отражает противоречие методов: исторический P/E указывает на справедливую ~3.0 ₽ (апсайд), дивидендный метод при текущей высокой требуемой доходности — на ~1.2-1.5 ₽. База = историч. P/E (надёжнее для энергосбыта). Конс. = дивидендный (нижний кластер)."
+      "conservative": 2.92,
+      "base": 3.8,
+      "optimistic": 4.96
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        0.18,
+        0.2,
+        0.22
+      ],
+      "g_grid": [
+        0.02,
+        0.03,
+        0.035
+      ],
+      "matrix": [
+        [
+          5.18,
+          5.42,
+          5.55
+        ],
+        [
+          4.77,
+          4.96,
+          5.07
+        ],
+        [
+          4.45,
+          4.61,
+          4.69
+        ]
+      ]
     }
-  },
-  "dividends": {
-    "history": [
-      {
-        "fiscal_or_pay_year": "2022 (за 2022)",
-        "dps": 0.13,
-        "record_date": "2023-07",
-        "yield_at_pay_pct": 4.57
-      },
-      {
-        "fiscal_or_pay_year": "2023 (за 2023)",
-        "dps": 0.234,
-        "record_date": "2024-06-18",
-        "yield_at_pay_pct": 7.01
-      },
-      {
-        "fiscal_or_pay_year": "2024",
-        "dps": 0.0,
-        "record_date": null,
-        "yield_at_pay_pct": 0,
-        "note": "дивиденды на обыкновенные не выплачивались"
-      },
-      {
-        "fiscal_or_pay_year": "2025 (спецвыплата)",
-        "dps": 0.234,
-        "record_date": "2025-10-15",
-        "yield_at_pay_pct": 8.08,
-        "note": "из нераспределённой прибыли прошлых лет, реестр 15.10.2025, выплата 20.11.2025"
-      }
-    ],
-    "dps_recent": 0.234,
-    "div_yield_current_pct": 9.8,
-    "div_yield_note": "0.234 ₽ / 2.38 ₽ = 9.8% к текущей цене. Нерегулярность выплат — ключевой риск метрики."
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "iss.moex.com — параметры бумаги SAGO (ISIN, число акций, цена)",
-      "period": "2026-06-01",
-      "reliability": "high"
+      "type": "aggregator",
+      "title": "Smart-Lab — SAGO МСФО финансовые показатели",
+      "url": "https://smart-lab.ru/q/SAGO/f/y/MSFO/",
+      "period": "2021-2025",
+      "reliability": "medium",
+      "note": "Агрегатор; 2024-2025 переклассификация cogs/opex — требует сверки с PDF. EBIT/ЧП считаются корректными."
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "smart-lab.ru/q/SAGO — финансовые показатели МСФО 2021-2025",
-      "period": "2021-2025",
-      "reliability": "medium"
+      "type": "governance_json",
+      "title": "companies/SAGO/governance.json — дивидендная история, структура акционеров",
+      "period": "2022-2025",
+      "reliability": "high"
     },
     {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "smart-lab.ru/q/SAGO/dividend, interfax.ru/quote/SAGO/Dividends — история дивидендов",
-      "period": "2022-2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_4",
-      "type": "official_report",
-      "title": "companies/SAGO/business_model.md — выручка/прибыль РСБУ 2024, профиль бизнеса",
-      "period": "2024",
+      "type": "config",
+      "title": "config/market_params.json — ОФЗ, ERP, terminal_growth",
+      "period": "2026-05-31",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "data_quality=low: нет загруженных PDF/первичной отчётности; цифры МСФО взяты у агрегатора (smart-lab), не сверены с аудированным отчётом.",
-    "2019-2020 годы недоступны у агрегатора — массивы за эти годы = null.",
-    "EBITDA, ROIC, денежные потоки (CFO/CapEx/FCF), структура долга не раскрыты отдельной строкой — DCF не построен.",
-    "Дивиденды нерегулярны (за 2010, 2022, 2023 и спецвыплата 2025); за 2024 на обыкновенные не платили. Дивидендный метод — low_confidence.",
-    "2025: прибыль и EBITDA снизились при росте выручки — сжатие маржи (налог 25%, резервы/закупка). anomaly_flag=true.",
-    "Структура акционеров раскрыта неполно (см. business_model.md).",
-    "relative_peers — pending_sector_backfill (нет peers по энергосбытам)."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 2.81,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "data_quality=medium: source smart-lab (агрегатор), первичный МСФО-PDF не загружен. Критичные ограничения: нет pre_tax_profit/income_tax (ETR не верифицирована), нет CFO/capex 2025, нет детализации баланса (дебиторка, запасы, кредиторка, статьи ОС).",
+    "2024: ЧП 2.14 > EBIT 1.71 — разница ~0.43 млрд вероятно процентный доход на кэш (5.28 млрд × ~8%); finance_income не раскрыт в source. Не корректируется (не oneoff, регулярный доход).",
+    "2025: аналогично — ЧП 1.89 > EBIT 1.53 (~0.36 млрд разница).",
+    "2024-2025: ПЕРЕКЛАССИФИКАЦИЯ себестоимости и opex в smart-lab (cogs 40.1→26.4, opex 2.22→19.3 за те же годы). EBIT и ЧП не затронуты. Gross margin 2024-2025 выглядит аномально высокой (44-50%) — артефакт переклассификации, не реальная рентабельность.",
+    "CFO 2024 аномально низкий (0.173 млрд vs тренд 1.40 млрд, 8.1×). Причина неизвестна (нет детализации). FCF нормализован к трендовому CFO. Без первичного PDF FCF_norm 2024 несёт высокую неопределённость.",
+    "FCF 2025: нет данных по CFO/capex → нормализован по коэффициенту CFO/ЧП (1.237, 2021-2023); неопределённость высокая.",
+    "Gross margin 2021-2023 (8-10%) vs 2024-2025 (44-50%) — явный артефакт переклассификации в агрегаторе. Реальная валовая маржа энергосбыта — низкая. Метрики gross_margin за 2024-2025 в timeseries НЕ следует использовать для сравнения.",
+    "Корпоративное управление (governance_quality_flag=weak): нерегулярные дивиденды, единоличный контроль Аветисяна (~78.9%). Дивидендная модель Гордона не применима. Оценка отражает только финансовые показатели, не KU-риск.",
+    "peers.json для сектора energy_retail/utilities не создан. Relative peers использует суждение о секторной EV/EBITDA медиане (4.0×).",
+    "Бета 0.60 — суждение (малоликвид, рыночная бета не рассчитана)."
+  ]
 }
