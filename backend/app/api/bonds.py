@@ -217,6 +217,32 @@ def _read_company_file(ticker: str, fname: str) -> str | None:
         return None
 
 
+def _fmt_pct(v) -> str:
+    """1.5 → «1,5», 3.0 → «3». Запятая — русский десятичный разделитель."""
+    s = (f"{float(v):.2f}".rstrip("0").rstrip("."))
+    return s.replace(".", ",")
+
+
+def _coupon_formula(d: dict) -> str | None:
+    """Формула/привязка купона для бейджа в карточке (видно на витрине).
+    Флоатер → «КС + X%» (привязка обязательна); фикс → «N% годовых»;
+    линкер → индексация на инфляцию; структурная → выплата по формуле."""
+    ct = d.get("coupon_type")
+    if ct == "floater":
+        sp = d.get("floater_spread_bp")
+        if sp is not None:
+            return f"КС + {_fmt_pct(sp / 100)}%"
+        return "плавающий: привязка к КС/RUONIA"
+    if ct == "fixed":
+        cp = d.get("coupon_percent")
+        return f"{_fmt_pct(cp)}% годовых" if cp is not None else None
+    if ct == "linker":
+        return "номинал индексируется на инфляцию (ИПЦ)"
+    if ct == "structured":
+        return "выплата по формуле/событию выпуска"
+    return None
+
+
 def _row_to_dict(r) -> dict:
     d = dict(r._mapping)
     for k, v in d.items():
@@ -226,6 +252,7 @@ def _row_to_dict(r) -> dict:
             d[k] = float(v)
     d["risk_label"] = RISK_LABEL.get(d.get("risk_tier"))
     d["coupon_label"] = COUPON_LABEL.get(d.get("coupon_type"))
+    d["coupon_formula"] = _coupon_formula(d)
     if d.get("duration_days"):
         d["duration_years"] = round(d["duration_days"] / 365, 1)
     # экстремальная доходность — флаг дистресса/неликвида (не «выгодно»!)
