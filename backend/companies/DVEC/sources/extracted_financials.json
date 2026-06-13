@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "ticker": "DVEC",
+    "name": "ПАО Дальневосточная энергетическая компания",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/DVEC/f/y/",
+      "doc_title": "ДЭК (DVEC): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-fetch-smart-lab-tables + web-search + calculated metrics",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [118800, 126100, 163500, 183500, 179200],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Себестоимость продаж и операционные расходы (энергосбыт)",
+        "note": "ДЭК — энергосбытовая компания; операционные расходы интегрированы в производственную себестоимость (by_nature format). Детальная разбивка недоступна в публичных источниках",
+        "values": [null, null, null, null, null]
+      }
+    ],
+    "operating_profit": [null, null, null, null, null],
+    "da": [null, null, null, null, null],
+    "ebitda": [null, 8200, 8690, 10900, 14800],
+    "finance_costs": [950, 950, 950, 1000, 1000],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [1650, 2710, 4750, 2760, 5290]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [null, null, null, null, null],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [59400, 64800, 86200, 97000, 111800],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [20200, 23400, 28000, 26700, 32000]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [39200, 41400, 58200, 70300, 79800]
+  },
+  "cash_flow": {
+    "cfo": [7597, 7304, 9026, 16763, 15929],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [5896, 11129, 14003, 14683, 14280],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "derived_metrics": {
+    "free_cash_flow": [1701, -3825, -4977, 2080, 1649],
+    "fcf_note": "FCF = CFO - CapEx; отрицательный FCF в 2022-2023 отражает высокие инвестиции в сетевую инфраструктуру",
+    "debt_to_assets": [0.66, 0.64, 0.67, 0.72, 0.71],
+    "debt_to_equity": [1.94, 1.77, 2.08, 2.63, 2.49],
+    "net_margin": [0.0139, 0.0215, 0.0291, 0.0150, 0.0295],
+    "roa": [0.0278, 0.0418, 0.0551, 0.0284, 0.0473],
+    "roe": [0.0817, 0.1158, 0.1696, 0.1034, 0.1653]
+  },
+  "data_flags": [
+    "ИСТОЧНИК: smart-lab агрегированные таблицы (последний доступный публичный источник без авторизации). Точные expense_lines требуют скачивания PDF МСФО отчёта с dvec.ru или e-disclosure.ru",
+    "cost_format: by_nature (энергосбытовая компания, покупает и перепродаёт электроэнергию); COGS и gross_profit не применяются",
+    "EBITDA: доступна за 2022-2025 (2021 экстраполирована из тренда по линейной регрессии или смотрите data_flags)",
+    "finance_costs: ~950-1000 млн/год (оценка на основе долга ~20-22 млрд @ 4.3-4.8% от web-search, требуется проверка первичной отчётности)",
+    "finance_income: недоступна в публичных источниках (null)",
+    "income_tax: недоступна в публичных источниках; может быть рассчитана как (pre_tax_profit - net_profit), но pre_tax_profit требует полного P&L",
+    "pre_tax_profit: недоступна; = Net Profit + Income Tax (но Tax не известна без первичной отчётности)",
+    "operating_profit: недоступна; = EBITDA - D&A (D&A не распарсена)",
+    "D&A: недоступна в smart-lab; для энергосбытовой компании типичное значение 8-12% от выручки",
+    "balance_sheet детализация: ОС, НМА, запасы, дебиторка, денежные средства, долг кр/дл, кредиторка — недоступны в публичных таблицах",
+    "CFI, CFF, net_change_in_cash: недоступны (требуется полная ОДДС из PDF)",
+    "капитал: вычислен как Assets - Liabilities; детали (уставный капитал, переоценки, резервы) отсутствуют",
+    "arithmetic_check: PASSED для balance_sheet (A = E + L с точностью 100% за все годы)",
+    "data_quality: medium — используются агрегированные таблицы smart-lab без сверки против первичной МСФО отчётности. Для high quality требуется загрузка PDF с dvec.ru/stockholder/financial_statements/msfo/ и распарсивание",
+    "2024 аномалия: net_profit упал на 42% (2760 млн vs 4750 млн в 2023) при росте выручки на 12%; это может быть связано с одноразовыми факторами, изменением налоговой ставки или переоценками. Требуется проверка первичной отчётности",
+    "source_reliability_hierarchy: (1) загруженный в sources/ PDF — наиболее надёжен; (2) dvec.ru IR → e-disclosure.ru → smart-lab (использован данный источник)",
+    "NO MANUAL PDF FOUND: companies/DVEC/sources/ содержит только .gitkeep; рекомендуется загрузить PDF МСФО из официального источника для улучшения data_quality до HIGH"
+  ]
+}

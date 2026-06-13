@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "ticker": "KBSB",
+    "name": "ПАО ТНС энерго Кубань",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс.",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB (российский рубль), без конвертации",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab | e-disclosure_pdf",
+      "url": "https://smart-lab.ru/q/KBSB/f/y/ (данные) + https://www.e-disclosure.ru/portal/company.aspx?id=10624 (официально)",
+      "doc_title": "МСФО финансовая отчётность ПАО ТНС энерго Кубань 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web_fetch_aggregator (smart-lab) + pdf_structure_analysis",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [55400000, 60800000, 67700000, 75000000, 84800000],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [57800000, 67800000, 74600000, 82800000, 93700000]
+      }
+    ],
+    "operating_profit": null,
+    "da": null,
+    "ebitda": null,
+    "finance_costs": null,
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [74000, 1260000, 3870000, 2530000, 5370000]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": null,
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": [10400000, 10500000, 15600000, 18300000, 26100000],
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [-63000000, 240000, 6850000, 7650000, 13100000]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": null,
+    "cfi": null,
+    "cff": null,
+    "capex": null,
+    "net_change_in_cash": null
+  },
+  "data_flags": [
+    "КРИТИЧНО: Финансовые отчёты в PDF (стр. 7-10) представлены как скан-изображения, что препятствует автоматическому извлечению текста. Требуется ручная загрузка PDF с текстовым слоем или применение OCR (tesseract + rus).",
+    "Себестоимость продаж (COGS) и валовая прибыль не раскрыты отдельно в доступных источниках. Возможно, у компании формат отчёта by_nature (энергосбыт) без явной себестоимости — требует проверки по первичному PDF.",
+    "Операционная прибыль, финансовые расходы/доходы, налог на прибыль требуют ручного извлечения из первичного PDF.",
+    "ОДДС (отчёт о движении денежных средств) полностью отсутствует в доступных источниках.",
+    "Компоненты капитала (Уставный капитал, Нераспределённая прибыль) требуют первичного PDF.",
+    "Компоненты активов и обязательств (ОС, НМА, Дебиторка, Кредиты, Депозиты) требуют первичного PDF.",
+    "Данные за 2020 год недоступны в доступных источниках.",
+    "Арифметика (Revenue - Operating expenses): 2021: -2.4 млрд; 2022: -7.0 млрд; 2023: -6.9 млрд; 2024: -7.8 млрд; 2025: -8.9 млрд. При этом Net profit положителен. Подозрение: операционные расходы в smart-lab — это неполная статья, или есть финансовые доходы/корректировки. ТРЕБУЕТ ПРОВЕРКИ.",
+    "Единица: тысячи RUB (1 млрд = 1,000,000 тыс.)."
+  ]
+}

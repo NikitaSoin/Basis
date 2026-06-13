@@ -1,0 +1,420 @@
+{
+  "meta": {
+    "ticker": "JNOS",
+    "name": "ПАО Славнефть-ЯНОС (Ярославский НПЗ)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure + smart-lab",
+      "url": "https://www.e-disclosure.ru/portal/company.aspx?id=947; https://smart-lab.ru/q/JNOS/f/y/",
+      "doc_title": "Обобщенная консолидированная финансовая отчетность ПАО Славнефть-ЯНОС 2024 г. (ГКФО) и Раскрываемая 2023 г.",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      46816,
+      41197,
+      46800,
+      null,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Производственные расходы",
+        "values": [
+          17419,
+          16453,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          918,
+          914,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Себестоимость реализации прочей продукции",
+        "values": [
+          804,
+          711,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Налоги, за исключением налога на прибыль",
+        "values": [
+          1871,
+          1662,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Износ и амортизация",
+        "values": [
+          9152,
+          7871,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочие доходы (расходы)",
+        "values": [
+          -108,
+          -84,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      17346,
+      13942,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      9152,
+      7871,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      6273,
+      3863,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      11073,
+      10079,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      4814,
+      2080,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      6259,
+      7999,
+      null,
+      null,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        137476,
+        118174,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        886,
+        7476,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        138362,
+        125650,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        48489,
+        73084,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      186851,
+      198734,
+      null,
+      null,
+      null
+    ]
+  },
+  "balance_sheet_equity_liab": {
+    "equity": {
+      "share_capital": [
+        5969,
+        5969,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        93733,
+        88439,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        99702,
+        94408,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        38588,
+        68330,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        48561,
+        35996,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      87149,
+      104326,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      34500,
+      19381,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      -6299,
+      -31780,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      -38988,
+      23855,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      20082,
+      24254,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      -10834,
+      11093,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2024 (Обобщенная): полный отчет P&L, Balance, CF из e-disclosure. Обобщенная по Указу ПРФ № 903.",
+    "2023 (Раскрываемая): полный отчет P&L, Balance, CF. Без сравнительных данных 2022 (исключены по постановлению).",
+    "2022-2020: только Revenue (2022) и Total Assets из smart-lab таблиц. Прочее null (вторичный источник).",
+    "P&L: by_nature формат (без себестоимости и валовой прибыли). Статьи: производственные + адм + налоги + амортизация.",
+    "Balance sheet: детали по Активам (ОС vs прочие) даны; текущие активы, долг, кредиторскую не детализирует обобщённая.",
+    "Валюта: RUB (млн руб.). Функциональная валюта группы — рубль.",
+    "Тип компании: нефтепереработчик (СП Газпромнефть и Роснефть/Славнефть) — процессинговая модель (плата за переработку).",
+    "Ликвидность: низкая (не торгуется на открытом рынке)."
+  ]
+}

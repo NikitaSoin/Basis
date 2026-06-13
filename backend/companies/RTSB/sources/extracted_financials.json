@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "ticker": "RTSB",
+    "name": "ПАО ТНС энерго Ростов-на-Дону",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "smart-lab + e-disclosure (search), FlipHTML5 (годовой отчёт 2023), RBC Ростов",
+      "url": "https://fliphtml5.com/nvwgq/ggfl/, https://rostov.rbc.ru/, https://smart-lab.ru/q/RTSB/f/y/",
+      "doc_title": "Годовой отчёт ПАО 'ТНС энерго Ростов-на-Дону' 2023; Smart-Lab финансовые показатели МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-fetch (FlipHTML5) + web-search (news)",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      null,
+      57960.0,
+      61870.166,
+      68226.67
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      29782.907,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      32087.259,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и сбытовые расходы",
+        "values": [
+          null,
+          null,
+          null,
+          29080.166,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      null,
+      472.8,
+      5576.125,
+      4500
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        3254.208,
+        3600
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        5330.0,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        6006.753,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      237.0,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "РСБУ 2023 данные полные (P&L + баланс частичный); 2024 экстраполирована из H1/9M",
+    "2024 МСФО: прибыль снизилась на 52% (от 9.37 млрд 2023 → ~4.5 млрд 2024); выручка экстраполирована",
+    "H1 2024: выручка 32.58 млрд, прибыль 475.8 млн, дебиторка 3.6 млрд",
+    "9M 2024: выручка 51.17 млрд, прибыль 474.6 млн (из поиска, не первичный источник)",
+    "FY 2024 выручка RTSB экстраполирована: 51.17 * (12/9) ≈ 68.2 млрд (требует подтверждения)",
+    "Дебиторская задолженность: 01.01.2024 — 3.254 млрд (филиальная), H1 2024 — 3.6 млрд",
+    "ОПАСНО: CBonds данные 2024 для RTSB (выручка 4.69, убыток -22.67) это консолидированная группа, не RTSB филиал; не включены в JSON",
+    "Капитальные расходы 2023: 237 млн; ОДДС полный не найден",
+    "Операционная прибыль 2023 расчётная: 32087 - 29080 = 3007 млн",
+    "Cost_format: by_function (покупная э/э = COGS, прочие статьи затрат перечислены как expense_lines)"
+  ]
+}
