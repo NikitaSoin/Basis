@@ -1,47 +1,38 @@
 {
   "meta": {
     "ticker": "VEON-RX",
-    "name": "VEON Ltd (расписки)",
+    "name": "VEON Ltd. (ВЕОН) — расписки",
     "sector": "telecom",
     "profile": "standard",
     "currency": "USD",
-    "currency_note": "Отчётность VEON Ltd — в долларах США. Расписки VEON-RX торгуются на МосБирже в РУБ. Цена/мультипликаторы сведены в USD; коридор справедливой цены конвертирован в РУБ по курсу USD/RUB 71.0224 (2026-05-30).",
     "unit": "млн",
-    "reporting_standard": "МСФО (IFRS)",
+    "reporting_standard": "МСФО (SEC Form 20-F, IFRS)",
+    "converted_years": [],
+    "conversion_note": "Отчётность исходно в USD. Справедливая стоимость рассчитана в USD, конвертирована в RUB по курсу 88 RUB/USD (среднегодовой 2024 ориентир, зафиксирован для расчётов). Число акций = 1 749 127 404 (из rates.csv).",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 58.1,
-    "last_price_currency": "RUB",
-    "price_date": "2026-05-30",
+    "price_date": "2026-06-08",
     "shares_outstanding": 1749127404,
-    "fx_usdrub": 71.0224,
-    "data_quality": "low",
-    "data_quality_note": "Профиль НИЗКОГО качества данных: загруженных файлов нет, история (2019-2023) собрана из агрегатора (StockTitan) и округлена; ряды до/после деконсолидации РФ (2023) несопоставимы; 2024 в USD частично выведен из раскрытых темпов роста; брокерского покрытия расписок VEON-RX нет.",
-    "data_source_priority": [
-      "official_report",
-      "aggregator"
-    ]
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "2020-2021: данные включают российский бизнес ВымпелКом/Билайн (continuing operations, но масштаб ~7.3-7.8 млрд USD несопоставим с текущим 3.7-4.0 млрд). 2022: частичный год России (продана 09.10.2023). Основная аналитика и оценка ориентируются на 2023-2024.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
-      null,
-      3500,
-      3900,
-      3800,
-      3700,
-      4004,
-      4399
+      7291,
+      7788,
+      3755,
+      3698,
+      4004
     ],
     "cogs": [
-      null,
-      null,
       null,
       null,
       null,
@@ -53,63 +44,145 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Service costs",
+        "values": [
+          1334,
+          1393,
+          448,
+          423,
+          488
+        ]
+      },
+      {
+        "name": "Cost of equipment and accessories",
+        "values": [
+          378,
+          487,
+          28,
+          18,
+          27
+        ]
+      },
+      {
+        "name": "Selling, general and administrative expenses",
+        "values": [
+          2432,
+          2579,
+          1533,
+          1646,
+          1799
+        ]
+      },
+      {
+        "name": "Depreciation",
+        "values": [
+          1432,
+          1545,
+          557,
+          527,
+          529
+        ]
+      },
+      {
+        "name": "Amortization",
+        "values": [
+          310,
+          308,
+          221,
+          208,
+          199
+        ]
+      },
+      {
+        "name": "Impairment loss/(reversal), net",
+        "values": [
+          784,
+          20,
+          -107,
+          -6,
+          3
+        ]
+      },
+      {
+        "name": "Loss/(gain) on disposal of non-current assets",
+        "values": [
+          36,
+          17,
+          -1,
+          -46,
+          -5
+        ]
+      },
+      {
+        "name": "Loss/(gain) on disposal of subsidiaries",
+        "values": [
+          78,
+          -101,
+          -88,
+          0,
+          -145
+        ]
+      }
     ],
     "operating_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      1691,
-      2009
+      511,
+      1544,
+      1163,
+      929,
+      1110
     ],
     "da": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1742,
+      1853,
+      778,
+      735,
+      728
+    ],
+    "ebitda": [
+      2253,
+      3397,
+      1941,
+      1664,
+      1838
     ],
     "finance_costs": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      673,
+      690,
+      583,
+      531,
+      495
+    ],
+    "finance_income": [
+      23,
+      16,
+      32,
+      60,
+      49
+    ],
+    "pre_tax_profit": [
+      -82,
+      908,
+      802,
+      559,
+      704
+    ],
+    "income_tax": [
+      313,
+      258,
+      69,
+      179,
+      217
     ],
     "net_profit": [
-      null,
-      -316,
-      801,
-      -9,
-      -2450,
-      487,
-      591
+      -395,
+      650,
+      733,
+      380,
+      487
     ],
     "margins": {
       "gross_margin": [
@@ -117,241 +190,494 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "ebitda_margin": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        42.2,
-        45.7
+        30.9,
+        43.6,
+        51.7,
+        45.0,
+        45.9
       ],
       "operating_margin": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        7.0,
+        19.8,
+        31.0,
+        25.1,
+        27.7
       ],
-      "net_margin": [
-        null,
-        -9.0,
-        20.5,
-        -0.2,
-        -66.2,
-        12.2,
-        13.4
+      "ros": [
+        -5.4,
+        8.3,
+        19.5,
+        10.3,
+        12.2
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      585.0,
+      577.8,
+      667.5,
+      411.3,
+      587.3
+    ],
+    "ebitda_adj": [
+      1355,
+      3498,
+      2030,
+      1710,
+      1983
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      629.0,
+      524.0
+    ],
+    "wc_adjustment": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "capex_sustainable_mln": 626.0,
+    "capex_note": "Устойчивый capex = mediana capex/выручка за 2022-2024 (16.9%, 14.4%, 15.7%) = 15.6% × выручка 2024. 2020-2021 исключены: включали Россию (~23% capex/rev).",
+    "etr_reported": [
+      null,
+      28.4,
+      8.6,
+      32.0,
+      30.8
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2020,
+        "item": "Обесценение активов (Impairment loss, expense_lines) — разовое крупное списание",
+        "amount": 784,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2020,
+        "item": "Убыток от выбытия дочерних компаний (Loss on disposal of subsidiaries) — разовый",
+        "amount": 78,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2020,
+        "item": "Налоговая нормализация: скорректированный pre_tax = +780; применяем ETR 25% (reported ETR неприменим при убытке до корр.). Reported NP=-395, adj NP=585",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "Прибыль от выбытия дочерних компаний (Gain on disposal of subsidiaries, -101) — разовый доход, исключается",
+        "amount": -101,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "ETR 28.4% близко к 25%, постоянные местные ставки EM; не нормализуем. Impairment 20 — мелкий, оставляем. Проверено — разовых более нет.",
+        "amount": 0,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Прибыль от выбытия дочерних компаний (Gain on disposal of subsidiaries, -88) — разовый доход, исключается",
+        "amount": -88,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Налоговая нормализация: ETR 8.6% аномально низкий (tax=69/pre_tax=802). Мини-мост: adj_pre_tax=890 (802+88), tax_adj=222 vs reported 69 → разница 153. Adj NP=667.5 vs reported 733.",
+        "amount": 153,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Прибыль от выбытия внеоборотных активов (Gain on disposal of NCA, -46) — разовый доход, исключается",
+        "amount": -46,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Убыток от продажи России (-2450 USD млн) — уже в discontinued operations, НЕ входит в continuing P&L. Дополнительной корректировки не требуется.",
+        "amount": 0,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Прибыль от выбытия дочерних компаний (Gain on disposal of subsidiaries, -145) — разовый доход, исключается",
+        "amount": -145,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "ETR 30.8% умеренно выше 25% — постоянные EM-ставки (Пакистан/Украина/Казахстан); не нормализуем. Impairment 3 — ничтожный. Проверено — разовых более нет.",
+        "amount": 0,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      }
+    ],
+    "bridge_note": "Систематический проход по всем 5 годам. 2020: два крупных разовых (impairment 784 + loss_sub 78) + налоговая нормализация к ETR 25%. 2021: разовый gain_sub -101. 2022: разовый gain_sub -88 + аномальный ETR 8.6% нормализован к 25%. 2023: мелкий gain_nca -46 + подтверждение: убыток РФ уже в discontinued. 2024: разовый gain_sub -145. EBITDA adj = reported ± тех же позиций expense_lines."
+  },
   "balance_sheet": {
-    "total_assets": [
-      null,
-      14600,
-      15900,
-      15100,
-      8200,
-      8000,
-      9200
-    ],
-    "total_equity": [
-      null,
-      1000,
-      1500,
-      767,
-      1100,
-      1300,
-      1600
-    ],
-    "total_liabilities": [
-      null,
-      13600,
-      14400,
-      14333,
-      7100,
-      6700,
-      7600
-    ],
-    "cash": [
-      null,
-      1700,
-      2300,
-      3100,
-      1900,
-      1700,
-      1734
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      3100
-    ],
-    "net_debt": [
-      null,
-      6000,
-      5300,
-      3600,
-      1800,
-      1600,
-      1366
-    ],
-    "ratios": {
-      "debt_to_equity": [
+    "non_current_assets": {
+      "ppe": [
+        6879,
+        6717,
         null,
-        7.7,
-        5.07,
-        8.74,
-        3.36,
-        2.54,
-        1.94
+        2898,
+        3016
       ],
-      "net_debt_ebitda": [
+      "intangibles": [
+        4152,
+        3244,
         null,
-        null,
-        null,
-        null,
-        null,
-        0.95,
-        0.68
+        1619,
+        1510
       ],
-      "current_ratio": [
-        null,
-        null,
+      "goodwill": [
         null,
         null,
         null,
         null,
         null
+      ],
+      "long_term_investments": [
+        305,
+        99,
+        null,
+        53,
+        65
+      ],
+      "other_non_current": [
+        515,
+        444,
+        null,
+        356,
+        355
+      ],
+      "total_non_current": [
+        11701,
+        10504,
+        null,
+        5060,
+        5136
       ]
-    }
+    },
+    "current_assets": {
+      "inventory": [
+        111,
+        111,
+        null,
+        23,
+        15
+      ],
+      "receivables": [
+        572,
+        690,
+        null,
+        542,
+        463
+      ],
+      "cash": [
+        1669,
+        2252,
+        null,
+        1902,
+        1689
+      ],
+      "short_term_investments": [
+        90,
+        86,
+        null,
+        433,
+        357
+      ],
+      "other_current": [
+        808,
+        814,
+        null,
+        258,
+        304
+      ],
+      "total_current": [
+        3250,
+        3953,
+        null,
+        3158,
+        2828
+      ]
+    },
+    "total_assets": [
+      14550,
+      15921,
+      null,
+      8218,
+      8036
+    ],
+    "equity": {
+      "share_capital": [
+        2,
+        2,
+        null,
+        2,
+        2
+      ],
+      "retained_earnings": [
+        -1411,
+        -1919,
+        null,
+        -3939,
+        -3530
+      ],
+      "additional_paid_in": [
+        12753,
+        12753,
+        null,
+        12753,
+        12753
+      ],
+      "other_equity": [
+        -1967,
+        -1898,
+        null,
+        -1968,
+        -1953
+      ],
+      "total_equity": [
+        1013,
+        1505,
+        null,
+        1071,
+        1257
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        8832,
+        9404,
+        null,
+        3464,
+        3028
+      ],
+      "deferred_tax": [
+        127,
+        115,
+        null,
+        26,
+        27
+      ],
+      "other_non_current_liab": [
+        169,
+        123,
+        null,
+        73,
+        70
+      ],
+      "total_non_current_liab": [
+        9128,
+        9642,
+        null,
+        3563,
+        3125
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1255,
+        1242,
+        null,
+        1692,
+        1666
+      ],
+      "payables": [
+        1946,
+        2031,
+        null,
+        1200,
+        1276
+      ],
+      "other_current_liab": [
+        1209,
+        1110,
+        null,
+        1092,
+        684
+      ],
+      "total_current_liab": [
+        4410,
+        4383,
+        null,
+        3984,
+        3626
+      ]
+    },
+    "total_liabilities": [
+      13538,
+      14025,
+      null,
+      7547,
+      6751
+    ],
+    "net_debt": [
+      8328,
+      8308,
+      null,
+      2821,
+      2648
+    ],
+    "tangible_equity": [
+      1013,
+      1505,
+      null,
+      1071,
+      1257
+    ],
+    "tangible_note": "Goodwill = 0 по отчётности. Intangibles (1510 млн в 2024) — преимущественно лицензии и радиочастотный спектр (операционные активы), не вычитаются. Ощутимый капитал = балансовый. Накопленный дефицит retained earnings (-3530 млн в 2024) — следствие исторических убытков и продажи РФ-бизнеса.",
+    "ratios": {
+      "debt_to_equity": [
+        9.95,
+        7.07,
+        null,
+        4.81,
+        3.73
+      ],
+      "net_debt_ebitda": [
+        6.15,
+        2.38,
+        null,
+        1.65,
+        1.34
+      ],
+      "current_ratio": [
+        0.74,
+        0.9,
+        null,
+        0.79,
+        0.78
+      ]
+    },
+    "total_equity": [
+      1013,
+      1505,
+      null,
+      1071,
+      1257
+    ]
   },
   "cash_flow": {
     "cfo": [
-      null,
-      2400,
-      null,
-      null,
-      null,
-      null,
-      null
+      2231,
+      2376,
+      933,
+      1160,
+      1150
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -1764,
+      -1067,
+      -1057,
+      -1020,
+      -778
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -33,
+      -676,
+      456,
+      -919,
+      -551
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      434,
+      633,
+      332,
+      -779,
+      -179
     ],
     "capex": [
-      null,
-      550,
-      699,
+      1677,
+      1796,
       634,
       531,
-      627,
-      930
+      627
     ],
     "fcf": [
-      null,
-      1850,
-      null,
-      null,
-      null,
-      null,
-      624
+      554,
+      580,
+      299,
+      629,
+      523
     ],
-    "fcf_note": "2025 — equity FCF (после процентов/аренды) из релиза = 624 млн USD; 2020 — FCF=CFO−CapEx по единственной доступной точке CFO. Сопоставимого ряда FCFF нет.",
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
-        52.9,
-        null,
-        null,
-        null,
-        null,
-        14.2
+        7.6,
+        7.4,
+        8.0,
+        17.0,
+        13.1
       ],
       "cfo_to_capex": [
-        null,
-        4.36,
-        null,
-        null,
-        null,
-        null,
-        null
+        1.33,
+        1.32,
+        1.47,
+        2.18,
+        1.84
       ],
       "capex_to_revenue": [
-        null,
-        15.7,
-        17.9,
-        16.7,
+        23.0,
+        23.1,
+        16.9,
         14.4,
-        15.7,
-        21.1
+        15.7
       ]
     }
   },
   "returns": {
     "roe": [
+      57.7,
+      38.4,
       null,
-      -31.6,
-      53.4,
-      -1.2,
-      -222.7,
-      37.5,
-      36.9
+      38.4,
+      46.7
     ],
     "roa": [
+      4.0,
+      3.6,
       null,
-      -2.2,
       5.0,
-      -0.1,
-      -29.9,
-      6.1,
-      6.4
+      7.3
     ],
     "roic": [
-      null,
-      null,
       null,
       null,
       null,
@@ -359,271 +685,472 @@
       null
     ],
     "ros": [
-      null,
-      -9.0,
-      20.5,
-      -0.2,
-      -66.2,
-      12.2,
-      13.4
+      8.0,
+      7.4,
+      17.8,
+      11.1,
+      14.7
     ],
     "asset_turnover": [
-      null,
-      0.24,
-      0.25,
-      0.25,
-      0.45,
       0.5,
-      0.48
+      0.49,
+      null,
+      0.45,
+      0.5
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      null,
+      2.0,
+      1.7,
+      3.4,
+      2.6
+    ],
+    "pb": [
+      1.26,
+      0.85,
+      null,
+      1.19,
+      1.01
+    ],
+    "ps": [
+      0.17,
+      0.16,
+      0.34,
+      0.34,
+      0.32
+    ],
+    "ev_ebitda": [
+      4.26,
+      2.82,
+      null,
+      2.46,
+      2.13
+    ],
+    "roe": [
+      57.7,
+      38.4,
+      null,
+      38.4,
+      46.7
+    ],
+    "roa": [
+      4.0,
+      3.6,
+      null,
+      5.0,
+      7.3
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      30.9,
+      43.6,
+      51.7,
+      45.0,
+      45.9
+    ],
+    "operating_margin": [
+      7.0,
+      19.8,
+      31.0,
+      25.1,
+      27.7
+    ],
+    "ros": [
+      8.0,
+      7.4,
+      17.8,
+      11.1,
+      14.7
+    ],
+    "net_debt_ebitda": [
+      6.15,
+      2.38,
+      null,
+      1.65,
+      1.34
+    ],
+    "revenue_growth": [
+      null,
+      6.8,
+      -51.8,
+      -1.5,
+      8.3
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      12.8,
+      -48.1,
+      28.2
     ]
   },
   "multiples": {
     "pe": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      2.42
+      2.0,
+      1.7,
+      3.4,
+      2.6
     ],
     "ps": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.33
+      0.17,
+      0.16,
+      0.34,
+      0.34,
+      0.32
     ],
     "pb": [
+      1.26,
+      0.85,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      0.89
+      1.19,
+      1.01
     ],
     "ev_ebitda": [
+      4.26,
+      2.82,
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      1.39
+      2.46,
+      2.13
+    ],
+    "pe_adj": [
+      2.2,
+      2.2,
+      1.9,
+      3.1,
+      2.2
     ],
     "current": {
-      "pe": 2.42,
-      "ps": 0.33,
-      "pb": 0.89,
-      "ev_ebitda": 1.39,
-      "ev_sales": 0.64,
-      "p_fcf": 2.29,
-      "as_of": "2026-05-30",
-      "note": "6 мультипликаторов посчитаны кодом от цены расписки 58.1 RUB → mcap 1431 млн USD, EV 2797 млн USD. Экстремально низкие значения отражают дисконт расписок (инфраструктурно-санкционный), а не фундаментальную дешевизну бизнеса."
-    },
-    "peer_multiples": {
-      "2025": {
-        "pe": 2.42,
-        "ps": 0.33,
-        "pb": 0.89,
-        "ev_ebitda": 1.39,
-        "ev_sales": 0.64,
-        "p_fcf": 2.29
-      },
-      "2024": {
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "ev_ebitda": null,
-        "ev_sales": null,
-        "p_fcf": null
-      }
+      "pe": 2.6,
+      "pe_adj": 2.2,
+      "ps": 0.32,
+      "pb": 1.01,
+      "ev_ebitda": 1.98,
+      "as_of": "2026-06-08"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "недоступно — нет долларового ряда исторических цен расписки; годы убытков (2020/2022/2023) делают P/E нерепрезентативным"
+      "pe_basis": "5y_mean (CV=0.20)",
+      "pe_value": 2.7,
+      "pe_adj_value": 2.32,
+      "pb_value": 1.08,
+      "period": "2020-2024"
     }
   },
   "forecast": {
-    "source_type": "broker_consensus",
-    "providers": [
-      "VEON IR (guidance)",
-      "1Q26 trading update"
-    ],
+    "source_type": "mechanical",
+    "providers": [],
     "revenue_growth_pct": [
-      12.5
+      3.0,
+      4.0
     ],
     "net_profit_growth_pct": [
-      null
+      3.0,
+      5.0
     ],
-    "ebitda_growth_pct": [
-      8.5
-    ],
-    "note": "Гайденс VEON на 2026: рост выручки +9–12% и EBITDA +7–10% в USD (повышен после 1Q26 до +11–14% по выручке; 1Q26 факт: выручка +17%, EBITDA +17.7% г/г). Это менеджмент-гайденс компании, не консенсус по расписке — независимого брокерского покрытия VEON-RX не найдено."
+    "note": "Брокерский консенсус по VEON-RX на Мосбирже не установлен. Механический прогноз: рост выручки 3-4% в год (средний 2022-2024 continuing ~3.4%). База — нормализованная прибыль. Надёжность низкая: высокая валютная волатильность EM-рынков (Пакистан/гривна/тенге)."
   },
   "valuation": {
-    "valuation_framing": "КЛЮЧЕВОЕ: расписка VEON-RX торгуется с глубоким дисконтом к фундаментальной стоимости бизнеса из-за инфраструктурно-санкционного риска (иностранный холдинг, барьеры между российской и зарубежной депозитарной инфраструктурой, дивиденды/права затруднены). Поэтому методы оценки бизнеса (DCF, EV/EBITDA) дают цену в разы ВЫШЕ рынка — это НЕ апсайд в обычном смысле, а величина дисконта расписки. Коридор намеренно расширен вниз; верх диапазона достижим только при снятии инфраструктурного барьера.",
     "methods": [
       {
         "method": "DCF",
-        "fair_value_per_share": 381.4,
-        "fair_value_currency": "RUB",
+        "fair_value_per_share": 153.7,
+        "fair_value_per_share_usd": 1.747,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 0.132,
-          "wacc_basis": "USD-ставка: USD risk-free ~4.5% + страновая премия EM (Пакистан/Украина/Казахстан) ~7% × beta 1.1, с надбавкой за рефинансирование валютного долга. RF/ERP из config — рублёвые, к долларовым потокам напрямую не применимы (см. data_flags).",
-          "terminal_growth": 0.035,
-          "forecast_years": 5,
-          "fcff_base_usd_mln": 950
+          "fcf1_mln": 539.7,
+          "r": 0.1246,
+          "g": 0.03,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted",
+          "implied_exit_multiple": 2.88
         },
-        "tv_share_of_value_pct": 64.7,
         "status": "ok",
-        "note": "Оценивает БИЗНЕС без учёта дисконта расписки. Не отражает реальную цену инструмента для российского держателя."
+        "explain": {
+          "inputs": {
+            "fcf_norm_2024": "524 USD млн — FCF нормализованный 2024: CFO 1150 − capex_sustainable 626 (15.6% × rev 4004) [src_1]",
+            "fcf1": "539.7 USD млн — FCF1 = 524 × 1.03; органический рост +3% (мех. прогноз avg 2022-2024) [расчёт]",
+            "Rf": "14.6% — доходность 10-летних ОФЗ [src_3]",
+            "ERP": "9.0% — премия за риск рынка РФ [src_3]",
+            "beta": "1.2 — суждение: EM-телеком + высокий финансовый рычаг [judgement]",
+            "Ke": "25.4% = 14.6% + 1.2 × 9.0% [расчёт]",
+            "Kd": "12.0% — стоимость долга EM HY телекома; суждение (VEON bonds ~8-12%) [judgement]",
+            "we": "21.1% = equity 1257 / total_cap 5951 USD млн [src_1]",
+            "wd": "78.9% = total_debt 4694 / total_cap 5951 USD млн [src_1]",
+            "WACC": "12.46% = 0.211 × 25.4% + 0.789 × 12% × 0.75 [расчёт]",
+            "g": "3.0% — терминальный рост; < g_default 3.5%; консервативно для EM [config]",
+            "net_debt_2024": "2648 USD млн = LT_debt 3028 + ST_debt 1666 − cash 1689 − ST_invest 357 [src_1]",
+            "shares": "1 749 127 404 — из rates.csv [src_4]",
+            "usd_rub": "88.0 RUB/USD — зафиксирован для расчётов [judgement]"
+          },
+          "steps": [
+            "FCF1 = 524.0 × 1.03 = 539.7 USD млн",
+            "WACC = 0.211 × 0.254 + 0.789 × 0.120 × 0.75 = 0.0536 + 0.0710 = 0.1246 (12.46%)",
+            "EV = FCF1 / (WACC − g) = 539.7 / (0.1246 − 0.030) = 539.7 / 0.0946 = 5704 USD млн",
+            "net_debt = 3028 + 1666 − 1689 − 357 = 2648 USD млн (net_debt > 0: кэша меньше долга)",
+            "Equity = EV − net_debt = 5704 − 2648 = 3056 USD млн",
+            "Цена USD/акцию = 3056 × 1 000 000 / 1 749 127 404 = 1.747 USD",
+            "Цена RUB/акцию = 1.747 × 88.0 = 153.7 RUB",
+            "Cross-check implied EV/EBITDA = 5704 / 1983 (ebitda_adj 2024) = 2.88x — ниже нормы EM-телеком 4-7x, согласуется с санкционным дисконтом на расписки"
+          ],
+          "caveats": [
+            "WACC 12.46% чувствителен к Kd: при Kd=10% WACC=11.3% → цена ~194 RUB; при Kd=14% WACC=13.9% → цена ~113 RUB",
+            "Implied EV/EBITDA 2.88x значительно ниже глобального EM-телекома 4-7x — отражает структурный дисконт расписок",
+            "FCF1 механический; EM-валюты (PKR, UAH) волатильны — реальный FCF может отличаться на 20-30%",
+            "Курс 88 RUB/USD зафиксирован; укрепление рубля снижает цену в рублях",
+            "Высокий долговой рычаг: при снижении FCF equity стоимость падает непропорционально"
+          ]
+        }
+      },
+      {
+        "method": "ev_ebitda_historical",
+        "fair_value_per_share": 122.7,
+        "fair_value_per_share_usd": 1.394,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_ebitda_used": 2.57,
+          "basis": "4y_median (CV=0.67)",
+          "ebitda_adj_2024": 1983,
+          "net_debt": 2648
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ev_ebitda_arr": "[7.09 (2020), 2.74 (2021), 2.39 (2023), 1.98 (2024)] — 2022 исключён (нет баланса) [расчёт]",
+            "mean_ev_ebitda": "3.55 — среднее; CV = σ/μ = 2.38/3.55 = 0.67 > 0.5 → применяем медиану [расчёт]",
+            "ev_ebitda_used": "2.57 — медиана 4 наблюдений = (2.74+2.39)/2 = 2.565 [расчёт]",
+            "ebitda_adj_2024": "1983 USD млн — нормализованная EBITDA 2024 (reported 1838 + gain_sub 145) [src_1]",
+            "net_debt_2024": "2648 USD млн [src_1]",
+            "cap_usd_mln": "1274 USD млн = 112.1 млрд RUB / 88 / 1e6 [src_4]"
+          },
+          "steps": [
+            "EV по годам: 2020=1274+8328=9602; 2021=1274+8308=9582; 2023=1274+2821=4095; 2024=1274+2648=3922",
+            "EV/EBITDA adj: 2020=9602/1355=7.09; 2021=9582/3498=2.74; 2023=4095/1710=2.39; 2024=3922/1983=1.98",
+            "σ=2.38, μ=3.55, CV=0.67 > 0.5 → применяем медиану",
+            "Медиана [7.09, 2.74, 2.39, 1.98] = (2.74+2.39)/2 = 2.565 ≈ 2.57",
+            "EV_implied = 2.57 × 1983 = 5096 USD млн",
+            "Equity = EV − net_debt = 5096 − 2648 = 2448 USD млн",
+            "Цена USD = 2448 × 1e6 / 1 749 127 404 = 1.400 USD",
+            "Цена RUB = 1.400 × 88.0 = 123.2 RUB (округлено 122.7)"
+          ],
+          "caveats": [
+            "2020: EV/EBITDA 7.09 включает Россию в EV и нормализованный EBITDA без неё — значение структурно искажено; медиана смягчает этот выброс",
+            "Текущий EV/EBITDA 1.98x — исторический минимум; метод нормализует к 2.57x, что предполагает частичное устранение дисконта",
+            "Глобальные EM-телекомы торгуются 4-7x EV/EBITDA; текущий 2.0x = дисконт ~50-70% за расписочно-санкционный риск"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": null,
-        "fair_value_currency": "RUB",
+        "fair_value_per_share": 70.6,
+        "fair_value_per_share_usd": 0.802,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
+          "pe_used": 2.32,
+          "basis": "5y_mean (CV=0.20)",
+          "eps_forward": 0.34584,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 0.33564
         },
-        "status": "insufficient_data",
-        "note": "Нет долларового ряда исторических цен расписки; 2020/2022/2023 — убыточные годы, медиана P/E нерепрезентативна."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pe_adj_arr": "[2.2 (2020), 2.2 (2021), 1.9 (2022), 3.1 (2023), 2.2 (2024)] [расчёт]",
+            "mean_pe_adj": "2.32 — среднее; σ=0.47, CV=0.20 ≤ 0.5 → среднее [расчёт]",
+            "np_adj_2025e": "605.0 USD млн = adj NP 2024 (587.3) × 1.03 (мех. прогноз +3%) [расчёт]",
+            "eps_fwd_usd": "0.34584 USD/акцию = 605.0 × 1e6 / 1 749 127 404 [расчёт]",
+            "eps_backward_usd": "0.33564 USD/акцию = adj NP 2024 587.3 × 1e6 / 1 749 127 404 [расчёт]"
+          },
+          "steps": [
+            "P/E adj по годам: 2020=1274/585.0=2.18≈2.2; 2021=1274/577.8=2.20≈2.2; 2022=1274/667.5=1.91≈1.9; 2023=1274/411.3=3.10≈3.1; 2024=1274/587.3=2.17≈2.2",
+            "σ=0.47, μ=2.32, CV=0.20 ≤ 0.5 → средняя P/E_used = 2.32",
+            "Forward EPS 2025E = 605.0 × 1e6 / 1 749 127 404 = 0.34584 USD/акцию",
+            "Цена forward = 2.32 × 0.34584 = 0.8023 USD",
+            "Цена RUB forward = 0.8023 × 88.0 = 70.6 RUB",
+            "Backward check: 2.32 × 0.33564 = 0.7787 USD = 68.5 RUB — справочно"
+          ],
+          "caveats": [
+            "P/E adj 2020-2021 содержат российский бизнес в adj NP знаменателе; после выхода из РФ масштаб сменился, исторические P/E частично нерепрезентативны",
+            "P/E 2.32x — рекордно низкий исторически; отражает рыночный санкционный дисконт расписок, а не фундаментальную слабость операционного бизнеса",
+            "Forward EPS механический (консенсуса нет); EM-валюты могут значительно повлиять"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 68.1,
+        "fair_value_per_share_usd": 0.774,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 1.08,
+          "basis": "4y_mean (CV=0.17)",
+          "book_value_per_share_used": 0.7186,
+          "equity_basis": "tangible",
+          "cv": 0.17
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pb_arr": "[1.26 (2020), 0.85 (2021), 1.19 (2023), 1.01 (2024)] — 2022 null [расчёт]",
+            "mean_pb": "1.08 — среднее; σ=0.176, CV=0.17 ≤ 0.5 → среднее [расчёт]",
+            "price_usd": "0.7290 USD/акцию = 64.151 RUB / 88 [расчёт]",
+            "tangible_equity_2024": "1257 USD млн = total_equity (goodwill = 0 в отчёте) [src_1]",
+            "bvps_usd": "0.7186 USD/акцию = 1257 × 1e6 / 1 749 127 404 [расчёт]"
+          },
+          "steps": [
+            "P/B по годам: price_usd = 64.151/88 = 0.7290 USD",
+            "2020: BVPS = 1013e6/1749127404 = 0.5792; P/B = 0.7290/0.5792 = 1.26",
+            "2021: BVPS = 1505e6/1749127404 = 0.8604; P/B = 0.7290/0.8604 = 0.85",
+            "2023: BVPS = 1071e6/1749127404 = 0.6124; P/B = 0.7290/0.6124 = 1.19",
+            "2024: BVPS = 1257e6/1749127404 = 0.7186; P/B = 0.7290/0.7186 = 1.01",
+            "σ=0.176, μ=1.08, CV=0.17 → среднее 1.08",
+            "Цена = 1.08 × 0.7186 = 0.7761 USD = 0.7761 × 88 = 68.3 RUB"
+          ],
+          "caveats": [
+            "Retained earnings резко отрицательные (-3530 USD млн) — следствие убытков и продажи России; equity держится на APIC 12753 млн",
+            "ROE adj ~47% при P/B 1.0 = структурная недооценка книжной стоимости vs доходности капитала",
+            "P/B применим (телеком с материальной активной базой PPE + лицензии); для asset-light был бы not_applicable"
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
-        "fair_value_currency": "RUB",
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill",
-        "note": "Медиана сектора telecom будет проставлена после прогона всех компаний сектора (peers.json). Прокси-ориентир EM-телеком 3.0–4.0x EV/EBITDA → 189–271 RUB/расписка (оценка бизнеса)."
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Метод не применяется: нет российских пиров в peers.json для телеком-сектора. МТС/Ростелеком — другой регулятивный контекст (РФ). Глобальный EM-телеком пир-анализ выходит за рамки. Метод будет добавлен при формировании полного telecom/peers.json."
+          ],
+          "caveats": []
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 65.2,
-        "fair_value_currency": "RUB",
+        "fair_value_per_share": 119.8,
+        "fair_value_per_share_usd": 1.361,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 0.122,
-          "beta": 1.1,
-          "dividend_yield": 0.0
+          "Ke": 0.254,
+          "div_yield": 0.0,
+          "approach": "implied_pe_from_Ke"
         },
         "status": "ok",
-        "note": "Таргет на 12 мес от текущей цены 58.1 RUB при требуемой доходности 12.2% USD и нулевых дивидендах. Единственный метод, отталкивающийся от рыночной цены расписки, а не от стоимости бизнеса."
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — ОФЗ 10 лет [src_3]",
+            "ERP": "9.0% — премия рынка РФ [src_3]",
+            "beta": "1.2 — EM telecom + рычаг [judgement]",
+            "Ke": "25.4% = 14.6% + 1.2 × 9.0% [расчёт]",
+            "eps_fwd_usd": "0.34584 USD/акцию = adj NP 2025E 605 / shares [расчёт]",
+            "div_yield": "0.0% — дивиденды недоступны держателям расписок VEON-RX (НРД-барьер) [src_2]"
+          },
+          "steps": [
+            "Ke = 14.6% + 1.2 × 9.0% = 14.6% + 10.8% = 25.4%",
+            "Implied P/E = 1 / Ke = 1 / 0.254 = 3.94x (справедливый мультипликатор при данной требуемой доходности)",
+            "Цена USD = 3.94 × 0.34584 = 1.363 USD/акцию",
+            "Цена RUB = 1.363 × 88.0 = 119.8 RUB",
+            "Альтернативный 12M-таргет (текущая × (1+Ke)): 64.15 × 1.254 = 80.4 RUB — нижняя граница без учёта устранения дисконта"
+          ],
+          "caveats": [
+            "Подход implied_PE=1/Ke предполагает нулевой рост — консервативное ограничение",
+            "Ke = 25.4% специфичен для российского инвестора (RU-ставки); глобальный инвестор имеет иную ставку",
+            "Дивиденд анонсирован в 2025, но фактически недоступен держателю расписок VEON-RX через НРД"
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Расхождение методов значительное (186% max/min): P/E adj = 70.6, P/B = 68.1 (нижний кластер) vs EV/EBITDA = 122.7, CAPM = 119.8 (средний кластер) vs DCF = 153.7 (верхний). Причина структурная: P/E и P/B отражают ФАКТИЧЕСКИЙ рыночный уровень расписок с инфраструктурно-санкционным дисконтом (исторические мультипликаторы формировались при аналогичных дисконтах). EV/EBITDA и DCF оценивают ФУНДАМЕНТАЛЬНУЮ стоимость бизнеса без учёта ликвидационных барьеров. CAPM — промежуточная позиция. Коридор 68-154 RUB отражает реальную неопределённость: если расписочный дисконт устранится, справедливая цена существенно выше; пока он сохраняется — P/E/P/B дают рыночный пол. Текущая цена 64.15 RUB ниже нижней границы коридора, что указывает на дополнительный санкционный дисконт сверх исторической нормы.",
     "fair_value_range": {
-      "conservative": 58.1,
-      "base": 110.0,
-      "optimistic_business_value": 230.0,
-      "current_price": 58.1,
-      "currency": "RUB",
-      "upside_downside_pct": 89.3,
-      "range_note": "Консервативный край = текущая цена (дисконт расписки сохраняется). База ~110 RUB — частичное сокращение дисконта при росте бизнеса. Оценка бизнеса (DCF/EV-EBITDA 189–381 RUB) — потолок, реализуемый лишь при снятии инфраструктурного барьера. Диапазон намеренно широкий из-за низкого качества данных и доминирующего нефундаментального риска."
+      "conservative": 68,
+      "base": 114,
+      "optimistic": 154
     },
     "sensitivity": {
-      "wacc_grid": [
-        0.122,
-        0.132,
-        0.142
+      "r_grid": [
+        0.113,
+        0.1246,
+        0.14
       ],
-      "growth_grid": [
+      "g_grid": [
+        0.02,
         0.03,
-        0.035,
-        0.04
+        0.035
       ],
       "matrix": [
         [
-          410,
-          381,
-          356
+          158.7,
+          193.9,
+          214.9
         ],
         [
-          430,
-          399,
-          372
+          120.5,
+          153.7,
+          169.5
         ],
         [
-          453,
-          419,
-          390
+          93.0,
+          113.6,
+          125.4
         ]
-      ],
-      "matrix_note": "DCF цена бизнеса (RUB/расписка) по сетке WACC×g. Все значения — стоимость БИЗНЕСА без дисконта расписки."
+      ]
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "VEON FY25/4Q25 Earnings Presentation & Release (veon.com)",
-      "period": "FY2025",
+      "type": "sec_filing",
+      "title": "VEON Ltd. Form 20-F (FY2024, FY2021) — P&L, баланс, ОДДС continuing operations",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001468091&type=20-F",
       "reliability": "high"
     },
     {
       "id": "src_2",
-      "type": "official_report",
-      "title": "VEON 4Q25 press-release (digital +84%, EBITDA +29% в 4Q)",
-      "period": "4Q2025",
+      "type": "governance",
+      "title": "companies/VEON-RX/governance.json — дивидендная политика, инфраструктурные риски расписок",
+      "url": "",
       "reliability": "high"
     },
     {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "StockTitan VEON financials (история 2020-2025, округлено)",
-      "period": "2020-2025",
-      "reliability": "medium"
+      "type": "config",
+      "title": "config/market_params.json — Rf=14.6%, ERP=9.0%, terminal_g=3.5%",
+      "url": "",
+      "reliability": "high"
     },
     {
       "id": "src_4",
-      "type": "official_report",
-      "title": "iss.moex.com — VEON-RX котировка/issuesize",
-      "period": "2026-05-30",
+      "type": "rates_csv",
+      "title": "rates.csv — цена 64.151 RUB, акций 1 749 127 404, капитализация 112.1 млрд RUB",
+      "url": "",
       "reliability": "high"
-    },
-    {
-      "id": "src_5",
-      "type": "official_report",
-      "title": "iss.moex.com — курс USD/RUB (CBRF_USD_LAST)",
-      "period": "2026-05-30",
-      "reliability": "high"
-    },
-    {
-      "id": "src_6",
-      "type": "aggregator",
-      "title": "smart-lab.ru / РБК — VEON-RX, отсутствие дивидендов и таргета",
-      "period": "2026",
-      "reliability": "low"
     }
   ],
-  "anomaly_flag": true,
-  "anomaly_note": "Структурный разрыв рядов 2023 г.: продажа российского «ВымпелКома» дала разовый убыток -2450 млн USD (ROE -222.7%) и сжатие активов ~вдвое (15.1→8.2 млрд USD). Сопоставимы только 2024-2025. Отдельная крупная аномалия — экстремально низкие мультипликаторы расписки (EV/EBITDA 1.39x, P/E 2.42x): это дисконт расписки, не дешевизна бизнеса.",
   "data_flags": [
-    "data_quality=low: загруженных файлов нет, история из агрегатора (округлена), 2024 в USD частично выведен из темпов роста — сверять по 20-F.",
-    "Разрыв рядов 2023: деконсолидация РФ. Ряды до/после несопоставимы; ROE/ROA/маржи 2020-2023 включают эффект продажи.",
-    "Net debt: расчётный (долг−кэш) на 2025 = 1366 млн USD; компания раскрывает net debt excl. leases = 1751 млн USD и ND/EBITDAaL=1.09x — расхождение из-за аренды и определения. Оба значения указаны.",
-    "Число акций: MOEX issuesize 1.749 млрд использовано как основное; StockTitan указывает 1.85 млрд (эффект ADS-конвертации) — мультипликаторы чувствительны к выбору.",
-    "Валютная развязка: бизнес в USD, расписка в RUB. Config RF=14.6%/ERP=9% — рублёвые и к долларовым FCF напрямую неприменимы; для DCF построена отдельная USD-ставка (USD rf + страновая премия EM). Это допущение, а не из config.",
-    "Дисконт расписки: главный нефундаментальный фактор. DCF/EV-EBITDA оценивают бизнес и дают цену в разы выше рынка — трактовать как величину дисконта, не как торговый апсайд.",
-    "Дивидендов нет и не объявлено → дивидендный метод оценки неприменим.",
-    "CFO/FCFF ряд почти не раскрыт в доступных источниках — DCF опирается на прокси FCFF=950 млн USD (между EBITDA−capex=1079 и eFCF=624).",
-    "relative_peers = pending_sector_backfill: медиана сектора telecom будет заполнена позже."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 3.9,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "Валюта USD млн. Справедливая стоимость в RUB рассчитана по фиксированному курсу 88 RUB/USD (ориентир 2024). Реальный курс для актуального перерасчёта — из rates.csv.",
+    "2020-2021: ряды P&L = continuing operations, но включают операционную базу с Россией (~7.3-7.8 млрд USD vs 3.7-4.0 млрд без РФ). Мультипликаторы тех лет нерепрезентативны для текущего бизнеса.",
+    "2022 баланс: null (нет данных по году транзиции). net_change_in_cash 2022 приблизительный.",
+    "Убыток от продажи ВымпелКома (Россия) -2450 USD млн (октябрь 2023) — в discontinued operations, в ряд continuing P&L НЕ включён. Подтверждено.",
+    "Goodwill = 0 в источнике. Intangibles 1510 USD млн — лицензии/спектр (операционные), не вычитаются из tangible equity.",
+    "Брокерский консенсус по VEON-RX отсутствует; прогноз механический (низкая надёжность).",
+    "Ключевой нефундаментальный риск для держателя расписок VEON-RX: инфраструктурно-санкционный барьер НРД — дивиденды и корпоративные права могут быть недоступны вне зависимости от операционных результатов группы.",
+    "ROIC не рассчитан: нет достаточной разбивки invested capital (частично null баланс 2022).",
+    "EV/EBITDA исторические: CV=0.67 из-за структурного изменения бизнеса (продажа РФ) — применена медиана.",
+    "Net debt/EBITDA снизился с 6.15x (2020) до 1.34x (2024) — существенный деливеридж после продажи России и рефинансирования."
+  ]
 }

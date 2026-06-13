@@ -1,0 +1,438 @@
+{
+  "meta": {
+    "ticker": "VEON-RX",
+    "name": "VEON Ltd. (ВЕОН)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "USD",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "SEC_Form_20-F",
+      "url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001468091&type=20-F",
+      "doc_title": "VEON Ltd. Form 20-F for FY2024 (с компаративом 2023, 2022); FY2021 (2020, 2019); FY2020 (2019)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext_from_SEC_filings",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      7291,
+      7788,
+      3755,
+      3698,
+      4004
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Service costs",
+        "values": [
+          1334,
+          1393,
+          448,
+          423,
+          488
+        ]
+      },
+      {
+        "name": "Cost of equipment and accessories",
+        "values": [
+          378,
+          487,
+          28,
+          18,
+          27
+        ]
+      },
+      {
+        "name": "Selling, general and administrative expenses",
+        "values": [
+          2432,
+          2579,
+          1533,
+          1646,
+          1799
+        ]
+      },
+      {
+        "name": "Depreciation",
+        "values": [
+          1432,
+          1545,
+          557,
+          527,
+          529
+        ]
+      },
+      {
+        "name": "Amortization",
+        "values": [
+          310,
+          308,
+          221,
+          208,
+          199
+        ]
+      },
+      {
+        "name": "Impairment loss/(reversal), net",
+        "values": [
+          784,
+          20,
+          -107,
+          -6,
+          3
+        ]
+      },
+      {
+        "name": "Loss/(gain) on disposal of non-current assets",
+        "values": [
+          36,
+          17,
+          -1,
+          -46,
+          -5
+        ]
+      },
+      {
+        "name": "Loss/(gain) on disposal of subsidiaries",
+        "values": [
+          78,
+          -101,
+          -88,
+          0,
+          -145
+        ]
+      }
+    ],
+    "operating_profit": [
+      511,
+      1544,
+      1163,
+      929,
+      1110
+    ],
+    "da": [
+      1742,
+      1853,
+      778,
+      735,
+      728
+    ],
+    "ebitda": [
+      2253,
+      3397,
+      1941,
+      1664,
+      1838
+    ],
+    "finance_costs": [
+      673,
+      690,
+      583,
+      531,
+      495
+    ],
+    "finance_income": [
+      23,
+      16,
+      32,
+      60,
+      49
+    ],
+    "pre_tax_profit": [
+      -82,
+      908,
+      802,
+      559,
+      704
+    ],
+    "income_tax": [
+      313,
+      258,
+      69,
+      179,
+      217
+    ],
+    "net_profit": [
+      -395,
+      650,
+      733,
+      380,
+      487
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        6879,
+        6717,
+        null,
+        2898,
+        3016
+      ],
+      "intangibles": [
+        4152,
+        3244,
+        null,
+        1619,
+        1510
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        305,
+        99,
+        null,
+        53,
+        65
+      ],
+      "other_non_current": [
+        515,
+        444,
+        null,
+        356,
+        355
+      ],
+      "total_non_current": [
+        11701,
+        10504,
+        null,
+        5060,
+        5136
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        111,
+        111,
+        null,
+        23,
+        15
+      ],
+      "receivables": [
+        572,
+        690,
+        null,
+        542,
+        463
+      ],
+      "cash": [
+        1669,
+        2252,
+        null,
+        1902,
+        1689
+      ],
+      "short_term_investments": [
+        90,
+        86,
+        null,
+        433,
+        357
+      ],
+      "other_current": [
+        808,
+        814,
+        null,
+        258,
+        304
+      ],
+      "total_current": [
+        3250,
+        3953,
+        null,
+        3158,
+        2828
+      ]
+    },
+    "total_assets": [
+      14550,
+      15921,
+      null,
+      8218,
+      8036
+    ],
+    "equity": {
+      "share_capital": [
+        2,
+        2,
+        null,
+        2,
+        2
+      ],
+      "retained_earnings": [
+        -1411,
+        -1919,
+        null,
+        -3939,
+        -3530
+      ],
+      "additional_paid_in": [
+        12753,
+        12753,
+        null,
+        12753,
+        12753
+      ],
+      "other_equity": [
+        -1967,
+        -1898,
+        null,
+        -1968,
+        -1953
+      ],
+      "total_equity": [
+        1013,
+        1505,
+        null,
+        1071,
+        1257
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        8832,
+        9404,
+        null,
+        3464,
+        3028
+      ],
+      "deferred_tax": [
+        127,
+        115,
+        null,
+        26,
+        27
+      ],
+      "other_non_current_liab": [
+        169,
+        123,
+        null,
+        73,
+        70
+      ],
+      "total_non_current_liab": [
+        9128,
+        9642,
+        null,
+        3563,
+        3125
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1255,
+        1242,
+        null,
+        1692,
+        1666
+      ],
+      "payables": [
+        1946,
+        2031,
+        null,
+        1200,
+        1276
+      ],
+      "other_current_liab": [
+        1209,
+        1110,
+        null,
+        1092,
+        684
+      ],
+      "total_current_liab": [
+        4410,
+        4383,
+        null,
+        3984,
+        3626
+      ]
+    },
+    "total_liabilities": [
+      13538,
+      14025,
+      null,
+      7547,
+      6751
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      2231,
+      2376,
+      933,
+      1160,
+      1150
+    ],
+    "cfi": [
+      -1764,
+      -1067,
+      -1057,
+      -1020,
+      -778
+    ],
+    "cff": [
+      -33,
+      -676,
+      456,
+      -919,
+      -551
+    ],
+    "capex": [
+      1677,
+      1796,
+      634,
+      531,
+      627
+    ],
+    "net_change_in_cash": [
+      434,
+      714,
+      1017,
+      -1271,
+      -179
+    ]
+  },
+  "data_flags": [
+    "Валюта USD млн, по МСФО.",
+    "Формат expense_lines по видам (by_nature) — телеком-оператор, нет COGS/gross_profit.",
+    "Данные за 2020-2021 включают операции в России; 2022 включает (продана 09.10.2023); 2024 без России.",
+    "Показаны continuing operations (основной бизнес); discontinued (Россия, Алжир, Кыргызстан) исключены.",
+    "EBITDA = Operating Profit + Depreciation + Amortization.",
+    "CapEx = PP&E purchases + Intangible assets purchases из Cash Flow statement.",
+    "2022 баланс: данные из FY2024 Form 20-F (компаратив); полный баланс см. в FY2022 20-F.",
+    "Финансовые расходы/доходы рассчитаны нетто (net basis)."
+  ]
+}
