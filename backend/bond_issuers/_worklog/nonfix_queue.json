@@ -55,26 +55,6 @@
     "greyed": null
   },
   {
-    "slug": "гтлк",
-    "issuer": "ГосТранспортЛизингКомп 001P-06",
-    "kind": "both",
-    "nbonds": 13,
-    "rating": null,
-    "tier": "medium",
-    "defaulted": false,
-    "floater_spread_bp": 247,
-    "currencies": [
-      "CNY",
-      "USD"
-    ],
-    "rep_secid": "RU000A0ZYAP9",
-    "last_price": 95.0,
-    "ytm": 17.47,
-    "duration_years": 1.6,
-    "has_md": true,
-    "greyed": true
-  },
-  {
     "slug": "мтс",
     "issuer": "Мобильные Телесистемы 002Р-17",
     "kind": "floater",
@@ -5215,6 +5195,26 @@
     "last_price": 99.9,
     "ytm": 13.56,
     "duration_years": 2.0,
+    "has_md": true,
+    "greyed": false
+  },
+  {
+    "slug": "гтлк",
+    "issuer": "ГосТранспортЛизингКомп 001P-06",
+    "kind": "both",
+    "nbonds": 13,
+    "rating": null,
+    "tier": "medium",
+    "defaulted": false,
+    "floater_spread_bp": 247,
+    "currencies": [
+      "CNY",
+      "USD"
+    ],
+    "rep_secid": "RU000A0ZYAP9",
+    "last_price": 95.0,
+    "ytm": 17.47,
+    "duration_years": 1.6,
     "has_md": true,
     "greyed": false
   },
