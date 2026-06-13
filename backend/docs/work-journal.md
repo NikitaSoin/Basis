@@ -686,3 +686,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 20 (haiku, терсе): UNAC IRKT VJGZ KRSB MAGE — OK (5). CHGZ ПРОПУЩЕНА (нет данных: e-disclosure 403, SSL-ошибка, нет в smart-lab) — к ручной загрузке PDF. Тонкие данные (оборонка/малые) честно low/medium. 135/262.
 
 - Батч 21 (haiku, терсе): VSMO AVAN UTAR RKKE LNZL KLSB — все OK. 141/262. LNZL — ликвидационный NAV (рынок +1200% к NAV, риск помечен); AVAN банк; RKKE оборонка low.
+
+- Батч 22 (haiku, терсе): RBCM NSVZ DIOD LIFE ROST SVET (микрокапы) — все OK. 147/262. Тонкие данные/РСБУ честно low/partial; LIFE/RBCM/ROST — отриц.капитал/допэмиссии помечены.
