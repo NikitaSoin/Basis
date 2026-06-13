@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-12T13:06:42.056440+00:00",
+  "generated_at": "2026-06-12T16:13:39.644138+00:00",
   "current_year": 2026,
   "criteria": "data_quality=low | отчётность>12мес | неполные статьи | нет v2-explain",
   "note": "Очередь обновления. Добыча выполняется в сессии Claude: report-fetcher <TICKER> → financial-analyst <TICKER>. Cron не запускает субагентов (LLM). Сначала тикеры без has_extracted.",

@@ -1,89 +1,77 @@
 {
   "meta": {
     "ticker": "LNZLP",
-    "name": "ПАО «Лензолото» (прив.)",
-    "sector": "gold_mining_shell",
-    "profile": "standard",
+    "name": "ПАО «Лензолото»",
+    "sector": "metals_mining",
+    "profile": "shell_liquidation",
     "currency": "RUB",
     "unit": "млн",
-    "reporting_standard": "РСБУ/МСФО (веб)",
+    "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB млн. После продажи ЗДК «Лензолото» Полюсу в 2020 г. компания является денежной оболочкой.",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 198.0,
-    "price_date": "2026-06-01",
     "shares_outstanding": 1140300,
-    "shares_note": "Только обыкновенные LNZL (1 140 300). Префы LNZLP (~348 000) не включены — выводятся отдельно.",
-    "data_quality": "low",
-    "data_source_priority": [
-      "official_report",
-      "aggregator",
-      "broker"
-    ],
-    "is_pref": true,
-    "linked_common": "LNZL",
-    "pref_to_common_ratio": 0.157,
-    "derivation_note": "Привилегированная акция. Фундаментальные показатели (P&L, баланс, EBITDA, ROE, долг, EV/EBITDA) — общие с обыкновенной LNZL. Ценовые мультипликаторы и справедливая стоимость пересчитаны на коэффициент цены префа к обычке = 0.157 (цена префа с MOEX ISS). Дивиденд/ликвидность префа могут отличаться — см. устав эмитента."
+    "shares_preferred": 348000,
+    "shares_total_all_classes": 1488300,
+    "last_price": null,
+    "price_date": "из rates.csv при отображении",
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "Компания — денежная оболочка после продажи единственного добывающего актива Полюсу в 2020 г. В ликвидации с 25.08.2025, торги приостановлены 31.03.2025. Финансовая отчётность отражает не операционный бизнес, а постепенное распределение остатка денежных средств. Все методы оценки действующего бизнеса (DCF, P/E, EV/EBITDA) не применимы. Единственно релевантный метод — ликвидационная стоимость (NAV).",
+    "adjustments_aggressive": false,
+    "liquidation_status": {
+      "entered_liquidation": "2025-08-25",
+      "trading_suspended": "2025-03-31",
+      "cash_feb_2026_mln": 168.3,
+      "note": "По данным extracted_financials.json: кэш на февраль 2026 = 168.3 млн ₽ (после дивидендных выплат 2025)"
+    },
+    "share_class_note": "Преф LNZLP: финансовый анализ эмитента совпадает с обыкновенной акцией LNZL (та же отчётность). Котировка/дивиденд префа — свои."
   },
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
-      null,
-      68.0,
-      90.0,
-      320.0,
-      150.0,
-      294.0,
-      null
+      68,
+      90,
+      320,
+      150,
+      294
     ],
-    "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "revenue_note": "Не операционная выручка — финансовые доходы (проценты на остаток денежных средств, переоценка инвестиций). P&L отражает доходы оболочки, не бизнеса.",
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные и административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Финансовые расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
     ],
     "operating_profit": [
       null,
       null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      302,
+      135,
       null
     ],
     "da": [
@@ -91,13 +79,31 @@
       null,
       null,
       null,
+      null
+    ],
+    "ebitda": null,
+    "finance_costs": [
+      null,
+      null,
       null,
       null,
       null
     ],
-    "finance_costs": [
+    "finance_income": [
       null,
       null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      660,
+      256,
+      null
+    ],
+    "income_tax": [
       null,
       null,
       null,
@@ -105,18 +111,14 @@
       null
     ],
     "net_profit": [
-      null,
-      6400.0,
-      12.0,
-      660.0,
-      106.0,
-      48.1,
-      null
+      7568,
+      12,
+      660,
+      108,
+      48
     ],
     "margins": {
       "gross_margin": [
-        null,
-        null,
         null,
         null,
         null,
@@ -128,8 +130,6 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "operating_margin": [
@@ -137,118 +137,324 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
-      "net_margin": [
+      "ros": [
         null,
-        9411.8,
         13.3,
-        206.2,
-        70.7,
-        16.4,
-        null
+        null,
+        72.0,
+        16.3
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      7568,
+      12,
+      660,
+      108,
+      48
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      77
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": 0,
+    "capex_note": "Capex = 0 по всем годам — оболочка без операционных активов.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2020,
+        "item": "Разовый доход от продажи ЗДК «Лензолото» Полюсу — формирует 99% ЧП 7568 млн. Исключается из операционной базы как разовый. Adjusted = reported (корректировка не применена, т.к. нет операционной базы для DCF — компания оболочка).",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_5"
+      },
+      {
+        "year": 2021,
+        "item": "Проверено: аномальных разовых одноразовых статей не обнаружено. ЧП 12 млн = операционный остаток оболочки (проценты - расходы).",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "ЧП 660 млн > Revenue 320 млн — аномалия. Вероятно, переоценка или реализация финансовых активов (разовый доход). Точный нетто-эффект неизвестен — корректировка не применена, выставлен флаг unverified_one_off_2022. Adjusted = reported.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Проверено: аномальных разовых не обнаружено. ЧП 108 млн соответствует финансовым доходам 150 млн за вычетом расходов.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "ЧП 48 млн при Revenue 294 млн — низкая конверсия. Вероятно, расходы на ликвидацию (обязательства выросли с 107 до 209 млн). Не нормализуем — расходы ликвидации являются реальными, а не разовыми для действующего бизнеса.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_3"
+      }
+    ],
+    "bridge_note": "Для оболочки в ликвидации нормализация прибыли нерелевантна: нет операционного бизнеса, adjusted = reported по всем годам. Мост включён в соответствии с методикой (чек-лист по каждому году)."
+  },
   "balance_sheet": {
-    "total_assets": [
-      null,
-      23400.0,
-      5040.0,
-      1690.0,
-      1770.0,
-      527.0,
-      null
-    ],
-    "total_equity": [
-      null,
-      23300.0,
-      4650.0,
-      1310.0,
-      1370.0,
-      317.0,
-      null
-    ],
-    "total_liabilities": [
-      null,
-      100.0,
-      390.0,
-      380.0,
-      400.0,
-      210.0,
-      null
-    ],
-    "cash": [
-      null,
-      23000.0,
-      4810.0,
-      1630.0,
-      1730.0,
-      514.0,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "per_share": {
-      "cash_per_share": [
+    "non_current_assets": {
+      "ppe": [
         null,
-        20170.1,
-        4218.2,
-        1429.4,
-        1517.1,
-        450.8,
+        null,
+        null,
+        null,
         null
       ],
-      "nav_per_share": [
+      "intangibles": [
         null,
-        20433.2,
-        4077.9,
-        1148.8,
-        1201.4,
-        278.0,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        151,
+        null,
+        null,
+        null,
+        13
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        23018,
+        null,
+        null,
+        null,
+        514
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        231,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        23249,
+        null,
+        null,
+        null,
+        514
+      ]
+    },
+    "total_assets": [
+      23400,
+      5040,
+      1690,
+      1770,
+      527
+    ],
+    "equity": {
+      "share_capital": [
+        200,
+        null,
+        null,
+        null,
+        200
+      ],
+      "retained_earnings": [
+        23075,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        23275,
+        null,
+        null,
+        null,
+        318
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        0,
+        null,
+        null,
+        null,
         null
       ]
     },
-    "ratios": {
-      "debt_to_equity": [
-        null,
-        null,
-        null,
+    "current_liabilities": {
+      "short_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payables": [
+        8,
         null,
         null,
         null,
         null
       ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        209
+      ],
+      "total_current_liab": [
+        8,
+        null,
+        null,
+        null,
+        209
+      ]
+    },
+    "total_liabilities": [
+      107,
+      null,
+      null,
+      null,
+      209
+    ],
+    "net_debt": [
+      -23018,
+      null,
+      null,
+      null,
+      -514
+    ],
+    "tangible_equity": [
+      23275,
+      null,
+      null,
+      null,
+      318
+    ],
+    "tangible_note": "Гудвил и нематериальные активы отсутствуют — tangible_equity = total_equity.",
+    "ratios": {
+      "debt_to_equity": [
+        0.0,
+        null,
+        null,
+        null,
+        0.0
+      ],
       "net_debt_ebitda": [
-        null,
-        null,
         null,
         null,
         null,
@@ -260,11 +466,16 @@
         null,
         null,
         null,
-        null,
-        null,
-        null
+        2.46
       ]
-    }
+    },
+    "total_equity": [
+      23275,
+      null,
+      null,
+      null,
+      318
+    ]
   },
   "cash_flow": {
     "cfo": [
@@ -272,13 +483,9 @@
       null,
       null,
       null,
-      null,
-      null,
-      null
+      77
     ],
     "cfi": [
-      null,
-      null,
       null,
       null,
       null,
@@ -290,8 +497,6 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "net_change_in_cash": [
@@ -299,41 +504,34 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "capex": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      0,
+      0,
+      0,
+      0,
+      0
     ],
     "fcf": [
       null,
       null,
       null,
       null,
-      null,
-      null,
-      null
+      77
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
         null,
         null,
         null,
         null,
-        null,
-        null,
-        null
+        26.2
       ],
       "cfo_to_capex": [
-        null,
-        null,
         null,
         null,
         null,
@@ -341,38 +539,30 @@
         null
       ],
       "capex_to_revenue": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ]
     }
   },
   "returns": {
     "roe": [
       null,
-      27.5,
-      0.1,
-      22.1,
-      7.9,
-      5.7,
+      null,
+      null,
+      null,
       null
     ],
     "roa": [
       null,
-      27.4,
-      0.2,
-      39.1,
-      6.0,
-      9.1,
+      null,
+      null,
+      null,
       null
     ],
     "roic": [
-      null,
-      null,
       null,
       null,
       null,
@@ -381,16 +571,12 @@
     ],
     "ros": [
       null,
-      9411.8,
       13.3,
-      206.2,
-      70.7,
-      16.4,
-      null
+      null,
+      72.0,
+      16.3
     ],
     "asset_turnover": [
-      null,
-      null,
       null,
       null,
       null,
@@ -398,19 +584,8 @@
       null
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ps": [
-      null,
-      null,
       null,
       null,
       null,
@@ -422,6 +597,11 @@
       null,
       null,
       null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
       null,
       null,
       null
@@ -431,187 +611,393 @@
       null,
       null,
       null,
+      null
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      13.3,
+      null,
+      72.0,
+      16.3
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      32.4,
+      255.6,
+      -53.1,
+      96.0
+    ],
+    "net_profit_growth": [
+      null,
+      -99.8,
+      5400.0,
+      -83.6,
+      -55.6
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      null,
+      null,
       null,
       null,
       null
     ],
     "current": {
-      "pe": 4.7,
-      "ps": 0.77,
-      "pb": 0.71,
-      "ev_ebitda": 19.2,
-      "p_cash": 2.8,
-      "p_nav": 4.53,
-      "as_of": "2026-05-29"
+      "pe": null,
+      "pe_adj": 33.0,
+      "pe_adj_note": "P/E = 1387.73 / 42.09 = 33.0x от ЧП 2024 (48 млн / 1 140 300 акций = 42.09 ₽/акцию). Нерелевантен: нет операционного бизнеса.",
+      "ps": null,
+      "pb": 4.98,
+      "pb_note": "P/B = 1387.73 / 278.87 = 4.98x. BVPS = 318 000 000 ₽ / 1 140 300 = 278.87 ₽. Нерелевантен для ликвидации.",
+      "ev_ebitda": null,
+      "ev_current_mln": 1068.4,
+      "ev_note": "EV = кап(1582.4 млн) + net_debt(−514 млн) = 1068.4 млн. При кубышке: EV < рыночной кап — кэш не задвоен в расчёте NAV.",
+      "as_of": "из rates.csv"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "искажён разовой прибылью 2020 от продажи актива"
+      "pe_basis": "not_applicable",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": null,
+      "period": "нет исторических рыночных цен для расчёта"
     }
   },
-  "peer_multiples": {
-    "2025": {
-      "pe": null,
-      "ps": null,
-      "pb": null,
-      "ev_ebitda": null,
-      "p_cash": null,
-      "p_nav": null
-    },
-    "2024": {
-      "pe": 4.7,
-      "ps": 0.77,
-      "pb": 0.71,
-      "ev_ebitda": 19.2,
-      "p_cash": 2.8,
-      "p_nav": 4.53
-    }
-  },
-  "anomaly_flag": true,
-  "anomaly_note": "Кэш (514.0 млн ₽) превышает собственный капитал (317.0 млн ₽) за 2024 — несовместимо без отрицательных чистых обязательств; веб-источники РСБУ/МСФО рассогласованы (data_quality=low). Рыночная цена 1260 ₽ в 4.5× выше чистых активов на акцию (278 ₽) и в 2.8× выше кэша на акцию (451 ₽) — премия к ликвидационной стоимости. Добывающий актив (ЗДК «Лензолото») продан Полюсу в 2020: оценивать по чистым активам/кэшу на акцию, EV/EBITDA малоинформативен (EBITDA≈чистый процентный результат).",
   "forecast": {
     "source_type": "none",
     "providers": [],
-    "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "note": "Ликвидируемая денежная оболочка без добычи — прогноз операционной деятельности неприменим. Будущее = размер и сроки ликвидационных выплат."
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Прогноз неприменим: компания в ликвидации, операционного бизнеса нет. Будущие денежные потоки — только ликвидационные выплаты из остатка кэша."
   },
   "valuation": {
     "methods": [
       {
+        "method": "liquidation_nav",
+        "fair_value_per_share": 106.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "cash_available_mln": 168.3,
+          "liquidation_costs_mln": 10.0,
+          "net_distributable_mln": 158.3,
+          "shares_ord": 1140300,
+          "shares_pref": 348000,
+          "pref_pool_mln": 37.0,
+          "ord_pool_mln": 121.3,
+          "nav_per_share_rub": 106.4
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "cash_feb_2026": "168.3 млн ₽ — кэш на февраль 2026 после дивидендных выплат 2025 [src_1, liquidation_status из extracted_financials.json]",
+            "liquidation_costs": "10.0 млн ₽ — оценка расходов на завершение ликвидации (юридические, аудит, прочие обязательства) [judgement]",
+            "shares_ord": "1 140 300 шт. обыкновенных акций (LNZL) [src_4 MOEX, rates.csv]",
+            "shares_pref": "348 000 шт. привилегированных акций (LNZLP) [governance.json, share_classes]",
+            "shares_all": "1 488 300 шт. — полный уставный капитал (1 140 300 + 348 000)",
+            "pref_priority": "Привилегированные акции имеют приоритет при ликвидации [governance.json, share_classes, rights_note]",
+            "pref_split_basis": "Пропорциональная доля: 348 000 / 1 488 300 = 23.38% [judgement — устав не раскрыт]"
+          },
+          "steps": [
+            "1. Чистые средства к распределению: 168.3 − 10.0 = 158.3 млн ₽",
+            "2. Доля привилегированных (пропорциональная): 158.3 × (348 000 / 1 488 300) = 158.3 × 0.2338 = 37.0 млн ₽",
+            "3. Пул обыкновенных: 158.3 − 37.0 = 121.3 млн ₽",
+            "4. NAV на акцию LNZL: 121 300 000 ₽ / 1 140 300 = 106.4 ₽ → базовый сценарий 106 ₽",
+            "5. Консервативный (расходы 20 млн): (168.3−20)×(1−0.2338)/1 140 300×1 000 000 = 148.3×0.7662/1 140 300×1 000 000 = 99.6 ₽ ≈ 100 ₽",
+            "6. Оптимистичный (расходы 5 млн): (168.3−5)×(1−0.2338)/1 140 300×1 000 000 = 163.3×0.7662/1 140 300×1 000 000 = 109.7 ₽ ≈ 110 ₽",
+            "7. Рыночная цена 1387.73 ₽ / NAV base 106 ₽ = 13.1x — рынок торгуется с 1209% премией к ликвидационной стоимости"
+          ],
+          "caveats": [
+            "КРИТИЧЕСКОЕ ПРЕДУПРЕЖДЕНИЕ: рыночная цена ~1388 ₽ превышает ликвидационную стоимость (NAV базовый 106 ₽) примерно в 13 раз. Инвестор, покупающий по рыночной цене, рискует получить при ликвидации ~100–110 ₽ — убыток ~92%.",
+            "Расходы на ликвидацию (10 млн) — оценка (judgement); реальные расходы могут быть выше (до 30 млн) — NAV в этом случае 85–97 ₽ (см. матрицу чувствительности).",
+            "Распределение между LNZL и LNZLP принято пропорциональным (по числу акций). Устав может предусматривать иной порядок — существенная неопределённость. Риск: LNZLP получает больше, LNZL — меньше (при 30% преф-доле NAV LNZL = 91–100 ₽).",
+            "Кэш 168.3 млн (февраль 2026) — данные из extracted_financials.json; актуальность при отображении не гарантирована, сроки и размер финальных выплат неизвестны.",
+            "Торги приостановлены (статус B), ликвидность нулевая — выход из позиции только через ликвидационную квоту.",
+            "Это НЕ оценка действующего бизнеса. Это расчёт ожидаемой ликвидационной выплаты на акцию от остатка кэша.",
+            "Premия к NAV объясняется либо ожиданием скрытых активов (не подтверждено), либо спекулятивным удержанием позиции в расчёте на сюрприз — оба сценария не обоснованы данными."
+          ]
+        }
+      },
+      {
         "method": "DCF",
         "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": null
-        },
-        "tv_share_of_value_pct": null,
+        "horizon": null,
+        "key_assumptions": {},
         "status": "not_applicable",
-        "note": "Нет операционного денежного потока — DCF неприменим к ликвидируемой оболочке."
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Компания в ликвидации, операционного бизнеса нет. FCF будущих периодов отсутствует — нет производственных активов, выручки, операционного цикла. DCF неприменим."
+          ]
+        }
       },
       {
-        "method": "net_assets_per_share",
-        "fair_value_per_share": 43.69,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "basis": "equity_2024 / ordinary_shares"
-        },
-        "status": "ok"
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": null,
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Исторический P/E неприменим: нет операционной прибыли и операционного бизнеса. ЧП — доходы оболочки (проценты, разовые от продажи актива), не отражают способность генерировать устойчивую прибыль. Компания в ликвидации."
+          ]
+        }
       },
       {
-        "method": "cash_per_share",
-        "fair_value_per_share": 70.87,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "basis": "cash_2024 / ordinary_shares (верхняя граница)"
-        },
-        "status": "ok"
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": null,
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Исторический P/B неприменим: нет непрерывного бизнеса; балансовая стоимость стремительно сокращается через дивиденды и расходы ликвидации (с 23 275 млн в 2020 до 318 млн в 2024). Исторические уровни P/B нерелевантны."
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill"
+        "horizon": null,
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Нет релевантных peers: ликвидируемая денежная оболочка не сопоставима с действующими добывающими или иными компаниями по мультипликаторам."
+          ]
+        }
       },
       {
         "method": "CAPM",
         "fair_value_per_share": null,
         "horizon": "12m",
-        "key_assumptions": {
-          "ke": 23.6,
-          "beta": 1.0
-        },
+        "key_assumptions": {},
         "status": "not_applicable",
-        "note": "Цена не связана с рыночной доходностью — драйвер ликвидационные выплаты."
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "CAPM предполагает непрерывный рыночный риск и ожидаемую доходность как функцию бета. В ликвидации: бета неприменима (нет операционного бизнеса), торги приостановлены с 31.03.2025, ожидаемая выплата — фиксированная ликвидационная квота, а не рыночная доходность."
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": null,
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Регулярные дивиденды прекращены. Последняя выплата носила ликвидационный характер. Ожидаемая финальная ликвидационная выплата оценена методом liquidation_nav выше."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Применим единственный метод — ликвидационная стоимость (NAV). Все прочие методы не применимы: нет операционного бизнеса, компания в ликвидации. Расхождение методов не актуально.",
     "fair_value_range": {
-      "conservative": 167,
-      "base": 278,
-      "optimistic": 451,
-      "current_price": 1260.0,
-      "upside_downside_pct": -77.9
+      "conservative": 100.0,
+      "base": 106.0,
+      "optimistic": 110.0,
+      "range_note": "Коридор определён чувствительностью к расходам на ликвидацию (5–20 млн ₽) и доле привилегированных в ликвидационном пуле (20–30%). Полный диапазон с учётом пессимистичных расходов (30 млн) и максимальной доли преф: 85–115 ₽. Рыночная цена ~1388 ₽ торгуется с 13-кратной премией к NAV."
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "description": "Матрица чувствительности: расходы на ликвидацию × доля преф-пула. Значения — NAV на акцию LNZL (₽).",
+      "costs_grid": [
+        5,
+        10,
+        15,
+        20,
+        30
+      ],
+      "pref_split_grid": [
+        0.2,
+        0.2338,
+        0.3
+      ],
+      "pref_split_labels": [
+        "20% — минимальный приоритет преф",
+        "23.4% — пропорционально числу акций (базовый)",
+        "30% — расширенный приоритет преф"
+      ],
+      "matrix": [
+        [
+          115.0,
+          110.0,
+          100.0
+        ],
+        [
+          111.0,
+          106.0,
+          97.0
+        ],
+        [
+          108.0,
+          103.0,
+          94.0
+        ],
+        [
+          104.0,
+          100.0,
+          91.0
+        ],
+        [
+          97.0,
+          93.0,
+          85.0
+        ]
+      ],
+      "matrix_note": "Строки = расходы [5,10,15,20,30] млн ₽. Столбцы = доля преф-пула [20%, 23.4%, 30%]. Диапазон NAV LNZL: 85–115 ₽ при любых разумных предположениях."
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "Лензолото — годовая отчётность РСБУ/МСФО (Smart-Lab)",
-      "period": "2020-2024",
+      "type": "aggregator",
+      "title": "Smart-Lab — МСФО/РСБУ Лензолото 2020-2024",
+      "url": "https://smart-lab.ru/q/LNZL/f/y/",
       "reliability": "medium"
     },
     {
-      "id": "src_2",
-      "type": "aggregator",
-      "title": "iss.moex.com — параметры бумаги LNZL (ISSUESIZE 1 140 300, цена)",
-      "period": "2026",
-      "reliability": "high"
-    },
-    {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "Интерфакс — чистая прибыль РСБУ 2024 = 48,1 млн ₽",
-      "period": "2024",
+      "type": "media",
+      "title": "Интерфакс — ЧП РСБУ 2024 = 48.1 млн ₽",
+      "url": "https://www.interfax.ru/business/1014025",
       "reliability": "medium"
     },
     {
       "id": "src_4",
-      "type": "aggregator",
-      "title": "Банки.ру — цена LNZL 1260 ₽, P/E 31.3, ROE 15%",
-      "period": "2026",
-      "reliability": "medium"
+      "type": "moex",
+      "title": "MOEX ISS — параметры бумаги LNZL (ISSUESIZE 1 140 300)",
+      "url": "https://iss.moex.com",
+      "reliability": "high"
     },
     {
       "id": "src_5",
-      "type": "official_report",
-      "title": "backend/companies/LNZL/business_model.md",
-      "period": "2024",
+      "type": "media",
+      "title": "vc.ru — продажа ЗДК «Лензолото» Полюсу, спецдивиденд 2020",
+      "url": "https://vc.ru/invest/1865675-lenzoloto",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_6",
+      "type": "disclosure",
+      "title": "Решение о ликвидации 2024, делистинг СПБ Биржа 2026",
+      "url": "https://www.e-disclosure.ru",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_governance",
+      "type": "internal",
+      "title": "governance.json — структура акций, дивиденды, права классов",
+      "url": "local",
       "reliability": "high"
+    },
+    {
+      "id": "src_extracted",
+      "type": "internal",
+      "title": "extracted_financials.json — финансовые данные 2020-2024 + liquidation_status (cash_feb_2026)",
+      "url": "local",
+      "reliability": "medium"
     }
   ],
   "data_flags": [
-    "data_quality=low: нет загруженных PDF, данные только из веба, РСБУ и МСФО смешаны.",
-    "Аномалия 2024: кэш (514 млн) > капитал (317 млн) — рассогласование источников, требует ручной сверки по e-disclosure.",
-    "2019 и 2025 не раскрыты надёжно — null.",
-    "P/E 2020 (3.5) искажён разовой прибылью 6,4 млрд ₽ от продажи актива Полюсу — историческая медиана нерепрезентативна.",
-    "Расхождение мультипликаторов: банки.ру P/E 31.3 vs smart-lab 374 — разные базы прибыли/цены.",
-    "Торги приостановлены (статус B); делистинг с СПБ Биржи с мая 2026 в связи с ликвидацией.",
-    "Префы LNZLP (~348 тыс.) и распределение ликвидационной квоты обыкновенные/преф — вне расчёта, status pending."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "ПРОФИЛЬ ОБОЛОЧКА/ЛИКВИДАЦИЯ: Все методы оценки действующего бизнеса (DCF, P/E, EV/EBITDA, CAPM, peers) — not_applicable. Единственный релевантный метод — ликвидационная стоимость (NAV).",
+    "КРИТИЧЕСКИЙ РИСК: Рыночная цена ~1388 ₽ превышает NAV (100–110 ₽) примерно в 13 раз (премия ~1200%). Покупка по рыночной цене несёт риск убытка ~92% при реализации ликвидационной квоты.",
+    "ТОРГИ ПРИОСТАНОВЛЕНЫ с 31.03.2025 (статус B). Делистинг с СПБ Биржи с мая 2026. Ликвидность нулевая.",
+    "ДАННЫЕ 2021-2023 НЕПОЛНЫЕ: детальный баланс недоступен, только P&L (частично). Данные 2020 и 2024 наиболее полные.",
+    "ПРИБЫЛЬ 2022 АНОМАЛЬНА: ЧП 660 млн > Revenue 320 млн. Вероятно разовый доход от переоценки/реализации инвестиций. Точная природа не верифицирована — флаг unverified_one_off_2022.",
+    "РАСПРЕДЕЛЕНИЕ LNZL/LNZLP: Доля привилегированных в ликвидационной очереди принята пропорциональной (по числу акций). Устав может предусматривать иной порядок — существенная неопределённость.",
+    "CASH FEB 2026 = 168.3 МЛН: данные из extracted_financials.json (liquidation_status). Актуальность при отображении не гарантирована — сроки и размер финальных выплат могут изменяться.",
+    "АРИФМЕТИКА 2024: assets(527) = equity(318) + liab(209) = 527. Проверка пройдена.",
+    "АРИФМЕТИКА 2020: assets(23400) = equity(23275) + liab(107) = 23382. Расхождение 18 млн (0.08%) — в пределах ошибки округления.",
+    "NET_DEBT ОТРИЦАТЕЛЬНЫЙ (кубышка): 2024 net_debt = −514 млн. EV = кап(1582 млн) − кубышка(514 млн) = 1068 млн. Кэш не задвоен в расчёте NAV.",
+    "BVPS 2024 = 278.87 ₽ (318 000 000 ₽ / 1 140 300 акций). P/B текущий = 4.98x — нерелевантен для ликвидации.",
+    "SHARES: обыкновенных 1 140 300 (LNZL) + привилегированных 348 000 (LNZLP) = 1 488 300 всего. NAV рассчитан только для LNZL (обыкновенных)."
+  ]
 }

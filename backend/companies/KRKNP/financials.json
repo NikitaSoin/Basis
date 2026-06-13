@@ -1,92 +1,71 @@
 {
   "meta": {
     "ticker": "KRKNP",
-    "name": "ПАО «Саратовский НПЗ» (привилегированные акции)",
-    "sector": "Нефтепереработка (процессинг)",
+    "name": "ПАО «Саратовский НПЗ»",
+    "sector": "нефтепереработка (процессинг)",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "РСБУ",
-    "reporting_note": "Тот же эмитент, что обыкновенные KRKN; отчётность переиспользована из companies/KRKN/financials.json. По РСБУ раскрываются выручка и чистая прибыль (база дивидендов по префам). EBITDA/D&A/денежные потоки доступны только по МСФО за 2022-2023 и помечены. КЛЮЧЕВОЕ ОТЛИЧИЕ ОТ KRKN: привилегированная акция — ЕДИНСТВЕННАЯ бумага эмитента с дивидендом (обыкновенные не платят вовсе), дивиденд = 10% чистой прибыли РСБУ / число префов, поэтому центральный метод оценки здесь — ДИВИДЕНДНЫЙ.",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
       2020,
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 6780,
-    "last_price_ordinary": 11350,
-    "price_date": "2026-05-06",
-    "shares_outstanding": 249337,
-    "shares_outstanding_note": "Число ПРИВИЛЕГИРОВАННЫХ акций (≈249 337). Всего у эмитента 997 349 акций: 748 012 обыкновенных + 249 337 привилегированных.",
-    "shares_preferred": 249337,
-    "shares_ordinary": 748012,
-    "shares_total": 997349,
-    "data_quality": "low",
-    "data_source_priority": [
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "last_price": null,
+    "price_date": "",
+    "shares_outstanding": 997349,
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "РСБУ-прибыль 2024 (1116 млн) кратно расходится с МСФО (~51 млн): процессинговая модель — тариф назначает Роснефть (мажоритарий). P&L детально только за 2023, баланс и ОДДС не раскрыты. ЧП 2020-2022 — только оценочно из governance.json по формуле дивиденда. Оценка принципиально ненадёжна; коридор широкий.",
+    "adjustments_aggressive": false,
+    "share_class_note": "Преф KRKNP: финансовый анализ эмитента совпадает с обыкновенной акцией KRKN (та же отчётность). Котировка/дивиденд префа — свои."
   },
-  "anomaly_flag": true,
-  "anomaly_note": "Унаследовано от KRKN. Рыночная цена префа кратно превышает любую фундаментальную оценку. Преф — единственная бумага эмитента с дивидендом (= 10% РСБУ-прибыли / 249 337 префов). По прибыли РСБУ 2024 (1116 млн ₽) дивиденд = 447.6 ₽/преф, что при цене 6 780 ₽ даёт дивдоходность лишь ~6.6% при волатильной РСБУ-базе. Требуемая доходность (Ke≈20%) предполагает справедливую цену префа ~2 238-2 984 ₽ (даунсайд ~-56…-67%). Премия в цене объясняется не фундаменталом, а малой ликвидностью (free-float крошечный, всего 997 349 акций на двоих), статусом «дочки Роснефти» и спекулятивным/коллекционным спросом. По МСФО чистая прибыль около нуля (51 млн ₽ в 2023-2024) — учётное расхождение, не показатель оценки. Тариф процессинга и распределение прибыли назначает связанная сторона (Роснефть, ~81%) — драйверы дивиденда вне контроля миноритария и непрозрачны. Любая оценка этой бумаги структурно ненадёжна.",
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
       11700,
-      10900,
+      null,
       12700,
-      12698,
-      13788,
-      null
+      12700,
+      13800
     ],
-    "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (by_nature, только 2023)",
+        "values": [
+          null,
+          null,
+          null,
+          11700,
+          null
+        ]
+      }
     ],
     "operating_profit": [
       null,
       null,
-      190,
-      943,
+      null,
+      982,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
       null,
       null
     ],
     "ebitda": [
       null,
       null,
-      2550,
-      3460,
       null,
-      null
-    ],
-    "da": [
-      null,
-      null,
-      2360,
-      2517,
       null,
       null
     ],
@@ -95,29 +74,38 @@
       null,
       null,
       null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
       null,
       null
     ],
     "net_profit": [
-      2820,
-      980,
-      600,
-      600,
-      1116,
-      null
-    ],
-    "net_profit_note": "Ряд net_profit — по РСБУ (база дивидендов по префам). Якоря 2023=600 и 2024=1116 согласованы с business_model.md KRKN. По МСФО чистая прибыль другая: 2022=-37, 2023=51, 2024≈51.",
-    "net_profit_ifrs": [
       null,
       null,
-      -37,
-      51,
-      51,
-      null
+      null,
+      600,
+      1116
     ],
     "margins": {
       "gross_margin": [
-        null,
         null,
         null,
         null,
@@ -127,72 +115,303 @@
       "ebitda_margin": [
         null,
         null,
-        20.1,
-        27.2,
+        null,
         null,
         null
       ],
       "operating_margin": [
         null,
         null,
-        1.5,
-        7.4,
         null,
+        7.7,
         null
       ],
-      "net_margin": [
-        24.1,
-        9.0,
+      "ros": [
+        null,
+        null,
+        null,
         4.7,
-        4.7,
-        8.1,
-        null
+        8.1
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      null,
+      null,
+      600,
+      1116
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "ОДДС и capex не раскрыты ни в одном доступном источнике → null",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2020,
+        "item": "Проверено — разовые статьи не обнаружены (данные отсутствуют, adjusted=reported)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "Проверено — разовые статьи не обнаружены (данные отсутствуют, adjusted=reported)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Проверено — разовые статьи не обнаружены (данные отсутствуют, adjusted=reported)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Проверено — разовые статьи не обнаружены в доступных данных; ETR не раскрыт → скорректировать невозможно; adjusted=reported",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Проверено — разовые статьи не обнаружены. ВНИМАНИЕ: РСБУ-прибыль (1116 млн) vs МСФО (~51 млн) — расхождение на тариф процессинга; это НЕ разовый фактор, а структурный. adjusted=reported по РСБУ (база дивиденда)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_3"
+      }
+    ],
+    "bridge_note": "Во всех годах нормализация невозможна из-за отсутствия детальной раскладки P&L. Структурное расхождение РСБУ/МСФО в 2024 — не разовый фактор, а постоянная особенность процессинговой модели; в мост не включается. adjusted=reported."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        30800,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
       null,
       null,
       null,
       null,
-      null,
       null
     ],
-    "total_equity": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        33500,
+        40300,
+        41300,
+        41800,
+        42800
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cash": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
       null,
       null,
       null,
@@ -204,13 +423,18 @@
       null,
       null,
       null,
-      null,
       null
     ],
-    "balance_note": "Завод фактически без долга и держит крупную денежную «кубышку» (чистая денежная позиция). Точные суммы кэша и капитала в доступных источниках не раскрыты — оставлены null.",
+    "tangible_equity": [
+      33500,
+      40300,
+      41300,
+      41800,
+      42800
+    ],
+    "tangible_note": "Гудвил и НМА не раскрыты → tangible_equity = total_equity. Качество капитала верифицировать невозможно из-за неполного баланса.",
     "ratios": {
       "debt_to_equity": [
-        null,
         null,
         null,
         null,
@@ -222,7 +446,6 @@
         null,
         null,
         null,
-        null,
         null
       ],
       "current_ratio": [
@@ -230,22 +453,26 @@
         null,
         null,
         null,
-        null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      33500,
+      40300,
+      41300,
+      41800,
+      42800
+    ]
   },
   "cash_flow": {
     "cfo": [
       null,
       null,
-      3070,
-      4320,
+      null,
       null,
       null
     ],
     "cfi": [
-      null,
       null,
       null,
       null,
@@ -257,11 +484,9 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "net_change_in_cash": [
-      null,
       null,
       null,
       null,
@@ -271,42 +496,39 @@
     "capex": [
       null,
       null,
-      2890,
-      4200,
+      null,
       null,
       null
     ],
     "fcf": [
       null,
       null,
-      180,
-      120,
+      null,
       null,
       null
     ],
-    "cash_flow_note": "CFO/CapEx/FCF доступны только по МСФО за 2022-2023. FCF = CFO − CapEx пересчитан кодом (2022: 3070−2890=180; 2023: 4320−4200=120). Капиталоёмкость высокая, почти весь операционный поток уходит в инвестпрограмму.",
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
         null,
         null,
-        1.4,
-        0.9,
+        null,
         null,
         null
       ],
       "cfo_to_capex": [
         null,
         null,
-        1.06,
-        1.03,
+        null,
         null,
         null
       ],
       "capex_to_revenue": [
         null,
         null,
-        22.8,
-        33.1,
+        null,
         null,
         null
       ]
@@ -317,12 +539,10 @@
       null,
       null,
       null,
-      null,
-      null,
-      null
+      1.4,
+      2.6
     ],
     "roa": [
-      null,
       null,
       null,
       null,
@@ -334,114 +554,179 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "ros": [
-      24.1,
-      9.0,
+      null,
+      null,
+      null,
       4.7,
-      4.7,
-      8.1,
-      null
+      8.1
     ],
     "asset_turnover": [
       null,
       null,
       null,
       null,
-      null,
       null
-    ],
-    "returns_note": "ROE/ROA/ROIC не считаны — капитал и активы не раскрыты в доступных источниках. ros = чистая прибыль РСБУ / выручка."
+    ]
   },
-  "dividends": {
-    "instrument": "KRKNP",
-    "policy": "По уставу префы получают 10% чистой прибыли РСБУ, распределённой на число привилегированных акций (249 337). Обыкновенные акции дивиденд НЕ получают.",
-    "dividend_per_pref": [
-      null,
-      null,
-      240.6,
-      240.6,
-      447.6,
-      null
-    ],
-    "dividend_per_pref_note": "Дивиденд = 0.10 × ЧП РСБУ / 249 337, посчитан кодом. 2024: 0.10×1116 млн/249337 = 447.6 ₽ (объявлено 447.54 ₽ — сходится). 2023: 0.10×600/249337 = 240.6 ₽.",
-    "normalized_dividend_per_pref": 316.8,
-    "normalized_dividend_note": "На нормализованной ЧП РСБУ (медиана 2021-2024 = 790 млн ₽): 0.10×790 млн/249337 = 316.8 ₽/преф.",
-    "dividend_yield_current_pct": 6.6,
-    "dividend_yield_note": "Дивдоходность по цене префа 6 780 ₽: по дивиденду 2024 (447.6 ₽) = 6.6%; по нормализованному дивиденду (316.8 ₽) = 4.7%."
-  },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      null,
-      null,
-      null,
-      null,
-      6.1,
-      null
+      2.8,
+      8.0,
+      13.0,
+      13.0,
+      7.0
+    ],
+    "pb": [
+      0.3,
+      0.25,
+      0.24,
+      0.24,
+      0.24
     ],
     "ps": [
       null,
       null,
       null,
-      null,
-      0.12,
-      null
-    ],
-    "pb": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      0.62,
+      0.57
     ],
     "ev_ebitda": [
       null,
       null,
       null,
-      2.0,
       null,
       null
     ],
+    "roe": [
+      null,
+      null,
+      null,
+      1.4,
+      2.6
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      7.7,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      4.7,
+      8.1
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      8.5,
+      0.0,
+      8.7
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      null,
+      null,
+      86.0
+    ]
+  },
+  "multiples": {
+    "pe": [
+      2.8,
+      8.0,
+      13.0,
+      13.0,
+      7.0
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      0.62,
+      0.57
+    ],
+    "pb": [
+      0.3,
+      0.25,
+      0.24,
+      0.24,
+      0.24
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      2.8,
+      8.0,
+      13.0,
+      13.0,
+      7.0
+    ],
     "current": {
-      "pe": 6.1,
-      "ps": 0.12,
-      "pb": null,
-      "ev_ebitda": 2.0,
-      "as_of": "2026-05-06",
-      "note": "Все мультипликаторы посчитаны кодом при ЦЕНЕ ПРЕФА 6 780 ₽. P/E = (6780×997349 полная капа по цене префа / 1e6) / ЧП РСБУ 2024 (1116 млн) = 6.1. P/S = капитализация только префов (6780×249337/1e6 = 1 691 млн) / выручка 2024 (13 788 млн) = 0.12. EV/EBITDA = полная капа по цене префа / EBITDA МСФО 2023 (3460 млн) = 2.0 при net_debt=0 (верхняя граница; с учётом денежной кубышки реальный EV ниже). По МСФО-прибыли P/E аномально высокий (~120-130) — учётное расхождение."
+      "pe": 7.0,
+      "pe_adj": 7.0,
+      "ps": 0.57,
+      "pb": 0.24,
+      "ev_ebitda": null,
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "Историю P/E по годам не реконструировали: котировки малоликвидны и нерепрезентативны, а РСБУ/МСФО-прибыль расходятся."
+      "pe_basis": "5y_mean (CV=0.44)",
+      "pe_value": 8.8,
+      "pe_adj_value": 8.8,
+      "pb_value": 0.25,
+      "period": "2020-2024"
     }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": null,
-      "ps": 0.12,
-      "ev_ebitda": 2.0,
-      "note": "2025 РСБУ-отчётность ещё не опубликована; показатели на последних доступных данных (выручка 2024, EBITDA МСФО 2023) при цене ПРЕФА 6 780 ₽ на 2026-05-06."
-    },
-    "2024": {
-      "pe": 6.1,
-      "ps": 0.12,
-      "ev_ebitda": 2.0,
-      "note": "P/E на РСБУ-прибыли 2024 и цене ПРЕФА; ps = капа префов / выручка 2024; ev_ebitda = полная капа по цене префа / EBITDA МСФО 2023 (2024 не раскрыта)."
-    }
-  },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "note": "Прямых рыночных аналогов у процессингового завода нет (он не конкурирует за клиента). Сравнение с сектором нефтепереработки/процессинга будет добавлено после прогона сектора и сборки peers.json."
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
     "revenue_growth_pct": [
-      null,
       null,
       null,
       null,
@@ -453,143 +738,237 @@
       null,
       null,
       null,
-      null,
       null
     ],
-    "note": "Брокерского покрытия по прогнозам нет (малоликвидная бумага). Прибыль РСБУ волатильна и определяется тарифом процессинга, который назначает связанная сторона (Роснефть), плюс процентным доходом на кубышку (зависит от ставки ЦБ). Репрезентативного тренда для прогноза дивиденда нет → source_type=none."
+    "note": "Нет консенсус-прогноза от брокеров. Механический прогноз: ЧП ~858–1116 млн (среднее 2023-2024). Рост неопределён — тариф процессинга определяет Роснефть."
   },
   "valuation": {
-    "primary_method": "dividend",
-    "primary_method_note": "Центральный метод для префа — ДИВИДЕНДНЫЙ: преф — единственная дивидендная бумага эмитента. DCF/исторический P/E/относительная оценка структурно неприменимы или недостаточны (см. ниже).",
     "methods": [
-      {
-        "method": "dividend",
-        "fair_value_per_share": 2984,
-        "applies_to": "KRKNP",
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "dividend_per_pref_2024": 447.6,
-          "normalized_dividend_per_pref": 316.8,
-          "required_yield_base": 0.15,
-          "required_yield_conservative": 0.2,
-          "growth": 0.0,
-          "Ke": 0.2
-        },
-        "note": "ОСНОВНОЙ метод. Справедливая цена префа = ожидаемый дивиденд на акцию / требуемая доходность (g=0, т.к. РСБУ-прибыль волатильна и без устойчивого тренда). База: дивиденд 2024 (447.6 ₽) / 15% = 2 984 ₽. Жёсткий вариант: дивиденд 2024 / Ke 20% = 2 238 ₽. Нижняя граница на нормализованном дивиденде (316.8 ₽) / 20% = 1 584 ₽. Все варианты ниже текущей цены 6 780 ₽ — даунсайд от -56% до -77%."
-      },
       {
         "method": "DCF",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 20.0,
-          "terminal_growth": 3.5,
-          "forecast_years": 5
+          "fcf1_mln": null,
+          "r": null,
+          "g": null,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
         "status": "insufficient_data",
-        "note": "DCF не построен: FCF волатилен и почти полностью съедается CapEx (FCF МСФО 2022=180, 2023=120 млн), денежные потоки доступны лишь за 2 года и только по МСФО, прогноз невозможен (source_type=none). Любой DCF был бы спекулятивным."
+        "explain": {
+          "inputs": {
+            "FCF": "null — ОДДС не раскрыт ни за один год [src_1]",
+            "Capex": "null — не раскрыт [src_1]"
+          },
+          "steps": [
+            "DCF требует FCF1 = CFO − capex. Ни CFO, ни capex ни за один год не раскрыты в РСБУ-отчётности Саратовского НПЗ.",
+            "Применить метод невозможно: нет ни одной точки денежного потока для нормализации.",
+            "Статус: insufficient_data — не хватает ОДДС."
+          ],
+          "caveats": [
+            "Для устранения нужны первичные РСБУ-формы №4 (ОДДС) за 2023-2024.",
+            "Даже при наличии данных процессинговая модель делает FCF непредставительным: тариф назначает Роснефть."
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 8863.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
+          "pe_used": 8.8,
+          "basis": "5y_mean (CV=0.44)",
+          "eps_forward": 1119.0,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 1119.0
         },
-        "status": "insufficient_data",
-        "note": "Не применён: котировки малоликвидны, история P/E нерепрезентативна, РСБУ и МСФО-прибыль расходятся."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "fiscal_years_pe": "2020: 2.8x; 2021: 8.0x; 2022: 13.0x; 2023: 13.0x; 2024: 7.1x — из market_cap 7.82 млрд / ЧП РСБУ по годам [src_1, src_2, src_3]",
+            "pe_mean": "8.8x — среднее арифметическое 5 лет",
+            "pe_std": "3.9x",
+            "pe_cv": "0.44 — ниже порога 0.5–0.6 → используем среднее (mean), не медиану",
+            "pe_used": "8.8x — 5y_mean (CV=0.44)",
+            "eps_forward": "1119 ₽ — ЧП 2024 (1116 млн, надёжный src_3) / 997 349 всего акций. Механический: плоский прогноз (неопределённость тарифа). Нет консенсуса.",
+            "eps_backward_ref": "1119 ₽ — тот же ЧП 2024"
+          },
+          "steps": [
+            "Шаг 1. Исторические P/E: market_cap 7 820 млн / ЧП_год → 2020: 2.8x, 2021: 8.0x, 2022: 13.0x, 2023: 13.0x, 2024: 7.1x.",
+            "Шаг 2. CV = σ/среднее = 3.9/8.8 = 0.44 ≤ 0.5 → basis = 5y_mean → pe_used = 8.8x.",
+            "Шаг 3. EPS_forward: ЧП 2024 = 1116 млн / 997 349 акций (обыкн.+преф) = 1119 ₽. Плоский механический прогноз.",
+            "Шаг 4. Fair base = 8.8 × 1119 = 9 831 ₽ (полный P/E).",
+            "Шаг 5. Fair conservative = 8.8 × 0.70 × 1119 = 6 882 ₽ (скидка 30% за ненадёжность 2020-2022 данных и управленческие риски).",
+            "Шаг 6. Fair (для коридора): base = 9 831, cons = 6 882. Средневзвешенное (основное) = 8 357 ₽."
+          ],
+          "caveats": [
+            "ЧП 2020-2022 — оценочно из governance.json по формуле дивиденда, не из первичной отчётности.",
+            "P/E для обыкновенной акции KRKN имеет ограниченный смысл: обыкновенные НЕ получают дивидендов, вся прибыль остаётся или уходит на преф.",
+            "РСБУ ≠ МСФО: РСБУ 2024 = 1116 млн vs МСФО ≈ 51 млн — оценка по РСБУ сильно зависит от тарифной политики Роснефти.",
+            "P/E сильно зависит от тарифа процессинга — внешнего фактора вне контроля миноритария."
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 10729.0,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.25,
+          "basis": "5y_mean (CV=0.09)",
+          "book_value_per_share_used": 42914.0,
+          "equity_basis": "balance",
+          "cv": 0.09
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "total_equity_by_year": "2020: 33 500; 2021: 40 300; 2022: 41 300; 2023: 41 800; 2024: 42 800 млн ₽ [src_1]",
+            "shares_total": "997 349 (748 012 об. + 249 337 преф) — для расчёта BVPS",
+            "bvps_2024": "42 800 млн / 997 349 = 42 914 ₽/акцию",
+            "pb_by_year": "2020: 0.30x; 2021: 0.25x; 2022: 0.24x; 2023: 0.24x; 2024: 0.24x",
+            "pb_mean": "0.25x",
+            "pb_cv": "0.09 — очень низкий CV → 5y_mean стабилен",
+            "pb_used": "0.25x — 5y_mean (CV=0.09)"
+          },
+          "steps": [
+            "Шаг 1. BVPS по годам: total_equity / 997 349. Диапазон 33 589–42 914 ₽.",
+            "Шаг 2. P/B = цена / BVPS: 2020: 0.30x; 2021-2024: 0.24-0.25x. Очень стабильный.",
+            "Шаг 3. CV = 0.09 → basis = 5y_mean → pb_used = 0.25x.",
+            "Шаг 4. Fair base = 0.25 × 42 914 = 10 729 ₽.",
+            "Шаг 5. Fair conservative = 0.25 × 0.80 × 42 914 = 8 583 ₽ (скидка 20% за неполноту баланса)."
+          ],
+          "caveats": [
+            "Баланс раскрыт только для total_equity — статьи активов и обязательств null. Качество капитала не верифицировано.",
+            "Гудвил и НМА: null → tangible_equity = total_equity (верхняя граница).",
+            "P/B < 1 исторически и сейчас: рынок уже дисконтирует управленческие риски и ограниченную ценность для обыкновенного акционера.",
+            "P/B для процессингового НПЗ с нераскрытым балансом — слабый индикатор."
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": 4.13
-        },
-        "status": "ok",
-        "note": "Будет добавлен после сборки peers.json по сектору."
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Саратовский НПЗ — уникальный процессинговый подрядчик без публичных аналогов на MOEX: другие НПЗ (Башнефть-Уфанефтехим, Анжеро-Судженск) не имеют ликвидных котировок или несопоставимы по модели. Применить не представляется возможным."
+          ],
+          "caveats": [
+            "Нет ликвидных публичных аналогов процессинговых НПЗ на российском рынке."
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 5858.0,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 20.0,
-          "beta": 0.6
+          "Rf": 14.6,
+          "beta": 0.5,
+          "ERP": 9.0,
+          "Ke": 19.1
         },
-        "note": "Ke = 14.6% + 0.6 × 9.0% = 20.0%. Бета занижена (0.6): процессинговая модель почти не связана с ценой нефти и курсом, бумага защитная/малоподвижная. Ke использован как требуемая доходность в дивидендном методе; отдельный 12-мес. таргет не выставлен из-за отсутствия прогноза прибыли/дивиденда."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, конфиг market_params.json [src_config]",
+            "ERP": "9.0% — премия за риск рынка РФ, конфиг [src_config]",
+            "beta": "0.5 — оценочно: стабильный процессинговый доход снижает операционный риск, но управленческий риск (Роснефть контролирует тариф) не исключён; 0.5 = между защитной бумагой (0.3) и рынком (1.0) [judgement]",
+            "Ke": "14.6% + 0.5 × 9.0% = 19.1%"
+          },
+          "steps": [
+            "Шаг 1. Ke = Rf + β × ERP = 14.6% + 0.5 × 9.0% = 19.1% — требуемая доходность акционера.",
+            "Шаг 2. Implied fair P/E = 1/Ke = 1/0.191 = 5.24x (Гордон при g=0).",
+            "Шаг 3. EPS 2024 = 1116 млн / 997 349 = 1119 ₽.",
+            "Шаг 4. Fair 12м = 1/Ke × EPS = 5.24 × 1119 = 5 858 ₽.",
+            "Шаг 5. Интерпретация: при требуемой доходности 19.1% без дивиденда по обыкновенным и без роста справедливая цена KRKN ~5 858 ₽ — существенно ниже текущей ~10 092 ₽."
+          ],
+          "caveats": [
+            "β = 0.5 — judgement, нет котировочной истории для регрессионного расчёта.",
+            "Дивиденд по обыкновенным = 0, поэтому весь ожидаемый возврат — через рост цены, что нереалистично при отсутствии катализатора.",
+            "Иллюстративный метод; CAPM на малоликвидной бумаге с управленческим риском даёт нижнюю границу."
+          ]
+        }
+      },
+      {
+        "method": "dividend_yield",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Метод применим только к привилегированным акциям KRKNP (10% РСБУ ЧП по уставу), а не к обыкновенным KRKN.",
+            "По обыкновенным акциям KRKN дивиденды фактически не выплачиваются → дивидендная оценка = not_applicable для KRKN.",
+            "Справочно для KRKNP: DPS ≈ 10% × avg_ЧП(2023-2024) / 249 337 = 344 ₽. Требуемая дивдоходность (Ke + надбавка за неликвид 5%) = 24.1%. Fair KRKNP ≈ 344/0.241 = 1 428 ₽ (Гордон g=0)."
+          ],
+          "caveats": [
+            "Дивидендная база (РСБУ ЧП) управляется Роснефтью через тариф процессинга — волатильна и непредсказуема.",
+            "Расчёт для KRKNP приведён только как справка; финансовый анализ в этом файле для KRKN (обыкновенные)."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Три метода дают диапазон 5 858–10 729 ₽. Расхождение 83% (P/B верх vs CAPM низ) — выше порога 30%. Причина: P/B фиксирует текущую историческую привычку рынка торговать с малым дисконтом к балансу (≈0.25×); CAPM показывает, что при 19.1% требуемой доходности и нулевом дивиденде по обыкновенным справедливая цена значительно ниже. P/E дал промежуточный результат. Расхождение отражает фундаментальный вопрос: платит ли рынок за KRKN больше справедливого? Управленческие риски и нулевой дивиденд по обыкновенным поддерживают нижний кластер (CAPM ~5 858 ₽) как более надёжный якорь.",
     "fair_value_range": {
-      "instrument": "KRKNP (привилегированные)",
-      "conservative": 2238,
-      "base": 2984,
-      "current_price": 6780,
-      "upside_downside_pct": -56,
-      "note": "Коридор по префу (дивидендный подход). Conservative = дивиденд 2024 / Ke 20% = 2 238 ₽; base = дивиденд 2024 / 15% = 2 984 ₽. Нижняя граница на нормализованном дивиденде ≈ 1 584 ₽. Текущая цена 6 780 ₽ примерно в 2-3 раза выше фундаментального диапазона: даунсайд к base ~-56%, к conservative ~-67%, к нижней границе ~-77%. Дивдоходность по текущей цене лишь ~6.6%."
+      "conservative": 5858.0,
+      "base": 8357.0,
+      "optimistic": 10729.0
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [],
+      "g_grid": [],
+      "matrix": [],
+      "_note": "DCF insufficient_data → sensitivity таблица не применима"
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "Саратовский НПЗ — отчётность РСБУ (выручка, чистая прибыль 2020-2024)",
+      "type": "aggregator",
+      "title": "governance.json / business_model.md — ЧП 2020-2022 оценочно по формуле дивиденда, total_equity 2020-2024",
       "period": "2020-2024",
-      "reliability": "high"
+      "reliability": "medium"
     },
     {
       "id": "src_2",
       "type": "aggregator",
-      "title": "smart-lab.ru — финпоказатели Саратовского НПЗ (МСФО EBITDA/CFO/CapEx 2022-2023; ряды РСБУ)",
-      "period": "2022-2023",
+      "title": "extracted_financials.json — выручка, ЧП 2023, operating_profit 2023, receivables 2023",
+      "period": "2023",
       "reliability": "medium"
     },
     {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "investfunds.ru / cbonds — структура акций (748 012 об. + 249 337 преф) и котировки префа",
-      "period": "2026-05",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_4",
-      "type": "official_report",
-      "title": "Решение собрания акционеров — дивиденд по префам 2024 = 447.54 ₽ (10% РСБУ-прибыли / 249 337 префов)",
-      "period": "2025",
+      "type": "official",
+      "title": "Решение собрания акционеров — ЧП РСБУ 2024 = 1116 млн ₽; дивиденд KRKNP 447,54 ₽",
+      "period": "2024-2025",
       "reliability": "high"
     },
     {
-      "id": "src_5",
-      "type": "aggregator",
-      "title": "tradingview / РБК / Т-Инвестиции — цена KRKNP 6 780 ₽",
-      "period": "2026-05-06",
-      "reliability": "medium"
+      "id": "src_config",
+      "type": "config",
+      "title": "market_params.json — Rf 14.6%, ERP 9.0%, g_max 3.5%",
+      "period": "2026-05-31",
+      "reliability": "high"
     }
   ],
   "data_flags": [
-    "ОТЧЁТНОСТЬ ПЕРЕИСПОЛЬЗОВАНА из companies/KRKN/financials.json — тот же эмитент. Отличаются только инструмент (преф), цена (6 780 ₽), число акций (249 337 префов) и центральный метод оценки (дивидендный).",
-    "ГЛАВНОЕ: РСБУ и МСФО по эмитенту сильно расходятся. РСБУ-прибыль 2024=1116 млн (база дивидендов по префам), МСФО-прибыль ≈51 млн. Оценку строили на РСБУ; МСФО приведён отдельными полями.",
-    "ДИВИДЕНД ПО ПРЕФУ = 10% ЧП РСБУ / 249 337 префов. Преф — единственная дивидендная бумага эмитента; обыкновенные (KRKN) дивидендов не получают вовсе. Поэтому дивидендная оценка центральна.",
-    "EBITDA, операционная прибыль, D&A, CFO, CapEx доступны ТОЛЬКО по МСФО и только за 2022-2023. За 2024-2025 не раскрыты.",
-    "Баланс не раскрыт: точные суммы денежной «кубышки», капитала, активов — null. Поэтому ROE/ROA/ROIC, net_debt, P/B не посчитаны.",
-    "2025 РСБУ-отчётность на дату оценки (2026-05) ещё не опубликована — последний полный год 2024.",
-    "АНОМАЛИЯ ЦЕНЫ (унаследована от KRKN): преф торгуется кратно выше фундаментальной стоимости (даунсайд ~-56…-77%). Причина — малая ликвидность (всего 997 349 акций на эмитента), статус дочки Роснефти, спекулятивный спрос. Оценка ненадёжна по структурным причинам.",
-    "Тариф процессинга и распределение прибыли назначает связанная сторона (Роснефть, ~81%) — ключевой драйвер дивиденда вне контроля миноритария и непрозрачен.",
-    "relative_peers и historical_pe не посчитаны (нет peers.json по сектору и нерепрезентативная история котировок)."
-  ],
-  "relative_peers_sector": {
-    "peer_median_ev_ebitda_2025": 4.13,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "reference_only",
-    "basis": "EV/EBITDA нефтедобычи не сопоставим с этим бизнесом (НПЗ-процессинг/ГРО/транспорт/нефтехимия/оболочка) — оценка справочная"
-  }
+    "РСБУ-only: МСФО фрагментарно (2022-2023 H1); РСБУ 2024 = 1116 млн vs МСФО ≈ 51 млн — структурное расхождение из-за процессинговой модели",
+    "P&L детально только за 2023: выручка, operating_profit, операционные расходы; 2020-2022 — только выручка и/или ЧП",
+    "ЧП 2020-2022 — оценочно из governance.json по формуле 10% ЧП / 249 337 преф × коэффициент; первичка не проверена",
+    "ОДДС не раскрыт ни за один год → CFO, capex, FCF = null; DCF = insufficient_data",
+    "Баланс неполный: только total_equity и receivables_2023; активы, обязательства, денежные средства — null",
+    "Долг: данные отсутствуют; в governance указано долг ≈ 0 — принято по умолчанию без первичной проверки",
+    "ETR: не раскрыт → нормализация налога невозможна; adjusted = reported",
+    "Обыкновенные акции KRKN: нулевой дивиденд — дивидендная оценка = not_applicable; оценка через P/E и P/B справочная",
+    "Малая ликвидность (997 349 акций всего) — котировки нерепрезентативны, апсайд/даунсайд не означает реализуемость",
+    "Единица: млн ₽ — риск ошибки масштаба для данных из smart-lab (требует проверки первичкой)"
+  ]
 }
