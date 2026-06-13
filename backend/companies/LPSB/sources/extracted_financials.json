@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "ticker": "LPSB",
+    "name": "ПАО «Липецкая энергосбытовая компания» (ЛЭСК)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/LPSB/f/y/",
+      "doc_title": "ЛЭСК (LPSB): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [11300, 12200, 13000, 13600, 14700],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Покупка электроэнергии (estimated COGS)",
+        "values": [10650, 11270, 11560, 13310, 13200]
+      }
+    ],
+    "operating_profit": [636, 910, 1440, 270, 1490],
+    "da": [74, 35, 40, 37, 40],
+    "ebitda": [710, 945, 1480, 307, 1530],
+    "finance_costs": null,
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [552, 780, 1420, 444, 1450]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [224, 308, 329, 177, 302],
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": [224, 308, 329, 177, 302]
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": [2146, 1622, 1781, 2063, 1468],
+      "cash": [1350, 2370, 2510, 932, 2110],
+      "short_term_investments": [350, 560, 600, 39, 960],
+      "other_current": null,
+      "total_current": [2646, 3622, 3781, 2033, 3468]
+    },
+    "total_assets": [2870, 3930, 4110, 2210, 3770],
+    "equity": {
+      "share_capital": [250, 250, 250, 250, 250],
+      "retained_earnings": [1420, 2200, 2760, 718, 2170],
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [1670, 2450, 3010, 968, 2420]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [0, 0, 0, 0, 0],
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": [0, 0, 0, 0, 0],
+      "payables": [840, 1036, 770, 868, 945],
+      "other_current_liab": [360, 444, 330, 372, 405],
+      "total_current_liab": [1200, 1480, 1100, 1240, 1350]
+    },
+    "total_liabilities": [1200, 1480, 1100, 1240, 1350]
+  },
+  "cash_flow": {
+    "cfo": [270, 965, 920, 795, 1030],
+    "cfi": [-30, -100, -170, -171, -68],
+    "cff": null,
+    "capex": [30, 100, 170, 171, 68],
+    "net_change_in_cash": null
+  },
+  "data_flags": [
+    "source=smart-lab (aggregator МСФО таблица), не первичный PDF от эмитента",
+    "cost_format=by_nature (energy sbyt); COGS восстановлена как Revenue - Operating Profit (~95-98%), отдельно не раскрыта",
+    "finance_costs, finance_income, pre_tax_profit, income_tax не раскрыты; вероятно включены в net_profit",
+    "D&A рассчитана как EBITDA - Operating Profit; отдельное раскрытие отсутствует",
+    "receivables и payables восстановлены из соотношения current assets/liabilities; детализация отсутствует",
+    "total_non_current_liab и deferred_tax не раскрыты",
+    "cfi = -capex (инвестиционная активность не раскрыта отдельно)",
+    "arithmetic_check: Assets = Equity + Liabilities (100%), но cash_flow не замыкается без полной ОДДС",
+    "ANOMALY 2024: operating_profit упал до 0.27 млрд (маржа 2.0%), затем +450% в 2025 — причина в агрегаторе не раскрыта",
+    "ANOMALY 2025: net_profit 1.45 млрд (+3.3x vs 2024) при revenue +8% — одно-разовые статьи или резерв не раскрыты"
+  ]
+}

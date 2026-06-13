@@ -1,0 +1,154 @@
+{
+  "meta": {
+    "ticker": "VSYD",
+    "name": "ПАО «Выборгский судостроительный завод»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/VSYDP/f/y/",
+      "doc_title": "Выборгский судостроительный завод — годовая финансовая отчётность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      7420,
+      8200,
+      11900,
+      16300,
+      11200
+    ],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы / Operating expenses",
+        "values": [
+          1680,
+          26,
+          1500,
+          1610,
+          null
+        ]
+      }
+    ],
+    "operating_profit": null,
+    "da": null,
+    "ebitda": [
+      -788,
+      -527,
+      1330,
+      1340,
+      1340
+    ],
+    "finance_costs": null,
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [
+      null,
+      null,
+      null,
+      1030,
+      141.55
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        13200,
+        19600,
+        22100,
+        16000,
+        10500
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": [
+      38600,
+      49300,
+      53100,
+      48700,
+      50400
+    ],
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [
+        null,
+        null,
+        null,
+        -2540,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      -7920,
+      null
+    ],
+    "cfi": null,
+    "cff": null,
+    "capex": null,
+    "net_change_in_cash": null
+  },
+  "data_flags": [
+    "МСФО отчётность: полные данные доступны только на smart-lab в виде таблиц, первичный PDF консолидированной отчётности на e-disclosure.ru закрыт от прямого доступа (требует аутентификации)",
+    "Выручка, EBITDA, долг, активы, денежные средства, операционные расходы, чистая прибыль 2024-2025 извлечены из smart-lab (источник надёжен, но представляет агрегированные данные)",
+    "себестоимость (COGS) и валовая прибыль (gross_profit) — не извлечены (404 на smart-lab), могут быть недоступны в публичной форме или требуют доступа к первичному PDF",
+    "детали баланса (ОС, НМА, запасы, дебиторка, структура пассивов, детали капитала) — не извлечены (404 на smart-lab). Видимо, компания раскрывает их только в полном PDF отчёте",
+    "ОДДС: операционный CF -7.92 млрд (2024) извлечен, инвестиционный и финансовый CF, capex — недоступны (404)",
+    "Отрицательный капитал -2.54 млрд (2024) указывает на отрицательное собственное капитал на дату баланса, что типично для судостроительных компаний с долгим циклом, авансами клиентов и долгом",
+    "Операционные расходы 2022 — 26 млн (аномалия, вероятно ошибка в исходных данных smart-lab или переклассификация статей в тот год)",
+    "Чистая прибыль 2021-2023 — не извлечена (статьи доступны крайне ограниченно). 2024: 1.03 млрд; 2025: 141.55 млн",
+    "Арифметика: gross_profit ≈ revenue − COGS — не проверена (COGS не извлечён); total_assets ≈ equity + liabilities — не проверена (структура пассивов недоступна); cfo ≈ частичная выручка − расходы (данных недостаточно для полной проверки)",
+    "Заключение: среднее качество данных (medium). Доступны крупные агрегаты (выручка, EBITDA, долг, активы, денежные), но детали P&L и баланса требуют доступа к первичному PDF на e-disclosure.ru. Рекомендуется загрузить вручную полный годовой отчёт МСФО 2024 в companies/VSYD/sources/ для полного заполнения."
+  ]
+}

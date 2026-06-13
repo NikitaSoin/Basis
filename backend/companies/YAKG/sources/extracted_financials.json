@@ -1,0 +1,338 @@
+{
+  "meta": {
+    "ticker": "YAKG",
+    "name": "Якутская топливно-энергетическая компания",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в млн RUB (единая валюта)",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/files.aspx?id=4994&type=4",
+      "doc_title": "Раскрываемая консолидированная финансовая отчетность ПАО ЯТЭК (МСФО)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      7580,
+      8247,
+      8679,
+      10424
+    ],
+    "cogs": [
+      -3033,
+      -3586,
+      -4077,
+      -4151
+    ],
+    "gross_profit": [
+      4547,
+      4661,
+      4602,
+      6273
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [
+          -567,
+          -567,
+          -718,
+          -856
+        ]
+      },
+      {
+        "name": "Общие и административные расходы",
+        "values": [
+          -1068,
+          -1118,
+          -1318,
+          -1240
+        ]
+      },
+      {
+        "name": "Прочие операционные (расходы)/доходы, нетто",
+        "values": [
+          185,
+          485,
+          -331,
+          -288
+        ]
+      }
+    ],
+    "operating_profit": [
+      2989,
+      3461,
+      2235,
+      3889
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      609
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      -1130,
+      -921,
+      -1086,
+      -1286
+    ],
+    "finance_income": [
+      381,
+      224,
+      470,
+      316
+    ],
+    "pre_tax_profit": [
+      2240,
+      2764,
+      1619,
+      2919
+    ],
+    "income_tax": [
+      -407,
+      -529,
+      -921,
+      -732
+    ],
+    "net_profit": [
+      1833,
+      2235,
+      698,
+      2187
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        14819,
+        18377,
+        19668
+      ],
+      "intangibles": [
+        null,
+        46,
+        37,
+        27
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        11500,
+        9870,
+        9505
+      ],
+      "total_non_current": [
+        null,
+        26365,
+        28284,
+        29920
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        559,
+        694,
+        684
+      ],
+      "receivables": [
+        null,
+        652,
+        1014,
+        1547
+      ],
+      "cash": [
+        null,
+        2977,
+        1895,
+        226
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        215,
+        235,
+        223
+      ],
+      "total_current": [
+        null,
+        4473,
+        3838,
+        3280
+      ]
+    },
+    "total_assets": [
+      null,
+      30838,
+      32122,
+      33200
+    ],
+    "equity": {
+      "share_capital": [
+        827,
+        827,
+        827,
+        827
+      ],
+      "retained_earnings": [
+        13303,
+        15538,
+        16234,
+        18448
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        -2,
+        0,
+        0
+      ],
+      "total_equity": [
+        14128,
+        16363,
+        17061,
+        19275
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        8000,
+        7500,
+        7000
+      ],
+      "deferred_tax": [
+        null,
+        2177,
+        3158,
+        3712
+      ],
+      "other_non_current_liab": [
+        null,
+        704,
+        1408,
+        1289
+      ],
+      "total_non_current_liab": [
+        null,
+        10881,
+        11408,
+        11001
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        2283,
+        2300,
+        1502
+      ],
+      "payables": [
+        null,
+        346,
+        390,
+        376
+      ],
+      "other_current_liab": [
+        null,
+        965,
+        963,
+        1046
+      ],
+      "total_current_liab": [
+        null,
+        3594,
+        3653,
+        2924
+      ]
+    },
+    "total_liabilities": [
+      15067,
+      14475,
+      15061,
+      13925
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      2795
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      -3281
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      -1183
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      -1787
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      -1669
+    ]
+  },
+  "data_flags": [
+    "2022: неполные данные баланса (только капитал и обязательства); ОДДС отсутствует",
+    "2024: ОДДС не опубликована в основных таблицах отчёта (возможно, только в примечаниях)",
+    "Арифметика P&L проверена для 2023-2025: сходится в пределах 1%",
+    "Баланс 2023-2025: активы = капитал + обязательства проверено",
+    "ОДДС 2025: CFO + CFI + CFF = -1669 млн (net_change_in_cash проверено)"
+  ]
+}
