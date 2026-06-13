@@ -1,0 +1,346 @@
+{
+  "meta": {
+    "ticker": "LENT",
+    "name": "МКПАО \"Лента\" (Лента Ритейл)",
+    "profile": "standard",
+    "reporting_standard": "МСФО (IFRS)",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Всё в валюте отчётности (RUB). Нет конвертаций между годами.",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab.ru (P&L) + investing.com (balance) + news/investor reports (CF, verification)",
+      "url": "https://smart-lab.ru/q/LENT/f/y/, https://www.investing.com/equities/mk-lenta-pao-financial-summary",
+      "doc_title": "Консолидированная финансовая отчётность по МСФО (IFRS), основные блоки из агрегаторов",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web_scraping + aggregator databases",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      483.6,
+      537.4,
+      615.9,
+      888.3,
+      1104.0
+    ],
+    "cogs": [
+      372.5,
+      416.7,
+      486.3,
+      695.8,
+      851.2
+    ],
+    "gross_profit": [
+      111.1,
+      120.7,
+      129.6,
+      192.5,
+      252.8
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы",
+        "values": [
+          93.1,
+          113.0,
+          122.7,
+          158.8,
+          207.0
+        ]
+      }
+    ],
+    "operating_profit": [
+      23.2,
+      14.4,
+      13.9,
+      41.6,
+      69.8
+    ],
+    "da": [
+      16.1,
+      18.2,
+      19.6,
+      23.1,
+      26.3
+    ],
+    "ebitda": [
+      40.95,
+      41.34,
+      40.39,
+      85.26,
+      112.47
+    ],
+    "finance_costs": [
+      9.5,
+      11.7,
+      16.0,
+      25.3,
+      31.2
+    ],
+    "finance_income": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "pre_tax_profit": [
+      13.7,
+      2.7,
+      -2.1,
+      16.3,
+      38.6
+    ],
+    "income_tax": [
+      0.1,
+      -2.1,
+      0.5,
+      -6.2,
+      3.7
+    ],
+    "net_profit": [
+      13.6,
+      4.85,
+      -2.63,
+      22.5,
+      34.9
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        29020,
+        44516,
+        47032,
+        51064
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      462168.57,
+      495398.37,
+      604489.62,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        81891,
+        104355,
+        139249,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        126845.06,
+        148987.67,
+        180051.4,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        26968,
+        97503,
+        49597,
+        44459
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        54155,
+        42419,
+        58329,
+        55441
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        161599.74,
+        205160.27,
+        253307.85,
+        null
+      ]
+    },
+    "total_liabilities": [
+      335323.51,
+      346410.7,
+      424438.22,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      38215,
+      26067,
+      48208,
+      71019,
+      92687
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      9963,
+      10819,
+      10981,
+      30402,
+      45735
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "P&L 2021-2025: выручка, себестоимость, валовая прибыль — надёжные (smart-lab.ru)",
+    "Operating profit 2024: скорректирована до 41.6 млрд (из медиа-отчётов) вместо smart-lab 50.0 млрд; может быть ошибка в определении EBIT",
+    "EBITDA: 2024 значение 85.26 млрд из smart-lab, но calc от OP+D&A даёт 64.7 млрд — могут быть прочие доходы/исключения",
+    "Balance Sheet 2022-2025: только основные строки (total_assets, total_equity, total_liabilities, долг). Детали (ОС, НМА, гудвил, запасы, ДЗ, КЗ) не распарсены — нужен полный IFRS отчёт",
+    "Retained earnings: ~91-139 млрд (из PDF summary), точные прочие компоненты капитала неизвестны",
+    "Cash flow 2021-2025: CFO и CAPEX из PDF summary. CFI и CFF недоступны в источниках.",
+    "IFRS 16 (аренда): значима для гипермаркетов (модель владения + аренда), в отчётности должна быть отдельной строкой в финансовых расходах и ОС",
+    "M&A Монетка 2023-2024: консолидирована в отчётность (начало дек 2023); влияет на выручку (+44% в 2024) и масштаб активов. Goodwill/intangibles требуют полного отчёта.",
+    "Валюта: всё в RUB млн. Нет конвертаций между годами.",
+    "Арифметика P&L: gross_profit (rev - cogs) сходится на 100%; operating_profit требует полного разбора expense_lines (коммерч vs адм разбиты ли? это неясно); pre_tax и tax коррелируют с OP",
+    "Арифметика Balance: assets ≈ liab + equity проверена по investing.com (2022-2024 достаточно близко). Требует деталей для полной проверки.",
+    "Источники имеют ограничения доступа (e-disclosure 403, official investor sites 404); лучшие доступные данные из smart-lab и investing",
+    "Данные за 2024-2025 считаются предварительными (утверждены, но могут быть пересчитаны при полной публикации отчётов)"
+  ]
+}
