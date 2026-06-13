@@ -711,3 +711,13 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 31 (haiku): DOMRF VSEH TNSE MRKY URKZ — OK (5). GLRX добыт, аналитик отдельно. + копии HEAD/RAGR/RHYD. ~242/262.
 
 - Батч 32-33 (haiku): GLRX BRZL GECO EELT PRFN USBN BTBR GAZT PAZA RDRB BAZA HIMCP OMZZP — все OK. GAZT/GAZS/GAZC квази-холдинги (премия к NAV помечена). Остаток: GAZA/GAZAP/CHGZ/BISVP/KRKOP/VEON-RX — нет данных или к ручной загрузке PDF.
+
+## 🏁 РАСКАТКА ФИНАНСОВ v2 ЗАВЕРШЕНА — 261/264
+Все компании с доступными данными переведены на financial-analyst v2 (explain-строки, среднее/CV,
+метрики от adjusted, total_equity плоский, апсайд считает фронт от живой цены, цена/дивиденд из rates.csv).
+НЕ сделаны 3 (нет публичных данных, e-disclosure 403/санкции — нужна ручная загрузка PDF в sources/):
+  - GAZA + GAZAP (ПАО ГАЗ — МСФО не публикует с 2018, SDN-санкции)
+  - CHGZ (РН-ЗапСиб — дочка Роснефти, отчётность закрыта)
+Префы (46) закрыты копированием v2-файла эмитента (share_class_note). Качество хвоста честно
+помечено data_quality medium/low + data_flags; проблемные кейсы (нац-ция MGNZ, отриц.капитал
+UKUZ/MVID/RKKE, премия к NAV квази-холдингов Газпрома, банк ПРМБ в кризисе) явно отражены.
