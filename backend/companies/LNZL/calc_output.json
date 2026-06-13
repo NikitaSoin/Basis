@@ -1,0 +1,53 @@
+{
+  "price": 1387.73,
+  "shares_ord": 1140300,
+  "cap_mln": 1582.4,
+  "cash_feb26": 168.3,
+  "nav_conservative": 100.0,
+  "nav_base": 106.0,
+  "nav_optimistic": 110.0,
+  "ev_current": 1068.4,
+  "bvps_2024": 0.0,
+  "pb_current": 4976190.31,
+  "eps_adj_2024": 42.09,
+  "pe_adj_current": 33.0,
+  "sensitivity_costs": [
+    5,
+    10,
+    15,
+    20,
+    30
+  ],
+  "sensitivity_prefsplit": [
+    0.2,
+    0.2338,
+    0.3
+  ],
+  "sensitivity_matrix": [
+    [
+      115.0,
+      110.0,
+      100.0
+    ],
+    [
+      111.0,
+      106.0,
+      97.0
+    ],
+    [
+      108.0,
+      103.0,
+      94.0
+    ],
+    [
+      104.0,
+      100.0,
+      91.0
+    ],
+    [
+      97.0,
+      93.0,
+      85.0
+    ]
+  ]
+}

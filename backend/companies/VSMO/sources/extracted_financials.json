@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "ticker": "VSMO",
+    "name": "ПАО Корпорация ВСМПО-АВИСМА",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Оригинальные отчёты за 2024-2025 в тыс. RUB (пересчитано в млн). Smart-lab 2020, 2022-2023 в млрд (пересчитано в млн).",
+    "fiscal_years": [2020, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "e-disclosure + smart-lab",
+      "url": "https://smart-lab.ru/q/VSMO/f/y/ (2020,2022-2023) + e-disclosure.ru (2024-2025 PDF раскрываемой отчётности)",
+      "doc_title": "Раскрываемая консолидированная финансовая отчётность ВСМПО-АВИСМА за 2025 и 2024; Smart-Lab годовые таблицы МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext (2024-2025) + smart-lab-table (2020,2022-2023)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [89100.0, null, 121500.0, 118553.6, 96774.3],
+    "cogs": [null, null, null, 73473.5, 76268.0],
+    "gross_profit": [31600.0, null, 45300.0, 45080.1, 20506.3],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы",
+        "values": [null, null, null, 4129.8, 2088.2]
+      },
+      {
+        "name": "Общехозяйственные и административные расходы",
+        "values": [null, null, null, 20435.6, 18076.9]
+      }
+    ],
+    "operating_profit": [18700.0, null, 18900.0, 18878.2, -468.8],
+    "da": [null, null, null, 20595.0, 19302.5],
+    "ebitda": [null, null, null, 39473.2, 18833.7],
+    "finance_costs": [null, null, null, -15483.2, -7051.2],
+    "finance_income": [null, null, null, 7281.6, 10492.7],
+    "pre_tax_profit": [null, null, null, 22056.7, 4211.0],
+    "income_tax": [null, null, null, -5203.4, -4008.0],
+    "net_profit": [6600.0, null, 24900.0, 16853.3, 203.0]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, 244880.7, 237179.5],
+      "intangibles": [null, null, null, 819.9, 706.1],
+      "goodwill": [null, null, null, 1600.9, 1600.9],
+      "long_term_investments": [null, null, null, 35517.3, 40389.5],
+      "other_non_current": [null, null, null, 12230.0, 5068.8],
+      "total_non_current": [null, null, null, 295049.2, 284844.3]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, 77495.8, 62462.0],
+      "receivables": [null, null, null, 30526.6, 25310.5],
+      "cash": [69900.0, null, null, 53219.7, 42399.8],
+      "short_term_investments": [null, null, null, 2280.5, 4725.2],
+      "other_current": [null, null, null, 932.6, 781.8],
+      "total_current": [null, null, null, 164455.3, 148785.0]
+    },
+    "total_assets": [357000.0, null, null, 459504.4, 433629.2]
+  },
+  "balance_sheet_detailed": {
+    "equity": {
+      "share_capital": [null, null, null, 596.3, 596.3],
+      "retained_earnings": [null, null, null, 177293.3, 185020.5],
+      "additional_paid_in": [null, null, null, 4594.6, 4594.6],
+      "other_equity": [null, null, null, 116837.0, 109378.4],
+      "total_equity": [202100.0, null, null, 299157.1, 299590.4]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, 24239.9, 13461.6],
+      "deferred_tax": [null, null, null, 48190.5, 47479.0],
+      "other_non_current_liab": [null, null, null, 3211.6, 2948.8],
+      "total_non_current_liab": [null, null, null, 75642.0, 63889.4]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, 62741.0, 46297.8],
+      "payables": [null, null, null, 18311.0, 22465.5],
+      "other_current_liab": [null, null, null, 3653.2, 1386.1],
+      "total_current_liab": [null, null, null, 84705.3, 70149.4]
+    },
+    "total_liabilities": [null, null, null, 160347.3, 134038.8]
+  },
+  "cash_flow": {
+    "cfo": [13000.0, null, null, 11912.8, 15488.2],
+    "cfi": [null, null, null, 62007.1, -8258.2],
+    "cff": [null, null, null, -74046.7, -15186.1],
+    "capex": [-8500.0, null, null, -11782.0, -10639.5],
+    "net_change_in_cash": [null, null, null, 955.5, -11611.1]
+  },
+  "data_flags": [
+    "2021 отсутствует в доступных источниках",
+    "2020, 2022-2023 получены из smart-lab (готовые таблицы МСФО); детализация баланса и ОДДС по статьям отсутствуют",
+    "2024-2025 извлечены из раскрываемой консолидированной отчётности e-disclosure (сокращённая форма); полный аудированный отчёт требует дополнительного поиска",
+    "Санкционные ограничения (2022-2025): воздействие на курсовые разницы, финансовые доходы (инвестиции в драгоценные металлы, переуступка прав требования)",
+    "2025: переориентация экспорта (Boeing/Airbus отказы) и девальвация RUB отражены в выручке (-17.8% YoY) и прибыли (-98.8% YoY в рублях при конверсии в USD)",
+    "Единица — млн RUB (пересчёты: smart-lab млрд × 1000; e-disclosure тыс. × 1/1000)",
+    "Арифметическая самопроверка: валовая прибыль, баланс активов=обязательства+капитал, ОДДС (CFO+CFI+CFF+FX эффект=изменение кэша) — все пройдены"
+  ]
+}

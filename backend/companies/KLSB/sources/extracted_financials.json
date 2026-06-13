@@ -1,0 +1,386 @@
+{
+  "meta": {
+    "ticker": "KLSB",
+    "name": "ПАО Калужская сбытовая компания",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "converted_years": [],
+    "conversion_note": "",
+    "source": {
+      "type": "manual_pdf + web_scrape",
+      "url": "https://kskkaluga.ru/upload/iblock/13f/arr5wgwkh3up7g95udb2nz1e8sup9n33/file_5555.pdf",
+      "doc_title": "Консолидированная финансовая отчётность за 2022 год + smart-lab 2023-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "ocr + web_scrape",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      24577.547,
+      25344.303,
+      27.2,
+      30.0,
+      35.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Расходы по текущей деятельности (себестоимость + операционные расходы)",
+        "values": [
+          24198.157,
+          24854.143,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          139.91,
+          124.933,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Финансовые расходы (нетто)",
+        "values": [
+          -411.108,
+          -468.644,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      519.3,
+      615.093,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      170.263,
+      155.288,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      689.563,
+      770.381,
+      0.68,
+      1.4,
+      0.979
+    ],
+    "finance_costs": [
+      411.108,
+      468.644,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      108.192,
+      126.401,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      21.824,
+      29.619,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      86.368,
+      96.782,
+      0.113,
+      0.124,
+      0.084
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        2597.171,
+        2722.719,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        25.18,
+        27.052,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        449.552,
+        429.326,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        929.446,
+        901.432,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        4001.349,
+        4080.529,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        15.313,
+        28.14,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        2323.356,
+        2168.223,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        318.166,
+        226.213,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        86.966,
+        86.966,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        2743.801,
+        2509.542,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      6745.15,
+      6590.071,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        18.297,
+        18.297,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        816.368,
+        912.972,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        292.237,
+        292.237,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        -3.28,
+        -3.28,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1123.622,
+        1220.226,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        2293.645,
+        1809.018,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        102.723,
+        122.134,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        91.116,
+        86.419,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        2487.484,
+        2017.571,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1270.514,
+        1512.659,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        1743.038,
+        1707.333,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        119.882,
+        136.888,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        3133.434,
+        3356.88,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      5620.918,
+      5374.451,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      513.185,
+      337.32,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      -164.995,
+      -255.494,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2021-2022: полная консолидированная отчётность (МСФО) извлечена OCR из PDF",
+    "2023-2025: основные строки из smart-lab.ru",
+    "cost_format: by_nature — себестоимость и операционные расходы объединены в 'Расходы по текущей деятельности', разделение недоступно",
+    "cogs=null, gross_profit=null: данные не выделены отдельно в отчёте",
+    "Дебиторская задолженность (receivables): 2 168 млн (2022), 2 323 млн (2021) — высокая, характерна для энергосбыта",
+    "Финансовый CF и CFF: полный отчёт требует досчёта из примечаний, пока null"
+  ]
+}

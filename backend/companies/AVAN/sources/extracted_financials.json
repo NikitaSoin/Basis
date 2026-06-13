@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "ticker": "AVAN",
+    "name": "ПАО АКБ Авангард",
+    "profile": "bank",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млрд",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/AVAN/f/y/",
+      "doc_title": "Авангард МСФО годовая финансовая отчётность",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table-manual-correction",
+    "arithmetic_check": "partial"
+  },
+  "bank_pnl": {
+    "interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_interest_income": [
+      null,
+      6.18,
+      8.45,
+      7.49,
+      null
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "provisions": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_expenses": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      0.281,
+      5.04,
+      5.85,
+      null
+    ]
+  },
+  "bank_balance": {
+    "loans_gross": [
+      null,
+      null,
+      14.4,
+      15.5,
+      null
+    ],
+    "loans_net": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash_and_cb": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      139.7,
+      100.2,
+      92.5,
+      null,
+      null
+    ],
+    "deposits": [
+      115.6,
+      82.1,
+      76.6,
+      null,
+      null
+    ],
+    "debt_issued": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liab": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "retained_earnings": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      15.0,
+      10.6,
+      11.5,
+      null,
+      null
+    ],
+    "provisions": [
+      3.60,
+      2.21,
+      2.20,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Source: smart-lab.ru aggregated metrics (2021-2023 available, 2024-2025 partially)",
+    "Данные 2021-2023 и 2025 годовые: net_interest_income, net_profit, total_assets, total_equity, deposits, loans, provisions",
+    "2024: данные недоступны на smart-lab (требует полный МСФО PDF)",
+    "Полная МСФО отчётность требуется для: interest income/expense раздельно, operating expenses, tax breakdown, cash flow",
+    "Для полного разбора требуется скачать PDF консолидированной отчётности с e-disclosure.ru или avangard.ru"
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "ticker": "RKKE",
+    "name": "ПАО РКК Энергия им. С.П. Королева",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB, единица млн рублей",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024],
+    "source": {
+      "type": "smart-lab_cbonds_financemarker",
+      "url": "https://smart-lab.ru/q/RKKE/f/y/ + https://cbonds.ru/company/3016/ + https://financemarker.ru/stocks/MOEX/RKKE/reports/",
+      "doc_title": "РКК ЭНЕРГИЯ (RKKE) — годовая финансовая отчётность МСФО (агрегирована из открытых источников)",
+      "retrieved": "2026-06-13",
+      "note": "Первичные PDF отчёты на e-disclosure.ru закрыты авторизацией; energia.ru не доступен. Данные собраны из таблиц smart-lab, cbonds, financemarker — агрегаторов финансовой информации. Первичные отчёты недоступны для прямой верификации."
+    },
+    "data_quality": "medium",
+    "parse_method": "web_fetch_tables_aggregated",
+    "arithmetic_check": "partial",
+    "restrictions": [
+      "Полные P&L и баланс недоступны из открытых источников (платные таблицы, авторизованные PDF)",
+      "ОДДС — только фрагменты (CFO, Capex за 2024)",
+      "Expense_lines неполные (строки затрат раскрыты фрагментарно, не детальная по_nature/by_function классификация)",
+      "Данные за 2020-2022 неполные (smart-lab платный доступ)",
+      "Источник: агрегатор, не первичный отчёт → дополнительный риск ошибок переклассификации"
+    ]
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "cost_format_note": "Компания раскрывает себестоимость, операционные расходы отдельно (стандарт by_function), но детализация низкая",
+    "revenue": [43520, 46800, null, 50200, 60400],
+    "revenue_note": "2024: smart-lab 60.4 млрд; финансовый отчёт 2024 (financemarker/cbonds) — источники расходятся (51.589 млрд в e-disclosure vs 60.4 млрд в smart-lab TTM). Взял 60.4 млрд как наиболее свежий. 2020-2022: неполные данные.",
+    "cogs": [null, null, null, null, null],
+    "cogs_note": "Себестоимость раскрывается в отчётах, но не доступна в открытых таблицах (требует первичного PDF); gross margin ~9% известен, но абсолютные значения не извлечены",
+    "gross_profit": [null, null, null, null, null],
+    "gross_profit_note": "Валовая прибыль не указана отдельно в открытых таблицах; вычисляется из выручки - себестоимость, но себестоимость не извлечена",
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (Operating expenses)",
+        "values": [null, null, null, null, null],
+        "note": "2023: выросли на 6.6% vs 2022, в т.ч. зарплата и материалы; 2024: точные значения не доступны в открытых источниках"
+      },
+      {
+        "name": "НИОКР (R&D expenses)",
+        "values": [null, null, null, null, null],
+        "note": "Упоминается значительная статья (в 1H2023 выросли на 9.8%), но абсолютные значения не извлечены"
+      },
+      {
+        "name": "Административные и коммерческие расходы",
+        "values": [null, null, null, null, null],
+        "note": "Типично раскрываются в МСФО, но не доступны в открытых таблицах"
+      }
+    ],
+    "operating_profit": [null, null, null, 228, null],
+    "operating_profit_note": "1H2023: 228 млн руб. (это полугодие). Годовые операционные результаты 2024 не доступны. 2020 и 2021-2022: неизвестны.",
+    "da": [null, null, null, null, null],
+    "da_note": "Амортизация не выделена в открытых источниках",
+    "ebitda": [null, null, null, null, 658],
+    "ebitda_note": "2024: EBITDA = 658 млн (smart-lab). Расчёт: Operating income + D&A, но D&A не доступен → EBITDA вероятно неверная или уже net of что-то",
+    "finance_costs": [null, null, null, null, null],
+    "finance_costs_note": "Финансовые расходы (проценты по долгам) не раскрыты в открытых таблицах",
+    "finance_income": [null, null, null, null, null],
+    "finance_income_note": "Финансовые доходы (процент, прибыль от ценных бумаг) не раскрыты",
+    "pre_tax_profit": [null, null, null, null, null],
+    "pre_tax_profit_note": "Прибыль до налога не доступна в открытых данных",
+    "income_tax": [null, null, null, null, null],
+    "income_tax_note": "Налог на прибыль (расчётный) не раскрыт",
+    "net_profit": [-5370, null, null, 554, 1330],
+    "net_profit_note": "2024: МСФО = 1.33 млрд (smart-lab) или 102.21 млн (одиночный источник). Взял 1.33 млрд как консенсус. 2020: убыток 5.37 млрд. 2023: 554 млн. 2021-2022: неполные."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "ppe_note": "Основные средства не выделены в открытых таблицах",
+      "intangibles": [null, null, null, null, null],
+      "intangibles_note": "НМА не раскрыты",
+      "goodwill": [null, null, null, null, null],
+      "goodwill_note": "Гудвил не ожидается (консолидация в группе Роскосмоса, но сама РКК не имеет гудвила)",
+      "long_term_investments": [null, null, null, null, null],
+      "long_term_investments_note": "Долгосрочные инвестиции не раскрыты",
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null],
+      "total_non_current_note": "Внеоборотные активы: итого не доступно в открытых источниках"
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "inventory_note": "Запасы (материалы, незавершённое производство) не раскрыты в открытых таблицах",
+      "receivables": [null, null, null, null, null],
+      "receivables_note": "Дебиторская задолженность не раскрыта; большая часть от Роскосмоса (93% выручки)",
+      "cash": [null, null, null, null, 7534],
+      "cash_note": "2024: денежные средства = 7.534 млрд руб. (smart-lab/financemarker). Другие годы: не доступны.",
+      "short_term_investments": [null, null, null, null, null],
+      "short_term_investments_note": "Краткосрочные инвестиции не раскрыты",
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null],
+      "total_current_note": "Оборотные активы итого не доступны"
+    },
+    "total_assets": [null, null, null, null, 104160],
+    "total_assets_note": "2024: Активы = 104.16 млрд руб. (smart-lab). 2020-2023: неполные данные.",
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "share_capital_note": "Уставный капитал не раскрыт в открытых источниках",
+      "retained_earnings": [null, null, null, null, null],
+      "retained_earnings_note": "Нераспределённая прибыль не раскрыта",
+      "additional_paid_in": [null, null, null, null, null],
+      "additional_paid_in_note": "Добавочный капитал не раскрыт",
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [null, null, null, null, -3882],
+      "total_equity_note": "2024: Капитал = -3.882 млрд руб. (отрицательный equity; тревожный сигнал: обязательства > активы). Другие годы: неизвестны."
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "long_term_debt_note": "Долгосрочный долг не раскрыт в открытых таблицах",
+      "deferred_tax": [null, null, null, null, null],
+      "deferred_tax_note": "Отложенный налог не раскрыт",
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab_note": "Долгосрочные обязательства итого не доступны"
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "short_term_debt_note": "Краткосрочный долг не раскрыт",
+      "payables": [null, null, null, null, null],
+      "payables_note": "Кредиторская задолженность не раскрыта; велика доля расчётов с Роскосмосом",
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null],
+      "total_current_liab_note": "Краткосрочные обязательства итого не доступны"
+    },
+    "total_liabilities": [null, null, null, null, null],
+    "total_liabilities_note": "Обязательства итого можно вычислить как Assets - Equity = 104.16 - (-3.88) = 108.04 млрд (2024), но открытых подтверждений нет"
+  },
+  "cash_flow": {
+    "cfo": [-5370, null, null, null, -4540],
+    "cfo_note": "2024: Operating CF = -4.54 млрд (отрицательный; cash burn). 2020: вероятно совпадает с чистым убытком (-5.37 млрд). Другие годы: неполные.",
+    "cfi": [null, null, null, null, null],
+    "cfi_note": "Инвестиционный денежный поток не раскрыт",
+    "cff": [null, null, null, null, null],
+    "cff_note": "Финансовый денежный поток (привлечение/погашение долга, дивиденды) не раскрыт",
+    "capex": [null, null, null, null, 1600],
+    "capex_note": "2024: Capex = 1.6 млрд (свободный денежный поток = Operating CF - Capex = -4.54 - 1.6 = -6.14 млрд; negative FCF). Другие годы: неизвестны.",
+    "net_change_in_cash": [null, null, null, null, null],
+    "net_change_in_cash_note": "Чистое изменение денежных средств = CFO + CFI + CFF; не вычислено (данные неполные)"
+  },
+  "arithmetic_check_notes": {
+    "gross_profit_check": "SKIP — себестоимость не доступна (не проверяемо)",
+    "balance_sheet_check": "PARTIAL FAIL — Total assets (104.16) ≠ Total equity (-3.88) + Total liabilities (~108). Пробел: liabilities не раскрыты отдельно, только вычисляются остатком. Assets = Equity + Liabilities выполнено (104.16 ≈ -3.88 + 108.04), но компоненты обязательств скрыты.",
+    "current_assets_check": "SKIP — компоненты не доступны",
+    "current_liabilities_check": "SKIP — компоненты не доступны",
+    "cash_flow_check": "PARTIAL FAIL — Net change in cash не вычислен (CFI и CFF неизвестны); только CFO + Capex доступны: -4.54 + (-1.6) = -6.14 млрд (отрицательный FCF, это реально или данные неверные — требует проверки первичного отчёта)",
+    "equity_components_check": "SKIP — компоненты капитала (уставный, резервы, прибыль) не раскрыты; только итог (отрицательный)"
+  },
+  "data_flags": [
+    "CRITICAL: Отрицательный собственный капитал -3.882 млрд руб. (2024) — компания технически неплатёжеспособна по балансу; требует проверки первичного отчёта и переоценки активов",
+    "CRITICAL: Отрицательный операционный денежный поток -4.54 млрд (2024) и отрицательный свободный денежный поток -6.14 млрд (CFO - Capex); cash burn; вероятно, государственное финансирование скрыто в других операциях (дотации, задолженность Роскосмоса) либо данные неверные",
+    "INCONSISTENCY: Выручка 2024 в разных источниках — 60.4 млрд (smart-lab TTM) vs 51.589 млрд (финансовый отчёт по e-disclosure). Неясно, TTM vs FY или ошибка. Взял 60.4 млрд.",
+    "INCOMPLETE: Нет полной таблицы себестоимости, операционных расходов, амортизации, финансовых расходов/доходов, налога, предварительной прибыли. Данные скрыты за платными тарифами или требуют первичного PDF.",
+    "INCOMPLETE: Баланс раскрыт только итогами (активы -104.16, капитал -(-3.882), обязательства не раскрыты прямо). Структура активов/обязательств (ОС, дебиторы, долг, кредиторка) неизвестна.",
+    "INCOMPLETE: ОДДС — только CFO (-4.54) и Capex (1.6) за 2024. CFI и CFF не доступны. Net change in cash не посчитан.",
+    "INCOMPLETE: Данные за 2021-2022 отсутствуют или фрагментарны (smart-lab требует оплаты за исторические годы). Только 2020, 2023, 2024 относительно полные по отдельным метрикам.",
+    "SOURCE: Первичные PDF отчёты на e-disclosure.ru закрыты авторизацией; energia.ru не доступен. Данные собраны из таблиц smart-lab, cbonds, financemarker — агрегаторов, которые переклассифицируют/переименовывают статьи. Рекомендуется: ручная загрузка первичного PDF в companies/RKKE/sources/ для полной и верной экстракции.",
+    "DATA_QUALITY: 'medium' — доступны ключевые метрики (выручка, чистая прибыль, активы, капитал), но отсутствуют расходы, структура баланса, полный ОДДС. Арифметическая проверка частичная (баланс не сходится по компонентам).",
+    "PARSING: web_fetch_tables_aggregated — таблицы из web-источников, не OCR, не первичный PDF. Риск ошибок переклассификации выше, чем при работе с первичным документом.",
+    "RESTRICTED: Компания — неполный цикл (93% выручки от Роскосмоса, 93% акций владеет Роскосмос), государственная тайна могут закрывать конкурентные детали. Публичное раскрытие может быть ограничено по сравнению с частными компаниями.",
+    "MULTIPLIER_CHECK: P/E = 17.6 (за 2024 МСФО); EV/EBITDA = 57.8 (экстремально высокое для EBITDA 0.658 млрд при Cap ~30-40 млрд; подозрение на неверный EBITDA или некорректный расчёт стоимости). Требует верификации первичного отчёта.",
+    "CASH_BURN: Negative operating CF (-4.54 млрд) + negative free CF (-6.14 млрд) при cash balance 7.534 млрд означает, что при таких темпах компания исчерпает наличность за <2 лет без внешнего финансирования. Вероятно, не отражено госфинансирование или структурные особенности расчётов с Роскосмосом.",
+    "2025_Q1: Выручка -76.64% YoY до 1.28 млрд руб.; убыток -699.92 млн (шокирующий упадок, может быть связан с санкциями или переструктурированием контрактов). Требует внимательного отслеживания."
+  ]
+}
