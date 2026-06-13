@@ -1,48 +1,36 @@
 {
   "meta": {
     "ticker": "RUSI",
-    "name": "ПАО «ИК РУСС-ИНВЕСТ»",
-    "sector": "finance",
-    "subsector": "investment_company",
-    "profile": "standard",
-    "profile_note": "Стандартный профиль с финспецификой. Инвестиционная компания: основной результат — переоценка собственного портфеля акций/облигаций, а не комиссионные доходы. Ключевые метрики — P/BV, ROE, дисконт к СЧА. EV/EBITDA и P/S малоинформативны (помечены).",
+    "name": "ПАО ИК РУСС-ИНВЕСТ",
+    "sector": "investment_company",
+    "profile": "investment_company",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "Данные изначально в тыс. руб. → переведены в млн руб. делением на 1000",
     "fiscal_years": [
-      2020,
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 64.8,
-    "price_date": "2026-06-01",
-    "price_source": "MOEX TQBR, LAST",
     "shares_outstanding": 109000000,
-    "market_cap": 7063.2,
-    "data_quality": "low",
-    "data_quality_note": "Компания — профучастник, не публикует выручку/EBITDA в стандартном формате; собственный капитал и СЧА в открытых источниках за 2023–2025 НЕ раскрыты. Чистая прибыль/убыток по МСФО подтверждены за 2022–2025; за 2020–2021 — РСБУ-прокси (RBC), низкая надёжность. Балансовые метрики (equity, BVPS, P/BV) — реконструкция от единственного якоря RBC P/BV=2.05, который сам по себе аномален (см. anomaly).",
-    "data_source_priority": [
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "price_date": "2026-06-13",
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "Компания торгуется с ПРЕМИЕЙ к NAV: P/NAV=2.05x при цене 67.45 руб. и NAV/акцию 32.87 руб. (2024). Для закрытой ИК без дивидендов 16 лет и непрозрачным портфелем нормальный дисконт к NAV 40-60%. Рыночная оценка экономически необъяснима с фундаментальной точки зрения. Данные баланса 2022 содержат расхождение: equity+liab (4 366 млн) ≠ total_assets (3 629 млн) на 737 млн — вероятно обязательства 2022 относятся к другому периоду или partial data.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "investment_company",
     "revenue": [
       null,
       null,
       null,
-      null,
-      null,
-      149
+      null
     ],
-    "revenue_note": "Выручка инвесткомпании не раскрывается в стандартном виде; 149 млн за H1/2025 — фрагмент (blackterminal), не сопоставим. P/S неинформативен.",
     "cogs": [
-      null,
-      null,
       null,
       null,
       null,
@@ -52,29 +40,47 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Процентные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          0.119
+        ]
+      },
+      {
+        "name": "Нереализованный расход/(доход) от операций с ценными бумагами",
+        "values": [
+          null,
+          null,
+          null,
+          826.115
+        ]
+      },
+      {
+        "name": "Амортизация и износ ОС и НМА",
+        "values": [
+          null,
+          null,
+          null,
+          7.269
+        ]
+      },
+      {
+        "name": "Резерв под обесценение",
+        "values": [
+          null,
+          null,
+          null,
+          489.379
+        ]
+      }
     ],
     "operating_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ebitda": [
-      null,
-      null,
       null,
       null,
       null,
@@ -84,6 +90,10 @@
       null,
       null,
       null,
+      7.269
+    ],
+    "ebitda": [
+      null,
       null,
       null,
       null
@@ -92,23 +102,34 @@
       null,
       null,
       null,
+      0.119
+    ],
+    "finance_income": [
+      null,
       null,
       null,
       null
     ],
-    "net_profit": [
-      409,
-      -323,
-      -672.91,
-      526.24,
-      -552.56,
-      -269.5
+    "pre_tax_profit": [
+      null,
+      null,
+      678.448,
+      -734.906
     ],
-    "net_profit_note": "МСФО за 2022–2025 (smart-lab/cbonds). 2020 (+409) и 2021 (-323) — РСБУ-прокси из RBC, low reliability. РСБУ-ряд отличается: 2022 -499.77, 2023 +311.93, 2024 -621.69, 9м2025 -200.86.",
+    "income_tax": [
+      null,
+      null,
+      null,
+      -3.913
+    ],
+    "net_profit": [
+      407.883,
+      -672.909,
+      526.237,
+      -552.556
+    ],
     "margins": {
       "gross_margin": [
-        null,
-        null,
         null,
         null,
         null,
@@ -118,21 +139,15 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "operating_margin": [
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
-      "net_margin": [
-        null,
-        null,
+      "ros": [
         null,
         null,
         null,
@@ -140,78 +155,231 @@
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      407.883,
+      -672.909,
+      526.237,
+      -552.556
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "Инвестиционная компания — понятие capex неприменимо; вложения отражаются через портфель ЦБ",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      0.53
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Корректировки моста не производились. Систематический проход по годам: 2021 — ЧП +408 млн (переоценка портфеля вверх, не обнаружено разовых вне портфеля); 2022 — убыток -673 млн (переоценка вниз на фоне падения рынка 2022, не рекласс); 2023 — ЧП +526 млн (доход от переоценки, не обнаружено разовых); 2024 — убыток -553 млн (переоценка -826 млн + резерв обесценения -489 млн; оба являются операционными для ИК, не исключаются). Adjusted = reported по всем годам: у инвестиционной компании переоценка портфеля и есть суть бизнеса."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        3.652,
+        2.154
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      4351.963,
+      3629.162,
+      4249.865,
       null
     ],
-    "total_assets_note": "Не раскрыто в открытых источниках за 2020–2025. Последнее подтверждённое — активы ~5 200 млн на 2016 (rusprofile).",
-    "total_equity": [
-      null,
-      null,
-      null,
-      null,
-      3445.5,
-      null
-    ],
-    "total_equity_note": "ТОЛЬКО оценка за 2024: реконструкция от RBC P/BV=2.05 при текущей цене → ~3 446 млн. Прямого раскрытия собственного капитала/СЧА нет. Значение СОМНИТЕЛЬНО (см. anomaly_flag).",
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        1492.376,
+        1492.376
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        2649.786,
+        2098.278
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        -5.188,
+        -3.821
+      ],
+      "total_equity": [
+        3590.734,
+        3629.526,
+        4133.126,
+        3582.987
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cash": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      761.229,
+      736.636,
+      116.739,
       null
     ],
     "net_debt": [
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
-    "debt_total": [
-      null,
-      null,
-      null,
-      207.36,
-      219.01,
-      104.35
+    "tangible_equity": [
+      3590.734,
+      3629.526,
+      4133.126,
+      3582.987
     ],
-    "debt_total_note": "Долг МСФО, млн руб: 31.12.2023 н/д; 31.12.2024 207.36; 30.06.2025 219.01; 30.09.2025 104.35 (smart-lab). РСБУ-долг кратно ниже (59 на конец 2024).",
+    "tangible_note": "Гудвил и сомнительные НМА не выделены; tangible_equity = total_equity = NAV портфеля ЦБ по балансовой стоимости.",
     "ratios": {
       "debt_to_equity": [
-        null,
-        null,
         null,
         null,
         null,
@@ -221,56 +389,48 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "current_ratio": [
         null,
         null,
         null,
-        null,
-        null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      3590.734,
+      3629.526,
+      4133.126,
+      3582.987
+    ]
   },
   "cash_flow": {
     "cfo": [
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      -627.04,
+      -339.102
     ],
     "cfi": [
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      -0.047,
+      -7.617
     ],
     "cff": [
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      16.922,
+      0.931
     ],
     "net_change_in_cash": [
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      -610.165,
+      -345.788
     ],
     "capex": [
-      null,
-      null,
       null,
       null,
       null,
@@ -280,15 +440,13 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
-    "cash_flow_note": "Денежные потоки не раскрыты; для инвесткомпании CFO/CapEx/FCF малоинформативны (бизнес — оборот портфеля ценных бумаг, а не CapEx-модель).",
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
-        null,
         null,
         null,
         null,
@@ -298,13 +456,9 @@
         null,
         null,
         null,
-        null,
-        null,
         null
       ],
       "capex_to_revenue": [
-        null,
-        null,
         null,
         null,
         null,
@@ -314,25 +468,18 @@
   },
   "returns": {
     "roe": [
-      null,
-      null,
-      null,
-      null,
-      -8.0,
-      null
+      11.36,
+      -18.54,
+      12.73,
+      -15.42
     ],
-    "roe_note": "ROE за 2024 = -8% (RBC). Внутренняя проверка не сходится: убыток МСФО -552.56 / implied equity 3445.5 = -16%. Расхождение из-за несогласованности источника по базе капитала → метрика ненадёжна.",
     "roa": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      9.37,
+      -18.54,
+      12.38,
       null
     ],
     "roic": [
-      null,
-      null,
       null,
       null,
       null,
@@ -342,31 +489,17 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "asset_turnover": [
       null,
       null,
       null,
-      null,
-      null,
       null
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ps": [
-      null,
-      null,
       null,
       null,
       null,
@@ -376,6 +509,10 @@
       null,
       null,
       null,
+      2.052
+    ],
+    "ps": [
+      null,
       null,
       null,
       null
@@ -384,209 +521,336 @@
       null,
       null,
       null,
+      null
+    ],
+    "roe": [
+      11.36,
+      -18.54,
+      12.73,
+      -15.42
+    ],
+    "roa": [
+      9.37,
+      -18.54,
+      12.38,
+      null
+    ],
+    "roic": [
+      null,
       null,
       null,
       null
     ],
-    "eps": [
-      3.75,
-      -2.96,
-      -6.17,
-      4.83,
-      -5.07,
-      -2.47
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth": [
+      null,
+      -265.1,
+      178.2,
+      -205.0
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      2.052
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      null
     ],
     "current": {
       "pe": null,
-      "pe_note": "TTM-прибыль отрицательная (убыток 2025 −269.5 млн) → P/E неинформативен.",
+      "pe_adj": null,
       "ps": null,
-      "ps_note": "Выручка не раскрывается → P/S неинформативен.",
-      "pb": 2.05,
-      "pb_note": "P/BV=2.05 по RBC. АНОМАЛЬНО: означает премию ~105% к книге, тогда как инвесткомпании РФ обычно торгуются с ДИСКОНТОМ к СЧА. Либо книжная оценка в источнике занижена/устарела, либо ошибка. См. anomaly_flag.",
+      "pb": 2.052,
       "ev_ebitda": null,
-      "ev_ebitda_note": "EV/EBITDA малоинформативен для инвесткомпании (EBITDA не раскрывается и не отражает суть бизнеса).",
-      "as_of": "2026-06-01"
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "pb_5y_median": null,
-      "period": "недостаточно данных"
+      "pe_basis": "not_applicable",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": null,
+      "period": "2021-2024"
     }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": null,
-      "ps": null,
-      "pb": null,
-      "ev_ebitda": null,
-      "ev_sales": null,
-      "roe": null
-    },
-    "2024": {
-      "pe": null,
-      "ps": null,
-      "pb": 2.05,
-      "ev_ebitda": null,
-      "ev_sales": null,
-      "roe": -8.0
-    },
-    "note": "6 ключей на год; для инвесткомпании релевантны только pb и roe, остальные null как нерелевантные. pb/roe — за 2024 (RBC), ненадёжны."
   },
   "forecast": {
     "source_type": "none",
     "providers": [],
     "revenue_growth_pct": [],
     "net_profit_growth_pct": [],
-    "note": "Прогноз невозможен: результат полностью определяется переоценкой портфеля (волатилен, знакопеременный), брокерское покрытие отсутствует, выручка не раскрывается. История нерепрезентативна (3 убыточных года из 4 последних)."
+    "note": "Брокерский консенсус отсутствует (3й эшелон, квалинвесторы). Механический прогноз невозможен: ЧП определяется переоценкой портфеля ЦБ, состав которого не раскрыт. В условиях цикла снижения ставок 2025-2026 NAV мог бы вырасти при облигационном портфеле, но подтвердить невозможно."
   },
   "valuation": {
-    "primary_method": "P/BV к СЧА",
     "methods": [
       {
-        "method": "DCF",
-        "fair_value_per_share": null,
+        "method": "NAV_discount",
+        "fair_value_per_share": 16.44,
         "horizon": "intrinsic_now",
-        "status": "not_applicable",
-        "note": "Инвестиционная компания: денежный поток = переоценка портфеля, прогноз FCF невозможен. DCF неприменим."
+        "key_assumptions": {
+          "nav_per_share_2024": 32.87,
+          "discount_pct": 50,
+          "discount_basis": "judgement",
+          "discount_components": "нет дивидендов 16 лет (-20%), непрозрачность портфеля (-10%), малоликвидность 3й эшелон (-10%), ROE<Ke (-10%)",
+          "equity_basis": "МСФО total_equity 2024 = 3582.987 млн руб."
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "total_equity_2024_mln": "3582.987 млн руб. — МСФО total_equity 2024 из extracted_financials.json [src_1]",
+            "shares": "109 000 000 шт. — из rates.csv [src_4]",
+            "nav_per_share": "32.87 руб. = 3 582 987 000 руб. / 109 000 000 акций",
+            "discount_conserv": "60% — консервативный: нет дивидендов 16+ лет, непрозрачность, малоликвидность, отриц. средний ROE [judgement]",
+            "discount_base": "50% — базовый: типичный для закрытой ИК без выплат в РФ [judgement]",
+            "discount_opt": "40% — оптимистичный: при частичном раскрытии или ожидании дивидендов [judgement]"
+          },
+          "steps": [
+            "Шаг 1. NAV/акцию = total_equity 2024 × 1000 руб/тыс / shares = 3 582 987 × 1000 / 109 000 000 = 32.87 руб.",
+            "Шаг 2. Обоснование дисконта к NAV: инвестиционная компания без дивидендов 16 лет = -20%; портфель не раскрыт (состав, оценка) = -10%; 3й эшелон, только квалинвесторы = -10%; средний ROE -1.95% против Ke 20% = -10%. Итого базовый дисконт 50%.",
+            "Шаг 3. Консервативная оценка: 32.87 × (1 - 0.60) = 32.87 × 0.40 = 13.15 руб. (P/NAV=0.40)",
+            "Шаг 4. Базовая оценка: 32.87 × (1 - 0.50) = 32.87 × 0.50 = 16.44 руб. (P/NAV=0.50)",
+            "Шаг 5. Оптимистичная оценка: 32.87 × (1 - 0.40) = 32.87 × 0.60 = 19.72 руб. (P/NAV=0.60)",
+            "Шаг 6. Текущий P/NAV = 67.449 / 32.87 = 2.052x — компания торгуется с 2x-ПРЕМИЕЙ к NAV. Это аномально для ИК без дивидендов.",
+            "Шаг 7. Контрольный вопрос: закрытые ИК/холдинги РФ торгуются 0.4-0.7x NAV при редких дивидендах; RUSI без дивидендов 16 лет → нижняя часть диапазона оправдана."
+          ],
+          "caveats": [
+            "Дисконт к NAV — суждение (judgement), не рыночный факт: нет котирующихся аналогов с публичным P/NAV в точном сравнении на МосБирже",
+            "NAV по МСФО = балансовая стоимость портфеля; реальная рыночная стоимость активов может отличаться (портфель не раскрыт)",
+            "Данные баланса 2022: equity+liab (4 366 млн) ≠ assets (3 629 млн), расхождение 737 млн — надёжность 2022 ограничена",
+            "Катализатора для сужения дисконта не видно: изменение дивполитики зависит исключительно от контролирующей группы (58.7%)",
+            "Малоликвидность: реализовать даже консервативную оценку без движения цены может быть сложно"
+          ]
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 80.94,
+        "horizon": "12m",
+        "key_assumptions": {
+          "Ke": 0.2,
+          "Rf": 0.146,
+          "beta": 0.6,
+          "ERP": 0.09,
+          "div_yield": 0.0
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, конец мая 2026 [src_3, market_params.json]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [src_3, market_params.json]",
+            "beta": "0.6 — оценка [judgement]: акция малоликвидна (3й эшелон), слабая корреляция с рынком; диапазон оценки 0.4-0.8",
+            "div_yield": "0% — дивиденды не выплачиваются с 2010 г. [src_2, governance.json]",
+            "current_price_for_calc": "67.449 руб. — из rates.csv [src_4], используется только для механической экстраполяции"
+          },
+          "steps": [
+            "Шаг 1. Ke = Rf + beta × ERP = 14.6% + 0.6 × 9.0% = 14.6% + 5.4% = 20.0%",
+            "Шаг 2. CAPM 12м таргет = текущая_цена × (1 + Ke - div_yield) = 67.449 × (1 + 0.20 - 0) = 67.449 × 1.20 = 80.94 руб.",
+            "Шаг 3. Интерпретация: при Ke=20% бумага должна вырасти на 20% за 12 мес. для обеспечения требуемой доходности инвестора",
+            "Шаг 4. Ограничение: CAPM механически экстраполирует от текущей цены. Если цена аномально завышена (P/NAV=2x), таргет наследует эту аномалию и не является фундаментальной оценкой."
+          ],
+          "caveats": [
+            "CAPM для малоликвидной акции с неизвестной бетой — очень приближённая оценка; бета 0.6 — суждение без статистического расчёта",
+            "Метод подтверждает требуемую доходность, но не обоснованность текущего уровня цены",
+            "Не включается в основной коридор (см. methods_divergence_note)"
+          ]
+        }
       },
       {
         "method": "historical_pe",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "status": "insufficient_data",
-        "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
-        },
-        "note": "Прибыль знакопеременная и отрицательная в TTM — P/E-оценка неприменима."
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "P/E не применим: ЧП инвестиционной компании полностью определяется нереализованной переоценкой портфеля ЦБ и резервами. За 4 года значения: +408, -673, +526, -553 млн руб. Капитализация прибыли давала бы бессмысленный и знакопеременный мультипликатор."
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Исторический P/B не применим: отсутствуют исторические рыночные цены по годам (2021-2024) для расчёта средних P/NAV. Текущий P/NAV=2.052x — единственная точка данных, статистически незначимая."
+          ]
+        }
+      },
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "DCF не применим: FCF инвестиционной компании = оборот портфеля ЦБ (CFO отрицательный: -627 млн в 2023, -339 млн в 2024 — инвестиции в ЦБ). Нет предсказуемого операционного денежного потока для дисконтирования."
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Дивидендная модель не применима: дивиденды не выплачивались с 2010 года (16 лет), в том числе в прибыльные 2021 (+408 млн) и 2023 (+526 млн). Нет оснований для прогноза DPS."
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "status": "pending_sector_backfill",
-        "key_assumptions": {
-          "peer_multiple": "pb",
-          "peer_median": null
-        },
-        "note": "Требуется медиана P/BV сектора инвесткомпаний/холдингов РФ после прогона сектора."
-      },
-      {
-        "method": "pbv_to_nav",
-        "fair_value_per_share": 22.13,
-        "horizon": "intrinsic_now",
-        "status": "ok_low_confidence",
-        "key_assumptions": {
-          "bvps_estimate": 31.61,
-          "bvps_source": "реконструкция от RBC P/BV=2.05",
-          "discount_to_book_base_pct": 30,
-          "discount_to_book_cons_pct": 50,
-          "rationale": "Убыточная инвесткомпания с ROE<0 и Ke≈26%; формула (ROE−g)/(Ke−g) даёт fair P/BV<0 → неинформативна. Применён эмпирический дисконт к книге (типичный для инвестхолдингов РФ 30–50%)."
-        },
-        "note": "База книжной стоимости ненадёжна (см. anomaly). Если реальная СЧА ближе к историческим 5+ млрд, BVPS и справедливая цена были бы существенно выше — поэтому коридор широкий."
-      },
-      {
-        "method": "CAPM",
-        "fair_value_per_share": null,
-        "horizon": "12m",
-        "status": "insufficient_data",
-        "key_assumptions": {
-          "ke": 26.3,
-          "beta": 1.3,
-          "rf": 14.6,
-          "erp": 9.0
-        },
-        "note": "Ke=14.6+1.3×9.0=26.3%. При отрицательной/непрогнозируемой прибыли CAPM-таргет не строится."
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Публичных аналогов — котируемых закрытых ИК с портфелем ЦБ — на МосБирже нет. Финансовые холдинги (АФК Система и др.) имеют принципиально иной бизнес-профиль. Относительная оценка невозможна без peers-кластера."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "NAV-дисконт (базовый 16.44 руб.) и CAPM-экстраполяция (80.94 руб.) расходятся в 4.9 раза. Причина: CAPM механически экстраполирует от текущей рыночной цены, которая торгуется с 2x-премией к NAV — аномалией, не имеющей фундаментального обоснования. NAV-дисконт — единственный применимый фундаментальный метод для данного типа компании. CAPM приведён справочно и не включается в итоговый коридор.",
     "fair_value_range": {
-      "conservative": 15.8,
-      "base": 22.13,
-      "current_price": 64.8,
-      "upside_downside_pct": -65.9,
-      "upside_downside_cons_pct": -75.6,
-      "range_note": "Коридор 15.8–22.1 руб против цены 64.8 руб даёт даунсайд 66–76%. ВАЖНО: вывод критически зависит от ненадёжной книжной базы. При альтернативной (исторической) СЧА вывод мог бы перевернуться. Трактовать как сигнал «цена сильно оторвана от единственной доступной книжной оценки», а не как точную справедливую цену."
+      "conservative": 13.15,
+      "base": 16.44,
+      "optimistic": 19.72
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "discount_grid": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7
+      ],
+      "nav_per_share_2024": 32.87,
+      "matrix": [
+        23.01,
+        19.72,
+        16.44,
+        13.15,
+        9.86
+      ],
+      "note": "fair_value = 32.87 × (1 - discount%). Матрица: дисконт [30%, 40%, 50%, 60%, 70%] → цена [23.01, 19.72, 16.44, 13.15, 9.86] руб."
     }
   },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "peer_group": "investment_companies_holdings_RU",
-    "note": "Сравнение по медиане P/BV сектора заполнить после прогона сектора finance/инвесткомпании."
-  },
-  "anomaly_flag": true,
-  "anomaly_note": "(1) RBC даёт P/BV=2.05 → премия ~105% к книге, что противоречит природе инвесткомпании (обычно дисконт к СЧА) и историческим данным (СЧА ~5.2 млрд на 2016 при текущей капитализации ~7 млрд). Книжная оценка источника, вероятно, занижена/устарела ИЛИ ошибочна. (2) ROE −8% (RBC) не сходится с убытком −552.56 млн на implied equity 3445.5 (даёт −16%). (3) РСБУ и МСФО результаты сильно расходятся по годам. Итог: все балансовые/оценочные метрики помечены low confidence; data_quality=low.",
   "sources": [
     {
       "id": "src_1",
       "type": "official_report",
-      "title": "MOEX ISS — котировка и параметры выпуска RUSI (TQBR)",
-      "period": "2026-06-01",
+      "title": "Консолидированная финансовая отчётность МСФО ИК РУСС-ИНВЕСТ, extracted_financials.json",
+      "period": "2021-2024",
+      "url": "https://www.russ-invest.com/investors/emitent/financial-statements/int_standart/",
       "reliability": "high"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "Smart-Lab — форум/финпоказатели RUSI (РСБУ/МСФО 2022–2025, долг)",
-      "period": "2022–2025",
-      "reliability": "medium"
+      "type": "internal",
+      "title": "governance.json RUSI — дивидендная история, структура акционеров",
+      "period": "2007-2026",
+      "url": "",
+      "reliability": "high"
     },
     {
       "id": "src_3",
-      "type": "official_report",
-      "title": "Cbonds — чистый убыток МСФО за 2025 (−270 млн)",
-      "period": "2025",
+      "type": "internal",
+      "title": "market_params.json — макропараметры (ОФЗ 14.6%, ERP 9.0%, КС 14.5%)",
+      "period": "2026-05-31",
+      "url": "",
       "reliability": "high"
     },
     {
       "id": "src_4",
-      "type": "aggregator",
-      "title": "RBC Quote — P/BV 2.05, ROE −8%, EPS −2.47, капитализация",
-      "period": "2026",
-      "reliability": "low"
-    },
-    {
-      "id": "src_5",
-      "type": "aggregator",
-      "title": "Blackterminal — чистая прибыль по годам, фрагменты выручки",
-      "period": "2020–2025",
-      "reliability": "low"
-    },
-    {
-      "id": "src_6",
-      "type": "aggregator",
-      "title": "Investfunds / Rusprofile — капитализация, EPS, история, активы/СЧА 2016",
-      "period": "2016–2026",
-      "reliability": "low"
-    },
-    {
-      "id": "src_7",
-      "type": "official_report",
-      "title": "russ-invest.com — корпоративная информация, структура капитала",
-      "period": "2024–2026",
-      "reliability": "medium"
+      "type": "internal",
+      "title": "rates.csv — цена 67.449 руб., акций 109 000 000, капитализация 7.37 млрд руб.",
+      "period": "2026-06-13",
+      "url": "",
+      "reliability": "high"
     }
   ],
   "data_flags": [
-    "Собственный капитал / СЧА за 2020–2025 НЕ раскрыты в открытом доступе — единственная оценка equity 2024 реконструирована от RBC P/BV и сомнительна.",
-    "P/BV=2.05 (премия к книге) аномален для инвесткомпании — см. anomaly_note.",
-    "ROE −8% не сходится с убытком/implied equity (−16%).",
-    "Выручка/EBITDA/денежные потоки не раскрываются → P/S, EV/EBITDA, FCF неинформативны/null.",
-    "Net profit 2020–2021 — РСБУ-прокси (RBC), низкая надёжность; ряд МСФО за эти годы не подтверждён.",
-    "РСБУ и МСФО результаты заметно расходятся по годам.",
-    "Прогноз и DCF неприменимы (волатильная переоценка портфеля, нет покрытия).",
-    "relative_peers и peer_multiples ждут секторного бэкфилла."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "pb",
-    "peer_median": 0.88,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "Инвестиционная компания: ЧП полностью определяется переоценкой портфеля ЦБ — P/E, DCF, дивидендная не применимы",
+    "Портфель ЦБ (основной актив) по составу не раскрыт — оценка NAV = балансовой стоимости, не рыночной стоимости портфеля",
+    "Баланс 2022: equity+liab (4 366 млн) ≠ total_assets (3 629 млн), расхождение 737 млн — данные 2022 ограниченно надёжны",
+    "Данные 2024: total_assets и total_liabilities отсутствуют в extracted_financials.json — NAV 2024 только по equity",
+    "Исторические рыночные цены по годам недоступны — исторический P/NAV не рассчитан",
+    "Дисконт к NAV (40-60%) — суждение (judgement) без прямых публичных аналогов на российском рынке",
+    "2025 год: данных по МСФО нет; по governance.json убыток ~270 млн, дивиденды не рекомендованы (СД 14.05.2026)",
+    "P/NAV текущий = 2.052x — аномальная ПРЕМИЯ к NAV; экономического фундаментального объяснения нет",
+    "Малоликвидность: акции доступны только квалифицированным инвесторам, 3й эшелон МосБиржи"
+  ]
 }

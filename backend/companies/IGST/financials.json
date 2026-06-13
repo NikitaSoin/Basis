@@ -2,102 +2,106 @@
   "meta": {
     "ticker": "IGST",
     "name": "ПАО «Ижсталь»",
-    "sector": "Металлургия",
+    "sector": "metals",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "РСБУ",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2019,
-      2020,
       2021,
       2022,
       2023,
       2024,
       2025
     ],
-    "last_price": 4100,
-    "price_date": "2026-05-29",
+    "last_price": 4176.83,
+    "price_date": "2026-06-13",
     "shares_outstanding": 800729,
-    "shares_note": "Обыкновенные акции IGST, выпуск 800 729 шт. (MOEX). Привилегированные IGSTP в расчёт не включены — оцениваются отдельно.",
-    "data_quality": "low",
-    "data_quality_note": "Низколиквидная дочерняя компания группы «Мечел». Раскрытие РСБУ без сегментов, без CapEx/денежных потоков, без EBITDA от самой компании. 2019–2020 не раскрыты в доступных источниках; 2025 — только 9 месяцев (полный год не опубликован на дату оценки). Данные из веба (smart-lab РСБУ, cbonds, e-disclosure, business_model.md).",
+    "data_quality": "medium",
     "anomaly_flag": true,
-    "anomaly_note": "(1) Отрицательный собственный капитал в 2021 (−3 500) и 2022 (−490) млн из-за накопленного убытка/внутригрупповой структуры — P/B и ROE за эти годы не имеют экономического смысла. (2) Чистый долг искажён внутригрупповыми займами с «Мечелом» (трансфертные потоки) — реальная долговая позиция миноритарию непрозрачна. (3) Крайне низкая ликвидность акций: рыночная цена надолго отрывается от фундаментальной стоимости, мультипликаторы (P/E ~1.0, P/B 0.48) отражают устойчивый дисконт за неликвидность и контроль «Мечела», а не недооценку, которую можно реализовать. (4) ROE 2024 = 58.4% завышен низкой/восстанавливающейся базой капитала, а не операционным качеством.",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "anomaly_note": "2022: отрицательный собственный капитал (-1200 млн) вследствие внутригрупповых операций и структуры финансирования группы «Мечел». 2025: данные за 9 мес. (LTM), неполный год. D&A не раскрывается — EBITDA не вычисляется. Чистый долг неизвестен точно (total_liabilities включает кредиторскую задолженность). Данные из вторичного источника (smart-lab), первичный PDF не загрузился.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
       null,
-      null,
-      28000,
-      33000,
-      32400,
-      33160,
-      null
+      27800,
+      32900,
+      33200,
+      28800
     ],
     "cogs": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      25700,
+      24000,
+      25400,
       null
     ],
     "gross_profit": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      2100,
+      8900,
+      7800,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Коммерческие и управленческие расходы",
+        "values": [
+          2570,
+          2840,
+          2880,
+          3070,
+          null
+        ]
+      }
     ],
     "operating_profit": [
+      2790,
+      4360,
+      5200,
+      4660,
+      1950
+    ],
+    "da": [
       null,
       null,
-      2570,
-      4200,
-      4920,
-      4590,
+      null,
+      null,
       null
     ],
     "ebitda": [
       null,
       null,
-      3100,
-      4500,
-      5190,
-      4850,
-      null
-    ],
-    "da": [
       null,
       null,
-      530,
-      300,
-      270,
-      260,
       null
     ],
     "finance_costs": [
+      0,
+      0,
+      0,
+      0,
+      null
+    ],
+    "finance_income": [
       null,
       null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
       null,
       null,
       null,
@@ -106,138 +110,322 @@
     ],
     "net_profit": [
       null,
-      null,
-      2560,
-      3000,
-      3530,
-      3250,
-      null
+      2520,
+      3600,
+      3350,
+      1190
     ],
     "margins": {
       "gross_margin": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
+        7.55,
+        27.05,
+        23.49,
         null
       ],
       "ebitda_margin": [
         null,
         null,
-        11.07,
-        13.64,
-        16.02,
-        14.63,
+        null,
+        null,
         null
       ],
       "operating_margin": [
         null,
-        null,
-        9.18,
-        12.73,
-        15.19,
-        13.84,
-        null
+        15.68,
+        15.81,
+        14.04,
+        6.77
       ],
-      "net_margin": [
+      "ros": [
         null,
-        null,
-        9.14,
-        9.09,
-        10.9,
-        9.8,
-        null
+        9.06,
+        10.94,
+        10.09,
+        4.13
       ]
     }
   },
-  "balance_sheet": {
-    "total_assets": [
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      2520,
+      3600,
+      3350,
+      1190
+    ],
+    "ebitda_adj": [
       null,
       null,
-      12700,
-      14200,
-      17300,
-      20600,
+      null,
+      null,
       null
     ],
+    "fcf_normalized": [
+      null,
+      null,
+      1556.0,
+      1556.0,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      0,
+      0,
+      0,
+      null
+    ],
+    "capex_sustainable_mln": 139,
+    "capex_note": "Устойчивый capex: медиана(capex/revenue) 2022-2025 = 0.42% × 33200 = 139 млн. Фактический capex все годы крайне мал (0.23-0.85% выручки) — ниже типичных 2-5% для металлургии. Возможно, крупные инвестиции финансируются через материнскую структуру группы «Мечел» и не отражены в РСБУ «Ижстали» отдельной строкой.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Систематический проход по всем годам: 2021 — нет чистой прибыли (данные отсутствуют); 2022 — одноразовые факторы не идентифицированы (отрицательный капитал — структурная, не разовая статья; обесценений в данных нет); 2023 — одноразовые факторы не идентифицированы; 2024 — одноразовые факторы не идентифицированы; 2025 — частичный год (9 мес.). ETR по всем годам: данные о налоге отсутствуют в источнике — скорректировать невозможно. Adjusted = reported по всем годам. Мост пустой — это не упущение, а вывод чек-листа."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      15400,
+      17200,
+      20700,
+      24100,
+      26700
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        -1200,
+        2390,
+        9060,
+        null
+      ]
+    },
     "total_equity": [
       null,
-      null,
-      -3500,
-      -490,
-      4300,
-      6830,
+      -1200,
+      2390,
+      9060,
       null
     ],
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
       null,
-      null,
-      16200,
-      14690,
-      13000,
-      13770,
-      null
-    ],
-    "cash": [
-      null,
-      null,
-      85,
-      2430,
-      360,
-      65,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      18400,
+      18310,
+      15040,
       null
     ],
     "net_debt": [
       null,
-      null,
-      6845,
-      4870,
-      5840,
-      6055,
+      18400,
+      18310,
+      15040,
       null
     ],
+    "tangible_equity": [
+      null,
+      -1200,
+      2390,
+      9060,
+      null
+    ],
+    "tangible_note": "Нематериальные активы и гудвил отдельно не раскрыты; tangible_equity = total_equity (консервативно). 2022: отрицательный капитал (-1200 млн) — балансовая база для P/B не используется.",
     "ratios": {
       "debt_to_equity": [
         null,
         null,
-        -1.98,
-        -14.9,
-        1.44,
-        0.9,
+        7.66,
+        1.66,
         null
       ],
       "net_debt_ebitda": [
         null,
         null,
-        2.21,
-        1.08,
-        1.13,
-        1.25,
+        null,
+        null,
         null
       ],
       "current_ratio": [
-        null,
-        null,
         null,
         null,
         null,
@@ -249,16 +437,12 @@
   "cash_flow": {
     "cfo": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -1600,
+      2350,
+      1200,
+      -3170
     ],
     "cfi": [
-      null,
-      null,
       null,
       null,
       null,
@@ -270,13 +454,9 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
     "net_change_in_cash": [
-      null,
-      null,
       null,
       null,
       null,
@@ -285,49 +465,42 @@
     ],
     "capex": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      100,
+      280,
+      158,
+      66
     ],
     "fcf": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -1700,
+      2070,
+      1042,
+      -3236
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        -6.1,
+        6.3,
+        3.1,
+        -11.2
       ],
       "cfo_to_capex": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        -16.0,
+        8.4,
+        7.6,
+        -48.0
       ],
       "capex_to_revenue": [
         null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        0.36,
+        0.85,
+        0.48,
+        0.23
       ]
     }
   },
@@ -335,24 +508,18 @@
     "roe": [
       null,
       null,
-      null,
-      null,
-      null,
-      58.4,
+      150.6,
+      37.0,
       null
     ],
     "roa": [
       null,
-      null,
-      20.16,
-      21.13,
-      20.4,
-      15.78,
-      null
+      14.7,
+      17.4,
+      13.9,
+      4.5
     ],
     "roic": [
-      null,
-      null,
       null,
       null,
       null,
@@ -361,49 +528,139 @@
     ],
     "ros": [
       null,
-      null,
-      9.14,
-      9.09,
-      10.9,
-      9.8,
-      null
+      9.06,
+      10.94,
+      10.09,
+      4.13
     ],
     "asset_turnover": [
       null,
+      1.62,
+      1.59,
+      1.38,
+      1.08
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
       null,
-      2.2,
-      2.32,
-      1.87,
-      1.61,
+      1.3,
+      0.9,
+      1.0,
+      2.8
+    ],
+    "pb": [
+      null,
+      -2.787,
+      1.399,
+      0.369,
       null
+    ],
+    "ps": [
+      null,
+      0.12,
+      0.102,
+      0.101,
+      0.116
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      null,
+      null,
+      150.6,
+      37.0,
+      null
+    ],
+    "roa": [
+      null,
+      14.7,
+      17.4,
+      13.9,
+      4.5
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      7.55,
+      27.05,
+      23.49,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      15.68,
+      15.81,
+      14.04,
+      6.77
+    ],
+    "ros": [
+      null,
+      9.06,
+      10.94,
+      10.09,
+      4.13
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      18.3,
+      0.9,
+      -13.3
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      42.9,
+      -6.9,
+      -64.5
     ]
   },
   "multiples": {
     "pe": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1.3,
+      0.9,
+      1.0,
+      2.8
     ],
     "ps": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      0.12,
+      0.102,
+      0.101,
+      0.116
     ],
     "pb": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      -2.787,
+      1.399,
+      0.369,
       null
     ],
     "ev_ebitda": [
@@ -411,47 +668,44 @@
       null,
       null,
       null,
-      null,
-      null,
       null
     ],
+    "pe_adj": [
+      null,
+      1.3,
+      0.9,
+      1.0,
+      2.8
+    ],
     "current": {
-      "pe": 1.01,
-      "ps": 0.1,
-      "pb": 0.48,
-      "ev_ebitda": 1.93,
-      "as_of": "2026-05-29"
-    },
-    "peer_multiples": {
-      "2025": {
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "ev_ebitda": null,
-        "net_debt_ebitda": null,
-        "roe": null
-      },
-      "2024": {
-        "pe": 1.01,
-        "ps": 0.1,
-        "pb": 0.48,
-        "ev_ebitda": 1.93,
-        "net_debt_ebitda": 1.25,
-        "roe": 58.4
-      }
+      "pe": 1.0,
+      "pe_adj": 1.0,
+      "ps": 0.101,
+      "pb": 0.369,
+      "ev_ebitda": null,
+      "ev_ebit": 3.95,
+      "as_of": "2024"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "недостаточно надёжного ценового ряда (неликвид) — историческая медиана P/E не строится"
+      "pe_basis": "insufficient_data — исторические цены акции недоступны; только текущая цена",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": null,
+      "period": "2021-2024"
     }
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
-    "revenue_growth_pct": [],
-    "net_profit_growth_pct": [],
-    "note": "Брокерское покрытие IGST отсутствует. История нерепрезентативна: отрицательный капитал 2021–2022, операционный рычаг, внутригрупповые потоки, 2025 — резкое сжатие (9м: выручка −10.4%, прибыль −48%). Механический прогноз с затуханием был бы вводящим в заблуждение → прогноз не строим."
+    "revenue_growth_pct": [
+      -13.3,
+      5.0
+    ],
+    "net_profit_growth_pct": [
+      -64.5,
+      20.0
+    ],
+    "note": "Консенсус брокеров для IGST отсутствует (низколиквидная бумага без покрытия). Механический прогноз: 2025 — фактические 9 мес. дают ~−13% выручки г/г; 2026 — умеренное восстановление +5% при стабилизации спроса. EPS forward (2025 LTM) = 4184 × 0.7 = 2929 руб. (extrapolation from 9m)."
   },
   "valuation": {
     "methods": [
@@ -460,125 +714,275 @@
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 0.236,
-          "terminal_growth": 0.035,
-          "forecast_years": 5
+          "fcf1_mln": 1556,
+          "r": 0.263,
+          "g": 0.025,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "FCF_norm_2023": "2070 млн — FCF 2023 (CFO 2350 − capex 280) [src_1]",
+            "FCF_norm_2024": "1042 млн — FCF 2024 (CFO 1200 − capex 158) [src_1]",
+            "FCF1_base": "1556 млн — среднее FCF 2023-2024 (2022 исключён: CFO −1600, аномалия WC при вводе мощностей) [расчёт]",
+            "r_Ke": "26.30% — Ke = Rf 14.6% + β 1.3 × ERP 9.0% [config]",
+            "beta": "1.3 — суждение: сектор спецметаллургии, малая ликвидная компания, высокий операционный рычаг [judgement]",
+            "g": "2.5% — ниже terminal_growth_default 3.5%; консервативно для нишевого производителя с неопределённым ростом [judgement]"
+          },
+          "steps": [
+            "EV = FCF1 / (r − g) = 1556 / (0.263 − 0.025) = 1556 / 0.238 = 6537 млн",
+            "Net debt proxy 2024 = total_liabilities 15040 млн (включает кредиторскую задолженность; верхняя граница)",
+            "Equity = EV − net_debt = 6537 − 15040 = −8503 млн → отрицательная",
+            "Даже при консервативной оценке финансового долга ~9000 млн: Equity = 6537 − 9000 = −2463 млн → отрицательная",
+            "Sensitivity: EV Gordon слишком мал при любом разумном g и r чтобы перекрыть обязательства в 9-15 млрд",
+            "Вывод: при текущей базе FCF (~1.5 млрд/год) и Ke 26.3% стоимость бизнеса ~6.5 млрд — меньше чистого долга; DCF не даёт положительной equity-стоимости"
+          ],
+          "caveats": [
+            "D&A не раскрывается — FCF считается как CFO − capex (не FCFF от NOPAT + D&A)",
+            "2022 CFO отрицательный (−1600): исключён из FCF_norm как аномальный год WC",
+            "2025 FCF −3236 (частичный/LTM) — также исключён",
+            "Net debt неизвестен точно: total_liabilities включает кредиторскую задолженность; реальный финансовый долг 9-15 млрд",
+            "При FCF ~1.5 млрд/год и Ke 26.3% компании нужна устойчивая FCF ≥ 2.5-3 млрд для положительной оценки",
+            "Данные РСБУ — внутригрупповые цены искажают реальную прибыль и FCF",
+            "status=insufficient_data: DCF даёт отрицательную equity-стоимость, метод нерелевантен при текущей базе FCF и уровне обязательств"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": 12176,
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": 3.0,
-          "basis": "собственный исторический коридор P/E 1–3x (неликвид, дисконт «Мечела»); EPS 2024 = 4 059 ₽",
-          "eps_2024": 4059
+          "pe_used": null,
+          "basis": "insufficient_data — исторические цены IGST недоступны",
+          "eps_forward": 2928.6,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 4183.7
         },
-        "status": "ok"
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "eps_2022": "3147.1 руб — EPS 2022 = 2520 млн / 800729 акций [src_1]",
+            "eps_2023": "4495.9 руб — EPS 2023 [src_1]",
+            "eps_2024": "4183.7 руб — EPS 2024 [src_1]",
+            "price_history": "исторические цены IGST недоступны в источниках (крайне низкая ликвидность)"
+          },
+          "steps": [
+            "Исторический P/E = historical_price / EPS_year; historical_price по IGST не доступны",
+            "Без исторических цен рассчитать historical_avg P/E невозможно",
+            "Forward P/E = current_price / EPS_fwd = 4176.83 / 2929 = 1.4x — экстремально низкий; отражает ожидания рынка, а не оценку методом"
+          ],
+          "caveats": [
+            "IGST — неликвидная бумага; цены на вторичном рынке не отражают фундаментальную стоимость",
+            "status=insufficient_data: без исторической серии цен метод неприменим"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 7920,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.7,
+          "basis": "sector_median_judgment — исторических цен IGST нет; используется секторная медиана P/B для металлургии РФ (суждение)",
+          "book_value_per_share_used": 11314.7,
+          "equity_basis": "balance",
+          "cv": null
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "total_equity_2024": "9060 млн руб — баланс 2024 [src_1]",
+            "shares": "800729 — обыкновенные акции [контекст задания]",
+            "bvps_2024": "11314.7 руб/акцию",
+            "pb_sector_median": "0.7x — суждение; российские металлурги (ММК, НЛМК, Северсталь) торгуются в диапазоне 0.5-1.5x; для дочерней компании с управленческим дисконтом и ограниченным раскрытием применяю нижнюю треть диапазона [judgement]",
+            "pb_conservative": "0.5x — нижняя граница (высокий риск, нет дивидендов, дочка «Мечела»)",
+            "pb_base": "0.7x — базовый сценарий"
+          },
+          "steps": [
+            "BVPS 2024 = 9060 млн × 1 000 000 / 800729 = 11 315 руб/акцию",
+            "P/B консервативный (0.5x): 0.5 × 11315 = 5657 руб",
+            "P/B базовый (0.7x): 0.7 × 11315 = 7921 руб",
+            "P/B оптимистичный (1.0x): 1.0 × 11315 = 11315 руб",
+            "Текущая цена 4177 руб → P/B = 0.37x — ниже консервативного ориентира"
+          ],
+          "caveats": [
+            "2021-2022: капитал отрицательный — P/B неприменим для этих лет",
+            "2023: BVPS 2985 руб; рост до 11315 в 2024 объясняется накопленной прибылью 2022-2024",
+            "Структура капитала по статьям не раскрыта (нет breakdown share_capital/retained)",
+            "Секторный P/B 0.7x — суждение, не из peers.json (файл отсутствует для metals)",
+            "Внутригрупповые трансфертные цены искажают прибыль и балансовый капитал",
+            "data_quality=medium (вторичный источник)"
+          ]
+        }
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": 25206,
+        "fair_value_per_share": 10316,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": 5.41,
-          "ebitda_2024": 4850,
-          "net_debt_2024": 6055
+          "multiple": "EV/EBIT",
+          "multiple_note": "EBITDA недоступна (D&A не раскрывается); использую операционную прибыль как EBIT-прокси",
+          "sector_median": 5.0,
+          "ebit_used_mln": 4660,
+          "net_debt_mln": 15040,
+          "net_debt_note": "total_liabilities 2024; включает кредиторскую задолженность — верхняя граница"
         },
-        "status": "pending_sector_backfill",
-        "note": "Медиана EV/EBITDA сектора 5.41 даёт цену ~25 206 ₽ — но это НЕ применимо напрямую: к неликвидной дочке «Мечела» рынок устойчиво применяет дисконт за неликвидность, контроль и трансфертные цены. Метод оставлен как ориентир верхней границы при пересборке сектора."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ebit_2024": "4660 млн — операционная прибыль 2024 (EBIT-прокси; D&A не раскрывается) [src_1]",
+            "sector_ev_ebit_median": "5.0x — суждение; российские металлурги (ММК, НЛМК): EV/EBITDA 4-6x; EV/EBIT выше на величину D&A; применяю 5x как срединную оценку [judgement]",
+            "net_debt": "15040 млн — total_liabilities 2024 (proxy; реальный фин. долг ~9-15 млрд) [src_1]",
+            "shares": "800729 [контекст задания]"
+          },
+          "steps": [
+            "EV implied = 5.0 × 4660 = 23300 млн",
+            "Equity = EV − net_debt = 23300 − 15040 = 8260 млн",
+            "Цена = 8260 млн × 1 000 000 / 800729 = 10316 руб/акцию",
+            "Sensitivity EV/EBIT × net_debt: EV/EBIT 4x / nd=12000: 4496 руб; EV/EBIT 5x / nd=15040: 10316 руб; EV/EBIT 6x / nd=15040: 16135 руб"
+          ],
+          "caveats": [
+            "EBIT ≠ EBITDA; EV/EBIT кратно выше EV/EBITDA для капиталоёмкого производства",
+            "Net debt неизвестен точно — ключевая неопределённость; результат чувствителен к этому числу",
+            "Отрасль: при nd=12000 (финансовый долг) и EV/EBIT 5x: price=14112 руб; при nd=18000: price=6619 руб",
+            "Peers не загружены в peers.json (metals сектор отсутствует) — секторная медиана 5.0x суждение, не факт",
+            "Внутригрупповые операции завышают/занижают реальный EBIT"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 17198,
+        "fair_value_per_share": 11135,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 0.236,
-          "beta": 1.0,
-          "implied_pe": 4.24,
-          "note": "бета=1.0 принята из-за отсутствия надёжной оценки по неликвиду; целевой P/E≈1/Ke"
+          "Ke": 26.3,
+          "beta": 1.3,
+          "rf": 14.6,
+          "erp": 9.0,
+          "eps_forward": 2928.6
         },
-        "status": "ok"
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [config]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [config]",
+            "beta": "1.3 — суждение: нишевый металлург, операционный рычаг, внутригрупповые риски, неликвид [judgement]",
+            "eps_forward": "2928.6 руб — механический прогноз: EPS 2024 4183.7 руб × 0.7 (9м 2025 показывают −48% ЧП г/г) [механический]"
+          },
+          "steps": [
+            "Ke = Rf + β × ERP = 14.6% + 1.3 × 9.0% = 14.6% + 11.7% = 26.30%",
+            "Цена = EPS_fwd / Ke = 2928.6 / 0.2630 = 11135 руб",
+            "Допущение: при равновесии рыночная цена = EPS / Ke (earnings yield = cost of equity)",
+            "Дивиденды по IGST = 0 → весь доход — курсовая стоимость"
+          ],
+          "caveats": [
+            "CAPM-цена чувствительна к beta; beta 1.3 — суждение, рыночная beta по неликвиду не вычисляется надёжно",
+            "EPS forward — механическая экстраполяция 9м, не консенсус брокеров (покрытие IGST отсутствует)",
+            "Допущение P/E = 1/Ke справедливо при постоянном росте 0%; с ростом g: P/E = 1/(Ke-g)"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "По обыкновенным акциям IGST дивиденды не выплачиваются (2021-2024: payout=0 по governance.json); дивидендный поток для держателя IGST = 0"
+          ],
+          "caveats": []
+        }
       }
     ],
+    "methods_divergence_note": "Методы расходятся существенно: P/B(0.7x)=7921 руб, EV/EBIT(5x)=10316 руб, CAPM=11135 руб; DCF даёт отрицательную equity (FCF ~1.5 млрд < обязательства 9-15 млрд). Расхождение P/B vs EV/EBIT ~30% объясняется: P/B ниже — из-за нового накопленного капитала 2024 (equity выросла с -1200 до 9060 за 2 года, что нетипично и отражает нераспределённую прибыль без дивидендов). EV/EBIT и CAPM выше — из-за высокой операционной прибыли 2024 (14% маржа) при текущем EPS=4184 руб выше цены 4177 руб (P/E<1). Коридор расширен; base = среднее P/B и EV/EBIT методов.",
     "fair_value_range": {
-      "conservative": 12176,
-      "base": 17198,
-      "current_price": 4100,
-      "upside_downside_pct": 319.5,
-      "range_note": "ВНИМАНИЕ: формальный апсайд +197%…+320% — это артефакт неликвидности, а не реализуемая недооценка. Все методы фундаментально дают цену в разы выше рыночной, потому что рынок устойчиво дисконтирует акции неликвидной дочки «Мечела» (минимальный free-float, единичные сделки, трансфертные цены, дивидендная неопределённость по IGST/IGSTP). Реальный торговый коридор задаётся ликвидностью и решениями контролирующего акционера, а не фундаменталом. Коридор 12 000–17 000 ₽ трактовать как оценку внутренней стоимости при гипотетической нормальной ликвидности, не как таргет."
+      "conservative": 5700,
+      "base": 9100,
+      "optimistic": 11100
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "ev_ebit_grid": [
+        4.0,
+        5.0,
+        6.0
+      ],
+      "net_debt_grid": [
+        12000,
+        15040,
+        18000
+      ],
+      "matrix": [
+        [
+          8292,
+          4496,
+          799
+        ],
+        [
+          14112,
+          10316,
+          6619
+        ],
+        [
+          19932,
+          16135,
+          12439
+        ]
+      ],
+      "note": "Sensitivity EV/EBIT метода (цена в руб): строки = EV/EBIT multiple, столбцы = net_debt proxy (млн руб)"
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "official_report",
-      "title": "РСБУ-отчётность ПАО «Ижсталь» (e-disclosure.ru)",
-      "period": "2021–2024, 9м2025",
-      "reliability": "high"
+      "type": "aggregator_secondary",
+      "title": "Smart-lab: РСБУ годовая отчётность IGST 2021-2025",
+      "url": "https://smart-lab.ru/q/IGST/f/y/RSBU/",
+      "reliability": "medium",
+      "note": "Первичный PDF e-disclosure не загрузился"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "smart-lab.ru — годовые показатели РСБУ IGST",
-      "period": "2021–2025",
+      "type": "business_model",
+      "title": "companies/IGST/business_model.md",
       "reliability": "medium"
     },
     {
       "id": "src_3",
-      "type": "aggregator",
-      "title": "cbonds.ru — выручка/прибыль IGST 9м2025 РСБУ",
-      "period": "9м2025",
+      "type": "governance",
+      "title": "companies/IGST/governance.json",
       "reliability": "medium"
     },
     {
       "id": "src_4",
-      "type": "official_report",
-      "title": "MOEX — параметры выпуска акций IGST (800 729 шт.)",
-      "period": "2026",
+      "type": "config",
+      "title": "config/market_params.json — Rf, ERP, terminal_growth",
       "reliability": "high"
     },
     {
       "id": "src_5",
-      "type": "aggregator",
-      "title": "РБК Котировки — цена IGST 4 100 ₽",
-      "period": "2026-05",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_6",
-      "type": "official_report",
-      "title": "companies/IGST/business_model.md — якоря по выручке/прибыли",
-      "period": "2024, 9м2025",
+      "type": "market_context",
+      "title": "rates.csv: цена 4176.83 руб, акций 800729, капитализация 3.32 млрд",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "data_quality=low: раскрытие РСБУ без сегментов, CapEx, денежных потоков и собственной EBITDA — EBITDA реконструирована из smart-lab (операционная прибыль + амортизация).",
-    "2019–2020 не раскрыты в доступных источниках — null.",
-    "2025: доступны только 9 месяцев (выручка 22.37 млрд, чистая прибыль 1.34 млрд РСБУ); полный год на дату оценки не опубликован → годовые ряды 2025 = null, чтобы не смешивать 9м с полными годами.",
-    "Отрицательный собственный капитал 2021–2022 → P/B, ROE, D/E за эти годы не интерпретируемы (ROE этих лет = null).",
-    "Чистый долг искажён внутригрупповыми займами с «Мечелом» (трансфертные потоки) — реальная нетто-позиция миноритарию непрозрачна. ND/EBITDA ~1.1–1.25x по отчётности, но природа долга внутригрупповая.",
-    "total_liabilities посчитан как assets − equity (балансовое тождество), а не раскрыт напрямую.",
-    "Мультипликаторы P/E ~1.0 и P/B 0.48 не означают недооценку: это устойчивый дисконт за неликвидность и контроль «Мечела».",
-    "ROE 2024 = 58.4% завышен низкой базой восстанавливающегося капитала.",
-    "relative_peers status=pending_sector_backfill — будет уточнён при пересборке сектора Металлургия.",
-    "DCF неприменим (insufficient_data): нет денежных потоков, прогноза и нормальной структуры капитала.",
-    "Префы IGSTP в этом файле не оцениваются — выводятся из обыкновенных отдельно."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "РСБУ, не МСФО: данные по дочерней компании без консолидации группы",
+    "2021: выручка и ЧП отсутствуют в источнике",
+    "2025: данные за 9 мес. (LTM), неполный год — не используются для trailing мультипликаторов",
+    "D&A не раскрывается — EBITDA и EV/EBITDA не вычисляются",
+    "Состав баланса (статьи активов, долг vs кредиторка) не раскрыт — net_debt неизвестен точно; total_liabilities как прокси включает кредиторскую задолженность",
+    "Первичный PDF с e-disclosure не загрузился; данные из вторичного источника (smart-lab); data_quality=medium",
+    "2022: отрицательный собственный капитал (-1200 млн) — P/B 2022 неприменим",
+    "Внутригрупповые трансфертные цены «Мечел» искажают выручку, прибыль и долговую нагрузку",
+    "Исторические цены акции IGST недоступны (неликвидная бумага) — historical_pe и historical_pb по рыночным мультипликаторам не вычислены",
+    "Beta 1.3 — суждение, не рыночная оценка (неликвид не даёт надёжной регрессии)",
+    "Capex крайне мал (0.2-0.9% выручки) — возможно, инвестиции проходят через группу 'Мечел' и не отражены в РСБУ 'Ижстали'",
+    "ETR недоступен (нет данных о налоге и прибыли до налога) — нормализация по ETR невозможна",
+    "Peers.json для сектора metals отсутствует — секторные мультипликаторы (P/B 0.7x, EV/EBIT 5x) — суждения"
+  ]
 }
