@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "ticker": "MRSB",
+    "name": "ПАО Мордовская энергосбытовая компания",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "тыс.",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "e-disclosure",
+      "url": "https://www.e-disclosure.ru/portal/company.aspx?id=5754",
+      "doc_title": "Годовые отчёты ПАО Мордовская энергосбытовая компания",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      7635987,
+      8354123
+    ],
+    "cogs": [
+      null,
+      3626411,
+      3870245
+    ],
+    "gross_profit": [
+      null,
+      4009576,
+      4483878
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы (Расходы на реализацию)",
+        "values": [
+          null,
+          3581598,
+          4003300
+        ]
+      },
+      {
+        "name": "Управленческие расходы (Административные)",
+        "values": [
+          null,
+          0,
+          0
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      427978,
+      480578
+    ],
+    "da": [
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      2379,
+      12745
+    ],
+    "finance_costs": [
+      null,
+      37222,
+      51753
+    ],
+    "pre_tax_profit": [
+      null,
+      196958,
+      293732
+    ],
+    "income_tax": [
+      null,
+      51242,
+      74662
+    ],
+    "net_profit": [
+      null,
+      145716,
+      219128
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "intangibles": [
+        0,
+        1793,
+        3447
+      ],
+      "ppe": [
+        467959,
+        532994,
+        564625
+      ],
+      "goodwill": [
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "deferred_tax_asset": [
+        15075,
+        38808,
+        40726
+      ],
+      "other_non_current": [
+        106582,
+        100513,
+        100572
+      ],
+      "total_non_current": [
+        589616,
+        674108,
+        709370
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        2318,
+        17083,
+        21452
+      ],
+      "receivables": [
+        809833,
+        685038,
+        694591
+      ],
+      "cash": [
+        57624,
+        38970,
+        37054
+      ],
+      "short_term_investments": [
+        698,
+        1148,
+        31696
+      ],
+      "vat": [
+        null,
+        2923,
+        3376
+      ],
+      "other_current": [
+        573,
+        1011,
+        58
+      ],
+      "total_current": [
+        871046,
+        746173,
+        788227
+      ]
+    },
+    "total_assets": [
+      1460662,
+      1420281,
+      1497597
+    ],
+    "equity": {
+      "share_capital": [
+        18293,
+        18293,
+        18293
+      ],
+      "retained_earnings": [
+        282788,
+        334208,
+        430784
+      ],
+      "revaluation_reserve": [
+        35219,
+        35219,
+        35219
+      ],
+      "reserve_capital": [
+        915,
+        915,
+        915
+      ],
+      "other_equity": [
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        337215,
+        388635,
+        485211
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null
+      ],
+      "deferred_tax_liability": [
+        33293,
+        28914,
+        28526
+      ],
+      "other_non_current_liab": [
+        2914,
+        24587,
+        13971
+      ],
+      "total_non_current_liab": [
+        36207,
+        53501,
+        42497
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        329819,
+        107845,
+        116638
+      ],
+      "payables": [
+        707176,
+        762822,
+        739461
+      ],
+      "provisions": [
+        49142,
+        105035,
+        112270
+      ],
+      "other_current_liab": [
+        1103,
+        2443,
+        1520
+      ],
+      "total_current_liab": [
+        1087240,
+        978145,
+        969889
+      ]
+    },
+    "total_liabilities": [
+      1123447,
+      1031646,
+      1012386
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      394442,
+      262542
+    ],
+    "cfi": [
+      null,
+      -96492,
+      -147989
+    ],
+    "cff": [
+      null,
+      -316604,
+      -116469
+    ],
+    "capex": [
+      null,
+      96887,
+      116989
+    ],
+    "net_change_in_cash": [
+      null,
+      -18654,
+      -1916
+    ]
+  },
+  "data_flags": [
+    "РСБУ only (no МСФО published separately in accessible documents)",
+    "2022 P&L data not available in primary report - only balance sheet",
+    "D&A (Depreciation & Amortization) not separately disclosed in РСБУ format",
+    "Unit: тыс. рублей (thousands)",
+    "Cost format: by_function (себестоимость + коммерческие расходы)"
+  ]
+}

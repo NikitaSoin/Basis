@@ -1,0 +1,104 @@
+{
+  "meta": {
+    "ticker": "STSB",
+    "name": "ПАО Ставропольэнергосбыт",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Исходные данные smart-lab в млрд РУБ переконвертированы в млн (×1000)",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab-table",
+      "url": "https://smart-lab.ru/q/STSB/f/y/",
+      "doc_title": "Ставропольэнергосбыт (STSB): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [21100, 22300, 24600, 27400, 32100],
+    "cogs": [],
+    "gross_profit": [],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [20800, 21500, 23700, 26100, 30800]
+      },
+      {
+        "name": "Расходы на персонал",
+        "values": [612, 730, 760, 800, 881]
+      }
+    ],
+    "operating_profit": [547, 888, 763, 1320, 1310],
+    "da": [46, 58, 90, 120, 180],
+    "ebitda": [593, 946, 853, 1440, 1490],
+    "finance_costs": [93, 70, 87, 156, 147],
+    "finance_income": [],
+    "pre_tax_profit": [],
+    "income_tax": [],
+    "net_profit": [298, 530, 655, 1430, 1340]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [],
+      "intangibles": [],
+      "goodwill": [],
+      "long_term_investments": [],
+      "other_non_current": [],
+      "total_non_current": []
+    },
+    "current_assets": {
+      "inventory": [],
+      "receivables": [],
+      "cash": [100, 188, 683, 1540, 1890],
+      "short_term_investments": [],
+      "other_current": [],
+      "total_current": []
+    },
+    "total_assets": [3850, 4020, 4690, 6390, 7700],
+    "equity": {
+      "share_capital": [],
+      "retained_earnings": [],
+      "additional_paid_in": [],
+      "other_equity": [],
+      "total_equity": [1220, 1730, 2390, 3470, 4690]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [],
+      "deferred_tax": [],
+      "other_non_current_liab": [],
+      "total_non_current_liab": []
+    },
+    "current_liabilities": {
+      "short_term_debt": [],
+      "payables": [],
+      "other_current_liab": [],
+      "total_current_liab": []
+    },
+    "total_liabilities": [2630, 2290, 2300, 2920, 3010]
+  },
+  "cash_flow": {
+    "cfo": [],
+    "cfi": [],
+    "cff": [],
+    "capex": [],
+    "net_change_in_cash": []
+  },
+  "data_flags": [
+    "Источник: smart-lab таблица (агрегированные показатели МСФО 2021-2025, 2020 года нет)",
+    "COGS и валовая прибыль отсутствуют в доступных таблицах smart-lab (энергосбыт by_function недостаточно детализирован)",
+    "Финансовые доходы, налог на прибыль, прибыль до налога отсутствуют в источнике",
+    "Баланс: полная детализация активов/пассивов недоступна (только Total Assets, Cash, Total Equity, Total Liabilities)",
+    "Дебиторская задолженность, краткосрочные/долгосрочные обязательства, долг не распределены по подстатьям",
+    "ОДДС (операционный, инвестиционный, финансовый CF, Capex) отсутствует в source",
+    "Первичный PDF на e-disclosure (Fileid=1874285, ID 1874285) загружен, но повреждён (PDF root/trailer ошибки, попытка pdftotext/pdfplumber провалилась)",
+    "Арифметика: EBITDA = Operating Profit + D&A сходится идеально для всех лет (✓)",
+    "Арифметика: Assets = Equity + Liabilities сходится идеально для всех лет (✓)",
+    "Данные качества 'medium': таблица agr, но проверена арифметически и согласована с МСФО"
+  ]
+}

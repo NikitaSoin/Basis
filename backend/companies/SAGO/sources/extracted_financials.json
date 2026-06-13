@@ -1,0 +1,366 @@
+{
+  "meta": {
+    "ticker": "SAGO",
+    "name": "ПАО «Самараэнерго»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млрд",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab-table",
+      "url": "https://smart-lab.ru/q/SAGO/f/y/MSFO/",
+      "doc_title": "Самараэнерго (SAGO): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      39.8,
+      40.8,
+      44.6,
+      47.5,
+      52.6
+    ],
+    "cogs": [
+      36.6,
+      37.1,
+      40.1,
+      26.4,
+      26.4
+    ],
+    "gross_profit": [
+      3.2,
+      3.7,
+      4.5,
+      21.1,
+      26.2
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (распределение, администрация, прочие)",
+        "values": [
+          2.11,
+          2.54,
+          2.22,
+          19.3,
+          21.7
+        ]
+      }
+    ],
+    "operating_profit": [
+      1.08,
+      1.1,
+      2.0,
+      1.71,
+      1.53
+    ],
+    "da": [
+      null,
+      0.5,
+      0.5,
+      0.4,
+      null
+    ],
+    "ebitda": [
+      1.6,
+      1.71,
+      2.46,
+      2.13,
+      1.97
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.815,
+      1.12,
+      1.78,
+      2.14,
+      1.89
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        3.03,
+        4.3,
+        5.27,
+        5.28,
+        5.47
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      9.21,
+      10.3,
+      11.5,
+      13.2,
+      15.2
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        5.52,
+        6.38,
+        7.66,
+        8.9,
+        9.89
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      3.69,
+      3.92,
+      3.84,
+      4.3,
+      5.31
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      1.24,
+      1.57,
+      1.4,
+      0.173,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0.38,
+      0.343,
+      0.28,
+      0.516,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2024-2025: ПЕРЕКЛАССИФИКАЦИЯ себестоимости и опер.расходов в отчёте (cogs 40.1→26.4, opex 2.22→19.3, но sum гпрыбыль корректна 21.1 и 26.2). Требует проверки оригинального PDF.",
+    "2021: Амортизация не показана отдельно; EBITDA вычислена из source как diff(EBIT, DA).",
+    "2025: CFO, Capex, FCF в source smart-lab не заполнены (None)",
+    "Дебиторка, запасы, подстатьи ОС/НМА: в smart-lab таблице не распарсены (требует ORC/PDF)",
+    "Finance costs/income: не распарсены из доступного source",
+    "Уставный капитал, резервы, кредиторка: не распарсены (требует детального PDF)"
+  ]
+}
