@@ -1,0 +1,361 @@
+{
+  "meta": {
+    "ticker": "MRKU",
+    "name": "ПАО Россети Урал (PAO Rosseti Ural, ex-МРСК Урала / IDGC of Urals)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024],
+    "source": {
+      "type": "mixed: press-release + annual report web pages + aggregator",
+      "url": "https://rosseti-ural.ru/news/company/9818.html (2024 press); report2023.rosseti-ural.ru (2023 data); report2022.rosseti-ural.ru (2022 data); search results (2021)",
+      "doc_title": "Результаты 2024 года по МСФО (press) + Основные финансово-экономические показатели 2023-2024 + Анализ данных 2022",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "press-release text + web-page summaries + search aggregation",
+    "arithmetic_check": "partial"
+  },
+
+  "income_statement": {
+    "cost_format": "by_nature",
+
+    "revenue": [
+      96.5,
+      103.0,
+      106.1,
+      115.3
+    ],
+
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (Operating expenses)",
+        "values": [
+          null,
+          null,
+          93.2,
+          102.1
+        ]
+      },
+      {
+        "name": "Амортизация и износ / Depreciation & Amortization",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Финансовые расходы (Finance costs)",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+
+    "operating_profit": [
+      null,
+      null,
+      14.5,
+      15.9
+    ],
+
+    "da": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "ebitda": [
+      null,
+      null,
+      24.1,
+      26.2
+    ],
+
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "pre_tax_profit": [
+      null,
+      null,
+      13.2,
+      14.2
+    ],
+
+    "income_tax": [
+      null,
+      null,
+      1.3,
+      1.5
+    ],
+
+    "net_profit": [
+      3.8,
+      3.2,
+      11.9,
+      12.7
+    ]
+  },
+
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+
+    "total_assets": [
+      null,
+      null,
+      null,
+      null
+    ],
+
+    "equity": {
+      "share_capital": [
+        8.7,
+        8.7,
+        8.7,
+        8.7
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      19.4
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      3.2
+    ]
+  },
+
+  "data_flags": [
+    "source_type: press-release (2024) + web-page summaries (2023-2024) + search results (2021-2022); NOT full consolidated PDF statements",
+    "missing: detailed expense breakdown (network services, electricity purchased, D&A, staff separately), full balance sheet, detailed cash flow statement",
+    "available_complete: revenue 2021-2024; net_profit 2021-2024; operating_profit & EBITDA 2023-2024; capex 2024; share_capital all years",
+    "years_available: 2021-2024; 2020 and earlier not found",
+    "cost_format: by_nature (utility regulation model) but detail lines not separately available from sources",
+    "balance_sheet: only share_capital known (8.7 млрд); net_debt mentioned for 2024 (21.5 млрд) but not detail (assets, equity, liabilities structure missing)",
+    "cash_flow: only capex (2024) and net_change_in_cash (2024) available; CFO/CFI/CFF not extracted",
+    "arithmetic_note: 2024 P&L inconsistency: revenue 115.3 - opex 102.1 = 13.2, but operating_profit = 15.9 (diff ~2.7 млрд suggests non-operating gains, consistent with reported 2.0 млрд from subsidiary sale)",
+    "data_quality_by_year: 2024 medium (press+pages), 2023 medium (pages), 2022-2021 low (search aggregates only, no primary docs)",
+    "recommendation: FULL consolidated МСФО statements PDF needed for complete extraction (report sites unreachable; e-disclosure requires auth; consider manual PDF upload to companies/MRKU/sources/)",
+    "note: cost_format marked by_nature but cannot verify granular expense lines without full statements"
+  ]
+}

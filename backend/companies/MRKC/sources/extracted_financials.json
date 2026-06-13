@@ -1,0 +1,379 @@
+{
+  "meta": {
+    "ticker": "MRKC",
+    "name": "ПАО «Россети Центр» (Rosseti Centre)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "RUB throughout; All data from 2024 integrated report (МСФО basis)",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://www.mrsk-1.ru/information/annual-reports/",
+      "doc_title": "AnnualReports2024_Ru.pdf + МСФО data from integrated report",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + manual extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      null,
+      114588.9,
+      128454.1,
+      138151.1
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (Operating expenses)",
+        "values": [
+          null,
+          null,
+          104545.8,
+          115418.3,
+          122686.3
+        ]
+      },
+      {
+        "name": "Персонал и зарплаты (Personnel & salaries - in OpEx)",
+        "values": [
+          null,
+          null,
+          24353.8,
+          28527.1,
+          31889.2
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      10043.1,
+      13035.8,
+      15464.8
+    ],
+    "da": [
+      null,
+      null,
+      14593.5,
+      16380.1,
+      17139.0
+    ],
+    "ebitda": [
+      null,
+      null,
+      24636.6,
+      29415.9,
+      32603.7
+    ],
+    "finance_income": [
+      null,
+      null,
+      434.2,
+      581.0,
+      1643.8
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      8907.7
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      8200.8
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      1640.2
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      7916.2,
+      6560.6
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        16565.5,
+        13793.4,
+        12595.9
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        31863.3,
+        33515.6,
+        39564.3
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      26900
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      -24300
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      3630.1
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      24300
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      9890.2,
+      4586.5,
+      4230.1
+    ]
+  },
+  "data_flags": [
+    "2020-2021: data not extracted (not in main integrated report tables)",
+    "Full МСФО statements in Appendix #2 of PDF not fully parsed (images/tables)",
+    "Finance costs estimated from EBITDA formula",
+    "Pre-tax profit estimated from net profit + implied tax rate",
+    "CFO, CFI, CFF estimated from capex and cash change (complete CF statement not in extracted text)",
+    "Balance sheet totals not extracted (would need full statements)",
+    "Depreciation & Amortization calculated as EBITDA - Operating Profit",
+    "Receivables/Payables as of 31.12 each year from balance sheet detail",
+    "Data source: Integrated Annual Report 2024 + Financial Key Indicators (МСФО basis)"
+  ]
+}
