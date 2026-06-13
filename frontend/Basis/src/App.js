@@ -2054,7 +2054,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
                 <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
               )}
               {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
-              {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+              {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
             </div>
           );
         }
@@ -2066,7 +2066,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {y.qualitative_md
               ? <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>
               : y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
-            {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+            {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
           </div>
         );
         const L = BOND_LIGHT[y.light] || BOND_LIGHT.gray;
@@ -2141,7 +2141,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               <div className="tw-p-2.5 tw-rounded-md tw-bg-danger-soft tw-text-[13px] tw-text-text-primary">⚠ Стоп-сигналы: {y.stops.join("; ")}.</div>
             )}
             <div className="tw-text-[12px] tw-text-text-tertiary">Оценка по методике Basis (медианы нашей базы ~3100 бумаг + долговая нагрузка эмитента). Качественные риски (мошенничество, споры с властью) методика числами не ловит — см. «Разбор аналитика» ниже, если есть.</div>
-            {summary && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
+            {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
           </div>
         );
       })()}
