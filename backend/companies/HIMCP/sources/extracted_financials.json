@@ -1,0 +1,391 @@
+{
+  "meta": {
+    "ticker": "HIMCP",
+    "name": "ПАО ХИМПРОМ",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млрд",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/HIMC/f/y/RSBU/",
+      "doc_title": "Химпром (HIMC): годовые финансовые отчеты РСБУ на smart-lab",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      13.8,
+      15.1,
+      16.1,
+      14.8,
+      14.6
+    ],
+    "cogs": [
+      10.3,
+      8.31,
+      9.65,
+      9.28,
+      9.56
+    ],
+    "gross_profit": [
+      3.5,
+      6.79,
+      6.45,
+      5.52,
+      5.04
+    ],
+    "expense_lines": [
+      {
+        "name": "Производственные расходы",
+        "values": [
+          2.08,
+          2.29,
+          3.05,
+          3.91,
+          4.19
+        ]
+      },
+      {
+        "name": "Расходы на оплату труда",
+        "values": [
+          1.94,
+          2.22,
+          3.0,
+          3.4,
+          3.82
+        ]
+      },
+      {
+        "name": "Процентные расходы",
+        "values": [
+          0.33,
+          0.52,
+          0.3,
+          0.486,
+          1.01
+        ]
+      }
+    ],
+    "operating_profit": [
+      1.47,
+      4.48,
+      3.38,
+      1.58,
+      0.833
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      0.33,
+      0.52,
+      0.3,
+      0.486,
+      1.01
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      0.861,
+      3.04,
+      2.38,
+      1.03,
+      0.45
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        0.181,
+        0.39,
+        0.2,
+        0.746,
+        0.198
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      14.7,
+      16.3,
+      18.0,
+      21.5,
+      22.1
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        5.73,
+        8.68,
+        11.2,
+        12.2,
+        12.7
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      8.97,
+      7.62,
+      6.8,
+      9.3,
+      9.4
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      0.075,
+      3.4,
+      3.27,
+      1.39,
+      0.661
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      0.5,
+      0.86,
+      2.45,
+      2.95,
+      2.5
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "source: smart-lab.ru parsed tables (primary source); первичные PDF сканированные, OCR недоступен",
+    "missing_detail: PPE, intangibles, goodwill (non-current assets не развёрнуты)",
+    "missing_detail: inventory, receivables (current assets не развёрнуты)",
+    "missing_detail: income_tax, pre_tax_profit, finance_income",
+    "missing_detail: CFI (investing CF), CFF (financing CF), net_change_in_cash",
+    "missing_detail: long_term_debt vs short_term_debt split",
+    "reporting_standard: РСБУ (Russian Accounting Standards); МСФО также доступна на smart-lab",
+    "cost_format: by_function (валовая прибыль = выручка − себестоимость)",
+    "arithmetic_check: gross_profit verified ✓, balance equation partial (missing detail)",
+    "unit: млрд RUB (миллиарды рублей)",
+    "note: дивиденды по привилегированным акциям платились в 2021-2022, с 2023 нет"
+  ]
+}

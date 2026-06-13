@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "ticker": "OMZZP",
+    "name": "ПАО «ОМЗ» (Объединённые машиностроительные заводы), привилегированные акции",
+    "emitent_name": "ПАО Объединённые машиностроительные заводы (Группа Уралмаш-Ижора)",
+    "inn": "6663059899",
+    "ogrn": "1026605610800",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млрд",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab_aggregator_limited",
+      "url": "https://smart-lab.ru/q/OMZZ/f/y/",
+      "doc_title": "ОМЗ — годовая финансовая отчётность МСФО (агрегированная Smart-Lab). Первичная отчётность: e-disclosure.ru ID=249 (недоступна), omz.ru/share/financial_statements/ (сертификат).",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "data_quality_note": "Источник: агрегатор Smart-Lab, НЕ первичная отчётность. Доступны только key metrics (выручка, чистая прибыль, EBITDA, total assets, total equity). Отсутствуют: COGS, gross profit, operating expenses (детально), D&A, finance costs/income, income tax, все компоненты баланса кроме итогов, все компоненты капитала кроме итогов, ОДДС. Первичная отчётность ОМЗ на e-disclosure.ru/portal/company.aspx?id=249 требует прямой навигации в браузере (AJAX); omz.ru с самоподписанным сертификатом. Попыток поиска PDF в гугле и других источниках — без результата. Компания — тяжёлое машиностроение (by_nature формат расходов, возможно нет явной себестоимости/валовой прибыли). Низкая ликвидность префа (LISTLEVEL 3). Рекомендуется: вручную загрузить PDF консолидированной отчётности ОМЗ с e-disclosure или omz.ru в sources/.",
+    "parse_method": "smart-lab-aggregator",
+    "arithmetic_check": "not_applicable",
+    "converted_years": [],
+    "conversion_note": ""
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [55.3, 19.0, 26.0, 27.3, 23.7],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [],
+    "operating_profit": [null, null, null, null, null],
+    "da": [null, null, null, null, null],
+    "ebitda": [7.39, 0.9, 0.89, 2.94, 2.94],
+    "finance_costs": [null, null, null, null, null],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [0.497, 13.5, 3.46, 1.9, -3.05]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [null, null, null, null, null],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [null, null, null, 88.9, 88.9],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [null, null, null, null, 45.4]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, null],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "Источник: Smart-Lab агрегатор (не первичная отчётность). Только ключевые метрики.",
+    "Первичная отчётность ОМЗ (МСФО) недоступна через веб-fetch: e-disclosure.ru/portal/company.aspx?id=249 (AJAX), omz.ru/share/financial_statements/ (SSL).",
+    "P&L: только выручка, EBITDA, чистая прибыль. Отсутствуют COGS, валовая, операционная, финансовые расходы, налог на прибыль.",
+    "Баланс: только total_assets (2024-2025), total_equity (2025). Компоненты: null.",
+    "ОДДС: полностью отсутствует.",
+    "by_nature формат (тяжёлое машиностроение) — нет явной себестоимости/валовой прибыли по конструкции отчёта.",
+    "Год 2021-2025 (2020 не в источнике).",
+    "Арифметика: не проверяется (недостаточно деталей).",
+    "ТРЕБУЕТСЯ: вручную загрузить PDF консолидированной отчётности МСФО в sources/ для полного извлечения."
+  ]
+}

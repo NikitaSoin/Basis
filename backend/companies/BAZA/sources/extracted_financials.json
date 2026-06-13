@@ -1,0 +1,111 @@
+{
+  "meta": {
+    "ticker": "BAZA",
+    "name": "ПАО ГК «Базис» (Group of Companies Basis)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2024, 2025],
+    "source": {
+      "type": "smart-lab | interfax_news",
+      "url": "https://smart-lab.ru/q/BAZA/f/y/ | https://www.interfax.ru/business/1074485",
+      "doc_title": "МСФО финансовые результаты 2024-2025 (публичные анонсы), полный PDF недоступен",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab_table + interfax_news",
+    "arithmetic_check": "partial",
+    "company_notes": {
+      "founded": 2021,
+      "history": "Объединение активов Ростелеком + Yadro (KNS Group) + Rubitech",
+      "ipo": "2025-12-10 (MOEX второй уровень листинга)",
+      "sector": "Software/IT infrastructure (virtualization platforms, cloud computing, VMware replacement)",
+      "business_model": "Asset-light SaaS, high-margin, R&D capital"
+    }
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [4603, 6303],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (персонал, разработка, маркетинг, амортизация НМА и прочие)",
+        "note": "Детальная разбивка отсутствует в открытых источниках; компания не раскрывает в публичных анонсах",
+        "values": null
+      }
+    ],
+    "operating_profit": null,
+    "ebitda": [2832, 3840],
+    "da": null,
+    "ebit": null,
+    "finance_costs": null,
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [2044, 2219],
+    "adjusted_net_profit": [1779, 2369]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": null,
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": null,
+    "equity": {
+      "share_capital": 165,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": null
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": null
+  },
+  "cash_flow": {
+    "cfo": null,
+    "cfi": null,
+    "cff": null,
+    "capex": null,
+    "free_cash_flow": [850, 2067],
+    "net_change_in_cash": null,
+    "net_cash_position": [288, 1478]
+  },
+  "data_flags": [
+    "КРИТИЧНО: Полная консолидированная МСФО отчётность (PDF) за 2024-2025 не найдена в открытых источниках (e-disclosure.ru заблокирован, basis.ru недоступен). Данные извлечены из публичных анонсов (smart-lab, interfax, cnews, vedomosti) — достаточно надёжны для макросов, но полные балансовые статьи и CF не раскрыты.",
+    "ДАННЫЕ ТОЛЬКО 2024-2025: История 2021-2023 отсутствует (компания образована в 2021 из слияния; консолидированной отчётности ранее 2024 не найдено).",
+    "cost_format=by_nature: Компания не раскрывает детальную разбивку операционных расходов в публичных анонсах. Отсутствуют строки: себестоимость/COGS, валовая прибыль, детальные расходы на персонал/R&D/маркетинг/амортизацию НМА отдельно.",
+    "БАЛАНС: Только уставный капитал = 165 млн (165 млн акций × 1 руб.). Остальное (активы, обязательства, прибыль нераспределённая) не раскрыто в открытых источниках. arithmetic_check=FAILED для баланса (пробел).",
+    "CF: Доступны только FCF (850 млн / 2067 млн) и net cash position (288 млн / 1478 млн). CFO/CFI/CFF/CAPEX отсутствуют.",
+    "net_profit vs adjusted_net_profit: Анонсы показывают 'Чистая прибыль' (2044/2219), но также упоминают 'Скорректированный NIC' (1779/2369) и 'Скорр. NIC' (1779/2369). Точные корректировки не раскрыты; возможно, вычитаются разовые доходы/расходы (IPO, переоценка, прочее).",
+    "МЕТРИКИ, которые ЕСТЬ и надёжны: выручка, EBITDA, net profit (reported), FCF, net cash position, уставный капитал.",
+    "МЕТРИКИ, которые ОТСУТСТВУЮТ: операционная прибыль/EBIT, D&A отдельно, финансовые доходы/расходы, налоги, деловая активность по элементам баланса, CF по разделам.",
+    "РЕКОМЕНДАЦИЯ: Для полного разбора нужна ручная загрузка официального PDF консолидированной отчётности МСФО в companies/BAZA/sources/ (с basis.ru или e-disclosure.ru). Текущий файл — заготовка на основе публично доступных цифр."
+  ]
+}

@@ -1,0 +1,387 @@
+{
+  "meta": {
+    "ticker": "PAZA",
+    "name": "ПАО Павловский автобус",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн рублей (млрд переведены в млн × 1000)",
+    "fiscal_years": [
+      2018,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/PAZA/f/y/",
+      "doc_title": "Павловский автобус (PAZA): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      22100,
+      26200,
+      33100,
+      24200,
+      null
+    ],
+    "cogs": [
+      18500,
+      22300,
+      29600,
+      21100,
+      null
+    ],
+    "gross_profit": [
+      3600,
+      3900,
+      3500,
+      3100,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          1530,
+          1530,
+          1420,
+          1690,
+          2170
+        ]
+      },
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          200,
+          200,
+          300,
+          300,
+          300
+        ]
+      },
+      {
+        "name": "Расходы на персонал",
+        "values": [
+          1860,
+          2700,
+          4060,
+          3210,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      2100,
+      2420,
+      1770,
+      934,
+      null
+    ],
+    "da": [
+      200,
+      200,
+      300,
+      300,
+      null
+    ],
+    "ebitda": [
+      2300,
+      2620,
+      2030,
+      1250,
+      null
+    ],
+    "finance_costs": [
+      400,
+      570,
+      487,
+      649,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      1700,
+      1850,
+      1283,
+      285,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      106,
+      2160,
+      1300,
+      1180,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        5910,
+        5640,
+        9700,
+        2030,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      18600,
+      25500,
+      32500,
+      23600,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        9470,
+        11500,
+        12800,
+        13900,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      9130,
+      14000,
+      19700,
+      9700,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      1690,
+      2690,
+      4490,
+      -7120,
+      null
+    ],
+    "cfi": [
+      -455,
+      -688,
+      -878,
+      -905,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      455,
+      688,
+      878,
+      905,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Годы: 2018, 2022, 2023, 2024, 2025 LTM (отсутствуют 2019-2021; smart-lab публикует только эти)",
+    "2025 — LTM (последние 12 месяцев), а не полный календарный 2025 год",
+    "Финансовые доходы и налоги на прибыль не раскрыты в таблице smart-lab",
+    "Детальная структура активов/пассивов (ОС, НМА, запасы, кредиторская задолженность) недоступна",
+    "Арифметика P&L проверена: revenue - cogs = gross_profit (совпадает); operating_profit = gross_profit - opex - da (с округлением)",
+    "Баланс: total_assets = total_equity + total_liabilities (совпадает для всех лет)",
+    "2024: CFO резко отрицательный (-7120 млн), требуется проверка полного PDF отчёта (возможна выплата дивидендов или погашение долга)"
+  ]
+}

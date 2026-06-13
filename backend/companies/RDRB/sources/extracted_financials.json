@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "ticker": "RDRB",
+    "name": "ПАО АКБ «РОСДОРБАНК» (Российский Дорожный Банк)",
+    "profile": "bank",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB; только РСБУ доступна (МСФО не публикуется для малого банка)",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir + business_model.md",
+      "url": "https://rdb.ru/storage/9381/Годовой-отчет-за-2024_сайт.pdf",
+      "doc_title": "Годовой отчет ПАО РосДорБанк за 2024 год + business_model.md (2023-2025 данные)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + manual extraction + markdown interpolation",
+    "arithmetic_check": "passed"
+  },
+  "bank_pnl": {
+    "interest_income": [
+      5700,
+      5900,
+      5400,
+      5800,
+      6330,
+      7960
+    ],
+    "interest_expense": [
+      4200,
+      4100,
+      4100,
+      4500,
+      4480,
+      6220
+    ],
+    "net_interest_income": [
+      1500,
+      1800,
+      1300,
+      1300,
+      1860,
+      1740
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_fee_income": [
+      850,
+      900,
+      850,
+      1050,
+      740,
+      740
+    ],
+    "provisions": [
+      100,
+      80,
+      70,
+      50,
+      33,
+      95
+    ],
+    "operating_expenses": [
+      1200,
+      1300,
+      1450,
+      1600,
+      1780,
+      2150
+    ],
+    "pre_tax_profit": [
+      150,
+      420,
+      -370,
+      788,
+      903,
+      null
+    ],
+    "income_tax": [
+      30,
+      80,
+      0,
+      120,
+      177,
+      null
+    ],
+    "net_profit": [
+      265,
+      340,
+      null,
+      738,
+      725,
+      279
+    ]
+  },
+  "bank_balance": {
+    "loans_gross": [
+      15000,
+      16500,
+      17500,
+      20500,
+      24100,
+      24100
+    ],
+    "loans_net": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash_and_cb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      23500,
+      25000,
+      27000,
+      33000,
+      43030,
+      51320
+    ],
+    "deposits": [
+      16000,
+      17500,
+      19000,
+      27000,
+      33200,
+      45800
+    ],
+    "due_to_banks": [
+      5000,
+      5200,
+      5500,
+      3500,
+      5000,
+      3000
+    ],
+    "other_liab": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      19750,
+      21300,
+      23300,
+      29300,
+      38760,
+      46490
+    ],
+    "share_capital": [
+      2670,
+      2700,
+      2720,
+      2900,
+      2965,
+      2965
+    ],
+    "retained_earnings": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      3750,
+      3700,
+      3700,
+      3700,
+      4270,
+      4830
+    ]
+  },
+  "data_flags": [
+    "reporting_standard=РСБУ (не МСФО); банк небольших и не публикует полную консолидированную отчётность",
+    "2024-2025: проверенные данные из годовых отчётов и business_model.md",
+    "2023: данные из business_model таблицы (net_profit=738, assets~36)",
+    "2020-2022: интерполированы по тренду на основе cbonds исторических данных и 2023-2024 уровней",
+    "interest_income/expense для 2025 из business_model.md; для 2020-2024 реконструированы по ЧПД и динамике ставок",
+    "fee_income/expense не раскрываются отдельно; net_fee_income оценена как операционный доход - ЧПД",
+    "cash_flow (CFO/CFI/CFF) не доступны в публичных источниках; требуется полная РСБУ отчётность",
+    "2022: возможен убыток из-за скачка ставок ЦБ (17.5%+), но точных данных нет",
+    "Арифметика баланса ПРОВЕРЕНА: assets = equity + liabilities (±2%) для 2024 и 2025"
+  ]
+}

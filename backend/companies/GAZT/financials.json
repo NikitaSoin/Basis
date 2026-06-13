@@ -1,14 +1,15 @@
 {
   "meta": {
     "ticker": "GAZT",
-    "name": "ГАЗ-Тек, ПАО",
-    "sector": "holding_finance",
-    "profile": "standard",
+    "name": "ПАО «ГАЗ-Тек»",
+    "sector": "investment_holding",
+    "profile": "holding",
     "currency": "RUB",
     "unit": "млн",
-    "reporting_standard": "РСБУ",
+    "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
@@ -16,31 +17,26 @@
       2024,
       2025
     ],
-    "last_price": 1739.0,
-    "price_date": "2026-05-29",
+    "last_price": null,
+    "price_date": "",
     "shares_outstanding": 471428300,
-    "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "КРИТИЧНО: рыночная котировка 1739 руб (замороженная, free float = 0%, последняя сделка ~30.11.2023) соответствует P/NAV = 16.6x при NAV/акцию 104.70 руб. Это НЕ рыночная справедливая оценка — цена выросла ~+1865% на микрообъёмах и с тех пор заморожена. rates.csv содержит цену 80 руб (mcap ~37.7 млрд); задание передаёт mcap 820 млрд (подразумевает цену ~1739 руб). Расхождение отражено в data_flags. Любая ценозависимая метрика при любой из этих цен ненадёжна без учёта нулевого free float.",
+    "adjustments_aggressive": false
   },
-  "anomaly_flag": true,
-  "anomaly_note": "ГАЗ-Тек — не операционный бизнес, а холдинговая оболочка для владения пакетом ~11,1% акций АО «Газпромбанк» (см. business_model.md, тикер GAZT, ISIN RU000A0JS199, листинг 3-го уровня МосБиржи). Поэтому: (1) Нет выручки/EBITDA/операционного долга — мультипликаторы PS, EV/EBITDA, EV/EBITDA_adj, ND/EBITDA неприменимы (null). Считается только P/E. (2) P/E ≈ 465x при EPS ~3,74 руб и цене 1739 руб — экстремально высокий, отражает не операционную доходность, а frozen-котировку при нулевом free-float. (3) Котировка 1739 руб — это, по сути, замороженный/последний рыночный принт (MOEX PREVPRICE=LCURRENTPRICE=1739, реальная ликвидность близка к нулю, последняя репрезентативная сделка ~30.11.2023, после чего цена практически не меняется; за год до этого бумага выросла на ~1865% на микрообъёмах). (4) Дивидендная развязка: дивиденд за 2024 ~4,30 руб даёт дивдоходность всего ~0,25% к цене 1739; для нормальной дивдоходности 1–3% цена должна быть ~143–430 руб. То есть рыночная цена в разы выше любой денежно-обоснованной (дивидендной) оценки и держится исключительно на отсутствии free-float и на «бумажной» стоимости пакета Газпромбанка, который публично не раскрыт. Балансовый капитал по РСБУ практически не раскрывается → P/B null, DCF и оценка по NAV невозможны. Профиль СТАНДАРТНЫЙ формально, но финансово это квази-фонд на одну позицию (Газпромбанк под санкциями ЕС/Великобритании).",
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
       null,
       null,
       null,
       null,
-      null,
-      null,
+      2026.644,
       null
     ],
+    "revenue_note": "Только дивиденды по акциям портфеля за 2024 (Годовой отчёт ГАЗ-ТЕК 2024). Для инвестхолдинга 'выручка' = дивидендные и процентные доходы от портфеля. Остальные годы: не распарсены из МСФО.",
     "cogs": [
-      null,
       null,
       null,
       null,
@@ -54,20 +50,31 @@
       null,
       null,
       null,
-      null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Расходы на управление портфелем и администрирование",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "note": "Детали не распарсены (первичные МСФО PDF отсканированы). Операционный убыток 2021-2025 = -200, -21, -24, -27, -28 млн указывает на наличие управленческих расходов."
+      }
     ],
     "operating_profit": [
       null,
+      -200.0,
+      -21.0,
+      -24.0,
+      -27.0,
+      -28.0
+    ],
+    "da": [
       null,
       null,
       null,
@@ -81,20 +88,34 @@
       null,
       null,
       null,
-      null,
-      null
-    ],
-    "da": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
       null
     ],
     "finance_costs": [
       null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      286.53,
+      null
+    ],
+    "finance_income_note": "Процентный доход по депозитам за 2024: 286.53 млн (Годовой отчёт ГАЗ-ТЕК 2024).",
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
       null,
       null,
       null,
@@ -104,16 +125,14 @@
     ],
     "net_profit": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      470.0,
+      1210.0,
+      22.0,
+      2230.0,
+      1760.0
     ],
     "margins": {
       "gross_margin": [
-        null,
         null,
         null,
         null,
@@ -127,7 +146,6 @@
         null,
         null,
         null,
-        null,
         null
       ],
       "operating_margin": [
@@ -136,11 +154,9 @@
         null,
         null,
         null,
-        null,
         null
       ],
-      "net_margin": [
-        null,
+      "ros": [
         null,
         null,
         null,
@@ -150,73 +166,56 @@
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      470.0,
+      1210.0,
+      22.0,
+      2230.0,
+      1760.0
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "Capex для инвестхолдинга минимален/не применим; не распарсен из МСФО.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Мост пуст: adjusted = reported. Разовых бухгалтерских корректировок не выявлено. Высокая волатильность ЧП (CV=0.63: 2021=470, 2022=1210, 2023=22, 2024=2230 млн) — системная характеристика инвестхолдинга (переоценка портфеля ЦБ), а не разовые one-off факторы. Чек-лист по каждому году (2021-2025): обесценения — не распарсены из МСФО; курсовые — возможны, не детализированы; разовые продажи активов — не выявлены; нерегулярные резервы — не выявлены; штрафы/суды — не выявлены; ETR — налог не распарсен. Ограничение: первичные МСФО PDF недоступны (отсканированы), полноценный чек-лист невозможен без первичного отчёта."
+  },
   "balance_sheet": {
-    "total_assets": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_equity": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cash": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ratios": {
-      "debt_to_equity": [
-        null,
+    "non_current_assets": {
+      "ppe": [
         null,
         null,
         null,
@@ -224,8 +223,270 @@
         null,
         null
       ],
-      "net_debt_ebitda": [
+      "intangibles": [
         null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        48588.225,
+        null
+      ],
+      "long_term_investments_note": "Портфель ценных бумаг 2024: 48 588.225 млн (Годовой отчёт 2024). Основной актив — акции Газпромбанка и компаний группы Газпром.",
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        560.0,
+        567.0,
+        792.0,
+        2440.0
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      40500.0,
+      36300.0,
+      38100.0,
+      42900.0,
+      46200.0
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        47142.83,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        40500.0,
+        36300.0,
+        38100.0,
+        42800.0,
+        44500.0
+      ]
+    },
+    "total_equity": [
+      null,
+      40500.0,
+      36300.0,
+      38100.0,
+      42800.0,
+      44500.0
+    ],
+    "nav_reported": [
+      null,
+      null,
+      49137.611,
+      49152.505,
+      49356.633,
+      null
+    ],
+    "nav_reported_note": "NAV (чистые активы) из официального Годового отчёта ГАЗ-ТЕК. Выше total_equity (smart-lab 42 800 млн 2024) из-за учёта портфеля по справедливой стоимости в МСФО (разница ~6 557 млн — резерв переоценки OCI). NAV — приоритетная метрика для оценки инвестхолдинга.",
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      100.0,
+      1700.0
+    ],
+    "total_liabilities_note": "Implied: Total Assets - Total Equity. 2024: 42900-42800=100 млн; 2025: 46200-44500=1700 млн. Детальная разбивка не распарсена.",
+    "net_debt": [
+      null,
+      null,
+      -560.0,
+      -567.0,
+      -792.0,
+      -2440.0
+    ],
+    "net_debt_note": "Долг = 0 (не выявлен). Net Debt = -Cash (отрицательный: кэша больше долга).",
+    "tangible_equity": [
+      null,
+      40500.0,
+      36300.0,
+      38100.0,
+      42800.0,
+      44500.0
+    ],
+    "tangible_note": "Гудвил и НМА не выявлены — tangible_equity = total_equity. Для оценки используем nav_reported (портфель по FV) как более точный.",
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.04
+      ],
+      "net_debt_ebitda": [
         null,
         null,
         null,
@@ -239,7 +500,6 @@
         null,
         null,
         null,
-        null,
         null
       ]
     }
@@ -248,14 +508,12 @@
     "cfo": [
       null,
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1200.0,
+      14.0,
+      2230.0,
+      1770.0
     ],
     "cfi": [
-      null,
       null,
       null,
       null,
@@ -269,20 +527,18 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "net_change_in_cash": [
       null,
       null,
       null,
-      null,
-      null,
-      null,
-      null
+      7.0,
+      225.0,
+      1648.0
     ],
+    "net_change_in_cash_note": "Implied из изменений остатков кэша: Δ2023=567-560=7; Δ2024=792-567=225; Δ2025=2440-792=1648 млн. CFI и CFF не распарсены.",
     "capex": [
-      null,
       null,
       null,
       null,
@@ -296,12 +552,13 @@
       null,
       null,
       null,
-      null,
       null
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
         null,
         null,
         null,
@@ -315,11 +572,9 @@
         null,
         null,
         null,
-        null,
         null
       ],
       "capex_to_revenue": [
-        null,
         null,
         null,
         null,
@@ -332,24 +587,22 @@
   "returns": {
     "roe": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1.16,
+      3.33,
+      0.06,
+      5.21,
+      3.96
     ],
+    "roe_note": "ROE = NI / Total Equity. 2021: 470/40500=1.16%; 2022: 1210/36300=3.33%; 2023: 22/38100=0.06%; 2024: 2230/42800=5.21%; 2025: 1760/44500=3.96%. Волатилен: определяется переоценкой портфеля.",
     "roa": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      1.16,
+      3.33,
+      0.06,
+      5.2,
+      3.81
     ],
     "roic": [
-      null,
       null,
       null,
       null,
@@ -363,7 +616,6 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "asset_turnover": [
@@ -372,22 +624,11 @@
       null,
       null,
       null,
-      null,
       null
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      464.97
-    ],
-    "ps": [
-      null,
       null,
       null,
       null,
@@ -401,6 +642,13 @@
       null,
       null,
       null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
@@ -410,177 +658,368 @@
       null,
       null,
       null,
+      null
+    ],
+    "roe": [
+      null,
+      1.16,
+      3.33,
+      0.06,
+      5.21,
+      3.96
+    ],
+    "roa": [
+      null,
+      1.16,
+      3.33,
+      0.06,
+      5.2,
+      3.81
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      157.4,
+      -98.2,
+      10036.4,
+      -21.1
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "multiples_note": "Ценозависимые мультипликаторы не рассчитаны: котировка заморожена (free float = 0%), любое значение будет артефактом нулевого free float. Ключевой мультипликатор — P/NAV, рассчитанный в разделе valuation на основе официального NAV.",
     "current": {
-      "pe": 464.97,
+      "pe": null,
+      "pe_adj": null,
       "ps": null,
       "pb": null,
       "ev_ebitda": null,
-      "as_of": "2026-05-29"
+      "p_nav_at_frozen_price": 16.6,
+      "p_nav_note": "P/NAV = 1739 / 104.70 = 16.6x — при замороженной нерыночной котировке 1739 руб; АРТЕФАКТ нулевого free float",
+      "as_of": "2024-12-31"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "недостаточно раскрытых данных по прибыли за 5 лет"
+      "pe_basis": "not_applicable",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": null,
+      "period": "2021-2025"
     }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": 464.97,
-      "ps": null,
-      "pb": null,
-      "ev_ebitda": null,
-      "ev_ebitda_adj": null,
-      "net_debt_ebitda": null
-    },
-    "2024": {
-      "pe": null,
-      "ps": null,
-      "pb": null,
-      "ev_ebitda": null,
-      "ev_ebitda_adj": null,
-      "net_debt_ebitda": null
-    }
-  },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "note": "Сектор холдингов газпромовского периметра (ГАЗКОН/ГАЗ-сервис/ГАЗ-Тек) ещё не прогнан целиком; peers.json не сформирован. К тому же сравнение по мультипликаторам бессмысленно: у всех этих оболочек нет операционной выручки/EBITDA, единственная сопоставимая метрика — дисконт к стоимости базового актива (доли в Газпромбанке), а она публично не раскрыта. Дозаполнить после прогона сектора."
   },
   "forecast": {
     "source_type": "none",
     "providers": [],
-    "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "note": "Брокерского покрытия нет. Операционной истории нет (холдинг на одной позиции). Прибыль формируется дивидендами и переоценкой пакета Газпромбанка — непрогнозируема публично. Прогноз невозможен."
+    "revenue_growth_pct": [],
+    "net_profit_growth_pct": [],
+    "note": "Брокерского покрытия нет. Механический прогноз ЧП бессмысленен: NI определяется переоценкой портфеля и дивидендной политикой Газпромбанка (непредсказуемо). Прогноз не публикуется."
   },
   "valuation": {
     "methods": [
       {
+        "method": "P/NAV",
+        "fair_value_per_share": 68.1,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "nav_2024_mln": 49356.633,
+          "nav_per_share_rub": 104.7,
+          "discount_to_nav_base_pct": 35.0,
+          "discount_rationale": "Нулевой free float, санкционный актив (Газпромбанк под санкциями ЕС/Великобритании), непрозрачность, перекрёстное владение внутри газпромовского периметра"
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "nav_2024_mln": "49 356.633 млн руб — официальные чистые активы из Годового отчёта ГАЗ-ТЕК 2024 [src_1]",
+            "shares_outstanding": "471 428 300 шт — из MOEX/rates.csv [src_2]",
+            "nav_per_share": "104.70 руб = 49 356.633 млн / 471.428 млн акций [расчёт]",
+            "discount_conservative": "50% — нулевой free float, санкционный актив, невозможность выхода из позиции, непрозрачность [judgment]",
+            "discount_base": "35% — базовый: актив функционирует, дивиденды платятся нерегулярно, санкции сохраняются [judgment]",
+            "discount_optimistic": "20% — улучшение условий: снятие санкционного давления и/или рост прозрачности [judgment]",
+            "Ke": "23.6% = Rf 14.6% + beta 1.0 × ERP 9.0% — используется для кросс-проверки [market_params.json]"
+          },
+          "steps": [
+            "Шаг 1: NAV/акцию = 49 356.633 млн / 471.428 млн акций = 104.70 руб",
+            "Шаг 2: Выбор дисконта к NAV. Практика рынка: закрытые инвестхолдинги без ликвидности торгуются с дисконтом 20–50%. Факторы GAZT: (а) free float = 0% — невозможно войти/выйти; (б) Газпромбанк под санкциями ЕС/Великобритании; (в) непрозрачное раскрытие (первичные МСФО недоступны); (г) перекрёстное владение, миноритарий лишён влияния. → дисконт смещается к верхней части диапазона",
+            "Шаг 3: Conservative (дисконт 50%): 104.70 × (1 - 0.50) = 52.35 ≈ 52.4 руб",
+            "Шаг 4: Base (дисконт 35%): 104.70 × (1 - 0.35) = 68.06 ≈ 68.1 руб",
+            "Шаг 5: Optimistic (дисконт 20%): 104.70 × (1 - 0.20) = 83.76 ≈ 83.8 руб",
+            "Кросс-проверка 1: дивидендный Гордон даёт ~9.9 руб (DPS_norm 2.25 руб / (Ke 23.6% - g 1.0%)) — денежный поток для миноритария практически нулевой, подтверждает высокий дисконт",
+            "Кросс-проверка 2: smart-lab Total Equity 2024 = 42 800 млн → BVPS = 90.8 руб; при base-дисконте 35%: 90.8 × 0.65 = 59.0 руб — нижняя граница диапазона чувствительности"
+          ],
+          "caveats": [
+            "ДОМИНИРУЮЩИЙ РИСК: котировка 1739 руб заморожена с ~30.11.2023, P/NAV = 16.6x — артефакт нулевого free float, не рыночная цена. Реальной возможности купить/продать по этой цене нет.",
+            "NAV 49.4 млрд из нарративного годового отчёта (не из аудированных финансовых таблиц МСФО) — достоверность medium; первичные МСФО PDF отсканированы",
+            "Дисконт к NAV — суждение (judgment): нет рыночных транзакций для верификации точного уровня",
+            "NAV 2025 недоступен: smart-lab Equity 44 500 млн (BVPS ≈ 94.4 руб) как прокси; при использовании 2025-прокси коридор: консерв. 47.2, база 61.4, оптим. 75.5 руб",
+            "Весь NAV сосредоточен в одном активе (Газпромбанк под санкциями) — риск концентрации максимальный",
+            "Для инвестора без возможности выйти из позиции справедливая стоимость носит теоретический характер"
+          ]
+        }
+      },
+      {
+        "method": "dividend_discount",
+        "fair_value_per_share": 9.9,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_2024_rub": 4.3,
+          "dps_2025_rub": 0.196,
+          "dps_normalized_rub": 2.25,
+          "ke_pct": 23.6,
+          "g_pct": 1.0,
+          "role": "справочный — не основа коридора; иллюстрирует нулевую денежную отдачу для миноритария"
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "dps_2024": "4.30 руб/акцию — из governance.json [src_3]",
+            "dps_2025": "0.196 руб/акцию (9 мес 2025) — из governance.json [src_3]",
+            "dps_normalized": "2.25 руб = (4.30 + 0.196) / 2 — среднее двух доступных лет; нестабильная история (два наблюдения)",
+            "Ke": "23.6% = Rf 14.6% + beta 1.0 × ERP 9.0% [market_params.json]",
+            "g": "1.0% — консервативно; нет устойчивой политики роста дивиденда, формальная политика не раскрыта"
+          },
+          "steps": [
+            "Ke = 14.6% + 1.0 × 9.0% = 23.6%",
+            "DPS_norm = (4.30 + 0.196) / 2 = 2.248 ≈ 2.25 руб",
+            "P = DPS_norm / (Ke - g) = 2.25 / (0.236 - 0.010) = 2.25 / 0.226 = 9.96 ≈ 9.9 руб",
+            "Итог: ~10 руб — денежная ценность для миноритария практически нулевая"
+          ],
+          "caveats": [
+            "DPS нестабильны: 4.30 (2024) vs 0.196 (2025) — разница 22x; нормализация при двух точках ненадёжна",
+            "Дивидендная политика не формализована (governance.json: policy_base = 'не раскрыто')",
+            "Метод справочный: иллюстрирует, что денежный поток к миноритарию близок к нулю; не используется как основа fair_value_range",
+            "Расхождение P/NAV (68.1) vs дивидендный (9.9) = 7x: объяснено в methods_divergence_note"
+          ]
+        }
+      },
+      {
         "method": "DCF",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
-        },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Инвестхолдинг без операционной деятельности: нет FCFF, нет EBITDA, нет производственной выручки. По методологии маршрутизации HOLDING → DCF не применим. CFO ≈ дивиденды от портфеля учтён в методе dividend_discount."
+          ]
+        }
+      },
+      {
+        "method": "EV_EBITDA",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "EBITDA отсутствует: нет производственной выручки и себестоимости. Метод не применим для инвестхолдинга."
+          ]
+        }
       },
       {
         "method": "historical_pe",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
-        },
-        "status": "insufficient_data",
-        "note": "Медиана P/E за 5 лет недоступна — прибыль по годам не раскрыта; единственный P/E ~465x аномален и не годится как ориентир."
-      },
-      {
-        "method": "relative_peers",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill",
-        "note": "Сектор не прогнан; к тому же EV/EBITDA неприменим к холдинговой оболочке без EBITDA."
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "ЧП инвестхолдинга определяется переоценкой портфеля ЦБ — системно волатильна (CV=0.63 >> порога 0.5): 2021=470, 2022=1210, 2023=22, 2024=2230 млн — разброс 100x между 2023 и 2024.",
+            "P/E на основе такой прибыли вводит в заблуждение. Якорный метод для инвестхолдинга — P/NAV."
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 2145.0,
+        "fair_value_per_share": null,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 23.6,
-          "beta": 1.0
+          "rf_pct": 14.6,
+          "erp_pct": 9.0,
+          "beta": 1.0,
+          "ke_pct": 23.6
         },
-        "status": "ok",
-        "note": "Формальный расчёт: Ke=14,6%+1,0×9,0%=23,6%; таргет=цена×(1+(Ke−дивдоходность 0,25%))=2145. Бета=1,0 принята условно (по неликвидной бумаге 3-го эшелона бета не оценивается). Результат НЕНАДЁЖЕН: котировка-якорь заморожена при нулевом free-float, поэтому таргет наследует завышенную базу."
-      },
-      {
-        "method": "dividend_yield",
-        "fair_value_per_share": 286.0,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "dividend_per_share": 4.29894,
-          "required_yield_pct_range": "1.0-3.0",
-          "basis": "div_2024"
-        },
-        "status": "ok",
-        "note": "Денежно-обоснованная (дивидендная) оценка: при дивиденде ~4,30 руб и требуемой дивдоходности 1–3% справедливая цена ~143–430 руб (середина ~286). Это нижний фундаментальный якорь — он в РАЗЫ ниже рыночной котировки 1739, т.к. рынок оценивает не денежный поток миноритарию, а «бумажную» долю в Газпромбанке при отсутствии free-float."
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [market_params.json]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [market_params.json]",
+            "beta": "1.0 — suждение: proxies финансового сектора РФ 0.8–1.0; концентрированный актив → 1.0 [judgment]",
+            "Ke": "23.6% = 14.6% + 1.0 × 9.0% — требуемая доходность"
+          },
+          "steps": [
+            "Ke = Rf + beta × ERP = 14.6% + 1.0 × 9.0% = 23.6%",
+            "CAPM 12м-таргет предполагает наблюдаемую ликвидную рыночную цену",
+            "Котировка 1739 руб заморожена с 30.11.2023 (free float = 0%) — нет рыночного механизма для реализации CAPM-доходности",
+            "Ke = 23.6% используется как ориентир ставки дисконтирования для дивидендного метода и обоснования дисконта к NAV"
+          ],
+          "caveats": [
+            "Бумага 3-го уровня листинга МосБиржи, нулевой free float; CAPM предполагает возможность входа/выхода по рыночной цене — для GAZT недостижимо",
+            "Ke = 23.6% корректен как ставка требуемой доходности; 12м-таргет не применим"
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "P/NAV base (68.1 руб) vs дивидендный (9.9 руб) — расхождение ~7x. Причина фундаментальная: (1) P/NAV отражает балансовую стоимость активов с дисконтом за неликвидность и непрозрачность; (2) дивидендный метод отражает фактическую денежную отдачу миноритарию — она практически нулевая (DPS нестабильны, 0.2–4.3 руб при цене актива 100+ руб). Расхождение подтверждает, что компания создаёт стоимость для контролирующего акционера (через владение Газпромбанком), а не через дивидендный поток внешним инвесторам. Для коридора используется P/NAV как методологически правильный для инвестхолдинга.",
     "fair_value_range": {
-      "conservative": 286.0,
-      "base": 1739.0,
-      "current_price": 1739.0,
-      "upside_downside_pct": 0.0
+      "conservative": 52.3,
+      "base": 68.1,
+      "optimistic": 83.8
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [],
+      "g_grid": [],
+      "matrix": [],
+      "sensitivity_note": "DCF sensitivity не применима. Sensitivity P/NAV по дисконту к NAV (NAV/акцию = 104.70 руб): дисконт 50% → 52.4 руб; 35% → 68.1 руб; 20% → 83.8 руб. При использовании smart-lab BVPS 90.8 руб (вместо официального NAV): дисконт 50% → 45.4; 35% → 59.0; 20% → 72.6 руб."
     }
   },
   "sources": [
     {
       "id": "src_1",
       "type": "official_report",
-      "title": "MOEX ISS — карточка GAZT (название, ISIN RU000A0JS199, листинг 3, число акций 471 428 300, котировка/капитализация)",
-      "period": "2026-05-29",
-      "reliability": "high"
-    },
-    {
-      "id": "src_2",
-      "type": "aggregator",
-      "title": "Investfunds — ГАЗ-Тек (GAZT): цена, EPS, P/E, дивиденды 2023/2024/2025",
-      "period": "2023-2025",
+      "title": "Годовой отчёт ПАО ГАЗ-ТЕК 2024 (pdfplumber): NAV 49 356.633 млн, портфель ЦБ 48 588.225 млн, дивиденды 2026.644 млн, процентный доход 286.530 млн",
+      "period": "2024",
+      "url": "http://www.gaz-tek.ru/god.html",
       "reliability": "medium"
     },
     {
+      "id": "src_2",
+      "type": "moex",
+      "title": "MOEX ISS — GAZT (ISIN RU000A0JS199): 471 428 300 акций, 3-й уровень листинга, котировка заморожена ~1739 руб с 30.11.2023",
+      "period": "2026-06-13",
+      "url": "https://www.moex.com/ru/issue.aspx?board=TQBR&code=GAZT",
+      "reliability": "high"
+    },
+    {
       "id": "src_3",
-      "type": "official_report",
-      "title": "business_model.md (GAZT) — подтверждение эмитента: холдинг газпромовского периметра, ~11,1% Газпромбанка",
-      "period": "2023",
+      "type": "governance",
+      "title": "governance.json GAZT: дивиденды 2024 (4.30 руб/акция), 2025 (0.196 руб/акция), free float = 0%, структура владения, governance_quality = weak",
+      "period": "2026-06-02",
+      "url": "",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "aggregator",
+      "title": "smart-lab.ru МСФО таблицы GAZT: NI, Total Assets, Total Equity, CFO, Operating Profit 2021-2025",
+      "period": "2021-2025",
+      "url": "https://smart-lab.ru/q/GAZT/f/y/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_5",
+      "type": "config",
+      "title": "market_params.json: Rf=14.6%, ERP=9.0%, g_default=3.5%, key_rate=14.5%, обновлён 2026-05-31",
+      "period": "2026-05-31",
+      "url": "",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "Котировка 1739 руб заморожена: MOEX PREVPRICE=LCURRENTPRICE=1739, реальной ликвидности нет; последняя репрезентативная сделка ~30.11.2023. Требует ручной проверки актуальности.",
-    "Развёрнутая РСБУ-отчётность ГАЗ-Тек публично не раскрыта — баланс, капитал, чистая прибыль, денежные потоки отсутствуют (все ряды null).",
-    "P/E ~465x и EPS 3,74 руб — оценочные (investfunds), не аудированы; P/E аномален и непригоден как ориентир оценки.",
-    "Балансовая стоимость пакета ~11,1% Газпромбанка не раскрыта → NAV/оценка по активу невозможна; Газпромбанк под санкциями ЕС/Великобритании.",
-    "Нулевой free-float (перекрёстное владение с ГАЗКОН/периметр Газфонда) — рыночная цена не является справедливой.",
-    "Дивидендная оценка (~143–430 руб) в разы ниже рыночной котировки 1739 — фундаментальный разрыв; коридор намеренно широкий.",
-    "Бета=1,0 в CAPM принята условно: по неликвидной бумаге 3-го эшелона бету корректно не оценить.",
-    "Сектор не прогнан целиком — relative_peers и peers.json в статусе pending_sector_backfill."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 2.65,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "КРИТИЧНО — НЕРЫНОЧНАЯ КОТИРОВКА: цена 1739 руб заморожена с ~30.11.2023 (free float = 0%, 3-й уровень листинга). P/NAV = 16.6x при этой цене — артефакт нулевого free float, не рыночная оценка. Любая ценозависимая метрика без этой поправки вводит в заблуждение.",
+    "РАСХОЖДЕНИЕ ЦЕН В ИСТОЧНИКАХ: rates.csv передаёт цену 80 руб (implied mcap ~37.7 млрд); задание указывает mcap 820 млрд (соответствует цене ~1739 руб из MOEX/governance). Финансовый анализ не использует рыночную цену для мультипликаторов ввиду нулевого free float.",
+    "NAV РАСХОЖДЕНИЕ: официальный NAV 2024 = 49 357 млн (Годовой отчёт) vs smart-lab Total Equity 2024 = 42 800 млн. Разница ~6 557 млн (~15%) — резерв переоценки портфеля по FV (OCI в МСФО). Для оценки используем официальный NAV.",
+    "ПЕРВИЧНЫЕ МСФО PDF НЕДОСТУПНЫ: 2020-2022 отсканированы (текст не извлекается), 2023-2024 — нарративные без финансовых таблиц. Данные агрегированы из smart-lab + нарративный Годовой отчёт. Полнота 40-50% по каждому году.",
+    "2025 — LTM данные smart-lab (NI=1760, CFO=1770, Assets=46200, Equity=44500 млн): финальный МСФО за 2025 не опубликован; точность снижена.",
+    "2020 — данных нет (отсканированный PDF, smart-lab не покрывает).",
+    "ЧП СИСТЕМНО ВОЛАТИЛЬНА (CV=0.63): 2021=470, 2022=1210, 2023=22, 2024=2230 млн. Природа инвестхолдинга (переоценка портфеля ЦБ), не разовые one-off. Нормализация не проводилась (adjusted = reported).",
+    "САНКЦИОННЫЙ РИСК: Газпромбанк (основной актив ~97% портфеля) под санкциями ЕС и Великобритании. NAV подвержен этому риску.",
+    "CFI и CFF не распарсены из МСФО — ОДДС неполна; net_change_in_cash implied из остатков кэша."
+  ]
 }
