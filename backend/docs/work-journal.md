@@ -709,3 +709,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Префы (42): скопирован v2-файл эмитента в папки префов (BANEP, BSPBP, TATNP, SNGSP, SBERP, MTLRP, KZOSP, NKNCP и др.) с пометкой share_class_note. Та же отчётность, котировка/дивиденд префа свои. ~237/262.
 
 - Батч 31 (haiku): DOMRF VSEH TNSE MRKY URKZ — OK (5). GLRX добыт, аналитик отдельно. + копии HEAD/RAGR/RHYD. ~242/262.
+
+- Батч 32-33 (haiku): GLRX BRZL GECO EELT PRFN USBN BTBR GAZT PAZA RDRB BAZA HIMCP OMZZP — все OK. GAZT/GAZS/GAZC квази-холдинги (премия к NAV помечена). Остаток: GAZA/GAZAP/CHGZ/BISVP/KRKOP/VEON-RX — нет данных или к ручной загрузке PDF.
