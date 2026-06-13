@@ -678,3 +678,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 16 (haiku, терсе): JNOS DVEC KBSB VRSB RTSB PMSB (НПЗ+энергосбыты) — все OK. 113/262. Энергосбыты data_quality medium/low честно помечены.
 
 - Батч 17 (haiku, терсе): MSTT APTK WTCM KRKN YKEN — OK (5). GAZA ПРОПУЩЕНА (нет данных: МСФО с 2018 нет, РСБУ скрыта, санкции SDN) — вернуться при ручной загрузке PDF. 118/262.
+
+- Батч 18 (haiku, терсе): GTRK MFGS KCHE RTGZ KGKC RGSS — все OK. 124/262. Хвост: data_quality medium честно помечен.
