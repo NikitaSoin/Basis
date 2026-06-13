@@ -2,396 +2,1134 @@
   "meta": {
     "ticker": "RGSS",
     "name": "ПАО СК «Росгосстрах»",
-    "sector": "Финансы (страхование)",
-    "profile": "standard",
-    "subprofile": "insurer",
+    "sector": "finance_insurance",
+    "profile": "insurance",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2016,
-      2017,
-      2018,
-      2019,
       2020,
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 0.1964,
-    "price_date": "2026-05-19",
-    "shares_outstanding": 489503.74,
-    "shares_unit": "млн шт",
-    "market_cap": 96139,
+    "shares_outstanding": 489503740915,
+    "price_date": "2026-06-08",
     "data_quality": "medium",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "anomaly_flag": true,
+    "anomaly_note": "Только 2023-2024 данные (P&L + активы). 2020-2022 — null из-за недоступности PDF. Баланс частичный: total_equity не распарсен, используется оценка BVPS≈0.152 ₽ из governance.json (ориентир ВТБ = балансовая по МСФО). Все P/B-методы — insufficient_data (equity оценочная). ETR 2024 = 16.1% аномально низкая — скорректирована к норме 20%. Расхождение методов оценки >30% (P/BV×ROE даёт 0.036 ₽ vs P/E 0.25–0.27 ₽) — поскольку ROE<<Ke: объяснено в methods_divergence_note.",
+    "adjustments_aggressive": false
   },
-  "anomaly_flag": true,
-  "anomaly_note": "Малоликвидная бумага (free-float мал, ВТБ контролирует, идут переговоры о продаже — цена 0,1964 руб может не отражать справедливую стоимость). Капитал и прибыль чувствительны к переоценке инвестпортфеля при движении ставки ЦБ. Накопленный убыток -75 642 млн в капитале (наследие санации). Методы оценки сильно расходятся из-за высокой Ke (22,7%) против ROE ~12-13%.",
   "income_statement": {
+    "cost_format": "by_nature_insurance",
     "revenue": [
-      140847,
-      84855,
-      69006,
-      93722,
-      107510,
-      125904,
-      81621,
-      83686,
-      94336,
-      100085
+      null,
+      null,
+      null,
+      77308.864,
+      90527.23
     ],
-    "net_profit": [
-      -29156,
-      -58183,
-      13380,
-      7672,
-      7618,
-      2451,
-      4921,
-      4603,
-      10019,
-      8770
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Заработанные страховые премии (Earned premiums, net)",
+        "values": [
+          null,
+          null,
+          null,
+          77308.864,
+          90527.23
+        ]
+      },
+      {
+        "name": "Состоявшиеся убытки, нетто перестрахование (Incurred losses, net of reinsurance)",
+        "values": [
+          null,
+          null,
+          null,
+          -32143.341,
+          -42655.892
+        ]
+      },
+      {
+        "name": "Расходы на урегулирование убытков (Claims adjustment expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          -3766.422,
+          -3920.677
+        ]
+      },
+      {
+        "name": "Аквизиционные расходы (Acquisition costs)",
+        "values": [
+          null,
+          null,
+          null,
+          -35314.476,
+          -40351.136
+        ]
+      },
+      {
+        "name": "Расходы по прямому возмещению убытков (Direct claim recovery expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          -1419.625,
+          -2611.151
+        ]
+      },
+      {
+        "name": "Результат от страховой деятельности (Insurance underwriting result)",
+        "values": [
+          null,
+          null,
+          null,
+          7171.372,
+          4977.658
+        ]
+      },
+      {
+        "name": "Процентные доходы (Interest income)",
+        "values": [
+          null,
+          null,
+          null,
+          6533.334,
+          11660.512
+        ]
+      },
+      {
+        "name": "Доходы от инвестиционной собственности (Investment property income)",
+        "values": [
+          null,
+          null,
+          null,
+          1111.162,
+          1369.559
+        ]
+      },
+      {
+        "name": "Процентные расходы (Interest expense)",
+        "values": [
+          null,
+          null,
+          null,
+          -145.524,
+          -168.272
+        ]
+      },
+      {
+        "name": "Прочие инвестиционные расходы (Other investment expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          -745.418,
+          -652.929
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы/расходы (Other operating income/expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          107.366,
+          1553.369
+        ]
+      },
+      {
+        "name": "Общехозяйственные и административные расходы (Admin & G&A expenses)",
+        "values": [
+          null,
+          null,
+          null,
+          -6834.107,
+          -8388.583
+        ]
+      },
+      {
+        "name": "Резервы под обесценение (Impairment allowances)",
+        "values": [
+          null,
+          null,
+          null,
+          -1454.387,
+          -1010.449
+        ]
+      }
     ],
     "operating_profit": [
-      -27726,
-      -22542,
-      13380,
-      10153,
-      8214,
-      7748,
-      10978,
-      7171,
-      4978,
-      -301
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      -145.524,
+      -168.272
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      7924.053,
+      13275.237
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      6075.911,
+      9576.012
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      -1472.802,
+      -1545.95
+    ],
+    "net_profit": [
+      null,
+      null,
+      null,
+      4603.109,
+      8030.062
     ],
     "margins": {
-      "net_margin": [
-        -20.7,
-        -68.57,
-        19.39,
-        8.19,
-        7.09,
-        1.95,
-        6.03,
-        5.5,
-        10.62,
-        8.76
+      "gross_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ros": [
+        null,
+        null,
+        null,
+        5.95,
+        8.87
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      null,
+      null,
+      4860.729,
+      7660.81
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "ОДДС не извлечён. Capex и FCF — null. Страховая компания: основной актив — инвестпортфель, не capex-интенсивное производство.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      24.2,
+      16.1
+    ],
+    "etr_sustainable": 20.0,
+    "bridge": [
+      {
+        "year": 2023,
+        "item": "Нормализация ETR: reported 24.2% → норматив 20% (действовавшая ставка 2023); компания переплатила налог (ETR выше нормы) → adj ЧП выше reported",
+        "amount": 257.62,
+        "added_back": true,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "Нормализация ETR: reported 16.1% → норматив 20% (действовавшая ставка 2024); ETR аномально низкая — временный эффект отложенных налогов или льготы → adj ЧП ниже reported",
+        "amount": -369.252,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_1"
+      }
+    ],
+    "bridge_note": "Арифметика: 2023: 4603+258=4861 ✓; 2024: 8030-369=7661 ✓. Норматив 20% — ставка налога на прибыль в 2023-2024. С 2025 — 25% (для форвард-прогноза). Резервы под обесценение (recurring у страховщиков) — НЕ исключаем. Курсовые, списания, разовые продажи активов — в источнике не выделены; чек-лист: windfall=нет, штрафы=нет, прекращённая деятельность=нет. Мост ограничен ETR-корректировкой."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        0.526,
+        0.394
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "insurance_investments_note": "Инвестиционный портфель (примечания 5-9): банковские депозиты 2024=64 089 млн / 2023=55 433 млн; облигации (FV+AC) ~20-21 млрд; денежные средства 394 / 526 млн. Полная разбивка в PDF, не автоматически извлечена.",
     "total_assets": [
-      154032,
-      150824,
-      141163,
-      160384,
-      187664,
-      207609,
-      139219,
-      121526,
-      128029,
-      134999
+      null,
+      null,
+      null,
+      148933.788,
+      160291.619
     ],
-    "total_equity": [
-      -8021,
-      38746,
-      44873,
-      52786,
-      48022,
-      50292,
-      53886,
-      58528,
-      65698,
-      74490
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "equity_note": "total_equity не извлечён из PDF. Оценка: BVPS≈0.152 ₽ (ориентир ВТБ = балансовая стоимость по МСФО, governance.json) × 489 503 740 915 акций ≈ 74 405 млн ₽. Накопленный убыток прошлых лет в капитале −75 600 млн (наследие санации «Открытия»). Уставный капитал ~24 500 млн (увеличен в 2025). Цифры — judgement.",
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "insurance_reserves": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      162054,
-      112077,
-      96290,
-      107598,
-      139642,
-      157316,
-      85332,
-      62998,
-      62331,
-      60509
-    ],
-    "cash": [
-      3952,
-      3650,
-      778,
-      1056,
-      1287,
-      2031,
-      372,
-      526,
-      394,
-      358
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "net_debt": [
-      -290,
-      -3650,
-      -778,
-      -1056,
-      -1287,
-      -1048,
-      -372,
-      -526,
-      -394,
-      -358
+      null,
+      null,
+      null,
+      null,
+      null
     ],
-    "book_value_per_share": 0.1522,
-    "accumulated_deficit_2025": -75642
+    "tangible_equity": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "tangible_note": "Оценочный капитал ~74 405 млн ₽ (из BVPS governance); гудвил и НМА из первички не извлечены. Все P/B-методы помечены insufficient_data.",
+    "ratios": {
+      "debt_to_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_debt_ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "current_ratio": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
   },
   "cash_flow": {
     "cfo": [
-      -22288,
-      -58501,
-      -12976,
-      10134,
-      20637,
-      29506,
-      546,
-      16891,
-      9438,
-      5452
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "capex": [
-      766,
-      458,
-      935,
-      1650,
-      1856,
-      1825,
-      1979,
-      2565,
-      4682,
-      5523
+      null,
+      null,
+      null,
+      null,
+      null
     ],
-    "note": "Для страховщика CFO волатилен (движение страховых резервов и инвестпортфеля); FCF/CapEx-метрики малоинформативны."
-  },
-  "insurance_metrics": {
-    "gross_premiums_2025": 100085,
-    "premiums_growth_pct_2025": 7.6,
-    "claims_paid_2025": 48800,
-    "claims_growth_pct_2025": 20.6,
-    "combined_ratio_auto_2025": ">100%",
-    "investment_income_auto_2025": 6300,
-    "note": "Сборы 100,1 млрд (+7,6%); выплаты 48,8 млрд (+20,6%); автосегмент убыточен по страховой деятельности (-4,9 млрд), компенсируется инвестдоходом 6,3 млрд. Данные — пресс-релизы/ОСБУ, не из загруженного PDF."
+    "fcf": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
+    "ratios": {
+      "fcf_margin": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfo_to_capex": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex_to_revenue": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
   },
   "returns": {
     "roe": [
-      363.5,
-      -150.17,
-      29.82,
-      14.53,
-      15.86,
-      4.87,
-      9.13,
-      7.86,
-      15.25,
-      11.77
+      null,
+      null,
+      null,
+      6.5,
+      10.3
     ],
-    "roe_report_basis_2025": 13.35,
     "roa": [
-      -18.93,
-      -38.58,
-      9.48,
-      4.78,
-      4.06,
-      1.18,
-      3.53,
-      3.79,
-      7.83,
-      6.5
+      null,
+      null,
+      null,
+      3.3,
+      4.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "ros": [
-      -20.7,
-      -68.57,
-      19.39,
-      8.19,
-      7.09,
-      1.95,
-      6.03,
-      5.5,
-      10.62,
-      8.76
-    ]
+      null,
+      null,
+      null,
+      6.3,
+      8.5
+    ],
+    "asset_turnover": [
+      null,
+      null,
+      null,
+      0.519,
+      0.565
+    ],
+    "returns_note": "ROE = adj ЧП / оценочный equity (74 405 млн). 2024: 7661/74405=10.3%; 2023: 4861/74405=6.5%. ROA: 7661/160292=4.8%; 4861/148934=3.3%. Среднее ROE 8.4% < Ke 24.5% — бизнес разрушает стоимость при текущей ставке."
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      -3.3,
-      -1.65,
-      7.19,
-      12.53,
-      12.62,
-      39.22,
-      19.54,
-      20.89,
-      9.6,
-      10.96
+      null,
+      null,
+      null,
+      42.0,
+      11.8
     ],
     "pb": [
       null,
-      2.48,
-      2.14,
-      1.82,
-      2.0,
-      1.91,
-      1.78,
-      1.64,
-      1.46,
-      1.29
+      null,
+      null,
+      1.27,
+      1.27
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      1.23,
+      1.05
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      6.5,
+      10.3
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      3.3,
+      4.8
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      6.3,
+      8.5
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      null,
+      null,
+      17.1
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      null,
+      null,
+      57.5
+    ],
+    "metrics_note": "P/E reported: 2023=42.0x (4603 млн ЧП), 2024=11.8x (8030 млн). P/E adj: 2023=19.5x, 2024=12.4x. P/B по цене 0.19369 ₽ и оценочному BVPS 0.152 ₽. Все значения при цене 0.19369 ₽."
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      42.0,
+      11.8
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      19.5,
+      12.4
+    ],
+    "ps": [
+      null,
+      null,
+      null,
+      1.23,
+      1.05
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      1.27,
+      1.27
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
     ],
     "current": {
-      "pe": 10.96,
-      "pb": 1.29,
-      "ps": 0.96,
+      "pe": 11.8,
+      "pe_adj": 12.4,
+      "ps": 1.05,
+      "pb": 1.27,
       "ev_ebitda": null,
-      "net_debt_ebitda": null,
-      "as_of": "2026-05-19",
-      "note": "EV/EBITDA и Net Debt/EBITDA неприменимы для страховщика."
+      "as_of": "2026-06-08"
     },
     "historical_avg": {
-      "pe_8y_median": 13.1,
-      "period": "2018-2025"
+      "pe_basis": "2y_mean (только 2023-2024; CV=0.22 ≤ 0.5 → среднее; 2 точки — ненадёжно)",
+      "pe_value": 26.9,
+      "pe_adj_value": 15.9,
+      "pb_value": 1.27,
+      "period": "2023-2024"
     }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": 10.96,
-      "pb": 1.29,
-      "roe": 13.35,
-      "ev_ebitda": null,
-      "net_debt_ebitda": null
-    },
-    "2024": {
-      "pe": 10.85,
-      "pb": 1.65,
-      "roe": 17.12,
-      "ev_ebitda": null,
-      "net_debt_ebitda": null
-    }
-  },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "note": "Медиана по сектору (страховщики РФ: Ренессанс, СОГАЗ непубличен, Ингосстрах непубличен) будет добрана при прогоне сектора. Из загруженного отраслевого среза: Ренессанс P/E 4,36 P/BV 0,45 ROE 22,95."
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
-    "note": "Публичного брокерского консенсуса по RGSS практически нет (малоликвид). Прогноз прибыли критически зависит от траектории ставки ЦБ (инвестдоход) и тарифов ОСАГО — см. сценарии в business_model.md. Механический прогноз нерепрезентативен из-за волатильной истории."
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      17.1,
+      8.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      57.5,
+      10.0
+    ],
+    "note": "Консенсус брокеров по RGSS отсутствует (малоликвидная бумага, free float <1%). Механический прогноз: рост выручки 2025 ~8% (замедление после +17% 2024; ограничено рынком ОСАГО+КАСКО), рост ЧП adj +10% (инвестдоход поддерживается высокой КС 14.5%, но андеррайтинговый результат снижается). Форвардный EPS adj 2025 = 0.01722 ₽. С 2025 налог 25% (vs 20%) — при прочих равных adj ЧП снизится на ~6%; учтено в консервативном сценарии. Ключевой риск: снижение КС → падение инвестдохода → снижение ЧП."
   },
   "valuation": {
     "methods": [
       {
-        "method": "PBV_x_ROE",
-        "fair_value_per_share": 0.0781,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "fair_pbv": 0.513,
-          "roe_used_pct": 13.35,
-          "ke_pct": 22.7,
-          "g_pct": 3.5,
-          "bvps": 0.1522
-        },
-        "status": "ok",
-        "note": "Профильный метод для страховщика. Fair P/BV=(ROE-g)/(Ke-g). При Ke 22,7% > ROE метод даёт P/BV<1 → справедливая цена ниже текущей."
-      },
-      {
-        "method": "historical_pe",
-        "fair_value_per_share": 0.2347,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pe_used": 13.1,
-          "basis": "8y_median(2018-2025)",
-          "eps": 0.0179
-        },
-        "status": "ok",
-        "note": "Медиана исключает убыточные 2016-2017."
-      },
-      {
-        "method": "CAPM",
-        "fair_value_per_share": 0.0789,
-        "horizon": "12m",
-        "key_assumptions": {
-          "ke_pct": 22.7,
-          "beta": 0.9,
-          "implied_pe": 4.41
-        },
-        "status": "ok",
-        "note": "Ориентир P/E≈1/Ke при высокой требуемой доходности."
-      },
-      {
         "method": "DCF",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
+        "key_assumptions": {},
         "status": "not_applicable",
-        "note": "DCF неприменим для страховщика (нет стабильного FCF; денежные потоки определяются движением резервов и инвестпортфеля)."
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Страховая компания: классический FCFF-DCF не применяется. Страховщик генерирует ценность через underwriting result + инвестиционный доход, а не через промышленный FCF. ОДДС не извлечён. Методология аналогична банковскому профилю: P/BV×ROE, P/E(adj), дивидендная, CAPM."
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "method": "pbv_roe",
+        "fair_value_per_share": 0.0356,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "roe_avg_pct": 8.4,
+          "ke_pct": 24.5,
+          "g_pct": 3.5,
+          "bvps_used": 0.152,
+          "equity_basis": "оценочный (BVPS из governance.json)",
+          "fair_pbv": 0.234
+        },
+        "status": "ok_with_caveats",
+        "explain": {
+          "inputs": {
+            "ROE_2023_adj": "6.5% — adj ЧП 4861 млн / оценочный equity 74 405 млн [src_1, src_gov]",
+            "ROE_2024_adj": "10.3% — adj ЧП 7661 млн / оценочный equity 74 405 млн [src_1, src_gov]",
+            "ROE_avg": "8.4% — простое среднее 2023-2024 (2 точки; CV не считается содержательно) [расчёт]",
+            "Ke": "24.5% — Rf 14.6% + β 1.1 × ERP 9.0% [src_config]",
+            "beta": "1.1 — judgement: рыночная бета RGSS нерасчитываема (free float <1%, малоликвидность) [judgement]",
+            "g": "3.5% — terminal growth default из конфига [src_config]",
+            "BVPS": "0.152 ₽ — ориентир ВТБ (балансовая стоимость по МСФО) из governance.json [src_gov]; total_equity в балансе = null"
+          },
+          "steps": [
+            "Формула Гордона для страхового P/BV: Fair P/BV = (ROE − g) / (Ke − g)",
+            "Fair P/BV = (8.4% − 3.5%) / (24.5% − 3.5%) = 4.9% / 21.0% = 0.234x",
+            "Fair price = Fair P/BV × BVPS = 0.234 × 0.152 = 0.0356 ₽",
+            "Интерпретация: ROE (8.4%) < Ke (24.5%) → бизнес разрушает стоимость относительно требуемой доходности → справедливый P/BV < 1. Текущий P/BV ≈ 1.27x → бумага переоценена по этому методу.",
+            "Апсайд от 0.19369 ₽: −81.6%"
+          ],
+          "caveats": [
+            "BVPS оценочный из governance — результат judgement, не fact",
+            "ROE 8.4% — среднее 2 лет; нестабильно (6.5%→10.3%); рост инвестдохода при высокой КС временный",
+            "При снижении КС инвестдоход упадёт, ROE снизится → оценка станет ещё ниже",
+            "Метод чувствителен к Ke: при Ke=20% fair P/BV = (8.4-3.5)/(20-3.5)=0.297, fair price=0.045 ₽ — всё равно ниже текущей цены",
+            "Этот метод — фундаментальный якорь: структурная переоценка при ROE<<Ke"
+          ]
+        }
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.2737,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 15.9,
+          "basis": "2y_mean (2023-2024 adj; CV=0.22 ≤ 0.5 → среднее; только 2 точки)",
+          "eps_forward": 0.01722,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 0.01565
+        },
+        "status": "ok_with_caveats",
+        "explain": {
+          "inputs": {
+            "P_E_adj_2023": "19.5x — цена 0.19369 ₽ / EPS adj 2023 = 0.00993 ₽ [расчёт]",
+            "P_E_adj_2024": "12.4x — цена 0.19369 ₽ / EPS adj 2024 = 0.01565 ₽ [расчёт]",
+            "pe_mean": "15.9x — среднее 19.5 и 12.4; CV = 3.55/15.95 = 0.22 ≤ 0.5 → среднее [расчёт]",
+            "EPS_adj_2024": "0.01565 ₽ — adj ЧП 7661 млн / 489 503 741 тыс. акций [расчёт]",
+            "forward_growth": "+10% механически — высокие ставки поддерживают инвестдоход; умеренный рост премий [judgement]",
+            "EPS_fwd_2025": "0.01722 ₽ — EPS adj 2024 × 1.10 [расчёт]",
+            "tax_note": "С 2025 ставка 25% vs 20%; при постоянном pre-tax ЧП снизится ~6%; учтено в умеренном росте +10% [judgement]"
+          },
+          "steps": [
+            "Годы P/E adj: 2023=19.5x, 2024=12.4x. Данных 2020-2022 нет (null). 2 точки.",
+            "CV = σ/среднее = 3.55/15.95 = 0.22 < 0.5 → используем среднее pe_used = 15.9x",
+            "Форвардный EPS 2025: EPS adj 2024 × (1+10%) = 0.01565 × 1.10 = 0.01722 ₽",
+            "Fair value forward: 15.9 × 0.01722 = 0.2737 ₽",
+            "Backward reference: 15.9 × 0.01565 = 0.2488 ₽",
+            "Апсайд от 0.19369 ₽: +41.3% (forward), +28.5% (backward)"
+          ],
+          "caveats": [
+            "2 точки — ненадёжная база для «нормального P/E»; результат условный",
+            "P/E страховщика чувствителен к ставке: при снижении КС инвестдоход упадёт, ЧП снизится, P/E вырастет → текущий P/E=12.4x не репрезентативен как «нормальный»",
+            "Андеррайтинговый результат снижается (7171→4978 млн): рост ЧП полностью за счёт инвестдохода (+78%)"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": null,
+          "basis": "insufficient — equity не извлечён; BVPS оценочный",
+          "book_value_per_share_used": 0.152,
+          "equity_basis": "оценочный из governance",
+          "cv": null
+        },
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "total_equity": "null — баланс не распарсен; BVPS 0.152 ₽ — оценка из governance.json [src_gov]",
+            "historical_pb": "невозможно рассчитать — одна оценочная точка BVPS без динамики [расчёт]"
+          },
+          "steps": [
+            "Исторический P/B требует динамику BVPS по годам. total_equity = null для всех лет.",
+            "BVPS 0.152 ₽ — единственная оценочная точка (ориентир ВТБ); применять для нескольких исторических значений некорректно.",
+            "Текущий P/B = 0.19369 / 0.152 = 1.27x — справочно. Метод = insufficient_data."
+          ],
+          "caveats": [
+            "При получении полного баланса из первички пересчитать"
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "status": "pending_sector_backfill"
+        "key_assumptions": {},
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Публичных страховых компаний-аналогов на Мосбирже нет (СОГАЗ, Ингосстрах — непубличные). Сравнение с банками некорректно: разная бизнес-модель.",
+            "Метод не применён — нет сопоставимых публичных peers."
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.2371,
+        "horizon": "12m",
+        "key_assumptions": {
+          "rf_pct": 14.6,
+          "erp_pct": 9.0,
+          "beta": 1.1,
+          "ke_pct": 24.5,
+          "div_yield_used_pct": 2.1,
+          "div_used_note": "разовый дивиденд 0.004 ₽ (рекомендация СД апр.2026 из прибыли прошлых лет)"
+        },
+        "status": "ok_with_caveats",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ конец мая 2026 [src_config]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [src_config]",
+            "beta": "1.1 — judgement; рыночная бета RGSS нерасчитываема (free float <1%) [judgement]",
+            "Ke": "14.6% + 1.1 × 9.0% = 24.5% [расчёт]",
+            "div_recent": "0.004 ₽ — рекомендованный СД дивиденд апр.2026; div yield = 0.004/0.19369 = 2.1% [src_gov]",
+            "price_current": "0.19369 ₽ — из рыночного контекста [rates.csv]"
+          },
+          "steps": [
+            "Ke = Rf + β × ERP = 14.6% + 1.1 × 9.0% = 24.5%",
+            "CAPM 12m target = P × (1 + Ke − div_yield) = 0.19369 × (1 + 0.245 − 0.021) = 0.19369 × 1.224 = 0.2371 ₽",
+            "Интерпретация: для получения доходности Ke=24.5% при div_yield 2.1% цена должна вырасти на 22.4% за 12 месяцев"
+          ],
+          "caveats": [
+            "Beta 1.1 — judgement; малоликвидная бумага с free float <1%: CAPM условно применим",
+            "Дивиденд 0.004 ₽ — разовый, не устойчивый",
+            "CAPM предполагает ликвидный эффективный рынок"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 0.016,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps_sustainable": 0.00391,
+          "payout_assumed_pct": 25,
+          "ke_pct": 24.5,
+          "g_pct": 0.0,
+          "eps_adj_base": 0.01565
+        },
+        "status": "ok_with_caveats",
+        "explain": {
+          "inputs": {
+            "EPS_adj_2024": "0.01565 ₽ [расчёт]",
+            "payout": "25% — нижняя консервативная граница; формального payout нет [judgement из governance.json]",
+            "DPS_sustainable": "0.01565 × 0.25 = 0.00391 ₽ [расчёт]",
+            "Ke": "24.5% [расчёт]",
+            "g": "0% — не закладываем рост дивидендов: нет политики, дивиденды нерегулярны [judgement]"
+          },
+          "steps": [
+            "DPS устойчивый = EPS adj 2024 × 25% = 0.01565 × 0.25 = 0.00391 ₽",
+            "Fair price = DPS / (Ke − g) = 0.00391 / 0.245 = 0.01597 ₽",
+            "Апсайд от 0.19369 ₽: −91.8%",
+            "При payout=50%: fair price = 0.032 ₽ — всё равно ниже рынка",
+            "Метод подтверждает: при нерегулярных дивидендах и Ke=24.5% акция не оправдана дивидендной доходностью"
+          ],
+          "caveats": [
+            "Метод нерелевантен без стабильной дивполитики: за 2021/2023/2024 дивидендов не было",
+            "Включён для полноты маршрутизации страхового профиля; в коридор не входит",
+            "Фундаментальный сигнал: при Ke=24.5% нужна dps/price=24.5% для оправдания цены; при цене 0.19369 ₽ это DPS=0.047 ₽/акцию — в 12x выше текущей реальной"
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Расхождение методов превышает 600% (P/BV×ROE: 0.036 ₽; Дивидендная: 0.016 ₽ vs P/E: 0.249–0.274 ₽; CAPM: 0.237 ₽). Причина структурная: ROE (8.4%) << Ke (24.5%) — при таком соотношении P/BV×ROE и дивидендная корректно дают оценку ниже балансовой стоимости (справедливый P/BV=0.23x vs текущий 1.27x). P/E методы капитализируют текущую прибыль по историческому мультипликатору — более оптимистичны. Коридор строится из P/E adj и CAPM (три метода). P/BV×ROE и дивидендная — отдельные якоря-предупреждения о структурной переоценке. При снижении КС инвестдоход упадёт: P/E-оценки снизятся, P/BV×ROE-якорь окажется ближе к истине.",
     "fair_value_range": {
-      "conservative": 0.0656,
-      "base": 0.1564,
-      "current_price": 0.1964,
-      "upside_downside_pct": {
-        "conservative": -66.6,
-        "base": -20.4
-      },
-      "note": "Широкий коридор отражает расхождение методов: P/BV×ROE/CAPM тянут вниз (высокая ставка), исторический P/E — около текущей цены. Коридор не учитывает дисконт за низкую ликвидность."
+      "conservative": 0.2371,
+      "base": 0.2553,
+      "optimistic": 0.2737,
+      "methodology_note": "Conservative=CAPM 12m (0.2371). Base=среднее трёх методов: P/E_fwd (0.2737) + P/E_bwd (0.2488) + CAPM (0.2371) = 0.2553. Optimistic=P/E_fwd (0.2737). P/BV×ROE (0.036) и дивидендная (0.016) — отдельные anchor-предупреждения, в коридор не включены. Equity оценочная — P/B-методы insufficient_data. Все оценки условны при free float <1% (малоликвидность)."
+    },
+    "sensitivity": {
+      "pe_grid": [
+        12.4,
+        15.9,
+        19.5
+      ],
+      "eps_fwd_grid": [
+        0.01565,
+        0.01722,
+        0.01878
+      ],
+      "matrix": [
+        [
+          0.194,
+          0.213,
+          0.233
+        ],
+        [
+          0.249,
+          0.274,
+          0.299
+        ],
+        [
+          0.305,
+          0.336,
+          0.366
+        ]
+      ],
+      "sensitivity_note": "Строки: P/E (12.4x=текущий, 15.9x=средн., 19.5x=2023). Столбцы: EPS_fwd (0.01565=база 2024, 0.01722=+10%, 0.01878=+20%). Центральная ячейка [15.9×0.01722]=0.274 ₽ — base-case. Нижняя левая [12.4×0.01565]=0.194 ₽ — дно диапазона (текущий P/E × нулевой рост). При снижении КС P/E может сжаться к нижней строке."
     }
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "uploaded_file",
-      "title": "Росгосстрах МСФО 2025 (инфографика, на 19.05.2026)",
-      "period": "2016-2025",
+      "type": "extracted_financials",
+      "title": "extracted_financials.json (pdfplumber+web_search, МСФО 2024/2023)",
+      "url": "https://cdn.financemarker.ru/reports/2024/MOEX/R/RGSS_2024_12_Y_МСФО.pdf",
+      "period": "2023-2024",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_gov",
+      "type": "governance",
+      "title": "governance.json — BVPS≈0.152 ₽, дивиденды, структура капитала",
+      "period": "2026-06-02",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_config",
+      "type": "config",
+      "title": "market_params.json — Rf=14.6%, ERP=9.0%, КС=14.5%",
+      "period": "2026-05-31",
       "reliability": "high"
-    },
-    {
-      "id": "src_2",
-      "type": "official_report",
-      "title": "Пресс-релизы/ОСБУ ПАО СК Росгосстрах (премии, выплаты, CR)",
-      "period": "2024-2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_3",
-      "type": "aggregator",
-      "title": "Отраслевой срез фин.компаний (peers)",
-      "period": "2025",
-      "reliability": "medium"
     }
   ],
   "data_flags": [
-    "Загруженный PDF — агрегатор (smart-lab стиль), не первичная отчётность МСФО; ряды по компании сверены кодом — P/E 10,96, P/BV 1,29, P/S 0,96, ROE 13,35% воспроизведены точно.",
-    "ROE 13,35% в источнике = ЧП(2025)/Капитал(2024). По капиталу на конец года ROE = 11,8%. В returns.roe — year-end, отдельно дан roe_report_basis.",
-    "Инвестпортфель ~100+ млрд, комбинированный коэффициент, разбивка премий по видам — НЕ из загруженного PDF, а из пресс-релизов/business_model (оценка).",
-    "Малоликвидная бумага: рыночная цена 0,1964 руб может быть нерепрезентативна; коридор оценки чувствителен к допущению о Ke.",
-    "Накопленный убыток -75 642 млн остаётся в капитале (санационное наследие) — ограничивает дивидендный потенциал.",
-    "Чистый долг отрицательный (чистая денежная позиция -358 млн), но для страховщика метрика малоинформативна — основной 'рычаг' это страховые резервы.",
-    "relative_peers и медиана сектора — pending_sector_backfill."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "pb",
-    "peer_median": 0.88,
-    "fair_value_per_share": 0.13,
-    "upside_downside_pct": -33.8,
-    "status": "reference_only"
-  }
+    "2020-2022 P&L и баланс — null: PDF-источники не распарсились (сканы или недоступны). Для полного исторического анализа требуется ручное извлечение.",
+    "total_equity всех лет = null (баланс не полностью извлечён). BVPS 0.152 ₽ — оценка из governance.json (ориентир ВТБ при продаже). Все P/B-методы = insufficient_data.",
+    "ОДДС (CFO/CFI/CFF/capex) = null. FCF-нормализация не проводилась.",
+    "ETR 2024 = 16.1% (аномально низкая vs норматив 20%). Скорректировано в adjusted на −369 млн. Причина не верифицирована по первичке (возможны отложенные налоги, льготы).",
+    "ETR 2023 = 24.2% (чуть выше нормы 20%). Скорректировано в adjusted на +258 млн.",
+    "Beta RGSS = 1.1 (judgement): рыночная бета нерасчитываема (free float <1%). Ke=24.5% условна.",
+    "Андеррайтинговый результат снижается: 7 171 млн (2023) → 4 978 млн (2024). Рост ЧП полностью за счёт инвестдохода (+78%). Чувствительность к снижению КС — высокая.",
+    "Накопленный убыток прошлых лет −75 600 млн в капитале. Дивидендный потенциал ограничен; payout нефиксирован.",
+    "Free float <1%: рыночная цена может не отражать справедливую стоимость. Все оценки условны в части ликвидности.",
+    "Смена собственника: ВТБ ищет покупателя. Ориентир ВТБ = баланс по МСФО (BVPS~0.152 ₽ < текущей цены 0.19369 ₽). Риск оферты/squeeze-out.",
+    "Уставный капитал увеличен в 2025 на ~67% до ~24.5 млрд руб. — возможный dilution-эффект не отражён в исторических данных."
+  ]
 }
