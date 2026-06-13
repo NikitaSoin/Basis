@@ -1,0 +1,368 @@
+{
+  "meta": {
+    "ticker": "YDEX",
+    "name": "МКПАО Яндекс",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf + smart-lab",
+      "url": "backend/companies/YDEX/sources/Yandex (МСФО 2025) на 28.05.2026г.pdf",
+      "doc_title": "Яндекс — Динамика показателей 2016-2025 гг. (инфографика финансовой отчётности)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + smart-lab-table + вычисления",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      356171,
+      521699,
+      798114,
+      1094600,
+      1441098
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          24111,
+          30874,
+          58485,
+          76888,
+          98525
+        ]
+      }
+    ],
+    "operating_profit": [
+      -13277,
+      13236,
+      63878,
+      51546,
+      173642
+    ],
+    "da": [
+      24111,
+      30874,
+      58485,
+      76888,
+      98525
+    ],
+    "ebitda": [
+      10834,
+      44110,
+      122363,
+      128434,
+      272167
+    ],
+    "finance_costs": [
+      3711,
+      3396,
+      16529,
+      35288,
+      62726
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -14669,
+      39465,
+      53700,
+      11468,
+      79579
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        79275,
+        83131,
+        86103,
+        211563,
+        250210
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      515496,
+      616719,
+      746402,
+      1098688,
+      1368342
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        131488,
+        173697,
+        265382,
+        239658,
+        258894
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        272925,
+        338178,
+        260635,
+        293797,
+        351216
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        2940,
+        21306,
+        49438,
+        99114,
+        179621
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        85835,
+        29885,
+        91434,
+        160943,
+        90051
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      242571,
+      278541,
+      485767,
+      804891,
+      1017126
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      9293,
+      41688,
+      114202,
+      203185,
+      282330
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      44621,
+      50544,
+      84182,
+      124625,
+      145868
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "источник: PDF инфографика (табл. «Динамика основных балансовых показателей 2016-2025 гг.») + smart-lab МСФО таблицы",
+    "полная МСФО консолидированная отчётность после реструктуризации YNDX→YDEX (2023-2024) доступна только у источников с auth (e-disclosure, SEC EDGAR)",
+    "детальная разбивка P&L расходов (персонал, маркетинг, доставка, R&D, коммерческие) не извлечена — PDF содержит только консолидированные строки (Revenue, OpProfit, D&A, FinCosts, NetIncome, EBITDA)",
+    "cost_format=by_nature обоснован (IT платформа): себестоимость товара/услуги и валовая прибыль отсутствуют, вместо них EBITDA как ключевой метрика; ВСЕ операционные расходы в expense_lines (пока только амортизация, так как детализация недоступна)",
+    "баланс: только ключевые строки (cash, debt, retained_earnings, total_assets/liabilities/equity); детализация (НМА, гудвил, дебиторская, кредиторская, tax assets/liabilities, derivatives) требует полного отчёта МСФО",
+    "денежные потоки: только CFO и Capex; CFI/CFF вычисляются как остаток (не показаны отдельно в инфографике)",
+    "2024 net_profit аномально низко (11.5 млрд reported vs 100.9 млрд adjusted) — причина реструктуризация (спин-офф RuNet активов) и переоценки; reported P&L тут, adjusted доступна только в press-releases",
+    "free cash flow проверен: FCF = CFO - Capex совпадает с инфографикой (e.g. 2025: 282.3 - 145.9 = 136.4 млрд)"
+  ]
+}

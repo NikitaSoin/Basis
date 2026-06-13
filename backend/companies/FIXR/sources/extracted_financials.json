@@ -1,0 +1,423 @@
+{
+  "meta": {
+    "ticker": "FIXR",
+    "name": "ПАО «Фикс Прайс»",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf + e-disclosure",
+      "url": "https://investors.fix-price.ru/disclosure/",
+      "doc_title": "Консолидированная финансовая отчётность МСФО 2024-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + smart-lab",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      230473,
+      291865,
+      277644,
+      280878,
+      300311,
+      313330
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      190393,
+      205515,
+      213911
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      90485,
+      94796,
+      99419
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          58271,
+          65959,
+          80107
+        ]
+      },
+      {
+        "name": "Прочие операционные доходы",
+        "values": [
+          null,
+          null,
+          null,
+          570,
+          545,
+          646
+        ]
+      }
+    ],
+    "operating_profit": [
+      26923,
+      37927,
+      4106,
+      32849,
+      29430,
+      20007
+    ],
+    "da": [
+      9865,
+      13138,
+      15138,
+      15142,
+      16494,
+      18811
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      1125,
+      3329,
+      2951,
+      2832,
+      4735,
+      5516
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      2157,
+      3504,
+      105
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      30650,
+      27100,
+      15281
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      797,
+      5703,
+      4105
+    ],
+    "net_profit": [
+      17575,
+      35707,
+      21411,
+      29853,
+      21397,
+      11176
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        27386,
+        29175,
+        35897
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        10477,
+        9523,
+        8669
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        61,
+        23,
+        22
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        11527,
+        13616,
+        19848
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        49451,
+        53338,
+        64456
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        44878,
+        52910,
+        52578
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        8174,
+        8166,
+        10365
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        30660,
+        6486,
+        9505
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        1713,
+        2659,
+        5742
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        85425,
+        70221,
+        78155
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      134876,
+      123559,
+      142611
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        110,
+        100,
+        100
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        36572,
+        49570,
+        60978
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        -187
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        -15,
+        9,
+        -44
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        36682,
+        49679,
+        60847
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        2854,
+        3232,
+        3436
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        763,
+        763,
+        763
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        7071,
+        4700,
+        11829
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        10688,
+        8695,
+        16028
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        13876,
+        15056,
+        9131
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        67226,
+        36131,
+        38103
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        5400,
+        13398,
+        17602
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        86502,
+        65185,
+        65736
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      97190,
+      73880,
+      81764
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      35167,
+      29480,
+      31681
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      -5594,
+      -8181,
+      -10020
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      -17977,
+      -45414,
+      -18503
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      5730,
+      8267,
+      10125
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      11788,
+      -24174,
+      3019
+    ]
+  },
+  "data_flags": [
+    "COGS и Gross Profit отсутствуют для 2020-2022 (по_function формат, данные получены из 2024-2025 МСФО и smart-lab таблиц)",
+    "2023 и ранее: баланс получен из 2024 МСФО сравнительных колонок",
+    "2022 и ранее: P&L получены из сводной таблицы smart-lab и тематического отчёта (May 2026)",
+    "2020-2022: CFF не полные (нет отдельных компонентов), только CFO/CFI/CFF из 2024 отчёта для 2024-2023",
+    "Финансовые расходы 2025 увеличены на 23% YoY из-за увеличения арендных обязательств (IFRS16)",
+    "Число акций: редомициляция в 2024 (FIXP→FIXR) на коэффициент ~100:1",
+    "Операционная прибыль 2025 снизилась на 32% из-за роста коммерческих расходов (+21% YoY) и маржинального давления"
+  ]
+}

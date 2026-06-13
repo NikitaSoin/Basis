@@ -1,0 +1,436 @@
+{
+  "meta": {
+    "ticker": "TTLK",
+    "name": "ПАО Таттелеком",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab-table",
+      "url": "https://smart-lab.ru/q/TTLK/f/y/MSFO/",
+      "doc_title": "Таттелеком (TTLK): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      null,
+      9940,
+      10300,
+      10900,
+      11600,
+      12400
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          null,
+          1300,
+          1400,
+          1500,
+          1500,
+          1500
+        ]
+      },
+      {
+        "name": "Расходы на персонал",
+        "values": [
+          null,
+          2870,
+          3040,
+          3560,
+          4130,
+          4740
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы (включены в 'Операционные расходы')",
+        "values": [
+          null,
+          2800,
+          3080,
+          3860,
+          4180,
+          4460
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      2970,
+      2810,
+      2000,
+      1810,
+      1660
+    ],
+    "da": [
+      null,
+      1300,
+      1400,
+      1500,
+      1500,
+      1500
+    ],
+    "ebitda": [
+      null,
+      4300,
+      4170,
+      3540,
+      3420,
+      3260
+    ],
+    "finance_costs": [
+      null,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      2490,
+      2640,
+      2620,
+      2240,
+      2130
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        3340,
+        4530,
+        4740,
+        5330,
+        7130
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      14500,
+      15900,
+      16400,
+      17500,
+      19500
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        9440,
+        11200,
+        12700,
+        13900,
+        15300
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      5060,
+      4700,
+      3700,
+      3600,
+      4200
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      4220,
+      3470,
+      3000,
+      2730,
+      3080
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      970,
+      1110,
+      1760,
+      2010,
+      1640
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020 год не доступен (smart-lab начинает с 2021)",
+    "Финансовые доходы (finance_income) отсутствуют в источнике, но implied из net_profit > operating_profit (2023-2025 годы)",
+    "Налоги на прибыль (income_tax, pre_tax_profit) не раскрыты в таблице smart-lab, требуют первичной отчётности PDF",
+    "Детали баланса по статьям (основные средства, запасы, дебиторка, кредиторка, капитал по компонентам) агрегированы, требуют первичной отчётности",
+    "CFI и CFF отсутствуют (только CFO); требуется полная ОДДС из первичной отчётности",
+    "Себестоимость и валовая прибыль не раскрыты (cost_format by_nature — все затраты в expense_lines без явного COGS)",
+    "Амортизация и персональные расходы извлечены отдельно (из expense_lines), но остальные опер.расходы агрегированы",
+    "Источник smart-lab — распарсенная таблица финансовых метрик, не первичная отчётность; основная арифметика проверена (Revenue - OpEx ≈ OpProfit; EBITDA - DA ≈ OpProfit) с tolerance ±1-3% (округления)",
+    "Долг (short-term и long-term) нулевой на все годы; компания имеет положительный cash (net debt = -cash, т.е. cash surplus)",
+    "expense_lines разбиты на Амортизацию, Персонал и Прочие опер. расходы (calculated as OpEx - DA - Personnel); полная разбивка требует первичной отчётности"
+  ]
+}
