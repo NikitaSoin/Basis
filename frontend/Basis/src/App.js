@@ -1908,6 +1908,20 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const couponBadge = COUPON_BADGE[b.coupon_type];
   const isFloater = b.coupon_type === "floater";
   const isLinker = b.coupon_type === "linker";
+  const isCurrencyBond = b.currency && !["SUR", "RUB", "₽", ""].includes(b.currency);
+  // Пояснение для валютных бумаг: что значат «2 сценария рублёвой доходности».
+  const currencyScenarioNote = isCurrencyBond ? (
+    <Card>
+      <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
+        <b>Как читать доходность валютной бумаги.</b> Доход тут в валюте ({b.currency}),
+        но платят рублями по курсу ЦБ — поэтому ваша рублёвая доходность зависит от курса.
+        Мы показываем <b>два сценария</b> (это не вероятности, а «вилка», в которую вы попадёте):
+        <span className="tw-block tw-mt-1">• <b>курс стабилен</b> — заработаете примерно валютную доходность;</span>
+        <span className="tw-block">• <b>рубль слабеет</b> — добавится примерно разница инфляций РФ и страны валюты (рубль исторически дешевеет к твёрдым валютам).</span>
+        <span className="tw-block tw-mt-1">Смысл такой бумаги — <b>ставка на ослабление рубля / валютная диверсификация</b>. Если рубль крепок, рублёвая ОФЗ под высокую ставку обычно доходнее. Сценарии независимы от кредитного риска эмитента (светофор — отдельно).</span>
+      </div>
+    </Card>
+  ) : null;
   const isStructured = b.coupon_type === "structured";
   // ВДО/проблемный кредит: главный риск — кредитный (вернут ли тело), не ставка.
   // Включаем и преддефолтные имена (оценка Basis B/CCC- или агентский C-грейд),
@@ -2038,6 +2052,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         if (y.no_data) return (
           <div className="tw-flex tw-flex-col tw-gap-3">
             <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>
+            {y.qualitative_md && currencyScenarioNote}
             {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
           </div>
         );
@@ -2053,6 +2068,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               {y.verdict_prose?.length > 0 && (
                 <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
               )}
+              {y.qualitative_md && currencyScenarioNote}
               {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
               {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
             </div>
@@ -2080,6 +2096,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               </div>
             </div>
             {/* качественный разбор по методике (пер-эмитент, веб-исследование блоков A–F) */}
+            {y.qualitative_md && currencyScenarioNote}
             {y.qualitative_md ? (
               <Card header="Разбор по методике: доходность за риск">
                 <BondRiskAnalysis md={y.qualitative_md} />
