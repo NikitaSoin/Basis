@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "ticker": "LVHK",
+    "name": "ПАО Левенгук",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab + company_ir",
+      "url": "https://smart-lab.ru/q/LVHK/f/y/ + https://levenhuk.ru/investors/financial-reports/",
+      "doc_title": "Консолидированная финансовая отчётность МСФО 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table + pdfplumber (PDF scanned, text extraction failed)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [1420, 1250, 1310, 1170, 1190],
+    "cogs": [807, 720, 790, 662, 617],
+    "gross_profit": [613, 530, 520, 508, 573],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (общехозяйственные, коммерческие)",
+        "values": [414, 4, 355, 323, 449]
+      }
+    ],
+    "operating_profit": [199, 526, 165, 185, 124],
+    "da": [null, null, null, null, null],
+    "ebitda": [538, 178, 240, 184, null],
+    "finance_costs": [29, 38, 11, 43, 36],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [28, 78, -378, -17, 37]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [64, 69, 81, 19, 20],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [null, null, null, null, null]
+    },
+    "total_assets": [2010, 1740, 1360, 1340, 1450],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [1150, 1000, 940, 891, 940]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [860, 740, 420, 449, 510]
+  },
+  "cash_flow": {
+    "cfo": [-344, 273, 190, 56, 24],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [13, 39, 73, 86, 81],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "2020: NOT_AVAILABLE - PDF scanned, OCR quality insufficient",
+    "EBITDA: for 2025 not available in source",
+    "D&A: depreciation and amortization not separately disclosed in smart-lab data",
+    "Finance income: not disclosed",
+    "Tax expense: not disclosed (net_profit only)",
+    "Operating expenses detail: aggregated into single line",
+    "Non-current/current asset split: not available - only total assets",
+    "Debt breakdown (LT/ST): not available",
+    "Payables/creditors: not available",
+    "ОДДС: Operating CF from smart-lab (CFO), capex shown, CFI/CFF not available",
+    "Data quality MEDIUM: smart-lab aggregated data, not primary source documents"
+  ]
+}

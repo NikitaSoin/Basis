@@ -1,0 +1,369 @@
+{
+  "meta": {
+    "ticker": "RZSB",
+    "name": "ПАО «Рязанская энергетическая сбытовая компания» (РЭСК)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/RZSB/f/y/MSFO/",
+      "doc_title": "Рязаньэнергосбыт РЭСК (RZSB): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      11600,
+      12200,
+      13200,
+      13600,
+      15400
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          11000,
+          11200,
+          12000,
+          12600,
+          14300
+        ]
+      }
+    ],
+    "operating_profit": [
+      733,
+      1040,
+      1180,
+      930,
+      1130
+    ],
+    "da": [
+      0,
+      0,
+      0,
+      100,
+      100
+    ],
+    "ebitda": [
+      733,
+      1040,
+      1180,
+      1030,
+      1230
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      507,
+      831,
+      982,
+      903,
+      982
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        973,
+        1240,
+        1300,
+        1330,
+        1420
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      2080,
+      2470,
+      2760,
+      2800,
+      3320
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        926,
+        1270,
+        1520,
+        1570,
+        1760
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      1154,
+      1200,
+      1240,
+      1230,
+      1560
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      572,
+      678,
+      836,
+      774,
+      883
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      31,
+      13,
+      150,
+      81,
+      215
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Source: smart-lab.ru МСФО таблицы (агрегированные, не первичный отчёт)",
+    "Operating Profit: пересчитано из EBITDA - D&A (более надёжно, чем smart-lab публикуемое)",
+    "FCF: пересчитано из CFO - CAPEX (более надёжно)",
+    "Себестоимость, валовая прибыль: не раскрыты (энергосбыт, cost_format=by_nature)",
+    "Финансовые расходы, доходы, налоги: не раскрыты на smart-lab (компания без долга → финкосты ≈0)",
+    "Дебиторская задолженность (высокая для энергосбыта): детали не доступны",
+    "e-disclosure.ru закрыт (403), первичная МСФО PDF недоступна",
+    "Данные: выручка/EBITDA/ЧП и прочее конвертированы из млрд в млн (×1000)",
+    "Арифметика: EBITDA-D&A и CFO-CAPEX согласованы; прочие балансы частичны (нет деталей по статьям)"
+  ]
+}

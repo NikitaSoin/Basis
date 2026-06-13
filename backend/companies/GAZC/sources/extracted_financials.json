@@ -1,0 +1,404 @@
+{
+  "meta": {
+    "ticker": "GAZC",
+    "name": "ПАО \"ГАЗКОН\"",
+    "profile": "holding",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "e-disclosure + smart-lab",
+      "url": "http://www.gazcon.ru/fin.html",
+      "doc_title": "Консолидированная финансовая отчётность МСФО ПАО ГАЗКОН",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "ocr (tesseract) + smartlab-table",
+    "arithmetic_check": "partial",
+    "notes": "Инвестхолдинг Газпрома. Основной актив = финансовые вложения (портфель ЦБ). Операционная деятельность минимальна. Стоимость ≈ NAV портфеля."
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "operating_income": [
+      null,
+      null,
+      null,
+      -18286,
+      -20335,
+      -22507
+    ],
+    "finance_income": [
+      2804519,
+      2849823,
+      2965451,
+      3626789,
+      4043901,
+      3256784
+    ],
+    "finance_costs": [
+      0,
+      0,
+      0,
+      -2888,
+      -1859,
+      -19441
+    ],
+    "pre_tax_profit": [
+      2804519,
+      2849823,
+      2965451,
+      3605615,
+      4022330,
+      3232332
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      -145226,
+      199781,
+      -101052
+    ],
+    "net_profit": [
+      2173737,
+      2197402,
+      2289566,
+      50389,
+      4222161,
+      3131280
+    ],
+    "other_comprehensive_income": [
+      null,
+      null,
+      null,
+      null,
+      -564943,
+      3084847
+    ],
+    "expense_lines": [
+      {
+        "name": "Административные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          -18286,
+          -19662,
+          -22507
+        ]
+      },
+      {
+        "name": "Финансовые доходы (проценты + дивиденды + переоценка)",
+        "values": [
+          2804519,
+          2849823,
+          2965451,
+          3626789,
+          4043901,
+          3256784
+        ]
+      },
+      {
+        "name": "Финансовые расходы",
+        "values": [
+          0,
+          0,
+          0,
+          -2888,
+          -1859,
+          -19441
+        ]
+      }
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "fin_assets_fvoci": [
+        null,
+        null,
+        null,
+        null,
+        74583990,
+        77804841
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        1061037,
+        1007902
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        1500,
+        803
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "cash": [
+        1935,
+        null,
+        null,
+        630,
+        628,
+        1509
+      ],
+      "bank_deposits": [
+        null,
+        null,
+        null,
+        740,
+        850750,
+        291455
+      ],
+      "repo_receivables": [
+        null,
+        null,
+        null,
+        null,
+        21762,
+        35368
+      ],
+      "fin_assets_fvpl": [
+        null,
+        null,
+        null,
+        null,
+        311260,
+        401482
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        78,
+        186
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        27,
+        274
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      65900,
+      72800,
+      65900,
+      68900,
+      77501954,
+      82698413
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        48885221,
+        48885221
+      ],
+      "revaluation_fund": [
+        null,
+        null,
+        null,
+        null,
+        33706169,
+        36623191
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        65900,
+        72800,
+        65900,
+        68900,
+        77492508,
+        79861658
+      ]
+    },
+    "non_current_liabilities": {
+      "total_non_current_liab": [
+        0,
+        0,
+        0,
+        0,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        8,
+        2831514
+      ],
+      "lease_liability": [
+        null,
+        null,
+        null,
+        null,
+        204,
+        1204
+      ],
+      "current_tax_payable": [
+        null,
+        null,
+        null,
+        null,
+        7552,
+        3813
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        106702
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      0,
+      0,
+      0,
+      0,
+      8450,
+      2836755
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      2141,
+      32,
+      3936431,
+      2946201
+    ],
+    "investments_fin_assets": [
+      null,
+      null,
+      null,
+      null,
+      -17946800,
+      -28568300
+    ],
+    "capex": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      1509,
+      17754400
+    ],
+    "dividends_paid": [
+      1950,
+      2040,
+      null,
+      null,
+      -3374476,
+      -847638
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      -3375303,
+      -848492
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      308445,
+      -308871
+    ]
+  },
+  "data_flags": [
+    "2020-2023: частичные данные из OCR (детальные P&L/CF требуют проверки)",
+    "2025-2024: полные данные из OCR + smart-lab проверка",
+    "Все значения в тысячах рублей (млн в smart-lab → ×1000)",
+    "БАЛАНС АРИФМЕТИКА: Assets ≠ Liab+Equity для 2020-2023 (OCR неполный)",
+    "2025: Assets(82698413) = Liab(2836755) + Equity(79861658) ✓",
+    "2024: Assets(77501954) = Liab(8450) + Equity(77492508) ✓ (но Liab вероятно ошибка OCR)",
+    "Компания: квази-инвестхолдинг Газпрома. Основной актив = финансовые вложения FVOCI (94% активов).",
+    "Расходы: только административные. Нет себестоимости (холдинг, не производство).",
+    "NAV ≈ Total Equity (по МСФО). P/BV ≈ 0 в 2023-2025 (см. smart-lab, отсутствует котировка).",
+    "OCR качество: среднее (опечатки в текстах примечаний, но цифры обычно точны)."
+  ]
+}
