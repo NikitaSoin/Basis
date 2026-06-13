@@ -48,7 +48,7 @@ def _category_slug(name: str | None, bond_type: str | None) -> str | None:
         return "_cat-muni"
     if re.search(r"(^|\b)(СФО|ИА |ИА-|ИПОТЕЧНЫЙ АГЕНТ)", up) or up.startswith("ИА") or "СЕКЬЮР" in up:
         return "_cat-securitization"
-    if re.search(r"(СТРУКТУРН|ИНВЕСТИЦИОНН[ЫО].{0,4} ОБЛИГАЦ|ЦИФРОВ.{0,4} ОБЛИГАЦ|\bCIB\b|СБЕР ?CIB|СБЕРИОС|БСПБ.*НОТ|(^|\b)ИОС[_ -]|_PRTACM|_LKOH|_BSKT)", up):
+    if re.search(r"(СТРУКТУРН|ИНВЕСТИЦИОНН[ЫО].{0,4} ОБЛИГАЦ|ЦИФРОВ.{0,4} ОБЛИГАЦ|\bCIB\b|СБЕР ?CIB|СБЕРС?IB|СБКИБ|СБЕРИОС|БСПБ.*НОТ|(^|\b)ИОС[_ -]|_PRTACM|_LKOH|_BSKT)", up):
         return "_cat-structured-note"
     return None
 
