@@ -1,0 +1,400 @@
+{
+  "meta": {
+    "ticker": "NSVZ",
+    "name": "НАУКА-СВЯЗЬ",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf",
+      "url": "",
+      "doc_title": "НАУКА-СВЯЗЬ (МСФО 2025) на 29.05.2026г",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + manual extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      1141,
+      1498,
+      1583,
+      6396,
+      8836,
+      7296
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [],
+    "operating_profit": [
+      113,
+      209,
+      87,
+      612,
+      763,
+      811
+    ],
+    "da": [
+      148,
+      107,
+      178,
+      357,
+      402,
+      444
+    ],
+    "ebitda": [
+      260,
+      316,
+      266,
+      969,
+      1165,
+      1255
+    ],
+    "finance_costs": [
+      68,
+      41,
+      78,
+      213,
+      483,
+      802
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      34,
+      119,
+      14,
+      371,
+      279,
+      4
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        16,
+        13,
+        26,
+        58,
+        263,
+        81
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      1809,
+      2429,
+      4081,
+      7965,
+      10920,
+      10072
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        554,
+        674,
+        684,
+        1055,
+        1296,
+        1281
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1205,
+        1324,
+        1334,
+        3500,
+        3796,
+        3727
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        394,
+        null,
+        448,
+        132,
+        315,
+        158
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        333,
+        169,
+        628,
+        1830,
+        2783,
+        4193
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      604,
+      1105,
+      2747,
+      4465,
+      7124,
+      6346
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      156,
+      263,
+      95,
+      -738,
+      -26,
+      -846
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      179,
+      298,
+      142,
+      106,
+      345,
+      364
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Source is analytical summary (20-page PDF), not full МСФО statements",
+    "Detail breakdown of expenses (by nature/function) not available in summary",
+    "Non-current liability details (debt vs deferred tax) incomplete for 2021",
+    "CFI and CFF not extracted from summary",
+    "Pre-tax profit and income tax not available; backed out from net profit would require pre-tax",
+    "Accounting method (by_nature) inferred from telecom sector; no explicit cogs breakdown",
+    "Company shows negative operating cash flow 2023-2025 despite positive net profit (red flag)"
+  ]
+}

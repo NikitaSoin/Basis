@@ -1,0 +1,517 @@
+{
+  "meta": {
+    "ticker": "ROST",
+    "name": "Росинтер Ресторантс Холдинг",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "mixed",
+      "primary": [
+        "smart-lab.ru table extraction",
+        "rosinter.ru press release 2024 (PDF)"
+      ],
+      "press_release_2024": "https://www.rosinter.ru/upload/Operating%20and%20Financial%20Results%20Press%20Release%2012m2024%20RUS%20final_20250430.pdf",
+      "smart_lab_table": "https://smart-lab.ru/q/ROST/f/y/",
+      "info_disclosure": "https://rosinter.ru/investors/information-disclosure/53/",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext (2024,2023 from press release) + smart-lab web table (2021-2024)",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      6210.0,
+      6280.0,
+      7165.945,
+      7765.554
+    ],
+    "cogs": [
+      4810.0,
+      4650.0,
+      5358.173,
+      5998.652
+    ],
+    "gross_profit": [
+      1400.0,
+      1630.0,
+      1807.772,
+      1766.902
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          933.0,
+          867.0,
+          835.664,
+          751.033
+        ]
+      },
+      {
+        "name": "Расходы на открытие новых ресторанов",
+        "values": [
+          null,
+          null,
+          27.945,
+          null
+        ]
+      },
+      {
+        "name": "Прочие доходы",
+        "values": [
+          null,
+          null,
+          -160.799,
+          -392.029
+        ]
+      },
+      {
+        "name": "Прочие расходы",
+        "values": [
+          null,
+          null,
+          10.854,
+          27.709
+        ]
+      },
+      {
+        "name": "Убыток от обесценения активов (восстановление)",
+        "values": [
+          null,
+          null,
+          -1.12,
+          73.082
+        ]
+      }
+    ],
+    "operating_profit": [
+      1060.0,
+      1470.0,
+      1094.108,
+      1307.107
+    ],
+    "ebitda": [
+      2370.0,
+      2730.0,
+      2280.0,
+      2380.0
+    ],
+    "da": [
+      1300.0,
+      1200.0,
+      1400.0,
+      1367.785
+    ],
+    "finance_costs": [
+      1090.0,
+      990.0,
+      850.0,
+      1339.409
+    ],
+    "finance_income": [
+      null,
+      null,
+      10.233,
+      16.936
+    ],
+    "currency_loss": [
+      null,
+      null,
+      94.489,
+      30.108
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      166.161,
+      -45.474
+    ],
+    "income_tax": [
+      null,
+      null,
+      -54.374,
+      46.977
+    ],
+    "net_profit": [
+      94.0,
+      327.0,
+      111.787,
+      1.503
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        2044.12,
+        2300.72
+      ],
+      "right_of_use_ifrs16": [
+        null,
+        null,
+        2747.328,
+        4702.775
+      ],
+      "intangibles": [
+        null,
+        null,
+        335.285,
+        280.929
+      ],
+      "goodwill": [
+        null,
+        null,
+        143.137,
+        125.006
+      ],
+      "long_term_loans_related_parties": [
+        null,
+        null,
+        6.2,
+        6.2
+      ],
+      "deferred_tax_asset": [
+        null,
+        null,
+        671.711,
+        759.171
+      ],
+      "other_non_current": [
+        null,
+        null,
+        250.291,
+        183.589
+      ],
+      "total_non_current": [
+        null,
+        null,
+        6198.072,
+        8358.39
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        113.915,
+        108.707
+      ],
+      "tax_receivables": [
+        null,
+        null,
+        24.928,
+        5.166
+      ],
+      "trade_receivables": [
+        null,
+        null,
+        353.823,
+        492.656
+      ],
+      "advances_paid": [
+        null,
+        null,
+        340.928,
+        119.122
+      ],
+      "related_party_receivables": [
+        null,
+        null,
+        67.177,
+        75.653
+      ],
+      "cash": [
+        null,
+        null,
+        408.662,
+        194.991
+      ],
+      "other_current": [
+        null,
+        null,
+        7.215,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        1316.648,
+        996.295
+      ]
+    },
+    "total_assets": [
+      9060.0,
+      6720.0,
+      7514.72,
+      9354.685
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        2767.015,
+        2767.015
+      ],
+      "additional_paid_in_capital": [
+        null,
+        null,
+        1885.685,
+        1885.685
+      ],
+      "accumulated_loss": [
+        null,
+        null,
+        -6772.165,
+        -6787.198
+      ],
+      "currency_translation_reserve": [
+        null,
+        null,
+        -372.907,
+        -363.643
+      ],
+      "own_shares": [
+        null,
+        null,
+        -35.969,
+        -35.969
+      ],
+      "non_controlling_interest": [
+        null,
+        null,
+        1.598,
+        1.78
+      ],
+      "total_equity": [
+        -3000.0,
+        -2690.0,
+        -2526.743,
+        -2532.33
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_bank_debt": [
+        null,
+        null,
+        2295.849,
+        13.331
+      ],
+      "long_term_leasing_obligations_ifrs16": [
+        null,
+        null,
+        2087.331,
+        4055.902
+      ],
+      "long_term_related_party_loans": [
+        null,
+        null,
+        692.761,
+        2391.775
+      ],
+      "deferred_tax_liability": [
+        null,
+        null,
+        113.035,
+        98.011
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        5188.976,
+        6559.019
+      ]
+    },
+    "current_liabilities": {
+      "accounts_payable": [
+        null,
+        null,
+        1478.348,
+        1345.776
+      ],
+      "short_term_bank_debt": [
+        null,
+        null,
+        756.692,
+        2389.654
+      ],
+      "interest_payable": [
+        null,
+        null,
+        303.137,
+        289.166
+      ],
+      "short_term_leasing_obligations_ifrs16": [
+        null,
+        null,
+        927.19,
+        929.397
+      ],
+      "related_party_payables": [
+        null,
+        null,
+        40.854,
+        74.695
+      ],
+      "related_party_loans_st": [
+        null,
+        null,
+        1343.329,
+        296.639
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        127.0,
+        407.0
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        4852.487,
+        5327.996
+      ]
+    },
+    "total_liabilities": [
+      12060.0,
+      9410.0,
+      10041.463,
+      11887.015
+    ]
+  },
+  "cash_flow": {
+    "pre_tax_profit": [
+      null,
+      null,
+      166.161,
+      -45.474
+    ],
+    "da": [
+      null,
+      null,
+      1187.858,
+      1367.785
+    ],
+    "working_capital_changes": [
+      null,
+      null,
+      2167.783,
+      2386.849
+    ],
+    "interest_paid": [
+      null,
+      null,
+      -847.033,
+      -1305.372
+    ],
+    "tax_paid": [
+      null,
+      null,
+      -43.666,
+      -33.966
+    ],
+    "cfo": [
+      516.0,
+      1100.0,
+      1070.067,
+      982.88
+    ],
+    "capex_ppe": [
+      null,
+      null,
+      -167.057,
+      -519.669
+    ],
+    "capex_intangibles": [
+      null,
+      null,
+      -42.907,
+      -10.436
+    ],
+    "proceeds_from_disposal": [
+      null,
+      null,
+      534.0,
+      70.945
+    ],
+    "cfi": [
+      null,
+      null,
+      -209.43,
+      -475.514
+    ],
+    "debt_repayment": [
+      null,
+      null,
+      -133.588,
+      -649.555
+    ],
+    "related_party_debt_repayment": [
+      null,
+      null,
+      -352.918,
+      -41.126
+    ],
+    "related_party_loan_proceeds": [
+      null,
+      null,
+      932.399,
+      1035.519
+    ],
+    "leasing_payments": [
+      null,
+      null,
+      -1056.968,
+      -1066.245
+    ],
+    "cff": [
+      null,
+      null,
+      -611.075,
+      -721.407
+    ],
+    "fx_impact": [
+      null,
+      null,
+      0.619,
+      0.37
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      250.181,
+      -213.671
+    ],
+    "capex": [
+      254.0,
+      139.0,
+      210.43,
+      530.105
+    ],
+    "fcf": [
+      -337.0,
+      118.0,
+      -200.0,
+      -613.0
+    ]
+  },
+  "data_flags": [
+    "2021-2022: P&L и агрегаты активов/пассивов из смарт-лаб; детальные статьи баланса недоступны",
+    "2023-2024: консолидированная финансовая отчётость из пресс-релиза PDF, МСФО с IFRS 16",
+    "IFRS 16 аренда: право пользования и обязательства включены; чувствительность очень высокая (3.0→4.98 млрд за год)",
+    "Капитал отрицательный: -3.0 млрд (2021) → -2.5 млрд (2024), норма для ресторанного холдинга",
+    "FCF отрицательный в 3 из 4 лет; дефицит покрывается долгом и заёмными средствами от связанных лиц",
+    "2024: убыток до налога -45 млн, ЧП едва положительна (1.5 млн) за счёт налогового эффекта",
+    "2020: данные недоступны в открытых источниках"
+  ]
+}

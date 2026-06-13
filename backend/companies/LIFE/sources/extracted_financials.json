@@ -1,0 +1,335 @@
+{
+  "meta": {
+    "ticker": "LIFE",
+    "name": "ПАО \"Фармсинтез\"",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в рублях (исходная валюта)",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023
+    ],
+    "source": {
+      "type": "smart-lab-consolidated-и-local_pdf",
+      "url": "https://smart-lab.ru/q/LIFE/f/y/ (таблица ДИНАМИКА ОСНОВНЫХ БАЛАНСОВЫХ ПОКАЗАТЕЛЕЙ)",
+      "doc_title": "Консолидированная финансовая отчётность МСФО ПАО Фармсинтез",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "smart-lab-table-extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      372,
+      438,
+      380,
+      379
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          44,
+          32,
+          20,
+          19
+        ]
+      },
+      {
+        "name": "Финансовые расходы",
+        "values": [
+          30,
+          10,
+          41,
+          38
+        ]
+      }
+    ],
+    "operating_profit": [
+      -500,
+      -644,
+      -167,
+      -246
+    ],
+    "da": [
+      44,
+      32,
+      20,
+      19
+    ],
+    "ebitda": [
+      -456,
+      -612,
+      -147,
+      -227
+    ],
+    "finance_costs": [
+      30,
+      10,
+      41,
+      38
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      -530,
+      -654,
+      -208,
+      -284
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -525,
+      -698,
+      -207,
+      -277
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        10413,
+        15296,
+        9,
+        26
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      2052,
+      1425,
+      1338,
+      1544
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        -3540,
+        -4238,
+        -4445,
+        -4722
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1014,
+        345,
+        121,
+        479
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        13,
+        87,
+        17,
+        13
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        13,
+        87,
+        17,
+        13
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        388,
+        398,
+        484,
+        453
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        1025,
+        993,
+        1200,
+        1052
+      ]
+    },
+    "total_liabilities": [
+      1038,
+      1080,
+      1217,
+      1065
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      -233,
+      -63,
+      -3,
+      -465
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      10,
+      0,
+      3,
+      99
+    ],
+    "net_change_in_cash": [
+      -10012,
+      -14811,
+      491,
+      439
+    ]
+  },
+  "data_flags": [
+    "Источник: smart-lab таблица консолидированной отчетности МСФО (2020-2023)",
+    "Формат по видам расходов (by_nature) — R&D, операционные расходы не распарсены отдельно из таблицы",
+    "COGS/gross_profit не раскрыты (фармацевтика, R&D-intensive)",
+    "CFI и CFF из таблицы не извлечены (требуется ОДДС полной версии)",
+    "Подстатьи капитала (share capital, additional paid-in) = null",
+    "Финансовые доходы (finance_income) = null (данные не в таблице)",
+    "Налог на прибыль вычислен косвенно как разница (pre_tax - net_profit)",
+    "2024 финансовые показатели не опубликованы",
+    "Отрицательная чистая прибыль за все 4 года (убыточная компания)",
+    "Отрицательный капитал в 2022 (121 млн) — возможна необходимость рекапитализации",
+    "Денежные средства скачут в 2020-2021 (10413, 15296 млн) — вероятно, привлечение внешних средств"
+  ]
+}

@@ -2,38 +2,30 @@
   "meta": {
     "ticker": "LIFE",
     "name": "ПАО «Фармсинтез»",
-    "sector": "Фармацевтика / биотех",
+    "sector": "pharma",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "Все годы в рублях (исходная валюта отчётности)",
     "fiscal_years": [
-      2017,
-      2018,
-      2019,
       2020,
       2021,
       2022,
       2023
     ],
-    "last_price": 2.875,
-    "price_date": "2026-05-12",
-    "shares_outstanding": 440390000,
+    "last_price": 2.8778,
+    "price_date": "2026-06-13",
+    "shares_outstanding": 440394854,
     "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "anomaly_flag": true,
+    "anomaly_note": "Хронически убыточная компания: убыток EBITDA и ЧП все 4 года. Данные cash за 2020–2021 несовместимы с total_assets (10 413 vs активы 2 052 млн) — артефакт источника (smart-lab), обнулён как ненадёжный. Компания финансируется серийными допэмиссиями: анонсирована эмиссия ~1,1 млрд новых акций против текущих 440 млн — критический риск кратного размытия миноритариев.",
+    "adjustments_aggressive": false
   },
-  "anomaly_flag": true,
-  "anomaly_note": "Хронически убыточный эмитент 3-го эшелона. EBITDA отрицательна во ВСЕ годы 2017–2023 → EV/EBITDA, ND/EBITDA, ROE, ROA, P/E не имеют экономического смысла (отрицательные). Капитал тонкий и волатильный (121 млн в 2022 → 479 млн в 2023 за счёт допэмиссии), накопленный убыток −4 722 млн. Финансирование за счёт долга и регулярных допэмиссий (акций стало 301→440 млн шт.). Акция малоликвидна. Оценка возможна только по P/S и P/BV с широким коридором.",
   "income_statement": {
+    "cost_format": "by_nature",
     "revenue": [
-      719,
-      349,
-      291,
       372,
       438,
       380,
@@ -43,69 +35,77 @@
       null,
       null,
       null,
-      null,
-      null,
-      null,
       null
     ],
     "gross_profit": [
       null,
       null,
       null,
-      null,
-      null,
-      null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          44,
+          32,
+          20,
+          19
+        ]
+      },
+      {
+        "name": "Финансовые расходы",
+        "values": [
+          30,
+          10,
+          41,
+          38
+        ]
+      }
     ],
     "operating_profit": [
-      -481,
-      -541,
-      -2021,
       -500,
       -644,
       -167,
       -246
     ],
-    "ebitda": [
-      -437,
-      -486,
-      -1995,
-      -455,
-      -612,
-      -148,
-      -227
-    ],
     "da": [
-      44,
-      55,
-      26,
       44,
       32,
       20,
       19
     ],
+    "ebitda": [
+      -456,
+      -612,
+      -147,
+      -227
+    ],
     "finance_costs": [
-      5,
-      10,
-      10,
       30,
       10,
       41,
       38
     ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      -530,
+      -654,
+      -208,
+      -284
+    ],
+    "income_tax": [
+      5,
+      -44,
+      1,
+      7
+    ],
     "net_profit": [
-      -358,
-      -418,
-      -1812,
       -525,
       -698,
       -207,
@@ -116,139 +116,280 @@
         null,
         null,
         null,
+        null
+      ],
+      "ebitda_margin": [
+        -122.6,
+        -139.7,
+        -38.7,
+        -59.9
+      ],
+      "operating_margin": [
+        -134.4,
+        -147.0,
+        -43.9,
+        -64.9
+      ],
+      "ros": [
+        -141.1,
+        -159.4,
+        -54.5,
+        -73.1
+      ]
+    }
+  },
+  "adjusted": {
+    "net_profit_adj": [
+      -525,
+      -698,
+      -207,
+      -277
+    ],
+    "ebitda_adj": [
+      -456,
+      -612,
+      -147,
+      -227
+    ],
+    "fcf_normalized": [
+      -243,
+      -63,
+      -6,
+      -564
+    ],
+    "wc_adjustment": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "Capex мал (0–99 млн) относительно выручки; 2023 год (99 млн, 26% выручки) — возможная аномалия, но без разбивки ОДДС нормализация не проводится.",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Систематический проход 2020–2023: разовых идентифицированных статей (обесценение, курсовые, разовые продажи, windfall) в доступных данных не обнаружено. Компания убыточна операционно — ETR нормализация при убытках не применима (налог ~0 при убытке — норма, не разовый эффект). adjusted = reported, мост пустой."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
         null,
         null,
         null,
         null
       ],
-      "ebitda_margin": [
-        -60.78,
-        -139.26,
-        -685.57,
-        -122.31,
-        -139.73,
-        -38.95,
-        -59.89
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
       ],
-      "operating_margin": [
-        -66.9,
-        -155.01,
-        -694.5,
-        -134.41,
-        -147.03,
-        -43.95,
-        -64.91
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
       ],
-      "net_margin": [
-        -49.79,
-        -119.77,
-        -622.68,
-        -141.13,
-        -159.36,
-        -54.47,
-        -73.09
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
       ]
-    }
-  },
-  "balance_sheet": {
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        9,
+        26
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
-      5493,
-      4551,
-      2426,
       2052,
       1425,
       1338,
       1544
     ],
-    "total_equity": [
-      4420,
-      3474,
-      1364,
-      1014,
-      345,
-      121,
-      479
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        -3540,
+        -4238,
+        -4445,
+        -4722
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1014,
+        345,
+        121,
+        479
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        13,
+        87,
+        17,
+        13
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        13,
+        87,
+        17,
+        13
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        388,
+        398,
+        484,
+        453
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        1025,
+        993,
+        1200,
+        1052
+      ]
+    },
     "total_liabilities": [
-      1073,
-      1077,
-      1062,
       1038,
       1080,
       1217,
       1065
     ],
-    "cash": [
-      5,
-      5,
-      67,
-      10413,
-      15296,
-      9,
-      26
-    ],
-    "short_term_debt": [
-      3,
-      63,
-      112,
-      388,
-      398,
-      484,
-      453
-    ],
-    "long_term_debt": [
-      49,
-      60,
-      140,
-      13,
-      87,
-      17,
-      13
-    ],
     "net_debt": [
-      47,
-      117,
-      185,
-      -10012,
-      -14811,
-      491,
-      439
+      null,
+      null,
+      492,
+      440
     ],
+    "tangible_equity": [
+      1014,
+      345,
+      121,
+      479
+    ],
+    "tangible_note": "Гудвил и НМА не раскрыты в источнике. Tangible equity = total_equity. Капитал создан допэмиссиями: накопленный убыток (−4 722 млн на 2023) поглощён взносами акционеров. Рост equity с 121 до 479 млн с 2022 по 2023 — следствие очередной допэмиссии, не прибыли.",
     "ratios": {
       "debt_to_equity": [
-        0.01,
-        0.04,
-        0.18,
         0.4,
-        1.41,
-        4.13,
+        1.4,
+        4.14,
         0.97
       ],
       "net_debt_ebitda": [
-        -0.11,
-        -0.24,
-        -0.09,
-        22.0,
-        24.2,
-        -3.32,
-        -1.93
+        null,
+        null,
+        null,
+        null
       ],
       "current_ratio": [
         null,
         null,
         null,
-        null,
-        null,
-        null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      1014,
+      345,
+      121,
+      479
+    ]
   },
   "cash_flow": {
     "cfo": [
-      -167,
-      -113,
-      -69,
       -233,
       -63,
       -3,
@@ -258,15 +399,9 @@
       null,
       null,
       null,
-      null,
-      null,
-      null,
       null
     ],
     "cff": [
-      null,
-      null,
-      null,
       null,
       null,
       null,
@@ -276,180 +411,228 @@
       null,
       null,
       null,
-      null,
-      null,
-      null,
       null
     ],
     "capex": [
-      9,
-      19,
-      15,
       10,
       0,
       3,
       99
     ],
     "fcf": [
-      -176,
-      -132,
-      -83,
-      -242,
+      -243,
       -63,
-      -7,
+      -6,
       -564
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        -24.48,
-        -37.82,
-        -28.52,
-        -65.05,
-        -14.38,
-        -1.84,
-        -148.81
+        -65.3,
+        -14.4,
+        -1.6,
+        -148.8
       ],
       "cfo_to_capex": [
-        -18.56,
-        -5.95,
-        -4.6,
-        -23.3,
         null,
-        -1.0,
-        -4.7
+        null,
+        null,
+        null
       ],
       "capex_to_revenue": [
-        1.25,
-        5.44,
-        5.15,
-        2.69,
+        2.7,
         0.0,
-        0.79,
-        26.12
+        0.8,
+        26.1
       ]
     }
   },
   "returns": {
     "roe": [
-      -8.1,
-      -12.03,
-      -132.84,
-      -51.78,
-      -202.32,
-      -171.07,
-      -57.83
+      -51.8,
+      -202.3,
+      -171.1,
+      -57.8
     ],
     "roa": [
-      -6.52,
-      -9.18,
-      -74.69,
-      -25.58,
-      -48.98,
-      -15.47,
-      -17.94
+      -25.6,
+      -49.0,
+      -15.5,
+      -17.9
     ],
     "roic": [
-      null,
-      null,
-      null,
       null,
       null,
       null,
       null
     ],
     "ros": [
-      -49.79,
-      -119.77,
-      -622.68,
-      -141.13,
-      -159.36,
-      -54.47,
-      -73.09
+      -141.1,
+      -159.4,
+      -54.5,
+      -73.1
     ],
     "asset_turnover": [
-      0.13,
-      0.08,
-      0.12,
       0.18,
       0.31,
       0.28,
       0.25
     ]
   },
-  "multiples": {
+  "metrics_timeseries": {
     "pe": [
-      -3.54,
-      -3.03,
-      -0.7,
-      -2.41,
-      -1.81,
-      -6.12,
-      -4.57
+      null,
+      null,
+      null,
+      null
+    ],
+    "pb": [
+      1.25,
+      3.67,
+      10.47,
+      2.65
     ],
     "ps": [
-      1.76,
-      3.63,
-      4.35,
-      3.4,
+      3.41,
       2.89,
-      3.33,
+      3.34,
+      3.34
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      -51.8,
+      -202.3,
+      -171.1,
+      -57.8
+    ],
+    "roa": [
+      -25.6,
+      -49.0,
+      -15.5,
+      -17.9
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      -122.6,
+      -139.7,
+      -38.7,
+      -59.9
+    ],
+    "operating_margin": [
+      -134.4,
+      -147.0,
+      -43.9,
+      -64.9
+    ],
+    "ros": [
+      -141.1,
+      -159.4,
+      -54.5,
+      -73.1
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      17.7,
+      -13.2,
+      -0.3
+    ],
+    "net_profit_growth": [
+      null,
+      -33.0,
+      70.3,
+      -33.8
+    ]
+  },
+  "multiples": {
+    "pe": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      3.41,
+      2.89,
+      3.34,
       3.34
     ],
     "pb": [
-      0.29,
-      0.36,
-      0.93,
       1.25,
       3.67,
-      10.46,
-      2.64
+      10.47,
+      2.65
     ],
     "ev_ebitda": [
-      -3.0,
-      -2.85,
-      -0.73,
-      19.22,
-      22.13,
-      -11.87,
-      -7.51
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      null
     ],
     "current": {
-      "pe": -4.57,
+      "pe": null,
+      "pe_adj": null,
       "ps": 3.34,
-      "pb": 2.64,
-      "ev_ebitda": -7.51,
-      "as_of": "2026-05-12"
+      "pb": 2.65,
+      "ev_ebitda": null,
+      "as_of": "2023"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "2019–2023; P/E не применим (убыток все годы)"
-    },
-    "peer_multiples": {
-      "2025": {
-        "ev_ebitda": null,
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "roe": null,
-        "net_debt_ebitda": null
-      },
-      "2024": {
-        "ev_ebitda": null,
-        "pe": null,
-        "ps": null,
-        "pb": null,
-        "roe": null,
-        "net_debt_ebitda": null
-      }
+      "pe_basis": "not_applicable",
+      "pe_value": null,
+      "pe_adj_value": null,
+      "pb_value": 3.16,
+      "pb_basis": "4y_median (CV=0.91)",
+      "ev_sales_value": 4.41,
+      "ev_sales_basis": "4y_mean (CV=0.06)",
+      "period": "2020-2023"
     }
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
-    "revenue_growth_pct": [],
-    "net_profit_growth_pct": [],
-    "note": "Брокерского покрытия нет (3-й эшелон, малоликвид). История нерепрезентативна: выручка стагнирует ~0,4 млрд ₽, прибыль хронически отрицательна. Механический прогноз не строим — нет устойчивой базы. DCF → insufficient_data."
+    "revenue_growth_pct": [
+      null,
+      17.7,
+      -13.2,
+      -0.3
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Консенсус брокеров отсутствует (эмитент 3-го эшелона). Механический прогноз: средний рост выручки 2020–2023 = +1.4% г/г, тренд нестабилен. Принята выручка 2024E = 379 млн (flat). Прогноз прибыли не строится — хронические убытки без видимого катализатора разворота."
   },
   "valuation": {
     "methods": [
@@ -458,105 +641,285 @@
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "fcf1_mln": null,
+          "r": null,
+          "g": null,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "fcf_2020": "-243 млн ₽ — FCF = CFO(−233) − capex(10) [src_1]",
+            "fcf_2021": "-63 млн ₽ — FCF = CFO(−63) − capex(0) [src_1]",
+            "fcf_2022": "-6 млн ₽ — FCF = CFO(−3) − capex(3) [src_1]",
+            "fcf_2023": "-564 млн ₽ — FCF = CFO(−465) − capex(99) [src_1]"
+          },
+          "steps": [
+            "Шаг 1: FCF отрицателен все 4 года (−243, −63, −6, −564 млн). Нет положительной базы для FCF₁.",
+            "Шаг 2: Формула Гордона EV = FCF₁ / (r − g) при FCF₁ < 0 даёт отрицательную EV — экономически бессмысленно.",
+            "Шаг 3: Нормализация FCF невозможна — убыток операционный (EBITDA < 0), не из-за аномального оборотного капитала.",
+            "Шаг 4: Прогноз положительного FCF не подкреплён ни консенсусом (нет покрытия), ни механическим трендом.",
+            "Вывод: DCF = insufficient_data. Метод применим только при видимости на положительный FCF."
+          ],
+          "caveats": [
+            "При выходе нового препарата или гос. контракте DCF может быть пересчитан.",
+            "В ликвидационном сценарии стоимость ограничена активами за минусом долгов."
+          ]
+        }
+      },
+      {
+        "method": "historical_ev_sales",
+        "fair_value_per_share": 2.79,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "ev_sales_used": 4.41,
+          "basis": "4y_mean (CV=0.06)",
+          "revenue_forward_mln": 379,
+          "net_debt_mln": 440
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ev_sales_2020": "4.48x — EV(1268+401=1668 млн) / выручка(372 млн); net_debt=401 [src_1]",
+            "ev_sales_2021": "4.00x — EV(1268+485=1752 млн) / выручка(438 млн); net_debt=485 [src_1]",
+            "ev_sales_2022": "4.63x — EV(1268+492=1759 млн) / выручка(380 млн); net_debt=492 [src_1]",
+            "ev_sales_2023": "4.50x — EV(1268+440=1707 млн) / выручка(379 млн); net_debt=440 [src_1]",
+            "ev_sales_mean": "4.41x — среднее 4 лет; σ=0.27, CV=0.06 ≤ 0.55 → basis=4y_mean [calc]",
+            "revenue_forward": "379 млн ₽ — flat к 2023 (механический; avg рост +1.4% нестабилен) [forecast]",
+            "net_debt_2023": "440 млн ₽ — (кр.долг 453 + дл.долг 13) − cash(26) [src_1]",
+            "shares": "440 394 854 шт. — из rates.csv [src_3]",
+            "market_cap": "1267.4 млн ₽ — цена 2.8778 × акции 440 394 854 / 1 000 000 [src_3]"
+          },
+          "steps": [
+            "Шаг 1: EV по годам = market_cap(1267.4) + net_debt. Строки: 2020: nd=401, EV=1668; 2021: nd=485, EV=1752; 2022: nd=492, EV=1759; 2023: nd=440, EV=1707.",
+            "Шаг 2: EV/Sales по годам: [4.48, 4.00, 4.63, 4.50]. σ=0.27, mean=4.41, CV=0.06 < 0.55 → basis=4y_mean.",
+            "Шаг 3: Прогнозная выручка 2024E = 379 млн (flat к 2023). Fair EV = 4.41 × 379 = 1671 млн ₽.",
+            "Шаг 4: Fair Equity = Fair EV − net_debt = 1671 − 440 = 1231 млн ₽.",
+            "Шаг 5: Fair price (base) = 1231 000 000 / 440 394 854 = 2.79 ₽/акцию.",
+            "Шаг 6 (conservative, rev −5%): выручка 360 млн, EV=1588, equity=1148, price=2.60 ₽.",
+            "Шаг 7 (optimistic, rev +5%): выручка 398 млн, EV=1753, equity=1315, price=2.98 ₽.",
+            "Cross-check: текущая цена 2.88 ₽ попадает внутрь коридора (2.60–2.98 ₽) — рынок торгуется на уровне исторического EV/Sales. Это не подтверждение справедливости, а согласованность с историей."
+          ],
+          "caveats": [
+            "EV/Sales применяется для убыточных компаний как мера масштаба, НЕ прибыльности.",
+            "Риск размытия КРИТИЧЕСКИЙ: при размещении ~1.1 млрд новых акций число акций вырастет в ~3.5×, fair price на акцию упадёт пропорционально (~0.8 ₽ в базовом сценарии).",
+            "Выручка стагнирует (372–438 млн, без роста) — исторический EV/Sales не отражает перспектив.",
+            "Надёжность: judgement — историческая рыночная оценка убыточной компании не несёт доказательной ценности внутренней стоимости."
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 3.44,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 3.16,
+          "basis": "4y_median (CV=0.91)",
+          "book_value_per_share_used": 1.0877,
+          "equity_basis": "balance",
+          "cv": 0.91
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "pb_2020": "1.25x — market_cap(1267.4) / equity(1014) [src_1]",
+            "pb_2021": "3.67x — market_cap(1267.4) / equity(345) [src_1]",
+            "pb_2022": "10.47x — market_cap(1267.4) / equity(121) [src_1]",
+            "pb_2023": "2.65x — market_cap(1267.4) / equity(479) [src_1]",
+            "pb_median": "3.16x — медиана [1.25, 2.65, 3.67, 10.47]; CV=0.91 > 0.55 → медиана (среднее 4.51 искажено выбросом 10.47 в 2022) [calc]",
+            "bvps_2023": "1.0877 ₽ — equity(479 млн) / акции(440 394 854) × 1 000 000 [src_1, src_3]"
+          },
+          "steps": [
+            "Шаг 1: P/B по годам: [1.25, 3.67, 10.47, 2.65]. Сильный разброс из-за почти нулевого equity в 2022 (121 млн).",
+            "Шаг 2: σ=4.10, mean=4.51, CV=0.91 > 0.55 → медиана = 3.16x (исключает выброс 2022).",
+            "Шаг 3: BVPS 2023 = 479 000 000 / 440 394 854 = 1.0877 ₽.",
+            "Шаг 4: Fair price = 3.16 × 1.0877 = 3.44 ₽."
+          ],
+          "caveats": [
+            "P/B крайне нестабилен (CV=0.91) из-за волатильности equity — метод ненадёжен, результат СПРАВОЧНЫЙ.",
+            "Equity создана допэмиссиями, не прибылью; накопленный убыток (−4 722 млн) в 10× превышает капитал.",
+            "2022: P/B = 10.47x при equity 121 млн — рынок ставил на разворот, который не состоялся.",
+            "Надёжность: judgement — P/B для хронически убыточной компании не отражает стоимость бизнеса."
+          ]
+        }
       },
       {
         "method": "historical_pe",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
-        },
-        "status": "not_applicable"
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "P/E не применим: чистая прибыль отрицательна все 4 года (2020: −525, 2021: −698, 2022: −207, 2023: −277 млн ₽). Мультипликатор на убытке бессмысленен."
+          ],
+          "caveats": []
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill"
-      },
-      {
-        "method": "relative_ps_own_history",
-        "fair_value_per_share": 2.874,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "ps_used": 3.34,
-          "basis": "5y_median_own_history",
-          "rev_per_share": 0.861
-        },
-        "status": "ok_low_confidence"
+        "key_assumptions": {},
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Российские публичные аналоги в фарме (Протек, Фармстандарт, Биннофарм-группа) — прибыльные компании; прямое сравнение по P/E с убыточным LIFE некорректно.",
+            "EV/Sales сравнение теоретически возможно, но peers.json для сектора pharma не сформирован.",
+            "Статус: insufficient_data."
+          ],
+          "caveats": [
+            "Фарма в РФ — узкий сегмент с разнородными моделями; построение peers требует отдельного исследования."
+          ]
+        }
       },
       {
         "method": "CAPM",
         "fair_value_per_share": null,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": null,
-          "beta": null
+          "rf": 14.6,
+          "beta": 2.0,
+          "erp": 9.0,
+          "ke": 32.6
         },
-        "status": "insufficient_data",
-        "note": "CAPM-таргет через 1/Ke не имеет смысла при отрицательной прибыли."
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {
+            "rf": "14.6% — доходность 10-летних ОФЗ [config/market_params.json, src_2]",
+            "erp": "9.0% — премия за риск рынка акций РФ [config/market_params.json, src_2]",
+            "beta": "2.0 — суждение: убыточная компания 3-го эшелона без ликвидности; публичной расчётной бета нет [judgement]"
+          },
+          "steps": [
+            "Ke = 14.6% + 2.0 × 9.0% = 32.6% — требуемая доходность акционера.",
+            "Для CAPM таргета цены нужен ожидаемый денежный поток (дивиденд или прибыль). Дивиденды = 0, прибыли нет.",
+            "Формальный расчёт текущая_цена × (1 + Ke) = 2.88 × 1.326 = 3.82 ₽ не имеет экономического смысла — предполагал бы рост котировки в отсутствие прибыли и дивидендов.",
+            "Вывод: CAPM = not_applicable для убыточной компании без денежного потока. Ke = 32.6% полезен как индикатор барьерной ставки (очень высокая — отражает огромный риск)."
+          ],
+          "caveats": [
+            "Ke = 32.6% означает: разумный инвестор должен требовать такую доходность за риск данной бумаги.",
+            "Бета 2.0 — экспертная оценка; при ликвидном рынке и данных возможен статистический расчёт."
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Дивиденды не выплачивались ни в один год. Прибыли нет. Дивидендная модель не применима."
+          ],
+          "caveats": []
+        }
       }
     ],
+    "methods_divergence_note": "Два результативных метода: EV/Sales (base 2.79 ₽) и P/B (3.44 ₽). Расхождение 23% — в пределах допустимого (<30%). EV/Sales принят основным (не зависит от волатильного equity); P/B — справочный (CV=0.91, очень нестабилен). Оба метода ненадёжны для убыточной компании: они отражают историческую рыночную оценку, но не внутреннюю стоимость бизнеса. Коридор намеренно широкий.",
     "fair_value_range": {
-      "conservative": 1.5,
-      "base": 2.6,
-      "current_price": 2.875,
-      "upside_downside_pct": null
+      "conservative": 2.6,
+      "base": 2.79,
+      "optimistic": 3.44
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        0.9,
+        0.95,
+        1.0,
+        1.05,
+        1.1
+      ],
+      "g_grid": [
+        3.52,
+        3.96,
+        4.41,
+        4.85,
+        5.29
+      ],
+      "matrix": [
+        [
+          1.73,
+          1.88,
+          2.03,
+          2.19,
+          2.34
+        ],
+        [
+          2.07,
+          2.24,
+          2.41,
+          2.58,
+          2.75
+        ],
+        [
+          2.41,
+          2.6,
+          2.79,
+          2.98,
+          3.17
+        ],
+        [
+          2.75,
+          2.96,
+          3.17,
+          3.38,
+          3.59
+        ],
+        [
+          3.1,
+          3.32,
+          3.55,
+          3.78,
+          4.01
+        ]
+      ],
+      "sensitivity_note": "Матрица: строки = EV/Sales мультипликатор (±20% от базового 4.41x), столбцы = выручка 2024E (±10% от базовой 379 млн). Ячейки = fair price ₽/акцию. DCF sensitivity не строится (FCF < 0)."
     }
-  },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "note": "Сравнение с сектором (фарма/биотех РФ) добавить после прогона всего сектора и заполнения sectors/<sector>/peers.json."
   },
   "sources": [
     {
       "id": "src_1",
-      "type": "uploaded_file",
-      "title": "Фармсинтез (МСФО 2023) — инфографика СРК/smart-lab, динамика 2015–2023",
-      "period": "2015–2023",
+      "type": "extracted_financials",
+      "title": "extracted_financials.json — smart-lab МСФО 2020–2023",
+      "period": "2020–2023",
+      "url": "",
       "reliability": "medium"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "MOEX котировка LIFE на 12.05.2026 (2,875 ₽)",
-      "period": "2026-05-12",
-      "reliability": "medium"
+      "type": "config",
+      "title": "market_params.json — ОФЗ 14.6%, ERP 9.0%",
+      "period": "2026-05-31",
+      "url": "",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "market_context",
+      "title": "rates.csv — цена 2.8778 ₽, акции 440 394 854 шт., капа 1 267 млн ₽",
+      "period": "2026-06-13",
+      "url": "",
+      "reliability": "high"
     }
   ],
   "data_flags": [
-    "Источник — агрегированная инфографика (СРК/smart-lab), НЕ первичная МСФО-отчётность с e-disclosure. data_quality=low.",
-    "Последний доступный год — 2023; за 2024–2025 раскрытия в источнике нет (колонка 2024 пустая).",
-    "COGS, gross_profit, operating_expenses, CFI, CFF не раскрыты в инфографике → null.",
-    "EBITDA отрицательна все годы → EV/EBITDA, ND/EBITDA, Debt/EBITDA, ROE, P/E экономически неинформативны (помечены anomaly_flag).",
-    "Капитал тонкий и волатильный: 121 млн (2022) → 479 млн (2023) на фоне допэмиссии; число акций 301→440 млн шт.",
-    "Чистый долг 2023 = 465−26 = 439 млн (сверено с источником).",
-    "FCF=CFO−CapEx сверён по всем годам (расхождения ≤1 млн, округление).",
-    "Малоликвидная бумага 3-го эшелона — котировка и капитализация ориентировочны.",
-    "Несоответствие с business_model.md: там выручка 2023=380, EBITDA 2023=−121; в инфографике 2023: выручка=379, EBITDA=−227. Расхождение EBITDA было отмечено и в fact_check.md. За базу взяты числа загруженного файла.",
-    "Оценка только по P/S/P/BV; коридор широкий из-за убыточности и отсутствия покрытия."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 7.18,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "data_quality=low: источник — smart-lab агрегатор, не первичная отчётность МСФО",
+    "cash за 2020 (10 413 млн) и 2021 (15 296 млн) несовместим с total_assets (2 052 / 1 425 млн) — артефакт источника, обнулён; cash 2022=9 млн, 2023=26 млн — правдоподобны",
+    "CFI, CFF не извлечены — только CFO и capex; net_change_in_cash = null",
+    "Данные за 2024–2025 отсутствуют (компания не публиковала или задержка раскрытия)",
+    "Постатейная разбивка баланса (ОС, НМА, запасы, дебиторка, кредиторка) = null — нет в агрегаторе",
+    "Подстатьи капитала (уставный, добавочный) = null",
+    "net_debt_ebitda = null (EBITDA < 0); current_ratio = null (нет total_current_assets)",
+    "КРИТИЧЕСКИЙ РИСК РАЗМЫТИЯ: анонсирована доп. эмиссия ~1.1 млрд акций (в ~2.5× к текущим 440 млн); при размещении all per-share метрики изменятся в ~3.5×",
+    "Выручка за 2023 по разным источникам расходится (284.6 vs 379 млн ₽); использовано значение из extracted_financials.json",
+    "ROIC = null (нет данных по invested capital из-за отсутствия постатейного баланса)",
+    "Сектор pharma: peers.json не сформирован, relative_peers = insufficient_data",
+    "Нет консенсуса брокеров (эмитент 3-го эшелона без аналитического покрытия)"
+  ]
 }

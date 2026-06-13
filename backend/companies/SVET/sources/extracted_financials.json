@@ -1,0 +1,367 @@
+{
+  "meta": {
+    "ticker": "SVET",
+    "name": "ПАО «Светофор Групп»",
+    "profile": "standard",
+    "reporting_standard": "РСБУ",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "converted_years": [],
+    "conversion_note": "",
+    "source": {
+      "type": "aggregator (smart-lab RSBU таблицы + cbonds)",
+      "url": "https://smart-lab.ru/q/SVET/f/q/RSBU/",
+      "doc_title": "СВЕТОФОР ГРУПП SVET РСБУ квартальная/годовая",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "aggregator_table",
+    "arithmetic_check": "partial",
+    "notes": [
+      "МСФО (консолидированная) не публикуется. Компания отчитывается только по РСБУ.",
+      "РСБУ не раскрывает: операционные расходы по видам, D&A, финансовые доходы/расходы, налог на прибыль отдельно",
+      "P&L доступна: Выручка, Себестоимость (Cost of production), ЧП (Net profit)",
+      "Валовая прибыль = Выручка - Себестоимость (calculated, но не всегда в отчёте явно)",
+      "Баланс: доступны Share capital, Total equity, Cash. Остальное не в открытых таблицах агрегаторов.",
+      "ОДДС: не раскрывается",
+      "2025 — неполный/аномальный год (резкое падение выручки и прибыли)"
+    ]
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      473.0,
+      310.0,
+      461.7,
+      677.0,
+      364.0
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      1.0,
+      25.0,
+      49.5,
+      174.4,
+      7.0
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        33.0,
+        51.0,
+        18.0,
+        16.0,
+        16.0
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        24.815,
+        24.815,
+        24.815,
+        24.815,
+        24.815
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        304.0,
+        162.0,
+        212.0,
+        449.0,
+        519.0
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "reporting_standard=РСБУ (МСФО отсутствует)",
+    "cost_format=by_function (есть выручка, есть себестоимость, но валовая прибыль не явно в отчёте)",
+    "P&L скудна: только выручка и чистая прибыль. Операционные расходы, налог, амортизация — не раскрыты",
+    "Баланс скуден: доступны только капитал (share capital + total equity) и денежные средства",
+    "ОДДС отсутствует полностью",
+    "FY2025 — аномалия (выручка 364 млн vs 677 в 2024; прибыль 7 млн vs 174)",
+    "arithmetic_check=partial: нет данных для проверки (например, Net profit = Revenue - COGS - OpEx - Tax, но COGS/OpEx не раскрыты)",
+    "data_quality=low: микрокап, слабое раскрытие, РСБУ вместо МСФО",
+    "Источники данных: smart-lab RSBU таблицы (официальные раскрытия), cbonds (агрегатор), finviewer"
+  ]
+}

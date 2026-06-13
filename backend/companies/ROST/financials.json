@@ -1,277 +1,684 @@
 {
   "meta": {
     "ticker": "ROST",
-    "name": "ПАО «Росинтер Ресторантс Холдинг»",
+    "name": "Росинтер Ресторантс Холдинг",
     "sector": "consumer",
-    "subsector": "restaurants",
     "profile": "standard",
     "currency": "RUB",
-    "unit": "млрд",
+    "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
       2021,
       2022,
       2023,
-      2024,
-      2025
+      2024
     ],
-    "last_price": 82.4,
-    "price_date": "2026-06-01",
+    "last_price": 81.538,
+    "price_date": "2026-06-13",
     "shares_outstanding": 16305334,
-    "data_quality": "low",
-    "data_source_priority": [
-      "official_report",
-      "aggregator",
-      "broker"
-    ]
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "Отрицательный собственный капитал на всём горизонте (-2.5...-3 млрд руб). 2024: убыток до налога -45.5 млн, ЧП=1.5 млн только за счёт ОНА. FCF после арендных платежей IFRS16 отрицательный (-197 млн / -322 млн). Аренда IFRS16 удвоилась за год: 3.0→4.98 млрд. P/B и дивидендная модель неприменимы. DCF от FCF даёт отрицательную equity-стоимость.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
-      6.21,
-      6.28,
-      7.17,
-      7.77,
-      7.77
+      6210.0,
+      6280.0,
+      7165.945,
+      7765.554
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null
+      4810.0,
+      4650.0,
+      5358.173,
+      5998.652
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1400.0,
+      1630.0,
+      1807.772,
+      1766.902
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Коммерческие, общехозяйственные и административные расходы",
+        "values": [
+          933.0,
+          867.0,
+          835.664,
+          751.033
+        ]
+      },
+      {
+        "name": "Расходы на открытие новых ресторанов",
+        "values": [
+          null,
+          null,
+          27.945,
+          null
+        ]
+      },
+      {
+        "name": "Прочие доходы",
+        "values": [
+          null,
+          null,
+          -160.799,
+          -392.029
+        ]
+      },
+      {
+        "name": "Прочие расходы",
+        "values": [
+          null,
+          null,
+          10.854,
+          27.709
+        ]
+      },
+      {
+        "name": "Убыток от обесценения активов (восстановление)",
+        "values": [
+          null,
+          null,
+          -1.12,
+          73.082
+        ]
+      }
     ],
     "operating_profit": [
-      1.06,
-      1.47,
-      1.09,
-      1.31,
-      1.14
-    ],
-    "ebitda": [
-      2.37,
-      2.73,
-      2.28,
-      2.38,
-      2.54
-    ],
-    "ebitda_company_adjusted": [
-      null,
-      null,
-      0.72,
-      0.8,
-      null
+      1060.0,
+      1470.0,
+      1094.108,
+      1307.107
     ],
     "da": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1300.0,
+      1200.0,
+      1400.0,
+      1367.785
+    ],
+    "ebitda": [
+      2370.0,
+      2730.0,
+      2280.0,
+      2380.0
     ],
     "finance_costs": [
+      1090.0,
+      990.0,
+      850.0,
+      1339.409
+    ],
+    "finance_income": [
       null,
       null,
+      10.233,
+      16.936
+    ],
+    "currency_loss": [
       null,
       null,
-      null
+      94.489,
+      30.108
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      166.161,
+      -45.474
+    ],
+    "income_tax": [
+      null,
+      null,
+      -54.374,
+      46.977
     ],
     "net_profit": [
-      0.094,
-      0.327,
-      0.112,
-      -0.017,
-      -0.173
+      94.0,
+      327.0,
+      111.787,
+      1.503
     ],
     "margins": {
       "gross_margin": [
+        22.5,
+        25.96,
+        25.23,
+        22.75
+      ],
+      "ebitda_margin": [
+        38.17,
+        43.47,
+        31.82,
+        30.65
+      ],
+      "operating_margin": [
+        17.07,
+        23.41,
+        15.27,
+        16.83
+      ],
+      "ros": [
+        1.51,
+        5.21,
+        1.56,
+        0.02
+      ]
+    }
+  },
+  "adjusted": {
+    "net_profit_adj": [
+      94.0,
+      327.0,
+      195.49,
+      43.29
+    ],
+    "ebitda_adj": [
+      2370.0,
+      2730.0,
+      2280.0,
+      2380.0
+    ],
+    "fcf_normalized": [
+      -337.0,
+      118.0,
+      859.6,
+      743.7
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": 239.0,
+    "capex_note": "2024: capex=530 млн (6.8% выручки) против медианы 2021-2023=210 млн (3.1% выручки). Аномалия 2.5x > порога 1.5x — нормализован до 3.1%×7766=239 млн. FCF_normalized_2024=982.9-239=743.7 млн. Важно: это FCF ДО арендных платежей IFRS16. С арендой: 2023=-197 млн, 2024=-322 млн.",
+    "etr_reported": [
+      null,
+      null,
+      32.7,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2021,
+        "item": "Проверено — корректировки не обнаружены (нет данных по налогу и постатейным)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Проверено — корректировки не обнаружены (нет данных по налогу и постатейным)",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Нормализация ETR: reported ЧП 111.8 при PBT 166.2; по устойчивой ставке 25% → adj PBT×0.75=124.6 (+12.8 к reported)",
+        "amount": 12.8,
+        "added_back": true,
+        "certainty": "logic",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2023,
+        "item": "Курсовой убыток 94.5 млн (разовый для рублёвого общепита) после налога 25% = +70.9 млн",
+        "amount": 70.87,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Нормализация ETR: PBT=-45.5 убыток, ЧП=+1.5 за счёт ОНА; adj ЧП = PBT×(1-0.25)=-34.1 (-35.6 к reported)",
+        "amount": -35.6,
+        "added_back": false,
+        "certainty": "logic",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Курсовой убыток 30.1 млн после налога 25% = +22.6 млн",
+        "amount": 22.58,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Обесценение активов 73.1 млн после налога 25% = +54.8 млн",
+        "amount": 54.81,
+        "added_back": true,
+        "certainty": "fact",
+        "source_ref": "src_2"
+      }
+    ],
+    "bridge_note": "2023: reported 111.8 + ETR-норм 12.8 + курс.убыток 70.9 = adj 195.5. 2024: reported 1.5 - ETR-норм 35.6 + курс.убыток 22.6 + обесценение 54.8 = adj 43.3. Прочие доходы (франшизы, субаренды) не исключались как регулярная статья."
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
         null,
+        null,
+        2044.12,
+        2300.72
+      ],
+      "right_of_use_ifrs16": [
+        null,
+        null,
+        2747.328,
+        4702.775
+      ],
+      "intangibles": [
+        null,
+        null,
+        335.285,
+        280.929
+      ],
+      "goodwill": [
+        null,
+        null,
+        143.137,
+        125.006
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        6.2,
+        6.2
+      ],
+      "deferred_tax_asset": [
+        null,
+        null,
+        671.711,
+        759.171
+      ],
+      "other_non_current": [
+        null,
+        null,
+        250.291,
+        183.589
+      ],
+      "total_non_current": [
+        null,
+        null,
+        6198.072,
+        8358.39
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        113.915,
+        108.707
+      ],
+      "receivables": [
+        null,
+        null,
+        353.823,
+        492.656
+      ],
+      "cash": [
+        null,
+        null,
+        408.662,
+        194.991
+      ],
+      "short_term_investments": [
         null,
         null,
         null,
         null
       ],
-      "ebitda_margin": [
-        38.2,
-        43.5,
-        31.8,
-        30.6,
-        32.7
+      "other_current": [
+        null,
+        null,
+        848.91,
+        394.947
       ],
-      "operating_margin": [
-        17.1,
-        23.4,
-        15.2,
-        16.9,
-        14.7
-      ],
-      "net_margin": [
-        1.5,
-        5.2,
-        1.6,
-        -0.2,
-        -2.2
+      "total_current": [
+        null,
+        null,
+        1316.648,
+        996.295
       ]
-    }
-  },
-  "balance_sheet": {
+    },
     "total_assets": [
-      9.06,
-      6.72,
-      7.51,
-      9.36,
-      9.79
+      9060.0,
+      6720.0,
+      7514.72,
+      9354.685
     ],
-    "total_equity": [
-      -3.0,
-      -2.69,
-      -2.53,
-      -2.53,
-      -2.72
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        2767.015,
+        2767.015
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        -6772.165,
+        -6787.198
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        1885.685,
+        1885.685
+      ],
+      "other_equity": [
+        null,
+        null,
+        -407.297,
+        -398.832
+      ],
+      "total_equity": [
+        -3000.0,
+        -2690.0,
+        -2526.743,
+        -2532.33
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        2988.61,
+        2405.106
+      ],
+      "long_term_lease_ifrs16": [
+        null,
+        null,
+        2087.331,
+        4055.902
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        113.035,
+        98.011
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        0.0,
+        0.0
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        5188.976,
+        6559.019
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        2099.021,
+        2686.293
+      ],
+      "short_term_lease_ifrs16": [
+        null,
+        null,
+        927.19,
+        929.397
+      ],
+      "payables": [
+        null,
+        null,
+        1478.348,
+        1345.776
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        348.137,
+        363.861
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        4852.487,
+        5327.996
+      ]
+    },
     "total_liabilities": [
-      12.06,
-      9.41,
-      10.04,
-      11.89,
-      12.51
-    ],
-    "cash": [
-      0.33,
-      0.158,
-      0.41,
-      0.195,
-      0.1
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_debt": [
-      4.91,
-      4.74,
-      4.68,
-      5.09,
-      6.16
+      12060.0,
+      9410.0,
+      10041.463,
+      11887.015
     ],
     "net_debt": [
-      4.58,
-      4.59,
-      4.27,
-      4.9,
-      6.06
+      null,
+      null,
+      7694.5,
+      9881.7
     ],
+    "net_debt_fin_only": [
+      null,
+      null,
+      4680.0,
+      4896.4
+    ],
+    "net_debt_note": "net_debt включает аренду IFRS16 (консервативный показатель). net_debt_fin_only — только банковский долг и займы связанных лиц. Для оценки EV/EBITDA использован fin_only: аренда в ресторанном бизнесе операционная и уже отражена в EBITDA-множителе.",
+    "tangible_equity": [
+      null,
+      null,
+      -3005.165,
+      -2938.255
+    ],
+    "tangible_note": "Tangible equity = total_equity - goodwill - intangibles. Глубоко отрицательный. P/B → not_applicable.",
     "ratios": {
       "debt_to_equity": [
-        null,
         null,
         null,
         null,
         null
       ],
       "net_debt_ebitda": [
-        1.93,
-        1.68,
-        1.87,
-        2.06,
-        2.39
+        null,
+        null,
+        3.37,
+        4.15
       ],
       "current_ratio": [
         null,
         null,
-        null,
-        null,
-        null
+        0.27,
+        0.19
       ]
-    }
+    },
+    "total_equity": [
+      -3000.0,
+      -2690.0,
+      -2526.743,
+      -2532.33
+    ]
   },
   "cash_flow": {
     "cfo": [
-      0.516,
-      1.1,
-      1.07,
-      0.983,
-      0.743
+      516.0,
+      1100.0,
+      1070.067,
+      982.88
     ],
     "cfi": [
       null,
       null,
-      null,
-      null,
-      null
+      -209.43,
+      -475.514
     ],
     "cff": [
       null,
       null,
-      null,
-      null,
-      null
+      -611.075,
+      -721.407
     ],
     "net_change_in_cash": [
       null,
       null,
-      null,
-      null,
-      null
+      249.562,
+      -213.671
     ],
     "capex": [
-      0.254,
-      0.139,
-      0.21,
-      0.53,
-      0.793
+      254.0,
+      139.0,
+      210.43,
+      530.105
     ],
     "fcf": [
-      0.26,
-      0.96,
-      0.86,
-      0.45,
-      -0.05
+      262.0,
+      961.0,
+      859.637,
+      452.775
+    ],
+    "fcf_note": "FCF = CFO - capex (стандарт, без аренды IFRS16 которая в CFF). С арендными платежами: 2023=-197 млн, 2024=-322 млн (нормализованный capex). ВАЖНО: стандартный FCF завышен — аренда вынесена в CFF.",
+    "cfo_lines": [
+      {
+        "name": "Прибыль до налога",
+        "values": [
+          null,
+          null,
+          166.161,
+          -45.474
+        ]
+      },
+      {
+        "name": "Амортизация",
+        "values": [
+          null,
+          null,
+          1187.858,
+          1367.785
+        ]
+      },
+      {
+        "name": "Изменение рабочего капитала (вкл. арендные начисления)",
+        "values": [
+          null,
+          null,
+          2167.783,
+          2386.849
+        ]
+      },
+      {
+        "name": "Уплаченные проценты",
+        "values": [
+          null,
+          null,
+          -847.033,
+          -1305.372
+        ]
+      },
+      {
+        "name": "Уплаченный налог",
+        "values": [
+          null,
+          null,
+          -43.666,
+          -33.966
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Capex (ОС)",
+        "values": [
+          null,
+          null,
+          -167.057,
+          -519.669
+        ]
+      },
+      {
+        "name": "Capex (НМА)",
+        "values": [
+          null,
+          null,
+          -42.907,
+          -10.436
+        ]
+      },
+      {
+        "name": "Поступления от выбытия активов",
+        "values": [
+          null,
+          null,
+          534.0,
+          70.945
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Погашение банковских кредитов",
+        "values": [
+          null,
+          null,
+          -133.588,
+          -649.555
+        ]
+      },
+      {
+        "name": "Погашение займов связанных лиц",
+        "values": [
+          null,
+          null,
+          -352.918,
+          -41.126
+        ]
+      },
+      {
+        "name": "Получение займов от связанных лиц",
+        "values": [
+          null,
+          null,
+          932.399,
+          1035.519
+        ]
+      },
+      {
+        "name": "Арендные платежи — основной долг IFRS16",
+        "values": [
+          null,
+          null,
+          -1056.968,
+          -1066.245
+        ]
+      }
     ],
     "ratios": {
       "fcf_margin": [
-        4.2,
+        4.22,
         15.3,
         12.0,
-        5.8,
-        -0.6
+        5.83
       ],
       "cfo_to_capex": [
         2.03,
         7.91,
-        5.1,
-        1.85,
-        0.94
+        5.09,
+        1.85
       ],
       "capex_to_revenue": [
-        4.1,
-        2.2,
-        2.9,
-        6.8,
-        10.2
+        4.09,
+        2.21,
+        2.94,
+        6.83
       ]
     }
   },
@@ -280,88 +687,206 @@
       null,
       null,
       null,
-      null,
       null
     ],
-    "roe_note": "Капитал отрицательный (−2.5…−2.7 млрд) — ROE не интерпретируется (NM).",
+    "roe_note": "ROE не рассчитывается: капитал отрицательный на всём горизонте",
     "roa": [
-      1.0,
-      4.9,
-      1.5,
-      -0.2,
-      -1.8
+      1.04,
+      4.87,
+      1.49,
+      0.02
+    ],
+    "roa_adj": [
+      1.04,
+      4.87,
+      2.6,
+      0.46
     ],
     "roic": [
       null,
       null,
-      null,
-      null,
-      null
+      13.93,
+      12.9
     ],
+    "roic_note": "ROIC = EBIT×(1-0.25) / (total_assets - payables - other_curr_liab). 2023: 1094×0.75/5909=13.9%. 2024: 1307×0.75/7602=12.9%",
     "ros": [
-      1.5,
-      5.2,
-      1.6,
-      -0.2,
-      -2.2
+      1.51,
+      5.21,
+      1.56,
+      0.02
+    ],
+    "ros_adj": [
+      1.51,
+      5.21,
+      2.73,
+      0.56
     ],
     "asset_turnover": [
       0.69,
       0.93,
       0.95,
-      0.83,
-      0.79
+      0.83
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      null,
+      null,
+      11.87,
+      884.0
+    ],
+    "pe_adj": [
+      14.15,
+      4.07,
+      6.8,
+      30.74
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      0.214,
+      0.212,
+      0.186,
+      0.171
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      3.96,
+      4.71
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      1.04,
+      4.87,
+      1.49,
+      0.02
+    ],
+    "roic": [
+      null,
+      null,
+      13.93,
+      12.9
+    ],
+    "gross_margin": [
+      22.5,
+      25.96,
+      25.23,
+      22.75
+    ],
+    "ebitda_margin": [
+      38.17,
+      43.47,
+      31.82,
+      30.65
+    ],
+    "operating_margin": [
+      17.07,
+      23.41,
+      15.27,
+      16.83
+    ],
+    "ros": [
+      1.51,
+      5.21,
+      1.56,
+      0.02
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      3.37,
+      4.15
+    ],
+    "revenue_growth": [
+      null,
+      1.1,
+      14.1,
+      8.4
+    ],
+    "net_profit_growth": [
+      null,
+      248.0,
+      -65.8,
+      -98.7
     ]
   },
   "multiples": {
     "pe": [
-      12.0,
-      2.9,
-      21.2,
-      -117.6,
-      -9.5
+      null,
+      null,
+      11.87,
+      884.0
+    ],
+    "pe_adj": [
+      14.15,
+      4.07,
+      6.8,
+      30.74
     ],
     "ps": [
-      0.18,
-      0.15,
-      0.33,
-      0.26,
-      0.21
+      0.214,
+      0.212,
+      0.186,
+      0.171
     ],
     "pb": [
-      null,
       null,
       null,
       null,
       null
     ],
     "ev_ebitda": [
-      2.41,
-      2.03,
-      2.91,
-      2.9,
-      3.03
+      null,
+      null,
+      3.96,
+      4.71
     ],
     "current": {
-      "pe": -7.8,
-      "ps": 0.17,
+      "pe": 884.0,
+      "pe_adj": 30.74,
+      "ps": 0.171,
       "pb": null,
-      "ev_ebitda": 2.91,
-      "as_of": "2026-06-01"
+      "ev_ebitda": 4.71,
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "ev_ebitda_5y_median": 2.9,
-      "ps_5y_median": 0.21,
-      "pe_5y_median": null,
-      "period": "2021-2025"
+      "pe_basis": "insufficient (только 2023 год репрезентативен)",
+      "pe_value": null,
+      "pe_adj_value": 6.8,
+      "pb_value": null,
+      "ev_ebitda_basis": "2y_mean (CV=0.12)",
+      "ev_ebitda_value": 4.33,
+      "period": "2023-2024"
     }
   },
   "forecast": {
-    "source_type": "none",
+    "source_type": "mechanical",
     "providers": [],
-    "revenue_growth_pct": [],
-    "net_profit_growth_pct": [],
-    "note": "Брокерское покрытие отсутствует (малоликвидная акция). Чистый результат волатилен и в 2024-2025 ушёл в убыток — история нерепрезентативна для механического прогноза прибыли. Прогноз не строится."
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      10.0
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "note": "Консенсус-покрытия нет (малоликвидная бумага). Механический: CAGR выручки 2022-2024=11.2%; прогноз 2025E=+10% → 8542 млн. EBITDA: маржа avg(2023-2024)=31.2% → EBITDA_fwd1=2668 млн. Adj ЧП нестабильна (43 млн в 2024) — прогноз по ней не строится."
   },
   "valuation": {
     "methods": [
@@ -370,132 +895,255 @@
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "fcf1_mln": 743.7,
+          "r": 0.281,
+          "g": 0.02,
+          "tax_rate_used": 25.0,
+          "fcf_base": "normalized_without_ifrs16_lease",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
         "status": "insufficient_data",
-        "note": "Чистый убыток в 2024-2025, FCF ушёл к нулю/минусу, капитал отрицательный, прогноза нет — DCF не строится."
+        "explain": {
+          "inputs": {
+            "fcf1_mln": "743.7 млн — FCF_normalized_2024 = CFO 982.9 - capex_sustainable 239 (без арендных платежей IFRS16 которые в CFF) [src_2]",
+            "ke": "28.1% — Rf 14.6% + beta 1.5 × ERP 9.0% [src_config]",
+            "g": "2.0% — консервативный терминальный рост, ниже default 3.5% ввиду высоких рисков [config]",
+            "net_debt_fin": "4896.4 млн — банки (13.3+2389.7) + связанные лица (2391.8+296.6) - кэш 195.0 [src_2]"
+          },
+          "steps": [
+            "FCF1 = 743.7 млн (нормализованный; без аренды IFRS16)",
+            "EV_dcf = FCF1 / (Ke - g) = 743.7 / (0.281 - 0.02) = 743.7 / 0.261 = 2849 млн",
+            "Equity = EV_dcf - net_debt_fin = 2849 - 4896 = -2047 млн → ОТРИЦАТЕЛЬНАЯ",
+            "Проверка при g=3.5%: EV = 743.7 / 0.246 = 3023 млн → Equity = 3023 - 4896 = -1873 млн → тоже отрицательная",
+            "FCF с арендными платежами IFRS16: 982.9 - 239 - 1066.2 = -322.3 млн → FCF отрицателен при любом capex",
+            "Вывод: при любом разумном g equity DCF отрицательна. Метод не даёт положительной оценки."
+          ],
+          "caveats": [
+            "FCF_normalized исключает аренду IFRS16 (она в CFF); с арендой FCF<0 и DCF невозможен вообще",
+            "Даже без аренды EV < net_debt_fin → equity отрицательна",
+            "Статус insufficient_data: бизнес не генерирует FCF достаточного для покрытия долга при текущей ставке"
+          ]
+        }
       },
       {
-        "method": "historical_pe",
-        "fair_value_per_share": null,
+        "method": "historical_ev_ebitda",
+        "fair_value_per_share": 130.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
+          "ev_ebitda_used": 4.33,
+          "basis": "2y_mean (CV=0.12)",
+          "ebitda_fwd1": 2668.0,
+          "net_debt_used_label": "full_incl_ifrs16",
+          "net_debt_used_mln": 9881.7
         },
-        "status": "not_applicable",
-        "note": "Прибыль на акцию отрицательна/волатильна — P/E не применим."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "ev_ebitda_historical_avg": "4.33x — среднее EV/EBITDA за 2023-2024 (CV=0.12 < 0.5 → среднее); EV считан с net_debt_incl_IFRS16 [src_2]",
+            "ebitda_fwd1": "2668 млн — выручка_fwd1 8542 × EBITDA_margin 31.2% (avg 2023-2024) [mechanical]",
+            "net_debt_full": "9881.7 млн — финансовый долг + аренда IFRS16 (4985.3) - кэш 195 [src_2]",
+            "shares": "16 305 334 акций [rates.csv]"
+          },
+          "steps": [
+            "EBITDA_fwd1 = Rev_fwd1 × avg_margin = 8542 × 0.312 = 2668 млн",
+            "EV_historical_mult = EBITDA_fwd1 × 4.33 = 2668 × 4.33 = 11552 млн",
+            "Equity = EV - net_debt_full = 11552 - 9882 = 1670 млн",
+            "Price = 1670 × 1 000 000 / 16 305 334 = 102 руб (при full ND и исторический mult 4.33x)",
+            "Сценарии при fin ND (4896.4): mult 2.5x → 108.8 руб; mult 3.5x → 272 руб; mult 4.5x → 436 руб",
+            "Сценарии при full ND (9882): mult 4.5x → 130 руб; ниже 4.5x → equity отрицательная",
+            "Базовый fair_value_per_share: 130 руб — EV/EBITDA 4.5x с full ND (консервативный и реалистичный с учётом риска аренды)"
+          ],
+          "caveats": [
+            "Только 2 года данных для исторического EV/EBITDA — статистически ограничено",
+            "Выбор net_debt (fin vs full IFRS16) критически влияет на оценку: разброс 0-436 руб",
+            "Текущий EV/EBITDA 4.71x (с full ND) уже выше исторического avg 4.33x — бумага не дёшева",
+            "Нет аналогов на МБ — multiple sector judgement",
+            "fair_value=130 руб консервативен (full ND, 4.5x); оптимистичный без аренды в ND: до 272-436 руб"
+          ]
+        }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill",
-        "note": "Медиана сектора (рестораны/общепит РФ) будет добита при прогоне сектора consumer."
-      },
-      {
-        "method": "own_history_ev_ebitda",
-        "fair_value_per_share": 80.1,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "multiple_used": 2.9,
-          "basis": "5y_median_own",
-          "ebitda_2025": 2.54
+          "metric": "EV/EBITDA",
+          "sector_median_judgement": 3.5,
+          "peers_count": 0,
+          "peers_note": "Аналогов в секторе рестораны/общепит на МБ нет"
         },
         "status": "ok",
-        "note": "Возврат к собственной 5-летней медиане EV/EBITDA на EBITDA 2025 (IFRS-16)."
+        "explain": {
+          "inputs": {
+            "sector_median": "3.5x — judgement; глобальный ресторанный сектор 5-8x с дисконтом РФ ~40% = ~3-5x; для убыточного бизнеса с отрицательным капиталом — нижняя часть",
+            "ev_ebitda_current": "4.71x — текущий (cap 1329.5 + nd_full 9881.7) / EBITDA 2380"
+          },
+          "steps": [
+            "Текущий EV/EBITDA ROST = 11211 / 2380 = 4.71x (с full ND)",
+            "Сектор-медиана judgement = 3.5x — ROST торгуется выше медианы",
+            "При 3.5x и full ND: EV=2668×3.5=9338 млн → EQ=9338-9882=-544 → отрицательная",
+            "При 3.5x и fin ND: EV=9338 → EQ=9338-4896=4442 → price=272 руб",
+            "Вывод: при консервативном подходе (full ND) ROST переоценён относительно сектора"
+          ],
+          "caveats": [
+            "Нет реальных аналогов на МБ — медиана полностью suждение",
+            "fair_value_per_share не устанавливается отдельно — учтено в ev_ebitda методе"
+          ]
+        }
       },
       {
-        "method": "own_history_ps",
-        "fair_value_per_share": 100.1,
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Собственный капитал отрицательный (-2.5...-3 млрд руб) на всём горизонте 2021-2024. P/B аномален и не информативен. Метод неприменим."
+          ]
+        }
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "multiple_used": 0.21,
-          "basis": "5y_median_own",
-          "revenue_2025": 7.77
+          "pe_adj_value": 6.8,
+          "basis": "single_year_2023_only"
         },
-        "status": "ok",
-        "note": "Возврат к собственной 5-летней медиане P/S на выручке 2025."
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "pe_adj_2023": "6.8x — единственный год с нормальной adj ЧП 195.5 млн [src_2]",
+            "pe_adj_2024": "30.7x — adj ЧП всего 43.3 млн; P/E неинформативен при маргинальной прибыли"
+          },
+          "steps": [
+            "EPS_adj_2023 = 195.49 / 16.305 = 11.99 руб/акция",
+            "P/E_adj_2023 = 81.538 / 11.99 = 6.8x",
+            "EPS_adj_2024 = 43.29 / 16.305 = 2.65 руб/акция → P/E=30.74x",
+            "Forward EPS: нет консенсуса; adj ЧП нестабильна — прогноз ненадёжен",
+            "Только 1 репрезентативный год — статистика недостаточна для исторического среднего"
+          ],
+          "caveats": [
+            "Исторический P/E ненадёжен при нестабильной прибыли и отрицательном капитале",
+            "2021-2022: нет данных для нормализации ETR",
+            "2024: adj ЧП маргинальна, P/E=30.7x неинформативен"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": null,
         "horizon": "12m",
+        "fair_value_per_share": null,
         "key_assumptions": {
-          "ke": 24.5,
-          "beta": 1.1
+          "rf": 0.146,
+          "beta": 1.5,
+          "erp": 0.09,
+          "ke": 0.281,
+          "dividend_yield": 0.0
         },
-        "status": "reference_only",
-        "note": "Ke = 14.6 + 1.1×9.0 = 24.5%. Это требуемая доходность; целевую цену не выводим — нет дивидендов и прогноза прибыли."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [src_config]",
+            "erp": "9.0% — премия за риск рынка акций РФ [src_config]",
+            "beta": "1.5 — judgement: высокий операционный и финансовый рычаг (аренда IFRS16), малоликвидная бумага, отрицательный капитал; рыночную beta надёжно посчитать нельзя [judgement]",
+            "ke": "28.1% — требуемая доходность инвестора",
+            "dividend_yield": "0% — дивиденды не выплачивались никогда [governance.json]"
+          },
+          "steps": [
+            "Ke = Rf + beta × ERP = 14.6% + 1.5 × 9.0% = 28.1%",
+            "Требуемая доходность = 28.1% годовых; дивиденд = 0",
+            "Весь доход должен прийти от роста цены на 28.1% за 12 мес",
+            "FCF с арендой отрицательный → фундаментального основания для роста цены нет",
+            "CAPM не даёт численного fair_value: при нулевом FCF и нулевом дивиденде позиция не обеспечивает Ke"
+          ],
+          "caveats": [
+            "Beta 1.5 — суждение; рыночную beta для малоликвидной бумаги некорректно рассчитать",
+            "Ke=28.1% при нулевом дивиденде означает: покупка по текущей цене не оправдана фундаментально"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "Дивиденды не выплачивались никогда. Отрицательный капитал юридически блокирует выплаты (закон об АО). FCF с арендой отрицательный. Метод неприменим."
+          ]
+        }
       }
     ],
+    "methods_divergence_note": "Сильный разброс: DCF → equity отрицательна; EV/EBITDA с full ND (3.5x) → equity отрицательна, с full ND (4.5x) → 130 руб; EV/EBITDA с fin ND (3.5x) → 272 руб. Ключевая неопределённость — трактовка аренды IFRS16 в net_debt. Консервативный вывод: с учётом всех долговых обязательств (включая аренду) и отрицательного FCF справедливый диапазон 80-200 руб с большой неопределённостью. Текущая цена 81.5 руб находится у нижней границы.",
     "fair_value_range": {
-      "conservative": 80,
-      "base": 100,
-      "current_price": 82.4,
-      "upside_downside_pct": 9.2,
-      "note": "Коридор широкий и опирается ТОЛЬКО на возврат к собственным историческим мультипликаторам (EV/EBITDA и P/S), т.к. P/E, P/B и DCF неприменимы. Низкая надёжность."
+      "conservative": 80.0,
+      "base": 130.0,
+      "optimistic": 200.0
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "description": "EV/EBITDA forward (EBITDA_fwd1=2668 млн). Строки: net_debt сценарий. Столбцы: EV/EBITDA multiple. Значение 0 = equity_value отрицательна.",
+      "multiple_grid": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "nd_scenarios": [
+        "fin_only 4896 млн (банки+связ.)",
+        "full_incl_IFRS16 9882 млн"
+      ],
+      "matrix": [
+        [
+          108.8,
+          272.4,
+          436.0
+        ],
+        [
+          0.0,
+          0.0,
+          130.3
+        ]
+      ],
+      "matrix_note": "Строка 1 (fin ND): оптимистичный взгляд — аренда операционная, не долг. Строка 2 (full ND): консервативный — аренда = долговое обязательство. При реалистичных предположениях (full ND) оценка либо отрицательна, либо 130 руб при высоком multiple 4.5x."
     }
   },
-  "anomaly_flag": true,
-  "anomaly_note": "Отрицательный собственный капитал (−2.5…−2.7 млрд руб.) на всём горизонте — ROE и P/B не интерпретируются. Чистая прибыль волатильна и в 2024-2025 ушла в убыток (P/E отрицателен/NM). EBITDA-маржа 31-43% аномально высока для общепита, т.к. показатели агрегатора (smart-lab) посчитаны по МСФО-16: арендные платежи вынесены из EBITDA в амортизацию/проценты. Собственный показатель компании «EBITDA до обесценения и списаний» — ~0.8 млрд (маржа ~10%), а чистый долг без аренды ~2.48 млрд (ND/EBITDA ~0.94). EV/EBITDA и ND/EBITDA в JSON даны на МСФО-16 базе (согласованы с net_debt, включающим аренду).",
   "sources": [
     {
       "id": "src_1",
       "type": "official_report",
-      "title": "Годовая отчётность ПАО «Росинтер» (e-disclosure / IR)",
-      "period": "2024",
+      "title": "Smart-lab МСФО 2021-2024 + пресс-релиз Росинтер 12m2024 (PDF)",
+      "url": "https://www.rosinter.ru/upload/Operating%20and%20Financial%20Results%20Press%20Release%2012m2024%20RUS%20final_20250430.pdf",
       "reliability": "high"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "smart-lab.ru — финансовые показатели ROST по МСФО 2021-2025",
-      "period": "2021-2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_3",
-      "type": "official_report",
-      "title": "MOEX ISS — котировка ROST (TQBR), число акций",
-      "period": "2026-06-01",
+      "type": "extracted",
+      "title": "companies/ROST/sources/extracted_financials.json",
       "reliability": "high"
     },
     {
-      "id": "src_4",
-      "type": "aggregator",
-      "title": "Интерфакс — выручка/EBITDA Росинтер 2024",
-      "period": "2024",
+      "id": "src_config",
+      "type": "config",
+      "title": "config/market_params.json (Rf 14.6%, ERP 9.0%, g_default 3.5%)",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "Собственный капитал отрицательный на всём горизонте — ROE, P/B, debt/equity не считаются (NM).",
-    "Две версии EBITDA: МСФО-16 агрегатора (~2.4 млрд, маржа ~31%) и собственная «до обесценения/списаний» (~0.8 млрд, маржа ~10%). В JSON ряды — МСФО-16, согласованы с net_debt c арендой. Собственная EBITDA добавлена отдельным полем ebitda_company_adjusted.",
-    "COGS/gross profit, разбивка долга по срочности, состав CFI/CFF и амортизация компанией детально не раскрыты — null.",
-    "Чистая прибыль 2024 у источников расходится: smart-lab показывает −17 млн (убыток после списаний), business_model.md и часть СМИ — +81 млн до части списаний. Взята база smart-lab (МСФО, после списаний).",
-    "2025 — предварительные/неполные данные агрегатора, возможна корректировка.",
-    "Брокерское покрытие отсутствует — прогноз и консенсус недоступны.",
-    "Малоликвидная акция: рыночная цена и мультипликаторы могут не отражать справедливую стоимость.",
-    "relative_peers — status pending_sector_backfill (медиана сектора consumer/рестораны добивается позже)."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 2.9,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "2021-2022: только P&L хедлайны и агрегаты активов/пассивов; детальные статьи баланса отсутствуют",
+    "2023-2024: МСФО с IFRS 16 из пресс-релиза; аренда выросла 3.0→4.98 млрд за год — резкий скачок, риск давления на FCF",
+    "Капитал отрицательный на всём горизонте (-2.5...-3 млрд); P/B и дивидендная модель неприменимы",
+    "FCF с арендными платежами IFRS16: 2023=-197 млн, 2024=-322 млн (нормализованный capex) → DCF equity отрицательна",
+    "Оценка критически зависит от трактовки IFRS16 в net_debt: разброс fair value от 0 до 436 руб",
+    "2024: убыток до налога -45.5 млн; ЧП=+1.5 млн только за счёт ОНА; adj ЧП после ETR-нормализации = -10.8 млн (убыток); после возврата разовых = +43.3 млн",
+    "ETR 2023: 32.7% при норме 20% (тогда) — нормализована до 25%",
+    "Нет брокерского покрытия; прогноз механический",
+    "Нет отраслевых аналогов на МБ — relative_peers основан на суждении",
+    "Бумага малоликвидна — рыночная цена может не отражать фундаментальную стоимость"
+  ]
 }

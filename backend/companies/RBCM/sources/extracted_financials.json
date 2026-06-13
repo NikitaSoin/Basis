@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "ticker": "RBCM",
+    "name": "Группа РБК (РБК Медиахолдинг)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млрд",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB, млрд руб. Единица взята из smart-lab.",
+    "fiscal_years": [2020, 2021, 2022, 2024, 2025],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/RBCM/f/y/",
+      "doc_title": "РБК (RBCM): годовая финансовая отчетность МСФО (smart-lab таблица)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "failed"
+  },
+  "income_statement": {
+    "cost_format": null,
+    "revenue": [
+      {"year": 2020, "value": 6.00},
+      {"year": 2021, "value": null},
+      {"year": 2022, "value": null},
+      {"year": 2024, "value": 8.06},
+      {"year": 2025, "value": 10.7}
+    ],
+    "operating_profit": [
+      {"year": 2024, "value": 1.33},
+      {"year": 2025, "value": 1.30}
+    ],
+    "ebitda": [
+      {"year": 2020, "value": 1.30},
+      {"year": 2024, "value": 1.77},
+      {"year": 2025, "value": 0.027}
+    ],
+    "net_profit": [
+      {"year": 2020, "value": 0.480},
+      {"year": 2024, "value": 1.06},
+      {"year": 2025, "value": 0.442}
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {},
+    "current_assets": {
+      "cash": [
+        {"year": 2025, "value": 4.20}
+      ]
+    },
+    "total_assets": [
+      {"year": 2025, "value": 16.4}
+    ],
+    "equity": {},
+    "non_current_liabilities": {},
+    "current_liabilities": {},
+    "total_liabilities": []
+  },
+  "cash_flow": {
+    "cfo": [
+      {"year": 2024, "value": 1.34},
+      {"year": 2025, "value": 1.78}
+    ],
+    "capex": [
+      {"year": 2020, "value": 0.400},
+      {"year": 2024, "value": 0.502},
+      {"year": 2025, "value": 0.618}
+    ]
+  },
+  "data_flags": [
+    "СКУДНЫЕ ДАННЫЕ: smart-lab таблица содержит только основные метрики (выручка, EBITDA, ОИ, ЧП, CFO, Capex). Отсутствуют: себестоимость, валовая прибыль, статьи затрат, амортизация, финансовые доходы/расходы, налоги, детали баланса (кроме денег и активов 2025), ОДДС полные (CFI/CFF).",
+    "2023 отсутствует в доступных данных МСФО (smart-lab прыгает с 2022 на 2024; квартальные только Q4 2022).",
+    "cost_format невозможен: нет себестоимости/валовой прибыли в таблице.",
+    "Арифметика не сходится: revenue 6.0 (2020) vs net_profit 0.48 — не видно COGS, OpEx, финансовых расходов, налогов. Невозможно проверить формулы баланса/CF без полных данных.",
+    "КРИТИЧНО: полная консолидированная финансовая отчётность МСФО РБК не найдена в открытом доступе. e-disclosure.ru закрыта (403). rbc.group/... редиректит (302). Официальные PDF МСФО за 2020-2025 недоступны.",
+    "Для полноценного добытия требуется РУЧНАЯ загрузка PDF: 1) получить доступ к e-disclosure.ru (может потребоваться VPN / учётная запись), 2) или напрямую запросить RBK МСФО отчёты через investor relations (ir@rbc.ru / аналог), 3) или найти зеркало на Interfax-CRK.",
+    "Текущие данные — лишь обрывки из агрегатора smart-lab, НЕПРИГОДНЫ для financial-analyst (недостаточно для нормализации, расчёта справедливой цены, мостов). Пометить как 'требует ручной загрузки в sources/'."
+  ]
+}
