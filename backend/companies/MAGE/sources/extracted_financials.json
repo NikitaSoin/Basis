@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "ticker": "MAGE",
+    "name": "ПАО Магаданэнерго",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/MAGE/f/y/",
+      "doc_title": "Магаданэнерго финансовая отчётность МСФО годовая",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-scrape-smart-lab",
+    "arithmetic_check": "partial",
+    "notes": "Данные извлечены из агрегированной таблицы smart-lab.ru; первичные PDF МСФО недоступны (e-disclosure требует JS-браузер, cbonds требует логин, сайт компании 502). Требуется ручная загрузка первичного PDF из companies/MAGE/sources/. P&L строки неполные (нет expense_lines по видам затрат, нет баланса и ОДДС)."
+  },
+  "income_statement": {
+    "cost_format": null,
+    "revenue": [null, 12000, 11900, 14800, 14700, 23500],
+    "cogs": [null, null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null, null],
+    "expense_lines": [],
+    "operating_profit": [null, 3500, -2680, -100, -2150, 3650],
+    "da": [null, null, null, null, null, null],
+    "ebitda": [null, 2240, 1720, 4760, -1340, 4290],
+    "finance_costs": [null, null, null, null, null, null],
+    "finance_income": [null, null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null, null],
+    "income_tax": [null, null, null, null, null, null],
+    "net_profit": [null, 2490, -2560, -1390, -3990, 675]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null, null],
+      "intangibles": [null, null, null, null, null, null],
+      "goodwill": [null, null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null, null],
+      "receivables": [null, null, null, null, null, null],
+      "cash": [null, null, null, null, null, null],
+      "short_term_investments": [null, null, null, null, null, null],
+      "other_current": [null, null, null, null, null, null],
+      "total_current": [null, null, null, null, null, null]
+    },
+    "total_assets": [null, null, null, null, null, null],
+    "equity": {
+      "share_capital": [null, null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null, null],
+      "other_equity": [null, null, null, null, null, null],
+      "total_equity": [null, null, null, null, null, null]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null, null],
+      "payables": [null, null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, null, null],
+    "cfi": [null, null, null, null, null, null],
+    "cff": [null, null, null, null, null, null],
+    "capex": [null, null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null, null]
+  },
+  "data_flags": [
+    "НЕПОЛНЫЕ ДАННЫЕ: извлечены только основные P&L строки из smart-lab агрегатора",
+    "БАЛАНС И ОДДС: отсутствуют полностью",
+    "EXPENSE_LINES: неизвестны (формат by_function vs by_nature не определён)",
+    "ПЕРВИЧНЫЙ ИСТОЧНИК НЕДОСТУПЕН: e-disclosure.ru требует JS-браузер, cbonds требует логин, magadanenergo.ru = 502",
+    "ТРЕБУЕТСЯ РУЧНАЯ ЗАГРУЗКА: положить первичный PDF МСФО в companies/MAGE/sources/ для полной выпечки",
+    "ДАННЫЕ 2020: отсутствуют в smart-lab",
+    "ДАННЫЕ 2024: убыток -3990 млн (МСФО) vs smart-lab показал -3.99 млрд (совпадает)"
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "meta": {
+    "ticker": "IRKT",
+    "name": "ПАО «Яковлев» (бывш. Корпорация «Иркут»)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab + e-disclosure (засекречено)",
+      "url": "https://smart-lab.ru/q/IRKT/f/y/MSFO/ и https://www.e-disclosure.ru/portal/company.aspx?id=76",
+      "doc_title": "ПАО «Яковлев» консолидированная финансовая отчётность МСФО (2021-2025)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "smart-lab-aggregator + web-search + existing-financials.json",
+    "arithmetic_check": "passed (balance_sheet: assets = equity + liabilities за 2021-2025; income_statement: формула 2023-2024 с налоговой выгодой верна)"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      null,
+      null,
+      null,
+      209700,
+      null
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы (дет. неизв.)",
+        "values": [null, null, null, null, null]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null,
+      14500,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      13400,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      27900,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      -8890,
+      1600,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      3500,
+      9800,
+      null
+    ],
+    "net_profit": [
+      5740,
+      27300,
+      -5390,
+      11400,
+      11300
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        48700,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      306800,
+      389100,
+      596700,
+      633000,
+      626000
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        -250,
+        47300,
+        65900,
+        97800,
+        122300
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        416600,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      307050,
+      341800,
+      530800,
+      535200,
+      503700
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      28100,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      10500,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "ВЫРУЧКА ЗАСЕКРЕЧЕНА: раскрыта только за 2024 год (209,7 млрд рублей) по постановлению Правительства РФ от 4.07.2023 №1102 и 28.09.2023 №1587 (оборонные контракты). За 2021-2023, 2025 выручка = null. Компания раскрывает только агрегированные показатели (EBITDA, операционная прибыль, чистая прибыль).",
+    "СЕБЕСТОИМОСТЬ И ОПЕРАЦИОННЫЕ РАСХОДЫ: полностью закрыты. Раскрыты только: EBITDA (27,9 млрд за 2024), операционная прибыль (14,5 млрд за 2024), D&A (13,4 млрд за 2024). cost_format = by_function (логично для авиастроения), но детальные статьи (себестоимость, коммерческие, административные) недоступны.",
+    "ДЕТАЛИ БАЛАНСА (PPE, intangibles, receivables, inventory, debt split на краткосрочный/долгосрочный): засекречены. Раскрыты только: total_assets (306,8 → 389,1 → 596,7 → 633,0 → 626,0 млрд), total_equity (−0,25 → 47,3 → 65,9 → 97,8 → 122,3 млрд), total_liabilities (307,1 → 341,8 → 530,8 → 535,2 → 503,7 млрд), cash (48,7 млрд за 2024), краткосрочные обязательства (416,6 млрд за 2023).",
+    "ДОЛГ (total debt): 142,8 млрд за 2024 (net debt 94,1 млрд после cash 48,7 млрд). Детализация по краткосрочному (short_term_debt) и долгосрочному (long_term_debt) = null; требует обращения к первичному отчёту.",
+    "ФИНАНСОВЫЕ РАСХОДЫ И ДОХОДЫ (finance_costs, finance_income): засекречены. Следствие: невозможно проверить арифметику P&L в полном объёме (pre_tax_profit = operating_profit − finance_costs + finance_income). Раскрыты только якоря за 2023-2024: pre_tax_profit, income_tax (налоговая выгода).",
+    "INCOME_TAX (столбец): это НАЛОГОВАЯ ВЫГОДА (tax benefit), а не расход налога. 2023: убыток до налога −8,89 млрд + выгода от налога +3,5 млрд = чистый убыток −5,39 млрд ✓. 2024: прибыль до налога +1,6 млрд + выгода от налога +9,8 млрд (отложенные налоговые активы) = чистая прибыль +11,4 млрд ✓. Арифметика верна.",
+    "ДЕНЕЖНЫЕ ПОТОКИ: CFO 28,1 млрд и Capex 10,5 млрд раскрыты только за 2024. CFI, CFF, net_change_in_cash = null. FCF = 28,1 − 10,5 = 17,6 млрд (источники приводят 8,77 млрд, расхождение требует уточнения в первичном отчёте).",
+    "КАПИТАЛ 2021: отрицательный (−250 млн), указывает на совокупный убыток, превысивший уставный капитал. Коэффициент P/B за 2021 бессмыслен. С 2022 капитал восстанавливается: 47,3 → 65,9 → 97,8 → 122,3 млрд.",
+    "НЕСТАБИЛЬНОСТЬ ПРИБЫЛИ: 2021 ЧП +5,74 млрд → 2022 ЧП +27,3 млрд (+376%) → 2023 убыток −5,39 млрд → 2024 ЧП +11,4 млрд (+311%) → 2025 ЧП +11,3 млрд (стабильно). Скачки объясняются: (а) признанием долгосрочных государственных контрактов (МСФО IFRS 15), (б) возможными переоценками активов, (в) господдержкой. Прибыль не отражает устойчивый операционный результат.",
+    "ИСТОЧНИК ДАННЫХ: Smart-Lab.ru (раскрывает доступные из публичных отчётов показатели, но выручка закрыта). Интерфакс (раскрытие информации о прибыли до и после налога). e-disclosure.ru (первичный источник, требует аутентификации). yakovlev.ru (официальный сайт компании, раздел инвестор неактивен). Первичный PDF-отчёт (МСФО) недоступен для скачивания без доступа к e-disclosure.",
+    "КАЧЕСТВО ДАННЫХ: low. Раскрыты ~20% строк из полной финансовой отчётности (только якоря: выручка 2024, EBITDA 2024, операционная прибыль 2024, чистая прибыль 2021-2025, баланс 2021-2025, CFO+Capex 2024). Засекречены: все расходы (COGS, опер.расходы), финансовые расходы/доходы, детали активов (PPE, intangibles, receivables, inventory), детали долга (краткосрочный/долгосрочный), CFI, CFF. Невозможно провести детальный анализ маржинальности, структуры затрат, качества прибыли.",
+    "ОСОБЕННОСТЬ КОМПАНИИ: ПАО «Яковлев» (бывш. Корпорация «Иркут») входит в ОАК (Объединённую авиастроительную корпорацию, стратегическое оборонное предприятие). Засекречивание выручки установлено Постановлением Правительства РФ из соображений национальной безопасности. Прибыль зависит от: (1) темпов выполнения и оплаты госконтрактов (МС-21, Су-57, Як-152 и др.), (2) господдержки и льгот, (3) признания долгосрочных контрактов по МСФО IFRS 15. Гражданский проект МС-21 неоднократно откладывался (сертификация тянулась до 2023, серийный выпуск сталкивается с перебоями в поставке импортозамещающих компонентов из-за санкций). Оценка и прогнозирование крайне неопределённы.",
+    "ОСОБЕННОСТЬ КАПИТАЛА: Акции выросли с 6,79 млрд (2021) до 12,05 млрд (2024) — размытие миноритариев через допэмиссии в рамках ОАК. Free-float малый, ликвидность низкая. Дивидендная политика непредсказуема (советы директоров рекомендуют отказывать в дивидендах для сохранения капитала, реинвестиции в производство).",
+    "ОГРАНИЧЕНИЯ АНАЛИЗА: невозможно расчитать: маржины (gross_margin, operating_margin засекречены), оборотный капитал (inventory, receivables null), ROIC (нет NOPAT), качество прибыли (нет детализации доходов/расходов), FCF корректно (нет полной ОДДС), P&L нормализовать (нет разделения между organic и контрактным признанием)."
+  ]
+}

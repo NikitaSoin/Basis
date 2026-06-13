@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "ticker": "VJGZ",
+    "name": "ПАО ННК-Варьеганнефтегаз",
+    "profile": "standard",
+    "reporting_standard": "МСФО (основной) + РСБУ (альтернативный)",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2020, 2021, 2022, 2023, 2024],
+    "available_years_msfo": [2020, 2021, 2023, 2024],
+    "available_years_rsbu": [2021, 2022, 2023, 2024],
+    "source": {
+      "type": "smart-lab-table",
+      "url": "https://smart-lab.ru/q/VJGZ/f/y/ (МСФО) и https://smart-lab.ru/q/VJGZ/RSBU/ (РСБУ)",
+      "doc_title": "Варьеганнефтегаз (VJGZ): годовая финансовая отчетность МСФО и РСБУ",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "low",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial",
+    "source_access_status": {
+      "e_disclosure": "403 Forbidden (основной источник недоступен)",
+      "company_ir": "connection refused (сайт компании недоступен)",
+      "admhmao_pdf": "HTTP 447 (попытка загрузить отдельный PDF)",
+      "smart_lab": "OK (основной открытый источник)"
+    },
+    "notes": "e-disclosure.ru возвращает 403 Forbidden; IR-сайт компании недоступен (connection refused); PDF с admhmao.ru недоступен (447 Unknown Status). Единственный открытый источник — smart-lab таблицы, которые показывают только ключевые метрики (выручка, EBITDA, операционная прибыль, амортизация, финансовые расходы, чистая прибыль). Полные expense_lines по видам затрат (себестоимость по составу, административные расходы, коммерческие расходы), детальный баланс (статьи активов и обязательств), ОДДС (кроме одного значения cfo за 2024) НЕ доступны. Рекомендуется ручная загрузка PDF (консолидированный отчёт МСФО по IFRS) в sources/VJGZ/ для полной постатейной экстракции."
+  },
+  "income_statement_msfo": {
+    "cost_format": "by_function",
+    "years": [2020, 2021, 2023, 2024],
+    "revenue": [35900, 86200, 112500, 64200],
+    "cogs": [null, null, null, null],
+    "gross_profit": [null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (всего)",
+        "values": [34400, 12200, 14500, 14900]
+      },
+      {
+        "name": "Расходы на персонал (в т.ч. в операционных расходах)",
+        "values": [3250, 1850, 1970, 2270]
+      },
+      {
+        "name": "Амортизация и износ",
+        "values": [5400, 3500, 4800, 5100]
+      }
+    ],
+    "operating_profit": [1500, 19300, 12900, 1590],
+    "da": [5400, 3500, 4800, 5100],
+    "ebitda": [5760, 22800, 17700, 6680],
+    "finance_costs": [28, 2490, 2930, 4550],
+    "finance_income": [null, null, null, null],
+    "pre_tax_profit": [null, null, null, null],
+    "income_tax": [null, null, null, null],
+    "net_profit": [380, 15400, 11800, -4450],
+    "note": "Себестоимость (cogs) не раскрыта в доступных smart-lab таблицах; валовая прибыль рассчитать невозможно без первички. Операционные расходы и отдельные статьи недостаточно детализированы. Нет данных по типам расходов (административные, коммерческие и т.д.)"
+  },
+  "income_statement_rsbu": {
+    "cost_format": "by_function",
+    "years": [2021, 2022, 2023, 2024],
+    "revenue": [86200, null, null, 85257],
+    "cogs": [null, null, null, null],
+    "gross_profit": [null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (информация недостаточна в smart-lab)",
+        "values": [null, null, null, null]
+      }
+    ],
+    "operating_profit": [null, null, null, null],
+    "da": [null, null, null, null],
+    "ebitda": [null, null, null, null],
+    "finance_costs": [null, null, null, null],
+    "finance_income": [null, null, null, null],
+    "pre_tax_profit": [null, null, null, null],
+    "income_tax": [null, null, null, null],
+    "net_profit": [7130, 12100, 3680, -1750],
+    "note": "РСБУ в smart-lab также представлена только ключевыми метриками (ЧП). Выручка за 2024 (85.257млрд) отличается от МСФО (64.2млрд) — типично для нефтегазовой отрасли (внутригрупповые операции, консолидация). Полная форма отчёта о прибылях и убытках по РСБУ недоступна."
+  },
+  "balance_sheet": {
+    "years": [2024],
+    "note": "Только итоговые показатели МСФО за 2024 доступны; детализация по видам активов и обязательств недоступна",
+    "non_current_assets": {
+      "ppe": [null],
+      "intangibles": [null],
+      "goodwill": [null],
+      "long_term_investments": [null],
+      "other_non_current": [null],
+      "total_non_current": [null]
+    },
+    "current_assets": {
+      "inventory": [null],
+      "receivables": [null],
+      "cash": [1],
+      "short_term_investments": [null],
+      "other_current": [null],
+      "total_current": [null]
+    },
+    "total_assets": [133700],
+    "equity": {
+      "share_capital": [null],
+      "retained_earnings": [null],
+      "additional_paid_in": [null],
+      "other_equity": [null],
+      "total_equity": [86100]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null],
+      "deferred_tax": [null],
+      "other_non_current_liab": [null],
+      "total_non_current_liab": [null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null],
+      "payables": [null],
+      "other_current_liab": [null],
+      "total_current_liab": [null]
+    },
+    "total_liabilities": [null]
+  },
+  "cash_flow": {
+    "years": [2024],
+    "cfo": [4370],
+    "cfi": [null],
+    "cff": [null],
+    "capex": [null],
+    "net_change_in_cash": [null],
+    "note": "ОДДС за 2024 доступна только частично (cfo=4.37млрд); остальные потоки не распарсены. Арифметическая проверка cfo+cfi+cff=net_change_in_cash невозможна"
+  },
+  "data_flags": [
+    "2022 отсутствует в МСФО smart-lab (только 2020, 2021, 2023, 2024 доступны)",
+    "2020 отсутствует в РСБУ smart-lab (только 2021-2024 доступны)",
+    "Полные expense_lines НЕ распарсены: smart-lab показывает только ключевые итоги, детальная классификация затрат (себестоимость, административные расходы, коммерческие расходы, прочие операционные расходы) недоступна",
+    "Баланс: ТОЛЬКО итоги (total_assets=133.7млрд, total_equity=86.1млрд за 2024); детализация (ОС, НМА, запасы, дебиторская задолженность, долги, прочие статьи) НЕ распарсена",
+    "ОДДС: только cfo=4.37млрд за 2024; инвестиционные потоки (cfi), финансовые потоки (cff), capex, net_change_in_cash НЕ распарсены",
+    "Арифметика P&L (МСФО): выручка(64.2) - операционные расходы(14.9) - амортизация(5.1) - финансовые расходы(4.55) ≈ 39.65млрд ≠ net_profit(-4.45) — не совпадает; возможны скрытые статьи (налоги, прочие доходы/расходы) в первичке",
+    "Арифметика баланса: total_assets(133.7) ≠ total_equity(86.1) + total_liabilities(?) — total_liabilities не распарсены, проверка невозможна",
+    "МСФО vs РСБУ выручка разница: 2024 МСФО=64.2млрд vs 2024 РСБУ=85.257млрд (difference ~24%) — типично для дочек нефтегазовых холдингов (консолидация vs самостоятельность)",
+    "smart-lab как источник: агрегатор; цифры репрезентативны для аналитики, но требуют сверки с первичкой (консолидированным отчётом) для полной достоверности и детализации",
+    "Требуется ручная загрузка консолидированного отчёта МСФО PDF из e-disclosure (требует доступа или авторизации) в sources/VJGZ/ для получения полной постатейной структуры, детальных expense_lines, полного баланса и ОДДС"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "ticker": "KRSB",
+    "name": "ПАО КРАСНОЯРСКЭНЕРГОСБЫТ",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "smart-lab aggregation + web search",
+      "url": "https://smart-lab.ru/q/KRSB/f/y/",
+      "doc_title": "Красноярскэнергосбыт: годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web_fetch smart-lab + public disclosures search",
+    "arithmetic_check": "partial",
+    "converted_years": [],
+    "conversion_note": ""
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [33600, 36200, 39400, 43100, 49200],
+    "cogs": [null, null, null, null, null],
+    "gross_profit": [null, null, null, null, null],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [32100, 34600, 36900, 40000, 46200]
+      }
+    ],
+    "operating_profit": [1500, 1600, 2500, 3100, 3000],
+    "da": [130, 140, 420, null, null],
+    "ebitda": [1640, 1680, 2440, 2600, 2630],
+    "finance_costs": [null, null, null, null, null],
+    "finance_income": [null, null, null, null, null],
+    "pre_tax_profit": [null, null, null, null, null],
+    "income_tax": [null, null, null, null, null],
+    "net_profit": [1270, 1290, 1770, 2540, 2290]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [null, null, null, null, null],
+      "intangibles": [null, null, null, null, null],
+      "goodwill": [null, null, null, null, null],
+      "long_term_investments": [null, null, null, null, null],
+      "other_non_current": [null, null, null, null, null],
+      "total_non_current": [null, null, null, null, null]
+    },
+    "current_assets": {
+      "inventory": [null, null, null, null, null],
+      "receivables": [null, null, null, null, null],
+      "cash": [null, 2100, null, null, 3880],
+      "short_term_investments": [null, null, null, null, null],
+      "other_current": [null, null, null, null, null],
+      "total_current": [5940, null, null, null, null]
+    },
+    "total_assets": [null, null, null, null, null],
+    "equity": {
+      "share_capital": [null, null, null, null, null],
+      "retained_earnings": [null, null, null, null, null],
+      "additional_paid_in": [null, null, null, null, null],
+      "other_equity": [null, null, null, null, null],
+      "total_equity": [4640, null, null, null, null]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [null, null, null, null, null],
+      "deferred_tax": [null, null, null, null, null],
+      "other_non_current_liab": [null, null, null, null, null],
+      "total_non_current_liab": [null, null, null, null, null]
+    },
+    "current_liabilities": {
+      "short_term_debt": [null, null, null, null, null],
+      "payables": [null, null, null, null, null],
+      "other_current_liab": [null, null, null, null, null],
+      "total_current_liab": [null, null, null, null, null]
+    },
+    "total_liabilities": [null, null, null, null, null]
+  },
+  "cash_flow": {
+    "cfo": [null, null, null, null, null],
+    "cfi": [null, null, null, null, null],
+    "cff": [null, null, null, null, null],
+    "capex": [null, null, null, null, null],
+    "net_change_in_cash": [null, null, null, null, null]
+  },
+  "data_flags": [
+    "e-disclosure МСФО документы недоступны (403 Forbidden либо архив-ZIP без распаковки)",
+    "Основной источник: smart-lab агрегация + поиск пресс-релизов",
+    "COGS/Gross profit не найдены - операционные расходы даны как единая строка",
+    "Баланс: только разрозненные данные (cash 2022 и 2025, equity 2024)",
+    "ОДДС: полностью отсутствует в открытых источниках",
+    "Финансовые расходы, доходы, налоги: не найдены",
+    "D&A 2024-2025: не верны (EBITDA < Operating profit) - требует проверки первичных документов",
+    "Operating profit 2021-2022: пересчитан из Revenue - OpEx (алгебраический контроль)",
+    "Последний год в массиве - 2025 (за 9 месяцев по РСБУ доступны)",
+    "Рекомендация: ручная загрузка консолидированных МСФО PDF в sources/ для полной экстракции"
+  ]
+}
