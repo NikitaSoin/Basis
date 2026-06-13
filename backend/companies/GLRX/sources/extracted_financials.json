@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "ticker": "GLRX",
+    "name": "ПАО ГЛОРАКС",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+    "source": {
+      "type": "manual_pdf",
+      "url": "companies/GLRX/sources/Глоракс (МСФО 2025) на 26.05.2026г.pdf",
+      "doc_title": "ПАО ГЛОРАКС - Консолидированная финансовая отчётность МСФО 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [6889, 5454, 13657, 32616, 41278],
+    "cogs": [],
+    "gross_profit": [],
+    "expense_lines": [],
+    "operating_profit": [338, -339, 3632, 8773, 11427],
+    "da": [49, 59, 125, 122, 243],
+    "ebitda": [387, -280, 3757, 8895, 11669],
+    "finance_costs": [779, 1230, 3262, 8179, 8865],
+    "finance_income": [],
+    "pre_tax_profit": [],
+    "income_tax": [],
+    "net_profit": [-198, -1160, 508, 1245, 3069]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [],
+      "intangibles": [],
+      "goodwill": [],
+      "long_term_investments": [],
+      "other_non_current": [],
+      "total_non_current": []
+    },
+    "current_assets": {
+      "inventory": [],
+      "receivables": [],
+      "cash": [675, 205, 308, 474, 1388],
+      "short_term_investments": [],
+      "other_current": [],
+      "total_current": []
+    },
+    "total_assets": [16493, 31722, 60543, 75215, 109994],
+    "equity": {
+      "share_capital": [],
+      "retained_earnings": [],
+      "additional_paid_in": [],
+      "other_equity": [],
+      "total_equity": [1405, 980, 1056, 2277, 7159]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [6336, 16509, 30969, 29743, 75939],
+      "deferred_tax": [],
+      "other_non_current_liab": [],
+      "total_non_current_liab": []
+    },
+    "current_liabilities": {
+      "short_term_debt": [4150, 8667, 13220, 22605, 8592],
+      "payables": [],
+      "other_current_liab": [],
+      "total_current_liab": []
+    },
+    "total_liabilities": [15088, 30742, 59487, 72938, 102835]
+  },
+  "cash_flow": {
+    "cfo": [-9340, -11357, -16499, -785, -19038],
+    "cfi": [],
+    "cff": [],
+    "capex": [17, 23, 12, 388, 458],
+    "net_change_in_cash": []
+  },
+  "data_flags": [
+    "инфографика (не полная ведомость): P&L, BS, CF агрегированы",
+    "себестоимость и валовая прибыль не выделены в инфографике",
+    "финансовые доходы не указаны",
+    "налог на прибыль не указан отдельно",
+    "детальная структура активов/обязательств сокращена",
+    "эскроу/проектный финанс не развёрнут в инфографике (проектное финансирование и эскроу видны в краткосрочном долге)",
+    "нужна полная PDF отчётность для детального распарсивания expense_lines и non_current_assets"
+  ]
+}

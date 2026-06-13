@@ -1,0 +1,389 @@
+{
+  "meta": {
+    "ticker": "MRKY",
+    "name": "Россети Юг (ПАО, ранее МРСК Юга)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "smart-lab | e-disclosure",
+      "url": "https://smart-lab.ru/q/MRKY/f/y/ + https://www.e-disclosure.ru/portal/company.aspx?id=11999",
+      "doc_title": "Консолидированная финансовая отчётность МСФО, подготовленная в соответствии с Международными стандартами финансовой отчетности",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table + web-search + arsagera",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      41100,
+      43400,
+      44100,
+      51000,
+      56400
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Амортизация и износ основных средств",
+        "values": [
+          null,
+          2800,
+          2400,
+          2500,
+          2700
+        ]
+      },
+      {
+        "name": "Расходы на оплату труда (2020 данные)",
+        "values": [
+          10800,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Стоимость закупленной электроэнергии для компенсации потерь в сетях (2020 данные)",
+        "values": [
+          7700,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      270,
+      -3050,
+      3030,
+      6070,
+      11700
+    ],
+    "da": [
+      null,
+      2800,
+      2400,
+      2500,
+      2700
+    ],
+    "ebitda": [
+      null,
+      7500,
+      6080,
+      8680,
+      8200
+    ],
+    "finance_costs": [
+      2200,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      995,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -1200,
+      -3730,
+      340,
+      3010,
+      6130
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        2570
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      2780
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      -6020
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      6020
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      -3030
+    ]
+  },
+  "data_flags": [
+    "2020: данные из arsagera.ru анализ отчётности (первичный PDF читается плохо; e-disclosure доступ 403)",
+    "2021-2022: e-disclosure блокирует прямой доступ (403), данные из smart-lab таблиц (EBITDA, ЧП только)",
+    "2023-2024: smart-lab таблицы полные, плюс дополнительные из e-disclosure через smart-lab",
+    "cost_format=by_nature: регулируемая сетевая компания не раскрывает себестоимость/валовую прибыль отдельно; все операционные расходы (амортизация, персонал, потери) в expense_lines как названы в источнике",
+    "operating_profit 2024: 11700 vs рассчитанное (8200-2700)=5500 → MISMATCH, возможно smart-lab ошибка или другое определение (pre-tax profit?). Сохранён как есть, flagged.",
+    "balance_sheet: детали отсутствуют (только Cash=2570 млн за 2024); активы/пассивы требуют прямого парсинга PDF или доступа с аутентификацией",
+    "cash_flow 2024: CFO=2780, CFI=-6020, Capex=6020, Net Change=-3030 (из smart-lab). CFF=N/A, но подразумевается ~+210 млн из баланса денежных потоков",
+    "долг 2024: ~25 млрд (Debt/EBITDA=2.75x из smart-lab; 2.75*8200≈22.5 млрд); капитал не определён",
+    "arithmetic_check=partial: EBITDA проверена (8200+2700≠11700, операционная прибыль подозрительна), CFO/CFI/Capex согласованы логически (FCF=CFO-Capex); баланс не проверен"
+  ]
+}

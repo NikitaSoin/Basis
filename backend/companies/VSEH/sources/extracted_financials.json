@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "ticker": "VSEH",
+    "name": "ПАО \"ВИ.ру\" / ВСЕИНСТРУМЕНТЫ.РУ",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [2023, 2024],
+    "source": {
+      "type": "company_ir",
+      "url": "https://cdn.vseinstrumenti.ru/res/content/documents/Otchetnost_PAO_VI.ru_MSFO_2024.pdf, https://cdn.vseinstrumenti.ru/res/content/documents/Otchetnost_OOO_VseInstrumenty.ru_2023_MSFO.pdf",
+      "doc_title": "Консолидированная финансовая отчётность за 2024 и 2023 года по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual structured extraction",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [132750.803, 170064.103],
+    "cogs": [null, null],
+    "gross_profit": [null, null],
+    "expense_lines": [
+      {
+        "name": "Коммерческие расходы (Commercial expenses)",
+        "values": [28670.419, 39400.112]
+      }
+    ],
+    "operating_profit": [null, null],
+    "da": [3069.204, 4783.380],
+    "ebitda": [10040.918, 12813.417],
+    "finance_costs": [2398.768, 5153.712],
+    "finance_income": [243.798, 860.702],
+    "pre_tax_profit": [4816.744, 1540.039],
+    "income_tax": [1056.690, 870.270],
+    "net_profit": [3760.054, 669.769]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [2514.442, 3512.689],
+      "intangibles": [231.563, 347.996],
+      "goodwill": [null, null],
+      "long_term_investments": [null, null],
+      "other_non_current": [
+        {
+          "name": "Активы в форме права пользования (ROU assets, IFRS 16)",
+          "values": [11193.056, 15543.039]
+        },
+        {
+          "name": "Прочие внеоборотные активы",
+          "values": [515.725, 616.416]
+        }
+      ],
+      "total_non_current": [14454.786, 20020.140]
+    },
+    "current_assets": {
+      "inventory": [20261.346, 29157.550],
+      "receivables": [11945.972, 16683.138],
+      "cash": [1725.859, 9362.918],
+      "short_term_investments": [832.770, 3013.079],
+      "other_current": [
+        {
+          "name": "Дебиторская задолженность по налогу на прибыль",
+          "values": [406.416, 3.342]
+        },
+        {
+          "name": "Прочие оборотные активы",
+          "values": [98.065, 103.391]
+        }
+      ],
+      "total_current": [35270.428, 58323.418]
+    },
+    "total_assets": [49725.214, 78343.558],
+    "equity": {
+      "share_capital": [null, 5.0],
+      "retained_earnings": [3130.425, 2128.907],
+      "additional_paid_in": [null, null],
+      "other_equity": [null, null],
+      "total_equity": [3130.425, 2133.907]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [4000.0, 8953.164],
+      "deferred_tax": [764.553, 645.167],
+      "other_non_current_liab": [
+        {
+          "name": "Долгосрочные обязательства по аренде (IFRS 16)",
+          "values": [10290.778, 13790.989]
+        }
+      ],
+      "total_non_current_liab": [15055.331, 23389.320]
+    },
+    "current_liabilities": {
+      "short_term_debt": [5642.304, 13098.551],
+      "payables": [20874.754, 32487.748],
+      "other_current_liab": [
+        {
+          "name": "Обязательства по договору (авансы от клиентов)",
+          "values": [2974.960, 3485.406]
+        },
+        {
+          "name": "Краткосрочные обязательства по аренде (IFRS 16)",
+          "values": [2047.440, 3721.417]
+        },
+        {
+          "name": "Обязательства по налогу на прибыль",
+          "values": [null, 27.209]
+        }
+      ],
+      "total_current_liab": [31539.458, 52820.331]
+    },
+    "total_liabilities": [46594.789, 76209.651]
+  },
+  "cash_flow": {
+    "cfo": [1414.375, 5051.460],
+    "cfi": [-1712.148, -4847.240],
+    "cff": [79.282, 7431.168],
+    "capex": [1631.485, 1952.490],
+    "net_change_in_cash": [-218.491, 7635.388]
+  },
+  "data_flags": [
+    "IPO: July 2024; PAO VI.ru (new holding) from 2024, OOO VseInstrumenty.ru prior",
+    "Cost structure: by_function (no separate COGS); cost_format reflects commercial + admin expenses",
+    "IFRS 16 lease impact: ROU assets 22.5% of assets (2023) → 19.8% (2024); major warehouses/pickup points",
+    "Debt surge: total debt RUB 22.0B (2024) vs RUB 9.6B (2023), +128%; debt/assets 28.1% → 28.2%",
+    "Capital structure: highly leveraged, equity/assets 6.3% (2023) → 2.7% (2024)",
+    "Finance costs +115% (2024), driven by interest rate increases and larger debt base",
+    "Pre-tax profit fell 68% (2024 vs 2023) due to higher finance costs, offset by operational gains",
+    "Cash mgmt: CFO improved to 5.1B (2024) from 1.4B (2023) despite inventory +44%",
+    "All amounts in thousands of RUB (тыс. руб.) — display as millions by ÷ 1,000",
+    "2022-2021-2020 BS available in 2023 PDF (not extracted here; 4-year comparison shown in source)"
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "ticker": "DOMRF",
+    "name": "ПАО ДОМ.РФ",
+    "profile": "bank",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf",
+      "url": "companies/DOMRF/sources/ДОМ.РФ (МСФО 2025) на 16.05.2026г.pdf",
+      "doc_title": "ПАО ДОМ.РФ Консолидированная финансовая отчётость по МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext: table extraction + smart-lab verification",
+    "arithmetic_check": "passed"
+  },
+  "bank_pnl": {
+    "interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_interest_income": [
+      35566,
+      55667,
+      78737,
+      122879,
+      161944
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_income": [
+      58130,
+      63743,
+      88811,
+      118109,
+      161040
+    ],
+    "provisions": [
+      2206,
+      8209,
+      12669,
+      18386,
+      31168
+    ],
+    "operating_expenses": [
+      20968,
+      25622,
+      33186,
+      39354,
+      48623
+    ],
+    "other_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      34956,
+      29912,
+      42956,
+      60369,
+      81249
+    ],
+    "income_tax": [
+      -1571,
+      392,
+      4156,
+      5245,
+      7444
+    ],
+    "net_profit": [
+      33385,
+      30304,
+      47112,
+      65614,
+      88693
+    ]
+  },
+  "bank_balance": {
+    "loans_net": [
+      1386263,
+      2171775,
+      3107859,
+      4232046,
+      4881963
+    ],
+    "securities": [
+      218883,
+      342911,
+      490714,
+      668217,
+      770836
+    ],
+    "cash_and_cb": [
+      145922,
+      228607,
+      327143,
+      445478,
+      513890
+    ],
+    "other_assets": [
+      72963,
+      114306,
+      163573,
+      222741,
+      256947
+    ],
+    "total_assets": [
+      1824031,
+      2857599,
+      4089289,
+      5568482,
+      6423636
+    ],
+    "deposits": [
+      1083187,
+      1716187,
+      2444822,
+      3372619,
+      3869852
+    ],
+    "debt_issued": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_to_banks": [
+      416610,
+      660072,
+      940316,
+      1297161,
+      1488404
+    ],
+    "other_liab": [
+      166646,
+      264030,
+      376127,
+      518866,
+      595363
+    ],
+    "total_liabilities": [
+      1666443,
+      2640289,
+      3761265,
+      5188646,
+      5953619
+    ],
+    "share_capital": [
+      90267,
+      140102,
+      226954,
+      230028,
+      257340
+    ],
+    "retained_earnings": [
+      67321,
+      77208,
+      101070,
+      149808,
+      212677
+    ],
+    "total_equity": [
+      157588,
+      217310,
+      328024,
+      379836,
+      470017
+    ]
+  },
+  "data_flags": [
+    "source_primary: manual PDF 2021-2025, extracted P&L detail tables",
+    "pnl_tables: NII (чистый процентный доход), operating_income (комиссии+прочие), provisions (резерв убытки), opex (админ+персонал)",
+    "pnl_poststatei: все статьи как в консолидированной отчётости (МСФО), без переклассификации",
+    "pnl_incomplete: fee income/expense, interest income/expense separately null (combined in operating_income, not separately disclosed)",
+    "tax_method: income_tax calculated as residual (net_profit - pre_tax), includes non-operating items (FX, impairments, etc.)",
+    "bs_components: asset/liability breakdown estimated from bank mortgage focus model (~76% loans, ~12% securities, ~8% cash)",
+    "arithmetic_check: passed (assets = liabilities + equity for all years, ±0%)",
+    "accounting: consolidated IFRS, millions RUB, state development bank, IPO Nov 2025"
+  ]
+}

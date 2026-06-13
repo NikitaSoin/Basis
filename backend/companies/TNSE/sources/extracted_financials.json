@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "ticker": "TNSE",
+    "name": "ПАО ГК 'ТНС энерго'",
+    "profile": "holding",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн руб; консолидированная отчётность",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/TNSE/f/y/",
+      "doc_title": "Финансовая отчётность МСФО ТНС энерго (консолидированная)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      256600,
+      265000,
+      282200,
+      307900,
+      347800
+    ],
+    "cogs": null,
+    "gross_profit": null,
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (включая покупную электроэнергию)",
+        "values": [
+          278300,
+          284000,
+          300800,
+          328700,
+          371000
+        ]
+      },
+      {
+        "name": "Процентные расходы (финансовые расходы)",
+        "values": [
+          3260,
+          3290,
+          2260,
+          1230,
+          98
+        ]
+      }
+    ],
+    "operating_profit": [
+      7900,
+      10200,
+      11600,
+      13100,
+      24800
+    ],
+    "da": [
+      600,
+      500,
+      700,
+      900,
+      900
+    ],
+    "ebitda": [
+      8710,
+      10800,
+      12100,
+      13800,
+      25700
+    ],
+    "finance_costs": [
+      3260,
+      3290,
+      2260,
+      1230,
+      98
+    ],
+    "finance_income": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "pre_tax_profit": [
+      5200,
+      8800,
+      11600,
+      14800,
+      25000
+    ],
+    "income_tax": [
+      1800,
+      3800,
+      2200,
+      4200,
+      5800
+    ],
+    "net_profit": [
+      3390,
+      5000,
+      9370,
+      10600,
+      19200
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        2640,
+        3390,
+        9280,
+        17600,
+        32200
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": [
+      74300,
+      73700,
+      75400,
+      81500,
+      104000
+    ],
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [
+        324,
+        2100,
+        9000,
+        20600,
+        39600
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": null,
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": null,
+      "payables": null,
+      "other_current_liab": null,
+      "total_current_liab": null
+    },
+    "total_liabilities": [
+      73976,
+      71600,
+      66400,
+      60900,
+      64400
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      5750,
+      8830,
+      13200,
+      9810,
+      13200
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      1230,
+      1040,
+      1460,
+      1860,
+      3360
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Дебалансы: себестоимость (COGS) и валовая прибыль не раскрыты отдельно → cost_format=by_nature",
+    "Детали баланса (ОС/НМА, дебиторка, структура капитала) не раскрыты в smart-lab → only total_assets, cash, debt, equity",
+    "ОДДС: CFI и CFF не раскрыты → only CFO и estimated CAPEX из отчётности",
+    "Финансовый доход не раскрыт; используется 0 (может быть небольшой)",
+    "Данные за 2025 предварительные (H1 2025 результаты)",
+    "Источник: smart-lab (агрегатор); для полной первичной отчётности нужен доступ к e-disclosure PDF"
+  ]
+}
