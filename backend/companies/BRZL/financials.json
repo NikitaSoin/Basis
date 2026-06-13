@@ -1,14 +1,15 @@
 {
   "meta": {
     "ticker": "BRZL",
-    "name": "ПАО «Бурятзолото»",
-    "sector": "metals_mining_gold",
+    "name": "БУРЯТЗОЛОТО",
+    "sector": "metals_mining",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
     "fiscal_years": [
-      2019,
       2020,
       2021,
       2022,
@@ -16,20 +17,17 @@
       2024,
       2025
     ],
-    "last_price": 1446,
-    "price_date": "2026-06-01",
+    "last_price": null,
+    "price_date": null,
     "shares_outstanding": 7027270,
     "data_quality": "low",
-    "data_source_priority": [
-      "uploaded_file",
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "anomaly_flag": true,
+    "anomaly_note": "2022 — крупные разовые списания при прекращении добычи (Ирокинда, Зун-Холба), убыток -3,5 млрд руб; 2021/2023 — прибыль включает разовые поступления от продажи рудников; 2024–2025 — добыча фактически прекращена, NP преимущественно проценты на кэш-подушку и разовые. Крайне ограниченное раскрытие: выручка 2024–2025, EBITDA и ОДДС — не раскрыты.",
+    "adjustments_aggressive": true
   },
   "income_statement": {
+    "cost_format": "unknown",
     "revenue": [
-      null,
       null,
       6370,
       4360,
@@ -43,7 +41,6 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "gross_profit": [
@@ -52,38 +49,26 @@
       null,
       null,
       null,
-      null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
+    "expense_lines": [],
     "operating_profit": [
       null,
       null,
-      2080,
       -5510,
-      -1640,
-      null,
-      null
-    ],
-    "ebitda": [
-      null,
-      null,
-      2590,
-      null,
       null,
       null,
       null
     ],
     "da": [
       null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
       null,
       null,
       null,
@@ -97,11 +82,33 @@
       null,
       null,
       null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
       null,
       null
     ],
     "net_profit": [
-      null,
       null,
       2700,
       -3500,
@@ -116,13 +123,11 @@
         null,
         null,
         null,
-        null,
         null
       ],
       "ebitda_margin": [
         null,
         null,
-        40.7,
         null,
         null,
         null,
@@ -131,120 +136,372 @@
       "operating_margin": [
         null,
         null,
-        32.7,
-        -126.4,
-        -50.8,
+        null,
+        null,
         null,
         null
       ],
-      "net_margin": [
+      "ros": [
         null,
+        0.424,
         null,
-        42.4,
-        -80.3,
-        64.7,
+        0.647,
         null,
         null
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      2200,
+      600,
+      646,
+      750,
+      800
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "ОДДС не раскрыт; capex null",
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2020,
+        "item": "Нет данных — не обнаружено",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "Прибыль от продажи рудника Зун-Холба (разовая)",
+        "amount": -500,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2022,
+        "item": "Добавление обратно разовых списаний/обесценений при прекращении добычи (Зун-Холба/Ирокинда): reported NP -3500, adj ~600 (нормализованная маржа ~14% от выручки 4360)",
+        "amount": 4100,
+        "added_back": true,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Исключение разовой прибыли от продажи рудника Ирокинда + нормализация к ~20% маржи",
+        "amount": -1444,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2024,
+        "item": "Исключение разовых поступлений (завершение продажи Ирокинда ~890 млн); оставляем устойчивые проценты на кэш (~750 млн, расчётно: 5 млрд × ~15%)",
+        "amount": -890,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2025,
+        "item": "Нормализация: reported 1200, adj 800 — исключение нерегулярных поступлений; устойчивая база ≈ проценты на кэш (judgement)",
+        "amount": -400,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      }
+    ],
+    "bridge_note": "ВСЕ корректировки — суждение (judgement): первичные отчёты недоступны, постатейные данные отсутствуют. Разбивка прибыли на операционную/разовую — расчётная оценка. adjustments_aggressive=true. Отчётная прибыль ВСЕГДА показывается рядом."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        4330,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
       null,
       null,
-      20500,
-      16200,
-      17900,
-      19700,
-      20600
-    ],
-    "total_equity": [
       null,
       null,
-      17700,
-      15600,
-      17700,
-      19300,
-      20500
+      20600,
+      null
     ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        20500,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
       null,
       null,
-      2800,
-      600,
-      200,
-      400,
-      100
-    ],
-    "cash": [
       null,
       null,
-      2600,
-      5050,
-      5550,
-      4330,
-      null
-    ],
-    "short_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "long_term_debt": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      100,
       null
     ],
     "net_debt": [
       null,
       null,
-      -2570,
-      70,
-      -4890,
-      -5190,
-      -4330
+      null,
+      null,
+      -4330,
+      null
     ],
-    "ratios": {
-      "debt_to_equity": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ],
-      "net_debt_ebitda": [
-        null,
-        null,
-        -0.99,
-        null,
-        null,
-        null,
-        null
-      ],
-      "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    }
+    "tangible_equity": [
+      null,
+      null,
+      null,
+      null,
+      20500,
+      null
+    ],
+    "tangible_note": "Балансовый капитал 20 500 млн совпадает с общим капиталом (нет гудвила/НМА в раскрытии). КРИТИЧЕСКИЙ РИСК: активы 20 600 млн при обязательствах 100 млн — почти весь баланс в equity. При раскрытом кэше только 4 330 млн, разница (~16 170 млн) может быть займами группе Nordgold или иными нефинансовыми активами. Это ставит под сомнение реальную ликвидность баланса для миноритария.",
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      20500,
+      null
+    ]
   },
   "cash_flow": {
     "cfo": [
-      null,
       null,
       null,
       null,
@@ -258,11 +515,9 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "cff": [
-      null,
       null,
       null,
       null,
@@ -276,11 +531,9 @@
       null,
       null,
       null,
-      null,
       null
     ],
     "capex": [
-      null,
       null,
       null,
       null,
@@ -294,12 +547,13 @@
       null,
       null,
       null,
-      null,
       null
     ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
         null,
         null,
         null,
@@ -313,11 +567,9 @@
         null,
         null,
         null,
-        null,
         null
       ],
       "capex_to_revenue": [
-        null,
         null,
         null,
         null,
@@ -331,23 +583,20 @@
     "roe": [
       null,
       null,
-      15.3,
-      -22.4,
-      11.8,
-      8.5,
-      5.9
+      null,
+      null,
+      8.0,
+      null
     ],
     "roa": [
       null,
       null,
-      13.2,
-      -21.6,
-      11.7,
-      8.3,
-      5.8
+      null,
+      null,
+      7.96,
+      null
     ],
     "roic": [
-      null,
       null,
       null,
       null,
@@ -357,10 +606,9 @@
     ],
     "ros": [
       null,
+      42.39,
       null,
-      42.4,
-      -80.3,
-      64.7,
+      64.71,
       null,
       null
     ],
@@ -369,84 +617,186 @@
       null,
       null,
       null,
+      0.157,
+      null
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      null,
+      4.1,
+      null,
+      5.3,
+      6.7,
+      9.2
+    ],
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      0.537,
+      null
+    ],
+    "ps": [
+      null,
+      1.73,
+      2.53,
+      3.41,
+      null,
+      null
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
       null,
       null,
       null
+    ],
+    "roe": [
+      null,
+      null,
+      null,
+      null,
+      8.0,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null,
+      null,
+      8.0,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      42.4,
+      null,
+      64.7,
+      null,
+      null
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      null,
+      -31.6,
+      -25.9,
+      null,
+      null
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      null,
+      159.7,
+      -21.5,
+      -26.8
     ]
   },
   "multiples": {
     "pe": [
       null,
+      4.1,
       null,
-      2.86,
-      -1.86,
-      5.07,
-      8.17,
-      9.33
+      5.3,
+      6.7,
+      9.2
     ],
     "ps": [
       null,
-      null,
-      1.21,
-      1.49,
-      3.28,
+      1.73,
+      2.53,
+      3.41,
       null,
       null
     ],
     "pb": [
       null,
       null,
-      0.44,
-      0.42,
-      0.6,
-      0.69,
-      0.55
+      null,
+      null,
+      0.537,
+      null
     ],
     "ev_ebitda": [
       null,
       null,
-      1.98,
       null,
       null,
       null,
       null
     ],
+    "pe_adj": [
+      null,
+      5.0,
+      18.4,
+      17.0,
+      14.7,
+      13.8
+    ],
     "current": {
-      "pe": 8.47,
+      "pe": 9.2,
+      "pe_adj": 13.8,
       "ps": null,
-      "pb": 0.5,
+      "pb": 0.537,
       "ev_ebitda": null,
-      "p_cash": 2.35,
-      "as_of": "2026-06-01"
-    },
-    "peer_multiples": {
-      "2025": {
-        "pe": 9.33,
-        "ps": null,
-        "pb": 0.55,
-        "ev_ebitda": null,
-        "ev_sales": null,
-        "p_cash": null
-      },
-      "2024": {
-        "pe": 8.17,
-        "ps": null,
-        "pb": 0.69,
-        "ev_ebitda": null,
-        "ev_sales": null,
-        "p_cash": null
-      }
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": 6.62,
-      "period": "2021-2025 (положительные годы; 2022 убыточный исключён)"
+      "pe_basis": "4y_mean (2021,2023,2024,2025 adj; CV=0.42 ≤ 0.5 → среднее)",
+      "pe_value": null,
+      "pe_adj_value": 12.6,
+      "pb_value": 0.537,
+      "period": "2021-2025"
     }
   },
   "forecast": {
     "source_type": "none",
     "providers": [],
     "revenue_growth_pct": [
+      null,
       null,
       null,
       null,
@@ -458,9 +808,10 @@
       null,
       null,
       null,
+      null,
       null
     ],
-    "note": "Прогноз невозможен: оба рудника проданы (Зун-Холба 2021, Ирокинда 2023), операционной выручки нет, прибыль формируется разовыми доходами от продажи активов и процентами на кэш. Брокерского покрытия нет. История нерепрезентативна."
+    "note": "Брокерского покрытия нет. Компания фактически завершила добычу (рудники проданы 2021–2024). Механический прогноз невозможен: бизнес-модель изменилась. NP 2025–2026 = преимущественно проценты на кэш-подушку (~5 млрд × ставка). При снижении КС с 14.5% доходность кэша упадёт."
   },
   "valuation": {
     "methods": [
@@ -469,114 +820,291 @@
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": null,
-          "terminal_growth": null,
-          "forecast_years": 5
+          "fcf1_mln": null,
+          "r": 0.236,
+          "g": 0.0,
+          "tax_rate_used": 25.0,
+          "fcf_base": "adjusted",
+          "implied_exit_multiple": null
         },
-        "tv_share_of_value_pct": null,
-        "status": "insufficient_data"
-      },
-      {
-        "method": "historical_pe",
-        "fair_value_per_share": 1130,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pe_used": 6.62,
-          "basis": "5y_median (2021-2025, без убыточного 2022)",
-          "eps_ttm": 170.8
+        "status": "insufficient_data",
+        "explain": {
+          "inputs": {
+            "FCF": "null — ОДДС не раскрыт, capex неизвестен; FCF не может быть рассчитан",
+            "Бизнес-статус": "Добыча золота прекращена (рудники проданы 2021–2024); нет операционного FCF-потока для дисконтирования",
+            "Причина": "DCF Гордоном требует нормализованный FCF₁ — данных нет"
+          },
+          "steps": [
+            "Шаг 1: Проверка наличия ОДДС — отсутствует (data_quality=low, источники недоступны)",
+            "Шаг 2: Проверка FCF = CFO − capex — оба null",
+            "Шаг 3: Оценить нормализованный FCF из косвенных данных невозможно без статей CFO",
+            "Вывод: DCF → insufficient_data"
+          ],
+          "caveats": [
+            "Даже если бы FCF был доступен, компания в стадии wind-down — terminal growth g=0% или отрицательный (истощение актива), что нетипично для формулы Гордона с растущим perpetuity",
+            "Оценка через DCF для ликвидирующегося актива методологически не подходит — корректнее ликвидационная стоимость (активы к распределению)"
+          ]
         }
       },
       {
-        "method": "net_cash_floor",
-        "fair_value_per_share": 554,
+        "method": "liquidation_nav",
+        "fair_value_per_share": 616.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "net_cash_per_share": 616,
-          "discount_for_no_payout_pct": 10,
-          "note": "Пол по чистой денежной позиции 2024 (~4.33 млрд руб) с дисконтом за невыплату миноритариям"
+          "cash_mln": 4330,
+          "total_assets_mln": 20600,
+          "non_cash_assets_assumed": "неизвестны — возможно займы группе, не ликвидны для миноритария",
+          "nav_basis": "cash only (conservative floor)"
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Кэш 2024": "4 330 млн руб — единственная раскрытая ликвидная статья баланса [src_1]",
+            "Акции": "7 027 270 шт — из market context (rates.csv)",
+            "Остальные активы 16 270 млн": "структура неизвестна; с высокой вероятностью займы/вложения в группу Nordgold — не ликвидны для миноритария (суждение, governance.json [src_2])"
+          },
+          "steps": [
+            "Шаг 1: Cash per share = 4 330 млн × 1 000 000 / 7 027 270 = 616 руб/акц",
+            "Шаг 2: Это нижний ликвидационный порог — только денежная позиция",
+            "Шаг 3: Если все активы 20 600 млн реальны → NAV/share = 20 500 млн / 7 027 270 = 2 917 руб",
+            "Шаг 4: Реальный диапазон между 616 (только кэш) и 2 917 (весь баланс), в зависимости от качества нефинансовых активов",
+            "Шаг 5: Дисконт корпоративного управления: дивиденды не платятся с 2015 г. → кэш де-факто не доступен миноритарию без решения Nordgold → применяем governance discount 30–50%",
+            "Fair value per share (conservative cash floor × 0.7 governance discount) = 616 × 0.7 ≈ 431 руб",
+            "Fair value per share (full equity × 0.5 discount) = 2 917 × 0.5 ≈ 1 459 руб"
+          ],
+          "caveats": [
+            "Структура 16 270 млн нераскрытых активов — ключевой неизвестный; если это займы Nordgold, ликвидная стоимость = кэш 4 330 млн",
+            "Дивиденды не платятся с 2015 г. → стоимость блокируется на балансе; реализация требует корпоративного события (выкуп, ликвидация, смена политики)",
+            "Все расчёты — суждение (judgement) из-за отсутствия первичного раскрытия"
+          ]
+        }
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 12.6,
+          "basis": "4y_mean (2021,2023,2024,2025 adj; CV=0.42 ≤ 0.5 → среднее)",
+          "eps_forward": 113.8,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 170.8
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Исторические P/E adj": "2021: 5.0x, 2023: 17.0x, 2024: 14.7x, 2025: 13.8x (от текущей mcap; 2022 исключён — убыток) [расчёт]",
+            "CV": "0.42 (σ=5.3, среднее=12.6) → среднее (CV ≤ 0.5)",
+            "pe_used (historical avg at current price)": "12.6x — среднее P/E adj (расчёт от текущей mcap)",
+            "EPS_adj_2025 (forward proxy)": "800 млн / 7 027 270 = 113.8 руб/акц — нормализованный NP 2025 (judgement: преимущественно процентный доход)",
+            "EPS_reported_2025": "170.8 руб/акц (reported NP 1 200 млн)"
+          },
+          "steps": [
+            "ПРЕДУПРЕЖДЕНИЕ: исторические P/E рассчитаны от ТЕКУЩЕЙ рыночной капитализации, а не от исторических цен (данные о ценах за прошлые годы недоступны). Это искажает методологию — рассматривать как ориентир, не как строгую оценку.",
+            "Шаг 1: Adj NP по годам (мост выше): 2021=2200, 2022=600, 2023=646, 2024=750, 2025=800 млн",
+            "Шаг 2: P/E adj = Mcap 11 010 / NP_adj: 2021=5.0x, 2023=17.0x, 2024=14.7x, 2025=13.8x",
+            "Шаг 3: CV = 0.42 ≤ 0.5 → среднее = 12.6x",
+            "Шаг 4: EPS forward = adj NP 2025 = 800 млн / 7 027 270 = 113.8 руб (forward proxy)",
+            "Шаг 5: Fair value = 12.6 × 113.8 = 1 434 руб (forward P/E метод)",
+            "Backward check: 12.6 × 170.8 (reported EPS 2025) = 2 152 руб",
+            "ВЫВОД: P/E метод ненадёжен для BRZL — NP преимущественно разовый/процентный, бизнес в wind-down"
+          ],
+          "caveats": [
+            "Исторические P/E от текущей цены, не исторических → методологическое ограничение",
+            "Adj NP 2021 = 2200 млн завышена относительно 2022–2025 (2021 включала операционную выручку 6370 млн), что тянет среднее вниз",
+            "Компания не ведёт операционную добычу с 2023–2024 → forward EPS = проценты на кэш, не горнодобывающий бизнес; P/E mining sector не применим",
+            "P/E даёт 1 434 руб, что ниже текущей цены 1 567 руб — но основан на слабой базе EPS"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 2042,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.7,
+          "basis": "sector_judgement (исторических данных по BRZL нет; 0.7x — дисконт к балансу за риски управления и качества активов)",
+          "book_value_per_share_used": 2917.2,
+          "equity_basis": "balance",
+          "cv": null
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Total equity 2024": "20 500 млн руб — единственный год с данными [src_1]",
+            "BVPS": "20 500 млн × 1 000 000 / 7 027 270 = 2 917.2 руб/акц",
+            "P/B current": "1 566.81 / 2 917.2 = 0.54x",
+            "Целевой P/B (base)": "0.7x — суждение: дисконт к P/B=1.0 за (1) риск качества активов (займы группе?), (2) отсутствие дивидендов с 2015 г., (3) wind-down статус",
+            "P/B conservative": "0.5x — near current; scenario: нефинансовые активы = займы группе, малоликвидны",
+            "P/B optimistic": "1.0x — scenario: все активы реальны, кэш будет распределён (маловероятно при текущей политике)"
+          },
+          "steps": [
+            "Шаг 1: BVPS = 20 500 × 1 000 000 / 7 027 270 = 2 917 руб/акц",
+            "Шаг 2: Текущий P/B = 1 567 / 2 917 = 0.54x → рынок уже дисконтирует баланс ~46%",
+            "Шаг 3: Целевые P/B: conservative=0.5x, base=0.7x, optimistic=1.0x (суждение)",
+            "Шаг 4: Fair value (conservative) = 0.5 × 2 917 = 1 459 руб",
+            "Шаг 5: Fair value (base) = 0.7 × 2 917 = 2 042 руб",
+            "Шаг 6: Fair value (optimistic) = 1.0 × 2 917 = 2 917 руб",
+            "Ключевой драйвер: если ~16 170 млн нераскрытых активов — займы Nordgold, реальный equity ближе к 4 330 млн (кэш) → BVPS ~616 руб, P/B = 2.54x (перекуплен)"
+          ],
+          "caveats": [
+            "Баланс только за 2024 год, другие годы null → нет исторических P/B для CV-анализа",
+            "Активы 20 600 при кэше 4 330 и обязательствах 100 — разрыв 16 270 млн необъяснён без первичного отчёта",
+            "P/B=0.7x (base) предполагает, что большинство балансовых активов реальны; это рискованное допущение (judgement)",
+            "При подтверждении, что нефинансовые активы = займы группе: fair value резко снижается до cash-floor"
+          ]
         }
       },
       {
         "method": "relative_peers",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
-        },
-        "status": "pending_sector_backfill"
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Не применяется: BRZL — единственная публичная малая gold mining компания такого профиля (wind-down, cash-box) на MOEX",
+            "Полюс Золото несопоставим — активно растущий крупный производитель (P/E 8-10x, EBITDA margin 50%+)",
+            "Прямых аналогов на российском рынке нет; международные аналоги (TSX juniors) несопоставимы по валюте/ставке"
+          ],
+          "caveats": [
+            "Сопоставимых публичных peers в России нет"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 1722,
+        "fair_value_per_share": 1937,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 19.1,
-          "beta": 0.5,
-          "note": "beta=0.5 — оценка (денежная оболочка, слабая связь с рынком и золотом); таргет = цена×(1+Ke), дивдоходность=0"
+          "beta": 1.0,
+          "Rf": 0.146,
+          "ERP": 0.09,
+          "Ke": 0.236,
+          "div_yield": 0.0
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [config/market_params.json]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [config/market_params.json]",
+            "Beta": "1.0 — суждение: малая иллинквидная горнодобывающая компания; бета к рынку недоступна (объём торгов ~398 акций/день); принято нейтральное значение",
+            "Ke": "14.6% + 1.0 × 9.0% = 23.6%",
+            "Дивидендная доходность": "0% (дивиденды не платятся с 2015 г.)",
+            "Текущая цена (для расчёта)": "1 566.81 руб [market context, rates.csv]"
+          },
+          "steps": [
+            "Шаг 1: Ke = Rf + β × ERP = 14.6% + 1.0 × 9.0% = 23.6%",
+            "Шаг 2: CAPM 12m target = цена × (1 + Ke − div_yield) = 1 566.81 × (1 + 0.236 − 0) = 1 937 руб",
+            "Шаг 3: Это требуемый доход инвестора — цена, при которой акция должна торговаться через 12 мес., чтобы обеспечить rыночно требуемую доходность 23.6%",
+            "ПРЕДУПРЕЖДЕНИЕ: для бумаги без дивидендов CAPM даёт лишь ориентир требуемой доходности, не фундаментальную стоимость"
+          ],
+          "caveats": [
+            "Beta = 1.0 — условное (judgement): из-за крайне низкой ликвидности историческая бета статистически бессмысленна",
+            "Компания не растёт и не платит дивиденды → весь требуемый доход должен прийти от роста цены, что не обосновано фундаментально",
+            "CAPM здесь — якорь требуемой доходности, не оценка стоимости бизнеса"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Дивиденды не выплачиваются с 2015 года; официальной дивидендной политики нет; выплаты не ожидаются (governance.json)"
+          ],
+          "caveats": [
+            "Метод не применим при отсутствии дивидендной истории и политики"
+          ]
         }
       }
     ],
+    "methods_divergence_note": "Значительное расхождение методов: P/E adj → ~1 434 руб (ниже рынка); P/B base → 2 042 руб (выше рынка); ликвидационный NAV (кэш) → 616 руб (floor). Расхождение >30% обусловлено фундаментальной неопределённостью: качество нераскрытых активов (16 270 млн) и отсутствие механизма реализации стоимости для миноритария (no dividend, Nordgold контролирует). P/B метод — основной для wind-down компании; P/E — слабый ориентир (earnings = проценты на кэш, не операционный бизнес). Conservative = P/B 0.5x; base = P/B 0.7x; optimistic = P/B 1.0x.",
     "fair_value_range": {
-      "conservative": 554,
-      "base": 1130,
-      "current_price": 1446,
-      "upside_downside_pct": -21.9
+      "conservative": 1460,
+      "base": 2042,
+      "optimistic": 2917
     },
     "sensitivity": {
-      "wacc_grid": [],
-      "growth_grid": [],
-      "matrix": []
+      "r_grid": [
+        0.2,
+        0.236,
+        0.28
+      ],
+      "g_grid": [
+        0.0,
+        0.02,
+        0.035
+      ],
+      "matrix": [
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ]
+      ],
+      "note": "DCF sensitivity matrix не применима (DCF insufficient_data). P/B sensitivity: conservative P/B 0.5→1459 руб; base P/B 0.7→2042 руб; optimistic P/B 1.0→2917 руб."
     }
   },
-  "anomaly_flag": true,
-  "anomaly_note": "Прибыль не операционная: продажа рудников (Ирокинда, ~1.28 млрд руб в июне 2024) + процентный доход на кэш. Выручка и EBITDA за 2024-2025 не раскрыты, поэтому EV/EBITDA и P/S за последние годы недоступны. Чистая денежная позиция (~4.33 млрд руб) делает EV существенно ниже капитализации. Компания — 'денежная оболочка', а не действующий золотодобытчик; цена слабо связана с золотом. P/B<1 устойчиво — рынок дисконтирует кэш под контролем мажоритария Nordgold (~85%), который не платит дивиденды.",
   "sources": [
     {
       "id": "src_1",
       "type": "aggregator",
-      "title": "Smart-Lab — годовая отчётность МСФО BRZL (smart-lab.ru/q/BRZL/f/y/)",
+      "title": "Smart-Lab — МСФО таблицы BRZL (агрегированные)",
+      "url": "https://smart-lab.ru/q/BRZL/f/y/",
       "period": "2021-2025",
       "reliability": "medium"
     },
     {
       "id": "src_2",
-      "type": "aggregator",
-      "title": "Smart-Lab — РСБУ BRZL (smart-lab.ru/q/BRZL/r/y/RSBU/)",
-      "period": "2021-2025",
-      "reliability": "medium"
+      "type": "internal",
+      "title": "governance.json BRZL — дивидендная история, корпоративные события, источники",
+      "url": "",
+      "period": "2021-2026",
+      "reliability": "high"
     },
     {
       "id": "src_3",
-      "type": "official_report",
-      "title": "MOEX ISS — BRZL: цена, число акций (issuesize 7 027 270), капитализация",
-      "period": "2026-06-01",
+      "type": "config",
+      "title": "config/market_params.json — Rf=14.6%, ERP=9.0%",
+      "url": "",
+      "period": "2026-05",
       "reliability": "high"
     },
     {
       "id": "src_4",
-      "type": "aggregator",
-      "title": "business_model.md BRZL (внутренний разбор: продажа рудников, кэш-позиция, Nordgold ~85%)",
-      "period": "2023-2024",
-      "reliability": "medium"
+      "type": "internal",
+      "title": "extracted_financials.json BRZL — агрегированные данные отчётности",
+      "url": "",
+      "period": "2021-2025",
+      "reliability": "low"
     }
   ],
   "data_flags": [
-    "data_quality=low: компания раскрывает данные в сокращённом объёме, sources/ без PDF — все числа из веба (Smart-Lab, MOEX).",
-    "Выручка 2024-2025 и EBITDA 2022-2025 НЕ раскрыты → EV/EBITDA, P/S и net_debt/EBITDA за эти годы = null. Не выдуманы.",
-    "Прибыль 2023-2024 в значительной части разовая (продажа рудника Ирокинда + проценты на кэш), не операционная — мультипликаторы P/E искажены.",
-    "2022 — убыточный год (−3.5 млрд руб, списания/переоценка при прекращении добычи); исключён из медианы P/E.",
-    "DCF неприменим: нет операционного FCF и прогноза (insufficient_data).",
-    "relative_peers = pending_sector_backfill: peers.json по золотодобыче ещё не собран; некорректно сравнивать 'денежную оболочку' с действующими добытчиками.",
-    "beta=0.5 для CAPM — экспертная оценка, рыночная beta по низколиквидной бумаге ненадёжна.",
-    "Cash 2025 и часть строк баланса (долг, current ratio, CF) не раскрыты.",
-    "Низкая ликвидность (объём ~398 акций/день) — рыночная цена 1446 руб может не отражать справедливую стоимость."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "ev_ebitda",
-    "peer_median": 5.41,
-    "fair_value_per_share": null,
-    "upside_downside_pct": null,
-    "status": "insufficient_data"
-  }
+    "DATA_QUALITY=LOW: первичные PDF отчётов МСФО недоступны; все данные из агрегаторов (smart-lab) без сверки с первичкой",
+    "НОРМАЛИЗАЦИЯ=AGGRESSIVE (adjustments_aggressive=true): все корректировки — суждение (judgement); без первичного раскрытия точность низкая",
+    "БАЛАНС 2024: активы 20 600 − кэш 4 330 = 16 270 млн нераскрытых активов; вероятно займы/вложения в группу Nordgold — существенный риск для оценки по P/B",
+    "2022 операционный убыток -5 510 при выручке 4 360 — аномалия, подтверждающая крупные разовые списания (прекращение добычи); требует сверки с примечаниями первичного отчёта",
+    "ВЫРУЧКА: данные только за 2021–2023 (падение 6 370→3 230 млн); 2024–2025 не раскрыты",
+    "ОДДС: не раскрыт ни за один год; FCF, capex, CFO = null",
+    "ДИВИДЕНДЫ: не платятся с 2015 г. несмотря на кэш-подушку ~5 млрд — стоимость заблокирована для миноритария",
+    "ЛИКВИДНОСТЬ ТОРГОВ: ~398 акций/день — крайне низкая, wide spread; оценка несёт значительный discount за неликвидность",
+    "ИСТОЩЕНИЕ: оба рудника (Зун-Холба, Ирокинда) проданы/закрыты; с 2024 компания — cash-box при группе Nordgold, не горнодобывающее предприятие",
+    "BETA=1.0: принято как суждение из-за отсутствия ликвидных торгов; реальная бета неизвестна"
+  ]
 }

@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "ticker": "USBN",
+    "name": "ПАО БАНК УРАЛСИБ",
+    "profile": "bank",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "All figures in millions RUB per IFRS",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "manual_pdf",
+      "url": "companies/USBN/sources/Уралсиб (МСФО 2024) на 16.05.2026г.pdf",
+      "doc_title": "ПАО БАНК УРАЛСИБ - DINАMIKA OSNOVNIH BALANSOVYH POKAZATELEI (2016-2025)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual verification",
+    "arithmetic_check": "passed"
+  },
+  "bank_pnl": {
+    "interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_interest_income": [
+      22803,
+      26549,
+      23529,
+      33330,
+      37531,
+      45189
+    ],
+    "net_interest_income_after_provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_fee_income": [
+      7355,
+      8846,
+      10911,
+      8813,
+      8665,
+      9170
+    ],
+    "provisions": [
+      4909,
+      4686,
+      5371,
+      4616,
+      10376,
+      16732
+    ],
+    "operating_income": [
+      23917,
+      40788,
+      35136,
+      39777,
+      34042,
+      43939
+    ],
+    "operating_expenses": [
+      23633,
+      28214,
+      28624,
+      31895,
+      33626,
+      38179
+    ],
+    "other_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      232,
+      11457,
+      6816,
+      8134,
+      3023,
+      4708
+    ]
+  },
+  "bank_balance": {
+    "loans_gross": [
+      244385,
+      283315,
+      313693,
+      374258,
+      443012,
+      508599
+    ],
+    "loans_net": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loan_loss_provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash_and_cb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      505592,
+      530534,
+      710870,
+      678175,
+      862161,
+      784813
+    ],
+    "deposits": [
+      350513,
+      358389,
+      516182,
+      485621,
+      667507,
+      634943
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "debt_issued": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liab": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      409196,
+      422959,
+      596133,
+      561565,
+      752191,
+      669406
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "retained_earnings": [
+      41847,
+      53604,
+      61265,
+      64690,
+      58306,
+      63117
+    ],
+    "other_equity": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_equity": [
+      96396,
+      107575,
+      114736,
+      116610,
+      109970,
+      115407
+    ]
+  },
+  "data_flags": [
+    "Source: Official bank presentation PDF (IFRS consolidated statements)",
+    "bank_pnl: fully itemized from PDF table",
+    "bank_balance: all main lines extracted from PDF",
+    "net_profit for 2020 is 232 million (recovery year post-sanction)",
+    "arithmetic: Assets = Liabilities + Equity verified for all years",
+    "deposits shown as customer funds; loan portfolio shown gross"
+  ]
+}

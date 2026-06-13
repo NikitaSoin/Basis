@@ -1,34 +1,33 @@
 {
   "meta": {
     "ticker": "BTBR",
-    "name": "В2В-РТС (B2B-RTS)",
-    "sector": "IT / Электронные торговые площадки",
+    "name": "АО B2B-РТС",
+    "sector": "IT / электронные торговые площадки",
     "profile": "standard",
     "currency": "RUB",
     "unit": "млн",
     "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "Все данные в рублях, конвертация не требовалась",
     "fiscal_years": [
       2023,
       2024,
       2025
     ],
-    "last_price": 132.3,
-    "price_date": "2026-06-01",
+    "last_price": null,
+    "price_date": null,
     "shares_outstanding": 178770100,
-    "market_cap_mln": 23651,
-    "data_quality": "low",
-    "data_quality_note": "Компания провела IPO 17.04.2026. Первая аудированная МСФО — за 2025. Исторические ряды ограничены: P&L надёжен только за 2024–2025, баланс — за 2023–2025. CFO/CapEx не раскрыты детально (оценка). Бумага малоликвидна.",
-    "data_source_priority": [
-      "official_report",
-      "broker",
-      "aggregator"
-    ]
+    "data_quality": "medium",
+    "anomaly_flag": true,
+    "anomaly_note": "CFO 2023 = 4786 млн при ЧП = 2360 млн (CFO/ЧП = 2x) — вероятно специфика движения клиентских средств (обеспечение заявок); детализация ОДДС отсутствует. Баланс не распарсился полностью. IPO апрель 2026 — история только 3 года.",
+    "adjustments_aggressive": false
   },
   "income_statement": {
+    "cost_format": "by_function",
     "revenue": [
-      null,
-      8540.0,
-      9380.0
+      6044,
+      7172,
+      7950
     ],
     "cogs": [
       null,
@@ -40,49 +39,56 @@
       null,
       null
     ],
-    "operating_expenses": [
-      null,
-      null,
-      null
+    "expense_lines": [
+      {
+        "name": "Operating expenses (all — детализация не раскрыта)",
+        "values": [
+          null,
+          null,
+          null
+        ]
+      }
     ],
     "operating_profit": [
       null,
       null,
       null
     ],
-    "ebitda": [
-      null,
-      4630.0,
-      4900.0
-    ],
     "da": [
       null,
       null,
       null
     ],
+    "ebitda": [
+      3373,
+      4626,
+      4900
+    ],
     "finance_costs": [
-      0.0,
-      0.0,
-      0.0
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      1302,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null
     ],
     "net_profit": [
-      null,
-      3510.0,
-      3710.0
+      2360,
+      3510,
+      3708
     ],
-    "memo": {
-      "services_revenue": [
-        null,
-        7170.0,
-        7950.0
-      ],
-      "investment_income": [
-        null,
-        1370.0,
-        1430.0
-      ],
-      "note": "Совокупный доход = выручка от услуг (~85%) + доход от управления активами (~15%). Долга нет, finance_costs≈0."
-    },
     "margins": {
       "gross_margin": [
         null,
@@ -90,73 +96,221 @@
         null
       ],
       "ebitda_margin": [
-        null,
-        54.2,
-        52.2
+        55.81,
+        64.5,
+        61.64
       ],
       "operating_margin": [
         null,
         null,
         null
       ],
-      "net_margin": [
-        null,
-        41.1,
-        39.6
+      "ros": [
+        39.05,
+        48.94,
+        46.64
       ]
     }
   },
+  "adjusted": {
+    "net_profit_adj": [
+      2360,
+      3510,
+      3708
+    ],
+    "ebitda_adj": [
+      3373,
+      4626,
+      4900
+    ],
+    "fcf_normalized": [
+      4729,
+      2080,
+      3593
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": 91.0,
+    "capex_note": "Устойчивый capex = среднее capex/revenue 3л (1.14%) × выручка 2025. Capex/rev: 0.94%/1.78%/0.70% — без аномалии 1.5x+, нормализация не применялась. Нормализованный FCF = reported FCF (capex фактический).",
+    "etr_reported": [
+      null,
+      null,
+      null
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [],
+    "bridge_note": "Мост пустой: разовых статей не идентифицировано (нет детализации ЧП по примечаниям). ETR не скорректирована — данные по налогу отсутствуют. Finance_income 2024=1302 млн — регулярный инвестдоход (15% совокупных доходов, постоянная статья, исключению не подлежит). CFO 2023 аномален, но без детализации ОДДС изолировать разовое движение невозможно — флаг в data_flags, adjusted=reported."
+  },
   "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        5557,
+        1932
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null
+      ]
+    },
     "total_assets": [
-      12500.0,
-      10900.0,
-      11300.0
+      null,
+      null,
+      null
     ],
-    "total_equity": [
-      3460.0,
-      3370.0,
-      3700.0
-    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null
+      ]
+    },
     "total_liabilities": [
-      9040.0,
-      7530.0,
-      7600.0
-    ],
-    "cash": [
-      8030.0,
-      6620.0,
-      7190.0
-    ],
-    "short_term_debt": [
-      0.0,
-      0.0,
-      0.0
-    ],
-    "long_term_debt": [
-      0.0,
-      0.0,
-      0.0
+      null,
+      null,
+      null
     ],
     "net_debt": [
-      -8030.0,
-      -6620.0,
-      -7190.0
+      null,
+      null,
+      null
     ],
-    "book_value_per_share": [
-      19.35,
-      18.85,
-      20.7
+    "tangible_equity": [
+      null,
+      null,
+      null
     ],
+    "tangible_note": "Баланс не распарсился полностью — total_equity и все статьи null. Для P/B данных нет — метод not_applicable (asset-light + нет данных). Чистая денежная позиция из IPO-проспекта: 237/568/1036 млн по годам.",
     "ratios": {
       "debt_to_equity": [
-        0.0,
-        0.0,
-        0.0
+        null,
+        null,
+        null
       ],
       "net_debt_ebitda": [
         null,
-        -1.43,
-        -1.47
+        null,
+        null
       ],
       "current_ratio": [
         null,
@@ -167,9 +321,9 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null
+      4786,
+      2208,
+      3649
     ],
     "cfi": [
       null,
@@ -187,49 +341,46 @@
       null
     ],
     "capex": [
-      null,
-      70.0,
-      90.0
+      57,
+      128,
+      56
     ],
     "fcf": [
-      null,
-      3400.0,
-      3600.0
+      4729,
+      2080,
+      3593
     ],
-    "dividends_paid": [
-      null,
-      null,
-      3300.0
-    ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
     "ratios": {
       "fcf_margin": [
-        null,
-        39.8,
-        38.4
+        78.24,
+        29.0,
+        45.19
       ],
       "cfo_to_capex": [
-        null,
-        null,
-        null
+        84.0,
+        17.2,
+        65.2
       ],
       "capex_to_revenue": [
-        null,
-        0.82,
-        0.96
+        0.943,
+        1.785,
+        0.704
       ]
-    },
-    "note": "CFO/CFI/CFF детально не раскрыты. CapEx и FCF — оценка из business_model.md (asset-light, CapEx<1% выручки)."
+    }
   },
   "returns": {
     "roe": [
       null,
-      104.2,
-      100.3
+      null,
+      null
     ],
     "roa": [
       null,
-      32.2,
-      32.8
+      null,
+      null
     ],
     "roic": [
       null,
@@ -237,273 +388,399 @@
       null
     ],
     "ros": [
-      null,
-      41.1,
-      39.6
+      39.05,
+      48.94,
+      46.64
     ],
     "asset_turnover": [
       null,
-      0.78,
-      0.83
+      null,
+      null
+    ]
+  },
+  "metrics_timeseries": {
+    "pe": [
+      9.84,
+      6.62,
+      6.26
+    ],
+    "pb": [
+      null,
+      null,
+      null
+    ],
+    "ps": [
+      3.84,
+      3.24,
+      2.92
+    ],
+    "ev_ebitda": [
+      6.58,
+      4.8,
+      4.53
+    ],
+    "roe": [
+      null,
+      null,
+      null
+    ],
+    "roa": [
+      null,
+      null,
+      null
+    ],
+    "roic": [
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      55.81,
+      64.5,
+      61.64
+    ],
+    "operating_margin": [
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      39.05,
+      48.94,
+      46.64
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null
+    ],
+    "revenue_growth": [
+      null,
+      18.7,
+      10.8
+    ],
+    "net_profit_growth": [
+      null,
+      48.7,
+      5.6
     ]
   },
   "multiples": {
     "pe": [
-      null,
-      6.74,
-      6.38
+      9.84,
+      6.62,
+      6.26
     ],
     "ps": [
-      null,
-      2.77,
-      2.52
+      3.84,
+      3.24,
+      2.92
     ],
     "pb": [
-      6.84,
-      7.02,
-      6.39
+      null,
+      null,
+      null
     ],
     "ev_ebitda": [
-      null,
-      3.68,
-      3.36
+      6.58,
+      4.8,
+      4.53
+    ],
+    "pe_adj": [
+      9.84,
+      6.62,
+      6.26
     ],
     "current": {
-      "pe": 6.38,
-      "ps": 2.52,
-      "pb": 6.39,
-      "ev_ebitda": 3.36,
-      "as_of": "2026-06-01"
+      "pe": 6.26,
+      "pe_adj": 6.26,
+      "ps": 2.92,
+      "pb": null,
+      "ev_ebitda": 4.53,
+      "as_of": "2026-06-13"
     },
     "historical_avg": {
-      "pe_5y_avg": null,
-      "pe_5y_median": null,
-      "period": "недоступно — компания на бирже с апреля 2026, истории мультипликаторов нет"
+      "pe_basis": "3y_mean (CV=0.26)",
+      "pe_value": 7.57,
+      "pe_adj_value": 7.57,
+      "pb_value": null,
+      "period": "2023-2025"
     }
-  },
-  "peer_multiples": {
-    "2025": {
-      "pe": 6.38,
-      "ps": 2.52,
-      "pb": 6.39,
-      "ev_ebitda": 3.36,
-      "ev_sales": 2.37,
-      "net_debt_ebitda": -1.47
-    },
-    "2024": {
-      "pe": 6.74,
-      "ps": 2.77,
-      "pb": 7.02,
-      "ev_ebitda": 3.68,
-      "ev_sales": 2.6,
-      "net_debt_ebitda": -1.43
-    }
-  },
-  "relative_peers": {
-    "status": "pending_sector_backfill",
-    "note": "Прямых публичных аналогов-ЭТП на Мосбирже нет. Сравнение с IT/платформенным сектором будет добавлено после прогона сектора.",
-    "sector_median_ev_ebitda": null,
-    "sector_median_pe": null
   },
   "forecast": {
-    "source_type": "broker_consensus",
-    "providers": [
-      "Т-Инвестиции"
-    ],
+    "source_type": "mechanical",
+    "providers": [],
     "revenue_growth_pct": [
       null,
       null,
-      null,
-      null,
-      null
+      10.0,
+      8.0
     ],
-    "forecast_years": [
-      2026,
-      2027,
-      2028,
-      2029
-    ],
-    "combined_income_growth_2026_pct": 13.0,
-    "combined_income_cagr_2025_2029_pct": 16.0,
-    "services_cagr_2025_2029_pct": 18.0,
     "net_profit_growth_pct": [
       null,
       null,
-      null,
-      null,
+      10.0,
       null
     ],
-    "note": "Т-Инвестиции: совокупный доход +13% в 2026 и +16% CAGR 2025–2029; выручка от услуг +18% CAGR. Дивполитика: payout >50% (факт 2025 ~89%, цель >80%)."
+    "note": "Консенсус от брокеров не обнаружен (IPO апрель 2026, покрытие минимально — только Т-Инвестиции IPO-обзор без таргетов). Механический прогноз: рост выручки 2026F=10% (от темпа 2025=10.8%), затухание к 2027F=8%. Маржа ROS=46.6% (2025) — стабильна при asset-light модели. EPS_2026F = 22.82 руб."
   },
   "valuation": {
     "methods": [
       {
         "method": "DCF",
-        "fair_value_per_share": 162.6,
+        "fair_value_per_share": 78.8,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "wacc": 24.5,
-          "terminal_growth": 3.5,
-          "forecast_years": 5,
-          "fcf_base_mln": 3600,
-          "beta": 1.1
+          "fcf1_mln": 3092,
+          "r": 0.272,
+          "g": 0.035,
+          "tax_rate_used": 25.0,
+          "fcf_base": "normalized (FCF среднее 2024-2025, исключён аномальный 2023)",
+          "implied_exit_multiple": 2.42
         },
-        "tv_share_of_value_pct": 42,
         "status": "ok",
-        "note": "FCFF. WACC≈Ke (долга нет). FCF растёт +13%→+5% с затуханием. Чистый кэш увеличивает equity value."
+        "explain": {
+          "inputs": {
+            "FCF_2024": "2080 млн = CFO 2208 − capex 128 [src_1]",
+            "FCF_2025": "3593 млн = CFO 3649 − capex 56 [src_1]",
+            "FCF_2023_excluded": "4729 млн — исключён из базы: CFO/ЧП = 4786/2360 = 2.03x, отклонение 2.3x от 2024, >1.5x-порог нормализации. Возможны разовые потоки клиентских средств на торговой платформе; без детализации ОДДС не изолировать [аномалия, data_flag]",
+            "FCF_base_avg": "2836 млн = (2080 + 3593) / 2 — среднее 2024-2025 как репрезентативная база [logic]",
+            "FCF1_2026F": "3092 млн = 2836 × 1.09 (рост +9% = механический прогноз чуть ниже темпа выручки) [judgement]",
+            "Rf": "14.6% — доходность 10-летних ОФЗ [config]",
+            "beta": "1.4 — IT-сектор РФ, малокапитализированная компания, низкая ликвидность free float 11.5%, короткая история (IPO апр.2026) [judgement]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [config]",
+            "Ke": "27.2% = 14.6% + 1.4 × 9.0% — нет долга, WACC = Ke [расчёт]",
+            "g": "3.5% — терминальный рост, максимум по конфигу; g < r = 27.2% [config]",
+            "net_cash": "1036 млн — чистая денежная позиция 2025 из IPO-проспекта [src_1]"
+          },
+          "steps": [
+            "EV = FCF1 / (r − g) = 3092 / (0.272 − 0.035) = 3092 / 0.237 = 13046 млн",
+            "Cross-check: implied EV/EBITDA = 13046 / 5390 = 2.42x — НИЖЕ любого рыночного ориентира для IT (рынок платит 4.5x EV/EBITDA_2025). Причина: ставка 27.2% очень жёсткая для горизонта «бесконечность». DCF = нижняя граница при текущем уровне ставок.",
+            "Equity = EV + net_cash = 13046 + 1036 = 14082 млн (кэша больше долга — стоимость для акционеров ВЫШЕ EV)",
+            "Цена = Equity / акции = 14082 / 178.7701 = 78.8 руб"
+          ],
+          "caveats": [
+            "Implied EV/EBITDA = 2.4x аномально низко → DCF при ставке 27.2% даёт пессимистичный результат; используется как нижняя граница коридора, не как центральная оценка",
+            "FCF 2023 исключён из базы — аномальный CFO без детализации ОДДС; при включении FCF1 = 3916, цена DCF = 98.2 руб",
+            "История 3 года (IPO апр.2026) — высокая неопределённость базы FCF",
+            "При снижении ставки ЦБ к 10-12% к 2027-28 гг. справедливая цена по DCF значительно выше"
+          ]
+        }
       },
       {
         "method": "historical_pe",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 172.7,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "pe_used": null,
-          "basis": "5y_median"
+          "pe_used": 7.57,
+          "basis": "3y_mean (CV=0.26)",
+          "eps_forward": 22.82,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 20.74
         },
-        "status": "insufficient_data",
-        "note": "Нет истории — IPO в апреле 2026."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "PE_2023": "9.84 = mcap 23224.0 / ЧП 2360 [расчёт]",
+            "PE_2024": "6.62 = mcap 23224.0 / ЧП 3510 [расчёт]",
+            "PE_2025": "6.26 = mcap 23224.0 / ЧП 3708 [расчёт]",
+            "CV": "0.26 < 0.5 → используем среднее (CV-правило) [методология]",
+            "PE_avg": "7.57 = (9.84 + 6.62 + 6.26) / 3 [расчёт]",
+            "EPS_forward_2026F": "22.82 руб = ЧП_2026F 4079.0 млн / 178.7701 млн акций; ЧП_2026F = выручка_2025 × 1.10 × ROS_2025 46.6% [mechanical]",
+            "EPS_backward_2025": "20.74 руб = ЧП 3708 / 178.7701 [расчёт]"
+          },
+          "steps": [
+            "Цена (forward) = P/E_avg × EPS_2026F = 7.57 × 22.82 = 172.7 руб",
+            "Цена (backward, справочно) = 7.57 × EPS_2025 20.74 = 157.0 руб"
+          ],
+          "caveats": [
+            "Историческая база только 3 года (IPO апр.2026) — P/E быстро сжимался 9.8→6.3 по мере роста прибыли; среднее 7.6x может не отражать устойчивый уровень",
+            "Прогноз EPS механический — нет консенсуса брокеров",
+            "P/E рассчитан от текущей капитализации для всех трёх лет (mcap IPO 2026 × все исторические прибыли) — не исторические mcap"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Asset-light IT-платформа: балансовая стоимость не отражает ценность бизнеса. Дополнительно: баланс не распарсился (total_equity = null), данных нет."
+          ],
+          "caveats": []
+        }
       },
       {
         "method": "relative_peers",
-        "fair_value_per_share": null,
+        "fair_value_per_share": 197.7,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "peer_multiple": "ev_ebitda",
-          "peer_median": null
+          "multiple_used": "EV/EBITDA",
+          "multiple_rationale": "EV/EBITDA — основной для IT-платформ; P/E подходит, но EV/EBITDA нейтральнее к структуре капитала",
+          "peers_median": 7.0,
+          "peers_list": [
+            "MOEX (~7x EV/EBITDA)",
+            "HeadHunter (~7-8x)"
+          ],
+          "discount_applied": "Скидка за малый free float (11.5%), низкую ликвидность и короткую публичную историю → выбран нижний конец диапазона (7x vs 8-10x у более ликвидных)"
         },
-        "status": "pending_sector_backfill",
-        "note": "Нет прямых публичных аналогов-ЭТП."
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "EV_EBITDA_peers": "7.0x — ориентир: MOEX ~7x, HeadHunter ~7-8x; применена скидка за размер и ликвидность BTBR [judgement]",
+            "EBITDA_2025": "4900 млн [src_1]",
+            "net_cash": "1036 млн [src_1]",
+            "shares": "178.7701 млн [ctx]"
+          },
+          "steps": [
+            "EV = peers_EV/EBITDA × EBITDA_2025 = 7.0 × 4900 = 34300 млн",
+            "Equity = EV + net_cash = 34300 + 1036 = 35336 млн",
+            "Цена = 35336 / 178.7701 = 197.7 руб"
+          ],
+          "caveats": [
+            "Очень ограниченное число сопоставимых публичных компаний в РФ в сегменте B2B-торговых площадок",
+            "MOEX и HH — крупнее и ликвиднее; скидка 7x вместо 9-10x — judgement",
+            "При peers_median = 9x (без скидки) цена = 252 руб — optimistic сценарий"
+          ]
+        }
       },
       {
         "method": "CAPM",
-        "fair_value_per_share": 146.3,
+        "fair_value_per_share": 145.9,
         "horizon": "12m",
         "key_assumptions": {
-          "ke": 24.5,
-          "beta": 1.1,
-          "div_yield_pct": 14.0
+          "ke": 27.2,
+          "beta": 1.4,
+          "expected_div_yield": 14.93,
+          "dps_2026f": 19.39
         },
         "status": "ok",
-        "note": "Таргет на 12 мес: цена×(1+(Ke−дивдоходность)). Высокая дивдоходность смягчает требуемый рост цены."
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — ОФЗ 10 лет [config]",
+            "beta": "1.4 — IT РФ, малая компания, ликвидность [judgement]",
+            "ERP": "9.0% [config]",
+            "Ke": "27.2% = 14.6 + 1.4×9",
+            "DPS_2026F": "19.39 руб = ЧП_2026F 4079.0 млн × payout 85% / 178.7701 млн акций [механич+governance]",
+            "current_price": "129.91 руб — из контекста для промежуточного расчёта [ctx]"
+          },
+          "steps": [
+            "Ожидаемая дивдоходность = DPS_2026F / P_текущая = 19.39 / 129.91 = 14.93%",
+            "Таргет 12m = P × (1 + Ke − div_yield) = 129.91 × (1 + 27.2% − 14.93%) = 145.9 руб"
+          ],
+          "caveats": [
+            "CAPM-таргет зависит от бета и горизонта 12 мес.; не intrinsic стоимость",
+            "Payout 85% — выше минимума политики (50%); ориентир менеджмента"
+          ]
+        }
       },
       {
         "method": "dividend_gordon",
-        "fair_value_per_share": 92.3,
+        "fair_value_per_share": 96.0,
         "horizon": "intrinsic_now",
         "key_assumptions": {
-          "d1_per_share": 19.4,
-          "ke": 24.5,
-          "g": 3.5
+          "dps1": 19.39,
+          "ke": 27.2,
+          "g_div": 7.0,
+          "payout_assumed": 85.0
         },
         "status": "ok",
-        "note": "Зрелый плательщик (payout >80%). FV = D1/(Ke−g). Консервативный якорь снизу."
-      },
-      {
-        "method": "pbv_roe_crosscheck",
-        "fair_value_per_share": 95.4,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "fair_pbv": 4.61,
-          "roe_pct": 100,
-          "bvps": 20.7,
-          "ke": 24.5,
-          "g": 3.5
-        },
-        "status": "anomaly_flagged",
-        "note": "ROE≈100% и P/BV≈6.4 искажены: equity крошечный относительно прибыли (asset-light, ~90% прибыли уходит на дивиденды). Метод даёт справочную нижнюю границу, не основной."
+        "explain": {
+          "inputs": {
+            "DPS1": "19.39 руб — DPS 2026F = ЧП_2026F 4079.0 млн × 85% payout / 178.7701 млн акций [mechanical+governance]",
+            "Ke": "27.2% [CAPM]",
+            "g_div": "7.0% — рост дивидендов = рост ЧП ~8-10%, консервативно 7% (затухание от исторических темпов) [judgement]"
+          },
+          "steps": [
+            "P = DPS1 / (Ke − g_div) = 19.39 / (27.2% − 7.0%) = 19.39 / 20.2% = 96.0 руб"
+          ],
+          "caveats": [
+            "Дивидендная модель Гордона чувствительна к g; при g=10% (=Ke-div_yield) модель расходится → консервативный g=7%",
+            "Высокий payout (~85-89%) означает мало реинвестирования; модель корректна для зрелой стадии"
+          ]
+        }
       }
     ],
-    "external_anchor": {
-      "provider": "Т-Инвестиции",
-      "equity_value_bn": "32–35",
-      "per_share_low": 179.0,
-      "per_share_high": 195.8,
-      "note": "Брокерская оценка equity 32–35 млрд (DCF 33.5–36.7, DDM 27.6–30.5). Брокер использует WACC 23.7% и terminal growth 5%."
-    },
+    "methods_divergence_note": "Расхождение методов значительное (DCF 79 руб vs relative 198 руб, ~2.5x): (1) DCF консервативен из-за ставки 27.2% — при высоких ставках мультипликатор Гордона 1/(r-g) сжимается до 4.2x, implied EV/EBITDA = 2.4x < рыночных 4.5x; это отражает реальную стоимость при текущих ставках, не прогнозируемое снижение. (2) Relative peers 198 руб — предполагает мультипликатор как у крупных платформ со скидкой; при снижении ставок ЦБ к 2027 этот сценарий реалистичнее. (3) Hist P/E 173 руб — средний исторический P/E 7.6x, но история только 3 года. Conservative = дивидендная/DCF-кластер (~96-100 руб), base = CAPM+P/E-кластер (159 руб), optimistic = relative peers (198 руб).",
     "fair_value_range": {
-      "conservative": 95.0,
-      "base": 155.0,
-      "current_price": 132.3,
-      "upside_downside_pct": 17.2,
-      "upside_downside_conservative_pct": -28.2,
-      "note": "Консервативно (дивидендная модель / P-BV×ROE кластер) ≈95 ₽ — даунсайд ~28%. База (DCF+CAPM кластер) ≈155 ₽ — апсайд ~17%. Брокер выше (179–196). Разброс широкий из-за малой истории и чувствительности к ставке дисконтирования."
+      "conservative": 96.0,
+      "base": 159.0,
+      "optimistic": 197.7
     },
     "sensitivity": {
-      "wacc_grid": [
-        22.5,
-        24.5,
-        26.5
+      "r_grid": [
+        0.28,
+        0.3,
+        0.32
       ],
-      "growth_grid": [
-        2.5,
-        3.5,
-        4.5
+      "g_grid": [
+        0.02,
+        0.035,
+        0.04
       ],
-      "matrix": [],
-      "note": "Сетка для фронтенда; DCF чувствителен к WACC из-за высокой ставки дисконтирования РФ."
+      "matrix": [
+        [
+          72.3,
+          76.4,
+          77.9
+        ],
+        [
+          67.6,
+          71.1,
+          72.3
+        ],
+        [
+          63.4,
+          66.5,
+          67.6
+        ]
+      ]
     }
   },
-  "anomaly_flag": true,
-  "anomaly_note": "ROE≈100% и P/BV≈6.4 одновременно — нетипично. Причина: asset-light платформенная модель с крошечным собственным капиталом (~3.7 млрд) при чистой прибыли 3.7 млрд и payout ~89%. P/BV здесь не информативен; ориентироваться на P/E (~6.4), EV/EBITDA (~3.4, занижен большим чистым кэшем) и дивдоходность (~14%). DCF/дивидендная модель надёжнее балансовых метрик.",
   "sources": [
     {
       "id": "src_1",
       "type": "official_report",
-      "title": "Консолидированная отчётность МСФО B2B-РТС 2025 (опубл. 10.03.2026)",
-      "period": "2024-2025",
+      "title": "B2B-РТС — Консолидированная МСФО 2025 + IPO-проспект (апрель 2026)",
+      "url": "https://b2b-rts.ru/reports-results/",
       "reliability": "high"
     },
     {
       "id": "src_2",
-      "type": "broker",
-      "title": "Т-Инвестиции — обзор IPO B2B-РТС (прогноз, дивполитика, оценка)",
-      "period": "2026",
+      "type": "extracted",
+      "title": "extracted_financials.json (pdftotext + примечания, data_quality medium)",
       "reliability": "medium"
     },
     {
-      "id": "src_3",
-      "type": "aggregator",
-      "title": "Smart-Lab — финансовые показатели BTBR (баланс по кварталам)",
-      "period": "2023-2025",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_4",
-      "type": "aggregator",
-      "title": "MOEX ISS — котировка и число акций BTBR (TQBR)",
-      "period": "2026-06-01",
+      "id": "ctx",
+      "type": "market_context",
+      "title": "rates.csv — цена 129.91 руб, акций 178 770 100, mcap 23.3 млрд",
       "reliability": "high"
     },
     {
-      "id": "src_5",
-      "type": "official_report",
-      "title": "РБК — первое раскрытие выручки/прибыли B2B-РТС",
-      "period": "2024",
-      "reliability": "high"
-    },
-    {
-      "id": "src_6",
-      "type": "aggregator",
-      "title": "Forbes — параметры IPO (цена 118 ₽, free-float 11.5%, капитализация 21 млрд)",
-      "period": "2026",
+      "id": "config",
+      "type": "config",
+      "title": "market_params.json — ОФЗ 14.6%, ERP 9%, g_default 3.5%",
       "reliability": "high"
     }
   ],
   "data_flags": [
-    "P&L за 2023 не раскрыт отдельно (консолидация с 2022, публичная МСФО с 2024) — revenue/ebitda/net_profit за 2023 = null.",
-    "CFO/CFI/CFF не раскрыты детально; CapEx и FCF — оценка из business_model.md (asset-light, CapEx<1% выручки).",
-    "EV/EBITDA (~3.4) занижен из-за крупного чистого кэша (~7.2 млрд) и средств клиентов на балансе — часть кэша обеспечительная, не вся свободна.",
-    "ROE≈100% / P/BV≈6.4 — аномалия asset-light модели; балансовые мультипликаторы малоинформативны (см. anomaly_note).",
-    "Гудвилл ~25% активов (консолидация РТС-тендер + B2B-Center) — риск обесценения.",
-    "Бумага малоликвидна (объём торгов ~21 млн ₽/день), цена волатильна после IPO.",
-    "Маржа EBITDA 2025: 52.3% (проспект) vs ~52% (брокер) — расхождение округления.",
-    "relative_peers и sensitivity.matrix — заглушки до прогона сектора."
-  ],
-  "relative_peers_sector": {
-    "basis_metric": "pb",
-    "peer_median": 0.88,
-    "fair_value_per_share": 18.22,
-    "upside_downside_pct": -86.2,
-    "status": "reference_only"
-  }
+    "Баланс не распарсился полностью: total_equity, total_assets, все статьи = null. Балансовые коэффициенты (ROE, ROA, P/B) недоступны.",
+    "CFO 2023 = 4786 млн при ЧП = 2360 млн (CFO/ЧП = 2x) — аномалия без объяснения; детализация ОДДС отсутствует. Возможны разовые потоки клиентских средств (обеспечение заявок).",
+    "ETR не рассчитана — данные по налогу (income_tax) = null за все годы. Нормализация по устойчивой ставке 25% невозможна без первичных данных.",
+    "История 3 года (IPO апрель 2026) — короткая выборка для мультипликаторов и прогноза; высокая неопределённость оценки.",
+    "Брокерский консенсус по таргетам не найден — прогноз механический; после первых аналитических отчётов обновить.",
+    "Finance_income 2024 = 1302 млн — крупная статья; governance.json подтверждает ~15% совокупного дохода = регулярный инвестдоход. Риск: при снижении ключевой ставки доход снизится.",
+    "Чистая кэш-позиция из IPO-проспекта (237/568/1036 млн) — расхождение с cash 2024=5557 (вероятно средства клиентов на счетах платформы, не собственный кэш компании). EV = mcap − 1036 млн (собственная позиция).",
+    "IPO проводилось cash-out (продажа существующих акционеров), денег в компанию не поступало. Free float 11.5% — низкая ликвидность, цена волатильна."
+  ]
 }

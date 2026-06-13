@@ -1,0 +1,364 @@
+{
+  "meta": {
+    "ticker": "BTBR",
+    "name": "АО B2B-РТС",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "fiscal_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://b2b-rts.ru/reports-results/",
+      "doc_title": "Консолидированная финансовая отчётность МСФО B2B-РТС 2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdftotext + примечания",
+    "arithmetic_check": "passed",
+    "converted_years": [],
+    "conversion_note": "Все данные в рублях"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      6044,
+      7172,
+      7950
+    ],
+    "cogs": [
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Operating expenses (all)",
+        "values": [
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      3373,
+      4626,
+      4900
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      1302,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      2360,
+      3510,
+      3708
+    ],
+    "revenue_breakdown": [
+      {
+        "name": "Regulated procurements (44-FZ, 223-FZ, etc)",
+        "values": [
+          null,
+          4922,
+          5343
+        ]
+      },
+      {
+        "name": "Commercial procurements",
+        "values": [
+          null,
+          1708,
+          2027
+        ]
+      },
+      {
+        "name": "Property sales & auctions",
+        "values": [
+          null,
+          390,
+          392
+        ]
+      },
+      {
+        "name": "615-PP procurements",
+        "values": [
+          null,
+          79,
+          90
+        ]
+      },
+      {
+        "name": "Services & other",
+        "values": [
+          null,
+          542,
+          579
+        ]
+      }
+    ],
+    "consolidated_income": [
+      null,
+      8543,
+      9378
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        5557,
+        1932
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null
+    ],
+    "cash_and_equivalents_detail": {
+      "bank_accounts": [
+        null,
+        5557,
+        1932
+      ],
+      "short_term_deposits": [
+        null,
+        null,
+        null
+      ]
+    },
+    "net_cash_position": [
+      237,
+      568,
+      1036
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      4786,
+      2208,
+      3649
+    ],
+    "cfi": [
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      57,
+      128,
+      56
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "основные_таблицы_на_стр_5-8_недоступны_для_парсинга_(изображения)",
+    "выручка_и_ЧП_из_примечаний_и_проспекта_IPO_—_полные",
+    "баланс_не_распарсилась_полностью",
+    "EBITDA_и_CF_из_проспекта_IPO",
+    "компания_молодая_(IPO_апрель_2026),_исторических_данных_до_2023_нет",
+    "формат_отчётности_by_function_(услуги),_COGS_не_применим"
+  ],
+  "segments": {
+    "2025": {
+      "regulated_procurements": {
+        "revenue": 5343
+      },
+      "commercial_solutions": {
+        "revenue": 2027
+      },
+      "property_and_other": {
+        "revenue": 579
+      }
+    },
+    "2024": {
+      "regulated_procurements": {
+        "revenue": 4922
+      },
+      "commercial_solutions": {
+        "revenue": 1708
+      },
+      "property_and_other": {
+        "revenue": 542
+      }
+    }
+  }
+}

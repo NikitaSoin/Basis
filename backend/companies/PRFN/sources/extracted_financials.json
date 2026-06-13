@@ -1,0 +1,245 @@
+{
+  "meta": {
+    "ticker": "PRFN",
+    "name": "ПАО ТЕПЛАНТ восток (ранее ЧЗПСН-Профнастил)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/PRFN/f/y/ (МСФО) и https://smart-lab.ru/q/PRFN/r/y/RSBU/ (РСБУ)",
+      "doc_title": "ТЕПЛАНТ восток (PRFN) годовая финансовая отчётность МСФО из агрегатора smart-lab",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web_scraping_html_table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      9900,
+      9570,
+      12100,
+      16700,
+      15100
+    ],
+    "cogs": [
+      9180,
+      9000,
+      11400,
+      15800,
+      14100
+    ],
+    "gross_profit": [
+      720,
+      570,
+      700,
+      900,
+      1000
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          300,
+          350,
+          345,
+          475,
+          595
+        ]
+      },
+      {
+        "name": "Расходы на персонал",
+        "values": [
+          150,
+          440,
+          530,
+          665,
+          902
+        ]
+      },
+      {
+        "name": "Амортизация",
+        "values": [
+          100,
+          100,
+          100,
+          200,
+          200
+        ]
+      }
+    ],
+    "operating_profit": [
+      405,
+      220,
+      400,
+      510,
+      408
+    ],
+    "da": [
+      100,
+      100,
+      100,
+      200,
+      200
+    ],
+    "ebitda": [
+      469,
+      368,
+      544,
+      656,
+      595
+    ],
+    "finance_costs": [
+      160,
+      79,
+      75,
+      60,
+      21
+    ],
+    "finance_income": null,
+    "pre_tax_profit": null,
+    "income_tax": null,
+    "net_profit": [
+      176,
+      202,
+      264,
+      422,
+      478
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": null,
+      "intangibles": null,
+      "goodwill": null,
+      "long_term_investments": null,
+      "other_non_current": null,
+      "total_non_current": null
+    },
+    "current_assets": {
+      "inventory": null,
+      "receivables": null,
+      "cash": [
+        20,
+        65,
+        71,
+        1350,
+        697
+      ],
+      "short_term_investments": null,
+      "other_current": null,
+      "total_current": null
+    },
+    "total_assets": [
+      4240,
+      4510,
+      4740,
+      7040,
+      8590
+    ],
+    "equity": {
+      "share_capital": null,
+      "retained_earnings": null,
+      "additional_paid_in": null,
+      "other_equity": null,
+      "total_equity": [
+        1620,
+        1820,
+        2100,
+        2380,
+        2860
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": null,
+      "other_non_current_liab": null,
+      "total_non_current_liab": null
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        1230,
+        790,
+        960,
+        766,
+        0
+      ],
+      "payables": [
+        1390,
+        1900,
+        1680,
+        3894,
+        5730
+      ],
+      "other_current_liab": null,
+      "total_current_liab": [
+        2620,
+        2690,
+        2640,
+        4660,
+        5730
+      ]
+    },
+    "total_liabilities": [
+      2620,
+      2690,
+      2640,
+      4660,
+      5730
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      910,
+      450,
+      -66,
+      1660,
+      -199
+    ],
+    "cfi": null,
+    "cff": null,
+    "capex": [
+      186,
+      166,
+      94,
+      81,
+      202
+    ],
+    "net_change_in_cash": null
+  },
+  "data_flags": [
+    "Источник: smart-lab агрегатор, не первичная отчётность. Прямой доступ к PDF e-disclosure/СКРИН заблокирован (403).",
+    "Баланс: детали активов/пассивов недоступны (only total_assets и total_equity). Недостаточно для полной балансной проверки.",
+    "Отчёт о прибыльях: себестоимость и операционные расходы как отдельные строки (by_function), но нет строк по доходам от финансов/прочим факторам.",
+    "ОДДС: только CFO, CAPEX; CFI и CFF недоступны, net_change не вычислим без данных по изменению денежных средств.",
+    "Единицы: smart-lab показывает в млрд, пересчитано в млн для консистентности с JSON схемой.",
+    "Арифметика P&L: gross_profit = 9900 - 9180 = 720 (2021); operating_profit близок при суммировании расходов, но expense_lines неполный.",
+    "Арифметика баланса: total_assets - total_equity = total_liabilities; примерно балансирует, но без детального баланса проверка неполная.",
+    "Прогноз 2025: данные включены, но это отчёт за середину/конец периода, реальный итог ещё не известен.",
+    "Структура долга: долг из smart-lab соотнесён с краткосрочным долгом; прочие обязательства (payables) вычислены как разница total_liabilities - debt.",
+    "2025: долг = 0, все обязательства (5730 млн) отнесены к текущим (payables).",
+    "Pre-tax profit и income tax: не извлеклись из доступных источников (smart-lab не показывает детализацию).",
+    "pre_tax_profit и income_tax: не могут быть вычислены из доступных данных без информации о полном составе доходов и налоговых ставках. Требуется первичная отчётность.",
+    "ВАЖНО: EBITDA из smart-lab не равна operating_profit + D&A. Возможно, в расчёт включены прочие операционные доходы/расходы. Данные EBITDA берутся из агрегатора как есть, но требуют проверки по первичной отчётности.",
+    "Арифметическая проверка ЧАСТИЧНАЯ: P&L (валовая прибыль) и баланс пройдены на 100%, но EBITDA расчёт не сходится (агрегаторский расчёт отличается). ОДДС не полная (нет CFI, CFF). Детали активов/пассивов недоступны."
+  ],
+  "arithmetic_check": "partial"
+}

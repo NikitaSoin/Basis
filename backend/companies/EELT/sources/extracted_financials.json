@@ -1,0 +1,357 @@
+{
+  "meta": {
+    "ticker": "EELT",
+    "name": "ПАО Европейская Электротехника",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в RUB",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + boomin.ru",
+      "url": "https://smart-lab.ru/q/EELT/f/y/MSFO/",
+      "doc_title": "Консолидированная финансовая отчётность (МСФО) 2021-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      4560.0,
+      7130.0,
+      5950.0,
+      6950.0,
+      9900.0
+    ],
+    "cogs": [
+      3510.0,
+      5340.0,
+      4470.0,
+      5060.0,
+      7660.0
+    ],
+    "gross_profit": [
+      1050.0,
+      1790.0,
+      1480.0,
+      1890.0,
+      2240.0
+    ],
+    "expense_lines": [],
+    "operating_profit": [
+      550.0,
+      1150.0,
+      869.0,
+      1060.0,
+      1310.0
+    ],
+    "da": [
+      37.0,
+      50.0,
+      104.0,
+      140.0,
+      150.0
+    ],
+    "ebitda": [
+      587.0,
+      1200.0,
+      973.0,
+      1200.0,
+      1460.0
+    ],
+    "finance_costs": [
+      null,
+      116.0,
+      232.0,
+      null,
+      232.0
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      1034.0,
+      637.0,
+      null,
+      1078.0
+    ],
+    "income_tax": [
+      null,
+      89.0,
+      -34.0,
+      null,
+      266.0
+    ],
+    "net_profit": [
+      407.0,
+      945.0,
+      671.0,
+      705.0,
+      812.0
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        750.0,
+        395.0,
+        600.0,
+        195.0,
+        686.0
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      3960.0,
+      3910.0,
+      5440.0,
+      5920.0,
+      9040.0
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        1290.0,
+        2040.0,
+        2150.0,
+        2690.0,
+        3230.0
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      2670.0,
+      1870.0,
+      3290.0,
+      3230.0,
+      5810.0
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      1090.0,
+      -78.0,
+      716.0,
+      -650.0,
+      1060.0
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Источник: smart-lab.ru таблица МСФО. PDF EELT скан-образ без OCR (надёжного парсинга текста).",
+    "Баланс: детали (ОС, НМА, запасы, ДЗ, долг по срокам, капитал по статьям) недоступны. Заполнены только агрегированные totals и cash.",
+    "P&L: expense_lines пусто — в smart-lab нет детализации операционных расходов по видам (по-видимому, разбивка требует первичного PDF).",
+    "2021, 2024: finance_costs = null (не найдены в smart-lab). pre_tax_profit вычислен только для лет с known finance_costs.",
+    "2023: income_tax отрицательный (-34 млн) — вероятно, отложенный налоговый актив или налоговый кредит МСФО.",
+    "ОДДС: только CFO. CFI, CFF, Capex, net_change требуют парсинга первичного документа PDF.",
+    " 2020 год недоступен в smart-lab; требует скачивания отдельного PDF 2020.",
+    "АРИФМЕТИКА: revenue - cogs = gross_profit (проверено ✓), assets - liabilities = equity (проверено ✓), ebitda - da = operating_profit (проверено ✓)."
+  ]
+}

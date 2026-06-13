@@ -1,0 +1,413 @@
+{
+  "meta": {
+    "ticker": "GECO",
+    "name": "ГЕНЕТИКО (Артген Биотех группа)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "тыс",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://artgen.ru/investors/raskrytie-informaczii/msfo/",
+      "doc_title": "МСФО консолидированная финансовая отчётность (Артген Биотех / ИСКЧ), пресс-релизы за 2020-2025",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "pdfplumber + web_fetch (пресс-релизы с выписками из отчётов)",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      1084023,
+      1180790,
+      1136904,
+      1368551,
+      1521488,
+      1716175
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -1220651,
+          -1579233
+        ]
+      }
+    ],
+    "operating_profit": [
+      197966,
+      119091,
+      110912,
+      275515,
+      300837,
+      136942
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      -84710,
+      -142076
+    ],
+    "ebitda": [
+      204561,
+      155182,
+      138119,
+      299189,
+      321777,
+      214853
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      93471,
+      29459,
+      29305,
+      211393,
+      217425,
+      85481
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      23735,
+      22199
+    ],
+    "net_profit": [
+      103404,
+      33547,
+      23075,
+      194657,
+      241160,
+      107680
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        221667,
+        245064
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        858124,
+        881138
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        96910,
+        85322
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        266885,
+        255885
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        1598586,
+        1597309
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        207945,
+        177784
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        162847,
+        182501
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        503347,
+        565368
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        105088,
+        381222
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        54718,
+        83540
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        1033945,
+        1390415
+      ]
+    },
+    "total_assets": [
+      null,
+      null,
+      null,
+      null,
+      2632531,
+      2987724
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        368472,
+        473768
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        1034721,
+        1141289
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        984626,
+        953100
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        144276,
+        116845
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        1128902,
+        1069945
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        87711,
+        398652
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        341028,
+        327379
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        40169,
+        50459
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        468908,
+        776490
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      1597810,
+      1846435
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "2020-2023: консолидированная отчётость под брендом ИСКЧ/Артген (переименована в Артген Биотех с 2024)",
+    "cost_format by_nature: COGS не выделена, операционные расходы показаны целиком (только за 2024-2025)",
+    "2020-2023: P&L полная (revenue, operating_profit, pre_tax_profit, net_profit, ebitda), баланс отсутствует",
+    "2024-2025: P&L полная с D&A и налоговым доходом; баланс полный (активы, капитал, обязательства)",
+    "ODDС (cash flow): полностью отсутствует — требует доступ к полным консолидированным PDF отчётам (pdftotext не помог)",
+    "income_tax 2024-2025: это налоговые ДОХОДЫ (доходы по налогу на прибыль), добавляются к прибыли (налоговая льгота или отсроченный актив)",
+    "Finance costs/income: отсутствуют в пресс-релизах; требуют полные PDF отчёты",
+    "Арифметика 2024-2025: Pre-tax profit + Tax benefit = Net profit ✓; Assets = Equity + Liabilities ✓"
+  ]
+}
