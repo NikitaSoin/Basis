@@ -668,3 +668,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
   GEMC в EUR (курс 95, dilution Севергрупп — риск). data_quality честно где тонко.
 
 - Батч 12 (haiku, терсе): SVAV ABRD KLVZ DATA IVAT ELMT — все OK. 89/262.
+
+- Батч 13 (haiku, терсе): UWGN KAZT NKHP MGTS ABIO KROT — все OK. 95/262.
