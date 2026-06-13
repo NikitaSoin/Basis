@@ -674,3 +674,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 14 (haiku, терсе): TGKB TGKN MRKP MRKC MRKU MSRS (генерация+сети) — все OK. 101/262.
 
 - Батч 15 (haiku, терсе): MRKV MRKZ MRKK LSNG TORS MRKS (сети) — все OK. 107/262.
+
+- Батч 16 (haiku, терсе): JNOS DVEC KBSB VRSB RTSB PMSB (НПЗ+энергосбыты) — все OK. 113/262. Энергосбыты data_quality medium/low честно помечены.
