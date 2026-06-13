@@ -694,3 +694,6 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 24 (haiku, терсе): CHMK MGNZ UKUZ IGST RUSI NKSH — все OK. 159/262. Мечел-дочки (CHMK/UKUZ/IGST) искажены внутригруппой/долгом — риск помечен; MGNZ национализация; RUSI премия к NAV 2x флаг.
 
 - Батч 25 (haiku, терсе): UNKL NFAZ LMBZ KOGK CHKZ KFBA — все OK. 165/262. KFBA Инград (девелопер NAV); UNKL остановлен NAV; KOGK займы Мечелу флаг; LMBZ дорогой P/E~35.
+
+- Батч 26 (haiku, терсе): GAZS GAZC LVHK TUZA RZSB VGSB — все OK. 171/262. GAZS/GAZC квази-инвестхолдинги Газпрома (P/NAV — рынок +90-160% к NAV, переоценка помечена).
+КОНЕЦ СЕССИИ: 171/262. Все ликвидные+средние сделаны. Осталось ~91 — глубокий хвост (РСБУ/низкое раскрытие/префы-дубли пропускаются). Многие data_quality low/medium честно. Следующая сессия: продолжать батчами по 6, market_context→haiku-fetcher→sonnet-analyst→нормализация→commit.
