@@ -1,0 +1,324 @@
+{
+  "meta": {
+    "ticker": "KMEZ",
+    "name": "ПАО «Ковровский механический завод»",
+    "profile": "standard",
+    "reporting_standard": "МСФО (IFRS) для 2021-2024, РСБУ отдельные показатели 2024",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн RUB, валюта единая",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "aggregator (smart-lab МСФО) + broker (RBC РСБУ 2024)",
+      "url": "https://smart-lab.ru/q/KMEZ/f/y/ + https://companies.rbc.ru/id/1033302200458-pao-kovrovskij-mehanicheskij-zavod/",
+      "doc_title": "КМЗ МСФО Financial Statements (smart-lab) + РСБУ 2024 (RBC)",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-aggregator (smart-lab) + web-fetch",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      2340,
+      2120,
+      3960,
+      10200
+    ],
+    "cogs": [
+      2090,
+      1140,
+      1890,
+      5980
+    ],
+    "gross_profit": [
+      250,
+      980,
+      2070,
+      4220
+    ],
+    "expense_lines": [
+      {
+        "name": "Operating expenses (Общие и административные расходы)",
+        "values": [
+          null,
+          null,
+          1529,
+          3324
+        ]
+      }
+    ],
+    "operating_profit": [
+      -1350,
+      -12,
+      541,
+      896
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      -1140,
+      214,
+      750,
+      1320
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      -1170,
+      -4,
+      623,
+      870
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      6450,
+      4670,
+      7440,
+      8600
+    ],
+    "equity": {
+      "share_capital": [
+        941,
+        941,
+        941,
+        941
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        3000,
+        4220,
+        4870,
+        5760
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      3450,
+      450,
+      2570,
+      2840
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      null,
+      null,
+      1700
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      1940
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "МСФО 2021-2024 из smart-lab (агрегатор), детальные статьи P&L/BS не полные",
+    "РСБУ 2024 числа из RBC (COGS, gross_profit, net_profit), но предыдущие РСБУ годы недоступны",
+    "D&A отдельно не получено (smart-lab 404), вычислено из EBITDA = Op.Income + DA",
+    "Финансовые доходы/расходы, налоги, детали B/S (ОС, МА, долг) не доступны",
+    "CFO, CAPEX только 2024 (1700, 1940 млн RUB соответственно)",
+    "Арифметика: gross_profit = revenue - cogs ✓; total_assets ≈ equity + liabilities ✓",
+    "Сайты КМЗ (kvmz.ru, kvmz.tvel.ru) блокируют доступ (SSL/403); e-disclosure.ru недоступен",
+    "PDF первичной отчётности не скачаны; требуется ручная загрузка в sources/ или прямой доступ",
+    "Качество данных: средний (МСФО агрегаты есть, детали отсутствуют; 2025 и 2020 не покрыты)"
+  ]
+}

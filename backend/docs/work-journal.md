@@ -688,3 +688,5 @@ total_equity) стабилен. Осталось ~191. Префы (BSPBP/SNGSP/T
 - Батч 21 (haiku, терсе): VSMO AVAN UTAR RKKE LNZL KLSB — все OK. 141/262. LNZL — ликвидационный NAV (рынок +1200% к NAV, риск помечен); AVAN банк; RKKE оборонка low.
 
 - Батч 22 (haiku, терсе): RBCM NSVZ DIOD LIFE ROST SVET (микрокапы) — все OK. 147/262. Тонкие данные/РСБУ честно low/partial; LIFE/RBCM/ROST — отриц.капитал/допэмиссии помечены.
+
+- Батч 23 (haiku, терсе): ROLO ZILL KMEZ VLHZ YRSB ASSB — все OK. 153/262. ZILL — NAV-девелопмент земли (P/NAV 0.32); ROLO олово убытки; KMEZ атом-госзаказ.

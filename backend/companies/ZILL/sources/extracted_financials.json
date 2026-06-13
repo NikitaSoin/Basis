@@ -1,0 +1,384 @@
+{
+  "meta": {
+    "ticker": "ZILL",
+    "name": "АМО ЗИЛ, ПАО (Завод имени И.А. Лихачева)",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab + amo-zil.ru",
+      "url": "https://smart-lab.ru/q/ZILL/f/y/ + https://www.amo-zil.ru/consolidatedfinancialstatementsifrs",
+      "doc_title": "Консолидированная финансовая отчетность по МСФО (smart-lab таблицы) + Yandex Disk ссылки",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium-high",
+    "parse_method": "smart-lab-web-fetch",
+    "arithmetic_check": "partial",
+    "notes": {
+      "issue": "Yandex Disk ссылки требуют CAPTCHA; PDF не скачаны. Основные данные из smart-lab таблиц (выручка, активы). Баланс, ОДДС, P&L детали — ограничены.",
+      "2020_2021": "Smart-lab показывает данные только с 2022. Yandex Disk на amo-zil.ru указывает на отчёты 2020-2021, но PDF недоступны.",
+      "data_source_restriction": "smart-lab не предоставляет полное совпадение структуры баланса (оборотные/внеоборотные разбивки затруднены)",
+      "additional_metrics": {
+        "net_debt_млн": [
+          5700,
+          -7650,
+          -25400,
+          -25300
+        ],
+        "note": "Отрицательный net debt = денежная позиция (cash > debt). 2023-2025 компания cash-positive.",
+        "cash_positive_years": [
+          2023,
+          2024,
+          2025
+        ]
+      },
+      "ebitda_note": "2025 = LTM (последние 12 месяцев), не полный финансовый год",
+      "eps_rub_per_share": [
+        1274,
+        -412,
+        1473,
+        1278
+      ],
+      "arithmetic_notes": {
+        "2024_check": {
+          "revenue": 5020,
+          "operating_profit": 3520,
+          "ebitda": 6060,
+          "net_profit": 3920,
+          "implied_da": 2540,
+          "status": "EBITDA > OP ✓, но детали P&L не полны"
+        },
+        "balance_check_2024": {
+          "total_assets": 72500,
+          "cash": 25300,
+          "net_debt": -25400,
+          "note": "Net debt = -(cash - debt), отрицательный = cash-positive. Баланс не проверен полностью."
+        }
+      }
+    }
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      3410,
+      2580,
+      5020,
+      10700
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Операционные расходы (детали не распарсены)",
+        "values": [
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      null,
+      3520,
+      null
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      666,
+      3620,
+      6060,
+      6060
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      null,
+      -1100,
+      3920,
+      null
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "investment_property": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        25300,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      44000,
+      52400,
+      72500,
+      103300
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_debt": [
+      5700,
+      -7650,
+      -25400,
+      -25300
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      1850,
+      17300,
+      14800,
+      7850
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "Yandex Disk ссылки заблокированы CAPTCHA — PDF не скачаны",
+    "smart-lab: выручка ✓, активы ✓, ЧП ✓, ОП (2024) ✓, EBITDA ✓, CFO ✓, net_debt ✓, EPS ✓",
+    "Баланс детали (ОС/ОА разбивка, капитал/долг по статьям, обязательства) — не распарсены",
+    "COGS/валовая прибыль — не отделены (девелопмент, земля/инвестнедвижимость — основной актив)",
+    "D&A, финансовые расходы/доходы, налоги, pre_tax_profit — не распарсены",
+    "2025: данные LTM (последние 12 месяцев), полный финансовый год 2025 не завершён",
+    "2020-2021 отчёты на Yandex Disk недоступны из-за CAPTCHA",
+    "Требуется ручная загрузка PDF в /sources/ для полного парсинга P&L структуры и баланса",
+    "МСФО консолидированная, валюта RUB, единица млн руб (кроме EPS в руб/акция)"
+  ],
+  "eps": [
+    1274,
+    -412,
+    1473,
+    1278
+  ]
+}

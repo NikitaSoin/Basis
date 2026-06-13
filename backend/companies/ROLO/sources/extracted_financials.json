@@ -1,0 +1,283 @@
+{
+  "meta": {
+    "ticker": "ROLO",
+    "name": "ПАО Русолово",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все данные извлечены из официальной консолидированной отчётности по МСФО; исходно в тысячах РУБ, конвертированы в миллионы",
+    "fiscal_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "source": {
+      "type": "company_ir",
+      "url": "https://rus-olovo.ru/for-investors/disclouser/international/",
+      "doc_title": "Консолидированная финансовая отчётность по МСФО ПАО Русолово",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "high",
+    "parse_method": "pdftotext + manual extraction from official IFRS consolidated statements",
+    "arithmetic_check": "passed"
+  },
+  "income_statement": {
+    "cost_format": "by_function",
+    "revenue": [
+      5997,
+      6276,
+      7455
+    ],
+    "cogs": [
+      4353,
+      5259,
+      6490
+    ],
+    "gross_profit": [
+      1644,
+      1017,
+      965
+    ],
+    "expense_lines": [
+      {
+        "name": "Коммерческие и административные расходы",
+        "values": [
+          null,
+          1160,
+          1700
+        ]
+      },
+      {
+        "name": "Прочие операционные расходы, нетто",
+        "values": [
+          null,
+          919,
+          2108
+        ]
+      }
+    ],
+    "operating_profit": [
+      null,
+      -1062,
+      -2843
+    ],
+    "da": [
+      813,
+      1459,
+      1398
+    ],
+    "ebitda": [
+      1382,
+      1340,
+      692
+    ],
+    "finance_costs": [
+      null,
+      530,
+      900
+    ],
+    "finance_income": [
+      null,
+      -29,
+      -69
+    ],
+    "pre_tax_profit": [
+      -667,
+      -1942,
+      -3703
+    ],
+    "income_tax": [
+      null,
+      315,
+      297
+    ],
+    "net_profit": [
+      -667,
+      -1626,
+      -3406
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        14869,
+        17010,
+        24450
+      ],
+      "intangibles": [
+        43,
+        43,
+        6
+      ],
+      "goodwill": [
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        1960,
+        1319,
+        1373
+      ],
+      "total_non_current": [
+        15922,
+        18372,
+        26308
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        2857,
+        3564,
+        4617
+      ],
+      "receivables": [
+        1402,
+        1237,
+        2365
+      ],
+      "cash": [
+        191,
+        978,
+        435
+      ],
+      "short_term_investments": [
+        4,
+        68,
+        52
+      ],
+      "other_current": [
+        219,
+        522,
+        792
+      ],
+      "total_current": [
+        4674,
+        6369,
+        8261
+      ]
+    },
+    "total_assets": [
+      20596,
+      24741,
+      34569
+    ],
+    "equity": {
+      "share_capital": [
+        3000,
+        3000,
+        3000
+      ],
+      "retained_earnings": [
+        -133,
+        -1164,
+        -3519
+      ],
+      "additional_paid_in": [
+        1735,
+        1735,
+        4683
+      ],
+      "other_equity": [
+        1813,
+        1218,
+        2127
+      ],
+      "total_equity": [
+        6416,
+        4790,
+        6291
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        4586,
+        5108,
+        7546
+      ],
+      "deferred_tax": [
+        1366,
+        1049,
+        862
+      ],
+      "other_non_current_liab": [
+        1978,
+        2253,
+        2188
+      ],
+      "total_non_current_liab": [
+        7930,
+        8410,
+        10596
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        758,
+        981,
+        5403
+      ],
+      "payables": [
+        5466,
+        10430,
+        12047
+      ],
+      "other_current_liab": [
+        26,
+        130,
+        232
+      ],
+      "total_current_liab": [
+        6250,
+        11541,
+        17682
+      ]
+    },
+    "total_liabilities": [
+      14180,
+      19951,
+      28278
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      null,
+      4638,
+      -2931
+    ],
+    "cfi": [
+      null,
+      -3733,
+      -4184
+    ],
+    "cff": [
+      null,
+      -118,
+      6572
+    ],
+    "capex": [
+      null,
+      3670,
+      4002
+    ],
+    "net_change_in_cash": [
+      null,
+      787,
+      -543
+    ]
+  },
+  "data_flags": [
+    "2022: COGS компоненты по видам затрат отсутствуют в базовой таблице, рассчитана как Revenue - Gross Profit = 5997 - 1644 = 4353",
+    "2022: операционные расходы и финансовые расходы не разбиты в источнике, отмечены как null",
+    "2022: ОДДС не доступна в формате, требуется отдельный отчёт",
+    "Валюта: тысячи РУБ в источнике, конвертированы в миллионы для JSON",
+    "Источник: официальная консолидированная отчётность по МСФО ПАО Русолово, компонент группы Селигдар"
+  ]
+}
