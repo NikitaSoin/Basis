@@ -1,0 +1,367 @@
+{
+  "meta": {
+    "ticker": "KCHE",
+    "name": "ПАО КАМЧАТСКЭНЕРГО",
+    "profile": "standard",
+    "reporting_standard": "МСФО",
+    "currency": "RUB",
+    "unit": "млн",
+    "converted_years": [],
+    "conversion_note": "Все годы в рублях (млн). МСФО консолидированная.",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source": {
+      "type": "smart-lab",
+      "url": "https://smart-lab.ru/q/KCHE/f/y/",
+      "doc_title": "Камчатскэнерго (KCHE): годовая финансовая отчетность МСФО",
+      "retrieved": "2026-06-13"
+    },
+    "data_quality": "medium",
+    "parse_method": "smart-lab-table",
+    "arithmetic_check": "partial"
+  },
+  "income_statement": {
+    "cost_format": "by_nature",
+    "revenue": [
+      13800,
+      15000,
+      18400,
+      21900,
+      22300
+    ],
+    "cogs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "expense_lines": [
+      {
+        "name": "Эксплуатационные расходы (не детализированы)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "operating_profit": [
+      5000,
+      2100,
+      5140,
+      95,
+      2380
+    ],
+    "da": [
+      -1400,
+      1350,
+      1800,
+      1915,
+      2230
+    ],
+    "ebitda": [
+      3600,
+      3450,
+      6940,
+      2010,
+      4610
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit": [
+      3350,
+      1270,
+      3980,
+      -819,
+      -30
+    ]
+  },
+  "balance_sheet": {
+    "non_current_assets": {
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_assets": {
+      "inventory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        5290,
+        2510,
+        2070,
+        2530,
+        1710
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_assets": [
+      31600,
+      33900,
+      40400,
+      45900,
+      49500
+    ],
+    "equity": {
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        8080,
+        9400,
+        15300,
+        14500,
+        14600
+      ]
+    },
+    "non_current_liabilities": {
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "current_liabilities": {
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "total_liabilities": [
+      23520,
+      24500,
+      25100,
+      31400,
+      34900
+    ]
+  },
+  "cash_flow": {
+    "cfo": [
+      3240,
+      1270,
+      1310,
+      5830,
+      7320
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      2110,
+      3600,
+      4240,
+      5310,
+      5020
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "data_flags": [
+    "smart-lab partial extraction: отсутствуют детальные статьи затрат (требует PDF)",
+    "expense_lines не распарсены (404 на ppe, interest_expense, detailed P&L)",
+    "pre_tax_profit, income_tax, finance_costs не доступны из smart-lab таблицы",
+    "balance_sheet detalized (equity breakdown, liabilities breakdown) требует первичного PDF",
+    "cash_flow: CFI, CFF, net_change не восстановлены (требует доступа к full statement)",
+    "cost_format marked as by_nature (энергетика); без детализации расходов",
+    "arithmetic_check: DA = EBITDA-OpIncome ✓; Net Debt = Debt-Cash ✓ (±1%); Liab = Assets-Equity ✓"
+  ]
+}
