@@ -26,7 +26,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.company import Company
-from app.models.market import MarketUpdate
+from app.models.market import MarketUpdate, NEWS_CATEGORIES
 from app.services import llm
 
 logger = logging.getLogger(__name__)
@@ -253,8 +253,14 @@ _SUMMARY_SYS = (
     "цифры/суммы/имена/даты/прогнозы, которых в тексте НЕТ. Если RSS-анонс короткий и деталей в "
     "нём нет — НЕ догенерируй и НЕ выдумывай (это предел источника, передай факт обобщённо и "
     "честно). Не давай торговых рекомендаций.\n"
+    "(3) category — РЕАЛЬНАЯ категория новости ПО СОДЕРЖАНИЮ (а не по разделу источника), строго "
+    "одно из: \"Экономика\" (макро, ЦБ, инфляция, бюджет, налоги), \"Рынки\" (котировки, индексы, "
+    "нефть/газ/валюта/сырьё, санкции на торговлю/нефть, нефтяная логистика), \"Бизнес\" (конкретные "
+    "компании: отчётности, дивиденды, M&A, менеджмент, проекты), \"Политика\" (внутренняя политика/"
+    "власть без прямого рыночного механизма), \"Геополитика\" (международные конфликты/отношения). "
+    "Если новость про рынок/нефть/санкции — это \"Рынки\", даже если пришла из политического раздела.\n"
     "Формат строго JSON вида {\"results\": [{\"id\": <id>, \"summary\": \"...\", "
-    "\"impact\": \"...\"}]}. Никакого текста вне JSON."
+    "\"impact\": \"...\", \"category\": \"...\"}]}. Никакого текста вне JSON."
 )
 
 _MAP_SYS = (
@@ -272,7 +278,7 @@ _DEDUP_SYS = (
 )
 
 
-def _llm_results(system: str, payload: dict, max_tokens: int = 4096) -> dict:
+def _llm_results(system: str, payload: dict, max_tokens: int = 8192) -> dict:
     """Зовёт LLM, возвращает {id: record} из ответа {"results":[...]}."""
     try:
         out = llm.complete(system, json.dumps(payload, ensure_ascii=False),
@@ -294,26 +300,26 @@ def _chunks(seq: list, n: int):
 
 
 # ----------------------------- Шаги 3-5 -----------------------------
-def filter_importance(reps: list[dict], batch: int = 30) -> dict:
+def filter_importance(reps: list[dict], batch: int = 8) -> dict:
     """Фильтр важности пачками (большой батч → обрезка JSON; см. _chunks)."""
     res = {}
     for ch in _chunks(reps, batch):
         payload = {"news": [{"id": r["id"], "title": r["title"], "announce": r["announce"]}
                             for r in ch]}
-        res.update(_llm_results(_FILTER_SYS, payload, max_tokens=4096))
+        res.update(_llm_results(_FILTER_SYS, payload, max_tokens=8192))
     return res
 
 
-def summarize(reps: list[dict], batch: int = 15) -> dict:
+def summarize(reps: list[dict], batch: int = 8) -> dict:
     res = {}
     for ch in _chunks(reps, batch):
         payload = {"news": [{"id": r["id"], "title": r["title"], "text": r["announce"]}
                             for r in ch]}
-        res.update(_llm_results(_SUMMARY_SYS, payload, max_tokens=4096))
+        res.update(_llm_results(_SUMMARY_SYS, payload, max_tokens=8192))
     return res
 
 
-def map_tickers(reps: list[dict], db: Session, batch: int = 20) -> dict:
+def map_tickers(reps: list[dict], db: Session, batch: int = 10) -> dict:
     ref = [{"ticker": c.ticker, "name": c.name, "sector": c.sector or ""}
            for c in db.query(Company).order_by(Company.ticker).all()]
     valid = {c["ticker"] for c in ref}
@@ -321,7 +327,7 @@ def map_tickers(reps: list[dict], db: Session, batch: int = 20) -> dict:
     for ch in _chunks(reps, batch):
         payload = {"directory": ref,
                    "news": [{"id": r["id"], "summary": r.get("summary") or r["title"]} for r in ch]}
-        raw = _llm_results(_MAP_SYS, payload, max_tokens=4096)
+        raw = _llm_results(_MAP_SYS, payload, max_tokens=8192)
         for rid, rec in raw.items():
             rec["tickers"] = [t for t in (rec.get("tickers") or []) if t in valid]
             rec["sectors"] = [s for s in (rec.get("sectors") or []) if isinstance(s, str)]
@@ -372,6 +378,8 @@ def run_pipeline(db: Session) -> dict:
         s = sum_map.get(r["id"], {})
         r["summary"] = (s.get("summary") or "").strip() or None
         r["impact"] = (s.get("impact") or "").strip() or None
+        cat = (s.get("category") or "").strip()
+        r["category"] = cat if cat in NEWS_CATEGORIES else None
 
     # Шаг 5 — маппинг тикеры/секторы
     map_map = map_tickers(kept, db) if kept else {}
@@ -390,6 +398,7 @@ def run_pipeline(db: Session) -> dict:
             source=r["source"],
             source_url=r["url"],
             rubric=r["rubric"],
+            category=r.get("category"),
             published_at=r["published_at"] or now,
             fetched_at=now,
             importance=km.get("importance") if km.get("importance") in ("high", "medium", "low") else "medium",
