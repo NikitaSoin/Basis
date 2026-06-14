@@ -70,19 +70,30 @@ def seed_indicators(db: Session) -> int:
     return n
 
 
+# Приоритет каналов: официальный первоисточник важнее Ленты. Лента (news) — ранний
+# сигнал/резерв и НЕ перезаписывает официальную точку; официальный канал перезаписывает
+# ленточную, когда выходит. file — исторический бэкфилл.
+_VIA_PRIORITY = {"news": 0, "file": 1, "fred": 2, "wb": 2,
+                 "cbr": 3, "rosstat": 3, "minfin": 3}
+
+
 # ----------------------------- общий upsert точки -----------------------------
 def upsert_point(db: Session, code: str, as_of: date, metric: str, value, *,
                  unit: str | None = None, is_preliminary: bool = False,
                  source: str | None = None, source_url: str | None = None,
                  ingested_via: str | None = None, commit: bool = True) -> str:
     """Вставить/обновить точку ряда. Уникальность (code, as_of, metric).
-    Возвращает 'insert' | 'revise' | 'same' | 'skip'."""
+    Лента НЕ перезаписывает официальную точку (приоритет источника).
+    Возвращает 'insert' | 'revise' | 'same' | 'skip' | 'kept'."""
     try:
         val = Decimal(str(value))
     except (InvalidOperation, TypeError, ValueError):
         return "skip"
     existing = (db.query(MacroDataPoint)
                 .filter_by(indicator_code=code, as_of=as_of, metric=metric).first())
+    if existing is not None and ingested_via:
+        if _VIA_PRIORITY.get(ingested_via, 1) < _VIA_PRIORITY.get(existing.ingested_via, 1):
+            return "kept"  # ленту поверх официального не кладём
     if existing is None:
         db.add(MacroDataPoint(
             indicator_code=code, as_of=as_of, metric=metric, value=val, unit=unit,
@@ -309,3 +320,31 @@ def backfill_cbr_currency_history(db: Session, years: int = 4) -> dict:
     db.commit()
     logger.info("ЦБ: бэкфилл истории курсов — %d точек", total)
     return {"points": total}
+
+
+# ----------------------------- надёжность: проверка устаревания -----------------------------
+# Допустимый «возраст» последней точки по частоте (дней) — сверх него ряд считается
+# залипшим (источник перестал обновляться) → алерт в лог.
+_STALE_DAYS = {"daily": 7, "weekly": 21, "monthly": 75, "quarterly": 140, "yearly": 500}
+
+
+def check_staleness(db: Session) -> list[dict]:
+    """Найти ряды, которые перестали обновляться (последняя точка старше нормы частоты).
+    Логирует предупреждение по каждому — чтобы владелец узнал, что источник замолчал."""
+    today = date.today()
+    stale = []
+    for ind in db.query(MacroIndicator).all():
+        thr = _STALE_DAYS.get(ind.frequency or "monthly", 75)
+        for m in (ind.metric_types or ["level"]):
+            p = (db.query(MacroDataPoint).filter_by(indicator_code=ind.code, metric=m)
+                 .order_by(MacroDataPoint.as_of.desc()).first())
+            if p is None:
+                continue
+            age = (today - p.as_of).days
+            if age > thr:
+                stale.append({"code": ind.code, "metric": m, "last": str(p.as_of),
+                              "age_days": age, "via": p.ingested_via})
+    if stale:
+        logger.warning("МАКРО-АЛЕРТ: %d рядов не обновляются дольше нормы: %s",
+                       len(stale), ", ".join(f"{s['code']}/{s['metric']}({s['age_days']}д)" for s in stale[:15]))
+    return stale
