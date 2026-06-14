@@ -153,11 +153,14 @@ async def _macro_job():
     Числовые ряды из Ленты приходят отдельно (в news-пайплайне). В executor-потоке."""
     def _run():
         from app.services.macro_ingest import seed_indicators, ingest_all_world
+        from app.services.macro_analytics import process as analytics_process
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
             seed_indicators(db)
-            return ingest_all_world(db)
+            world = ingest_all_world(db)
+            analytics = analytics_process(db)
+            return {"world": world, "analytics": analytics}
         finally:
             db.close()
     try:
@@ -171,12 +174,14 @@ async def _macro_startup():
     """При старте: сид справочника + идемпотентный бэкфилл CSV + первичный ингест мира."""
     def _run():
         from app.services.macro_ingest import seed_indicators, backfill_from_csv, ingest_all_world
+        from app.services.macro_analytics import process as analytics_process
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
             seed_indicators(db)
             backfill_from_csv(db)
             ingest_all_world(db)
+            analytics_process(db)
         finally:
             db.close()
     try:

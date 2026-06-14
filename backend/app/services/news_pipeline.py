@@ -277,6 +277,26 @@ _DEDUP_SYS = (
     "Формат строго JSON вида {\"results\": [{\"id\": <id>, \"same\": true/false}]}. Без текста вне JSON."
 )
 
+_EXTRACT_SYS = (
+    "Ты извлекаешь ЧИСЛОВЫЕ макропоказатели РФ из новостей-статрелизов для графиков. "
+    "Тебе дают список новостей и СПРАВОЧНИК показателей (код — описание — допустимые метрики). "
+    "Для КАЖДОЙ новости, где явно сообщается значение показателя из справочника, верни дата-точку.\n"
+    "КРИТИЧНО ДЛЯ ДОВЕРИЯ:\n"
+    "1) Точно различай тип метрики: mom = к предыдущему месяцу (м/м), yoy = к тому же месяцу "
+    "год назад (г/г, «в годовом выражении»), wow = неделя к неделе (недельная), level = уровень/"
+    "значение (ставка, безработица, PMI, ожидания). Спутать м/м и г/г НЕЛЬЗЯ.\n"
+    "2) as_of — дата КОНЦА периода, к которому относится число (инфляция за май 2026 → 2026-05-31; "
+    "неделя по 9 июня → 2026-06-09). Формат YYYY-MM-DD.\n"
+    "3) is_preliminary=true, если число предварительное/оценка/Росстат уточнит; иначе false.\n"
+    "4) Если НЕ однозначно, какой это показатель/период/метрика — НЕ извлекай (лучше пропустить, "
+    "чем записать неверно). Бери только то, что прямо в тексте.\n"
+    "5) value — число (точка как десятичный разделитель), знак сохраняй (дефицит/спад — отрицательно).\n"
+    "Формат строго JSON: {\"results\": [{\"id\": <id новости>, \"indicator\": \"<код>\", "
+    "\"metric\": \"mom|yoy|wow|level\", \"value\": <число>, \"as_of\": \"YYYY-MM-DD\", "
+    "\"is_preliminary\": true|false}]}. Новости без чёткого показателя в results НЕ включай. "
+    "Никакого текста вне JSON."
+)
+
 
 def _llm_results(system: str, payload: dict, max_tokens: int = 8192) -> dict:
     """Зовёт LLM, возвращает {id: record} из ответа {"results":[...]}."""
@@ -335,6 +355,79 @@ def map_tickers(reps: list[dict], db: Session, batch: int = 20) -> dict:
     return res
 
 
+# ----------------------------- Извлечение числовых дата-точек (Макрообзор) -----------------------------
+def _parse_asof(s: str):
+    from datetime import date as _d, datetime as _dt
+    s = (s or "").strip()
+    for fmt in ("%Y-%m-%d", "%Y-%m"):
+        try:
+            dt = _dt.strptime(s, fmt).date()
+            if fmt == "%Y-%m":  # только месяц → последний день месяца
+                nm = dt.replace(day=28)
+                while True:
+                    try:
+                        nm2 = nm.replace(day=nm.day + 1)
+                    except ValueError:
+                        return nm
+                    nm = nm2
+            return dt
+        except ValueError:
+            continue
+    return None
+
+
+def extract_macro_points(reps: list[dict], db: Session, batch: int = 12) -> dict:
+    """Извлекает числовые дата-точки макропоказателей из новостей-статрелизов и
+    кладёт в ряды Макрообзора (ingested_via='news'). Строгая валидация диапазонов;
+    различение м/м vs г/г; пометка предварительных. Возвращает сводку."""
+    try:
+        from app.services.macro_ingest import load_macro_config, upsert_point
+    except Exception:  # noqa: BLE001
+        return {"saved": 0, "note": "macro module unavailable"}
+    cfg = load_macro_config()
+    targets = cfg.get("news_extract", {})
+    catalog = [{"code": c, "name": v["name"], "metrics": v["metrics"]}
+               for c, v in targets.items() if isinstance(v, dict) and "name" in v]
+    if not catalog or not reps:
+        return {"saved": 0}
+    saved = rejected = 0
+    for ch in _chunks(reps, batch):
+        payload = {"indicators": catalog,
+                   "news": [{"id": r["id"], "title": r["title"], "text": r["announce"]} for r in ch]}
+        rows = _llm_results(_EXTRACT_SYS, payload, max_tokens=4096)
+        for rid, rec in rows.items():
+            code = rec.get("indicator"); metric = rec.get("metric")
+            spec = targets.get(code)
+            if not spec or metric not in spec.get("metrics", []):
+                rejected += 1
+                continue
+            as_of = _parse_asof(rec.get("as_of", ""))
+            try:
+                val = float(rec.get("value"))
+            except (TypeError, ValueError):
+                val = None
+            if as_of is None or val is None:
+                rejected += 1
+                continue
+            # валидация диапазона (отбрасываем явные ошибки распознавания)
+            if not (spec["min"] <= val <= spec["max"]):
+                logger.warning("Макро-извлечение: %s=%s вне диапазона [%s,%s] — отброшено",
+                               code, val, spec["min"], spec["max"])
+                rejected += 1
+                continue
+            # источник новости
+            rep = next((r for r in reps if r["id"] == rid), None)
+            res = upsert_point(db, code, as_of, metric, val,
+                               unit=spec.get("unit"), is_preliminary=bool(rec.get("is_preliminary")),
+                               source=rep["source"] if rep else "news",
+                               source_url=rep["url"] if rep else None,
+                               ingested_via="news", commit=False)
+            if res in ("insert", "revise"):
+                saved += 1
+    db.commit()
+    return {"saved": saved, "rejected": rejected}
+
+
 # ----------------------------- Шаг 6: оркестрация + запись -----------------------------
 def run_pipeline(db: Session) -> dict:
     """Полный прогон. Возвращает сводку для лога/диагностики."""
@@ -384,6 +477,9 @@ def run_pipeline(db: Session) -> dict:
     # Шаг 5 — маппинг тикеры/секторы
     map_map = map_tickers(kept, db) if kept else {}
 
+    # Шаг 5-бис — извлечение числовых дата-точек макропоказателей (Конвейер 1, канал news)
+    macro_extract = extract_macro_points(kept, db) if kept else {"saved": 0}
+
     model_used = f"{llm.provider_info().get('provider')}:{llm.provider_info().get('model')}"
     now = datetime.now(timezone.utc)
     published = 0
@@ -430,6 +526,7 @@ def run_pipeline(db: Session) -> dict:
     db.commit()
     summary = {"fetched": len(items), "clusters": len(reps),
                "published": published, "filtered_out": len(rejected),
-               "undecided": undecided, "model": model_used}
+               "undecided": undecided, "macro_points": macro_extract.get("saved", 0),
+               "model": model_used}
     logger.info("News pipeline: %s", summary)
     return summary

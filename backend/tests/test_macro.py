@@ -63,6 +63,36 @@ def test_series_endpoint(client, db):
     assert client.get("/api/market/macro/nonexistent/series").status_code == 404
 
 
+def test_news_macro_extraction(db, monkeypatch):
+    """Извлечение чисел из новостей: различение м/м vs г/г, предварительные,
+    отбраковка значений вне диапазона."""
+    from app.services import news_pipeline as np
+    from app.services import llm
+    mi.seed_indicators(db)
+    db.query(MacroDataPoint).filter(MacroDataPoint.indicator_code.in_(
+        ["inflation", "unemployment", "pmi_composite"])).delete(synchronize_session=False)
+    db.commit()
+    reps = [
+        {"id": 0, "title": "Инфляция в РФ за май", "announce": "...", "source": "rbc", "url": "u0"},
+        {"id": 1, "title": "Инфляция м/м", "announce": "...", "source": "rbc", "url": "u1"},
+        {"id": 2, "title": "Безработица", "announce": "...", "source": "rbc", "url": "u2"},
+        {"id": 3, "title": "PMI мусор", "announce": "...", "source": "rbc", "url": "u3"},
+    ]
+    monkeypatch.setattr(llm, "complete", lambda *a, **k: {"results": [
+        {"id": 0, "indicator": "inflation", "metric": "yoy", "value": 9.8, "as_of": "2026-05-31", "is_preliminary": True},
+        {"id": 1, "indicator": "inflation", "metric": "mom", "value": 0.5, "as_of": "2026-05-31", "is_preliminary": False},
+        {"id": 2, "indicator": "unemployment", "metric": "level", "value": 2.3, "as_of": "2026-05-31", "is_preliminary": False},
+        {"id": 3, "indicator": "pmi_composite", "metric": "level", "value": 999, "as_of": "2026-05-31", "is_preliminary": False},
+    ]})
+    res = np.extract_macro_points(reps, db)
+    assert res["saved"] == 3 and res["rejected"] == 1  # PMI 999 вне диапазона
+    yoy = db.query(MacroDataPoint).filter_by(indicator_code="inflation", metric="yoy").first()
+    mom = db.query(MacroDataPoint).filter_by(indicator_code="inflation", metric="mom").first()
+    assert float(yoy.value) == 9.8 and yoy.is_preliminary is True
+    assert float(mom.value) == 0.5 and mom.metric == "mom"  # м/м и г/г не спутаны
+    assert db.query(MacroDataPoint).filter_by(indicator_code="pmi_composite").count() == 0
+
+
 def test_rate_endpoint(client, db):
     mi.seed_indicators(db)
     mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
