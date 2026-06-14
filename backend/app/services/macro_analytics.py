@@ -43,6 +43,30 @@ _DOC_SYS = (
 )
 
 
+_INTERP_SYS = (
+    "Ты — макроаналитик Basis. Дана выжимка аналитического документа (ЦБ/ЦМАКП). "
+    "Дай КОРОТКУЮ интерпретацию (2-4 предложения): на какие рынки/секторы/компании и на "
+    "ключевую ставку это влияет и НА ЧТО ОБРАТИТЬ ВНИМАНИЕ В ПЕРВУЮ ОЧЕРЕДЬ (главное, не всё "
+    "подряд), через какой механизм. Опирайся только на содержание выжимки, без выдумок, без "
+    "‘купить/продать’. Верни строго JSON {\"interpretation\": \"...\"}. Без текста вне JSON."
+)
+
+
+def _interpret(title: str, summary: str | None, takeaways: list) -> str | None:
+    """F: интерпретация влияния через DeepSeek Pro (reasoning)."""
+    if not summary and not takeaways:
+        return None
+    payload = {"title": title, "summary": summary, "key_takeaways": takeaways}
+    import json as _json
+    try:
+        out = llm.complete(_INTERP_SYS, _json.dumps(payload, ensure_ascii=False),
+                           json_mode=True, thinking=True, model=llm.pro_model(), max_tokens=3000)
+        return (out.get("interpretation") or "").strip() or None
+    except llm.LLMError as e:
+        logger.warning("Интерпретация обзора не получена: %s", e)
+        return None
+
+
 def _absolutize(href: str, base: str) -> str:
     if href.startswith("http"):
         return href
@@ -72,6 +96,8 @@ def discover(db: Session) -> list[dict]:
                            "возможна смена вёрстки сайта!", src["source"], src["page_url"])
             continue
         seen = set()
+        per_src = 0
+        cap = int(src.get("max", _MAX_PER_RUN))
         for href in links:
             url = _absolutize(href, src["base_url"])
             if url in known or url in seen:
@@ -80,6 +106,9 @@ def discover(db: Session) -> list[dict]:
             title = href.rsplit("/", 1)[-1].rsplit(".", 1)[0]
             found.append({"source": src["source"], "doc_type": src.get("doc_type"),
                           "url": url, "title": title})
+            per_src += 1
+            if per_src >= cap:  # не более N новых на источник за прогон
+                break
     return found
 
 
@@ -118,11 +147,16 @@ def process(db: Session, max_docs: int = _MAX_PER_RUN) -> dict:
             logger.error("Аналитика: LLM не дал выжимку для %s: %s", c["url"], e)
             continue
         title = (out.get("title") or c["title"])[:500]
+        summary = (out.get("summary") or "").strip() or None
+        takeaways = out.get("key_takeaways") or []
+        # F. Интерпретация «на что влияет / на кого смотреть в первую очередь» —
+        # это РАССУЖДЕНИЕ → DeepSeek Pro (reasoning), не Flash.
+        interp = _interpret(title, summary, takeaways)
         db.add(MacroAnalyticsDoc(
             source=c["source"], doc_type=c["doc_type"], title=title,
-            summary=(out.get("summary") or "").strip() or None,
-            key_takeaways=out.get("key_takeaways") or [],
-            published_at=date.today(), source_url=c["url"], model_used=model_used,
+            summary=summary, key_takeaways=takeaways, interpretation=interp,
+            published_at=date.today(), source_url=c["url"],
+            model_used=model_used + ("+pro" if interp else ""),
         ))
         saved += 1
     db.commit()

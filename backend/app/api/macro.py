@@ -15,7 +15,8 @@ from app.db.session import get_db
 from app.auth import get_current_user_optional
 from app.models.company import Company
 from app.models.portfolio import Portfolio, PortfolioPosition
-from app.models.macro import MacroIndicator, MacroDataPoint, RateMeeting, MacroAnalyticsDoc
+from app.models.macro import (MacroIndicator, MacroDataPoint, RateMeeting,
+                              MacroAnalyticsDoc, MacroForecast, MacroInterpretation)
 
 router = APIRouter()
 
@@ -123,9 +124,50 @@ def macro_analytics(limit: int = Query(20, ge=1, le=100), source: str | None = N
     return [{
         "id": d.id, "source": d.source, "doc_type": d.doc_type, "title": d.title,
         "summary": d.summary, "key_takeaways": d.key_takeaways,
+        "interpretation": d.interpretation,
         "published_at": d.published_at.isoformat() if d.published_at else None,
         "source_url": d.source_url, "model_used": d.model_used,
     } for d in docs]
+
+
+@router.get("/market/macro/forecast")
+def macro_forecast(db: Session = Depends(get_db)):
+    """Среднесрочный прогноз ЦБ (последняя публикация)."""
+    latest = db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).first()
+    if not latest:
+        return {"rows": [], "as_of": None}
+    rows = (db.query(MacroForecast)
+            .filter(MacroForecast.as_of == latest.as_of, MacroForecast.scenario == latest.scenario)
+            .order_by(MacroForecast.year).all())
+    return {
+        "as_of": latest.as_of.isoformat(), "scenario": latest.scenario,
+        "comment": next((r.comment for r in rows if r.comment), None),
+        "source_url": latest.source_url,
+        "rows": [{"indicator": r.indicator, "year": r.year, "value": r.value} for r in rows],
+    }
+
+
+@router.get("/market/macro/interpretation")
+def macro_interpretation_get(db: Session = Depends(get_db)):
+    from app.services.macro_interpreter import get_latest
+    row = get_latest(db)
+    if not row:
+        return {"sections": None}
+    return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
+            "model_used": row.model_used}
+
+
+@router.post("/market/macro/interpretation")
+def macro_interpretation_post(db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Ручная перегенерация интерпретации (DeepSeek Pro reasoning, ~1-2 мин)."""
+    from app.services.macro_interpreter import generate
+    from app.services.llm import LLMError
+    try:
+        row = generate(db)
+    except LLMError as e:
+        raise HTTPException(status_code=503, detail=f"Интерпретатор недоступен: {e}")
+    return {"sections": row.sections, "generated_at": row.generated_at.isoformat(),
+            "model_used": row.model_used}
 
 
 @router.get("/market/macro/{code}/series")

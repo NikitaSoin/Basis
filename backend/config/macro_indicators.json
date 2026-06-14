@@ -113,8 +113,11 @@
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
   },
   "analytics_sources": [
-    {"source": "cbr", "doc_type": "Доклад/комментарий ДКП", "page_url": "https://www.cbr.ru/dkp/", "base_url": "https://www.cbr.ru", "ext": ".pdf"},
-    {"source": "cmasf", "doc_type": "Аналитическая записка", "page_url": "http://www.forecast.ru/", "base_url": "http://www.forecast.ru", "ext": ".pdf"}
+    {"source": "cbr", "doc_type": "Доклад/комментарий ДКП", "page_url": "https://www.cbr.ru/dkp/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
+    {"source": "cbr", "doc_type": "О чём говорят тренды", "page_url": "https://www.cbr.ru/ec_research/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
+    {"source": "cbr", "doc_type": "Инфляционные ожидания и потребнастроения", "page_url": "https://www.cbr.ru/analytics/dkp/inflationary_expectations/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
+    {"source": "cbr", "doc_type": "Обзор финансовой стабильности", "page_url": "https://www.cbr.ru/analytics/finstab/ofs/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
+    {"source": "cmasf", "doc_type": "Аналитическая записка", "page_url": "http://www.forecast.ru/", "base_url": "http://www.forecast.ru", "ext": ".pdf", "max": 4}
   ],
   "news_extract": {
     "_comment": "Показатели, извлекаемые из статрелизов в Ленте. min/max — допустимый диапазон (валидация: за пределами — отбрасываем как ошибку распознавания).",

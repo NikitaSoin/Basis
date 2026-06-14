@@ -93,6 +93,37 @@ def test_news_macro_extraction(db, monkeypatch):
     assert db.query(MacroDataPoint).filter_by(indicator_code="pmi_composite").count() == 0
 
 
+def test_interpreter_generate(db, monkeypatch):
+    """G: интерпретатор зовёт Pro reasoning и сохраняет разделы."""
+    from app.services import macro_interpreter as ip
+    from app.services import llm
+    mi.seed_indicators(db)
+    mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
+    captured = {}
+    def fake_complete(system, user, **k):
+        captured["thinking"] = k.get("thinking"); captured["model"] = k.get("model")
+        return {"sections": {"current_picture": "Картина", "rate_outlook": "Ставка",
+                             "cb_forecast_view": "Прогноз", "market_sectors": "Сектора",
+                             "scenarios": "Сценарии"}}
+    monkeypatch.setattr(llm, "complete", fake_complete)
+    monkeypatch.setattr(llm, "pro_model", lambda: "deepseek-v4-pro")
+    row = ip.generate(db)
+    assert row.sections["current_picture"] == "Картина"
+    assert captured["thinking"] is True  # Интерпретатор — РАССУЖДЕНИЕ
+    assert captured["model"] == "deepseek-v4-pro"  # Pro, не Flash
+    assert ip.get_latest(db).id == row.id
+
+
+def test_interpretation_endpoint_empty(client, db):
+    r = client.get("/api/market/macro/interpretation")
+    assert r.status_code == 200  # пусто — честно sections:null, не падаем
+
+
+def test_forecast_endpoint_empty(client, db):
+    r = client.get("/api/market/macro/forecast")
+    assert r.status_code == 200 and r.json()["rows"] == []
+
+
 def test_rate_endpoint(client, db):
     mi.seed_indicators(db)
     mi.upsert_point(db, "key_rate", date(2026, 3, 1), "level", 15, ingested_via="file")
