@@ -1,16 +1,16 @@
-"""Ингест Росстатовских рядов через fedstat.ru (EMISS) — SDMX-выгрузка по ID показателя.
+"""Ингест Росстатовских рядов (безработица, ИЦП, реальная зарплата/доходы, ВВП).
 
-Стратегия надёжности (по запросу владельца «экспериментируй, но не заменяй готовое
-непонятным»):
-- САМОПРОВЕРКА: сверяем название показателя на странице с ожидаемым ключевым словом
-  (expect). Если не совпало — ID НЕ ТОТ → НИЧЕГО не пишем (защита от подмены ряда).
-- ДИАПАЗОН: каждое значение валидируется по min/max — мусор не попадает.
-- ПРИОРИТЕТ: ingested_via='rosstat' (официальный канал; Лента не перезаписывает).
-- При любой ошибке/недоступности — лог + НИЧЕГО не пишем (никогда не портим данные).
+ОСНОВНОЙ канал — ingest_rosstat_file: ручная выгрузка из fedstat (long-CSV).
+ПОЧЕМУ не машинно: fedstat.ru закрыт антибот-WAF — 403 на ВСЁ (главная, страница
+показателя, data.do, SDMX), при любом User-Agent (Chrome/Googlebot/без UA), ДАЖЕ
+с боевого сервера в РФ. Подтверждено диагностикой с боя (не предположение). Поэтому
+история закрывается файлом config/rosstat_manual.csv (см. config/ROSSTAT_MANUAL.md).
 
-ВАЖНО: fedstat.ru недоступен из dev-среды (гео-блок/WAF), поэтому ингест проверяется
-ТОЛЬКО на бою (боевой сервер в РФ имеет доступ). Реализован по документированному
-поведению EMISS; при первом прогоне на бою возможна донастройка POST-параметров.
+Safeguards (оба канала): валидация диапазона min/max; ingested_via='rosstat'
+(официальный приоритет — Лента не перезаписывает); при ошибке — НИЧЕГО не пишем.
+
+ingest_fedstat (HTTP/SDMX) оставлен как нерабочий артефакт на случай, если WAF
+когда-нибудь снимут; в проде НЕ вызывается.
 """
 from __future__ import annotations
 
@@ -133,6 +133,63 @@ def _fetch_indicator(ind_id: int) -> tuple[str | None, list[tuple[date, float]]]
         logger.warning("fedstat: SDMX-выгрузка %s не получена: %s", ind_id, type(e).__name__)
         return title, []
     return (name or title), pts
+
+
+import csv
+import os
+
+_MANUAL_CSV = os.path.join(os.path.dirname(__file__), "..", "..", "config", "rosstat_manual.csv")
+
+
+def ingest_rosstat_file(db: Session) -> dict:
+    """ОСНОВНОЙ канал Росстата: ручная выгрузка из fedstat (браузером), формат long-CSV.
+
+    Причина: fedstat.ru закрыт антибот-WAF (403 на всё, включая главную) даже с боевого
+    сервера в РФ — подтверждено диагностикой. Машинный ингест невозможен. Поэтому история
+    закрывается файлом-выгрузкой, который владелец экспортирует из fedstat вручную.
+
+    Формат config/rosstat_manual.csv (utf-8): колонки indicator,period,value[,metric].
+      indicator — код из fedstat_series (unemployment/ppi/real_wage/gdp/real_income/...)
+      period    — YYYY-MM | YYYY | YYYY-Qn
+      value     — число (точка или запятая)
+      metric    — необязательно; по умолчанию из конфига (level/yoy)
+    Safeguards те же: валидация диапазона min/max, ingested_via='rosstat' (Лента не перетрёт).
+    Идемпотентно: повторный запуск не дублирует и не портит данные.
+    """
+    if not os.path.exists(_MANUAL_CSV):
+        logger.info("Росстат-файл %s отсутствует — пропуск (ждём ручную выгрузку)", _MANUAL_CSV)
+        return {"status": "no_file"}
+    cfg = load_macro_config()
+    series = cfg.get("fedstat_series", {})
+    out = {"loaded": {}, "skipped": {}}
+    with open(_MANUAL_CSV, encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            code = (r.get("indicator") or "").strip()
+            spec = series.get(code)
+            if not spec:
+                out["skipped"][code or "?"] = "неизвестный код"
+                continue
+            d = _period_to_date((r.get("period") or "").strip())
+            raw = (r.get("value") or "").strip().replace(",", ".")
+            if not d or raw == "" or raw.lower() in ("nan", "na", "none"):
+                continue
+            try:
+                v = float(raw)
+            except ValueError:
+                continue
+            if not (spec["min"] <= v <= spec["max"]):
+                out["skipped"][code] = out["skipped"].get(code, "") + f" вне диапазона {v};"
+                continue
+            metric = (r.get("metric") or "").strip() or spec.get("metric", "level")
+            res = upsert_point(db, code, d, metric, v, unit=spec.get("unit"),
+                               source="Росстат (fedstat, ручная выгрузка)",
+                               source_url=f"{_BASE}/indicator/{spec['id']}",
+                               ingested_via="rosstat", commit=False)
+            if res in ("insert", "revise"):
+                out["loaded"][code] = out["loaded"].get(code, 0) + 1
+    db.commit()
+    logger.info("Росстат файл-ингест: %s", out)
+    return out
 
 
 def ingest_fedstat(db: Session, recent_months: int = 60) -> dict:

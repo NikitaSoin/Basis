@@ -57,48 +57,6 @@ def _portfolio_sectors(db: Session, user) -> set[str]:
     return {r[0] for r in rows if r[0]}
 
 
-@router.get("/market/macro/_fedstat_diag")
-def fedstat_diag(id: int = 43062):
-    """ВРЕМЕННЫЙ диагностический эндпоинт: бэк (с боевого сервера) идёт на fedstat и
-    возвращает сырой ответ — чтобы понять, что реально отдаёт EMISS из РФ (а не из dev).
-    Пробует несколько вариантов запроса. Только чтение, без записи в БД."""
-    import httpx
-    results = {}
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                      "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
-        "Referer": "https://www.fedstat.ru/",
-        "Connection": "keep-alive",
-    }
-    gbot = dict(headers); gbot["User-Agent"] = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-    probes = {
-        "fedstat_home": ("GET", "https://www.fedstat.ru/", None, headers),
-        "fedstat_home_googlebot": ("GET", "https://www.fedstat.ru/", None, gbot),
-        "fedstat_home_noua": ("GET", "https://www.fedstat.ru/", None, {"Accept": "*/*"}),
-        "sdmx_gks": ("GET", "https://sdmx.gks.ru/", None, headers),
-        "showdata_gks": ("GET", "https://showdata.gks.ru/", None, headers),
-        "rosstat_gov": ("GET", "https://rosstat.gov.ru/", None, headers),
-        "fedstat_indicator": ("GET", f"https://www.fedstat.ru/indicator/{id}", None, headers),
-    }
-    for name, (method, url, params, hdr) in probes.items():
-        try:
-            with httpx.Client(timeout=20, headers=hdr, follow_redirects=True) as c:
-                r = c.request(method, url, params=params)
-            body = r.text
-            results[name] = {
-                "status": r.status_code,
-                "content_type": r.headers.get("content-type"),
-                "len": len(body),
-                "snippet": body[:300],
-                "server": r.headers.get("server"),
-            }
-        except Exception as e:  # noqa: BLE001
-            results[name] = {"error": f"{type(e).__name__}: {str(e)[:160]}"}
-    return results
-
-
 @router.get("/market/macro")
 def macro_summary(country: str | None = None, portfolio_only: bool = False,
                   db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

@@ -117,7 +117,21 @@
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
   },
   "fedstat_series": {
-    "_comment": "Росстат через fedstat (EMISS). id — номер показателя на fedstat.ru/indicator/<id>. expect — ключевое слово в названии ряда для САМОПРОВЕРКИ (если название не совпало — ряд НЕ грузим, защита от неверного ID). min/max — валидация значения. metric — какую метрику пишем. ВНИМАНИЕ: fedstat недоступен из dev-среды (гео-блок), ингест проверяется только на бою.",
+    "_comment": "Росстат. ВАЖНО: fedstat.ru закрыт антибот-WAF (403 на всё, включая главную) даже с боевого сервера РФ — подтверждено диагностикой; машинный ингест невозможен. Данные грузятся из ручной выгрузки config/rosstat_manual.csv (ingest_rosstat_file). id — для ссылки на источник; min/max — валидация значения; unit — единица; metric — метрика по умолчанию.",
+    "gdp": {
+     "id": 33223,
+     "metric": "yoy",
+     "unit": "%",
+     "min": -20,
+     "max": 20
+    },
+    "real_income": {
+     "id": 33464,
+     "metric": "yoy",
+     "unit": "%",
+     "min": -30,
+     "max": 30
+    },
     "unemployment": {"id": 43062, "metric": "level", "expect": "безработиц", "unit": "%", "min": 1, "max": 20},
     "ppi": {"id": 57609, "metric": "yoy", "expect": "цен производител", "unit": "%", "min": -30, "max": 60},
     "real_wage": {"id": 43245, "metric": "yoy", "expect": "реальн", "unit": "%", "min": -30, "max": 50}

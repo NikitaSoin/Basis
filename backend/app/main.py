@@ -158,11 +158,11 @@ async def _macro_job():
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
-            from app.services.macro_rosstat import ingest_fedstat
+            from app.services.macro_rosstat import ingest_rosstat_file
             seed_indicators(db)
             world = ingest_all_world(db)
             cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2 (машинный первоисточник)
-            ros = ingest_fedstat(db)  # Росстат через fedstat (безработица/ИЦП/реальная зарплата)
+            ros = ingest_rosstat_file(db)  # Росстат: ручная выгрузка из fedstat (WAF блокирует машину)
             analytics = analytics_process(db)
             stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
             return {"world": world, "cb": cb, "rosstat": ros, "analytics": analytics, "stale": len(stale)}
@@ -191,10 +191,10 @@ async def _macro_startup():
             backfill_from_csv(db)
             sync_cb(db)  # ставка + прогноз ЦБ + свежая инфляция — РАНО (видимо владельцу)
             try:
-                from app.services.macro_rosstat import ingest_fedstat
-                ingest_fedstat(db)  # Росстат через fedstat (доступен с боя; safeguards внутри)
+                from app.services.macro_rosstat import ingest_rosstat_file
+                ingest_rosstat_file(db)  # Росстат: ручная выгрузка из fedstat (machine-путь за WAF)
             except Exception as e:  # noqa: BLE001
-                logger.warning("Старт: fedstat-ингест не выполнен: %s", e)
+                logger.warning("Старт: Росстат файл-ингест не выполнен: %s", e)
             ingest_all_world(db)
             # история курсов — только если ещё не залита (3000 точек, не гонять каждый старт)
             if db.query(MacroDataPoint).filter_by(indicator_code="usdrub").count() < 300:
