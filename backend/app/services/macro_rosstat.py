@@ -182,7 +182,7 @@ def ingest_rosstat_file(db: Session) -> dict:
                 continue
             metric = (r.get("metric") or "").strip() or spec.get("metric", "level")
             res = upsert_point(db, code, d, metric, v, unit=spec.get("unit"),
-                               source="Росстат (fedstat, ручная выгрузка)",
+                               source="Росстат (ручная сверка, MVP)",
                                source_url=f"{_BASE}/indicator/{spec['id']}",
                                ingested_via="rosstat", commit=False)
             if res in ("insert", "revise"):
