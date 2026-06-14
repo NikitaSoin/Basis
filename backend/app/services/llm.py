@@ -113,7 +113,11 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
         resp = client.post(f"{base_url}/chat/completions", json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
-    return data["choices"][0]["message"]["content"]
+    msg = data["choices"][0]["message"]
+    # Reasoning-модели (напр. deepseek-v4-flash) кладут размышления в
+    # reasoning_content и при нехватке max_tokens отдают ПУСТОЙ content. Если так —
+    # подстраховываемся текстом reasoning_content (из него извлечём JSON ниже).
+    return msg.get("content") or msg.get("reasoning_content") or ""
 
 
 def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
@@ -158,7 +162,16 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
                                               json_mode, max_tokens, temperature)
             if not json_mode:
                 return raw
-            return json.loads(_strip_json_fence(raw))
+            cleaned = _strip_json_fence(raw)
+            try:
+                return json.loads(cleaned)
+            except json.JSONDecodeError:
+                # Подстраховка для reasoning-моделей: вытащить крайний JSON-объект
+                # {...} из «грязного» текста (reasoning_content и т.п.).
+                lo, hi = cleaned.find("{"), cleaned.rfind("}")
+                if lo != -1 and hi > lo:
+                    return json.loads(cleaned[lo:hi + 1])
+                raise
         except (httpx.HTTPError, json.JSONDecodeError, KeyError, Exception) as e:  # noqa: BLE001
             last_err = e
             # Логируем БЕЗ утечки ключа (httpx не печатает заголовки в str(e)).

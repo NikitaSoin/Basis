@@ -27,6 +27,7 @@ class NewsItemResponse(BaseModel):
     source_url: str | None
     title: str
     rubric: str | None
+    category: str | None = None
     importance: str | None
     summary: str | None
     impact_comment: str | None

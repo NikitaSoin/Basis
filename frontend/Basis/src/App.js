@@ -9906,6 +9906,16 @@ function _issueLabel(clusterId) {
 
 const _SOURCE_LABEL = { interfax: "Интерфакс", rbc: "РБК", kommersant: "Коммерсантъ" };
 
+// Категория по содержанию → спокойная цветовая точка (принцип «цвет в данных»,
+// нейтральный бейдж + маркер-точка из токенов, без кричащих подложек).
+const CATEGORY_COLOR = {
+  "Экономика": "var(--info)",
+  "Рынки": "var(--accent)",
+  "Бизнес": "var(--success)",
+  "Политика": "var(--text-tertiary)",
+  "Геополитика": "var(--warning)",
+};
+
 function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9994,6 +10004,13 @@ function NewsCard({ n, onSelectCompany }) {
     <Card className={high ? "tw-border-l-2 tw-border-l-accent" : ""}>
       <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1.5 tw-text-[12px] tw-text-text-tertiary">
         <span className="tw-font-medium tw-text-text-secondary">{_SOURCE_LABEL[n.source] || n.source || "Источник"}</span>
+        {n.category && CATEGORY_COLOR[n.category] && (
+          <Badge tone="neutral">
+            <span aria-hidden="true" className="tw-inline-block tw-w-1.5 tw-h-1.5 tw-rounded-pill"
+                  style={{ backgroundColor: CATEGORY_COLOR[n.category] }} />
+            {n.category}
+          </Badge>
+        )}
         {high && <Badge tone="accent">важное</Badge>}
         {n.source_url && (
           <a href={n.source_url} target="_blank" rel="noopener noreferrer"

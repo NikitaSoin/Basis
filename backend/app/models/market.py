@@ -17,6 +17,8 @@ class OverviewType(str, enum.Enum):
 # миграций, принцип «простые решения»). Переиспользуются направлениями Обозревателя.
 NEWS_SOURCES = ("interfax", "rbc", "kommersant")
 NEWS_RUBRICS = ("economy", "investments", "politics_world")
+# Категория по СОДЕРЖАНИЮ (определяет LLM), а не по разделу источника.
+NEWS_CATEGORIES = ("Экономика", "Рынки", "Бизнес", "Политика", "Геополитика")
 NEWS_IMPORTANCE = ("high", "medium", "low")
 NEWS_STATUS = ("published", "filtered_out")
 
@@ -46,7 +48,8 @@ class MarketUpdate(Base):
     # --- поля Ленты новостей ---
     source_url: Mapped[str | None] = mapped_column(String(1000), index=True)  # дедуп «новых»
     original_title: Mapped[str | None] = mapped_column(String(500))
-    rubric: Mapped[str | None] = mapped_column(String(32))
+    rubric: Mapped[str | None] = mapped_column(String(32))  # рубрика ИСТОЧНИКА (справочно)
+    category: Mapped[str | None] = mapped_column(String(32))  # категория по СОДЕРЖАНИЮ (LLM)
     importance: Mapped[str | None] = mapped_column(String(16))
     summary: Mapped[str | None] = mapped_column(Text)
     impact_comment: Mapped[str | None] = mapped_column(Text)
