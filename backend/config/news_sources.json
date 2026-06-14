@@ -1,0 +1,38 @@
+{
+  "_comment": "RSS-ленты для Ленты новостей Обозревателя. Адреса меняются — правьте ЗДЕСЬ, не в коде. rubric: economy|investments|politics_world. enabled=false временно отключает источник.",
+  "feeds": [
+    {
+      "source": "interfax",
+      "rubric": "economy",
+      "url": "https://www.interfax.ru/rss.asp",
+      "enabled": true
+    },
+    {
+      "source": "rbc",
+      "rubric": "economy",
+      "url": "https://rssexport.rbc.ru/rbcnews/news/30/full.rss",
+      "enabled": true
+    },
+    {
+      "source": "kommersant",
+      "rubric": "economy",
+      "url": "https://www.kommersant.ru/RSS/section-economics.xml",
+      "enabled": true
+    },
+    {
+      "source": "kommersant",
+      "rubric": "investments",
+      "url": "https://www.kommersant.ru/RSS/section-finance.xml",
+      "enabled": true
+    },
+    {
+      "source": "kommersant",
+      "rubric": "politics_world",
+      "url": "https://www.kommersant.ru/RSS/section-world.xml",
+      "enabled": true
+    }
+  ],
+  "schedule_msk_hours": [7, 13, 19, 1],
+  "max_items_per_feed": 60,
+  "dedup_title_similarity": 0.62
+}
