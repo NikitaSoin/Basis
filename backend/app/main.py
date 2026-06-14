@@ -175,7 +175,8 @@ async def _macro_job():
 async def _macro_startup():
     """При старте: сид справочника + идемпотентный бэкфилл CSV + первичный ингест мира."""
     def _run():
-        from app.services.macro_ingest import seed_indicators, backfill_from_csv, ingest_all_world
+        from app.services.macro_ingest import (seed_indicators, backfill_from_csv,
+                                               ingest_all_world, backfill_cbr_currency_history)
         from app.services.macro_analytics import process as analytics_process
         from app.services.macro_interpreter import get_latest, generate
         from app.services.macro_cb_sync import sync_cb
@@ -184,8 +185,9 @@ async def _macro_startup():
         try:
             seed_indicators(db)
             backfill_from_csv(db)
+            backfill_cbr_currency_history(db)  # история курсов USD/CNY/EUR (идемпотентно)
             ingest_all_world(db)
-            sync_cb(db)  # ставка + прогноз ЦБ с cbr.ru
+            sync_cb(db)  # ставка + прогноз ЦБ + свежая инфляция с cbr.ru
             analytics_process(db)
             # Первичная интерпретация (G) — только если ещё нет (Pro reasoning дорогой;
             # дальше обновляется по кнопке/расписанию, не на каждом старте).

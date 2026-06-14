@@ -165,5 +165,53 @@ def sync_forecast(db: Session) -> dict:
     return {"as_of": str(as_of), "rows": saved, "url": url}
 
 
+_INFL_PAGE = "https://www.cbr.ru/hd_base/infl/"
+_INFL_SYS = (
+    "Из текста страницы Банка России об инфляции извлеки ряд ГОДОВОЙ инфляции (% г/г) "
+    "за последние доступные месяцы (2025-2026). Ключевая ставка НЕ нужна. Верни строго JSON "
+    "{\"rows\":[{\"month\":\"YYYY-MM\", \"yoy\":<число>}]}. Только числа из текста, без выдумок. "
+    "Никакого текста вне JSON."
+)
+
+
+def _month_end(ym: str):
+    try:
+        y, m = ym.split("-")
+        y, m = int(y), int(m)
+        nm = date(y + (m == 12), (m % 12) + 1, 1)
+        from datetime import timedelta
+        return nm - timedelta(days=1)
+    except (ValueError, AttributeError):
+        return None
+
+
+def sync_inflation(db: Session) -> dict:
+    """Свежая годовая инфляция РФ со страницы ЦБ → ряд inflation/yoy (авто-обновление)."""
+    text = _fetch_text(_INFL_PAGE)
+    if not text:
+        return {"error": "infl page unavailable"}
+    try:
+        out = llm.complete(_INFL_SYS, text, json_mode=True, max_tokens=2000)
+    except llm.LLMError as e:
+        logger.warning("CB-sync: инфляция не извлечена: %s", e)
+        return {"error": "llm"}
+    saved = 0
+    for r in out.get("rows") or []:
+        d = _month_end(r.get("month", ""))
+        try:
+            yoy = float(r.get("yoy"))
+        except (TypeError, ValueError):
+            yoy = None
+        if d is None or yoy is None or not (-5 <= yoy <= 60):
+            continue
+        res = upsert_point(db, "inflation", d, "yoy", yoy, unit="%", source="ЦБ РФ",
+                           source_url=_INFL_PAGE, ingested_via="cbr", commit=False)
+        if res in ("insert", "revise"):
+            saved += 1
+    db.commit()
+    return {"saved": saved}
+
+
 def sync_cb(db: Session) -> dict:
-    return {"rate": sync_rate_meeting(db), "forecast": sync_forecast(db)}
+    return {"rate": sync_rate_meeting(db), "forecast": sync_forecast(db),
+            "inflation": sync_inflation(db)}

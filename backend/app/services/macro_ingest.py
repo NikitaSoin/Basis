@@ -271,3 +271,41 @@ def ingest_worldbank(db: Session) -> dict:
 def ingest_all_world(db: Session) -> dict:
     """ЦБ-курсы + FRED + World Bank — дневной мировой/курсовой ингест."""
     return {"cbr": ingest_cbr_currencies(db), "fred": ingest_fred(db), "wb": ingest_worldbank(db)}
+
+
+# ----------------------------- ЦБ: история курсов (бэкфилл) -----------------------------
+_CBR_DYNAMIC = "https://www.cbr.ru/scripts/XML_dynamic.asp"
+_CBR_VAL = {"usdrub": "R01235", "eurrub": "R01239", "cnyrub": "R01375"}
+
+
+def backfill_cbr_currency_history(db: Session, years: int = 4) -> dict:
+    """Дневная история курсов USD/CNY/EUR с ЦБ за `years` лет (идемпотентно)."""
+    end = date.today()
+    start = date(end.year - years, end.month, end.day)
+    total = 0
+    for code, vcode in _CBR_VAL.items():
+        try:
+            r = httpx.Client(timeout=40, headers=_HTTP).get(_CBR_DYNAMIC, params={
+                "date_req1": start.strftime("%d/%m/%Y"), "date_req2": end.strftime("%d/%m/%Y"),
+                "VAL_NM_RQ": vcode})
+            r.raise_for_status()
+            root = ET.fromstring(r.content)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("ЦБ история %s недоступна: %s", code, type(e).__name__)
+            continue
+        for rec in root.findall("Record"):
+            try:
+                d = datetime.strptime(rec.get("Date"), "%d.%m.%Y").date()
+            except (TypeError, ValueError):
+                continue
+            nominal = float((rec.findtext("Nominal") or "1").replace(",", "."))
+            val = float((rec.findtext("Value") or "0").replace(",", "."))
+            if nominal:
+                res = upsert_point(db, code, d, "level", round(val / nominal, 4), unit="руб",
+                                   source="ЦБ РФ", source_url=_CBR_DYNAMIC, ingested_via="cbr",
+                                   commit=False)
+                if res in ("insert", "revise"):
+                    total += 1
+    db.commit()
+    logger.info("ЦБ: бэкфилл истории курсов — %d точек", total)
+    return {"points": total}
