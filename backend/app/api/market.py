@@ -1,13 +1,17 @@
 import os
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from anthropic import Anthropic
 from app.db.session import get_db
 from app.auth import get_current_user_optional
-from app.models.market import OverviewType
+from app.models.market import MarketUpdate, OverviewType
+from app.models.company import Company
+from app.models.portfolio import Portfolio, PortfolioPosition
 from app.schemas.market import (
     MarketUpdateCreate, MarketUpdateResponse,
     MarketOverviewCreate, MarketOverviewResponse,
+    NewsItemResponse,
 )
 from app.services.market import (
     get_all_updates, create_update,
@@ -15,6 +19,68 @@ from app.services.market import (
 )
 
 router = APIRouter()
+
+
+def _portfolio_filter(db: Session, user) -> tuple[set[str], set[str]]:
+    """Тикеры и секторы из портфелей пользователя — для тумблера «Только мой портфель»."""
+    if not user:
+        return set(), set()
+    rows = (
+        db.query(Company.ticker, Company.sector)
+        .join(PortfolioPosition, PortfolioPosition.company_id == Company.id)
+        .join(Portfolio, Portfolio.id == PortfolioPosition.portfolio_id)
+        .filter(Portfolio.user_id == user.id)
+        .all()
+    )
+    tickers = {r[0] for r in rows if r[0]}
+    sectors = {r[1] for r in rows if r[1]}
+    return tickers, sectors
+
+
+@router.get("/market/news", response_model=list[NewsItemResponse])
+def list_news_endpoint(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    importance: str | None = Query(None, pattern="^(high|medium|low)$"),
+    rubric: str | None = None,
+    ticker: str | None = None,
+    sector: str | None = None,
+    portfolio_only: bool = False,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user_optional),
+):
+    """Лента рыночно-значимых новостей (только опубликованные, свежие сверху)."""
+    q = db.query(MarketUpdate).filter(MarketUpdate.status == "published")
+    if importance:
+        q = q.filter(MarketUpdate.importance == importance)
+    if rubric:
+        q = q.filter(MarketUpdate.rubric == rubric)
+    if ticker:
+        q = q.filter(MarketUpdate.affected_tickers.contains([ticker.upper()]))
+    if sector:
+        q = q.filter(MarketUpdate.affected_sectors.contains([sector]))
+    if portfolio_only:
+        tickers, sectors = _portfolio_filter(db, user)
+        if not tickers and not sectors:
+            return []
+        conds = []
+        for t in tickers:
+            conds.append(MarketUpdate.affected_tickers.contains([t]))
+        for s in sectors:
+            conds.append(MarketUpdate.affected_sectors.contains([s]))
+        q = q.filter(or_(*conds))
+    return (q.order_by(MarketUpdate.published_at.desc())
+              .offset(offset).limit(limit).all())
+
+
+@router.get("/market/news/{item_id}", response_model=NewsItemResponse)
+def get_news_endpoint(item_id: int, db: Session = Depends(get_db)):
+    row = db.query(MarketUpdate).filter(
+        MarketUpdate.id == item_id, MarketUpdate.status == "published"
+    ).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Новость не найдена")
+    return row
 
 
 @router.post("/market/updates", response_model=MarketUpdateResponse, status_code=status.HTTP_201_CREATED)
@@ -99,6 +165,13 @@ def market_calendar(days: int = 90, db: Session = Depends(get_db)):
 def anthropic_health_endpoint():
     from app.services.market_overview import check_anthropic_connectivity
     return check_anthropic_connectivity()
+
+
+@router.get("/market/health/llm")
+def health_llm():
+    """Диагностика LLM-прослойки (провайдер/модель/наличие ключа) — без секретов."""
+    from app.services import llm
+    return llm.provider_info()
 
 
 @router.get("/health/anthropic")
