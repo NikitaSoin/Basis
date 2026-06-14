@@ -132,7 +132,8 @@ def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
     from anthropic import Anthropic
     proxy = os.environ.get("ANTHROPIC_PROXY_URL") or None
     client = Anthropic(api_key=_api_key("claude"),
-                       base_url=proxy if proxy else None)
+                       base_url=proxy if proxy else None,
+                       timeout=_timeout(), max_retries=0)
     # Просьба строгого JSON для Claude идёт текстом в system (нет response_format).
     sys = system_prompt
     if json_mode and "JSON" not in sys.upper():
