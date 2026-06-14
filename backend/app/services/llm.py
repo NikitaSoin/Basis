@@ -93,7 +93,8 @@ def _strip_json_fence(text: str) -> str:
 
 
 def _call_openai_compatible(provider: str, system_prompt: str, user_content: str,
-                            json_mode: bool, max_tokens: int, temperature: float) -> str:
+                            json_mode: bool, max_tokens: int, temperature: float,
+                            thinking: bool) -> str:
     base_url, _, _ = _PROVIDERS[provider]
     model = _model(provider)
     payload = {
@@ -107,6 +108,12 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
     }
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
+    # DeepSeek v4-flash — гибрид thinking/non-thinking. Для механических задач
+    # (фильтр/выжимка/категоризация/извлечение чисел) рассуждение НЕ нужно: оно
+    # жжёт токены и роняет content. Явно выключаем (×8 меньше токенов, сразу JSON).
+    # Параметр специфичен для DeepSeek — другим провайдерам не шлём.
+    if provider == "deepseek":
+        payload["thinking"] = {"type": "enabled" if thinking else "disabled"}
     headers = {"Authorization": f"Bearer {_api_key(provider)}",
                "Content-Type": "application/json"}
     with httpx.Client(timeout=_timeout()) as client:
@@ -141,12 +148,14 @@ def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
 
 
 def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
-             max_tokens: int = 4096, temperature: float = 0.2):
+             max_tokens: int = 4096, temperature: float = 0.2, thinking: bool = False):
     """Единая точка вызова LLM.
 
     system_prompt — СТАБИЛЬНЫЙ префикс (для кэша провайдера); user_content —
     изменчивая часть. json_mode=True → вернёт распарсенный dict/list; иначе str.
-    При сбое повторяет _retries() раз с экспоненциальной паузой, затем LLMError.
+    thinking — режим рассуждения (только DeepSeek): по умолчанию ВЫКЛ, т.к. наши
+    пайплайны решают механические задачи по чёткому промпту; включай (thinking=True)
+    только там, где реально нужно рассуждение. При сбое повторяет _retries() раз.
     """
     provider = _provider()
     if provider not in _PROVIDERS:
@@ -159,7 +168,7 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
                 raw = _call_claude(system_prompt, user_content, json_mode, max_tokens, temperature)
             else:
                 raw = _call_openai_compatible(provider, system_prompt, user_content,
-                                              json_mode, max_tokens, temperature)
+                                              json_mode, max_tokens, temperature, thinking)
             if not json_mode:
                 return raw
             cleaned = _strip_json_fence(raw)

@@ -300,7 +300,7 @@ def _chunks(seq: list, n: int):
 
 
 # ----------------------------- Шаги 3-5 -----------------------------
-def filter_importance(reps: list[dict], batch: int = 8) -> dict:
+def filter_importance(reps: list[dict], batch: int = 25) -> dict:
     """Фильтр важности пачками (большой батч → обрезка JSON; см. _chunks)."""
     res = {}
     for ch in _chunks(reps, batch):
@@ -310,7 +310,7 @@ def filter_importance(reps: list[dict], batch: int = 8) -> dict:
     return res
 
 
-def summarize(reps: list[dict], batch: int = 8) -> dict:
+def summarize(reps: list[dict], batch: int = 15) -> dict:
     res = {}
     for ch in _chunks(reps, batch):
         payload = {"news": [{"id": r["id"], "title": r["title"], "text": r["announce"]}
@@ -319,7 +319,7 @@ def summarize(reps: list[dict], batch: int = 8) -> dict:
     return res
 
 
-def map_tickers(reps: list[dict], db: Session, batch: int = 10) -> dict:
+def map_tickers(reps: list[dict], db: Session, batch: int = 20) -> dict:
     ref = [{"ticker": c.ticker, "name": c.name, "sector": c.sector or ""}
            for c in db.query(Company).order_by(Company.ticker).all()]
     valid = {c["ticker"] for c in ref}
