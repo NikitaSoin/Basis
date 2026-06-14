@@ -18,6 +18,7 @@ from app.api.funds import router as funds_router
 from app.api.spot import router as spot_router
 from app.api.options import router as options_router
 from app.api.screener import router as screener_router
+from app.api.macro import router as macro_router
 
 logger = logging.getLogger(__name__)
 
@@ -147,12 +148,52 @@ async def _news_job():
         logger.exception("Ошибка прогона ленты новостей: %s", e)
 
 
+async def _macro_job():
+    """Макрообзор: дневной ингест мира/курсов (ЦБ+FRED+World Bank) + сид справочника.
+    Числовые ряды из Ленты приходят отдельно (в news-пайплайне). В executor-потоке."""
+    def _run():
+        from app.services.macro_ingest import seed_indicators, ingest_all_world
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            seed_indicators(db)
+            return ingest_all_world(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Макрообзор: ингест мира/курсов — %s", res)
+    except Exception as e:
+        logger.exception("Ошибка ингеста Макрообзора: %s", e)
+
+
+async def _macro_startup():
+    """При старте: сид справочника + идемпотентный бэкфилл CSV + первичный ингест мира."""
+    def _run():
+        from app.services.macro_ingest import seed_indicators, backfill_from_csv, ingest_all_world
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            seed_indicators(db)
+            backfill_from_csv(db)
+            ingest_all_world(db)
+        finally:
+            db.close()
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Макрообзор: старт-наполнение завершено")
+    except Exception as e:
+        logger.exception("Ошибка старт-наполнения Макрообзора: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
     # Лента новостей Обозревателя — 4 раза/сутки (07:00/13:00/19:00/01:00 МСК).
     scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
+    # Макрообзор — раз в сутки (мир/FRED/WB) + курсы ЦБ ежедневно утром.
+    scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
     scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
@@ -173,6 +214,7 @@ async def lifespan(app: FastAPI):
     # наполняется сразу, не дожидаясь крона. Дедуп по source_url не даёт повторной
     # обработки при рестартах.
     asyncio.create_task(_news_job())
+    asyncio.create_task(_macro_startup())
 
     yield
     scheduler.shutdown()
@@ -206,6 +248,7 @@ app.include_router(funds_router, prefix="/api")
 app.include_router(spot_router, prefix="/api")
 app.include_router(options_router, prefix="/api")
 app.include_router(screener_router, prefix="/api")
+app.include_router(macro_router, prefix="/api")
 
 
 @app.get("/")
