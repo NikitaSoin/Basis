@@ -112,6 +112,8 @@
   "worldbank_series": {
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
   },
+  "analytics_exclude_url_patterns": ["analytic_note"],
+  "_analytics_exclude_note": "Исключаем тангенциальные ДИП-записки (analytic_note) — это research-папки, а не профильные обзоры ДКП/инфляции/стабильности. По просьбе владельца.",
   "analytics_sources": [
     {"source": "cbr", "doc_type": "Доклад/комментарий ДКП", "page_url": "https://www.cbr.ru/dkp/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},
     {"source": "cbr", "doc_type": "О чём говорят тренды", "page_url": "https://www.cbr.ru/ec_research/", "base_url": "https://www.cbr.ru", "ext": ".pdf", "max": 2},

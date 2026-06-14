@@ -106,6 +106,13 @@ def _is_fresh(url: str) -> bool:
     return d is not None and d >= (date.today() - timedelta(days=_FRESH_DAYS))
 
 
+def _excluded(url: str) -> bool:
+    """URL в чёрном списке паттернов (тангенциальные ДИП-записки и т.п. — не обзоры)."""
+    pats = load_macro_config().get("analytics_exclude_url_patterns", [])
+    low = (url or "").lower()
+    return any(p.lower() in low for p in pats)
+
+
 def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
     """Удалить из БД обзоры старше `days` ИЛИ с НЕопределяемой датой (при сомнении —
     убираем: лучше пробел, чем архив). Дату берём из URL, иначе со страницы."""
@@ -113,6 +120,10 @@ def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
     removed = 0
     for d in db.query(MacroAnalyticsDoc).all():
         url = d.source_url or ""
+        if _excluded(url):  # тангенциальные записки — убираем из обзоров
+            db.delete(d)
+            removed += 1
+            continue
         # НЕ доверяем published_at (мог быть ошибочно = today у старых записей):
         # определяем дату заново из URL, иначе со страницы документа.
         dd = doc_date(url) or page_date(url)
@@ -195,7 +206,7 @@ def discover(db: Session) -> list[dict]:
             url = _absolutize(href, src["base_url"])
             if url in known or url in seen:
                 continue
-            if not _is_fresh(url):  # архив (старше ~3 мес) — пропускаем
+            if not _is_fresh(url) or _excluded(url):  # архив или тангенциальная записка
                 continue
             seen.add(url)
             title = href.rsplit("/", 1)[-1].rsplit(".", 1)[0]
