@@ -10082,25 +10082,84 @@ function NewsCard({ n, onSelectCompany }) {
 // MACRO VIEW (Обозреватель · Направление 2 — Макрообзор)
 // =========================
 
-// Мульти-линейный SVG-график (1-3 ряда: для ставки — наложение ставка/инфляция/ожидания).
-function MacroLineChart({ series, height = 150 }) {
-  // series: [{ name, color, points:[{as_of,value}] }]
-  const W = 560, H = height, padX = 8, padY = 14, padB = 16;
-  const all = series.flatMap((s) => s.points.map((p) => p.value)).filter((v) => v != null);
-  if (all.length < 2) return <div className="tw-text-[12px] tw-text-text-tertiary tw-py-4">Недостаточно точек для графика.</div>;
-  const min = Math.min(...all), max = Math.max(...all), span = max - min || 1;
-  // общая ось X по объединённым датам
+// Полноценный мульти-линейный график: оси (Y %, X даты), тултип при наведении,
+// ползунок по времени. Паттерн осей/тултипа — как в BenchmarkChart (Анализ портфеля).
+// series: [{ name, color, points:[{as_of,value}] }]
+function MacroChart({ series, height = 200, unit = "" }) {
+  const [hover, setHover] = useState(null);   // индекс по объединённой оси дат
+  const svgRef = useRef(null);
+  const W = 640, H = height, padL = 42, padR = 12, padT = 12, padB = 26;
+
   const allDates = [...new Set(series.flatMap((s) => s.points.map((p) => p.as_of)))].sort();
-  const xOf = (d) => padX + (allDates.indexOf(d) / Math.max(1, allDates.length - 1)) * (W - 2 * padX);
-  const yOf = (v) => padY + (1 - (v - min) / span) * (H - padY - padB);
+  const n = allDates.length;
+  const all = series.flatMap((s) => s.points.map((p) => p.value)).filter((v) => v != null);
+  if (n < 2 || all.length < 2) return <div className="tw-text-[12px] tw-text-text-tertiary tw-py-4">Недостаточно точек для графика.</div>;
+  let max = Math.max(...all), min = Math.min(...all);
+  const pad = (max - min) * 0.08 || 1; max += pad; min -= pad;
+  const span = (max - min) || 1;
+  const xAt = (i) => padL + (n <= 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
+  const yAt = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
+  // значение ряда на дату d (или последнее до неё)
+  const valAt = (s, d) => {
+    let r = null;
+    for (const p of s.points) { if (p.as_of <= d && p.value != null) r = p.value; }
+    return r;
+  };
+  const path = (s) => {
+    const seg = [];
+    s.points.filter((p) => p.value != null).forEach((p) => {
+      const i = allDates.indexOf(p.as_of);
+      if (i >= 0) seg.push(`${seg.length === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.value).toFixed(1)}`);
+    });
+    return seg.join(" ");
+  };
+  const fmtD = (iso) => { const [y, m] = iso.split("-"); return `${m}.${y.slice(2)}`; };
+  const fmtFull = (iso) => { const [y, m, d] = iso.split("-"); return `${d}.${m}.${y}`; };
+  const onMove = (e) => {
+    const el = svgRef.current; if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const xSvg = ((e.clientX - rect.left) / rect.width) * W;
+    const i = Math.round(((xSvg - padL) / (W - padL - padR)) * (n - 1));
+    setHover(i >= 0 && i < n ? i : null);
+  };
+  const yTicks = [max, (max + min) / 2, min];
+  const xTickIdx = [0, Math.floor(n / 2), n - 1];
+
   return (
-    <div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
-        {series.map((s, i) => {
-          const pts = s.points.filter((p) => p.value != null);
-          const d = pts.map((p, j) => `${j === 0 ? "M" : "L"}${xOf(p.as_of).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ");
-          return <path key={i} d={d} fill="none" stroke={s.color} strokeWidth="1.6" />;
-        })}
+    <div className="tw-relative">
+      {hover != null && (
+        <div className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-md tw-shadow-lg tw-px-3 tw-py-2 tw-text-[12px]"
+             style={{ left: `${(xAt(hover) / W) * 100}%`, top: 0, transform: xAt(hover) > W * 0.6 ? "translateX(-105%)" : "translateX(8px)" }}>
+          <div className="tw-text-text-tertiary tw-font-mono tw-mb-1">{fmtFull(allDates[hover])}</div>
+          {series.map((s, k) => {
+            const val = valAt(s, allDates[hover]);
+            return <div key={k} className="tw-text-text-secondary tw-flex tw-items-center tw-gap-1.5">
+              <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill" style={{ backgroundColor: s.color }} />
+              {s.name} <b className="tw-font-mono tw-tabular-nums tw-text-text-primary">{val == null ? "—" : val.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}{unit}</b>
+            </div>;
+          })}
+        </div>
+      )}
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}
+           role="img" aria-label="График показателя" onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
+        {yTicks.map((v, k) => (
+          <g key={k}>
+            <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray="3 4" />
+            <text x={padL - 6} y={yAt(v) + 4} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{v.toFixed(1)}{unit}</text>
+          </g>
+        ))}
+        {xTickIdx.map((i, k) => (
+          <text key={k} x={xAt(i)} y={H - 8} textAnchor={k === 0 ? "start" : k === xTickIdx.length - 1 ? "end" : "middle"}
+                fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(allDates[i])}</text>
+        ))}
+        {series.map((s, i) => <path key={i} d={path(s)} fill="none" stroke={s.color} strokeWidth="1.8" />)}
+        {hover != null && (
+          <g>
+            <line x1={xAt(hover)} x2={xAt(hover)} y1={padT} y2={H - padB} stroke="var(--text-tertiary)" strokeWidth="1" strokeDasharray="2 3" />
+            {series.map((s, k) => { const val = valAt(s, allDates[hover]); return val == null ? null :
+              <circle key={k} cx={xAt(hover)} cy={yAt(val)} r="3" fill={s.color} />; })}
+          </g>
+        )}
       </svg>
       {series.length > 1 && (
         <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mt-1.5 tw-text-[11px] tw-text-text-tertiary">
@@ -10115,25 +10174,17 @@ function MacroLineChart({ series, height = 150 }) {
   );
 }
 
-function MacroIndicatorCard({ ind }) {
-  const [openInfluence, setOpenInfluence] = useState(false);
-  const [chart, setChart] = useState(null);  // {metric, points}
-  const [chartErr, setChartErr] = useState(false);
-  const [metric, setMetric] = useState((ind.metric_types || ["level"])[0]);
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const v = ind.values?.[metric] || Object.values(ind.values || {})[0];
+// Совместимость со старыми вызовами (карточка-плитка): тонкая обёртка над MacroChart.
+function MacroLineChart({ series, height = 150 }) {
+  return <MacroChart series={series} height={height} />;
+}
 
-  const loadChart = (m) => {
-    setMetric(m); setChartErr(false);
-    fetch(`${apiUrl}/api/market/macro/${ind.code}/series?metric=${m}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => setChart({ metric: m, points: d.points || [] }))
-      .catch(() => { setChart(null); setChartErr(true); });
-  };
+const _MET_LABEL = { mom: "м/м", yoy: "г/г", level: "", wow: "нед." };
+const _fmtNum = (x) => (x == null ? "—" : Number(x).toLocaleString("ru-RU", { maximumFractionDigits: 2 }));
 
-  const fmt = (x) => (x == null ? "—" : Number(x).toLocaleString("ru-RU", { maximumFractionDigits: 2 }));
-  const metricLabel = { mom: "м/м", yoy: "г/г", level: "", wow: "нед." };
-
+// Плитка-вход: число, изменение, дата, краткое «как влияет». Клик → окно (B).
+function MacroIndicatorCard({ ind, onOpen }) {
+  const v = ind.values?.[(ind.metric_types || ["level"])[0]] || Object.values(ind.values || {})[0];
   if (!ind.has_data) {
     return (
       <Card>
@@ -10143,59 +10194,93 @@ function MacroIndicatorCard({ ind }) {
     );
   }
   return (
-    <Card className={ind.in_portfolio ? "tw-border-l-2 tw-border-l-accent" : ""}>
-      <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-mb-0.5">
-        <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">{ind.title}</span>
-        {v?.is_preliminary && <Badge tone="neutral">предв.</Badge>}
-      </div>
-      <div className="tw-flex tw-items-baseline tw-gap-2">
-        <span className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-tabular-nums">{fmt(v?.value)}{ind.unit === "%" ? "%" : ""}</span>
-        {ind.unit && ind.unit !== "%" && <span className="tw-text-[12px] tw-text-text-tertiary">{ind.unit}</span>}
-        {v?.change != null && (
-          <span className={`tw-text-[12px] tw-tabular-nums ${v.change > 0 ? "tw-text-success" : v.change < 0 ? "tw-text-danger" : "tw-text-text-tertiary"}`}>
-            {v.change > 0 ? "▲" : v.change < 0 ? "▼" : ""}{fmt(Math.abs(v.change))}
-          </span>
-        )}
-      </div>
-      <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-2">{v?.as_of}{metricLabel[metric] ? ` · ${metricLabel[metric]}` : ""}</div>
-
-      {(ind.metric_types || []).length > 1 && (
-        <div className="tw-flex tw-gap-1 tw-mb-2">
-          {ind.metric_types.map((m) => (
-            <button key={m} onClick={() => { setMetric(m); if (chart) loadChart(m); }}
-              className={`tw-text-[11px] tw-px-1.5 tw-py-0.5 tw-rounded-sm tw-cursor-pointer tw-border focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${metric === m ? "tw-border-accent tw-text-accent" : "tw-border-border-subtle tw-text-text-tertiary"}`}>
-              {metricLabel[m] || m}
-            </button>
-          ))}
+    <Card className={`tw-cursor-pointer hover:tw-border-accent tw-transition-colors ${ind.in_portfolio ? "tw-border-l-2 tw-border-l-accent" : ""}`}>
+      <button onClick={() => onOpen(ind)} className="tw-block tw-w-full tw-text-left tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm">
+        <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-mb-0.5">
+          <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">{ind.title}</span>
+          {v?.is_preliminary && <Badge tone="neutral">предв.</Badge>}
         </div>
-      )}
-
-      {ind.influence_short && (
-        <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[18px] tw-mb-1.5">
-          {ind.influence_short}
-          {ind.influence_full && (
-            <button onClick={() => setOpenInfluence((o) => !o)}
-              className="tw-ml-1 tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-[12px] focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-              {openInfluence ? "свернуть" : "подробнее"}
-            </button>
+        <div className="tw-flex tw-items-baseline tw-gap-2">
+          <span className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-tabular-nums">{_fmtNum(v?.value)}{ind.unit === "%" ? "%" : ""}</span>
+          {ind.unit && ind.unit !== "%" && <span className="tw-text-[12px] tw-text-text-tertiary">{ind.unit}</span>}
+          {v?.change != null && (
+            <span className={`tw-text-[12px] tw-tabular-nums ${v.change > 0 ? "tw-text-success" : v.change < 0 ? "tw-text-danger" : "tw-text-text-tertiary"}`}>
+              {v.change > 0 ? "▲" : v.change < 0 ? "▼" : ""}{_fmtNum(Math.abs(v.change))}
+            </span>
           )}
         </div>
-      )}
-      {openInfluence && ind.influence_full && (
-        <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[18px] tw-mb-2 tw-bg-bg-hover tw-rounded-md tw-p-2">{ind.influence_full}</div>
-      )}
-
-      {chart ? (
-        <MacroLineChart series={[{ name: ind.title, color: "var(--accent)", points: chart.points }]} height={110} />
-      ) : chartErr ? (
-        <div className="tw-text-[12px] tw-text-text-tertiary">График временно недоступен.</div>
-      ) : (
-        <button onClick={() => loadChart(metric)}
-          className="tw-text-[12px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-inline-flex tw-items-center tw-gap-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-          <Activity size={13} /> График
-        </button>
-      )}
+        <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-1.5">{v?.as_of}</div>
+        {ind.influence_short && <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[17px] tw-line-clamp-2">{ind.influence_short}</div>}
+        <div className="tw-text-[11px] tw-text-accent tw-mt-1.5 tw-inline-flex tw-items-center tw-gap-1"><Activity size={12} /> Подробнее и график</div>
+      </button>
     </Card>
+  );
+}
+
+// Окно показателя (B): полноценный график (оси/тултип/ползунок), переключатель
+// метрики, наложение другого показателя, пояснение influence.
+function MacroDetailModal({ ind, allInds, onClose }) {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [metric, setMetric] = useState((ind.metric_types || ["level"])[0]);
+  const [base, setBase] = useState(null);     // {points}
+  const [overlayCode, setOverlayCode] = useState("");
+  const [overlay, setOverlay] = useState(null);
+  const v = ind.values?.[metric] || Object.values(ind.values || {})[0];
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/macro/${ind.code}/series?metric=${metric}`)
+      .then((r) => (r.ok ? r.json() : null)).then((d) => setBase(d?.points || [])).catch(() => setBase([]));
+  }, [ind.code, metric]);
+  useEffect(() => {
+    if (!overlayCode) { setOverlay(null); return; }
+    const oi = allInds.find((x) => x.code === overlayCode);
+    const om = (oi?.metric_types || ["level"])[0];
+    fetch(`${apiUrl}/api/market/macro/${overlayCode}/series?metric=${om}`)
+      .then((r) => (r.ok ? r.json() : null)).then((d) => setOverlay({ name: oi?.title || overlayCode, points: d?.points || [] })).catch(() => setOverlay(null));
+  }, [overlayCode]);
+
+  const series = [{ name: ind.title, color: "var(--accent)", points: base || [] }];
+  if (overlay) series.push({ name: overlay.name, color: "var(--cat-6)", points: overlay.points });
+
+  return (
+    <div className="tw-fixed tw-inset-0 tw-z-50 tw-bg-black/40 tw-flex tw-items-center tw-justify-center tw-p-4" onClick={onClose}>
+      <div className="tw-bg-bg-elevated tw-rounded-lg tw-shadow-xl tw-max-w-3xl tw-w-full tw-max-h-[90vh] tw-overflow-auto tw-p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="tw-flex tw-items-start tw-justify-between tw-mb-3">
+          <div>
+            <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">{ind.title}</div>
+            <div className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-tabular-nums">{_fmtNum(v?.value)}{ind.unit === "%" ? "%" : ` ${ind.unit || ""}`}
+              <span className="tw-text-[12px] tw-text-text-tertiary tw-ml-2 tw-font-normal">{v?.as_of}{_MET_LABEL[metric] ? ` · ${_MET_LABEL[metric]}` : ""}</span>
+            </div>
+          </div>
+          <button onClick={onClose} aria-label="Закрыть" className="tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-tertiary hover:tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm"><X size={20} /></button>
+        </div>
+
+        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-3">
+          {(ind.metric_types || []).length > 1 && (ind.metric_types).map((m) => (
+            <button key={m} onClick={() => setMetric(m)}
+              className={`tw-text-[12px] tw-px-2 tw-py-0.5 tw-rounded-sm tw-cursor-pointer tw-border focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${metric === m ? "tw-border-accent tw-text-accent" : "tw-border-border-subtle tw-text-text-tertiary"}`}>
+              {_MET_LABEL[m] || m}
+            </button>
+          ))}
+          <span className="tw-ml-auto tw-text-[12px] tw-text-text-tertiary">Наложить:</span>
+          <select value={overlayCode} onChange={(e) => setOverlayCode(e.target.value)}
+            className="tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-sm tw-border tw-border-border-subtle tw-bg-bg-base tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+            <option value="">— нет —</option>
+            {allInds.filter((x) => x.code !== ind.code && x.has_data).map((x) => <option key={x.code} value={x.code}>{x.title}</option>)}
+          </select>
+        </div>
+
+        {base === null ? <div className="tw-text-[13px] tw-text-text-tertiary tw-py-6 tw-animate-pulse">Загружаем график...</div>
+          : <MacroChart series={series} height={240} unit={ind.unit === "%" ? "%" : ""} />}
+
+        {(ind.influence_full || ind.influence_short) && (
+          <div className="tw-mt-4 tw-border-t tw-border-border-subtle tw-pt-3">
+            <div className="tw-text-[13px] tw-font-medium tw-text-text-primary tw-mb-1">Как влияет на рынок</div>
+            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px]">{ind.influence_full || ind.influence_short}</div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -10232,86 +10317,244 @@ function MacroView({ token, portfolioOnly }) {
       });
   }, []);
 
+  const [tab, setTab] = useState("indicators");
+  const [country, setCountry] = useState("all");
+  const [srcFilter, setSrcFilter] = useState("all");
+  const [detail, setDetail] = useState(null);
+
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-secondary tw-animate-pulse">Загружаем макрообзор...</div>;
   if (error) return <Card><div className="tw-text-[14px] tw-text-danger">Не удалось загрузить данные. Показываем последнее известное при следующей загрузке.</div></Card>;
 
-  const ruInds = (data || []).filter((x) => x.display_group === "ru");
-  const worldInds = (data || []).filter((x) => x.display_group === "world");
+  const COUNTRY_OF = { all: () => true, ru: (x) => x.country === "ru", us: (x) => x.country === "us",
+    eu: (x) => x.country === "eu", cn: (x) => x.country === "cn", world: (x) => x.country === "world" };
+  const inds = (data || []).filter(COUNTRY_OF[country] || (() => true));
+  const ruInds = inds.filter((x) => x.display_group === "ru");
+  const worldInds = inds.filter((x) => x.display_group === "world");
+  const reviews = (analytics || []).filter((d) => srcFilter === "all" || d.source === srcFilter);
+
+  const TABS = [
+    { id: "indicators", label: "Показатели", icon: Activity },
+    { id: "reviews", label: "Аналитические обзоры", icon: FileText },
+    { id: "interpreter", label: "Интерпретатор", icon: Zap },
+  ];
+  const COUNTRIES = [["all", "Все"], ["ru", "Россия"], ["us", "США"], ["eu", "ЕС"], ["cn", "КНР"], ["world", "Мир"]];
 
   return (
-    <div className="tw-space-y-8">
-      {/* СПЕЦ-БЛОК СТАВКИ */}
-      {rate?.key_rate && (
-        <Card>
-          <div className="tw-flex tw-flex-wrap tw-items-baseline tw-gap-3 tw-mb-2">
-            <span className="tw-text-[14px] tw-font-medium tw-text-text-primary">Ключевая ставка ЦБ</span>
-            <span className="tw-text-[28px] tw-font-semibold tw-text-accent tw-tabular-nums">{rate.key_rate.value}%</span>
-            <span className="tw-text-[12px] tw-text-text-tertiary">на {rate.key_rate.as_of}</span>
-          </div>
-          <div className="tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-1 tw-text-[13px] tw-text-text-secondary tw-mb-3">
-            {rate.meeting?.next_meeting_date && <span>След. заседание: <b>{rate.meeting.next_meeting_date}</b></span>}
-            {rate.meeting?.consensus_forecast && <span>Консенсус: <b>{rate.meeting.consensus_forecast}</b></span>}
-            {rate.meeting?.signal && <span>Сигнал: {rate.meeting.signal}</span>}
-          </div>
-          {rate.meeting?.press_summary && (
-            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-bg-bg-hover tw-rounded-md tw-p-2.5 tw-mb-3">{rate.meeting.press_summary}</div>
+    <div>
+      {detail && <MacroDetailModal ind={detail} allInds={data || []} onClose={() => setDetail(null)} />}
+
+      <div className="tw-flex tw-flex-wrap tw-gap-2 tw-mb-5 tw-border-b tw-border-border-subtle tw-pb-3">
+        {TABS.map((t) => (
+          <Chip key={t.id} selected={tab === t.id} onClick={() => setTab(t.id)}>
+            <t.icon size={13} className="tw-shrink-0" aria-hidden="true" /> {t.label}
+          </Chip>
+        ))}
+      </div>
+
+      {/* ВКЛАДКА: ПОКАЗАТЕЛИ */}
+      {tab === "indicators" && (
+        <div className="tw-space-y-8">
+          {rate?.key_rate && (
+            <Card>
+              <div className="tw-flex tw-flex-wrap tw-items-baseline tw-gap-3 tw-mb-2">
+                <span className="tw-text-[14px] tw-font-medium tw-text-text-primary">Ключевая ставка ЦБ</span>
+                <span className="tw-text-[28px] tw-font-semibold tw-text-accent tw-tabular-nums">{rate.key_rate.value}%</span>
+                <span className="tw-text-[12px] tw-text-text-tertiary">на {rate.key_rate.as_of}</span>
+              </div>
+              <div className="tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-1 tw-text-[13px] tw-text-text-secondary tw-mb-3">
+                {rate.meeting?.next_meeting_date && <span>След. заседание: <b>{rate.meeting.next_meeting_date}</b></span>}
+                {rate.meeting?.consensus_forecast && <span>Консенсус: <b>{rate.meeting.consensus_forecast}</b></span>}
+                {rate.meeting?.signal && <span>Сигнал: {rate.meeting.signal}</span>}
+              </div>
+              {rate.meeting?.press_summary && (
+                <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-bg-bg-hover tw-rounded-md tw-p-2.5 tw-mb-3">{rate.meeting.press_summary}</div>
+              )}
+              {rateChart && <MacroChart series={rateChart} height={200} unit="%" />}
+            </Card>
           )}
-          {rateChart && <MacroLineChart series={rateChart} height={170} />}
-        </Card>
-      )}
 
-      {/* РФ */}
-      {ruInds.length > 0 && (
-        <div>
-          <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Показатели РФ</h2>
-          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
-            {ruInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} />)}
-          </div>
-        </div>
-      )}
-
-      {/* МИР */}
-      {worldInds.length > 0 && (
-        <div>
-          <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Мир</h2>
-          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
-            {worldInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} />)}
-          </div>
-        </div>
-      )}
-
-      {/* АНАЛИТИКА */}
-      <div>
-        <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Аналитика (ЦБ, ЦМАКП)</h2>
-        {analytics.length === 0 ? (
-          <Card><div className="tw-text-[13px] tw-text-text-tertiary">Новых аналитических документов пока нет — мониторинг проверяет источники ежедневно.</div></Card>
-        ) : (
-          <div className="tw-space-y-3">
-            {analytics.map((d) => (
-              <Card key={d.id}>
-                <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1 tw-text-[12px] tw-text-text-tertiary">
-                  <span className="tw-font-medium tw-text-text-secondary">{d.source === "cbr" ? "Банк России" : d.source === "cmasf" ? "ЦМАКП" : d.source}</span>
-                  {d.doc_type && <Badge tone="neutral">{d.doc_type}</Badge>}
-                  {d.published_at && <span>{d.published_at}</span>}
-                </div>
-                <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1.5">{d.title}</h3>
-                {d.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2">{d.summary}</p>}
-                {d.key_takeaways?.length > 0 && (
-                  <ul className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2 tw-list-disc tw-pl-4 tw-space-y-0.5">
-                    {d.key_takeaways.map((t, i) => <li key={i}>{t}</li>)}
-                  </ul>
-                )}
-                {d.source_url && (
-                  <a href={d.source_url} target="_blank" rel="noopener noreferrer"
-                     className="tw-text-[12px] tw-text-accent tw-inline-flex tw-items-center tw-gap-1 tw-no-underline hover:tw-underline">
-                    Оригинал <ExternalLink size={12} />
-                  </a>
-                )}
-              </Card>
+          <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+            {COUNTRIES.map(([id, lbl]) => (
+              <Chip key={id} selected={country === id} onClick={() => setCountry(id)}>{lbl}</Chip>
             ))}
           </div>
-        )}
+
+          {ruInds.length > 0 && (
+            <div>
+              <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Показатели РФ</h2>
+              <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
+                {ruInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} onOpen={setDetail} />)}
+              </div>
+            </div>
+          )}
+          {worldInds.length > 0 && (
+            <div>
+              <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Мир</h2>
+              <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
+                {worldInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} onOpen={setDetail} />)}
+              </div>
+            </div>
+          )}
+
+          <MacroForecastTable />
+        </div>
+      )}
+
+      {/* ВКЛАДКА: АНАЛИТИЧЕСКИЕ ОБЗОРЫ */}
+      {tab === "reviews" && (
+        <div>
+          <div className="tw-flex tw-flex-wrap tw-gap-1.5 tw-mb-4">
+            {[["all", "Все"], ["cmasf", "ЦМАКП"], ["cbr", "Банк России"]].map(([id, lbl]) => (
+              <Chip key={id} selected={srcFilter === id} onClick={() => setSrcFilter(id)}>{lbl}</Chip>
+            ))}
+          </div>
+          {reviews.length === 0 ? (
+            <Card><div className="tw-text-[13px] tw-text-text-tertiary">Новых аналитических документов пока нет — мониторинг проверяет источники ежедневно.</div></Card>
+          ) : (
+            <div className="tw-space-y-3">
+              {reviews.map((d) => (
+                <Card key={d.id}>
+                  <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1 tw-text-[12px] tw-text-text-tertiary">
+                    <span className="tw-font-medium tw-text-text-secondary">{d.source === "cbr" ? "Банк России" : d.source === "cmasf" ? "ЦМАКП" : d.source}</span>
+                    {d.doc_type && <Badge tone="neutral">{d.doc_type}</Badge>}
+                    {d.published_at && <span>{d.published_at}</span>}
+                  </div>
+                  <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1.5">{d.title}</h3>
+                  {d.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2">{d.summary}</p>}
+                  {d.key_takeaways?.length > 0 && (
+                    <ul className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2 tw-list-disc tw-pl-4 tw-space-y-0.5">
+                      {d.key_takeaways.map((t, i) => <li key={i}>{t}</li>)}
+                    </ul>
+                  )}
+                  {d.interpretation && (
+                    <div className="tw-flex tw-gap-2 tw-rounded-md tw-bg-accent-soft tw-px-3 tw-py-2 tw-mb-2">
+                      <Zap size={14} className="tw-text-accent tw-shrink-0 tw-mt-0.5" aria-hidden="true" />
+                      <div className="tw-text-[13px] tw-leading-[19px] tw-text-text-secondary">
+                        <span className="tw-font-medium tw-text-text-primary">Интерпретация Basis. </span>{d.interpretation}
+                      </div>
+                    </div>
+                  )}
+                  {d.source_url && (
+                    <a href={d.source_url} target="_blank" rel="noopener noreferrer"
+                       className="tw-text-[12px] tw-text-accent tw-inline-flex tw-items-center tw-gap-1 tw-no-underline hover:tw-underline">
+                      Оригинал <ExternalLink size={12} />
+                    </a>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ВКЛАДКА: ИНТЕРПРЕТАТОР */}
+      {tab === "interpreter" && <MacroInterpreterTab token={token} />}
+    </div>
+  );
+}
+
+// D. Таблица среднесрочного прогноза ЦБ (вкладка Показатели, ниже).
+function MacroForecastTable() {
+  const [fc, setFc] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/macro/forecast`).then((r) => (r.ok ? r.json() : null)).then(setFc).catch(() => setFc(null));
+  }, []);
+  if (!fc || !fc.rows?.length) {
+    return (
+      <div>
+        <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Среднесрочный прогноз Банка России</h2>
+        <Card><div className="tw-text-[13px] tw-text-text-tertiary">Прогноз ЦБ появится после ближайшей публикации (мониторинг ЦБ проверяет источники ежедневно).</div></Card>
       </div>
+    );
+  }
+  const years = [...new Set(fc.rows.map((r) => r.year))].sort();
+  const indicators = [...new Set(fc.rows.map((r) => r.indicator))];
+  const cell = (ind, year) => fc.rows.find((r) => r.indicator === ind && r.year === year);
+  return (
+    <div>
+      <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1">Среднесрочный прогноз Банка России</h2>
+      {fc.as_of && <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3">по состоянию на {fc.as_of}{fc.scenario ? ` · сценарий: ${fc.scenario}` : ""}</div>}
+      <Card>
+        <div className="tw-overflow-x-auto">
+          <table className="tw-w-full tw-text-[13px] tw-border-collapse">
+            <thead>
+              <tr className="tw-text-text-tertiary tw-text-left">
+                <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Показатель</th>
+                {years.map((y) => <th key={y} className="tw-py-1.5 tw-px-3 tw-font-medium tw-text-right tw-tabular-nums">{y}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {indicators.map((ind) => (
+                <tr key={ind} className="tw-border-t tw-border-border-subtle">
+                  <td className="tw-py-1.5 tw-pr-3 tw-text-text-primary">{ind}</td>
+                  {years.map((y) => { const c = cell(ind, y); return <td key={y} className="tw-py-1.5 tw-px-3 tw-text-right tw-tabular-nums tw-text-text-secondary">{c ? c.value : "—"}</td>; })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {fc.comment && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mt-3 tw-pt-3 tw-border-t tw-border-border-subtle">{fc.comment}</div>}
+      </Card>
+    </div>
+  );
+}
+
+// G. Интерпретатор — ИИ-анализ всей макроситуации (по методичке, DeepSeek Pro reasoning).
+function MacroInterpreterTab({ token }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [regen, setRegen] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  const load = () => {
+    setLoading(true);
+    fetch(`${apiUrl}/api/market/macro/interpretation`).then((r) => (r.ok ? r.json() : null))
+      .then((d) => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+  };
+  useEffect(load, []);
+
+  const regenerate = () => {
+    setRegen(true);
+    fetch(`${apiUrl}/api/market/macro/interpretation`, { method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      .then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setData(d); }).finally(() => setRegen(false));
+  };
+
+  const SECTIONS = [
+    ["current_picture", "Текущая картина"],
+    ["rate_outlook", "Ставка: ближайшее решение и траектория"],
+    ["cb_forecast_view", "Прогноз ЦБ: оценка вероятности"],
+    ["market_sectors", "Рынок и сектора"],
+    ["scenarios", "Сценарии: base / bull / bear"],
+  ];
+
+  return (
+    <div>
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-mb-4">
+        <div className="tw-text-[12px] tw-text-text-tertiary">
+          {data?.generated_at ? `Срез на ${new Date(data.generated_at).toLocaleString("ru-RU")}` : "Анализ ещё не сформирован"}
+          {data?.model_used ? ` · ${data.model_used}` : ""}
+        </div>
+        <Button onClick={regenerate} disabled={regen} loading={regen} variant="secondary" iconLeft={!regen ? <Zap size={14} /> : null}>
+          {regen ? "Анализируем..." : "Обновить анализ"}
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-secondary tw-animate-pulse">Загружаем интерпретацию...</div>
+      ) : !data || !data.sections ? (
+        <Card><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">Интерпретация ещё не сформирована. Нажмите «Обновить анализ» — ИИ соберёт связную картину по всем показателям, аналитике ЦБ/ЦМАКП и прогнозу (это рассуждающая модель, займёт ~1-2 минуты).</div></Card>
+      ) : (
+        <div className="tw-space-y-4">
+          <div className="tw-text-[12px] tw-text-text-tertiary tw-italic">Это аналитическая интерпретация Basis (оценка, не факт и не рекомендация «купить/продать»).</div>
+          {SECTIONS.map(([key, title]) => data.sections[key] && (
+            <Card key={key}>
+              <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-2">{title}</h3>
+              <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[21px] tw-whitespace-pre-line">{data.sections[key]}</div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

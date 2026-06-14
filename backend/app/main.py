@@ -193,6 +193,13 @@ async def _macro_startup():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Под тестами (pytest) НЕ запускаем планировщик и старт-задачи: они ходят в сеть
+    # и зовут LLM (ингест/новости/аналитика), что недопустимо в тестовом прогоне.
+    import sys
+    if "pytest" in sys.modules or os.environ.get("DISABLE_SCHEDULER"):
+        logger.info("Планировщик/старт-задачи отключены (тест/флаг)")
+        yield
+        return
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
     # Лента новостей Обозревателя — 4 раза/сутки (07:00/13:00/19:00/01:00 МСК).

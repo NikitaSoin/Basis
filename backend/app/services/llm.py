@@ -94,9 +94,9 @@ def _strip_json_fence(text: str) -> str:
 
 def _call_openai_compatible(provider: str, system_prompt: str, user_content: str,
                             json_mode: bool, max_tokens: int, temperature: float,
-                            thinking: bool) -> str:
+                            thinking: bool, model_override: str | None = None) -> str:
     base_url, _, _ = _PROVIDERS[provider]
-    model = _model(provider)
+    model = model_override or _model(provider)
     payload = {
         "model": model,
         "messages": [
@@ -148,7 +148,8 @@ def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
 
 
 def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
-             max_tokens: int = 4096, temperature: float = 0.2, thinking: bool = False):
+             max_tokens: int = 4096, temperature: float = 0.2, thinking: bool = False,
+             model: str | None = None):
     """Единая точка вызова LLM.
 
     system_prompt — СТАБИЛЬНЫЙ префикс (для кэша провайдера); user_content —
@@ -168,7 +169,7 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
                 raw = _call_claude(system_prompt, user_content, json_mode, max_tokens, temperature)
             else:
                 raw = _call_openai_compatible(provider, system_prompt, user_content,
-                                              json_mode, max_tokens, temperature, thinking)
+                                              json_mode, max_tokens, temperature, thinking, model)
             if not json_mode:
                 return raw
             cleaned = _strip_json_fence(raw)
@@ -189,6 +190,12 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
             if attempt < _retries():
                 time.sleep(1.5 * (attempt + 1))
     raise LLMError(f"LLM({provider}) недоступен после повторов: {type(last_err).__name__}")
+
+
+def pro_model() -> str:
+    """Имя «думающей» модели DeepSeek (reasoning) для Интерпретатора/интерпретаций.
+    Из env LLM_MODEL_PRO или дефолт deepseek-v4-pro."""
+    return (os.environ.get("LLM_MODEL_PRO") or "deepseek-v4-pro").strip()
 
 
 def provider_info() -> dict:

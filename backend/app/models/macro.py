@@ -99,7 +99,40 @@ class MacroAnalyticsDoc(Base):
     key_takeaways: Mapped[list | None] = mapped_column(JSONB)  # ["вывод1", ...]
     published_at: Mapped[date_type | None] = mapped_column(Date)
     source_url: Mapped[str] = mapped_column(String(1000), nullable=False)
+    interpretation: Mapped[str | None] = mapped_column(Text)  # F: на что влияет (Pro reasoning)
     model_used: Mapped[str | None] = mapped_column(String(64))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+
+
+class MacroForecast(Base):
+    """Среднесрочный прогноз ЦБ (D): ставка/инфляция/ВВП по годам и сценариям."""
+    __tablename__ = "macro_forecasts"
+    __table_args__ = (UniqueConstraint("as_of", "scenario", "indicator", "year",
+                                       name="uq_macro_forecast"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    as_of: Mapped[date_type] = mapped_column(Date, nullable=False)  # дата публикации прогноза
+    scenario: Mapped[str] = mapped_column(String(48), default="базовый")
+    indicator: Mapped[str] = mapped_column(String(80), nullable=False)  # «Инфляция», «ВВП», «Ключевая ставка»
+    year: Mapped[int] = mapped_column(nullable=False)
+    value: Mapped[str | None] = mapped_column(String(48))  # «7,0–8,0» или «4,0»
+    comment: Mapped[str | None] = mapped_column(Text)
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class MacroInterpretation(Base):
+    """G: ИИ-интерпретация всей макроситуации (срез на момент, по методичке)."""
+    __tablename__ = "macro_interpretations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    sections: Mapped[dict | None] = mapped_column(JSONB)  # {current_picture, rate_outlook, ...}
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    model_used: Mapped[str | None] = mapped_column(String(64))
+    source_snapshot: Mapped[dict | None] = mapped_column(JSONB)  # срез данных, по которым построено
