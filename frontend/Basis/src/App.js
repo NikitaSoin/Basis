@@ -10023,12 +10023,12 @@ function NewsCard({ n, onSelectCompany }) {
         <div className="tw-flex tw-flex-wrap tw-gap-1.5">
           {(n.affected_tickers || []).map((t) => (
             <button key={t} onClick={() => onSelectCompany && onSelectCompany(t)}
-              className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-bg-bg-subtle tw-border tw-border-border-subtle tw-px-2 tw-py-0.5 tw-text-[12px] tw-text-text-secondary tw-cursor-pointer hover:tw-border-accent hover:tw-text-accent tw-transition-colors">
+              className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-bg-bg-hover tw-border tw-border-border-subtle tw-px-2 tw-py-1 tw-text-[12px] tw-text-text-secondary tw-cursor-pointer hover:tw-bg-accent-soft hover:tw-border-accent hover:tw-text-accent tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
               {t}
             </button>
           ))}
           {(n.affected_sectors || []).map((s) => (
-            <span key={s} className="tw-inline-flex tw-items-center tw-rounded-pill tw-bg-bg-subtle tw-px-2 tw-py-0.5 tw-text-[12px] tw-text-text-tertiary">
+            <span key={s} className="tw-inline-flex tw-items-center tw-rounded-pill tw-bg-bg-hover tw-px-2 tw-py-1 tw-text-[12px] tw-text-text-tertiary">
               {s}
             </span>
           ))}
@@ -10123,7 +10123,7 @@ function OverviewView({ token, onSelectCompany }) {
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
           aria-pressed={portfolioOnly}
-          className={`tw-ml-auto tw-inline-flex tw-items-center tw-gap-2 tw-rounded-pill tw-border tw-px-3 tw-py-1 tw-text-[13px] tw-cursor-pointer tw-transition-colors ${
+          className={`tw-ml-auto tw-inline-flex tw-items-center tw-gap-2 tw-rounded-pill tw-border tw-px-3 tw-py-1 tw-text-[13px] tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
             portfolioOnly
               ? "tw-border-accent tw-bg-accent-soft tw-text-accent"
               : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"
