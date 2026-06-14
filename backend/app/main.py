@@ -169,6 +169,10 @@ async def lifespan(app: FastAPI):
     # пустое/устаревшее) — чтобы после деплоя данные оказались на бою без ручной
     # команды import_data.sh.
     asyncio.create_task(_asset_data_job())
+    # Разовый прогон ленты новостей при старте (в фоне): после деплоя лента
+    # наполняется сразу, не дожидаясь крона. Дедуп по source_url не даёт повторной
+    # обработки при рестартах.
+    asyncio.create_task(_news_job())
 
     yield
     scheduler.shutdown()
