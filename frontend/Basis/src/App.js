@@ -10106,7 +10106,7 @@ function MacroLineChart({ series, height = 150 }) {
         <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mt-1.5 tw-text-[11px] tw-text-text-tertiary">
           {series.map((s, i) => (
             <span key={i} className="tw-inline-flex tw-items-center tw-gap-1">
-              <span className="tw-inline-block tw-w-3 tw-h-0.5" style={{ backgroundColor: s.color }} />{s.name}
+              <span className="tw-inline-block tw-w-4 tw-h-1 tw-rounded-pill" style={{ backgroundColor: s.color }} />{s.name}
             </span>
           ))}
         </div>
@@ -10117,17 +10117,18 @@ function MacroLineChart({ series, height = 150 }) {
 
 function MacroIndicatorCard({ ind }) {
   const [openInfluence, setOpenInfluence] = useState(false);
-  const [chart, setChart] = useState(null);  // {metric, series}
+  const [chart, setChart] = useState(null);  // {metric, points}
+  const [chartErr, setChartErr] = useState(false);
   const [metric, setMetric] = useState((ind.metric_types || ["level"])[0]);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const v = ind.values?.[metric] || Object.values(ind.values || {})[0];
 
   const loadChart = (m) => {
-    setMetric(m);
+    setMetric(m); setChartErr(false);
     fetch(`${apiUrl}/api/market/macro/${ind.code}/series?metric=${m}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d && setChart({ metric: m, points: d.points }))
-      .catch(() => {});
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setChart({ metric: m, points: d.points || [] }))
+      .catch(() => { setChart(null); setChartErr(true); });
   };
 
   const fmt = (x) => (x == null ? "—" : Number(x).toLocaleString("ru-RU", { maximumFractionDigits: 2 }));
@@ -10186,6 +10187,8 @@ function MacroIndicatorCard({ ind }) {
 
       {chart ? (
         <MacroLineChart series={[{ name: ind.title, color: "var(--accent)", points: chart.points }]} height={110} />
+      ) : chartErr ? (
+        <div className="tw-text-[12px] tw-text-text-tertiary">График временно недоступен.</div>
       ) : (
         <button onClick={() => loadChart(metric)}
           className="tw-text-[12px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-inline-flex tw-items-center tw-gap-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
