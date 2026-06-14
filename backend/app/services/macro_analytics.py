@@ -49,7 +49,7 @@ def doc_date(url: str) -> date | None:
         for fmt in ("%Y%m%d", "%d%m%Y"):
             try:
                 d = datetime.strptime(m.group(1), fmt).date()
-                if 2015 <= d.year <= 2030:
+                if 2008 <= d.year <= 2030:
                     return d
             except ValueError:
                 continue
@@ -59,36 +59,72 @@ def doc_date(url: str) -> date | None:
     m = re.search(r"(" + "|".join(_MONTHS) + r")[_\-]?(20\d{2})", s)  # may_2026
     if m:
         return date(int(m.group(2)), _MONTHS[m.group(1)], 28)
-    m = re.search(r"(?<!\d)(\d{2})-(\d{2})(?!\d)", s)  # YY-MM: 21-08
+    m = re.search(r"(?<!\d)(\d{2})-(\d{2})(?!\d)", s)  # YY-MM: 21-08 (вкл. старые 14-02)
     if m:
         yy, mm = 2000 + int(m.group(1)), int(m.group(2))
-        if 1 <= mm <= 12 and 2015 <= yy <= 2030:
+        if 1 <= mm <= 12 and 2008 <= yy <= 2030:
             return date(yy, mm, 28)
-    m = re.search(r"(20[12]\d)", s)  # голый год
+    m = re.search(r"(20[0-2]\d)", s)  # голый год (2008-2029)
     if m:
         return date(int(m.group(1)), 6, 30)
     return None
 
 
+def page_date(url: str) -> date | None:
+    """Дата публикации со СТРАНИЦЫ документа (запасной путь, если в URL даты нет):
+    ищем дату в тексте/метаданных. None — если не нашли."""
+    try:
+        r = httpx.Client(timeout=15, headers=_HTTP, follow_redirects=True).get(url)
+        if r.status_code != 200:
+            return None
+        txt = r.text
+    except Exception:  # noqa: BLE001
+        return None
+    # ISO/DD.MM.YYYY/«12 мая 2026»
+    m = re.search(r"(20[0-2]\d)-(\d{2})-(\d{2})", txt) or re.search(r"(\d{2})\.(\d{2})\.(20[0-2]\d)", txt)
+    if m:
+        g = m.groups()
+        try:
+            return date(int(g[0]), int(g[1]), int(g[2])) if len(g[0]) == 4 else date(int(g[2]), int(g[1]), int(g[0]))
+        except ValueError:
+            return None
+    m = re.search(r"(\d{1,2})\s+(" + "|".join(k for k in _MONTHS if len(k) > 2) + r")\w*\s+(20[0-2]\d)", txt.lower())
+    if m:
+        try:
+            return date(int(m.group(3)), _MONTHS[m.group(2)], int(m.group(1)))
+        except (ValueError, KeyError):
+            return None
+    return None
+
+
 def _is_fresh(url: str) -> bool:
+    """Свежий ли документ — гейт на ВХОДЕ (по дате из URL, без сетевых запросов).
+    ПРИ СОМНЕНИИ ОТБРАСЫВАЕМ: дату из URL не извлекли → НЕ берём (лучше пробел, чем
+    архив 2014 года). Документы со свежей датой только на странице — редкость для
+    cbr/cmasf (там дата в имени файла), ими жертвуем ради нуля архива."""
     d = doc_date(url)
-    if d is None:
-        return True  # дату не распознали — не отбрасываем (редко; пусть решит выжимка)
-    return d >= (date.today() - timedelta(days=_FRESH_DAYS))
+    return d is not None and d >= (date.today() - timedelta(days=_FRESH_DAYS))
 
 
 def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
-    """Удалить из БД обзоры старше `days` (по дате из URL). Чистит архив с витрины."""
+    """Удалить из БД обзоры старше `days` ИЛИ с НЕопределяемой датой (при сомнении —
+    убираем: лучше пробел, чем архив). Дату берём из URL, иначе со страницы."""
     cutoff = date.today() - timedelta(days=days)
     removed = 0
     for d in db.query(MacroAnalyticsDoc).all():
-        dd = doc_date(d.source_url or "")
-        if dd is not None and dd < cutoff:
+        url = d.source_url or ""
+        dd = doc_date(url)
+        # если в URL даты нет — пробуем по дате публикации (published_at), затем по странице
+        if dd is None and d.published_at:
+            dd = d.published_at
+        if dd is None:
+            dd = page_date(url)
+        if dd is None or dd < cutoff:
             db.delete(d)
             removed += 1
     db.commit()
     if removed:
-        logger.info("Аналитика: удалено %d устаревших обзоров (старше %d дн.)", removed, days)
+        logger.info("Аналитика: удалено %d обзоров (старше %d дн. или без надёжной даты)", removed, days)
     return removed
 
 _DOC_SYS = (
