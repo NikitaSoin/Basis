@@ -111,5 +111,21 @@
   "_fred_note": "eu_unemployment/cn_unemployment — нет свежего бесплатного ряда в FRED (стале/битый код); показатели в справочнике остаются, данные пустые (честно) до подключения Eurostat — точка расширения.",
   "worldbank_series": {
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
+  },
+  "analytics_sources": [
+    {"source": "cbr", "doc_type": "Доклад/комментарий ДКП", "page_url": "https://www.cbr.ru/dkp/", "base_url": "https://www.cbr.ru", "ext": ".pdf"},
+    {"source": "cmasf", "doc_type": "Аналитическая записка", "page_url": "http://www.forecast.ru/", "base_url": "http://www.forecast.ru", "ext": ".pdf"}
+  ],
+  "news_extract": {
+    "_comment": "Показатели, извлекаемые из статрелизов в Ленте. min/max — допустимый диапазон (валидация: за пределами — отбрасываем как ошибку распознавания).",
+    "inflation": {"name": "потребительская инфляция РФ (ИПЦ)", "metrics": ["mom", "yoy"], "unit": "%", "min": -5, "max": 60},
+    "inflation_weekly": {"name": "недельная инфляция РФ", "metrics": ["wow"], "unit": "%", "min": -2, "max": 5},
+    "inflation_expectations": {"name": "инфляционные ожидания населения РФ", "metrics": ["level"], "unit": "%", "min": 0, "max": 40},
+    "gdp": {"name": "ВВП РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 20},
+    "unemployment": {"name": "безработица РФ", "metrics": ["level"], "unit": "%", "min": 1, "max": 20},
+    "ppi": {"name": "индекс цен производителей РФ (ИЦП)", "metrics": ["yoy", "mom"], "unit": "%", "min": -30, "max": 60},
+    "pmi_composite": {"name": "PMI РФ (композит/пром/услуги, итоговое число)", "metrics": ["level"], "unit": "ед", "min": 20, "max": 70},
+    "nominal_wage": {"name": "номинальная зарплата РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 50},
+    "budget_balance": {"name": "баланс федерального бюджета РФ", "metrics": ["level"], "unit": "трлн руб", "min": -20, "max": 20}
   }
 }
