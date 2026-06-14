@@ -41,8 +41,14 @@ _MONTHS_GENITIVE = {
 
 
 def _period_to_date(period: str) -> date | None:
-    """SDMX TIME_PERIOD → дата конца периода. Поддержка: YYYY-MM, YYYY, YYYY-Qn."""
+    """TIME_PERIOD → дата. Поддержка: YYYY-MM-DD (неделя/день), YYYY-MM, YYYY, YYYY-Qn."""
     p = (period or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", p)
+    if m:
+        try:
+            return date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        except ValueError:
+            return None
     m = re.match(r"^(\d{4})-(\d{2})$", p)
     if m:
         y, mo = int(m.group(1)), int(m.group(2))
@@ -160,12 +166,24 @@ def ingest_rosstat_file(db: Session) -> dict:
         logger.info("Росстат-файл %s отсутствует — пропуск (ждём ручную выгрузку)", _MANUAL_CSV)
         return {"status": "no_file"}
     cfg = load_macro_config()
-    series = cfg.get("fedstat_series", {})
+    # Объединяем источники диапазонов: Росстат-ряды (fedstat_series) + показатели,
+    # извлекаемые из релизов (news_extract: инфляция, недельная инфляция и т.п.).
+    specs: dict = {}
+    for code, s in cfg.get("fedstat_series", {}).items():
+        if isinstance(s, dict) and "min" in s:
+            specs[code] = {"min": s["min"], "max": s["max"], "metric": s.get("metric", "level"),
+                           "unit": s.get("unit"), "url": f"{_BASE}/indicator/{s.get('id','')}"}
+    for code, s in cfg.get("news_extract", {}).items():
+        if isinstance(s, dict) and "min" in s and code not in specs:
+            specs[code] = {"min": s["min"], "max": s["max"],
+                           "metric": (s.get("metrics") or ["level"])[0], "unit": s.get("unit"),
+                           "url": "https://rosstat.gov.ru/statistics/price"}
+    units = {i["code"]: i.get("unit") for i in cfg.get("indicators", [])}
     out = {"loaded": {}, "skipped": {}}
     with open(_MANUAL_CSV, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
             code = (r.get("indicator") or "").strip()
-            spec = series.get(code)
+            spec = specs.get(code)
             if not spec:
                 out["skipped"][code or "?"] = "неизвестный код"
                 continue
@@ -181,9 +199,9 @@ def ingest_rosstat_file(db: Session) -> dict:
                 out["skipped"][code] = out["skipped"].get(code, "") + f" вне диапазона {v};"
                 continue
             metric = (r.get("metric") or "").strip() or spec.get("metric", "level")
-            res = upsert_point(db, code, d, metric, v, unit=spec.get("unit"),
+            res = upsert_point(db, code, d, metric, v, unit=spec.get("unit") or units.get(code),
                                source="Росстат (ручная сверка, MVP)",
-                               source_url=f"{_BASE}/indicator/{spec['id']}",
+                               source_url=spec.get("url"),
                                ingested_via="rosstat", commit=False)
             if res in ("insert", "revise"):
                 out["loaded"][code] = out["loaded"].get(code, 0) + 1
