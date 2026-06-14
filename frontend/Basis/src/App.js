@@ -42,6 +42,9 @@ import {
   ChevronDown,
   Check,
   Pencil,
+  Newspaper,
+  ExternalLink,
+  Clock,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -9882,10 +9885,167 @@ const PricingView = ({ user, onShowAuth }) => {
 // =========================
 // PROFILE PANEL (sidebar popup)
 // =========================
+// NEWS FEED (Обозреватель · Направление 1 — Лента новостей)
+// =========================
+
+const _RU_MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+// «Выпуск HH:MM, DD месяца» из cluster_id (префикс YYYYMMDDHHMM в UTC → МСК +3).
+function _issueLabel(clusterId) {
+  if (!clusterId || clusterId.length < 12) return "Выпуск";
+  const p = clusterId.slice(0, 12);
+  const y = +p.slice(0, 4), mo = +p.slice(4, 6) - 1, d = +p.slice(6, 8),
+        h = +p.slice(8, 10), mi = +p.slice(10, 12);
+  const dt = new Date(Date.UTC(y, mo, d, h, mi));
+  dt.setUTCHours(dt.getUTCHours() + 3); // МСК
+  const hh = String(dt.getUTCHours()).padStart(2, "0");
+  const mm = String(dt.getUTCMinutes()).padStart(2, "0");
+  return `Выпуск ${hh}:${mm}, ${dt.getUTCDate()} ${_RU_MONTHS[dt.getUTCMonth()]}`;
+}
+
+const _SOURCE_LABEL = { interfax: "Интерфакс", rbc: "РБК", kommersant: "Коммерсантъ" };
+
+function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [importance, setImportance] = useState("all");
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    const params = new URLSearchParams({ limit: "120" });
+    if (importance !== "all") params.set("importance", importance);
+    if (portfolioOnly) params.set("portfolio_only", "true");
+    fetch(`${apiUrl}/api/market/news?${params}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [importance, portfolioOnly, token]);
+
+  // группировка по выпускам (свежие сверху), внутри — по времени публикации
+  const groups = [];
+  const byIssue = {};
+  for (const it of items) {
+    const key = (it.cluster_id || "").slice(0, 12) || "—";
+    if (!byIssue[key]) { byIssue[key] = { key, label: _issueLabel(it.cluster_id), items: [] }; groups.push(byIssue[key]); }
+    byIssue[key].items.push(it);
+  }
+  groups.sort((a, b) => b.key.localeCompare(a.key));
+
+  const IMP_TABS = [
+    { id: "all", label: "Все" },
+    { id: "high", label: "Важное" },
+    { id: "medium", label: "Среднее" },
+  ];
+
+  return (
+    <div>
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-5">
+        {IMP_TABS.map((t) => (
+          <Chip key={t.id} selected={importance === t.id} onClick={() => setImportance(t.id)}>
+            {t.label}
+          </Chip>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-secondary tw-animate-pulse">
+          Загружаем ленту...
+        </div>
+      ) : error ? (
+        <Card><div className="tw-text-[14px] tw-text-danger">Не удалось загрузить ленту. Попробуйте обновить страницу.</div></Card>
+      ) : groups.length === 0 ? (
+        <Card>
+          <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">
+            {portfolioOnly
+              ? "По вашему портфелю значимых новостей за этот период нет."
+              : "За этот период значимых рыночных новостей нет."}
+            <span className="tw-text-text-tertiary"> Это нормально: лента показывает только то, что серьёзно влияет на рынок, и честно молчит, когда таких событий нет.</span>
+          </div>
+        </Card>
+      ) : (
+        <div className="tw-space-y-8">
+          {groups.map((g) => (
+            <div key={g.key}>
+              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+                <Clock size={14} className="tw-text-text-tertiary tw-shrink-0" aria-hidden="true" />
+                <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary">{g.label}</h2>
+                <span className="tw-text-[12px] tw-text-text-tertiary">· {g.items.length}</span>
+              </div>
+              <div className="tw-space-y-3">
+                {g.items.map((n) => <NewsCard key={n.id} n={n} onSelectCompany={onSelectCompany} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NewsCard({ n, onSelectCompany }) {
+  const high = n.importance === "high";
+  return (
+    <Card className={high ? "tw-border-l-2 tw-border-l-accent" : ""}>
+      <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1.5 tw-text-[12px] tw-text-text-tertiary">
+        <span className="tw-font-medium tw-text-text-secondary">{_SOURCE_LABEL[n.source] || n.source || "Источник"}</span>
+        {high && <Badge tone="accent">важное</Badge>}
+        {n.source_url && (
+          <a href={n.source_url} target="_blank" rel="noopener noreferrer"
+             className="tw-ml-auto tw-inline-flex tw-items-center tw-gap-1 tw-text-text-tertiary hover:tw-text-accent tw-no-underline">
+            Источник <ExternalLink size={12} />
+          </a>
+        )}
+      </div>
+
+      <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-leading-snug tw-mb-1.5">{n.title}</h3>
+
+      {n.summary && (
+        <p className="tw-text-[13px] tw-leading-[20px] tw-text-text-secondary tw-mb-2.5">{n.summary}</p>
+      )}
+
+      {n.impact_comment && (
+        <div className="tw-flex tw-gap-2 tw-rounded-md tw-bg-accent-soft tw-px-3 tw-py-2 tw-mb-2.5">
+          <Zap size={14} className="tw-text-accent tw-shrink-0 tw-mt-0.5" aria-hidden="true" />
+          <div className="tw-text-[13px] tw-leading-[19px] tw-text-text-secondary">
+            <span className="tw-font-medium tw-text-text-primary">На что влияет. </span>{n.impact_comment}
+          </div>
+        </div>
+      )}
+
+      {((n.affected_tickers && n.affected_tickers.length > 0) ||
+        (n.affected_sectors && n.affected_sectors.length > 0)) && (
+        <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+          {(n.affected_tickers || []).map((t) => (
+            <button key={t} onClick={() => onSelectCompany && onSelectCompany(t)}
+              className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-bg-bg-subtle tw-border tw-border-border-subtle tw-px-2 tw-py-0.5 tw-text-[12px] tw-text-text-secondary tw-cursor-pointer hover:tw-border-accent hover:tw-text-accent tw-transition-colors">
+              {t}
+            </button>
+          ))}
+          {(n.affected_sectors || []).map((s) => (
+            <span key={s} className="tw-inline-flex tw-items-center tw-rounded-pill tw-bg-bg-subtle tw-px-2 tw-py-0.5 tw-text-[12px] tw-text-text-tertiary">
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// =========================
 // OVERVIEW VIEW (Обозреватель)
 // =========================
 
-function OverviewView({ token }) {
+function OverviewView({ token, onSelectCompany }) {
+  // Направления Обозревателя. №1 — Лента новостей (готово); остальные — по мере выката.
+  const [section, setSection] = useState("news");
+  const [portfolioOnly, setPortfolioOnly] = useState(false);
   // Appear gate (Phase 4b): page-level so the overview cards stagger once on entry.
   const appearGate = useRef(new Set());
   const [overviewType, setOverviewType] = useState("express");
@@ -9951,6 +10111,32 @@ function OverviewView({ token }) {
         <p className="view-subtitle">Контекстное понимание рыночного фона</p>
       </div>
 
+      {/* Шапка Обозревателя: направления + общий тумблер «Только мой портфель». */}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
+        <Chip selected={section === "news"} onClick={() => setSection("news")}>
+          <Newspaper size={13} className="tw-shrink-0" aria-hidden="true" /> Лента новостей
+        </Chip>
+        <Chip selected={section === "overview"} onClick={() => setSection("overview")}>
+          <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Обзор рынка
+        </Chip>
+        <button
+          type="button"
+          onClick={() => setPortfolioOnly((v) => !v)}
+          aria-pressed={portfolioOnly}
+          className={`tw-ml-auto tw-inline-flex tw-items-center tw-gap-2 tw-rounded-pill tw-border tw-px-3 tw-py-1 tw-text-[13px] tw-cursor-pointer tw-transition-colors ${
+            portfolioOnly
+              ? "tw-border-accent tw-bg-accent-soft tw-text-accent"
+              : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"
+          }`}
+        >
+          <Briefcase size={13} aria-hidden="true" /> Только мой портфель
+        </button>
+      </div>
+
+      {section === "news" ? (
+        <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : (
+      <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
           облигаций + экспирации фьючерсов. Всегда заполнен. */}
       {calendar?.events?.length > 0 && (
@@ -10062,6 +10248,8 @@ function OverviewView({ token }) {
             ))}
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );
@@ -10264,7 +10452,7 @@ export default function App() {
       case "screener":
         return <ScreenerView onSelectCompany={setSelectedCompany} />;
       case "overview":
-        return <OverviewView token={token} />;
+        return <OverviewView token={token} onSelectCompany={setSelectedCompany} />;
       case "portfolio":
         return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "pricing":
