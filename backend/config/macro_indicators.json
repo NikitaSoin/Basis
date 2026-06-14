@@ -18,7 +18,7 @@
      "influence_short": "Юань — основная расчётная валюта внешней торговли РФ; курс важен для импортёров и юаневых облигаций."},
     {"code": "eurrub", "title": "Курс EUR/RUB", "unit": "руб", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 7, "source_type": "cbr",
      "influence_short": "Курс евро влияет на импортёров из ЕС и валютную переоценку."},
-    {"code": "gdp", "title": "ВВП (мес. индикатор)", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 8, "source_type": "news",
+    {"code": "gdp", "title": "ВВП (реальный, г/г)", "unit": "%", "country": "ru", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 8, "source_type": "fred",
      "influence_short": "Темпы ВВП задают динамику выручки/прибылей и аппетит рынка; перегрев → инфляция → ужесточение ставки.",
      "influence_full": "Рост ВВП — это рост совокупной выручки и прибылей бизнеса и аппетита инвесторов к риску. Но перегрев экономики выше потенциала разгоняет инфляцию и провоцирует ужесточение ДКП, что бьёт по оценкам."},
     {"code": "unemployment", "title": "Безработица", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 9, "source_type": "news",
@@ -110,8 +110,10 @@
     "eu_gdp": {"series": "CLVMNACSCAB1GQEA19", "units": "pc1", "metric": "yoy"},
     "cn_inflation": {"series": "CHNCPIALLMINMEI", "units": "pc1", "metric": "yoy"},
     "cn_gdp": {"series": "CHNGDPNQDSMEI", "units": "pc1", "metric": "yoy"},
-    "cn_rate": {"series": "IR3TIB01CNM156N", "units": "lin", "metric": "level"}
+    "cn_rate": {"series": "IR3TIB01CNM156N", "units": "lin", "metric": "level"},
+    "gdp": {"series": "NGDPRNSAXDCRUQ", "units": "pc1", "metric": "yoy"}
   },
+  "_fred_ru_note": "gdp — реальный ВВП РФ (FRED NGDPRNSAXDCRUQ, кв., pc1=г/г), актуален до Q4-2025 и обновляется машинно. Остальные РФ-ряды FRED (безработица/ИЦП/CPI/зарплата) ЗАМОРОЖЕНЫ на 2021-2022 (OECD/IMF перестали обновлять после санкций) — не используем. Приоритет ingested_via: rosstat(файл)=3 > fred=2, поэтому ручная выгрузка Росстата при наличии перекрывает FRED.",
   "_fred_note": "eu_unemployment/cn_unemployment — нет свежего бесплатного ряда в FRED (стале/битый код); показатели в справочнике остаются, данные пустые (честно) до подключения Eurostat — точка расширения.",
   "worldbank_series": {
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
