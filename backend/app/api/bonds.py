@@ -420,6 +420,17 @@ def get_bond(secid: str, db: Session = Depends(get_db)):
     if comp:
         tk = bond["issuer_ticker"]
         risk_md = _read_company_file(tk, "bond_risk.md")
+        # fallback: пер-эмитентный/пер-серийный разбор «доходность за риск» лежит в
+        # bond_issuers/<issuer_slug> (один тикер может иметь несколько эмитентов-серий:
+        # материнская компания, SPV-капитал, замещающие ЗО — у каждой свой risk.md).
+        if not risk_md:
+            risk_md = _read_issuer_file(issuer_slug(bond.get("issuer_name") or ""), "risk.md")
+        # последний fallback: категорийный пояснитель (структурные ноты/секьюритизация и т.п.
+        # могут иметь issuer_ticker эмитента-банка, но по сути это класс-категория).
+        if not risk_md:
+            cat = _category_slug(bond.get("issuer_name") or bond.get("short_name"), bond.get("bond_type"))
+            if cat:
+                risk_md = _read_issuer_file(cat, "risk.md")
         issuer = {
             "ticker": comp[0], "name": comp[1], "sector": comp[2], "is_public": True,
             "debt": _issuer_debt_block(tk),
