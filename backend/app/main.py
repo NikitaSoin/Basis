@@ -152,7 +152,7 @@ async def _macro_job():
     """Макрообзор: дневной ингест мира/курсов (ЦБ+FRED+World Bank) + сид справочника.
     Числовые ряды из Ленты приходят отдельно (в news-пайплайне). В executor-потоке."""
     def _run():
-        from app.services.macro_ingest import seed_indicators, ingest_all_world
+        from app.services.macro_ingest import seed_indicators, ingest_all_world, check_staleness
         from app.services.macro_analytics import process as analytics_process
         from app.services.macro_cb_sync import sync_cb
         from app.db.session import SessionLocal
@@ -160,9 +160,10 @@ async def _macro_job():
         try:
             seed_indicators(db)
             world = ingest_all_world(db)
-            cb = sync_cb(db)  # ставка (заседание/сигнал/тезисы) + среднесрочный прогноз ЦБ
+            cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2 (машинный первоисточник)
             analytics = analytics_process(db)
-            return {"world": world, "cb": cb, "analytics": analytics}
+            stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
+            return {"world": world, "cb": cb, "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()
     try:

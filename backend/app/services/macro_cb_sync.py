@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import httpx
 from sqlalchemy.orm import Session
@@ -212,6 +212,80 @@ def sync_inflation(db: Session) -> dict:
     return {"saved": saved}
 
 
+_EXP_INDEX = "https://www.cbr.ru/analytics/dkp/inflationary_expectations/"
+_EXP_SYS = (
+    "Это свежий бюллетень Банка России «Инфляционные ожидания и потребительские настроения» "
+    "за указанный месяц. Извлеки ТЕКУЩЕЕ (за этот месяц, не за прошлые периоды сравнения) значение "
+    "ожидаемой населением инфляции на ГОД ВПЕРЁД, % (медианная оценка). НЕ бери значения из "
+    "ретроспективных сравнений/графиков за прошлые годы. Верни строго JSON {\"expectation\":<число>}. "
+    "Без текста вне JSON."
+)
+_M2_PAGE = "https://www.cbr.ru/statistics/ms/"
+_M2_SYS = (
+    "Из текста страницы Банка России о денежной массе (национальное определение) извлеки темп "
+    "прироста денежного агрегата M2 ГОД К ГОДУ (% г/г) за САМЫЙ СВЕЖИЙ (последний) месяц в данных "
+    "(2026 год), не за прошлые годы. Верни строго JSON {\"month\":\"YYYY-MM\", \"m2_yoy\":<число>}. "
+    "Если свежих данных за 2026 в тексте нет — верни {\"month\":null}. Только из текста. Без текста вне JSON."
+)
+
+
+def sync_expectations(db: Session) -> dict:
+    """Инфляционные ожидания населения (год вперёд) с бюллетеня ЦБ → inflation_expectations."""
+    try:
+        r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_EXP_INDEX)
+        r.raise_for_status()
+        links = re.findall(r'href="([^"]*Infl_exp_\d{2}-\d{2}[^"]*)"', r.text)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync: индекс ожиданий недоступен: %s", type(e).__name__)
+        return {"error": "index"}
+    if not links:
+        return {"error": "no links"}
+    latest = sorted(links, key=lambda u: re.search(r"(\d{2}-\d{2})", u).group(1))[-1]
+    url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
+    mm = re.search(r"(\d{2})-(\d{2})", url)  # месяц берём из URL (надёжно)
+    d = _month_end(f"20{mm.group(1)}-{mm.group(2)}") if mm else None
+    text = _fetch_text(url)
+    if not text or d is None:
+        return {"error": "page"}
+    try:
+        out = llm.complete(_EXP_SYS + f"\nМесяц бюллетеня: 20{mm.group(1)}-{mm.group(2)}.",
+                           text, json_mode=True, max_tokens=600)
+    except llm.LLMError:
+        return {"error": "llm"}
+    try:
+        exp = float(out.get("expectation"))
+    except (TypeError, ValueError):
+        exp = None
+    if exp is None or not (0 <= exp <= 40):
+        return {"error": "parse"}
+    upsert_point(db, "inflation_expectations", d, "level", exp, unit="%", source="ЦБ РФ (инФОМ)",
+                 source_url=url, ingested_via="cbr")
+    return {"month": str(d), "expectation": exp}
+
+
+def sync_m2(db: Session) -> dict:
+    """Темп прироста M2 г/г с ЦБ → ряд m2/level."""
+    text = _fetch_text(_M2_PAGE)
+    if not text:
+        return {"error": "page"}
+    try:
+        out = llm.complete(_M2_SYS, text, json_mode=True, max_tokens=600)
+    except llm.LLMError:
+        return {"error": "llm"}
+    d = _month_end(out.get("month", ""))
+    try:
+        val = float(out.get("m2_yoy"))
+    except (TypeError, ValueError):
+        val = None
+    # recency-guard: не сохраняем устаревшую строку из исторической таблицы
+    if d is None or val is None or not (-10 <= val <= 60) or d < (date.today() - timedelta(days=150)):
+        return {"error": "stale_or_parse"}
+    upsert_point(db, "m2", d, "level", val, unit="%", source="ЦБ РФ",
+                 source_url=_M2_PAGE, ingested_via="cbr")
+    return {"month": str(d), "m2_yoy": val}
+
+
 def sync_cb(db: Session) -> dict:
     return {"rate": sync_rate_meeting(db), "forecast": sync_forecast(db),
-            "inflation": sync_inflation(db)}
+            "inflation": sync_inflation(db), "expectations": sync_expectations(db),
+            "m2": sync_m2(db)}
