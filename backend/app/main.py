@@ -128,10 +128,31 @@ async def _asset_data_job():
         logger.exception("Ошибка авто-обновления данных классов активов: %s", e)
 
 
+async def _news_job():
+    """Лента новостей Обозревателя: RSS → дедуп → фильтр важности → выжимка +
+    «на что влияет» → маппинг тикеров → запись в БД. Сетевые и LLM-вызовы идут в
+    executor-потоке, чтобы не блокировать сервер."""
+    def _run():
+        from app.services.news_pipeline import run_pipeline
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            return run_pipeline(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Лента новостей: прогон завершён — %s", res)
+    except Exception as e:
+        logger.exception("Ошибка прогона ленты новостей: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
+    # Лента новостей Обозревателя — 4 раза/сутки (07:00/13:00/19:00/01:00 МСК).
+    scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
     scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
