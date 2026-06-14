@@ -154,13 +154,15 @@ async def _macro_job():
     def _run():
         from app.services.macro_ingest import seed_indicators, ingest_all_world
         from app.services.macro_analytics import process as analytics_process
+        from app.services.macro_cb_sync import sync_cb
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
             seed_indicators(db)
             world = ingest_all_world(db)
+            cb = sync_cb(db)  # ставка (заседание/сигнал/тезисы) + среднесрочный прогноз ЦБ
             analytics = analytics_process(db)
-            return {"world": world, "analytics": analytics}
+            return {"world": world, "cb": cb, "analytics": analytics}
         finally:
             db.close()
     try:
@@ -176,12 +178,14 @@ async def _macro_startup():
         from app.services.macro_ingest import seed_indicators, backfill_from_csv, ingest_all_world
         from app.services.macro_analytics import process as analytics_process
         from app.services.macro_interpreter import get_latest, generate
+        from app.services.macro_cb_sync import sync_cb
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
             seed_indicators(db)
             backfill_from_csv(db)
             ingest_all_world(db)
+            sync_cb(db)  # ставка + прогноз ЦБ с cbr.ru
             analytics_process(db)
             # Первичная интерпретация (G) — только если ещё нет (Pro reasoning дорогой;
             # дальше обновляется по кнопке/расписанию, не на каждом старте).
