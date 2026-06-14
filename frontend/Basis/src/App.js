@@ -10079,6 +10079,241 @@ function NewsCard({ n, onSelectCompany }) {
 }
 
 // =========================
+// MACRO VIEW (Обозреватель · Направление 2 — Макрообзор)
+// =========================
+
+// Мульти-линейный SVG-график (1-3 ряда: для ставки — наложение ставка/инфляция/ожидания).
+function MacroLineChart({ series, height = 150 }) {
+  // series: [{ name, color, points:[{as_of,value}] }]
+  const W = 560, H = height, padX = 8, padY = 14, padB = 16;
+  const all = series.flatMap((s) => s.points.map((p) => p.value)).filter((v) => v != null);
+  if (all.length < 2) return <div className="tw-text-[12px] tw-text-text-tertiary tw-py-4">Недостаточно точек для графика.</div>;
+  const min = Math.min(...all), max = Math.max(...all), span = max - min || 1;
+  // общая ось X по объединённым датам
+  const allDates = [...new Set(series.flatMap((s) => s.points.map((p) => p.as_of)))].sort();
+  const xOf = (d) => padX + (allDates.indexOf(d) / Math.max(1, allDates.length - 1)) * (W - 2 * padX);
+  const yOf = (v) => padY + (1 - (v - min) / span) * (H - padY - padB);
+  return (
+    <div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} aria-hidden="true">
+        {series.map((s, i) => {
+          const pts = s.points.filter((p) => p.value != null);
+          const d = pts.map((p, j) => `${j === 0 ? "M" : "L"}${xOf(p.as_of).toFixed(1)},${yOf(p.value).toFixed(1)}`).join(" ");
+          return <path key={i} d={d} fill="none" stroke={s.color} strokeWidth="1.6" />;
+        })}
+      </svg>
+      {series.length > 1 && (
+        <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mt-1.5 tw-text-[11px] tw-text-text-tertiary">
+          {series.map((s, i) => (
+            <span key={i} className="tw-inline-flex tw-items-center tw-gap-1">
+              <span className="tw-inline-block tw-w-3 tw-h-0.5" style={{ backgroundColor: s.color }} />{s.name}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MacroIndicatorCard({ ind }) {
+  const [openInfluence, setOpenInfluence] = useState(false);
+  const [chart, setChart] = useState(null);  // {metric, series}
+  const [metric, setMetric] = useState((ind.metric_types || ["level"])[0]);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const v = ind.values?.[metric] || Object.values(ind.values || {})[0];
+
+  const loadChart = (m) => {
+    setMetric(m);
+    fetch(`${apiUrl}/api/market/macro/${ind.code}/series?metric=${m}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setChart({ metric: m, points: d.points }))
+      .catch(() => {});
+  };
+
+  const fmt = (x) => (x == null ? "—" : Number(x).toLocaleString("ru-RU", { maximumFractionDigits: 2 }));
+  const metricLabel = { mom: "м/м", yoy: "г/г", level: "", wow: "нед." };
+
+  if (!ind.has_data) {
+    return (
+      <Card>
+        <div className="tw-text-[13px] tw-font-medium tw-text-text-primary tw-mb-1">{ind.title}</div>
+        <div className="tw-text-[12px] tw-text-text-tertiary">Данные за период ещё не вышли.</div>
+      </Card>
+    );
+  }
+  return (
+    <Card className={ind.in_portfolio ? "tw-border-l-2 tw-border-l-accent" : ""}>
+      <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-mb-0.5">
+        <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">{ind.title}</span>
+        {v?.is_preliminary && <Badge tone="neutral">предв.</Badge>}
+      </div>
+      <div className="tw-flex tw-items-baseline tw-gap-2">
+        <span className="tw-text-[22px] tw-font-semibold tw-text-text-primary tw-tabular-nums">{fmt(v?.value)}{ind.unit === "%" ? "%" : ""}</span>
+        {ind.unit && ind.unit !== "%" && <span className="tw-text-[12px] tw-text-text-tertiary">{ind.unit}</span>}
+        {v?.change != null && (
+          <span className={`tw-text-[12px] tw-tabular-nums ${v.change > 0 ? "tw-text-success" : v.change < 0 ? "tw-text-danger" : "tw-text-text-tertiary"}`}>
+            {v.change > 0 ? "▲" : v.change < 0 ? "▼" : ""}{fmt(Math.abs(v.change))}
+          </span>
+        )}
+      </div>
+      <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-2">{v?.as_of}{metricLabel[metric] ? ` · ${metricLabel[metric]}` : ""}</div>
+
+      {(ind.metric_types || []).length > 1 && (
+        <div className="tw-flex tw-gap-1 tw-mb-2">
+          {ind.metric_types.map((m) => (
+            <button key={m} onClick={() => { setMetric(m); if (chart) loadChart(m); }}
+              className={`tw-text-[11px] tw-px-1.5 tw-py-0.5 tw-rounded-sm tw-cursor-pointer tw-border focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${metric === m ? "tw-border-accent tw-text-accent" : "tw-border-border-subtle tw-text-text-tertiary"}`}>
+              {metricLabel[m] || m}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {ind.influence_short && (
+        <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[18px] tw-mb-1.5">
+          {ind.influence_short}
+          {ind.influence_full && (
+            <button onClick={() => setOpenInfluence((o) => !o)}
+              className="tw-ml-1 tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-[12px] focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+              {openInfluence ? "свернуть" : "подробнее"}
+            </button>
+          )}
+        </div>
+      )}
+      {openInfluence && ind.influence_full && (
+        <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[18px] tw-mb-2 tw-bg-bg-hover tw-rounded-md tw-p-2">{ind.influence_full}</div>
+      )}
+
+      {chart ? (
+        <MacroLineChart series={[{ name: ind.title, color: "var(--accent)", points: chart.points }]} height={110} />
+      ) : (
+        <button onClick={() => loadChart(metric)}
+          className="tw-text-[12px] tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-inline-flex tw-items-center tw-gap-1 focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+          <Activity size={13} /> График
+        </button>
+      )}
+    </Card>
+  );
+}
+
+function MacroView({ token, portfolioOnly }) {
+  const [data, setData] = useState(null);
+  const [rate, setRate] = useState(null);
+  const [analytics, setAnalytics] = useState([]);
+  const [rateChart, setRateChart] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    const h = token ? { Authorization: `Bearer ${token}` } : {};
+    Promise.all([
+      fetch(`${apiUrl}/api/market/macro${portfolioOnly ? "?portfolio_only=true" : ""}`, { headers: h }).then((r) => (r.ok ? r.json() : Promise.reject())),
+      fetch(`${apiUrl}/api/market/macro/rate`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch(`${apiUrl}/api/market/macro/analytics`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+    ]).then(([m, rt, an]) => { setData(m); setRate(rt); setAnalytics(an || []); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  // ряды для наложения в блоке ставки (ставка/инфляция/ожидания)
+  useEffect(() => {
+    const get = (code, metric) => fetch(`${apiUrl}/api/market/macro/${code}/series?metric=${metric}`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    Promise.all([get("key_rate", "level"), get("inflation", "yoy"), get("inflation_expectations", "level")])
+      .then(([kr, inf, exp]) => {
+        const s = [];
+        if (kr?.points?.length) s.push({ name: "Ставка", color: "var(--accent)", points: kr.points });
+        if (inf?.points?.length) s.push({ name: "Инфляция г/г", color: "var(--cat-6)", points: inf.points });
+        if (exp?.points?.length) s.push({ name: "Инфл. ожидания", color: "var(--cat-2)", points: exp.points });
+        if (s.length) setRateChart(s);
+      });
+  }, []);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-secondary tw-animate-pulse">Загружаем макрообзор...</div>;
+  if (error) return <Card><div className="tw-text-[14px] tw-text-danger">Не удалось загрузить данные. Показываем последнее известное при следующей загрузке.</div></Card>;
+
+  const ruInds = (data || []).filter((x) => x.display_group === "ru");
+  const worldInds = (data || []).filter((x) => x.display_group === "world");
+
+  return (
+    <div className="tw-space-y-8">
+      {/* СПЕЦ-БЛОК СТАВКИ */}
+      {rate?.key_rate && (
+        <Card>
+          <div className="tw-flex tw-flex-wrap tw-items-baseline tw-gap-3 tw-mb-2">
+            <span className="tw-text-[14px] tw-font-medium tw-text-text-primary">Ключевая ставка ЦБ</span>
+            <span className="tw-text-[28px] tw-font-semibold tw-text-accent tw-tabular-nums">{rate.key_rate.value}%</span>
+            <span className="tw-text-[12px] tw-text-text-tertiary">на {rate.key_rate.as_of}</span>
+          </div>
+          <div className="tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-1 tw-text-[13px] tw-text-text-secondary tw-mb-3">
+            {rate.meeting?.next_meeting_date && <span>След. заседание: <b>{rate.meeting.next_meeting_date}</b></span>}
+            {rate.meeting?.consensus_forecast && <span>Консенсус: <b>{rate.meeting.consensus_forecast}</b></span>}
+            {rate.meeting?.signal && <span>Сигнал: {rate.meeting.signal}</span>}
+          </div>
+          {rate.meeting?.press_summary && (
+            <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-bg-bg-hover tw-rounded-md tw-p-2.5 tw-mb-3">{rate.meeting.press_summary}</div>
+          )}
+          {rateChart && <MacroLineChart series={rateChart} height={170} />}
+        </Card>
+      )}
+
+      {/* РФ */}
+      {ruInds.length > 0 && (
+        <div>
+          <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Показатели РФ</h2>
+          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
+            {ruInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} />)}
+          </div>
+        </div>
+      )}
+
+      {/* МИР */}
+      {worldInds.length > 0 && (
+        <div>
+          <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Мир</h2>
+          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))" }}>
+            {worldInds.map((ind) => <MacroIndicatorCard key={ind.code} ind={ind} />)}
+          </div>
+        </div>
+      )}
+
+      {/* АНАЛИТИКА */}
+      <div>
+        <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-3">Аналитика (ЦБ, ЦМАКП)</h2>
+        {analytics.length === 0 ? (
+          <Card><div className="tw-text-[13px] tw-text-text-tertiary">Новых аналитических документов пока нет — мониторинг проверяет источники ежедневно.</div></Card>
+        ) : (
+          <div className="tw-space-y-3">
+            {analytics.map((d) => (
+              <Card key={d.id}>
+                <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1 tw-text-[12px] tw-text-text-tertiary">
+                  <span className="tw-font-medium tw-text-text-secondary">{d.source === "cbr" ? "Банк России" : d.source === "cmasf" ? "ЦМАКП" : d.source}</span>
+                  {d.doc_type && <Badge tone="neutral">{d.doc_type}</Badge>}
+                  {d.published_at && <span>{d.published_at}</span>}
+                </div>
+                <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1.5">{d.title}</h3>
+                {d.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2">{d.summary}</p>}
+                {d.key_takeaways?.length > 0 && (
+                  <ul className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mb-2 tw-list-disc tw-pl-4 tw-space-y-0.5">
+                    {d.key_takeaways.map((t, i) => <li key={i}>{t}</li>)}
+                  </ul>
+                )}
+                {d.source_url && (
+                  <a href={d.source_url} target="_blank" rel="noopener noreferrer"
+                     className="tw-text-[12px] tw-text-accent tw-inline-flex tw-items-center tw-gap-1 tw-no-underline hover:tw-underline">
+                    Оригинал <ExternalLink size={12} />
+                  </a>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =========================
 // OVERVIEW VIEW (Обозреватель)
 // =========================
 
@@ -10156,6 +10391,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "news"} onClick={() => setSection("news")}>
           <Newspaper size={13} className="tw-shrink-0" aria-hidden="true" /> Лента новостей
         </Chip>
+        <Chip selected={section === "macro"} onClick={() => setSection("macro")}>
+          <Activity size={13} className="tw-shrink-0" aria-hidden="true" /> Макрообзор
+        </Chip>
         <Chip selected={section === "overview"} onClick={() => setSection("overview")}>
           <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Обзор рынка
         </Chip>
@@ -10176,6 +10414,8 @@ function OverviewView({ token, onSelectCompany }) {
 
       {section === "news" ? (
         <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : section === "macro" ? (
+        <MacroView token={token} portfolioOnly={portfolioOnly} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
