@@ -113,12 +113,9 @@ def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
     removed = 0
     for d in db.query(MacroAnalyticsDoc).all():
         url = d.source_url or ""
-        dd = doc_date(url)
-        # если в URL даты нет — пробуем по дате публикации (published_at), затем по странице
-        if dd is None and d.published_at:
-            dd = d.published_at
-        if dd is None:
-            dd = page_date(url)
+        # НЕ доверяем published_at (мог быть ошибочно = today у старых записей):
+        # определяем дату заново из URL, иначе со страницы документа.
+        dd = doc_date(url) or page_date(url)
         if dd is None or dd < cutoff:
             db.delete(d)
             removed += 1
