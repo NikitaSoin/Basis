@@ -48,6 +48,10 @@
     {"code": "claims_households", "title": "Кредиты населению", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 20, "source_type": "cbr",
      "influence_short": "Розничное кредитование — индикатор потребительского спроса; перегрев усиливает инфляцию."},
 
+    {"code": "real_wage", "title": "Реальная зарплата", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 21, "source_type": "rosstat",
+     "influence_short": "Рост реальных зарплат — топливо потребительского спроса; ускорение проинфляционно и держит ставку выше."},
+    {"code": "real_income", "title": "Реальные доходы населения", "unit": "%", "country": "ru", "frequency": "quarterly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 22, "source_type": "rosstat",
+     "influence_short": "Динамика реальных доходов задаёт потребительский спрос и спрос на товары/услуги компаний."},
     {"code": "us_rate", "title": "Ставка ФРС (США)", "unit": "%", "country": "us", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 30, "source_type": "fred",
      "influence_short": "Глобальная стоимость денег: высокая ставка ФРС укрепляет доллар и оттягивает капитал с развивающихся рынков."},
     {"code": "us_inflation", "title": "Инфляция США", "unit": "%", "country": "us", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 31, "source_type": "fred",
@@ -111,6 +115,12 @@
   "_fred_note": "eu_unemployment/cn_unemployment — нет свежего бесплатного ряда в FRED (стале/битый код); показатели в справочнике остаются, данные пустые (честно) до подключения Eurostat — точка расширения.",
   "worldbank_series": {
     "world_gdp": {"indicator": "NY.GDP.MKTP.KD.ZG", "metric": "yoy"}
+  },
+  "fedstat_series": {
+    "_comment": "Росстат через fedstat (EMISS). id — номер показателя на fedstat.ru/indicator/<id>. expect — ключевое слово в названии ряда для САМОПРОВЕРКИ (если название не совпало — ряд НЕ грузим, защита от неверного ID). min/max — валидация значения. metric — какую метрику пишем. ВНИМАНИЕ: fedstat недоступен из dev-среды (гео-блок), ингест проверяется только на бою.",
+    "unemployment": {"id": 43062, "metric": "level", "expect": "безработиц", "unit": "%", "min": 1, "max": 20},
+    "ppi": {"id": 57609, "metric": "yoy", "expect": "цен производител", "unit": "%", "min": -30, "max": 60},
+    "real_wage": {"id": 43245, "metric": "yoy", "expect": "реальн", "unit": "%", "min": -30, "max": 50}
   },
   "analytics_exclude_url_patterns": ["analytic_note"],
   "_analytics_exclude_note": "Исключаем тангенциальные ДИП-записки (analytic_note) — это research-папки, а не профильные обзоры ДКП/инфляции/стабильности. По просьбе владельца.",
