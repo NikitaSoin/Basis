@@ -10367,9 +10367,26 @@ function MacroView({ token, portfolioOnly }) {
                 {rate.meeting?.signal && <span>Сигнал: {rate.meeting.signal}</span>}
               </div>
               {rate.meeting?.press_summary && (
-                <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-bg-bg-hover tw-rounded-md tw-p-2.5 tw-mb-3">{rate.meeting.press_summary}</div>
+                <div className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-bg-bg-hover tw-rounded-md tw-p-2.5 tw-mb-3 tw-whitespace-pre-line">{rate.meeting.press_summary}</div>
               )}
               {rateChart && <MacroChart series={rateChart} height={200} unit="%" />}
+              {rate.meetings && rate.meetings.length > 1 && (
+                <details className="tw-mt-3 tw-text-[13px]">
+                  <summary className="tw-cursor-pointer tw-text-text-secondary tw-select-none">История заседаний ({rate.meetings.length - 1})</summary>
+                  <div className="tw-mt-2 tw-space-y-2">
+                    {rate.meetings.slice(1).map((m, i) => (
+                      <div key={i} className="tw-border-t tw-border-border-subtle tw-pt-2">
+                        <div className="tw-flex tw-items-baseline tw-gap-2">
+                          <span className="tw-font-mono tw-text-text-tertiary">{m.decision_date}</span>
+                          <span className="tw-font-medium tw-text-text-primary tw-tabular-nums">{m.rate_value}%</span>
+                          {m.signal && <span className="tw-text-[12px] tw-text-text-tertiary tw-truncate">{m.signal}</span>}
+                        </div>
+                        {m.press_summary && <div className="tw-text-[12px] tw-text-text-secondary tw-leading-[18px] tw-mt-1 tw-whitespace-pre-line">{m.press_summary}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </Card>
           )}
 

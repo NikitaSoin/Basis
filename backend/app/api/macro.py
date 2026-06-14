@@ -97,19 +97,22 @@ def macro_rate(db: Session = Depends(get_db)):
              .order_by(MacroDataPoint.as_of.desc()).first())
         return {"value": float(p.value), "as_of": p.as_of.isoformat()} if p else None
 
-    meeting = db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).first()
+    meetings = (db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).limit(8).all())
+    meeting = meetings[0] if meetings else None
+
+    def _mtg(m):
+        return {
+            "decision_date": m.decision_date.isoformat(),
+            "rate_value": float(m.rate_value) if m.rate_value is not None else None,
+            "signal": m.signal, "next_meeting_date": m.next_meeting_date.isoformat() if m.next_meeting_date else None,
+            "consensus_forecast": m.consensus_forecast, "press_summary": m.press_summary,
+        }
     return {
         "key_rate": _last("key_rate"),
         "inflation_yoy": _last("inflation", "yoy"),
         "inflation_expectations": _last("inflation_expectations"),
-        "meeting": {
-            "decision_date": meeting.decision_date.isoformat() if meeting else None,
-            "rate_value": float(meeting.rate_value) if meeting and meeting.rate_value else None,
-            "signal": meeting.signal if meeting else None,
-            "next_meeting_date": meeting.next_meeting_date.isoformat() if meeting and meeting.next_meeting_date else None,
-            "consensus_forecast": meeting.consensus_forecast if meeting else None,
-            "press_summary": meeting.press_summary if meeting else None,
-        } if meeting else None,
+        "meeting": _mtg(meeting) if meeting else None,
+        "meetings": [_mtg(m) for m in meetings],  # история (новые сверху)
     }
 
 
