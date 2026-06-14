@@ -10243,7 +10243,7 @@ function MacroDetailModal({ ind, allInds, onClose }) {
   if (overlay) series.push({ name: overlay.name, color: "var(--cat-6)", points: overlay.points });
 
   return (
-    <div className="tw-fixed tw-inset-0 tw-z-50 tw-bg-black/40 tw-flex tw-items-center tw-justify-center tw-p-4" onClick={onClose}>
+    <div className="tw-fixed tw-inset-0 tw-z-50 tw-flex tw-items-center tw-justify-center tw-p-4" style={{ backgroundColor: "var(--bg-overlay)" }} onClick={onClose}>
       <div className="tw-bg-bg-elevated tw-rounded-lg tw-shadow-xl tw-max-w-3xl tw-w-full tw-max-h-[90vh] tw-overflow-auto tw-p-5" onClick={(e) => e.stopPropagation()}>
         <div className="tw-flex tw-items-start tw-justify-between tw-mb-3">
           <div>
