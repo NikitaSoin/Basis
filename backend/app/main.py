@@ -183,11 +183,14 @@ async def _macro_startup():
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
+            from app.models.macro import MacroDataPoint
             seed_indicators(db)
             backfill_from_csv(db)
-            backfill_cbr_currency_history(db)  # история курсов USD/CNY/EUR (идемпотентно)
+            sync_cb(db)  # ставка + прогноз ЦБ + свежая инфляция — РАНО (видимо владельцу)
             ingest_all_world(db)
-            sync_cb(db)  # ставка + прогноз ЦБ + свежая инфляция с cbr.ru
+            # история курсов — только если ещё не залита (3000 точек, не гонять каждый старт)
+            if db.query(MacroDataPoint).filter_by(indicator_code="usdrub").count() < 300:
+                backfill_cbr_currency_history(db)
             analytics_process(db)
             # Первичная интерпретация (G) — только если ещё нет (Pro reasoning дорогой;
             # дальше обновляется по кнопке/расписанию, не на каждом старте).
