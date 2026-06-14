@@ -74,11 +74,10 @@ def macro_summary(country: str | None = None, portfolio_only: bool = False,
             rows = _latest_two(db, ind.code, m)
             if rows:
                 values[m] = _point_dict(rows[0], rows[1] if len(rows) > 1 else None)
+        # ЛЁГКАЯ персонализация (по ТЗ): макропоказатели глобальны и влияют на всё,
+        # поэтому portfolio_only НЕ фильтрует жёстко, а лишь ПОДСВЕЧИВАЕТ релевантные
+        # секторам портфеля (in_portfolio → выделение на фронте).
         in_portfolio = bool(ind.sectors) and bool(pf_sectors & set(ind.sectors or []))
-        if portfolio_only and pf_sectors and not in_portfolio:
-            # лёгкая персонализация: подсветка, не жёсткий фильтр — но если просили
-            # только портфель и показатель не релевантен, пропускаем
-            continue
         out.append({
             "code": ind.code, "title": ind.title, "unit": ind.unit,
             "country": ind.country, "frequency": ind.frequency,
