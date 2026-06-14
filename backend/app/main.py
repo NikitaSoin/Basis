@@ -175,6 +175,7 @@ async def _macro_startup():
     def _run():
         from app.services.macro_ingest import seed_indicators, backfill_from_csv, ingest_all_world
         from app.services.macro_analytics import process as analytics_process
+        from app.services.macro_interpreter import get_latest, generate
         from app.db.session import SessionLocal
         db = SessionLocal()
         try:
@@ -182,6 +183,13 @@ async def _macro_startup():
             backfill_from_csv(db)
             ingest_all_world(db)
             analytics_process(db)
+            # Первичная интерпретация (G) — только если ещё нет (Pro reasoning дорогой;
+            # дальше обновляется по кнопке/расписанию, не на каждом старте).
+            if get_latest(db) is None:
+                try:
+                    generate(db)
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("Старт: интерпретация не сгенерирована: %s", e)
         finally:
             db.close()
     try:
