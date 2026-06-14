@@ -16,7 +16,7 @@ from __future__ import annotations
 import io
 import logging
 import re
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import httpx
 from sqlalchemy.orm import Session
@@ -30,6 +30,66 @@ logger = logging.getLogger(__name__)
 _HTTP = {"User-Agent": "BasisMacroBot/1.0 (+https://inbasis.ru)"}
 _MAX_PER_RUN = 6        # потолок новых документов за прогон (контроль стоимости)
 _MAX_PDF_CHARS = 14000  # сколько текста PDF отдаём модели (хватает на выжимку)
+_FRESH_DAYS = 92        # берём только свежие документы (последние ~3 мес), архив игнорируем
+
+_MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7, "aug": 8,
+           "sep": 9, "oct": 10, "nov": 11, "dec": 12, "june": 6, "july": 7,
+           "янв": 1, "фев": 2, "мар": 3, "апр": 4, "мая": 5, "май": 5, "июн": 6, "июл": 7,
+           "авг": 8, "сен": 9, "окт": 10, "ноя": 11, "дек": 12}
+
+
+def doc_date(url: str) -> date | None:
+    """Извлечь дату публикации документа из URL/имени файла (для отсева архива).
+
+    Поддержанные форматы: YYYYMMDD (comment_20210422), DDMMYYYY (29052026),
+    MMYYYY (Mon042026), YY-MM (Infl_exp_21-08), месяц-имя_YYYY (SOI_may_2026),
+    голый год (shlyk2026 / VIRUS2019). None — если дату определить нельзя."""
+    s = url.lower()
+    for m in re.finditer(r"(\d{8})", s):  # YYYYMMDD | DDMMYYYY
+        for fmt in ("%Y%m%d", "%d%m%Y"):
+            try:
+                d = datetime.strptime(m.group(1), fmt).date()
+                if 2015 <= d.year <= 2030:
+                    return d
+            except ValueError:
+                continue
+    m = re.search(r"(\d{2})(20\d{2})(?!\d)", s)  # MMYYYY: 042026
+    if m and 1 <= int(m.group(1)) <= 12:
+        return date(int(m.group(2)), int(m.group(1)), 28)
+    m = re.search(r"(" + "|".join(_MONTHS) + r")[_\-]?(20\d{2})", s)  # may_2026
+    if m:
+        return date(int(m.group(2)), _MONTHS[m.group(1)], 28)
+    m = re.search(r"(?<!\d)(\d{2})-(\d{2})(?!\d)", s)  # YY-MM: 21-08
+    if m:
+        yy, mm = 2000 + int(m.group(1)), int(m.group(2))
+        if 1 <= mm <= 12 and 2015 <= yy <= 2030:
+            return date(yy, mm, 28)
+    m = re.search(r"(20[12]\d)", s)  # голый год
+    if m:
+        return date(int(m.group(1)), 6, 30)
+    return None
+
+
+def _is_fresh(url: str) -> bool:
+    d = doc_date(url)
+    if d is None:
+        return True  # дату не распознали — не отбрасываем (редко; пусть решит выжимка)
+    return d >= (date.today() - timedelta(days=_FRESH_DAYS))
+
+
+def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
+    """Удалить из БД обзоры старше `days` (по дате из URL). Чистит архив с витрины."""
+    cutoff = date.today() - timedelta(days=days)
+    removed = 0
+    for d in db.query(MacroAnalyticsDoc).all():
+        dd = doc_date(d.source_url or "")
+        if dd is not None and dd < cutoff:
+            db.delete(d)
+            removed += 1
+    db.commit()
+    if removed:
+        logger.info("Аналитика: удалено %d устаревших обзоров (старше %d дн.)", removed, days)
+    return removed
 
 _DOC_SYS = (
     "Ты пересказываешь аналитический документ (Банк России / ЦМАКП) для "
@@ -102,6 +162,8 @@ def discover(db: Session) -> list[dict]:
             url = _absolutize(href, src["base_url"])
             if url in known or url in seen:
                 continue
+            if not _is_fresh(url):  # архив (старше ~3 мес) — пропускаем
+                continue
             seen.add(url)
             title = href.rsplit("/", 1)[-1].rsplit(".", 1)[0]
             found.append({"source": src["source"], "doc_type": src.get("doc_type"),
@@ -132,6 +194,7 @@ def _pdf_text(url: str) -> str | None:
 
 def process(db: Session, max_docs: int = _MAX_PER_RUN) -> dict:
     """Полный прогон мониторинга: обнаружить новые → скачать → выжимка LLM → сохранить."""
+    cleanup_old(db)  # сначала убираем архив с витрины
     candidates = discover(db)
     if not candidates:
         return {"discovered": 0, "saved": 0}
@@ -155,7 +218,7 @@ def process(db: Session, max_docs: int = _MAX_PER_RUN) -> dict:
         db.add(MacroAnalyticsDoc(
             source=c["source"], doc_type=c["doc_type"], title=title,
             summary=summary, key_takeaways=takeaways, interpretation=interp,
-            published_at=date.today(), source_url=c["url"],
+            published_at=doc_date(c["url"]) or date.today(), source_url=c["url"],
             model_used=model_used + ("+pro" if interp else ""),
         ))
         saved += 1
