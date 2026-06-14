@@ -336,10 +336,17 @@ def run_pipeline(db: Session) -> dict:
         rep["sources_json"] = [{"source": g["source"], "url": g["url"]} for g in group]
         reps.append(rep)
 
-    # Шаг 3 — фильтр важности
+    # Шаг 3 — фильтр важности. ВАЖНО: различаем «явно решено» и «нет решения»
+    # (сбой LLM). Неоценённые НЕ сохраняем вовсе — чтобы их переобработал
+    # следующий прогон, а не потерять как ложно-отфильтрованные.
     keep_map = filter_importance(reps)
-    kept = [r for r in reps if keep_map.get(r["id"], {}).get("keep")]
-    filtered_out = len(reps) - len(kept)
+    kept = [r for r in reps if keep_map.get(r["id"], {}).get("keep") is True]
+    rejected = [r for r in reps if r["id"] in keep_map
+                and keep_map[r["id"]].get("keep") is False]
+    undecided = len(reps) - len(kept) - len(rejected)
+    if undecided:
+        logger.warning("News: %d событий без решения фильтра (сбой LLM?) — будут переобработаны",
+                       undecided)
 
     # Шаг 4 — выжимка + impact (только по прошедшим фильтр)
     sum_map = summarize(kept) if kept else {}
@@ -380,12 +387,11 @@ def run_pipeline(db: Session) -> dict:
         db.add(row)
         published += 1
 
-    # отфильтрованные сохраняем «лёгкими» строками (status=filtered_out): чтобы их
-    # source_url попал в БД и они НЕ переобрабатывались LLM в следующих прогонах.
-    for r in reps:
+    # отфильтрованные (ЯВНО keep=false) сохраняем «лёгкими» строками: чтобы их
+    # source_url попал в БД и они НЕ переобрабатывались. Неоценённые (сбой LLM)
+    # сюда НЕ попадают — их подхватит следующий прогон.
+    for r in rejected:
         km = keep_map.get(r["id"], {})
-        if km.get("keep"):
-            continue
         db.add(MarketUpdate(
             title=r["title"][:500], original_title=r["title"][:500],
             source=r["source"], source_url=r["url"], rubric=r["rubric"],
@@ -396,6 +402,7 @@ def run_pipeline(db: Session) -> dict:
 
     db.commit()
     summary = {"fetched": len(items), "clusters": len(reps),
-               "published": published, "filtered_out": filtered_out, "model": model_used}
+               "published": published, "filtered_out": len(rejected),
+               "undecided": undecided, "model": model_used}
     logger.info("News pipeline: %s", summary)
     return summary
