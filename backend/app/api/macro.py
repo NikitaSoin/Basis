@@ -72,16 +72,19 @@ def fedstat_diag(id: int = 43062):
         "Referer": "https://www.fedstat.ru/",
         "Connection": "keep-alive",
     }
+    gbot = dict(headers); gbot["User-Agent"] = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
     probes = {
-        "get_indicator_page": ("GET", f"https://www.fedstat.ru/indicator/{id}", None),
-        "get_data_do": ("GET", "https://www.fedstat.ru/indicator/data.do", {"id": id}),
-        "homepage": ("GET", "https://www.fedstat.ru/", None),
-        "get_sdmx": ("GET", "https://www.fedstat.ru/indicator/data.do",
-                     {"id": id, "format": "sdmx"}),
+        "fedstat_home": ("GET", "https://www.fedstat.ru/", None, headers),
+        "fedstat_home_googlebot": ("GET", "https://www.fedstat.ru/", None, gbot),
+        "fedstat_home_noua": ("GET", "https://www.fedstat.ru/", None, {"Accept": "*/*"}),
+        "sdmx_gks": ("GET", "https://sdmx.gks.ru/", None, headers),
+        "showdata_gks": ("GET", "https://showdata.gks.ru/", None, headers),
+        "rosstat_gov": ("GET", "https://rosstat.gov.ru/", None, headers),
+        "fedstat_indicator": ("GET", f"https://www.fedstat.ru/indicator/{id}", None, headers),
     }
-    for name, (method, url, params) in probes.items():
+    for name, (method, url, params, hdr) in probes.items():
         try:
-            with httpx.Client(timeout=20, headers=headers, follow_redirects=True) as c:
+            with httpx.Client(timeout=20, headers=hdr, follow_redirects=True) as c:
                 r = c.request(method, url, params=params)
             body = r.text
             results[name] = {
