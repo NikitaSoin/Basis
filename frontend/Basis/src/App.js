@@ -9904,16 +9904,31 @@ function _issueLabel(clusterId) {
   return `Выпуск ${hh}:${mm}, ${dt.getUTCDate()} ${_RU_MONTHS[dt.getUTCMonth()]}`;
 }
 
+// Время публикации новости в МСК: «13:45» если сегодня, иначе «14.06 13:45».
+function _newsTime(iso) {
+  try {
+    const dt = new Date(iso);
+    if (isNaN(dt)) return "";
+    const msk = new Date(dt.getTime() + (dt.getTimezoneOffset() + 180) * 60000);
+    const hh = String(msk.getHours()).padStart(2, "0");
+    const mm = String(msk.getMinutes()).padStart(2, "0");
+    const nowMsk = new Date(Date.now() + (new Date().getTimezoneOffset() + 180) * 60000);
+    const sameDay = msk.getDate() === nowMsk.getDate() && msk.getMonth() === nowMsk.getMonth();
+    return sameDay ? `${hh}:${mm}` : `${String(msk.getDate()).padStart(2, "0")}.${String(msk.getMonth() + 1).padStart(2, "0")} ${hh}:${mm}`;
+  } catch { return ""; }
+}
+
 const _SOURCE_LABEL = { interfax: "Интерфакс", rbc: "РБК", kommersant: "Коммерсантъ" };
 
 // Категория по содержанию → спокойная цветовая точка (принцип «цвет в данных»,
-// нейтральный бейдж + маркер-точка из токенов, без кричащих подложек).
+// нейтральный бейдж + маркер-точка). Берём КАТЕГОРИАЛЬНУЮ палитру --cat-N, а не
+// семантические success/warning (они закреплены за дельтами/риском — ОТК-дизайн).
 const CATEGORY_COLOR = {
-  "Экономика": "var(--info)",
-  "Рынки": "var(--accent)",
-  "Бизнес": "var(--success)",
-  "Политика": "var(--text-tertiary)",
-  "Геополитика": "var(--warning)",
+  "Экономика": "var(--cat-2)",
+  "Рынки": "var(--cat-1)",
+  "Бизнес": "var(--cat-3)",
+  "Политика": "var(--cat-8)",
+  "Геополитика": "var(--cat-6)",
 };
 
 function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
@@ -10002,11 +10017,12 @@ function NewsCard({ n, onSelectCompany }) {
   const high = n.importance === "high";
   return (
     <Card className={high ? "tw-border-l-2 tw-border-l-accent" : ""}>
-      <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1.5 tw-text-[12px] tw-text-text-tertiary">
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-1.5 tw-text-[12px] tw-text-text-tertiary">
         <span className="tw-font-medium tw-text-text-secondary">{_SOURCE_LABEL[n.source] || n.source || "Источник"}</span>
+        {n.published_at && <span className="tw-font-mono">{_newsTime(n.published_at)}</span>}
         {n.category && CATEGORY_COLOR[n.category] && (
           <Badge tone="neutral">
-            <span aria-hidden="true" className="tw-inline-block tw-w-1.5 tw-h-1.5 tw-rounded-pill"
+            <span aria-hidden="true" className="tw-inline-block tw-w-2 tw-h-2 tw-rounded-pill"
                   style={{ backgroundColor: CATEGORY_COLOR[n.category] }} />
             {n.category}
           </Badge>
