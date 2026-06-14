@@ -1,6 +1,7 @@
 indicator,period,value,metric
 unemployment,2026-02,2.1,level
 unemployment,2026-03,2.2,level
+unemployment,2026-04,2.2,level
 ppi,2026-02,-5.2,yoy
 ppi,2026-03,-5.2,yoy
 real_wage,2025-11,5.8,yoy
@@ -11,3 +12,8 @@ real_income,2025-Q2,10.1,yoy
 real_income,2025-Q3,7.7,yoy
 real_income,2025-Q4,5.8,yoy
 real_income,2026-Q1,1.5,yoy
+inflation,2026-04,0.14,mom
+inflation,2026-05,0.17,mom
+inflation,2026-04,5.58,yoy
+inflation,2026-05,5.31,yoy
+inflation_weekly,2026-06-08,0.23,wow
