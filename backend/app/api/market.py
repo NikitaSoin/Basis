@@ -180,6 +180,51 @@ def market_calendar(event_type: str | None = None, sector: str | None = None,
     return {"as_of": str(today), "scope": scope, "count": len(events), "events": events}
 
 
+def _geo_block_dict(b, pf_tickers: set[str]) -> dict:
+    tk = b.affected_tickers or []
+    return {
+        "region": b.region, "tab": b.tab, "title": b.title,
+        "status_text": b.status_text, "channels": b.channels or [],
+        "scenarios": b.scenarios, "market_impact": b.market_impact,
+        "affected_sectors": b.affected_sectors or [],
+        "affected_tickers": tk,
+        "in_portfolio": bool(pf_tickers & set(tk)),
+        "model_used": b.model_used,
+        "updated_at": b.updated_at.isoformat() if b.updated_at else None,
+    }
+
+
+@router.get("/market/geopolitics")
+def market_geopolitics(portfolio_only: bool = False,
+                       db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Геополитика (Направление 7): обе вкладки (overview/deep), все регионы.
+    Источники в выдаче не раскрываются (geo_methodology.md, раздел 7)."""
+    from app.models.geo import GeoBlock
+    pf, _ = _portfolio_filter(db, user) if portfolio_only else (set(), set())
+    blocks = db.query(GeoBlock).all()
+    out = {"overview": [], "deep": []}
+    for b in blocks:
+        if b.tab in out:
+            d = _geo_block_dict(b, pf)
+            if portfolio_only and not d["in_portfolio"]:
+                continue
+            out[b.tab].append(d)
+    order = {"svo": 0, "middle_east": 1, "atr": 2}
+    for tab in out:
+        out[tab].sort(key=lambda x: order.get(x["region"], 9))
+    return {"tabs": out, "disclaimer": "Прогнозы — оценка Basis (сценарные, условные). Не является ИИР."}
+
+
+@router.get("/market/geopolitics/{region}")
+def market_geopolitics_region(region: str, tab: str = "deep",
+                              db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    from app.models.geo import GeoBlock
+    b = db.query(GeoBlock).filter_by(region=region, tab=tab).first()
+    if not b:
+        raise HTTPException(status_code=404, detail="Нет данных по региону/вкладке")
+    return _geo_block_dict(b, set())
+
+
 @router.get("/market/earnings")
 def market_earnings(portfolio_only: bool = False, limit: int = 60,
                     db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

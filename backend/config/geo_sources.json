@@ -1,0 +1,22 @@
+{
+  "_comment": "Источники Направления 7 (Геополитика). РОЛИ: event — событийный слой (вкладка Обзор); analysis — аналитический слой (вкладка Глубокая аналитика). Источники в выдаче НЕ показываются (geo_methodology.md, раздел 7). Состав/юридическую сторону определяет ВЛАДЕЛЕЦ. method: wp_json | rss | html. Парсер устойчив к смене вёрстки: пустой результат → алерт.",
+  "sources": [
+    {"key": "rybar", "role": "event", "method": "wp_json",
+     "url": "https://rybar.ru/wp-json/wp/v2/posts", "params": {"per_page": 20},
+     "regions": ["svo", "middle_east", "atr"], "enabled": true},
+    {"key": "globalaffairs", "role": "both", "method": "rss",
+     "url": "https://globalaffairs.ru/feed/",
+     "regions": ["svo", "middle_east", "atr"], "enabled": true},
+    {"key": "carnegie", "role": "analysis", "method": "rss",
+     "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
+     "regions": ["svo", "middle_east"], "enabled": true},
+    {"key": "rerussia", "role": "analysis", "method": "rss",
+     "url": "https://re-russia.net/rss/",
+     "regions": ["svo"], "enabled": true}
+  ],
+  "region_keywords": {
+    "svo": ["украин", "сво", "донба", "фронт", "запорож", "херсон", "купянск", "санкци", "офз", "москв", "киев", "нато", "переговор", "обстрел", "удар по"],
+    "middle_east": ["израил", "иран", "газ", "ближн", "сири", "ливан", "хути", "красное море", "ормуз", "саудов", "нефт", "опек", "хамас", "хезболл"],
+    "atr": ["китай", "тайван", "корея", "япони", "южно-китайск", "индия", "атр", "тихоокеан", "юань"]
+  }
+}
