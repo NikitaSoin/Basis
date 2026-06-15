@@ -67,14 +67,67 @@ def _upsert(db: Session, events: list[dict]) -> int:
     return n
 
 
-# ----------------------------- ДИВИДЕНДЫ (MOEX ISS) -----------------------------
-def build_dividends(db: Session, lookback_days: int = 45) -> list[dict]:
-    """Дивиденды из ISS: будущие отсечки + недавние прошедшие. buy_by (T+1) и доходность."""
+def _rates_csv_dividends() -> list[dict]:
+    """Анонсированные ближайшие дивиденды из rates.csv (REGISTRYCLOSEDATE + DIVIDENDVALUE
+    — поля листинга MOEX). Это ОСНОВНОЙ источник БУДУЩИХ отсечек (ISS /dividends.json
+    отдаёт только историю выплат). Файл: 1-я строка 'rates', 2-я пустая, затем заголовок."""
+    import csv, os
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "rates.csv")
+    out: list[dict] = []
+    if not os.path.exists(path):
+        return out
+    try:
+        with open(path, encoding="cp1251") as f:
+            f.readline(); f.readline()  # 'rates' + пустая строка
+            for r in csv.DictReader(f, delimiter=";"):
+                rc = (r.get("REGISTRYCLOSEDATE") or "").strip()
+                dv = (r.get("DIVIDENDVALUE") or "").strip()
+                if not rc or dv in ("", "0", "0.0", "0.00"):
+                    continue
+                try:
+                    out.append({"ticker": r["SECID"], "record_date": rc, "amount": float(dv)})
+                except (ValueError, KeyError):
+                    continue
+    except Exception:  # noqa: BLE001
+        return out
+    return out
+
+
+# ----------------------------- ДИВИДЕНДЫ (rates.csv + MOEX ISS) -----------------------------
+def build_dividends(db: Session, lookback_days: int = 400) -> list[dict]:
+    """Дивиденды: будущие отсечки из rates.csv (листинг MOEX) + история из ISS.
+    buy_by (T+1) и дивдоходность считаются КОДОМ. ISS /dividends.json — только история,
+    поэтому будущие берём из rates.csv (DIVIDENDVALUE/REGISTRYCLOSEDATE)."""
     from app.services.moex_dividends import fetch_dividends
     companies = {c.ticker: c for c in db.query(Company).all()}
     closes = _latest_closes(db)
     cutoff = date.today() - timedelta(days=lookback_days)
     out: list[dict] = []
+
+    # 1) будущие/анонсированные — из rates.csv (основной источник предстоящих отсечек)
+    for r in _rates_csv_dividends():
+        ticker = r["ticker"]; c = companies.get(ticker)
+        if not c:
+            continue
+        try:
+            rec = date.fromisoformat(r["record_date"])
+        except (TypeError, ValueError):
+            continue
+        if rec < cutoff:
+            continue
+        price = closes.get(ticker); amount = r["amount"]
+        dy = round(amount / price * 100, 2) if price else None
+        buy_by = prev_trading_day(rec)
+        out.append({
+            "event_type": "dividend", "event_date": rec, "event_time": None,
+            "ticker": ticker, "sector": c.sector,
+            "title": f"{c.name}: дивиденд {amount:g} ₽/акц.",
+            "status": "объявлен", "source": "moex_listing",
+            "source_url": f"https://www.moex.com/ru/issue.aspx?code={ticker}",
+            "payload": {"amount": amount, "currency": "RUB", "record_date": rec.isoformat(),
+                        "buy_by_date": buy_by.isoformat(), "dividend_yield": dy},
+            "dedup_key": f"dividend:{ticker}:{rec.isoformat()}",
+        })
     for ticker, c in companies.items():
         try:
             rows = fetch_dividends(ticker)
