@@ -10736,6 +10736,7 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 const _CAL_TYPES = [
   { id: "", label: "Все" },
   { id: "dividend", label: "Дивиденды" },
+  { id: "corporate", label: "Корпсобытия" },
   { id: "macro", label: "Макрорелизы" },
   { id: "bond_offer", label: "Оферты" },
   { id: "bond_maturity", label: "Погашения" },
@@ -10837,7 +10838,7 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
                         {p.rating && <> · {p.rating}</>}
                       </div>
                     )}
-                    {e.status && e.type === "macro" && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{e.status}{p.note ? ` · ${p.note}` : ""}</div>}
+                    {e.status && (e.type === "macro" || e.type === "corporate") && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{e.status}{p.note ? ` · ${p.note}` : ""}</div>}
                   </div>
                 </div>
               );
