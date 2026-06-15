@@ -127,6 +127,20 @@ async def _asset_data_job():
         await asyncio.get_event_loop().run_in_executor(None, refresh_all_if_stale)
     except Exception as e:
         logger.exception("Ошибка авто-обновления данных классов активов: %s", e)
+    # Календарь событий (Направление 4) — после загрузки облигаций/фьючерсов.
+    try:
+        def _cal():
+            from app.db.session import SessionLocal
+            from app.services.calendar_events import refresh_all
+            db = SessionLocal()
+            try:
+                return refresh_all(db)
+            finally:
+                db.close()
+        res = await asyncio.get_event_loop().run_in_executor(None, _cal)
+        logger.info("Календарь событий обновлён: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка обновления календаря событий: %s", e)
 
 
 async def _news_job():
