@@ -10847,23 +10847,27 @@ function ObserverReportView({ token, onSelectCompany }) {
             </h3>
             <span className="tw-text-[11px] tw-text-text-tertiary">{report.generated_at ? report.generated_at.slice(0, 16).replace("T", " ") : ""}</span>
           </div>
-          <div className="tw-max-w-[72ch] tw-text-[14px] tw-leading-relaxed tw-text-text-secondary observer-md">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.content || ""}</ReactMarkdown>
+          <div className="tw-max-w-[72ch]">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{report.content || ""}</ReactMarkdown>
           </div>
           {refByKind.length > 0 && (
             <div className="tw-mt-4 tw-pt-3 tw-border-t tw-border-border-subtle">
               <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">Источники</div>
               <div className="tw-flex tw-flex-col tw-gap-1">
-                {refByKind.map((r, i) => (
+                {refByKind.map((r, i) => {
+                  const kindLabel = { news: "Новость", earnings: "Отчёт", calendar: "Событие", macro: "Макро", geo: "Геополитика" }[r.kind] || r.kind;
+                  return (
                   <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-items-baseline tw-gap-2">
                     <span className="tw-font-mono tw-text-text-tertiary tw-shrink-0">[{r.ref}]</span>
+                    <span className="tw-text-text-tertiary tw-shrink-0 tw-w-[64px]">{kindLabel}</span>
                     {r.ticker
-                      ? <button onClick={() => onSelectCompany && onSelectCompany(r.ticker)} className="tw-text-accent tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline tw-text-left">{r.title || r.ticker}</button>
+                      ? <button onClick={() => onSelectCompany && onSelectCompany(r.ticker)} className="tw-text-accent tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded tw-text-left">{r.title || r.ticker}</button>
                       : r.url
-                        ? <a href={r.url} target="_blank" rel="noreferrer" className="tw-text-accent hover:tw-underline tw-truncate">{r.title}</a>
+                        ? <a href={r.url} target="_blank" rel="noreferrer" className="tw-text-accent hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded tw-truncate">{r.title}</a>
                         : <span className="tw-truncate">{r.title}</span>}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
