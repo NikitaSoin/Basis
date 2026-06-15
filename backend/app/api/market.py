@@ -37,6 +37,30 @@ def _portfolio_filter(db: Session, user) -> tuple[set[str], set[str]]:
     return tickers, sectors
 
 
+@router.get("/market/maps/heatmap")
+def market_heatmap(period: str = Query("day"), portfolio_only: bool = False,
+                   db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Тепловая карта: цвет — изменение цены за период (day|week|month).
+    portfolio_only — только бумаги из портфелей пользователя."""
+    from app.services import market_maps
+    tickers = None
+    if portfolio_only:
+        tickers, _ = _portfolio_filter(db, user)  # пустой набор → пустая карта (так и нужно)
+    return market_maps.heatmap(db, period=period, tickers_filter=tickers)
+
+
+@router.get("/market/maps/valuation")
+def market_valuation(portfolio_only: bool = False,
+                     db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Карта недооценённости: апсайд к МОДЕЛЬНОЙ справедливой цене (живьём от текущей
+    цены). Покрытые — раскрашены; непокрытые — группа «оценка недоступна». Без сигналов."""
+    from app.services import market_maps
+    tickers = None
+    if portfolio_only:
+        tickers, _ = _portfolio_filter(db, user)
+    return market_maps.valuation(db, tickers_filter=tickers)
+
+
 @router.get("/market/news", response_model=list[NewsItemResponse])
 def list_news_endpoint(
     limit: int = Query(50, ge=1, le=200),
