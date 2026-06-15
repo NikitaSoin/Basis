@@ -10577,6 +10577,152 @@ function MacroInterpreterTab({ token }) {
 }
 
 // =========================
+// MARKET MAPS (Обозреватель · Направление 6 — Карты рынка)
+// =========================
+// Две карты: Тепловая (изменение цены за период) и Недооценённость (апсайд к
+// МОДЕЛЬНОЙ справедливой цене). Без сигналов «купить/продать». Тап → карточка.
+
+// Спокойная diverging-шкала (приглушённые зелёный/красный): «цвет в данных».
+function _mapTileColor(v, cap) {
+  if (v == null) return "rgba(120,120,120,0.06)";
+  const t = Math.max(-1, Math.min(1, v / cap));
+  const a = 0.10 + 0.55 * Math.abs(t);
+  return t >= 0 ? `rgba(46,125,90,${a})` : `rgba(190,68,68,${a})`;
+}
+
+function MarketMapTile({ tile, metric, cap, maxCap, onSelect }) {
+  const v = metric === "upside" ? tile.upside_pct : tile.change_pct;
+  // размер плитки по капитализации (sqrt-сжатие, с минимумом для читаемости)
+  const ratio = maxCap > 0 && tile.market_cap ? Math.sqrt(tile.market_cap / maxCap) : 0.4;
+  const basis = Math.round(96 + ratio * 150); // 96..246px
+  const sign = v == null ? "" : v > 0 ? "+" : "";
+  return (
+    <button
+      onClick={() => onSelect && onSelect(tile.ticker)}
+      title={`${tile.name} · ${tile.sector}`}
+      style={{ backgroundColor: _mapTileColor(v, cap), flexBasis: basis, flexGrow: 1 }}
+      className="tw-min-w-[92px] tw-h-[62px] tw-rounded-md tw-border tw-border-border-subtle tw-px-2 tw-py-1.5 tw-text-left tw-cursor-pointer tw-transition-transform tw-duration-150 hover:tw-scale-[1.03] focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-flex tw-flex-col tw-justify-between"
+    >
+      <span className="tw-text-[12px] tw-font-semibold tw-text-text-primary tw-font-mono tw-truncate">{tile.ticker}</span>
+      <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-primary">
+        {v == null ? "—" : `${sign}${v.toFixed(metric === "upside" ? 0 : 1)}%`}
+      </span>
+    </button>
+  );
+}
+
+function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
+  const [mapType, setMapType] = useState("heatmap"); // heatmap | valuation
+  const [period, setPeriod] = useState("day");       // day | week | month
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    const url = mapType === "heatmap"
+      ? `${apiUrl}/api/market/maps/heatmap?period=${period}&portfolio_only=${portfolioOnly}`
+      : `${apiUrl}/api/market/maps/valuation?portfolio_only=${portfolioOnly}`;
+    fetch(url, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [mapType, period, portfolioOnly, token]);
+
+  const metric = mapType === "valuation" ? "upside" : "change";
+  const cap = mapType === "valuation" ? 40 : (period === "month" ? 20 : period === "week" ? 10 : 5);
+  const sectors = data?.sectors || [];
+  const maxCap = Math.max(1, ...sectors.flatMap((s) => s.tiles.map((t) => t.market_cap || 0)));
+  const isEmpty = !loading && !error && sectors.length === 0 && (!data?.uncovered || data.uncovered.length === 0);
+
+  const PERIODS = [{ id: "day", label: "Сутки" }, { id: "week", label: "Неделя" }, { id: "month", label: "Месяц" }];
+
+  return (
+    <div>
+      {/* Переключатель карт */}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-4">
+        <Chip selected={mapType === "heatmap"} onClick={() => setMapType("heatmap")}>
+          <Activity size={13} className="tw-shrink-0" aria-hidden="true" /> Тепловая
+        </Chip>
+        <Chip selected={mapType === "valuation"} onClick={() => setMapType("valuation")}>
+          <BarChart2 size={13} className="tw-shrink-0" aria-hidden="true" /> Недооценённость
+        </Chip>
+        {mapType === "heatmap" && (
+          <div className="tw-flex tw-gap-1 tw-ml-2">
+            {PERIODS.map((p) => (
+              <button key={p.id} onClick={() => setPeriod(p.id)}
+                className={`tw-px-3 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${period === p.id ? "tw-border-accent tw-bg-accent-soft tw-text-accent" : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"}`}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Легенда + дисклеймер */}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-3 tw-mb-5 tw-text-[12px] tw-text-text-tertiary">
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ backgroundColor: _mapTileColor(-cap, cap) }} />
+          {mapType === "valuation" ? "переоценена" : "снижение"}
+        </span>
+        <span className="tw-inline-flex tw-items-center tw-gap-1">
+          <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ backgroundColor: _mapTileColor(cap, cap) }} />
+          {mapType === "valuation" ? "потенциал вверх" : "рост"}
+        </span>
+        <span>· размер плитки — капитализация · тап → карточка</span>
+      </div>
+
+      {mapType === "valuation" && (
+        <div className="tw-mb-5 tw-text-[12px] tw-text-text-secondary tw-bg-bg-base tw-border tw-border-border-subtle tw-rounded-md tw-px-3 tw-py-2">
+          <b>Модельная оценка.</b> Цвет — апсайд к <b>модельной</b> справедливой цене Basis
+          (живьём от текущей цены), а не сигнал на покупку. Методика и оговорки — в карточке компании.
+        </div>
+      )}
+
+      {loading && <div className="tw-text-[13px] tw-text-text-tertiary tw-py-10 tw-text-center">Загрузка карты…</div>}
+      {error && <div className="tw-text-[13px] tw-text-danger tw-py-10 tw-text-center">Не удалось загрузить карту. Попробуйте позже.</div>}
+      {isEmpty && (
+        <div className="tw-text-[13px] tw-text-text-tertiary tw-py-10 tw-text-center">
+          {portfolioOnly ? "В вашем портфеле нет бумаг для этой карты." : "Нет данных для отображения."}
+        </div>
+      )}
+
+      {!loading && !error && sectors.map((s) => (
+        <div key={s.sector} className="tw-mb-5">
+          <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-2">
+            <h3 className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-m-0">{s.sector}</h3>
+            <span className="tw-text-[11px] tw-text-text-tertiary">{s.tiles.length}</span>
+          </div>
+          <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+            {s.tiles.map((t) => (
+              <MarketMapTile key={t.ticker} tile={t} metric={metric} cap={cap} maxCap={maxCap} onSelect={onSelectCompany} />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {/* Недооценённость: непокрытые бумаги отдельной группой */}
+      {mapType === "valuation" && !loading && data?.uncovered?.length > 0 && (
+        <div className="tw-mt-6 tw-pt-4 tw-border-t tw-border-border-subtle">
+          <h3 className="tw-text-[14px] tw-font-medium tw-text-text-secondary tw-mb-2">Оценка недоступна <span className="tw-text-[11px] tw-text-text-tertiary">({data.uncovered.length})</span></h3>
+          <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+            {data.uncovered.map((t) => (
+              <button key={t.ticker} onClick={() => onSelectCompany && onSelectCompany(t.ticker)}
+                title={`${t.name} · ${t.sector}`}
+                className="tw-min-w-[92px] tw-h-[44px] tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-base tw-px-2 tw-text-left tw-cursor-pointer hover:tw-border-accent tw-flex tw-items-center">
+                <span className="tw-text-[12px] tw-font-semibold tw-font-mono tw-text-text-secondary tw-truncate">{t.ticker}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================
 // OVERVIEW VIEW (Обозреватель)
 // =========================
 
@@ -10660,6 +10806,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "overview"} onClick={() => setSection("overview")}>
           <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Обзор рынка
         </Chip>
+        <Chip selected={section === "maps"} onClick={() => setSection("maps")}>
+          <Layers size={13} className="tw-shrink-0" aria-hidden="true" /> Карты рынка
+        </Chip>
         <button
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
@@ -10679,6 +10828,8 @@ function OverviewView({ token, onSelectCompany }) {
         <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : section === "macro" ? (
         <MacroView token={token} portfolioOnly={portfolioOnly} />
+      ) : section === "maps" ? (
+        <MarketMaps token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
