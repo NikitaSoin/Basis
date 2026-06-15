@@ -10790,7 +10790,7 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
       <div className="tw-flex tw-gap-1 tw-mb-5">
         {[{ id: "upcoming", label: "Предстоящие" }, { id: "past", label: "Прошедшие" }].map((s) => (
           <button key={s.id} onClick={() => setScope(s.id)}
-            className={`tw-px-3 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${scope === s.id ? "tw-border-accent tw-bg-accent-soft tw-text-accent" : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"}`}>
+            className={`tw-px-3 tw-py-1.5 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${scope === s.id ? "tw-border-accent tw-bg-accent-soft tw-text-accent" : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"}`}>
             {s.label}
           </button>
         ))}
@@ -10803,6 +10803,12 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
           {portfolioOnly ? "В вашем портфеле нет событий в этом фильтре." : "Событий не найдено."}
         </div>
       )}
+      {!loading && !error && (evType === "dividend" || evType === "") && scope === "upcoming" && (
+        <div className="tw-mb-4 tw-text-[12px] tw-text-text-tertiary tw-bg-bg-base tw-border tw-border-border-subtle tw-rounded-md tw-px-3 tw-py-2">
+          Будущие дивиденды появляются здесь после объявления компаниями (источник — листинг MOEX).
+          Если выплат нет — значит компании их ещё не анонсировали.
+        </div>
+      )}
 
       {!loading && mainEvents.length > 0 && (
         <Card>
@@ -10811,17 +10817,17 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
               const p = e.payload || {};
               const clickable = e.ticker && (e.type === "dividend");
               return (
-                <div key={e.id} className="tw-flex tw-items-center tw-gap-3 tw-py-2.5 tw-text-[13px]">
+                <div key={e.id} className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-[13px]">
                   <span className="tw-font-mono tw-text-text-secondary tw-w-[68px] tw-shrink-0 tw-tabular-nums">{_dmy(e.date)}{e.time ? <span className="tw-block tw-text-[11px] tw-text-text-tertiary">{e.time} МСК</span> : null}</span>
                   <Badge tone={_CAL_TONE[e.type] || "neutral"}>{_CAL_LABEL[e.type] || e.type}</Badge>
                   <div className="tw-min-w-0 tw-flex-1">
                     {clickable
-                      ? <button onClick={() => onSelectCompany && onSelectCompany(e.ticker)} className="tw-text-text-primary tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline tw-text-left tw-truncate tw-max-w-full">{e.title}</button>
+                      ? <button onClick={() => onSelectCompany && onSelectCompany(e.ticker)} className="tw-text-text-primary tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-text-left tw-truncate tw-max-w-full">{e.title}</button>
                       : <span className="tw-text-text-primary tw-truncate tw-block">{e.title}</span>}
                     {e.type === "dividend" && (
                       <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
                         Купить до <b className="tw-text-text-secondary">{_dmy(p.buy_by_date)}</b> · отсечка {_dmy(p.record_date)}
-                        {p.dividend_yield != null && <> · доходность <b className="tw-text-success">{p.dividend_yield}%</b></>}
+                        {p.dividend_yield != null && <> · доходность <b className="tw-text-success">▲ {p.dividend_yield}%</b></>}
                       </div>
                     )}
                     {(e.type === "bond_offer" || e.type === "bond_maturity") && (
@@ -10854,7 +10860,7 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
                   <span className="tw-text-[11px] tw-text-text-tertiary">{_dmy(e.date)} · анонс</span>
                 </div>
                 <div className="tw-text-[13px] tw-text-text-primary">{e.title}</div>
-                {e.source_url && <a href={e.source_url} target="_blank" rel="noreferrer" className="tw-text-[12px] tw-text-accent hover:tw-underline">источник</a>}
+                {e.source_url && <a href={e.source_url} target="_blank" rel="noreferrer" className="tw-text-[12px] tw-text-accent hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded">источник</a>}
               </Card>
             ))}
           </div>
