@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Globe,
   Calendar,
+  Sparkles,
   Upload,
   User,
   CreditCard,
@@ -10767,6 +10768,129 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =========================
+// OBSERVER REPORT (Обозреватель · Направление 5 — ИИ-обзор)
+// =========================
+const _RPT_TYPES = [
+  { id: "express", label: "Экспресс", horizon: "±2 дня", time: "~минута", desc: "Ключевые новости и ближайшие события по портфелю" },
+  { id: "detailed", label: "Подробный", horizon: "±7 дней", time: "3–5 мин", desc: "Новости недели со связкой влияния, макро, отчёты, календарь" },
+  { id: "deep", label: "Глубокий", horizon: "±30 дней", time: "полное чтение", desc: "Месячный обзор: фон, макро, геополитика, карты рынка, темы" },
+];
+
+function ObserverReportView({ token, onSelectCompany }) {
+  const [type, setType] = useState("express");
+  const [report, setReport] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const loadHistory = () => {
+    if (!token) return;
+    fetch(`${apiUrl}/api/observer/reports`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : []).then(setHistory).catch(() => setHistory([]));
+  };
+  useEffect(loadHistory, [token]);
+
+  const generate = () => {
+    setGenerating(true); setError(null); setReport(null);
+    fetch(`${apiUrl}/api/observer/reports?type=${type}`, { method: "POST", headers: authHeaders })
+      .then((r) => r.json().then((d) => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => { if (ok) { setReport(d); loadHistory(); } else setError(d.detail || "Ошибка генерации"); })
+      .catch((e) => setError(e.message || "Сетевая ошибка"))
+      .finally(() => setGenerating(false));
+  };
+  const openReport = (id) => {
+    fetch(`${apiUrl}/api/observer/reports/${id}`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : null).then((d) => d && setReport(d)).catch(() => {});
+  };
+
+  if (!token) {
+    return <div className="tw-text-[13px] tw-text-text-secondary tw-py-10 tw-text-center">
+      Войдите, чтобы генерировать персональные сводные отчёты по вашему портфелю.
+    </div>;
+  }
+
+  const refByKind = (report?.source_refs || []);
+  return (
+    <div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4">
+        Сводный обзор «что важного происходит» — синтез данных платформы (Лента, Макро, Отчёты,
+        Календарь, Геополитика, Карты) под ваш портфель. Строго по данным, со ссылками на источники,
+        без рекомендаций. Не является ИИР.
+      </p>
+
+      <div className="tw-grid tw-gap-3 tw-mb-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        {_RPT_TYPES.map((t) => (
+          <button key={t.id} onClick={() => setType(t.id)}
+            className={`tw-text-left tw-rounded-lg tw-border tw-px-4 tw-py-3 tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${type === t.id ? "tw-border-accent tw-bg-accent-soft" : "tw-border-border-subtle tw-bg-bg-surface hover:tw-border-accent"}`}>
+            <div className="tw-flex tw-items-baseline tw-gap-2">
+              <span className="tw-text-[14px] tw-font-medium tw-text-text-primary">{t.label}</span>
+              <span className="tw-text-[11px] tw-text-text-tertiary">{t.horizon} · {t.time}</span>
+            </div>
+            <p className="tw-text-[12px] tw-text-text-secondary tw-mt-1 tw-m-0">{t.desc}</p>
+          </button>
+        ))}
+      </div>
+
+      <Button onClick={generate} disabled={generating} loading={generating}
+        iconLeft={!generating ? <Sparkles size={14} /> : null}>
+        {generating ? "Генерируем отчёт…" : "Сгенерировать отчёт"}
+      </Button>
+      {error && <div className="tw-text-[13px] tw-text-danger tw-mt-3">{error}</div>}
+
+      {report && (
+        <Card className="tw-mt-5">
+          <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-2">
+            <h3 className="tw-text-[16px] tw-font-medium tw-text-text-primary tw-m-0">
+              {(_RPT_TYPES.find((x) => x.id === report.report_type) || {}).label || "Отчёт"} · обзор
+            </h3>
+            <span className="tw-text-[11px] tw-text-text-tertiary">{report.generated_at ? report.generated_at.slice(0, 16).replace("T", " ") : ""}</span>
+          </div>
+          <div className="tw-max-w-[72ch] tw-text-[14px] tw-leading-relaxed tw-text-text-secondary observer-md">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{report.content || ""}</ReactMarkdown>
+          </div>
+          {refByKind.length > 0 && (
+            <div className="tw-mt-4 tw-pt-3 tw-border-t tw-border-border-subtle">
+              <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">Источники</div>
+              <div className="tw-flex tw-flex-col tw-gap-1">
+                {refByKind.map((r, i) => (
+                  <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-items-baseline tw-gap-2">
+                    <span className="tw-font-mono tw-text-text-tertiary tw-shrink-0">[{r.ref}]</span>
+                    {r.ticker
+                      ? <button onClick={() => onSelectCompany && onSelectCompany(r.ticker)} className="tw-text-accent tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline tw-text-left">{r.title || r.ticker}</button>
+                      : r.url
+                        ? <a href={r.url} target="_blank" rel="noreferrer" className="tw-text-accent hover:tw-underline tw-truncate">{r.title}</a>
+                        : <span className="tw-truncate">{r.title}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3">Синтез по данным платформы. Без рекомендаций. Не является ИИР.</p>
+        </Card>
+      )}
+
+      {history.length > 0 && (
+        <div className="tw-mt-6">
+          <h3 className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-mb-2">Мои отчёты</h3>
+          <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
+            {history.map((h) => (
+              <button key={h.id} onClick={() => openReport(h.id)}
+                className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-left tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-bg-bg-base focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded">
+                <Badge tone="neutral">{(_RPT_TYPES.find((x) => x.id === h.report_type) || {}).label || h.report_type}</Badge>
+                <span className="tw-text-[11px] tw-text-text-tertiary tw-w-[110px] tw-shrink-0">{h.generated_at ? h.generated_at.slice(0, 16).replace("T", " ") : ""}</span>
+                <span className="tw-text-[12px] tw-text-text-secondary tw-truncate tw-flex-1">{h.preview}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================
 // GEOPOLITICS VIEW (Обозреватель · Направление 7 — Геополитика)
 // =========================
 function GeoScenario({ name, label, tone, sc, onSelectCompany }) {
@@ -11210,6 +11334,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "geo"} onClick={() => setSection("geo")}>
           <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Геополитика
         </Chip>
+        <Chip selected={section === "report"} onClick={() => setSection("report")}>
+          <Sparkles size={13} className="tw-shrink-0" aria-hidden="true" /> ИИ-обзор
+        </Chip>
         <button
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
@@ -11237,6 +11364,8 @@ function OverviewView({ token, onSelectCompany }) {
         <EarningsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : section === "geo" ? (
         <GeopoliticsView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : section === "report" ? (
+        <ObserverReportView token={token} onSelectCompany={onSelectCompany} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
