@@ -4,6 +4,7 @@ from app.models.portfolio import Portfolio, PortfolioPosition
 from app.models.market import MarketUpdate, MarketOverview
 from app.models.company_profile import CompanyProfile
 from app.models.bond import Bond
+from app.models.calendar_event import CalendarEvent
 
 __all__ = [
     "User",
@@ -12,4 +13,5 @@ __all__ = [
     "MarketUpdate", "MarketOverview",
     "CompanyProfile",
     "Bond",
+    "CalendarEvent",
 ]

@@ -142,47 +142,74 @@ def generate_overview_endpoint(
 
 
 @router.get("/market/calendar")
-def market_calendar(days: int = 90, db: Session = Depends(get_db)):
-    """Календарь событий рынка из НАШИХ данных (без внешних API): предстоящие
-    оферты и погашения облигаций + экспирации фьючерсов на горизонте `days` дней.
-    Оферта — точка решения держателя (выкуп по номиналу / новый купон)."""
+def market_calendar(event_type: str | None = None, sector: str | None = None,
+                    portfolio_only: bool = False, scope: str = "upcoming",
+                    days: int = 120, limit: int = 400,
+                    db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Унифицированный календарь событий (Направление 4): дивиденды, облигации
+    (оферты/погашения), макрорелизы, IPO, экспирации. Фильтры: event_type, sector,
+    portfolio_only; scope=upcoming|past|all; горизонт days."""
     from datetime import date, timedelta
-    from sqlalchemy import text
+    from app.models.calendar_event import CalendarEvent
     today = date.today()
-    horizon = today + timedelta(days=days)
-    events = []
+    q = db.query(CalendarEvent)
+    if event_type:
+        q = q.filter(CalendarEvent.event_type == event_type)
+    if sector:
+        q = q.filter(CalendarEvent.sector == sector)
+    if portfolio_only:
+        tickers, _ = _portfolio_filter(db, user)
+        q = q.filter(CalendarEvent.ticker.in_(tickers) if tickers else False)
+    if scope == "upcoming":
+        q = q.filter(CalendarEvent.event_date >= today,
+                     CalendarEvent.event_date <= today + timedelta(days=days))
+        q = q.order_by(CalendarEvent.event_date.asc())
+    elif scope == "past":
+        q = q.filter(CalendarEvent.event_date < today,
+                     CalendarEvent.event_date >= today - timedelta(days=days))
+        q = q.order_by(CalendarEvent.event_date.desc())
+    else:
+        q = q.order_by(CalendarEvent.event_date.asc())
+    rows = q.limit(limit).all()
+    events = [{
+        "id": e.id, "type": e.event_type, "date": e.event_date.isoformat(),
+        "time": e.event_time, "ticker": e.ticker, "sector": e.sector,
+        "title": e.title, "status": e.status, "source": e.source,
+        "source_url": e.source_url, "payload": e.payload or {},
+    } for e in rows]
+    return {"as_of": str(today), "scope": scope, "count": len(events), "events": events}
 
-    # оферты облигаций — важнейшее: точка решения «остаться или предъявить к выкупу»
-    for r in db.execute(text(
-        "SELECT secid, short_name, offer_date, agency_rating, coupon_type FROM bonds "
-        "WHERE offer_date >= :t AND offer_date <= :h AND bond_type <> 'ofz' "
-        "ORDER BY offer_date LIMIT 120"), {"t": today, "h": horizon}).all():
-        events.append({"date": str(r[2]), "type": "offer", "kind": "bond",
-                       "secid": r[0], "name": r[1], "rating": r[3],
-                       "label": "Оферта (пут)", "coupon_type": r[4]})
 
-    # погашения облигаций
-    for r in db.execute(text(
-        "SELECT secid, short_name, maturity_date, agency_rating FROM bonds "
-        "WHERE maturity_date >= :t AND maturity_date <= :h AND bond_type <> 'ofz' "
-        "ORDER BY maturity_date LIMIT 120"), {"t": today, "h": horizon}).all():
-        events.append({"date": str(r[2]), "type": "maturity", "kind": "bond",
-                       "secid": r[0], "name": r[1], "rating": r[3], "label": "Погашение"})
-
-    # экспирации фьючерсов
-    try:
-        for r in db.execute(text(
-            "SELECT secid, short_name, expiration_date, asset_name FROM futures "
-            "WHERE expiration_date >= :t AND expiration_date <= :h "
-            "ORDER BY expiration_date LIMIT 80"), {"t": today, "h": horizon}).all():
-            events.append({"date": str(r[2]), "type": "expiration", "kind": "future",
-                           "secid": r[0], "name": r[1], "label": "Экспирация",
-                           "asset_name": r[3]})
-    except Exception:
-        pass
-
-    events.sort(key=lambda e: e["date"])
-    return {"as_of": str(today), "horizon_days": days, "count": len(events), "events": events}
+@router.get("/market/calendar/bonds")
+def market_calendar_bonds(sector: str | None = None, limit: int = 300,
+                          db: Session = Depends(get_db)):
+    """Справочные параметры облигаций (не скринер): тип купона, ставка, YTM, срок,
+    оферта, номинал. Доходность флоатеров и бумаг с близкой офертой — ИНДИКАТИВНА."""
+    from datetime import date
+    from sqlalchemy import text
+    today = date.today().isoformat()
+    rows = db.execute(text("""
+        SELECT secid, short_name, issuer_ticker, coupon_type, coupon_percent, ytm, ytm_kind,
+               maturity_date, offer_date, face_value, agency_rating, currency
+        FROM bonds
+        WHERE is_defaulted IS NOT TRUE AND (maturity_date IS NULL OR maturity_date >= :t)
+        ORDER BY maturity_date NULLS LAST LIMIT :lim
+    """), {"t": today, "lim": limit}).all()
+    out = []
+    for r in rows:
+        indicative = bool(r.coupon_type == "floater" or r.offer_date)
+        out.append({
+            "secid": r.secid, "name": r.short_name, "issuer_ticker": r.issuer_ticker,
+            "coupon_type": r.coupon_type,
+            "coupon_percent": float(r.coupon_percent) if r.coupon_percent is not None else None,
+            "ytm": float(r.ytm) if r.ytm is not None else None, "ytm_kind": r.ytm_kind,
+            "maturity_date": r.maturity_date.isoformat() if r.maturity_date else None,
+            "offer_date": r.offer_date.isoformat() if r.offer_date else None,
+            "face_value": float(r.face_value) if r.face_value is not None else None,
+            "rating": r.agency_rating, "currency": r.currency,
+            "yield_indicative": indicative,
+        })
+    return {"count": len(out), "bonds": out}
 
 
 @router.get("/market/health/anthropic")
