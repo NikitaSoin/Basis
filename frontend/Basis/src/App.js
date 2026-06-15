@@ -10772,7 +10772,7 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 function GeoScenario({ name, label, tone, sc, onSelectCompany }) {
   if (!sc) return null;
   return (
-    <div className="tw-rounded-md tw-border tw-border-border-subtle tw-px-3 tw-py-2.5" style={{ borderLeft: `3px solid ${tone}` }}>
+    <div className="tw-rounded-md tw-border tw-border-border-subtle tw-px-3 tw-py-2" style={{ borderLeft: `3px solid ${tone}` }}>
       <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
         <span className="tw-text-[12px] tw-font-semibold tw-text-text-primary">{label}</span>
         <Badge tone="neutral">оценка Basis</Badge>
