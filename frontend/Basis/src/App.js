@@ -10767,6 +10767,127 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =========================
+// GEOPOLITICS VIEW (Обозреватель · Направление 7 — Геополитика)
+// =========================
+function GeoScenario({ name, label, tone, sc, onSelectCompany }) {
+  if (!sc) return null;
+  return (
+    <div className="tw-rounded-md tw-border tw-border-border-subtle tw-px-3 tw-py-2.5" style={{ borderLeft: `3px solid ${tone}` }}>
+      <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+        <span className="tw-text-[12px] tw-font-semibold tw-text-text-primary">{label}</span>
+        <Badge tone="neutral">оценка Basis</Badge>
+      </div>
+      {sc.text && <p className="tw-text-[13px] tw-text-text-secondary tw-m-0 tw-leading-relaxed">{sc.text}</p>}
+      {Array.isArray(sc.triggers) && sc.triggers.length > 0 && (
+        <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1.5">Триггеры: {sc.triggers.join(" · ")}</div>
+      )}
+    </div>
+  );
+}
+
+function GeoRegionCard({ block, deep, onSelectCompany }) {
+  if (!block) return null;
+  return (
+    <Card>
+      <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-2">
+        <h3 className="tw-text-[16px] tw-font-medium tw-text-text-primary tw-m-0">{block.title}</h3>
+        {block.in_portfolio && <Badge tone="accent">в портфеле</Badge>}
+      </div>
+      {block.status_text && <p className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-mt-0">{block.status_text}</p>}
+
+      {Array.isArray(block.channels) && block.channels.length > 0 && (
+        <div className="tw-mt-3">
+          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1.5">Каналы влияния</div>
+          <div className="tw-flex tw-flex-col tw-gap-1">
+            {block.channels.map((c, i) => (
+              <div key={i} className="tw-text-[12px] tw-text-text-secondary">
+                <span className="tw-font-medium tw-text-text-primary">{c.channel}</span>{c.effect ? ` — ${c.effect}` : ""}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(block.affected_sectors?.length > 0 || block.affected_tickers?.length > 0) && (
+        <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-1.5 tw-items-center">
+          {(block.affected_sectors || []).map((s, i) => <Chip key={"s" + i}>{s}</Chip>)}
+          {(block.affected_tickers || []).map((t, i) => (
+            <button key={"t" + i} onClick={() => onSelectCompany && onSelectCompany(t)}
+              className="tw-font-mono tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-pill tw-border tw-border-border-subtle tw-text-accent tw-bg-transparent tw-cursor-pointer hover:tw-border-accent focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {deep && block.scenarios && (
+        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2">
+          <GeoScenario label="Базовый" tone="var(--accent)" sc={block.scenarios.base} onSelectCompany={onSelectCompany} />
+          <GeoScenario label="Оптимистичный" tone="var(--success)" sc={block.scenarios.bull} onSelectCompany={onSelectCompany} />
+          <GeoScenario label="Негативный" tone="var(--danger)" sc={block.scenarios.bear} onSelectCompany={onSelectCompany} />
+        </div>
+      )}
+
+      {block.market_impact && (
+        <div className="tw-mt-3 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-2">
+          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1">Что это значит для рынков</div>
+          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0 tw-leading-relaxed">{block.market_impact}</p>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function GeopoliticsView({ token, portfolioOnly, onSelectCompany }) {
+  const [tab, setTab] = useState("overview"); // overview | deep
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  useEffect(() => {
+    setLoading(true); setError(false);
+    fetch(`${apiUrl}/api/market/geopolitics?portfolio_only=${portfolioOnly}`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  const blocks = (data?.tabs?.[tab]) || [];
+  return (
+    <div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+        Как геополитика транслируется в рынок и бумаги. Тон нейтральный, без политических оценок.
+        Прогнозы — сценарные, «оценка Basis». Не является ИИР.
+      </p>
+      <div className="tw-flex tw-gap-1 tw-mb-5 tw-border-b tw-border-border-subtle">
+        {[{ id: "overview", label: "Обзор" }, { id: "deep", label: "Глубокая аналитика" }].map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`tw-px-4 tw-py-2 tw-text-[14px] tw-font-medium tw-bg-transparent tw-border-0 tw-cursor-pointer tw--mb-px tw-border-b-2 tw-transition-colors tw-rounded-t-sm focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${tab === t.id ? "tw-text-accent tw-border-accent" : "tw-text-text-secondary tw-border-transparent hover:tw-text-text-primary"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div className="tw-text-[13px] tw-text-text-tertiary tw-py-10 tw-text-center">Загрузка…</div>}
+      {error && <div className="tw-text-[13px] tw-text-danger tw-py-10 tw-text-center">Не удалось загрузить геополитику.</div>}
+      {!loading && !error && blocks.length === 0 && (
+        <div className="tw-text-[13px] tw-text-text-tertiary tw-py-8 tw-text-center">
+          {portfolioOnly ? "По бумагам портфеля значимых изменений нет." : "Значимых изменений нет."}
+        </div>
+      )}
+      {!loading && blocks.length > 0 && (
+        <div className="tw-flex tw-flex-col tw-gap-4">
+          {blocks.map((b) => (
+            <GeoRegionCard key={b.region} block={b} deep={tab === "deep"} onSelectCompany={onSelectCompany} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================
 // EARNINGS FEED (Обозреватель · Направление 3 — Анализ отчётностей)
 // =========================
 function EarningsFeed({ token, portfolioOnly, onSelectCompany }) {
@@ -11086,6 +11207,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "earnings"} onClick={() => setSection("earnings")}>
           <FileText size={13} className="tw-shrink-0" aria-hidden="true" /> Отчёты
         </Chip>
+        <Chip selected={section === "geo"} onClick={() => setSection("geo")}>
+          <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Геополитика
+        </Chip>
         <button
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
@@ -11111,6 +11235,8 @@ function OverviewView({ token, onSelectCompany }) {
         <CalendarView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : section === "earnings" ? (
         <EarningsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : section === "geo" ? (
+        <GeopoliticsView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
