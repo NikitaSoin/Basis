@@ -5298,7 +5298,7 @@ const CompanyCard = ({ company, onBack }) => {
             {earnings.status === "extract_failed" ? (
               <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">Отчёт вышел — цифры на проверке. Чтобы не публиковать непроверенные значения, разбор появится после сверки.</p>
             ) : (
-              <div className="tw-flex tw-flex-col tw-gap-2.5">
+              <div className="tw-flex tw-flex-col tw-gap-3">
                 {earnings.digest.one_liner && <p className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-m-0">{earnings.digest.one_liner}</p>}
                 {Array.isArray(earnings.digest.what_report_showed) && (
                   <ul className="tw-list-none tw-p-0 tw-m-0 tw-flex tw-flex-col tw-gap-1">
@@ -10784,7 +10784,8 @@ function EarningsFeed({ token, portfolioOnly, onSelectCompany }) {
   }, [portfolioOnly, token]);
 
   const reports = data?.reports || [];
-  const impTone = { high: "warning", medium: "info", low: "neutral" };
+  const impTone = { high: "accent", medium: "info", low: "neutral" };
+  const pub = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}` : null;
   return (
     <div>
       <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4">
@@ -10803,9 +10804,9 @@ function EarningsFeed({ token, portfolioOnly, onSelectCompany }) {
           <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
             {reports.map((r, i) => (
               <button key={i} onClick={() => onSelectCompany && onSelectCompany(r.ticker)}
-                className="tw-flex tw-items-center tw-gap-3 tw-py-2.5 tw-text-left tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-bg-bg-base focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded">
+                className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-left tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-bg-bg-base focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded">
                 <span className="tw-font-mono tw-font-semibold tw-text-text-primary tw-w-[64px] tw-shrink-0">{r.ticker}</span>
-                <span className="tw-text-[11px] tw-text-text-tertiary tw-w-[120px] tw-shrink-0">{r.period} · {r.standard || r.report_type}</span>
+                <span className="tw-text-[11px] tw-text-text-tertiary tw-w-[112px] tw-shrink-0">{r.period} · {r.standard || r.report_type}{pub(r.published_at) ? <span className="tw-block tw-text-text-tertiary">вышел {pub(r.published_at)}</span> : null}</span>
                 <span className="tw-text-[13px] tw-text-text-secondary tw-truncate tw-flex-1">
                   {r.status === "extract_failed" ? "Отчёт вышел — цифры на проверке" : (r.one_liner || "Разбор готовится…")}
                 </span>
