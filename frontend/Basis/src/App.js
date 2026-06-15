@@ -19,6 +19,7 @@ import {
   Zap,
   ChevronRight,
   Globe,
+  Calendar,
   Upload,
   User,
   CreditCard,
@@ -10730,6 +10731,179 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =========================
+// CALENDAR VIEW (Обозреватель · Направление 4 — Календари)
+// =========================
+const _CAL_TYPES = [
+  { id: "", label: "Все" },
+  { id: "dividend", label: "Дивиденды" },
+  { id: "macro", label: "Макрорелизы" },
+  { id: "bond_offer", label: "Оферты" },
+  { id: "bond_maturity", label: "Погашения" },
+  { id: "expiration", label: "Экспирации" },
+  { id: "ipo", label: "IPO" },
+];
+const _CAL_TONE = { dividend: "success", macro: "accent", bond_offer: "warning", bond_maturity: "neutral", expiration: "info", ipo: "accent", corporate: "neutral" };
+const _CAL_LABEL = { dividend: "Дивиденд", macro: "Макро", bond_offer: "Оферта", bond_maturity: "Погашение", expiration: "Экспирация", ipo: "IPO", corporate: "Корпсобытие" };
+const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : "—";
+
+function CalendarView({ token, portfolioOnly, onSelectCompany }) {
+  const [evType, setEvType] = useState("");
+  const [scope, setScope] = useState("upcoming"); // upcoming | past
+  const [data, setData] = useState(null);
+  const [bonds, setBonds] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    const u = `${apiUrl}/api/market/calendar?scope=${scope}&portfolio_only=${portfolioOnly}` + (evType ? `&event_type=${evType}` : "");
+    fetch(u, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [evType, scope, portfolioOnly, token]);
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/calendar/bonds?limit=200`)
+      .then((r) => r.ok ? r.json() : null).then(setBonds).catch(() => setBonds(null));
+  }, []);
+
+  const events = data?.events || [];
+  const ipoEvents = events.filter((e) => e.type === "ipo");
+  const mainEvents = events.filter((e) => e.type !== "ipo");
+
+  return (
+    <div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+        Будущие и прошедшие события рынка: дивиденды (с датами «купить до» и отсечки), макрорелизы,
+        оферты и погашения облигаций, экспирации, IPO. Тон справочный, без призывов.
+      </p>
+
+      {/* Фильтры: тип + предстоящие/прошедшие (тумблер портфеля — общий в шапке Обозревателя) */}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-1.5 tw-mb-3">
+        {_CAL_TYPES.map((t) => (
+          <Chip key={t.id || "all"} selected={evType === t.id} onClick={() => setEvType(t.id)}>{t.label}</Chip>
+        ))}
+      </div>
+      <div className="tw-flex tw-gap-1 tw-mb-5">
+        {[{ id: "upcoming", label: "Предстоящие" }, { id: "past", label: "Прошедшие" }].map((s) => (
+          <button key={s.id} onClick={() => setScope(s.id)}
+            className={`tw-px-3 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${scope === s.id ? "tw-border-accent tw-bg-accent-soft tw-text-accent" : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"}`}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {loading && <div className="tw-text-[13px] tw-text-text-tertiary tw-py-10 tw-text-center">Загрузка календаря…</div>}
+      {error && <div className="tw-text-[13px] tw-text-danger tw-py-10 tw-text-center">Не удалось загрузить календарь.</div>}
+      {!loading && !error && mainEvents.length === 0 && (
+        <div className="tw-text-[13px] tw-text-text-tertiary tw-py-8 tw-text-center">
+          {portfolioOnly ? "В вашем портфеле нет событий в этом фильтре." : "Событий не найдено."}
+        </div>
+      )}
+
+      {!loading && mainEvents.length > 0 && (
+        <Card>
+          <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
+            {mainEvents.map((e) => {
+              const p = e.payload || {};
+              const clickable = e.ticker && (e.type === "dividend");
+              return (
+                <div key={e.id} className="tw-flex tw-items-center tw-gap-3 tw-py-2.5 tw-text-[13px]">
+                  <span className="tw-font-mono tw-text-text-secondary tw-w-[68px] tw-shrink-0 tw-tabular-nums">{_dmy(e.date)}{e.time ? <span className="tw-block tw-text-[11px] tw-text-text-tertiary">{e.time} МСК</span> : null}</span>
+                  <Badge tone={_CAL_TONE[e.type] || "neutral"}>{_CAL_LABEL[e.type] || e.type}</Badge>
+                  <div className="tw-min-w-0 tw-flex-1">
+                    {clickable
+                      ? <button onClick={() => onSelectCompany && onSelectCompany(e.ticker)} className="tw-text-text-primary tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline tw-text-left tw-truncate tw-max-w-full">{e.title}</button>
+                      : <span className="tw-text-text-primary tw-truncate tw-block">{e.title}</span>}
+                    {e.type === "dividend" && (
+                      <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
+                        Купить до <b className="tw-text-text-secondary">{_dmy(p.buy_by_date)}</b> · отсечка {_dmy(p.record_date)}
+                        {p.dividend_yield != null && <> · доходность <b className="tw-text-success">{p.dividend_yield}%</b></>}
+                      </div>
+                    )}
+                    {(e.type === "bond_offer" || e.type === "bond_maturity") && (
+                      <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
+                        {p.coupon_type === "floater" ? "флоатер" : p.coupon_type === "fixed" ? "фикс. купон" : p.coupon_type || ""}
+                        {p.ytm != null && <> · YTM ~{p.ytm}%{p.yield_indicative ? " (индикативно)" : ""}</>}
+                        {p.rating && <> · {p.rating}</>}
+                      </div>
+                    )}
+                    {e.status && e.type === "macro" && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{e.status}{p.note ? ` · ${p.note}` : ""}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* IPO / размещения */}
+      <div className="tw-mt-8">
+        <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-2">IPO и размещения</h3>
+        {ipoEvents.length === 0 ? (
+          <div className="tw-text-[13px] tw-text-text-tertiary tw-bg-bg-base tw-border tw-border-border-subtle tw-rounded-md tw-px-3 tw-py-3">Ближайших размещений не анонсировано.</div>
+        ) : (
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            {ipoEvents.map((e) => (
+              <Card key={e.id}>
+                <div className="tw-flex tw-items-baseline tw-gap-2 tw-mb-1">
+                  <Badge tone="accent">IPO/SPO</Badge>
+                  <span className="tw-text-[11px] tw-text-text-tertiary">{_dmy(e.date)} · анонс</span>
+                </div>
+                <div className="tw-text-[13px] tw-text-text-primary">{e.title}</div>
+                {e.source_url && <a href={e.source_url} target="_blank" rel="noreferrer" className="tw-text-[12px] tw-text-accent hover:tw-underline">источник</a>}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Облигации — справочные параметры */}
+      <div className="tw-mt-8">
+        <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1">Облигации — параметры</h3>
+        <p className="tw-text-[12px] tw-text-text-tertiary tw-mb-2">Справочно (не скринер). Доходность флоатеров и бумаг с близкой офертой — <b>индикативна</b> (до ближайшего события).</p>
+        {!bonds?.bonds?.length ? (
+          <div className="tw-text-[13px] tw-text-text-tertiary">Параметры облигаций загружаются…</div>
+        ) : (
+          <div className="tw-overflow-x-auto">
+            <table className="tw-w-full tw-text-[12px] tw-border-collapse">
+              <thead>
+                <tr className="tw-text-text-tertiary tw-text-left tw-border-b tw-border-border-subtle">
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Бумага</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Купон</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Ставка</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">YTM</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Погашение</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Оферта</th>
+                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Номинал</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bonds.bonds.slice(0, 80).map((b) => (
+                  <tr key={b.secid} className="tw-border-b tw-border-border-subtle tw-text-text-secondary">
+                    <td className="tw-py-1.5 tw-pr-3 tw-text-text-primary tw-font-mono">{b.secid}<span className="tw-block tw-text-[11px] tw-text-text-tertiary tw-font-sans tw-truncate tw-max-w-[160px]">{b.name}</span></td>
+                    <td className="tw-py-1.5 tw-pr-3">{b.coupon_type === "floater" ? "плав." : b.coupon_type === "fixed" ? "фикс." : (b.coupon_type || "—")}</td>
+                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.coupon_percent != null ? `${b.coupon_percent}%` : "—"}</td>
+                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.ytm != null ? `${b.ytm}%${b.yield_indicative ? "*" : ""}` : "—"}</td>
+                    <td className="tw-py-1.5 tw-pr-3 tw-tabular-nums">{_dmy(b.maturity_date)}</td>
+                    <td className="tw-py-1.5 tw-pr-3 tw-tabular-nums">{b.offer_date ? _dmy(b.offer_date) : "—"}</td>
+                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.face_value != null ? `${b.face_value} ${b.currency || ""}` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2">* индикативная доходность (флоатер или близкая оферта).</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =========================
 // OVERVIEW VIEW (Обозреватель)
 // =========================
 
@@ -10744,17 +10918,9 @@ function OverviewView({ token, onSelectCompany }) {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
-  const [calendar, setCalendar] = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-
-  useEffect(() => {
-    fetch(`${apiUrl}/api/market/calendar?days=75`)
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => setCalendar(d))
-      .catch(() => setCalendar(null));
-  }, []);
 
   const loadOverviews = () => {
     setLoading(true);
@@ -10816,6 +10982,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "maps"} onClick={() => setSection("maps")}>
           <Layers size={13} className="tw-shrink-0" aria-hidden="true" /> Карты рынка
         </Chip>
+        <Chip selected={section === "calendar"} onClick={() => setSection("calendar")}>
+          <Calendar size={13} className="tw-shrink-0" aria-hidden="true" /> Календарь
+        </Chip>
         <button
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
@@ -10837,37 +11006,12 @@ function OverviewView({ token, onSelectCompany }) {
         <MacroView token={token} portfolioOnly={portfolioOnly} />
       ) : section === "maps" ? (
         <MarketMaps token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : section === "calendar" ? (
+        <CalendarView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
           облигаций + экспирации фьючерсов. Всегда заполнен. */}
-      {calendar?.events?.length > 0 && (
-        <div className="tw-mb-8">
-          <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-3">
-            <h2 className="tw-text-[17px] tw-font-medium tw-text-text-primary">Календарь событий рынка</h2>
-            <span className="tw-text-[12px] tw-text-text-tertiary">ближайшие {calendar.horizon_days} дней · {calendar.count} событий</span>
-          </div>
-          <Card>
-            <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3">Оферта — точка решения держателя (предъявить к выкупу по номиналу или остаться под новый купон). Погашение — возврат тела. Экспирация — последний день обращения фьючерса. Данные — из нашей базы по биржевым инструментам.</div>
-            <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
-              {calendar.events.slice(0, 30).map((e, i) => {
-                const d = e.date ? `${e.date.slice(8, 10)}.${e.date.slice(5, 7)}` : "—";
-                const toneByType = { offer: "warning", maturity: "neutral", expiration: "info" };
-                return (
-                  <div key={i} className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-[13px]">
-                    <span className="tw-font-mono tw-text-text-secondary tw-w-12 tw-shrink-0">{d}</span>
-                    <Badge tone={toneByType[e.type] || "neutral"}>{e.label}</Badge>
-                    <span className="tw-text-text-primary tw-truncate">{e.name}</span>
-                    {e.rating && <span className="tw-text-text-tertiary tw-text-[11px] tw-ml-auto tw-shrink-0">{e.rating}</span>}
-                    {e.asset_name && !e.rating && <span className="tw-text-text-tertiary tw-text-[11px] tw-ml-auto tw-shrink-0">{e.asset_name}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        </div>
-      )}
-
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
         {TABS.map((tab) => {
           const Icon = tab.icon;
