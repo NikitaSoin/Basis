@@ -3722,6 +3722,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [finMd, setFinMd] = useState(null);
   const [finJson, setFinJson] = useState(null);
   const [finLoading, setFinLoading] = useState(true);
+  const [earnings, setEarnings] = useState(null);
   const [govMd, setGovMd] = useState(null);
   const [govJson, setGovJson] = useState(null);
   const [govLoading, setGovLoading] = useState(true);
@@ -3830,6 +3831,7 @@ const CompanyCard = ({ company, onBack }) => {
       setFinJson(js);
       setFinLoading(false);
     });
+    fetch(`${base}/earnings/latest`).then(r => r.ok ? r.json() : null).catch(() => null).then(setEarnings);
   }, [company.ticker]);
 
   useEffect(() => {
@@ -5288,6 +5290,40 @@ const CompanyCard = ({ company, onBack }) => {
 
     return (
       <AppearGroup gate={appearGate.current} groupId="finance" className="tw-flex tw-flex-col tw-gap-4">
+        {earnings && (earnings.digest || earnings.status === "extract_failed") && (
+          <Card>
+            {cardHead(FileText, "Разбор отчёта", (
+              <span className="tw-text-[12px] tw-text-text-secondary">{earnings.period} · {earnings.standard || earnings.report_type}</span>
+            ))}
+            {earnings.status === "extract_failed" ? (
+              <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">Отчёт вышел — цифры на проверке. Чтобы не публиковать непроверенные значения, разбор появится после сверки.</p>
+            ) : (
+              <div className="tw-flex tw-flex-col tw-gap-2.5">
+                {earnings.digest.one_liner && <p className="tw-text-[14px] tw-font-medium tw-text-text-primary tw-m-0">{earnings.digest.one_liner}</p>}
+                {Array.isArray(earnings.digest.what_report_showed) && (
+                  <ul className="tw-list-none tw-p-0 tw-m-0 tw-flex tw-flex-col tw-gap-1">
+                    {earnings.digest.what_report_showed.map((x, i) => (
+                      <li key={i} className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">{x}</li>
+                    ))}
+                  </ul>
+                )}
+                {earnings.digest.what_changed && (
+                  <div className="tw-text-[13px] tw-text-text-secondary"><span className="tw-font-medium tw-text-text-primary">Что изменилось:</span> {earnings.digest.what_changed}</div>
+                )}
+                {earnings.figures && (
+                  <div className="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-1 tw-text-[12px] tw-text-text-tertiary tw-font-mono tw-tabular-nums tw-pt-1">
+                    {earnings.figures.pe_ttm != null && <span>P/E {earnings.figures.pe_ttm}</span>}
+                    {earnings.figures.pb != null && <span>P/B {earnings.figures.pb}</span>}
+                    {earnings.figures.ev_ebitda != null && <span>EV/EBITDA {earnings.figures.ev_ebitda}</span>}
+                    {earnings.figures.nd_ebitda != null && <span>ND/EBITDA {earnings.figures.nd_ebitda}</span>}
+                  </div>
+                )}
+                {earnings.digest.summary && <p className="tw-text-[13px] tw-text-text-secondary tw-m-0 tw-pt-1">{earnings.digest.summary}</p>}
+                <p className="tw-text-[11px] tw-text-text-tertiary tw-m-0 tw-pt-1">Ознакомительный разбор события «вышел отчёт». Систематическая оценка — в блоке справедливой стоимости ниже. Не является ИИР.</p>
+              </div>
+            )}
+          </Card>
+        )}
         {finJson && (
           <Card>
             {cardHead(BarChart2, "Ключевые мультипликаторы", typeof meta.last_price === "number" && (
@@ -10731,6 +10767,60 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =========================
+// EARNINGS FEED (Обозреватель · Направление 3 — Анализ отчётностей)
+// =========================
+function EarningsFeed({ token, portfolioOnly, onSelectCompany }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  useEffect(() => {
+    setLoading(true); setError(false);
+    fetch(`${apiUrl}/api/market/earnings?portfolio_only=${portfolioOnly}`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  const reports = data?.reports || [];
+  const impTone = { high: "warning", medium: "info", low: "neutral" };
+  return (
+    <div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4">
+        Вышедшие отчётности покрываемых компаний: что показал отчёт, одной строкой. Тап → карточка
+        с полным «Разбором отчёта» и обновлёнными метриками. Ознакомительно, не ИИР.
+      </p>
+      {loading && <div className="tw-text-[13px] tw-text-text-tertiary tw-py-10 tw-text-center">Загрузка…</div>}
+      {error && <div className="tw-text-[13px] tw-text-danger tw-py-10 tw-text-center">Не удалось загрузить ленту отчётов.</div>}
+      {!loading && !error && reports.length === 0 && (
+        <div className="tw-text-[13px] tw-text-text-tertiary tw-py-8 tw-text-center">
+          {portfolioOnly ? "По бумагам портфеля новых отчётов нет." : "Новых отчётов нет."}
+        </div>
+      )}
+      {!loading && reports.length > 0 && (
+        <Card>
+          <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
+            {reports.map((r, i) => (
+              <button key={i} onClick={() => onSelectCompany && onSelectCompany(r.ticker)}
+                className="tw-flex tw-items-center tw-gap-3 tw-py-2.5 tw-text-left tw-bg-transparent tw-border-0 tw-cursor-pointer hover:tw-bg-bg-base focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded">
+                <span className="tw-font-mono tw-font-semibold tw-text-text-primary tw-w-[64px] tw-shrink-0">{r.ticker}</span>
+                <span className="tw-text-[11px] tw-text-text-tertiary tw-w-[120px] tw-shrink-0">{r.period} · {r.standard || r.report_type}</span>
+                <span className="tw-text-[13px] tw-text-text-secondary tw-truncate tw-flex-1">
+                  {r.status === "extract_failed" ? "Отчёт вышел — цифры на проверке" : (r.one_liner || "Разбор готовится…")}
+                </span>
+                {r.importance && <Badge tone={impTone[r.importance] || "neutral"}>{r.importance === "high" ? "важно" : r.importance === "medium" ? "средне" : "—"}</Badge>}
+                <ChevronRight size={14} className="tw-text-text-tertiary tw-shrink-0" />
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// =========================
 // CALENDAR VIEW (Обозреватель · Направление 4 — Календари)
 // =========================
 const _CAL_TYPES = [
@@ -10992,6 +11082,9 @@ function OverviewView({ token, onSelectCompany }) {
         <Chip selected={section === "calendar"} onClick={() => setSection("calendar")}>
           <Calendar size={13} className="tw-shrink-0" aria-hidden="true" /> Календарь
         </Chip>
+        <Chip selected={section === "earnings"} onClick={() => setSection("earnings")}>
+          <FileText size={13} className="tw-shrink-0" aria-hidden="true" /> Отчёты
+        </Chip>
         <button
           type="button"
           onClick={() => setPortfolioOnly((v) => !v)}
@@ -11015,6 +11108,8 @@ function OverviewView({ token, onSelectCompany }) {
         <MarketMaps token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : section === "calendar" ? (
         <CalendarView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+      ) : section === "earnings" ? (
+        <EarningsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : (
       <>
       {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
