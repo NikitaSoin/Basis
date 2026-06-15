@@ -189,6 +189,36 @@ async def _macro_job():
         logger.exception("Ошибка ингеста Макрообзора: %s", e)
 
 
+_EARNINGS_SEED = ["LKOH", "ROSN", "GAZP", "NVTK", "TATN", "SIBN", "PHOR", "GMKN",
+                  "MGNT", "MTSS", "YDEX", "PLZL", "CHMF", "NLMK", "MOEX", "AFLT",
+                  "RTKM", "MAGN", "SNGS", "ALRS"]
+
+
+async def _earnings_job(seed_only: bool = False):
+    """Анализ отчётностей: вечерний обход (новые периоды). seed_only — стартовый сид
+    курируемого ликвидного набора (для контента после деплоя), без перебора всех."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.earnings import refresh
+        db = SessionLocal()
+        try:
+            return refresh(db, tickers=_EARNINGS_SEED if seed_only else None,
+                           limit=None if seed_only else 30)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Анализ отчётностей (%s): %s", "сид" if seed_only else "обход", res)
+    except Exception as e:
+        logger.exception("Ошибка анализа отчётностей: %s", e)
+
+
+async def _earnings_startup():
+    """Стартовый сид разборов отчётов курируемого набора — чтобы лента/карточки имели
+    контент сразу после деплоя. Идемпотентно (существующие периоды не пересоздаются)."""
+    await _earnings_job(seed_only=True)
+
+
 async def _macro_startup():
     """При старте: сид справочника + идемпотентный бэкфилл CSV + первичный ингест мира."""
     def _run():
@@ -253,6 +283,9 @@ async def lifespan(app: FastAPI):
     # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
     # утром; плюс разовый прогон при старте (ниже) для авто-наполнения после деплоя.
     scheduler.add_job(_asset_data_job, "cron", hour=6, minute=0, id="asset_data_refresh")
+    # Анализ отчётностей (Направление 3) — раз в сутки ВЕЧЕРОМ (отчёты выходят
+    # нерегулярно). Ограниченный батч, идемпотентно (новые периоды).
+    scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
@@ -266,6 +299,7 @@ async def lifespan(app: FastAPI):
     # обработки при рестартах.
     asyncio.create_task(_news_job())
     asyncio.create_task(_macro_startup())
+    asyncio.create_task(_earnings_startup())
 
     yield
     scheduler.shutdown()

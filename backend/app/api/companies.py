@@ -298,6 +298,40 @@ async def get_financials_json(ticker: str):
     return JSONResponse(content=_normalize_financials(json.loads(path.read_text(encoding="utf-8"))))
 
 
+@router.get("/companies/by-ticker/{ticker}/earnings/latest")
+def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
+    """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».
+    Состояния: нет отчёта (404), отчёт без разбора (status=extract_failed)."""
+    from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
+    r = (db.query(EarningsReport).filter(EarningsReport.ticker == _safe(ticker).upper())
+         .order_by(EarningsReport.created_at.desc()).first())
+    if not r:
+        raise HTTPException(status_code=404, detail="Нет разобранных отчётов")
+    fig = db.query(EarningsFigures).filter_by(report_id=r.id).first()
+    dg = db.query(EarningsDigest).filter_by(report_id=r.id).first()
+    def f(v):
+        return float(v) if v is not None else None
+    return {
+        "ticker": r.ticker, "period": r.period, "standard": r.standard,
+        "report_type": r.report_type, "status": r.status,
+        "published_at": r.published_at.isoformat() if r.published_at else None,
+        "source_url": r.source_url,
+        "figures": {
+            "unit": "млн ₽", "revenue_ttm": f(fig.revenue_ttm), "ebitda": f(fig.ebitda),
+            "net_profit_ttm": f(fig.net_profit_ttm), "adjusted_profit": f(fig.adjusted_profit),
+            "is_company_adjusted": fig.is_company_adjusted, "net_debt": f(fig.net_debt),
+            "nd_ebitda": f(fig.nd_ebitda), "price": f(fig.price), "pe_ttm": f(fig.pe_ttm),
+            "pb": f(fig.pb), "ev_ebitda": f(fig.ev_ebitda), "prev": fig.prev,
+        } if fig else None,
+        "digest": {
+            "headline": dg.headline, "one_liner": dg.one_liner,
+            "what_report_showed": dg.what_report_showed, "what_changed": dg.what_changed,
+            "summary": dg.summary, "importance": dg.importance, "model_used": dg.model_used,
+        } if dg else None,
+        "disclaimer": "Ознакомительный разбор события «вышел отчёт». Не является ИИР.",
+    }
+
+
 @router.get("/companies/by-ticker/{ticker}/financials-summary", response_class=PlainTextResponse)
 async def get_financials_summary_md(ticker: str):
     """Текстовая интерпретация блока «Финансы и оценка» (markdown)."""

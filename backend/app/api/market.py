@@ -180,6 +180,32 @@ def market_calendar(event_type: str | None = None, sector: str | None = None,
     return {"as_of": str(today), "scope": scope, "count": len(events), "events": events}
 
 
+@router.get("/market/earnings")
+def market_earnings(portfolio_only: bool = False, limit: int = 60,
+                    db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Лента вышедших отчётов (Направление 3): тикер, период, одна строка сути, важность.
+    Тап → карточка. portfolio_only — только бумаги портфеля."""
+    from app.models.earnings import EarningsReport, EarningsDigest
+    from app.models.calendar_event import CalendarEvent  # noqa: F401 (consistency)
+    q = (db.query(EarningsReport, EarningsDigest)
+         .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
+         .order_by(EarningsReport.created_at.desc()))
+    if portfolio_only:
+        tickers, _ = _portfolio_filter(db, user)
+        q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)
+    rows = q.limit(limit).all()
+    out = []
+    for r, dg in rows:
+        out.append({
+            "ticker": r.ticker, "period": r.period, "standard": r.standard,
+            "report_type": r.report_type, "status": r.status,
+            "published_at": r.published_at.isoformat() if r.published_at else None,
+            "one_liner": dg.one_liner if dg else None,
+            "importance": dg.importance if dg else None,
+        })
+    return {"count": len(out), "reports": out}
+
+
 @router.get("/market/calendar/bonds")
 def market_calendar_bonds(sector: str | None = None, limit: int = 300,
                           db: Session = Depends(get_db)):
