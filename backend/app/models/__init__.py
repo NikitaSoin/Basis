@@ -6,8 +6,10 @@ from app.models.company_profile import CompanyProfile
 from app.models.bond import Bond
 from app.models.calendar_event import CalendarEvent
 from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
+from app.models.geo import GeoBlock
 
 __all__ = [
+    "GeoBlock",
     "EarningsReport", "EarningsFigures", "EarningsDigest",
     "User",
     "Company", "CompanyAnalysis", "Quote",

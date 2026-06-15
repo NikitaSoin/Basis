@@ -219,6 +219,41 @@ async def _earnings_startup():
     await _earnings_job(seed_only=True)
 
 
+async def _geo_job():
+    """Геополитика: пересбор синтеза по методичке (DeepSeek Pro). Раз в сутки."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.geopolitics import refresh
+        db = SessionLocal()
+        try:
+            return refresh(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Геополитика обновлена: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка обновления геополитики: %s", e)
+
+
+async def _geo_startup():
+    """Стартовый синтез геополитики — чтобы вкладки имели контент после деплоя.
+    Только если блоков ещё нет (не гоняем Pro на каждом рестарте)."""
+    def _has():
+        from app.db.session import SessionLocal
+        from app.models.geo import GeoBlock
+        db = SessionLocal()
+        try:
+            return db.query(GeoBlock).count() > 0
+        finally:
+            db.close()
+    try:
+        if not await asyncio.get_event_loop().run_in_executor(None, _has):
+            await _geo_job()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Геополитика старт: %s", e)
+
+
 async def _macro_startup():
     """При старте: сид справочника + идемпотентный бэкфилл CSV + первичный ингест мира."""
     def _run():
@@ -286,6 +321,8 @@ async def lifespan(app: FastAPI):
     # Анализ отчётностей (Направление 3) — раз в сутки ВЕЧЕРОМ (отчёты выходят
     # нерегулярно). Ограниченный батч, идемпотентно (новые периоды).
     scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
+    # Геополитика (Направление 7) — раз в сутки (синтез DeepSeek Pro по методичке).
+    scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
@@ -300,6 +337,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_news_job())
     asyncio.create_task(_macro_startup())
     asyncio.create_task(_earnings_startup())
+    asyncio.create_task(_geo_startup())
 
     yield
     scheduler.shutdown()
