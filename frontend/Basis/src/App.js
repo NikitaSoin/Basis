@@ -10595,6 +10595,8 @@ function MarketMapTile({ tile, metric, cap, maxCap, onSelect }) {
   // размер плитки по капитализации (sqrt-сжатие, с минимумом для читаемости)
   const ratio = maxCap > 0 && tile.market_cap ? Math.sqrt(tile.market_cap / maxCap) : 0.4;
   const basis = Math.round(96 + ratio * 150); // 96..246px
+  // глиф ▲/▼ — по конституции направление кодируется не только цветом
+  const glyph = v == null ? "" : v > 0 ? "▲ " : v < 0 ? "▼ " : "";
   const sign = v == null ? "" : v > 0 ? "+" : "";
   return (
     <button
@@ -10605,7 +10607,7 @@ function MarketMapTile({ tile, metric, cap, maxCap, onSelect }) {
     >
       <span className="tw-text-[12px] tw-font-semibold tw-text-text-primary tw-font-mono tw-truncate">{tile.ticker}</span>
       <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-primary">
-        {v == null ? "—" : `${sign}${v.toFixed(metric === "upside" ? 0 : 1)}%`}
+        {v == null ? "—" : `${glyph}${sign}${v.toFixed(metric === "upside" ? 0 : 1)}%`}
       </span>
     </button>
   );
@@ -10641,6 +10643,10 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
 
   return (
     <div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-3">
+        Две карты рынка: <b>Тепловая</b> — движение цены за период; <b>Недооценённость</b> —
+        потенциал к модельной справедливой цене. Тап по бумаге открывает карточку.
+      </p>
       {/* Переключатель карт */}
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-4">
         <Chip selected={mapType === "heatmap"} onClick={() => setMapType("heatmap")}>
@@ -10675,9 +10681,10 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
       </div>
 
       {mapType === "valuation" && (
-        <div className="tw-mb-5 tw-text-[12px] tw-text-text-secondary tw-bg-bg-base tw-border tw-border-border-subtle tw-rounded-md tw-px-3 tw-py-2">
-          <b>Модельная оценка.</b> Цвет — апсайд к <b>модельной</b> справедливой цене Basis
-          (живьём от текущей цены), а не сигнал на покупку. Методика и оговорки — в карточке компании.
+        <div className="tw-mb-5 tw-flex tw-items-start tw-gap-2 tw-text-[12px] tw-text-text-secondary tw-bg-accent-soft tw-border tw-border-border-subtle tw-rounded-md tw-px-3 tw-py-2">
+          <Info size={14} className="tw-shrink-0 tw-mt-0.5 tw-text-accent" aria-hidden="true" />
+          <span><b>Модельная оценка, не сигнал на покупку.</b> Цвет — потенциал к <b>модельной</b>
+          справедливой цене Basis (считается живьём от текущей цены). Методика и оговорки — в карточке компании.</span>
         </div>
       )}
 
@@ -10711,7 +10718,7 @@ function MarketMaps({ token, portfolioOnly, onSelectCompany }) {
             {data.uncovered.map((t) => (
               <button key={t.ticker} onClick={() => onSelectCompany && onSelectCompany(t.ticker)}
                 title={`${t.name} · ${t.sector}`}
-                className="tw-min-w-[92px] tw-h-[44px] tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-base tw-px-2 tw-text-left tw-cursor-pointer hover:tw-border-accent tw-flex tw-items-center">
+                className="tw-min-w-[92px] tw-h-[44px] tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-base tw-px-2 tw-text-left tw-cursor-pointer hover:tw-border-accent focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-flex tw-items-center">
                 <span className="tw-text-[12px] tw-font-semibold tw-font-mono tw-text-text-secondary tw-truncate">{t.ticker}</span>
               </button>
             ))}
