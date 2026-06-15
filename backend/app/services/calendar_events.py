@@ -277,12 +277,76 @@ def build_ipo(db: Session) -> list[dict]:
     return out[:20]
 
 
-# ----------------------------- КОРПСОБЫТИЯ (e-disclosure) -----------------------------
+# ----------------------------- КОРПСОБЫТИЯ (smart-lab) -----------------------------
+_SMARTLAB_CAL = "https://smart-lab.ru/calendar/stocks/"
+_SL_HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/120.0 Safari/537.36",
+            "Accept-Language": "ru-RU,ru;q=0.9"}
+
+
+def _classify_corp(desc: str) -> str:
+    d = desc.lower()
+    if "закрыти" in d and "реестр" in d:
+        return "dividend"   # покрыто build_dividends — пропускаем
+    if "ipo" in d:
+        return "ipo"
+    if "собрани" in d or "госа" in d or "воса" in d or "оса акционеров" in d:
+        return "meeting"
+    if "совет дир" in d or "наблюдат" in d or "сд " in d:
+        return "board"
+    if any(k in d for k in ("отчет", "отчёт", "результат", "мсфо", "рсбу", "операционн")):
+        return "report"
+    return "other"
+
+
+_SUBTYPE_LABEL = {"report": "отчётность", "board": "совет директоров",
+                  "meeting": "собрание акционеров", "ipo": "IPO/размещение"}
+
+
 def build_corporate(db: Session) -> list[dict]:
-    """Будущие отчётности/СД/собрания. Источник e-disclosure требует отдельной устойчивой
-    интеграции (антибот) — точка расширения Направления 3. Сейчас возвращает пусто
-    (честно), структура календаря готова принять эти события без изменений схемы."""
-    return []
+    """Будущие корпсобытия из smart-lab (календарь акций ММВБ): отчётности (МСФО/РСБУ/
+    операционные), заседания СД, собрания акционеров (ГОСА/ВОСА), IPO. e-disclosure
+    закрыт антиботом — smart-lab публичный и парсится. Горизонт фида ~неделя вперёд;
+    при суточном пересборе события НАКАПЛИВАЮТСЯ (дедуп не плодит) → растёт форвард-
+    календарь. Тикер сопоставляется с нашими компаниями для сектора/портфеля."""
+    import httpx, re, hashlib
+    out: list[dict] = []
+    try:
+        r = httpx.get(_SMARTLAB_CAL, timeout=30, headers=_SL_HTTP, follow_redirects=True)
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Календарь корпсобытий: smart-lab недоступен: %s", type(e).__name__)
+        return out
+    sectors = {c.ticker: c.sector for c in db.query(Company).all()}
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S)]
+        cells = [c for c in cells if c and c != "&nbsp;"]
+        if len(cells) < 2 or not re.match(r"\d{2}\.\d{2}\.\d{4}", cells[0]):
+            continue
+        try:
+            d, mo, y = cells[0].split(".")
+            ev_date = date(int(y), int(mo), int(d))
+        except (ValueError, IndexError):
+            continue
+        desc = cells[1].replace("&gt;", "").strip()
+        kind = _classify_corp(desc)
+        if kind in ("dividend", "other"):
+            continue  # дивиденды — отдельным билдером; «other» не классифицируем
+        ticker = desc.split(":")[0].strip() if ":" in desc else None
+        ticker = ticker if (ticker and ticker in sectors) else None
+        ev_type = "ipo" if kind == "ipo" else "corporate"
+        h = hashlib.md5(desc.encode("utf-8")).hexdigest()[:10]
+        out.append({
+            "event_type": ev_type, "event_date": ev_date, "event_time": None,
+            "ticker": ticker, "sector": sectors.get(ticker) if ticker else None,
+            "title": desc[:300], "status": _SUBTYPE_LABEL.get(kind),
+            "source": "smartlab", "source_url": _SMARTLAB_CAL,
+            "payload": {"subtype": kind},
+            "dedup_key": f"{ev_type}:{ev_date.isoformat()}:{h}",
+        })
+    logger.info("Календарь корпсобытий (smart-lab): %d событий", len(out))
+    return out
 
 
 # ----------------------------- ОРКЕСТРАЦИЯ -----------------------------
