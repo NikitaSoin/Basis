@@ -111,6 +111,13 @@
     "certainty": "judgement"
   },
 
+  "signal_geo_to_revenue": {
+    "direction": "constrain_capped",
+    "magnitude": "low",
+    "text": "Гео ограничивает выручку по краям, а не по ядру: блокирующие санкции закрыли западный экспорт ещё в 2022 (это уже в базе, не новый удар), сейчас экспорт ~6% и в 2025 даже рос на 48% как отдушина. Внутренний рынок РФ (~94% продаж) изолирует выручку от прямого санкционного давления. Турецкий актив (~6-7% в активные годы, сейчас простаивает) — точечный, его потеря инвесткейс не ломает. Чистый сигнал к прогнозу выручки: слабо-ограничивающий, без отдельного дисконта сверх уже учтённого внутреннего спросового цикла (макро-блок). Согласован с macro: главный рычаг и риск выручки — внутренний спрос/цены стали (стройка+ставка), а не гео.",
+    "certainty": "judgement"
+  },
+
   "sources": [
     { "id": "src_ofac", "type": "official_registry", "title": "OFAC — Treasury Sanctions Elites and Companies… (ММК и В. Рашников в SDN, E.O. 14024, август 2022); SDN List entry", "period": "2022", "url": "https://home.treasury.gov/news/press-releases/jy0905", "reliability": "high", "perspective": "официальный реестр" },
     { "id": "src_eu", "type": "official_registry", "title": "European Commission — Import and export bans (российская сталь: квоты на слябы, запрет чугуна/DRI с 2026)", "period": "2024–2026", "url": "https://commission.europa.eu/topics/eu-solidarity-ukraine/eu-sanctions-against-russia-following-invasion-ukraine/import-and-export-bans_en", "reliability": "high", "perspective": "официальный реестр" },
