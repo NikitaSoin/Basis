@@ -72,6 +72,15 @@
     "certainty": "judgement"
   },
 
+  "signal_geo_to_revenue": {
+    "direction": "moderate_risk_to_assets",
+    "base_rates_note": "Базовая частота: затяжной фон точечных ударов БПЛА по энергообъектам Юга (статус-кво/волнообразная эскалация) более вероятен, чем быстрое прекращение — анти-recency: отдельные тихие недели не отменяют структурный фон прифронтовых регионов.",
+    "triggers": ["частота/масштаб ударов по сетям Ростовской/Волгоградской/Астраханской обл.", "динамика переговорного трека", "расширение экспортного контроля на микроэлектронику"],
+    "effects_2_3_order": "Близость к зоне конфликта → внеплановый ремонт/CapEx (ремпрограмма ~9,6 млрд ₽ на 2026) и недоотпуск → давление на и без того отрицательный FCF; согласуется с macro main_risk=долг (любой внеплановый CapEx финансируется дорогим долгом).",
+    "signal_to_valuation": "Не меняет выручку напрямую (регулируемая), но повышает риск-премию и волатильность FCF — поддерживает консервативный мультипликатор.",
+    "certainty": "judgement"
+  },
+
   "sources": [
     { "id": "src_1", "type": "media", "title": "«Россети Юг»: электроснабжение насосных станций в Ростовской области восстановлено после атаки БПЛА (МК Ростов)", "period": "ноя. 2025", "url": "https://rostov.mk.ru/social/2025/11/05/elektrosnabzhenie-nasosnykh-stanciy-v-rostovskoy-oblasti-polnostyu-vosstanovili-posle-ataki-bpla.html", "reliability": "medium", "perspective": "деловое СМИ" },
     { "id": "src_2", "type": "media", "title": "Массированная атака на Волгоградскую область — повреждена подстанция (РИА Новости Крым)", "period": "окт. 2025", "url": "https://crimea.ria.ru/20251025/massirovannaya-ataka-na-volgogradskuyu-oblast--povrezhdena-podstantsiya-1150419837.html", "reliability": "medium", "perspective": "деловое СМИ" },
