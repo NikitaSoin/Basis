@@ -12,7 +12,6 @@
     },
     "holding_note": "Сам холдинг торгуется с дисконтом ~50–55% к NAV (чистой стоимости активов). Это не отдельный отраслевой рынок, а характеристика оценки холдинга — подробнее в блоках «Финансы» и «Корп. управление». Здесь разбираем именно отрасли, где зарабатывают дочки."
   },
-
   "markets": [
     {
       "name": "Рынок мобильной связи и телеком-экосистем РФ (через МТС)",
@@ -20,13 +19,54 @@
       "geography": "domestic",
       "role_for_company": "Главный актив холдинга: МТС — ~60% консолидированной выручки и ~80% OIBDA, основной дивидендный донор корпоративного центра (~29 млрд руб./год для АФК). Доля АФК в МТС — ~42%.",
       "current": {
-        "size": { "value": "~1,33 трлн руб. рынок мобильной связи; ~2,3 трлн руб. весь телеком-рынок РФ (2025)", "certainty": "fact", "source_ref": "src_telecom_1", "note": "мобильная связь выросла на ~7% г/г; телеком в целом +6,5%" },
+        "size": {
+          "value": "~1,33 трлн руб. рынок мобильной связи; ~2,3 трлн руб. весь телеком-рынок РФ (2025)",
+          "certainty": "fact",
+          "source_ref": "src_telecom_1",
+          "note": "мобильная связь выросла на ~7% г/г; телеком в целом +6,5%"
+        },
         "size_metric": "выручка отрасли в год",
         "players": [
-          { "name": "МТС", "share_pct": 31, "share_low": 30, "share_high": 31, "certainty": "fact", "source_ref": "src_telecom_2", "is_company": true, "note": "лидер по абсолютной выручке (807 млрд руб. вся группа, +14,7%)" },
-          { "name": "Т2 (Tele2)", "share_pct": 30, "share_low": 28, "share_high": 32, "certainty": "estimate", "source_ref": "src_telecom_3", "is_company": false, "note": "паритет с МТС по абонентам; лучшая маржа OIBDA (~46%)" },
-          { "name": "Билайн (ВымпелКом)", "share_pct": 16, "share_low": 15, "share_high": 17, "certainty": "estimate", "source_ref": "src_telecom_3", "is_company": false, "note": "выручка 334,7 млрд руб. (+7,7%)" },
-          { "name": "МегаФон", "share_pct": 15, "share_low": 14, "share_high": 16, "certainty": "estimate", "source_ref": "src_telecom_3", "is_company": false, "note": "ориентировочно" }
+          {
+            "name": "МТС",
+            "share_pct": 31,
+            "share_low": 30,
+            "share_high": 31,
+            "certainty": "fact",
+            "source_ref": "src_telecom_2",
+            "is_company": true,
+            "note": "лидер по абсолютной выручке (807 млрд руб. вся группа, +14,7%)"
+          },
+          {
+            "name": "Т2 (Tele2)",
+            "share_pct": 30,
+            "share_low": 28,
+            "share_high": 32,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_3",
+            "is_company": false,
+            "note": "паритет с МТС по абонентам; лучшая маржа OIBDA (~46%)"
+          },
+          {
+            "name": "Билайн (ВымпелКом)",
+            "share_pct": 16,
+            "share_low": 15,
+            "share_high": 17,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_3",
+            "is_company": false,
+            "note": "выручка 334,7 млрд руб. (+7,7%)"
+          },
+          {
+            "name": "МегаФон",
+            "share_pct": 15,
+            "share_low": 14,
+            "share_high": 16,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_3",
+            "is_company": false,
+            "note": "ориентировочно"
+          }
         ],
         "players_note": "Доли по разным методикам (выручка / абоненты / молодёжная аудитория) расходятся; цифры по выручке мобильной связи. Рынок насыщен: ~270 млн SIM-карт.",
         "company_position": "leader",
@@ -36,11 +76,41 @@
         "trend": "growing",
         "metric": "выручка рынка мобильной связи РФ, трлн руб.",
         "points": [
-          { "period": "2021", "value": 1.05, "certainty": "estimate", "source_ref": "src_telecom_1", "note": "ориентировочно" },
-          { "period": "2022", "value": 1.1, "certainty": "estimate", "source_ref": "src_telecom_1", "note": "ориентировочно" },
-          { "period": "2023", "value": 1.18, "certainty": "estimate", "source_ref": "src_telecom_1", "note": "ориентировочно" },
-          { "period": "2024", "value": 1.24, "certainty": "estimate", "source_ref": "src_telecom_1", "note": "ориентировочно" },
-          { "period": "2025", "value": 1.33, "certainty": "fact", "source_ref": "src_telecom_1", "note": "+7% г/г" }
+          {
+            "period": "2021",
+            "value": 1.05,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2022",
+            "value": 1.1,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2023",
+            "value": 1.18,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2024",
+            "value": 1.24,
+            "certainty": "estimate",
+            "source_ref": "src_telecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2025",
+            "value": 1.33,
+            "certainty": "fact",
+            "source_ref": "src_telecom_1",
+            "note": "+7% г/г"
+          }
         ],
         "key_shifts": [
           "Рост рынка замедляется: насыщение по абонентам, конкуренция за ARPU.",
@@ -50,11 +120,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Рост потребления мобильного трафика и данных", "direction": "support", "type": "tech", "note": "" },
-        { "factor": "Монетизация экосистем (финтех, реклама, облака) поверх связи", "direction": "support", "type": "tech", "note": "у МТС растёт быстрее самой связи" },
-        { "factor": "Насыщение абонентской базы (~270 млн SIM на ~146 млн населения)", "direction": "constrain", "type": "demography", "note": "органический рост абонентов почти исчерпан" },
-        { "factor": "Высокая ключевая ставка — дорогой CapEx и обслуживание долга операторов", "direction": "constrain", "type": "macro", "note": "" },
-        { "factor": "Регулирование тарифов и обязательные инвестиции (хранение данных, импортозамещение)", "direction": "constrain", "type": "regulation", "note": "" }
+        {
+          "factor": "Рост потребления мобильного трафика и данных",
+          "direction": "support",
+          "type": "tech",
+          "note": ""
+        },
+        {
+          "factor": "Монетизация экосистем (финтех, реклама, облака) поверх связи",
+          "direction": "support",
+          "type": "tech",
+          "note": "у МТС растёт быстрее самой связи"
+        },
+        {
+          "factor": "Насыщение абонентской базы (~270 млн SIM на ~146 млн населения)",
+          "direction": "constrain",
+          "type": "demography",
+          "note": "органический рост абонентов почти исчерпан"
+        },
+        {
+          "factor": "Высокая ключевая ставка — дорогой CapEx и обслуживание долга операторов",
+          "direction": "constrain",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Регулирование тарифов и обязательные инвестиции (хранение данных, импортозамещение)",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": ""
+        }
       ],
       "forecast": {
         "direction": "рост",
@@ -62,10 +157,20 @@
         "growth_orientation": "Умеренный рост рынка, ориентировочно низкий-средний однозначный темп в год; основной прирост — не от связи, а от экосистемных сервисов поверх неё.",
         "certainty": "model",
         "logic": {
-          "supporting": ["рост трафика данных", "развитие финтеха/рекламы/облаков", "индексация тарифов под инфляцию"],
-          "constraining": ["насыщение базы абонентов", "ценовая конкуренция", "дорогой капитал при высокой ставке"]
+          "supporting": [
+            "рост трафика данных",
+            "развитие финтеха/рекламы/облаков",
+            "индексация тарифов под инфляцию"
+          ],
+          "constraining": [
+            "насыщение базы абонентов",
+            "ценовая конкуренция",
+            "дорогой капитал при высокой ставке"
+          ]
         },
-        "source_refs": ["src_telecom_1"],
+        "source_refs": [
+          "src_telecom_1"
+        ],
         "note": "наша оценка по факторам; точных отраслевых прогнозов CAGR не выводим"
       },
       "company_outlook": {
@@ -77,25 +182,70 @@
         "applicable": true,
         "status": "сворачивает зарубеж",
         "external_markets": [
-          { "market": "СНГ (Армения и др.)", "note": "МТС продала бизнес в Армении в 2024 г.; международное присутствие сокращается, фокус на РФ", "certainty": "fact", "source_ref": "src_bm" }
+          {
+            "market": "СНГ (Армения и др.)",
+            "note": "МТС продала бизнес в Армении в 2024 г.; международное присутствие сокращается, фокус на РФ",
+            "certainty": "fact",
+            "source_ref": "src_bm"
+          }
         ],
         "note": "Телеком-актив холдинга де-факто внутрироссийский."
       }
     },
-
     {
       "name": "Рынок e-commerce / маркетплейсов РФ (через Ozon)",
       "tier": "primary",
       "geography": "domestic",
       "role_for_company": "Стратегический актив: доля АФК в Ozon ~31,8%. Консолидируется по доле участия; вклад в выручку холдинга ~7–8%, в OIBDA пока минимален (Ozon выходит в безубыток). Дивидендов не платит.",
       "current": {
-        "size": { "value": "~8,59 трлн руб. оборот (GMV) трёх лидеров (WB+Ozon+Я.Маркет); ~11,2 трлн руб. у топ-4 (2025)", "certainty": "fact", "source_ref": "src_ecom_1", "note": "топ-4 контролируют ~80% онлайн-заказов" },
+        "size": {
+          "value": "~8,59 трлн руб. оборот (GMV) трёх лидеров (WB+Ozon+Я.Маркет); ~11,2 трлн руб. у топ-4 (2025)",
+          "certainty": "fact",
+          "source_ref": "src_ecom_1",
+          "note": "топ-4 контролируют ~80% онлайн-заказов"
+        },
         "size_metric": "GMV (оборот товаров) в год",
         "players": [
-          { "name": "Wildberries", "share_pct": null, "share_low": 35, "share_high": 40, "certainty": "estimate", "source_ref": "src_ecom_1", "is_company": false, "note": "крупнейший по обороту — 3,1 трлн руб. GMV, +33,6%" },
-          { "name": "Ozon", "share_pct": null, "share_low": 25, "share_high": 30, "certainty": "fact", "source_ref": "src_ecom_1", "is_company": true, "note": "2,4 трлн руб. GMV, самый быстрый рост среди топ-3 (+44%)" },
-          { "name": "Яндекс Маркет", "share_pct": null, "share_low": 4, "share_high": 6, "certainty": "fact", "source_ref": "src_ecom_1", "is_company": false, "note": "404,5 млрд руб., +17,6%" },
-          { "name": "МегаМаркет (Сбер) и прочие", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_ecom_1", "is_company": false, "note": "" }
+          {
+            "name": "Wildberries",
+            "share_pct": null,
+            "share_low": 35,
+            "share_high": 40,
+            "certainty": "estimate",
+            "source_ref": "src_ecom_1",
+            "is_company": false,
+            "note": "крупнейший по обороту — 3,1 трлн руб. GMV, +33,6%"
+          },
+          {
+            "name": "Ozon",
+            "share_pct": null,
+            "share_low": 25,
+            "share_high": 30,
+            "certainty": "fact",
+            "source_ref": "src_ecom_1",
+            "is_company": true,
+            "note": "2,4 трлн руб. GMV, самый быстрый рост среди топ-3 (+44%)"
+          },
+          {
+            "name": "Яндекс Маркет",
+            "share_pct": null,
+            "share_low": 4,
+            "share_high": 6,
+            "certainty": "fact",
+            "source_ref": "src_ecom_1",
+            "is_company": false,
+            "note": "404,5 млрд руб., +17,6%"
+          },
+          {
+            "name": "МегаМаркет (Сбер) и прочие",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_ecom_1",
+            "is_company": false,
+            "note": ""
+          }
         ],
         "players_note": "Доли даны как ориентир от GMV трёх лидеров (8,59 трлн): WB ~36%, Ozon ~28%, Я.Маркет ~5%; остальное — другие площадки и офлайн-канал. Точные доли по всему e-commerce расходятся между источниками.",
         "company_position": "challenger",
@@ -105,10 +255,34 @@
         "trend": "growing",
         "metric": "совокупный GMV топ-3 маркетплейсов, трлн руб.",
         "points": [
-          { "period": "2022", "value": 2.6, "certainty": "estimate", "source_ref": "src_ecom_1", "note": "ориентировочно" },
-          { "period": "2023", "value": 4.2, "certainty": "estimate", "source_ref": "src_ecom_1", "note": "ориентировочно" },
-          { "period": "2024", "value": 6.5, "certainty": "fact", "source_ref": "src_ecom_1", "note": "+56,2% г/г" },
-          { "period": "2025", "value": 8.59, "certainty": "fact", "source_ref": "src_ecom_1", "note": "+32,2% г/г — рост замедлился" }
+          {
+            "period": "2022",
+            "value": 2.6,
+            "certainty": "estimate",
+            "source_ref": "src_ecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2023",
+            "value": 4.2,
+            "certainty": "estimate",
+            "source_ref": "src_ecom_1",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2024",
+            "value": 6.5,
+            "certainty": "fact",
+            "source_ref": "src_ecom_1",
+            "note": "+56,2% г/г"
+          },
+          {
+            "period": "2025",
+            "value": 8.59,
+            "certainty": "fact",
+            "source_ref": "src_ecom_1",
+            "note": "+32,2% г/г — рост замедлился"
+          }
         ],
         "key_shifts": [
           "Резкое замедление темпов: +56% (2024) → +32% (2025) на фоне охлаждения розницы.",
@@ -118,11 +292,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Переток покупателей из офлайна в онлайн", "direction": "support", "type": "demography", "note": "" },
-        { "factor": "Развитие логистики, ПВЗ, финтеха площадок (Ozon Bank)", "direction": "support", "type": "tech", "note": "" },
-        { "factor": "Охлаждение розничного спроса и снижение реальных доходов", "direction": "constrain", "type": "macro", "note": "" },
-        { "factor": "Ценовая война и инвестиции в рост давят на маржу", "direction": "constrain", "type": "competition", "note": "" },
-        { "factor": "Усиление регулирования маркетплейсов (закон о платформенной экономике)", "direction": "constrain", "type": "regulation", "note": "" }
+        {
+          "factor": "Переток покупателей из офлайна в онлайн",
+          "direction": "support",
+          "type": "demography",
+          "note": ""
+        },
+        {
+          "factor": "Развитие логистики, ПВЗ, финтеха площадок (Ozon Bank)",
+          "direction": "support",
+          "type": "tech",
+          "note": ""
+        },
+        {
+          "factor": "Охлаждение розничного спроса и снижение реальных доходов",
+          "direction": "constrain",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Ценовая война и инвестиции в рост давят на маржу",
+          "direction": "constrain",
+          "type": "competition",
+          "note": ""
+        },
+        {
+          "factor": "Усиление регулирования маркетплейсов (закон о платформенной экономике)",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": ""
+        }
       ],
       "forecast": {
         "direction": "рост",
@@ -130,10 +329,19 @@
         "growth_orientation": "Рост продолжится, но темп замедляется; аналитики ориентируют на ~20–25% в 2026 г. — двузначный, но ниже прежних +50–60%.",
         "certainty": "estimate",
         "logic": {
-          "supporting": ["продолжающийся переток из офлайна", "рост проникновения в регионах"],
-          "constraining": ["высокая база", "охлаждение спроса", "ценовая конкуренция и регуляторика"]
+          "supporting": [
+            "продолжающийся переток из офлайна",
+            "рост проникновения в регионах"
+          ],
+          "constraining": [
+            "высокая база",
+            "охлаждение спроса",
+            "ценовая конкуренция и регуляторика"
+          ]
         },
-        "source_refs": ["src_ecom_1"],
+        "source_refs": [
+          "src_ecom_1"
+        ],
         "note": "ориентир +20–25% на 2026 — оценка аналитиков из источника"
       },
       "company_outlook": {
@@ -145,25 +353,70 @@
         "applicable": true,
         "status": "работает за рубежом",
         "external_markets": [
-          { "market": "СНГ (Казахстан, Беларусь, Армения)", "note": "Ozon развивает присутствие в ближнем зарубежье; вклад пока невелик", "certainty": "estimate", "source_ref": "src_ecom_1" }
+          {
+            "market": "СНГ (Казахстан, Беларусь, Армения)",
+            "note": "Ozon развивает присутствие в ближнем зарубежье; вклад пока невелик",
+            "certainty": "estimate",
+            "source_ref": "src_ecom_1"
+          }
         ],
         "note": "Экспансия Ozon в СНГ — на ранней стадии."
       }
     },
-
     {
       "name": "Рынок жилищного девелопмента РФ (через ГК «Эталон»)",
       "tier": "primary",
       "geography": "domestic",
       "role_for_company": "Доля АФК в «Эталоне» — ~48,8%. Вклад в выручку холдинга ~5%. Один из самых чувствительных к ставке активов: спрос завязан на ипотеку и проектное финансирование.",
       "current": {
-        "size": { "value": "~120 млн кв. м текущего строительства; топ-10 застройщиков ~23,6 млн кв. м (~19,8% рынка), апрель 2026", "certainty": "fact", "source_ref": "src_dev_1", "note": "рынок очень фрагментирован" },
+        "size": {
+          "value": "~120 млн кв. м текущего строительства; топ-10 застройщиков ~23,6 млн кв. м (~19,8% рынка), апрель 2026",
+          "certainty": "fact",
+          "source_ref": "src_dev_1",
+          "note": "рынок очень фрагментирован"
+        },
         "size_metric": "объём текущего жилищного строительства, кв. м",
         "players": [
-          { "name": "ГК «Самолёт»", "share_pct": 4.1, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_dev_1", "is_company": false, "note": "№1, ~4,8 млн кв. м (сер. 2025)" },
-          { "name": "ГК «ПИК»", "share_pct": 3.65, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_dev_1", "is_company": false, "note": "№2" },
-          { "name": "ГК «Эталон»", "share_pct": null, "share_low": 1, "share_high": 2, "certainty": "estimate", "source_ref": "src_dev_2", "is_company": true, "note": "входит в топ-10; точная доля по метражу ориентировочна; выручка 154 млрд руб., +17%" },
-          { "name": "ЛСР", "share_pct": 1.2, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_dev_1", "is_company": false, "note": "опустилась с 1,9% до 1,2%, №8" }
+          {
+            "name": "ГК «Самолёт»",
+            "share_pct": 4.1,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_dev_1",
+            "is_company": false,
+            "note": "№1, ~4,8 млн кв. м (сер. 2025)"
+          },
+          {
+            "name": "ГК «ПИК»",
+            "share_pct": 3.65,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_dev_1",
+            "is_company": false,
+            "note": "№2"
+          },
+          {
+            "name": "ГК «Эталон»",
+            "share_pct": null,
+            "share_low": 1,
+            "share_high": 2,
+            "certainty": "estimate",
+            "source_ref": "src_dev_2",
+            "is_company": true,
+            "note": "входит в топ-10; точная доля по метражу ориентировочна; выручка 154 млрд руб., +17%"
+          },
+          {
+            "name": "ЛСР",
+            "share_pct": 1.2,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_dev_1",
+            "is_company": false,
+            "note": "опустилась с 1,9% до 1,2%, №8"
+          }
         ],
         "players_note": "Рынок раздроблен: на топ-10 ~20%. «Эталон» — средний по размеру федеральный игрок (Москва, СПб, регионы), не входит в первую тройку.",
         "company_position": "challenger",
@@ -173,10 +426,34 @@
         "trend": "stagnating",
         "metric": "состояние спроса/объёмов жилищного рынка (качественно)",
         "points": [
-          { "period": "2022", "value": null, "certainty": "estimate", "source_ref": "src_dev_3", "note": "охлаждение после льготной ипотеки на пике" },
-          { "period": "2023", "value": null, "certainty": "estimate", "source_ref": "src_dev_3", "note": "поддержка льготными программами" },
-          { "period": "2024", "value": null, "certainty": "fact", "source_ref": "src_dev_3", "note": "сворачивание массовой льготной ипотеки → охлаждение спроса" },
-          { "period": "2025", "value": null, "certainty": "fact", "source_ref": "src_dev_1", "note": "структурная стабилизация, перераспределение долей; ЛСР теряет позиции" }
+          {
+            "period": "2022",
+            "value": null,
+            "certainty": "estimate",
+            "source_ref": "src_dev_3",
+            "note": "охлаждение после льготной ипотеки на пике"
+          },
+          {
+            "period": "2023",
+            "value": null,
+            "certainty": "estimate",
+            "source_ref": "src_dev_3",
+            "note": "поддержка льготными программами"
+          },
+          {
+            "period": "2024",
+            "value": null,
+            "certainty": "fact",
+            "source_ref": "src_dev_3",
+            "note": "сворачивание массовой льготной ипотеки → охлаждение спроса"
+          },
+          {
+            "period": "2025",
+            "value": null,
+            "certainty": "fact",
+            "source_ref": "src_dev_1",
+            "note": "структурная стабилизация, перераспределение долей; ЛСР теряет позиции"
+          }
         ],
         "key_shifts": [
           "Отмена/сужение льготной ипотеки в 2024 г. ударила по первичному спросу.",
@@ -186,10 +463,30 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Уровень ключевой ставки и доступность ипотеки", "direction": "constrain", "type": "macro", "note": "главный фактор спроса" },
-        { "factor": "Дорогое проектное финансирование (ставки до ~46%)", "direction": "constrain", "type": "macro", "note": "" },
-        { "factor": "Адресные/региональные льготные программы (семейная ипотека)", "direction": "support", "type": "regulation", "note": "" },
-        { "factor": "Урбанизация и потребность в обновлении жилфонда", "direction": "support", "type": "demography", "note": "долгосрочно" }
+        {
+          "factor": "Уровень ключевой ставки и доступность ипотеки",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "главный фактор спроса"
+        },
+        {
+          "factor": "Дорогое проектное финансирование (ставки до ~46%)",
+          "direction": "constrain",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Адресные/региональные льготные программы (семейная ипотека)",
+          "direction": "support",
+          "type": "regulation",
+          "note": ""
+        },
+        {
+          "factor": "Урбанизация и потребность в обновлении жилфонда",
+          "direction": "support",
+          "type": "demography",
+          "note": "долгосрочно"
+        }
       ],
       "forecast": {
         "direction": "разнонаправленно",
@@ -197,10 +494,20 @@
         "growth_orientation": "Динамика жёстко зависит от скорости снижения ключевой ставки: при сохранении высоких ставок — стагнация/спад спроса и давление на цены в 2026–2027 гг.; при смягчении — постепенное восстановление.",
         "certainty": "model",
         "logic": {
-          "supporting": ["ожидаемое снижение ставки", "адресные льготные программы", "отложенный спрос"],
-          "constraining": ["дорогая ипотека и проектное финансирование", "охлаждение доходов", "рост себестоимости"]
+          "supporting": [
+            "ожидаемое снижение ставки",
+            "адресные льготные программы",
+            "отложенный спрос"
+          ],
+          "constraining": [
+            "дорогая ипотека и проектное финансирование",
+            "охлаждение доходов",
+            "рост себестоимости"
+          ]
         },
-        "source_refs": ["src_dev_3"],
+        "source_refs": [
+          "src_dev_3"
+        ],
         "note": "наша оценка по факторам; направление развилки определяет ставка ЦБ"
       },
       "company_outlook": {
@@ -210,20 +517,60 @@
       },
       "international_expansion": null
     },
-
     {
       "name": "Мировой рынок пиломатериалов и лесопром (через Segezha Group)",
       "tier": "primary",
       "geography": "export",
       "role_for_company": "Доля АФК в Segezha — ~62,2%. Вклад в выручку холдинга ~7%, но это убыточный актив (убыток 88 млрд руб. в 2025, OIBDA ~0), требующий докапитализации. Главный «проблемный» рынок холдинга.",
       "current": {
-        "size": { "value": "цена пиломатериалов у Segezha ~$181/куб. м (3 кв. 2025); рынок профицитный", "certainty": "fact", "source_ref": "src_wood_1", "note": "слабый спрос, ценовое давление в Китае" },
+        "size": {
+          "value": "цена пиломатериалов у Segezha ~$181/куб. м (3 кв. 2025); рынок профицитный",
+          "certainty": "fact",
+          "source_ref": "src_wood_1",
+          "note": "слабый спрос, ценовое давление в Китае"
+        },
         "size_metric": "экспортная цена пиломатериалов, $/куб. м",
         "players": [
-          { "name": "Segezha Group", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_wood_1", "is_company": true, "note": "крупный российский экспортёр; глобальная доля незначительна, экспортные продажи −9% за 9 мес." },
-          { "name": "Группа «Илим»", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_bm", "is_company": false, "note": "лидер ЦБП в РФ" },
-          { "name": "«Свеза»", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_bm", "is_company": false, "note": "фанера" },
-          { "name": "Производители Канады, Скандинавии, Китая", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_wood_1", "is_company": false, "note": "глобальные конкуренты, задают мировые цены" }
+          {
+            "name": "Segezha Group",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_wood_1",
+            "is_company": true,
+            "note": "крупный российский экспортёр; глобальная доля незначительна, экспортные продажи −9% за 9 мес."
+          },
+          {
+            "name": "Группа «Илим»",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_bm",
+            "is_company": false,
+            "note": "лидер ЦБП в РФ"
+          },
+          {
+            "name": "«Свеза»",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_bm",
+            "is_company": false,
+            "note": "фанера"
+          },
+          {
+            "name": "Производители Канады, Скандинавии, Китая",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_wood_1",
+            "is_company": false,
+            "note": "глобальные конкуренты, задают мировые цены"
+          }
         ],
         "players_note": "Рынок глобальный и циклический; точных долей нет. Цену задаёт мировой баланс спроса/предложения, ключевой покупатель российского леса — Китай (>70% экспорта РФ).",
         "company_position": "niche",
@@ -233,11 +580,41 @@
         "trend": "declining",
         "metric": "экспортная цена пиломатериалов, $/куб. м (ориентир)",
         "points": [
-          { "period": "2021", "value": 300, "certainty": "estimate", "source_ref": "src_wood_2", "note": "пик постпандемийного спроса, ориентировочно" },
-          { "period": "2022", "value": 230, "certainty": "estimate", "source_ref": "src_wood_2", "note": "санкции, потеря рынка ЕС" },
-          { "period": "2023", "value": 200, "certainty": "estimate", "source_ref": "src_wood_2", "note": "ориентировочно" },
-          { "period": "2024", "value": 185, "certainty": "estimate", "source_ref": "src_wood_2", "note": "ориентировочно" },
-          { "period": "2025", "value": 181, "certainty": "fact", "source_ref": "src_wood_1", "note": "3 кв. 2025; +$15 кв/кв, но уровень низкий" }
+          {
+            "period": "2021",
+            "value": 300,
+            "certainty": "estimate",
+            "source_ref": "src_wood_2",
+            "note": "пик постпандемийного спроса, ориентировочно"
+          },
+          {
+            "period": "2022",
+            "value": 230,
+            "certainty": "estimate",
+            "source_ref": "src_wood_2",
+            "note": "санкции, потеря рынка ЕС"
+          },
+          {
+            "period": "2023",
+            "value": 200,
+            "certainty": "estimate",
+            "source_ref": "src_wood_2",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2024",
+            "value": 185,
+            "certainty": "estimate",
+            "source_ref": "src_wood_2",
+            "note": "ориентировочно"
+          },
+          {
+            "period": "2025",
+            "value": 181,
+            "certainty": "fact",
+            "source_ref": "src_wood_1",
+            "note": "3 кв. 2025; +$15 кв/кв, но уровень низкий"
+          }
         ],
         "key_shifts": [
           "2022: закрытие рынка ЕС (был крупнейшим импортёром российского леса) → полная переориентация на Китай и Восток с дисконтом.",
@@ -247,11 +624,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Спрос в Китае (главный рынок сбыта)", "direction": "support", "type": "demography", "note": "при восстановлении строительства в КНР" },
-        { "factor": "Профицит мирового предложения пиломатериалов", "direction": "constrain", "type": "competition", "note": "" },
-        { "factor": "Санкции и потеря премиального рынка ЕС", "direction": "constrain", "type": "regulation", "note": "" },
-        { "factor": "Крепкий рубль (снижает рублёвую выручку экспорта)", "direction": "constrain", "type": "macro", "note": "" },
-        { "factor": "Высокая ставка — неподъёмное обслуживание долга Segezha", "direction": "constrain", "type": "macro", "note": "Net Debt/EBITDA исторически >30x" }
+        {
+          "factor": "Спрос в Китае (главный рынок сбыта)",
+          "direction": "support",
+          "type": "demography",
+          "note": "при восстановлении строительства в КНР"
+        },
+        {
+          "factor": "Профицит мирового предложения пиломатериалов",
+          "direction": "constrain",
+          "type": "competition",
+          "note": ""
+        },
+        {
+          "factor": "Санкции и потеря премиального рынка ЕС",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": ""
+        },
+        {
+          "factor": "Крепкий рубль (снижает рублёвую выручку экспорта)",
+          "direction": "constrain",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Высокая ставка — неподъёмное обслуживание долга Segezha",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "Net Debt/EBITDA исторически >30x"
+        }
       ],
       "forecast": {
         "direction": "стагнация",
@@ -259,10 +661,19 @@
         "growth_orientation": "Восстановление цен — медленное и неустойчивое: профицит предложения сохраняется, спрос в Китае слабый. Ориентировочно — боковая динамика с осторожным восстановлением при оживлении КНР.",
         "certainty": "model",
         "logic": {
-          "supporting": ["возможное восстановление спроса в Китае", "низкая база цен"],
-          "constraining": ["глобальный профицит", "крепкий рубль", "санкционные ограничения сбыта"]
+          "supporting": [
+            "возможное восстановление спроса в Китае",
+            "низкая база цен"
+          ],
+          "constraining": [
+            "глобальный профицит",
+            "крепкий рубль",
+            "санкционные ограничения сбыта"
+          ]
         },
-        "source_refs": ["src_wood_1"],
+        "source_refs": [
+          "src_wood_1"
+        ],
         "note": "наша оценка по факторам"
       },
       "company_outlook": {
@@ -274,86 +685,269 @@
         "applicable": true,
         "status": "работает за рубежом (вынужденно переориентирована)",
         "external_markets": [
-          { "market": "Китай", "note": ">70% экспорта российского леса; ключевой, но низкомаржинальный рынок со слабым спросом", "certainty": "fact", "source_ref": "src_wood_3" },
-          { "market": "Ближний Восток, Центральная Азия", "note": "дополнительные направления после потери ЕС", "certainty": "estimate", "source_ref": "src_wood_3" }
+          {
+            "market": "Китай",
+            "note": ">70% экспорта российского леса; ключевой, но низкомаржинальный рынок со слабым спросом",
+            "certainty": "fact",
+            "source_ref": "src_wood_3"
+          },
+          {
+            "market": "Ближний Восток, Центральная Азия",
+            "note": "дополнительные направления после потери ЕС",
+            "certainty": "estimate",
+            "source_ref": "src_wood_3"
+          }
         ],
         "note": "Бизнес по природе экспортный; премиальный рынок ЕС утрачен после санкций."
       }
     },
-
     {
       "name": "Рынок частной (платной) медицины РФ (через Медси)",
       "tier": "secondary",
       "geography": "domestic",
       "role_for_company": "Доля АФК ~89,7%. Прибыльный растущий актив, кандидат на IPO. Вклад в выручку холдинга ~5%.",
       "brief": [
-        { "point": "Объём рынка платной медицины РФ оценивается широко: от ~1,78 трлн руб. (консервативно) до ~2,3 трлн руб. (2025), рост ~5–15% в зависимости от методики", "certainty": "estimate", "source_ref": "src_med_1" },
-        { "point": "Медси — лидер рейтинга крупнейших частных медкомпаний (Forbes 2025), ~136 клиник в 20 регионах; выручка 61 млрд руб. (+22%)", "certainty": "fact", "source_ref": "src_med_2" },
-        { "point": "Драйверы: рост цен на медуслуги (~+18% за 2025), переток в платную медицину, консолидация (доля топ-50 клиник растёт к ~22% к 2030)", "certainty": "fact", "source_ref": "src_med_1" },
-        { "point": "Прогноз: устойчивый двузначный рост рынка (среднегодовой ~13% до 2030, до ~4,3 трлн руб.) — оценка аналитиков", "certainty": "estimate", "source_ref": "src_med_1" },
-        { "point": "Перспектива компании: Медси как лидер удержит/нарастит долю; для АФК — кандидат на монетизацию через IPO (наша оценка по стратегии холдинга)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Объём рынка платной медицины РФ оценивается широко: от ~1,78 трлн руб. (консервативно) до ~2,3 трлн руб. (2025), рост ~5–15% в зависимости от методики",
+          "certainty": "estimate",
+          "source_ref": "src_med_1"
+        },
+        {
+          "point": "Медси — лидер рейтинга крупнейших частных медкомпаний (Forbes 2025), ~136 клиник в 20 регионах; выручка 61 млрд руб. (+22%)",
+          "certainty": "fact",
+          "source_ref": "src_med_2"
+        },
+        {
+          "point": "Драйверы: рост цен на медуслуги (~+18% за 2025), переток в платную медицину, консолидация (доля топ-50 клиник растёт к ~22% к 2030)",
+          "certainty": "fact",
+          "source_ref": "src_med_1"
+        },
+        {
+          "point": "Прогноз: устойчивый двузначный рост рынка (среднегодовой ~13% до 2030, до ~4,3 трлн руб.) — оценка аналитиков",
+          "certainty": "estimate",
+          "source_ref": "src_med_1"
+        },
+        {
+          "point": "Перспектива компании: Медси как лидер удержит/нарастит долю; для АФК — кандидат на монетизацию через IPO (наша оценка по стратегии холдинга)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     },
-
     {
       "name": "Агропромышленный рынок РФ (через Агрохолдинг «Степь»)",
       "tier": "secondary",
       "geography": "domestic",
       "role_for_company": "Доля АФК ~89,7%. Прибыльный актив, защита от инфляции, кандидат на IPO. Вклад в выручку ~8%. Земельный банк ~578 тыс. га.",
       "brief": [
-        { "point": "«Степь» — растениеводство, молочное животноводство, трейдинг, сады; выручка ~104 млрд руб., OIBDA 23 млрд руб. (+53%)", "certainty": "fact", "source_ref": "src_bm" },
-        { "point": "Конкуренты — «Русагро», «Черкизово»; «Степь» — крупный, но не доминирующий игрок на фрагментированном агрорынке", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Драйверы: экспорт зерна (квоты и пошлины — фактор регуляторного риска), рост цен на агропродукцию, расширение земельного банка", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Прогноз: умеренный рост сектора, ориентировочно средний однозначный темп; чувствителен к урожаю, ценам и экспортным пошлинам (наша оценка по факторам)", "certainty": "model", "source_ref": null },
-        { "point": "Перспектива компании: рост OIBDA и кандидатура на IPO — апсайд для NAV холдинга (наша оценка)", "certainty": "model", "source_ref": null }
+        {
+          "point": "«Степь» — растениеводство, молочное животноводство, трейдинг, сады; выручка ~104 млрд руб., OIBDA 23 млрд руб. (+53%)",
+          "certainty": "fact",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Конкуренты — «Русагро», «Черкизово»; «Степь» — крупный, но не доминирующий игрок на фрагментированном агрорынке",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Драйверы: экспорт зерна (квоты и пошлины — фактор регуляторного риска), рост цен на агропродукцию, расширение земельного банка",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Прогноз: умеренный рост сектора, ориентировочно средний однозначный темп; чувствителен к урожаю, ценам и экспортным пошлинам (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        },
+        {
+          "point": "Перспектива компании: рост OIBDA и кандидатура на IPO — апсайд для NAV холдинга (наша оценка)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     },
-
     {
       "name": "Фармацевтический рынок РФ (через Биннофарм Групп)",
       "tier": "secondary",
       "geography": "domestic",
       "role_for_company": "Доля АФК ~72,2%. Прибыльный актив, кандидат на IPO. Вклад в выручку ~3%.",
       "brief": [
-        { "point": "Биннофарм — производство дженериков и оригинальных препаратов, 5 заводов; выручка 37 млрд руб. (+13%), EBITDA 10 млрд руб.", "certainty": "fact", "source_ref": "src_bm" },
-        { "point": "Конкуренты — «Р-Фарм», «Фармстандарт», Nizhpharm; рынок дробный, Биннофарм — средний игрок", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Драйверы: импортозамещение лекарств, госзакупки, локализация производства; сдерживает — ценовое регулирование ЖНВЛП", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Прогноз: устойчивый рост рынка на импортозамещении, ориентировочно средний однозначный — двузначный темп (наша оценка по факторам)", "certainty": "model", "source_ref": null },
-        { "point": "Перспектива компании: стабильный рост и кандидат на IPO для монетизации (наша оценка)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Биннофарм — производство дженериков и оригинальных препаратов, 5 заводов; выручка 37 млрд руб. (+13%), EBITDA 10 млрд руб.",
+          "certainty": "fact",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Конкуренты — «Р-Фарм», «Фармстандарт», Nizhpharm; рынок дробный, Биннофарм — средний игрок",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Драйверы: импортозамещение лекарств, госзакупки, локализация производства; сдерживает — ценовое регулирование ЖНВЛП",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Прогноз: устойчивый рост рынка на импортозамещении, ориентировочно средний однозначный — двузначный темп (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        },
+        {
+          "point": "Перспектива компании: стабильный рост и кандидат на IPO для монетизации (наша оценка)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     },
-
     {
       "name": "Гостиничный рынок РФ (через Cosmos Hotel Group)",
       "tier": "secondary",
       "geography": "domestic",
       "role_for_company": "Доля АФК ~89,7%. Самый быстрорастущий актив, ближайший кандидат на IPO. Вклад в выручку ~2%.",
       "brief": [
-        { "point": "Cosmos — крупнейший гостиничный оператор РФ, 44 отеля, ~11 000 номеров; выручка 21 млрд руб. (+20%), OIBDA 7,3 млрд руб. (+27%)", "certainty": "fact", "source_ref": "src_bm" },
-        { "point": "Конкуренты — Azimut, западные франшизы (Hilton, Marriott); Cosmos лидирует по номерному фонду среди российских операторов", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Драйверы: бум внутреннего туризма, уход западных брендов, господдержка отрасли; сдерживает — дорогой капитал на стройку отелей", "certainty": "estimate", "source_ref": "src_bm" },
-        { "point": "Прогноз: рынок внутреннего туризма растёт устойчиво, ориентировочно двузначный темп ближайшие годы (наша оценка по факторам)", "certainty": "model", "source_ref": null },
-        { "point": "Перспектива компании: самый быстрорастущий актив холдинга и ближайший кандидат на IPO — потенциальный апсайд к NAV (наша оценка)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Cosmos — крупнейший гостиничный оператор РФ, 44 отеля, ~11 000 номеров; выручка 21 млрд руб. (+20%), OIBDA 7,3 млрд руб. (+27%)",
+          "certainty": "fact",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Конкуренты — Azimut, западные франшизы (Hilton, Marriott); Cosmos лидирует по номерному фонду среди российских операторов",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Драйверы: бум внутреннего туризма, уход западных брендов, господдержка отрасли; сдерживает — дорогой капитал на стройку отелей",
+          "certainty": "estimate",
+          "source_ref": "src_bm"
+        },
+        {
+          "point": "Прогноз: рынок внутреннего туризма растёт устойчиво, ориентировочно двузначный темп ближайшие годы (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        },
+        {
+          "point": "Перспектива компании: самый быстрорастущий актив холдинга и ближайший кандидат на IPO — потенциальный апсайд к NAV (наша оценка)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     }
   ],
-
+  "signal_v3": {
+    "signal_revenue_outlook": {
+      "direction": "рост (умеренный, дифференцированный по дочкам)",
+      "driver": "МТС — удержание лидерства телеком + экосистема (финтех/реклама/облака); Ozon — наращивание доли (растёт быстрее рынка и лидера); Cosmos/Медси/Степь — двузначный рост; Segezha — потеря конкурентоспособности (минус). Консолидированно выручка +8–15%/год.",
+      "horizon": "3–5 лет",
+      "applied_to": "financials.json: поддерживает gross NAV публичных и непубличных долей; не меняет проблему долга корпцентра"
+    }
+  },
   "sources": [
-    { "id": "src_telecom_1", "type": "media", "title": "Телеком-рынок РФ в 2025 вырос на 6,5% до 2,3 трлн ₽ (мобильная связь ~1,33 трлн, +7%)", "period": "2025/2026", "url": "https://www.tbank.ru/invest/social/profile/T-Investments/ec467e2f-e618-45c4-b774-789583e7e6e1/", "reliability": "medium" },
-    { "id": "src_telecom_2", "type": "media", "title": "Выручка МТС за год выросла на 14,7% до 807,2 млрд руб.; доля ~31% рынка мобильной связи", "period": "2025", "url": "https://www.tadviser.ru/index.php/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D1%8F:%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D1%8B%D0%B5_%D0%BF%D0%BE%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D0%B5%D0%BB%D0%B8_%D0%9C%D0%A2%D0%A1", "reliability": "medium" },
-    { "id": "src_telecom_3", "type": "industry_report", "title": "Итоги телекома 2025 г.: МТС, МегаФон, Билайн и Т2 — главные цифры", "period": "2026-03", "url": "https://www.comnews.ru/content/244174/2026-03-12/2026-w11/1008/itogi-telekoma-2025-g-mts-megafon-bilayn-i-t2-glavnye-cifry", "reliability": "high" },
-    { "id": "src_ecom_1", "type": "media", "title": "Продажи маркетплейсов РФ за 2025 — 8,59 трлн руб. (+32,2%); доли WB/Ozon/Я.Маркет", "period": "2025", "url": "https://www.kommersant.ru/doc/8516023", "reliability": "high" },
-    { "id": "src_dev_1", "type": "industry_report", "title": "Топ-застройщиков России по доле рынка 2025–2026 (Самолёт, ПИК, ЛСР; топ-10 ~19,8%)", "period": "2026-04", "url": "https://realty.rbc.ru/news/69ccb3c09a794739aec8bff4", "reliability": "high" },
-    { "id": "src_dev_2", "type": "media", "title": "ГК «Эталон»: результаты 2025 (выручка 154 млрд руб., +17%)", "period": "2025", "url": "https://ru.tradingview.com/news/rbc:aa931cc8d67b8:0/", "reliability": "medium" },
-    { "id": "src_dev_3", "type": "media", "title": "Строительный сектор: что ждёт рынок в 2026 году (ставки проектного финансирования до 46%)", "period": "2026", "url": "https://smart-lab.ru/blog/1263357.php", "reliability": "medium" },
-    { "id": "src_wood_1", "type": "media", "title": "Тенденции рынка пиломатериалов и цен в 2025 (Segezha: $181/куб. м, профицит)", "period": "2025", "url": "https://companies.rbc.ru/news/pTMHIQky7x/tendentsii-ryinka-pilomaterialov-i-dinamika-tsen-v-2025-godu/", "reliability": "medium" },
-    { "id": "src_wood_2", "type": "industry_report", "title": "Анализ мирового рынка пиломатериалов 2021–2025, прогноз 2026–2030", "period": "2021-2025", "url": "https://businesstat.ru/catalog/id8243/", "reliability": "medium" },
-    { "id": "src_wood_3", "type": "media", "title": "Российский лесопром: переориентация экспорта на Китай (>70%) и Восток", "period": "2025", "url": "https://psksalma.ru/blog/obzor-rynka-pilomaterialov-i-derevoobrabotki-v-rossii-realii-i-perspektivy/", "reliability": "low" },
-    { "id": "src_med_1", "type": "media", "title": "Рынок коммерческой медицины РФ 2025: ~1,78–2,32 трлн руб.; прогноз до 2030 (~4,3 трлн)", "period": "2025", "url": "https://www.kommersant.ru/doc/8316041", "reliability": "high" },
-    { "id": "src_med_2", "type": "media", "title": "Лидеры рейтинга крупнейших медкомпаний — 2025 (Медси №1, ~136 клиник)", "period": "2025", "url": "https://www.forbes.ru/rating/551134-lidery-rejtinga-krupnejsih-medicinskih-kompanij-2025", "reliability": "high" },
-    { "id": "src_bm", "type": "official", "title": "Внутренний разбор АФК «Система» (business_model.md): сегменты, доли в дочках, экономика", "period": "2025", "url": "internal://companies/AFKS/business_model.md", "reliability": "medium" }
+    {
+      "id": "src_telecom_1",
+      "type": "media",
+      "title": "Телеком-рынок РФ в 2025 вырос на 6,5% до 2,3 трлн ₽ (мобильная связь ~1,33 трлн, +7%)",
+      "period": "2025/2026",
+      "url": "https://www.tbank.ru/invest/social/profile/T-Investments/ec467e2f-e618-45c4-b774-789583e7e6e1/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_telecom_2",
+      "type": "media",
+      "title": "Выручка МТС за год выросла на 14,7% до 807,2 млрд руб.; доля ~31% рынка мобильной связи",
+      "period": "2025",
+      "url": "https://www.tadviser.ru/index.php/%D0%A1%D1%82%D0%B0%D1%82%D1%8C%D1%8F:%D0%A4%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D0%BE%D0%B2%D1%8B%D0%B5_%D0%BF%D0%BE%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D0%B5%D0%BB%D0%B8_%D0%9C%D0%A2%D0%A1",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_telecom_3",
+      "type": "industry_report",
+      "title": "Итоги телекома 2025 г.: МТС, МегаФон, Билайн и Т2 — главные цифры",
+      "period": "2026-03",
+      "url": "https://www.comnews.ru/content/244174/2026-03-12/2026-w11/1008/itogi-telekoma-2025-g-mts-megafon-bilayn-i-t2-glavnye-cifry",
+      "reliability": "high"
+    },
+    {
+      "id": "src_ecom_1",
+      "type": "media",
+      "title": "Продажи маркетплейсов РФ за 2025 — 8,59 трлн руб. (+32,2%); доли WB/Ozon/Я.Маркет",
+      "period": "2025",
+      "url": "https://www.kommersant.ru/doc/8516023",
+      "reliability": "high"
+    },
+    {
+      "id": "src_dev_1",
+      "type": "industry_report",
+      "title": "Топ-застройщиков России по доле рынка 2025–2026 (Самолёт, ПИК, ЛСР; топ-10 ~19,8%)",
+      "period": "2026-04",
+      "url": "https://realty.rbc.ru/news/69ccb3c09a794739aec8bff4",
+      "reliability": "high"
+    },
+    {
+      "id": "src_dev_2",
+      "type": "media",
+      "title": "ГК «Эталон»: результаты 2025 (выручка 154 млрд руб., +17%)",
+      "period": "2025",
+      "url": "https://ru.tradingview.com/news/rbc:aa931cc8d67b8:0/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_dev_3",
+      "type": "media",
+      "title": "Строительный сектор: что ждёт рынок в 2026 году (ставки проектного финансирования до 46%)",
+      "period": "2026",
+      "url": "https://smart-lab.ru/blog/1263357.php",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_wood_1",
+      "type": "media",
+      "title": "Тенденции рынка пиломатериалов и цен в 2025 (Segezha: $181/куб. м, профицит)",
+      "period": "2025",
+      "url": "https://companies.rbc.ru/news/pTMHIQky7x/tendentsii-ryinka-pilomaterialov-i-dinamika-tsen-v-2025-godu/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_wood_2",
+      "type": "industry_report",
+      "title": "Анализ мирового рынка пиломатериалов 2021–2025, прогноз 2026–2030",
+      "period": "2021-2025",
+      "url": "https://businesstat.ru/catalog/id8243/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_wood_3",
+      "type": "media",
+      "title": "Российский лесопром: переориентация экспорта на Китай (>70%) и Восток",
+      "period": "2025",
+      "url": "https://psksalma.ru/blog/obzor-rynka-pilomaterialov-i-derevoobrabotki-v-rossii-realii-i-perspektivy/",
+      "reliability": "low"
+    },
+    {
+      "id": "src_med_1",
+      "type": "media",
+      "title": "Рынок коммерческой медицины РФ 2025: ~1,78–2,32 трлн руб.; прогноз до 2030 (~4,3 трлн)",
+      "period": "2025",
+      "url": "https://www.kommersant.ru/doc/8316041",
+      "reliability": "high"
+    },
+    {
+      "id": "src_med_2",
+      "type": "media",
+      "title": "Лидеры рейтинга крупнейших медкомпаний — 2025 (Медси №1, ~136 клиник)",
+      "period": "2025",
+      "url": "https://www.forbes.ru/rating/551134-lidery-rejtinga-krupnejsih-medicinskih-kompanij-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_bm",
+      "type": "official",
+      "title": "Внутренний разбор АФК «Система» (business_model.md): сегменты, доли в дочках, экономика",
+      "period": "2025",
+      "url": "internal://companies/AFKS/business_model.md",
+      "reliability": "medium"
+    }
   ],
-
   "data_flags": [
     "Доли операторов телеком-рынка расходятся по методикам (выручка vs абоненты vs аудитория); МТС ~31% по выручке мобильной связи — наиболее надёжная привязка.",
     "Доли e-commerce даны как ориентир от GMV трёх лидеров (WB/Ozon/Я.Маркет = 8,59 трлн); точная доля Ozon во всём онлайн-ритейле РФ зависит от знаменателя и расходится между источниками.",
