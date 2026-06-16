@@ -16,13 +16,14 @@
       2024,
       2025
     ],
-    "last_price": null,
-    "price_date": "2026-06-13",
+    "last_price": 13.14,
+    "price_date": "2026-06-16",
     "shares_outstanding": 1083000000,
     "data_quality": "medium",
     "anomaly_flag": true,
     "anomaly_note": "Два ключевых искажения: (1) переоценка инвестнедвижимости по IAS 40 проходит через операционную прибыль (неденежная статья — +1180 млн в 2025, −650 млн в 2022); (2) нарастающий кэш (~20,7 млрд ₽) генерирует крупный процентный доход (~2,5–3 млрд ₽ est. 2025), который существенно искажает reported NP vs операционная рента. EV отрицателен (кэш > mcap). Все мультипликаторы и оценка — от adjusted базы.",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "price_note": "MOEX TQBR last 13.14 ₽ (2026-06-16, prev 13.2). Прежняя оценка строилась на 14.1493 ₽; mcap при 13.14 = 14231 млн ₽. Апсайды к новой цене см. арбитраж."
   },
   "income_statement": {
     "cost_format": "by_function",
