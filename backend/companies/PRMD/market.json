@@ -166,6 +166,15 @@
     }
   ],
 
+  "signal_market_to_revenue": {
+    "direction": "support_decelerating",
+    "magnitude": "strong_near_term",
+    "text": "Рыночный сигнал ПОДТВЕРЖДАЕТ прогноз выручки +60% на 2026 (guidance): флагман — рынок ожирения — растёт +~70% на 2026 (до ~75 млрд ₽) при удержании Промомедом ~46% доли; онкология +42% с низкой базы. Но за горизонт 2026 темп закономерно затухает (эффект высокой базы 2025, вход конкурентов, насыщение дуополии) — отсюда механическое замедление до +35% на 2027. Сигнал не добавляет премии сверх guidance: рост зависит от удержания доли в дуополии, а не от безграничного захвата.",
+    "supports_forecast_revenue_growth_pct": [60, 35],
+    "key_risk": "концентрация кейса на узком сегменте ожирения; ценовая конкуренция при входе новых производителей",
+    "certainty": "estimate"
+  },
+
   "sources": [
     { "id": "src_obesity", "type": "media", "title": "Рынок лекарств от ожирения в России вырос в 2,5 раза за год (44,6 млрд ₽; доли Промомед/Герофарм ~46%; семаглутид/тирзепатид)", "period": "2025 / май 2026", "url": "https://www.retail.ru/news/rynok-lekarstv-ot-ozhireniya-v-rossii-vyros-v-2-5-raza-za-god-21-maya-2026-277966/", "reliability": "medium" },
     { "id": "src_obesity2", "type": "media", "title": "Forbes: препараты от ожирения за квартал принесли фармкомпаниям 17 млрд ₽", "period": "2025–2026", "url": "https://www.forbes.ru/healthcare/560142-preparaty-ot-ozirenia-za-tri-mesaca-prinesli-rossijskim-farmkompaniam-17-mlrd-rublej", "reliability": "high" },
