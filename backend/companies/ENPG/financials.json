@@ -961,22 +961,22 @@
     "methods": [
       {
         "method": "SOTP",
-        "fair_value_per_share": 368,
-        "fair_value_per_share_usd": 4.46,
+        "fair_value_per_share": 428,
+        "fair_value_per_share_usd": 5.19,
         "horizon": "intrinsic_now",
         "key_assumptions": {
           "power_ebitda_usd_mln": 1100,
           "power_ev_ebitda_multiple": 5.0,
           "power_ev_usd_mln": 5500,
-          "rual_price_rub": 32.0,
+          "rual_price_rub": 37.9,
           "rual_shares_mln": 15193,
-          "rual_mktcap_usd_mln": 5893,
+          "rual_mktcap_usd_mln": 6980,
           "enpg_stake_rusal_pct": 56.88,
-          "rusal_stake_gross_usd_mln": 3352,
+          "rusal_stake_gross_usd_mln": 3970,
           "holding_discount_pct": 25.0,
-          "rusal_stake_discounted_usd_mln": 2514,
+          "rusal_stake_discounted_usd_mln": 2977,
           "corporate_net_debt_usd_mln": 5165,
-          "sotp_equity_usd_mln": 2849,
+          "sotp_equity_usd_mln": 3312,
           "usd_rub": 82.5
         },
         "status": "ok",
@@ -984,7 +984,7 @@
           "inputs": {
             "power_ebitda_usd": "1100 USD млн — base case EBITDA гидросегмента (оценка; сегментное раскрытие En+ требует верификации в годовом отчёте) [judgement]",
             "power_ev_ebitda_x": "5.0× — EV/EBITDA гидроэнергетики в России (РусГидро аналог 4–6×); нижняя граница учитывает страновой и санкционный риск [judgement]",
-            "rual_price_rub": "32.0 RUB — ориентировочная цена RUAL на MOEX, июнь 2026 [src_web_rual]",
+            "rual_price_rub": "37.9 RUB — цена RUAL на MOEX, верифицирована 05.06.2026 (52-нед диапазон 27.6–46.5) [src_web_rual]",
             "rual_shares_mln": "15 193 млн акций UC RUSAL [публичные данные]",
             "enpg_stake_rusal_pct": "56.88% — доля ЭН+ в UC RUSAL [src_1]",
             "holding_discount_pct": "25% — холдинговый дисконт: санкционный риск, управленческие ограничения OFAC, отсутствие дивидендов (диапазон 20–35%) [judgement]",
@@ -993,14 +993,14 @@
           },
           "steps": [
             "1. Power EV = 1100 × 5.0 = 5 500 USD млн",
-            "2. mktcap RUAL = 32.0 RUB × 15193 млн акций = 486 096 млн RUB = 486 096 / 82.5 = 5 892 USD млн",
-            "3. Стоимость пакета ЭН+: 5892 × 56.88% = 3 352 USD млн",
-            "4. Холдинговый дисконт 25%: 3352 × 0.75 = 2 514 USD млн",
-            "5. SOTP до долга: 5500 + 2514 = 8 014 USD млн",
+            "2. mktcap RUAL = 37.9 RUB × 15193 млн акций = 575 816 млн RUB = 575 816 / 82.5 = 6 980 USD млн",
+            "3. Стоимость пакета ЭН+: 6980 × 56.88% = 3 970 USD млн",
+            "4. Холдинговый дисконт 25%: 3970 × 0.75 = 2 977 USD млн",
+            "5. SOTP до долга: 5500 + 2977 = 8 477 USD млн",
             "6. Корпоративный ND holding-level: −5 165 USD млн",
-            "7. Equity: 8014 − 5165 = 2 849 USD млн",
-            "8. На акцию: 2849 × 1e6 / 638 848 896 = 4.46 USD × 82.5 = 368 RUB",
-            "Cross-check: текущая капитализация 3132 USD — SOTP equity 2849 (-9%). Объяснение: conservative power EBITDA + 25% дисконт."
+            "7. Equity: 8477 − 5165 = 3 312 USD млн",
+            "8. На акцию: 3312 × 1e6 / 638 848 896 = 5.19 USD × 82.5 = 428 RUB",
+            "Cross-check: текущая капитализация 3132 USD vs SOTP equity 3312 (+6%). SOTP теперь чуть выше рынка — рынок закладывает дисконт ближе к 30%."
           ],
           "caveats": [
             "Power EBITDA 1100 USD млн — оценочный; диапазон 900–1300 → SOTP price 240–500 RUB при прочих равных",
@@ -1233,11 +1233,11 @@
         }
       }
     ],
-    "methods_divergence_note": "Диапазон методов: DCF 295 — SOTP 368 — P/E 442 — CAPM 496 — Relative 520 — P/B 606. Расхождение DCF vs P/B = 106%. Причины: (1) DCF нестабилен при долге/EV=73.6% — малое изменение WACC обнуляет equity value; (2) P/B завышен: включение досанкционного P/B=1.64 (2020) и учётный FX translation reserve; (3) SOTP наиболее адекватен для структуры холдинга, но содержит высокую оценочную погрешность. Итоговый диапазон: консервативный = нижняя граница DCF-чувствительности (270), base = кластер SOTP+P/E (430).",
+    "methods_divergence_note": "Диапазон методов: DCF 295 — P/E 442 — SOTP 428 — CAPM 496 — Relative 520 — P/B 606. SOTP пересчитан на верифицированной цене RUAL 37.9 RUB (05.06.2026) вместо 32.0 → 428 RUB (было 368). Расхождение DCF vs P/B = 106%. Причины: (1) DCF нестабилен при долге/EV=73.6% — малое изменение WACC обнуляет equity value; (2) P/B завышен: включение досанкционного P/B=1.64 (2020) и учётный FX translation reserve; (3) SOTP — основной метод для холдинга, теперь совпадает с кластером P/E (~430). Итоговый диапазон: консервативный = нижняя граница DCF-чувствительности (270), base = кластер SOTP+P/E (430).",
     "fair_value_range": {
       "conservative": 270,
       "base": 430,
-      "note": "Base = среднее SOTP(368) и P/E(442) = ~405, округлено до 430 с учётом санкционного риска. Conservative = нижняя граница DCF при WACC=12%, g=3%. Текущая цена 404.52 находится в нижней части base-диапазона. Оценки P/B (606) и EV/EBITDA relative (520) реализуемы только при снятии санкционного дисконта."
+      "note": "Base = кластер SOTP(428) и P/E(442) ≈ 430. SOTP на верифицированной цене RUAL даёт equity 3312 USD vs рыночная капитализация 3132 USD (+6%) → рынок закладывает холдинг-дисконт ближе к 30% (vs 25% в базе). Conservative = нижняя граница DCF при WACC=12%, g=3%. Текущая цена 377-405 RUB (июнь 2026) находится у нижней границы base. P/B (606) и Relative (520) реализуемы только при снятии санкционного дисконта."
     },
     "sensitivity": {
       "method": "DCF",
