@@ -9,78 +9,519 @@
     "reporting_standard": "МСФО",
     "converted_years": [],
     "conversion_note": "",
-    "fiscal_years": [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
-    "last_price": 7.52,
-    "price_date": "2026-06-08",
-    "shares_outstanding": 33429710000,
+    "fiscal_years": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "last_price": 6.2083,
+    "price_date": "2026-06-16",
+    "shares_outstanding": 33429709866,
     "data_quality": "medium",
-    "data_source_priority": ["official_report", "uploaded_file", "broker", "aggregator"],
+    "data_source_priority": [
+      "official_report",
+      "uploaded_file",
+      "broker",
+      "aggregator"
+    ],
     "anomaly_flag": true,
     "anomaly_note": "2025: отчётная ЧП положительна (+8,3% г/г, 22,6 млрд) ТОЛЬКО благодаря разовым ~196 млрд руб. доходам от операций с ценными бумагами/прочим (преимущественно 3-й квартал). Одновременно резервы под кредитные убытки выросли в 5,4х (42→224 млрд): проблемные корпоративные кредиты подскочили с 70,9 до 512,3 млрд, COR 1,54%→9,53%, NPL ~28% портфеля. БЕЗ разовой статьи банк операционно убыточен (нормализованная ЧП ≈ −124 млрд). Кредитный портфель −12,8%, депозиты −2,1%, активы −2,7%.",
     "adjustments_aggressive": false
   },
-
   "bank_pnl": {
-    "interest_income": [null, null, null, null, null, null, null, null, 632810, 703460],
-    "interest_expense": [null, null, null, null, null, null, null, null, -545150, -618090],
-    "net_interest_income": [40299, 45280, 48415, 45283, 59248, 71470, 60433, 116184, 105838, 105230],
-    "fee_income": [null, null, null, null, null, null, null, null, 20630, 25970],
-    "fee_expense": [null, null, null, null, null, null, null, null, -7909, -12783],
-    "net_fee_income": [11147, 12508, 12346, 11534, 15142, 16791, 12675, 16562, 12721, 13187],
-    "securities_other_income": [null, null, null, null, null, null, null, null, null, 196100],
-    "operating_income": [28954, 43573, 54495, 36338, 59031, 62129, 43626, 113541, 64068, 67735],
-    "provisions": [-29783, -18597, -2221, -6821, -18908, -8119, -25922, -24123, -41565, -224192],
-    "operating_expenses": [-15219, -16756, -19426, -21225, -21505, -29634, -35173, -40270, -41469, -35606],
-    "pre_tax_profit": [null, null, null, null, null, null, null, null, null, 28264],
-    "income_tax": [null, null, null, null, null, null, null, null, null, -5653],
-    "net_profit": [10874, 20703, 27224, 11957, 30009, 26199, 7467, 59778, 20887, 22611],
+    "interest_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      632810,
+      703460
+    ],
+    "interest_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -545150,
+      -618090
+    ],
+    "net_interest_income": [
+      40299,
+      45280,
+      48415,
+      45283,
+      59248,
+      71470,
+      60433,
+      116184,
+      105838,
+      105230
+    ],
+    "fee_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      20630,
+      25970
+    ],
+    "fee_expense": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -7909,
+      -12783
+    ],
+    "net_fee_income": [
+      11147,
+      12508,
+      12346,
+      11534,
+      15142,
+      16791,
+      12675,
+      16562,
+      12721,
+      13187
+    ],
+    "securities_other_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      196100
+    ],
+    "operating_income": [
+      28954,
+      43573,
+      54495,
+      36338,
+      59031,
+      62129,
+      43626,
+      113541,
+      64068,
+      67735
+    ],
+    "provisions": [
+      -29783,
+      -18597,
+      -2221,
+      -6821,
+      -18908,
+      -8119,
+      -25922,
+      -24123,
+      -41565,
+      -224192
+    ],
+    "operating_expenses": [
+      -15219,
+      -16756,
+      -19426,
+      -21225,
+      -21505,
+      -29634,
+      -35173,
+      -40270,
+      -41469,
+      -35606
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      28264
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -5653
+    ],
+    "net_profit": [
+      10874,
+      20703,
+      27224,
+      11957,
+      30009,
+      26199,
+      7467,
+      59778,
+      20887,
+      22611
+    ],
     "pnl_note": "Постатейная разбивка процентных/комиссионных доходов и расходов раскрыта только за 2024-2025 (из первичной МСФО, веб). Ряды до 2024 — из аналитической выгрузки (агрегатор), где раскрыты только нетто-итоги (ЧПД/ЧКД) и резервы/опер.расходы. Знак резервов и опер.расходов — расход (минус). pre_tax/tax 2025 реконструированы: ЧП до налога ≈ ЧП/(1−0,20 ETR факт)."
   },
-
   "bank_metrics": {
-    "nim": [2.57, 2.40, 2.26, 1.87, 2.03, 2.09, 1.52, 2.49, 2.11, 2.16],
-    "cost_of_risk": [2.89, 2.37, 0.31, 0.60, 1.06, 0.58, 1.35, 1.03, 1.54, 9.53],
-    "cir": [53.0, 38.0, 36.0, 58.0, 36.0, 48.0, 81.0, 35.0, 65.0, 53.0],
-    "roe": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, 6.47],
-    "roe_adj": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, -34.52],
-    "roa": [null, 1.32, 1.44, 0.56, 1.24, 0.90, 0.22, 1.50, 0.45, 0.45],
-    "ros": [8.58, 14.53, 17.71, 7.35, 17.49, 13.16, 2.39, 13.66, 3.04, 2.95],
-    "capital_adequacy_n10": [null, null, null, null, null, null, null, null, 10.5, 11.04],
-    "loan_portfolio": [1030015, 785045, 722228, 1137449, 1788002, 1408923, 1920585, 2349903, 2697626, 2352372],
-    "deposits": [1071120, 1581585, 1825105, 2017498, 2459197, 2830398, 3366275, 4061179, 4418940, 4327129],
-    "ltd": [96.16, 49.64, 39.57, 56.38, 72.71, 49.78, 57.05, 57.86, 61.05, 54.36]
+    "nim": [
+      2.57,
+      2.4,
+      2.26,
+      1.87,
+      2.03,
+      2.09,
+      1.52,
+      2.49,
+      2.11,
+      2.16
+    ],
+    "cost_of_risk": [
+      2.89,
+      2.37,
+      0.31,
+      0.6,
+      1.06,
+      0.58,
+      1.35,
+      1.03,
+      1.54,
+      9.53
+    ],
+    "cir": [
+      53.0,
+      38.0,
+      36.0,
+      58.0,
+      36.0,
+      48.0,
+      81.0,
+      35.0,
+      65.0,
+      53.0
+    ],
+    "roe": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      6.47
+    ],
+    "roe_adj": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      -34.52
+    ],
+    "roa": [
+      null,
+      1.32,
+      1.44,
+      0.56,
+      1.24,
+      0.9,
+      0.22,
+      1.5,
+      0.45,
+      0.45
+    ],
+    "ros": [
+      8.58,
+      14.53,
+      17.71,
+      7.35,
+      17.49,
+      13.16,
+      2.39,
+      13.66,
+      3.04,
+      2.95
+    ],
+    "capital_adequacy_n10": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      10.5,
+      11.04
+    ],
+    "loan_portfolio": [
+      1030015,
+      785045,
+      722228,
+      1137449,
+      1788002,
+      1408923,
+      1920585,
+      2349903,
+      2697626,
+      2352372
+    ],
+    "deposits": [
+      1071120,
+      1581585,
+      1825105,
+      2017498,
+      2459197,
+      2830398,
+      3366275,
+      4061179,
+      4418940,
+      4327129
+    ],
+    "ltd": [
+      96.16,
+      49.64,
+      39.57,
+      56.38,
+      72.71,
+      49.78,
+      57.05,
+      57.86,
+      61.05,
+      54.36
+    ]
   },
-
   "income_statement": {
     "cost_format": "bank",
-    "revenue": [126783, 142469, 153762, 162750, 171556, 199051, 311919, 437632, 686953, 767628],
+    "revenue": [
+      126783,
+      142469,
+      153762,
+      162750,
+      171556,
+      199051,
+      311919,
+      437632,
+      686953,
+      767628
+    ],
     "cogs": null,
     "gross_profit": null,
     "expense_lines": [],
-    "operating_profit": [28954, 43573, 54495, 36338, 59031, 62129, 43626, 113541, 64068, 67735],
-    "da": [null, null, null, null, null, null, null, null, null, null],
-    "ebitda": [null, null, null, null, null, null, null, null, null, null],
-    "finance_costs": [null, null, null, null, null, null, null, null, -545150, -618090],
-    "finance_income": [null, null, null, null, null, null, null, null, 632810, 703460],
-    "pre_tax_profit": [null, null, null, null, null, null, null, null, null, 28264],
-    "income_tax": [null, null, null, null, null, null, null, null, null, -5653],
-    "net_profit": [10874, 20703, 27224, 11957, 30009, 26199, 7467, 59778, 20887, 22611],
+    "operating_profit": [
+      28954,
+      43573,
+      54495,
+      36338,
+      59031,
+      62129,
+      43626,
+      113541,
+      64068,
+      67735
+    ],
+    "da": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "finance_costs": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -545150,
+      -618090
+    ],
+    "finance_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      632810,
+      703460
+    ],
+    "pre_tax_profit": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      28264
+    ],
+    "income_tax": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      -5653
+    ],
+    "net_profit": [
+      10874,
+      20703,
+      27224,
+      11957,
+      30009,
+      26199,
+      7467,
+      59778,
+      20887,
+      22611
+    ],
     "margins": {
       "gross_margin": null,
-      "ebitda_margin": [null, null, null, null, null, null, null, null, null, null],
-      "operating_margin": [22.84, 30.58, 35.44, 22.33, 34.41, 31.21, 13.99, 25.95, 9.33, 8.82],
-      "ros": [8.58, 14.53, 17.71, 7.35, 17.49, 13.16, 2.39, 13.66, 3.04, 2.95]
+      "ebitda_margin": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "operating_margin": [
+        22.84,
+        30.58,
+        35.44,
+        22.33,
+        34.41,
+        31.21,
+        13.99,
+        25.95,
+        9.33,
+        8.82
+      ],
+      "ros": [
+        8.58,
+        14.53,
+        17.71,
+        7.35,
+        17.49,
+        13.16,
+        2.39,
+        13.66,
+        3.04,
+        2.95
+      ]
     }
   },
-
   "adjusted": {
-    "net_profit_adj": [10874, 20703, 27224, 11957, 30009, 26199, 7467, 59778, 20887, -124464],
-    "ebitda_adj": [null, null, null, null, null, null, null, null, null, null],
+    "net_profit_adj": [
+      10874,
+      20703,
+      27224,
+      11957,
+      30009,
+      26199,
+      7467,
+      59778,
+      20887,
+      -124464
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "fcf_normalized": [],
     "wc_adjustment": [],
     "capex_sustainable_mln": null,
     "capex_note": "Для банка FCF/capex не являются осмысленной базой оценки (регуляторный капитал, нет свободного FCFF) — раздел денежных потоков не нормализуется по схеме CFO−capex.",
-    "etr_reported": [null, null, null, null, null, null, null, null, null, 20.0],
+    "etr_reported": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      20.0
+    ],
     "etr_sustainable": 25.0,
     "bridge": [
       {
@@ -103,116 +544,900 @@
     ],
     "bridge_note": "Отчётная ЧП 2025 +22,6 млрд держится исключительно на разовом доходе ~196 млрд от ценных бумаг/прочего; без него и с устойчивой налоговой ставкой нормализованная ЧП ≈ −124 млрд — операционно банк убыточен из-за резкого роста резервов (NPL ~28%). Прочие годы (2016-2024) проверены: существенных разовых статей, искажающих ЧП, не обнаружено — adjusted = reported."
   },
-
   "balance_sheet": {
     "non_current_assets": {
-      "ppe": [null,null,null,null,null,null,null,null,null,null],
-      "intangibles": [null,null,null,null,null,null,null,null,null,null],
-      "goodwill": [null,null,null,null,null,null,null,null,null,null],
-      "long_term_investments": [null,null,null,null,null,null,null,null,null,null],
-      "other_non_current": [null,null,null,null,null,null,null,null,null,null],
-      "total_non_current": [null,null,null,null,null,null,null,null,null,null]
+      "ppe": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "intangibles": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "goodwill": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "long_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
     },
     "current_assets": {
       "inventory": null,
-      "receivables": [null,null,null,null,null,null,null,null,null,null],
-      "cash": [null,null,null,null,null,null,null,null,null,null],
-      "short_term_investments": [null,null,null,null,null,null,null,null,null,null],
-      "other_current": [null,null,null,null,null,null,null,null,null,null],
-      "total_current": [null,null,null,null,null,null,null,null,null,null]
+      "receivables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cash": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "short_term_investments": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
     },
-    "loan_portfolio_net": [1030015, 785045, 722228, 1137449, 1788002, 1408923, 1920585, 2349903, 2697626, 2352372],
-    "client_deposits": [1071120, 1581585, 1825105, 2017498, 2459197, 2830398, 3366275, 4061179, 4418940, 4327129],
-    "total_assets": [1567969, 1888191, 2145927, 2423497, 2916465, 3419535, 3973074, 4667018, 5008951, 4873717],
+    "loan_portfolio_net": [
+      1030015,
+      785045,
+      722228,
+      1137449,
+      1788002,
+      1408923,
+      1920585,
+      2349903,
+      2697626,
+      2352372
+    ],
+    "client_deposits": [
+      1071120,
+      1581585,
+      1825105,
+      2017498,
+      2459197,
+      2830398,
+      3366275,
+      4061179,
+      4418940,
+      4327129
+    ],
+    "total_assets": [
+      1567969,
+      1888191,
+      2145927,
+      2423497,
+      2916465,
+      3419535,
+      3973074,
+      4667018,
+      5008951,
+      4873717
+    ],
     "equity": {
-      "share_capital": [null,null,null,null,null,null,null,null,null,null],
-      "retained_earnings": [42434, 62104, 71637, 82042, 103990, 189737, 188297, 185821, 198959, 227697],
-      "additional_paid_in": [null,null,null,null,null,null,null,null,null,null],
-      "other_equity": [null,null,null,null,null,null,null,null,null,null],
-      "total_equity": [103401, 177589, 191173, 210432, 234496, 281413, 273776, 347932, 349301, 371906]
+      "share_capital": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "retained_earnings": [
+        42434,
+        62104,
+        71637,
+        82042,
+        103990,
+        189737,
+        188297,
+        185821,
+        198959,
+        227697
+      ],
+      "additional_paid_in": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_equity": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_equity": [
+        103401,
+        177589,
+        191173,
+        210432,
+        234496,
+        281413,
+        273776,
+        347932,
+        349301,
+        371906
+      ]
     },
-    "total_equity": [103401, 177589, 191173, 210432, 234496, 281413, 273776, 347932, 349301, 371906],
-    "total_liabilities": [1464568, 1710602, 1954754, 2213065, 2681969, 3138122, 3699298, 4319086, 4659650, 4501811],
+    "total_equity": [
+      103401,
+      177589,
+      191173,
+      210432,
+      234496,
+      281413,
+      273776,
+      347932,
+      349301,
+      371906
+    ],
+    "total_liabilities": [
+      1464568,
+      1710602,
+      1954754,
+      2213065,
+      2681969,
+      3138122,
+      3699298,
+      4319086,
+      4659650,
+      4501811
+    ],
     "non_current_liabilities": {
-      "long_term_debt": [null,null,null,null,null,null,null,null,null,null],
-      "deferred_tax": [null,null,null,null,null,null,null,null,null,null],
-      "other_non_current_liab": [null,null,null,null,null,null,null,null,null,null],
-      "total_non_current_liab": [null,null,null,null,null,null,null,null,null,null]
+      "long_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "deferred_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_non_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
     },
     "current_liabilities": {
-      "short_term_debt": [null,null,null,null,null,null,null,null,null,null],
-      "payables": [null,null,null,null,null,null,null,null,null,null],
-      "other_current_liab": [null,null,null,null,null,null,null,null,null,null],
-      "total_current_liab": [null,null,null,null,null,null,null,null,null,null]
+      "short_term_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "payables": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "other_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "total_current_liab": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
     },
-    "book_value_per_share": [3.093, 5.312, 5.719, 6.295, 7.015, 8.418, 8.19, 10.408, 10.449, 11.125],
-    "tangible_equity": [103401, 177589, 191173, 210432, 234496, 281413, 273776, 347932, 349301, 371906],
+    "book_value_per_share": [
+      3.093,
+      5.312,
+      5.719,
+      6.295,
+      7.015,
+      8.418,
+      8.19,
+      10.408,
+      10.449,
+      11.125
+    ],
+    "tangible_equity": [
+      103401,
+      177589,
+      191173,
+      210432,
+      234496,
+      281413,
+      273776,
+      347932,
+      349301,
+      371906
+    ],
     "tangible_note": "Гудвил/НМА в первичной отчётности банка несущественны (не раскрыты как материальная статья); ощутимый капитал ≈ балансовому. Капитал не «нарисован», но качество капитала под давлением — резервы покрывают лишь ~часть проблемных кредитов, при доформировании капитал может пострадать.",
     "ratios": {
-      "debt_to_equity": [14.16, 9.63, 10.23, 10.52, 11.44, 11.15, 13.51, 12.41, 13.34, 12.10],
-      "liabilities_to_assets": [0.93, 0.91, 0.91, 0.91, 0.92, 0.92, 0.93, 0.93, 0.93, 0.92]
+      "debt_to_equity": [
+        14.16,
+        9.63,
+        10.23,
+        10.52,
+        11.44,
+        11.15,
+        13.51,
+        12.41,
+        13.34,
+        12.1
+      ],
+      "liabilities_to_assets": [
+        0.93,
+        0.91,
+        0.91,
+        0.91,
+        0.92,
+        0.92,
+        0.93,
+        0.93,
+        0.93,
+        0.92
+      ]
     }
   },
-
   "cash_flow": {
-    "cfo": [198139, 469180, 297792, -233099, -189044, 682499, null, null, null, null],
-    "cfi": [null,null,null,null,null,null,null,null,null,null],
-    "cff": [null,null,null,null,null,null,null,null,null,null],
-    "net_change_in_cash": [null,null,null,null,null,null,null,null,null,null],
-    "capex": [913, 1980, 1345, 1342, 745, null, null, null, null, null],
-    "fcf": [197226, 467200, 296447, -234441, -189789, null, null, null, null, null],
-    "cfo_lines": [], "cfi_lines": [], "cff_lines": [],
-    "ratios": { "fcf_margin": [], "cfo_to_capex": [], "capex_to_revenue": [] },
+    "cfo": [
+      198139,
+      469180,
+      297792,
+      -233099,
+      -189044,
+      682499,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfi": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cff": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_change_in_cash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex": [
+      913,
+      1980,
+      1345,
+      1342,
+      745,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf": [
+      197226,
+      467200,
+      296447,
+      -234441,
+      -189789,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cfo_lines": [],
+    "cfi_lines": [],
+    "cff_lines": [],
+    "ratios": {
+      "fcf_margin": [],
+      "cfo_to_capex": [],
+      "capex_to_revenue": []
+    },
     "cf_note": "Для банка денежный поток (CFO/FCF) не используется в оценке: операционный поток банка определяется движением кредитов/депозитов и волатилен (от −233 до +682 млрд), capex незначителен. После 2021 в источнике-агрегаторе CFO=0 (не раскрыт). Оценка строится на капитале/ROE, а не на FCF."
   },
-
   "returns": {
-    "roe": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, 6.47],
-    "roe_reported": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, 6.47],
-    "roe_adj": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, -34.52],
-    "roa": [null, 1.32, 1.44, 0.56, 1.24, 0.90, 0.22, 1.50, 0.45, 0.45],
-    "roic": [null,null,null,null,null,null,null,null,null,null],
-    "ros": [8.58, 14.53, 17.71, 7.35, 17.49, 13.16, 2.39, 13.66, 3.04, 2.95],
-    "asset_turnover": [0.16, 0.08, 0.08, 0.07, 0.06, 0.06, 0.08, 0.10, 0.14, 0.16]
+    "roe": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      6.47
+    ],
+    "roe_reported": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      6.47
+    ],
+    "roe_adj": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      -34.52
+    ],
+    "roa": [
+      null,
+      1.32,
+      1.44,
+      0.56,
+      1.24,
+      0.9,
+      0.22,
+      1.5,
+      0.45,
+      0.45
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      8.58,
+      14.53,
+      17.71,
+      7.35,
+      17.49,
+      13.16,
+      2.39,
+      13.66,
+      3.04,
+      2.95
+    ],
+    "asset_turnover": [
+      0.16,
+      0.08,
+      0.08,
+      0.07,
+      0.06,
+      0.06,
+      0.08,
+      0.1,
+      0.14,
+      0.16
+    ]
   },
-
   "metrics_timeseries": {
-    "pe": [9.25, 6.33, 5.96, 12.27, 6.93, 7.08, 35.41, 4.55, 10.42, 9.05],
-    "pe_reported": [9.25, 6.33, 5.96, 12.27, 6.93, 7.08, 35.41, 4.55, 10.42, 9.05],
-    "pe_adj": [9.25, 6.33, 5.96, 12.27, 6.93, 7.08, 35.41, 4.55, 10.42, null],
-    "pb": [0.97, 0.74, 0.85, 0.70, 0.89, 0.66, 0.97, 0.78, 0.62, 0.55],
-    "ps": [0.79, 0.92, 1.06, 0.90, 1.21, 0.93, 0.85, 0.62, 0.32, 0.27],
-    "ev_ebitda": [null,null,null,null,null,null,null,null,null,null],
-    "roe": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, -34.52],
-    "roe_reported": [11.78, 20.02, 15.33, 6.25, 14.26, 11.17, 2.65, 21.83, 6.00, 6.47],
-    "roa": [null, 1.32, 1.44, 0.56, 1.24, 0.90, 0.22, 1.50, 0.45, 0.45],
-    "roic": [null,null,null,null,null,null,null,null,null,null],
-    "gross_margin": [null,null,null,null,null,null,null,null,null,null],
-    "ebitda_margin": [null,null,null,null,null,null,null,null,null,null],
-    "operating_margin": [22.84, 30.58, 35.44, 22.33, 34.41, 31.21, 13.99, 25.95, 9.33, 8.82],
-    "ros": [8.58, 14.53, 17.71, 7.35, 17.49, 13.16, 2.39, 13.66, 3.04, 2.95],
-    "net_debt_ebitda": [null,null,null,null,null,null,null,null,null,null],
-    "nim": [2.57, 2.40, 2.26, 1.87, 2.03, 2.09, 1.52, 2.49, 2.11, 2.16],
-    "cost_of_risk": [2.89, 2.37, 0.31, 0.60, 1.06, 0.58, 1.35, 1.03, 1.54, 9.53],
-    "cir": [53.0, 38.0, 36.0, 58.0, 36.0, 48.0, 81.0, 35.0, 65.0, 53.0],
-    "revenue_growth": [null, 12.4, 7.9, 5.8, 5.4, 16.0, 56.7, 40.3, 57.0, 11.7],
-    "net_profit_growth": [null, 90.4, 31.5, -56.1, 151.0, -12.7, -71.5, 700.6, -65.1, 8.3]
+    "pe": [
+      9.25,
+      6.33,
+      5.96,
+      12.27,
+      6.93,
+      7.08,
+      35.41,
+      4.55,
+      10.42,
+      9.18
+    ],
+    "pe_reported": [
+      9.25,
+      6.33,
+      5.96,
+      12.27,
+      6.93,
+      7.08,
+      35.41,
+      4.55,
+      10.42,
+      9.18
+    ],
+    "pe_adj": [
+      9.25,
+      6.33,
+      5.96,
+      12.27,
+      6.93,
+      7.08,
+      35.41,
+      4.55,
+      10.42,
+      null
+    ],
+    "pb": [
+      0.97,
+      0.74,
+      0.85,
+      0.7,
+      0.89,
+      0.66,
+      0.97,
+      0.78,
+      0.62,
+      0.558
+    ],
+    "ps": [
+      0.79,
+      0.92,
+      1.06,
+      0.9,
+      1.21,
+      0.93,
+      0.85,
+      0.62,
+      0.32,
+      0.27
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      -34.52
+    ],
+    "roe_reported": [
+      11.78,
+      20.02,
+      15.33,
+      6.25,
+      14.26,
+      11.17,
+      2.65,
+      21.83,
+      6.0,
+      6.47
+    ],
+    "roa": [
+      null,
+      1.32,
+      1.44,
+      0.56,
+      1.24,
+      0.9,
+      0.22,
+      1.5,
+      0.45,
+      0.45
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ebitda_margin": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_margin": [
+      22.84,
+      30.58,
+      35.44,
+      22.33,
+      34.41,
+      31.21,
+      13.99,
+      25.95,
+      9.33,
+      8.82
+    ],
+    "ros": [
+      8.58,
+      14.53,
+      17.71,
+      7.35,
+      17.49,
+      13.16,
+      2.39,
+      13.66,
+      3.04,
+      2.95
+    ],
+    "net_debt_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "nim": [
+      2.57,
+      2.4,
+      2.26,
+      1.87,
+      2.03,
+      2.09,
+      1.52,
+      2.49,
+      2.11,
+      2.16
+    ],
+    "cost_of_risk": [
+      2.89,
+      2.37,
+      0.31,
+      0.6,
+      1.06,
+      0.58,
+      1.35,
+      1.03,
+      1.54,
+      9.53
+    ],
+    "cir": [
+      53.0,
+      38.0,
+      36.0,
+      58.0,
+      36.0,
+      48.0,
+      81.0,
+      35.0,
+      65.0,
+      53.0
+    ],
+    "revenue_growth": [
+      null,
+      12.4,
+      7.9,
+      5.8,
+      5.4,
+      16.0,
+      56.7,
+      40.3,
+      57.0,
+      11.7
+    ],
+    "net_profit_growth": [
+      null,
+      90.4,
+      31.5,
+      -56.1,
+      151.0,
+      -12.7,
+      -71.5,
+      700.6,
+      -65.1,
+      8.3
+    ]
   },
-
   "multiples": {
-    "pe": [9.25, 6.33, 5.96, 12.27, 6.93, 7.08, 35.41, 4.55, 10.42, 9.05],
-    "ps": [0.79, 0.92, 1.06, 0.90, 1.21, 0.93, 0.85, 0.62, 0.32, 0.27],
-    "pb": [0.97, 0.74, 0.85, 0.70, 0.89, 0.66, 0.97, 0.78, 0.62, 0.55],
-    "ev_ebitda": [null,null,null,null,null,null,null,null,null,null],
-    "pe_adj": [9.25, 6.33, 5.96, 12.27, 6.93, 7.08, 35.41, 4.55, 10.42, null],
+    "pe": [
+      9.25,
+      6.33,
+      5.96,
+      12.27,
+      6.93,
+      7.08,
+      35.41,
+      4.55,
+      10.42,
+      9.18
+    ],
+    "ps": [
+      0.79,
+      0.92,
+      1.06,
+      0.9,
+      1.21,
+      0.93,
+      0.85,
+      0.62,
+      0.32,
+      0.27
+    ],
+    "pb": [
+      0.97,
+      0.74,
+      0.85,
+      0.7,
+      0.89,
+      0.66,
+      0.97,
+      0.78,
+      0.62,
+      0.558
+    ],
+    "ev_ebitda": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pe_adj": [
+      9.25,
+      6.33,
+      5.96,
+      12.27,
+      6.93,
+      7.08,
+      35.41,
+      4.55,
+      10.42,
+      null
+    ],
     "current": {
-      "pe": 11.12,
-      "pe_reported": 11.12,
+      "pe": 9.18,
+      "pe_reported": 9.18,
       "pe_adj": null,
-      "ps": 0.327,
-      "pb": 0.676,
+      "ps": 0.27,
+      "pb": 0.558,
       "ev_ebitda": null,
-      "as_of": "2026-06-08"
+      "market_cap_mln": 204456,
+      "as_of": "2026-06-16",
+      "note": "Цена обновлена до 6.2083 ₽ (живая котировка MOEX, якорный блок). P/B упал с 0.676 до 0.558, P/E reported с 11.1 до 9.18. Капитализация 204 456 млн (SECURITYCAPITALIZATION из rates.csv)."
     },
     "historical_avg": {
       "pe_5y_avg": 13.3,
@@ -225,21 +1450,29 @@
       "period": "2021-2025"
     }
   },
-
   "forecast": {
     "source_type": "mechanical",
     "providers": [],
     "note": "Покрытие аналитиков по CBOM ограничено; явного консенсуса EPS на 2026 нет в открытом доступе. База прогноза для оценки — НОРМАЛИЗОВАННАЯ (устойчивая) ROE через цикл (6,5–11,6%), а не отчётная ЧП 2025 (искажена разовым доходом). Ключевая развилка 2026: динамика резервов при NPL ~28% и возможная поддержка капитала акционером (концерн «Россиум»/ГК «Регион»).",
-    "sustainable_roe_range_pct": [6.5, 11.6]
+    "sustainable_roe_range_pct": [
+      6.5,
+      11.6
+    ]
   },
-
   "valuation": {
     "methods": [
       {
         "method": "DCF",
         "fair_value_per_share": null,
         "horizon": "intrinsic_now",
-        "key_assumptions": { "fcf1_mln": null, "r": null, "g": null, "tax_rate_used": 25.0, "fcf_base": "n/a", "implied_exit_multiple": null },
+        "key_assumptions": {
+          "fcf1_mln": null,
+          "r": null,
+          "g": null,
+          "tax_rate_used": 25.0,
+          "fcf_base": "n/a",
+          "implied_exit_multiple": null
+        },
         "status": "not_applicable",
         "explain": {
           "inputs": {
@@ -249,49 +1482,67 @@
             "DCF (FCFF) неприменим для банка: у банка нет свободного денежного потока в классическом смысле (CFO определяется движением кредитов и депозитов, регуляторный капитал нельзя свободно изъять).",
             "Для банков методика предписывает оценку от капитала и рентабельности капитала: P/BV×ROE (Гордон), исторический P/B и дивидендный метод."
           ],
-          "caveats": ["Метод исключён по маршрутизации сектора, а не из-за нехватки данных."]
+          "caveats": [
+            "Метод исключён по маршрутизации сектора, а не из-за нехватки данных."
+          ]
         }
       },
       {
         "method": "PBV_ROE_gordon",
-        "fair_value_per_share": 2.49,
+        "fair_value_per_share": 2.27,
         "horizon": "intrinsic_now",
         "key_assumptions": {
           "formula": "P/BV = (ROE − g) / (Ke − g)",
-          "ke": 23.6,
+          "ke": 25.6,
+          "ke_base": 23.6,
+          "ke_governance_premium_pp": 2.0,
+          "ke_note": "Ke = 23.6% (Rf 14.6 + β 1.0 × ERP 9.0) + 2,0 п.п. governance-дисконт = 25.6% [signals_received.governance_discount]",
           "g": 3.5,
           "roe_sustainable_base": 8.0,
-          "roe_sustainable_range": [6.5, 11.6],
+          "roe_sustainable_range": [
+            6.5,
+            11.6
+          ],
           "bvps_2025": 11.125,
-          "justified_pbv_base": 0.224,
+          "justified_pbv_base": 0.204,
           "scenarios": {
-            "conservative_roe6.5": { "justified_pbv": 0.149, "fair_price": 1.66 },
-            "base_roe8.0": { "justified_pbv": 0.224, "fair_price": 2.49 },
-            "optimistic_roe11.58_10yavg": { "justified_pbv": 0.402, "fair_price": 4.47 }
+            "conservative_roe6.5": {
+              "justified_pbv": 0.136,
+              "fair_price": 1.51
+            },
+            "base_roe8.0": {
+              "justified_pbv": 0.204,
+              "fair_price": 2.27
+            },
+            "optimistic_roe11.58_10yavg": {
+              "justified_pbv": 0.366,
+              "fair_price": 4.07
+            }
           }
         },
         "status": "ok",
         "explain": {
           "inputs": {
-            "Ke": "23.6% — стоимость капитала = Rf 14.6% (ОФЗ-10л, config) + β 1.0 × ERP 9.0% (config) [src_1]",
+            "Ke": "25.6% — стоимость капитала = Rf 14.6% (ОФЗ-10л, config) + β 1.0 × ERP 9.0% (config) = 23.6%, ПЛЮС governance-дисконт +2,0 п.п. за слабое управление (контроль ~70%+, невыплата дивидендов, related-party) → 25.6% [src_1, governance.json]",
             "g": "3.5% — терминальный рост, потолок из config (≤ номинального роста экономики, < Ke) [src_1]",
             "BVPS": "11.125 ₽ — балансовая стоимость капитала на акцию 2025 = капитал 371 906 млн / 33,43 млрд акций [src_4]",
-            "ROE_sustainable_base": "8.0% — устойчивая (через цикл) ROE, ниже 10-летнего среднего 11,58% из-за структурного давления резервов и низкой NIM (~2,2%) [src_4]",
+            "ROE_sustainable_base": "8.0% — устойчивая (через цикл) ROE, ниже 10-летнего среднего 11,58% из-за структурного давления резервов и низкой NIM (~2,2%); related-party-сигнал (качество прибыли под вопросом) держит базу ближе к низу коридора [src_4, governance.json]",
             "ROE_range": "6.5–11.6% — коридор устойчивой ROE: нижняя ≈ уровень 2024-2025, верхняя = 10-летнее среднее 11,58% [src_4]",
             "ROE_reported_2025": "6.47% — отчётная (по среднему капиталу 6,27%); ROE нормализованная 2025 отрицательна (−34,5%) из-за резервов [src_4]"
           },
           "steps": [
-            "Стоимость капитала Ke = Rf 14.6% + β 1.0 × ERP 9.0% = 23.6%.",
-            "Справедливый P/BV = (ROE − g) / (Ke − g). База: (8.0 − 3.5) / (23.6 − 3.5) = 4.5 / 20.1 = 0.224.",
-            "Справедливая цена (база) = 0.224 × BVPS 11.125 = 2.49 ₽.",
-            "Консервативный (ROE 6.5%): (6.5−3.5)/(23.6−3.5) = 3.0/20.1 = 0.149 → 0.149 × 11.125 = 1.66 ₽.",
-            "Оптимистичный (ROE 11.58% = 10-летнее среднее): (11.58−3.5)/20.1 = 0.402 → 0.402 × 11.125 = 4.47 ₽.",
-            "Итог P/BV×ROE: коридор 1.66–4.47 ₽, база 2.49 ₽ — ВСЕ значения НИЖЕ рынка 7.52 ₽."
+            "Стоимость капитала Ke = Rf 14.6% + β 1.0 × ERP 9.0% = 23.6%; + governance-дисконт 2,0 п.п. = 25.6%.",
+            "Справедливый P/BV = (ROE − g) / (Ke − g). База: (8.0 − 3.5) / (25.6 − 3.5) = 4.5 / 22.1 = 0.204.",
+            "Справедливая цена (база) = 0.204 × BVPS 11.125 = 2.27 ₽.",
+            "Консервативный (ROE 6.5%): (6.5−3.5)/(25.6−3.5) = 3.0/22.1 = 0.136 → 0.136 × 11.125 = 1.51 ₽.",
+            "Оптимистичный (ROE 11.58% = 10-летнее среднее): (11.58−3.5)/22.1 = 0.366 → 0.366 × 11.125 = 4.07 ₽.",
+            "Итог P/BV×ROE (с governance-дисконтом): коридор 1.51–4.07 ₽, база 2.27 ₽ — ВСЕ значения НИЖЕ живой цены 6.21 ₽."
           ],
           "caveats": [
-            "Модель крайне чувствительна к огромному спреду (Ke − g) = 20.1 п.п.: при высокой ОФЗ-ставке (Ke 23.6%) даже нормальная ROE даёт P/BV < 0.5.",
+            "Модель крайне чувствительна к огромному спреду (Ke − g) = 22.1 п.п.: при высокой ОФЗ-ставке + governance-премии (Ke 25.6%) даже нормальная ROE даёт P/BV < 0.5.",
             "Драйвер — устойчивая ROE: при NPL ~28% и COR 9,53% оценить «через цикл» ROE трудно; коридор широкий намеренно.",
-            "Рынок (P/B 0.68) платит выше модели — закладывает нормализацию ROE и/или поддержку акционера; модель этого не учитывает."
+            "Рынок (P/B 0.56 при цене 6.21) платит выше модели — закладывает нормализацию ROE и/или поддержку акционера «Россиум»/«Регион»; модель этого не учитывает.",
+            "Governance-дисконт (+2,0 п.п.) усиливает фундаментальную дешевизну модели относительно рынка: рынок не штрафует за управление так, как модель."
           ]
         }
       },
@@ -319,7 +1570,7 @@
             "CV = σ/среднее = 0.147 / 0.716 = 0.206 ≤ 0.5 → используем СРЕДНЕЕ (не медиану).",
             "pb_used = среднее 5 лет = 0.716.",
             "Справедливая цена = pb_used 0.716 × BVPS 11.125 = 7.97 ₽.",
-            "Итог исторический P/B: 7.97 ₽ (близко к рынку 7.52 ₽)."
+            "Итог исторический P/B: 7.97 ₽ (ВЫШЕ живой цены 6.21 ₽ — цена ушла ниже исторического уровня P/B)."
           ],
           "caveats": [
             "Метод опирается на исторический уровень P/B как «справедливый», но банк уже 10 лет торгуется ниже капитала (P/B 0.55–0.97) — это сектор-дисконт, а не недооценка.",
@@ -336,7 +1587,16 @@
           "basis_metric": "pb",
           "peer_median_pb": 0.66,
           "bvps_2025": 11.125,
-          "peers_used": ["SBER", "VTB", "TCS", "BSPB", "SVCB", "MBNK", "USBN", "DOMRF"]
+          "peers_used": [
+            "SBER",
+            "VTB",
+            "TCS",
+            "BSPB",
+            "SVCB",
+            "MBNK",
+            "USBN",
+            "DOMRF"
+          ]
         },
         "status": "ok",
         "explain": {
@@ -380,7 +1640,9 @@
             "За 2025 набсовет рекомендовал нулевой дивиденд (капитал под давлением, Н1.0=11,04%).",
             "Без ожидаемого устойчивого DPS метод не даёт надёжной цены → not_applicable."
           ],
-          "caveats": ["При нормализации прибыли и капитала банк формально мог бы платить ≥25% ЧП — тогда метод станет применим; сейчас базы нет."]
+          "caveats": [
+            "При нормализации прибыли и капитала банк формально мог бы платить ≥25% ЧП — тогда метод станет применим; сейчас базы нет."
+          ]
         }
       },
       {
@@ -436,54 +1698,137 @@
             "12-мес. таргет = цена × (1 + (Ke − див.доходность)) требует осмысленной базы прибыли/дивиденда; нормализованная EPS отрицательна, дивиденд = 0 → надёжный таргет не считается.",
             "Метод даёт лишь ориентир требуемой доходности 23.6%, не цену → insufficient_data."
           ],
-          "caveats": ["CAPM-таргет 12м неприменим при отрицательной нормализованной прибыли и нулевом дивиденде."]
+          "caveats": [
+            "CAPM-таргет 12м неприменим при отрицательной нормализованной прибыли и нулевом дивиденде."
+          ]
         }
       }
     ],
-    "methods_divergence_note": "Методы расходятся СИЛЬНО (>30%): P/BV×ROE (Гордон) даёт 1.66–4.47 ₽ (база 2.49), а исторический P/B (7.97) и относительный по сектору (7.34) — около рынка 7.52. Причина расхождения: P/BV×ROE через формулу Гордона штрафует банк за огромный спред (Ke 23.6% − g 3.5% = 20.1 п.п.) при подавленной устойчивой ROE — это «фундаментально справедливая» цена при текущих ставках. Исторический P/B и сектор-медиана якорят к тому, как рынок ИСТОРИЧЕСКИ оценивает банк (стабильно ниже капитала, ~0.66 P/B), но не учитывают ухудшение ROE и качество портфеля. Истина между кластерами: рынок (7.52) платит за нормализацию ROE и/или поддержку акционера; модель Гордона говорит, что при сегодняшних ставках и резервах это дорого. Коридор намеренно широкий.",
+    "methods_divergence_note": "Методы расходятся СИЛЬНО (>30%): P/BV×ROE (Гордон) с GOVERNANCE-ДИСКОНТОМ даёт 1.51–4.07 ₽ (база 2.27 при Ke 25.6% = 23.6% + 2,0 п.п. за слабое управление), а исторический P/B (7.97) и относительный по сектору (7.34) — выше живой цены 6.21. Причина расхождения: P/BV×ROE через формулу Гордона штрафует банк за огромный спред (Ke 25.6% − g 3.5% = 22.1 п.п.) при подавленной устойчивой ROE — это «фундаментально справедливая» цена при текущих ставках И слабом управлении (related-party концентрация, систематический невыплат дивидендов). Исторический P/B и сектор-медиана якорят к тому, как рынок ИСТОРИЧЕСКИ оценивает банк (стабильно ниже капитала, ~0.66 P/B), но не учитывают ни ухудшение ROE, ни governance-дисконт. Истина между кластерами: при падении цены до 6.21 (P/B 0.56) рынок отчасти СДВИНУЛСЯ к фундаменту; модель Гордона говорит, что при сегодняшних ставках, резервах и управлении даже 6.21 не дёшево. Коридор намеренно широкий.",
     "fair_value_range": {
-      "conservative": 2.49,
-      "base": 5.0,
-      "optimistic": 7.97,
-      "current_price": 7.52,
-      "upside_downside_pct": -33.5,
-      "note": "Конс. 2.49 = база P/BV×ROE (фундаментальная при Ke 23.6% и устойчивой ROE 8%). Опт. 7.97 = исторический P/B (как рынок оценивал банк). База 5.0 ₽ — середина кластеров (между фундаментом и историческим P/B), отражает расхождение методов. Текущая цена 7.52 — у верхней границы: рынок закладывает позитивный сценарий по ROE/резервам."
+      "conservative": 2.27,
+      "base": 4.5,
+      "optimistic": 7.5,
+      "current_price": 6.2083,
+      "upside_downside_pct": -27.5,
+      "note": "Конс. 2.27 = база P/BV×ROE с governance-дисконтом (Ke 25.6% = 23.6 + 2,0 п.п. за слабое управление, устойчивая ROE 8%). Опт. 7.5 ≈ исторический P/B (7.97) / сектор-медиана (7.34), как рынок оценивал банк, но с дисконтом за качество портфеля. База 4.5 ₽ — середина кластеров, отражает расхождение методов и governance-дисконт. Апсайд к базе от живой цены 6.21 ≈ −27,5%. Цена упала с 7.52 до 6.21 — теперь она ниже исторического-P/B кластера, но всё ещё выше фундаментального P/BV×ROE: рынок частично признал давление, но продолжает закладывать нормализацию ROE и/или поддержку акционера «Россиум»/«Регион»."
+    },
+    "signals_received": {
+      "governance_discount": { "premium_to_wacc_pp": 2.0, "applied_to": "Ke 23.6% → 25.6%", "effect": "база P/BV×ROE снижена с 2.49 (Ke 23.6) до 2.27 (Ke 25.6); выбрана строка Ke=25.6 матрицы чувствительности как базовый случай", "rationale": "слабое управление: контроль ~70%+ Судариков, невыплата дивидендов с 2019 при прибыли, related-party концентрация, размытие миноритария [governance.json]" },
+      "related_party_signal": { "severity": "high", "effect": "пометка «качество прибыли под вопросом» — усиливает осторожность к устойчивой ROE (база 8% ближе к низу коридора 6.5-11.6%, а не к 10-летнему среднему 11.58%); нормализованная ROE 2025 и без того отрицательна из-за резервов", "flows": "суборд структур «Роснефти», РЕПО/кредиты группы «Регион», допэмиссии в пользу контролирующей группы [governance.json]" },
+      "signal_revenue_outlook": { "direction": "stable_to_slightly_up", "effect": "выручка НЕ драйвер кейса; рост рынка корпкредита (+7-12%) не транслируется в МКБ при делевередже (портфель −12,8% в 2025); прогноз строится на устойчивой ROE, а не на росте выручки [market.json]" },
+      "signal_geo_to_revenue": { "direction": "negative_but_priced", "effect": "санкции (SDN/без SWIFT) отыграны, дальше выручку не ухудшают; апсайд от деэскалации маловероятен быстро — в оценку не закладываем [geo.json]" },
+      "signal_macro_regime": { "rate_vector": "down_slow", "effect": "высокая реальная ставка (~8,9%) держит Ke высоким → подтверждает Ke 23.6% базы; смягчение нетто-смешанное (маржа шире сейчас / выдача потом), не меняет фундаментальный дисконт к капиталу [macro.json]" }
     },
     "sensitivity": {
-      "ke_grid": [21.6, 23.6, 25.6],
-      "roe_grid": [6.5, 8.0, 11.58],
-      "matrix": [
-        [1.84, 2.77, 4.96],
-        [1.66, 2.49, 4.47],
-        [1.51, 2.27, 4.07]
+      "ke_grid": [
+        21.6,
+        23.6,
+        25.6
       ],
-      "note": "Строки — Ke (21.6/23.6/25.6%), столбцы — устойчивая ROE (6.5/8.0/11.58%). Значения — справедливая цена P/BV×ROE, ₽. Видно: оценка ОЧЕНЬ чувствительна к ROE (×2.7 при росте ROE с 6.5 до 11.6%) и умеренно к Ke."
+      "roe_grid": [
+        6.5,
+        8.0,
+        11.58
+      ],
+      "matrix": [
+        [
+          1.84,
+          2.77,
+          4.96
+        ],
+        [
+          1.66,
+          2.49,
+          4.47
+        ],
+        [
+          1.51,
+          2.27,
+          4.07
+        ]
+      ],
+      "note": "Строки — Ke (21.6/23.6/25.6%), столбцы — устойчивая ROE (6.5/8.0/11.58%). Значения — справедливая цена P/BV×ROE, ₽. Базовый случай v3 = строка Ke 25.6% (с governance-дисконтом): [1.51, 2.27, 4.07]. Видно: оценка ОЧЕНЬ чувствительна к ROE (×2.7 при росте ROE с 6.5 до 11.6%) и умеренно к Ke."
+    },
+    "synthesis_verdict": {
+      "verdict": "Скорее дорого по фундаменту, но рынок и часть методов спорят — кейс держится на ставке на нормализацию ROE и поддержку акционера, чего фундаментальная модель не подтверждает.",
+      "fair_base": 4.5,
+      "current_price": 6.2083,
+      "upside_downside_pct": -27.5,
+      "why": "Два кластера методов. (1) Фундаментальный P/BV×ROE с governance-дисконтом (Ke 25.6%): 1.51–4.07 ₽ (база 2.27) — при сегодняшних ставках, подавленной устойчивой ROE (6.5–11.6% против 10-летнего среднего 11.58%) и слабом управлении банк фундаментально стоит ниже половины капитала. (2) Исторический P/B (7.97) и сектор-медиана (7.34) — как рынок ПРИВЫЧНО оценивал банк (~0.66–0.72 P/B), но эти якоря не учитывают ни ухудшение качества портфеля (NPL ~28%, COR 9.53%), ни governance-дисконт. Живая цена 6.21 ₽ (P/B 0.56) упала с 7.52 и теперь лежит МЕЖДУ кластерами — ниже исторического P/B, но всё ещё заметно выше фундаментального P/BV×ROE.",
+      "what_drives_it": "Драйвер — НЕ выручка (рост рынка корпкредита не транслируется при делевередже) и НЕ гео (санкции отыграны), а КАЧЕСТВО АКТИВОВ и устойчивая ROE: реализуется ли нормализация резервов с NPL ~28% и поддержит ли капитал акционер «Россиум»/«Регион». P/E неинформативен (прибыль 2025 искажена разовым доходом ~196 млрд; нормализованная ЧП ≈ −124 млрд).",
+      "honest_gaps": "Устойчивую «через цикл» ROE при NPL ~28% оценить трудно — коридор намеренно широк. Дивметод и forward-P/E неприменимы (нет дивидендов с 2019, нет положительной нормализованной EPS). peers.json по сектору формально не собран.",
+      "certainty": "judgement"
     }
   },
-
   "sources": [
-    { "id": "src_1", "type": "uploaded_file", "title": "МКБ МСФО 2016-2025, аналитическая выгрузка (ТГ «Финансовая отчётность»), вкл. таблицу банковского сектора (стр.18) и дивиденды/free-float (стр.13-16)", "period": "2016-2025", "reliability": "medium" },
-    { "id": "src_2", "type": "official_report", "title": "ПАО МКБ, бизнес-модель/IR: профиль системно значимого банка, Н1.0=11,04% (2025)", "period": "2025", "reliability": "high" },
-    { "id": "src_3", "type": "aggregator", "title": "MOEX котировка CBOM ~7,52 ₽ (июнь 2026)", "period": "2026-06-08", "reliability": "high" },
-    { "id": "src_4", "type": "official_report", "title": "МКБ МСФО 2025 (первичные данные через Ведомости/cbonds/marketpower): проц. доходы 703,46 / расходы 618,09 млрд; ЧПД 105,2; комисс. доходы 25,97; ЧКД 13,2; резервы 224,2; разовый доход ЦБ/прочее ~196,1 млрд; проблемные корп. кредиты 70,9→512,3 млрд; ЧП 22,61 млрд", "period": "2024-2025", "reliability": "high" },
-    { "id": "src_5", "type": "broker", "title": "InvestFuture/IR: набсовет МКБ рекомендовал НЕ платить дивиденды за 2025 ради укрепления капитала; дивидендов нет с 2019", "period": "2026", "reliability": "high" }
+    {
+      "id": "src_1",
+      "type": "uploaded_file",
+      "title": "МКБ МСФО 2016-2025, аналитическая выгрузка (ТГ «Финансовая отчётность»), вкл. таблицу банковского сектора (стр.18) и дивиденды/free-float (стр.13-16)",
+      "period": "2016-2025",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "ПАО МКБ, бизнес-модель/IR: профиль системно значимого банка, Н1.0=11,04% (2025)",
+      "period": "2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "aggregator",
+      "title": "MOEX котировка CBOM 6,2083 ₽ (16.06.2026, живой якорный блок; ранее 7,52 от 08.06)",
+      "period": "2026-06-08",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "МКБ МСФО 2025 (первичные данные через Ведомости/cbonds/marketpower): проц. доходы 703,46 / расходы 618,09 млрд; ЧПД 105,2; комисс. доходы 25,97; ЧКД 13,2; резервы 224,2; разовый доход ЦБ/прочее ~196,1 млрд; проблемные корп. кредиты 70,9→512,3 млрд; ЧП 22,61 млрд",
+      "period": "2024-2025",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "broker",
+      "title": "InvestFuture/IR: набсовет МКБ рекомендовал НЕ платить дивиденды за 2025 ради укрепления капитала; дивидендов нет с 2019",
+      "period": "2026",
+      "reliability": "high"
+    }
   ],
-
   "data_flags": [
     "АНОМАЛИЯ 2025: отчётная ЧП +22,6 млрд держится на разовом доходе ~196 млрд от ценных бумаг/прочего; нормализованная ЧП ≈ −124 млрд (банк операционно убыточен). adjusted-метрики ЧП за 2025 отрицательны.",
     "Резервы 2025 = 224 млрд (×5,4 г/г), COR 9,53%, проблемные корп. кредиты 70,9→512,3 млрд, NPL ~28% — главный риск 2026; резервы покрывают лишь часть проблемных кредитов.",
     "Постатейная разбивка проц./комисс. доходов и расходов раскрыта только за 2024-2025; ряды до 2024 — нетто-итоги из агрегатора (data_quality=medium).",
     "pre_tax/tax 2025 реконструированы из ЧП и фактической ETR ~20% (logic), не из прямой строки первички.",
     "Дивиденды: не платятся с 2019; за 2025 рекомендован нулевой дивиденд → дивидендный метод not_applicable.",
-    "РАСХОЖДЕНИЕ МЕТОДОВ >30%: P/BV×ROE 1.66–4.47 vs исторический P/B 7.97 / сектор 7.34 — см. methods_divergence_note. Коридор расширен намеренно.",
+    "РАСХОЖДЕНИЕ МЕТОДОВ >30%: P/BV×ROE с governance-дисконтом 1.51–4.07 (база 2.27) vs исторический P/B 7.97 / сектор 7.34 — см. methods_divergence_note. Коридор расширен намеренно.",
+    "СВЯЗНОСТЬ v3: применён governance_discount +2,0 п.п. к Ke (23.6→25.6); related_party_signal (high) → пометка качества прибыли; market/geo/macro сигналы заведены в signals_received. Цена переоценена с 7.52 до живой 6.2083 (P/B 0.676→0.558).",
     "Источник в sources/ — агрегатор-инфографика (ТГ), КОНТРОЛЬНЫЙ, не первичка; ключевые числа сверены с первичной МСФО 2025 через веб (src_4), расхождений >5% не выявлено.",
     "Достаточность Н1.0 11,04% (2025) — из IR/бизнес-модели, в PDF не раскрыта.",
     "Префов нет/не котируются; free-float ~22%; контроль — концерн «Россиум» (ГК «Регион», С. Судариков).",
     "peers.json по сектору «Банки» не собран — relative_peers использует медиану из таблицы PDF (стр.18)."
   ],
-
   "peer_multiples": {
-    "2025": { "pe": 11.12, "pb": 0.676, "roe": 6.47, "ps": 0.327, "nim": 2.16, "cost_of_risk": 9.53, "cir": 53.0 },
-    "2024": { "pe": 10.42, "pb": 0.62, "roe": 6.0, "ps": 0.32, "nim": 2.11, "cost_of_risk": 1.54, "cir": 65.0 }
+    "2025": {
+      "pe": 9.18,
+      "pb": 0.558,
+      "roe": 6.47,
+      "ps": 0.27,
+      "nim": 2.16,
+      "cost_of_risk": 9.53,
+      "cir": 53.0
+    },
+    "2024": {
+      "pe": 10.42,
+      "pb": 0.62,
+      "roe": 6.0,
+      "ps": 0.32,
+      "nim": 2.11,
+      "cost_of_risk": 1.54,
+      "cir": 65.0
+    }
   }
 }
