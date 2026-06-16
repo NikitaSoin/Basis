@@ -38,10 +38,11 @@
       { "year": 2020, "dps": 0, "currency": "RUB", "payout_pct": 0, "yield_pct": 0, "paid": false, "special": false, "note": "Год без выплаты по обыкновенным акциям.", "source_ref": "src_3" },
       { "year": 2021, "dps": 14.69, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": true, "special": false, "note": "Выплата по обычке.", "source_ref": "src_3" },
       { "year": 2022, "dps": 4.67, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": true, "special": false, "note": "Резкое снижение DPS к 2021 г.", "source_ref": "src_3" },
-      { "year": 2023, "dps": null, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": null, "special": false, "note": "Данные по обычке в источниках не подтверждены однозначно → null.", "source_ref": "src_3" },
-      { "year": 2024, "dps": null, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": null, "special": false, "note": "Не подтверждено по обычке → null; перепроверить по решению ГОСА.", "source_ref": "src_3" }
+      { "year": 2023, "dps": null, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": null, "special": false, "note": "Данные по обычке в источниках не подтверждены однозначно (вероятно пропуск года) → null.", "source_ref": "src_3" },
+      { "year": 2024, "dps": 7.88, "currency": "RUB", "payout_pct": null, "yield_pct": null, "paid": true, "special": false, "note": "Веб-проверка 06.2026: выплата ~7,88 ₽ по обычке (отсечка окт.2024). Перепроверить точное значение по решению ГОСА.", "source_ref": "src_div_web" },
+      { "year": 2025, "dps": 2.577, "currency": "RUB", "payout_pct": null, "yield_pct": 0.73, "paid": true, "special": false, "note": "Веб-проверка 06.2026: рекомендованный дивиденд по ОБЫЧКЕ за 2025 = 2,577 ₽ (отсечка 17.06.2026). По префу VRSBP — 17,989 ₽ (в ~7 раз больше). Прежняя цифра 6,946 ₽ в rates.csv была контаминацией с префом.", "source_ref": "src_div_web" }
     ],
-    "regularity_note": "Выплаты по обыкновенным акциям нерегулярны: год без дивиденда (2020) соседствует с выплатой 14,69 (2021) и резким падением до 4,67 (2022). Стабильного payout нет (assessment на фактах истории).",
+    "regularity_note": "Выплаты по обыкновенным акциям нерегулярны и ВОЛАТИЛЬНЫ: 2020=0, 2021=14,69, 2022=4,67, 2023=пропуск, 2024≈7,88, 2025=2,577. Стабильного payout нет; диапазон DPS обычки 0–14,69 ₽. Преф VRSBP получает кратно больше (17,989 vs 2,577 за 2025) — обыкновенный миноритарий в группе TNSE в дивидендном приоритете последний (assessment на фактах истории + веб-проверка).",
     "policy_vs_practice": "Зафиксированной политики по обычке нет → сравнивать формальную норму с практикой нельзя. Практика волатильна и определяется мажоритарием. Префы по уставной формуле выплачиваются стабильнее, но миноритарий по обычке несёт риск пропуска года (assessment)."
   },
 
@@ -81,8 +82,24 @@
     { "id": "src_1", "type": "disclosure", "title": "Раскрытие структуры капитала / список аффилированных лиц VRSB (контроль ГК «ТНС энерго» ~92,9%)", "period": "—", "url": "", "reliability": "medium" },
     { "id": "src_2", "type": "aggregator", "title": "smart-lab.ru — РСБУ/МСФО ряды, ROE, чистая/операционная прибыль VRSB", "period": "2021-2025", "url": "", "reliability": "medium" },
     { "id": "src_3", "type": "aggregator", "title": "finam.ru / rbc.ru / investfunds — дивиденды по обыкновенной акции VRSB", "period": "2019-2025", "url": "", "reliability": "medium" },
-    { "id": "src_4", "type": "official_report", "title": "business_model.md / financials.json VRSB (внутренние) — экономика энергосбыта, структура капитала, преф ~25%", "period": "2023-2025", "url": "", "reliability": "medium" }
+    { "id": "src_4", "type": "official_report", "title": "business_model.md / financials.json VRSB (внутренние) — экономика энергосбыта, структура капитала, преф ~25%", "period": "2023-2025", "url": "", "reliability": "medium" },
+    { "id": "src_div_web", "type": "web", "title": "Веб-проверка 06.2026 (РБК/investmint/smart-lab): дивиденд обычки VRSB 2025=2,577 ₽ (отсечка 17.06.2026), 2024≈7,88 ₽; преф VRSBP 2025=17,989 ₽", "period": "2026-06", "url": "https://www.rbc.ru/quote/ticker/59878", "reliability": "medium" }
   ],
+
+  "signals": {
+    "governance_discount": {
+      "level": "high",
+      "rate_addon_pp": 3.0,
+      "rationale": "Контроль ГК «ТНС энерго» ~92,9% обычки, free-float ~7%, нет фиксированной дивполитики по обычке, нерегулярные выплаты, риск squeeze-out, ограниченное раскрытие (только РСБУ). Миноритарий по обыкновенной акции практически без влияния и без предсказуемого потока. Надбавка к ставке дисконтирования +3 пп (входит в Ke через β/премию за риск).",
+      "certainty": "judgement"
+    },
+    "related_party_signal": {
+      "level": "high",
+      "channel": "Кэш-кубышка (~4,35 млрд ₽ на конец 2025) накапливается внутри эмитента, но контролируется группой TNSE и фактически работает как ликвидность холдинга: процентный доход на кэш раздувает чистую прибыль, но миноритарию обычки этот доход не возвращается (DPS обычки 2025 = всего 2.577 ₽ при ЧП 2030 млн / ~36 ₽ на акцию — payout по обычке мизерный). Группа управляет распределением прибыли всех 10 ГП; внутригрупповые потоки детально не раскрыты.",
+      "implication": "Дисконт к оценке по кубышке/EV-EBITDA обоснован: реальная вероятность распределения кэша миноритарию обычки низкая. «Красивые» P/E 9.8x и ROE 32% вводят в заблуждение — качество прибыли низкое (процентный артефакт), денежный поток наверх в холдинг, а не акционеру обычки.",
+      "certainty": "judgement"
+    }
+  },
 
   "data_flags": [
     "data_quality=low: первичные раскрытия (e-disclosure.ru) не выгружены; доля мажоритария ~92,9% и free-float ~7% — оценки, перепроверить по последнему списку аффилированных лиц и данным Мосбиржи.",
