@@ -787,11 +787,12 @@
         }
       }
     ],
-    "methods_divergence_note": "Применимых фундаментальных методов, дающих содержательное ненулевое число, нет: EV/EBITDA (relative) → 0 ₽; EV/Sales → 0 ₽; DCF → not_applicable; historical_pe → not_applicable; historical_pb → not_applicable; dividend → not_applicable. Единственное ненулевое — CAPM 8.36 ₽, но это требуемая доходность по риску, а не intrinsic value. Расхождение 0 vs 8.36 ₽: CAPM игнорирует структуру баланса (чистый долг ~3.8 млрд против EV_fair ~2 млрд). Широкий коридор 0-4 ₽ — спекулятивный, отражает опцион на разворот при снижении долга и/или ставки.",
+    "methods_divergence_note": "Применимых фундаментальных методов, дающих содержательное ненулевое число, нет: EV/EBITDA (relative) → 0 ₽; EV/Sales → 0 ₽; DCF → not_applicable; historical_pe → not_applicable; historical_pb → not_applicable; dividend → not_applicable. Единственное ненулевое — CAPM 8.36 ₽, но это требуемая доходность по риску, а не intrinsic value. Расхождение 0 vs 8.36 ₽: CAPM игнорирует структуру баланса (чистый долг ~3.8 млрд против EV_fair ~2 млрд). Широкий коридор 0-4 ₽ — спекулятивный, отражает опцион на разворот при снижении долга и/или ставки. Учёт governance_discount (+4 п.п. за управленческий риск из governance.json) и related_party_signal (high/negative — закрытое RPT с группой «Синара»/УДМЗ, качество прибыли понижено): добавка к ставке расширяет требуемую доходность и сдвигает справедливый коридор к нижней границе — при equity_fair ≤ 0 по EV/EBITDA governance_discount не меняет нулевой результат фундаментальных методов, но усиливает консервативный якорь коридора (база 2.0 → ближе к 1.5 ₽, нижняя граница 0 сохраняется). Гео-сигнал на выручку — нейтральный/малый (signal_geo_to_revenue), поэтому прогноз выручки не повышает оценку.",
     "fair_value_range": {
       "conservative": 0.0,
-      "base": 2.0,
-      "optimistic": 4.0
+      "base": 1.5,
+      "optimistic": 4.0,
+      "_note": "База сдвинута 2.0 → 1.5 ₽ после учёта governance_discount (+4 п.п.) и related_party_signal (high/negative). Коридор спекулятивный: фундаментальные методы дают equity ≤ 0; ненулевые значения отражают опцион на разворот при снижении долга и/или ставки, а не intrinsic value."
     },
     "sensitivity": {
       "r_grid": [],
