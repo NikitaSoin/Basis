@@ -1,0 +1,63 @@
+{
+  "ticker": "APTK",
+  "is_pref": false,
+  "ordinary_ticker": null,
+  "price": 7.256,
+  "shares_outstanding": 7630433826.0,
+  "market_cap": 55473253915.02,
+  "dividend_last": null,
+  "dividend_yield_last_pct": null,
+  "fiscal_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "reporting_standard": "МСФО",
+  "unit": "млн",
+  "revenue": [
+    44100,
+    59100,
+    67400,
+    87200,
+    105600
+  ],
+  "ebitda": [
+    2800,
+    10070,
+    12770,
+    16560,
+    16300
+  ],
+  "net_profit_reported": [
+    -950,
+    223,
+    921,
+    866,
+    263
+  ],
+  "net_profit_adjusted": null,
+  "net_debt": [
+    null,
+    null,
+    null,
+    null,
+    21800
+  ],
+  "total_equity": [
+    null,
+    null,
+    null,
+    null,
+    -7300
+  ],
+  "fcf": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "nd_ebitda_latest": 1.337
+}
