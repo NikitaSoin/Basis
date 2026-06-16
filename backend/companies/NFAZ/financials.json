@@ -970,7 +970,7 @@
         }
       }
     ],
-    "methods_divergence_note": "DCF — insufficient_data (FCF<0 в 2023-2024; implied EV/EBITDA 0.6x — артефакт). Из рабочих методов: P/B = 291 ₽, CAPM = 325 ₽, Relative = 548 ₽. Расхождение P/B vs Relative = 88%. Причина: рынок оценивает NFAZ с дисконтом ~60% к сектору (EV/EBITDA 2.2x vs peers 5.5x), отражая риски корпоративного управления (дочка КАМАЗа, нулевые дивиденды, тонкая маржа). Conservative = P/B как наиболее объективный якорь для машиностроения. Base = среднее P/B+CAPM = 308 ₽. Optimistic = Relative при сценарии переоценки к peers.",
+    "methods_divergence_note": "DCF — insufficient_data (FCF<0 в 2023-2024; implied EV/EBITDA 0.6x — артефакт). Из рабочих методов: P/B = 291 ₽, CAPM = 325 ₽, Relative = 548 ₽. Расхождение P/B vs Relative = 88%. Причина: рынок оценивает NFAZ с дисконтом ~60% к сектору (EV/EBITDA 2.2x vs peers 5.5x), отражая риски корпоративного управления (дочка КАМАЗа, нулевые дивиденды, тонкая маржа). Conservative = P/B как наиболее объективный якорь для машиностроения. Base = среднее P/B+CAPM = 308 ₽. Optimistic = Relative при сценарии переоценки к peers. КОРПУПРАВЛЕНИЕ: governance_discount +3.0пп (КАМАЗ 50.02%, related-party high, 0 дивидендов, неликвид 3-й эшелон) — частично уже учтён в Ke через β 1.2 (дочерняя/неликвидная премия) и в peers через дисконт 20-30% к сектору; related-party КАМАЗ снижает качество самостоятельной прибыли (трансфертные цены, маржа <2%), поэтому DCF/P/E неприменимы, якорь — P/B.",
     "fair_value_range": {
       "conservative": 291,
       "base": 308,
