@@ -955,3 +955,11 @@ valuation.json (ROE 11%, NP 5.1млрд, дивиденд 0, fair P/B 0.36x→~1
 MFGS/JNOS/KRKN, РусГидро→MAGE/KCHE/DVEC/KRSB, Мечел→IGST/KOGK, Росатом→KMEZ, СИБУР→KZOS), кэш-shell
 в ликвидации (LNZL/LNZLP), артефакты долга/кубышки, обесценения как мост reported→adjusted (MAGN/GMKN/FLOT).
 Возобновление новой сессией: cd backend; ls companies/ | grep -vxF -f companies/_v3_rollout_done.txt → волнами по 8.
+
+### v3 раскатка — апдейт сессии (170/264, ~64%)
+Волны 6–21 готовы+закоммичены, волна 22 завершается. Темп устойчив, ~8 карточек/волна, коммит каждой.
+Новые крупные находки последних волн: OKEY→МКПАО «Группа ДА» (гипермаркеты проданы Ленте, редомициляция);
+MGNZ изъятие биржевых акций подтверждено кассацией (free float→0); MVID/MTLR/PRMB — кейсы выживания/
+делевериджа/уничтожения капитала; преф-meta продолжают исправляться (NNSBP/NKNCP/MGTSP/MFGSP/MTLRP/
+KCHEP/KGKCP/MAGEP — исправлены; LSNGP/JNOSP/IGSTP/KRKNP — только флаг, см. TODO выше).
+Возобновление: cd backend; ls companies/ | grep -vxF -f companies/_v3_rollout_done.txt → волнами по 8.
