@@ -101,6 +101,13 @@
     }
   ],
 
+  "forecast_signal": {
+    "revenue_direction": "stagnation_nominal_growth",
+    "text": "Выручка номинально умеренно растёт вслед за индексацией тарифов и слабым ростом потребления; реальный заработок (сбытовая надбавка) практически не растёт из-за эталонного потолка. Физический объём в зоне близок к стагнации. Доля удерживается (статус ГП), но потенциала роста нет: рынок нарезан зонами ГП, крупный B2B может только утекать к независимому сбыту.",
+    "signal_for_valuation": "low_growth_anchor — для прогноза EPS закладывать низкий-средний однозначный номинальный рост, без рывков; широкий коридор из-за волатильности ЧП (резервы по дебиторке).",
+    "certainty": "model"
+  },
+
   "sources": [
     { "id": "src_1", "type": "media", "title": "Саратовская область занимает первое место в ПФО по производству электроэнергии (потребление региона ~13,5 млрд кВтч в 2024)", "period": "2025-03", "url": "https://sarpan.ru/articles/19-novosti/35808-saratovskaya_oblast_zanimaet_pervoe_mesto_v_pfo_i_sedmoe_v_rossii_po_proizvodstvu_elektroenergii/", "reliability": "medium" },
     { "id": "src_2", "type": "official", "title": "Системный оператор ЕЭС: энергопотребление в России в 2024 году увеличилось на 3,1% до 1,192 трлн кВтч", "period": "2025-01", "url": "https://www.so-ups.ru/news/press-release/press-release-view/news/26552/", "reliability": "high" },

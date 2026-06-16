@@ -924,11 +924,18 @@
         }
       }
     ],
-    "methods_divergence_note": "Расхождение методов: 33% (от 0.767 до 1.018 ₽). Главный источник расхождения — EV/EBITDA relative даёт 1.018 ₽, т.к. кэш-позиция (-1860 млн net_debt) сильно поднимает equity value при peer EV/EBITDA 2.81x. P/E методы дают 0.767-0.813 ₽, CAPM — 0.905 ₽. Широкий коридор обоснован: data_quality=low, нет баланса, ETR — judgement, peer median — предварительная оценка. Conservative = нижний кластер P/E (0.77 ₽), optimistic = EV/EBITDA relative (1.02 ₽).",
+    "methods_divergence_note": "Расхождение методов: 33% (от 0.767 до 1.018 ₽ до governance-дисконта). Главный источник расхождения — EV/EBITDA relative даёт 1.018 ₽, т.к. кэш-позиция (-1860 млн net_debt) сильно поднимает equity value при peer EV/EBITDA 2.81x. P/E методы дают 0.767-0.813 ₽, CAPM — 0.905 ₽. Широкий коридор обоснован: data_quality=low, нет баланса, ETR — judgement, peer median — предварительная оценка. ВАЖНО: кэш-аргумент EV/EBITDA для держателя ОБЫЧКИ ослаблен governance-дисконтом — накопленный кэш контролируется мажоритарием «Интер РАО», по обычке дивидендов нет, поток к миноритарию не доходит (governance.json: governance_discount=high, +3пп). Поэтому верхняя оценка EV/EBITDA взята как оптимистичный, а не базовый сценарий.",
+    "governance_discount_application": {
+      "source": "governance.json:governance_discount (level=high, +3.0пп)",
+      "applied_to": "CAPM Ke и итоговый коридор",
+      "logic": "Ke с governance-надбавкой = 20.9% + 3.0пп = 23.9% → implied P/E = 1/0.239 = 4.18x → FV_CAPM_governance = 4.18 × 0.1891 = 0.791 ₽ (совпадает с текущей ценой). Это сдвигает базовый сценарий вниз от 0.86 к ~0.79 ₽. Коридор пересмотрен: conservative 0.74 (P/E с governance), base 0.79, optimistic 0.95 (EV/EBITDA с частичным дисконтом за неконвертируемость кэша).",
+      "certainty": "judgement"
+    },
     "fair_value_range": {
-      "conservative": 0.77,
-      "base": 0.86,
-      "optimistic": 1.02
+      "conservative": 0.74,
+      "base": 0.79,
+      "optimistic": 0.95,
+      "note": "Коридор v3 ПОСЛЕ governance-дисконта (+3пп). До дисконта был 0.77/0.86/1.02. Сдвиг вниз отражает: нет денежного потока по обычке, кэш-буфер не доходит до миноритария, related-party прозрачность низкая, малоликвид. Текущая цена 0.791 ₽ ≈ base — обычка торгуется примерно справедливо С УЧЁТОМ governance-скидки."
     },
     "sensitivity": {
       "r_grid": [
