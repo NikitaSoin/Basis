@@ -11,7 +11,6 @@
       "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
     }
   },
-
   "markets": [
     {
       "name": "Мировой рынок хвойных пиломатериалов (softwood lumber)",
@@ -19,12 +18,44 @@
       "geography": "global",
       "role_for_company": "Крупнейший сегмент Сегежи — около половины выручки (~50% в 2024). Продукт commodity, цена диктуется мировым рынком; ключевой канал сбыта — экспорт в Китай.",
       "current": {
-        "size": { "value": "~150–160 млрд $ мировой рынок пиломатериалов (sawn wood) в 2025; хвойные — около двух третей объёма", "certainty": "estimate", "source_ref": "src_lumber_size", "note": "оценки маркетинговых домов расходятся (от ~152 млрд $ sawn wood до ~350 млрд $ по широкому определению softwood lumber); берём диапазон" },
+        "size": {
+          "value": "~150–160 млрд $ мировой рынок пиломатериалов (sawn wood) в 2025; хвойные — около двух третей объёма",
+          "certainty": "estimate",
+          "source_ref": "src_lumber_size",
+          "note": "оценки маркетинговых домов расходятся (от ~152 млрд $ sawn wood до ~350 млрд $ по широкому определению softwood lumber); берём диапазон"
+        },
         "size_metric": "выручка отрасли в денежном выражении (мировой объём торговли пиломатериалами)",
         "players": [
-          { "name": "Сегежа Групп", "share_pct": null, "share_low": 1, "share_high": 2, "certainty": "estimate", "source_ref": "src_china_export", "is_company": true, "note": "В глобальном масштабе доля мала (~1–2%); внутри РФ — один из лидеров по хвойным пиломатериалам. Объём ~2,3–2,4 млн м³/год против мирового производства в сотни млн м³" },
-          { "name": "Канадские и скандинавские (Canfor, West Fraser, Stora Enso, SCA, UPM)", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_lumber_size", "is_company": false, "note": "крупнейшие мировые производители хвойных пиломатериалов; рынок фрагментирован, единого монополиста нет" },
-          { "name": "Российские производители в совокупности", "share_pct": null, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_china_export", "is_company": false, "note": "РФ экспортировала ~24 млн м³ пиломатериалов в 2025, из них ~13,4 млн м³ (более половины) — в Китай" }
+          {
+            "name": "Сегежа Групп",
+            "share_pct": null,
+            "share_low": 1,
+            "share_high": 2,
+            "certainty": "estimate",
+            "source_ref": "src_china_export",
+            "is_company": true,
+            "note": "В глобальном масштабе доля мала (~1–2%); внутри РФ — один из лидеров по хвойным пиломатериалам. Объём ~2,3–2,4 млн м³/год против мирового производства в сотни млн м³"
+          },
+          {
+            "name": "Канадские и скандинавские (Canfor, West Fraser, Stora Enso, SCA, UPM)",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_lumber_size",
+            "is_company": false,
+            "note": "крупнейшие мировые производители хвойных пиломатериалов; рынок фрагментирован, единого монополиста нет"
+          },
+          {
+            "name": "Российские производители в совокупности",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_china_export",
+            "is_company": false,
+            "note": "РФ экспортировала ~24 млн м³ пиломатериалов в 2025, из них ~13,4 млн м³ (более половины) — в Китай"
+          }
         ],
         "players_note": "Рынок глобально сильно фрагментирован: ни один игрок не контролирует значимую долю. Конкуренция идёт по цене (commodity). Сегежа — заметный игрок только в масштабе РФ.",
         "company_position": "niche",
@@ -34,11 +65,41 @@
         "trend": "declining",
         "metric": "оптовая цена хвойного пиловочника/пиломатериалов в РФ, тыс. руб./м³ (прокси мировой ценовой динамики)",
         "points": [
-          { "period": "2021", "value": 6.2, "certainty": "fact", "source_ref": "src_lumber_price", "note": "пик: пиловочник до ~6,2 тыс. руб./м³ без НДС" },
-          { "period": "2022", "value": 4.8, "certainty": "estimate", "source_ref": "src_lumber_price", "note": "снижение к концу 2022 примерно на 23%" },
-          { "period": "2023", "value": 3.2, "certainty": "fact", "source_ref": "src_lumber_price", "note": "к середине 2023 сырьё подешевело вдвое — до 3,1–3,3 тыс. руб./м³" },
-          { "period": "2024", "value": 3.3, "certainty": "estimate", "source_ref": "src_lumber_price", "note": "частичная стабилизация на низком уровне" },
-          { "period": "2025", "value": 3.4, "certainty": "estimate", "source_ref": "src_lumber_price", "note": "умеренный рост ожидался, но сдержан слабым спросом Китая" }
+          {
+            "period": "2021",
+            "value": 6.2,
+            "certainty": "fact",
+            "source_ref": "src_lumber_price",
+            "note": "пик: пиловочник до ~6,2 тыс. руб./м³ без НДС"
+          },
+          {
+            "period": "2022",
+            "value": 4.8,
+            "certainty": "estimate",
+            "source_ref": "src_lumber_price",
+            "note": "снижение к концу 2022 примерно на 23%"
+          },
+          {
+            "period": "2023",
+            "value": 3.2,
+            "certainty": "fact",
+            "source_ref": "src_lumber_price",
+            "note": "к середине 2023 сырьё подешевело вдвое — до 3,1–3,3 тыс. руб./м³"
+          },
+          {
+            "period": "2024",
+            "value": 3.3,
+            "certainty": "estimate",
+            "source_ref": "src_lumber_price",
+            "note": "частичная стабилизация на низком уровне"
+          },
+          {
+            "period": "2025",
+            "value": 3.4,
+            "certainty": "estimate",
+            "source_ref": "src_lumber_price",
+            "note": "умеренный рост ожидался, но сдержан слабым спросом Китая"
+          }
         ],
         "key_shifts": [
           "2021 — рекордный пик цен на пиломатериалы (постпандемийный строительный бум)",
@@ -49,11 +110,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Кризис недвижимости в Китае подавляет спрос на пиломатериалы (главный рынок Сегежи)", "direction": "constrain", "type": "macro", "note": "первичные продажи жилья в Китае прогнозируются к падению на 10–14% в 2026, запасы на ~45% выше нормы" },
-        { "factor": "Урбанизация и инфраструктура в Индии, ЮВА, странах Залива", "direction": "support", "type": "demography", "note": "Азиатско-Тихоокеанский регион — крупнейший потребитель (~38% рынка sawn wood в 2025)" },
-        { "factor": "Укрепление рубля сжимает рублёвую выручку экспортёра", "direction": "constrain", "type": "macro", "note": "при курсе ниже ~85 руб./$ экспорт пиломатериалов околонерентабелен" },
-        { "factor": "Санкции и потеря премиального рынка ЕС, рост логистического плеча до Азии", "direction": "constrain", "type": "regulation", "note": "сибирские мощности (~70% лесосеки) далеки от азиатских портов" },
-        { "factor": "Требования прослеживаемости (FSC/PEFC) дают премию на западных рынках, недоступных РФ", "direction": "constrain", "type": "regulation", "note": "премия $25–50/м³ в ЕС — для российской продукции закрыта" }
+        {
+          "factor": "Кризис недвижимости в Китае подавляет спрос на пиломатериалы (главный рынок Сегежи)",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "первичные продажи жилья в Китае прогнозируются к падению на 10–14% в 2026, запасы на ~45% выше нормы"
+        },
+        {
+          "factor": "Урбанизация и инфраструктура в Индии, ЮВА, странах Залива",
+          "direction": "support",
+          "type": "demography",
+          "note": "Азиатско-Тихоокеанский регион — крупнейший потребитель (~38% рынка sawn wood в 2025)"
+        },
+        {
+          "factor": "Укрепление рубля сжимает рублёвую выручку экспортёра",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "при курсе ниже ~85 руб./$ экспорт пиломатериалов околонерентабелен"
+        },
+        {
+          "factor": "Санкции и потеря премиального рынка ЕС, рост логистического плеча до Азии",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "сибирские мощности (~70% лесосеки) далеки от азиатских портов"
+        },
+        {
+          "factor": "Требования прослеживаемости (FSC/PEFC) дают премию на западных рынках, недоступных РФ",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "премия $25–50/м³ в ЕС — для российской продукции закрыта"
+        }
       ],
       "forecast": {
         "direction": "стагнация с медленным восстановлением",
@@ -72,7 +158,11 @@
             "цены на пиломатериалы остаются вдвое ниже пиков 2021 года"
           ]
         },
-        "source_refs": ["src_lumber_size", "src_china_property", "src_china_export"],
+        "source_refs": [
+          "src_lumber_size",
+          "src_china_property",
+          "src_china_export"
+        ],
         "note": "Часть прогноза по мировому рынку опирается на отраслевые обзоры (estimate); вывод по китайскому спросу для Сегежи — наша оценка по факторам"
       },
       "company_outlook": {
@@ -84,26 +174,76 @@
         "applicable": true,
         "status": "уже преимущественно экспортная компания (до ~70% выручки исторически за рубежом); вынужденная переориентация с ЕС на Азию",
         "external_markets": [
-          { "market": "Китай — основной экспортный рынок (~40% всех продаж, >половины российского экспорта пиломатериалов)", "note": "спрос подавлен кризисом недвижимости; покупатель с рыночной силой, диктует цены с дисконтом 20–30%", "certainty": "fact", "source_ref": "src_china_export" },
-          { "market": "Прочая Азия (Индия, Вьетнам, Япония) и Ближний Восток/Африка", "note": "растущие направления диверсификации после потери ЕС; Ближний Восток — самый быстрорастущий регион спроса (~6,5% CAGR)", "certainty": "estimate", "source_ref": "src_lumber_size" }
+          {
+            "market": "Китай — основной экспортный рынок (~40% всех продаж, >половины российского экспорта пиломатериалов)",
+            "note": "спрос подавлен кризисом недвижимости; покупатель с рыночной силой, диктует цены с дисконтом 20–30%",
+            "certainty": "fact",
+            "source_ref": "src_china_export"
+          },
+          {
+            "market": "Прочая Азия (Индия, Вьетнам, Япония) и Ближний Восток/Африка",
+            "note": "растущие направления диверсификации после потери ЕС; Ближний Восток — самый быстрорастущий регион спроса (~6,5% CAGR)",
+            "certainty": "estimate",
+            "source_ref": "src_lumber_size"
+          }
         ],
         "note": "Международная экспансия для Сегежи — не рост, а вынужденная замена потерянного рынка ЕС азиатскими направлениями."
       }
     },
-
     {
       "name": "Мировой рынок мешочной крафт-бумаги (sack kraft paper)",
       "tier": "primary",
       "geography": "global",
       "role_for_company": "Самый маржинальный сегмент Сегежи — бумага и упаковка ~25% выручки. Здесь у компании реальное лидерство: №1 в РФ и в топ-4 мира по небелёной мешочной бумаге.",
       "current": {
-        "size": { "value": "~12–13 млрд $ мировой рынок мешочной крафт-бумаги в 2025", "certainty": "estimate", "source_ref": "src_kraft_size", "note": "оценки расходятся (от ~6,5 до ~13 млрд $); берём середину диапазона ~12,5 млрд $" },
+        "size": {
+          "value": "~12–13 млрд $ мировой рынок мешочной крафт-бумаги в 2025",
+          "certainty": "estimate",
+          "source_ref": "src_kraft_size",
+          "note": "оценки расходятся (от ~6,5 до ~13 млрд $); берём середину диапазона ~12,5 млрд $"
+        },
         "size_metric": "выручка отрасли мешочной крафт-бумаги в денежном выражении",
         "players": [
-          { "name": "Сегежа Групп", "share_pct": null, "share_low": 4, "share_high": 7, "certainty": "estimate", "source_ref": "src_segezha_share", "is_company": true, "note": "В РФ контролирует >60–71% рынка мешочной бумаги; в мире — 4-е место по небелёной мешочной бумаге, доля ориентировочно несколько процентов" },
-          { "name": "Mondi", "share_pct": null, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_kraft_size", "is_company": false, "note": "один из мировых лидеров мешочной крафт-бумаги" },
-          { "name": "Smurfit Kappa / WestRock (Smurfit WestRock)", "share_pct": null, "share_low": null, "share_high": null, "certainty": "fact", "source_ref": "src_kraft_size", "is_company": false, "note": "ключевые мировые игроки упаковочной бумаги" },
-          { "name": "Stora Enso, UPM, BillerudKorsnäs", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_segezha_share", "is_company": false, "note": "европейские конкуренты в небелёной мешочной бумаге" }
+          {
+            "name": "Сегежа Групп",
+            "share_pct": null,
+            "share_low": 4,
+            "share_high": 7,
+            "certainty": "estimate",
+            "source_ref": "src_segezha_share",
+            "is_company": true,
+            "note": "В РФ контролирует >60–71% рынка мешочной бумаги; в мире — 4-е место по небелёной мешочной бумаге, доля ориентировочно несколько процентов"
+          },
+          {
+            "name": "Mondi",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_kraft_size",
+            "is_company": false,
+            "note": "один из мировых лидеров мешочной крафт-бумаги"
+          },
+          {
+            "name": "Smurfit Kappa / WestRock (Smurfit WestRock)",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_kraft_size",
+            "is_company": false,
+            "note": "ключевые мировые игроки упаковочной бумаги"
+          },
+          {
+            "name": "Stora Enso, UPM, BillerudKorsnäs",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_segezha_share",
+            "is_company": false,
+            "note": "европейские конкуренты в небелёной мешочной бумаге"
+          }
         ],
         "players_note": "На внутреннем рынке РФ Сегежа доминирует (>60%); глобально — заметный, но не крупнейший игрок среди западных гигантов.",
         "company_position": "leader",
@@ -113,10 +253,34 @@
         "trend": "growing",
         "metric": "мировой рынок мешочной крафт-бумаги, млрд $ (оценочная динамика)",
         "points": [
-          { "period": "2023", "value": 12.5, "certainty": "estimate", "source_ref": "src_kraft_size", "note": "оценка ~12,5–12,8 млрд $" },
-          { "period": "2024", "value": 13.0, "certainty": "estimate", "source_ref": "src_kraft_size", "note": "" },
-          { "period": "2025", "value": 12.5, "certainty": "estimate", "source_ref": "src_kraft_size", "note": "оценки источников расходятся; диапазон широкий" },
-          { "period": "2026", "value": 13.0, "certainty": "estimate", "source_ref": "src_kraft_size", "note": "прогноз ~13 млрд $" }
+          {
+            "period": "2023",
+            "value": 12.5,
+            "certainty": "estimate",
+            "source_ref": "src_kraft_size",
+            "note": "оценка ~12,5–12,8 млрд $"
+          },
+          {
+            "period": "2024",
+            "value": 13.0,
+            "certainty": "estimate",
+            "source_ref": "src_kraft_size",
+            "note": ""
+          },
+          {
+            "period": "2025",
+            "value": 12.5,
+            "certainty": "estimate",
+            "source_ref": "src_kraft_size",
+            "note": "оценки источников расходятся; диапазон широкий"
+          },
+          {
+            "period": "2026",
+            "value": 13.0,
+            "certainty": "estimate",
+            "source_ref": "src_kraft_size",
+            "note": "прогноз ~13 млрд $"
+          }
         ],
         "key_shifts": [
           "Структурный рост на тренде отказа от пластика в пользу бумажной упаковки",
@@ -126,10 +290,30 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Глобальный отказ от пластиковой упаковки в пользу бумажной (ESG, регулирование)", "direction": "support", "type": "regulation", "note": "устойчивый структурный драйвер спроса" },
-        { "factor": "Рост e-commerce и спроса на прочную эко-упаковку", "direction": "support", "type": "tech", "note": "" },
-        { "factor": "Спрос со стороны цементной/строительной отрасли (валвные мешки ~41% сегмента)", "direction": "support", "type": "demography", "note": "крупнейший конечный сегмент, но циклически зависит от стройки" },
-        { "factor": "Высокая энергоёмкость ЦБК + дорогие энергоресурсы давят на маржу", "direction": "constrain", "type": "macro", "note": "энергоресурсы ~15–20% выручки Сегежи" }
+        {
+          "factor": "Глобальный отказ от пластиковой упаковки в пользу бумажной (ESG, регулирование)",
+          "direction": "support",
+          "type": "regulation",
+          "note": "устойчивый структурный драйвер спроса"
+        },
+        {
+          "factor": "Рост e-commerce и спроса на прочную эко-упаковку",
+          "direction": "support",
+          "type": "tech",
+          "note": ""
+        },
+        {
+          "factor": "Спрос со стороны цементной/строительной отрасли (валвные мешки ~41% сегмента)",
+          "direction": "support",
+          "type": "demography",
+          "note": "крупнейший конечный сегмент, но циклически зависит от стройки"
+        },
+        {
+          "factor": "Высокая энергоёмкость ЦБК + дорогие энергоресурсы давят на маржу",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "энергоресурсы ~15–20% выручки Сегежи"
+        }
       ],
       "forecast": {
         "direction": "умеренный рост",
@@ -147,7 +331,9 @@
             "конкуренция западных гигантов (Mondi, Smurfit WestRock) на внешних рынках"
           ]
         },
-        "source_refs": ["src_kraft_size"],
+        "source_refs": [
+          "src_kraft_size"
+        ],
         "note": "Темп опирается на отраслевые прогнозы (estimate)"
       },
       "company_outlook": {
@@ -159,62 +345,171 @@
         "applicable": true,
         "status": "экспортирует бумагу и мешки; российский экспорт бумаги в 2025 вырос (+15,5%) вопреки падению других продуктов",
         "external_markets": [
-          { "market": "Азия, Ближний Восток, Африка — растущие рынки бумажных мешков для цемента и стройматериалов", "note": "спрос привязан к стройке и индустриализации развивающихся стран", "certainty": "estimate", "source_ref": "src_kraft_size" }
+          {
+            "market": "Азия, Ближний Восток, Африка — растущие рынки бумажных мешков для цемента и стройматериалов",
+            "note": "спрос привязан к стройке и индустриализации развивающихся стран",
+            "certainty": "estimate",
+            "source_ref": "src_kraft_size"
+          }
         ],
         "note": "Бумажный сегмент показал устойчивость экспорта даже в кризисный 2025 год."
       }
     },
-
     {
       "name": "Мировой рынок берёзовой фанеры (birch plywood)",
       "tier": "secondary",
       "geography": "global",
       "role_for_company": "~15% выручки, преимущественно экспортный сегмент.",
       "brief": [
-        { "point": "Мировой рынок фанеры в целом ~96 млрд $ в 2025; берёзовая фанера — нишевый сегмент (оценки разнятся: от ~3,8 до ~14 млрд $)", "certainty": "estimate", "source_ref": "src_plywood_size" },
-        { "point": "Сегежа — 5-е место в мире по крупноформатной берёзовой фанере; объём ~190 тыс. м³/год", "certainty": "fact", "source_ref": "src_segezha_share" },
-        { "point": "Главный мировой конкурент в берёзовой фанере — Свеза (крупнейший в мире), которая в 2024 ещё и зашла в ЦБП (покупка Камского ЦБК)", "certainty": "fact", "source_ref": "src_segezha_share" },
-        { "point": "Российский экспорт фанеры в 2025 снизился на 11,6% — слабый внешний спрос и логистика после потери рынка ЕС", "certainty": "fact", "source_ref": "src_china_export" },
-        { "point": "Прогноз: мировой рынок фанеры растёт ~6% в год до 2035, но для Сегежи перспектива сдержанная из-за конкуренции Свезы и закрытия премиального ЕС (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Мировой рынок фанеры в целом ~96 млрд $ в 2025; берёзовая фанера — нишевый сегмент (оценки разнятся: от ~3,8 до ~14 млрд $)",
+          "certainty": "estimate",
+          "source_ref": "src_plywood_size"
+        },
+        {
+          "point": "Сегежа — 5-е место в мире по крупноформатной берёзовой фанере; объём ~190 тыс. м³/год",
+          "certainty": "fact",
+          "source_ref": "src_segezha_share"
+        },
+        {
+          "point": "Главный мировой конкурент в берёзовой фанере — Свеза (крупнейший в мире), которая в 2024 ещё и зашла в ЦБП (покупка Камского ЦБК)",
+          "certainty": "fact",
+          "source_ref": "src_segezha_share"
+        },
+        {
+          "point": "Российский экспорт фанеры в 2025 снизился на 11,6% — слабый внешний спрос и логистика после потери рынка ЕС",
+          "certainty": "fact",
+          "source_ref": "src_china_export"
+        },
+        {
+          "point": "Прогноз: мировой рынок фанеры растёт ~6% в год до 2035, но для Сегежи перспектива сдержанная из-за конкуренции Свезы и закрытия премиального ЕС (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     },
-
     {
       "name": "Мировой рынок древесных топливных пеллет (wood pellets)",
       "tier": "secondary",
       "geography": "global",
       "role_for_company": "Часть сегмента «прочие» (~10% выручки с пеллетами и CLT); растущее направление после переориентации на Азию.",
       "brief": [
-        { "point": "Мировой рынок пеллет ~17 млрд $ в 2025, прогноз роста ~7% в год до ~26 млрд $ к 2031", "certainty": "fact", "source_ref": "src_pellet_size" },
-        { "point": "Россия — в топ-производителей (США, Канада, Германия, РФ дают >60% мирового объёма)", "certainty": "fact", "source_ref": "src_pellet_size" },
-        { "point": "Главный риск для Сегежи: ЕС был ключевым рынком пеллет, после санкций пришлось искать сбыт в Азии", "certainty": "estimate", "source_ref": "src_pellet_size" },
-        { "point": "Возможность: Азия (Япония, Корея) наращивает импорт пеллет на ~14% в год под программы отказа от угля — это окно для российских экспортёров (наша оценка по факторам)", "certainty": "model", "source_ref": "src_pellet_size" }
+        {
+          "point": "Мировой рынок пеллет ~17 млрд $ в 2025, прогноз роста ~7% в год до ~26 млрд $ к 2031",
+          "certainty": "fact",
+          "source_ref": "src_pellet_size"
+        },
+        {
+          "point": "Россия — в топ-производителей (США, Канада, Германия, РФ дают >60% мирового объёма)",
+          "certainty": "fact",
+          "source_ref": "src_pellet_size"
+        },
+        {
+          "point": "Главный риск для Сегежи: ЕС был ключевым рынком пеллет, после санкций пришлось искать сбыт в Азии",
+          "certainty": "estimate",
+          "source_ref": "src_pellet_size"
+        },
+        {
+          "point": "Возможность: Азия (Япония, Корея) наращивает импорт пеллет на ~14% в год под программы отказа от угля — это окно для российских экспортёров (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": "src_pellet_size"
+        }
       ]
     },
-
     {
       "name": "Внутренний рынок РФ (стройматериалы и упаковка)",
       "tier": "secondary",
       "geography": "domestic",
       "role_for_company": "~33% выручки; страховка от валютных и экспортно-логистических рисков.",
       "brief": [
-        { "point": "Внутренний спрос стал драйвером после потери ЕС — переориентация части объёмов на Россию", "certainty": "estimate", "source_ref": "src_lumber_price" },
-        { "point": "Сегежа — №1 в РФ по производству домокомплектов из клеёного бруса и валовому выпуску хвойных пиломатериалов", "certainty": "fact", "source_ref": "src_segezha_share" },
-        { "point": "В мешочной бумаге для внутреннего рынка Сегежа контролирует >60% — фактический монополист", "certainty": "fact", "source_ref": "src_segezha_share" },
-        { "point": "Прогноз: внутренний рынок растёт умеренно, но не компенсирует потерю экспортной маржи; зависит от ставки ЦБ и стройки в РФ (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Внутренний спрос стал драйвером после потери ЕС — переориентация части объёмов на Россию",
+          "certainty": "estimate",
+          "source_ref": "src_lumber_price"
+        },
+        {
+          "point": "Сегежа — №1 в РФ по производству домокомплектов из клеёного бруса и валовому выпуску хвойных пиломатериалов",
+          "certainty": "fact",
+          "source_ref": "src_segezha_share"
+        },
+        {
+          "point": "В мешочной бумаге для внутреннего рынка Сегежа контролирует >60% — фактический монополист",
+          "certainty": "fact",
+          "source_ref": "src_segezha_share"
+        },
+        {
+          "point": "Прогноз: внутренний рынок растёт умеренно, но не компенсирует потерю экспортной маржи; зависит от ставки ЦБ и стройки в РФ (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     }
   ],
-
   "sources": [
-    { "id": "src_lumber_size", "type": "industry_report", "title": "Sawn Wood / Softwood Lumber Market — Forecast, Size & Trends (Mordor Intelligence / Verified Market Reports)", "period": "2025", "url": "https://www.mordorintelligence.com/industry-reports/sawnwood-market", "reliability": "medium" },
-    { "id": "src_china_export", "type": "media", "title": "В 2025 г. экспорт пиломатериалов из РФ в КНР снизился на 8,4%, фанеры — на 11,6%, бумаги — вырос на 15,5% (profinansy / ChinaLogist)", "period": "2025", "url": "https://lenta.profinansy.ru/news/4934776", "reliability": "medium" },
-    { "id": "src_lumber_price", "type": "media", "title": "Динамика цен на пиломатериалы в РФ 2021–2025 (РБК Недвижимость / Лесной комплекс / WhatWood)", "period": "2021-2025", "url": "https://realty.rbc.ru/news/64df88509a794766f9bed597", "reliability": "medium" },
-    { "id": "src_kraft_size", "type": "industry_report", "title": "Sack Kraft Paper Market Report — Size & Forecast (Mordor Intelligence / Market Research Future)", "period": "2025", "url": "https://www.mordorintelligence.com/industry-reports/sack-kraft-paper-market", "reliability": "medium" },
-    { "id": "src_segezha_share", "type": "official", "title": "Segezha Group — позиции на рынках (Газпромбанк Инвестиции, обзор холдинга; медиарейтинг ЛПК СКАН-Интерфакс)", "period": "2024", "url": "https://gazprombank.investments/blog/reviews/segezha-group/", "reliability": "medium" },
-    { "id": "src_plywood_size", "type": "industry_report", "title": "Plywood / Birch Plywood Market Size & Outlook (Precedence Research / Verified Market Reports)", "period": "2025", "url": "https://www.precedenceresearch.com/plywood-market", "reliability": "medium" },
-    { "id": "src_pellet_size", "type": "industry_report", "title": "Wood Pellet Market Size, Growth & Industry Trends 2025–2031 (Mordor Intelligence)", "period": "2025", "url": "https://www.mordorintelligence.com/industry-reports/wood-pellet-market", "reliability": "medium" },
-    { "id": "src_china_property", "type": "industry_report", "title": "2026 China Real Estate Market Outlook (CBRE; Brookings)", "period": "2026", "url": "https://www.cbre.com/insights/reports/2026-china-real-estate-market-outlook", "reliability": "high" }
+    {
+      "id": "src_lumber_size",
+      "type": "industry_report",
+      "title": "Sawn Wood / Softwood Lumber Market — Forecast, Size & Trends (Mordor Intelligence / Verified Market Reports)",
+      "period": "2025",
+      "url": "https://www.mordorintelligence.com/industry-reports/sawnwood-market",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_china_export",
+      "type": "media",
+      "title": "В 2025 г. экспорт пиломатериалов из РФ в КНР снизился на 8,4%, фанеры — на 11,6%, бумаги — вырос на 15,5% (profinansy / ChinaLogist)",
+      "period": "2025",
+      "url": "https://lenta.profinansy.ru/news/4934776",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_lumber_price",
+      "type": "media",
+      "title": "Динамика цен на пиломатериалы в РФ 2021–2025 (РБК Недвижимость / Лесной комплекс / WhatWood)",
+      "period": "2021-2025",
+      "url": "https://realty.rbc.ru/news/64df88509a794766f9bed597",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_kraft_size",
+      "type": "industry_report",
+      "title": "Sack Kraft Paper Market Report — Size & Forecast (Mordor Intelligence / Market Research Future)",
+      "period": "2025",
+      "url": "https://www.mordorintelligence.com/industry-reports/sack-kraft-paper-market",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_segezha_share",
+      "type": "official",
+      "title": "Segezha Group — позиции на рынках (Газпромбанк Инвестиции, обзор холдинга; медиарейтинг ЛПК СКАН-Интерфакс)",
+      "period": "2024",
+      "url": "https://gazprombank.investments/blog/reviews/segezha-group/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_plywood_size",
+      "type": "industry_report",
+      "title": "Plywood / Birch Plywood Market Size & Outlook (Precedence Research / Verified Market Reports)",
+      "period": "2025",
+      "url": "https://www.precedenceresearch.com/plywood-market",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_pellet_size",
+      "type": "industry_report",
+      "title": "Wood Pellet Market Size, Growth & Industry Trends 2025–2031 (Mordor Intelligence)",
+      "period": "2025",
+      "url": "https://www.mordorintelligence.com/industry-reports/wood-pellet-market",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_china_property",
+      "type": "industry_report",
+      "title": "2026 China Real Estate Market Outlook (CBRE; Brookings)",
+      "period": "2026",
+      "url": "https://www.cbre.com/insights/reports/2026-china-real-estate-market-outlook",
+      "reliability": "high"
+    }
   ],
   "data_flags": [
     "Точная глобальная доля Сегежи по пиломатериалам и мешочной бумаге не публикуется — даны диапазоны (estimate). Внутрироссийские доли (>60% мешочной бумаги, лидер по хвойным пиломатериалам) надёжнее.",
@@ -222,5 +517,10 @@
     "Ценовая история — российский прокси (руб./м³ пиловочника), а не глобальный индекс; отражает направление, не точные мировые цены.",
     "Прогнозы по китайскому спросу и срокам разворота недвижимости — оценки сторонних аналитиков (CBRE/Goldman), сроки стабилизации сдвигаются (2027+).",
     "Разбивка выручки по сегментам/географии взята из business_model.md за 2024 (в 2025 структура искажена разовыми списаниями)."
-  ]
+  ],
+  "signal_market_to_revenue": {
+    "revenue_forecast_signal": "flat_to_down",
+    "note": "Мировые цены пиломатериалов/бумаги на дне (вдвое ниже пиков 2021, прокси РФ ~3.4 тыс.руб/м³); спрос Китая подавлен. Сегежа — price-taker, нишевой глобально (~1-2%), лидер в РФ. Стратегия — выживание до разворота цикла, не экспансия (FCF отрицательный, нет средств на CapEx). Сигнал прогноза выручки: плоский-снижательный в базовом; восстановление маржи — при развороте азиатского ценового цикла.",
+    "certainty": "model"
+  }
 }
