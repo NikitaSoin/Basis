@@ -113,6 +113,13 @@
     "certainty": "judgement"
   },
 
+  "signal_geo_to_revenue": {
+    "direction": "negative_with_protective_niche",
+    "magnitude": "moderate",
+    "text": "Гео-эффект на прогноз выручки — умеренно негативный с защитной нишей. Корзина металлов (медь, никель, платина, иридий, родий) под прямыми западными ограничениями (ЕС 20-й пакет в силе 14.05.2026, LME, UK) → сбыт замкнут на Азию (54%) с санкционными дисконтами и удлинённой логистикой → давление на ЭФФЕКТИВНУЮ ЦЕНУ реализации, не на объёмы. Защита: компания НЕ под блокирующими (SDN) санкциями, а палладий — крупнейший сегмент (~35% выручки, ~40–41% мира) — выведен из-под запретов (пошлины США отклонены USITC 29.05.2026) из-за мировой зависимости от него. Базовый сценарий (статус-кво): сохранение режима «Азия + дисконт», палладий защищён — выручка стабильна со встроенным дисконтом, без обвала. Триггеры пересмотра: эскалация конфликта → риск запрета на палладий (сильный негатив); деэскалация → сужение дисконтов (умеренный апсайд, но медленный).",
+    "base_rate_scenarios": { "escalation": 0.30, "status_quo": 0.55, "deescalation": 0.15 },
+    "consistency_with_macro": "Согласовано с macro.json: гео даёт санкционный ДИСКОНТ к эффективной цене металлов, macro — крепкий рубль сжимает рублёвую выручку и разнонаправленную корзину (палладий просел, платина/медь сильны). Оба указывают на маржу как главный риск; не дублируются — гео про доступ/дисконт сбыта, macro про курс и спот-цены."
+  },
   "sources": [
     { "id": "src_sdn", "type": "media", "title": "Nornickel not on US SDN list (production/sales entities excluded from 23.08.2024 list); examining impact of US sanctions", "period": "2024–2026", "url": "https://www.mining.com/web/nornickel-examining-impact-of-latest-us-sanctions/", "reliability": "medium", "perspective": "деловое СМИ" },
     { "id": "src_usitc", "type": "official_registry", "title": "USITC — Unwrought Palladium from Russia Does Not Injure U.S. Industry (29.05.2026)", "period": "2026-05-29", "url": "https://www.usitc.gov/press_room/news_release/2026/er0529_68662.htm", "reliability": "high", "perspective": "официальный реестр" },
