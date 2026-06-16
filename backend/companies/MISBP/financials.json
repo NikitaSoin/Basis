@@ -22,7 +22,21 @@
     "anomaly_flag": true,
     "anomaly_note": "2023: операционный убыток −60 млн при чистой прибыли +64 млн — разворот за счёт нераскрытых финансовых доходов (переоценка финвложений / внутригрупповые операции). 2024: ЧП 1 060 млн (~2× к среднему стабильных лет) — причина без первичного PDF не верифицирована. Источник: агрегатор (data_quality medium).",
     "adjustments_aggressive": false,
-    "share_class_note": "Преф MISBP: финансовый анализ эмитента совпадает с обыкновенной акцией MISB (та же отчётность). Котировка/дивиденд префа — свои."
+    "share_class_note": "Преф MISBP: финансовый анализ эмитента совпадает с обыкновенной акцией MISB (та же отчётность). Котировка/дивиденд префа — свои.",
+    "is_pref": true,
+    "pref_anchor": {
+      "price_pref_rub": 55.1,
+      "price_date_pref": "2026-06-16",
+      "shares_pref_approx": 10650000,
+      "mcap_pref_mln_approx": 587,
+      "div_per_pref_2025_rub": 6.21,
+      "div_yield_pref_pct": 11.3,
+      "common_price_rub": 52.06,
+      "common_div_2025_rub": 1.98,
+      "pref_premium_to_common_pct": 5.8,
+      "source": "web 2026-06-16: investfunds.ru, beststocks.ru, investmint.ru; governance.json подтверждает 6.21 ₽",
+      "note": "ВНИМАНИЕ: meta.price_date/shares_outstanding и секция valuation относятся к ОБЫКНОВЕННОЙ MISB (общий фундаментал). Оценка ПРЕФА ведётся отдельно методом дисконтирования дивиденда — см. fact_check.md, блок АРБИТРАЖ v3."
+    }
   },
   "income_statement": {
     "cost_format": "by_nature",
