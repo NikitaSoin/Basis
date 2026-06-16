@@ -238,7 +238,7 @@ print(f"EV (current mktcap + net_debt_2025): {ev_current:.1f}")
 
 # ── MULTIPLES ─────────────────────────────────────────────────────────────────
 # P/E adj per year (using price from rates.csv context — transient, only for current multiples)
-eps_adj = [safe_div(v, shares) * 1e6 for v in net_profit_adj]  # ₽ per share
+eps_adj = [(safe_div(v, shares) * 1e6 if v is not None else None) for v in net_profit_adj]  # ₽ per share
 print("EPS adj:", [f"{v:.0f}" if v else "N/A" for v in eps_adj])
 
 # P/E adj current (on 2025 adj EPS)
@@ -246,7 +246,7 @@ pe_adj_current = safe_div(price, eps_adj[4])
 print(f"P/E adj current (2025 adj EPS): {pe_adj_current:.1f}")
 
 # P/B current (tangible)
-bvps_tangible = [safe_div(tangible_equity[i], shares) * 1e6 for i in range(len(FY))]
+bvps_tangible = [(safe_div(tangible_equity[i], shares) * 1e6 if tangible_equity[i] is not None else None) for i in range(len(FY))]
 pb_current = safe_div(price, bvps_tangible[4])
 print(f"P/B current (tangible, 2025): {pb_current:.2f}")
 
@@ -312,24 +312,48 @@ print(f"WACC: {WACC*100:.2f}%, D/V: {D/V*100:.1f}%")
 # 2020 EBITDA unknown; 2023 EBITDA unknown from detailed; 2025 EBITDA = 18833.7
 # Conservative: FCF₁ = 4674.35 * 1.05 (modest recovery) = 4907.9
 # This is mechanical/judgement given limited data
-fcf_midcycle = (4500 + 4848.7) / 2
-fcf1 = fcf_midcycle * 1.05  # modest recovery
-print(f"FCF mid-cycle: {fcf_midcycle:.1f}, FCF1: {fcf1:.1f}")
-
-# Use WACC as discount rate (low debt → close to Ke)
+# ── TWO-STAGE DCF (v3) ────────────────────────────────────────────────────────
+# Критик v3: компания НЕ в среднем цикле сейчас — она в ТРОГЕ (FCF_2025=4849).
+# Одношаговая Гордон-модель на mid-cycle FCF «прыгает» с трога на средний цикл
+# без переходного периода. Заменяем на двухстадийную:
+#   Стадия 1 (2026–2028, 3 года): восстановление FCF от трога к среднему циклу.
+#   Стадия 2 (терминал): Гордон на mid-cycle FCF с g=2%.
 r_dcf = WACC
-g_dcf = 0.02  # conservative: below default 3.5% given uncertainty, sanctions, trough
+g_dcf = 0.02  # консервативно: ниже умолчания 3.5% (санкции, неопределённость экспорта)
 
-EV_dcf = fcf1 / (r_dcf - g_dcf)
-print(f"EV_dcf (r={r_dcf*100:.2f}%, g={g_dcf*100:.1f}%): {EV_dcf:.1f}")
-# Equity = EV - net_debt (2025)
+# Mid-cycle нормализованный FCF через mid-cycle EBITDA (как в financials.json):
+rev_midcycle = (revenue[2] + revenue[3] + revenue[4]) / 3   # 2023-2025
+ebitda_margin_mid = 0.26   # суждение: между trough 19.5% и peak 33.3%, смещено к трогу
+ebitda_mid = rev_midcycle * ebitda_margin_mid
+da_avg = (20595.0 + 19302.5) / 2
+ebit_mid = ebitda_mid - da_avg
+pre_tax_mid = ebit_mid - 2000   # чистые финрасходы в норм. году
+np_mid = pre_tax_mid * (1 - tax_rate_sustainable)
+fcf_midcycle = np_mid + da_avg - 11000   # capex_sust 11000, WC нейтрален
+print(f"rev_mid={rev_midcycle:.0f}, ebitda_mid={ebitda_mid:.0f}, FCF_midcycle={fcf_midcycle:.0f}")
+
+# Стадия 1: линейный переход от трога FCF_2025=4849 к mid-cycle за 3 года
+fcf_trough = 4848.7
+stage1_fcfs = []
+for yr in range(1, 4):
+    f = fcf_trough + (fcf_midcycle - fcf_trough) * (yr / 3.0)
+    stage1_fcfs.append(f)
+print(f"Stage1 FCFs (2026-2028): {[round(x) for x in stage1_fcfs]}")
+
+pv_stage1 = sum(f / (1 + r_dcf) ** (i + 1) for i, f in enumerate(stage1_fcfs))
+# Терминал на конец года 3 на mid-cycle FCF
+tv = (fcf_midcycle * (1 + g_dcf)) / (r_dcf - g_dcf)
+pv_tv = tv / (1 + r_dcf) ** 3
+EV_dcf = pv_stage1 + pv_tv
+print(f"PV_stage1={pv_stage1:.0f}, TV={tv:.0f}, PV_TV={pv_tv:.0f}, EV_dcf={EV_dcf:.0f}")
+
 equity_dcf = EV_dcf - net_debt[4]
 price_dcf = (equity_dcf / shares) * 1e6
 print(f"equity_dcf: {equity_dcf:.1f}, price_dcf: {price_dcf:.0f} ₽")
 
-# Cross-check implied EV/EBITDA (using 2025 EBITDA as proxy)
-implied_ev_ebitda = safe_div(EV_dcf, ebitda_adj[4])
-print(f"Implied EV/EBITDA (DCF): {implied_ev_ebitda:.1f}x")
+implied_ev_ebitda = safe_div(EV_dcf, ebitda_mid)
+print(f"Implied EV/EBITDA (DCF on mid-cycle): {implied_ev_ebitda:.1f}x")
+fcf1 = stage1_fcfs[0]  # для совместимости с sensitivity ниже
 
 # ── DCF SENSITIVITY r × g ─────────────────────────────────────────────────────
 r_grid = [WACC - 0.02, WACC, WACC + 0.02]
@@ -339,7 +363,10 @@ for r in r_grid:
     row = []
     for g in g_grid:
         if r > g:
-            ev_s = fcf1 / (r - g)
+            # двухстадийная: 3 года восстановления от трога к mid-cycle + терминал
+            pv_s1 = sum(f / (1 + r) ** (k + 1) for k, f in enumerate(stage1_fcfs))
+            tv_s = (fcf_midcycle * (1 + g)) / (r - g)
+            ev_s = pv_s1 + tv_s / (1 + r) ** 3
             eq_s = ev_s - net_debt[4]
             p_s = (eq_s / shares) * 1e6
             row.append(round(p_s))
@@ -427,11 +454,35 @@ print("\nMethod prices:")
 for k, v in methods_prices.items():
     print(f"  {k}: {v:.0f} ₽")
 
-all_prices = [v for v in methods_prices.values() if v is not None]
-conservative = round(min(all_prices), -2)
-base = round(sum(all_prices) / len(all_prices), -2)
-optimistic = round(max(all_prices), -2)
+# Fundamental valuation methods (CAPM 12m — это требуемая доходность, не оценка
+# стоимости; PE_forward на трог-EPS 2026E нерепрезентативен — оба исключаем из
+# границ коридора справедливой стоимости):
+fund_prices = {k: v for k, v in methods_prices.items()
+               if k not in ("CAPM_12m", "PE_forward") and v is not None}
+conservative = round(min(fund_prices.values()), -2)
+optimistic = round(max(fund_prices.values()), -2)
 
+# ── GEO-ВЗВЕШЕННАЯ BASE (v3) ──────────────────────────────────────────────────
+# Критик v3: гео-блок считает «медленный дрейф к ужесточению санкций» более
+# вероятным, чем снятие. Простое среднее методов переоценивает «опцион на
+# восстановление». Взвешиваем сценарии по гео-частотам:
+#   эскалация/ужесточение 35% → консервативная оценка (DCF/EV-EBITDA низ)
+#   статус-кво 45%           → срединная оценка (P/E нормального года)
+#   деэскалация 20%          → оптимистичная (P/B полный book)
+geo_weights = {"escalation": 0.35, "status_quo": 0.45, "deescalation": 0.20}
+v_escalation = min(price_dcf, price_ev_ebitda)        # трог сохраняется
+v_status_quo = price_pe_forward if price_pe_forward > 0 else price_ev_ebitda
+v_deescalation = price_pb                              # возврат к book
+# подстраховка: если status_quo выпал в трог (forward EPS депрессивен), берём P/E-2024-нормальный
+eps_adj_2024 = (net_profit_adj[3] / shares) * 1e6
+v_status_quo = max(v_status_quo, 6.0 * eps_adj_2024 * 0.6)  # де-весим нормальный год
+base = round(
+    geo_weights["escalation"] * v_escalation +
+    geo_weights["status_quo"] * v_status_quo +
+    geo_weights["deescalation"] * v_deescalation, -2)
+print(f"\nGeo-weighted scenarios: escal={v_escalation:.0f}({geo_weights['escalation']}), "
+      f"sq={v_status_quo:.0f}({geo_weights['status_quo']}), "
+      f"deesc={v_deescalation:.0f}({geo_weights['deescalation']})")
 print(f"\nFair value range: conservative={conservative}, base={base}, optimistic={optimistic}")
 
 # Divergence check
