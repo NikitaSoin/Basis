@@ -84,6 +84,13 @@
     "certainty": "judgement"
   },
 
+  "signal_geo_to_revenue": {
+    "value": "neutral",
+    "strength": "слабый",
+    "as_of": "2026-06-16",
+    "rationale": "Гео-канал на ВЫРУЧКУ практически не действует: 100% выручки — внутренний рублёвый регулируемый сбыт без экспорта/импорта сырья; спрос защитный. Санкции и внешняя конъюнктура доходят лишь опосредованно через макрорежим (ставка/инфляция/тарифы), который уже учтён в macro.json. Единственный материальный гео-риск — оболочка владения (кипрский мажоритарий, режим «недружественных юрисдикций»), но он бьёт по КАНАЛУ ДИВИДЕНДОВ миноритария, а не по выручке. Итог: signal_geo_to_revenue=neutral; согласован с macro (overall_effect=mixed) и governance (related_party не подтверждён, но офшор — фактор риска для выплат)."
+  },
+
   "sources": [
     { "id": "src_bm", "type": "company_disclosure", "title": "ЛЭСК — бизнес-модель (внутренняя справка платформы по раскрытию РСБУ и профилю компании)", "period": "2024–2025", "url": "internal://companies/LPSB/business_model.md", "reliability": "medium", "perspective": "деловое СМИ" },
     { "id": "src_gov", "type": "company_disclosure", "title": "ЛЭСК — структура владения (Zefavel Trading Limited, Кипр, >88,5%)", "period": "2025", "url": "internal://companies/LPSB/governance.json", "reliability": "medium", "perspective": "деловое СМИ" },
