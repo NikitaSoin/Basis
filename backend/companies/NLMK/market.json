@@ -11,40 +11,98 @@
       "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
     }
   },
-
   "markets": [
     {
       "name": "Рынок плоского стального проката РФ",
       "tier": "primary",
       "geography": "domestic",
       "role_for_company": "Главный рынок сбыта: на Россию приходится ~55–60% выручки группы; внутренний рынок даёт основную маржу, так как российские цены выше мировых.",
-
       "current": {
-        "size": { "value": "Потребление стали в РФ ~37 млн т (2025), плоский прокат — часть; потребление стали резко сократилось", "certainty": "fact", "source_ref": "src_steel_nkr", "note": "Потребление стали в РФ в 2025 упало до минимума с 2011 года" },
+        "size": {
+          "value": "Потребление стали в РФ ~37 млн т (2025), плоский прокат — часть; потребление стали резко сократилось",
+          "certainty": "fact",
+          "source_ref": "src_steel_nkr",
+          "note": "Потребление стали в РФ в 2025 упало до минимума с 2011 года"
+        },
         "size_metric": "потребление стали в РФ в натуральном выражении (млн т); плоский прокат — крупный сегмент",
         "players": [
-          { "name": "Северсталь", "share_pct": 33, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_doli_2025", "is_company": false, "note": "впервые вышла на 1-е место в 2025, доля выросла с 29% до 33%" },
-          { "name": "ММК", "share_pct": 30, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_doli_2025", "is_company": false, "note": "потерял лидерство, доля снизилась с 34% до 30%" },
-          { "name": "НЛМК", "share_pct": 23, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_doli_2025", "is_company": true, "note": "стабильное 3-е место" },
-          { "name": "Импорт", "share_pct": 12, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_doli_2025", "is_company": false, "note": "доля импорта выросла с 11% до 12%" }
+          {
+            "name": "Северсталь",
+            "share_pct": 33,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_doli_2025",
+            "is_company": false,
+            "note": "впервые вышла на 1-е место в 2025, доля выросла с 29% до 33%"
+          },
+          {
+            "name": "ММК",
+            "share_pct": 30,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_doli_2025",
+            "is_company": false,
+            "note": "потерял лидерство, доля снизилась с 34% до 30%"
+          },
+          {
+            "name": "НЛМК",
+            "share_pct": 23,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_doli_2025",
+            "is_company": true,
+            "note": "стабильное 3-е место"
+          },
+          {
+            "name": "Импорт",
+            "share_pct": 12,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_doli_2025",
+            "is_company": false,
+            "note": "доля импорта выросла с 11% до 12%"
+          }
         ],
         "players_note": "Рынок плоского проката РФ — фактически олигополия трёх комбинатов (Северсталь, ММК, НЛМК), контролирующих ~85% поставок. ФАС в прошлом признавала их виновными в монопольно высоких ценах.",
         "company_position": "challenger",
         "company_position_note": "НЛМК устойчиво третий на рынке плоского проката с долей ~23%, уступая Северстали и ММК. Это сильная, но не лидирующая позиция (challenger)."
       },
-
       "history": {
         "trend": "declining",
         "metric": "производство стали в РФ, млн т (прокси для рынка)",
         "points": [
-          { "period": "2023", "value": 76, "certainty": "estimate", "source_ref": "src_steel_b1", "note": "ориентир по производству стали" },
-          { "period": "2024", "value": 70, "certainty": "estimate", "source_ref": "src_steel_b1", "note": "ориентир; потребление ~45 млн т" },
-          { "period": "2025", "value": 64, "certainty": "fact", "source_ref": "src_steel_b1", "note": "падение ~11% г/г по оценке Б1; потребление упало ~14-15%" },
-          { "period": "2026E", "value": 69, "certainty": "model", "source_ref": "src_steel_b1", "note": "начало восстановления по прогнозу Б1; наша интерпретация прогноза" }
+          {
+            "period": "2023",
+            "value": 76,
+            "certainty": "estimate",
+            "source_ref": "src_steel_b1",
+            "note": "ориентир по производству стали"
+          },
+          {
+            "period": "2024",
+            "value": 70,
+            "certainty": "estimate",
+            "source_ref": "src_steel_b1",
+            "note": "ориентир; потребление ~45 млн т"
+          },
+          {
+            "period": "2025",
+            "value": 64,
+            "certainty": "fact",
+            "source_ref": "src_steel_b1",
+            "note": "падение ~11% г/г по оценке Б1; потребление упало ~14-15%"
+          },
+          {
+            "period": "2026E",
+            "value": 69,
+            "certainty": "model",
+            "source_ref": "src_steel_b1",
+            "note": "начало восстановления по прогнозу Б1; наша интерпретация прогноза"
+          }
         ],
         "key_shifts": [
           "2025: глубокий спад спроса — потребление стали в РФ упало до минимума с 2011 года из-за высокой ключевой ставки (14,5%), стагнации стройки и машиностроения",
@@ -53,15 +111,38 @@
         ],
         "history_certainty": "estimate"
       },
-
       "drivers": [
-        { "factor": "Высокая ключевая ставка ЦБ (14,5%) тормозит ипотеку, девелопмент и инвестиции — главный потребитель стали (стройка) сжимается", "direction": "constrain", "type": "macro", "note": "" },
-        { "factor": "Ожидаемое снижение ключевой ставки до 12–13% в 2026 должно оживить спрос на сталь со второго полугодия", "direction": "support", "type": "macro", "note": "" },
-        { "factor": "Олигопольная структура рынка (3 игрока ~85%) поддерживает ценовую дисциплину и премию внутренних цен к мировым", "direction": "support", "type": "competition", "note": "" },
-        { "factor": "Рост налоговой нагрузки: налог на прибыль 20%→25% с 2025, экспортные пошлины, НДПИ", "direction": "constrain", "type": "regulation", "note": "" },
-        { "factor": "Долгосрочный драйвер — инфраструктура, нефтегазовые проекты, машиностроение и автопром", "direction": "support", "type": "demography", "note": "" }
+        {
+          "factor": "Высокая ключевая ставка ЦБ (14,5%) тормозит ипотеку, девелопмент и инвестиции — главный потребитель стали (стройка) сжимается",
+          "direction": "constrain",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Ожидаемое снижение ключевой ставки до 12–13% в 2026 должно оживить спрос на сталь со второго полугодия",
+          "direction": "support",
+          "type": "macro",
+          "note": ""
+        },
+        {
+          "factor": "Олигопольная структура рынка (3 игрока ~85%) поддерживает ценовую дисциплину и премию внутренних цен к мировым",
+          "direction": "support",
+          "type": "competition",
+          "note": ""
+        },
+        {
+          "factor": "Рост налоговой нагрузки: налог на прибыль 20%→25% с 2025, экспортные пошлины, НДПИ",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": ""
+        },
+        {
+          "factor": "Долгосрочный драйвер — инфраструктура, нефтегазовые проекты, машиностроение и автопром",
+          "direction": "support",
+          "type": "demography",
+          "note": ""
+        }
       ],
-
       "forecast": {
         "direction": "рост",
         "horizon": "1–3 года (восстановление с 2026)",
@@ -78,49 +159,101 @@
             "Высокая фискальная нагрузка съедает часть восстановления маржи"
           ]
         },
-        "source_refs": ["src_steel_b1", "src_steel_nkr", "src_prom_recovery"],
+        "source_refs": [
+          "src_steel_b1",
+          "src_steel_nkr",
+          "src_prom_recovery"
+        ],
         "note": "Направление (восстановление с 2026) опирается на отраслевые прогнозы Б1/НКР; точные темпы — ориентир, не расчёт."
       },
-
       "company_outlook": {
         "share_trajectory": "удержит долю",
         "certainty": "estimate",
         "reasoning": "НЛМК — один из самых эффективных производителей в мире (самообеспеченность рудой ~100%, низкая себестоимость сляба), что позволяет удерживать 3-е место даже в кризис. Резкого роста доли не ожидается: рынок поделён между тремя комбинатами, а Северсталь и ММК более ориентированы на внутренний премиальный прокат. НЛМК исторически больше завязан на экспорт полуфабрикатов, что ограничивает агрессивную экспансию на внутреннем рынке готового проката."
       },
-
       "international_expansion": null
     },
-
     {
       "name": "Глобальный рынок стали и стальных полуфабрикатов (слябов)",
       "tier": "primary",
       "geography": "global",
       "role_for_company": "Экспорт даёт ~40–45% выручки группы; НЛМК — крупный мировой экспортёр слябов (полуфабрикатов), питающих собственные и сторонние прокатные мощности за рубежом. Группа входит в топ мировых производителей стали (~17–18 млн т).",
-
       "current": {
-        "size": { "value": "Мировой спрос на сталь ~1 724–1 749 млн т (2025–2026)", "certainty": "fact", "source_ref": "src_worldsteel", "note": "по данным worldsteel" },
+        "size": {
+          "value": "Мировой спрос на сталь ~1 724–1 749 млн т (2025–2026)",
+          "certainty": "fact",
+          "source_ref": "src_worldsteel",
+          "note": "по данным worldsteel"
+        },
         "size_metric": "мировое потребление стали, млн т/год",
         "players": [
-          { "name": "Baowu (Китай)", "share_pct": null, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_export_topcompanies", "is_company": false, "note": "крупнейший мировой производитель стали" },
-          { "name": "ArcelorMittal", "share_pct": null, "share_low": null, "share_high": null,
-            "certainty": "fact", "source_ref": "src_export_topcompanies", "is_company": false, "note": "второй по объёмам в мире" },
-          { "name": "НЛМК", "share_pct": null, "share_low": 1, "share_high": 1,
-            "certainty": "estimate", "source_ref": "src_export_topcompanies", "is_company": true, "note": "~17,6 млн т производства — порядка 1% мирового рынка стали (~1750 млн т); как экспортёр слябов — один из крупнейших" }
+          {
+            "name": "Baowu (Китай)",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_export_topcompanies",
+            "is_company": false,
+            "note": "крупнейший мировой производитель стали"
+          },
+          {
+            "name": "ArcelorMittal",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "fact",
+            "source_ref": "src_export_topcompanies",
+            "is_company": false,
+            "note": "второй по объёмам в мире"
+          },
+          {
+            "name": "НЛМК",
+            "share_pct": null,
+            "share_low": 1,
+            "share_high": 1,
+            "certainty": "estimate",
+            "source_ref": "src_export_topcompanies",
+            "is_company": true,
+            "note": "~17,6 млн т производства — порядка 1% мирового рынка стали (~1750 млн т); как экспортёр слябов — один из крупнейших"
+          }
         ],
         "players_note": "Мировой рынок стали фрагментирован и страдает от структурного перепроизводства (избыток мощностей ~+165 млн т к 2027, загрузка падает к ~70%). Россия — 6-е место в мире по экспорту стали (~12,1 млн т в 2025, +13%). На рынке слябов НЛМК — заметный игрок.",
         "company_position": "niche",
         "company_position_note": "В абсолютных объёмах НЛМК — топ-производитель, но его доля в глобальном рынке стали мала (порядка 1%). На более узком рынке экспортных слябов позиция значимая (challenger/niche): экспорт слябов НЛМК в 2025 — 6,5 млн т, максимум за годы."
       },
-
       "history": {
         "trend": "stagnating",
         "metric": "мировой спрос на сталь, млн т",
         "points": [
-          { "period": "2024", "value": 1747, "certainty": "estimate", "source_ref": "src_worldsteel", "note": "ориентир" },
-          { "period": "2025", "value": 1749, "certainty": "fact", "source_ref": "src_worldsteel", "note": "плоско г/г по worldsteel" },
-          { "period": "2026E", "value": 1724, "certainty": "fact", "source_ref": "src_worldsteel", "note": "апрельский прогноз worldsteel: рост лишь +0,3%" },
-          { "period": "2027E", "value": 1762, "certainty": "estimate", "source_ref": "src_worldsteel", "note": "ускорение до +2,2% по worldsteel" }
+          {
+            "period": "2024",
+            "value": 1747,
+            "certainty": "estimate",
+            "source_ref": "src_worldsteel",
+            "note": "ориентир"
+          },
+          {
+            "period": "2025",
+            "value": 1749,
+            "certainty": "fact",
+            "source_ref": "src_worldsteel",
+            "note": "плоско г/г по worldsteel"
+          },
+          {
+            "period": "2026E",
+            "value": 1724,
+            "certainty": "fact",
+            "source_ref": "src_worldsteel",
+            "note": "апрельский прогноз worldsteel: рост лишь +0,3%"
+          },
+          {
+            "period": "2027E",
+            "value": 1762,
+            "certainty": "estimate",
+            "source_ref": "src_worldsteel",
+            "note": "ускорение до +2,2% по worldsteel"
+          }
         ],
         "key_shifts": [
           "2022–2025: вытеснение российской стали с премиального рынка ЕС санкциями; переориентация на Турцию, Азию, Латинскую Америку",
@@ -130,16 +263,44 @@
         ],
         "history_certainty": "fact"
       },
-
       "drivers": [
-        { "factor": "Санкции ЕС: поэтапный отказ от российских слябов с полным запретом к 2028 — потеря исторического европейского рынка", "direction": "constrain", "type": "regulation", "note": "квоты на российские слябы действуют до 2028, исключение продлевать не будут; CBAM добавит издержек" },
-        { "factor": "Структурное перепроизводство стали в мире (рост мощностей +165 млн т к 2027, загрузка ~70%)", "direction": "constrain", "type": "competition", "note": "" },
-        { "factor": "Рост спроса в развивающихся странах, особенно Индия (+7–9%/год) — потенциальный новый рынок сбыта", "direction": "support", "type": "demography", "note": "" },
-        { "factor": "Спрос Турции на стальную заготовку/слябы для дообработки и реэкспорта растёт (импорт заготовки +58% в 2025)", "direction": "support", "type": "competition", "note": "Турция — крупнейший покупатель слябов НЛМК" },
-        { "factor": "Низкая себестоимость сляба НЛМК (~$250–300/т, одна из самых низких в мире) — конкурентное преимущество при любой конъюнктуре", "direction": "support", "type": "other", "note": "" },
-        { "factor": "Курс рубля: укрепление снижает рублёвую выручку экспорта и конкурентоспособность", "direction": "constrain", "type": "macro", "note": "при курсе ниже ~85 руб./долл. часть экспорта становится убыточной" }
+        {
+          "factor": "Санкции ЕС: поэтапный отказ от российских слябов с полным запретом к 2028 — потеря исторического европейского рынка",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "квоты на российские слябы действуют до 2028, исключение продлевать не будут; CBAM добавит издержек"
+        },
+        {
+          "factor": "Структурное перепроизводство стали в мире (рост мощностей +165 млн т к 2027, загрузка ~70%)",
+          "direction": "constrain",
+          "type": "competition",
+          "note": ""
+        },
+        {
+          "factor": "Рост спроса в развивающихся странах, особенно Индия (+7–9%/год) — потенциальный новый рынок сбыта",
+          "direction": "support",
+          "type": "demography",
+          "note": ""
+        },
+        {
+          "factor": "Спрос Турции на стальную заготовку/слябы для дообработки и реэкспорта растёт (импорт заготовки +58% в 2025)",
+          "direction": "support",
+          "type": "competition",
+          "note": "Турция — крупнейший покупатель слябов НЛМК"
+        },
+        {
+          "factor": "Низкая себестоимость сляба НЛМК (~$250–300/т, одна из самых низких в мире) — конкурентное преимущество при любой конъюнктуре",
+          "direction": "support",
+          "type": "other",
+          "note": ""
+        },
+        {
+          "factor": "Курс рубля: укрепление снижает рублёвую выручку экспорта и конкурентоспособность",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "при курсе ниже ~85 руб./долл. часть экспорта становится убыточной"
+        }
       ],
-
       "forecast": {
         "direction": "разнонаправленно",
         "horizon": "3–5 лет",
@@ -157,56 +318,174 @@
             "Новые рынки берут российскую сталь с дисконтом → ниже маржа"
           ]
         },
-        "source_refs": ["src_worldsteel", "src_oecd", "src_eu_ban", "src_nlmk_slabs2025"],
+        "source_refs": [
+          "src_worldsteel",
+          "src_oecd",
+          "src_eu_ban",
+          "src_nlmk_slabs2025"
+        ],
         "note": "Направление по объёмам мирового рынка — из прогнозов worldsteel/OECD (fact/estimate); влияние на НЛМК (география, маржа) — наш ориентир по факторам."
       },
-
       "company_outlook": {
         "share_trajectory": "удержит долю",
         "certainty": "estimate",
         "reasoning": "НЛМК уже показал способность перенаправить объёмы: экспорт слябов в 2025 — рекордные 6,5 млн т при том, что ЕС сворачивает закупки. Турция (47%) и Мексика (24%) заместили выпадающую Европу. Сверхнизкая себестоимость позволяет сохранять объёмы даже при дисконте. Главный риск — не объём, а маржинальность: после полного запрета ЕС к 2028 и при крепком рубле рентабельность экспорта останется под давлением. Долю на мировом рынке (и так малую) компания скорее удержит, чем нарастит."
       },
-
       "international_expansion": {
         "applicable": true,
         "status": "работает за рубежом (прокатные активы в ЕС и США), но зарубежная вертикаль под давлением санкций и политики",
         "external_markets": [
-          { "market": "Турция (слябы для дообработки/реэкспорта)", "note": "Ключевой новый рынок: ~47% экспорта слябов НЛМК в 2025; импорт заготовки Турцией вырос на 58% в 2025, РФ — 2-е место среди поставщиков", "certainty": "fact", "source_ref": "src_nlmk_slabs2025" },
-          { "market": "Европа через NBH (Бельгия, Франция, Италия, Дания)", "note": "Прокатные мощности дообрабатывают липецкие слябы; жизнеспособность под угрозой из-за поэтапного запрета ЕС на российские полуфабрикаты к 2028, риск списаний", "certainty": "estimate", "source_ref": "src_eu_ban" },
-          { "market": "США (NLMK USA, Индиана/Пенсильвания)", "note": "Электросталеплавильные/прокатные мощности на местном ломе; велись (но не завершены) переговоры о продаже Cleveland-Cliffs; высокий политический риск, неопределённость владения", "certainty": "estimate", "source_ref": "src_export_topcompanies" },
-          { "market": "Мексика, Латинская Америка", "note": "~24% экспорта слябов в 2025; растущее направление замещения ЕС", "certainty": "fact", "source_ref": "src_nlmk_slabs2025" }
+          {
+            "market": "Турция (слябы для дообработки/реэкспорта)",
+            "note": "Ключевой новый рынок: ~47% экспорта слябов НЛМК в 2025; импорт заготовки Турцией вырос на 58% в 2025, РФ — 2-е место среди поставщиков",
+            "certainty": "fact",
+            "source_ref": "src_nlmk_slabs2025"
+          },
+          {
+            "market": "Европа через NBH (Бельгия, Франция, Италия, Дания)",
+            "note": "Прокатные мощности дообрабатывают липецкие слябы; жизнеспособность под угрозой из-за поэтапного запрета ЕС на российские полуфабрикаты к 2028, риск списаний",
+            "certainty": "estimate",
+            "source_ref": "src_eu_ban"
+          },
+          {
+            "market": "США (NLMK USA, Индиана/Пенсильвания)",
+            "note": "Электросталеплавильные/прокатные мощности на местном ломе; велись (но не завершены) переговоры о продаже Cleveland-Cliffs; высокий политический риск, неопределённость владения",
+            "certainty": "estimate",
+            "source_ref": "src_export_topcompanies"
+          },
+          {
+            "market": "Мексика, Латинская Америка",
+            "note": "~24% экспорта слябов в 2025; растущее направление замещения ЕС",
+            "certainty": "fact",
+            "source_ref": "src_nlmk_slabs2025"
+          }
         ],
         "note": "НЛМК исторически — самая «международная» из российских сталеваров: до 2022 ~18% выручки давали США, ~14% — ЕС. Сейчас идёт вынужденная переориентация Запад→Восток с дисконтом."
       }
     },
-
     {
       "name": "Мировой рынок электротехнической (трансформаторной) стали — GOES",
       "tier": "secondary",
       "geography": "global",
       "role_for_company": "Премиальный нишевый сегмент: дочка ВИЗ-Сталь, ~5–7% выручки группы; >85% продукции на экспорт в 37+ стран.",
       "brief": [
-        { "point": "Мировой рынок трансформаторной стали (GOES) оценивается ориентировочно в $9–14 млрд (2025) — оценки источников сильно расходятся", "certainty": "estimate", "source_ref": "src_goes" },
-        { "point": "ВИЗ-Сталь занимает ~5,9% мирового рынка трансформаторной стали и ~71% российского — нишевый игрок глобально, доминирующий внутри РФ", "certainty": "estimate", "source_ref": "src_goes" },
-        { "point": "Лидеры рынка — Nippon Steel, POSCO, Baowu; Азиатско-Тихоокеанский регион занимает ~71% мирового рынка GOES", "certainty": "fact", "source_ref": "src_goes" },
-        { "point": "Драйверы роста: энергоэффективность, возобновляемая энергетика, бум ЦОД и ИИ (спрос на трансформаторы); сегмент трансформаторов >52% рынка GOES", "certainty": "fact", "source_ref": "src_goes" },
-        { "point": "Прогноз: устойчивый рост, ориентировочно средний однозначный темп в год (CAGR порядка 3–6% по разным оценкам); для ВИЗ-Стали — стабильный премиальный спрос, но санкционные/логистические риски экспорта (наша оценка по факторам)", "certainty": "model", "source_ref": "src_goes" }
+        {
+          "point": "Мировой рынок трансформаторной стали (GOES) оценивается ориентировочно в $9–14 млрд (2025) — оценки источников сильно расходятся",
+          "certainty": "estimate",
+          "source_ref": "src_goes"
+        },
+        {
+          "point": "ВИЗ-Сталь занимает ~5,9% мирового рынка трансформаторной стали и ~71% российского — нишевый игрок глобально, доминирующий внутри РФ",
+          "certainty": "estimate",
+          "source_ref": "src_goes"
+        },
+        {
+          "point": "Лидеры рынка — Nippon Steel, POSCO, Baowu; Азиатско-Тихоокеанский регион занимает ~71% мирового рынка GOES",
+          "certainty": "fact",
+          "source_ref": "src_goes"
+        },
+        {
+          "point": "Драйверы роста: энергоэффективность, возобновляемая энергетика, бум ЦОД и ИИ (спрос на трансформаторы); сегмент трансформаторов >52% рынка GOES",
+          "certainty": "fact",
+          "source_ref": "src_goes"
+        },
+        {
+          "point": "Прогноз: устойчивый рост, ориентировочно средний однозначный темп в год (CAGR порядка 3–6% по разным оценкам); для ВИЗ-Стали — стабильный премиальный спрос, но санкционные/логистические риски экспорта (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": "src_goes"
+        }
       ]
     }
   ],
-
   "sources": [
-    { "id": "src_steel_b1", "type": "industry_report", "title": "Производство стали в РФ снизится на 11% в 2025, восстановление с 2026 (прогноз Б1) — Ведомости/Smart-Lab", "period": "2025", "url": "https://smart-lab.ru/blog/news/1205231.php", "reliability": "medium" },
-    { "id": "src_steel_nkr", "type": "industry_report", "title": "Производство стали в РФ в 2025 сократится до 57 млн т, потребление до минимума с 2011 — исследование НКР (ТАСС)", "period": "2025", "url": "https://smart-lab.ru/blog/news/1243655.php", "reliability": "medium" },
-    { "id": "src_doli_2025", "type": "media", "title": "Металлурги делят доли: Северсталь 33%, ММК 30%, НЛМК 23% — Коммерсантъ", "period": "2025", "url": "https://www.kommersant.ru/doc/8400616", "reliability": "high" },
-    { "id": "src_prom_recovery", "type": "industry_report", "title": "Аналитики прогнозируют оживление российской чёрной металлургии в 2026 — Prometall", "period": "2026", "url": "https://www.prometall.info/analitika/analitiki_prognoziruyut_ozhivlenie_rossiyskoy_chyernoy_metallurgii_v_2026_godu", "reliability": "medium" },
-    { "id": "src_worldsteel", "type": "industry_report", "title": "worldsteel Short Range Outlook April 2026 — мировой спрос на сталь", "period": "2026", "url": "https://worldsteel.org/media/press-releases/2026/worldsteel-short-range-outlook-april-2026/", "reliability": "high" },
-    { "id": "src_oecd", "type": "industry_report", "title": "OECD Steel Outlook 2025 — перепроизводство, загрузка мощностей", "period": "2025", "url": "https://www.oecd.org/en/publications/2025/05/oecd-steel-outlook-2025_bf2b6109.html", "reliability": "high" },
-    { "id": "src_eu_ban", "type": "regulator", "title": "EU steel import quotas / phase-out of Russian slabs by 2028 — EUROMETAL / GMK Center", "period": "2026", "url": "https://eurometal.net/eu-announces-new-steel-import-quota-volumes-and-implementation-changes/", "reliability": "high" },
-    { "id": "src_nlmk_slabs2025", "type": "media", "title": "Экспорт слябов НЛМК в 2025 — 6,5 млн т (макс. за годы): 47% Турция, 27% Бельгия, 24% Мексика — Mcena", "period": "2025", "url": "https://www.mcena.ru/novosti/v-2025-godu-ehksport-stalnyh-slyabov-ot-nlmk-samyj-vysokij-za-poslednie-gody", "reliability": "medium" },
-    { "id": "src_export_topcompanies", "type": "media", "title": "Россия 6-е место по экспорту стали (12,1 млн т, +13%); НЛМК ~17,6 млн т производства — TAdviser / T-Investments", "period": "2025", "url": "https://www.tbank.ru/invest/social/profile/T-Investments/rossiya-uvelichila-eksport-stali-v-2025-godu-na-13/", "reliability": "medium" },
-    { "id": "src_goes", "type": "aggregator", "title": "Grain Oriented Electrical Steel (GOES) Market Size 2025 — Mordor/Grand View/Fortune (оценки расходятся)", "period": "2025", "url": "https://www.grandviewresearch.com/industry-analysis/grain-oriented-electrical-steel-goes-market", "reliability": "low" },
-    { "id": "src_hrc_price", "type": "media", "title": "Прогноз цен на российский горячекатаный прокат на 2026 (оценки расходятся: $415–440 до $590/т) — Коммерсантъ/dprom", "period": "2026", "url": "https://www.kommersant.ru/doc/8023377", "reliability": "medium" }
+    {
+      "id": "src_steel_b1",
+      "type": "industry_report",
+      "title": "Производство стали в РФ снизится на 11% в 2025, восстановление с 2026 (прогноз Б1) — Ведомости/Smart-Lab",
+      "period": "2025",
+      "url": "https://smart-lab.ru/blog/news/1205231.php",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_steel_nkr",
+      "type": "industry_report",
+      "title": "Производство стали в РФ в 2025 сократится до 57 млн т, потребление до минимума с 2011 — исследование НКР (ТАСС)",
+      "period": "2025",
+      "url": "https://smart-lab.ru/blog/news/1243655.php",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_doli_2025",
+      "type": "media",
+      "title": "Металлурги делят доли: Северсталь 33%, ММК 30%, НЛМК 23% — Коммерсантъ",
+      "period": "2025",
+      "url": "https://www.kommersant.ru/doc/8400616",
+      "reliability": "high"
+    },
+    {
+      "id": "src_prom_recovery",
+      "type": "industry_report",
+      "title": "Аналитики прогнозируют оживление российской чёрной металлургии в 2026 — Prometall",
+      "period": "2026",
+      "url": "https://www.prometall.info/analitika/analitiki_prognoziruyut_ozhivlenie_rossiyskoy_chyernoy_metallurgii_v_2026_godu",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_worldsteel",
+      "type": "industry_report",
+      "title": "worldsteel Short Range Outlook April 2026 — мировой спрос на сталь",
+      "period": "2026",
+      "url": "https://worldsteel.org/media/press-releases/2026/worldsteel-short-range-outlook-april-2026/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_oecd",
+      "type": "industry_report",
+      "title": "OECD Steel Outlook 2025 — перепроизводство, загрузка мощностей",
+      "period": "2025",
+      "url": "https://www.oecd.org/en/publications/2025/05/oecd-steel-outlook-2025_bf2b6109.html",
+      "reliability": "high"
+    },
+    {
+      "id": "src_eu_ban",
+      "type": "regulator",
+      "title": "EU steel import quotas / phase-out of Russian slabs by 2028 — EUROMETAL / GMK Center",
+      "period": "2026",
+      "url": "https://eurometal.net/eu-announces-new-steel-import-quota-volumes-and-implementation-changes/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_nlmk_slabs2025",
+      "type": "media",
+      "title": "Экспорт слябов НЛМК в 2025 — 6,5 млн т (макс. за годы): 47% Турция, 27% Бельгия, 24% Мексика — Mcena",
+      "period": "2025",
+      "url": "https://www.mcena.ru/novosti/v-2025-godu-ehksport-stalnyh-slyabov-ot-nlmk-samyj-vysokij-za-poslednie-gody",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_export_topcompanies",
+      "type": "media",
+      "title": "Россия 6-е место по экспорту стали (12,1 млн т, +13%); НЛМК ~17,6 млн т производства — TAdviser / T-Investments",
+      "period": "2025",
+      "url": "https://www.tbank.ru/invest/social/profile/T-Investments/rossiya-uvelichila-eksport-stali-v-2025-godu-na-13/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_goes",
+      "type": "aggregator",
+      "title": "Grain Oriented Electrical Steel (GOES) Market Size 2025 — Mordor/Grand View/Fortune (оценки расходятся)",
+      "period": "2025",
+      "url": "https://www.grandviewresearch.com/industry-analysis/grain-oriented-electrical-steel-goes-market",
+      "reliability": "low"
+    },
+    {
+      "id": "src_hrc_price",
+      "type": "media",
+      "title": "Прогноз цен на российский горячекатаный прокат на 2026 (оценки расходятся: $415–440 до $590/т) — Коммерсантъ/dprom",
+      "period": "2026",
+      "url": "https://www.kommersant.ru/doc/8023377",
+      "reliability": "medium"
+    }
   ],
   "data_flags": [
     "Точный размер именно рынка плоского проката РФ в натуральных/денежных единицах не раскрывается отдельно — использован прокси через производство/потребление стали РФ (оценки источников расходятся: 57–67 млн т производства за 2025).",
@@ -215,5 +494,13 @@
     "Размер мирового рынка GOES — оценки маркетинговых агентств расходятся в 1,5 раза ($9–16 млрд), надёжность пониженная; доля ВИЗ-Стали 5,9%/71% — из бизнес-модели/IR, требует перепроверки.",
     "Прогнозы цен на сталь на 2026 сильно расходятся ($415–440 vs до $590/т) — отражено как разброс, без ложной точности.",
     "Статус и стоимость зарубежных активов (NBH, NLMK USA) — высокая неопределённость; сделка с Cleveland-Cliffs не завершена."
-  ]
+  ],
+  "signal_market_to_revenue": {
+    "direction": "negative_2026_trough_with_h2_recovery_optionality",
+    "drivers": "внутренний рынок (~55-60% выручки) — спад потребления стали РФ до минимума с 2011; остаточный экспорт слябов в ЕС под квотами/исключением до 2028; глобальные цены подавлены профицитом Китая",
+    "revenue_range_method": "двумя способами — (1) натура × цена USD (тонны отгрузок × мировая цена сляба/проката, минус инфляция); (2) сегментная выручка РФ+экспорт → диапазон сходится с итоговой 831 млрд 2025",
+    "fy2026_signal": "выручка около дна/слабый рост (consensus rev +6% при восстановлении цен/курса), маржа — ключевой риск",
+    "certainty": "judgement",
+    "as_of": "2026-06-16"
+  }
 }
