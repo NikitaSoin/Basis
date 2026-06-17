@@ -1157,3 +1157,15 @@ governance-дисконт+related-party → оценка → арбитраж в
 - 9 префов исправлены (метод по типу): type-2 (LSNGP/RTSBP/VRSBP) дивкоридор по собственной ист.доходности; артефакт flat-rate убран (VGSBP charter-не-платится/KGKCP DDM-флор/MAGEP dividend=0); 4 недочиненных меты (LSNGP/JNOSP/IGSTP/KRKNP) на префовые. IGSTP/JNOSP помечены low liquidity + «модельная оценка». Коммиты локальные, НЕ пушены.
 - ОТК связности на выборке: SBER числа сведены (банк-структура цела), CHMK governance-дисконт 3пп→Ke 28.1 + related-party виден, дубли HYDR=RHYD/HEAD=HHRU идентичны.
 - НАЙДЕНО: 6 карточек (ASTR, BANE, BSPBP, MGNT, SNGSP, YDEX) помечены done, но арбитр-проход v3 НЕ отработал (synthesis_verdict=null, нет арбитраж-блока). Вкладки+финансы у них заполнены. Запущены 6 арбитров на дозамыкание связности (BSPBP/SNGSP — ещё и проверка преф-метода). После них — push всех 264, если чисто.
+
+## 2026-06-17 — Цена ВЕЗДЕ только из quotes (железное правило)
+Диагностика карты источников: живой источник = таблица quotes (Тинёк→БД, апдейт ~5мин в торги).
+rates.csv = дамп-справочник MOEX ISS, колонка PRICE_RUB = старый снимок. Дефект: anchor_block
+сеял цену аналитику из PRICE_RUB → застывала в meta.last_price; вкладка Финансы местами падала на застывшее.
+ФИКС (цена только из quotes, rates.csv — справочник для НЕценовых полей):
+- anchor_block.py / market_context.py / fix_pref_financials.py: price = _price_from_quotes() (last close), не PRICE_RUB
+- load_all_companies.py: убран сид quote из rates PRICE; PRICE не required
+- App.js вкладка Финансы: апсайд живьём (fair.base−liveCurp)/liveCurp, liveCurp=livePrice??company.price; убраны фолбэки на застывшее; шапка мультипликаторов — liveCurp
+- Обзор-hero/тепловая/скринер/список — уже были на quotes
+Смоук (локальная БД, max date 2026-06-17, 261 тикер): LKOH quotes 4525 vs снимок 5268 (−14%), MGNT 2132 vs 2566 (−17%); префы покрыты (JNOSP 11.38, IGSTP 3110, LSNGP 361.85, BSPBP 44.25).
+Запушено 4e6344f. TODO на бою: сверить апсайд Финансы=Обзор=карта (LKOH/MGNT/YDEX держали снимок); опц. освежить сам rates.csv (старый снимок капы/дивотсечек).
