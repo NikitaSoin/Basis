@@ -10891,17 +10891,40 @@ function GeoScenario({ name, label, tone, sc, onSelectCompany }) {
 
 function GeoRegionCard({ block, deep, onSelectCompany }) {
   if (!block) return null;
+  // Маленький заголовок секции внутри плитки (единый стиль).
+  const secLabel = (t) => <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">{t}</div>;
+  const hasChips = block.affected_sectors?.length > 0 || block.affected_tickers?.length > 0;
   return (
-    <Card>
-      <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-2">
-        <h3 className="tw-text-[16px] tw-font-medium tw-text-text-primary tw-m-0">{block.title}</h3>
+    // Регион = ГРУППА: заголовок над плитками (на базовом фоне), затем отдельные
+    // плитки-сиблинги по темам — НЕ всё в одной большой плитке.
+    <div className="tw-flex tw-flex-col tw-gap-2.5">
+      <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
+        <h3 className="tw-text-[16px] tw-font-semibold tw-text-text-primary tw-m-0">{block.title}</h3>
         {block.in_portfolio && <Badge tone="accent">в портфеле</Badge>}
       </div>
-      {block.status_text && <p className="tw-text-[14px] tw-text-text-primary tw-leading-[1.6] tw-mt-0">{block.status_text}</p>}
 
+      {/* Плитка: ситуация + кого касается */}
+      {(block.status_text || hasChips) && (
+        <Card>
+          {block.status_text && <p className="tw-text-[14px] tw-text-text-primary tw-leading-[1.6] tw-m-0">{block.status_text}</p>}
+          {hasChips && (
+            <div className={`tw-flex tw-flex-wrap tw-gap-1.5 tw-items-center ${block.status_text ? "tw-mt-3" : ""}`}>
+              {(block.affected_sectors || []).map((s, i) => <Chip key={"s" + i}>{s}</Chip>)}
+              {(block.affected_tickers || []).map((t, i) => (
+                <button key={"t" + i} onClick={() => onSelectCompany && onSelectCompany(t)}
+                  className="tw-font-mono tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-pill tw-border tw-border-border-subtle tw-text-accent tw-bg-transparent tw-cursor-pointer hover:tw-border-accent focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Плитка: каналы влияния (цветные мини-плитки внутри) */}
       {Array.isArray(block.channels) && block.channels.length > 0 && (
-        <div className="tw-mt-4">
-          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">Каналы влияния</div>
+        <Card>
+          {secLabel("Каналы влияния")}
           <div className="tw-flex tw-flex-col tw-gap-2">
             {block.channels.map((c, i) => (
               <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-2">
@@ -10910,35 +10933,29 @@ function GeoRegionCard({ block, deep, onSelectCompany }) {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
-      {(block.affected_sectors?.length > 0 || block.affected_tickers?.length > 0) && (
-        <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-1.5 tw-items-center">
-          {(block.affected_sectors || []).map((s, i) => <Chip key={"s" + i}>{s}</Chip>)}
-          {(block.affected_tickers || []).map((t, i) => (
-            <button key={"t" + i} onClick={() => onSelectCompany && onSelectCompany(t)}
-              className="tw-font-mono tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-pill tw-border tw-border-border-subtle tw-text-accent tw-bg-transparent tw-cursor-pointer hover:tw-border-accent focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-              {t}
-            </button>
-          ))}
-        </div>
-      )}
-
+      {/* Плитка: сценарии (глубокая аналитика) */}
       {deep && block.scenarios && (
-        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2">
-          <GeoScenario label="Базовый" tone="var(--accent)" sc={block.scenarios.base} onSelectCompany={onSelectCompany} />
-          <GeoScenario label="Оптимистичный" tone="var(--success)" sc={block.scenarios.bull} onSelectCompany={onSelectCompany} />
-          <GeoScenario label="Негативный" tone="var(--danger)" sc={block.scenarios.bear} onSelectCompany={onSelectCompany} />
-        </div>
+        <Card>
+          {secLabel("Сценарии — оценка Basis")}
+          <div className="tw-flex tw-flex-col tw-gap-2">
+            <GeoScenario label="Базовый" tone="var(--accent)" sc={block.scenarios.base} onSelectCompany={onSelectCompany} />
+            <GeoScenario label="Оптимистичный" tone="var(--success)" sc={block.scenarios.bull} onSelectCompany={onSelectCompany} />
+            <GeoScenario label="Негативный" tone="var(--danger)" sc={block.scenarios.bear} onSelectCompany={onSelectCompany} />
+          </div>
+        </Card>
       )}
 
+      {/* Плитка: что это значит для рынков (отдельная плитка-вывод) */}
       {block.market_impact && (
-        <KeyTakeaway tone="neutral" title="Что это значит для рынков" className="tw-mt-3.5">
-          {block.market_impact}
-        </KeyTakeaway>
+        <Card>
+          {secLabel("Что это значит для рынков")}
+          <p className="tw-text-[14px] tw-text-text-primary tw-leading-[1.6] tw-m-0">{block.market_impact}</p>
+        </Card>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -10981,7 +10998,9 @@ function GeopoliticsView({ token, portfolioOnly, onSelectCompany }) {
         </div>
       )}
       {!loading && blocks.length > 0 && (
-        <div className="tw-flex tw-flex-col tw-gap-4">
+        // gap-7 между РЕГИОНАМИ (внутри региона плитки идут тесной группой gap-2.5),
+        // чтобы группы тем разных регионов визуально не сливались.
+        <div className="tw-flex tw-flex-col tw-gap-7">
           {blocks.map((b) => (
             <GeoRegionCard key={b.region} block={b} deep={tab === "deep"} onSelectCompany={onSelectCompany} />
           ))}
