@@ -1,5 +1,9 @@
 """
-Заполняет market_cap для всех компаний из CSV MOEX.
+Разовый сидер ЧИСЛА АКЦИЙ (shares_outstanding) из CSV MOEX (ISSUESIZE).
+Капитализацию НЕ пишем: market_cap считается живьём quotes_updater'ом
+= последний close из quotes × shares_outstanding. rates.csv для цены/капы НЕ источник —
+только справочник числа акций (ISSUESIZE).
+
 Запуск: cd backend && python -m scripts.update_market_cap [путь_к_csv]
 """
 import sys, os, csv
@@ -46,31 +50,33 @@ def main():
     data_rows = rows[header_row_idx + 1:]
     idx = {h: i for i, h in enumerate(header)}
 
-    # ticker → market_cap
-    cap_map: dict[str, float] = {}
+    # ticker → shares_outstanding (ISSUESIZE — НЕценовое поле)
+    shares_map: dict[str, int] = {}
+    sz_idx = idx.get("ISSUESIZE", 999)
     for row in data_rows:
-        if len(row) <= idx.get("SECURITYCAPITALIZATION", 999):
+        if len(row) <= sz_idx:
             continue
         ticker = row[idx["SECID"]].strip()
-        cap = parse_ru_float(row[idx["SECURITYCAPITALIZATION"]])
-        if ticker and cap and cap > 0:
-            cap_map[ticker] = cap
+        sh = parse_ru_float(row[sz_idx])
+        if ticker and sh and sh > 0:
+            shares_map[ticker] = int(sh)
 
-    print(f"  Найдено капитализаций в CSV: {len(cap_map)}")
+    print(f"  Найдено чисел акций в CSV: {len(shares_map)}")
 
     engine = create_engine(DATABASE_URL)
     updated = 0
     with engine.begin() as conn:
         tickers_in_db = {r[0] for r in conn.execute(text("SELECT ticker FROM companies")).fetchall()}
-        for ticker, cap in cap_map.items():
+        for ticker, sh in shares_map.items():
             if ticker in tickers_in_db:
                 conn.execute(
-                    text("UPDATE companies SET market_cap=:cap WHERE ticker=:t"),
-                    {"cap": cap, "t": ticker}
+                    text("UPDATE companies SET shares_outstanding=:sh WHERE ticker=:t"),
+                    {"sh": sh, "t": ticker}
                 )
                 updated += 1
 
-    print(f"✅ Обновлено market_cap для {updated} компаний")
+    print(f"✅ Обновлено shares_outstanding для {updated} компаний "
+          f"(капитализация пересчитается живьём quotes_updater'ом от свежей цены)")
 
 
 if __name__ == "__main__":
