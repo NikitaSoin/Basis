@@ -33,13 +33,35 @@ def _rows():
     return list(csv.DictReader(io.StringIO("".join(lines[hi:])), delimiter=";"))
 
 
+def _price_from_quotes(ticker):
+    """Цена ТОЛЬКО из таблицы quotes (свежая Тинёк→БД). rates.csv PRICE_RUB не
+    используется. Офлайн/нет БД → None (без отката на rates)."""
+    try:
+        sys.path.insert(0, os.path.join(BASE, "backend"))
+        from app.db.session import SessionLocal
+        from sqlalchemy import text
+        db = SessionLocal()
+        try:
+            row = db.execute(text("""
+                SELECT q.close FROM quotes q
+                JOIN companies c ON c.id = q.company_id
+                WHERE c.ticker = :t AND q.close IS NOT NULL
+                ORDER BY q.date DESC LIMIT 1
+            """), {"t": ticker.upper()}).fetchone()
+            return float(row[0]) if row and row[0] is not None else None
+        finally:
+            db.close()
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def context_for(ticker, rows=None):
     rows = rows or _rows()
     t = ticker.upper()
     row = next((r for r in rows if (r.get("SECID") or "").upper() == t), None)
     if not row:
         return f"{t}: НЕ НАЙДЕН в rates.csv — цену/акции возьми из веба как исключение."
-    price = _num(row.get("PRICE_RUB"))
+    price = _price_from_quotes(t)
     shares = _num(row.get("ISSUESIZE"))
     cap = _num(row.get("SECURITYCAPITALIZATION"))
     div = _num(row.get("DIVIDENDVALUE"))
