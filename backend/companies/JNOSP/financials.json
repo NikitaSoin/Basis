@@ -1011,7 +1011,8 @@
       "current_price": 11.64,
       "current_price_basis": "цена ПРЕФА JNOSP, 16.06.2026, малоликвидна",
       "confidence": "low",
-      "method_basis": "intrinsic per-share (DCF, justified P/B, relative EV/EBITDA) на полное число акций; апсайд к цене префа считается живьём"
+      "method_basis": "intrinsic per-share (DCF, justified P/B, relative EV/EBITDA) на полное число акций; апсайд к цене префа считается живьём",
+      "display_flag": "модельная оценка · низкая ликвидность · дисконт префа может быть структурным"
     },
     "sensitivity": {
       "r_grid": [
