@@ -1818,19 +1818,39 @@ function useScrollRestore(key, ready) {
 // (надёжность, доходность, чувствительность к ставке, денежный поток).
 // Общий markdown-рендерер для разборов аналитика (облигации/фьючерсы/фонды).
 // БЕЗ него сырой markdown (##, **, таблицы |) показывался плоской «простынёй».
+// Достаёт плоский текст из дерева React-children (для распознавания смысловых
+// абзацев-выводов вроде «Оценка Basis», «Что это значит»).
+const mdText = (node) => {
+  if (node == null) return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(mdText).join("");
+  if (node.props && node.props.children) return mdText(node.props.children);
+  return "";
+};
+// Абзацы-выводы: подсвечиваем как акцентный callout (читаемый primary-текст),
+// чтобы ключевой смысл не тонул в общем сером тексте.
+const LEAD_CALLOUT = /^\s*(оценк[аи] basis|наша оценка|что это значит|ключевой вывод|вывод|итог|главное|резюме|bottom\s*line)\b/i;
+
 const ANALYST_MD = {
   h1: () => null,
   h2: ({ children }) => <h2 className="tw-text-[15.5px] tw-font-bold tw-text-text-primary tw-mt-6 tw-mb-2.5 tw-pt-3.5 tw-border-t tw-border-border-subtle first:tw-border-0 first:tw-pt-0 first:tw-mt-0">{children}</h2>,
-  h3: ({ children }) => <h3 className="tw-text-[14px] tw-font-semibold tw-text-text-primary tw-mt-4 tw-mb-1.5">{children}</h3>,
-  p: ({ children }) => <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-2.5">{children}</p>,
-  ul: ({ children }) => <ul className="tw-list-disc tw-pl-5 tw-my-2.5 tw-space-y-1.5">{children}</ul>,
-  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-2.5 tw-space-y-1.5">{children}</ol>,
-  li: ({ children }) => <li className="tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary marker:tw-text-text-tertiary tw-pl-1">{children}</li>,
+  // Подзаголовок-подпункт: акцентная вертикальная риска + жирный primary, с воздухом сверху.
+  h3: ({ children }) => <h3 className="tw-flex tw-items-center tw-gap-2 tw-text-[14.5px] tw-font-bold tw-text-text-primary tw-mt-5 tw-mb-2"><span className="tw-rounded-xs tw-bg-accent tw-shrink-0" style={{ width: 3, height: 13 }} aria-hidden="true" />{children}</h3>,
+  p: ({ children }) => {
+    const t = mdText(children);
+    if (LEAD_CALLOUT.test(t)) {
+      return <div className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-[14.5px] tw-leading-[1.65] tw-text-text-primary">{children}</div>;
+    }
+    return <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-3">{children}</p>;
+  },
+  ul: ({ children }) => <ul className="tw-list-disc tw-pl-5 tw-my-3 tw-space-y-2">{children}</ul>,
+  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-3 tw-space-y-2">{children}</ol>,
+  li: ({ children }) => <li className="tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary marker:tw-text-accent tw-pl-1.5">{children}</li>,
   strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
   em: ({ children }) => <em className="tw-italic">{children}</em>,
-  blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-bg-base tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2 tw-my-3 tw-text-text-secondary">{children}</blockquote>,
+  blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-text-primary">{children}</blockquote>,
   hr: () => <hr className="tw-my-5 tw-border-border-subtle" />,
-  table: ({ children }) => <div className="tw-overflow-x-auto tw-my-3 tw-rounded-md tw-border tw-border-border-subtle"><table className="tw-w-full tw-border-collapse tw-text-[13px]">{children}</table></div>,
+  table: ({ children }) => <div className="tw-overflow-x-auto tw-my-3.5 tw-rounded-md tw-border tw-border-border-subtle"><table className="tw-w-full tw-border-collapse tw-text-[13px]">{children}</table></div>,
   th: ({ children }) => <th className="tw-text-left tw-px-2.5 tw-py-2 tw-bg-bg-base tw-border-b tw-border-border-strong tw-text-text-secondary tw-font-semibold">{children}</th>,
   td: ({ children }) => <td className="tw-px-2.5 tw-py-2 tw-border-b tw-border-border-subtle tw-text-text-secondary tw-align-top tw-leading-[1.5]">{children}</td>,
   code: ({ children }) => <code className="tw-bg-bg-base tw-px-1.5 tw-py-0.5 tw-rounded-xs tw-text-[12.5px] tw-font-mono">{children}</code>,
@@ -5594,7 +5614,7 @@ const CompanyCard = ({ company, onBack }) => {
               <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
             <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
           </Card>
         ))}
@@ -5933,7 +5953,7 @@ const CompanyCard = ({ company, onBack }) => {
               <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
             <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
           </Card>
         ))}
@@ -6136,7 +6156,7 @@ const CompanyCard = ({ company, onBack }) => {
               <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
             <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
           </Card>
         ))}
@@ -6395,7 +6415,7 @@ const CompanyCard = ({ company, onBack }) => {
               <Info size={16} className="tw-text-accent" />{sec.heading}
             </h4>
             <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{sec.body}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
           </Card>
         ))}
@@ -10877,15 +10897,16 @@ function GeoRegionCard({ block, deep, onSelectCompany }) {
         <h3 className="tw-text-[16px] tw-font-medium tw-text-text-primary tw-m-0">{block.title}</h3>
         {block.in_portfolio && <Badge tone="accent">в портфеле</Badge>}
       </div>
-      {block.status_text && <p className="tw-text-[13px] tw-text-text-secondary tw-leading-relaxed tw-mt-0">{block.status_text}</p>}
+      {block.status_text && <p className="tw-text-[14px] tw-text-text-primary tw-leading-[1.6] tw-mt-0">{block.status_text}</p>}
 
       {Array.isArray(block.channels) && block.channels.length > 0 && (
-        <div className="tw-mt-3">
-          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1.5">Каналы влияния</div>
-          <div className="tw-flex tw-flex-col tw-gap-1">
+        <div className="tw-mt-4">
+          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2">Каналы влияния</div>
+          <div className="tw-flex tw-flex-col tw-gap-2">
             {block.channels.map((c, i) => (
-              <div key={i} className="tw-text-[12px] tw-text-text-secondary">
-                <span className="tw-font-medium tw-text-text-primary">{c.channel}</span>{c.effect ? ` — ${c.effect}` : ""}
+              <div key={i} className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-2">
+                <div className="tw-text-[13px] tw-font-semibold tw-text-accent">{c.channel}</div>
+                {c.effect && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[1.55] tw-mt-0.5">{c.effect}</div>}
               </div>
             ))}
           </div>
@@ -10913,10 +10934,9 @@ function GeoRegionCard({ block, deep, onSelectCompany }) {
       )}
 
       {block.market_impact && (
-        <div className="tw-mt-3 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle tw-px-3 tw-py-2">
-          <div className="tw-text-[11px] tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1">Что это значит для рынков</div>
-          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0 tw-leading-relaxed">{block.market_impact}</p>
-        </div>
+        <KeyTakeaway tone="neutral" title="Что это значит для рынков" className="tw-mt-3.5">
+          {block.market_impact}
+        </KeyTakeaway>
       )}
     </Card>
   );
