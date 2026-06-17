@@ -1213,7 +1213,7 @@
         }
       }
     ],
-    "signals_received": {
+    "v3_signals_received": {
       "governance_discount": "+1,5 п.п. к ставке дисконтирования (DCF/CAPM) — заведено: Ke 20,45%→21,95%, DCF 6 197→5 693 ₽. Источник: governance.json governance_discount.",
       "related_party_signal": "severity medium, но прямого вывода прибыли наверх нет → adjusted-прибыль НЕ дисконтируется дополнительно; риск отражён только в ставке. Источник: governance.json related_party_signal.",
       "signal_revenue_outlook": "рынок: доля удержится (№2), выручка растёт номинально (high-однозначный/низкий двузначный %), но рост в основном инфляционный, натуральный ~0 → в прогноз выручки заложен рост ~12% номинальный, без переоценки натурального объёма. Источник: market.json.",
