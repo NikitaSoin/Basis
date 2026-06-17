@@ -4499,7 +4499,6 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "ROE", value: roeNow, delta: pctOf(roeNow, prevNN(ret.roe)), kind: "pct" },
     ];
 
-    const upside = fvr.upside_downside_pct;
     const mdc = {
       h1: () => null,
       h2: ({ children }) => (
@@ -4602,13 +4601,15 @@ const CompanyCard = ({ company, onBack }) => {
       </Card>
     ) : null;
 
-    // Живая цена для апсайда: из realtime-котировки (rates.csv), затем из карточки,
-    // и только в последнюю очередь — запечённое в JSON (legacy). Апсайд считаем здесь,
-    // а НЕ берём из financials.json, чтобы он не устаревал.
-    const liveCurp = livePrice ?? company?.price ?? fvr.current_price ?? meta.last_price ?? null;
+    // Живая цена для апсайда — ТОЛЬКО из quotes (Тинёк→БД): realtime-котировка, затем
+    // последний close из списка компаний. Застывшую цену из financials.json
+    // (fvr.current_price / meta.last_price) и запечённый upside_downside_pct НЕ
+    // используем — апсайд считаем здесь живьём, чтобы он не устаревал. Нет живой
+    // цены → апсайд не показываем («—»), а не старое число.
+    const liveCurp = livePrice ?? company?.price ?? null;
     const upsideLive = (typeof fvr.base === "number" && typeof liveCurp === "number" && liveCurp > 0)
       ? ((fvr.base - liveCurp) / liveCurp) * 100
-      : (typeof upside === "number" ? upside : null);
+      : null;
     const fairValueBar = () => {
       const lo = fvr.conservative, hi = fvr.base, curp = liveCurp;
       if (typeof lo !== "number" || typeof hi !== "number" || typeof curp !== "number") return null;
@@ -5327,8 +5328,8 @@ const CompanyCard = ({ company, onBack }) => {
         )}
         {finJson && (
           <Card>
-            {cardHead(BarChart2, "Ключевые мультипликаторы", typeof meta.last_price === "number" && (
-              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(meta.last_price, { currency: cySym })}{meta.price_date ? ` · ${meta.price_date}` : ""}</span>
+            {cardHead(BarChart2, "Ключевые мультипликаторы", typeof liveCurp === "number" && (
+              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(liveCurp, { currency: cySym })} · сейчас</span>
             ))}
             <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
               {mult.map((m, i) => (

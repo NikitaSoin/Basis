@@ -199,13 +199,12 @@ def main():
     data_rows = rows[header_row_idx + 1:]
     idx = {h: i for i, h in enumerate(header)}
 
-    required = ["SECID", "SHORTNAME", "NAME", "EMITENTNAME", "PRICE", "TYPENAME"]
+    required = ["SECID", "SHORTNAME", "NAME", "EMITENTNAME", "TYPENAME"]  # PRICE больше не нужен
     missing = [c for c in required if c not in idx]
     if missing:
         print(f"❌ В CSV нет колонок: {missing}")
         sys.exit(1)
 
-    today = date.today()
     engine = create_engine(DATABASE_URL)
     sector_counts: dict[str, int] = defaultdict(int)
     loaded = skipped = errors = 0
@@ -227,8 +226,7 @@ def main():
             emitent = row[idx["EMITENTNAME"]].strip()
             short = row[idx["SHORTNAME"]].strip()
             raw_name = row[idx["NAME"]].strip() or short or ticker
-            price_raw = row[idx["PRICE"]].strip()
-            price = parse_russian_float(price_raw)
+            # ЦЕНУ из rates.csv НЕ берём — котировки наполняет quotes_updater (Тинёк→БД).
 
             is_preferred = "привилегированные" in typename
             name = clean_company_name(raw_name, is_preferred=is_preferred)
@@ -266,15 +264,9 @@ def main():
                 loaded += 1
                 sector_counts[sector] += 1
 
-                # Добавляем котировку на сегодня если есть цена (компания только что создана)
-                if price is not None:
-                    session.execute(
-                        text("""
-                            INSERT INTO quotes (company_id, date, close)
-                            VALUES (:company_id, :date, :close)
-                        """),
-                        {"company_id": company_id, "date": today, "close": price},
-                    )
+                # Котировки НЕ сеем из rates.csv — их наполняет quotes_updater (Тинёк→БД,
+                # фолбэк MOEX ISS). rates.csv остаётся справочником (тикеры/имена/сектор/
+                # market_cap-сид), цена приходит только живой из quotes.
 
             except Exception as e:
                 errors += 1

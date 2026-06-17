@@ -1,5 +1,11 @@
 """Препроцессор привилегированных акций (фикс 1 аудита, docs/cards_audit_systemic.md 1.1).
 
+⚠️ УСТАРЕЛО (2026-06-17): дивидендная оценка через ПЛОСКУЮ KEY_RATE даёт артефакт
+на низкодоходных префах (см. v3-фикс префов). Метод оценки префов заменён вручную
+на типизированный (интринсик / дивиденд по СОБСТВЕННОЙ ист. доходности). НЕ
+перезапускать оценочную часть. Цена здесь уже переведена на quotes.
+
+
 Чинит financials.json префа, который был КОПИЕЙ обыкновенной: рыночные параметры и
 оценку приводит к ТИКЕРУ ПРЕФА. Финансовая отчётность (выручка/EBITDA/прибыль/капитал)
 — общая по компании, НЕ трогаем.
@@ -40,6 +46,28 @@ def _load_rates() -> dict:
     return {r["SECID"]: r for r in csv.DictReader(f, delimiter=";")}
 
 
+def _price_from_quotes(ticker):
+    """Цена ТОЛЬКО из quotes (свежая Тинёк→БД). rates.csv PRICE_RUB не используется.
+    Офлайн/нет БД → None (без отката на rates)."""
+    try:
+        sys.path.insert(0, BACKEND)
+        from app.db.session import SessionLocal
+        from sqlalchemy import text
+        db = SessionLocal()
+        try:
+            row = db.execute(text("""
+                SELECT q.close FROM quotes q
+                JOIN companies c ON c.id = q.company_id
+                WHERE c.ticker = :t AND q.close IS NOT NULL
+                ORDER BY q.date DESC LIMIT 1
+            """), {"t": ticker.upper()}).fetchone()
+            return float(row[0]) if row and row[0] is not None else None
+        finally:
+            db.close()
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _num(s):
     if s is None:
         return None
@@ -76,7 +104,7 @@ def fix_pref(pref: str, rates: dict) -> str:
     inc = d.get("income_statement") or {}
     bs = d.get("balance_sheet") or {}
 
-    pref_price = _num(pr.get("PRICE_RUB"))
+    pref_price = _price_from_quotes(pref)  # цена префа ТОЛЬКО из quotes, не из rates
     pref_shares = _num(pr.get("ISSUESIZE"))
     pref_cap = _num(pr.get("SECURITYCAPITALIZATION"))
     pref_div = _num(pr.get("DIVIDENDVALUE"))

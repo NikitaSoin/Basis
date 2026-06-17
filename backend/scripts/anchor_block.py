@@ -40,6 +40,29 @@ def _num(s):
         return None
 
 
+def _price_from_quotes(ticker: str):
+    """Цена ТОЛЬКО из таблицы quotes (свежая Тинёк→БД). rates.csv для цены НЕ
+    используется. Если БД недоступна (офлайн-прогон) — возвращаем None, НЕ падая
+    обратно на rates.csv PRICE_RUB."""
+    try:
+        sys.path.insert(0, BACKEND)
+        from app.db.session import SessionLocal
+        from sqlalchemy import text
+        db = SessionLocal()
+        try:
+            row = db.execute(text("""
+                SELECT q.close FROM quotes q
+                JOIN companies c ON c.id = q.company_id
+                WHERE c.ticker = :t AND q.close IS NOT NULL
+                ORDER BY q.date DESC LIMIT 1
+            """), {"t": ticker.upper()}).fetchone()
+            return float(row[0]) if row and row[0] is not None else None
+        finally:
+            db.close()
+    except Exception:  # noqa: BLE001 — офлайн/нет БД: цена недоступна, но не из rates
+        return None
+
+
 def anchor_block(ticker: str) -> dict:
     """Якорный блок: рыночные параметры (rates.csv, по СВОЕМУ тикеру) + финансовые
     ряды (financials.json). Для префа цена/число акций/капа/дивиденд — по тикеру префа."""
@@ -53,8 +76,9 @@ def anchor_block(ticker: str) -> dict:
         "ticker": t,
         "is_pref": is_pref,
         "ordinary_ticker": ord_t,
-        # рыночные параметры — строго по СВОЕМУ тикеру
-        "price": _num(rr.get("PRICE_RUB")),
+        # ЦЕНА — только из quotes (свежая Тинёк→БД), НЕ из rates.csv
+        "price": _price_from_quotes(t),
+        # НЕценовые рыночные параметры — справочник rates.csv, по СВОЕМУ тикеру
         "shares_outstanding": _num(rr.get("ISSUESIZE")),
         "market_cap": _num(rr.get("SECURITYCAPITALIZATION")),
         "dividend_last": _num(rr.get("DIVIDENDVALUE")),
