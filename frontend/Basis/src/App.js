@@ -33,7 +33,6 @@ import {
   BarChart2,
   Database,
   ArrowRightLeft,
-  BookOpen,
   FileText,
   Settings,
   Sun,
@@ -90,50 +89,6 @@ const badgeClass = (impact) => {
 // =========================
 // MOCK DATA
 // =========================
-
-const MOCK_MARKET_NEWS = {
-  express: [
-    {
-      time: "10:00",
-      text: "ЦБ РФ сохранил ставку на уровне 16%. Рынок акций отреагировал нейтрально.",
-      impact: "neutral",
-    },
-    {
-      time: "09:30",
-      text: "Нефть Brent превысила $85 за баррель на фоне сокращения запасов.",
-      impact: "positive",
-    },
-    {
-      time: "Вчера",
-      text: "Яндекс завершил первый этап реструктуризации. Акции +3%.",
-      impact: "positive",
-    },
-  ],
-  detailed: [
-    {
-      title: "Замедление потребительского кредитования",
-      text: "По данным ЦБ, темпы роста потребкредитования в марте снизились на 15% м/м. Это оказывает давление на выручку банковского сектора.",
-      sector: "Финансы",
-      impact: "negative",
-    },
-    {
-      title: "Рекордные дивиденды в нефтегазе",
-      text: "Лукойл и Роснефть рекомендовали дивиденды выше ожиданий рынка. Ожидается приток ликвидности после дивидендных гэпов.",
-      sector: "Нефтегаз",
-      impact: "positive",
-    },
-  ],
-  deep: [
-    {
-      title: "Анализ макроструктуры РФ 2026",
-      text: "Структурная трансформация экономики приводит к росту внутреннего спроса при дефиците кадров. Это фундаментальный риск для инфляции.",
-      sector: "Макро",
-      impact: "neutral",
-      factors:
-        "Рынок труда, траектория ставки, бюджетный импульс, кредитование, темпы роста номинальных доходов и чувствительность мультипликаторов к ставке дисконтирования.",
-    },
-  ],
-};
 
 const roundFV = (v) => Math.round(v / 10) * 10;
 
@@ -11259,55 +11214,6 @@ function OverviewView({ token, onSelectCompany }) {
   // Направления Обозревателя. №1 — Лента новостей (готово); остальные — по мере выката.
   const [section, setSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
-  // Appear gate (Phase 4b): page-level so the overview cards stagger once on entry.
-  const appearGate = useRef(new Set());
-  const [overviewType, setOverviewType] = useState("express");
-  const [overviews, setOverviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [generateError, setGenerateError] = useState(null);
-
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const loadOverviews = () => {
-    setLoading(true);
-    fetch(`${apiUrl}/api/market/overviews?type=${overviewType}`)
-      .then((r) => r.ok ? r.json() : [])
-      .then((d) => { setOverviews(d); setLoading(false); })
-      .catch(() => { setOverviews([]); setLoading(false); });
-  };
-
-  useEffect(() => { loadOverviews(); }, [overviewType]);
-
-  const handleGenerate = () => {
-    setGenerating(true);
-    setGenerateError(null);
-    fetch(`${apiUrl}/api/market/overviews/generate?type=${overviewType}`, { method: "POST", headers: authHeaders })
-      .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
-      .then(({ ok, data }) => {
-        if (ok) loadOverviews();
-        else setGenerateError(data.detail || "Ошибка генерации обзора");
-      })
-      .catch((e) => setGenerateError(e.message || "Сетевая ошибка"))
-      .finally(() => setGenerating(false));
-  };
-
-  const TABS = [
-    { id: "express", label: "Экспресс", icon: Zap },
-    { id: "detailed", label: "Детальный", icon: FileText },
-    { id: "deep", label: "Глубокий", icon: BookOpen },
-  ];
-
-  const mockFallback = MOCK_MARKET_NEWS[overviewType] || [];
-  // Depth level → Badge tone. These are content DEPTH categories, not severity,
-  // so we keep them on neutral data-viz tones: warning(gold) is reserved for
-  // risk callouts and success/danger for signed deltas — none apply here.
-  const typeTone = {
-    express: "info",
-    detailed: "accent",
-    deep: "neutral",
-  };
 
   return (
     <div>
@@ -11323,9 +11229,6 @@ function OverviewView({ token, onSelectCompany }) {
         </Chip>
         <Chip selected={section === "macro"} onClick={() => setSection("macro")}>
           <Activity size={13} className="tw-shrink-0" aria-hidden="true" /> Макрообзор
-        </Chip>
-        <Chip selected={section === "overview"} onClick={() => setSection("overview")}>
-          <Globe size={13} className="tw-shrink-0" aria-hidden="true" /> Обзор рынка
         </Chip>
         <Chip selected={section === "maps"} onClick={() => setSection("maps")}>
           <Layers size={13} className="tw-shrink-0" aria-hidden="true" /> Карты рынка
@@ -11371,95 +11274,7 @@ function OverviewView({ token, onSelectCompany }) {
         <GeopoliticsView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
       ) : section === "report" ? (
         <ObserverReportView token={token} onSelectCompany={onSelectCompany} />
-      ) : (
-      <>
-      {/* Календарь событий — из наших данных (без внешних API): оферты/погашения
-          облигаций + экспирации фьючерсов. Всегда заполнен. */}
-      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <Chip
-              key={tab.id}
-              selected={overviewType === tab.id}
-              onClick={() => setOverviewType(tab.id)}
-            >
-              <Icon size={13} className="tw-shrink-0" aria-hidden="true" />
-              {tab.label}
-            </Chip>
-          );
-        })}
-
-        <Button
-          onClick={handleGenerate}
-          disabled={generating}
-          loading={generating}
-          variant="secondary"
-          iconLeft={!generating ? <Zap size={14} /> : null}
-          className="tw-ml-auto"
-        >
-          {generating ? "Генерируем..." : "Сгенерировать обзор"}
-        </Button>
-      </div>
-
-      {generateError && (
-        <div
-          role="alert"
-          className="tw-mb-4 tw-rounded-md tw-border tw-border-danger tw-bg-danger-soft tw-px-4 tw-py-3 tw-text-[14px] tw-text-danger"
-        >
-          {generateError}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="tw-text-text-secondary tw-animate-pulse">Загружаем обзор...</div>
-        </div>
-      ) : overviews.length > 0 ? (
-        <AppearGroup gate={appearGate.current} groupId="overview-cards" className="space-y-4">
-          {overviews.map((item) => (
-            <Card key={item.id}>
-              <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
-                <span className="tw-font-mono tw-text-[13px] tw-text-text-tertiary">{item.period}</span>
-                <Badge tone={typeTone[item.overview_type] || "info"}>
-                  {item.overview_type}
-                </Badge>
-              </div>
-              <p className="tw-text-[14px] tw-leading-[22px] tw-text-text-secondary">{item.content}</p>
-            </Card>
-          ))}
-        </AppearGroup>
-      ) : (
-        <div className="space-y-4">
-          <p className="tw-text-[12px] tw-italic tw-text-text-tertiary tw-mb-2">
-            Данных из API нет — показываем тестовые данные
-          </p>
-          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
-            {mockFallback.map((news, i) => (
-              <Card key={i}>
-                <div className="tw-flex tw-gap-3 tw-items-start">
-                  <Zap size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" aria-hidden="true" />
-                  <div>
-                    {news.time && (
-                      <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-mb-1">
-                        {news.time}
-                      </div>
-                    )}
-                    <p className="tw-text-[13px] tw-leading-[20px] tw-text-text-secondary">
-                      {news.text || news.title}
-                    </p>
-                    {news.desc && (
-                      <p className="tw-text-[12px] tw-text-text-secondary tw-mt-1.5">{news.desc}</p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-      </>
-      )}
+      ) : null}
     </div>
   );
 }
