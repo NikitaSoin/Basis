@@ -220,6 +220,56 @@ async def _earnings_startup():
     await _earnings_job(seed_only=True)
 
 
+async def _seed_shares_startup():
+    """После деплоя: проставить companies.shares_outstanding из data/rates.csv
+    (ISSUESIZE — НЕценовое справочное поле) тем компаниям, у кого пусто, и сразу
+    пересчитать капитализацию от СВЕЖЕЙ цены (quotes). Идемпотентно: трогаем только
+    NULL. Капитализация = живая цена × число акций, не застывший снимок rates.csv."""
+    def _run():
+        import csv, io, os
+        from app.db.session import SessionLocal
+        from app.models.company import Company
+        path = os.path.join(os.path.dirname(__file__), "..", "data", "rates.csv")
+        if not os.path.exists(path):
+            path = os.path.join(os.path.dirname(__file__), "..", "..", "rates.csv")
+        if not os.path.exists(path):
+            return 0
+        with open(path, encoding="cp1251") as f:
+            lines = f.readlines()
+        hi = next((i for i, l in enumerate(lines) if l.startswith("SECID")), None)
+        if hi is None:
+            return 0
+        rows = list(csv.DictReader(io.StringIO("".join(lines[hi:])), delimiter=";"))
+
+        def _int(s):
+            try:
+                return int(float(str(s).replace("\xa0", "").replace(" ", "").replace(",", ".")))
+            except (ValueError, TypeError):
+                return None
+
+        shares = {(r.get("SECID") or "").strip(): _int(r.get("ISSUESIZE")) for r in rows}
+        db = SessionLocal()
+        n = 0
+        try:
+            for c in db.query(Company).filter(Company.shares_outstanding.is_(None)).all():
+                sh = shares.get(c.ticker)
+                if sh:
+                    c.shares_outstanding = sh
+                    n += 1
+            db.commit()
+        finally:
+            db.close()
+        # Сразу пересчитать капитализацию от свежей цены (пишет quotes + market_cap).
+        from app.services.quotes_updater import update_all_quotes
+        update_all_quotes()
+        return n
+    try:
+        n = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Старт: число акций проставлено для %s компаний, капитализация пересчитана от свежей цены", n)
+    except Exception as e:
+        logger.exception("Ошибка стартового сида акций/капитализации: %s", e)
+
+
 async def _geo_job():
     """Геополитика: пересбор синтеза по методичке (DeepSeek Pro). Раз в сутки."""
     def _run():
@@ -328,6 +378,8 @@ async def lifespan(app: FastAPI):
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
     asyncio.create_task(_tinkoff_warmup())
+    # Стартовый сид числа акций + пересчёт капитализации от свежей цены (идемпотентно).
+    asyncio.create_task(_seed_shares_startup())
     # Авто-наполнение данных классов активов при старте (в фоне, грузит только
     # пустое/устаревшее) — чтобы после деплоя данные оказались на бою без ручной
     # команды import_data.sh.

@@ -199,7 +199,7 @@ def main():
     data_rows = rows[header_row_idx + 1:]
     idx = {h: i for i, h in enumerate(header)}
 
-    required = ["SECID", "SHORTNAME", "NAME", "EMITENTNAME", "TYPENAME"]  # PRICE больше не нужен
+    required = ["SECID", "SHORTNAME", "NAME", "EMITENTNAME", "TYPENAME", "ISSUESIZE"]  # PRICE не нужен; ISSUESIZE — число акций для живой капы
     missing = [c for c in required if c not in idx]
     if missing:
         print(f"❌ В CSV нет колонок: {missing}")
@@ -231,17 +231,22 @@ def main():
             is_preferred = "привилегированные" in typename
             name = clean_company_name(raw_name, is_preferred=is_preferred)
 
-            cap_raw = row[idx["SECURITYCAPITALIZATION"]].strip() if "SECURITYCAPITALIZATION" in idx else ""
-            market_cap = parse_russian_float(cap_raw)
+            # Число акций (ISSUESIZE) — НЕценовое справочное поле. Капитализацию из
+            # rates.csv (SECURITYCAPITALIZATION, снимок) НЕ берём: market_cap считается
+            # живьём quotes_updater'ом = последний close × shares_outstanding.
+            shares_raw = row[idx["ISSUESIZE"]].strip() if "ISSUESIZE" in idx else ""
+            shares = parse_russian_float(shares_raw)
+            shares_int = int(shares) if shares is not None else None
 
             sector = classify_sector(emitent or raw_name, ticker)
 
             try:
-                # Upsert company (ON CONFLICT DO NOTHING)
+                # Upsert company. Новый тикер — вставляем; существующий — обновляем
+                # число акций (чтобы капа пересчиталась от живой цены) и сектор.
                 result = session.execute(
                     text("""
-                        INSERT INTO companies (ticker, name, sector, market_cap, created_at)
-                        VALUES (:ticker, :name, :sector, :market_cap, :now)
+                        INSERT INTO companies (ticker, name, sector, shares_outstanding, created_at)
+                        VALUES (:ticker, :name, :sector, :shares, :now)
                         ON CONFLICT (ticker) DO NOTHING
                         RETURNING id
                     """),
@@ -249,14 +254,23 @@ def main():
                         "ticker": ticker,
                         "name": name,
                         "sector": sector,
-                        "market_cap": market_cap,
+                        "shares": shares_int,
                         "now": datetime.now(timezone.utc),
                     },
                 )
                 row_id = result.fetchone()
 
                 if row_id is None:
-                    # Тикер уже был — обновим только сектор если нужно
+                    # Тикер уже был — обновляем число акций (источник живой капы) и сектор.
+                    session.execute(
+                        text("""
+                            UPDATE companies
+                               SET shares_outstanding = COALESCE(:shares, shares_outstanding),
+                                   sector = COALESCE(sector, :sector)
+                             WHERE ticker = :ticker
+                        """),
+                        {"shares": shares_int, "sector": sector, "ticker": ticker},
+                    )
                     skipped += 1
                     continue
 

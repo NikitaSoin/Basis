@@ -17,6 +17,26 @@ MSK = ZoneInfo("Europe/Moscow")
 _last_update: datetime | None = None   # UTC datetime последнего реального обновления
 
 
+def _recompute_market_caps(db) -> None:
+    """Капитализация = ЖИВАЯ цена × число акций. Пересчитываем market_cap всех
+    компаний от последнего close в quotes и shares_outstanding (НЕценовое поле из
+    rates.csv ISSUESIZE). Вызывается после каждой записи котировок — капа всегда
+    свежая, не застывший снимок rates.csv."""
+    from sqlalchemy import text
+    db.execute(text("""
+        UPDATE companies c
+           SET market_cap = q.close * c.shares_outstanding
+          FROM (
+            SELECT DISTINCT ON (company_id) company_id, close
+              FROM quotes
+             WHERE close IS NOT NULL
+             ORDER BY company_id, date DESC
+          ) q
+         WHERE q.company_id = c.id
+           AND c.shares_outstanding IS NOT NULL
+    """))
+
+
 def _in_trading_hours(now_msk: datetime) -> bool:
     if now_msk.weekday() >= 5:          # сб/вс
         return False
@@ -101,6 +121,7 @@ def _update_from_tinkoff() -> None:
                     change_pct=q["change_pct"],
                 ))
             updated += 1
+        _recompute_market_caps(db)  # капа от свежей цены × акции
         db.commit()
         _last_update = datetime.now(timezone.utc)
         logger.info("Scheduler: Tinkoff обновил %d котировок (МСК %s)",
@@ -149,6 +170,7 @@ def _update_from_moex() -> None:
                 db.add(Quote(company_id=company.id, **quote_data))
             updated += 1
 
+        _recompute_market_caps(db)  # капа от свежей цены × акции
         db.commit()
         _last_update = datetime.now(timezone.utc)
         logger.info("Scheduler: обновлено %d котировок (МСК %s)",
