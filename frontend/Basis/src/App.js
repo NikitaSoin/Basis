@@ -50,7 +50,7 @@ import {
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
-import { TickerBadge, WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
+import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
@@ -8211,7 +8211,7 @@ const makeAssetColumn = (onOpenCompany) => ({
       className="tw-flex tw-items-center tw-gap-2.5 tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-left tw-group"
       title={`Открыть карточку ${r.ticker}`}
     >
-      <TickerBadge ticker={r.ticker} />
+      <CompanyLogo ticker={r.ticker} name={r.name} size={30} />
       <div>
         <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.name || r.ticker}</div>
         <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</div>
@@ -8607,7 +8607,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
                 className="tw-flex tw-items-center tw-gap-2.5 tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-left tw-group"
                 title={`Открыть карточку ${r.ticker}`}
               >
-                <TickerBadge ticker={r.ticker} />
+                <CompanyLogo ticker={r.ticker} name={r.name} size={30} />
                 <div>
                   <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.ticker}</div>
                   <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
@@ -10180,7 +10180,7 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
         </div>
       ) : error ? (
         <Card><div className="tw-text-[14px] tw-text-danger">Не удалось загрузить ленту. Попробуйте обновить страницу.</div></Card>
-      ) : groups.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <Card>
           <div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed">
             {portfolioOnly
