@@ -9994,15 +9994,42 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
       .catch(() => { setError(true); setLoading(false); });
   }, [importance, portfolioOnly, token]);
 
-  // группировка по выпускам (свежие сверху), внутри — по времени публикации
-  const groups = [];
-  const byIssue = {};
-  for (const it of items) {
-    const key = (it.cluster_id || "").slice(0, 12) || "—";
-    if (!byIssue[key]) { byIssue[key] = { key, label: _issueLabel(it.cluster_id), items: [] }; groups.push(byIssue[key]); }
-    byIssue[key].items.push(it);
-  }
-  groups.sort((a, b) => b.key.localeCompare(a.key));
+  // Лента «как в Telegram»: хронология по ВОЗРАСТАНИЮ (новые снизу), курсор
+  // прочтения per-user (localStorage; ключ по id пользователя), автоскролл к первой
+  // непрочитанной, отметка прочтения по факту показа на экране (IntersectionObserver).
+  const uid = (() => { try { return JSON.parse(localStorage.getItem("basis_user"))?.id ?? "anon"; } catch { return "anon"; } })();
+  const cursorKey = `basis_news_read_${uid}`;
+  const [lastRead, setLastRead] = useState(() => { const v = Number(localStorage.getItem(cursorKey)); return Number.isFinite(v) ? v : 0; });
+  const seenRef = useRef(lastRead);
+  const saveTimer = useRef(null);
+  const firstUnreadRef = useRef(null);
+
+  const sorted = [...items].sort((a, b) => {
+    const ta = new Date(a.published_at || 0).getTime(), tb = new Date(b.published_at || 0).getTime();
+    return (ta - tb) || ((a.id || 0) - (b.id || 0));
+  });
+  const firstUnreadIdx = sorted.findIndex((n) => (n.id || 0) > lastRead);
+
+  // автоскролл к первой непрочитанной (или вниз — к самым свежим) после загрузки
+  useEffect(() => {
+    if (loading || sorted.length === 0) return;
+    const t = setTimeout(() => {
+      if (firstUnreadRef.current) firstUnreadRef.current.scrollIntoView({ block: "center", behavior: "auto" });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [loading, items.length, importance, portfolioOnly]);
+
+  // курсор прочтения двигается только вперёд (по максимальному увиденному id)
+  const markSeen = (id) => {
+    if (!id || id <= seenRef.current) return;
+    seenRef.current = id;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      setLastRead(seenRef.current);
+      localStorage.setItem(cursorKey, String(seenRef.current));
+      // TODO (follow-up): синк курсора на бэкенд для кросс-девайс per-user.
+    }, 500);
+  };
 
   const IMP_TABS = [
     { id: "all", label: "Все" },
@@ -10036,30 +10063,45 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
           </div>
         </Card>
       ) : (
-        <div className="tw-space-y-8">
-          {groups.map((g) => (
-            <div key={g.key}>
-              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
-                <Clock size={14} className="tw-text-text-tertiary tw-shrink-0" aria-hidden="true" />
-                <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary">{g.label}</h2>
-                <span className="tw-text-[12px] tw-text-text-tertiary">· {g.items.length}</span>
-              </div>
-              <div className="tw-space-y-3">
-                {g.items.map((n) => <NewsCard key={n.id} n={n} onSelectCompany={onSelectCompany} />)}
-              </div>
-            </div>
-          ))}
+        <div className="tw-space-y-3">
+          {sorted.map((n, i) => {
+            const unread = (n.id || 0) > lastRead;
+            const isFirstUnread = i === firstUnreadIdx;
+            return (
+              <React.Fragment key={n.id}>
+                {isFirstUnread && (
+                  <div ref={firstUnreadRef} className="tw-flex tw-items-center tw-gap-2 tw-py-1">
+                    <span className="tw-h-px tw-flex-1 tw-bg-accent tw-opacity-40" />
+                    <span className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-accent">Непрочитанное</span>
+                    <span className="tw-h-px tw-flex-1 tw-bg-accent tw-opacity-40" />
+                  </div>
+                )}
+                <NewsCard n={n} unread={unread} onSeen={markSeen} onSelectCompany={onSelectCompany} />
+              </React.Fragment>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function NewsCard({ n, onSelectCompany }) {
+function NewsCard({ n, onSelectCompany, unread, onSeen }) {
   const high = n.importance === "high";
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!onSeen || !ref.current) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) onSeen(n.id); });
+    }, { threshold: 0.6 });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [n.id]);
   return (
-    <Card className={high ? "tw-border-l-2 tw-border-l-accent" : ""}>
+    <div ref={ref}>
+    <Card className={`${high ? "tw-border-l-2 tw-border-l-accent" : ""} ${unread ? "tw-ring-1 tw-ring-accent-soft" : ""}`}>
       <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-1.5 tw-text-[12px] tw-text-text-tertiary">
+        {unread && <span aria-label="непрочитано" className="tw-inline-block tw-w-[7px] tw-h-[7px] tw-rounded-pill tw-bg-accent tw-shrink-0" />}
         <span className="tw-font-medium tw-text-text-secondary">{_SOURCE_LABEL[n.source] || n.source || "Источник"}</span>
         {n.published_at && <span className="tw-font-mono">{_newsTime(n.published_at)}</span>}
         {n.category && CATEGORY_COLOR[n.category] && (
@@ -10117,6 +10159,7 @@ function NewsCard({ n, onSelectCompany }) {
         <div className="tw-text-[12px] tw-text-text-tertiary">Влияет на рынок в целом — без привязки к конкретным бумагам</div>
       )}
     </Card>
+    </div>
   );
 }
 
