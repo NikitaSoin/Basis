@@ -38,11 +38,15 @@ _RATE_SYS = (
     "Только факты из текста, без выдумок. Никакого текста вне JSON."
 )
 _FC_SYS = (
-    "Из текста комментария Банка России к среднесрочному прогнозу извлеки таблицу БАЗОВОГО "
-    "сценария. Верни строго JSON: {\"as_of\":\"YYYY-MM-DD\", \"scenario\":\"базовый\", "
-    "\"comment\":\"<1-2 ключевых тезиса прогноза>\", \"rows\":[{\"indicator\":\"Инфляция\"|"
-    "\"Ключевая ставка\"|\"Рост ВВП\", \"year\":<год>, \"value\":\"<число или диапазон, напр. 4,5–5,5>\"}]}. "
+    "Из текста Банка России о среднесрочном прогнозе извлеки таблицы ВСЕХ сценариев, "
+    "которые есть в тексте: базовый и, ЕСЛИ присутствуют, альтернативные — "
+    "проинфляционный, дезинфляционный, рисковый (как их называет ЦБ). Верни строго JSON: "
+    "{\"as_of\":\"YYYY-MM-DD\", \"scenarios\":[{\"scenario\":\"базовый\"|\"проинфляционный\"|"
+    "\"дезинфляционный\"|\"рисковый\", \"comment\":\"<1-2 ключевых тезиса этого сценария>\", "
+    "\"rows\":[{\"indicator\":\"Инфляция\"|\"Ключевая ставка\"|\"Рост ВВП\", \"year\":<год>, "
+    "\"value\":\"<число или диапазон, напр. 4,5–5,5>\"}]}]}. "
     "Бери показатели инфляция, ключевая ставка (средняя), рост ВВП по всем годам прогноза. "
+    "Включай ТОЛЬКО сценарии, реально присутствующие в тексте (не выдумывай). "
     "Только из текста. Никакого текста вне JSON."
 )
 
@@ -144,25 +148,33 @@ def sync_forecast(db: Session) -> dict:
         logger.warning("CB-sync: прогноз не извлечён: %s", e)
         return {"error": "llm"}
     as_of = _to_date(out.get("as_of")) or date.today()
-    scenario = out.get("scenario") or "базовый"
-    comment = out.get("comment")
+    # Поддержка и нового формата (scenarios[]), и старого (rows на верхнем уровне).
+    scenarios = out.get("scenarios")
+    if not scenarios:
+        scenarios = [{"scenario": out.get("scenario") or "базовый",
+                      "comment": out.get("comment"), "rows": out.get("rows") or []}]
     saved = 0
-    for r in out.get("rows") or []:
-        ind = (r.get("indicator") or "").strip()
-        yr = r.get("year")
-        val = r.get("value")
-        if not ind or not isinstance(yr, int) or val in (None, ""):
-            continue
-        existing = (db.query(MacroForecast)
-                    .filter_by(as_of=as_of, scenario=scenario, indicator=ind, year=yr).first())
-        if existing:
-            existing.value = str(val); existing.comment = comment; existing.source_url = url
-        else:
-            db.add(MacroForecast(as_of=as_of, scenario=scenario, indicator=ind, year=yr,
-                                 value=str(val), comment=comment, source_url=url))
-        saved += 1
+    seen_scen = []
+    for sc in scenarios:
+        scenario = (sc.get("scenario") or "базовый").strip().lower()
+        comment = sc.get("comment")
+        seen_scen.append(scenario)
+        for r in sc.get("rows") or []:
+            ind = (r.get("indicator") or "").strip()
+            yr = r.get("year")
+            val = r.get("value")
+            if not ind or not isinstance(yr, int) or val in (None, ""):
+                continue
+            existing = (db.query(MacroForecast)
+                        .filter_by(as_of=as_of, scenario=scenario, indicator=ind, year=yr).first())
+            if existing:
+                existing.value = str(val); existing.comment = comment; existing.source_url = url
+            else:
+                db.add(MacroForecast(as_of=as_of, scenario=scenario, indicator=ind, year=yr,
+                                     value=str(val), comment=comment, source_url=url))
+            saved += 1
     db.commit()
-    return {"as_of": str(as_of), "rows": saved, "url": url}
+    return {"as_of": str(as_of), "rows": saved, "scenarios": seen_scen, "url": url}
 
 
 _INFL_PAGE = "https://www.cbr.ru/hd_base/infl/"
