@@ -28,6 +28,8 @@ _prices: dict[str, dict] = {}
 # FIGI / UID ↔ ticker
 _uid_to_ticker: dict[str, str] = {}
 _ticker_to_uid: dict[str, str] = {}
+# ticker → URL логотипа бренда (CDN T-Инвестиций)
+_ticker_to_logo: dict[str, str] = {}
 
 # Время последнего обновления инструментов (кэшируем на 24ч)
 _instruments_ts: float = 0
@@ -91,6 +93,12 @@ def _load_instruments() -> bool:
             if ticker and uid:
                 _uid_to_ticker[uid] = ticker
                 _ticker_to_uid[ticker] = uid
+                # Логотип бренда из T-Инвестиций (надёжный машинный источник):
+                # brand.logoName = "Sberbank.png" → CDN .../Sberbankx160.png
+                logo_name = (share.get("brand") or {}).get("logoName") or ""
+                if logo_name:
+                    base = logo_name.rsplit(".", 1)[0]
+                    _ticker_to_logo[ticker] = f"https://invest-brands.cdn-tinkoff.ru/{base}x160.png"
                 count += 1
 
         _instruments_ts = time.time()
@@ -101,6 +109,17 @@ def _load_instruments() -> bool:
     except Exception as e:
         logger.error("Tinkoff: ошибка загрузки инструментов: %s", e)
         return False
+
+
+def get_logos() -> dict[str, str]:
+    """{ticker: URL логотипа} из брендов T-Инвестиций. Инструменты кэшируются 24ч."""
+    try:
+        if not TINKOFF_TOKEN:
+            return {}
+        _load_instruments()
+    except Exception:  # noqa: BLE001
+        pass
+    return dict(_ticker_to_logo)
 
 
 # ─── обновление цен ────────────────────────────────────────────────────────
