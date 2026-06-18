@@ -7480,15 +7480,10 @@ const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
               onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
-              <div style={{
-                width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-                background: tcolor(c.ticker) + "22", border: `1px solid ${tcolor(c.ticker)}44`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "monospace", fontWeight: 800, fontSize: 9, color: tcolor(c.ticker),
-              }}>{c.ticker.slice(0, 4)}</div>
+              <CompanyLogo ticker={c.ticker} name={c.name} size={28} />
               <div>
-                <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{c.ticker}</span>
-                <span style={{ fontSize: 12, color: "var(--text-2)", marginLeft: 6 }}>{c.name}</span>
+                <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{c.name}</span>
+                <span style={{ fontFamily: "monospace", fontSize: 12, color: "var(--text-3)", marginLeft: 6 }}>{c.ticker}</span>
               </div>
             </div>
           ))}
@@ -10126,8 +10121,17 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
   // непрочитанной, отметка прочтения по факту показа на экране (IntersectionObserver).
   const uid = (() => { try { return JSON.parse(localStorage.getItem("basis_user"))?.id ?? "anon"; } catch { return "anon"; } })();
   const cursorKey = `basis_news_read_${uid}`;
-  const [lastRead, setLastRead] = useState(() => { const v = Number(localStorage.getItem(cursorKey)); return Number.isFinite(v) ? v : 0; });
-  const seenRef = useRef(lastRead);
+  // Курсор прочтения ЗАМОРОЖЕН на момент открытия ленты: разделитель «Непрочитанное»
+  // и маркеры считаются от него и НЕ едут за чтением. localStorage обновляется в фоне —
+  // чтобы при СЛЕДУЮЩЕМ открытии разделитель встал на новое место. В рамках сессии
+  // (смена фильтра) baseline сохраняется.
+  const baselineRef = useRef(null);
+  if (baselineRef.current === null) {
+    const v = Number(localStorage.getItem(cursorKey));
+    baselineRef.current = Number.isFinite(v) ? v : 0;
+  }
+  const baseline = baselineRef.current;
+  const seenRef = useRef(baseline);
   const saveTimer = useRef(null);
   const firstUnreadRef = useRef(null);
 
@@ -10135,7 +10139,7 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
     const ta = new Date(a.published_at || 0).getTime(), tb = new Date(b.published_at || 0).getTime();
     return (ta - tb) || ((a.id || 0) - (b.id || 0));
   });
-  const firstUnreadIdx = sorted.findIndex((n) => (n.id || 0) > lastRead);
+  const firstUnreadIdx = sorted.findIndex((n) => (n.id || 0) > baseline);
 
   // автоскролл к первой непрочитанной (или вниз — к самым свежим) после загрузки
   useEffect(() => {
@@ -10146,13 +10150,13 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
     return () => clearTimeout(t);
   }, [loading, items.length, importance, portfolioOnly]);
 
-  // курсор прочтения двигается только вперёд (по максимальному увиденному id)
+  // Прочтение копится в localStorage (только вперёд), БЕЗ ре-рендера — чтобы
+  // визуально ничего не двигалось во время чтения.
   const markSeen = (id) => {
     if (!id || id <= seenRef.current) return;
     seenRef.current = id;
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      setLastRead(seenRef.current);
       localStorage.setItem(cursorKey, String(seenRef.current));
       // TODO (follow-up): синк курсора на бэкенд для кросс-девайс per-user.
     }, 500);
@@ -10192,7 +10196,7 @@ function NewsFeed({ token, portfolioOnly, onSelectCompany }) {
       ) : (
         <div className="tw-space-y-3">
           {sorted.map((n, i) => {
-            const unread = (n.id || 0) > lastRead;
+            const unread = (n.id || 0) > baseline;
             const isFirstUnread = i === firstUnreadIdx;
             return (
               <React.Fragment key={n.id}>
@@ -11316,7 +11320,6 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
   const [evType, setEvType] = useState("");
   const [scope, setScope] = useState("upcoming"); // upcoming | past
   const [data, setData] = useState(null);
-  const [bonds, setBonds] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -11331,10 +11334,6 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
       .catch(() => { setError(true); setLoading(false); });
   }, [evType, scope, portfolioOnly, token]);
 
-  useEffect(() => {
-    fetch(`${apiUrl}/api/market/calendar/bonds?limit=200`)
-      .then((r) => r.ok ? r.json() : null).then(setBonds).catch(() => setBonds(null));
-  }, []);
 
   const events = data?.events || [];
   const ipoEvents = events.filter((e) => e.type === "ipo");
@@ -11455,44 +11454,6 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
         )}
       </div>
 
-      {/* Облигации — справочные параметры */}
-      <div className="tw-mt-8">
-        <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1">Облигации — параметры</h3>
-        <p className="tw-text-[12px] tw-text-text-tertiary tw-mb-2">Справочно (не скринер). Доходность флоатеров и бумаг с близкой офертой — <b>индикативна</b> (до ближайшего события).</p>
-        {!bonds?.bonds?.length ? (
-          <div className="tw-text-[13px] tw-text-text-tertiary">Параметры облигаций загружаются…</div>
-        ) : (
-          <div className="tw-overflow-x-auto">
-            <table className="tw-w-full tw-text-[12px] tw-border-collapse">
-              <thead>
-                <tr className="tw-text-text-tertiary tw-text-left tw-border-b tw-border-border-subtle">
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Бумага</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Купон</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Ставка</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">YTM</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Погашение</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Оферта</th>
-                  <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Номинал</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bonds.bonds.slice(0, 80).map((b) => (
-                  <tr key={b.secid} className="tw-border-b tw-border-border-subtle tw-text-text-secondary">
-                    <td className="tw-py-1.5 tw-pr-3 tw-text-text-primary tw-font-mono">{b.secid}<span className="tw-block tw-text-[11px] tw-text-text-tertiary tw-font-sans tw-truncate tw-max-w-[160px]">{b.name}</span></td>
-                    <td className="tw-py-1.5 tw-pr-3">{b.coupon_type === "floater" ? "плав." : b.coupon_type === "fixed" ? "фикс." : (b.coupon_type || "—")}</td>
-                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.coupon_percent != null ? `${b.coupon_percent}%` : "—"}</td>
-                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.ytm != null ? `${b.ytm}%${b.yield_indicative ? "*" : ""}` : "—"}</td>
-                    <td className="tw-py-1.5 tw-pr-3 tw-tabular-nums">{_dmy(b.maturity_date)}</td>
-                    <td className="tw-py-1.5 tw-pr-3 tw-tabular-nums">{b.offer_date ? _dmy(b.offer_date) : "—"}</td>
-                    <td className="tw-py-1.5 tw-pr-3 tw-font-mono tw-tabular-nums">{b.face_value != null ? `${b.face_value} ${b.currency || ""}` : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2">* индикативная доходность (флоатер или близкая оферта).</div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -11513,8 +11474,9 @@ function OverviewView({ token, onSelectCompany }) {
         <p className="view-subtitle">Контекстное понимание рыночного фона</p>
       </div>
 
-      {/* Шапка Обозревателя: направления + общий тумблер «Только мой портфель». */}
-      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-6">
+      {/* Шапка Обозревателя: направления + общий тумблер «Только мой портфель».
+          Липкая — кнопки блоков доступны при любом скролле длинной ленты. */}
+      <div className="tw-sticky tw-top-0 tw-z-20 tw-bg-bg-base tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-py-3 tw-mb-4 tw-border-b tw-border-border-subtle">
         <Chip selected={section === "news"} onClick={() => setSection("news")}>
           <Newspaper size={13} className="tw-shrink-0" aria-hidden="true" /> Лента новостей
         </Chip>
