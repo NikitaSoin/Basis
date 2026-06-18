@@ -2033,7 +2033,12 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
           <div className="tw-flex tw-flex-col tw-gap-3">
             <Card><div className="tw-text-[14px] tw-text-text-tertiary">{y.verdict}</div></Card>
             {y.qualitative_md && currencyScenarioNote}
-            {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
+            {y.qualitative_md && (
+                <div>
+                  <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
+                  <BondRiskAnalysis md={y.qualitative_md} />
+                </div>
+              )}
           </div>
         );
         // near-offer артефакт / флоатер — без светофор-арифметики премии
@@ -2049,7 +2054,12 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
                 <Card header="Оценка"><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-space-y-2.5">{y.verdict_prose.map((p, i) => <AnalystProse key={i} md={p} />)}</div></Card>
               )}
               {y.qualitative_md && currencyScenarioNote}
-              {y.qualitative_md && <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>}
+              {y.qualitative_md && (
+                <div>
+                  <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
+                  <BondRiskAnalysis md={y.qualitative_md} />
+                </div>
+              )}
               {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
             </div>
           );
@@ -2060,7 +2070,7 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
               <div className="tw-text-[18px] tw-font-medium tw-text-text-primary">🔴 {y.label}</div>
             </div>
             {y.qualitative_md
-              ? <Card header="Разбор по методике: доходность за риск"><BondRiskAnalysis md={y.qualitative_md} /></Card>
+              ? <div><div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div><BondRiskAnalysis md={y.qualitative_md} /></div>
               : y.verdict_prose?.map((p, i) => <Card key={i}><div className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed"><AnalystProse md={p} /></div></Card>)}
             {summary && !y.qualitative_md && <Card header="Разбор аналитика"><AnalystProse md={summary} /></Card>}
           </div>
@@ -2078,9 +2088,10 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
             {/* качественный разбор по методике (пер-эмитент, веб-исследование блоков A–F) */}
             {y.qualitative_md && currencyScenarioNote}
             {y.qualitative_md ? (
-              <Card header="Разбор по методике: доходность за риск">
+              <div>
+                <div className="tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-2.5">Разбор по методике: доходность за риск</div>
                 <BondRiskAnalysis md={y.qualitative_md} />
-              </Card>
+              </div>
             ) : (
               /* авто-вердикт (числовая оценка), пока нет ручного разбора по методике */
               y.verdict_prose?.length > 0 && (
@@ -6669,7 +6680,7 @@ const CompanyCard = ({ company, onBack }) => {
                     </div>
                   </summary>
                   <Prose className="tw-max-w-none tw-pt-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{body}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{body}</ReactMarkdown>
                   </Prose>
                 </details>
               </Card>
@@ -10581,7 +10592,7 @@ function MacroInterpreterTab({ token }) {
           {SECTIONS.map(([key, title]) => data.sections[key] && (
             <Card key={key}>
               <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-2">{title}</h3>
-              <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[21px] tw-whitespace-pre-line">{data.sections[key]}</div>
+              <Prose><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{data.sections[key]}</ReactMarkdown></Prose>
             </Card>
           ))}
         </div>
