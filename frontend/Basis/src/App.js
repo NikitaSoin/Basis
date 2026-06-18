@@ -3320,75 +3320,154 @@ const SCR_FILTERS = [
   { id: "lowvol", label: "Бета < 0.8", test: (r) => r.beta != null && r.beta < 0.8 },
 ];
 
+// Колонки скрина облигаций (базовые поля; расширенные кастом-фильтры — отдельно потом).
+const _bMaturityYears = (r) => {
+  if (r.duration_years != null) return r.duration_years;
+  const m = r.maturity_date; if (!m) return null;
+  try { return Math.max(0, Math.round((new Date(m) - new Date()) / 31557600000 * 10) / 10); } catch { return null; }
+};
+const _bDate = (s) => s ? `${s.slice(8,10)}.${s.slice(5,7)}.${s.slice(0,4)}` : "—";
+const BOND_COLS = [
+  { key: "coupon_label", label: "Купон", num: false, fmt: (v) => v || "—" },
+  { key: "ytm", label: "YTM", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })}%` : "—" },
+  { key: "_maturity_years", label: "До погашения", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })} г.` : "—" },
+  { key: "offer_date", label: "Оферта", num: false, fmt: (v) => _bDate(v) },
+  { key: "agency_rating", label: "Рейтинг", num: false, fmt: (v) => v || "—" },
+  { key: "sector", label: "Сектор", num: false, fmt: (v) => v || "—" },
+];
+const BOND_CLASS_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "ofz", label: "ОФЗ", test: (r) => r.bond_type === "ofz" },
+  { id: "corporate", label: "Корпоративные", test: (r) => r.bond_type === "corporate" },
+  { id: "fixed", label: "Фикс. купон", test: (r) => r.coupon_type === "fixed" },
+  { id: "floater", label: "Флоатеры", test: (r) => r.coupon_type === "floater" },
+  { id: "has_offer", label: "С офертой", test: (r) => !!r.offer_date },
+];
+
 const ScreenerView = ({ onSelectCompany }) => {
+  const [cls, setCls] = usePersistedState("screener.cls", "stocks"); // stocks | bonds
   const [rows, setRows] = usePersistedState("screener.data", []);
+  const [bondRows, setBondRows] = usePersistedState("screener.bonds", []);
   const [loading, setLoading] = useState(rows.length === 0);
+  const [bondsLoading, setBondsLoading] = useState(false);
   const [search, setSearch] = usePersistedState("screener.search", "");
   const [sector, setSector] = usePersistedState("screener.sector", "Все");
   const [quick, setQuick] = usePersistedState("screener.quick", "all");
+  const [bquick, setBquick] = usePersistedState("screener.bquick", "all");
   const [sortKey, setSortKey] = usePersistedState("screener.sortKey", "upside_pct");
   const [sortDir, setSortDir] = usePersistedState("screener.sortDir", "desc");
+  const [bSortKey, setBSortKey] = usePersistedState("screener.bSortKey", "ytm");
+  const [bSortDir, setBSortDir] = usePersistedState("screener.bSortDir", "desc");
   useScrollRestore("screener", !loading);
   const openCompany = (t) => { saveScroll("screener"); onSelectCompany && onSelectCompany(t); };
+  const isBonds = cls === "bonds";
 
   useEffect(() => {
     if (rows.length > 0) { setLoading(false); return; }
     fetch(`${apiBase()}/api/screener/stocks`).then((r) => (r.ok ? r.json() : [])).then((d) => { setRows(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  const sectors = useMemo(() => ["Все", ...Array.from(new Set(rows.map((r) => r.sector).filter(Boolean))).sort()], [rows]);
+  useEffect(() => {
+    if (!isBonds || bondRows.length > 0) return;
+    setBondsLoading(true);
+    fetch(`${apiBase()}/api/bonds`).then((r) => (r.ok ? r.json() : [])).then((d) => {
+      const arr = (Array.isArray(d) ? d : []).map((b) => ({ ...b, _maturity_years: _bMaturityYears(b) }));
+      setBondRows(arr); setBondsLoading(false);
+    }).catch(() => setBondsLoading(false));
+  }, [isBonds]);
+
+  const baseRows = isBonds ? bondRows : rows;
+  const sectors = useMemo(() => ["Все", ...Array.from(new Set(baseRows.map((r) => r.sector).filter(Boolean))).sort()], [baseRows]);
   const view = useMemo(() => {
     const q = search.toLowerCase();
-    const qf = SCR_FILTERS.find((f) => f.id === quick);
-    let out = rows.filter((r) => {
-      if (q && !((r.ticker || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q))) return false;
+    const sk = isBonds ? bSortKey : sortKey, sd = isBonds ? bSortDir : sortDir;
+    const qf = isBonds ? BOND_CLASS_FILTERS.find((f) => f.id === bquick) : SCR_FILTERS.find((f) => f.id === quick);
+    let out = baseRows.filter((r) => {
+      const idf = isBonds ? (r.secid || r.name) : r.ticker;
+      if (q && !((idf || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q))) return false;
       if (sector !== "Все" && r.sector !== sector) return false;
       if (qf && qf.test && !qf.test(r)) return false;
       return true;
     });
     out.sort((a, b) => {
-      const av = a[sortKey], bv = b[sortKey];
+      const av = a[sk], bv = b[sk];
       if (av == null) return 1; if (bv == null) return -1;
-      return sortDir === "desc" ? bv - av : av - bv;
+      if (typeof av === "string") return sd === "desc" ? bv.localeCompare(av) : av.localeCompare(bv);
+      return sd === "desc" ? bv - av : av - bv;
     });
     return out;
-  }, [rows, search, sector, quick, sortKey, sortDir]);
+  }, [baseRows, isBonds, search, sector, quick, bquick, sortKey, sortDir, bSortKey, bSortDir]);
 
-  const toggleSort = (k) => { if (sortKey === k) setSortDir((d) => d === "desc" ? "asc" : "desc"); else { setSortKey(k); setSortDir("desc"); } };
+  const toggleSort = (k) => {
+    if (isBonds) { if (bSortKey === k) setBSortDir((d) => d === "desc" ? "asc" : "desc"); else { setBSortKey(k); setBSortDir("desc"); } }
+    else { if (sortKey === k) setSortDir((d) => d === "desc" ? "asc" : "desc"); else { setSortKey(k); setSortDir("desc"); } }
+  };
+  const curSortKey = isBonds ? bSortKey : sortKey, curSortDir = isBonds ? bSortDir : sortDir;
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем скринер...</div>;
+
+  const sortLabel = (key, label) => (
+    <button onClick={() => toggleSort(key)} className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-secondary hover:tw-text-text-primary tw-p-0 tw-font-semibold tw-text-[12px]">{label}{curSortKey === key && <span className="tw-text-accent">{curSortDir === "desc" ? "▼" : "▲"}</span>}</button>
+  );
 
   return (
     <div>
       <div className="tw-flex tw-items-center tw-gap-3 tw-mb-2">
         <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">Скрининг</h1>
-        <Badge tone="neutral">{view.length} из {rows.length}</Badge>
+        <Badge tone="neutral">{view.length}{isBonds ? "" : ` из ${rows.length}`}</Badge>
       </div>
-      <p className="tw-text-[14px] tw-text-text-secondary tw-mb-5">Фильтрация и сортировка акций по готовым метрикам Basis (справедливая цена, P/E, дивдоходность, доходность/риск). Клик по строке — карточка компании. Это инструмент поиска, выводы за вами.</p>
+      <p className="tw-text-[14px] tw-text-text-secondary tw-mb-4">Фильтрация и сортировка по готовым метрикам Basis. {isBonds ? "Облигации: доходность, купон, срок, оферта, рейтинг." : "Акции: справедливая цена, P/E, дивдоходность, доходность/риск."} Это инструмент поиска, выводы за вами.</p>
+
+      {/* Переключатель класса активов */}
+      <div className="tw-flex tw-gap-1.5 tw-mb-4">
+        {[{ id: "stocks", label: "Акции" }, { id: "bonds", label: "Облигации" }].map((c) => (
+          <Chip key={c.id} selected={cls === c.id} onClick={() => setCls(c.id)}>{c.label}</Chip>
+        ))}
+      </div>
+
       <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
         <div className="tw-flex tw-flex-wrap tw-gap-3 tw-items-center">
           <div className="tw-relative tw-w-full sm:tw-w-64">
             <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
-            <Input type="text" placeholder="Тикер / название..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
+            <Input type="text" placeholder={isBonds ? "SECID / эмитент..." : "Тикер / название..."} value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
           </div>
           <select value={sector} onChange={(e) => setSector(e.target.value)} className="tw-text-[13px] tw-px-3 tw-py-2 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
             {sectors.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <FilterChips options={SCR_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={quick} onChange={setQuick} />
+        {isBonds
+          ? <FilterChips options={BOND_CLASS_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={bquick} onChange={setBquick} />
+          : <FilterChips options={SCR_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={quick} onChange={setQuick} />}
       </div>
-      <Table
-        columns={[
-          { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.name}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</span></div>) },
-          ...SCR_COLS.map((c) => ({
-            key: c.key,
-            label: (<button onClick={() => toggleSort(c.key)} className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-secondary hover:tw-text-text-primary tw-p-0 tw-font-semibold tw-text-[12px]">{c.label}{sortKey === c.key && <span className="tw-text-accent">{sortDir === "desc" ? "▼" : "▲"}</span>}</button>),
-            render: (v) => <span className={`tw-font-mono ${c.tone ? c.tone(v) : "tw-text-text-secondary"}`}>{c.fmt(v)}</span>,
-          })),
-        ]}
-        rows={view}
-        onRowClick={(r) => openCompany(r.ticker)}
-      />
+
+      {isBonds && bondsLoading ? (
+        <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-tertiary tw-animate-pulse">Загружаем облигации...</div>
+      ) : isBonds ? (
+        <Table
+          columns={[
+            { key: "name", label: "Эмитент", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary tw-truncate tw-max-w-[260px]">{r.name || r.shortname || r.secid}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.secid}</span></div>) },
+            ...BOND_COLS.map((c) => ({
+              key: c.key,
+              label: c.num ? sortLabel(c.key, c.label) : c.label,
+              render: (v) => <span className="tw-font-mono tw-text-text-secondary">{c.fmt(v)}</span>,
+            })),
+          ]}
+          rows={view}
+        />
+      ) : (
+        <Table
+          columns={[
+            { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.name}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</span></div>) },
+            ...SCR_COLS.map((c) => ({
+              key: c.key,
+              label: sortLabel(c.key, c.label),
+              render: (v) => <span className={`tw-font-mono ${c.tone ? c.tone(v) : "tw-text-text-secondary"}`}>{c.fmt(v)}</span>,
+            })),
+          ]}
+          rows={view}
+          onRowClick={(r) => openCompany(r.ticker)}
+        />
+      )}
     </div>
   );
 };
