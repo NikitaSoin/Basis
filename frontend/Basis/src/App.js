@@ -11373,6 +11373,34 @@ const CompanyCardResolver = ({ value, onBack }) => {
   return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Открываем карточку...</div>;
 };
 
+// Единый плейсхолдер «Раздел в разработке» — один на все будущие блоки.
+// Будущий блок добавляется так же: NAV-иконка + case в renderView с этим компонентом.
+function ComingSoonView({ icon: Icon = Sparkles, title, blurb }) {
+  return (
+    <div>
+      <div className="view-header">
+        <h1 className="view-title">{title}</h1>
+      </div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-20">
+        <Card className="tw-max-w-[460px] tw-w-full tw-text-center">
+          <div className="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-6">
+            <span className="tw-w-14 tw-h-14 tw-rounded-xl tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
+              <Icon size={26} className="tw-text-accent" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mb-2">Раздел в разработке</h2>
+              <p className="tw-text-[14px] tw-text-text-secondary tw-leading-[1.6] tw-m-0">
+                {blurb || "Этот раздел скоро появится — мы его готовим. Загляните позже."}
+              </p>
+            </div>
+            <Badge tone="neutral">Скоро</Badge>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   const cx = (...parts) => parts.filter(Boolean).join(" ");
   const reducedMotion = usePrefersReducedMotion();
@@ -11381,6 +11409,11 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
     { id: "screener",  icon: SlidersHorizontal, label: "Скрининг" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
     { id: "portfolio", icon: Briefcase, label: "Портфель" },
+    // Будущие блоки — заглушка «в разработке» (метка soon).
+    { id: "strategies", icon: Target,      label: "Портфельные стратегии", soon: true },
+    { id: "stress",     icon: ShieldAlert, label: "Стресс-тестирование", soon: true },
+    { id: "ai",         icon: Sparkles,    label: "ИИ-помощник", soon: true },
+    { id: "compare",    icon: Scale,       label: "Сравнение", soon: true },
     { id: "pricing",   icon: CreditCard, label: "Тарифы" },
   ];
 
@@ -11411,16 +11444,22 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
       <div className="sidebar-divider" />
 
       <div className="tw-flex tw-flex-col tw-gap-1">
-        {NAV.map(({ id, icon: Icon, label }) => {
+        {NAV.map(({ id, icon: Icon, label, soon }) => {
           const active = activeTab === id;
           return (
-            <Tooltip key={id} label={label} side="right">
+            <Tooltip key={id} label={soon ? `${label} · скоро` : label} side="right">
               <IconButton
-                aria-label={label}
+                aria-label={soon ? `${label} (в разработке)` : label}
                 onClick={() => setActiveTab(id)}
-                className={active ? "tw-relative tw-bg-accent-soft" : ""}
+                className={active ? "tw-relative tw-bg-accent-soft" : "tw-relative"}
                 style={{ color: active ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
               >
+                {soon && (
+                  <span
+                    aria-hidden="true"
+                    className="tw-absolute tw-top-[6px] tw-right-[6px] tw-w-[6px] tw-h-[6px] tw-rounded-pill tw-bg-accent tw-opacity-70"
+                  />
+                )}
                 {active && (
                   <span
                     aria-hidden="true"
@@ -11549,6 +11588,14 @@ export default function App() {
         return <OverviewView token={token} onSelectCompany={setSelectedCompany} />;
       case "portfolio":
         return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
+      case "strategies":
+        return <ComingSoonView icon={Target} title="Портфельные стратегии" blurb="Подбор готовой стратегии под ваш профиль риска. Раздел скоро появится — мы его готовим." />;
+      case "stress":
+        return <ComingSoonView icon={ShieldAlert} title="Стресс-тестирование" blurb="Проверка портфеля на просадку в кризисных сценариях. Раздел скоро появится." />;
+      case "ai":
+        return <ComingSoonView icon={Sparkles} title="ИИ-помощник" blurb="Диалоговый помощник по вашему портфелю и рынку. Раздел скоро появится." />;
+      case "compare":
+        return <ComingSoonView icon={Scale} title="Сравнение акций и облигаций" blurb="Сопоставление бумаг бок о бок по ключевым метрикам. Раздел скоро появится." />;
       case "pricing":
         return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
       case "profile":
