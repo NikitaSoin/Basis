@@ -41,6 +41,7 @@ import {
   X,
   Trash2,
   ChevronDown,
+  ChevronUp,
   Check,
   Pencil,
   Newspaper,
@@ -10895,6 +10896,7 @@ function ObserverReportView({ token, onSelectCompany }) {
   const [history, setHistory] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
+  const [collapsed, setCollapsed] = useState(false);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -10954,12 +10956,23 @@ function ObserverReportView({ token, onSelectCompany }) {
 
       {report && (
         <Card className="tw-mt-5">
-          <div className="tw-flex tw-items-baseline tw-justify-between tw-mb-2">
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
             <h3 className="tw-text-[16px] tw-font-medium tw-text-text-primary tw-m-0">
               {(_RPT_TYPES.find((x) => x.id === report.report_type) || {}).label || "Отчёт"} · обзор
             </h3>
-            <span className="tw-text-[11px] tw-text-text-tertiary">{report.generated_at ? report.generated_at.slice(0, 16).replace("T", " ") : ""}</span>
+            <div className="tw-flex tw-items-center tw-gap-2.5 tw-shrink-0">
+              <span className="tw-text-[11px] tw-text-text-tertiary">{report.generated_at ? report.generated_at.slice(0, 16).replace("T", " ") : ""}</span>
+              <button
+                type="button"
+                onClick={() => setCollapsed((v) => !v)}
+                aria-expanded={!collapsed}
+                className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-[12px] tw-text-accent hover:tw-underline tw-p-0 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+              >
+                {collapsed ? <>Развернуть <ChevronDown size={14} /></> : <>Свернуть <ChevronUp size={14} /></>}
+              </button>
+            </div>
           </div>
+          {!collapsed && (<>
           <div className="tw-max-w-[72ch]">
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{report.content || ""}</ReactMarkdown>
           </div>
@@ -10985,6 +10998,7 @@ function ObserverReportView({ token, onSelectCompany }) {
             </div>
           )}
           <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-3">Синтез по данным платформы. Без рекомендаций. Не является ИИР.</p>
+          </>)}
         </Card>
       )}
 
