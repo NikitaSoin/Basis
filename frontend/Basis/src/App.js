@@ -5628,9 +5628,11 @@ const CompanyCard = ({ company, onBack }) => {
         {/* СЕКЦИЯ 5 — сопроводительный текст summary.md */}
         {govSections.length > 0 && govSections.map((sec, i) => (
           <Card key={i}>
-            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
-              <Info size={16} className="tw-text-accent" />{sec.heading}
-            </h4>
+            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+              <Info size={16} className="tw-text-accent tw-shrink-0" />
+              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
+            </div>
             <Prose>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
@@ -5967,9 +5969,11 @@ const CompanyCard = ({ company, onBack }) => {
         {/* Сопроводительный текст summary.md */}
         {mdSections.length > 0 && mdSections.map((sec, i) => (
           <Card key={`md-${i}`}>
-            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
-              <Info size={16} className="tw-text-accent" />{sec.heading}
-            </h4>
+            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+              <Info size={16} className="tw-text-accent tw-shrink-0" />
+              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
+            </div>
             <Prose>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
@@ -6170,9 +6174,11 @@ const CompanyCard = ({ company, onBack }) => {
         {/* Сопроводительный текст summary.md */}
         {mdSections.length > 0 && mdSections.map((sec, i) => (
           <Card key={`md-${i}`}>
-            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
-              <Info size={16} className="tw-text-accent" />{sec.heading}
-            </h4>
+            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+              <Info size={16} className="tw-text-accent tw-shrink-0" />
+              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
+            </div>
             <Prose>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
@@ -6429,9 +6435,11 @@ const CompanyCard = ({ company, onBack }) => {
         {/* Сопроводительный текст summary.md */}
         {mdSections.length > 0 && mdSections.map((sec, i) => (
           <Card key={`md-${i}`}>
-            <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-mb-2.5 tw-m-0">
-              <Info size={16} className="tw-text-accent" />{sec.heading}
-            </h4>
+            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+              <Info size={16} className="tw-text-accent tw-shrink-0" />
+              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
+            </div>
             <Prose>
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
             </Prose>
@@ -10600,7 +10608,10 @@ function MacroInterpreterTab({ token }) {
           <div className="tw-text-[12px] tw-text-text-tertiary tw-italic">Это аналитическая интерпретация Basis (оценка, не факт и не рекомендация «купить/продать»).</div>
           {SECTIONS.map(([key, title]) => data.sections[key] && (
             <Card key={key}>
-              <h3 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-2">{title}</h3>
+              <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+                <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+                <h3 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{title}</h3>
+              </div>
               <Prose><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{data.sections[key]}</ReactMarkdown></Prose>
             </Card>
           ))}
