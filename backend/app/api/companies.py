@@ -137,6 +137,14 @@ def latest_quotes_endpoint(db: Session = Depends(get_db)):
     return {row.ticker: float(row.close) for row in rows}
 
 
+@router.get("/companies/logos")
+def company_logos_endpoint():
+    """{ticker: URL логотипа} — бренды T-Инвестиций (надёжный машинный источник).
+    Фронт берёт карту один раз и кэширует; картинки кэшируются браузером/CDN."""
+    from app.services import tinkoff_quotes
+    return tinkoff_quotes.get_logos()
+
+
 @router.get("/quotes/source")
 def quotes_source_endpoint():
     """Диагностика: какой источник котировок активен."""

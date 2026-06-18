@@ -1706,8 +1706,13 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
       onKeyDown={onKey}
       className="tw-cursor-pointer hover:tw-shadow-lg hover:-tw-translate-y-0.5 tw-transition-all tw-duration-150 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
     >
-      <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-leading-snug">{company.name}</div>
-      <div className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mt-0.5">{company.ticker}</div>
+      <div className="tw-flex tw-items-start tw-gap-2.5">
+        <CompanyLogo ticker={company.ticker} name={company.name} size={36} />
+        <div className="tw-min-w-0 tw-flex-1">
+          <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-leading-snug">{company.name}</div>
+          <div className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mt-0.5">{company.ticker}</div>
+        </div>
+      </div>
       <div className="tw-mt-1.5">
         <Badge tone="neutral">{company.sector}</Badge>
       </div>
@@ -1790,6 +1795,53 @@ const ratingTone = (rt) => {
 };
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+// ── Логотипы компаний (бренды T-Инвестиций) ──
+// Карта {ticker: url} тянется ОДИН раз на сессию (module-level кэш + общий promise),
+// картинки кэшируются браузером/CDN — внешний источник не дёргается на каждый рендер.
+let _logoMap = null;
+let _logoPromise = null;
+function useCompanyLogos() {
+  const [map, setMap] = useState(_logoMap);
+  useEffect(() => {
+    if (_logoMap) { if (!map) setMap(_logoMap); return; }
+    if (!_logoPromise) {
+      _logoPromise = fetch(`${apiBase()}/api/companies/logos`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+    }
+    let alive = true;
+    _logoPromise.then((m) => { _logoMap = m || {}; if (alive) setMap(_logoMap); });
+    return () => { alive = false; };
+  }, []);
+  return map || {};
+}
+
+// Логотип компании: цветная картинка бренда, при отсутствии/ошибке — аккуратный
+// плейсхолдер с инициалами в категориальном цвете (вёрстка не ломается).
+function CompanyLogo({ ticker, name, size = 36, className = "" }) {
+  const logos = useCompanyLogos();
+  const [err, setErr] = useState(false);
+  const url = ticker ? logos[ticker] : null;
+  const cat = catFor(ticker || name || "");
+  const initials = String(name || ticker || "").replace(/^(ПАО|ОАО|АО|ПJSC)\s+/i, "").trim().slice(0, 2).toUpperCase();
+  if (url && !err) {
+    return (
+      <img
+        src={url} alt="" width={size} height={size} loading="lazy" onError={() => setErr(true)}
+        className={`tw-rounded-md tw-object-contain tw-bg-white tw-shrink-0 tw-border tw-border-border-subtle ${className}`}
+        style={{ width: size, height: size, padding: 2 }}
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className={`tw-flex tw-items-center tw-justify-center tw-shrink-0 tw-rounded-md tw-font-semibold ${className}`}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.36), background: `var(--cat-${cat}-soft)`, color: `var(--cat-${cat})`, border: `1px solid var(--cat-${cat}-soft)` }}
+    >
+      {initials}
+    </span>
+  );
+}
 
 // ── UX: сохранение состояния списков при навигации в карточку и обратно ──
 // Модульный кэш переживает размонтирование компонента списка (когда открыта
@@ -6925,13 +6977,8 @@ const CompanyCard = ({ company, onBack }) => {
             <ChevronRight className="rotate-180" size={18} />
           </IconButton>
 
-          {/* Ticker monogram */}
-          <div
-            className="tw-shrink-0 tw-rounded-md tw-flex tw-items-center tw-justify-center tw-bg-accent-soft tw-text-accent tw-font-mono tw-font-bold tw-text-[13px]"
-            style={{ width: 52, height: 52, letterSpacing: "-0.03em" }}
-          >
-            {company.ticker.slice(0, 4)}
-          </div>
+          {/* Логотип компании (бренд T-Инвестиций) или плейсхолдер с инициалами */}
+          <CompanyLogo ticker={company.ticker} name={company.name} size={52} />
 
           <div className="tw-flex-1 tw-min-w-0">
             <div className="tw-flex tw-items-baseline tw-gap-2.5 tw-flex-wrap">
