@@ -11229,7 +11229,43 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
 
   const events = data?.events || [];
   const ipoEvents = events.filter((e) => e.type === "ipo");
-  const mainEvents = events.filter((e) => e.type !== "ipo");
+  const nonIpo = events.filter((e) => e.type !== "ipo");
+  // Технические события облигаций/фьючерсов засоряют основной поток — отделяем их
+  // в свёрнутую секцию (только в режиме «Все»; при выборе конкретного типа показываем как есть).
+  const TECH_TYPES = ["bond_offer", "bond_maturity", "expiration"];
+  const splitTech = evType === "";
+  const techEvents = splitTech ? nonIpo.filter((e) => TECH_TYPES.includes(e.type)) : [];
+  const mainEvents = splitTech ? nonIpo.filter((e) => !TECH_TYPES.includes(e.type)) : nonIpo;
+
+  const calRow = (e) => {
+    const p = e.payload || {};
+    const clickable = e.ticker && (e.type === "dividend");
+    return (
+      <div key={e.id} className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-[13px]">
+        <span className="tw-font-mono tw-text-text-secondary tw-w-[68px] tw-shrink-0 tw-tabular-nums">{_dmy(e.date)}{e.time ? <span className="tw-block tw-text-[11px] tw-text-text-tertiary">{e.time} МСК</span> : null}</span>
+        <Badge tone={_CAL_TONE[e.type] || "neutral"}>{_CAL_LABEL[e.type] || e.type}</Badge>
+        <div className="tw-min-w-0 tw-flex-1">
+          {clickable
+            ? <button onClick={() => onSelectCompany && onSelectCompany(e.ticker)} className="tw-text-text-primary tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-text-left tw-truncate tw-max-w-full">{e.title}</button>
+            : <span className="tw-text-text-primary tw-truncate tw-block">{e.title}</span>}
+          {e.type === "dividend" && (
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
+              Купить до <b className="tw-text-text-secondary">{_dmy(p.buy_by_date)}</b> · отсечка {_dmy(p.record_date)}
+              {p.dividend_yield != null && <> · доходность <b className="tw-text-success">▲ {p.dividend_yield}%</b></>}
+            </div>
+          )}
+          {(e.type === "bond_offer" || e.type === "bond_maturity") && (
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
+              {p.coupon_type === "floater" ? "флоатер" : p.coupon_type === "fixed" ? "фикс. купон" : p.coupon_type || ""}
+              {p.ytm != null && <> · YTM ~{p.ytm}%{p.yield_indicative ? " (индикативно)" : ""}</>}
+              {p.rating && <> · {p.rating}</>}
+            </div>
+          )}
+          {e.status && (e.type === "macro" || e.type === "corporate") && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{e.status}{p.note ? ` · ${p.note}` : ""}</div>}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -11270,37 +11306,23 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
       {!loading && mainEvents.length > 0 && (
         <Card>
           <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
-            {mainEvents.map((e) => {
-              const p = e.payload || {};
-              const clickable = e.ticker && (e.type === "dividend");
-              return (
-                <div key={e.id} className="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-text-[13px]">
-                  <span className="tw-font-mono tw-text-text-secondary tw-w-[68px] tw-shrink-0 tw-tabular-nums">{_dmy(e.date)}{e.time ? <span className="tw-block tw-text-[11px] tw-text-text-tertiary">{e.time} МСК</span> : null}</span>
-                  <Badge tone={_CAL_TONE[e.type] || "neutral"}>{_CAL_LABEL[e.type] || e.type}</Badge>
-                  <div className="tw-min-w-0 tw-flex-1">
-                    {clickable
-                      ? <button onClick={() => onSelectCompany && onSelectCompany(e.ticker)} className="tw-text-text-primary tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer hover:tw-underline focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-text-left tw-truncate tw-max-w-full">{e.title}</button>
-                      : <span className="tw-text-text-primary tw-truncate tw-block">{e.title}</span>}
-                    {e.type === "dividend" && (
-                      <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
-                        Купить до <b className="tw-text-text-secondary">{_dmy(p.buy_by_date)}</b> · отсечка {_dmy(p.record_date)}
-                        {p.dividend_yield != null && <> · доходность <b className="tw-text-success">▲ {p.dividend_yield}%</b></>}
-                      </div>
-                    )}
-                    {(e.type === "bond_offer" || e.type === "bond_maturity") && (
-                      <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">
-                        {p.coupon_type === "floater" ? "флоатер" : p.coupon_type === "fixed" ? "фикс. купон" : p.coupon_type || ""}
-                        {p.ytm != null && <> · YTM ~{p.ytm}%{p.yield_indicative ? " (индикативно)" : ""}</>}
-                        {p.rating && <> · {p.rating}</>}
-                      </div>
-                    )}
-                    {e.status && (e.type === "macro" || e.type === "corporate") && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{e.status}{p.note ? ` · ${p.note}` : ""}</div>}
-                  </div>
-                </div>
-              );
-            })}
+            {mainEvents.map(calRow)}
           </div>
         </Card>
+      )}
+
+      {/* Технические события (оферты · погашения · экспирации) — отдельной свёрнутой
+          секцией, чтобы не засоряли основной поток. */}
+      {!loading && techEvents.length > 0 && (
+        <div className="tw-mt-4">
+          <Disclosure summary={`Технические события облигаций и фьючерсов — оферты · погашения · экспирации (${techEvents.length})`} defaultOpen={false}>
+            <Card className="tw-mt-2">
+              <div className="tw-flex tw-flex-col tw-divide-y tw-divide-border-subtle">
+                {techEvents.map(calRow)}
+              </div>
+            </Card>
+          </Disclosure>
+        </div>
       )}
 
       {/* IPO / размещения */}
