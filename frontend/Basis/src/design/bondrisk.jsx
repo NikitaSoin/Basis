@@ -274,7 +274,7 @@ function SubBlock({ rawTitle, bodyText }) {
   const lines = bodyText.split("\n").filter(l => l.trim().startsWith("-"));
 
   return (
-    <div className="tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-overflow-hidden">
+    <div className="tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-elevated tw-overflow-hidden" style={{ boxShadow: "var(--shadow-sm)" }}>
       <div className="tw-px-3 tw-py-2 tw-border-b tw-border-border-subtle tw-bg-bg-base tw-flex tw-items-center tw-justify-between">
         <div className="tw-flex tw-items-center tw-gap-2">
           {letter && (
@@ -603,7 +603,7 @@ export function BondRiskAnalysis({ md }) {
       {/* ── ЭТАЖ 2: БЛОКИ A–F + СБОРКА в Disclosure ── */}
       {(subBlocks.length > 0 || assemblySec) && (
         <Disclosure summary="Полный разбор по блокам A–F" defaultOpen={false}>
-          <div className="tw-flex tw-flex-col tw-gap-2.5 tw-pt-1">
+          <div className="tw-flex tw-flex-col tw-gap-3 tw-pt-1.5">
             {subBlocks.map((sec, i) => (
               <SubBlock key={i} rawTitle={sec.rawTitle} bodyText={parseBody(sec.body)} />
             ))}
