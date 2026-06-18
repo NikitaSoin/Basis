@@ -1706,8 +1706,8 @@ const CompanyGridCard = ({ company, liveQuote, onSelect }) => {
       onKeyDown={onKey}
       className="tw-cursor-pointer hover:tw-shadow-lg hover:-tw-translate-y-0.5 tw-transition-all tw-duration-150 focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
     >
-      <div className="tw-font-mono tw-text-[15px] tw-font-semibold tw-text-text-primary">{company.ticker}</div>
-      <div className="tw-text-[14px] tw-text-text-secondary tw-mt-0.5">{company.name}</div>
+      <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-leading-snug">{company.name}</div>
+      <div className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mt-0.5">{company.ticker}</div>
       <div className="tw-mt-1.5">
         <Badge tone="neutral">{company.sector}</Badge>
       </div>
@@ -3326,7 +3326,7 @@ const ScreenerView = ({ onSelectCompany }) => {
       </div>
       <Table
         columns={[
-          { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.ticker}</span><span className="tw-text-[11px] tw-text-text-tertiary">{r.name}</span></div>) },
+          { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.name}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</span></div>) },
           ...SCR_COLS.map((c) => ({
             key: c.key,
             label: (<button onClick={() => toggleSort(c.key)} className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-secondary hover:tw-text-text-primary tw-p-0 tw-font-semibold tw-text-[12px]">{c.label}{sortKey === c.key && <span className="tw-text-accent">{sortDir === "desc" ? "▼" : "▲"}</span>}</button>),
@@ -8086,8 +8086,8 @@ const makeAssetColumn = (onOpenCompany) => ({
     >
       <TickerBadge ticker={r.ticker} />
       <div>
-        <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.ticker}</div>
-        <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
+        <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.name || r.ticker}</div>
+        <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</div>
       </div>
     </button>
   ),
