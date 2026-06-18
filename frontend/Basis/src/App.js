@@ -6468,25 +6468,26 @@ const CompanyCard = ({ company, onBack }) => {
         return null;
       };
 
-      // Split markdown by H2 headings for collapsible sections
-      const splitByH2 = (md) => {
-        const sections = [];
-        let curHead = null;
-        let curLines = [];
+      // Бьём md по заголовкам H2 и H3, чтобы КАЖДАЯ тема стала отдельной плитой.
+      // H2 без тела («Первый экран», «Экономика и детали») = лёгкий заголовок-группа;
+      // H2 с телом («Источники») и каждый H3 (Суть бизнеса / Мини-P&L / Ключевые
+      // факторы / Сегменты / …) = отдельная плита.
+      const splitByHeadings = (md) => {
+        const out = [];
+        let cur = null;
         for (const line of md.split('\n')) {
-          if (/^## /.test(line)) {
-            if (curHead !== null) sections.push({ heading: curHead, body: curLines.join('\n') });
-            curHead = line.replace(/^## /, '').trim();
-            curLines = [];
-          } else if (curHead !== null) {
-            curLines.push(line);
+          const m = line.match(/^(#{2,3})\s+(.*)$/);
+          if (m) {
+            if (cur) out.push(cur);
+            cur = { level: m[1].length, heading: m[2].trim(), lines: [] };
+          } else if (cur) {
+            cur.lines.push(line);
           }
         }
-        if (curHead !== null) sections.push({ heading: curHead, body: curLines.join('\n') });
-        return sections;
+        if (cur) out.push(cur);
+        return out.map((s) => ({ level: s.level, heading: s.heading, body: s.lines.join('\n').trim() }));
       };
-      const bmSections = splitByH2(bmMd);
-      const COLLAPSED = ["экономика"];
+      const bmSections = splitByHeadings(bmMd);
 
       const mdComponents = {
         h1: () => null,
@@ -6660,29 +6661,31 @@ const CompanyCard = ({ company, onBack }) => {
         ),
       };
       return (
-        <div className="tw-flex tw-flex-col tw-gap-4 tw-text-text-primary">
-          {bmSections.map(({heading, body}, secIdx) => {
+        <div className="tw-flex tw-flex-col tw-gap-3 tw-text-text-primary">
+          {bmSections.map(({ heading, body, level }, secIdx) => {
+            // H2 без тела — заголовок-группа над плитами (не плита).
+            if (level === 2 && !body) {
+              return (
+                <div key={secIdx} className={`tw-text-[12px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-text-tertiary ${secIdx > 0 ? "tw-mt-4" : ""} tw-mb-0.5`}>
+                  {heading}
+                </div>
+              );
+            }
+            if (!body) return null;
             const Icon = getH2Icon(heading);
-            const collapsed = COLLAPSED.some(k => heading.toLowerCase().includes(k));
-            if (secIdx > 0) isFirstP = false;
             return (
               <Card key={secIdx} className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
-                <details open={!collapsed} className="bm-section">
-                  <summary className="bm-section-summary">
-                    <div className="tw-flex tw-items-center tw-gap-2.5 tw-pb-3 tw-border-b tw-border-border-subtle">
-                      {Icon && (
-                        <span className="tw-w-7 tw-h-7 tw-rounded-md tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
-                          <Icon size={15} className="tw-text-accent" />
-                        </span>
-                      )}
-                      <span className="tw-flex-1 tw-text-[15px] tw-font-semibold tw-text-text-primary">{heading}</span>
-                      <ChevronDown size={15} className="bm-section-chevron tw-text-text-tertiary tw-shrink-0" />
-                    </div>
-                  </summary>
-                  <Prose className="tw-max-w-none tw-pt-1">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{body}</ReactMarkdown>
-                  </Prose>
-                </details>
+                <div className="tw-flex tw-items-center tw-gap-2.5 tw-pb-3 tw-mb-3 tw-border-b tw-border-border-subtle">
+                  {Icon && (
+                    <span className="tw-w-7 tw-h-7 tw-rounded-md tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
+                      <Icon size={15} className="tw-text-accent" />
+                    </span>
+                  )}
+                  <span className="tw-flex-1 tw-text-[15px] tw-font-semibold tw-text-text-primary">{heading}</span>
+                </div>
+                <Prose className="tw-max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{body}</ReactMarkdown>
+                </Prose>
               </Card>
             );
           })}
