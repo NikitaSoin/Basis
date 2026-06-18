@@ -138,15 +138,31 @@ def macro_forecast(db: Session = Depends(get_db)):
     """Среднесрочный прогноз ЦБ (последняя публикация)."""
     latest = db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).first()
     if not latest:
-        return {"rows": [], "as_of": None}
-    rows = (db.query(MacroForecast)
-            .filter(MacroForecast.as_of == latest.as_of, MacroForecast.scenario == latest.scenario)
-            .order_by(MacroForecast.year).all())
+        return {"rows": [], "as_of": None, "scenarios": []}
+    all_rows = (db.query(MacroForecast)
+                .filter(MacroForecast.as_of == latest.as_of)
+                .order_by(MacroForecast.year).all())
+    # Группируем по сценариям; базовый — первым.
+    by_scen: dict[str, list] = {}
+    for r in all_rows:
+        by_scen.setdefault(r.scenario, []).append(r)
+    order = ["базовый", "проинфляционный", "дезинфляционный", "рисковый"]
+    scen_names = sorted(by_scen.keys(), key=lambda s: (order.index(s) if s in order else 99, s))
+    scenarios = [{
+        "scenario": s,
+        "comment": next((r.comment for r in by_scen[s] if r.comment), None),
+        "rows": [{"indicator": r.indicator, "year": r.year, "value": r.value} for r in by_scen[s]],
+    } for s in scen_names]
+    base = next((sc for sc in scenarios if sc["scenario"] == "базовый"), scenarios[0] if scenarios else None)
     return {
-        "as_of": latest.as_of.isoformat(), "scenario": latest.scenario,
-        "comment": next((r.comment for r in rows if r.comment), None),
+        "as_of": latest.as_of.isoformat(),
         "source_url": latest.source_url,
-        "rows": [{"indicator": r.indicator, "year": r.year, "value": r.value} for r in rows],
+        # back-compat: плоский базовый сценарий
+        "scenario": base["scenario"] if base else None,
+        "comment": base["comment"] if base else None,
+        "rows": base["rows"] if base else [],
+        # все сценарии
+        "scenarios": scenarios,
     }
 
 

@@ -10605,6 +10605,7 @@ function MacroView({ token, portfolioOnly }) {
 // D. Таблица среднесрочного прогноза ЦБ (вкладка Показатели, ниже).
 function MacroForecastTable() {
   const [fc, setFc] = useState(null);
+  const [scIdx, setScIdx] = useState(0);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   useEffect(() => {
     fetch(`${apiUrl}/api/market/macro/forecast`).then((r) => (r.ok ? r.json() : null)).then(setFc).catch(() => setFc(null));
@@ -10617,19 +10618,34 @@ function MacroForecastTable() {
       </div>
     );
   }
-  const years = [...new Set(fc.rows.map((r) => r.year))].sort();
-  const indicators = [...new Set(fc.rows.map((r) => r.indicator))];
-  const cell = (ind, year) => fc.rows.find((r) => r.indicator === ind && r.year === year);
+  // Сценарии ЦБ: базовый + (если опубликованы) проинфляционный/дезинфляционный/рисковый.
+  const scenarios = (Array.isArray(fc.scenarios) && fc.scenarios.length)
+    ? fc.scenarios
+    : [{ scenario: fc.scenario || "базовый", comment: fc.comment, rows: fc.rows }];
+  const sel = scenarios[Math.min(scIdx, scenarios.length - 1)] || scenarios[0];
+  const rows = sel.rows || [];
+  const years = [...new Set(rows.map((r) => r.year))].sort();
+  const indicators = [...new Set(rows.map((r) => r.indicator))];
+  const cell = (ind, year) => rows.find((r) => r.indicator === ind && r.year === year);
   return (
     <div>
       <h2 className="tw-text-[15px] tw-font-medium tw-text-text-primary tw-mb-1">Среднесрочный прогноз Банка России</h2>
-      {fc.as_of && <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3">по состоянию на {fc.as_of}{fc.scenario ? ` · сценарий: ${fc.scenario}` : ""}</div>}
+      {fc.as_of && <div className="tw-text-[12px] tw-text-text-tertiary tw-mb-3">по состоянию на {fc.as_of}</div>}
+      {scenarios.length > 1 && (
+        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-1.5 tw-mb-3">
+          {scenarios.map((s, i) => (
+            <Chip key={s.scenario} selected={i === scIdx} onClick={() => setScIdx(i)}>
+              {s.scenario.charAt(0).toUpperCase() + s.scenario.slice(1)}
+            </Chip>
+          ))}
+        </div>
+      )}
       <Card>
         <div className="tw-overflow-x-auto">
           <table className="tw-w-full tw-text-[13px] tw-border-collapse">
             <thead>
               <tr className="tw-text-text-tertiary tw-text-left">
-                <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Показатель</th>
+                <th className="tw-py-1.5 tw-pr-3 tw-font-medium">Показатель {scenarios.length > 1 ? `· ${sel.scenario}` : ""}</th>
                 {years.map((y) => <th key={y} className="tw-py-1.5 tw-px-3 tw-font-medium tw-text-right tw-tabular-nums">{y}</th>)}
               </tr>
             </thead>
@@ -10643,7 +10659,7 @@ function MacroForecastTable() {
             </tbody>
           </table>
         </div>
-        {fc.comment && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mt-3 tw-pt-3 tw-border-t tw-border-border-subtle">{fc.comment}</div>}
+        {sel.comment && <div className="tw-text-[13px] tw-text-text-secondary tw-leading-[20px] tw-mt-3 tw-pt-3 tw-border-t tw-border-border-subtle">{sel.comment}</div>}
       </Card>
     </div>
   );
