@@ -1843,9 +1843,16 @@ const ANALYST_MD = {
     }
     return <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-3">{children}</p>;
   },
-  ul: ({ children }) => <ul className="tw-list-disc tw-pl-5 tw-my-3 tw-space-y-2">{children}</ul>,
-  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-3 tw-space-y-2">{children}</ol>,
-  li: ({ children }) => <li className="tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary marker:tw-text-accent tw-pl-1.5">{children}</li>,
+  ul: ({ children }) => <ul className="tw-list-none tw-pl-0 tw-my-3 tw-space-y-2">{children}</ul>,
+  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-3 tw-space-y-2 marker:tw-text-accent marker:tw-font-semibold">{children}</ol>,
+  // Пункт списка = строка со значком-маркером (акцентный ▸) — «подпункт» читается
+  // отдельно, а не сливается в абзац. Один акцентный цвет — без «радуги».
+  li: ({ children }) => (
+    <li className="tw-flex tw-gap-2 tw-items-start tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary">
+      <span className="tw-text-accent tw-shrink-0 tw-mt-[3px] tw-text-[12px]" aria-hidden="true">▸</span>
+      <span className="tw-min-w-0">{children}</span>
+    </li>
+  ),
   strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
   em: ({ children }) => <em className="tw-italic">{children}</em>,
   blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-text-primary">{children}</blockquote>,
@@ -6675,13 +6682,12 @@ const CompanyCard = ({ company, onBack }) => {
             const Icon = getH2Icon(heading);
             return (
               <Card key={secIdx} className="tw-transition-shadow tw-duration-150 hover:tw-shadow-md dark:hover:tw-shadow-none">
-                <div className="tw-flex tw-items-center tw-gap-2.5 tw-pb-3 tw-mb-3 tw-border-b tw-border-border-subtle">
-                  {Icon && (
-                    <span className="tw-w-7 tw-h-7 tw-rounded-md tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
-                      <Icon size={15} className="tw-text-accent" />
-                    </span>
-                  )}
-                  <span className="tw-flex-1 tw-text-[15px] tw-font-semibold tw-text-text-primary">{heading}</span>
+                {/* Шапка-плашка плиты: акцентная полоса + значок + название на accent-soft
+                    (единый язык с определениями метрик портфеля). */}
+                <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+                  <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+                  {Icon && <Icon size={16} className="tw-text-accent tw-shrink-0" />}
+                  <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{heading}</h4>
                 </div>
                 <Prose className="tw-max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{body}</ReactMarkdown>
