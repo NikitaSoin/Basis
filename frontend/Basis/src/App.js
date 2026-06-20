@@ -11870,7 +11870,7 @@ export default function App() {
   }
 
   return (
-    <div data-theme={theme} className="app-layout tw-bg-bg-base tw-text-text-primary">
+    <div data-theme={theme} className={`app-layout tw-bg-bg-base tw-text-text-primary${NEO_CARD ? " cc-root" : ""}`}>
       <Sidebar
         activeTab={selectedCompany ? null : activeTab}
         setActiveTab={navigate}
