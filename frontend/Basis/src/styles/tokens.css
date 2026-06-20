@@ -293,3 +293,106 @@
   [style*="basis-orbit"] { animation: none !important; }
   [style*="basis-hero-sweep"] { animation: none !important; }
 }
+
+/* =====================================================================
+   Basis Neo-Institutional Research System — Company Card scope (.cc-root)
+   Скоупится под обёртку карточки: остальное приложение не затронуто.
+   Внутри .cc-root существующие токены приложения АЛИАСЯТСЯ на cc-значения,
+   поэтому весь аналитический контент вкладок переоформляется автоматически.
+   ===================================================================== */
+
+/* ---- LIGHT — "Research Desk" (default) ---- */
+.cc-root {
+  --cc-bg:            #F6F3EC;
+  --cc-bg-2:          #EFEBE1;
+  --cc-panel:         #FFFFFF;
+  --cc-panel-2:       #FBF9F4;
+  --cc-line:          rgba(20,18,14,0.10);
+  --cc-line-2:        rgba(20,18,14,0.18);
+  --cc-ink:           #16130E;
+  --cc-ink-2:         #544E44;
+  --cc-ink-3:         #857D6F;
+  --cc-accent:        #1F3FC4;
+  --cc-accent-hover:  #18308F;
+  --cc-accent-2:      #23379C;
+  --cc-accent-soft:   rgba(31,63,196,0.08);
+  --cc-amber:         #9A5B12;
+  --cc-amber-soft:    rgba(154,91,18,0.10);
+  --cc-success:       #15803D;
+  --cc-danger:        #B23052;
+  --cc-violet:        #6D28D9;
+  --cc-info:          #0A5E8A;
+  --cc-chart-grid:    rgba(20,18,14,0.06);
+  --cc-hero-texture:  rgba(20,18,14,0.05);
+  --cc-hero-glow:     rgba(31,63,196,0.07);
+
+  --cc-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --cc-sans:  "Inter", system-ui, sans-serif;
+  --cc-mono:  "JetBrains Mono", ui-monospace, monospace;
+
+  --cc-page-x: 32px;
+  --cc-r-lg: 14px; --cc-r: 12px; --cc-r-sm: 8px;
+  --cc-shadow: 0 1px 2px rgba(0,0,0,.06);
+
+  /* ----- алиасинг токенов приложения → cc (контент вкладок реформируется) ----- */
+  --bg-base:        var(--cc-bg);
+  --bg-elevated:    var(--cc-panel);
+  --bg-overlay-srf: var(--cc-panel);
+  --bg-hover:       var(--cc-panel-2);
+  --border-subtle:  var(--cc-line);
+  --border-strong:  var(--cc-line-2);
+  --border-hover:   var(--cc-line-2);
+  --text-primary:   var(--cc-ink);
+  --text-secondary: var(--cc-ink-2);
+  --text-tertiary:  var(--cc-ink-3);
+  --text-1: var(--cc-ink); --text-2: var(--cc-ink-2); --text-3: var(--cc-ink-3);
+  --bg-surface: var(--cc-panel-2);
+  --accent:         var(--cc-accent);
+  --accent-hover:   var(--cc-accent-hover);
+  --accent-soft:    var(--cc-accent-soft);
+  --accent-text:    var(--cc-accent-2);
+  --accent-fade:    var(--cc-accent-soft);
+  --accent-border:  var(--cc-line-2);
+  --accent-2:       var(--cc-violet);
+  --success:        var(--cc-success);
+  --danger:         var(--cc-danger);
+  --warning:        var(--cc-amber);
+  --warning-soft:   var(--cc-amber-soft);
+  --info:           var(--cc-info);
+  --border-mid:     var(--cc-line-2);
+  --sidebar-icon-idle: var(--cc-ink-3);
+}
+
+/* ---- DARK — "Command Center" (только cc-значения; алиасы наследуются) ---- */
+.dark .cc-root, .cc-root.dark {
+  --cc-bg:            #0B0E13;
+  --cc-bg-2:          #10141B;
+  --cc-panel:         #151922;
+  --cc-panel-2:       #181D27;
+  --cc-line:          rgba(255,255,255,0.07);
+  --cc-line-2:        rgba(255,255,255,0.12);
+  --cc-ink:           #ECEFF5;
+  --cc-ink-2:         #A2ABBC;
+  --cc-ink-3:         #717A89;
+  --cc-accent:        #5B7CFF;
+  --cc-accent-hover:  #7088F2;
+  --cc-accent-2:      #93A8F5;
+  --cc-accent-soft:   rgba(91,124,255,0.13);
+  --cc-amber:         #E0A24A;
+  --cc-amber-soft:    rgba(224,162,74,0.12);
+  --cc-success:       #3FB984;
+  --cc-danger:        #E5708A;
+  --cc-violet:        #A78BFA;
+  --cc-info:          #5FB3E6;
+  --cc-chart-grid:    rgba(255,255,255,0.07);
+  --cc-hero-texture:  rgba(255,255,255,0.07);
+  --cc-hero-glow:     rgba(91,124,255,0.14);
+}
+
+/* фон карточки + serif для всех заголовков аналитики внутри карточки */
+.cc-root { background: var(--cc-bg); color: var(--cc-ink); }
+.cc-root h1, .cc-root h2, .cc-root h3, .cc-root h4,
+.cc-root .cc-serif { font-family: var(--cc-serif); letter-spacing: -0.01em; }
+.cc-root .cc-eyebrow { font-family: var(--cc-sans); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--cc-ink-3); }
+.cc-root .cc-num { font-family: var(--cc-mono); font-variant-numeric: tabular-nums lining-nums; }

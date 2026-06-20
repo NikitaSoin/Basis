@@ -52,6 +52,7 @@ import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, Kp
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
+import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -1796,6 +1797,17 @@ const ratingTone = (rt) => {
 };
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+// Фиче-флаг новой карточки (Neo-Institutional). По умолчанию ВКЛ; вернуть классику —
+// ?classic=1 в URL или localStorage basis_neo=0. Полный откод — git tag pre-neo-card.
+const NEO_CARD = (() => {
+  try {
+    if (typeof window === "undefined") return true;
+    if (/[?&]classic=1/.test(window.location.search)) return false;
+    if (/[?&]neo=1/.test(window.location.search)) return true;
+    return window.localStorage.getItem("basis_neo") !== "0";
+  } catch { return true; }
+})();
 
 // ── Логотипы компаний (бренды T-Инвестиций) ──
 // Карта {ticker: url} тянется ОДИН раз на сессию (module-level кэш + общий promise),
@@ -7048,9 +7060,68 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  // ── Neo-Institutional Company Card (за фиче-флагом NEO_CARD; классика в else) ──
+  const NEO = NEO_CARD;
+  const _fin = finJson || {};
+  const finMeta = _fin.meta || {};
+  const _cur = (_fin.multiples && _fin.multiples.current) || {};
+  const _ret = _fin.returns || {};
+  const _ratios = (_fin.balance_sheet && _fin.balance_sheet.ratios) || {};
+  const _fvr = (_fin.valuation && _fin.valuation.fair_value_range) || {};
+  const _lastNN = (a) => Array.isArray(a) ? ([...a].reverse().find((x) => x != null) ?? null) : (typeof a === "number" ? a : null);
+  const _fmtBig = (v) => { if (typeof v !== "number") return null; const a = Math.abs(v); if (a >= 1e6) return (v / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }); if (a >= 1e3) return (v / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 }); return Math.round(v).toLocaleString("ru-RU"); };
+  const _num1 = (v) => typeof v === "number" ? v.toLocaleString("ru-RU", { maximumFractionDigits: 1 }) : null;
+  const _liveCurp = livePrice ?? company.price ?? null;
+  const _upside = (typeof _fvr.base === "number" && typeof _liveCurp === "number" && _liveCurp > 0) ? ((_fvr.base - _liveCurp) / _liveCurp) * 100 : null;
+  const neoMetrics = [];
+  const _pushM = (caption, value, unit, level) => { if (value != null && value !== "") neoMetrics.push({ caption, value, unit, level }); };
+  (() => { const v = _lastNN(_fin.income_statement?.revenue); if (v != null) _pushM("Выручка", _fmtBig(v), Math.abs(v) >= 1e6 ? "трлн" : Math.abs(v) >= 1e3 ? "млрд" : "млн", "fact"); })();
+  _pushM("EBITDA margin", _num1(_lastNN(_fin.income_statement?.margins?.ebitda)), "%", "fact");
+  _pushM("Чист. долг / EBITDA", _num1(_lastNN(_ratios.net_debt_ebitda)), "×", "fact");
+  (() => { const v = _lastNN(_fin.cash_flow?.fcf); if (v != null) _pushM("FCF", _fmtBig(v), Math.abs(v) >= 1e3 ? "млрд" : "млн", "fact"); })();
+  _pushM("EV/EBITDA", _num1(_cur.ev_ebitda), "×", "estimate");
+  _pushM("ROE", _num1(_lastNN(_ret.roe)), "%", "fact");
+  _pushM("Потенциал к справ.", _upside != null ? (_upside > 0 ? "+" : "") + Math.round(_upside).toLocaleString("ru-RU") : null, "%", "judgment");
+  const _thesis = _fin.synthesis_verdict?.headline || _fin.synthesis_verdict?.text || null;
+  const _fairBase = typeof _fvr.base === "number" ? formatMoney(_fvr.base) : null;
+  const _sources = Array.isArray(_fin.sources) ? _fin.sources.length : null;
+  const _conf = { high: "высокая", medium: "средняя", low: "низкая" }[finMeta.data_quality] || null;
+  const _price = livePrice ?? company.price;
+  const _change = liveChange ?? company.change;
+  const _changeAbs = liveChangeAbs ?? company.changeAbs;
+  const NEO_TABS = [
+    { id: "overview", label: "Обзор" }, { id: "business", label: "Бизнес-модель" },
+    { id: "finance", label: "Финансы и оценка" }, { id: "governance", label: "Корп. управление" },
+    { id: "markets", label: "Рынки" }, { id: "macro", label: "Макро" }, { id: "geo", label: "Геополитика" },
+  ];
+  const tabBody = (
+    <>
+      {tab === "overview" && renderOverview()}
+      {tab === "business" && renderBusinessProfile()}
+      {tab === "finance" && renderFinancials()}
+      {tab === "governance" && renderGovernance()}
+      {tab === "markets" && renderMarket()}
+      {tab === "macro" && renderMacro()}
+      {tab === "geo" && renderGeo()}
+      {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
+      {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
+      {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}
+    </>
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Header — elevated surface, ticker monogram, name/sector, live price + delta */}
+    <div className={NEO ? "cc-root tw-space-y-6" : "space-y-6"}>
+      {NEO ? (
+        <div className="tw-rounded-[14px] tw-px-7 tw-py-8" style={{ background: "var(--cc-panel)", border: "1px solid var(--cc-line)" }}>
+          <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
+          <div className="tw-flex tw-items-start tw-justify-between tw-gap-6 tw-flex-wrap">
+            <CompanyIdentityBlock logo={<CompanyLogo ticker={company.ticker} name={company.name} size={60} />} name={company.name} ticker={company.ticker} sector={company.sector} marketOpen />
+            <PricePanel price={_price == null ? null : _price.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} changePct={_change} changeAbs={_changeAbs} marketCap={formatMarketCap(company.market_cap)} asOf={finMeta.price_date || "сейчас"} />
+          </div>
+          {_thesis && <p className="cc-serif tw-text-[19px] tw-leading-[1.5] tw-mt-6 tw-mb-0" style={{ color: "var(--cc-ink)", maxWidth: "70ch" }}>{_thesis}</p>}
+          <MetricStrip metrics={neoMetrics} />
+        </div>
+      ) : (
       <Card>
         <div className="tw-flex tw-items-start tw-gap-4">
           <IconButton aria-label="Назад" variant="ghost" onClick={onBack} className="tw-shrink-0">
@@ -7095,9 +7166,11 @@ const CompanyCard = ({ company, onBack }) => {
           </div>
         </div>
       </Card>
+      )}
 
-      {/* Tab bar — primary tablist (ready blocks) + "Ещё" menu for coming-soon blocks */}
-      {(() => {
+      {NEO ? (
+        <NeoResearchTabs tabs={NEO_TABS} activeId={tab} onSelect={setTab} />
+      ) : (() => {
         const PRIMARY = [
           { id: "overview", label: "Обзор" },
           { id: "business", label: "Бизнес-модель" },
@@ -7176,18 +7249,14 @@ const CompanyCard = ({ company, onBack }) => {
         );
       })()}
 
-      <>
-        {tab === "overview" && renderOverview()}
-        {tab === "business" && renderBusinessProfile()}
-        {tab === "finance" && renderFinancials()}
-        {tab === "governance" && renderGovernance()}
-        {tab === "markets" && renderMarket()}
-        {tab === "macro" && renderMacro()}
-        {tab === "geo" && renderGeo()}
-        {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
-        {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
-        {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}
-      </>
+      {NEO ? (
+        <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
+          <div className="tw-min-w-0 tw-space-y-6">{tabBody}</div>
+          <DecisionSupportRail fairBase={_fairBase} upside={_upside} confidence={_conf} sourcesCount={_sources} asOf={finMeta.price_date} onCheckIdea={() => setTab("finance")} onScenarios={() => setTab("geo")} />
+        </div>
+      ) : (
+        <>{tabBody}</>
+      )}
     </div>
   );
 };
