@@ -220,6 +220,15 @@ async def _earnings_startup():
     await _earnings_job(seed_only=True)
 
 
+async def _screener_warm():
+    """Фоновый прогрев кеша скринера (BASIS-скоринг по наборам) после старта."""
+    try:
+        from app.services.screener_scoring import warm_cache
+        await asyncio.get_event_loop().run_in_executor(None, warm_cache)
+    except Exception as e:
+        logger.exception("Ошибка прогрева скринера: %s", e)
+
+
 async def _seed_shares_startup():
     """После деплоя: проставить companies.shares_outstanding из data/rates.csv
     (ISSUESIZE — НЕценовое справочное поле) тем компаниям, у кого пусто, и сразу
@@ -380,6 +389,8 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_tinkoff_warmup())
     # Стартовый сид числа акций + пересчёт капитализации от свежей цены (идемпотентно).
     asyncio.create_task(_seed_shares_startup())
+    # Прогрев кеша скринера (фоном) — чтобы первый запрос /screener/scored был мгновенным.
+    asyncio.create_task(_screener_warm())
     # Авто-наполнение данных классов активов при старте (в фоне, грузит только
     # пустое/устаревшее) — чтобы после деплоя данные оказались на бою без ручной
     # команды import_data.sh.
