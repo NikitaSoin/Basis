@@ -1,0 +1,11 @@
+/* =============================================================
+   BASIS DESIGN SYSTEM — global entry point.
+   Consumers link THIS one file. It is a list of @import lines only;
+   everything reachable from here ships to consumers (tokens + fonts).
+   ============================================================= */
+
+@import url("tokens/fonts.css");
+@import url("tokens/colors.css");
+@import url("tokens/typography.css");
+@import url("tokens/spacing.css");
+@import url("tokens/base.css");

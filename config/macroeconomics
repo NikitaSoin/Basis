@@ -1,0 +1,1255 @@
+Да. Ниже — карта понятий именно для прикладного макроанализа бизнеса: не “макро ради макро”, а как макроэкономическая среда проходит в выручку, маржу, CAPEX, оборотный капитал, стоимость долга, стоимость капитала и оценку компании.
+
+⸻
+
+1. Базовая рамка: через какие каналы макро влияет на бизнес
+
+Макроэкономика влияет на компанию не абстрактно, а через несколько каналов:
+
+Macro \rightarrow Revenue,\ Costs,\ Working\ Capital,\ CAPEX,\ Debt,\ Valuation
+
+Главные каналы:
+
+GDP / Demand \rightarrow Volumes
+
+Inflation \rightarrow Prices,\ Costs,\ Margins
+
+Interest\ Rate \rightarrow Debt\ Cost,\ Demand,\ Valuation
+
+FX \rightarrow Revenue,\ Costs,\ Debt,\ CAPEX
+
+Commodities \rightarrow Input\ Costs,\ Export\ Revenue
+
+Fiscal\ Policy \rightarrow Taxes,\ Subsidies,\ Public\ Demand
+
+Monetary\ Policy \rightarrow Credit,\ Consumption,\ Investment
+
+Labor\ Market \rightarrow Wages,\ Availability\ of\ Labor
+
+⸻
+
+2. Реальный сектор: выпуск, спрос, цикл
+
+GDP / ВВП
+
+Y = C + I + G + NX
+
+где:
+
+* Y — выпуск / ВВП;
+* C — потребление домохозяйств;
+* I — инвестиции;
+* G — госрасходы;
+* NX = X - M — чистый экспорт.
+
+Для бизнеса важно понять, от какой части ВВП он зависит.
+
+Например:
+
+* ритейл зависит от C;
+* строительные материалы — от I;
+* оборонка и инфраструктура — от G;
+* металлурги, нефтяники, агроэкспортёры — от X;
+* импортёры оборудования — от M, курса и внешних ограничений.
+
+⸻
+
+Экономический цикл
+
+Фазы:
+
+Expansion \rightarrow Peak \rightarrow Recession \rightarrow Trough \rightarrow Recovery
+
+Для бизнеса это означает:
+
+* на подъёме растут объёмы, цены, загрузка мощностей;
+* на пике растут издержки, зарплаты, ставки, дефицит мощностей;
+* в спаде падает спрос, растёт кредитный риск, ухудшается оборачиваемость;
+* в восстановлении первыми растут циклические отрасли.
+
+⸻
+
+Output gap
+
+Output\ Gap = \frac{Y - Y^*}{Y^*}
+
+где:
+
+* Y — фактический выпуск;
+* Y^* — потенциальный выпуск.
+
+Если:
+
+Y > Y^*
+
+экономика перегрета: инфляционное давление, рост зарплат, высокая ставка.
+
+Если:
+
+Y < Y^*
+
+экономика ниже потенциала: слабый спрос, свободные мощности, давление на цены вниз.
+
+Для бизнеса output gap показывает, что происходит с:
+
+* pricing power;
+* загрузкой мощностей;
+* зарплатным давлением;
+* риском падения спроса.
+
+⸻
+
+3. Совокупный спрос и IS-кривая
+
+IS-кривая
+
+IS показывает равновесие на рынке товаров:
+
+Y = C(Y-T) + I(r,Y) + G
+
+Смысл:
+
+\text{выпуск} = \text{потребление} + \text{инвестиции} + \text{госрасходы}
+
+Обычно:
+
+I_r < 0
+
+То есть рост ставки снижает инвестиции.
+
+Прикладная логика:
+
+r \uparrow \Rightarrow I \downarrow \Rightarrow Y \downarrow
+
+Для бизнеса:
+
+* девелопмент, строительство, автокредиты, ипотека, durable goods чувствительны к ставке;
+* продукты питания и базовые услуги менее чувствительны;
+* B2B-инвесттовары сильно зависят от инвестиционного цикла.
+
+⸻
+
+Мультипликатор расходов
+
+В простой модели:
+
+Y = C_0 + c_1(Y-T) + I + G
+
+Y = \frac{1}{1-c_1}(C_0 - c_1T + I + G)
+
+Мультипликатор госрасходов:
+
+\frac{\partial Y}{\partial G} = \frac{1}{1-c_1}
+
+Мультипликатор налогов:
+
+\frac{\partial Y}{\partial T} = -\frac{c_1}{1-c_1}
+
+Для бизнеса это важно, если его спрос зависит от:
+
+* бюджета;
+* зарплат бюджетников;
+* госзакупок;
+* инфраструктурных программ;
+* трансфертов населению.
+
+⸻
+
+4. Денежный рынок и LM-кривая
+
+Денежный рынок
+
+\frac{M}{P} = YL(i)
+
+или в простой форме:
+
+\frac{M}{P} = kY - hi
+
+где:
+
+* M — номинальная денежная масса;
+* P — уровень цен;
+* M/P — реальные денежные остатки;
+* Y — реальный выпуск;
+* i — номинальная ставка.
+
+Логика:
+
+Y \uparrow \Rightarrow \text{спрос на деньги} \uparrow
+
+i \uparrow \Rightarrow \text{спрос на деньги} \downarrow
+
+⸻
+
+LM-кривая
+
+LM показывает равновесие на денежном рынке.
+
+Если ЦБ увеличивает денежное предложение:
+
+M \uparrow \Rightarrow i \downarrow \Rightarrow Y \uparrow
+
+Но в современной прикладной макроэкономике чаще ЦБ управляет не M, а ключевой ставкой.
+
+Для бизнеса денежный рынок важен через:
+
+* стоимость фондирования;
+* доступность кредита;
+* спрос на товары длительного пользования;
+* ставки дисконтирования;
+* мультипликаторы оценки.
+
+⸻
+
+5. Монетарная политика
+
+Ключевая ставка
+
+Ключевая ставка влияет на:
+
+Key\ Rate \rightarrow Deposit\ Rates
+
+Key\ Rate \rightarrow Loan\ Rates
+
+Key\ Rate \rightarrow Bond\ Yields
+
+Key\ Rate \rightarrow FX
+
+Key\ Rate \rightarrow Demand
+
+Key\ Rate \rightarrow Valuation
+
+Главные эффекты для бизнеса:
+
+1. Процентные расходы
+
+Interest\ Expense = Debt \times Rate
+
+Особенно важно для компаний с плавающим долгом.
+
+2. Спрос
+
+r \uparrow \Rightarrow Credit\ Demand \downarrow
+
+Страдают ипотека, авто, техника, девелопмент, банки по выдачам.
+
+3. Оценка
+
+Discount\ Rate \uparrow \Rightarrow PV(FCF) \downarrow
+
+Чем дальше денежные потоки в будущем, тем сильнее удар по valuation.
+
+4. Курс
+
+Высокая ставка может поддерживать валюту через carry trade и снижение спроса на импорт, но эффект зависит от санкций, потоков капитала и торгового баланса.
+
+⸻
+
+Реальная ставка
+
+r = i - \pi^e
+
+где:
+
+* r — реальная ставка;
+* i — номинальная ставка;
+* \pi^e — ожидаемая инфляция.
+
+Для бизнеса важна именно реальная стоимость денег.
+
+Если:
+
+i = 16\%, \quad \pi^e = 10\%
+
+то:
+
+r = 6\%
+
+Если инфляционные ожидания падают при той же номинальной ставке, реальная ставка растёт, и политика становится жёстче.
+
+⸻
+
+Правило Тейлора
+
+i_t = r^* + \pi_t + a(\pi_t - \pi^*) + b(Y_t - Y_t^*)
+
+Смысл: ЦБ повышает ставку, когда:
+
+* инфляция выше цели;
+* экономика перегрета.
+
+Для бизнеса это даёт рамку прогноза ставки:
+
+\pi \uparrow \Rightarrow i \uparrow
+
+Output\ Gap \uparrow \Rightarrow i \uparrow
+
+⸻
+
+6. Инфляция
+
+Headline inflation
+
+Общая инфляция по CPI.
+
+Влияет на:
+
+* цены реализации;
+* зарплаты;
+* закупочные цены;
+* индексации тарифов;
+* стоимость долга;
+* потребительский спрос.
+
+⸻
+
+Core inflation
+
+Инфляция без волатильных компонентов, например без продовольствия и энергии.
+
+Для ЦБ важна как показатель устойчивого инфляционного давления.
+
+Если core inflation высокая, ставка обычно дольше остаётся высокой.
+
+⸻
+
+Producer Price Index / PPI
+
+Индекс цен производителей.
+
+Для бизнеса важен как индикатор будущего давления на себестоимость.
+
+PPI \uparrow \Rightarrow COGS \uparrow
+
+Если компания может переложить рост затрат в цены:
+
+Margin \approx stable
+
+Если нет:
+
+Margin \downarrow
+
+⸻
+
+Инфляционные ожидания
+
+\pi^e
+
+Влияют на:
+
+* зарплатные требования;
+* поведение потребителей;
+* pricing decisions компаний;
+* решения ЦБ.
+
+Если ожидания не заякорены:
+
+\pi^e \uparrow \Rightarrow Wages \uparrow \Rightarrow Costs \uparrow \Rightarrow Prices \uparrow
+
+⸻
+
+7. Кривая Филлипса / PC
+
+Простая форма
+
+\pi_t = \pi_t^e + \kappa(Y_t - Y_t^*) + \varepsilon_t
+
+или через безработицу:
+
+\pi_t = \pi_t^e - \alpha(u_t-u_n) + \varepsilon_t
+
+где:
+
+* \pi_t — инфляция;
+* \pi_t^e — ожидаемая инфляция;
+* Y_t - Y_t^* — разрыв выпуска;
+* u_t — безработица;
+* u_n — естественная безработица;
+* \varepsilon_t — supply shock.
+
+Смысл:
+
+Y > Y^* \Rightarrow \pi \uparrow
+
+u < u_n \Rightarrow \pi \uparrow
+
+Для бизнеса:
+
+* перегретый рынок труда → рост зарплат;
+* перегретый спрос → проще повышать цены;
+* отрицательный supply shock → рост costs и падение маржи.
+
+⸻
+
+8. Рынок труда
+
+Безработица
+
+u = \frac{Unemployed}{Labor\ Force}
+
+Низкая безработица означает:
+
+* сложнее нанимать;
+* зарплаты растут быстрее;
+* выше текучесть;
+* выше wage inflation.
+
+⸻
+
+Реальная зарплата
+
+Real\ Wage = \frac{W}{P}
+
+Если номинальные зарплаты растут быстрее производительности:
+
+Unit\ Labor\ Cost \uparrow
+
+Margins \downarrow
+
+⸻
+
+Unit Labor Cost
+
+ULC = \frac{Wage}{Productivity}
+
+Для бизнеса это один из главных индикаторов давления на маржу.
+
+Если:
+
+Wages \uparrow,\quad Productivity \text{ flat}
+
+то:
+
+ULC \uparrow
+
+⸻
+
+9. Валютный курс
+
+Номинальный курс
+
+Например:
+
+USD/RUB
+
+Для бизнеса важно разделить:
+
+* экспортёры выигрывают от ослабления рубля, если расходы в рублях;
+* импортёры проигрывают;
+* компании с валютным долгом проигрывают;
+* компании с валютной выручкой и рублёвыми затратами выигрывают.
+
+⸻
+
+Реальный эффективный курс
+
+REER
+
+Показывает конкурентоспособность с учётом инфляции и торговых партнёров.
+
+Если реальный курс укрепляется:
+
+REER \uparrow
+
+то экспортная конкурентоспособность ухудшается.
+
+Если реальный курс ослабляется:
+
+REER \downarrow
+
+то экспортёры получают преимущество.
+
+⸻
+
+Pass-through
+
+FX\ Pass\text{-}through = \frac{\Delta Prices}{\Delta FX}
+
+Смысл: насколько изменение курса переходит в цены.
+
+Для бизнеса:
+
+* высокий pass-through → можно переложить девальвацию в цены;
+* низкий pass-through → маржа падает.
+
+⸻
+
+10. Внешний сектор
+
+Торговый баланс
+
+Trade\ Balance = Exports - Imports
+
+Важен для:
+
+* курса;
+* валютной ликвидности;
+* экспортных отраслей;
+* импортозависимых отраслей.
+
+⸻
+
+Current account
+
+CA = Trade\ Balance + Net\ Income + Net\ Transfers
+
+Если текущий счёт сильный:
+
+CA \uparrow \Rightarrow FX\ Supply \uparrow
+
+это поддерживает валюту.
+
+⸻
+
+Terms of trade
+
+Terms\ of\ Trade = \frac{Export\ Prices}{Import\ Prices}
+
+Для России важны:
+
+* нефть;
+* газ;
+* металлы;
+* удобрения;
+* зерно.
+
+Если экспортные цены растут относительно импортных:
+
+Terms\ of\ Trade \uparrow
+
+то страна получает больше внешнего дохода.
+
+⸻
+
+11. Сырьевые цены
+
+Для бизнеса нужно смотреть не только нефть как макроиндикатор, а конкретную экспозицию:
+
+Oil,\ Gas,\ Coal,\ Steel,\ Copper,\ Gold,\ Wheat,\ Fertilizers
+
+Каналы:
+
+Commodity\ Price \uparrow \Rightarrow Exporters'\ Revenue \uparrow
+
+Commodity\ Price \uparrow \Rightarrow Input\ Costs \uparrow
+
+Например:
+
+* нефть вверх → нефтяникам плюс, авиакомпаниям минус;
+* газ вверх → газовикам плюс, химии и металлургии минус;
+* зерно вверх → аграриям плюс, пищевым производителям минус;
+* сталь вверх → металлургам плюс, строителям минус.
+
+⸻
+
+12. Фискальная политика
+
+Бюджетный баланс
+
+Budget\ Balance = Revenues - Expenditures
+
+Если:
+
+Deficit \uparrow
+
+то государство может:
+
+* занимать больше;
+* повышать налоги;
+* сокращать расходы;
+* использовать резервы.
+
+Для бизнеса важно:
+
+* кто получает госрасходы;
+* кого могут дополнительно обложить налогами;
+* что происходит с госзаказом;
+* как дефицит влияет на ставки ОФЗ.
+
+⸻
+
+Налоговая нагрузка
+
+Ключевые налоги:
+
+* налог на прибыль;
+* НДС;
+* НДПИ;
+* НДД;
+* акцизы;
+* страховые взносы;
+* экспортные пошлины;
+* импортные пошлины;
+* property taxes;
+* windfall taxes.
+
+Канал:
+
+Tax \uparrow \Rightarrow NOPAT \downarrow \Rightarrow FCF \downarrow
+
+⸻
+
+Государственные расходы
+
+G \uparrow \Rightarrow Demand \uparrow
+
+Но эффект зависит от структуры:
+
+* оборона;
+* инфраструктура;
+* социальные выплаты;
+* субсидии;
+* госзакупки;
+* инвестиции госкомпаний.
+
+Для бизнеса важно не просто “бюджет растёт”, а какие статьи растут.
+
+⸻
+
+13. Государственный долг и рынок ОФЗ
+
+Доходность ОФЗ
+
+ОФЗ — база для рублёвой безрисковой ставки.
+
+R_f \approx Yield\ on\ OFZ
+
+Для оценки бизнеса:
+
+R_e = R_f + \beta ERP
+
+WACC = \frac{E}{D+E}R_e + \frac{D}{D+E}R_d(1-T)
+
+Если доходности ОФЗ растут:
+
+R_f \uparrow \Rightarrow R_e \uparrow \Rightarrow WACC \uparrow \Rightarrow Valuation \downarrow
+
+⸻
+
+Кривая доходности
+
+* короткий конец — ожидания по ключевой ставке;
+* длинный конец — инфляционные ожидания, премия за срок, фискальные риски.
+
+Инверсия кривой часто указывает на жёсткую монетарную политику и ожидание замедления.
+
+⸻
+
+14. Финансовые условия
+
+Credit conditions
+
+Важно смотреть:
+
+* ставки кредитования;
+* доступность кредита;
+* требования банков;
+* просрочку;
+* кредитный импульс;
+* корпоративные спреды.
+
+Для бизнеса:
+
+Credit\ Tightening \Rightarrow Working\ Capital\ Stress
+
+Credit\ Tightening \Rightarrow CAPEX\ Cuts
+
+Credit\ Tightening \Rightarrow Demand\ Weakness
+
+⸻
+
+Debt burden
+
+Net\ Debt / EBITDA
+
+Interest\ Coverage = \frac{EBITDA}{Interest}
+
+ICR = \frac{EBIT}{Interest}
+
+Если ставки растут, компании с высоким долгом быстрее теряют прибыльность и FCF.
+
+⸻
+
+15. Доходы населения и потребление
+
+Для потребительских бизнесов важны:
+
+Real\ Disposable\ Income
+
+Real\ Wages
+
+Consumer\ Confidence
+
+Savings\ Rate
+
+Retail\ Lending
+
+Household\ Debt\ Service
+
+Канал:
+
+Real\ Income \uparrow \Rightarrow Consumption \uparrow
+
+Debt\ Service \uparrow \Rightarrow Disposable\ Cash \downarrow
+
+Savings\ Rate \uparrow \Rightarrow Current\ Consumption \downarrow
+
+⸻
+
+16. Инвестиции и CAPEX-цикл
+
+Инвестиции зависят от:
+
+Expected\ Demand
+
+Cost\ of\ Capital
+
+Capacity\ Utilization
+
+Uncertainty
+
+Government\ Policy
+
+Простая логика:
+
+WACC \uparrow \Rightarrow NPV \downarrow \Rightarrow CAPEX \downarrow
+
+Demand \uparrow \Rightarrow Capacity\ Utilization \uparrow \Rightarrow CAPEX \uparrow
+
+⸻
+
+17. Оборотный капитал
+
+Макро влияет на working capital через инфляцию, ставки и спрос.
+
+NWC = Inventory + Receivables - Payables
+
+Если инфляция высокая:
+
+* запасы дорожают;
+* компании могут заранее закупаться;
+* дебиторка растёт номинально;
+* поставщики требуют предоплату.
+
+Если спрос замедляется:
+
+* запасы накапливаются;
+* дебиторка ухудшается;
+* cash conversion cycle растёт.
+
+FCF = CFO - CAPEX
+
+FCFF = EBIT(1-T)+D\&A-CAPEX-\Delta NWC
+
+Если:
+
+\Delta NWC \uparrow
+
+то:
+
+FCF \downarrow
+
+⸻
+
+18. Маржинальность бизнеса
+
+Ключевая прикладная рамка:
+
+Revenue = Price \times Volume
+
+Gross\ Profit = Revenue - COGS
+
+EBITDA = Revenue - Cash\ Opex
+
+EBIT = EBITDA - D\&A
+
+Макро влияет:
+
+Inflation \rightarrow Price
+
+GDP / Income \rightarrow Volume
+
+FX / Commodities / Wages \rightarrow Costs
+
+Rates \rightarrow Interest
+
+Taxes \rightarrow NOPAT
+
+⸻
+
+19. Pricing power
+
+Это способность компании перекладывать рост затрат в цены.
+
+Если:
+
+Price\ Growth > Cost\ Growth
+
+маржа растёт.
+
+Если:
+
+Price\ Growth < Cost\ Growth
+
+маржа падает.
+
+Высокий pricing power обычно у:
+
+* монополий;
+* инфраструктуры;
+* сильных брендов;
+* regulated tariff businesses;
+* дефицитных товаров.
+
+Низкий pricing power у:
+
+* commodity-like businesses;
+* конкурентного ритейла;
+* компаний с регулируемыми ценами;
+* слабых B2B-поставщиков.
+
+⸻
+
+20. Эластичность спроса
+
+Elasticity = \frac{\%\Delta Q}{\%\Delta P}
+
+Если спрос неэластичный:
+
+|E|<1
+
+компания может повышать цены без сильного падения объёма.
+
+Если спрос эластичный:
+
+|E|>1
+
+цены повышать сложно.
+
+Для анализа инфляции важно:
+
+Inflation \uparrow \Rightarrow Price \uparrow
+
+но:
+
+Volume\ response
+
+зависит от эластичности.
+
+⸻
+
+21. Отраслевые макроэкспозиции
+
+Банки
+
+Ключевые драйверы:
+
+* ключевая ставка;
+* кривая доходности;
+* кредитный рост;
+* просрочка;
+* стоимость фондирования;
+* NIM;
+* регулирование.
+
+NIM = Yield\ on\ Assets - Cost\ of\ Funding
+
+⸻
+
+Девелопмент
+
+Драйверы:
+
+* ипотечные ставки;
+* субсидированная ипотека;
+* доходы населения;
+* стройматериалы;
+* стоимость проектного финансирования;
+* госрегулирование.
+
+⸻
+
+Ритейл
+
+Драйверы:
+
+* реальные доходы;
+* инфляция;
+* потребительский кредит;
+* безработица;
+* аренда;
+* логистика;
+* импортные цены.
+
+⸻
+
+Нефть и газ
+
+Драйверы:
+
+* Brent / Urals;
+* USD/RUB;
+* НДПИ;
+* НДД;
+* экспортные пошлины;
+* демпфер;
+* CAPEX;
+* санкции;
+* добычные ограничения.
+
+⸻
+
+Металлургия
+
+Драйверы:
+
+* мировые цены;
+* Китай;
+* стройка;
+* экспортные ограничения;
+* уголь/энергия;
+* курс;
+* логистика;
+* CAPEX.
+
+⸻
+
+IT / growth-компании
+
+Драйверы:
+
+* ставка дисконтирования;
+* зарплаты;
+* корпоративный IT budget;
+* доступность капитала;
+* импорт технологий;
+* regulation.
+
+⸻
+
+22. Макро и оценка бизнеса
+
+DCF
+
+EV = \sum_{t=1}^{n}\frac{FCFF_t}{(1+WACC)^t} + \frac{TV}{(1+WACC)^n}
+
+Макро влияет и на числитель, и на знаменатель:
+
+Macro \rightarrow FCFF
+
+Macro \rightarrow WACC
+
+Каналы в FCFF:
+
+Revenue,\ EBITDA,\ Taxes,\ CAPEX,\Delta NWC
+
+Каналы в WACC:
+
+R_f,\ ERP,\ Beta,\ Cost\ of\ Debt,\ Capital\ Structure
+
+⸻
+
+CAPM
+
+R_e = R_f + \beta ERP
+
+Расширенно:
+
+R_e = R_f + \beta ERP + Size\ Premium + Specific\ Risk
+
+Для рублёвого бизнеса:
+
+R_f \approx OFZ\ yield
+
+⸻
+
+WACC
+
+WACC = \frac{E}{D+E}R_e+\frac{D}{D+E}R_d(1-T)
+
+Если ставка и доходности ОФЗ растут:
+
+WACC \uparrow
+
+Valuation \downarrow
+
+⸻
+
+NPV
+
+NPV = \sum_{t=0}^{n}\frac{FCF_t}{(1+r)^t}
+
+Если:
+
+NPV>0
+
+проект создаёт стоимость.
+
+⸻
+
+IRR
+
+0 = \sum_{t=0}^{n}\frac{FCF_t}{(1+IRR)^t}
+
+Сравнение:
+
+IRR > WACC \Rightarrow project\ creates\ value
+
+⸻
+
+23. Два вида FCF
+
+FCFF
+
+FCFF = EBIT(1-T)+D\&A-CAPEX-\Delta NWC
+
+Дисконтируется по:
+
+WACC
+
+Даёт:
+
+EV
+
+⸻
+
+FCFE
+
+FCFE = Net\ Income+D\&A-CAPEX-\Delta NWC+Net\ Borrowing
+
+Дисконтируется по:
+
+R_e
+
+Даёт:
+
+Equity\ Value
+
+⸻
+
+Практический FCF
+
+Аналитики часто пишут:
+
+FCF = CFO - CAPEX
+
+Важно смотреть:
+
+* включены ли налоги в CFO;
+* включены ли проценты в CFO;
+* учитывается ли лизинг;
+* maintenance CAPEX или total CAPEX;
+* есть ли разовые изменения working capital.
+
+⸻
+
+24. Номинальные и реальные показатели
+
+Для макроанализа бизнеса нужно различать:
+
+Nominal\ Growth
+
+и
+
+Real\ Growth
+
+Если выручка выросла на 12%, а инфляция 10%:
+
+Real\ Growth \approx 2\%
+
+Если выручка растёт только из-за инфляции, а объёмы падают, качество роста слабее.
+
+⸻
+
+25. Сценарный анализ
+
+Хороший прикладной макроанализ почти всегда сценарный:
+
+Base case
+
+Нормальный сценарий.
+
+Bull case
+
+Лучше ожиданий:
+
+* ставка ниже;
+* спрос выше;
+* курс выгоднее;
+* сырьевые цены выше;
+* налоги стабильны.
+
+Bear case
+
+Хуже ожиданий:
+
+* ставка выше;
+* спрос слабее;
+* курс хуже;
+* налоговая нагрузка выше;
+* CAPEX выше;
+* оборотный капитал съедает cash.
+
+Формат:
+
+Scenario \rightarrow Revenue,\ Margin,\ CAPEX,\ NWC,\ Debt,\ Valuation
+
+⸻
+
+26. Sensitivity analysis
+
+Нужно проверять чувствительность:
+
+\Delta Revenue
+
+\Delta EBITDA\ Margin
+
+\Delta FX
+
+\Delta Rate
+
+\Delta CAPEX
+
+\Delta WACC
+
+\Delta Terminal\ Growth
+
+Пример:
+
+USD/RUB +10\% \Rightarrow EBITDA?
+
+Key\ Rate +300bp \Rightarrow Interest\ Expense?
+
+WACC +1pp \Rightarrow Equity\ Value?
+
+⸻
+
+27. Transmission mechanism: как шок проходит в бизнес
+
+Для каждого макрошока нужно строить цепочку.
+
+Пример: рост ставки.
+
+Key\ Rate \uparrow
+
+Loan\ Rates \uparrow
+
+Consumer\ Credit \downarrow
+
+Demand \downarrow
+
+Revenue \downarrow
+
+Operating\ Leverage \Rightarrow EBITDA \downarrow \text{ faster}
+
+WACC \uparrow
+
+Valuation \downarrow
+
+⸻
+
+Пример: девальвация.
+
+FX \uparrow
+
+Экспортёр:
+
+Revenue_{RUB} \uparrow,\quad Costs_{RUB} stable
+
+Margin \uparrow
+
+Импортёр:
+
+COGS \uparrow
+
+если pass-through неполный:
+
+Margin \downarrow
+
+⸻
+
+28. Operating leverage
+
+Operating\ Leverage = \frac{\%\Delta EBIT}{\%\Delta Revenue}
+
+Если у бизнеса высокая доля постоянных расходов, то небольшое падение выручки сильно бьёт по прибыли.
+
+Revenue \downarrow 5\%
+
+может дать:
+
+EBITDA \downarrow 20\%
+
+Высокий operating leverage у:
+
+* авиакомпаний;
+* производств;
+* телекома;
+* девелопмента;
+* инфраструктуры.
+
+⸻
+
+29. Financial leverage
+
+Financial\ Leverage = \frac{Debt}{Equity}
+
+или:
+
+Net\ Debt / EBITDA
+
+Макро через ставку и валюту влияет на leverage.
+
+Rate \uparrow \Rightarrow Interest \uparrow
+
+FX \uparrow \Rightarrow FX\ Debt \uparrow
+
+⸻
+
+30. Macro checklist для анализа компании
+
+Минимальный чек-лист:
+
+1. От чего зависит выручка: C, I, G, NX?
+2. Спрос циклический или защитный?
+3. Есть ли pricing power?
+4. Какие издержки чувствительны к инфляции?
+5. Есть ли импортная себестоимость?
+6. Есть ли экспортная выручка?
+7. Есть ли валютный долг?
+8. Как ставка влияет на спрос?
+9. Как ставка влияет на процентные расходы?
+10. Как инфляция влияет на оборотный капитал?
+11. Как CAPEX зависит от курса и ставки?
+12. Как налоги и регулирование влияют на FCF?
+13. Какая доля госзаказа / бюджетного спроса?
+14. Есть ли зависимость от сырьевых цен?
+15. Как макро меняет WACC?
+16. Как макро меняет terminal value?
+17. Какой главный риск: спрос, маржа, долг, CAPEX или valuation?
+
+⸻
+
+31. Самая короткая прикладная схема
+
+Macro
+
+раскладываем на:
+
+Growth,\ Inflation,\ Rates,\ FX,\ Commodities,\ Fiscal,\ Labor,\ Regulation
+
+потом переводим в бизнес-модель:
+
+Revenue = Price \times Volume
+
+EBITDA = Revenue - Cash\ Costs
+
+FCF = CFO - CAPEX
+
+Value = PV(FCF)
+
+И задаём главный вопрос:
+
+\boxed{
+Как конкретный макрошок меняет объёмы, цены, маржу, долг, CAPEX, оборотный капитал и ставку дисконтирования?
+}

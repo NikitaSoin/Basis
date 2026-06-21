@@ -134,6 +134,44 @@ def fetch_index_history(ticker: str, date_from: date, date_till: date) -> list[d
     return out
 
 
+# рынок index для live-уровня (без /history/ — текущая marketdata)
+ISS_LIVE_BASE = "https://iss.moex.com/iss/engines/stock/markets"
+
+
+def fetch_index_live(ticker: str) -> dict | None:
+    """Текущий (live, ~15-мин задержка) уровень индекса с рынка index MOEX ISS.
+
+    Источник истины для live-уровня индексов: ключей не требует, в отличие от
+    Tinkoff (индексы там — indicatives, неудобны и не покрываются GetLastPrices).
+    Дневная история по-прежнему пишется джобом через fetch_index_history.
+
+    Возвращает {value, change_abs, change_pct, updatetime, tradedate} либо None.
+    """
+    url = (f"{ISS_LIVE_BASE}/index/securities/{ticker}.json"
+           "?iss.only=marketdata&iss.meta=off")
+    try:
+        data = _get_json(url)
+    except Exception as e:
+        logger.warning("ISS live индекс %s: %s", ticker, e)
+        return None
+    md = data.get("marketdata", {})
+    cols = md.get("columns", [])
+    rows = md.get("data", [])
+    if not rows:
+        return None
+    r = dict(zip(cols, rows[0]))
+    value = r.get("CURRENTVALUE") or r.get("LASTVALUE")
+    if value is None:
+        return None
+    return {
+        "value": float(value),
+        "change_abs": float(r["LASTCHANGE"]) if r.get("LASTCHANGE") is not None else None,
+        "change_pct": float(r["LASTCHANGEPRC"]) if r.get("LASTCHANGEPRC") is not None else None,
+        "updatetime": r.get("UPDATETIME"),
+        "tradedate": r.get("TRADEDATE"),
+    }
+
+
 # ──────────────────────────── запись в БД ────────────────────────────
 
 _UPSERT_QUOTE_SQL = text("""

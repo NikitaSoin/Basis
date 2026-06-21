@@ -1,0 +1,54 @@
+/* =============================================================
+   BASIS TYPOGRAPHY TOKENS
+   Families: Inter (UI/text + large headings), JetBrains Mono
+   (numbers/tickers/formulas). "Inter Display" is NOT a separate
+   webfont — it is Inter's display optical size, loaded via the
+   opsz axis (see fonts.css) and applied through font-optical-sizing.
+   Financial data uses tabular, lining numerals everywhere.
+   ============================================================= */
+
+:root {
+  /* ---- Families ---- */
+  --font-sans:    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Display = Inter at its display optical size (font-optical-sizing: auto
+     promotes large sizes automatically). Same family, no separate file. */
+  --font-display: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* ---- Weights ---- */
+  --fw-light:     300; /* @kind other */
+  --fw-regular:   400; /* @kind other */
+  --fw-medium:    500; /* @kind other */
+  --fw-semibold:  600; /* @kind other */
+  --fw-bold:      700; /* @kind other */
+
+  /* ---- Type scale (px) ----
+     Editorial-financial: a light, large display tier for figures + a
+     compact, dense body/UI tier. Eyebrow labels are uppercase 11–12px. */
+  --fs-display-xl: 40px;  /* hero numbers / landing */
+  --fs-display-lg: 32px;  /* KPI values */
+  --fs-display-md: 24px;  /* inline stat figures */
+  --fs-h1:         22px;  /* view title */
+  --fs-h2:         18px;  /* section / modal title */
+  --fs-h3:         15px;  /* sub-section heading */
+  --fs-lead:       19px;  /* BLUF lead statement */
+  --fs-body:       15px;  /* long-form reading copy (Prose) */
+  --fs-ui:         14px;  /* default UI / controls */
+  --fs-sm:         13px;  /* dense table cells, secondary UI */
+  --fs-xs:         12px;  /* badges, captions */
+  --fs-eyebrow:    11px;  /* uppercase tracked labels */
+
+  /* ---- Line heights ---- */
+  --lh-tight:      1.2; /* @kind other */
+  --lh-snug:       1.45; /* @kind other */
+  --lh-normal:     1.5; /* @kind other */
+  --lh-relaxed:    1.6; /* @kind other */
+
+  /* ---- Letter spacing ---- */
+  --ls-display:    -0.5px; /* @kind other */
+  --ls-heading:    -0.01em; /* @kind other */
+  --ls-eyebrow:    0.06em; /* @kind other */
+
+  /* ---- Measure (reading width cap) ---- */
+  --measure-prose: 68ch; /* @kind other */
+}
