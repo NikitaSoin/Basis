@@ -75,6 +75,12 @@ async def _history_job():
         await asyncio.get_event_loop().run_in_executor(None, catch_up_history)
     except Exception as e:
         logger.exception("Ошибка дообновления истории котировок: %s", e)
+    # история облигаций/фьючерсов/фондов (instrument_history) — тот же вечерний слот
+    try:
+        from app.services.instrument_history import catch_up_instrument_history
+        await asyncio.get_event_loop().run_in_executor(None, catch_up_instrument_history)
+    except Exception as e:
+        logger.exception("Ошибка дообновления истории инструментов: %s", e)
 
 
 async def _tinkoff_warmup():
@@ -227,6 +233,31 @@ async def _screener_warm():
         await asyncio.get_event_loop().run_in_executor(None, warm_cache)
     except Exception as e:
         logger.exception("Ошибка прогрева скринера: %s", e)
+
+
+async def _instrument_history_startup():
+    """Стартовый бэкафилл истории облигаций/фьючерсов/фондов (instrument_history),
+    если таблица пуста — чтобы после деплоя на бою сразу была глубина для графиков/
+    спарклайнов на экране «Рынок». Идемпотентно; при наличии данных — пропуск (дальше
+    докачивает вечерний _history_job)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from sqlalchemy import text
+        from app.services.instrument_history import backfill_instrument_history
+        db = SessionLocal()
+        try:
+            exists = db.execute(text("SELECT 1 FROM instrument_history LIMIT 1")).first()
+        finally:
+            db.close()
+        if exists:
+            logger.info("instr-hist: история уже есть — бэкафилл пропущен")
+            return
+        backfill_instrument_history(days_back=365)
+
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
+    except Exception as e:
+        logger.exception("Ошибка стартового бэкафилла instrument_history: %s", e)
 
 
 async def _seed_shares_startup():
@@ -402,6 +433,8 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_macro_startup())
     asyncio.create_task(_earnings_startup())
     asyncio.create_task(_geo_startup())
+    # Бэкафилл истории облигаций/фьючерсов/фондов (фоном, только если пусто).
+    asyncio.create_task(_instrument_history_startup())
 
     yield
     scheduler.shutdown()

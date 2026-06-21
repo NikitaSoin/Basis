@@ -8,6 +8,7 @@ from app.models.calendar_event import CalendarEvent
 from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
 from app.models.geo import GeoBlock
 from app.models.observer_report import ObserverReport
+from app.models.instrument import InstrumentHistory
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -19,4 +20,5 @@ __all__ = [
     "CompanyProfile",
     "Bond",
     "CalendarEvent",
+    "InstrumentHistory",
 ]
