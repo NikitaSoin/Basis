@@ -68,6 +68,12 @@ a { color: inherit; text-decoration: none; }
   min-width: 0;
 }
 
+/* Шелл с верхней навигацией (заменил левый рейл): topnav (sticky) + прокручиваемая
+   рабочая область под ним. */
+.app-shell { height: 100vh; overflow-y: auto; background: var(--bg-app); }
+.app-main-top { max-width: 1340px; margin: 0 auto; padding: 28px 28px 80px; }
+@media (max-width: 680px) { .app-main-top { padding: 16px 14px 64px; } }
+
 @media (max-width: 768px) {
   .app-layout { flex-direction: column-reverse; }
   .app-main {
