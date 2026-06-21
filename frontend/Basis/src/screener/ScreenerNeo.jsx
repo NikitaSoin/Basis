@@ -439,7 +439,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
         )}
         <div className="sc-results">
           <div className="sc-toolbar"><div className="sc-toolbar-top">
-            {!railOpen && <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{Object.keys(ranges).length + (sectors.length ? 1 : 0) > 0 && <span className="sc-filters-n">{Object.keys(ranges).length + (sectors.length ? 1 : 0)}</span>}</button>}
+            {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
             <span className="sc-count"><b>{filtered.length}</b> из {total}</span>
             <div className="sc-tool-r">
               <div className="sc-seg" role="group" aria-label="Плотность"><button className={density === "comfortable" ? "on" : ""} onClick={() => setDensity("comfortable")}>Просторно</button><button className={density === "compact" ? "on" : ""} onClick={() => setDensity("compact")}>Плотно</button></div>
