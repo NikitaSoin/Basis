@@ -55,6 +55,7 @@ import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textbloc
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
 import ScreenerNeo from "./screener/ScreenerNeo";
 import MarketNeo from "./market/MarketNeo";
+import LandingNeo from "./market/LandingNeo";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -8882,204 +8883,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
 };
 
 // =========================
-// LANDING VIEW
-// =========================
-
-const LandingView = ({ onNavigate, onShowAuth, user }) => {
-  const reducedMotion = usePrefersReducedMotion();
-  // Appear gate (Phase 4b): page-level so feature tiles stagger once on entry.
-  const appearGate = useRef(new Set());
-  // Маркетинг-витрина → цвет уместен: каждой фиче СМЫСЛОВОЙ цвет из cat-палитры
-  // (soft-фон + насыщенная иконка). Кнопки остаются единым кобальтом — цвет
-  // только в иконках/акцентах, не в хроме. Все плитки РАВНОГО размера.
-  const features = [
-    {
-      icon: BarChart2,
-      title: "AI-анализ компаний",
-      desc: "Глубокий AI-разбор российских акций: бизнес-модель, риски, справедливая цена — с прозрачной методикой и честными оговорками.",
-      // AI — кобальт-accent (флагман платформы)
-      iconBg: "tw-bg-accent-soft",
-      iconFg: "tw-text-accent",
-    },
-    {
-      icon: Activity,
-      title: "Котировки MOEX",
-      desc: "Данные Московской биржи с автоматическим обновлением. Цена, динамика, исторические данные.",
-      // cat-5 синий — рыночные данные
-      iconBg: "tw-bg-cat-5-soft",
-      iconFg: "tw-text-cat-5",
-    },
-    {
-      icon: Briefcase,
-      title: "Портфельная аналитика",
-      desc: "Оценка здоровья портфеля, матрица корреляций, структура рисков и диверсификация.",
-      // cat-3 зелёный — здоровье/диверсификация
-      iconBg: "tw-bg-cat-3-soft",
-      iconFg: "tw-text-cat-3",
-    },
-    {
-      icon: ShieldAlert,
-      title: "Стресс-тестирование",
-      desc: "Сценарии кризиса: что будет с портфелем при обвале нефти, росте ставки или чёрном лебеде.",
-      // cat-6 vermillion — кризис/тревога
-      iconBg: "tw-bg-cat-6-soft",
-      iconFg: "tw-text-cat-6",
-    },
-    {
-      icon: Globe,
-      title: "Обозреватель рынка",
-      desc: "Экспресс, детальный и глубокий AI-обзор рыночного фона — всегда актуальный контекст.",
-      // cat-2 sky-blue — широкий обзор рынка
-      iconBg: "tw-bg-cat-2-soft",
-      iconFg: "tw-text-cat-2",
-    },
-    {
-      icon: Users,
-      title: "Консилиум аналитиков",
-      desc: "Сводка рекомендаций брокеров с целевыми ценами и собственной позицией платформы.",
-      // cat-7 purple — мнения аналитиков
-      iconBg: "tw-bg-cat-7-soft",
-      iconFg: "tw-text-cat-7",
-    },
-  ];
-
-  // Hover: лёгкий подъём (scale 1.0→1.015) + акцентный тинт; reduced-motion → без трансформа.
-  const hoverFx = reducedMotion
-    ? "hover:tw-bg-accent-soft tw-transition-colors tw-duration-150"
-    : "hover:tw-bg-accent-soft hover:tw-scale-[1.015] tw-transition tw-duration-[150ms]";
-
-  return (
-    <div className="tw-mx-auto" style={{ maxWidth: 880 }}>
-      {/* Hero */}
-      <div className="tw-relative tw-overflow-hidden tw-text-center tw-pt-16 tw-pb-12">
-        {/* Phase 4d: hero decor (kill-switch DECOR_ENABLED). MARKETING surface →
-            colour is welcome here. The decor is moved OUT of the centre into the
-            top-right CORNER so it never competes with the "Базис" title (a brighter
-            title effect arrives separately). A faint accent glow sits in the same
-            corner as atmosphere. Both non-interactive, behind content (content is
-            tw-relative), per-theme opacity via --decor-opacity / --decor-glow tokens
-            (visible in BOTH themes); reduced-motion keeps the ring static. */}
-        {DECOR_ENABLED && (
-          <div
-            aria-hidden="true"
-            className="tw-pointer-events-none tw-fixed tw-right-0 tw-top-0"
-            style={{
-              zIndex: 0,
-              width: 520,
-              height: 520,
-              /* CORNER-ANCHORED glow, FIXED to the window's top-right corner so it
-                 streams out of the actual window corner and fades toward the centre
-                 — no vertical cut. Previously this sat inside the narrow
-                 overflow-hidden hero (maxWidth 880) → its right edge was sliced into
-                 a hard vertical line. position:fixed pulls it OUT of that clipping
-                 box, anchors it to the viewport corner, and adds no horizontal
-                 scroll. Behind content (content is tw-relative). Three stops add a
-                 subtle violet (--accent-2) hue shift mid-way; in the light theme
-                 --decor-glow/-2 are transparent → invisible (dark-only decor). */
-              background:
-                "radial-gradient(120% 120% at 100% 0%, var(--decor-glow) 0%, var(--decor-glow-2) 35%, transparent 70%)",
-            }}
-          />
-        )}
-        {/* Landing hero is tall, but the 360px orbit at negative offsets had
-            its TOP arc clipped by overflow-hidden (only the lower part showed).
-            Use a self-contained orbit with POSITIVE offsets in the top-right
-            corner so the full ring + its tracing satellite are visible all the
-            way round. Still sits behind content (content is tw-relative). */}
-        {/* Orbit decor pinned to the SAME window top-right corner as the glow
-            above (position:fixed overrides PageDecor's default tw-absolute), so
-            the ring + planet sit INSIDE the glow and read as one unified corner
-            element that scrolls/positions together. Dark-only via --decor-opacity
-            (0 in light). */}
-        <PageDecor
-          variant="orbit"
-          className=""
-          style={{ position: "fixed", top: 128, right: 16, width: 220, height: 220, opacity: "var(--decor-opacity)" }}
-        />
-        {/* Brand mark — same BasisLogomark as the sidebar (not a generic icon).
-            CLEAN cobalt B straight on the page, NO plate / NO border (owner
-            wanted «как в галерее»). The hero sits on the page surface (--bg-base),
-            so slit = --bg-base + crisp → the layer-cuts read as page-coloured gaps
-            BETWEEN the crisp cobalt layers (пустоты/слои видны), no grey plate.
-            Token-only → correct in both themes. The wrapper is now transparent and
-            only centres the (slightly larger, 48px) mark. */}
-        <div className="tw-relative tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-5" style={{ width: 48, height: 48 }}>
-          <BasisLogomark size={48} slit="var(--bg-base)" crisp />
-        </div>
-        {/* Hero title — marketing accent (showcase variant 3): violet→cobalt
-            gradient clipped into the glyphs + a one-time sweep on appear.
-            reduced-motion is handled globally in tokens.css (animation:none on
-            [style*="basis-hero-sweep"]) → static gradient. */}
-        <h1
-          className="tw-relative tw-font-display tw-m-0 tw-mb-3"
-          style={{
-            fontSize: 48,
-            lineHeight: "52px",
-            letterSpacing: "-0.02em",
-            fontWeight: 600,
-            backgroundImage: "linear-gradient(135deg, var(--accent-2) 0%, var(--accent) 100%)",
-            backgroundSize: "200% 100%",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            color: "transparent",
-            display: "inline-block",
-            animation: "basis-hero-sweep 600ms var(--ease-out) both",
-          }}
-        >
-          Базис
-        </h1>
-        <p
-          className="tw-relative tw-text-text-secondary tw-mx-auto tw-mb-8"
-          style={{ fontSize: 18, lineHeight: "26px" }}
-        >
-          Профессиональная аналитика российского рынка
-        </p>
-        <div className="tw-relative tw-flex tw-gap-3 tw-justify-center tw-flex-wrap">
-          <Button variant="primary" iconLeft={<BarChart2 size={15} />} onClick={() => onNavigate("companies")}>
-            Компании
-          </Button>
-          <Button variant="secondary" iconLeft={<Globe size={15} />} onClick={() => onNavigate("overview")}>
-            Обозреватель
-          </Button>
-          <Button variant="secondary" iconLeft={<Briefcase size={15} />} onClick={() => onNavigate("portfolio")}>
-            Аналитика портфеля
-          </Button>
-          {!user && (
-            <Button variant="ghost" onClick={onShowAuth}>
-              Войти
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Feature tiles — симметричная сетка РАВНЫХ плиток (AI больше не герой).
-          Цвет — только в иконках (cat-палитра, soft-фон + насыщенная иконка). */}
-      <AppearGroup gate={appearGate.current} groupId="landing-features" stagger={55} rise={16} className="tw-grid tw-gap-4 sm:tw-grid-cols-2 lg:tw-grid-cols-3">
-        {features.map(({ icon: Icon, title, desc, iconBg, iconFg }) => (
-          <Card key={title} className={hoverFx}>
-            <div className="tw-flex tw-gap-4 tw-items-start">
-              <div className={`tw-w-10 tw-h-10 tw-rounded-md ${iconBg} ${iconFg} tw-flex tw-items-center tw-justify-center tw-shrink-0`}>
-                <Icon size={20} />
-              </div>
-              <div>
-                <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-mb-1">{title}</div>
-                <div className="tw-text-[13px] tw-text-text-secondary" style={{ lineHeight: "20px" }}>{desc}</div>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </AppearGroup>
-
-      {/* Footer note */}
-      <p className="tw-text-center tw-text-[12px] tw-text-text-tertiary tw-mt-12 tw-mb-2" style={{ lineHeight: "18px" }}>
-        © 2026 Платформа Базис · Не является индивидуальной инвестиционной рекомендацией
-      </p>
-    </div>
-  );
-};
-
-// =========================
 // PROFILE VIEW (full page)
 // =========================
 
@@ -10897,12 +10700,7 @@ function OverviewView({ token, onSelectCompany }) {
   );
 }
 
-// =========================
-// SIDEBAR
-// =========================
-
-// Резолвер: открыть карточку компании по тикеру ИЛИ по объекту. Ссылки
-// эмитент→компания (облигации/фьючерсы) и скринер дают тикер; грид — объект.
+// Резолвер карточки: значение может быть объектом компании или тикером-строкой.
 const CompanyCardResolver = ({ value, onBack }) => {
   const [obj, setObj] = useState(typeof value === "object" && value ? value : null);
   const [notFound, setNotFound] = useState(false);
@@ -10922,7 +10720,6 @@ const CompanyCardResolver = ({ value, onBack }) => {
 };
 
 // Единый плейсхолдер «Раздел в разработке» — один на все будущие блоки.
-// Будущий блок добавляется так же: NAV-иконка + case в renderView с этим компонентом.
 function ComingSoonView({ icon: Icon = Sparkles, title, blurb }) {
   return (
     <div>
@@ -10949,114 +10746,132 @@ function ComingSoonView({ icon: Icon = Sparkles, title, blurb }) {
   );
 }
 
-const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
-  const cx = (...parts) => parts.filter(Boolean).join(" ");
-  const reducedMotion = usePrefersReducedMotion();
-  const NAV = [
-    { id: "companies", icon: BarChart2, label: "Рынок" },
-    { id: "screener",  icon: SlidersHorizontal, label: "Скринер" },
-    { id: "overview",  icon: Globe,     label: "Обозреватель" },
-    { id: "portfolio", icon: Briefcase, label: "Портфель" },
-    // Будущие блоки — заглушка «в разработке» (метка soon).
-    { id: "strategies", icon: Target,      label: "Портфельные стратегии", soon: true },
-    { id: "stress",     icon: ShieldAlert, label: "Стресс-тестирование", soon: true },
-    { id: "ai",         icon: Sparkles,    label: "ИИ-помощник", soon: true },
-    { id: "compare",    icon: Scale,       label: "Сравнение", soon: true },
-    { id: "pricing",   icon: CreditCard, label: "Тарифы" },
-  ];
+// =========================
+// ВЕРХНЯЯ НАВИГАЦИЯ (глобальный шелл вместо левого рейла) — единый компонент.
+// =========================
+const TOPNAV_ITEMS = [
+  { id: "companies", label: "Рынок" },
+  { id: "overview", label: "Обозреватель" },
+  { id: "portfolio", label: "Портфель" },
+  { id: "screener", label: "Скрининг" },
+  { id: "pricing", label: "Тарифы" },
+  { id: "profile", label: "Профиль" },
+];
 
-  // Active-indicator: a thin accent bar on the LEFT of the active nav icon.
-  // Rendered as a child of the active IconButton (which becomes tw-relative)
-  // and centred with top-1/2 / -translate-y-1/2, so its vertical centre always
-  // sits EXACTLY on the icon centre — no DOM measurement / fixed-STEP math that
-  // could drift (the earlier measured & STEP=44 approaches drifted DOWN because
-  // the Tooltip wrapper is inline-flex and adds a sub-pixel strut per row).
-
+// Поиск компании/тикера в шапке — подключён к /api/companies (не заглушка).
+function TopNavSearch({ onOpenCompany }) {
+  const [items, setItems] = useState([]);
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const boxRef = useRef(null);
+  useEffect(() => {
+    const api = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    fetch(`${api}/api/companies`).then((r) => (r.ok ? r.json() : [])).then((d) => {
+      if (Array.isArray(d)) setItems(d.map((c) => ({ t: c.ticker, n: c.name })));
+    }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    const onDoc = (e) => { if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+  const res = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return [];
+    return items.filter((x) => (x.t || "").toLowerCase().includes(s) || (x.n || "").toLowerCase().includes(s)).slice(0, 8);
+  }, [q, items]);
+  const pick = (t) => { onOpenCompany(t); setQ(""); setOpen(false); };
+  const onKey = (e) => {
+    if (!open || !res.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setHi((h) => Math.min(res.length - 1, h + 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setHi((h) => Math.max(0, h - 1)); }
+    else if (e.key === "Enter") { e.preventDefault(); pick(res[hi].t); }
+    else if (e.key === "Escape") setOpen(false);
+  };
   return (
-    <aside className="sidebar">
-      <Tooltip label="На главную" side="right">
+    <div ref={boxRef} className="tw-relative tw-flex-shrink-0">
+      <div className="tw-flex tw-items-center tw-gap-2 tw-h-9 tw-px-3 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-tertiary focus-within:tw-border-accent" style={{ minWidth: 200 }}>
+        <Search size={15} />
+        <input
+          value={q}
+          onChange={(e) => { setQ(e.target.value); setOpen(true); setHi(0); }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={onKey}
+          placeholder="Поиск компании, тикера…"
+          className="tw-bg-transparent tw-border-0 tw-outline-none tw-text-[13px] tw-text-text-primary tw-w-full tw-min-w-0"
+        />
+      </div>
+      {open && res.length > 0 && (
+        <div className="tw-absolute tw-right-0 tw-mt-1.5 tw-w-[300px] tw-max-h-[360px] tw-overflow-y-auto tw-rounded-lg tw-border tw-border-border-strong tw-bg-bg-elevated tw-shadow-lg tw-z-50 tw-p-1.5">
+          {res.map((x, i) => (
+            <button
+              key={x.t}
+              onMouseEnter={() => setHi(i)}
+              onClick={() => pick(x.t)}
+              className={`tw-flex tw-items-center tw-gap-2.5 tw-w-full tw-text-left tw-px-2.5 tw-py-2 tw-rounded-md tw-border-0 tw-cursor-pointer ${i === hi ? "tw-bg-bg-hover" : "tw-bg-transparent"}`}
+            >
+              <CompanyLogo ticker={x.t} name={x.n} size={26} />
+              <span className="tw-flex tw-flex-col tw-min-w-0">
+                <span className="tw-text-[13px] tw-font-medium tw-text-text-primary tw-truncate">{x.n}</span>
+                <span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{x.t}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany }) {
+  return (
+    <header
+      className="tw-sticky tw-top-0 tw-z-40 tw-border-b tw-border-border-subtle"
+      style={{ background: "color-mix(in srgb, var(--cc-bg, var(--bg-base)) 85%, transparent)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
+    >
+      <div className="tw-mx-auto tw-flex tw-h-[60px] tw-items-center tw-gap-6 tw-px-5 sm:tw-px-7" style={{ maxWidth: 1340 }}>
         <button
           type="button"
           aria-label="Basis — на главную"
-          onClick={() => setActiveTab("landing")}
-          /* appearance-none + bg-transparent + border-0 + p-0: preflight is OFF,
-             so a raw <button> would otherwise show the browser's native chrome
-             (grey/beige ButtonFace square + border) behind the mark. Strip it →
-             clean cobalt B straight on the sidebar background. */
-          className="tw-appearance-none tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-mb-3 tw-flex tw-h-9 tw-w-9 tw-items-center tw-justify-center tw-rounded-md tw-transition-colors hover:tw-bg-accent-soft focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-accent"
+          onClick={() => onNav("landing")}
+          className="tw-appearance-none tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0"
         >
-          <BasisLogomark size={30} slit="var(--bg-base)" crisp />
+          <BasisLogomark size={26} slit="var(--bg-base)" crisp />
+          <span className="tw-font-display tw-text-[17px] tw-font-semibold tw-text-text-primary">Basis</span>
         </button>
-      </Tooltip>
 
-      <div className="sidebar-divider" />
-
-      <div className="tw-flex tw-flex-col tw-gap-1">
-        {NAV.map(({ id, icon: Icon, label, soon }) => {
-          const active = activeTab === id;
-          return (
-            <Tooltip key={id} label={soon ? `${label} · скоро` : label} side="right">
-              <IconButton
-                aria-label={soon ? `${label} (в разработке)` : label}
-                onClick={() => setActiveTab(id)}
-                className={active ? "tw-relative tw-bg-accent-soft" : "tw-relative"}
-                style={{ color: active ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
+        <nav aria-label="Основная навигация" className="tw-flex tw-items-center tw-gap-0.5 tw-flex-1 tw-overflow-x-auto">
+          {TOPNAV_ITEMS.map((it) => {
+            const active = activeTab === it.id;
+            return (
+              <button
+                key={it.id}
+                onClick={() => onNav(it.id)}
+                aria-current={active || undefined}
+                className={`tw-relative tw-whitespace-nowrap tw-border-0 tw-bg-transparent tw-cursor-pointer tw-px-3 tw-py-2 tw-rounded-md tw-text-[14px] ${active ? "tw-text-text-primary tw-font-semibold" : "tw-text-text-secondary tw-font-medium hover:tw-text-text-primary"}`}
               >
-                {soon && (
-                  <span
-                    aria-hidden="true"
-                    className="tw-absolute tw-top-[6px] tw-right-[6px] tw-w-[6px] tw-h-[6px] tw-rounded-pill tw-bg-accent tw-opacity-70"
-                  />
-                )}
-                {active && (
-                  <span
-                    aria-hidden="true"
-                    /* Centred via INLINE top/transform (not tw-top-1/2 / -tw-translate-y-1/2):
-                       preflight is OFF, so Tailwind never declares the default
-                       --tw-translate-x:0, which makes the class-based transform
-                       invalid → the bar dropped ~12px. Inline transform is immune. */
-                    className="tw-absolute tw-left-[-12px] tw-w-[3px] tw-h-6 tw-rounded-r-sm tw-bg-accent"
-                    style={{ top: "50%", transform: "translateY(-50%)", transition: reducedMotion ? "none" : "opacity var(--motion-base) var(--ease-out)" }}
-                  />
-                )}
-                <Icon size={20} />
-              </IconButton>
-            </Tooltip>
-          );
-        })}
+                {it.label}
+                {active && <span aria-hidden="true" className="tw-absolute tw-left-3 tw-right-3 tw-bottom-[-1px] tw-h-0.5 tw-bg-accent tw-rounded-sm" />}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0">
+          <TopNavSearch onOpenCompany={onOpenCompany} />
+          <IconButton
+            aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
+            onClick={toggleTheme}
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </IconButton>
+        </div>
       </div>
-
-      <div className="sidebar-spacer" />
-
-      <Tooltip label={theme === "dark" ? "Светлая тема" : "Тёмная тема"} side="right">
-        <IconButton
-          aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
-          onClick={toggleTheme}
-          style={{ color: "var(--sidebar-icon-idle)" }}
-        >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        </IconButton>
-      </Tooltip>
-
-      <Tooltip label={user ? "Профиль" : "Войти"} side="right">
-        <IconButton
-          aria-label={user ? "Профиль" : "Войти"}
-          onClick={() => setActiveTab("profile")}
-          className={cx("tw-mb-1", activeTab === "profile" && "tw-bg-accent-soft")}
-          style={{ color: activeTab === "profile" ? "var(--accent)" : "var(--sidebar-icon-idle)" }}
-        >
-          {user ? (
-            <span className="tw-inline-flex tw-items-center tw-justify-center tw-w-7 tw-h-7 tw-rounded-pill tw-bg-accent tw-text-on-accent tw-text-[12px] tw-font-bold tw-leading-none">
-              {user.email.slice(0, 2).toUpperCase()}
-            </span>
-          ) : (
-            <User size={20} />
-          )}
-        </IconButton>
-      </Tooltip>
-    </aside>
+    </header>
   );
-};
+}
 
 // =========================
 // APP
@@ -11147,8 +10962,6 @@ export default function App() {
       return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} />;
     }
     switch (activeTab) {
-      case "landing":
-        return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
       case "companies":
         return <CompaniesView onSelectCompany={setSelectedCompany} />;
       case "screener":
@@ -11178,7 +10991,7 @@ export default function App() {
           />
         );
       default:
-        return <LandingView onNavigate={navigate} onShowAuth={() => setShowAuthModal(true)} user={user} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} />;
     }
   };
 
@@ -11186,21 +10999,39 @@ export default function App() {
     return <DesignSystem />;
   }
 
-  return (
-    <div data-theme={theme} className={`app-layout tw-bg-bg-base tw-text-text-primary${NEO_CARD ? " cc-root" : ""}`}>
-      <Sidebar
-        activeTab={selectedCompany ? null : activeTab}
-        setActiveTab={navigate}
-        theme={theme}
-        toggleTheme={() => setTheme(t => t === "dark" ? "light" : "dark")}
-        user={user}
-      />
+  const isLanding = activeTab === "landing" && !selectedCompany;
+  const toggleTheme = () => setTheme(t => t === "dark" ? "light" : "dark");
 
-      <main className="app-main">
-        <ViewErrorBoundary routeKey={`${activeTab}:${selectedCompany ? "card" : "list"}`}>
-          {renderView()}
-        </ViewErrorBoundary>
-      </main>
+  return (
+    <div data-theme={theme} className={`tw-bg-bg-base tw-text-text-primary${NEO_CARD ? " cc-root" : ""}`}>
+      {isLanding ? (
+        <div className="app-shell">
+          <ViewErrorBoundary routeKey="landing">
+            <LandingNeo
+              onNavigate={navigate}
+              onOpenCompany={setSelectedCompany}
+              onShowAuth={() => setShowAuthModal(true)}
+              theme={theme}
+              toggleTheme={toggleTheme}
+            />
+          </ViewErrorBoundary>
+        </div>
+      ) : (
+        <div className="app-shell">
+          <TopNav
+            activeTab={selectedCompany ? null : activeTab}
+            onNav={navigate}
+            theme={theme}
+            toggleTheme={toggleTheme}
+            onOpenCompany={setSelectedCompany}
+          />
+          <main className="app-main-top">
+            <ViewErrorBoundary routeKey={`${activeTab}:${selectedCompany ? "card" : "list"}`}>
+              {renderView()}
+            </ViewErrorBoundary>
+          </main>
+        </div>
+      )}
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />
