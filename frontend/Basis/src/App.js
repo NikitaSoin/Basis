@@ -53,6 +53,7 @@ import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
+import ScreenerNeo from "./screener/ScreenerNeo";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -3415,6 +3416,20 @@ const ScreenerView = ({ onSelectCompany }) => {
     else { if (sortKey === k) setSortDir((d) => d === "desc" ? "asc" : "desc"); else { setSortKey(k); setSortDir("desc"); } }
   };
   const curSortKey = isBonds ? bSortKey : sortKey, curSortDir = isBonds ? bSortDir : sortDir;
+
+  // Акции — новый Neo-скрин на живом BASIS-движке (/screener/scored). Облигации — прежний путь ниже.
+  if (!isBonds) {
+    return (
+      <div>
+        <div className="tw-flex tw-gap-1.5 tw-mb-3">
+          {[{ id: "stocks", label: "Акции" }, { id: "bonds", label: "Облигации" }].map((c) => (
+            <Chip key={c.id} selected={cls === c.id} onClick={() => setCls(c.id)}>{c.label}</Chip>
+          ))}
+        </div>
+        <ScreenerNeo onOpenCompany={onSelectCompany} Logo={CompanyLogo} />
+      </div>
+    );
+  }
 
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем скринер...</div>;
 
