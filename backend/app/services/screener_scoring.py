@@ -43,6 +43,8 @@ CONFIG = {
 
 _CACHE = {"ts": 0.0, "fin": None}
 _CACHE_TTL = 600  # сек; financials.json меняются только при деплое
+_RESULT_CACHE = {}   # (universe, sector) -> (ts, result) — чтобы ответ был мгновенным
+_RESULT_TTL = 300
 
 # Эшелоны (МосБиржа официальный список «эшелонов» не публикует — это неформальная
 # классификация по ликвидности). 1-й эшелон = голубые фишки = состав индекса MOEXBC
@@ -153,8 +155,14 @@ def _percentiles(values_by_ticker, invert):
     return out
 
 
-def score_universe(db: Session, universe: str = "liquid", sector: str | None = None) -> dict:
-    """Считает BASIS/перцентили/карту для выбранной вселенной. Возвращает rows + distributions."""
+def score_universe(db: Session, universe: str = "all", sector: str | None = None) -> dict:
+    """Считает BASIS/перцентили/карту для выбранного набора. Возвращает rows + distributions.
+    Результат кешируется (TTL) — чтобы ответ был мгновенным и не упирался в таймаут воркера."""
+    key = (universe, sector or "")
+    now = time.time()
+    cached = _RESULT_CACHE.get(key)
+    if cached and (now - cached[0]) < _RESULT_TTL:
+        return cached[1]
     fin = _load_financials()
 
     # компании + свежая цена + капитализация
@@ -250,10 +258,27 @@ def score_universe(db: Session, universe: str = "liquid", sector: str | None = N
             "reduced_set": b["reduced_set"], "map": b["map"],
         })
 
-    return {
+    result = {
         "universe": {"key": universe, "sector": sector, "count": len(out_rows), "total": len(base)},
         "config": {"weights": W, "div_yield_cap": CONFIG["div_yield_cap"],
                    "subindices": CONFIG["subindices"], "version": "v0"},
         "rows": out_rows,
         "distributions": distributions,
     }
+    _RESULT_CACHE[key] = (now, result)
+    return result
+
+
+def warm_cache():
+    """Прогрев кеша скоринга для основных наборов (фоном при старте), чтобы первый
+    пользовательский запрос не упирался в тяжёлый расчёт/таймаут воркера."""
+    from app.db.session import SessionLocal
+    db = SessionLocal()
+    try:
+        for u in ("all", "blue", "echelon2", "echelon3"):
+            try:
+                score_universe(db, universe=u)
+            except Exception:  # noqa: BLE001
+                pass
+    finally:
+        db.close()
