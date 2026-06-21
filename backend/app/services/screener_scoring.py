@@ -202,8 +202,9 @@ def score_universe(db: Session, universe: str = "all", sector: str | None = None
         sel = set(b["ticker"] for b in rest[:ECHELON2_SIZE])
     elif universe == "echelon3":
         sel = set(b["ticker"] for b in rest[ECHELON2_SIZE:])
-    elif universe in ("liquid", "midcap"):  # legacy-совместимость
-        sel = set(b["ticker"] for b in (BLUE_CHIPS & {x["ticker"] for x in base})) | set(b["ticker"] for b in rest[:(5 if universe == "liquid" else 45)])
+    elif universe in ("liquid", "midcap"):  # legacy-совместимость со старым фронтом
+        n = 5 if universe == "liquid" else 45
+        sel = {b["ticker"] for b in base if b["ticker"] in BLUE_CHIPS} | {b["ticker"] for b in rest[:n]}
     else:  # all (по умолчанию)
         sel = set(b["ticker"] for b in base)
     uni = [b for b in base if b["ticker"] in sel]
