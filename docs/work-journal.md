@@ -1042,3 +1042,21 @@ futures/funds.py) + дневной джоб (asset_data.refresh_all_if_stale →
   (батч мини-графиков). Протестированы TestClient (200).
 - Ops-скрипт `scripts/load_instrument_history.py` (ручной догруз/переезд).
 - ОСТАЛОСЬ Батч 6 (фронт Market): подключить эти данные в новый дизайн (docs/Market.zip).
+
+### Батч 6 (фронт Market) — ЧАСТИЧНО ✅ + остаток
+- ✅ Live-пульс индексов в шапке экрана «Рынок» (MarketIndexPulse+IndexSparkline в App.js):
+  IMOEX/МосБиржа ПД/РТС, уровень+изменение+спарклайн из /api/market/indices, обновление
+  2 мин, NEO-стиль (факт). CI build OK. Запушено (d30b37c) — верифицирует Батч 1 на бою.
+- ⏳ ОСТАЁТСЯ полный редизайн экрана «Рынок» по Direction A (docs/Market.zip →
+  market/Market.html + market-pulse/data/tabs.jsx): вкладки Акции/Облигации/Фьючерсы/
+  Фонды в новом визуале, ширина рынка (live-котировки акций), карты/секторные плитки
+  (переиспользовать v0 BASIS-движок, НЕ строить второй), TopNav как общий компонент,
+  спарклайны облигаций/фьючерсов/фондов через готовые /api/market/instruments/...
+  Это крупная отдельная сессия (App.js 5k+ строк; делать как ScreenerNeo — отдельный
+  модуль MarketNeo + CSS, токены каноничные, mock из архива = визуальный референс).
+- Данные для редизайна УЖЕ готовы на бэке: /api/market/indices, /api/market/instruments/
+  {class}/{secid}/history, /api/market/instruments/sparklines + существующие /bonds,/funds,
+  /futures,/companies,/screener/scored.
+
+ИТОГ задачи «Рынок»: проводка котировок (индексы+облигации+фьючерсы+фонды) — ГОТОВА и на
+бою (Батчи 1-5 + пульс). Полный редизайн экрана Market — единственный остаток (Батч 6 bulk).
