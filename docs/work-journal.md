@@ -1060,3 +1060,27 @@ futures/funds.py) + дневной джоб (asset_data.refresh_all_if_stale →
 
 ИТОГ задачи «Рынок»: проводка котировок (индексы+облигации+фьючерсы+фонды) — ГОТОВА и на
 бою (Батчи 1-5 + пульс). Полный редизайн экрана Market — единственный остаток (Батч 6 bulk).
+
+### Батч 6 — ПОЛНЫЙ редизайн экрана «Рынок» (Direction A) ✅ ГОТОВО (собрано, к деплою)
+- `frontend/Basis/src/market/MarketNeo.jsx` (новый модуль, как ScreenerNeo) + `styles/market.css`
+  (порт mk-* прототипа, всё под .mk-screen, локальные переменные → cc-токены, палитра не хардкод).
+- Пульс: индекс (/api/market/indices), ширина рынка (live /quotes/realtime), драйверы
+  (/api/market/drivers — Brent/USD-RUB/Ставка/ОФЗ-10), тон рынка. Эпистемика: котировки=факт,
+  тон/драйверы=оценка/суждение (помечено).
+- Вкладки на ЖИВЫХ данных: Акции (карта рынка/лента/карточки + сектор-навигатор + лидеры дня;
+  тон «к справедливой цене» = реальный апсайд из /screener/scored, уверенность из data_quality/
+  low_confidence — переиспользован v0 BASIS, второй движок НЕ строил), Облигации (risk-reward
+  карта YTM×рейтинг + таблица/карточки, /api/bonds), Фьючерсы (плечо/ГО/экспирация/ОИ, callout
+  риска, /api/futures), Фонды (TER/бенчмарк/дневная дельта из sparklines, /api/funds +
+  /market/instruments/sparklines), Валюта-металлы (/api/spot), Опционы (coming-soon).
+- Реальные логотипы (CompanyLogo) в акциях. Поиск/сектора/вид — на каждой вкладке.
+- Бэкенд-добавка: `GET /api/market/drivers` (best-effort, недоступное помечается).
+- Интеграция: CompaniesView сведён к тонкой оболочке (выбор детальной карточки + MarketNeo).
+  Детальные карточки BondCard/FuturesCard/FundCard/SpotCard/OptionCard СОХРАНЕНЫ (заповедник).
+  Удалены устаревшие list-компоненты (BondsList/FuturesList/FundsList/SpotList/OptionsList,
+  CompanyGridCard, ASSET_CLASSES, временный MarketIndexPulse) — их заменил MarketNeo.
+- CI build: Compiled successfully (+2KB js, +2.8KB css). TopNav прототипа НЕ внедрял —
+  оболочка остаётся Sidebar приложения.
+- ОТК: GD-самопроверка (токены каноничные, эпистемика, 4 слоя чтения, цвет в данных). Живой
+  визуальный ОТК — за владельцем (из песочницы боевой сайт недоступен).
+- Мелочь на потом: восстановление скролла при возврате из карточки в MarketNeo (минорно).
