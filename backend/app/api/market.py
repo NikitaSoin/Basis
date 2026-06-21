@@ -37,6 +37,15 @@ def _portfolio_filter(db: Session, user) -> tuple[set[str], set[str]]:
     return tickers, sectors
 
 
+@router.get("/market/indices")
+def market_indices(db: Session = Depends(get_db)):
+    """Live-уровень бенчмарк-индексов (IMOEX/МосБиржа ПД/РТС): текущее значение,
+    изменение к закрытию, спарклайн ~30 дней. Live — MOEX ISS (без ключей),
+    фолбэк — последний дневной close из index_history."""
+    from app.services.indices import get_indices
+    return get_indices(db)
+
+
 @router.get("/market/maps/heatmap")
 def market_heatmap(period: str = Query("day"), portfolio_only: bool = False,
                    db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

@@ -975,3 +975,32 @@ cd backend; ls companies/ | grep -vxF -f companies/_v3_rollout_done.txt → во
 Волны 6–27 закоммичены, волна 28 завершается. Осталось ~45 (волны 29-31). Темп держится ~8/волна.
 Дубль-эмитенты: SBER/SBERP, SNGS/SNGSP, TATN/TATNP — числа эмитента общие, преф отличается ценой/дивидендом.
 Возобновление: cd backend; ls companies/ | grep -vxF -f companies/_v3_rollout_done.txt → волнами по 8.
+
+## РЫНОК — проводка котировок + новый дизайн (XL, батчами)
+
+Задача: live-котировки на экране «Рынок» (индексы + облигации/фьючерсы/фонды) +
+интеграция нового дизайна (Direction A → docs/Market.zip). Tinkoff — primary live,
+MOEX ISS — история+фолбэк; данные инструментов отдельно от companies; схема только
+миграциями; идемпотентный дневной джоб; полиморфные позиции (логика портфеля — позже).
+
+### Батч 1 — индексы (живой уровень + эндпоинт) ✅ ГОТОВО (бэкенд, протестировано локально)
+- `moex_history.fetch_index_live(ticker)` — текущий уровень индекса с MOEX ISS
+  (рынок index, marketdata: CURRENTVALUE/LASTCHANGE/LASTCHANGEPRC, без ключей).
+  Решение по источнику: для ИНДЕКСОВ primary = MOEX ISS (а не Tinkoff): индексы у
+  Tinkoff — indicatives, не покрываются GetLastPrices, неудобны; MOEX ISS уже
+  источник истории индексов и работает без ключей. Для облигаций/фьючерсов/фондов
+  (Батчи 3-5) остаётся Tinkoff primary, как в ТЗ.
+- `app/services/indices.py::get_indices(db)` — IMOEX/MCFTR/RTSI: level, change_abs,
+  change_pct, spark[~30 дней из index_history], source(moex_iss_live|index_history),
+  updated. TTL-кэш live 120с. Фолбэк уровня — последний дневной close из index_history.
+- Эндпоинт `GET /api/market/indices`. Тест TestClient: 200, все три индекса с live-
+  уровнем, изменением и спарклайном 30 точек (хвост = live-уровень).
+- Дневной джоб УЖЕ обновляет индексы: `catch_up_history` проходит BENCHMARK_TICKERS
+  (history_catchup cron 19:30) — отдельно делать не нужно, проверено.
+- Фронт: живого «пульса» индексов на экране Рынок СЕЙЧАС НЕТ (индексы только в
+  портфельном бенчмарк-графике). Вывод пульса → Батч 6 (редизайн экрана Рынок),
+  чтобы не лепить одноразовую полоску на legacy-вид, который всё равно заменяется.
+
+Возобновление: Батч 2 — модель `instruments` + `instrument_quotes` (Alembic), затем
+Батчи 3-5 (облигации/фьючерсы/фонды через Tinkoff InstrumentsService + MOEX история),
+Батч 6 — фронт Market (docs/Market.zip: market/Market.html + market-pulse/data/tabs.jsx).

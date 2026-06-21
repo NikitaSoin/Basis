@@ -1,0 +1,69 @@
+/* =============================================================
+   BASIS SPACING, RADIUS, ELEVATION & MOTION TOKENS
+   8pt grid with a 4pt sub-grid. Layered warm-neutral shadows so
+   tiles lift off the cream background. Short, dosed motion.
+   ============================================================= */
+
+:root {
+  /* ---- Spacing (8pt grid + 4pt sub-grid) ---- */
+  --space-0_5:  2px;
+  --space-1:    4px;
+  --space-1_5:  6px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-8:    32px;
+  --space-10:   40px;
+  --space-12:   48px;
+  --space-16:   64px;
+  --space-20:   80px;
+  --space-24:   96px;
+
+  /* ---- Radius ---- */
+  --radius-xs:   4px;    /* inputs, small chips */
+  --radius-sm:   6px;    /* buttons */
+  --radius-md:   8px;    /* cards / tiles (default) */
+  --radius-lg:   12px;   /* large panels, modals */
+  --radius-xl:   16px;   /* feature surfaces */
+  --radius-pill: 9999px;
+  --radius-s:    var(--radius-sm);
+  --radius-m:    var(--radius-md);
+  --radius-l:    var(--radius-lg);
+
+  /* ---- Elevation (LIGHT: soft layered warm-neutral shadows) ---- */
+  --shadow-sm:  0 1px 2px rgba(30,25,20,0.06), 0 1px 1px rgba(30,25,20,0.04);
+  --shadow-md:  0 1px 3px rgba(30,25,20,0.10), 0 6px 16px rgba(30,25,20,0.12);
+  --shadow-lg:  0 2px 6px rgba(30,25,20,0.12), 0 14px 36px rgba(30,25,20,0.18);
+  --shadow-xl:  0 4px 10px rgba(30,25,20,0.14), 0 24px 52px rgba(30,25,20,0.22);
+  --shadow-focus: 0 0 0 3px var(--accent-soft);
+
+  /* ---- Motion (dosed, short, single base timing) ---- */
+  --motion-fast:   150ms; /* @kind other */
+  --motion-base:   250ms; /* @kind other */
+  --motion-appear: 300ms; /* @kind other */
+  --motion-slow:   320ms; /* @kind other */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+
+  /* ---- Layout ---- */
+  --sidebar-w:     64px; /* @kind spacing */
+}
+
+/* DARK: layered surface — crisp 1px border AS the first shadow layer
+   plus a soft dark drop for lift (depth without a muddy halo). */
+.dark, [data-theme="dark"] {
+  --shadow-sm:  0 0 0 1px var(--border-subtle), 0 1px 4px rgba(0,0,0,0.35);
+  --shadow-md:  0 0 0 1px var(--border-strong), 0 2px 8px rgba(0,0,0,0.45);
+  --shadow-lg:  0 0 0 1px var(--border-strong), 0 10px 30px rgba(0,0,0,0.55);
+  --shadow-xl:  0 0 0 1px var(--border-strong), 0 20px 44px rgba(0,0,0,0.62);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
