@@ -3499,6 +3499,62 @@ const ScreenerView = ({ onSelectCompany }) => {
   );
 };
 
+// Live-«пульс» бенчмарк-индексов (IMOEX/МосБиржа ПД/РТС) — шапка экрана «Рынок».
+// Данные: GET /api/market/indices (live MOEX ISS + спарклайн из index_history).
+// Эпистемика: факт (рыночная котировка). Обновление раз в 2 мин (TTL live на бэке).
+function IndexSparkline({ data, up }) {
+  if (!Array.isArray(data) || data.length < 2) return null;
+  const w = 116, h = 30;
+  const min = Math.min(...data), max = Math.max(...data), rng = (max - min) || 1;
+  const pts = data.map((v, i) => [(i / (data.length - 1)) * w, h - 3 - ((v - min) / rng) * (h - 6)]);
+  const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  return (
+    <svg width={w} height={h} className={up ? "tw-text-success" : "tw-text-danger"} aria-hidden="true">
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity="0.85" />
+    </svg>
+  );
+}
+
+function MarketIndexPulse() {
+  const [idx, setIdx] = useState([]);
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    let alive = true;
+    const load = () => fetch(`${apiUrl}/api/market/indices`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive && Array.isArray(d)) setIdx(d); })
+      .catch(() => {});
+    load();
+    const t = setInterval(load, 120000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  if (!idx.length) return null;
+  return (
+    <div className="tw-grid tw-gap-3 tw-mb-6 tw-grid-cols-1 sm:tw-grid-cols-3">
+      {idx.map((ix) => {
+        const up = ix.change_pct != null && ix.change_pct >= 0;
+        const tone = ix.change_pct == null ? "tw-text-text-tertiary" : up ? "tw-text-success" : "tw-text-danger";
+        return (
+          <div key={ix.ticker} className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-rounded-lg tw-border tw-border-border-subtle tw-bg-bg-elevated tw-px-4 tw-py-3">
+            <div className="tw-min-w-0">
+              <div className="tw-text-[11px] tw-uppercase tw-text-text-tertiary tw-truncate" style={{ letterSpacing: "0.06em" }}>{ix.name}</div>
+              <div className="tw-flex tw-items-baseline tw-gap-2 tw-mt-1">
+                <span className="tw-text-[20px] tw-font-mono tw-tabular-nums tw-text-text-primary tw-leading-none">
+                  {ix.level != null ? ix.level.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}
+                </span>
+                <span className={`tw-text-[13px] tw-font-mono tw-tabular-nums ${tone}`}>
+                  {ix.change_pct == null ? "—" : `${up ? "▲" : "▼"} ${fmtPercent(Math.abs(ix.change_pct), { decimals: 2 })}`}
+                </span>
+              </div>
+            </div>
+            <IndexSparkline data={ix.spark} up={up} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const CompaniesView = ({ onSelectCompany }) => {
   // Appear gate (Phase 4b): page-level Set so the market grid's staggered
   // appear plays once on entry, never on filter change / price-poll re-render.
@@ -3651,6 +3707,9 @@ const CompaniesView = ({ onSelectCompany }) => {
           Котировки и аналитика российского фондового рынка
         </p>
       </div>
+
+      {/* Live-пульс бенчмарк-индексов (факт, MOEX): IMOEX / МосБиржа ПД / РТС */}
+      <MarketIndexPulse />
 
       {/* Переключатель классов активов (расширяемый: фонды/фьючерсы добавятся сюда) */}
       <div className="tw-flex tw-gap-1 tw-mb-5 tw-border-b tw-border-border-subtle">
