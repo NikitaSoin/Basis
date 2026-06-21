@@ -2374,6 +2374,28 @@ const BOND_SORT_FN = {
   spread: (a, b) => (b.spread_bp ?? -1) - (a.spread_bp ?? -1),
 };
 
+// Справочники классов инструментов + форматтеры — для детальных карточек
+// фьючерса/фонда/спота (раздельные list-витрины классов заменены экраном MarketNeo).
+const FUT_KIND = {
+  currency: { label: "Валюта", title: "Валютные" },
+  index: { label: "Индекс", title: "На индексы" },
+  commodity: { label: "Сырьё", title: "На сырьё" },
+  stock: { label: "На акцию", title: "На акции" },
+  rate: { label: "Ставка", title: "На ставки" },
+  other: { label: "Другое", title: "Прочие" },
+};
+const levTone = (l) => (l == null ? "neutral" : l >= 8 ? "danger" : l >= 5 ? "warning" : "info");
+const FUND_TYPE = {
+  equity: { label: "Акции", title: "Фонды акций" },
+  bonds: { label: "Облигации", title: "Облигационные" },
+  gold: { label: "Золото", title: "Золото" },
+  money_market: { label: "Денежный рынок", title: "Денежный рынок" },
+  currency: { label: "Валютный", title: "Валютные" },
+  mixed: { label: "Смешанный", title: "Смешанные / прочие" },
+};
+const fmtMln = (v) => v == null ? "—" : v >= 1e9 ? `${(v / 1e9).toFixed(1)} млрд` : v >= 1e6 ? `${(v / 1e6).toFixed(0)} млн` : `${fmtNumber(v, { decimals: 0 })}`;
+const SPOT_KIND = { currency: { label: "Валюта", title: "Валюты" }, metal: { label: "Драгметалл", title: "Драгметаллы" } };
+
 const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -2791,6 +2813,49 @@ const OptionCard = ({ secid, onBack }) => {
   );
 };
 
+// ── Скрининг акций (поверх готовых метрик company_metrics) ──
+const SCR_COLS = [
+  { key: "upside_pct", label: "Апсайд к спр.", fmt: (v) => v == null ? "—" : `${v > 0 ? "+" : ""}${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
+  { key: "pe_current", label: "P/E", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 1 }) },
+  { key: "div_yield", label: "Дивдох.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
+  { key: "earnings_yield", label: "EY", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
+  { key: "return_total_3y", label: "Доход. 3г", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
+  { key: "sortino_3y", label: "Сортино", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+  { key: "beta", label: "Бета", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
+  { key: "volatility", label: "Волат.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%` },
+];
+const SCR_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "undervalued", label: "Апсайд > 0", test: (r) => r.upside_pct != null && r.upside_pct > 0 },
+  { id: "dividend", label: "Дивдох. ≥ 8%", test: (r) => r.div_yield != null && r.div_yield >= 8 },
+  { id: "cheap_pe", label: "P/E < 6", test: (r) => r.pe_current != null && r.pe_current > 0 && r.pe_current < 6 },
+  { id: "lowvol", label: "Бета < 0.8", test: (r) => r.beta != null && r.beta < 0.8 },
+];
+
+// Колонки скрина облигаций (базовые поля; расширенные кастом-фильтры — отдельно потом).
+const _bMaturityYears = (r) => {
+  if (r.duration_years != null) return r.duration_years;
+  const m = r.maturity_date; if (!m) return null;
+  try { return Math.max(0, Math.round((new Date(m) - new Date()) / 31557600000 * 10) / 10); } catch { return null; }
+};
+const _bDate = (s) => s ? `${s.slice(8,10)}.${s.slice(5,7)}.${s.slice(0,4)}` : "—";
+const BOND_COLS = [
+  { key: "coupon_label", label: "Купон", num: false, fmt: (v) => v || "—" },
+  { key: "ytm", label: "YTM", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })}%` : "—" },
+  { key: "_maturity_years", label: "До погашения", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })} г.` : "—" },
+  { key: "offer_date", label: "Оферта", num: false, fmt: (v) => _bDate(v) },
+  { key: "agency_rating", label: "Рейтинг", num: false, fmt: (v) => v || "—" },
+  { key: "sector", label: "Сектор", num: false, fmt: (v) => v || "—" },
+];
+const BOND_CLASS_FILTERS = [
+  { id: "all", label: "Все" },
+  { id: "ofz", label: "ОФЗ", test: (r) => r.bond_type === "ofz" },
+  { id: "corporate", label: "Корпоративные", test: (r) => r.bond_type === "corporate" },
+  { id: "fixed", label: "Фикс. купон", test: (r) => r.coupon_type === "fixed" },
+  { id: "floater", label: "Флоатеры", test: (r) => r.coupon_type === "floater" },
+  { id: "has_offer", label: "С офертой", test: (r) => !!r.offer_date },
+];
+
 const ScreenerView = ({ onSelectCompany }) => {
   const [cls, setCls] = usePersistedState("screener.cls", "stocks"); // stocks | bonds
   const [rows, setRows] = usePersistedState("screener.data", []);
@@ -2933,9 +2998,6 @@ const ScreenerView = ({ onSelectCompany }) => {
   );
 };
 
-// Live-«пульс» бенчмарк-индексов (IMOEX/МосБиржа ПД/РТС) — шапка экрана «Рынок».
-// Данные: GET /api/market/indices (live MOEX ISS + спарклайн из index_history).
-// Эпистемика: факт (рыночная котировка). Обновление раз в 2 мин (TTL live на бэке).
 const CompaniesView = ({ onSelectCompany }) => {
   // Тонкая оболочка: состояние выбора детальной карточки класса + редизайн-экран
   // MarketNeo (Direction A, живые данные). Детальные карточки (BondCard/FuturesCard/
@@ -11000,6 +11062,27 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
 // APP
 // =========================
 
+// Граница ошибок: любой краш рендера экрана → видимое сообщение + кнопка вместо
+// белого экрана. Текст ошибки показываем (помогает диагностике на бою).
+class ViewErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { err: null }; }
+  static getDerivedStateFromError(err) { return { err }; }
+  componentDidCatch(err, info) { console.error("View crashed:", err, info); }
+  componentDidUpdate(prev) { if (prev.routeKey !== this.props.routeKey && this.state.err) this.setState({ err: null }); }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-24 tw-px-6 tw-text-center">
+          <div className="tw-text-[18px] tw-font-medium tw-text-text-primary tw-mb-2">Не удалось отобразить раздел</div>
+          <div className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mb-5 tw-max-w-[680px] tw-break-words">{String(this.state.err && this.state.err.message || this.state.err)}</div>
+          <button onClick={() => this.setState({ err: null })} className="tw-px-5 tw-py-2.5 tw-rounded-md tw-bg-accent tw-text-white tw-text-[14px] tw-border-0 tw-cursor-pointer">Повторить</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -11114,7 +11197,9 @@ export default function App() {
       />
 
       <main className="app-main">
-        {renderView()}
+        <ViewErrorBoundary routeKey={`${activeTab}:${selectedCompany ? "card" : "list"}`}>
+          {renderView()}
+        </ViewErrorBoundary>
       </main>
 
       {showAuthModal && (

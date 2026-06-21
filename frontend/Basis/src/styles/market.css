@@ -214,7 +214,7 @@
 .mk-screen .mk-heat-band-avg{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:600;}
 .mk-screen .mk-heat-band-avg.up{color:var(--pos);} .mk-screen .mk-heat-band-avg.dn{color:var(--neg);} .mk-screen .mk-heat-band-avg.fl{color:var(--ink-3);}
 .mk-screen .mk-heat-band-cap{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-3);margin-left:auto;}
-.mk-screen .mk-heat-tiles{display:flex;gap:3px;}
+.mk-screen .mk-heat-tiles{display:flex;flex-wrap:wrap;gap:3px;}
 .mk-screen .mk-tile{position:relative;height:84px;min-width:54px;border:0;border-radius:7px;cursor:pointer;padding:8px 9px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;transition:transform .12s,box-shadow .12s;}
 .mk-screen .mk-tile:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.22);z-index:2;outline:2px solid var(--ink);outline-offset:-2px;}
 .mk-screen .mk-tile-t{font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);}

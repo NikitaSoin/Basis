@@ -52,13 +52,20 @@ const SECTOR_COLORS = {
   "Электроэнергетика": "#D9A441", "Энергетика": "#D9A441",
   "Химия": "#5B9E4B", "Химия и нефтехимия": "#5B9E4B",
   "Девелопмент": "#B2643A", "Строительство": "#B2643A",
-  "Транспорт": "#6B7A8F", "Машиностроение": "#8A6FB0", "Здравоохранение": "#4FA98C",
-  "Сельское хозяйство": "#9BAA3E", "Прочее": "#857D6F",
+  "Транспорт": "#6B7A8F", "Транспорт и логистика": "#6B7A8F", "Машиностроение": "#8A6FB0",
+  "Здравоохранение": "#4FA98C", "Сельское хозяйство": "#9BAA3E", "Прочее": "#857D6F",
 };
 function secColor(name) {
   if (SECTOR_COLORS[name]) return SECTOR_COLORS[name];
   let h = 0; for (let i = 0; i < (name || "").length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
   return `hsl(${h} 42% 48%)`;
+}
+
+// Фиксированный порядок секторов (как на остальной платформе): нефть и газ → финансы → …
+const SECTOR_ORDER = ["Нефть и газ", "Финансы", "Металлургия", "IT-сектор", "Потребительский сектор", "Телеком", "Электроэнергетика", "Химия", "Девелопмент", "Транспорт и логистика", "Здравоохранение", "Машиностроение"];
+const sectorRank = (s) => { const i = SECTOR_ORDER.indexOf(s); return i === -1 ? 999 : i; };
+function orderSectors(names) {
+  return [...names].sort((a, b) => { const ra = sectorRank(a), rb = sectorRank(b); return ra !== rb ? ra - rb : a.localeCompare(b, "ru"); });
 }
 
 // ── мелкие компоненты ──
@@ -168,11 +175,11 @@ function SectorNav({ stocks, sector, onSelect }) {
   const stats = useMemo(() => {
     const by = {};
     stocks.forEach(s => { (by[s.sec] = by[s.sec] || []).push(s); });
-    return Object.keys(by).map(g => {
+    return orderSectors(Object.keys(by)).map(g => {
       const items = by[g], withChg = items.filter(x => x.chg != null);
       const avg = withChg.length ? withChg.reduce((a, x) => a + x.chg, 0) / withChg.length : null;
       return { g, n: items.length, avg };
-    }).sort((a, b) => b.n - a.n);
+    });
   }, [stocks]);
   const withChg = stocks.filter(x => x.chg != null);
   const allAvg = withChg.length ? withChg.reduce((a, x) => a + x.chg, 0) / withChg.length : null;
@@ -196,7 +203,7 @@ function SectorNav({ stocks, sector, onSelect }) {
 function Heatmap({ stocks, onOpen }) {
   const by = {};
   stocks.forEach(s => { (by[s.sec] = by[s.sec] || []).push(s); });
-  const order = Object.keys(by).sort((a, b) => by[b].reduce((s, x) => s + (x.mcap || 0), 0) - by[a].reduce((s, x) => s + (x.mcap || 0), 0));
+  const order = orderSectors(Object.keys(by));
   return (
     <div className="mk-heat">
       <div className="mk-heat-head">
@@ -286,7 +293,8 @@ function StockCard({ s, onOpen, Logo }) {
 function StockCards({ stocks, onOpen, Logo }) {
   const by = {};
   stocks.forEach(s => { (by[s.sec] = by[s.sec] || []).push(s); });
-  const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
+  Object.keys(by).forEach(g => by[g].sort((a, b) => (b.mcap || 0) - (a.mcap || 0))); // внутри сектора — по капитализации
+  const order = orderSectors(Object.keys(by));
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
   return (
     <div className="mk-stack">
@@ -301,12 +309,13 @@ function StockCards({ stocks, onOpen, Logo }) {
 }
 function StockRows({ stocks, onOpen, Logo }) {
   if (!stocks.length) return <div className="mk-empty">Ничего не найдено. Измените запрос или сектор.</div>;
+  const sorted = [...stocks].sort((a, b) => (b.mcap || 0) - (a.mcap || 0)); // по капитализации
   return (
     <div className="mk-tablewrap" style={{ marginTop: 18 }}>
       <table className="mk-table mk-rows">
         <thead><tr><th className="l">Бумага</th><th>Цена</th><th>За день</th><th>Капитализация</th><th className="l">К справедливой цене</th></tr></thead>
         <tbody>
-          {stocks.map(s => {
+          {sorted.map(s => {
             const fv = s.upside == null ? null : Math.round(s.upside), tc = fv == null ? "var(--ink-3)" : fvColor(fv);
             const n = s.conf === "high" ? 3 : s.conf === "medium" ? 2 : 1;
             return (
@@ -332,7 +341,6 @@ function StockRows({ stocks, onOpen, Logo }) {
 }
 
 // ══════════════════ ОБЛИГАЦИИ ══════════════════
-const BOND_RATING = { AAA: 1, "AA+": 2, AA: 3, "AA-": 4, "A+": 5, A: 6, "A-": 7, "BBB+": 8, BBB: 9, "BBB-": 10, "BB+": 11, BB: 12, "BB-": 13, "B+": 14, B: 15 };
 function reliOf(b) {
   const t = (b.risk_tier || "").toLowerCase();
   if (["high", "low", "reliable", "investment"].includes(t)) return { k: "pos", label: b.risk_label || "Надёжный" };
@@ -340,45 +348,6 @@ function reliOf(b) {
   return { k: "amber", label: b.risk_label || "Средний" };
 }
 const RELI_COLOR = { pos: "var(--pos)", amber: "var(--amber)", neg: "var(--neg)" };
-function bondFair(r) { return 13.6 + 0.92 * (r - 1); }
-function BondMap({ rows }) {
-  const plot = rows.filter(b => b.agency_rating && BOND_RATING[b.agency_rating] && b.ytm != null);
-  if (plot.length < 3) return null;
-  const W = 820, H = 440, padL = 64, padR = 88, padT = 30, padB = 54;
-  const xMin = 0.5, xMax = 15.5, yMin = 10, yMax = 32;
-  const X = v => padL + (Math.max(xMin, Math.min(xMax, v)) - xMin) / (xMax - xMin) * (W - padL - padR);
-  const Y = v => H - padB - (Math.max(yMin, Math.min(yMax, v)) - yMin) / (yMax - yMin) * (H - padT - padB);
-  const ticks = [["AAA", 1], ["AA", 3], ["A", 6], ["BBB", 9], ["BB", 12], ["B", 15]];
-  const yt = [12, 16, 20, 24, 28];
-  return (
-    <div className="mk-bondmap">
-      <svg viewBox={`0 0 ${W} ${H}`} className="mk-bondmap-svg" preserveAspectRatio="xMidYMid meet">
-        {yt.map(v => <g key={v}><line x1={padL} y1={Y(v)} x2={W - padR} y2={Y(v)} className="mk-bm-grid" /><text x={padL - 10} y={Y(v) + 4} className="mk-bm-tick" textAnchor="end">{v}%</text></g>)}
-        {ticks.map(([l, v]) => <text key={l} x={X(v)} y={H - padB + 20} className="mk-bm-tick" textAnchor="middle">{l}</text>)}
-        <line x1={X(xMin)} y1={Y(bondFair(xMin))} x2={X(xMax)} y2={Y(bondFair(xMax))} className="mk-bm-fair" />
-        <text x={X(xMax)} y={Y(bondFair(xMax)) - 8} className="mk-bm-fairlbl" textAnchor="end">справедливо за риск</text>
-        <text x={(padL + W - padR) / 2} y={H - 12} className="mk-bm-axis" textAnchor="middle">Кредитный риск · рейтинг (надёжнее ← → рискованнее)</text>
-        <text x={18} y={(padT + H - padB) / 2} className="mk-bm-axis" textAnchor="middle" transform={`rotate(-90 18 ${(padT + H - padB) / 2})`}>Доходность YTM →</text>
-        <text x={padL + 8} y={padT + 6} className="mk-bm-quad">↑ доходность выше справедливой — компенсирует риск</text>
-        {plot.map(b => {
-          const r = BOND_RATING[b.agency_rating], comp = b.ytm >= bondFair(r), col = RELI_COLOR[reliOf(b).k];
-          return (
-            <g key={b.secid} className="mk-bm-bub">
-              <circle cx={X(r)} cy={Y(b.ytm)} r={8} fill={col} fillOpacity={comp ? 0.85 : 0.28} stroke={col} strokeWidth={comp ? 0 : 1.5} />
-              <title>{b.short_name} · YTM {num(b.ytm, 1)}% · {b.agency_rating} · {comp ? "компенсирует риск" : "тонкая компенсация"}</title>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="mk-bm-legend">
-        <span className="mk-leg"><i style={{ background: "var(--pos)" }} />Надёжные</span>
-        <span className="mk-leg"><i style={{ background: "var(--amber)" }} />Средний риск</span>
-        <span className="mk-leg"><i style={{ background: "var(--neg)" }} />ВДО</span>
-        <span className="mk-leg dim">● над линией — доходность компенсирует риск · ○ под линией — тонкая</span>
-      </div>
-    </div>
-  );
-}
 function SegGroup({ label, options, value, onChange }) {
   return (
     <div className="mk-seg-group">
@@ -419,7 +388,6 @@ function BondsTab({ rows, query, onOpen }) {
   list = list.slice(0, 400);
   return (
     <div>
-      <BondMap rows={rows} />
       <div className="mk-filterbar">
         <SegGroup label="Купон" value={coupon} onChange={setCoupon} options={["Любой купон", "Фикс", "Флоатеры"]} />
         <SegGroup label="Надёжность" value={reli} onChange={setReli} options={["Любая надёжность", "Надёжные", "Средний риск", "ВДО"]} />
@@ -652,9 +620,10 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("Все");
-  const [stockView, setStockView] = useState(() => persist("mk.sview", "map"));
+  const [stockView, setStockView] = useState(() => persist("mk.sview2", "list"));
 
   const [scored, setScored] = useState([]);
+  const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
   const [live, setLive] = useState({});
   const [index, setIndex] = useState(null);
   const [drivers, setDrivers] = useState([]);
@@ -667,7 +636,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const loaded = useRef({});
 
   const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); try { localStorage.setItem("mk.tab", t); } catch {} };
-  const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview", v); } catch {} };
+  const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview2", v); } catch {} };
 
   // акции (scored) + пульс — при монтировании
   useEffect(() => {
@@ -676,7 +645,16 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       fetch(`${api}/api/screener/scored?universe=all`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${api}/api/market/indices`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${api}/api/market/drivers`).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([sc, idx, dr]) => {
+      fetch(`${api}/api/companies`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([sc, idx, dr, comp]) => {
+      if (Array.isArray(comp)) {
+        const m = {};
+        comp.forEach(c => {
+          const cap = c.combined_market_cap != null ? c.combined_market_cap : c.market_cap;
+          if (cap != null) m[c.ticker] = parseFloat(cap);
+        });
+        setCapByTicker(m);
+      }
       if (sc && Array.isArray(sc.rows)) {
         setScored(sc.rows.map(r => ({
           t: r.ticker, n: r.name, sec: r.sector || "Прочее", price: r.price,
@@ -725,8 +703,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   // акции с живой дельтой
   const stocks = useMemo(() => scored.map(s => {
     const q = live[s.t];
-    return { ...s, price: (q && q.price != null) ? q.price : s.price, chg: q ? q.change_pct : null, chgAbs: q ? q.change_abs : null };
-  }), [scored, live]);
+    const mcap = capByTicker[s.t] != null ? capByTicker[s.t] : s.mcap; // обычка+преф
+    return { ...s, mcap, price: (q && q.price != null) ? q.price : s.price, chg: q ? q.change_pct : null, chgAbs: q ? q.change_abs : null };
+  }), [scored, live, capByTicker]);
 
   const stocksFiltered = useMemo(() => stocks.filter(s =>
     (sector === "Все" || s.sec === sector) && (!query || (s.n + " " + s.t).toLowerCase().includes(query.toLowerCase()))
@@ -760,7 +739,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       <div className="mk-tabbar" role="tablist">
         {TABS.map(t => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} className={"mk-tab" + (tab === t.id ? " on" : "")} onClick={() => saveTab(t.id)}>
-            {t.label}{t.count != null && <span className="tcount">{t.count}</span>}
+            {t.label}
           </button>
         ))}
       </div>
@@ -776,9 +755,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
       {tab === "stocks" && (
         <div className="mk-viewtog">
-          <button className={stockView === "map" ? "on" : ""} onClick={() => saveSView("map")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="7" height="7" rx="1" /><rect x="11" y="2" width="3" height="7" rx="1" /><rect x="2" y="11" width="5" height="3" rx="1" /><rect x="9" y="11" width="5" height="3" rx="1" /></svg>Карта рынка</button>
-          <button className={stockView === "rows" ? "on" : ""} onClick={() => saveSView("rows")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 4h12M2 8h12M2 12h12" strokeLinecap="round" /></svg>Лента</button>
           <button className={stockView === "list" ? "on" : ""} onClick={() => saveSView("list")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="5" height="4" rx="1" /><rect x="9" y="3" width="5" height="4" rx="1" /><rect x="2" y="9" width="5" height="4" rx="1" /><rect x="9" y="9" width="5" height="4" rx="1" /></svg>Карточки</button>
+          <button className={stockView === "rows" ? "on" : ""} onClick={() => saveSView("rows")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 4h12M2 8h12M2 12h12" strokeLinecap="round" /></svg>Лента</button>
+          <button className={stockView === "map" ? "on" : ""} onClick={() => saveSView("map")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="7" height="7" rx="1" /><rect x="11" y="2" width="3" height="7" rx="1" /><rect x="2" y="11" width="5" height="3" rx="1" /><rect x="9" y="11" width="5" height="3" rx="1" /></svg>Карта рынка</button>
         </div>
       )}
 

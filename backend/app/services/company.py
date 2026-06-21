@@ -12,11 +12,34 @@ def get_company_by_id(db: Session, company_id: int) -> Company | None:
     return company
 
 
+# Эмитенты, где в базе ТОЛЬКО преф, а обыкновенные акции не торгуются и отсутствуют
+# отдельной строкой → combined_market_cap недосчитывал бы обычку (была видна только
+# капитализация префа). Число обыкновенных акций — публично известное. Обычку
+# оцениваем по цене префа (своей цены у необращающихся ао нет).
+_PREF_ONLY_ORDINARY = {
+    "TRNFP": 569_446_800,  # Транснефть: ао 569.4 млн (после сплита 2024) + ап 155.5 млн
+}
+
+
+def _untraded_ordinary_cap(company: Company):
+    """Полная капитализация (преф + необращающаяся обычка) или None, если не применимо."""
+    n = _PREF_ONLY_ORDINARY.get(company.ticker)
+    so = getattr(company, "shares_outstanding", None)
+    if not n or company.market_cap is None or not so:
+        return None
+    pref_price = float(company.market_cap) / float(so)
+    return float(company.market_cap) + n * pref_price
+
+
 def _attach_combined_cap(db: Session, company: Company) -> None:
     if company.paired_ticker and company.market_cap is not None:
         partner = db.query(Company).filter(Company.ticker == company.paired_ticker).first()
         if partner and partner.market_cap is not None:
             company.combined_market_cap = company.market_cap + partner.market_cap
+            return
+        extra = _untraded_ordinary_cap(company)
+        if extra is not None:
+            company.combined_market_cap = extra
             return
     company.combined_market_cap = company.market_cap
 
@@ -70,7 +93,11 @@ def get_all_companies(db: Session) -> list[Company]:
 
         if c.paired_ticker and c.market_cap is not None:
             partner_cap = cap_by_ticker.get(c.paired_ticker)
-            c.combined_market_cap = c.market_cap + partner_cap if partner_cap is not None else c.market_cap
+            if partner_cap is not None:
+                c.combined_market_cap = c.market_cap + partner_cap
+            else:
+                extra = _untraded_ordinary_cap(c)
+                c.combined_market_cap = extra if extra is not None else c.market_cap
         else:
             c.combined_market_cap = c.market_cap
 
