@@ -41,7 +41,7 @@ const UNIVERSES = [
   { id: "all", label: "Все акции (~262)", short: "Все акции" },
 ];
 const CAT = ["--cat-1", "--cat-2", "--cat-3", "--cat-4", "--cat-5", "--cat-6", "--cat-7", "--cat-8"];
-const METHOD_TIP = "Композитная оценка Basis v0 — Качество 40% · Цена 35% · Устойчивость 25%, по позиции среди выбранной вселенной. Финансовые метрики; качественные направления (бизнес-модель, управление, рынок, макро, геополитика) — в разработке. Предварительная методика, уточняется.";
+const METHOD_TIP = "Композитная оценка Basis v0 — Качество 40% · Цена 35% · Устойчивость 25%, по позиции среди выбранного набора акций. Финансовые метрики; качественные направления (бизнес-модель, управление, рынок, макро, геополитика) — в разработке. Предварительная методика, уточняется.";
 
 const scoreColor = (s) => { if (s == null) return "var(--ink-3)"; const t = Math.max(0, Math.min(1, (s - 45) / (82 - 45))); const hue = t < 0.5 ? (t / 0.5) * 33 : 33 + ((t - 0.5) / 0.5) * 105; return `hsl(${hue.toFixed(0)} 64% 42%)`; };
 const fmtMetric = (k, v) => { if (v == null) return "—"; const M = METRICS[k]; return M.money ? money(v) : num(v, M.dec) + (M.unit || ""); };
@@ -204,7 +204,7 @@ function DetailDrawer({ row, onClose, onOpenCompany, secColor, Logo }) {
           <span className="sc-dr-score"><ScoreBadge s={row.basis} dim={row.low_confidence} /><ConfDots level={row.conf} /></span>
         </div>
         {row.low_confidence && <div className="sc-dr-thesis" style={{ borderLeftColor: "var(--amber)" }}>Низкая уверенность: мало валидных метрик{row.anomaly ? " / искажающие корп-эффекты (учтены)" : ""}. Балл — приблизительный ориентир.</div>}
-        <div className="sc-eyebrow" style={{ margin: "4px 0 8px" }}>Субиндексы (перцентиль во вселенной)</div>
+        <div className="sc-eyebrow" style={{ margin: "4px 0 8px" }}>Субиндексы (перцентиль в наборе)</div>
         <div className="sc-dr-subi">
           {subs.map(([k, l]) => <div key={k} className="sc-dr-subi-c"><div className="sc-dr-subi-l">{l}</div><div className="sc-dr-subi-v" style={{ color: scoreColor(row.subindices[k]) }}>{row.subindices[k] == null ? "—" : Math.round(row.subindices[k])}</div></div>)}
         </div>
@@ -312,7 +312,7 @@ function UniversePicker({ value, onChange, count }) {
   return (
     <div className="sc-universe-pick-wrap">
       <button className="sc-universe-pick" onClick={() => setOpen((o) => !o)}>
-        <span className="sc-up-label">Вселенная:</span><b>{cur.short}</b>{count != null && <span className="sc-up-count">{count}</span>}
+        <span className="sc-up-label">Набор:</span><b>{cur.short}</b>{count != null && <span className="sc-up-count">{count}</span>}
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" style={{ transform: open ? "rotate(180deg)" : "none" }}><path d="M4 6l4 4 4-4" /></svg>
       </button>
       {open && <div className="sc-up-menu" onMouseLeave={() => setOpen(false)}>
@@ -381,7 +381,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
     <div className="sc-screen">
       <div className="sc-page-head">
         <div>
-          <h1 className="sc-page-title">Скрининг акций</h1>
+          <h1 className="sc-page-title">Скринер акций</h1>
           <p className="sc-page-sub">Фильтр и сортировка по метрикам Basis. <span className="sc-modeltag" title={METHOD_TIP}>модель · BASIS v0</span> — инструмент поиска, выводы за вами.</p>
         </div>
         <span className="sc-scale"><span className="sc-scale-bar" style={{ background: `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((f) => scoreColor(45 + f * 37)).join(",")})` }} /><span className="sc-scale-lbl"><b>BASIS</b> — слабее → сильнее</span></span>
@@ -395,7 +395,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
           </div>
         </div>
         <div className="sc-filter-universe">
-          <div className="sc-filter-eyebrow">Вселенная</div>
+          <div className="sc-filter-eyebrow">Набор акций</div>
           <UniversePicker value={universe} onChange={setUniverse} count={data?.universe?.count} />
         </div>
       </div>
@@ -427,7 +427,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
         </div>
       </div>
 
-      <p className="sc-foot-note">BASIS-балл — композитная оценка Basis v0 (Качество 40% · Цена 35% · Устойчивость 25%) по позиции среди выбранной вселенной. Финансовые метрики; качественные направления в разработке. Тикеры с искажающими корп-эффектами (размытие, «кубышка», разовые списания) помечены пониженной уверенностью и не считаются «лучшими». Предварительная методика — не инвестиционная рекомендация.</p>
+      <p className="sc-foot-note">BASIS-балл — композитная оценка Basis v0 (Качество 40% · Цена 35% · Устойчивость 25%) по позиции среди выбранного набора акций. Финансовые метрики; качественные направления в разработке. Тикеры с искажающими корп-эффектами (размытие, «кубышка», разовые списания) помечены пониженной уверенностью и не считаются «лучшими». Предварительная методика — не инвестиционная рекомендация.</p>
 
       <DetailDrawer row={picked} onClose={() => setPicked(null)} onOpenCompany={onOpenCompany} secColor={secColor} Logo={Logo} />
     </div>
