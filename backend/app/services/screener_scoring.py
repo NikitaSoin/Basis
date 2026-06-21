@@ -44,6 +44,13 @@ CONFIG = {
 _CACHE = {"ts": 0.0, "fin": None}
 _CACHE_TTL = 600  # сек; financials.json меняются только при деплое
 
+# Эшелоны (МосБиржа официальный список «эшелонов» не публикует — это неформальная
+# классификация по ликвидности). 1-й эшелон = голубые фишки = состав индекса MOEXBC
+# (15 крупнейших, проверено на moex.com/smart-lab). 2-й/3-й — по капитализации/ликвидности.
+BLUE_CHIPS = {"SBER", "LKOH", "GAZP", "YDEX", "T", "TATN", "GMKN", "NVTK",
+              "PLZL", "OZON", "VTBR", "X5", "ROSN", "SNGS", "MOEX"}
+ECHELON2_SIZE = 50  # следующие по капитализации после голубых фишек
+
 
 def _last(x):
     if isinstance(x, list):
@@ -178,13 +185,18 @@ def score_universe(db: Session, universe: str = "liquid", sector: str | None = N
     # ── фильтр вселенной ──
     if sector:
         base = [b for b in base if b["sector"] == sector]
-    if universe == "liquid":
-        ranked = sorted([b for b in base if b["market_cap"]], key=lambda b: -b["market_cap"])
-        sel = set(b["ticker"] for b in ranked[:20])
-    elif universe == "midcap":
-        ranked = sorted([b for b in base if b["market_cap"]], key=lambda b: -b["market_cap"])
-        sel = set(b["ticker"] for b in ranked[:60])
-    else:  # all
+    # Эшелоны: 1-й = голубые фишки (MOEXBC); 2-й = следующие по капитализации; 3-й = остальные.
+    ranked = sorted([b for b in base if b["market_cap"]], key=lambda b: -b["market_cap"])
+    rest = [b for b in ranked if b["ticker"] not in BLUE_CHIPS]
+    if universe in ("blue", "echelon1"):
+        sel = set(b["ticker"] for b in base if b["ticker"] in BLUE_CHIPS)
+    elif universe == "echelon2":
+        sel = set(b["ticker"] for b in rest[:ECHELON2_SIZE])
+    elif universe == "echelon3":
+        sel = set(b["ticker"] for b in rest[ECHELON2_SIZE:])
+    elif universe in ("liquid", "midcap"):  # legacy-совместимость
+        sel = set(b["ticker"] for b in (BLUE_CHIPS & {x["ticker"] for x in base})) | set(b["ticker"] for b in rest[:(5 if universe == "liquid" else 45)])
+    else:  # all (по умолчанию)
         sel = set(b["ticker"] for b in base)
     uni = [b for b in base if b["ticker"] in sel]
 
