@@ -3440,7 +3440,7 @@ const ScreenerView = ({ onSelectCompany }) => {
   return (
     <div>
       <div className="tw-flex tw-items-center tw-gap-3 tw-mb-2">
-        <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">Скрининг</h1>
+        <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">Скринер</h1>
         <Badge tone="neutral">{view.length}{isBonds ? "" : ` из ${rows.length}`}</Badge>
       </div>
       <p className="tw-text-[14px] tw-text-text-secondary tw-mb-4">Фильтрация и сортировка по готовым метрикам Basis. {isBonds ? "Облигации: доходность, купон, срок, оферта, рейтинг." : "Акции: справедливая цена, P/E, дивдоходность, доходность/риск."} Это инструмент поиска, выводы за вами.</p>
@@ -11673,7 +11673,7 @@ const Sidebar = ({ activeTab, setActiveTab, theme, toggleTheme, user }) => {
   const reducedMotion = usePrefersReducedMotion();
   const NAV = [
     { id: "companies", icon: BarChart2, label: "Рынок" },
-    { id: "screener",  icon: SlidersHorizontal, label: "Скрининг" },
+    { id: "screener",  icon: SlidersHorizontal, label: "Скринер" },
     { id: "overview",  icon: Globe,     label: "Обозреватель" },
     { id: "portfolio", icon: Briefcase, label: "Портфель" },
     // Будущие блоки — заглушка «в разработке» (метка soon).
