@@ -46,6 +46,29 @@ def market_indices(db: Session = Depends(get_db)):
     return get_indices(db)
 
 
+@router.get("/market/instruments/{asset_class}/{secid}/history")
+def instrument_history_endpoint(asset_class: str, secid: str,
+                                days: int = Query(180, ge=5, le=1500),
+                                db: Session = Depends(get_db)):
+    """Дневной ряд цен инструмента (bond|future|fund) для графика на экране «Рынок».
+    Источник — instrument_history (MOEX ISS). Для облигаций добавляет YTM/НКД,
+    для фьючерсов — расчётную цену/ОИ."""
+    from app.services.instrument_history import get_history
+    return get_history(db, asset_class, secid, days)
+
+
+@router.get("/market/instruments/sparklines")
+def instrument_sparklines_endpoint(asset_class: str = Query(...),
+                                   secids: str = Query(..., description="SECID через запятую"),
+                                   days: int = Query(30, ge=5, le=400),
+                                   db: Session = Depends(get_db)):
+    """Батч мини-графиков {secid: {spark, last, change_pct}} для таблиц/карточек
+    экрана «Рынок» (один запрос на список бумаг)."""
+    from app.services.instrument_history import get_sparklines
+    ids = [s.strip() for s in secids.split(",") if s.strip()][:400]
+    return get_sparklines(db, asset_class, ids, days)
+
+
 @router.get("/market/maps/heatmap")
 def market_heatmap(period: str = Query("day"), portfolio_only: bool = False,
                    db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

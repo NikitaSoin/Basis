@@ -1004,3 +1004,41 @@ MOEX ISS — история+фолбэк; данные инструментов 
 Возобновление: Батч 2 — модель `instruments` + `instrument_quotes` (Alembic), затем
 Батчи 3-5 (облигации/фьючерсы/фонды через Tinkoff InstrumentsService + MOEX история),
 Батч 6 — фронт Market (docs/Market.zip: market/Market.html + market-pulse/data/tabs.jsx).
+
+### РАЗВИЛКА (решена владельцем): brownfield, а не greenfield
+Раскопал: таблицы bonds(3152)/futures(606)/funds(104) + MOEX-ингестия (moex_bonds/
+futures/funds.py) + дневной джоб (asset_data.refresh_all_if_stale → _asset_data_job) +
+карточки + 18 разборов УЖЕ работают — это и есть «отдельный дом» из ТЗ. Не хватало
+только ИСТОРИИ цен (был лишь дневной снэпшот last_price). Параллельная instruments-
+ингестия дублировала бы 3862 строки — отклонено. Tinkoff из песочницы не тестируется
+(401+SSL MITM), а MOEX ISS даёт ВСЮ историю всех трёх классов без ключей и достаётся
+из песочницы (проверено). Владелец: «проще в одной таблице, делай как лучше, чтобы не
+запутаться и сайт без задержек». → Решение ниже.
+
+### Батч 2 (пересобран) — единая таблица instrument_history ✅ ГОТОВО (миграция локально)
+- Откатил редундантную instruments-метатаблицу (Батч-2 коммит был НЕ запушен →
+  git reset --soft до Батча 1, переписал). Полиморфизм портфеля отложен (вернул
+  portfolio_positions к исходному — портфельная логика по инструментам = поздний шаг).
+- `app/models/instrument.py` → `InstrumentHistory`: ОДНА таблица на 3 класса
+  (asset_class∈bond|future|fund, secid, date, OHLC, value, prev_close, change_pct,
+  yld(YTM), accrued_int(НКД), settle(расч.цена), oi(ОИ); UNIQUE(asset_class,secid,date)).
+  Метаданные НЕ дублирую — связь по secid с bonds/futures/funds. По образцу quotes/index_history.
+- Миграция `d2f4a6b8c1e0_instrument_history.py` (Revises a1c5e8b740d3), применена локально, дрейфа нет.
+
+### Батчи 3-5 (облигации/фьючерсы/фонды) — ингестия истории ✅ ГОТОВО (единый движок, локально)
+- `app/services/instrument_history.py`: один движок на 3 класса. Источник — MOEX ISS
+  «вся доска за дату» (?date=) — все бумаги доски одним запросом (на порядок дешевле
+  поштучного). Борды: облигации TQOB/TQCB/TQOY/TQOD/TQRD, фонды TQTF/TQIF, фьючерсы
+  весь forts. Грузит ТОЛЬКО secid из метаданных (чистая таблица). Идемпотентно (COALESCE
+  upsert). load_range / catch_up_instrument_history(7д) / backfill_instrument_history(365д).
+- Тест локально (окно 12 дн.): bond 1827 строк/234 secid (с YTM+НКД), fund 800/102,
+  future 471/64 (с settle+ОИ). Сквозняк fetch→upsert→serve работает.
+- Дневной джоб: catch_up_instrument_history добавлен в вечерний `_history_job` (19:30) —
+  «сегодняшняя цена → завтра в истории». Стартовый бэкафилл: `_instrument_history_startup`
+  (фоном, только если таблица пуста) → на бою при деплое наполнит 365 дней автоматически.
+- Эндпоинты (аддитивные, существующие /bonds,/funds,/futures НЕ тронуты):
+  `GET /api/market/instruments/{class}/{secid}/history?days=` (ряд для графика; облигации
+  +YTM/НКД, фьючерсы +settle/ОИ) и `GET /api/market/instruments/sparklines?asset_class=&secids=`
+  (батч мини-графиков). Протестированы TestClient (200).
+- Ops-скрипт `scripts/load_instrument_history.py` (ручной догруз/переезд).
+- ОСТАЛОСЬ Батч 6 (фронт Market): подключить эти данные в новый дизайн (docs/Market.zip).
