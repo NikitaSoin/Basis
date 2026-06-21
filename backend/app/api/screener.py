@@ -5,13 +5,26 @@
 quotes (для апсайда к справедливой цене). Без «купить/продать» — инструмент
 фильтрации, выводы делает пользователь.
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 
 router = APIRouter()
+
+
+@router.get("/screener/scored")
+def screener_scored(
+    universe: str = Query("liquid", description="liquid (~20) | midcap (~60) | all (~262)"),
+    sector: str | None = Query(None),
+    db: Session = Depends(get_db),
+):
+    """v0 BASIS-скоринг: строки с сырыми метриками + ориентированными перцентилями +
+    субиндексами (Оценка/Качество/Устойчивость) + BASIS + low_confidence + координатами
+    карты; плюс распределения метрик для гистограмм конструктора. Один движок на всё."""
+    from app.services.screener_scoring import score_universe
+    return score_universe(db, universe=universe, sector=sector)
 
 _Q = text("""
     WITH latest AS (
