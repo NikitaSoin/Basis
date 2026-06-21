@@ -362,14 +362,19 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const [view, setView] = useState("table");
   const [railOpen, setRailOpen] = useState(true);
   const [picked, setPicked] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     setLoading(true); setError(false);
-    fetch(`${apiBase()}/api/screener/scored?universe=${universe}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
+    const url = `${apiBase()}/api/screener/scored?universe=${universe}`;
+    fetch(url)
+      .then(async (r) => {
+        if (!r.ok) { const t = await r.text().catch(() => ""); throw new Error(`HTTP ${r.status} ${t.slice(0, 200)}`); }
+        return r.json();
+      })
       .then((d) => { setData(d); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
-  }, [universe]);
+      .catch((e) => { console.error("Screener load failed:", url, e); setError(String(e && e.message || e)); setLoading(false); });
+  }, [universe, reloadKey]);
 
   // нормализация серверных строк
   const rows = useMemo(() => (data?.rows || []).map((r) => ({
@@ -401,7 +406,13 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const total = rows.length;
 
   if (loading) return <div className="sc-screen"><div className="sc-noresult" style={{ padding: "80px" }}>Загружаем скрин…</div></div>;
-  if (error) return <div className="sc-screen"><div className="sc-noresult" style={{ padding: "80px", color: "var(--cc-danger)" }}>Не удалось загрузить скрин.</div></div>;
+  if (error) return (
+    <div className="sc-screen"><div className="sc-noresult" style={{ padding: "64px 24px" }}>
+      <div style={{ color: "var(--cc-danger)", fontWeight: 600, marginBottom: 8 }}>Не удалось загрузить скринер.</div>
+      <div className="sc-num" style={{ fontSize: 12, color: "var(--cc-ink-3)", marginBottom: 16, wordBreak: "break-word" }}>{String(error)}</div>
+      <button className="sc-btn-primary" style={{ display: "inline-block", width: "auto", padding: "10px 22px" }} onClick={() => setReloadKey((k) => k + 1)}>Повторить</button>
+    </div></div>
+  );
 
   return (
     <div className="sc-screen">
