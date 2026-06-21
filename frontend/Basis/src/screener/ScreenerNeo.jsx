@@ -350,7 +350,7 @@ function SectorPicker({ value, onChange, sectors, secColor }) {
 
 // ───────────────────────────────────────── main ─────────────────────────────────────────
 export default function ScreenerNeo({ onOpenCompany, Logo }) {
-  const [universe, setUniverse] = useState("liquid");
+  const [universe, setUniverse] = useState("all");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
