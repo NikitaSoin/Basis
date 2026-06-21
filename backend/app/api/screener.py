@@ -16,7 +16,7 @@ router = APIRouter()
 
 @router.get("/screener/scored")
 def screener_scored(
-    universe: str = Query("liquid", description="liquid (~20) | midcap (~60) | all (~262)"),
+    universe: str = Query("all", description="all (~262) | blue (голубые фишки ~15) | echelon2 (~50) | echelon3 (остальные)"),
     sector: str | None = Query(None),
     db: Session = Depends(get_db),
 ):

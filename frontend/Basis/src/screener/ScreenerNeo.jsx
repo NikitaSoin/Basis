@@ -26,7 +26,8 @@ const METRICS = {
   mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер" },
 };
 const GROUPS = ["Оценка", "Качество", "Устойчивость", "Размер"];
-const TABLE_METRICS = ["pe", "ev_ebitda", "roe", "ebitda_margin", "nd_ebitda", "div_yield", "fcf_yield", "mcap"];
+const TABLE_METRICS = ["fair_value", "pe", "ev_ebitda", "roe", "nd_ebitda", "div_yield", "mcap"];
+const COL_LABEL = (k) => k === "fair_value" ? "Справ. цена" : METRICS[k].label;
 const PRESETS = [
   { id: "all", name: "Все бумаги", desc: "Без фильтров", ranges: {} },
   { id: "cheapcf", name: "Дешёвый кэшфлоу", desc: "EV/EBITDA ≤ 4 · FCF-дох ≥ 8", ranges: { ev_ebitda: [0, 4], fcf_yield: [8, 25] } },
@@ -36,15 +37,20 @@ const PRESETS = [
   { id: "undervalued", name: "С потенциалом", desc: "Потенциал к справедливой ≥ 20%", ranges: { upside: [20, 150] } },
 ];
 const UNIVERSES = [
-  { id: "liquid", label: "Ликвидные акции МосБиржи", short: "Ликвидные" },
-  { id: "midcap", label: "Расширенный набор (~60)", short: "Расширенный" },
-  { id: "all", label: "Все акции (~262)", short: "Все акции" },
+  { id: "all", label: "Все акции", short: "Все акции" },
+  { id: "blue", label: "Голубые фишки · 1-й эшелон", short: "1-й эшелон" },
+  { id: "echelon2", label: "2-й эшелон", short: "2-й эшелон" },
+  { id: "echelon3", label: "3-й эшелон", short: "3-й эшелон" },
 ];
 const CAT = ["--cat-1", "--cat-2", "--cat-3", "--cat-4", "--cat-5", "--cat-6", "--cat-7", "--cat-8"];
 const METHOD_TIP = "Композитная оценка Basis v0 — Качество 40% · Цена 35% · Устойчивость 25%, по позиции среди выбранного набора акций. Финансовые метрики; качественные направления (бизнес-модель, управление, рынок, макро, геополитика) — в разработке. Предварительная методика, уточняется.";
 
 const scoreColor = (s) => { if (s == null) return "var(--ink-3)"; const t = Math.max(0, Math.min(1, (s - 45) / (82 - 45))); const hue = t < 0.5 ? (t / 0.5) * 33 : 33 + ((t - 0.5) / 0.5) * 105; return `hsl(${hue.toFixed(0)} 64% 42%)`; };
-const fmtMetric = (k, v) => { if (v == null) return "—"; const M = METRICS[k]; return M.money ? money(v) : num(v, M.dec) + (M.unit || ""); };
+const fmtMetric = (k, v) => {
+  if (v == null) return "—";
+  if (k === "fair_value") return num(v, Math.abs(v) >= 100 ? 0 : 2) + " ₽";
+  const M = METRICS[k]; return M.money ? money(v) : num(v, M.dec) + (M.unit || "");
+};
 const histogram = (arr, dom, buckets = 18) => { const [a, b] = dom; const h = new Array(buckets).fill(0); (arr || []).forEach((v) => { let i = Math.floor((v - a) / (b - a) * buckets); i = Math.max(0, Math.min(buckets - 1, i)); h[i]++; }); return h; };
 const matchesRanges = (row, ranges) => { for (const k in ranges) { const [lo, hi] = ranges[k]; const v = k === "mcap" ? row.mcap : row.raw[k]; if (v == null) return false; if (v < lo - 1e-9 || v > hi + 1e-9) return false; } return true; };
 
@@ -64,7 +70,8 @@ function PctBar({ pct, big }) {
 }
 function MetricCell({ mkey, v, pct }) {
   if (v == null) return <td className="sc-td sc-num sc-na">—</td>;
-  return <td className="sc-td sc-num"><span className="sc-cellval">{fmtMetric(mkey, v)}</span>{mkey !== "mcap" && <PctBar pct={pct} />}</td>;
+  const noBar = mkey === "mcap" || mkey === "fair_value";
+  return <td className="sc-td sc-num"><span className="sc-cellval">{fmtMetric(mkey, v)}</span>{!noBar && <PctBar pct={pct} />}</td>;
 }
 
 function SortHead({ label, k, sort, setSort, align = "right", title }) {
@@ -89,7 +96,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
           <tr>
             <SortHead label="Компания" k="n" sort={sort} setSort={setSort} align="left" />
             <SortHead label="BASIS" k="basis" sort={sort} setSort={setSort} title="Композитная оценка Basis v0" />
-            {TABLE_METRICS.map((k) => <SortHead key={k} label={METRICS[k].label} k={k} sort={sort} setSort={setSort} />)}
+            {TABLE_METRICS.map((k) => <SortHead key={k} label={COL_LABEL(k)} k={k} sort={sort} setSort={setSort} />)}
           </tr>
         </thead>
         <tbody>
@@ -100,7 +107,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
                 <span className="sc-idtext"><b>{r.n}</b><span className="sc-idsub">{r.t} · {r.sec}</span></span>
               </td>
               <td className="sc-td sc-num"><span className="sc-scorewrap"><ScoreBadge s={r.basis} dim={r.low_confidence} /><ConfDots level={r.conf} /></span></td>
-              {TABLE_METRICS.map((k) => <MetricCell key={k} mkey={k} v={k === "mcap" ? r.mcap : r.raw[k]} pct={r.percentiles[k]} />)}
+              {TABLE_METRICS.map((k) => <MetricCell key={k} mkey={k} v={k === "mcap" ? r.mcap : k === "fair_value" ? r.fair_value : r.raw[k]} pct={r.percentiles[k]} />)}
             </tr>
           ))}
         </tbody>
@@ -278,9 +285,9 @@ function AddCriterion({ activeKeys, onAdd }) {
     </div>
   );
 }
-function CriteriaRail({ ranges, sectors, secList, secColor, onRangeChange, onAdd, onRemove, onToggleSector, onReset, resultCount, total, distributions, allRows, onCollapse }) {
+function CriteriaRail({ ranges, sector, onRangeChange, onAdd, onRemove, onReset, resultCount, total, distributions, allRows, onCollapse }) {
   const activeKeys = Object.keys(ranges);
-  const countFor = (k) => allRows.filter((r) => matchesRanges(r, { [k]: ranges[k] }) && (!sectors.length || sectors.includes(r.sec))).length;
+  const countFor = (k) => allRows.filter((r) => matchesRanges(r, { [k]: ranges[k] }) && (!sector || r.sec === sector)).length;
   return (
     <aside className="sc-rail">
       <div className="sc-rail-head">
@@ -291,11 +298,10 @@ function CriteriaRail({ ranges, sectors, secList, secColor, onRangeChange, onAdd
       </div>
       <div className="sc-funnel">
         <div className="sc-funnel-bar"><span className="sc-funnel-fill" style={{ width: (total ? resultCount / total * 100 : 0) + "%" }} /></div>
-        <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sectors.length ? 1 : 0)} активных условий</span></div>
+        <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sector ? 1 : 0)} активных условий</span></div>
       </div>
       <div className="sc-rail-scroll">
-        <div className="sc-sectors">{secList.map((s) => <button key={s} className={"sc-sec-chip" + (sectors.includes(s) ? " on" : "")} onClick={() => onToggleSector(s)}><span className="sc-sec-dot" style={{ background: secColor(s) }} />{s}</button>)}</div>
-        {activeKeys.length === 0 && sectors.length === 0 && <div className="sc-empty">Фильтров нет — показаны все бумаги. Добавьте критерий или выберите готовый скрин.</div>}
+        {activeKeys.length === 0 && !sector && <div className="sc-empty">Фильтров нет — показаны все бумаги. Добавьте критерий или выберите готовый скрин.</div>}
         {GROUPS.map((g) => { const ks = activeKeys.filter((k) => METRICS[k].group === g); return ks.length ? (
           <div key={g} className="sc-crit-grp"><div className="sc-crit-grp-t">{g}</div>
             {ks.map((k) => <CriterionRow key={k} mkey={k} range={ranges[k]} matchCount={countFor(k)} dist={distributions[k]} onChange={(r) => onRangeChange(k, r)} onRemove={() => onRemove(k)} />)}
@@ -322,6 +328,26 @@ function UniversePicker({ value, onChange, count }) {
   );
 }
 
+function SectorPicker({ value, onChange, sectors, secColor }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="sc-universe-pick-wrap">
+      <button className="sc-universe-pick" onClick={() => setOpen((o) => !o)}>
+        <span className="sc-up-label">Сектор:</span>
+        {value && <span className="sc-sec-dot" style={{ background: secColor(value) }} />}
+        <b>{value || "Все секторы"}</b>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" style={{ transform: open ? "rotate(180deg)" : "none" }}><path d="M4 6l4 4 4-4" /></svg>
+      </button>
+      {open && <div className="sc-up-menu" onMouseLeave={() => setOpen(false)}>
+        <button className={"sc-up-item" + (!value ? " on" : "")} onClick={() => { onChange(""); setOpen(false); }}><span>Все секторы</span></button>
+        {sectors.map((s) => <button key={s} className={"sc-up-item" + (value === s ? " on" : "")} onClick={() => { onChange(s); setOpen(false); }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><span className="sc-sec-dot" style={{ background: secColor(s) }} />{s}</span>
+        </button>)}
+      </div>}
+    </div>
+  );
+}
+
 // ───────────────────────────────────────── main ─────────────────────────────────────────
 export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const [universe, setUniverse] = useState("liquid");
@@ -329,7 +355,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [ranges, setRanges] = useState({});
-  const [sectors, setSectors] = useState([]);
+  const [sector, setSector] = useState(""); // "" = все секторы
   const [presetId, setPresetId] = useState("all");
   const [sort, setSort] = useState({ key: "basis", dir: "desc" });
   const [density, setDensity] = useState("comfortable");
@@ -348,7 +374,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   // нормализация серверных строк
   const rows = useMemo(() => (data?.rows || []).map((r) => ({
     t: r.ticker, n: r.name, sec: r.sector || "—", price: r.price, mcap: r.market_cap,
-    basis: r.basis, low_confidence: r.low_confidence, anomaly: r.anomaly, reduced_set: r.reduced_set,
+    basis: r.basis, low_confidence: r.low_confidence, anomaly: r.anomaly, reduced_set: r.reduced_set, fair_value: r.fair_value,
     conf: r.low_confidence ? "low" : (r.data_quality === "medium" ? "medium" : "high"),
     raw: { ...(r.raw || {}), mcap: r.market_cap }, percentiles: r.percentiles || {}, subindices: r.subindices || {},
   })), [data]);
@@ -358,20 +384,20 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const secColor = (s) => secColorMap[s] || "var(--ink-3)";
 
   const filtered = useMemo(() => {
-    let out = rows.filter((r) => matchesRanges(r, ranges) && (!sectors.length || sectors.includes(r.sec)));
+    let out = rows.filter((r) => matchesRanges(r, ranges) && (!sector || r.sec === sector));
     const { key, dir } = sort;
+    const pick = (r) => key === "n" ? r.n : key === "basis" ? r.basis : key === "mcap" ? r.mcap : key === "fair_value" ? r.fair_value : r.raw[key];
     out = [...out].sort((a, b) => {
-      const av = key === "n" ? a.n : key === "basis" ? a.basis : key === "mcap" ? a.mcap : a.raw[key];
-      const bv = key === "n" ? b.n : key === "basis" ? b.basis : key === "mcap" ? b.mcap : b.raw[key];
+      const av = pick(a), bv = pick(b);
       if (av == null) return 1; if (bv == null) return -1;
       if (typeof av === "string") return dir === "desc" ? bv.localeCompare(av) : av.localeCompare(bv);
       return dir === "desc" ? bv - av : av - bv;
     });
     return out;
-  }, [rows, ranges, sectors, sort]);
+  }, [rows, ranges, sector, sort]);
 
   const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); };
-  const reset = () => { setRanges({}); setSectors([]); setPresetId("all"); };
+  const reset = () => { setRanges({}); setSector(""); setPresetId("all"); };
   const total = rows.length;
 
   if (loading) return <div className="sc-screen"><div className="sc-noresult" style={{ padding: "80px" }}>Загружаем скрин…</div></div>;
@@ -381,7 +407,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
     <div className="sc-screen">
       <div className="sc-page-head">
         <div>
-          <h1 className="sc-page-title">Скринер акций</h1>
+          <h1 className="sc-page-title">Скринер</h1>
           <p className="sc-page-sub">Фильтр и сортировка по метрикам Basis. <span className="sc-modeltag" title={METHOD_TIP}>модель · BASIS v0</span> — инструмент поиска, выводы за вами.</p>
         </div>
         <span className="sc-scale"><span className="sc-scale-bar" style={{ background: `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((f) => scoreColor(45 + f * 37)).join(",")})` }} /><span className="sc-scale-lbl"><b>BASIS</b> — слабее → сильнее</span></span>
@@ -396,17 +422,19 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
         </div>
         <div className="sc-filter-universe">
           <div className="sc-filter-eyebrow">Набор акций</div>
-          <UniversePicker value={universe} onChange={setUniverse} count={data?.universe?.count} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <UniversePicker value={universe} onChange={setUniverse} count={data?.universe?.count} />
+            <SectorPicker value={sector} onChange={setSector} sectors={secList} secColor={secColor} />
+          </div>
         </div>
       </div>
 
       <div className={"sc-layout" + (railOpen ? "" : " sc-collapsed")}>
         {railOpen && (
-          <CriteriaRail ranges={ranges} sectors={sectors} secList={secList} secColor={secColor}
+          <CriteriaRail ranges={ranges} sector={sector}
             onRangeChange={(k, r) => { setRanges((rs) => ({ ...rs, [k]: r })); setPresetId(null); }}
             onAdd={(k) => { setRanges((rs) => ({ ...rs, [k]: [...METRICS[k].dom] })); setPresetId(null); }}
             onRemove={(k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); }}
-            onToggleSector={(s) => setSectors((ss) => ss.includes(s) ? ss.filter((x) => x !== s) : [...ss, s])}
             onReset={reset} resultCount={filtered.length} total={total} distributions={distributions} allRows={rows} onCollapse={() => setRailOpen(false)} />
         )}
         <div className="sc-results">
