@@ -46,6 +46,66 @@ def market_indices(db: Session = Depends(get_db)):
     return get_indices(db)
 
 
+@router.get("/market/drivers")
+def market_drivers(db: Session = Depends(get_db)):
+    """«Что движет рынком сегодня» для пульса: Brent / USD-RUB / Ставка ЦБ / ОФЗ-10.
+    Best-effort из имеющихся данных (фьючерсы/спот/макро/кривая ОФЗ); недоступное —
+    помечается. value/dir = факт (котировка), effect = суждение Basis (не сигнал)."""
+    from sqlalchemy import text as _t
+    out = []
+
+    # Нефть Brent — ближайший фьючерс BR (FORTS), $/барр
+    try:
+        r = db.execute(_t(
+            "SELECT last_price, prev_settle FROM futures "
+            "WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') AND last_price IS NOT NULL "
+            "AND expiration_date >= now()::date ORDER BY expiration_date ASC LIMIT 1")).first()
+        if r and r[0]:
+            px = float(r[0]); prev = float(r[1]) if r[1] else None
+            d = 0 if not prev else (1 if px > prev else -1 if px < prev else 0)
+            out.append({"name": "Нефть Brent", "value": f"{px:.1f} $".replace(".", ","),
+                        "dir": d, "effect": "поддержка нефтегазу при росте", "level": "факт"})
+    except Exception:
+        pass
+
+    # Валюта — USD/RUB (спот)
+    try:
+        r = db.execute(_t("SELECT last_price, change_pct FROM spot_assets WHERE secid='USD000UTSTOM'")).first()
+        if r and r[0]:
+            px = float(r[0]); chg = float(r[1]) if r[1] is not None else 0
+            d = 1 if chg > 0 else -1 if chg < 0 else 0
+            out.append({"name": "USD / RUB", "value": f"{px:.2f}".replace(".", ","),
+                        "dir": d, "effect": "слабее рубль — плюс экспортёрам", "level": "факт"})
+    except Exception:
+        pass
+
+    # Ставка ЦБ (макро) — тот же источник, что и /market/macro/rate
+    val = None
+    try:
+        from app.models.macro import MacroDataPoint
+        p = (db.query(MacroDataPoint).filter_by(indicator_code="key_rate", metric="level")
+             .order_by(MacroDataPoint.as_of.desc()).first())
+        val = float(p.value) if p else None
+    except Exception:
+        val = None
+    if val is not None:
+        out.append({"name": "Ставка ЦБ", "value": f"{float(val):.1f} %".replace(".", ","),
+                    "dir": 0, "effect": "выше ставка — давит на оценки акций", "level": "факт"})
+
+    # ОФЗ 10 лет (кривая из нашей базы)
+    try:
+        from app.services.bond_risk import _ofz_curve_from_db, _ofz_at
+        curve = _ofz_curve_from_db(db)
+        y10 = _ofz_at(curve, 10)
+        if y10:
+            out.append({"name": "ОФЗ 10 лет", "value": f"{float(y10):.1f} %".replace(".", ","),
+                        "dir": 0, "effect": "конкурент акциям за деньги", "level": "факт"})
+    except Exception:
+        pass
+
+    return out
+
+
 @router.get("/market/instruments/{asset_class}/{secid}/history")
 def instrument_history_endpoint(asset_class: str, secid: str,
                                 days: int = Query(180, ge=5, le=1500),
