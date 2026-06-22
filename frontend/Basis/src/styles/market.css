@@ -21,6 +21,10 @@
 .mk-screen .mk-page-head{padding:4px 0 16px;}
 .mk-screen .mk-page-title{font-family:"Source Serif 4",Georgia,serif;font-size:34px;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1.04;color:var(--ink);}
 .mk-screen .mk-page-sub{font-size:15px;color:var(--ink-2);margin:8px 0 0;max-width:74ch;}
+.mk-screen .mk-quote-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+.mk-screen .mk-live-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);}
+.mk-screen .mk-live-dot.on{background:var(--pos);box-shadow:0 0 0 3px color-mix(in srgb,var(--pos) 22%,transparent);}
+.mk-screen .mk-live-t{font-family:"JetBrains Mono",monospace;color:var(--ink-3);}
 
 /* asset-class tabs */
 .mk-screen .mk-tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;}
