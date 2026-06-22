@@ -679,7 +679,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       setLoading(false);
     }).catch(() => { if (alive) setLoading(false); });
     load();
-    const iv = setInterval(load, inTradingHours() ? 90000 : 300000);
+    const iv = setInterval(load, inTradingHours() ? 90000 : 180000);
     return () => { alive = false; clearInterval(iv); };
   }, []);
 
@@ -691,7 +691,9 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       fetch(`${api}/api/quotes/realtime`).then(r => r.ok ? r.json() : null).then(d => {
         if (d) { const { _moex_time, _fetched_at, _source, ...q } = d; setLive(q); setQuoteSrc(_source || null); setQuoteTime(_fetched_at || _moex_time || null); }
       }).catch(() => {});
-      timer = setTimeout(poll, inTradingHours() ? 6000 : 300000);
+      // Опрашиваем часто ВСЕГДА (а не раз в 5 мин вне торгов) — иначе открытый экран
+      // «застывает» между опросами и обновляется только перезагрузкой. Тинькофф realtime.
+      timer = setTimeout(poll, inTradingHours() ? 5000 : 20000);
     };
     poll();
     return () => clearTimeout(timer);
