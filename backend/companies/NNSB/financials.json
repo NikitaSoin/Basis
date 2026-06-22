@@ -1149,5 +1149,6 @@
     "peers_json_not_available: peers.json для сектора energy_retail не заполнен; мультипликаторы сектора (EV/EBITDA 3–6x, P/E 6–8x) — суждение аналитика",
     "dividend_not_applicable: DPS=0 по обыкновенным акциям 2017–2025; дивидендная оценка не применима",
     "forecast_mechanical_low_reliability: механический прогноз на основе ROS 2025 (единственный репрезентативный год прибыли); высокая неопределённость"
-  ]
+  ],
+  "segments": []
 }
