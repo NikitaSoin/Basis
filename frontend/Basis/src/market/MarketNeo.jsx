@@ -413,7 +413,7 @@ function BondsTab({ rows, query, onOpen }) {
         })}</div>
       ) : (
         <div className="mk-tablewrap">
-          <table className="mk-table"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Цена · погашение</th></tr></thead>
+          <table className="mk-table"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Цена</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Погашение</th></tr></thead>
             <tbody>
               {list.map(b => {
                 const rel = reliOf(b);
@@ -422,10 +422,11 @@ function BondsTab({ rows, query, onOpen }) {
                     <td className="l"><div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div></td>
                     <td className="l mk-reli-c"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span></td>
                     <td className="l mk-reli-c">{b.agency_rating ? <span className="mk-ag">{b.agency_rating}</span> : <span className="dim">—</span>}</td>
+                    <td className="num strong">{b.last_price != null ? num(b.last_price, 2) + NB + "%" : "—"}</td>
                     <td className="num"><span className="mk-spread">{b.spread_bp != null ? "+" + b.spread_bp + NB + "б.п." : "—"}</span></td>
                     <td className="num strong">{b.ytm != null ? num(b.ytm, 1) + NB + "%" : "—"}</td>
                     <td className="num">{b.duration_years != null ? num(b.duration_years, 1) + NB + "г" : "—"}</td>
-                    <td className="num"><div className="mk-pricemat"><b>{b.last_price != null ? num(b.last_price, 1) + "%" : "—"}</b><span className="mk-sub">{b.maturity_date || ""}</span></div></td>
+                    <td className="num dim">{b.maturity_date || "—"}</td>
                   </tr>
                 );
               })}
@@ -631,6 +632,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [scored, setScored] = useState([]);
   const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
   const [live, setLive] = useState({});
+  const [moexTime, setMoexTime] = useState(null);
   const [index, setIndex] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [bonds, setBonds] = useState([]);
@@ -643,15 +645,19 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); try { localStorage.setItem("mk.tab", t); } catch {} };
   const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview2", v); } catch {} };
 
-  // акции (scored) + пульс — при монтировании
+  // акции (scored) + пульс + капитализации: загрузка при монтировании И периодическое
+  // освежение, пока экран открыт (цены/капы идут из quotes, бэк обновляет ~раз в 5 мин —
+  // подстраховка к realtime-поллингу ниже, чтобы цифры не «застывали»).
   useEffect(() => {
     const api = apiBase();
-    Promise.all([
+    let alive = true;
+    const load = () => Promise.all([
       fetch(`${api}/api/screener/scored?universe=all`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${api}/api/market/indices`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${api}/api/market/drivers`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${api}/api/companies`).then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([sc, idx, dr, comp]) => {
+      if (!alive) return;
       if (Array.isArray(comp)) {
         const m = {};
         comp.forEach(c => {
@@ -670,7 +676,10 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       if (Array.isArray(idx) && idx.length) setIndex(idx.find(x => x.ticker === "IMOEX") || idx[0]);
       if (Array.isArray(dr)) setDrivers(dr);
       setLoading(false);
-    });
+    }).catch(() => { if (alive) setLoading(false); });
+    load();
+    const iv = setInterval(load, inTradingHours() ? 90000 : 300000);
+    return () => { alive = false; clearInterval(iv); };
   }, []);
 
   // живые котировки (дневная дельта + ширина рынка)
@@ -679,7 +688,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     let timer;
     const poll = () => {
       fetch(`${api}/api/quotes/realtime`).then(r => r.ok ? r.json() : null).then(d => {
-        if (d) { const { _moex_time, _fetched_at, ...q } = d; setLive(q); }
+        if (d) { const { _moex_time, _fetched_at, _source, ...q } = d; setLive(q); setMoexTime(_moex_time || null); }
       }).catch(() => {});
       timer = setTimeout(poll, inTradingHours() ? 6000 : 300000);
     };
@@ -745,7 +754,14 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   return (
     <div className="mk-screen">
       <div className="mk-page-head">
-        <h1 className="mk-page-title">Рынок</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <h1 className="mk-page-title">Рынок</h1>
+          <span className="mk-quote-live" title="Котировки обновляются на открытом экране (MOEX/Тинькофф; в торги — раз в ~5 мин)">
+            <span className={"mk-live-dot" + (inTradingHours() ? " on" : "")} />
+            {inTradingHours() ? "Живые котировки" : "Биржа закрыта"}
+            {moexTime && <span className="mk-live-t">· MOEX {String(moexTime).slice(11, 19)}</span>}
+          </span>
+        </div>
         <p className="mk-page-sub">Котировки и аналитика российского рынка — со взглядом Basis на риск и справедливую цену, а не торговые сигналы.</p>
       </div>
 
