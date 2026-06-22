@@ -5,7 +5,7 @@
    /quotes/realtime (дневная дельта + ширина), /market/indices, /market/drivers,
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "../styles/market.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -439,6 +439,8 @@ function BondsTab({ rows, query, onOpen }) {
 }
 
 // ══════════════════ ФЬЮЧЕРСЫ ══════════════════
+// дневное изменение фьючерса: посл. цена против расчётной цены прошлого клиринга
+const futChg = (f) => (f.last_price != null && f.prev_settle ? (Number(f.last_price) / Number(f.prev_settle) - 1) * 100 : null);
 function LevBadge({ lev }) {
   if (lev == null) return <span className="mk-lev mk-lev-warn">—</span>;
   const tone = lev >= 10 ? "neg" : lev >= 7 ? "amber" : "warn";
@@ -466,32 +468,36 @@ function FuturesTab({ rows, query, onOpen }) {
         <div key={g}>
           <div className="mk-grp-head" style={{ marginTop: 16 }}>{g}<span className="mk-grp-n">{by[g].length}</span></div>
           {view === "cards" ? (
-            <div className="mk-grid">{by[g].map(f => (
+            <div className="mk-grid">{by[g].map(f => { const chg = futChg(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
                 <div className="mk-card-top"><span className="mk-mono" style={{ background: "var(--accent-soft)", color: "var(--accent-2)" }}>{f.secid.slice(0, 2)}</span><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.asset_name || f.sec_name}</span></div></div>
-                <div className="mk-asset-big"><LevBadge lev={f.leverage} /><span className="mk-asset-biglbl">плечо · риск</span></div>
+                <div className="mk-asset-big">
+                  <span className="mk-asset-bigv">{num(f.last_price, 2)}</span>
+                  {chg != null && <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}%</span></span>}
+                </div>
                 <div className="mk-card-stats">
+                  <span><i>Плечо</i>{f.leverage != null ? num(f.leverage, 1) + "×" : "—"}</span>
                   {f.days_to_expiry != null && <span><i>До эксп.</i>{f.days_to_expiry} дн</span>}
                   {f.initial_margin != null && <span><i>ГО</i>{grp(Math.round(f.initial_margin))} ₽</span>}
-                  {f.contract_value != null && <span><i>Номинал</i>{grp(Math.round(f.contract_value))} ₽</span>}
                   {f.open_position != null && <span><i>Откр. поз.</i>{grp(f.open_position)}</span>}
                 </div>
               </button>
-            ))}</div>
+            ); })}</div>
           ) : (
             <div className="mk-tablewrap">
-              <table className="mk-table"><thead><tr><th className="l">Контракт</th><th>Плечо</th><th>До эксп.</th><th>ГО</th><th>Номинал</th><th>Откр. позиции</th></tr></thead>
+              <table className="mk-table"><thead><tr><th className="l">Контракт</th><th>Цена</th><th>За день</th><th>Плечо</th><th>До эксп.</th><th>ГО</th><th>Откр. позиции</th></tr></thead>
                 <tbody>
-                  {by[g].map(f => (
+                  {by[g].map(f => { const chg = futChg(f); return (
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
                       <td className="l"><div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.asset_name || f.sec_name}</span></div></td>
+                      <td className="num strong">{f.last_price != null ? num(f.last_price, 2) : "—"}</td>
+                      <td className="num">{chg == null ? <span className="dim">—</span> : <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>}</td>
                       <td className="num"><LevBadge lev={f.leverage} /></td>
                       <td className="num">{f.days_to_expiry != null ? f.days_to_expiry + NB + "дн" : "—"}</td>
                       <td className="num">{f.initial_margin != null ? grp(Math.round(f.initial_margin)) + NB + "₽" : "—"}</td>
-                      <td className="num">{f.contract_value != null ? grp(Math.round(f.contract_value)) + NB + "₽" : "—"}</td>
                       <td className="num dim">{f.open_position != null ? grp(f.open_position) : "—"}</td>
                     </tr>
-                  ))}
+                  ); })}
                 </tbody>
               </table>
             </div>
@@ -633,7 +639,6 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [spot, setSpot] = useState([]);
   const [fundSparks, setFundSparks] = useState({});
   const [loading, setLoading] = useState(true);
-  const loaded = useRef({});
 
   const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); try { localStorage.setItem("mk.tab", t); } catch {} };
   const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview2", v); } catch {} };
@@ -682,22 +687,30 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     return () => clearTimeout(timer);
   }, []);
 
-  // ленивая подгрузка списков по вкладке
+  // Списки классов: рефетч при открытии вкладки + периодическое освежение, пока экран
+  // открыт (чтобы котировки обновлялись без перезагрузки). Облигации (3152 строки,
+  // снапшот на бэке раз в день) освежаем реже, остальные — каждые 30с в торги.
   useEffect(() => {
     const api = apiBase();
-    const need = { bonds: "/api/bonds", futures: "/api/futures", funds: "/api/funds", fx: "/api/spot" }[tab];
-    const setter = { bonds: setBonds, futures: setFutures, funds: setFunds, fx: setSpot }[tab];
-    if (!need || loaded.current[tab]) return;
-    loaded.current[tab] = true;
-    fetch(`${api}${need}`).then(r => r.ok ? r.json() : []).then(d => {
+    const map = { bonds: ["/api/bonds", setBonds], futures: ["/api/futures", setFutures], funds: ["/api/funds", setFunds], fx: ["/api/spot", setSpot] };
+    const entry = map[tab];
+    if (!entry) return;
+    const [url, setter] = entry;
+    let alive = true;
+    const load = () => fetch(`${api}${url}`).then(r => r.ok ? r.json() : []).then(d => {
+      if (!alive) return;
       const arr = Array.isArray(d) ? d : [];
       setter(arr);
       if (tab === "funds" && arr.length) {
         const ids = arr.map(f => f.secid).slice(0, 200).join(",");
         fetch(`${api}/api/market/instruments/sparklines?asset_class=fund&secids=${encodeURIComponent(ids)}&days=30`)
-          .then(r => r.ok ? r.json() : {}).then(s => setFundSparks(s || {})).catch(() => {});
+          .then(r => r.ok ? r.json() : {}).then(s => alive && setFundSparks(s || {})).catch(() => {});
       }
-    }).catch(() => { loaded.current[tab] = false; });
+    }).catch(() => {});
+    load();
+    const period = !inTradingHours() ? 300000 : (tab === "bonds" ? 120000 : 30000);
+    const iv = setInterval(load, period);
+    return () => { alive = false; clearInterval(iv); };
   }, [tab]);
 
   // акции с живой дельтой
