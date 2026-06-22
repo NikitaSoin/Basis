@@ -1,0 +1,11 @@
+/* =============================================================
+   BASIS WEBFONTS
+   The production app loads these from Google Fonts (see public/index.html):
+     • Inter      — UI + text (variable optical size 14..32, weights 300..700)
+     • JetBrains Mono — numbers, tickers, formulas (weights 400..600)
+   The display tier reuses Inter at its display optical size via the opsz
+   axis + font-optical-sizing:auto (there is no separate "Inter Display"
+   webfont), so --font-display points straight at Inter.
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400..600&display=swap');

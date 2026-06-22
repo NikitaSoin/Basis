@@ -1,0 +1,75 @@
+/* Вкладка «Бизнес-модель» (гибрид-дизайн, порт docs/Business_model_new.zip/variant-hybrid).
+   Использует КАНОНИЧЕСКИЕ токены приложения (--text-1/2/3, --accent, --bg-surface,
+   --border-mid/subtle, палитра данных --cat-1..8) — второй набор не плодим. Всё под .bmx. */
+.bmx { display: flex; flex-direction: column; gap: 16px; }
+.bmx .bm-card { background: var(--bg-card, var(--panel)); border: 1px solid var(--border-mid); border-radius: 14px; padding: 18px 20px; }
+.bmx .bm-h { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; }
+.bmx .bm-h h3 { font-family: var(--font-display, "Source Serif 4", Georgia, serif); font-size: 18px; font-weight: 600; margin: 0; color: var(--text-1); }
+.bmx .bm-sub { font-size: 12.5px; color: var(--text-3); margin: 0 0 14px; line-height: 1.5; }
+.bmx .bm-tag { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; padding: 2px 8px; border-radius: 6px; }
+.bmx .bm-tag.fact { color: var(--cat-3); background: var(--cat-3-soft, rgba(0,158,115,.14)); }
+.bmx .bm-tag.est { color: var(--cat-1); background: var(--cat-1-soft, rgba(230,159,0,.14)); }
+.bmx .bm-tag.judg { color: var(--cat-7); background: var(--cat-7-soft, rgba(204,121,167,.14)); }
+
+/* lead + facts */
+.bmx .bm-lead { font-family: var(--font-display, "Source Serif 4", Georgia, serif); font-size: 16.5px; line-height: 1.55; color: var(--text-1); max-width: 66ch; margin: 0 0 12px; }
+.bmx .bm-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.bmx .bm-fact { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); background: var(--bg-surface); border: 1px solid var(--border-mid); border-radius: 8px; padding: 7px 11px; }
+.bmx .bm-fact i { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.bmx .bm-fact b { color: var(--text-1); font-weight: 600; }
+
+/* mini-P&L KPIs */
+.bmx .bm-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.bmx .bm-kpi { background: var(--bg-surface); border: 1px solid var(--border-mid); border-radius: 12px; padding: 13px 14px; }
+.bmx .bm-kl { font-size: 12px; color: var(--text-2); display: flex; justify-content: space-between; align-items: baseline; }
+.bmx .bm-kl s { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 10px; color: var(--text-3); text-decoration: none; }
+.bmx .bm-kb { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.bmx .bm-kb .ky { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 10px; color: var(--text-3); width: 22px; }
+.bmx .bm-kb .kbar { flex: 1; height: 7px; background: var(--bg-app, rgba(127,127,127,.12)); border-radius: 5px; overflow: hidden; }
+.bmx .bm-kb .kbar i { display: block; height: 100%; border-radius: 5px; background: var(--accent); }
+.bmx .bm-kb.old .kbar i { background: var(--text-3); opacity: .5; }
+.bmx .bm-kb .kv { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 12.5px; color: var(--text-1); width: 62px; text-align: right; }
+.bmx .bm-kd { margin-top: 9px; font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 13px; font-weight: 600; }
+
+/* unified stacked bar (cascade / segments) */
+.bmx .bm-stack { display: flex; height: 42px; border-radius: 9px; overflow: hidden; gap: 2px; }
+.bmx .bm-stack.sm { height: 30px; }
+.bmx .bm-stack .seg { display: flex; flex-direction: column; justify-content: center; padding: 0 9px; min-width: 0; color: #0b0e13; font-weight: 600; }
+.bmx .bm-stack .seg .sp { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 12.5px; line-height: 1; }
+.bmx .bm-stack .seg .sl { font-size: 9.5px; line-height: 1.1; margin-top: 3px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.bmx .bm-casc-h { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 8px; }
+.bmx .bm-casc-h .ct { font-size: 11.5px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; }
+.bmx .bm-casc-h .cv { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 11.5px; color: var(--text-3); }
+.bmx .bm-note { font-size: 13px; line-height: 1.55; color: var(--text-2); margin: 14px 0 0; padding: 11px 14px; background: var(--accent-soft); border-left: 2px solid var(--accent); border-radius: 0 9px 9px 0; }
+.bmx .bm-note b { color: var(--text-1); }
+
+/* segment list */
+.bmx .bm-seglist { display: flex; flex-direction: column; gap: 13px; margin-top: 14px; }
+.bmx .bm-segrow { display: flex; gap: 11px; align-items: flex-start; }
+.bmx .bm-segrow .dot { width: 10px; height: 10px; border-radius: 3px; margin-top: 5px; flex-shrink: 0; }
+.bmx .bm-segrow .st { font-size: 13.5px; font-weight: 600; color: var(--text-1); display: flex; align-items: baseline; gap: 8px; }
+.bmx .bm-segrow .st .sv { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 12.5px; color: var(--text-2); margin-left: auto; font-weight: 500; }
+.bmx .bm-segscale { height: 8px; background: var(--bg-app, rgba(127,127,127,.12)); border-radius: 5px; overflow: hidden; margin: 7px 0 2px; }
+.bmx .bm-segscale i { display: block; height: 100%; border-radius: 5px; }
+.bmx .bm-segrow .sd { font-size: 12.5px; line-height: 1.5; color: var(--text-3); margin-top: 3px; }
+.bmx .bm-segrow .sd b { color: var(--text-2); font-weight: 600; }
+
+/* prose */
+.bmx .bm-prose { font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
+.bmx .bm-prose p { margin: 0 0 10px; }
+.bmx .bm-prose b, .bmx .bm-prose strong { color: var(--text-1); font-weight: 600; }
+.bmx .bm-prose ul { margin: 6px 0 12px; padding-left: 18px; }
+.bmx .bm-prose li { margin: 3px 0; }
+.bmx .bm-prose table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 8px 0 12px; }
+.bmx .bm-prose th, .bmx .bm-prose td { padding: 7px 10px; border-bottom: 1px solid var(--border-mid); text-align: left; }
+.bmx .bm-prose th { color: var(--text-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.bmx .bm-prose h3, .bmx .bm-prose h4 { font-size: 13px; font-weight: 600; color: var(--text-2); margin: 14px 0 6px; }
+
+/* details / оговорки */
+.bmx .bm-det summary { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; font-size: 13.5px; font-weight: 600; color: var(--text-2); }
+.bmx .bm-det summary::-webkit-details-marker { display: none; }
+.bmx .bm-det[open] summary .chev { transform: rotate(180deg); }
+.bmx .bm-det .chev { transition: transform .2s; color: var(--text-3); margin-left: auto; }
+.bmx .bm-det .db { margin-top: 10px; }
+
+@media (max-width: 760px) { .bmx .bm-kpis { grid-template-columns: 1fr 1fr; } }

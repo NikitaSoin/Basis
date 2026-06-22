@@ -1,0 +1,156 @@
+/* =============================================================
+   BASIS COLOR TOKENS — single source of truth
+   Ported from the production app (frontend/Basis/src/styles/tokens.css).
+   :root / .light = LIGHT theme (DEFAULT). .dark / [data-theme="dark"] = DARK.
+
+   PHILOSOPHY: warm off-white background, white tiles on top, cobalt
+   accent. Semantic green/red ONLY for meaning (never decoration, always
+   paired with a ▲/▼ glyph). Categorical (Okabe-Ito) palette is for DATA
+   ONLY — chart series, sector chips, treemaps — never chrome, never deltas.
+   ============================================================= */
+
+:root, .light {
+  /* ---- Surfaces (warm hybrid: cream background, white tiles) ---- */
+  --bg-base:        #F8F7F4;   /* app background — warm cream */
+  --bg-elevated:    #FFFFFF;   /* cards / panels / tiles */
+  --bg-overlay-srf: #FFFFFF;   /* modals / dropdowns (paired with shadow) */
+  --bg-surface:     #F1EFE8;   /* subtle raised surface (warm beige) */
+  --bg-hover:       #E8E5DC;   /* warm beige hover */
+  --bg-overlay:     rgba(10,20,40,0.45);   /* scrim behind modals */
+
+  /* ---- Borders (warm-neutral) ---- */
+  --border-subtle:  rgba(0,0,0,0.08);   /* hairlines (internal rows / dividers) */
+  --border-strong:  rgba(0,0,0,0.20);   /* card OUTER border — tiles read as «плитки» */
+  --border-hover:   rgba(0,0,0,0.30);   /* card border on hover */
+
+  /* ---- Text ---- */
+  --text-primary:   #0A1428;   /* near-navy ink */
+  --text-secondary: #4A5670;
+  --text-tertiary:  #7B8499;
+
+  /* ---- Accent (signature: cobalt) ---- */
+  --accent:         #2347D9;
+  --accent-hover:   #1D3CB8;
+  --accent-soft:    rgba(35,71,217,0.10);
+  --accent-border:  rgba(35,71,217,0.25);
+  --on-accent:      #FFFFFF;
+
+  /* ---- Accent-2 (violet — insight / marketing accent, used sparingly) ---- */
+  --accent-2:       #8B5CF6;
+
+  /* ---- Semantic (meaning only) ---- */
+  --success:        #15803D;
+  --success-soft:   rgba(21,128,61,0.10);
+  --danger:         #BE123C;
+  --danger-soft:    rgba(190,18,60,0.10);
+  --on-danger:      #FFFFFF;
+  --warning:        #B45309;
+  --warning-soft:   rgba(180,83,9,0.10);
+  --info:           #0284C7;
+  --info-soft:      rgba(2,132,199,0.10);
+
+  /* ---- Categorical palette — Okabe-Ito (colorblind-safe, 8 hues).
+     DATA ONLY: chart series, sector chips, treemap cells, legends.
+     NEVER chrome/buttons (=cobalt), NEVER deltas (=success/danger). ---- */
+  --cat-1: #E69F00;   /* orange         */
+  --cat-2: #56B4E9;   /* sky blue       */
+  --cat-3: #009E73;   /* bluish green   */
+  --cat-4: #C9A800;   /* yellow         */
+  --cat-5: #0072B2;   /* blue           */
+  --cat-6: #D55E00;   /* vermillion     */
+  --cat-7: #CC79A7;   /* reddish purple */
+  --cat-8: #999999;   /* grey           */
+  --cat-1-soft: rgba(230,159,0,0.14);
+  --cat-2-soft: rgba(86,180,233,0.14);
+  --cat-3-soft: rgba(0,158,115,0.14);
+  --cat-4-soft: rgba(201,168,0,0.14);
+  --cat-5-soft: rgba(0,114,178,0.14);
+  --cat-6-soft: rgba(213,94,0,0.14);
+  --cat-7-soft: rgba(204,121,167,0.14);
+  --cat-8-soft: rgba(153,153,153,0.14);
+
+  /* ---- Epistemic-status accents (Fact / Estimate / Judgment / Scenario).
+     The visual backbone of Basis: every analytical statement is tagged.
+     Fact = neutral grey (sourced), Estimate = info blue (model),
+     Judgment = cobalt accent (interpretation), Scenario = violet. ---- */
+  --fact:     var(--text-tertiary);
+  --fact-soft: rgba(0,0,0,0.04);
+  --estimate: var(--info);
+  --estimate-soft: var(--info-soft);
+  --judgment: var(--accent);
+  --judgment-soft: var(--accent-soft);
+  --scenario: var(--accent-2);
+  --scenario-soft: rgba(139,92,246,0.10);
+
+  /* ---- Legacy aliases (production code relies on these names) ---- */
+  --bg-app:        var(--bg-base);
+  --bg-card:       var(--bg-elevated);
+  --border:        var(--border-subtle);
+  --border-mid:    var(--border-strong);
+  --text-1:        var(--text-primary);
+  --text-2:        var(--text-secondary);
+  --text-3:        var(--text-tertiary);
+  --accent-h:      var(--accent-hover);
+  --accent-fade:   var(--accent-soft);
+  --accent-text:   var(--accent);
+  --positive:      var(--success);
+  --pos-fade:      var(--success-soft);
+  --negative:      var(--danger);
+  --neg-fade:      var(--danger-soft);
+  --warn-fade:     var(--warning-soft);
+  --gold:          var(--warning);
+  --gold-fade:     var(--warning-soft);
+  --teal:          var(--info);
+  --teal-fade:     var(--info-soft);
+
+  color-scheme: light;
+}
+
+/* =============================================================
+   DARK THEME
+   ============================================================= */
+.dark, [data-theme="dark"] {
+  --bg-base:        #111110;   /* warm near-black */
+  --bg-elevated:    #1C1C1A;
+  --bg-overlay-srf: #232320;
+  --bg-surface:     #252523;
+  --bg-hover:       #2D2D2B;
+  --bg-overlay:     rgba(0,0,0,0.65);
+
+  --border-subtle:  rgba(255,255,255,0.10);
+  --border-strong:  rgba(255,255,255,0.24);
+  --border-hover:   rgba(255,255,255,0.34);
+
+  --text-primary:   #E6EAF2;
+  --text-secondary: #ADB6CA;
+  --text-tertiary:  #919BB2;
+
+  --accent:         #5B79FF;
+  --accent-hover:   #7B93FF;
+  --accent-soft:    rgba(91,121,255,0.12);
+  --accent-border:  rgba(91,121,255,0.30);
+  --on-accent:      #0B1220;
+  --accent-2:       #A78BFA;
+
+  --success:        #22C55E;
+  --success-soft:   rgba(34,197,94,0.14);
+  --danger:         #F43F5E;
+  --danger-soft:    rgba(244,63,94,0.14);
+  --on-danger:      #0B1220;
+  --warning:        #F59E0B;
+  --warning-soft:   rgba(245,158,11,0.14);
+  --info:           #38BDF8;
+  --info-soft:      rgba(56,189,248,0.14);
+
+  --cat-1: #F0B43A; --cat-2: #7FC9F2; --cat-3: #2FC79A; --cat-4: #ECDA52;
+  --cat-5: #4D9FE0; --cat-6: #F07A33; --cat-7: #E29BC2; --cat-8: #B0B0B0;
+  --cat-1-soft: rgba(240,180,58,0.16); --cat-2-soft: rgba(127,201,242,0.16);
+  --cat-3-soft: rgba(47,199,154,0.16); --cat-4-soft: rgba(236,218,82,0.16);
+  --cat-5-soft: rgba(77,159,224,0.16); --cat-6-soft: rgba(240,122,51,0.16);
+  --cat-7-soft: rgba(226,155,194,0.16); --cat-8-soft: rgba(176,176,176,0.16);
+
+  --fact-soft: rgba(255,255,255,0.05);
+  --scenario-soft: rgba(167,139,250,0.14);
+
+  color-scheme: dark;
+}

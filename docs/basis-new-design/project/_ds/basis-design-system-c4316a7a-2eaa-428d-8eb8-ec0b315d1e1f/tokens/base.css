@@ -1,0 +1,29 @@
+/* =============================================================
+   BASIS BASE — minimal element resets + financial number defaults.
+   Kept light: tokens do the heavy lifting. Mirrors the production
+   body defaults (tabular lining numerals everywhere by default).
+   ============================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-optical-sizing: auto; /* promotes Inter to its display opsz at large sizes */
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  /* financial product: lining + tabular numerals by default everywhere */
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; }
+
+/* Tabular numbers utility — use anywhere financial figures align in columns. */
+.basis-tnum { font-variant-numeric: lining-nums tabular-nums; }
+
+/* Monospace numeric run (tickers, prices, formulas). */
+.basis-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
