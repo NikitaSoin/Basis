@@ -132,5 +132,57 @@ export default function LandingNeo({ onNavigate, onOpenCompany, onShowAuth, them
     return () => cleanups.forEach((fn) => fn());
   }, []);
 
+  // Живые котировки на лендинге: бегущая строка + карточка Роснефти (цена/справедливая/
+  // P-E/долг/дивиденд) — из тех же источников, что и «Рынок» (Тинькофф realtime + BASIS),
+  // вместо статичного mock. Обновление каждые 8с, cache-busting.
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const api = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    const TICK = ["SBER", "GAZP", "LKOH", "ROSN", "GMKN", "YDEX", "NVTK", "PLZL", "TATN", "MOEX", "MGNT", "CHMF", "SNGS", "PHOR", "VTBR", "T"];
+    const fmt = (v, d = 2) => v == null || isNaN(v) ? "—" : Number(v).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d });
+    let alive = true;
+    const load = () => {
+      Promise.all([
+        fetch(`${api}/api/quotes/realtime?_=${Date.now()}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${api}/api/screener/scored?universe=all&_=${Date.now()}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]).then(([live, sc]) => {
+        if (!alive || !live) return;
+        // бегущая строка — живые цена+изменение по ликвидным тикерам
+        const row = el.querySelector("#tickerRow");
+        if (row) {
+          const items = TICK.map(t => {
+            const v = live[t]; if (!v || v.price == null) return null;
+            const c = v.change_pct || 0;
+            return `<span class="tk"><b>${t}</b><span class="px">${fmt(v.price)}</span><span class="ch ${c >= 0 ? "up" : "dn"}">${c >= 0 ? "▲" : "▼"} ${fmt(Math.abs(c), 2)}%</span></span>`;
+          }).filter(Boolean);
+          if (items.length) row.innerHTML = [...items, ...items].join("");
+        }
+        // карточка Роснефти
+        const card = el.querySelector(".cock-card");
+        const rl = live["ROSN"];
+        const rs = sc && Array.isArray(sc.rows) ? sc.rows.find(r => r.ticker === "ROSN") : null;
+        if (card) {
+          if (rl && rl.price != null) {
+            const pxEl = card.querySelector(".cc-hpx b"); if (pxEl) pxEl.textContent = fmt(rl.price) + " ₽";
+            const chEl = card.querySelector(".cc-hpx span");
+            if (chEl) { const c = rl.change_pct || 0; chEl.textContent = `${c >= 0 ? "▲" : "▼"} ${fmt(Math.abs(c), 2)} %`; chEl.style.color = c >= 0 ? "var(--pos)" : "var(--neg)"; }
+          }
+          if (rs) {
+            const raw = rs.raw || {};
+            const fvv = card.querySelector(".cc-fv .fvv");
+            if (fvv && raw.upside != null) { const u = Math.round(raw.upside); fvv.textContent = `${u > 0 ? "+" : ""}${u}%`; }
+            const vals = card.querySelectorAll(".cc-mx .cc-m .v");
+            if (vals[0] && raw.pe != null) vals[0].textContent = fmt(raw.pe, 1) + "×";
+            if (vals[1] && raw.nd_ebitda != null) vals[1].textContent = fmt(raw.nd_ebitda, 1) + "×";
+            if (vals[2] && raw.div_yield != null) vals[2].textContent = fmt(raw.div_yield, 1) + "%";
+          }
+        }
+      });
+    };
+    load();
+    const id = setInterval(load, 8000);
+    return () => { alive = false; clearInterval(id); };
+  }, []);
+
   return <div className="cc-root lp-scope" ref={ref} dangerouslySetInnerHTML={{ __html: LANDING_HTML }} />;
 }
