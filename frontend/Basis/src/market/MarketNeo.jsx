@@ -652,11 +652,13 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   useEffect(() => {
     const api = apiBase();
     let alive = true;
+    const ns = { cache: "no-store" };
+    const ts = () => Date.now();
     const load = () => Promise.all([
-      fetch(`${api}/api/screener/scored?universe=all`).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`${api}/api/market/indices`).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`${api}/api/market/drivers`).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`${api}/api/companies`).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${api}/api/screener/scored?universe=all&_=${ts()}`, ns).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${api}/api/market/indices?_=${ts()}`, ns).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${api}/api/market/drivers?_=${ts()}`, ns).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${api}/api/companies?_=${ts()}`, ns).then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([sc, idx, dr, comp]) => {
       if (!alive) return;
       if (Array.isArray(comp)) {
@@ -683,20 +685,26 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     return () => { alive = false; clearInterval(iv); };
   }, []);
 
-  // живые котировки (дневная дельта + ширина рынка)
+  // живые котировки (дневная дельта + ширина рынка). Тинькофф realtime.
+  // ВАЖНО: cache-busting (?_=ts) + cache:"no-store" — иначе прокси/браузер отдаёт
+  // фоновому fetch СТАРЫЙ ответ (а перезагрузка идёт мимо кеша), и экран «застывает»
+  // до F5. setInterval + опрос при возврате на вкладку.
   useEffect(() => {
-    const api = apiBase();
-    let timer;
-    const poll = () => {
-      fetch(`${api}/api/quotes/realtime`).then(r => r.ok ? r.json() : null).then(d => {
-        if (d) { const { _moex_time, _fetched_at, _source, ...q } = d; setLive(q); setQuoteSrc(_source || null); setQuoteTime(_fetched_at || _moex_time || null); }
-      }).catch(() => {});
-      // Опрашиваем часто ВСЕГДА (а не раз в 5 мин вне торгов) — иначе открытый экран
-      // «застывает» между опросами и обновляется только перезагрузкой. Тинькофф realtime.
-      timer = setTimeout(poll, inTradingHours() ? 5000 : 20000);
+    let alive = true;
+    const tick = () => {
+      fetch(`${apiBase()}/api/quotes/realtime?_=${Date.now()}`, { cache: "no-store" })
+        .then(r => (r.ok ? r.json() : null))
+        .then(d => {
+          if (!alive || !d) return;
+          const { _moex_time, _fetched_at, _source, ...q } = d;
+          setLive(q); setQuoteSrc(_source || null); setQuoteTime(_fetched_at || _moex_time || null);
+        }).catch(() => {});
     };
-    poll();
-    return () => clearTimeout(timer);
+    tick();
+    const id = setInterval(tick, inTradingHours() ? 5000 : 20000);
+    const onVis = () => { if (document.visibilityState === "visible") tick(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { alive = false; clearInterval(id); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 
   // Списки классов: рефетч при открытии вкладки + периодическое освежение, пока экран
@@ -709,18 +717,19 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     if (!entry) return;
     const [url, setter] = entry;
     let alive = true;
-    const load = () => fetch(`${api}${url}`).then(r => r.ok ? r.json() : []).then(d => {
+    const sep = url.includes("?") ? "&" : "?";
+    const load = () => fetch(`${api}${url}${sep}_=${Date.now()}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []).then(d => {
       if (!alive) return;
       const arr = Array.isArray(d) ? d : [];
       setter(arr);
       if (tab === "funds" && arr.length) {
         const ids = arr.map(f => f.secid).slice(0, 200).join(",");
-        fetch(`${api}/api/market/instruments/sparklines?asset_class=fund&secids=${encodeURIComponent(ids)}&days=30`)
+        fetch(`${api}/api/market/instruments/sparklines?asset_class=fund&secids=${encodeURIComponent(ids)}&days=30&_=${Date.now()}`, { cache: "no-store" })
           .then(r => r.ok ? r.json() : {}).then(s => alive && setFundSparks(s || {})).catch(() => {});
       }
     }).catch(() => {});
     load();
-    const period = !inTradingHours() ? 300000 : (tab === "bonds" ? 120000 : 30000);
+    const period = !inTradingHours() ? 180000 : (tab === "bonds" ? 120000 : 30000);
     const iv = setInterval(load, period);
     return () => { alive = false; clearInterval(iv); };
   }, [tab]);
