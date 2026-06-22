@@ -690,18 +690,21 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   // фоновому fetch СТАРЫЙ ответ (а перезагрузка идёт мимо кеша), и экран «застывает»
   // до F5. setInterval + опрос при возврате на вкладку.
   useEffect(() => {
-    let alive = true;
+    let alive = true, inFlight = false;
     const tick = () => {
+      if (inFlight) return;                 // не накладываем запросы, если бэк отвечает медленно
+      inFlight = true;
       fetch(`${apiBase()}/api/quotes/realtime?_=${Date.now()}`, { cache: "no-store" })
         .then(r => (r.ok ? r.json() : null))
         .then(d => {
           if (!alive || !d) return;
           const { _moex_time, _fetched_at, _source, ...q } = d;
           setLive(q); setQuoteSrc(_source || null); setQuoteTime(_fetched_at || _moex_time || null);
-        }).catch(() => {});
+        }).catch(() => {}).finally(() => { inFlight = false; });
     };
     tick();
-    const id = setInterval(tick, inTradingHours() ? 5000 : 20000);
+    // Близко к реал-тайму: 2с в торги / 10с вне (вне торгов сделок нет — цены не двигаются).
+    const id = setInterval(tick, inTradingHours() ? 2000 : 10000);
     const onVis = () => { if (document.visibilityState === "visible") tick(); };
     document.addEventListener("visibilitychange", onVis);
     return () => { alive = false; clearInterval(id); document.removeEventListener("visibilitychange", onVis); };
