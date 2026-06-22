@@ -11004,8 +11004,15 @@ export default function App() {
 
   return (
     <div data-theme={theme} className={`tw-bg-bg-base tw-text-text-primary${NEO_CARD ? " cc-root" : ""}`}>
-      {isLanding ? (
-        <div className="app-shell">
+      <div className="app-shell">
+        <TopNav
+          activeTab={selectedCompany ? null : activeTab}
+          onNav={navigate}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onOpenCompany={setSelectedCompany}
+        />
+        {isLanding ? (
           <ViewErrorBoundary routeKey="landing">
             <LandingNeo
               onNavigate={navigate}
@@ -11015,23 +11022,14 @@ export default function App() {
               toggleTheme={toggleTheme}
             />
           </ViewErrorBoundary>
-        </div>
-      ) : (
-        <div className="app-shell">
-          <TopNav
-            activeTab={selectedCompany ? null : activeTab}
-            onNav={navigate}
-            theme={theme}
-            toggleTheme={toggleTheme}
-            onOpenCompany={setSelectedCompany}
-          />
+        ) : (
           <main className="app-main-top">
             <ViewErrorBoundary routeKey={`${activeTab}:${selectedCompany ? "card" : "list"}`}>
               {renderView()}
             </ViewErrorBoundary>
           </main>
-        </div>
-      )}
+        )}
+      </div>
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />

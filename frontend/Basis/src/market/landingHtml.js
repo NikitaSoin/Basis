@@ -2,25 +2,6 @@
 // CTA → data-route (роутинг в LandingNeo). Стили — styles/landing.css.
 const LANDING_HTML = `
 
-<nav class="nav" id="nav">
-  <div class="wrap">
-    <a class="brand" href="#top"><span class="bm">B</span>Базис</a>
-    <div class="nav-links">
-      <a href="#why">Зачем это нужно</a>
-      <a href="#method">Методика</a>
-      <a href="#analysis">Возможности</a>
-      <a href="#trust-sec">Достоверность</a>
-    </div>
-    <div class="nav-right">
-      <button class="tt" id="themeBtn" aria-label="Тема">
-        <svg id="thIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" stroke-linejoin="round"/></svg>
-      </button>
-      <a class="btn btn-ghost" href="#" data-route="login">Войти</a>
-      <a class="btn btn-primary" href="#" data-route="companies">Открыть платформу</a>
-    </div>
-  </div>
-</nav>
-
 <span id="top"></span>
 <!-- HERO -->
 <section class="hero">
