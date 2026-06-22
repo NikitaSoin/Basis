@@ -615,11 +615,12 @@ function OptionsTab({ onOpen, hasOptions }) {
 
 // ══════════════════ ГЛАВНЫЙ КОМПОНЕНТ ══════════════════
 function inTradingHours() {
+  // MOEX: утренняя сессия с 07:00, основная + вечерняя до ~23:50 МСК (будни).
   const msk = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
   const day = msk.getDay();
   if (day === 0 || day === 6) return false;
   const t = msk.getHours() * 60 + msk.getMinutes();
-  return t >= 10 * 60 && t <= 18 * 60 + 50;
+  return t >= 7 * 60 && t <= 23 * 60 + 50;
 }
 
 export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, Logo }) {
