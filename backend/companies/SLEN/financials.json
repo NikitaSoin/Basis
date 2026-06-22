@@ -821,5 +821,6 @@
     "Peers.json для сектора utilities не создан. Relative valuation использует judgement-медиану (reliability=low).",
     "Компания на 3-м уровне листинга: малоликвидность создаёт структурный дисконт; реальная торгуемая доля << free float 17,7%.",
     "total_equity в extracted_financials [17574, 8651] включает NCI [969, 993]; equity_shareholders = [16605, 7658]. Все per-share метрики от equity_shareholders."
-  ]
+  ],
+  "segments": []
 }

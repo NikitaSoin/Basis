@@ -1024,5 +1024,6 @@
     "САРE обычка дивидендов не платит: дивидендная модель not_applicable.",
     "DCF insufficient_data: только 1 год CFO/capex.",
     "P/B insufficient_data: total_equity по годам недоступен."
-  ]
+  ],
+  "segments": []
 }

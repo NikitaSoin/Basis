@@ -1356,5 +1356,17 @@
       8.0
     ],
     "_note": "ev_ebitda, net_debt_ebitda, gross/ebitda/operating margin неприменимы банку (null). Доступные оси: pe, pb, ps, roe, roa, nim, cir, cost_of_risk, revenue_growth, net_profit_growth. pe/roe/roa — от adjusted ЧП (= отчётной, разовых нет)."
-  }
+  },
+  "segments": [
+    {
+      "name": "Розничный банкинг",
+      "pct": 81.0,
+      "note": "Основной источник дешёвого фондирования"
+    },
+    {
+      "name": "Корпоративный банкинг",
+      "pct": 19.0,
+      "note": "Включает крупный бизнес и МСБ"
+    }
+  ]
 }

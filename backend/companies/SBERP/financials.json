@@ -1139,7 +1139,10 @@
       "div_yield_fair_value": {
         "base_required_yield_pct": 12.0,
         "fair_base": 313.7,
-        "fair_range": [278.8, 327.3],
+        "fair_range": [
+          278.8,
+          327.3
+        ],
         "fwd_2026_at_12pct": 332.1,
         "basis": "fair = дивиденд / требуемая дивдоходность; дивиденд 37,64 ₽ РАВЕН на ао и ап"
       },
@@ -1409,5 +1412,17 @@
       8.0
     ],
     "_note": "ev_ebitda, net_debt_ebitda, gross/ebitda/operating margin неприменимы банку (null). Доступные оси: pe, pb, ps, roe, roa, nim, cir, cost_of_risk, revenue_growth, net_profit_growth. pe/roe/roa — от adjusted ЧП (= отчётной, разовых нет)."
-  }
+  },
+  "segments": [
+    {
+      "name": "Розничный банкинг",
+      "pct": 38.0,
+      "note": "19,2 трлн руб. розничных кредитов, 33,5 трлн руб. депозитов физлиц"
+    },
+    {
+      "name": "Корпоративный банкинг",
+      "pct": 62.0,
+      "note": "31,2 трлн руб. корпоративных кредитов, доля рынка 32,8%"
+    }
+  ]
 }
