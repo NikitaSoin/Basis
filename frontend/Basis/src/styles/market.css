@@ -24,6 +24,7 @@
 .mk-screen .mk-quote-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
 .mk-screen .mk-live-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3);}
 .mk-screen .mk-live-dot.on{background:var(--pos);box-shadow:0 0 0 3px color-mix(in srgb,var(--pos) 22%,transparent);}
+.mk-screen .mk-live-dot.warn{background:var(--amber);box-shadow:0 0 0 3px color-mix(in srgb,var(--amber) 22%,transparent);}
 .mk-screen .mk-live-t{font-family:"JetBrains Mono",monospace;color:var(--ink-3);}
 
 /* asset-class tabs */

@@ -632,7 +632,8 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [scored, setScored] = useState([]);
   const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
   const [live, setLive] = useState({});
-  const [moexTime, setMoexTime] = useState(null);
+  const [quoteSrc, setQuoteSrc] = useState(null);   // tinkoff | moex_iss
+  const [quoteTime, setQuoteTime] = useState(null);  // _fetched_at (тикает каждый запрос)
   const [index, setIndex] = useState(null);
   const [drivers, setDrivers] = useState([]);
   const [bonds, setBonds] = useState([]);
@@ -688,7 +689,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     let timer;
     const poll = () => {
       fetch(`${api}/api/quotes/realtime`).then(r => r.ok ? r.json() : null).then(d => {
-        if (d) { const { _moex_time, _fetched_at, _source, ...q } = d; setLive(q); setMoexTime(_moex_time || null); }
+        if (d) { const { _moex_time, _fetched_at, _source, ...q } = d; setLive(q); setQuoteSrc(_source || null); setQuoteTime(_fetched_at || _moex_time || null); }
       }).catch(() => {});
       timer = setTimeout(poll, inTradingHours() ? 6000 : 300000);
     };
@@ -756,10 +757,10 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
       <div className="mk-page-head">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <h1 className="mk-page-title">Рынок</h1>
-          <span className="mk-quote-live" title="Котировки обновляются на открытом экране (MOEX/Тинькофф; в торги — раз в ~5 мин)">
-            <span className={"mk-live-dot" + (inTradingHours() ? " on" : "")} />
-            {inTradingHours() ? "Живые котировки" : "Биржа закрыта"}
-            {moexTime && <span className="mk-live-t">· MOEX {String(moexTime).slice(11, 19)}</span>}
+          <span className="mk-quote-live" title="Источник котировок акций. Тинькофф — реал-тайм; MOEX — запасной (с задержкой). Время обновляется на каждом опросе (6с).">
+            <span className={"mk-live-dot" + (quoteSrc === "tinkoff" ? " on" : quoteSrc ? " warn" : "")} />
+            {quoteSrc === "tinkoff" ? "Тинькофф · реал-тайм" : quoteSrc === "moex_iss" ? "MOEX · запасной (задержка)" : "Котировки…"}
+            {quoteTime && <span className="mk-live-t">· {String(quoteTime).slice(11, 19)}</span>}
           </span>
         </div>
         <p className="mk-page-sub">Котировки и аналитика российского рынка — со взглядом Basis на риск и справедливую цену, а не торговые сигналы.</p>
