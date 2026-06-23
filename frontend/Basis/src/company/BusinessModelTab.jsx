@@ -182,7 +182,7 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
 
       {/* 2. Экономика — мини-P&L */}
       {hasPnl && (
-        <Section title="Экономика бизнеса" tag="fact" sub="МСФО, млрд ₽ · последний отчётный год против предыдущего (из финансовой отчётности).">
+        <Section title="Мини-P&L" tag="fact" sub="МСФО, млрд ₽ · последний отчётный год против предыдущего (из финансовой отчётности).">
           <div className="bm-kpis">
             <KpiCard label="Выручка" cur={rev} prev={revP} />
             {eb != null && <KpiCard label="EBITDA" cur={eb} prev={ebP} />}
@@ -194,19 +194,18 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
 
       {/* 3. Куда уходит каждый рубль выручки (+ структура расходов — слиты) */}
       {hasCasc && (
-        <Section title="Куда уходит каждый рубль выручки" tag="est" sub="Доли от выручки последнего года, посчитаны из отчёта о прибылях и убытках. Это структура расходов: что остаётся до и после операционной прибыли.">
+        <Section title="Структура расходов" tag="est" sub="Доли от выручки последнего года, посчитаны из отчёта о прибылях и убытках. Куда уходит каждый рубль: статьи расходов и что остаётся как прибыль.">
           <div className="bm-casc-h"><span className="ct">Выручка → EBITDA</span><span className="cv">100% выручки → EBITDA {num(ebPct, 0)}%</span></div>
-          <StackBar items={[
-            { pct: expPct, label: "Расходы и налоги", color: "var(--cat-8)" },
-            { pct: ebPct, label: "EBITDA", color: "var(--cat-5)" },
-          ]} />
+          <StackBar items={costBreak.length >= 2
+            ? [...costBreak.map((c, i) => ({ pct: c.pct, label: c.name, color: CAT[i % CAT.length] })), { pct: ebPct, label: "EBITDA", color: "var(--cat-3)" }]
+            : [{ pct: expPct, label: "Расходы и налоги", color: "var(--cat-8)" }, { pct: ebPct, label: "EBITDA", color: "var(--cat-3)" }]} />
           {costBreak.length >= 2 && (
             <>
               <div className="bm-cost-rows">
                 {costBreak.map((c, i) => (
                   <div key={i} className="bm-crow">
                     <div className="cn">{c.name}</div>
-                    <div className="cbar"><i style={{ width: `${Math.min(100, c.pct / costMax * 100)}%`, background: c.type === "fixed" ? "var(--cat-1)" : "var(--cat-5)" }} /></div>
+                    <div className="cbar"><i style={{ width: `${Math.min(100, c.pct / costMax * 100)}%`, background: CAT[i % CAT.length] }} /></div>
                     <div className="cv">~{num(c.pct, c.pct >= 10 ? 0 : 1)}%<span className={"ty " + (c.type === "fixed" ? "bm-ty-fix" : "bm-ty-var")}>{c.type === "fixed" ? "постоянная" : "переменная"}</span></div>
                   </div>
                 ))}
@@ -257,7 +256,7 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
               <React.Fragment key={i}>
                 {i > 0 && <div className="bm-farr">→</div>}
                 <div className={"bm-fnode" + (i === chainNodes.length - 1 ? " out" : "")}>
-                  <div className="fn" title={node}>{node.length > 34 ? node.slice(0, 32) + "…" : node}</div>
+                  <div className="fn" title={node}>{node}</div>
                 </div>
               </React.Fragment>
             ))}
@@ -279,7 +278,7 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
               ))}
             </div>
           )}
-          {geo && <Prose md={geo} />}
+          {geoSplit.length === 0 && geo && <Prose md={geo} />}
         </Section>
       )}
 
