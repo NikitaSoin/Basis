@@ -3,6 +3,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 COPY . .
+# sourcemap off — заметно меньше памяти при сборке (защита от OOM на инстансе Timeweb)
+# и меньше образ. На прод-бой .map не нужны.
+ENV GENERATE_SOURCEMAP=false
 RUN npm run build
 
 FROM nginx:alpine
