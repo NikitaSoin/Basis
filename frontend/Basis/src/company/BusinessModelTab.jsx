@@ -69,6 +69,34 @@ const findBody = (secs, keys) => {
   const s = secs.find((x) => keys.some((k) => x.heading.toLowerCase().includes(k)));
   return s ? s.lines.join("\n").trim() : null;
 };
+const stripMd = (s) => (s || "").replace(/\*\*/g, "").replace(/\*/g, "").replace(/`/g, "").trim();
+
+// «A → B → C» из прозы → узлы flow-диаграммы
+function parseChain(body) {
+  if (!body) return null;
+  const text = body.split(/\n#{1,4}\s|\n\|/)[0].replace(/\n+/g, " ").trim();
+  if (!text.includes("→")) return null;
+  const nodes = text.split("→").map((x) => stripMd(x).replace(/[.;,]+$/, "").trim()).filter(Boolean);
+  return nodes.length >= 2 ? nodes.slice(0, 7) : null;
+}
+
+// нумерованный список «N. **Фактор** … *Риск:* …» → карточки {title, desc, risk}
+function parseFactors(body) {
+  if (!body) return null;
+  const chunks = body.split(/\n(?=\s*\d+\.\s)/).map((c) => c.trim()).filter((c) => /^\d+\.\s/.test(c));
+  const out = [];
+  for (const c of chunks) {
+    const tm = c.match(/\*\*(.+?)\*\*/);
+    const title = tm ? stripMd(tm[1]) : stripMd(c.replace(/^\d+\.\s*/, "").split(/[—\-.]/)[0]);
+    if (!title) continue;
+    const after = c.replace(/^\d+\.\s*/, "").replace(/\*\*(.+?)\*\*/, "");
+    const parts = after.split(/\*{0,2}Риск:?\*{0,2}/i);
+    const desc = stripMd(parts[0]).replace(/^[—\-:\s]+/, "").replace(/\s+/g, " ").trim();
+    const risk = parts[1] ? stripMd(parts[1]).replace(/\s+/g, " ").trim() : "";
+    out.push({ title: title.slice(0, 80), desc: desc.slice(0, 200), risk: risk.slice(0, 240) });
+  }
+  return out.length >= 2 ? out.slice(0, 8) : null;
+}
 
 // ── мини-P&L из financials.json ──
 function KpiCard({ label, cur, prev }) {
@@ -114,16 +142,43 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
     segs = finJson.segments.map((s) => ({ name: s.name, pct: s.pct, note: s.note }));
   const segProse = findBody(secs, ["сегмент", "бизнес-юнит", "источник", "выручк"]);
 
-  const sut = findBody(secs, ["суть бизнес", "о компании", "чем занимается"]) || (secs._pre ? secs._pre.join("\n").trim() : null);
+  const sut = findBody(secs, ["суть бизнес", "о компании", "чем занимается", "описание"]) || (secs._pre ? secs._pre.join("\n").trim() : null);
   const chain = findBody(secs, ["цепочк", "создания стоимост", "вертикальн интегр", "переработк"]);
   const geo = findBody(secs, ["географ", "клиент", "рынки сбыт"]);
   const risks = findBody(secs, ["фактор", "риск", "уязвим", "угроз", "чувствительн"]);
   const notes = findBody(secs, ["оговорк", "методик", "допущен", "источник"]);
 
+  // структурированные поля (LLM-проход) + парсеры из md
+  const facts = (finJson && Array.isArray(finJson.key_facts)) ? finJson.key_facts : [];
+  const geoSplit = (finJson && Array.isArray(finJson.geo_split)) ? finJson.geo_split : [];
+  const costBreak = (finJson && Array.isArray(finJson.cost_breakdown)) ? finJson.cost_breakdown.filter((c) => c.pct > 0) : [];
+  const chainNodes = parseChain(chain);
+  const factorCards = parseFactors(risks);
+  // lead «Описания» — первый абзац, остальное прозой
+  let sutLead = null, sutRest = sut;
+  if (sut) {
+    const paras = sut.split(/\n\s*\n/);
+    sutLead = stripMd(paras[0]).slice(0, 400);
+    sutRest = paras.slice(1).join("\n\n").trim();
+  }
+  const costMax = costBreak.length ? Math.max(...costBreak.map((c) => c.pct)) : 1;
+
   return (
     <div className="bmx">
-      {/* 1. Суть бизнеса */}
-      {sut && <Section title="Суть бизнеса" tag="fact"><Prose md={sut} /></Section>}
+      {/* 1. Описание */}
+      {sut && (
+        <Section title="Описание" tag="fact">
+          {sutLead && <p className="bm-lead">{sutLead}</p>}
+          {facts.length > 0 && (
+            <div className="bm-facts">
+              {facts.map((f, i) => (
+                <span key={i} className="bm-fact"><i style={{ background: CAT[i % CAT.length] }} />{f.label}: <b>{f.value}</b></span>
+              ))}
+            </div>
+          )}
+          {sutRest && <div style={{ marginTop: facts.length ? 14 : 4 }}><Prose md={sutRest} /></div>}
+        </Section>
+      )}
 
       {/* 2. Экономика — мини-P&L */}
       {hasPnl && (
@@ -145,6 +200,23 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
             { pct: expPct, label: "Расходы и налоги", color: "var(--cat-8)" },
             { pct: ebPct, label: "EBITDA", color: "var(--cat-5)" },
           ]} />
+          {costBreak.length >= 2 && (
+            <>
+              <div className="bm-cost-rows">
+                {costBreak.map((c, i) => (
+                  <div key={i} className="bm-crow">
+                    <div className="cn">{c.name}</div>
+                    <div className="cbar"><i style={{ width: `${Math.min(100, c.pct / costMax * 100)}%`, background: c.type === "fixed" ? "var(--cat-1)" : "var(--cat-5)" }} /></div>
+                    <div className="cv">~{num(c.pct, c.pct >= 10 ? 0 : 1)}%<span className={"ty " + (c.type === "fixed" ? "bm-ty-fix" : "bm-ty-var")}>{c.type === "fixed" ? "постоянная" : "переменная"}</span></div>
+                  </div>
+                ))}
+              </div>
+              <div className="bm-cost-leg">
+                <span><i style={{ background: "var(--cat-5)" }} />Переменная — сжимается с выручкой</span>
+                <span><i style={{ background: "var(--cat-1)" }} />Постоянная / разовая — нет</span>
+              </div>
+            </>
+          )}
           <div className="bm-casc-h"><span className="ct">EBITDA → чистая прибыль</span><span className="cv">чистая маржа {num(npPct, 1)}%</span></div>
           <StackBar items={[
             { pct: daPct, label: "Амортизация", color: "var(--cat-8)" },
@@ -178,13 +250,52 @@ export default function BusinessModelTab({ bmMd, finJson, profile }) {
       ) : null}
 
       {/* 6. Цепочка создания стоимости */}
-      {chain && <Section title="Цепочка создания стоимости" tag="est"><Prose md={chain} /></Section>}
+      {chainNodes ? (
+        <Section title="Цепочка создания стоимости" tag="est">
+          <div className="bm-flow">
+            {chainNodes.map((node, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <div className="bm-farr">→</div>}
+                <div className={"bm-fnode" + (i === chainNodes.length - 1 ? " out" : "")}>
+                  <div className="fn" title={node}>{node.length > 34 ? node.slice(0, 32) + "…" : node}</div>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </Section>
+      ) : chain ? <Section title="Цепочка создания стоимости" tag="est"><Prose md={chain} /></Section> : null}
 
       {/* 7. География и клиенты */}
-      {geo && <Section title="География и клиенты" tag="est"><Prose md={geo} /></Section>}
+      {(geo || geoSplit.length > 0) && (
+        <Section title="География и клиенты" tag="est">
+          {geoSplit.length > 0 && (
+            <div className="bm-geo-rows">
+              {geoSplit.map((g, i) => (
+                <div key={i} className="bm-gr">
+                  <span className="gn">{g.region}</span>
+                  <span className="gb"><i style={{ width: `${Math.min(100, g.pct)}%`, background: CAT[i % CAT.length] }} /></span>
+                  <span className="gv">{num(g.pct, 0)}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {geo && <Prose md={geo} />}
+        </Section>
+      )}
 
       {/* 8. Ключевые факторы и риски */}
-      {risks && <Section title="Ключевые факторы и риски" tag="judg"><Prose md={risks} /></Section>}
+      {factorCards ? (
+        <Section title="Ключевые факторы и риски" tag="judg" sub="Что движет результатом и где модель уязвима.">
+          <div className="bm-facgrid">
+            {factorCards.map((f, i) => (
+              <div key={i} className="bm-fac">
+                <div className="ft">{f.title}</div>
+                <div className="fr">{f.desc}{f.risk && <b>Риск: {f.risk}</b>}</div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      ) : risks ? <Section title="Ключевые факторы и риски" tag="judg"><Prose md={risks} /></Section> : null}
 
       {/* Оговорки / методика */}
       {notes && (

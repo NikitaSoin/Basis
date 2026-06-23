@@ -72,4 +72,42 @@
 .bmx .bm-det .chev { transition: transform .2s; color: var(--text-3); margin-left: auto; }
 .bmx .bm-det .db { margin-top: 10px; }
 
+/* постатейная структура расходов (под-бар в «куда уходит рубль») */
+.bmx .bm-cost-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.bmx .bm-crow { display: grid; grid-template-columns: 180px 1fr 96px; gap: 12px; align-items: center; }
+.bmx .bm-crow .cn { font-size: 12.5px; color: var(--text-1); }
+.bmx .bm-crow .cbar { height: 13px; background: var(--bg-app, rgba(127,127,127,.12)); border-radius: 4px; overflow: hidden; }
+.bmx .bm-crow .cbar i { display: block; height: 100%; border-radius: 4px; }
+.bmx .bm-crow .cv { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 12px; color: var(--text-2); text-align: right; }
+.bmx .bm-crow .cv .ty { display: block; font-size: 8.5px; text-transform: uppercase; letter-spacing: .04em; }
+.bmx .bm-ty-var { color: var(--cat-5); } .bmx .bm-ty-fix { color: var(--cat-1); }
+.bmx .bm-cost-leg { display: flex; gap: 16px; margin-top: 10px; font-size: 11px; color: var(--text-3); }
+.bmx .bm-cost-leg span { display: inline-flex; align-items: center; gap: 6px; }
+.bmx .bm-cost-leg i { width: 9px; height: 9px; border-radius: 2px; }
+@media (max-width: 600px) { .bmx .bm-crow { grid-template-columns: 120px 1fr 76px; } }
+
+/* flow-диаграмма (цепочка создания стоимости) */
+.bmx .bm-flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0; margin-top: 6px; }
+.bmx .bm-fnode { flex: 1; min-width: 100px; background: var(--bg-surface); border: 1px solid var(--border-mid); border-radius: 10px; padding: 12px 11px; text-align: center; }
+.bmx .bm-fnode.out { background: var(--accent-soft); border-color: var(--accent); }
+.bmx .bm-fnode .fn { font-size: 12.5px; font-weight: 600; color: var(--text-1); line-height: 1.25; }
+.bmx .bm-farr { display: flex; align-items: center; color: var(--text-3); padding: 0 5px; font-size: 16px; }
+@media (max-width: 700px) { .bmx .bm-farr { transform: rotate(90deg); width: 100%; justify-content: center; padding: 4px 0; } .bmx .bm-fnode { min-width: 100%; } }
+
+/* факторы и риски — сетка карточек */
+.bmx .bm-facgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bmx .bm-fac { background: var(--bg-surface); border: 1px solid var(--border-mid); border-left: 2px solid var(--cat-1); border-radius: 0 10px 10px 0; padding: 11px 13px; }
+.bmx .bm-fac .ft { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.bmx .bm-fac .fr { font-size: 12px; line-height: 1.45; color: var(--text-3); margin-top: 4px; }
+.bmx .bm-fac .fr b { display: block; margin-top: 6px; color: var(--cat-6); font-weight: 600; }
+@media (max-width: 680px) { .bmx .bm-facgrid { grid-template-columns: 1fr; } }
+
+/* география — структура долей */
+.bmx .bm-geo-rows { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
+.bmx .bm-gr { display: grid; grid-template-columns: 130px 1fr 50px; gap: 10px; align-items: center; }
+.bmx .bm-gr .gn { font-size: 12.5px; color: var(--text-2); }
+.bmx .bm-gr .gb { height: 8px; background: var(--bg-app, rgba(127,127,127,.12)); border-radius: 5px; overflow: hidden; }
+.bmx .bm-gr .gb i { display: block; height: 100%; border-radius: 5px; }
+.bmx .bm-gr .gv { font-family: var(--font-mono, "JetBrains Mono", monospace); font-size: 12px; color: var(--text-2); text-align: right; }
+
 @media (max-width: 760px) { .bmx .bm-kpis { grid-template-columns: 1fr 1fr; } }
