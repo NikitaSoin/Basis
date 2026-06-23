@@ -74,9 +74,16 @@ const stripMd = (s) => (s || "").replace(/\*\*/g, "").replace(/\*/g, "").replace
 // «A → B → C» из прозы → узлы flow-диаграммы
 function parseChain(body) {
   if (!body) return null;
-  const text = body.split(/\n#{1,4}\s|\n\|/)[0].replace(/\n+/g, " ").trim();
+  // только ПЕРВЫЙ абзац (до пустой строки/заголовка/таблицы) — где живёт строка «A → B → C»;
+  // иначе пояснительный текст после неё «прилипает» к последнему узлу и раздувает его.
+  let text = (body.split(/\n#{1,4}\s|\n\|/)[0] || "").split(/\n\s*\n/)[0];
+  text = text.replace(/\n+/g, " ").trim();
   if (!text.includes("→")) return null;
-  const nodes = text.split("→").map((x) => stripMd(x).replace(/[.;,]+$/, "").trim()).filter(Boolean);
+  const nodes = text.split("→")
+    .map((x) => stripMd(x).replace(/[.;,]+\s*$/, "").trim())
+    .map((x) => x.split(/\.\s/)[0].trim())          // отрезаем предложение-пояснение в узле
+    .filter(Boolean)
+    .map((x) => (x.length > 44 ? x.slice(0, 42).trim() : x));
   return nodes.length >= 2 ? nodes.slice(0, 7) : null;
 }
 
