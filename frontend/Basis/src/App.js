@@ -4824,10 +4824,15 @@ const CompanyCard = ({ company, onBack }) => {
                     : m.secKey === "nd_ebitda"
                       ? (near ? "долг на уровне" : m.value < med ? `долг ниже ${cmp}` : `долг выше ${cmp}`)
                       : (near ? `на уровне ${cmp}` : m.value > med ? `выше ${cmp}` : `ниже ${cmp}`);
-                  const cls = near ? "tw-text-text-tertiary" : good ? "tw-text-success" : "tw-text-danger";
+                  const col = near ? "var(--text-tertiary)" : good ? "var(--success)" : "var(--danger)";
+                  const arrow = near ? "▬" : m.value < med ? "▼" : "▲";
                   ctx = (
-                    <div className={cx("tw-text-[10.5px] tw-mt-1 tw-font-mono tw-tabular-nums tw-leading-tight", cls)}>
-                      {word}<span className="tw-text-text-tertiary"> · {cmp === "сектора" ? "мед." : "5л"} {m.kind === "pct" ? fmtPercent(med, { decimals: 0 }) : formatMultiple(med, { decimals: 1 })}</span>
+                    <div className="tw-mt-1.5 tw-flex tw-items-center tw-gap-1 tw-flex-wrap">
+                      <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[11px] tw-font-semibold tw-px-2 tw-py-0.5 tw-rounded-pill"
+                        style={{ color: col, background: near ? "var(--bg-base)" : `color-mix(in srgb, ${col} 14%, transparent)` }}>
+                        {arrow} {word}
+                      </span>
+                      <span className="tw-text-[10px] tw-text-text-tertiary tw-font-mono tw-tabular-nums">{cmp === "сектора" ? "мед." : "5л"} {m.kind === "pct" ? fmtPercent(med, { decimals: 0 }) : formatMultiple(med, { decimals: 1 })}</span>
                     </div>
                   );
                 }
