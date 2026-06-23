@@ -3158,6 +3158,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [finMd, setFinMd] = useState(null);
   const [finJson, setFinJson] = useState(null);
   const [finLoading, setFinLoading] = useState(true);
+  const [sectorMult, setSectorMult] = useState(null);  // медианы мультипликаторов по секторам
   const [earnings, setEarnings] = useState(null);
   const [govMd, setGovMd] = useState(null);
   const [govJson, setGovJson] = useState(null);
@@ -3268,6 +3269,7 @@ const CompanyCard = ({ company, onBack }) => {
       setFinLoading(false);
     });
     fetch(`${base}/earnings/latest`).then(r => r.ok ? r.json() : null).catch(() => null).then(setEarnings);
+    fetch(`${apiUrl}/api/sectors/multiples`).then(r => r.ok ? r.json() : null).catch(() => null).then(setSectorMult);
   }, [company.ticker]);
 
   useEffect(() => {
@@ -3926,13 +3928,15 @@ const CompanyCard = ({ company, onBack }) => {
     const roeNow = lastNN(ret.roe);
     const ndeNow = lastNN(ratios.net_debt_ebitda);
     const mult = [
-      { label: "P/E", value: cur.pe, delta: pctOf(cur.pe, prevNN(hist.pe)), kind: "x" },
-      { label: "P/S", value: cur.ps, delta: pctOf(cur.ps, prevNN(hist.ps)), kind: "x" },
-      { label: "P/B", value: cur.pb, delta: pctOf(cur.pb, prevNN(hist.pb)), kind: "x" },
-      { label: "EV/EBITDA", value: cur.ev_ebitda, delta: pctOf(cur.ev_ebitda, prevNN(hist.ev_ebitda)), kind: "x" },
-      { label: "ND / EBITDA", value: ndeNow, delta: pctOf(ndeNow, prevNN(ratios.net_debt_ebitda)), kind: "x" },
-      { label: "ROE", value: roeNow, delta: pctOf(roeNow, prevNN(ret.roe)), kind: "pct" },
+      { label: "P/E", value: cur.pe, delta: pctOf(cur.pe, prevNN(hist.pe)), kind: "x", secKey: "pe", lowerCheaper: true },
+      { label: "P/S", value: cur.ps, delta: pctOf(cur.ps, prevNN(hist.ps)), kind: "x", secKey: "ps", lowerCheaper: true },
+      { label: "P/B", value: cur.pb, delta: pctOf(cur.pb, prevNN(hist.pb)), kind: "x", secKey: "pb", lowerCheaper: true },
+      { label: "EV/EBITDA", value: cur.ev_ebitda, delta: pctOf(cur.ev_ebitda, prevNN(hist.ev_ebitda)), kind: "x", secKey: "ev_ebitda", lowerCheaper: true },
+      { label: "ND / EBITDA", value: ndeNow, delta: pctOf(ndeNow, prevNN(ratios.net_debt_ebitda)), kind: "x", secKey: "nd_ebitda" },
+      { label: "ROE", value: roeNow, delta: pctOf(roeNow, prevNN(ret.roe)), kind: "pct", secKey: "roe" },
     ];
+    // медианы по сектору для контекста карточек (дешевле/дороже сектора)
+    const sectorMed = (sectorMult && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4) ? sectorMult[company.sector] : null;
 
     const mdc = {
       h1: () => null,
@@ -4722,7 +4726,20 @@ const CompanyCard = ({ company, onBack }) => {
       );
     };
 
-    const summarySecs = splitH2(finMd);
+    // Убираем из «Комментария аналитика» служебный мета-футер (Период/Applied/
+    // not_applicable/peers.json не обновлён/data_flags/adjustments_aggressive/sapex/
+    // CFO|CFI|CFF=null) — это внутренняя кухня модели. Человеческие оговорки оставляем.
+    const cleanFinSummary = (md) => {
+      if (!md) return md;
+      const techRe = /(^\s*(период|маршрутизация)\s*[:.]|\bapplied\b\s*[:.]|not_applicable|insufficient_data|adjustments_aggressive|data[_ ]?flags?|methods_divergence_note|\bsapex\b|cf[oif]\s*\/\s*cf[oif]|peers\.json[^.\n]*не\s*обновл)/i;
+      return md.split(/\n\s*\n/)
+        .filter((p) => !techRe.test(p))
+        .map((p) => p
+          .replace(/\s*и\s+peers\.json/gi, "")
+          .replace(/[;,.]?\s*peers\.json[^.;\n]*/gi, ""))
+        .join("\n\n").trim();
+    };
+    const summarySecs = splitH2(cleanFinSummary(finMd));
     const cySym = meta.currency || "₽";
 
     return (
@@ -4761,30 +4778,6 @@ const CompanyCard = ({ company, onBack }) => {
             )}
           </Card>
         )}
-        {finJson && (
-          <Card>
-            {cardHead(BarChart2, "Ключевые мультипликаторы", typeof liveCurp === "number" && (
-              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(liveCurp, { currency: cySym })} · сейчас</span>
-            ))}
-            <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
-              {mult.map((m, i) => (
-                <KpiTile
-                  key={i}
-                  caption={m.label}
-                  value={
-                    <FinCountUp
-                      value={m.value}
-                      gate={finCountGate}
-                      render={(n) => m.kind === "pct" ? fmtPercent(n, { decimals: 1 }) : formatMultiple(n, { decimals: 1 })}
-                    />
-                  }
-                  delta={m.delta}
-                />
-              ))}
-            </div>
-          </Card>
-        )}
-
         {finJson?.anomaly_flag && finJson?.anomaly_note && (
           <Card className="tw-bg-danger-soft tw-border-danger">
             <details>
@@ -4800,6 +4793,46 @@ const CompanyCard = ({ company, onBack }) => {
         {fairValueBar()}
 
         {renderMethodsBlock()}
+
+        {finJson && (
+          <Card>
+            {cardHead(BarChart2, "Ключевые мультипликаторы", typeof liveCurp === "number" && (
+              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(liveCurp, { currency: cySym })} · {sectorMed ? "позиция к медиане сектора" : "сейчас"}</span>
+            ))}
+            <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
+              {mult.map((m, i) => {
+                const med = sectorMed ? sectorMed[m.secKey] : null;
+                let ctx = null;
+                if (med != null && m.value != null && med !== 0) {
+                  const near = Math.abs(m.value - med) < Math.abs(med) * 0.04;
+                  const higherGood = m.secKey === "roe";
+                  const good = higherGood ? m.value > med : m.value < med;
+                  const word = m.lowerCheaper
+                    ? (near ? "на уровне сектора" : m.value < med ? "дешевле сектора" : "дороже сектора")
+                    : m.secKey === "nd_ebitda"
+                      ? (near ? "долг на уровне" : m.value < med ? "долг ниже сектора" : "долг выше сектора")
+                      : (near ? "на уровне сектора" : m.value > med ? "выше сектора" : "ниже сектора");
+                  const cls = near ? "tw-text-text-tertiary" : good ? "tw-text-success" : "tw-text-danger";
+                  ctx = (
+                    <div className={cx("tw-text-[10.5px] tw-mt-1 tw-font-mono tw-tabular-nums tw-leading-tight", cls)}>
+                      {word}<span className="tw-text-text-tertiary"> · мед. {m.kind === "pct" ? fmtPercent(med, { decimals: 0 }) : formatMultiple(med, { decimals: 1 })}</span>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={i}>
+                    <KpiTile
+                      caption={m.label}
+                      value={<FinCountUp value={m.value} gate={finCountGate} render={(n) => m.kind === "pct" ? fmtPercent(n, { decimals: 1 }) : formatMultiple(n, { decimals: 1 })} />}
+                      delta={m.delta}
+                    />
+                    {ctx}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
 
         {hasCharts && (
           <Card>
@@ -4862,7 +4895,7 @@ const CompanyCard = ({ company, onBack }) => {
                 </summary>
                 <div className="tw-pt-1.5"><ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{body}</ReactMarkdown></div>
               </details>
-            )) : <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{finMd}</ReactMarkdown>}
+            )) : <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdc}>{cleanFinSummary(finMd)}</ReactMarkdown>}
           </Card>
         )}
 

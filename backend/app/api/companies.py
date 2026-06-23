@@ -443,3 +443,72 @@ async def get_sector_peers(sector_key: str):
     if not path.exists():
         raise HTTPException(status_code=404, detail="Sector peers not found")
     return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+_SECTOR_MULT_CACHE: dict = {"ts": 0.0, "data": None}
+
+
+@router.get("/sectors/multiples")
+def sector_multiples(db: Session = Depends(get_db)):
+    """Медианы мультипликаторов по секторам — для контекста карточек на вкладке «Финансы»
+    («дешевле/дороже сектора»). Считается из financials.json всех компаний (текущие
+    pe/ps/pb/ev_ebitda + ND/EBITDA + ROE), исключая аномальные. Кэш 1ч."""
+    import time
+    now = time.time()
+    if _SECTOR_MULT_CACHE["data"] is not None and now - _SECTOR_MULT_CACHE["ts"] < 3600:
+        return _SECTOR_MULT_CACHE["data"]
+
+    def _med(xs):
+        xs = sorted(v for v in xs if v is not None)
+        n = len(xs)
+        if not n:
+            return None
+        return round(xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2, 2)
+
+    sectors = {r[0]: r[1] for r in db.execute(text("SELECT ticker, sector FROM companies")).all()}
+    buckets: dict = {}
+    for tk, sec in sectors.items():
+        if not sec:
+            continue
+        fp = COMPANIES_DIR / tk / "financials.json"
+        if not fp.exists():
+            continue
+        try:
+            d = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if d.get("anomaly_flag"):
+            continue
+        cur = (d.get("multiples") or {}).get("current") or {}
+        mt = d.get("metrics_timeseries") or {}
+        rs = d.get("returns") or {}
+
+        def _f(v):
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                return None
+        last = lambda a: _f(a[-1]) if isinstance(a, list) and a else None
+        row = {
+            "pe": _f(cur.get("pe")), "ps": _f(cur.get("ps")), "pb": _f(cur.get("pb")),
+            "ev_ebitda": _f(cur.get("ev_ebitda")),
+            "nd_ebitda": last(mt.get("net_debt_ebitda")),
+            "roe": last(rs.get("roe")) if rs.get("roe") else last(mt.get("roe")),
+        }
+        b = buckets.setdefault(sec, {k: [] for k in row})
+        b["_n"] = b.get("_n", 0)
+        for k, v in row.items():
+            # отсекаем явные искажения (отрицательный/гигантский P/E и т.п.)
+            if v is None:
+                continue
+            if k in ("pe", "ev_ebitda") and (v <= 0 or v > 60):
+                continue
+            if k == "pb" and (v <= 0 or v > 30):
+                continue
+            b[k].append(v)
+    out = {}
+    for sec, b in buckets.items():
+        out[sec] = {k: _med(b[k]) for k in ("pe", "ps", "pb", "ev_ebitda", "nd_ebitda", "roe")}
+        out[sec]["n"] = max(len(b["pe"]), len(b["ev_ebitda"]))
+    _SECTOR_MULT_CACHE.update(ts=now, data=out)
+    return out
