@@ -12,7 +12,7 @@
 .bmx .bm-tag.judg { color: var(--cat-7); background: var(--cat-7-soft, rgba(204,121,167,.14)); }
 
 /* lead + facts */
-.bmx .bm-lead { font-family: var(--font-display, "Source Serif 4", Georgia, serif); font-size: 16.5px; line-height: 1.55; color: var(--text-1); max-width: 66ch; margin: 0 0 12px; }
+.bmx .bm-lead { font-family: var(--font-display, "Source Serif 4", Georgia, serif); font-size: 16.5px; line-height: 1.55; color: var(--text-1); margin: 0 0 12px; }
 .bmx .bm-facts { display: flex; flex-wrap: wrap; gap: 8px; }
 .bmx .bm-fact { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); background: var(--bg-surface); border: 1px solid var(--border-mid); border-radius: 8px; padding: 7px 11px; }
 .bmx .bm-fact i { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
