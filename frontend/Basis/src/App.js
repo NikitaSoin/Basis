@@ -3937,6 +3937,15 @@ const CompanyCard = ({ company, onBack }) => {
     ];
     // медианы по сектору для контекста карточек (дешевле/дороже сектора)
     const sectorMed = (sectorMult && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4) ? sectorMult[company.sector] : null;
+    // Фолбэк, если секторных медиан нет (бэк-эндпоинт недоступен): собственная 5-летняя
+    // норма компании (уже в financials.json) — карточки получают контекст ВСЕГДА.
+    const histAvg = (finJson?.multiples && finJson.multiples.historical_avg) || {};
+    const HIST_MED = {
+      pe: histAvg.pe_5y_median ?? histAvg.pe_5y_avg,
+      pb: histAvg.pb_5y_median ?? histAvg.pb_5y_avg,
+      ev_ebitda: histAvg.ev_ebitda_5y_median ?? histAvg.ev_ebitda_5y_avg,
+      ps: histAvg.ps_5y_median ?? histAvg.ps_5y_avg,
+    };
 
     const mdc = {
       h1: () => null,
@@ -4797,25 +4806,28 @@ const CompanyCard = ({ company, onBack }) => {
         {finJson && (
           <Card>
             {cardHead(BarChart2, "Ключевые мультипликаторы", typeof liveCurp === "number" && (
-              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(liveCurp, { currency: cySym })} · {sectorMed ? "позиция к медиане сектора" : "сейчас"}</span>
+              <span className="tw-text-[12px] tw-text-text-secondary">Цена {formatMoney(liveCurp, { currency: cySym })} · {sectorMed ? "позиция к медиане сектора" : "позиция к своей 5-летней норме"}</span>
             ))}
             <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
               {mult.map((m, i) => {
-                const med = sectorMed ? sectorMed[m.secKey] : null;
+                // сектор приоритетно; если нет — собственная 5-летняя норма (фолбэк)
+                let med = (sectorMed && sectorMed[m.secKey] != null) ? sectorMed[m.secKey] : null;
+                let cmp = "сектора";
+                if (med == null && HIST_MED[m.secKey] != null) { med = HIST_MED[m.secKey]; cmp = "своей нормы"; }
                 let ctx = null;
                 if (med != null && m.value != null && med !== 0) {
                   const near = Math.abs(m.value - med) < Math.abs(med) * 0.04;
                   const higherGood = m.secKey === "roe";
                   const good = higherGood ? m.value > med : m.value < med;
                   const word = m.lowerCheaper
-                    ? (near ? "на уровне сектора" : m.value < med ? "дешевле сектора" : "дороже сектора")
+                    ? (near ? `на уровне ${cmp}` : m.value < med ? `дешевле ${cmp}` : `дороже ${cmp}`)
                     : m.secKey === "nd_ebitda"
-                      ? (near ? "долг на уровне" : m.value < med ? "долг ниже сектора" : "долг выше сектора")
-                      : (near ? "на уровне сектора" : m.value > med ? "выше сектора" : "ниже сектора");
+                      ? (near ? "долг на уровне" : m.value < med ? `долг ниже ${cmp}` : `долг выше ${cmp}`)
+                      : (near ? `на уровне ${cmp}` : m.value > med ? `выше ${cmp}` : `ниже ${cmp}`);
                   const cls = near ? "tw-text-text-tertiary" : good ? "tw-text-success" : "tw-text-danger";
                   ctx = (
                     <div className={cx("tw-text-[10.5px] tw-mt-1 tw-font-mono tw-tabular-nums tw-leading-tight", cls)}>
-                      {word}<span className="tw-text-text-tertiary"> · мед. {m.kind === "pct" ? fmtPercent(med, { decimals: 0 }) : formatMultiple(med, { decimals: 1 })}</span>
+                      {word}<span className="tw-text-text-tertiary"> · {cmp === "сектора" ? "мед." : "5л"} {m.kind === "pct" ? fmtPercent(med, { decimals: 0 }) : formatMultiple(med, { decimals: 1 })}</span>
                     </div>
                   );
                 }
