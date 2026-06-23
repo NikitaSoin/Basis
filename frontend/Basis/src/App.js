@@ -57,6 +57,7 @@ import ScreenerNeo from "./screener/ScreenerNeo";
 import MarketNeo from "./market/MarketNeo";
 import LandingNeo from "./market/LandingNeo";
 import BusinessModelTab from "./company/BusinessModelTab";
+import FinanceTab from "./company/FinanceTab";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -3908,6 +3909,14 @@ const CompanyCard = ({ company, onBack }) => {
       </div>
     );
     if (!finMd && !finJson) return renderComingSoon("Финансы и оценка");
+
+    // Гибрид-вкладка «Финансы» (NEO, порт Finance.html): ответ-первым — разбор отчёта,
+    // «поле оценок» с раскрытием методов, мультипликаторы с контекстом к сектору.
+    // Всё из структурированного financials.json; коридор/методы НЕ пересчитываются.
+    if (finJson) {
+      const liveCurp = livePrice ?? company?.price ?? null;
+      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} />;
+    }
 
     const cx = (...p) => p.filter(Boolean).join(" ");
     const meta = finJson?.meta || {};
