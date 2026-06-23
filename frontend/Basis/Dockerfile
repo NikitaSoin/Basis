@@ -1,14 +1,8 @@
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --legacy-peer-deps
-COPY . .
-# sourcemap off — заметно меньше памяти при сборке (защита от OOM на инстансе Timeweb)
-# и меньше образ. На прод-бой .map не нужны.
-ENV GENERATE_SOURCEMAP=false
-RUN npm run build
-
+# Фронт НЕ собирается на сервере (это роняло сборку Timeweb по памяти, OOM, когда бандл
+# вырос — и фронт-приложение залипало на последней удачной сборке). Вместо этого отдаём
+# уже собранный build/ — его собираю локально (npm run build) и коммичу в репозиторий.
+# ВАЖНО: перед коммитом фронт-изменений всегда пересобирать build/ (см. docs/work-journal).
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+COPY build /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
