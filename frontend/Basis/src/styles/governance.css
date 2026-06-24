@@ -1,0 +1,104 @@
+/* Блок «Из чего складывается балл» + «связь со ставкой» вкладки «Корп. управление»
+   — точный порт прототипа governance-g1.html (docs/Corporate_Management.zip). Переменные
+   прототипа (--ink/--panel/--line/--amber/--neg/--pos/--score/--sc) ПРИВЯЗАНЫ к
+   каноническим cc-токенам (обе темы), всё скоуплено под .gov-hybrid. Структурные секции
+   (владение/дивиденды/прецеденты/риски) — отдельная раскатка g1, здесь не трогаются.
+   Данные — из governance.json scoring (8 факторов) + governance_discount (премия от бэка). */
+.gov-hybrid{
+  --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
+  --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
+  --line:var(--cc-line); --line-2:var(--cc-line-2);
+  --accent:var(--cc-accent); --accent-soft:var(--cc-accent-soft);
+  --amber:var(--cc-amber); --amber-soft:color-mix(in srgb,var(--cc-amber) 12%,transparent);
+  --pos:var(--cc-success); --pos-soft:color-mix(in srgb,var(--cc-success) 13%,transparent);
+  --neg:var(--cc-danger); --neg-soft:color-mix(in srgb,var(--cc-danger) 12%,transparent);
+  --violet:var(--cc-violet);
+  --serif:"Source Serif 4",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
+  --r-lg:16px;
+  display:flex; flex-direction:column; gap:16px;
+  color:var(--ink); font-family:var(--sans); font-variant-numeric:tabular-nums lining-nums;
+}
+/* epistemic tags */
+.gov-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;}
+.gov-hybrid .tag-fact{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
+.gov-hybrid .tag-judg{background:color-mix(in srgb,var(--cc-violet) 12%,transparent);color:var(--violet);}
+.gov-hybrid .tag-est{background:color-mix(in srgb,var(--cc-info,#0A5E8A) 12%,transparent);color:var(--cc-info,#0A5E8A);}
+/* card */
+.gov-hybrid .gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
+.gov-hybrid .gcard h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.gov-hybrid .gcard .sub{font-size:12.5px;color:var(--ink-3);margin:0 0 16px;line-height:1.5;}
+.gov-hybrid .gcard h3 .hmeta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400;}
+/* verdict hero */
+.gov-hybrid .gverdict{background:linear-gradient(135deg,var(--gv-soft,var(--amber-soft)),var(--panel));border:1px solid var(--line-2);border-radius:var(--r-lg);padding:22px 24px;}
+.gov-hybrid .gv-top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.gov-hybrid .gv-score{width:84px;height:84px;border-radius:18px;background:var(--gv-soft,var(--amber-soft));border:1px solid var(--gv,var(--amber));display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.gov-hybrid .gv-score b{font-family:var(--mono);font-size:34px;font-weight:600;color:var(--gv,var(--amber));line-height:1;}
+.gov-hybrid .gv-score s{font-size:10px;color:var(--ink-3);text-decoration:none;margin-top:2px;}
+.gov-hybrid .gv-txt{flex:1;min-width:240px;}
+.gov-hybrid .gv-badge{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gv,var(--amber));background:var(--gv-soft,var(--amber-soft));border-radius:6px;padding:3px 9px;margin-bottom:7px;}
+.gov-hybrid .gv-h{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--ink);line-height:1.3;}
+.gov-hybrid .gv-s{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-top:6px;max-width:64ch;}
+.gov-hybrid .gv-link{display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap;}
+.gov-hybrid .gv-chain{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px;}
+.gov-hybrid .gv-chain .n{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:6px 11px;color:var(--ink-2);}
+.gov-hybrid .gv-chain .n b{color:var(--ink);}
+.gov-hybrid .gv-chain .n.bad{border-color:var(--neg);color:var(--neg);}
+.gov-hybrid .gv-chain .n.good{border-color:var(--pos);color:var(--pos);}
+.gov-hybrid .gv-chain .ar{color:var(--ink-3);}
+/* dimension bars */
+.gov-hybrid .dims{display:flex;flex-direction:column;gap:11px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);}
+.gov-hybrid .dim{display:grid;grid-template-columns:230px 1fr 52px;gap:14px;align-items:center;}
+.gov-hybrid .dim .dn{font-size:13.5px;color:var(--ink);}
+.gov-hybrid .dim .dn s{display:block;font-size:11px;color:var(--ink-3);text-decoration:none;margin-top:1px;}
+.gov-hybrid .dim .dbar{position:relative;height:14px;background:var(--panel-2);border-radius:5px;overflow:hidden;display:flex;gap:2px;}
+.gov-hybrid .dim .dbar i{height:100%;border-radius:2px;flex:1;background:var(--line-2);}
+.gov-hybrid .dim .dbar i.on{background:var(--score);}
+.gov-hybrid .dim .dbar .normk{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);border-radius:1px;z-index:2;}
+.gov-hybrid .dim .dv{font-family:var(--mono);font-size:14px;font-weight:600;text-align:right;color:var(--score);}
+.gov-hybrid .dim .dv s{display:block;font-size:9.5px;color:var(--ink-3);text-decoration:none;font-weight:500;}
+@media(max-width:600px){.gov-hybrid .dim{grid-template-columns:1fr 60px;}.gov-hybrid .dim .dbar{grid-column:1/-1;order:3;}}
+.gov-hybrid .dims-leg{display:flex;gap:16px;margin-top:13px;font-size:11px;color:var(--ink-3);flex-wrap:wrap;}
+.gov-hybrid .dims-leg span{display:inline-flex;align-items:center;gap:6px;}
+.gov-hybrid .dims-leg i.nm{width:2px;height:13px;background:var(--ink);}
+/* red flags banner */
+.gov-hybrid .gflags{display:flex;flex-direction:column;gap:6px;margin-top:16px;padding:11px 14px;border-left:2px solid var(--neg);background:var(--neg-soft);border-radius:0 9px 9px 0;}
+.gov-hybrid .gflags .fh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--neg);}
+.gov-hybrid .gflags .fr{font-size:12.5px;line-height:1.45;color:var(--ink-2);}
+/* detailed reasons */
+.gov-hybrid .dimx{display:flex;flex-direction:column;gap:10px;}
+.gov-hybrid .dxrow{border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:var(--panel-2);border-left:3px solid var(--sc);}
+.gov-hybrid .dxhead{display:flex;align-items:center;gap:11px;}
+.gov-hybrid .dxname{font-size:13.5px;font-weight:600;color:var(--ink);}
+.gov-hybrid .dxw{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+.gov-hybrid .dxbar{display:flex;gap:3px;}
+.gov-hybrid .dxbar i{width:15px;height:8px;border-radius:2px;background:var(--line-2);}
+.gov-hybrid .dxbar i.on{background:var(--sc);}
+.gov-hybrid .dxval{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--sc);width:46px;text-align:right;}
+.gov-hybrid .dxval s{font-size:9.5px;color:var(--ink-3);text-decoration:none;}
+.gov-hybrid .dxwhy{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:7px;}
+.gov-hybrid .dxwhy b{color:var(--ink-2);}
+/* score calc */
+.gov-hybrid .calc-card{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:18px 20px;margin-top:16px;}
+.gov-hybrid .calc-card .ct{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.gov-hybrid .calc-card .cs{font-size:11.5px;color:var(--ink-3);margin-bottom:13px;}
+.gov-hybrid .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;}
+@media(max-width:680px){.gov-hybrid .calc-grid{grid-template-columns:1fr;}}
+.gov-hybrid .calc-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:12.5px;}
+.gov-hybrid .calc-row .cn{color:var(--ink-2);}
+.gov-hybrid .calc-row .cw{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.gov-hybrid .calc-row .cc{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);text-align:right;min-width:42px;}
+.gov-hybrid .calc-total{display:flex;align-items:baseline;justify-content:space-between;margin-top:11px;padding-top:12px;border-top:2px solid var(--line-2);}
+.gov-hybrid .calc-total .tl{font-size:13px;font-weight:600;color:var(--ink);}
+.gov-hybrid .calc-total .tv{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--gv,var(--amber));}
+.gov-hybrid .calc-total .tv s{font-size:13px;color:var(--ink-3);text-decoration:none;}
+.gov-hybrid .vsnorm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:11px 13px;background:var(--panel-2);border-radius:9px;}
+.gov-hybrid .vsnorm .vl{font-size:11.5px;color:var(--ink-3);}
+.gov-hybrid .vsnorm .vnums{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);}
+.gov-hybrid .vsnorm .vnums .nm{color:var(--ink-3);font-weight:500;}
+.gov-hybrid .vsnorm .vgap{font-family:var(--mono);font-size:13px;font-weight:600;}
+/* link to valuation */
+.gov-hybrid .fv-link-box{border-radius:11px;padding:13px 15px;margin-top:16px;border:1px solid var(--gv,var(--amber));background:var(--gv-soft,var(--amber-soft));}
+.gov-hybrid .fv-link-box .lt{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--gv,var(--amber));margin-bottom:6px;}
+.gov-hybrid .fv-link-box .lv{font-size:12.5px;line-height:1.55;color:var(--ink-2);}
+.gov-hybrid .fv-link-box .lv b{color:var(--ink);font-family:var(--mono);}
+.gov-hybrid .fnote{font-size:11px;color:var(--ink-3);line-height:1.5;margin-top:12px;}
