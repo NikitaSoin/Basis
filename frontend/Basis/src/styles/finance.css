@@ -16,10 +16,13 @@
   --neg:var(--cc-danger); --neg-soft:color-mix(in srgb,var(--cc-danger) 12%,transparent);
   --serif:"Source Serif 4",Georgia,serif; --mono:"JetBrains Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
   --r:11px; --r-lg:16px; --r-sm:8px;
-  display:flex; flex-direction:column; gap:16px;
   color:var(--ink); font-family:var(--sans);
   font-variant-numeric:tabular-nums lining-nums;
 }
+/* двухколоночный макет: основной поток + рейл «Заметка аналитика» (как в прототипе) */
+.fin-hybrid .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;}
+@media(max-width:1020px){.fin-hybrid .layout{grid-template-columns:1fr;}}
+.fin-hybrid .dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
 .fin-hybrid .mono{font-family:var(--mono);}
 /* epistemic tags */
 .fin-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;}
@@ -148,3 +151,96 @@
 .fin-hybrid .miniseg button{border:0;background:transparent;font:inherit;font-size:12.5px;font-weight:500;color:var(--ink-2);padding:6px 12px;border-radius:6px;cursor:pointer;}
 .fin-hybrid .miniseg button.on{background:var(--accent);color:#fff;font-weight:600;}
 .fin-hybrid .foot-note{font-size:11.5px;color:var(--ink-3);text-align:center;margin:6px auto 0;max-width:72ch;line-height:1.5;}
+
+/* ── football field: верхняя шкала «справедливая цена» ── */
+.fin-hybrid .ff-scale{position:relative;height:16px;margin:0 116px 6px 162px;}
+@media(max-width:640px){.fin-hybrid .ff-scale{margin:0 90px 6px 132px;}}
+.fin-hybrid .ff-faircap{position:absolute;bottom:0;transform:translateX(-50%);font-family:var(--mono);font-size:10px;font-weight:600;color:var(--accent-2);white-space:nowrap;}
+.fin-hybrid .ff-track .curl{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--accent);opacity:.7;}
+.fin-hybrid .ff .ff-axis{position:relative;height:14px;display:block;font-family:var(--mono);font-size:10px;color:var(--ink-3);margin:8px 116px 0 162px;padding:0;}
+@media(max-width:640px){.fin-hybrid .ff .ff-axis{margin:8px 90px 0 132px;}}
+.fin-hybrid .ff .ff-axis span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;}
+
+/* ── bar-chart подписи (SVG динамика) ── */
+.fin-hybrid .bc-v{fill:var(--ink-2);font-family:var(--mono);font-size:9px;}
+.fin-hybrid .bc-y{fill:var(--ink-3);font-family:var(--mono);font-size:8.5px;}
+.fin-hybrid .bc-cap{font-size:10px;color:var(--ink-3);font-family:var(--mono);margin-top:5px;text-align:center;}
+
+/* ── P&L: переключатель + кнопка «Детализация статей» ── */
+.fin-hybrid .mtbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.fin-hybrid .mtbar .miniseg{margin:0;}
+.fin-hybrid .det-toggle{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:12.5px;font-weight:500;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;transition:border-color .15s,color .15s,background .15s;flex-shrink:0;}
+.fin-hybrid .det-toggle:hover{border-color:var(--ink-3);color:var(--ink);}
+.fin-hybrid .det-toggle.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-2);}
+.fin-hybrid .det-toggle .di{transition:transform .2s;}.fin-hybrid .det-toggle.on .di{transform:rotate(180deg);}
+
+/* ── годовая дельта в ячейках таблиц ── */
+.fin-hybrid .ftbl td .yoy{display:block;font-size:10px;font-family:var(--mono);margin-top:2px;font-weight:500;white-space:nowrap;}
+.fin-hybrid .ftbl td .yoy.up{color:var(--pos);}.fin-hybrid .ftbl td .yoy.dn{color:var(--neg);}.fin-hybrid .ftbl td .yoy.fl{color:var(--ink-3);}
+
+/* ── нормализация прибыли ── */
+.fin-hybrid .fc-norm{width:100%;border-collapse:collapse;font-size:13px;}
+.fin-hybrid .fc-norm td{padding:8px 11px;border-bottom:1px solid var(--line);}
+.fin-hybrid .fc-norm .yr td{background:var(--panel-2);font-weight:600;color:var(--ink);}
+.fin-hybrid .fc-norm .amt{text-align:right;font-family:var(--mono);white-space:nowrap;}
+.fin-hybrid .fc-norm .amt.pos{color:var(--pos);}.fin-hybrid .fc-norm .amt.neg{color:var(--neg);}
+.fin-hybrid .fc-norm .lvl{text-align:right;width:74px;}
+.fin-hybrid .fc-norm .tg{font-family:var(--mono);font-size:9.5px;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
+.fin-hybrid .fc-tg-f{background:color-mix(in srgb,var(--ink-3) 16%,transparent);color:var(--ink-2);}.fin-hybrid .fc-tg-e{background:var(--cyan-soft);color:var(--cyan);}
+
+/* ── карты сектора (scatter) ── */
+.fin-hybrid .fc-scat{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:6px;position:relative;}
+.fin-hybrid .fc-scat-big{padding:16px 18px;}
+.fin-hybrid .fc-note2{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:12px;padding:10px 13px;background:var(--panel-2);border-radius:8px;}
+.fin-hybrid .scat-axsel{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.fin-hybrid .scat-axsel label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);}
+.fin-hybrid .scat-axsel .axx{color:var(--ink-3);font-weight:600;}
+.fin-hybrid .bigscat{width:100%;height:auto;display:block;overflow:visible;}
+.fin-hybrid .bigscat .g{stroke:var(--line-2);stroke-dasharray:2 4;}
+.fin-hybrid .bigscat .gz{stroke:var(--ink-3);opacity:.5;}
+.fin-hybrid .bigscat .tk{fill:var(--ink-2);font-family:var(--mono);font-size:11px;}
+.fin-hybrid .bigscat .ax{fill:var(--ink);font-size:12.5px;font-weight:600;}
+.fin-hybrid .bigscat .bub{cursor:pointer;}
+.fin-hybrid .bigscat .lbl{fill:var(--ink-2);font-family:var(--mono);font-size:10.5px;opacity:0;transition:opacity .12s;pointer-events:none;}
+.fin-hybrid .bigscat .bub:hover .lbl{opacity:1;}
+.fin-hybrid .bigscat .lbl.me{fill:var(--accent-2);font-weight:700;font-size:12px;opacity:1;}
+.fin-hybrid .scat-tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;padding:8px 11px;font-size:12px;line-height:1.5;color:var(--ink-2);box-shadow:0 8px 22px rgba(0,0,0,.25);z-index:5;white-space:nowrap;top:0;left:0;}
+.fin-hybrid .scat-tip b{display:block;color:var(--ink);font-family:var(--mono);font-size:12.5px;margin-bottom:3px;}
+/* кастомный селектор оси */
+.fin-hybrid .ds-sel{position:relative;display:inline-block;}
+.fin-hybrid .ds-sel-btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:13px;font-weight:600;color:var(--ink);background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:7px 11px;cursor:pointer;min-width:128px;justify-content:space-between;}
+.fin-hybrid .ds-sel-btn:hover{border-color:var(--ink-3);}
+.fin-hybrid .ds-sel-btn .cv{transition:transform .2s;color:var(--ink-3);flex-shrink:0;}
+.fin-hybrid .ds-sel.open .ds-sel-btn{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.fin-hybrid .ds-sel.open .ds-sel-btn .cv{transform:rotate(180deg);}
+.fin-hybrid .ds-sel-menu{position:absolute;top:calc(100% + 5px);left:0;min-width:100%;background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-sm);box-shadow:0 12px 30px rgba(0,0,0,.18);padding:5px;z-index:30;white-space:nowrap;}
+.fin-hybrid .ds-sel-opt{font-size:13px;color:var(--ink-2);padding:7px 10px;border-radius:6px;cursor:pointer;}
+.fin-hybrid .ds-sel-opt:hover{background:var(--panel-2);color:var(--ink);}
+.fin-hybrid .ds-sel-opt.sel{background:var(--accent-soft);color:var(--accent-2);font-weight:600;}
+
+/* ── правый рейл «Заметка аналитика» ── */
+.fin-hybrid .fv-rail{position:sticky;top:16px;align-self:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 18px 20px;}
+@media(max-width:1020px){.fin-hybrid .fv-rail{position:static;}}
+.fin-hybrid .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);margin-bottom:4px;}
+.fin-hybrid .an-fv{display:flex;align-items:baseline;gap:8px;margin:6px 0 2px;}
+.fin-hybrid .an-fv .b{font-family:var(--mono);font-size:30px;font-weight:500;line-height:1;}
+.fin-hybrid .an-fv .b s{font-size:15px;color:var(--ink-3);text-decoration:none;}
+.fin-hybrid .an-fv .u{font-family:var(--mono);font-size:13px;font-weight:600;margin-left:auto;}
+.fin-hybrid .an-meta{font-size:11.5px;color:var(--ink-3);padding-bottom:13px;border-bottom:1px solid var(--line);line-height:1.5;}
+.fin-hybrid .an-meta b{color:var(--ink-2);}
+.fin-hybrid .hx-vsub{font-size:12px;color:var(--ink-3);margin:12px 0 4px;line-height:1.5;}
+.fin-hybrid .hx-vsub b{color:var(--ink-2);}
+.fin-hybrid .an-sec{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 4px;}
+.fin-hybrid .an-note{border-bottom:1px solid var(--line);}
+.fin-hybrid .an-note>summary{display:flex;gap:9px;align-items:flex-start;padding:10px 0;cursor:pointer;list-style:none;}
+.fin-hybrid .an-note>summary::-webkit-details-marker{display:none;}
+.fin-hybrid .an-note .nn{font-family:var(--mono);font-size:11px;color:var(--accent-2);flex-shrink:0;margin-top:2px;}
+.fin-hybrid .an-note .nt{flex:1;font-size:12.5px;line-height:1.4;color:var(--ink);font-weight:600;}
+.fin-hybrid .an-note .nc{font-size:10px;color:var(--ink-3);transition:transform .2s;flex-shrink:0;margin-top:3px;}
+.fin-hybrid .an-note[open] .nc{transform:rotate(180deg);}
+.fin-hybrid .an-body{padding:0 0 12px 22px;font-size:12px;line-height:1.55;color:var(--ink-2);}
+.fin-hybrid .an-body b{color:var(--ink);font-weight:600;}
+.fin-hybrid .an-flags{display:flex;flex-direction:column;gap:6px;}
+.fin-hybrid .an-flag{display:flex;gap:8px;font-size:11.5px;line-height:1.4;color:var(--ink-2);}
+.fin-hybrid .an-flag::before{content:"⚠";color:var(--amber);flex-shrink:0;}
+.fin-hybrid .fv-note{font-size:11px;color:var(--ink-3);line-height:1.5;margin:14px 0 0;}

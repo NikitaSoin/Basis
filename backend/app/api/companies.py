@@ -446,6 +446,7 @@ async def get_sector_peers(sector_key: str):
 
 
 _SECTOR_MULT_CACHE: dict = {"ts": 0.0, "data": None}
+_SECTOR_PEERS_CACHE: dict = {"ts": 0.0, "data": None}
 
 
 @router.get("/sectors/multiples")
@@ -511,4 +512,71 @@ def sector_multiples(db: Session = Depends(get_db)):
         out[sec] = {k: _med(b[k]) for k in ("pe", "ps", "pb", "ev_ebitda", "nd_ebitda", "roe")}
         out[sec]["n"] = max(len(b["pe"]), len(b["ev_ebitda"]))
     _SECTOR_MULT_CACHE.update(ts=now, data=out)
+    return out
+
+
+@router.get("/sectors/peers-multiples")
+def sector_peers_multiples(db: Session = Depends(get_db)):
+    """Мультипликаторы конкурентов ПО ГОДАМ для блока «Позиционирование в секторе»
+    вкладки «Финансы» (таблица сравнения с годовым переключателем + карты сектора).
+    По каждой компании сектора — ряд pe/ps/pb/ev_ebitda/nd_ebitda/roe по фискальным
+    годам из её financials.json (metrics_timeseries + returns.roe). Кэш 1ч."""
+    import time
+    now = time.time()
+    if _SECTOR_PEERS_CACHE["data"] is not None and now - _SECTOR_PEERS_CACHE["ts"] < 3600:
+        return _SECTOR_PEERS_CACHE["data"]
+
+    def _f(v):
+        try:
+            return round(float(v), 2)
+        except (TypeError, ValueError):
+            return None
+
+    sectors = {r[0]: (r[1], r[2]) for r in db.execute(text("SELECT ticker, sector, name FROM companies")).all()}
+    out: dict = {}
+    for tk, (sec, nm) in sectors.items():
+        if not sec:
+            continue
+        fp = COMPANIES_DIR / tk / "financials.json"
+        if not fp.exists():
+            continue
+        try:
+            d = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        meta = d.get("meta") or {}
+        years = [str(y) for y in (meta.get("fiscal_years") or [])]
+        if not years:
+            continue
+        mt = d.get("metrics_timeseries") or {}
+        rs = d.get("returns") or {}
+        src = {
+            "pe": mt.get("pe"), "ps": mt.get("ps"), "pb": mt.get("pb"),
+            "ev_ebitda": mt.get("ev_ebitda"), "nd_ebitda": mt.get("net_debt_ebitda"),
+            "roe": rs.get("roe") or mt.get("roe"),
+        }
+        by_year: dict = {}
+        for i, y in enumerate(years):
+            row = {}
+            for k, arr in src.items():
+                v = _f(arr[i]) if isinstance(arr, list) and i < len(arr) else None
+                if v is not None:
+                    row[k] = v
+            if row:
+                by_year[y] = row
+        if not by_year:
+            continue
+        out.setdefault(sec, {"years": [], "peers": []})
+        for y in years:
+            if y not in out[sec]["years"]:
+                out[sec]["years"].append(y)
+        out[sec]["peers"].append({
+            "ticker": tk,
+            "name": nm or tk,
+            "anomaly": bool(d.get("anomaly_flag")),
+            "by_year": by_year,
+        })
+    for sec in out:
+        out[sec]["years"].sort()
+    _SECTOR_PEERS_CACHE.update(ts=now, data=out)
     return out

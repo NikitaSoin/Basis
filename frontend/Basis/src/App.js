@@ -3160,6 +3160,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [finJson, setFinJson] = useState(null);
   const [finLoading, setFinLoading] = useState(true);
   const [sectorMult, setSectorMult] = useState(null);  // медианы мультипликаторов по секторам
+  const [peersMultiples, setPeersMultiples] = useState(null);  // конкуренты по годам (вкладка Финансы)
   const [earnings, setEarnings] = useState(null);
   const [govMd, setGovMd] = useState(null);
   const [govJson, setGovJson] = useState(null);
@@ -3271,6 +3272,7 @@ const CompanyCard = ({ company, onBack }) => {
     });
     fetch(`${base}/earnings/latest`).then(r => r.ok ? r.json() : null).catch(() => null).then(setEarnings);
     fetch(`${apiUrl}/api/sectors/multiples`).then(r => r.ok ? r.json() : null).catch(() => null).then(setSectorMult);
+    fetch(`${apiUrl}/api/sectors/peers-multiples`).then(r => r.ok ? r.json() : null).catch(() => null).then(setPeersMultiples);
   }, [company.ticker]);
 
   useEffect(() => {
@@ -3915,7 +3917,7 @@ const CompanyCard = ({ company, onBack }) => {
     // Всё из структурированного financials.json; коридор/методы НЕ пересчитываются.
     if (finJson) {
       const liveCurp = livePrice ?? company?.price ?? null;
-      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} />;
+      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} peersData={peersMultiples} finMd={finMd} />;
     }
 
     const cx = (...p) => p.filter(Boolean).join(" ");
@@ -6363,10 +6365,16 @@ const CompanyCard = ({ company, onBack }) => {
       })()}
 
       {NEO ? (
-        <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
-          <div className="tw-min-w-0 tw-space-y-6">{tabBody}</div>
-          <DecisionSupportRail fairBase={_fairBase} upside={_upside} confidence={_conf} sourcesCount={_sources} asOf={finMeta.price_date} onCheckIdea={() => setTab("finance")} onScenarios={() => setTab("geo")} />
-        </div>
+        // Вкладка «Финансы» — на всю ширину: у неё свой правый рейл «Заметка аналитика»
+        // (гибрид-дизайн FinanceTab), глобальный Decision-rail дублировал бы его.
+        tab === "finance" ? (
+          <div className="tw-min-w-0">{tabBody}</div>
+        ) : (
+          <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
+            <div className="tw-min-w-0 tw-space-y-6">{tabBody}</div>
+            <DecisionSupportRail fairBase={_fairBase} upside={_upside} confidence={_conf} sourcesCount={_sources} asOf={finMeta.price_date} onCheckIdea={() => setTab("finance")} onScenarios={() => setTab("geo")} />
+          </div>
+        )
       ) : (
         <>{tabBody}</>
       )}
