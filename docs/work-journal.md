@@ -1279,7 +1279,27 @@ return при наличии finJson (старый рендер — фолбэк
 по всем → заполнить scoring (8 баллов+норма+overall+red_flags) в governance.json +
 синтез governance_summary.md. Идемпотентно/resumable, батчами, коммит после батча.
 Спот-чек 5–7 типов (гос/преф/частная/квазиказна) — баллы по фактам и рубрике.
-СТАТУС РАСКАТКИ: 49/264 (+RENI 3.7). Батч-10 закрыт (SGZH 2.8, VKCO 2.2, LSRG 2.5, RENI 3.7, GCHE 3.1). Батч-9 закрыт (RASP 3.0, POSI 3.7, BELU 3.1, SELG 3.0, SMLT 2.8). Запущен батч-10 (SGZH/VKCO/LSRG/RENI/GCHE). Батч-8 закрыт (MTLR 1.9, UGLD 2.2, AKRN 2.6, ENPG 2.9, FEES 2.5). КЕЙС-ВАЛИДАЦИЯ: деприватизация ЮГК активировала триггер deprivatization. NB: TCSG=тикер T; rp_signal из gq/meta/корня; severe-override (5.0) не срабатывал (red_flag.severity не ставится high). Батч-7 закрыт (SVCB 3.4, RTKM 3.2, FLOT 3.3, BANE 2.2, UPRO 2.8). КРОСС-ЧЕК: BANE — компания прототипа g1 (иллюстр. 2.3) → реально 2.2, методика воспроизводит. NB: TCSG=тикер T. NB2: у BANE financials.json несёт старую governance-премию +3.0 vs override +4.0 — свести при регенерации финансов.. Разброс баллов 2.2–4.6 — шкала дифференцирует.
+СТАТУС РАСКАТКИ: 49/264 (+RENI 3.7). Батч-10 закрыт (SGZH 2.8, VKCO 2.2, LSRG 2.5, RENI 3.7, GCHE 3.1).
+
+══ ТОЧКА ПРОДОЛЖЕНИЯ (чистая граница после 10 батчей) ══
+СДЕЛАНО: 49/264 (5 good / 23 mixed / 21 weak; 15 с активными red_flags; диапазон 1.9 МЕЧЕЛ … 4.6 МОЕХ).
+Готовые тикеры (батчи 1–10): GMKN SBER SNGS AFKS LKOH ROSN NVTK PLZL MTSS GAZP CHMF MGNT TATN
+VTBR AFLT PHOR MOEX RUAL YDEX T SIBN IRAO TRNFP NLMK PIKK OZON BSPB MAGN HYDR SVCB RTKM FLOT
+BANE UPRO MTLR UGLD AKRN ENPG FEES RASP POSI BELU SELG SMLT VKCO LSRG RENI GCHE.
+ВАЛИДАЦИЯ ЗАВЕРШЕНА: все override-пути проверены на реальных кейсах (дивид.нарушение, размытие,
+tunneling МЕЧЕЛ, деприватизация ЮГК, заблок.редомициляция UPRO/RASP, квазиказна-misuse ЛСР);
+BANE кросс-чек с прототипом g1 (2.3→2.2); граничные не-override (Сегежа допэмиссия с преимущ.правом,
+POSI программная эмиссия, BELU bonus 8:7 pro rata, RENI байбек вместо дивиденда) разобраны грамотно.
+СЛЕДУЮЩАЯ СЕССИЯ — продолжить батчами по 5 (governance-analyst → проверка 8 факторов/веса=1.0/
+overall=Σ/premium=null/v3 сохранены → коммит → bump счётчика). Кандидаты на батч-11+: GMKR ABIO
+APTK ASTR DIAS DATA WUSH SOFL HEAD CARM RENI(done) MDMG GEMC LENT FIXP MVID DSKY ABRD AGRO RAGR
+KROT NKNC NKNCP KZOS KAZT NMTP FESH GLTR ELFV TGKA TGKB MSNG OGKB MRKP MRKC MRKU MRKV MRKS MRKZ
+LSNG LSNGP DVEC и далее весь реестр backend/companies/*/ без блока scoring.
+КАК НАЙТИ НЕСДЕЛАННЫЕ: for f in backend/companies/*/financials.json → у кого нет scoring.overall_score
+в governance.json. ОТЛАЖЕНО: rp_signal читаем из gq/meta/корня; TCSG=тикер T на платформе.
+NB-ФИНАНСЫ: у части компаний (AFKS/CHMF/BANE…) financials.json несёт СТАРУЮ governance-премию,
+не совпадающую с новым баллом по конфигу — свести при регенерации financials (DCF берёт премию
+из конфига/premium_to_wacc_pp_computed). Это отдельный проход по financials, не блокирует governance. Батч-9 закрыт (RASP 3.0, POSI 3.7, BELU 3.1, SELG 3.0, SMLT 2.8). Запущен батч-10 (SGZH/VKCO/LSRG/RENI/GCHE). Батч-8 закрыт (MTLR 1.9, UGLD 2.2, AKRN 2.6, ENPG 2.9, FEES 2.5). КЕЙС-ВАЛИДАЦИЯ: деприватизация ЮГК активировала триггер deprivatization. NB: TCSG=тикер T; rp_signal из gq/meta/корня; severe-override (5.0) не срабатывал (red_flag.severity не ставится high). Батч-7 закрыт (SVCB 3.4, RTKM 3.2, FLOT 3.3, BANE 2.2, UPRO 2.8). КРОСС-ЧЕК: BANE — компания прототипа g1 (иллюстр. 2.3) → реально 2.2, методика воспроизводит. NB: TCSG=тикер T. NB2: у BANE financials.json несёт старую governance-премию +3.0 vs override +4.0 — свести при регенерации финансов.. Разброс баллов 2.2–4.6 — шкала дифференцирует.
 Готовы (батчи 1–4): GMKN 3.7, SBER 4.2, SNGS 2.4, AFKS 3.0, LKOH 3.7, ROSN 3.1, NVTK 4.0,
 PLZL 2.8, MTSS 2.9, GAZP 2.7*, CHMF 4.1, MGNT 2.3**, TATN 3.6, VTBR 2.2*, AFLT 3.1,
 PHOR 3.9, MOEX 4.6, RUAL 3.1, YDEX 3.5 (* = активный red_flag, override премии →4.0 п.п.).
