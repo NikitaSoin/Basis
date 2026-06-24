@@ -352,13 +352,87 @@ async def get_financials_summary_md(ticker: str):
     )
 
 
+_GOV_MAPPING_PATH = Path(__file__).parent.parent.parent.parent / "config" / "governance_mapping.json"
+_GOV_MAPPING_CACHE: dict = {"ts": 0.0, "data": None}
+
+
+def _gov_mapping() -> dict:
+    """config/governance_mapping.json с лёгким кэшем (60с) — горячая правка контура без рестарта."""
+    import time
+    now = time.time()
+    if _GOV_MAPPING_CACHE["data"] is not None and now - _GOV_MAPPING_CACHE["ts"] < 60:
+        return _GOV_MAPPING_CACHE["data"]
+    try:
+        data = json.loads(_GOV_MAPPING_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        data = {}
+    _GOV_MAPPING_CACHE.update(ts=now, data=data)
+    return data
+
+
+def compute_governance_premium(overall_score, red_flags, cfg=None):
+    """Балл governance (1..5) + красные флаги → премия к ставке дисконтирования (п.п.)
+    по активному контуру config/governance_mapping.json. Интерполяция по опорным точкам;
+    override красными флагами; потолок cap_pp. None при отсутствии балла. Это ФИНАНС-СЛОЙ
+    (а не субагент): число считается здесь, контуры a/b переключаются полем active_contour."""
+    cfg = cfg or _gov_mapping()
+    if not cfg:
+        return None
+    try:
+        score = float(overall_score)
+    except (TypeError, ValueError):
+        return None
+    contour = cfg.get(cfg.get("active_contour") or "", {})
+    anchors = contour.get("anchors") or {}
+    pts = sorted((float(k), float(v)) for k, v in anchors.items())
+    if not pts:
+        return None
+    # линейная интерполяция; за пределами опорных — берём крайнюю точку (плато)
+    if score <= pts[0][0]:
+        pp = pts[0][1]
+    elif score >= pts[-1][0]:
+        pp = pts[-1][1]
+    else:
+        pp = pts[-1][1]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            if x0 <= score <= x1:
+                pp = y0 + (y1 - y0) * (score - x0) / (x1 - x0) if x1 != x0 else y0
+                break
+    # override красными флагами
+    ov = cfg.get("overrides") or {}
+    flags = [f for f in (red_flags or []) if isinstance(f, dict) and f.get("active")]
+    if flags:
+        severe = any((f.get("severity") in ("high", "severe")) for f in flags)
+        floor = ov.get("severe_red_flag_pp") if severe else ov.get("any_red_flag_min_pp")
+        if isinstance(floor, (int, float)):
+            pp = max(pp, floor)
+    cap = cfg.get("cap_pp")
+    if isinstance(cap, (int, float)):
+        pp = min(pp, cap)
+    return round(pp, 2)
+
+
 @router.get("/companies/by-ticker/{ticker}/governance")
 async def get_governance_json(ticker: str):
-    """Блок «Корпоративное управление» в виде JSON (его рисует фронтенд)."""
+    """Блок «Корпоративное управление» в виде JSON (его рисует фронтенд). Премию к ставке
+    (governance_discount) считаем ЗДЕСЬ по config/governance_mapping.json от scoring.overall_score
+    + red_flags — единый источник числа для фронта и DCF (субагент число не зашивает)."""
     path = COMPANIES_DIR / _safe(ticker).upper() / "governance.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Governance not found")
-    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    scoring = data.get("scoring") or {}
+    overall = scoring.get("overall_score")
+    if overall is not None:
+        cfg = _gov_mapping()
+        pp = compute_governance_premium(overall, scoring.get("red_flags"), cfg)
+        gd = data.get("governance_discount")
+        if not isinstance(gd, dict):
+            gd = {}
+        gd["premium_to_wacc_pp_computed"] = pp
+        gd["contour"] = cfg.get("active_contour")
+        data["governance_discount"] = gd
+    return JSONResponse(content=data)
 
 
 @router.get("/companies/by-ticker/{ticker}/governance-summary", response_class=PlainTextResponse)
