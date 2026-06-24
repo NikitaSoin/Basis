@@ -58,6 +58,7 @@ import MarketNeo from "./market/MarketNeo";
 import LandingNeo from "./market/LandingNeo";
 import BusinessModelTab from "./company/BusinessModelTab";
 import FinanceTab from "./company/FinanceTab";
+import "./styles/governance.css";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -4960,11 +4961,13 @@ const CompanyCard = ({ company, onBack }) => {
     const gd = govJson?.governance_discount || {};
     const premiumPP = typeof gd.premium_to_wacc_pp_computed === "number" ? gd.premium_to_wacc_pp_computed : null;
     const scoreColor = (s) => (s == null ? "var(--text-tertiary)" : s >= 4 ? "var(--success)" : s >= 3 ? "var(--warning)" : "var(--danger)");
-    const ScoreMeter = ({ score, norm }) => (
-      <span className="tw-inline-flex tw-gap-[3px] tw-items-end" title={norm != null ? `норма сектора ${norm}` : undefined}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <span key={i} className="tw-w-[7px] tw-rounded-[1px]" style={{ height: 14, background: i <= Math.round(score) ? scoreColor(score) : "var(--border-strong)", boxShadow: norm != null && i === Math.round(norm) ? "0 0 0 1.5px var(--text-tertiary)" : undefined }} />
-        ))}
+    const govColor = { good: "var(--success)", mixed: "var(--warning)", weak: "var(--danger)" }[meta.governance_quality_flag] || "var(--text-tertiary)";
+    const fmt1 = (x) => Number(x).toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    // 5-сегментный бар оценки фактора (порт .dbar/.dxbar g1): n заполнено, норма — маркер
+    const SegBar = ({ score, norm, cls }) => (
+      <span className={cls === "dx" ? "dxbar" : "dbar"}>
+        {cls !== "dx" && norm != null && <span className="normk" style={{ left: `${(norm / 5) * 100}%` }} />}
+        {[1, 2, 3, 4, 5].map((i) => <i key={i} className={i <= Math.round(score) ? "on" : ""} />)}
       </span>
     );
     const num = (x) => (typeof x === "number" ? x : null);
@@ -5009,58 +5012,96 @@ const CompanyCard = ({ company, onBack }) => {
       <AppearGroup gate={appearGate.current} groupId="governance" className="tw-flex tw-flex-col tw-gap-4">
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
 
-        {/* СЕКЦИЯ 0 — из чего складывается балл (методичка governance-scoring) + связь со ставкой */}
+        {/* СЕКЦИЯ 0 — «Из чего складывается балл» + связь со ставкой (точный порт governance-g1.html) */}
         {overallScore != null && scFactors.length >= 4 && (
-          <Card>
-            {cardHead(Scale, "Из чего складывается балл управления", <Badge tone="neutral">суждение</Badge>)}
-            <div className="tw-flex tw-items-baseline tw-gap-3 tw-flex-wrap tw-mb-1">
-              <span className="tw-font-mono tw-tabular-nums tw-text-[34px] tw-font-semibold tw-leading-none" style={{ color: scoreColor(overallScore) }}>
-                <FinCountUp value={overallScore} gate={govCountGate} render={(n) => fmtNumber(n, { decimals: 1 })} /><span className="tw-text-[16px] tw-text-text-tertiary">/5</span>
-              </span>
-              <Badge tone={FLAG.tone}>{FLAG.t}</Badge>
-              {typeof sc.sector_norm_overall === "number" && <span className="tw-text-[12px] tw-text-text-tertiary">норма сектора {fmtNumber(sc.sector_norm_overall, { decimals: 1 })}</span>}
-            </div>
-            <p className="tw-text-[12.5px] tw-text-text-tertiary tw-mb-3.5">Взвешенный балл по 8 факторам (1–5, балл 3 = норма сектора). Оценка по наблюдаемому поведению, не по наличию документов.</p>
-
-            {redFlags.length > 0 && (
-              <div className="tw-flex tw-flex-col tw-gap-1.5 tw-mb-3.5 tw-rounded-md tw-border-l-2 tw-border-danger tw-bg-danger-soft tw-py-2 tw-px-3">
-                <div className="tw-text-[10px] tw-font-bold tw-uppercase tw-tracking-wider tw-text-danger">Красные флаги</div>
-                {redFlags.map((f, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{f.description || f.label}</div>)}
-              </div>
-            )}
-
-            <div className="tw-flex tw-flex-col tw-gap-2.5">
-              {scFactors.map((f, i) => {
-                const above = typeof f.sector_norm === "number" ? f.score - f.sector_norm : null;
-                return (
-                  <div key={i} className="tw-grid tw-grid-cols-[minmax(0,1fr)_auto_auto] tw-gap-3 tw-items-center tw-py-1.5 tw-border-b tw-border-border-subtle last:tw-border-0">
-                    <div className="tw-min-w-0">
-                      <div className="tw-text-[13px] tw-text-text-primary tw-font-medium">{f.label}<span className="tw-text-[11px] tw-text-text-tertiary tw-font-normal tw-ml-2">вклад {Math.round((f.weight || 0) * 100)}%</span></div>
-                      {f.rationale && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-leading-snug tw-mt-0.5 tw-line-clamp-2">{f.rationale}</div>}
-                    </div>
-                    <ScoreMeter score={f.score} norm={f.sector_norm} />
-                    <div className="tw-text-right tw-min-w-[58px]">
-                      <span className="tw-font-mono tw-tabular-nums tw-text-[14px] tw-font-semibold" style={{ color: scoreColor(f.score) }}>{f.score}<span className="tw-text-[10px] tw-text-text-tertiary">/5</span></span>
-                      {above != null && Math.abs(above) >= 0.5 && <div className="tw-font-mono tw-text-[10px]" style={{ color: above > 0 ? "var(--success)" : "var(--danger)" }}>{above > 0 ? "▲" : "▼"} норма</div>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {premiumPP != null && (
-              <div className="tw-mt-4 tw-rounded-lg tw-border tw-border-border-subtle tw-bg-bg-subtle tw-p-3.5">
-                <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1.5">
-                  <TrendingUp size={15} className="tw-text-accent" />
-                  <span className="tw-text-[13px] tw-font-semibold tw-text-text-primary">Связь с оценкой</span>
-                  <Badge tone="neutral">суждение</Badge>
+          <div className="gov-hybrid" style={{ "--gv": govColor, "--gv-soft": `color-mix(in srgb, ${govColor} 13%, transparent)` }}>
+            {/* вердикт-герой: балл + флаг + связь с оценкой + бары факторов */}
+            <div className="gverdict">
+              <div className="gv-top">
+                <div className="gv-score"><b>{fmt1(overallScore)}</b><s>из 5</s></div>
+                <div className="gv-txt">
+                  <span className="gv-badge">{FLAG.t}</span>
+                  {meta.governance_quality_note && <div className="gv-h">{meta.governance_quality_note}</div>}
+                  {gd.rationale && <div className="gv-s">{gd.rationale}</div>}
                 </div>
-                <p className="tw-text-[12.5px] tw-text-text-secondary tw-leading-relaxed tw-m-0">
-                  Балл <b className="tw-text-text-primary tw-font-mono">{fmtNumber(overallScore, { decimals: 1 })}</b> {redFlags.length > 0 ? "и красные флаги поднимают" : "→"} премию к ставке дисконтирования <b className="tw-text-text-primary tw-font-mono">+{fmtNumber(premiumPP, { decimals: premiumPP % 1 === 0 ? 0 : 1 })} п.п.</b> — это снижает потолок справедливой цены в DCF. Модельное допущение, не факт: премия задаётся методикой Basis (контур «{gd.contour === "contour_a_linear" ? "академический линейный" : "прагматичный выпуклый"}»), а не наблюдаемой ценой.
-                </p>
               </div>
-            )}
-          </Card>
+              {premiumPP != null && (
+                <div className="gv-link">
+                  <span className="tag tag-judg">суждение · связь с оценкой</span>
+                  <div className="gv-chain">
+                    <span className={`n ${overallScore < 3 ? "bad" : overallScore >= 4 ? "good" : ""}`}>{FLAG.t}</span><span className="ar">→</span>
+                    <span className="n">{redFlags.length ? "красный флаг → " : ""}премия <b>+{fmt1(premiumPP)} п.п.</b> в ставке</span><span className="ar">→</span>
+                    <span className="n bad">справедливый потолок ниже</span>
+                  </div>
+                </div>
+              )}
+              <div className="dims">
+                {scFactors.map((f, i) => (
+                  <div className="dim" key={i} style={{ "--score": scoreColor(f.score) }}>
+                    <div className="dn">{f.label}</div>
+                    <SegBar score={f.score} norm={f.sector_norm} />
+                    <div className="dv">{f.score}<s>норма {f.sector_norm ?? "—"}</s></div>
+                  </div>
+                ))}
+              </div>
+              <div className="dims-leg"><span><i className="nm" />норма сектора (медиана сопоставимых эмитентов)</span></div>
+              {redFlags.length > 0 && (
+                <div className="gflags">
+                  <div className="fh">Красные флаги</div>
+                  {redFlags.map((f, i) => <div className="fr" key={i}>{f.description || f.label}</div>)}
+                </div>
+              )}
+            </div>
+
+            {/* из чего складывается балл — обоснование каждой оценки + как считается + связь со ставкой */}
+            <div className="gcard">
+              <h3>Из чего складывается балл <span className="tag tag-judg">суждение</span><span className="hmeta">обоснование каждой оценки</span></h3>
+              <p className="sub">Каждый аспект — с причиной оценки. Веса и вклад в итог — в расчёте ниже.</p>
+              <div className="dimx">
+                {scFactors.map((f, i) => (
+                  <div className="dxrow" key={i} style={{ "--sc": scoreColor(f.score) }}>
+                    <div className="dxhead">
+                      <span className="dxname">{f.label}</span>
+                      <span className="dxw">вклад {Math.round((f.weight || 0) * 100)}%</span>
+                      <SegBar score={f.score} cls="dx" />
+                      <span className="dxval">{f.score}<s>/5</s></span>
+                    </div>
+                    {f.rationale && <div className="dxwhy"><b>Почему {f.score}:</b> {f.rationale}</div>}
+                  </div>
+                ))}
+              </div>
+
+              <div className="calc-card">
+                <div className="ct">Как считается балл</div>
+                <div className="cs">Взвешенная сумма {scFactors.length} аспектов (оценка × вес)</div>
+                <div className="calc-grid">
+                  {scFactors.map((f, i) => (
+                    <div className="calc-row" key={i} style={i < 2 ? { borderTop: 0 } : undefined}>
+                      <span className="cn">{f.label}</span>
+                      <span className="cw">×{Math.round((f.weight || 0) * 100)}%</span>
+                      <span className="cc">{((f.score || 0) * (f.weight || 0)).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="calc-total"><span className="tl">Итоговый балл</span><span className="tv">{fmt1(overallScore)}<s> / 5</s></span></div>
+                {typeof sc.sector_norm_overall === "number" && (
+                  <div className="vsnorm">
+                    <span className="vl">Против нормы сектора</span>
+                    <span className="vnums">{fmt1(overallScore)} <span className="nm">vs {fmt1(sc.sector_norm_overall)}</span></span>
+                    <span className="vgap" style={{ color: overallScore >= sc.sector_norm_overall ? "var(--cc-success)" : "var(--cc-danger)" }}>{overallScore >= sc.sector_norm_overall ? "+" : "−"}{fmt1(Math.abs(overallScore - sc.sector_norm_overall))}</span>
+                  </div>
+                )}
+              </div>
+
+              {premiumPP != null && (
+                <div className="fv-link-box">
+                  <div className="lt">суждение · связь с оценкой</div>
+                  <div className="lv">Балл <b>{fmt1(overallScore)}</b>{redFlags.length ? " и красные флаги" : ""} → <b>+{fmt1(premiumPP)} п.п.</b> к ставке дисконтирования → справедливый потолок в DCF ниже. Модельное допущение (контур «{gd.contour === "contour_a_linear" ? "академический линейный" : "прагматичный выпуклый"}»), а не наблюдаемая цена.</div>
+                </div>
+              )}
+              <p className="fnote">Балл — аналитический ориентир Basis по 8 факторам методики, не инвестиционная рекомендация.</p>
+            </div>
+          </div>
         )}
 
         {/* СЕКЦИЯ 1 — структура владения */}
