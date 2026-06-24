@@ -102,3 +102,71 @@
 .gov-hybrid .fv-link-box .lv{font-size:12.5px;line-height:1.55;color:var(--ink-2);}
 .gov-hybrid .fv-link-box .lv b{color:var(--ink);font-family:var(--mono);}
 .gov-hybrid .fnote{font-size:11px;color:var(--ink-3);line-height:1.5;margin-top:12px;}
+/* двухколоночный макет: основной поток + рейл расчёта балла */
+.gov-hybrid .gov-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;}
+@media(max-width:1040px){.gov-hybrid .gov-layout{grid-template-columns:1fr;}}
+.gov-hybrid .dash{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.gov-hybrid .calc-rail{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px;}
+@media(max-width:1040px){.gov-hybrid .calc-rail{position:static;}}
+.gov-hybrid .calc-rail .calc-card{margin-top:0;}
+.gov-hybrid .scale-strip{display:flex;height:7px;border-radius:5px;overflow:hidden;margin:13px 0 6px;}
+.gov-hybrid .scale-strip i{flex:1;}
+.gov-hybrid .scale-mark{position:relative;height:13px;}
+.gov-hybrid .scale-mark .mk{position:absolute;top:-2px;width:3px;height:13px;background:var(--ink);border-radius:2px;transform:translateX(-50%);}
+.gov-hybrid .scale-mark .nmk{position:absolute;top:-2px;width:2px;height:13px;background:var(--ink-3);transform:translateX(-50%);}
+.gov-hybrid .scale-lbls{display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-3);font-family:var(--mono);}
+.gov-hybrid .rail-kv{margin-top:13px;display:flex;flex-direction:column;gap:5px;}
+.gov-hybrid .rail-kv .rk{display:flex;justify-content:space-between;font-size:12.5px;}
+.gov-hybrid .rail-kv .rk .l{color:var(--ink-3);} .gov-hybrid .rail-kv .rk .v{color:var(--ink);font-weight:600;}
+.gov-hybrid .rail-kv .rk .v.mono{font-family:var(--mono);}
+/* ownership */
+.gov-hybrid .own-bar{display:flex;height:40px;border-radius:9px;overflow:hidden;gap:2px;margin-bottom:14px;}
+.gov-hybrid .own-bar .s{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:#0b0e13;min-width:0;overflow:hidden;}
+.gov-hybrid .own-list{display:flex;flex-direction:column;gap:9px;}
+.gov-hybrid .own-row{display:flex;gap:11px;align-items:flex-start;font-size:13px;}
+.gov-hybrid .own-row .dot{width:10px;height:10px;border-radius:3px;margin-top:4px;flex-shrink:0;}
+.gov-hybrid .own-row .on{color:var(--ink);font-weight:500;}
+.gov-hybrid .own-row .od{color:var(--ink-3);font-size:11.5px;margin-top:1px;}
+.gov-hybrid .own-row .ov{font-family:var(--mono);font-size:13px;color:var(--ink-2);margin-left:auto;font-weight:600;}
+.gov-hybrid .kvbox{margin-top:14px;border-left:2px solid var(--accent);background:var(--accent-soft);border-radius:0 9px 9px 0;padding:13px 15px;}
+.gov-hybrid .kvbox.bad{border-left-color:var(--neg);background:var(--neg-soft);}
+.gov-hybrid .kvrow{display:flex;justify-content:space-between;gap:14px;font-size:13px;padding:3px 0;}
+.gov-hybrid .kvrow .k{color:var(--ink-3);} .gov-hybrid .kvrow .v{color:var(--ink);font-weight:600;text-align:right;}
+/* share classes */
+.gov-hybrid .shclass{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+@media(max-width:600px){.gov-hybrid .shclass{grid-template-columns:1fr;}}
+.gov-hybrid .shc{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+.gov-hybrid .shc .sct{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.gov-hybrid .shc .sctag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:5px;background:var(--line-2);color:var(--ink-2);}
+.gov-hybrid .shc .scd{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:6px;}
+.gov-hybrid .shc .scd b{color:var(--ink-2);}
+/* dividends chart */
+.gov-hybrid .dch-cap{font-size:10px;color:var(--ink-3);font-family:var(--mono);margin-top:5px;text-align:center;}
+.gov-hybrid .bc-v{fill:var(--ink-2);font-family:var(--mono);font-size:9px;}
+.gov-hybrid .bc-y{fill:var(--ink-3);font-family:var(--mono);font-size:8.5px;}
+/* precedents */
+.gov-hybrid .prec{display:flex;flex-direction:column;gap:10px;}
+.gov-hybrid .pcard{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:start;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+.gov-hybrid .pcard .py{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);}
+.gov-hybrid .pcard .pt{font-size:13.5px;font-weight:600;color:var(--ink);}
+.gov-hybrid .pcard .pd{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:3px;}
+.gov-hybrid .pcard .pimp{font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:5px;white-space:nowrap;align-self:start;}
+.gov-hybrid .pimp.neg{background:var(--neg-soft);color:var(--neg);} .gov-hybrid .pimp.neu{background:var(--line-2);color:var(--ink-2);} .gov-hybrid .pimp.pos{background:var(--pos-soft);color:var(--pos);}
+/* risks */
+.gov-hybrid .minifacts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.gov-hybrid .mf{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--ink-3);}
+.gov-hybrid .mf b{display:block;font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:600;margin-bottom:1px;}
+.gov-hybrid .grisks{display:flex;flex-direction:column;gap:10px;}
+.gov-hybrid .grisk{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;border-left:2px solid var(--sev);}
+.gov-hybrid .grisk .gh{display:flex;align-items:center;gap:10px;}
+.gov-hybrid .grisk .gt{font-size:13.5px;font-weight:600;color:var(--ink);}
+.gov-hybrid .grisk .gsev{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sev);}
+.gov-hybrid .grisk .gd{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:5px;}
+/* related-party callout */
+.gov-hybrid .rp{background:var(--neg-soft);border:1px solid var(--neg);border-radius:var(--r-lg);padding:18px 20px;display:flex;gap:15px;align-items:flex-start;}
+.gov-hybrid .rp.lowsev{background:var(--panel-2);border-color:var(--line-2);}
+.gov-hybrid .rp .ri{width:34px;height:34px;border-radius:9px;background:var(--neg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gov-hybrid .rp.lowsev .ri{background:var(--ink-3);}
+.gov-hybrid .rp .rt{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink);}
+.gov-hybrid .rp .rd{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:5px;}
+.gov-hybrid .rp .rd b{color:var(--ink);}
