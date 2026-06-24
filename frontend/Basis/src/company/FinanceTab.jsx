@@ -153,8 +153,11 @@ function Scatter({ peers, year, meTicker }) {
   const Y = (v) => H - pB - ((v - ymin) / (ymax - ymin)) * (H - pT - pB);
   const fn = (v) => num(v, 2);
   const ticks = [0, 1, 2, 3, 4];
+  const wrapRef = useRef(null);
+  const [tip, setTip] = useState(null);
+  const showTip = (e, p) => { const r = wrapRef.current && wrapRef.current.getBoundingClientRect(); if (!r) return; setTip({ left: e.clientX - r.left, top: e.clientY - r.top, t: p.ticker, xv: fn(get(p, xk)), yv: fn(get(p, yk)) }); };
   return (
-    <div className="fc-scat fc-scat-big">
+    <div className="fc-scat fc-scat-big" ref={wrapRef}>
       <div className="scat-axsel">
         <label>Ось Y</label><DSel value={yk} options={AX} onPick={setYk} />
         <span className="axx">×</span>
@@ -171,14 +174,18 @@ function Scatter({ peers, year, meTicker }) {
           const me = p.ticker === meTicker, c = me ? "var(--accent)" : "var(--ink-2)", rr = me ? 11 : 8;
           const cx = X(get(p, xk)), cy = Y(get(p, yk));
           return (
-            <g className={`bub${me ? " me" : ""}`} key={i}>
-              <title>{`${p.ticker}\n${AX[xk]}: ${fn(get(p, xk))}\n${AX[yk]}: ${fn(get(p, yk))}`}</title>
+            <g className={`bub${me ? " me" : ""}`} key={i} onMouseEnter={(e) => showTip(e, p)} onMouseMove={(e) => showTip(e, p)} onMouseLeave={() => setTip(null)}>
               <circle cx={cx.toFixed(1)} cy={cy.toFixed(1)} r={rr} fill={c} fillOpacity={me ? 0.85 : 0.5} stroke={c} strokeWidth={me ? 2 : 1.3} />
               <text className={`lbl${me ? " me" : ""}`} x={(cx + rr + 3).toFixed(1)} y={(cy + 4).toFixed(1)}>{p.ticker}</text>
             </g>
           );
         })}
       </svg>
+      {tip && (
+        <div className="scat-tip" style={{ opacity: 1, left: Math.min(tip.left + 14, (wrapRef.current ? wrapRef.current.clientWidth : 600) - 150), top: tip.top + 14 }}>
+          <b>{tip.t}</b>{AX[xk]}: {tip.xv}<br />{AX[yk]}: {tip.yv}
+        </div>
+      )}
     </div>
   );
 }
@@ -234,13 +241,41 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const margins = is.margins || {};
   const ebMargin = lastN(margins.ebitda_margin);
 
+  // Единица отчётности РАЗНАЯ по компаниям (млн / млрд / тыс) — приводим денежные
+  // суммы к млн (внутренняя норма bln), иначе у OZON «млрд» рисуется как «млн».
+  const U = ({ "млн": 1, "млрд": 1000, "тыс": 0.001, "тысячи": 0.001, "тыс. руб.": 0.001 })[meta.unit] ?? 1;
+  const B = (v) => bln(v == null || isNaN(v) ? null : v * U); // денежное значение → {v,u} в млрд/трлн
+
+  // ── полные статьи отчётности (как в прежнем рендере): вложенные объекты баланса,
+  // статьи затрат, потоки ОДДС, банковский профиль ── */
+  const isBank = meta.profile === "bank";
+  const adjBlk = fin.adjusted || {};
+  const bp = fin.bank_pnl || {}, bmx = fin.bank_metrics || {};
+  const ga = (o, k) => (o && Array.isArray(o[k]) && o[k].some((x) => x != null)) ? o[k] : null;
+  const orSum = (explicit, comps) => {
+    if (Array.isArray(explicit) && explicit.some((x) => x != null)) return explicit;
+    const cs = comps.filter(Array.isArray);
+    if (!cs.length) return null;
+    const n = Math.max(...cs.map((a) => a.length));
+    const out = Array.from({ length: n }, (_, i) => { let s = null; cs.forEach((a) => { if (a[i] != null) s = (s ?? 0) + a[i]; }); return s; });
+    return out.some((x) => x != null) ? out : null;
+  };
+  const eqb = (bs.equity && !Array.isArray(bs.equity)) ? bs.equity : {};
+  const nca = bs.non_current_assets || {}, cua = bs.current_assets || {};
+  const ncl = bs.non_current_liabilities || {}, cul = bs.current_liabilities || {};
+  const totalEquityArr = ga(bs, "total_equity") || ga(eqb, "total_equity") || (Array.isArray(bs.equity) ? bs.equity : fin.total_equity);
+  const costFmt = is.cost_format || ((Array.isArray(is.cogs) && is.cogs.some((x) => x != null)) ? "by_function" : "by_nature");
+  const isByFunc = costFmt === "by_function";
+  const expLines = Array.isArray(is.expense_lines) ? is.expense_lines : [];
+  const rosArr = (margins.ros && margins.ros.some && margins.ros.some((x) => x != null)) ? margins.ros : margins.net_margin;
+
   /* 1. Разбор отчёта */
   const revYoy = yoy(is.revenue), npYoy = yoy(is.net_profit), ebYoy = yoy(is.ebitda);
   const rows = [];
-  if (lastN(is.revenue) != null) { const b = bln(lastN(is.revenue)); rows.push({ ic: "ok", t: <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-  if (lastN(is.ebitda) != null) { const b = bln(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
-  if (lastN(is.net_profit) != null) { const b = bln(lastN(is.net_profit)); rows.push({ ic: npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль <b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-  if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {bln(nd).v} {bln(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
+  if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+  if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
+  if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль <b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+  if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {B(nd).v} {B(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
   const verdictHead = (npYoy != null && revYoy != null)
     ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
     : `Итоги ${lastYr} · ${std}`;
@@ -277,64 +312,134 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     { label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" },
   ];
 
-  /* 4. Таблицы по годам */
+  /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
+        det:true — деталь (скрыта до «Детализация статей»). */
   const yslice = years.slice(-5);
   const sl = (a) => (Array.isArray(a) ? a.slice(-5) : []);
-  const pnlRows = [
-    { l: "Выручка", a: is.revenue, cls: "bold" },
-    { l: "Себестоимость продаж", a: is.cogs, det: true },
-    { l: "Валовая прибыль", a: is.gross_profit, det: true },
-    { l: "EBITDA", a: is.ebitda, cls: "bold" },
-    { l: "Амортизация", a: is.da, det: true },
-    { l: "EBIT", a: is.operating_profit, det: true },
-    { l: "Чистая прибыль", a: is.net_profit, cls: "bold" },
-    { l: "ЧП норм.", a: adj.net_profit_adj, cls: "accent" },
-    { l: "Маржа EBITDA", a: margins.ebitda_margin, suf: " %", d: 1 },
-    { l: "Рент. (ROS)", a: ret.ros || margins.ros, suf: " %", d: 1 },
+  const M = (l, a, o = {}) => ({ l, a, kind: "money", ...o });
+  const pnlRows = isBank
+    ? [
+        M("Чистый проц. доход", bp.net_interest_income, { bold: true }),
+        M("Чистый комис. доход", bp.net_fee_income),
+        M("Операц. доходы", bp.operating_income),
+        M("Резервы", bp.provisions),
+        M("Чистая прибыль", bp.net_profit, { bold: true }),
+      ]
+    : [
+        M("Выручка", is.revenue, { bold: true }),
+        ...(isByFunc
+          ? [
+              M("Себестоимость", is.cogs, { det: true, muted: true }),
+              M("Валовая прибыль", orSum(is.gross_profit, [is.revenue, is.cogs && is.cogs.map((x) => x == null ? null : -x)]), { bold: true }),
+              M("Операционные расходы", is.operating_expenses, { det: true, muted: true }),
+            ]
+          : expLines.map((el) => M(el.name, el.values, { det: true, muted: true }))),
+        M("EBITDA", is.ebitda, { bold: true }),
+        M("Амортизация", is.da, { det: true, muted: true }),
+        M("Операционная прибыль (EBIT)", is.operating_profit, { bold: true }),
+        M("Финансовые расходы", is.finance_costs, { det: true, muted: true }),
+        M("Финансовые доходы", is.finance_income, { det: true, muted: true }),
+        M("Прибыль до налога", is.pre_tax_profit, { det: true, muted: true }),
+        M("Налог на прибыль", is.income_tax, { det: true, muted: true }),
+        M("Чистая прибыль", is.net_profit, { bold: true }),
+        M("Чистая прибыль (норм.)", adjBlk.net_profit_adj, { bold: true, accent: true }),
+        ...(isByFunc ? [{ l: "Валовая маржа", a: margins.gross_margin, kind: "pct", det: true, muted: true }] : []),
+        { l: "Маржа EBITDA", a: margins.ebitda_margin, kind: "pct", det: true, muted: true },
+        { l: "Операционная маржа", a: margins.operating_margin, kind: "pct", det: true, muted: true },
+        { l: "Рентабельность (ROS)", a: rosArr, kind: "pct", muted: true },
+      ];
+  const bsRows = isBank
+    ? [
+        M("Активы", bs.total_assets, { bold: true }),
+        M("Капитал", totalEquityArr, { bold: true }),
+        M("Обязательства", bs.total_liabilities),
+        { l: "Балансовая ст-ть / акция", a: bs.book_value_per_share, kind: "rub", muted: true },
+      ]
+    : [
+        M("Внеоборотные активы", orSum(ga(nca, "total_non_current"), [nca.ppe, nca.intangibles, nca.goodwill, nca.long_term_investments, nca.other_non_current]), { bold: true }),
+        M("Основные средства", nca.ppe, { det: true, muted: true }),
+        M("Нематериальные активы", nca.intangibles, { det: true, muted: true }),
+        M("Гудвил", nca.goodwill, { det: true, muted: true }),
+        M("Долгосрочные вложения", nca.long_term_investments, { det: true, muted: true }),
+        M("Прочие внеоборотные", nca.other_non_current, { det: true, muted: true }),
+        M("Оборотные активы", orSum(ga(cua, "total_current"), [cua.inventory, cua.receivables, cua.cash, cua.short_term_investments, cua.other_current]), { bold: true }),
+        M("Запасы", cua.inventory, { det: true, muted: true }),
+        M("Дебиторская задолженность", cua.receivables, { det: true, muted: true }),
+        M("Денежные средства", cua.cash || bs.cash, { det: true, muted: true }),
+        M("Краткосрочные вложения", cua.short_term_investments, { det: true, muted: true }),
+        M("Прочие оборотные", cua.other_current, { det: true, muted: true }),
+        M("ИТОГО АКТИВЫ", bs.total_assets, { bold: true }),
+        M("Капитал", totalEquityArr, { bold: true }),
+        M("Уставный капитал", eqb.share_capital, { det: true, muted: true }),
+        M("Нераспределённая прибыль", eqb.retained_earnings, { det: true, muted: true }),
+        M("Добавочный капитал", eqb.additional_paid_in, { det: true, muted: true }),
+        M("Прочий капитал", eqb.other_equity, { det: true, muted: true }),
+        M("Долгосрочные обязательства", orSum(ga(ncl, "total_non_current_liab"), [ncl.long_term_debt, ncl.deferred_tax, ncl.other_non_current_liab]), { bold: true }),
+        M("Долгосрочный долг", ncl.long_term_debt || bs.long_term_debt, { det: true, muted: true }),
+        M("Отложенный налог", ncl.deferred_tax, { det: true, muted: true }),
+        M("Прочие долгосрочные", ncl.other_non_current_liab, { det: true, muted: true }),
+        M("Краткосрочные обязательства", orSum(ga(cul, "total_current_liab"), [cul.short_term_debt, cul.payables, cul.other_current_liab]), { bold: true }),
+        M("Краткосрочный долг", cul.short_term_debt || bs.short_term_debt, { det: true, muted: true }),
+        M("Кредиторская задолженность", cul.payables, { det: true, muted: true }),
+        M("Прочие краткосрочные", cul.other_current_liab, { det: true, muted: true }),
+        M("ИТОГО ОБЯЗАТЕЛЬСТВА", bs.total_liabilities, { bold: true }),
+        M("Чистый долг", bs.net_debt),
+        { l: "ND / EBITDA", a: ndeArr, kind: "x", muted: true },
+      ];
+  const cfoLines = Array.isArray(cf.cfo_lines) ? cf.cfo_lines : [];
+  const cfiLines = Array.isArray(cf.cfi_lines) ? cf.cfi_lines : [];
+  const cffLines = Array.isArray(cf.cff_lines) ? cf.cff_lines : [];
+  const cfRows = isBank ? [] : [
+    M("Операционный поток (CFO)", cf.cfo, { bold: true }),
+    ...cfoLines.map((l) => M(l.name, l.values, { det: true, muted: true })),
+    M("Инвестиционный поток (CFI)", cf.cfi, { bold: true }),
+    ...(cfiLines.length ? cfiLines.map((l) => M(l.name, l.values, { det: true, muted: true })) : [M("Капзатраты", cf.capex, { det: true, muted: true })]),
+    M("Финансовый поток (CFF)", cf.cff, { bold: true }),
+    ...cffLines.map((l) => M(l.name, l.values, { det: true, muted: true })),
+    M("Чистое изменение ДС", orSum(cf.net_change_in_cash, [cf.cfo, cf.cfi, cf.cff]), { bold: true }),
+    M("Свободный поток (FCF)", cf.fcf, { bold: true, accent: true }),
+    { l: "FCF-маржа", a: cf.ratios && cf.ratios.fcf_margin, kind: "pct", muted: true },
   ];
-  const TABLES = {
-    pnl: pnlRows,
-    bs: [
-      { l: "Внеоборотные активы", a: bs.non_current_assets },
-      { l: "Оборотные активы", a: bs.current_assets },
-      { l: "Итого активы", a: bs.total_assets, cls: "bold" },
-      { l: "Капитал", a: bs.equity || bs.total_equity || fin.total_equity, cls: "bold" },
-      { l: "Чистый долг", a: bs.net_debt, cls: "bold" },
-      { l: "ND / EBITDA", a: ndeArr, suf: "×", d: 2, cls: "accent" },
-    ],
-    cf: [
-      { l: "Операционный (CFO)", a: cf.cfo, cls: "bold" },
-      { l: "Инвестиционный (CFI)", a: cf.cfi },
-      { l: "Капзатраты", a: cf.capex },
-      { l: "Финансовый (CFF)", a: cf.cff },
-      { l: "Свободный поток (FCF)", a: cf.fcf, cls: "bold accent" },
-    ],
-    mult: [
-      { l: "P/E", a: mult.pe, d: 2 }, { l: "P/B", a: mult.pb, d: 2 },
-      { l: "EV/EBITDA", a: mult.ev_ebitda, d: 2 },
-      { l: "ROE", a: ret.roe, suf: " %", d: 1, cls: "bold" }, { l: "ROIC", a: ret.roic, suf: " %", d: 1 },
-    ],
-  };
+  const multRows = [
+    { l: "P/E", a: mult.pe, kind: "ratio" },
+    { l: "P/E (норм.)", a: mult.pe_adj, kind: "ratio", accent: true },
+    { l: "P/S", a: mult.ps, kind: "ratio" },
+    { l: "P/B", a: mult.pb, kind: "ratio" },
+    { l: "EV/EBITDA", a: mult.ev_ebitda, kind: "ratio" },
+    { l: "ROE", a: ret.roe, kind: "pct", muted: true },
+    { l: "ROA", a: ret.roa, kind: "pct", muted: true },
+    { l: "ROIC", a: ret.roic, kind: "pct", muted: true },
+    { l: "Маржа EBITDA", a: margins.ebitda_margin, kind: "pct", muted: true },
+    { l: "Чистая маржа", a: margins.net_margin, kind: "pct", muted: true },
+    ...(isBank ? [
+      { l: "ЧПМ (NIM)", a: bmx.nim, kind: "pct", muted: true },
+      { l: "Стоимость риска", a: bmx.cost_of_risk, kind: "pct", muted: true },
+      { l: "CIR", a: bmx.cir, kind: "pct", muted: true },
+      { l: "Достаточность кап.", a: bmx.capital_adequacy, kind: "pct", muted: true },
+    ] : []),
+  ];
+  const TABLES = { pnl: pnlRows, bs: bsRows, cf: cfRows, mult: multRows };
   const hasTable = (k) => TABLES[k].some((r) => sl(r.a).some((x) => x != null));
   const tabsAvail = ["pnl", "bs", "cf", "mult"].filter(hasTable);
   const curTab = tabsAvail.includes(tab) ? tab : (tabsAvail[0] || "pnl");
   const TLABEL = { pnl: "P&L", bs: "Баланс", cf: "ОДДС", mult: "Мультипликаторы" };
-  const yoyAnnotate = curTab !== "mult";
-  // ячейка значения
+  const curHasDet = TABLES[curTab].some((r) => r.det && sl(r.a).some((x) => x != null));
+  // форматирование ячейки по kind
   const fmtCell = (r, v) => {
     if (v == null || isNaN(v)) return "—";
-    if (r.suf != null) return num(v, r.d ?? 2) + r.suf;
-    if (curTab === "mult") return num(v, r.d ?? 2);
-    return bln(v).v;
+    if (r.kind === "pct") return num(v, 1) + " %";
+    if (r.kind === "ratio") return num(v, 2);
+    if (r.kind === "x") return num(v, 2) + "×";
+    if (r.kind === "rub") return num(v, 1) + " ₽";
+    return B(v).v; // money
   };
   const cellDelta = (r, vals, j) => {
-    if (!yoyAnnotate || j === 0) return null;
+    if (j === 0 || !["money", "pct"].includes(r.kind)) return null;
     const cv = vals[j], pv = vals[j - 1];
     if (cv == null || pv == null) return null;
-    const isPct = r.suf === " %";
-    if (isPct) { const dd = cv - pv; const cls = dd > 0.05 ? "up" : dd < -0.05 ? "dn" : "fl"; return <span className={`yoy ${cls}`}>{dd > 0 ? "▲" : dd < 0 ? "▼" : "▬"} {num(Math.abs(dd), 1)} пп</span>; }
+    if (r.kind === "pct") { const dd = cv - pv; const cls = dd > 0.05 ? "up" : dd < -0.05 ? "dn" : "fl"; return <span className={`yoy ${cls}`}>{dd > 0 ? "▲" : dd < 0 ? "▼" : "▬"} {num(Math.abs(dd), 1)} пп</span>; }
     if (pv === 0) return null;
-    const ch = (cv / pv - 1) * 100; const cls = ch > 0.5 ? "up" : ch < -0.5 ? "dn" : "fl";
+    const ch = (cv - pv) / Math.abs(pv) * 100; const cls = ch > 0.5 ? "up" : ch < -0.5 ? "dn" : "fl";
     return <span className={`yoy ${cls}`}>{ch > 0 ? "▲" : ch < 0 ? "▼" : "▬"} {num(Math.abs(ch), 1)} %</span>;
   };
   const unitNote = curTab === "mult" ? "×, %" : "млрд ₽";
@@ -342,8 +447,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   /* динамика */
   const fmtT = (v) => num(v / 1000, 2), fmtN = (v) => num(v, 0), fmtP = (v) => num(v, 0);
   const dyn = [];
-  if (sl(is.revenue).some((x) => x != null)) dyn.push({ l: "Выручка", data: sl(is.revenue).map((v) => v == null ? null : v / 1000), color: "var(--accent)", fmt: fmtT, head: bln(lastN(is.revenue)), d: revYoy, cap: "трлн ₽" });
-  if (sl(is.net_profit).some((x) => x != null)) dyn.push({ l: "Чистая прибыль", data: sl(is.net_profit).map((v) => v == null ? null : v / 1000), color: "var(--amber)", fmt: fmtN, head: bln(lastN(is.net_profit)), d: npYoy, cap: "млрд ₽" });
+  if (sl(is.revenue).some((x) => x != null)) dyn.push({ l: "Выручка", data: sl(is.revenue).map((v) => v == null ? null : v * U / 1000), color: "var(--accent)", fmt: fmtT, head: B(lastN(is.revenue)), d: revYoy, cap: "трлн ₽" });
+  if (sl(is.net_profit).some((x) => x != null)) dyn.push({ l: "Чистая прибыль", data: sl(is.net_profit).map((v) => v == null ? null : v * U / 1000), color: "var(--amber)", fmt: fmtN, head: B(lastN(is.net_profit)), d: npYoy, cap: "млрд ₽" });
   if (sl(margins.ebitda_margin).some((x) => x != null)) dyn.push({ l: "Маржа EBITDA", data: sl(margins.ebitda_margin), color: "var(--pos)", fmt: fmtP, head: { v: num(ebMargin, 1), u: "%" }, d: (ebMargin != null && prevN(margins.ebitda_margin) != null) ? ebMargin - prevN(margins.ebitda_margin) : null, isPP: true, cap: "% · " });
 
   /* нормализация (последние 2 года, отчётная → норм.) */
@@ -466,7 +571,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
             <h3>Ключевые показатели и мультипликаторы <span className="tag tag-fact">факт</span><span className="hmeta">{livePrice ? `цена ${num(livePrice, 2)} ${ccy} · ` : ""}позиция к {sm ? "среднему по сектору" : "своей 5-летней норме"}</span></h3>
             <p className="sub">Масштаб бизнеса — абсолютные показатели за {lastYr} ({std})</p>
             <div className="kfi">
-              {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : bln(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} />}</span></div>); })}
+              {kfi.map((k, i) => { const b = k.pctv != null ? { v: num(k.pctv, 1), u: "%" } : B(lastN(k.a)); return (<div className="kf" key={i}><span className="kf-l">{k.l}</span><span className="kf-v">{b.v}<s> {b.u}</s></span><span className="kf-d">{k.d != null && <Delta v={k.d} pp={k.isPP} />}</span></div>); })}
             </div>
             <p className="sub" style={{ marginTop: 16 }}>Мультипликаторы — не просто число, а позиция относительно {sm ? "среднего по сектору" : "собственной 5-летней нормы"}</p>
             <div className="mcards">{mcards.map((m, i) => <MCard key={i} {...m} />)}</div>
@@ -494,7 +599,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 <div className="subh">Отчётность и мультипликаторы</div>
                 <div className="mtbar">
                   <div className="miniseg">{tabsAvail.map((k) => <button key={k} className={curTab === k ? "on" : ""} onClick={() => setTab(k)}>{TLABEL[k]}</button>)}</div>
-                  {curTab === "pnl" && <button className={`det-toggle${detOpen ? " on" : ""}`} type="button" onClick={() => setDetOpen((o) => !o)}>
+                  {curHasDet && <button className={`det-toggle${detOpen ? " on" : ""}`} type="button" onClick={() => setDetOpen((o) => !o)}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M7 12h10M10 18h4" /></svg>
                     <span>Детализация статей</span>
                     <svg className="di" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 9l6 6 6-6" /></svg>
@@ -508,7 +613,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         if (r.det && !detOpen) return null;
                         const vals = sl(r.a);
                         if (!vals.some((x) => x != null)) return null;
-                        return (<tr className={r.cls || ""} key={i}><td>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
+                        const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
+                        return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
                       })}
                     </tbody>
                   </table>
@@ -519,8 +625,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   <table className="fc-norm"><tbody>
                     {normYears.map((nz, i) => (
                       <React.Fragment key={i}>
-                        <tr className="yr"><td colSpan="3">{nz.y} · отчётная {num(nz.rep / 1000, 1)} → <span style={{ color: "var(--pos)" }}>норм. {num(nz.adv / 1000, 1)} млрд</span></td></tr>
-                        <tr><td>{nz.delta >= 0 ? "+ " : "− "}Разовые (обесценение, курсовые), нетто налога</td><td className={`amt ${nz.delta >= 0 ? "pos" : "neg"}`}>{nz.delta >= 0 ? "+" : "−"}{num(Math.abs(nz.delta) / 1000, 1)}</td><td className="lvl"><span className="tg fc-tg-e">оценка</span></td></tr>
+                        <tr className="yr"><td colSpan="3">{nz.y} · отчётная {B(nz.rep).v} → <span style={{ color: "var(--pos)" }}>норм. {B(nz.adv).v} {B(nz.adv).u}</span></td></tr>
+                        <tr><td>{nz.delta >= 0 ? "+ " : "− "}Разовые (обесценение, курсовые), нетто налога</td><td className={`amt ${nz.delta >= 0 ? "pos" : "neg"}`}>{nz.delta >= 0 ? "+" : "−"}{B(Math.abs(nz.delta)).v}</td><td className="lvl"><span className="tg fc-tg-e">оценка</span></td></tr>
                       </React.Fragment>
                     ))}
                   </tbody></table>
