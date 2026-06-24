@@ -58,6 +58,7 @@ import MarketNeo from "./market/MarketNeo";
 import LandingNeo from "./market/LandingNeo";
 import BusinessModelTab from "./company/BusinessModelTab";
 import FinanceTab from "./company/FinanceTab";
+import GovernanceTab from "./company/GovernanceTab";
 import "./styles/governance.css";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
@@ -4944,6 +4945,13 @@ const CompanyCard = ({ company, onBack }) => {
     );
     if (!govMd && !govJson) return renderComingSoon("Корпоративное управление");
 
+    // Гибрид-вкладка «Корп. управление» (полный порт governance-g1.html): вердикт-герой,
+    // из чего складывается балл, владение, дивиденды, прецеденты, риски, связанные стороны
+    // + правый рейл расчёта балла. Старый NEO-рендер ниже — фолбэк для govMd без govJson.
+    if (govJson) {
+      return <GovernanceTab gov={govJson} company={company} finJson={finJson} />;
+    }
+
     const meta = govJson?.meta || {};
     const own = govJson?.ownership || {};
     const div = govJson?.dividends || {};
@@ -6477,9 +6485,10 @@ const CompanyCard = ({ company, onBack }) => {
       })()}
 
       {NEO ? (
-        // Вкладка «Финансы» — на всю ширину: у неё свой правый рейл «Заметка аналитика»
-        // (гибрид-дизайн FinanceTab), глобальный Decision-rail дублировал бы его.
-        tab === "finance" ? (
+        // Вкладки «Финансы» и «Корп. управление» — на всю ширину: у них свой правый рейл
+        // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл»), глобальный
+        // Decision-rail дублировал бы его.
+        (tab === "finance" || tab === "governance") ? (
           <div className="tw-min-w-0">{tabBody}</div>
         ) : (
           <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
