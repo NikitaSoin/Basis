@@ -1279,7 +1279,23 @@ return при наличии finJson (старый рендер — фолбэк
 по всем → заполнить scoring (8 баллов+норма+overall+red_flags) в governance.json +
 синтез governance_summary.md. Идемпотентно/resumable, батчами, коммит после батча.
 Спот-чек 5–7 типов (гос/преф/частная/квазиказна) — баллы по фактам и рубрике.
-СТАТУС РАСКАТКИ: 19/264. Батч-4 закрыт (AFLT 3.1, PHOR 3.9, MOEX 4.6, RUAL 3.1, YDEX 3.5). Разброс баллов 2.2–4.6 — шкала дифференцирует. Запущен батч-5 (TCSG/NLMK/TRNFP/IRAO/SIBN). Батч-2 закрыт (LKOH 3.7, PLZL 2.8, ROSN 3.1, MTSS 2.9, NVTK 4.0). Батч-3 закрыт (TATN 3.6, CHMF 4.1, GAZP 2.7, VTBR 2.2, MGNT 2.3). Override red_flag валиден (GAZP/VTBR/MGNT → 4.0 п.п.). NB: у CHMF (как у AFKS) financials.json несёт старую governance-премию — сведётся при регенерации финансов. Батч-1 (спот-чек разных типов) залит и валиден:
+СТАТУС РАСКАТКИ: 19/264 (готово и на бою). Разброс баллов 2.2–4.6 — шкала дифференцирует.
+Готовы (батчи 1–4): GMKN 3.7, SBER 4.2, SNGS 2.4, AFKS 3.0, LKOH 3.7, ROSN 3.1, NVTK 4.0,
+PLZL 2.8, MTSS 2.9, GAZP 2.7*, CHMF 4.1, MGNT 2.3**, TATN 3.6, VTBR 2.2*, AFLT 3.1,
+PHOR 3.9, MOEX 4.6, RUAL 3.1, YDEX 3.5 (* = активный red_flag, override премии →4.0 п.п.).
+ПАЙПЛАЙН ПРОВЕРЕН: scoring 8 факторов, веса=1.0, premium=null (бэк считает по конфигу),
+v3-поля сохранены, red_flag override валиден (GAZP/VTBR/MGNT).
+
+СЛЕДУЮЩАЯ СЕССИЯ — продолжить раскатку (НЕ запущена, ждёт): прогон governance-analyst
+по остальным ~245 тикерам батчами по 4–6, idempotent. Порядок: крупные/ликвидные сначала
+(TCSG, NLMK, MAGN, TRNFP, IRAO, SIBN, HYDR, OZON, PIKK, SMLT, T, FLOT, BSPB, SVCB,
+RTKM, AFLT done... и далее весь реестр backend/companies/*/). Цикл на компанию:
+governance-analyst (subagent) → проверка (8 факторов, веса=1.0, overall=Σ, premium=null,
+v3 сохранены) → коммит → bump счётчика здесь. ОСТАЛОСЬ ~245.
+
+ПОБОЧНОЕ (для шага раскатки финансов): где балл по новому конфигу расходится с зашитой в
+financials.json governance-премией (видели у AFKS +3.0→1.5, CHMF +0.5→1.5) — сведётся при
+регенерации financials (DCF берёт премию из конфига/governance_discount.premium_to_wacc_pp_computed). Батч-2 закрыт (LKOH 3.7, PLZL 2.8, ROSN 3.1, MTSS 2.9, NVTK 4.0). Батч-3 закрыт (TATN 3.6, CHMF 4.1, GAZP 2.7, VTBR 2.2, MGNT 2.3). Override red_flag валиден (GAZP/VTBR/MGNT → 4.0 п.п.). NB: у CHMF (как у AFKS) financials.json несёт старую governance-премию — сведётся при регенерации финансов. Батч-1 (спот-чек разных типов) залит и валиден:
 GMKN 3.7 (частн./стратеги) · SBER 4.2 good (госбанк) · SNGS 2.4 weak (преф/непрозр./квазиказна) ·
 AFKS 3.0 (холдинг, дивиденд из апстрима на долг). СПОТ-ЧЕК ПРОЙДЕН: баллы дифференцированы по
 типам и стоят на фактах, не «на глаз»; v3-поля сохранены; premium=null (считает бэк). Премии
