@@ -1279,7 +1279,7 @@ return при наличии finJson (старый рендер — фолбэк
 по всем → заполнить scoring (8 баллов+норма+overall+red_flags) в governance.json +
 синтез governance_summary.md. Идемпотентно/resumable, батчами, коммит после батча.
 Спот-чек 5–7 типов (гос/преф/частная/квазиказна) — баллы по фактам и рубрике.
-СТАТУС РАСКАТКИ: 41/264 (+SELG 3.0). Батч-9: RASP/BELU/SMLT в работе. Батч-8 закрыт (MTLR 1.9, UGLD 2.2, AKRN 2.6, ENPG 2.9, FEES 2.5). КЕЙС-ВАЛИДАЦИЯ: деприватизация ЮГК активировала триггер deprivatization. NB: TCSG=тикер T; rp_signal из gq/meta/корня; severe-override (5.0) не срабатывал (red_flag.severity не ставится high). Батч-7 закрыт (SVCB 3.4, RTKM 3.2, FLOT 3.3, BANE 2.2, UPRO 2.8). КРОСС-ЧЕК: BANE — компания прототипа g1 (иллюстр. 2.3) → реально 2.2, методика воспроизводит. NB: TCSG=тикер T. NB2: у BANE financials.json несёт старую governance-премию +3.0 vs override +4.0 — свести при регенерации финансов.. Разброс баллов 2.2–4.6 — шкала дифференцирует.
+СТАТУС РАСКАТКИ: 43/264 (+BELU 3.1, RASP 3.0). Батч-9: SMLT в работе. Батч-8 закрыт (MTLR 1.9, UGLD 2.2, AKRN 2.6, ENPG 2.9, FEES 2.5). КЕЙС-ВАЛИДАЦИЯ: деприватизация ЮГК активировала триггер deprivatization. NB: TCSG=тикер T; rp_signal из gq/meta/корня; severe-override (5.0) не срабатывал (red_flag.severity не ставится high). Батч-7 закрыт (SVCB 3.4, RTKM 3.2, FLOT 3.3, BANE 2.2, UPRO 2.8). КРОСС-ЧЕК: BANE — компания прототипа g1 (иллюстр. 2.3) → реально 2.2, методика воспроизводит. NB: TCSG=тикер T. NB2: у BANE financials.json несёт старую governance-премию +3.0 vs override +4.0 — свести при регенерации финансов.. Разброс баллов 2.2–4.6 — шкала дифференцирует.
 Готовы (батчи 1–4): GMKN 3.7, SBER 4.2, SNGS 2.4, AFKS 3.0, LKOH 3.7, ROSN 3.1, NVTK 4.0,
 PLZL 2.8, MTSS 2.9, GAZP 2.7*, CHMF 4.1, MGNT 2.3**, TATN 3.6, VTBR 2.2*, AFLT 3.1,
 PHOR 3.9, MOEX 4.6, RUAL 3.1, YDEX 3.5 (* = активный red_flag, override премии →4.0 п.п.).
@@ -1316,5 +1316,5 @@ AFKS 3.0 (холдинг, дивиденд из апстрима на долг).
 NB: у AFKS financials.json несёт старую governance-премию +3.0 п.п., а балл 3.0 без red-flag
 по контуру b даёт ~+1.5 — РАСХОЖДЕНИЕ сведётся, когда регенерится financials (DCF берёт премию
 из конфига). Пометить при раскатке финансов.
-ОСТАЛОСЬ 223 компании — продолжать батчами (governance-analyst, idempotent). Запущен батч-2
+ОСТАЛОСЬ 221 компания — продолжать батчами (governance-analyst, idempotent). Запущен батч-2
 (LKOH/ROSN/NVTK/PLZL/MTSS).
