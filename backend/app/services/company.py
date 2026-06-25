@@ -32,11 +32,15 @@ def _untraded_ordinary_cap(company: Company):
 
 
 def _attach_combined_cap(db: Session, company: Company) -> None:
-    if company.paired_ticker and company.market_cap is not None:
-        partner = db.query(Company).filter(Company.ticker == company.paired_ticker).first()
-        if partner and partner.market_cap is not None:
-            company.combined_market_cap = company.market_cap + partner.market_cap
-            return
+    if company.market_cap is not None:
+        # 1) обычка торгуется отдельной строкой (paired_ticker) → суммируем капы.
+        if company.paired_ticker:
+            partner = db.query(Company).filter(Company.ticker == company.paired_ticker).first()
+            if partner and partner.market_cap is not None:
+                company.combined_market_cap = company.market_cap + partner.market_cap
+                return
+        # 2) преф-онли эмитент (напр. TRNFP): обычка не торгуется и не имеет paired_ticker —
+        #    но её надо учесть, иначе капитализация недосчитывает основной класс акций.
         extra = _untraded_ordinary_cap(company)
         if extra is not None:
             company.combined_market_cap = extra
@@ -91,8 +95,8 @@ def get_all_companies(db: Session) -> list[Company]:
         c.change_pct = row.change_pct if row else None
         c.change_abs = row.change_abs if row else None
 
-        if c.paired_ticker and c.market_cap is not None:
-            partner_cap = cap_by_ticker.get(c.paired_ticker)
+        if c.market_cap is not None:
+            partner_cap = cap_by_ticker.get(c.paired_ticker) if c.paired_ticker else None
             if partner_cap is not None:
                 c.combined_market_cap = c.market_cap + partner_cap
             else:
