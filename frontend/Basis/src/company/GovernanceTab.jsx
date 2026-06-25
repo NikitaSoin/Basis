@@ -12,6 +12,39 @@ const fmt1 = (x) => (x == null || isNaN(x) ? "—" : Number(x).toLocaleString("r
 const numfmt = (x, d = 0) => (x == null || isNaN(x) ? "—" : Number(x).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }));
 const scoreColor = (s) => (s == null ? "var(--ink-3)" : s >= 4 ? "var(--pos)" : s >= 3 ? "var(--amber)" : "var(--neg)");
 
+// Чистка аналитической прозы для UI: убрать код-токены/ссылки/служебные скобки и
+// англоязычный жаргон, который читателю-инвестору непонятен (заменить на русский).
+const RUS = [
+  [/\btunneling\b/gi, "вывод средств"], [/\bsqueeze[\s-]?out\b/gi, "принудительный выкуп"],
+  [/\btag[\s-]?along\b/gi, "право присоединения"], [/\bfree[\s-]?float\b/gi, "акции в обращении"],
+  [/\bbuy[\s-]?back\b/gi, "обратный выкуп"], [/\bpayout\b/gi, "доля выплат"],
+  [/\bEn\+/g, "Эн+"], [/\barms[\s-]?length\b/gi, "рыночные условия"],
+];
+function cleanProse(t) {
+  if (!t) return "";
+  let s = String(t);
+  s = s.replace(/\[[^\]]*\]/g, "");                                        // [src_1], [ref]
+  s = s.replace(/\((?:см\.?|п\.?\s*\d|пункт|раздел\s+[A-EА-Я]|src|по\s+рубрике)[^)]*\)/gi, ""); // внутр. ссылки
+  s = s.replace(/\([^)]*\.json[^)]*\)/gi, "");                             // (governance.json …)
+  s = s.replace(/\b[a-z]+_[a-z_]+\b/g, "");                                // snake_case код-токены
+  s = s.replace(/\(\s*\d+\s*\)/g, "");                                     // (1) (2) перечисления
+  RUS.forEach(([re, to]) => { s = s.replace(re, to); });
+  s = s.replace(/\(\s*\)/g, "").replace(/\s+([,.;:»])/g, "$1").replace(/([«(])\s+/g, "$1");
+  s = s.replace(/\s{2,}/g, " ").replace(/^[\s—–\-,;:.]+/, "").trim();
+  return s;
+}
+// краткая версия (для героя/пояснений): по возможности — первое цельное предложение,
+// иначе обрезаем по слову с многоточием (без «висящей» открытой скобки).
+function shortProse(t, max = 165) {
+  const s = cleanProse(t);
+  const m = s.match(/^(.+?\.)(\s|$)/);
+  if (m && m[1].length >= 40 && m[1].length <= max + 45) return m[1];
+  if (s.length <= max) return s;
+  let cut = s.slice(0, max).replace(/[\s,;:][^\s]*$/, "");
+  if ((cut.match(/\(/g) || []).length > (cut.match(/\)/g) || []).length) cut = cut.slice(0, cut.lastIndexOf("(")).replace(/[\s,;:]+$/, "");
+  return cut + "…";
+}
+
 const FLAG = {
   good: { c: "var(--pos)", t: "надёжное управление" },
   mixed: { c: "var(--amber)", t: "смешанное управление" },
@@ -109,8 +142,8 @@ export default function GovernanceTab({ gov, finJson }) {
                 <div className="gv-score"><b>{fmt1(overall)}</b><s>из 5</s></div>
                 <div className="gv-txt">
                   <span className="gv-badge">{flag.t}</span>
-                  {meta.governance_quality_note && <div className="gv-h">{meta.governance_quality_note}</div>}
-                  {gd.rationale && <div className="gv-s">{gd.rationale}</div>}
+                  {meta.governance_quality_note && <div className="gv-h">{shortProse(meta.governance_quality_note, 180)}</div>}
+                  {gd.rationale && <div className="gv-s">{shortProse(gd.rationale, 150)}</div>}
                 </div>
               </div>
               {premium != null && (
@@ -136,7 +169,7 @@ export default function GovernanceTab({ gov, finJson }) {
               {redFlags.length > 0 && (
                 <div className="gflags">
                   <div className="fh">Красные флаги</div>
-                  {redFlags.map((f, i) => <div className="fr" key={i}>{f.description || f.label}</div>)}
+                  {redFlags.map((f, i) => <div className="fr" key={i}>{cleanProse(f.description || f.label)}</div>)}
                 </div>
               )}
             </div>
@@ -156,7 +189,7 @@ export default function GovernanceTab({ gov, finJson }) {
                       <SegBar score={f.score} dx />
                       <span className="dxval">{f.score}<s>/5</s></span>
                     </div>
-                    {f.rationale && <div className="dxwhy"><b>Почему {f.score}:</b> {f.rationale}</div>}
+                    {f.rationale && <div className="dxwhy"><b>Почему {f.score}:</b> {shortProse(f.rationale, 210)}</div>}
                   </div>
                 ))}
               </div>
@@ -206,7 +239,7 @@ export default function GovernanceTab({ gov, finJson }) {
               {div.policy_text && <p className="sub">{div.policy_text}</p>}
               <DivChart history={div.history} />
               <div className="dch-cap">DPS по годам · {div.history[0]?.year}–{div.history[div.history.length - 1]?.year} · приглушённый/0 — без выплаты</div>
-              {divNote && <div className={`kvbox ${divBad ? "bad" : ""}`} style={{ marginTop: 16 }}><div style={{ fontSize: 12.5, lineHeight: 1.55, color: "var(--ink-2)" }}><b style={{ color: "var(--ink)" }}>Вывод:</b> {divNote}</div></div>}
+              {divNote && <div className={`kvbox ${divBad ? "bad" : ""}`} style={{ marginTop: 16 }}><div style={{ fontSize: 12.5, lineHeight: 1.55, color: "var(--ink-2)" }}><b style={{ color: "var(--ink)" }}>Вывод:</b> {cleanProse(divNote)}</div></div>}
             </div>
           )}
 
@@ -221,7 +254,7 @@ export default function GovernanceTab({ gov, finJson }) {
                   return (
                     <div className="pcard" key={i}>
                       <span className="py">{m.period || "—"}</span>
-                      <div><div className="pt">{m.event}</div>{m.description && <div className="pd">{m.description}{m.implication ? ` — ${m.implication}` : ""}</div>}</div>
+                      <div><div className="pt">{cleanProse(m.event)}</div>{m.description && <div className="pd">{cleanProse(m.description)}{m.implication ? ` — ${cleanProse(m.implication)}` : ""}</div>}</div>
                       <span className={`pimp ${imp.cls}`}>{imp.t}</span>
                     </div>
                   );
@@ -240,11 +273,11 @@ export default function GovernanceTab({ gov, finJson }) {
                 {board.independent_count != null && <div className="mf"><b>{board.independent_count}</b>независимых директоров</div>}
                 {gq.transparency && <div className="mf"><b>{/закрыл|частич/i.test(gq.transparency) ? "частично" : "есть"}</b>раскрытие</div>}
               </div>
-              {board.real_independence_note && <p className="sub" style={{ margin: "0 0 14px" }}>{board.real_independence_note}</p>}
+              {board.real_independence_note && <p className="sub" style={{ margin: "0 0 14px" }}>{shortProse(board.real_independence_note, 220)}</p>}
               <div className="grisks">
                 {risks.map((r, i) => {
                   const sev = SEV[r.severity] || SEV.medium;
-                  return <div className="grisk" key={i} style={{ "--sev": sev.c }}><div className="gh"><span className="gt">{r.risk}</span><span className="gsev">{sev.t}</span></div>{r.description && <div className="gd">{r.description}</div>}</div>;
+                  return <div className="grisk" key={i} style={{ "--sev": sev.c }}><div className="gh"><span className="gt">{cleanProse(r.risk)}</span><span className="gsev">{sev.t}</span></div>{r.description && <div className="gd">{cleanProse(r.description)}</div>}</div>;
                 })}
               </div>
             </div>
@@ -257,7 +290,7 @@ export default function GovernanceTab({ gov, finJson }) {
               <div>
                 <div className="rt">Связанные стороны — {rps.severity === "low" ? "под контролем" : "ключевой сигнал"}</div>
                 <div className="rd">
-                  {(rps.flows || []).slice(0, 2).map((fl, i) => <span key={i}>{i > 0 ? " " : ""}{fl.materiality_note}{fl.direction ? <> <b>({fl.direction === "up_to_owner" ? "вверх к собственнику" : "вниз"})</b></> : null}.</span>)}
+                  {(rps.flows || []).slice(0, 2).map((fl, i) => <span key={i}>{i > 0 ? " " : ""}{cleanProse(fl.materiality_note)}{fl.direction ? <> <b>{fl.direction === "up_to_owner" ? "— вверх к собственнику" : "— вниз"}</b></> : null}.</span>)}
                   {" "}Сигнал вывода стоимости: <b>{SEV[rps.severity]?.t || rps.severity}</b>. <Tag k="est" />
                 </div>
               </div>
