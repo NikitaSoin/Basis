@@ -1282,7 +1282,7 @@ return при наличии finJson (старый рендер — фолбэк
 СТАТУС РАСКАТКИ: 58/264 (+NMTP 3.2). Батч-12 закрыт (FESH 2.6, GLTR[ПРОПУЩЕН-делистнут], MSNG 2.8, NMTP 3.2, SOFL 3.0). Деприватизация: 3 кейса (ЮГК/Русагро/FESCO). ВАЖНО: перед батчем проверять ls companies/<T>/financials.json — GLTR оказался делистнут (нет в 264), скоринг отброшен. Батч-11 закрыт (AGRO 2.9, LENT 3.3, MDMG 4.1, HEAD 3.7, ASTR 3.8). Деприватизация сработала и на Русагро (2-й кейс после ЮГК). ФРОНТ: добавлена чистка прозы (cleanProse/shortProse) — короче/без кода/жаргона/скобок, крупнее/темнее (push d062d83). Батч-10 закрыт (SGZH 2.8, VKCO 2.2, LSRG 2.5, RENI 3.7, GCHE 3.1).
 
 ══ ТОЧКА ПРОДОЛЖЕНИЯ (чистая граница после 10 батчей) ══
-СДЕЛАНО: 49/264 (5 good / 23 mixed / 21 weak; 15 с активными red_flags; диапазон 1.9 МЕЧЕЛ … 4.6 МОЕХ).
+СДЕЛАНО: 58/264 (диапазон 1.9 МЕЧЕЛ … 4.6 МОЕХ). +батчи 11–12: MDMG 4.1, HEAD 3.7, ASTR 3.8, LENT 3.3, AGRO 2.9*, MSNG 2.8*, NMTP 3.2, SOFL 3.0, FESH 2.6* (* = активная red_flag). GLTR пропущен (делистнут, не в 264 — нет financials.json).
 Готовые тикеры (батчи 1–10): GMKN SBER SNGS AFKS LKOH ROSN NVTK PLZL MTSS GAZP CHMF MGNT TATN
 VTBR AFLT PHOR MOEX RUAL YDEX T SIBN IRAO TRNFP NLMK PIKK OZON BSPB MAGN HYDR SVCB RTKM FLOT
 BANE UPRO MTLR UGLD AKRN ENPG FEES RASP POSI BELU SELG SMLT VKCO LSRG RENI GCHE.
