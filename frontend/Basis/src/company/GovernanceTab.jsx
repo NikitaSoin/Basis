@@ -200,24 +200,24 @@ export default function GovernanceTab({ gov, finJson }) {
           {shareholders.length > 0 && (
             <div className="gcard">
               <h3>Структура владения <Tag k="fact" /><span className="hmeta">цвет = тип акционера</span></h3>
-              {own.controlling_shareholder && <p className="sub">{own.controlling_shareholder}</p>}
-              <div className="own-bar">
-                {shareholders.map((s, i) => <div className="s" key={i} style={{ flex: s.stake_pct, background: TYPE_COLOR[s.type] || "var(--ink-3)" }}>{s.stake_pct >= 7 ? `${numfmt(s.stake_pct, s.stake_pct % 1 ? 1 : 0)}%` : ""}</div>)}
-              </div>
+              <p className="sub">Кто контролирует компанию, в каких долях и на каких условиях</p>
               <div className="own-list">
-                {shareholders.map((s, i) => (
-                  <div className="own-row" key={i}>
-                    <span className="dot" style={{ background: TYPE_COLOR[s.type] || "var(--ink-3)" }} />
-                    <div><div className="on">{s.name}</div><div className="od">{TYPE_LABEL[s.type] || s.type || ""}{s.is_controlling ? " · контролирующий" : ""}</div></div>
-                    <span className="ov">{numfmt(s.stake_pct, s.stake_pct % 1 ? 1 : 0)} %</span>
-                  </div>
-                ))}
+                {shareholders.map((s, i) => {
+                  const col = TYPE_COLOR[s.type] || "var(--ink-3)";
+                  return (
+                    <div className="own-row" key={i}>
+                      <div className="own-rhead"><span className="dot" style={{ background: col }} /><span className="on">{s.name}</span><span className="ov">{numfmt(s.stake_pct, s.stake_pct % 1 ? 1 : 0)} %</span></div>
+                      <div className="own-track"><i style={{ width: `${Math.min(s.stake_pct, 100)}%`, background: col }} /></div>
+                      {(TYPE_LABEL[s.type] || s.is_controlling) && <div className="od">{TYPE_LABEL[s.type] || s.type || ""}{s.is_controlling ? " · контролирующий" : ""}</div>}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="kvbox">
-                {own.controlling_shareholder && <div className="kvrow"><span className="k">Контролирующий акционер</span><span className="v">{own.controlling_shareholder}</span></div>}
-                {own.ultimate_beneficiary && <div className="kvrow"><span className="k">Конечный бенефициар</span><span className="v">{own.ultimate_beneficiary}</span></div>}
-                {own.control_type && <div className="kvrow"><span className="k">Тип контроля</span><span className="v">{({ state: "государственный", private: "частный", founder: "контроль основателя", dispersed: "распылённый" })[own.control_type] || own.control_type}</span></div>}
-                {typeof own.free_float_pct === "number" && <div className="kvrow"><span className="k">Free float</span><span className="v">{numfmt(own.free_float_pct, own.free_float_pct % 1 ? 1 : 0)} %</span></div>}
+              <div className="own-facts">
+                {own.controlling_shareholder && <div className="of"><div className="ofl">Контролирующий акционер</div><div className="ofv">{cleanProse(own.controlling_shareholder).replace(/\s*\(?\s*конечный бенефициар[^)]*\)?/i, "").replace(/[\s,—·]+$/, "")}</div></div>}
+                {own.ultimate_beneficiary && <div className="of"><div className="ofl">Конечный бенефициар</div><div className="ofv">{own.ultimate_beneficiary}</div></div>}
+                {own.control_type && <div className="of"><div className="ofl">Тип контроля</div><div className="ofv">{({ state: "государственный", private: "частный", founder: "контроль основателя", dispersed: "распылённый" })[own.control_type] || own.control_type}</div></div>}
+                {typeof own.free_float_pct === "number" && <div className="of"><div className="ofl">Free float</div><div className="ofv">{numfmt(own.free_float_pct, own.free_float_pct % 1 ? 1 : 0)} %</div></div>}
               </div>
               {shareClasses.length > 0 && (<>
                 <h3 style={{ marginTop: 22 }}>Классы акций и права <Tag k="fact" /></h3>
