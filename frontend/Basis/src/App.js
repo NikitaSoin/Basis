@@ -6351,7 +6351,7 @@ const CompanyCard = ({ company, onBack }) => {
           <button type="button" onClick={onBack} className="cc-eyebrow tw-mb-5 tw-inline-flex tw-items-center tw-gap-1.5 tw-bg-transparent tw-border-0 tw-cursor-pointer" style={{ color: "var(--cc-ink-3)" }}>← Назад к рынку</button>
           <div className="tw-flex tw-items-start tw-justify-between tw-gap-6 tw-flex-wrap">
             <CompanyIdentityBlock logo={<CompanyLogo ticker={company.ticker} name={company.name} size={60} />} name={company.name} ticker={company.ticker} sector={company.sector} marketOpen />
-            <PricePanel price={_price == null ? null : _price.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} changePct={_change} changeAbs={_changeAbs} marketCap={formatMarketCap(company.market_cap)} asOf={finMeta.price_date || "сейчас"} />
+            <PricePanel price={_price == null ? null : _price.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} changePct={_change} changeAbs={_changeAbs} marketCap={formatMarketCap(company.combined_market_cap ?? company.market_cap)} asOf={finMeta.price_date || "сейчас"} />
           </div>
           {_thesis && <p className="cc-serif tw-text-[19px] tw-leading-[1.5] tw-mt-6 tw-mb-0" style={{ color: "var(--cc-ink)", maxWidth: "70ch" }}>{_thesis}</p>}
           <MetricStrip metrics={neoMetrics} />
