@@ -125,7 +125,7 @@ export default function GovernanceTab({ gov, finJson }) {
   const shareClasses = own.share_classes || [];
   const mtreat = gq.minority_treatment || [];
   const board = gq.board || {};
-  const rps = gq.related_party_signal || meta.related_party_signal || gov.related_party_signal || null; // субагенты кладут сигнал в governance_quality / meta / корень
+  const rps = gq.related_party_signal || meta.related_party_signal || gov.related_party_signal || (gov.signals && gov.signals.related_party_signal) || null; // субагенты кладут сигнал в governance_quality / meta / корень / signals
   const fairBase = finJson && finJson.valuation && finJson.valuation.fair_value_range ? finJson.valuation.fair_value_range.base : null;
   const conf = ({ high: "высокая", medium: "средняя", low: "низкая" })[meta.data_quality] || "средняя";
   const divNote = div.policy_vs_practice || div.regularity_note;
