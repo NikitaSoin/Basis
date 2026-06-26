@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Северсталь · Рынки — M4 (пересборка + вход в оценку)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../business-model/bm-shell.css">
+<style>
+.dash{display:flex;flex-direction:column;gap:16px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
+.card h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.card .sub{font-size:12.5px;color:var(--ink-3);margin:0 0 15px;}
+.mtag{margin-left:auto;display:flex;gap:7px;align-items:center;}
+.mtag .mt{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:6px;}
+.mt-main{background:var(--accent-soft);color:var(--accent-2);} .mt-geo{font-size:11px;color:var(--ink-3);font-family:var(--sans);font-weight:500;}
+.tag-model{background:var(--violet-soft);color:var(--violet);}
+.verdict{background:linear-gradient(135deg,var(--accent-soft),var(--panel));border:1px solid var(--line-2);border-radius:var(--r-lg);padding:18px 22px;}
+.vh{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);line-height:1.4;max-width:72ch;}
+.vh b{color:var(--accent-2);}
+/* KPI strip with clarified labels */
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
+.kstrip .k{background:var(--panel);padding:13px 15px;}
+.kstrip .kl{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;}
+.kstrip .kv{font-family:var(--mono);font-size:19px;font-weight:500;margin:4px 0 2px;}
+.kstrip .kv.acc{color:var(--accent-2);}
+.kstrip .kd{font-size:11px;color:var(--ink-3);}
+@media(max-width:760px){.kstrip{grid-template-columns:1fr 1fr;}}
+.scope-note{font-size:11.5px;color:var(--ink-3);line-height:1.5;margin-top:10px;padding:10px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;display:flex;gap:9px;}
+.scope-note svg{flex-shrink:0;color:var(--ink-3);margin-top:1px;}
+.scope-note b{color:var(--ink-2);}
+.seg-ctrl{display:flex;gap:3px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:11px;padding:4px;flex-wrap:wrap;}
+.seg-ctrl button{flex:1;min-width:104px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);padding:9px 11px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.seg-ctrl button:hover{color:var(--ink);}
+.seg-ctrl button.on{background:var(--accent);color:#fff;font-weight:600;}
+.focus{min-height:330px;margin-top:18px;}
+.view{display:none;}
+.view.on{display:block;opacity:1;}
+@media(prefers-reduced-motion:no-preference){.view.on{animation:fade .25s ease;}}
+@keyframes fade{from{transform:translateY(6px);}to{transform:none;}}
+.vlead{font-family:var(--serif);font-size:16px;line-height:1.5;color:var(--ink);max-width:64ch;margin:0 0 16px;}
+.vlead b{color:var(--accent-2);}
+.shares{display:flex;flex-direction:column;gap:10px;}
+.srow{display:grid;grid-template-columns:96px 1fr 42px;gap:12px;align-items:center;}
+.srow .sn{font-size:13px;color:var(--ink-2);}
+.srow.me .sn{color:var(--accent-2);font-weight:600;}
+.srow .sb{height:22px;background:var(--panel-2);border-radius:5px;overflow:hidden;}
+.srow .sb i{display:block;height:100%;border-radius:5px;background:var(--ink-3);opacity:.5;}
+.srow.me .sb i{background:var(--accent);opacity:1;}
+.srow .sv{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);text-align:right;}
+.share-cap{font-size:12.5px;line-height:1.5;color:var(--ink-3);margin-top:14px;padding:12px 14px;background:var(--accent-soft);border-left:2px solid var(--accent);border-radius:0 8px 8px 0;}
+.share-cap b{color:var(--ink);}
+.segbar{display:flex;height:34px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:14px;}
+.segbar .s{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:600;color:#0b0e13;min-width:0;}
+.seglist{display:flex;flex-direction:column;gap:15px;}
+.segitem{display:flex;flex-direction:column;gap:7px;}
+.segiln{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;}
+.segiln i{display:block;height:100%;border-radius:3px;}
+.segrow{display:flex;gap:11px;align-items:center;}
+.segrow .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.segrow .st{font-size:13px;color:var(--ink-2);}
+.segrow .st .lead-pill{display:inline-block;margin-left:7px;font-size:10px;font-weight:700;color:var(--accent-2);background:var(--accent-soft);border-radius:4px;padding:1px 6px;vertical-align:middle;}
+.segrow .sv{margin-left:auto;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);}
+.mrow{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+.mcell{flex:1;min-width:150px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:13px 15px;}
+.mcell .ml{font-size:11.5px;color:var(--ink-3);}
+.mcell .mv{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--ink);margin:4px 0 2px;}
+.mcell .mv s{font-size:11px;color:var(--ink-3);text-decoration:none;}
+.mcell .mm{font-size:11px;color:var(--ink-3);line-height:1.4;}
+.ts-annos{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.tsa{display:grid;grid-template-columns:54px 1fr;gap:12px;font-size:12.5px;line-height:1.5;}
+.tsa .ty{font-family:var(--mono);font-weight:600;color:var(--ink-2);}
+.tsa .tx{color:var(--ink-3);} .tsa .tx b{color:var(--ink);}
+.dvr{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:680px){.dvr{grid-template-columns:1fr;}}
+.dvcol{border:1px solid var(--line);border-radius:12px;padding:15px 16px;}
+.dvcol.up{background:var(--pos-soft);border-color:rgba(63,185,132,.3);}
+.dvcol.dn{background:var(--neg-soft);border-color:rgba(229,112,138,.3);}
+.dvcol .dvh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:11px;}
+.dvcol.up .dvh{color:var(--pos);} .dvcol.dn .dvh{color:var(--neg);}
+.dvcol ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+.dvcol li{font-size:12.5px;line-height:1.5;color:var(--ink-2);padding-left:16px;position:relative;}
+.dvcol li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:2px;}
+.dvcol.up li::before{background:var(--pos);} .dvcol.dn li::before{background:var(--neg);}
+.dvcol li b{color:var(--ink);}
+.fdir{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--panel-2);border-radius:11px;margin-bottom:14px;}
+.fdir .fa{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;}
+.fdir .farr{flex:1;height:2px;background:linear-gradient(90deg,var(--neg),var(--amber),var(--pos));border-radius:2px;position:relative;}
+.fdir .farr::after{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);border-left:7px solid var(--pos);border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.scales{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:680px){.scales{grid-template-columns:1fr;}}
+.scol .sh{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.scol.pro .sh{color:var(--pos);} .scol.con .sh{color:var(--neg);}
+.scol ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+.scol li{font-size:12.5px;line-height:1.45;color:var(--ink-2);display:flex;gap:8px;}
+.scol li .g{flex-shrink:0;font-family:var(--mono);font-weight:700;}
+.scol.pro li .g{color:var(--pos);} .scol.con li .g{color:var(--neg);}
+.fnote{font-size:11.5px;font-style:italic;color:var(--ink-3);line-height:1.5;margin:14px 0 0;}
+.outlook{display:flex;gap:14px;flex-wrap:wrap;}
+.olead{flex:1;min-width:240px;font-size:14px;line-height:1.6;color:var(--ink-2);}
+.olead b{color:var(--ink);}
+.ometrics{display:flex;flex-direction:column;gap:9px;width:200px;flex-shrink:0;}
+@media(max-width:560px){.ometrics{width:100%;}}
+.ometrics .om{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px 13px;}
+.ometrics .om .l{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;}
+.ometrics .om .v{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ink);margin-top:2px;}
+.ometrics .om .v.pos{color:var(--pos);}
+.intl{display:flex;flex-direction:column;gap:9px;margin-top:6px;}
+.intlr{display:flex;gap:11px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:var(--ink-2);padding:9px 0;border-top:1px solid var(--line);}
+.intlr:first-child{border-top:0;}
+.intlr .ai{flex-shrink:0;width:8px;height:8px;border-radius:2px;margin-top:5px;}
+.intlr b{color:var(--ink);}
+.aux{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:760px){.aux{grid-template-columns:1fr;}}
+.auxc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:17px 19px;}
+.auxc h4{font-family:var(--serif);font-size:15.5px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.auxc .asub{font-size:12px;color:var(--ink-3);margin:0 0 12px;line-height:1.5;}
+.auxc .arow{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:var(--ink-2);padding:7px 0;border-top:1px solid var(--line);}
+.auxc .arow:first-of-type{border-top:0;}
+.auxc .arow .ai{flex-shrink:0;width:6px;height:6px;border-radius:2px;background:var(--ink-3);margin-top:6px;}
+.auxc .arow b{color:var(--ink);}
+.auxc .amini{display:flex;gap:9px;margin-bottom:12px;flex-wrap:wrap;}
+.auxc .amini .m{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--ink-3);}
+.auxc .amini .m b{display:block;font-family:var(--mono);font-size:15px;color:var(--ink);font-weight:600;}
+.amt{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:6px;margin-left:auto;background:var(--line-2);color:var(--ink-2);}
+.src-tog{cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--ink-2);}
+.src-tog::-webkit-details-marker{display:none;}
+.src-tog .chev{transition:transform .2s;color:var(--ink-3);margin-left:auto;}
+details[open] .src-tog .chev{transform:rotate(180deg);}
+.srclist{margin-top:13px;display:flex;flex-direction:column;gap:2px;}
+.srcitem{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:12.5px;}
+.srcitem .si{font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.srcitem .st{color:var(--accent-2);line-height:1.4;}
+.srcitem .sr{font-family:var(--mono);font-size:10px;color:var(--ink-3);white-space:nowrap;}
+.srcitem .sr.hi{color:var(--pos);}
+/* ===== ENRICHED RIGHT RAIL: market position tracker ===== */
+.mrail{position:sticky;top:130px;display:flex;flex-direction:column;gap:14px;}
+.mrcard{background:var(--panel);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:17px 19px;}
+.mrcard .mrt{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-3);}
+.mrcard .mrs{font-size:11.5px;color:var(--ink-3);margin:5px 0 14px;}
+/* competitive position: head-to-head bars */
+.cmp-row{margin-bottom:15px;}
+.cmp-row:last-child{margin-bottom:0;}
+.cmp-rh{display:flex;align-items:baseline;gap:7px;margin-bottom:8px;}
+.cmp-rh .crl{font-size:11.5px;font-weight:600;color:var(--ink);}
+.cmp-rh .crw{font-size:10px;color:var(--ink-3);margin-left:auto;}
+.cmp-bars{display:flex;flex-direction:column;gap:5px;}
+.cmp-b{display:grid;grid-template-columns:56px 1fr 56px;gap:9px;align-items:center;}
+.cmp-b .cbn{font-size:11px;color:var(--ink-2);}
+.cmp-b.me .cbn{color:var(--accent-2);font-weight:600;}
+.cmp-b .cbt{height:14px;background:var(--panel-2);border-radius:4px;overflow:hidden;}
+.cmp-b .cbt i{display:block;height:100%;border-radius:4px;background:var(--ink-3);opacity:.45;}
+.cmp-b.me .cbt i{background:var(--accent);opacity:1;}
+.cmp-b.best .cbt i{background:var(--pos);opacity:.8;}
+.cmp-b .cbv{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink);text-align:right;}
+.cmp-b.me .cbv{color:var(--accent-2);}
+.moat{margin-top:2px;padding:12px 14px;background:var(--accent-soft);border-left:2px solid var(--accent);border-radius:0 9px 9px 0;}
+.moat .ml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-2);margin-bottom:5px;}
+.moat .mx{font-size:12px;line-height:1.5;color:var(--ink-2);}
+.moat .mx b{color:var(--ink);}
+/* rank tracker */
+.rank-now{display:flex;align-items:baseline;gap:9px;margin-bottom:12px;}
+.rank-now .rn{font-family:var(--mono);font-size:32px;font-weight:600;color:var(--accent-2);line-height:1;}
+.rank-now .rl{font-size:12px;color:var(--ink-2);}
+.rank-now .rch{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--pos);display:inline-flex;align-items:center;gap:4px;}
+.rank-trend{display:flex;align-items:stretch;gap:5px;height:52px;margin-bottom:6px;}
+.rank-trend .rt{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;}
+.rank-trend .rt .rb{width:100%;border-radius:3px 3px 0 0;background:var(--ink-3);opacity:.4;min-height:4px;}
+.rank-trend .rt.now .rb{background:var(--accent);opacity:1;}
+.rank-trend .rt .ry{font-family:var(--mono);font-size:9px;color:var(--ink-3);}
+.rank-cap{font-size:11px;line-height:1.45;color:var(--ink-3);}
+.rank-cap b{color:var(--ink-2);}
+/* monitor checklist */
+.mon{display:flex;flex-direction:column;gap:10px;}
+.monr{display:flex;gap:10px;align-items:flex-start;}
+.monr .md{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.monr .mt2{font-size:12.5px;line-height:1.4;color:var(--ink-2);}
+.monr .mt2 b{color:var(--ink);}
+.monr .mst{display:block;font-size:10.5px;color:var(--ink-3);margin-top:1px;}
+/* fair value uses canonical bm-shell .fv-rail classes */
+.mrail .fv-rail{position:static;top:auto;}
+@media(max-width:1000px){.mrail{position:static;}}
+/* company position badge */
+.posbadge{font-family:var(--sans);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:3px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
+.posbadge.leader{background:var(--accent-soft);color:var(--accent-2);}
+.posbadge.leader::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.posbadge.challenger{background:var(--amber-soft,rgba(214,158,46,.14));color:var(--amber);}
+.posbadge.niche{background:var(--line-2);color:var(--ink-2);}
+/* market cycle timeline */
+.cyc{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:6px 0 4px;position:relative;}
+.cyc .cph{position:relative;padding:0 8px;text-align:center;}
+.cyc .cph::before{content:"";position:absolute;top:9px;left:0;right:0;height:2px;background:var(--line-2);}
+.cyc .cph:first-child::before{left:50%;}
+.cyc .cph:last-child::before{right:50%;}
+.cyc .cdot{position:relative;width:20px;height:20px;border-radius:50%;background:var(--panel);border:2px solid var(--line-2);margin:0 auto 9px;z-index:2;display:flex;align-items:center;justify-content:center;}
+.cyc .cph.done .cdot{background:var(--ink-3);border-color:var(--ink-3);}
+.cyc .cph.done .cdot::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--panel);}
+.cyc .cph.now .cdot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
+.cyc .cph.now .cdot::after{content:"";width:7px;height:7px;border-radius:50%;background:#fff;}
+.cyc .cper{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-2);}
+.cyc .cph.now .cper{color:var(--accent-2);}
+.cyc .clab{font-size:12px;font-weight:600;color:var(--ink);margin:2px 0 3px;}
+.cyc .cnote{font-size:10.5px;line-height:1.4;color:var(--ink-3);}
+.cyc .cnow{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--accent-2);background:var(--accent-soft);border-radius:5px;padding:1px 6px;margin-top:4px;}
+@media(max-width:620px){.cyc{grid-template-columns:1fr 1fr;gap:14px 0;}.cyc .cph::before{display:none;}}
+/* valuation-input conclusion block */
+.valbox{background:linear-gradient(135deg,var(--accent-soft),var(--panel));border:1px solid var(--line-2);border-radius:var(--r-lg);padding:20px 22px;}
+.valbox .vbh{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+.valbox .vbh h3{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);margin:0;}
+.nr-toggle{margin-left:auto;display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;}
+.nr-toggle button{font:inherit;font-size:11px;font-weight:600;padding:5px 12px;background:var(--panel);color:var(--ink-3);border:0;cursor:pointer;transition:background var(--t,.15s);}
+.nr-toggle button.on{background:var(--accent);color:#fff;}
+.valbox .vbsub{font-size:12px;color:var(--ink-3);margin:6px 0 16px;line-height:1.5;max-width:74ch;}
+.vgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.vgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(max-width:680px){.vgrid3,.vgrid2{grid-template-columns:1fr;}}
+.vcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;}
+.vcard.dashed{border-style:dashed;border-color:var(--line-2);}
+.vcl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:11px;display:flex;align-items:center;gap:7px;line-height:1.3;}
+.vcv{font-family:var(--mono);font-size:23px;font-weight:500;color:var(--ink);letter-spacing:-.01em;line-height:1;white-space:nowrap;}
+.vcv.pos{color:var(--pos);} .vcv.neg{color:var(--neg);}
+.vcv2{font-family:var(--mono);font-size:23px;font-weight:500;color:var(--ink);line-height:1;display:flex;align-items:center;gap:9px;}
+.vcv2 .to{color:var(--pos);} .vcv2 .ar{color:var(--ink-3);font-size:18px;}
+.vcr{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin-top:7px;}
+.vcd{font-size:11px;line-height:1.45;color:var(--ink-3);margin-top:auto;padding-top:10px;}
+.vcons{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.vcons .cv{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink);}
+.vcons .cv.acc{color:var(--accent-2);}
+.vcons .cvs{font-size:10px;color:var(--ink-3);margin-right:8px;}
+.valextra{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:13px;}
+.fcfnote{flex:1;min-width:260px;font-size:11.5px;line-height:1.45;color:var(--ink-3);display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+.fcfnote .ar{font-family:var(--mono);color:var(--pos);} .fcfnote .muted{color:var(--ink-3);opacity:.8;}
+.valassum{font-size:11.5px;color:var(--ink-3);}
+.valassum summary{cursor:pointer;font-weight:600;color:var(--accent-2);user-select:none;}
+.valassum ul{margin:8px 0 0;padding-left:18px;line-height:1.6;}
+.valsynth{display:flex;gap:11px;align-items:flex-start;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;font-size:13.5px;line-height:1.55;color:var(--ink-2);margin-bottom:13px;}
+.valsynth svg{flex-shrink:0;color:var(--accent-2);margin-top:2px;}
+.valsynth b{color:var(--ink);}
+.valsynth .ar{font-family:var(--mono);color:var(--accent-2);font-weight:600;}
+</style>
+</head>
+<body>
+<header class="nav"><div class="nav-in">
+  <a class="brand" href="#"><span class="bm">B</span>Basis</a>
+  <nav class="nav-links"><a href="../market/Market.html">Рынок</a><a href="#">Обозреватель</a><a href="#">Портфель</a><a href="../screener/Screener.html">Скринер</a><a href="#">Тарифы</a></nav>
+  <span class="nav-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>Поиск</span>
+</div></header>
+<div class="wrap">
+  <div class="chead">
+    <div class="lg" style="background:var(--accent-soft);border-color:var(--accent);color:var(--accent-2)">С</div>
+    <div><h1>Северсталь</h1><div class="meta"><b style="color:var(--ink-2)">CHMF</b> · MOEX · Металлургия · <span class="sess"><i></i>Торги открыты</span></div></div>
+    <div class="px"><div class="v">1 040<span class="c"> ₽</span></div><div class="delta dn">▼ 0,8 % за день</div></div>
+  </div>
+  <nav class="tabs"><a href="#">Обзор</a><a href="#">Бизнес-модель</a><a href="#">Финансы и оценка</a><a href="#">Корп. управление</a><a class="on" href="#">Рынки</a><a href="#">Макро</a><a href="#">Геополитика</a></nav>
+
+  <div class="layout">
+    <div class="dash">
+      <div class="verdict">
+        <div class="vh">Северсталь зарабатывает почти полностью на <b>внутреннем рынке стали РФ</b> — плоский прокат, №1 с долей 33 %. Рынок на циклическом дне (I кв. 2026) → восстановление к 2027.</div>
+      </div>
+
+      <div class="kstrip">
+        <div class="k"><div class="kl">Главный рынок</div><div class="kv">~90 %</div><div class="kd">прокат РФ в продажах</div></div>
+        <div class="k"><div class="kl">Доля Северстали</div><div class="kv acc">33 %</div><div class="kd">№1, обогнала ММК</div></div>
+        <div class="k"><div class="kl">Потребление проката</div><div class="kv">37–38<span style="font-size:12px;color:var(--ink-3)"> млн т</span></div><div class="kd">минимум с 2011</div></div>
+        <div class="k"><div class="kl">Загрузка мощностей</div><div class="kv">~64 %</div><div class="kd">I кв. 2026</div></div>
+      </div>
+      <div class="scope-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v.4M11 12h1v4h1" stroke-linecap="round"/></svg><span><b>Два разных показателя:</b> «потребление проката» (~37–38 млн т) — это рынок сбыта Северстали (плоский прокат). «Производство стали РФ» (~66,5 млн т) на графике динамики — вся отрасль, включая полуфабрикаты и сортовой прокат других заводов. Доля Северстали в выпуске стали ~14–15 %, в плоском прокате — 33 %.</span></div>
+
+      <div class="card">
+        <h3>Рынок стали РФ — плоский прокат<div class="mtag"><span class="posbadge leader">Лидер</span><span class="mt mt-main">главный рынок</span><span class="mt-geo">рынок РФ</span></div></h3>
+        <p class="sub">Полная проработка главного рынка — выберите ракурс</p>
+        <div class="seg-ctrl" id="ctrl">
+          <button data-v="shares" class="on">Доли игроков</button>
+          <button data-v="dyn">Динамика</button>
+          <button data-v="cycle">Цикл</button>
+          <button data-v="drivers">Драйверы</button>
+          <button data-v="forecast">Прогноз</button>
+          <button data-v="outlook">Перспектива</button>
+        </div>
+        <div class="focus">
+          <div class="view on" data-v="shares">
+            <p class="vlead">В 2025 Северсталь впервые возглавила рынок плоского проката РФ (<b>33 %</b>), обогнав ММК — за счёт замещения импорта в премиальном сегменте.</p>
+            <div class="mrow">
+              <div class="mcell"><div class="ml">Потребление проката РФ</div><div class="mv">~37–38<s> млн т</s></div><div class="mm">рынок сбыта · минимум с 2011</div></div>
+              <div class="mcell"><div class="ml">Доля Северстали (прокат)</div><div class="mv" style="color:var(--accent-2)">33<s> %</s></div><div class="mm">№1 в плоском прокате</div></div>
+              <div class="mcell"><div class="ml">Доля в выпуске стали РФ</div><div class="mv">~14–15<s> %</s></div><div class="mm">вся отрасль · не доминирует</div></div>
+            </div>
+            <div class="segbar">
+              <div class="s" style="flex:33;background:var(--accent);color:#fff">33%</div>
+              <div class="s" style="flex:30;background:#5FB3E6">30%</div>
+              <div class="s" style="flex:23;background:#A78BFA">23%</div>
+              <div class="s" style="flex:12;background:#6B7280;color:#fff">12%</div>
+            </div>
+            <div class="seglist">
+              <div class="segitem"><div class="segrow"><span class="dot" style="background:var(--accent)"></span><span class="st">Северсталь<span class="lead-pill">№1</span></span><span class="sv">33 %</span></div><div class="segiln"><i style="width:100%;background:var(--accent)"></i></div></div>
+              <div class="segitem"><div class="segrow"><span class="dot" style="background:#5FB3E6"></span><span class="st">ММК</span><span class="sv">30 %</span></div><div class="segiln"><i style="width:91%;background:#5FB3E6"></i></div></div>
+              <div class="segitem"><div class="segrow"><span class="dot" style="background:#A78BFA"></span><span class="st">НЛМК</span><span class="sv">23 %</span></div><div class="segiln"><i style="width:70%;background:#A78BFA"></i></div></div>
+              <div class="segitem"><div class="segrow"><span class="dot" style="background:#6B7280"></span><span class="st">Импорт</span><span class="sv">12 %</span></div><div class="segiln"><i style="width:36%;background:#6B7280"></i></div></div>
+            </div>
+          </div>
+          <div class="view" data-v="dyn">
+            <p class="vlead">Производство стали РФ (вся отрасль) — <b>циклическое и волатильное</b>: пик 2021 → санкционный провал → отскок → новый спад при ставке 21 %.</p>
+            <div id="tschart"></div>
+            <div class="ts-annos">
+              <div class="tsa"><span class="ty">2022</span><span class="tx"><b>Санкции ЕС/США</b> закрыли европейский экспорт (~35 % выручки до 2022), переориентация на внутренний рынок</span></div>
+              <div class="tsa"><span class="ty">2024–25</span><span class="tx"><b>Сжатие спроса при ставке 21 %</b> — обвал строительства и потребления до минимума с 2011</span></div>
+              <div class="tsa"><span class="ty">2025</span><span class="tx"><b>Северсталь №1</b> в плоском прокате за счёт замещения импорта в премиальном сегменте</span></div>
+            </div>
+          </div>
+          <div class="view" data-v="cycle">
+            <p class="vlead">Где рынок в <b>отраслевом цикле</b>: сейчас — циклическое дно, следующая фаза — восстановление. <span class="tag tag-est">оценка-ориентир</span></p>
+            <div class="cyc">
+              <div class="cph done"><div class="cdot"></div><div class="cper">2021</div><div class="clab">Пик</div><div class="cnote">производство 77,8 млн т, экспорт в ЕС открыт</div></div>
+              <div class="cph done"><div class="cdot"></div><div class="cper">2022</div><div class="clab">Шок</div><div class="cnote">санкции, потеря европейского экспорта</div></div>
+              <div class="cph now"><div class="cdot"></div><div class="cper">I кв. 2026</div><div class="clab">Дно</div><div class="cnote">ставка 21 %, спрос на минимуме, загрузка ~64 %</div><span class="cnow">сейчас</span></div>
+              <div class="cph"><div class="cdot"></div><div class="cper">2026–27</div><div class="clab">Восстановление</div><div class="cnote">ставка к 12–14 %, цены проката +16–22 %</div></div>
+            </div>
+            <p class="fnote">Фаза определяется по ставке ЦБ, загрузке мощностей и динамике цен; переход в восстановление — ожидание отраслевых аналитиков, не точная дата.</p>
+          </div>
+          <div class="view" data-v="drivers">
+            <p class="vlead">Сбалансированно: что тянет рынок <b>вверх</b> и что <b style="color:var(--neg)">вниз</b>.</p>
+            <div class="dvr">
+              <div class="dvcol up">
+                <div class="dvh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>Драйверы роста</div>
+                <ul>
+                  <li><b>Ключевая ставка ЦБ на снижении</b> (21 % → 12–14 % в 2026) — оживит спрос с 2026–2027</li>
+                  <li><b>Защита внутреннего рынка</b> от импорта помогает Северстали и НЛМК</li>
+                  <li><b>Премиальность:</b> внутренние цены выше мировых на $100–130/т</li>
+                  <li><b>Инфраструктурные госпрограммы</b> — потенциальный драйвер</li>
+                </ul>
+              </div>
+              <div class="dvcol dn">
+                <div class="dvh"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 6 4-4 8 8"/><path d="M17 17h4v-4"/></svg>Сдерживающие факторы</div>
+                <ul>
+                  <li><b>Стройка ~60–65 % потребления</b> — зависит от ставки и ипотеки; при высокой ставке тянет весь рынок вниз</li>
+                  <li><b>Санкции и потеря экспорта</b> ограничивают сбыт, давят на загрузку (~64 % в I кв. 2026)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="view" data-v="forecast">
+            <p class="vlead">Разнонаправленно: дно в начале 2026 → постепенное восстановление, заметный эффект скорее в 2027. <span class="tag tag-est">оценка-ориентир</span></p>
+            <div class="fdir"><span class="fa">Дно I кв. 2026</span><span class="farr"></span><span class="fa">Восстановление 2027+</span></div>
+            <div class="scales">
+              <div class="scol pro">
+                <div class="sh"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>За рост</div>
+                <ul>
+                  <li><span class="g">▲</span>Снижение ставки к 12–13 % оживляет стройку и инвестиции</li>
+                  <li><span class="g">▲</span>Аналитики (Эйлер) ждут дно в I кв. 2026 с ростом цен быстрее инфляции</li>
+                  <li><span class="g">▲</span>ГК-прокат к IV кв. 2026 ~+16 %, арматура ~+22 %</li>
+                  <li><span class="g">▲</span>Замещение импорта и госпрограммы</li>
+                </ul>
+              </div>
+              <div class="scol con">
+                <div class="sh"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Против</div>
+                <ul>
+                  <li><span class="g">▼</span>Восстановление спроса не ранее 2-й половины 2026</li>
+                  <li><span class="g">▼</span>Санкции и слабая экспортная рентабельность ограничивают сбыт</li>
+                  <li><span class="g">▼</span>Прорыва в металлопотреблении до конца 2027 ряд источников не ждёт</li>
+                  <li><span class="g">▼</span>Низкая загрузка мощностей (~64 % в I кв. 2026)</li>
+                </ul>
+              </div>
+            </div>
+            <p class="fnote">Направление (дно → восстановление) опирается на отраслевые прогнозы (Эйлер, Коммерсантъ); конкретные темпы — ориентир с разбросом.</p>
+          </div>
+          <div class="view" data-v="outlook">
+            <p class="vlead">Северсталь удержит/нарастит долю за счёт <b>самой низкой себестоимости в отрасли</b>. <span class="tag tag-est">оценка</span></p>
+            <div class="outlook">
+              <div class="olead">Лидерство в плоском прокате (33 %) достигнуто за счёт себестоимости ~$250–280/т сляба (самообеспеченность рудой 97 %) и ставки на ВДС и замещение импорта. Низкий долг и завершающийся CapEx-цикл (комплекс окатышей, запуск 2026) усиливают позицию к фазе восстановления. <b>Риск</b> — ценовая конкуренция с ММК/НЛМК при слабом спросе давит на маржу всех троих.</div>
+              <div class="ometrics">
+                <div class="om"><div class="l">Себестоимость сляба</div><div class="v">$250–280<span style="font-size:11px;color:var(--ink-3)">/т</span></div></div>
+                <div class="om"><div class="l">ND / EBITDA</div><div class="v pos">~0,2×</div></div>
+                <div class="om"><div class="l">CapEx-цикл</div><div class="v">2026<span style="font-size:11px;color:var(--ink-3)"> финиш</span></div></div>
+              </div>
+            </div>
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+              <div class="sub" style="margin-bottom:10px"><b style="color:var(--ink-2)">Международная экспансия</b> — экспорт резко сокращён санкциями, рост за рубеж не приоритет</div>
+              <div class="intl">
+                <div class="intlr"><span class="ai" style="background:var(--neg)"></span><span><b>Европа</b> — до 2022 ~35 % выручки; полностью закрыт санкциями ЕС/США (SDN с июня 2022), возврат не просматривается</span></div>
+                <div class="intlr"><span class="ai" style="background:var(--amber)"></span><span><b>СНГ и дружественные</b> — ~8–10 % продаж; низкая доля ВДС, экспортная рентабельность слабая (цены в рублях упали ~26 % в 2025)</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="subh" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:6px 2px 12px">Вспомогательные рынки — второстепенные</div>
+        <div class="aux">
+          <div class="auxc">
+            <h4>Железная руда / окатыши<span class="amt">второстеп.</span></h4>
+            <p class="asub">Фундамент себестоимости: вертикальная интеграция в сырьё</p>
+            <div class="amini"><div class="m"><b>97 %</b>самообеспеч.</div><div class="m"><b>№1</b>Карельский окатыш</div><div class="m"><b>~⅓</b>окатышей РФ</div></div>
+            <div class="arow"><span class="ai"></span><span>Самообеспеченность рудой ~97 % даёт <b>одну из самых низких себестоимостей</b> в мировой чёрной металлургии</span></div>
+            <div class="arow"><span class="ai"></span><span>Продажи руды третьим лицам +51 % г/г в 2024 (до ~2,2 млн т), частично компенсируя слабость стали</span></div>
+            <div class="arow"><span class="ai" style="background:var(--violet)"></span><span>Новый комплекс окатышей на ЧерМК (2026) усилит самообеспеченность <span class="tag tag-model" style="margin-left:2px">модель</span></span></div>
+          </div>
+          <div class="auxc">
+            <h4>Уголь (коксующийся)<span class="amt">второстеп.</span></h4>
+            <p class="asub">После продажи «Воркутаугля» (2022) — покупатель, статья себестоимости</p>
+            <div class="amini"><div class="m"><b>100 %</b>внешние закупки</div><div class="m"><b>2022</b>продан Воркутауголь</div></div>
+            <div class="arow"><span class="ai"></span><span>Нетто-покупатель по долгосрочному контракту; <b>статья себестоимости</b>, а не рынок сбыта</span></div>
+            <div class="arow"><span class="ai" style="background:var(--cyan)"></span><span>Контракт сглаживает волатильность, но рост цен на уголь/тарифов увеличивает себестоимость <span class="tag tag-est" style="margin-left:2px">оценка</span></span></div>
+            <div class="arow"><span class="ai" style="background:var(--violet)"></span><span>В фазе восстановления рост сырья может съесть часть выигрыша от роста цен на прокат <span class="tag tag-model" style="margin-left:2px">модель</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="valbox">
+        <div class="vbh"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent-2)"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg><h3>Для оценки компании</h3><span class="tag tag-est">оценка-ориентир</span>
+          <div class="nr-toggle"><button class="on" data-nr="nom">номинал</button><button data-nr="real">реальный</button></div>
+        </div>
+        <p class="vbsub">Ориентиры темпов роста выручки для вашей модели — диапазонами, без ложной точности. Справедливая цена и мультипликаторы — во вкладке «Финансы».</p>
+
+        <div class="vgrid3">
+          <div class="vcard" data-nom="−5 – 0 %" data-real="−12 – −8 %">
+            <div class="vcl">2026 · дно цикла</div>
+            <div class="vcv neg">−5 – 0 %</div>
+            <div class="vcr">реальн.: −12 – −8 %</div>
+            <div class="vcd">Дно цикла; цены проката восстанавливаются к концу года.</div>
+          </div>
+          <div class="vcard" data-nom="+15 – 20 %" data-real="+9 – 14 %">
+            <div class="vcl">2027 · отскок</div>
+            <div class="vcv pos">+15 – 20 %</div>
+            <div class="vcr">реальн.: +9 – 14 %</div>
+            <div class="vcd">Отскок цен проката +16 – 22 % × рост загрузки +5 – 9 %.</div>
+          </div>
+          <div class="vcard dashed" data-nom="4 – 5 %" data-real="0 – 1 %">
+            <div class="vcl">Долгосрочно · терминальный <span class="tag tag-scen">модель</span></div>
+            <div class="vcv">4 – 5 %</div>
+            <div class="vcr">реальн.: 0 – 1 %</div>
+            <div class="vcd">Mid-cycle норма = инфляция РФ ~4 % + реальный ВВП ~1 – 2 %. Не путать с отскоком 2027.</div>
+          </div>
+        </div>
+
+        <div class="vgrid2">
+          <div class="vcard">
+            <div class="vcl">Маржа EBITDA — куда идёт <span class="tag tag-est">оценка</span></div>
+            <div class="vcv2">22 %<span class="ar">→</span><span class="to">29 %</span></div>
+            <div class="vcd">Операционный рычаг: себестоимость ~фиксирована, цены растут.</div>
+          </div>
+          <div class="vcard">
+            <div class="vcl">Второе мнение · консенсус 2027</div>
+            <div class="vcons"><span class="cv acc">+15 – 20 %</span><span class="cvs">наш ориентир</span><span class="cv">+12 – 17 %</span><span class="cvs">рынок</span></div>
+            <div class="vcd">Консенсус рынка чуть ниже нашего ориентира.</div>
+          </div>
+        </div>
+
+        <div class="valsynth"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>Для оценки:</b> 2026 около дна (<span class="ar">−5 – 0 %</span>), 2027 отскок (<span class="ar">+15 – 20 %</span>), дальше устойчиво <span class="ar">4 – 5 % ном. / 0 – 1 % реал.</span>; маржа восстанавливается <span class="ar">22 % → 29 %</span>. Это вход в ставку роста, а не прогноз цены акции.</span></div>
+
+        <div class="valextra">
+          <div class="fcfnote"><span class="ar">▲</span> FCF: восстанавливается <span class="tag tag-judg">суждение</span> — завершение capex-цикла высвобождает денежный поток. <span class="muted">Конкретные значения — во вкладке «Финансы».</span></div>
+          <details class="valassum"><summary>Ключевые допущения прогноза</summary><ul><li>Ставка ЦБ к 12 – 14 % в 2026</li><li>Цены проката +16 – 22 % к IV кв. 2026</li></ul></details>
+        </div>
+      </div>
+
+      <div class="card" style="padding:16px 20px">
+        <details>
+          <summary class="src-tog"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v.5M11 12h1v4h1"/></svg>Источники и надёжность<span style="font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400">7 источников · 2026-05-14</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="srclist">
+            <div class="srcitem"><span class="si">src_1</span><span class="st">Выпуск стали в РФ по итогам 2025 снизится до 66,5 млн т, потребление — до 38,9 млн т (Ъ)</span><span class="sr">2025 · medium</span></div>
+            <div class="srcitem"><span class="si">src_2</span><span class="st">Северсталь заняла первое место по поставкам плоского проката (33/30/23/12) — Коммерсантъ</span><span class="sr hi">2025 · high</span></div>
+            <div class="srcitem"><span class="si">src_3</span><span class="st">Рынок достигнет дна в I кв. 2026, затем восстановление цен — Эйлер (Ъ)</span><span class="sr">2026 · medium</span></div>
+            <div class="srcitem"><span class="si">src_4</span><span class="st">Потребление проката в РФ снизилось на 14 % до 37,8 млн т в 2025; обзор кризиса отрасли</span><span class="sr">2025 · medium</span></div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ENRICHED RIGHT RAIL -->
+    <aside class="mrail">
+      <div class="mrcard">
+        <div class="mrt">Позиция на рынке</div>
+        <div class="mrs">Плоский прокат РФ · доля рынка</div>
+        <div class="rank-now"><span class="rn">№1</span><span class="rl">33 % рынка</span><span class="rch">▲ с №2</span></div>
+        <div class="rank-trend">
+          <div class="rt"><div class="rb" style="height:16px"></div><div class="ry">'22</div></div>
+          <div class="rt"><div class="rb" style="height:21px"></div><div class="ry">'23</div></div>
+          <div class="rt"><div class="rb" style="height:27px"></div><div class="ry">'24</div></div>
+          <div class="rt now"><div class="rb" style="height:34px"></div><div class="ry">'25</div></div>
+        </div>
+        <div class="rank-cap"><b>Северсталь обошла ММК в 2025</b> за счёт замещения импорта в премиуме. Доля устойчиво росла 4 года подряд.</div>
+      </div>
+
+      <div class="mrcard">
+        <div class="mrt">Что отслеживать</div>
+        <div class="mrs">Сигналы разворота рынка</div>
+        <div class="mon">
+          <div class="monr"><span class="md" style="background:var(--pos)"></span><span class="mt2"><b>Ключевая ставка ЦБ</b><span class="mst">21 % → 12–14 % · снижается, в пользу спроса</span></span></div>
+          <div class="monr"><span class="md" style="background:var(--neg)"></span><span class="mt2"><b>Спрос в строительстве</b><span class="mst">~60–65 % потребления · слабый при высокой ставке</span></span></div>
+          <div class="monr"><span class="md" style="background:var(--neg)"></span><span class="mt2"><b>Загрузка мощностей</b><span class="mst">~64 % в I кв. 2026 · низкая</span></span></div>
+          <div class="monr"><span class="md" style="background:var(--amber)"></span><span class="mt2"><b>Цены на прокат</b><span class="mst">дно I кв. 2026 → ГК ~+16 % к IV кв.</span></span></div>
+          <div class="monr"><span class="md" style="background:var(--amber)"></span><span class="mt2"><b>Защита рынка от импорта</b><span class="mst">обсуждаемый акциз · в пользу Северстали</span></span></div>
+        </div>
+      </div>
+
+      <div class="mrcard">
+        <div class="mrt">Конкурентная позиция</div>
+        <div class="mrs">Северсталь против прямых конкурентов на главном рынке</div>
+
+        <div class="cmp-row">
+          <div class="cmp-rh"><span class="crl">Доля рынка проката</span><span class="crw">больше — лучше</span></div>
+          <div class="cmp-bars">
+            <div class="cmp-b me"><span class="cbn">Северст.</span><span class="cbt"><i style="width:100%"></i></span><span class="cbv">33 %</span></div>
+            <div class="cmp-b"><span class="cbn">ММК</span><span class="cbt"><i style="width:91%"></i></span><span class="cbv">30 %</span></div>
+            <div class="cmp-b"><span class="cbn">НЛМК</span><span class="cbt"><i style="width:70%"></i></span><span class="cbv">23 %</span></div>
+          </div>
+        </div>
+
+        <div class="cmp-row">
+          <div class="cmp-rh"><span class="crl">Себестоимость сляба</span><span class="crw">ниже — лучше</span></div>
+          <div class="cmp-bars">
+            <div class="cmp-b me best"><span class="cbn">Северст.</span><span class="cbt"><i style="width:64%"></i></span><span class="cbv">$265</span></div>
+            <div class="cmp-b"><span class="cbn">ММК</span><span class="cbt"><i style="width:80%"></i></span><span class="cbv">$330</span></div>
+            <div class="cmp-b"><span class="cbn">НЛМК</span><span class="cbt"><i style="width:73%"></i></span><span class="cbv">$300</span></div>
+          </div>
+        </div>
+
+        <div class="cmp-row">
+          <div class="cmp-rh"><span class="crl">Самообеспеч. рудой</span><span class="crw">больше — лучше</span></div>
+          <div class="cmp-bars">
+            <div class="cmp-b me best"><span class="cbn">Северст.</span><span class="cbt"><i style="width:97%"></i></span><span class="cbv">97 %</span></div>
+            <div class="cmp-b"><span class="cbn">НЛМК</span><span class="cbt"><i style="width:90%"></i></span><span class="cbv">~90 %</span></div>
+            <div class="cmp-b"><span class="cbn">ММК</span><span class="cbt"><i style="width:20%"></i></span><span class="cbv">~20 %</span></div>
+          </div>
+        </div>
+
+        <div class="cmp-row">
+          <div class="cmp-rh"><span class="crl">Долг · ND/EBITDA</span><span class="crw">ниже — лучше</span></div>
+          <div class="cmp-bars">
+            <div class="cmp-b me best"><span class="cbn">Северст.</span><span class="cbt"><i style="width:14%"></i></span><span class="cbv">0,2×</span></div>
+            <div class="cmp-b"><span class="cbn">НЛМК</span><span class="cbt"><i style="width:18%"></i></span><span class="cbv">0,3×</span></div>
+            <div class="cmp-b"><span class="cbn">ММК</span><span class="cbt"><i style="width:8%"></i></span><span class="cbv">−0,1×</span></div>
+          </div>
+        </div>
+
+        <div class="moat" style="margin-top:15px">
+          <div class="ml">Преимущество · суждение</div>
+          <div class="mx"><b>Самая низкая себестоимость в отрасли</b> и почти полная самообеспеченность рудой — главный ров. На дне цикла Северсталь остаётся прибыльной там, где конкуренты ближе к нулю, и наращивает долю.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+<template id="__bundler_thumbnail" data-bg-color="#0B0E13"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#0B0E13"/><rect x="18" y="22" width="44" height="12" rx="4" fill="#5B7CFF"/><rect x="68" y="22" width="16" height="56" rx="4" fill="#181D27" stroke="#2A3242"/><rect x="72" y="40" width="8" height="34" rx="2" fill="#5B7CFF" opacity=".6"/><rect x="18" y="42" width="44" height="36" rx="5" fill="#181D27" stroke="#2A3242"/></svg></template>
+<script>
+var TS=[{y:'2019',v:71.6},{y:'2021',v:77.8},{y:'2022',v:71.5},{y:'2023',v:75.8},{y:'2024',v:70.7},{y:'2025',v:66.5}];
+function drawTs(){
+ if(document.getElementById('tschart').dataset.done)return;
+ var w=600,h=210,pL=14,pR=14,pT=20,pB=34,mn=64,mx=80,n=TS.length;
+ var X=i=>pL+i/(n-1)*(w-pL-pR), Y=v=>h-pB-(v-mn)/(mx-mn)*(h-pT-pB);
+ var line='';TS.forEach(function(d,i){var x=X(i),y=Y(d.v);line+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';});
+ var area='M'+X(0).toFixed(1)+' '+(h-pB)+' '+line.replace('M','L')+'L'+X(n-1).toFixed(1)+' '+(h-pB)+'Z';
+ var s='<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="display:block;overflow:visible">';
+ s+='<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B7CFF" stop-opacity=".22"/><stop offset="1" stop-color="#5B7CFF" stop-opacity="0"/></linearGradient></defs>';
+ s+='<path d="'+area+'" fill="url(#tg)"/><path d="'+line+'" fill="none" stroke="#5B7CFF" stroke-width="2.4" stroke-linejoin="round"/>';
+ TS.forEach(function(d,i){var x=X(i),y=Y(d.v);var low=i===n-1,peak=i===1;s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(peak||low?4.5:3.5)+'" fill="'+(low?'var(--neg)':'#5B7CFF')+'"/>';s+='<text x="'+x.toFixed(1)+'" y="'+(y-11).toFixed(1)+'" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="'+(low?'var(--neg)':'var(--ink-2)')+'">'+d.v.toFixed(1).replace('.',',')+'</text>';s+='<text x="'+x.toFixed(1)+'" y="'+(h-pB+16)+'" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink-3)">'+d.y+'</text>';});
+ s+='</svg>';
+ var el=document.getElementById('tschart');el.innerHTML=s;el.dataset.done='1';
+}
+var ctrl=document.getElementById('ctrl'),views=[].slice.call(document.querySelectorAll('.view'));
+ctrl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(ctrl.children,function(x){x.classList.toggle('on',x===b);});views.forEach(function(v){v.classList.toggle('on',v.dataset.v===b.dataset.v);});if(b.dataset.v==='dyn')drawTs();});
+var nrt=document.querySelector('.valbox .nr-toggle');
+if(nrt){nrt.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var mode=b.dataset.nr;[].forEach.call(nrt.children,function(x){x.classList.toggle('on',x===b);});document.querySelectorAll('.valbox .vcard[data-nom]').forEach(function(c){var nom=c.dataset.nom,real=c.dataset.real,yv=c.querySelector('.vcv'),yr=c.querySelector('.vcr');if(mode==='real'){yv.textContent=real;yr.textContent='номин.: '+nom;}else{yv.textContent=nom;yr.textContent='реальн.: '+real;}});});}
+</script>
+</body>
+</html>
