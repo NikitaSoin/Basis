@@ -55,6 +55,7 @@ import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textbloc
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
 import ScreenerNeo from "./screener/ScreenerNeo";
 import MarketNeo from "./market/MarketNeo";
+import "./market/market-m5.css";
 import LandingNeo from "./market/LandingNeo";
 import BusinessModelTab from "./company/BusinessModelTab";
 import FinanceTab from "./company/FinanceTab";
@@ -5279,637 +5280,473 @@ const CompanyCard = ({ company, onBack }) => {
     const markets = Array.isArray(marketJson?.markets) ? marketJson.markets : [];
     const sources = Array.isArray(marketJson?.sources) ? marketJson.sources : [];
     const flags = Array.isArray(marketJson?.data_flags) ? marketJson.data_flags : [];
+    const vi = marketJson?.valuation_inputs;
+    const comps = Array.isArray(marketJson?.competitors) ? marketJson.competitors.filter((c) => c && c.name && Array.isArray(c.metrics) && c.metrics.length) : [];
 
-    // Три уровня достоверности — главный смысловой слой (про доверие).
-    const CERT = {
-      fact:     { c: "var(--success)", bg: "var(--success-soft)", t: "факт",   title: "Факт с источником" },
-      estimate: { c: "var(--warning)", bg: "var(--warning-soft)", t: "оценка", title: "Оценка-ориентир — данные разнятся/устарели" },
-      model:    { c: "var(--accent)",  bg: "var(--accent-soft)",  t: "модель", title: "Наша оценка по факторам, а не факт" },
-    };
-    const cert = (lvl) => {
-      const m = CERT[lvl]; if (!m) return null;
-      return (
-        <span title={m.title} className="tw-inline-flex tw-items-center tw-rounded-pill tw-text-[10px] tw-font-bold tw-px-1.5 tw-py-0.5 tw-leading-none tw-shrink-0"
-          style={{ color: m.c, background: m.bg }}>{m.t}</span>
-      );
-    };
+    // ── helpers ──────────────────────────────────────────────────────────
+    const TAG = { fact: ["m5-tag-fact", "факт"], estimate: ["m5-tag-est", "оценка"], model: ["m5-tag-model", "модель"], judgment: ["m5-tag-judg", "суждение"], robust: ["m5-tag-fact", "факт"], medium: ["m5-tag-est", "оценка"], limited: ["m5-tag-scen", "огранич."] };
+    const cert = (lvl) => { const t = TAG[lvl]; return t ? <span className={`m5-tag ${t[0]}`} key={lvl}>{t[1]}</span> : null; };
     const srcOf = (ref) => sources.find((s) => s.id === ref);
-    const srcLink = (ref) => {
-      const s = srcOf(ref); if (!s) return null;
-      return s.url
-        ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-[11px] tw-text-accent hover:tw-underline tw-truncate">{s.title || s.url}</a>
-        : <span className="tw-text-[11px] tw-text-text-tertiary tw-truncate">{s.title}</span>;
-    };
-
-    const cardHead = (Icon, title, right) => (
-      <div className="tw-flex tw-justify-between tw-items-baseline tw-flex-wrap tw-gap-2 tw-mb-3.5">
-        <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
-          <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
-        </h4>
-        {right}
-      </div>
-    );
+    const srcLink = (ref) => { const s = srcOf(ref); if (!s) return null; return s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>{s.title || s.url}</a> : <span style={{ color: "var(--text-tertiary)" }}>{s.title}</span>; };
+    const shareVal = (p) => (typeof p.share_pct === "number" ? p.share_pct : (typeof p.share_low === "number" && typeof p.share_high === "number" ? (p.share_low + p.share_high) / 2 : null));
+    const shareLabel = (p) => (typeof p.share_pct === "number" ? `${p.share_pct}%` : (typeof p.share_low === "number" && typeof p.share_high === "number" ? `${p.share_low}–${p.share_high}%` : "—"));
+    const GEO = { domestic: "рынок РФ", global: "мировой рынок", regional: "региональный", export: "экспортный" };
+    const POS = { leader: ["leader", "№1 · лидер"], challenger: ["challenger", "догоняющий"], niche: ["niche", "нишевый"], insufficient_data: ["niche", "мало данных"] };
+    const RANK = { leader: "№1", challenger: "№2–3", niche: "ниша", insufficient_data: "—" };
+    const TRENDt = { growing: "рос", declining: "падал", stagnating: "стагнировал", volatile: "волатильный" };
+    const ARCH = { commodity_cyclical: "сырьевой цикл", retail: "ритейл", telecom: "телеком", bank: "банк", tech_growth: "рост / tech", utility: "коммун. услуги", insurance: "страхование", reit: "недвижимость", pharma: "фарма", hybrid: "гибрид" };
+    const sg = (n) => (n == null ? null : (n > 0 ? `+${n}` : `${n}`));
+    const rng = (lo, hi) => { if (lo == null && hi == null) return null; if (lo == null) return `${sg(hi)}%`; if (hi == null) return `${sg(lo)}%`; return lo === hi ? `${sg(lo)}%` : `${sg(lo)} – ${sg(hi)}%`; };
+    const rngClass = (lo, hi) => { const h = hi != null ? hi : lo, l = lo != null ? lo : hi; if (h == null) return ""; if (l >= 0) return "pos"; if (h <= 0) return "neg"; return ""; };
+    const parseNum = (v) => { if (v == null) return null; const m = String(v).replace(/ /g, " ").match(/-?\d+(?:[.,]\d+)?/); return m ? parseFloat(m[0].replace(",", ".")) : null; };
     const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
     const mdSections = splitH2(marketMd);
 
-    const GEO = { domestic: "рынок РФ", global: "мировой рынок", regional: "региональный", export: "экспортный" };
-    const POS = {
-      leader:            { tone: "success", t: "лидер" },
-      challenger:        { tone: "warning", t: "догоняющий" },
-      niche:             { tone: "neutral", t: "нишевый игрок" },
-      insufficient_data: { tone: "neutral", t: "мало данных" },
-    };
-    const TRAJ = {
-      "нарастит": { c: "var(--success)", bg: "var(--success-soft)", Icon: TrendingUp },
-      "удержит":  { c: "var(--text-tertiary)", bg: "var(--bg-base)", Icon: ArrowRightLeft },
-      "потеряет долю": { c: "var(--danger)", bg: "var(--danger-soft)", Icon: TrendingDown },
-      "неопределённо": { c: "var(--text-tertiary)", bg: "var(--bg-base)", Icon: Activity },
-    };
-    const shareVal = (p) => (typeof p.share_pct === "number" ? p.share_pct
-      : (typeof p.share_low === "number" && typeof p.share_high === "number" ? (p.share_low + p.share_high) / 2 : null));
-    const shareLabel = (p) => (typeof p.share_pct === "number" ? `${p.share_pct}%`
-      : (typeof p.share_low === "number" && typeof p.share_high === "number" ? `${p.share_low}–${p.share_high}%` : "—"));
-
-    // Мини-график динамики рынка (точки period→value).
-    const HistChart = ({ points, metric }) => {
+    // мини-график динамики (accent-линия)
+    const M5Chart = ({ points }) => {
       const pts = (points || []).filter((p) => typeof p.value === "number");
       if (pts.length < 2) return null;
-      const W = 560, H = 120, padX = 8, padY = 14;
-      const vals = pts.map((p) => p.value);
-      const min = Math.min(...vals), max = Math.max(...vals);
-      const span = max - min || 1;
-      const x = (i) => padX + (i * (W - 2 * padX)) / (pts.length - 1);
-      const y = (v) => H - padY - ((v - min) / span) * (H - 2 * padY);
-      const line = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
-      const area = `${line} L${x(pts.length - 1).toFixed(1)},${H - padY} L${x(0).toFixed(1)},${H - padY} Z`;
+      const W = 600, H = 180, pL = 14, pR = 14, pT = 22, pB = 30;
+      const vals = pts.map((p) => p.value), mn = Math.min(...vals), mx = Math.max(...vals), span = (mx - mn) || 1;
+      const X = (i) => pL + i * (W - pL - pR) / (pts.length - 1);
+      const Y = (v) => H - pB - (v - mn) / span * (H - pT - pB);
+      const line = pts.map((p, i) => `${i ? "L" : "M"}${X(i).toFixed(1)} ${Y(p.value).toFixed(1)}`).join(" ");
+      const area = `M${X(0).toFixed(1)} ${H - pB} ${line.replace("M", "L")} L${X(pts.length - 1).toFixed(1)} ${H - pB} Z`;
       return (
-        <div className="tw-w-full tw-overflow-hidden">
-          <svg viewBox={`0 0 ${W} ${H + 18}`} width="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <defs>
-              <linearGradient id="mkt-hist" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="var(--accent)" stopOpacity="0.28" />
-                <stop offset="1" stopColor="var(--accent)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d={area} fill="url(#mkt-hist)" />
-            <path d={line} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-            {pts.map((p, i) => (
-              <g key={i}>
-                <circle cx={x(i)} cy={y(p.value)} r="2.6" fill="var(--accent)" />
-                <text x={x(i)} y={H + 12} textAnchor="middle" className="tw-fill-text-tertiary" style={{ fontSize: 10 }}>{p.period}</text>
-              </g>
-            ))}
-          </svg>
-          {metric && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{metric}</div>}
-        </div>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: "block", overflow: "visible" }} aria-hidden="true">
+          <defs><linearGradient id="m5tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent)" stopOpacity="0.22" /><stop offset="1" stopColor="var(--accent)" stopOpacity="0" /></linearGradient></defs>
+          <path d={area} fill="url(#m5tg)" />
+          <path d={line} fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+          {pts.map((p, i) => (
+            <g key={i}>
+              <circle cx={X(i)} cy={Y(p.value)} r={i === pts.length - 1 ? 4.5 : 3.5} fill={i === pts.length - 1 ? "var(--accent)" : "var(--accent)"} />
+              <text x={X(i)} y={Y(p.value) - 10} textAnchor="middle" style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, fill: "var(--text-secondary)" }}>{typeof p.value === "number" ? p.value.toLocaleString("ru-RU") : ""}</text>
+              <text x={X(i)} y={H - pB + 16} textAnchor="middle" style={{ fontFamily: "var(--font-mono)", fontSize: 11, fill: "var(--text-tertiary)" }}>{p.period}</text>
+            </g>
+          ))}
+        </svg>
       );
     };
 
-    const TREND = {
-      growing:     { c: "var(--success)", t: "рос", Icon: TrendingUp },
-      declining:   { c: "var(--danger)",  t: "падал", Icon: TrendingDown },
-      stagnating:  { c: "var(--warning)", t: "стагнировал", Icon: ArrowRightLeft },
-      volatile:    { c: "var(--accent)",  t: "волатильный", Icon: Activity },
-    };
+    // ── главный рынок + второстепенные ──
+    const primaryM = markets.find((x) => x.tier === "primary") || markets[0] || {};
+    const secondaries = markets.filter((x) => x !== primaryM);
+    const pCur = primaryM.current || {};
+    const pPlayers = [...(pCur.players || [])].sort((a, b) => (shareVal(b) || 0) - (shareVal(a) || 0));
+    const pSelf = pPlayers.find((p) => p.is_company);
+    const pHist = primaryM.history || {};
+    const pFc = primaryM.forecast || {};
+    const pCo = primaryM.company_outlook || {};
+    const pIe = primaryM.international_expansion;
+    const pDrivers = primaryM.drivers || [];
+    const supp = pDrivers.filter((d) => d.direction === "support");
+    const constr = pDrivers.filter((d) => d.direction === "constrain");
+    const pCyc = primaryM.market_cycle;
+    const PALETTE = ["var(--accent)", "#5FB3E6", "#A78BFA", "#6B7280", "#22C55E", "#F59E0B"];
 
-    const positionBadge = (m) => {
-      const cur = m.current || {};
-      const P = POS[cur.company_position]; if (!P) return null;
-      return <Badge tone={P.tone}>{P.t}</Badge>;
-    };
+    // KPI-strip
+    const POSK = { leader: "№1 · лидер", challenger: "догоняющий", niche: "нишевый", insufficient_data: "—" };
+    const kpis = [
+      primaryM.name && { l: "Главный рынок", v: (GEO[primaryM.geography] || primaryM.geography || "рынок"), d: primaryM.name },
+      pSelf && { l: "Доля компании", v: shareLabel(pSelf), d: POSK[pCur.company_position] || "", acc: true },
+      pCur.size?.value && { l: "Размер рынка", v: pCur.size.value, d: pCur.size_metric || "" },
+      (pCyc?.current_phase || pHist.trend) && { l: "Фаза / тренд", v: (TRENDt[pHist.trend] || (pCyc?.phases?.length ? "цикл" : "—")), d: (pCyc?.phases?.length ? pCyc.phases[pCyc.phases.length - 1].label : "") },
+    ].filter(Boolean).slice(0, 4);
 
-    const renderPrimary = (m) => {
-      const cur = m.current || {};
-      const players = [...(cur.players || [])].sort((a, b) => (shareVal(b) || 0) - (shareVal(a) || 0));
-      const maxShare = Math.max(1, ...players.map((p) => shareVal(p) || 0));
-      const hist = m.history || {};
-      const fc = m.forecast || {};
-      const co = m.company_outlook || {};
-      const ie = m.international_expansion;
-      const drivers = m.drivers || [];
-      const supp = drivers.filter((d) => d.direction === "support");
-      const constr = drivers.filter((d) => d.direction === "constrain");
-      const T = TREND[hist.trend];
-      const traj = TRAJ[co.share_trajectory] || { c: "var(--text-tertiary)", bg: "var(--bg-base)", Icon: Activity };
-      const TrajIcon = traj.Icon;
-      const cyc = m.market_cycle;
-
-      // ── m5: каждая секция как самостоятельный «ракурс» сегмент-контрола ──
-      const secShares = (cur.size?.value || players.length > 0) ? (
-        <div className="tw-flex tw-flex-col tw-gap-4">
-          {cur.size?.value && (
-            <div className="tw-p-3 tw-rounded-md tw-bg-bg-base tw-flex tw-items-start tw-justify-between tw-gap-3" style={{ borderLeft: "3px solid var(--accent)" }}>
-              <div>
-                <div className="tw-text-[11px] tw-text-text-tertiary tw-mb-0.5">Размер рынка{cur.size_metric ? ` · ${cur.size_metric}` : ""}</div>
-                <div className="tw-text-[18px] tw-font-bold tw-text-text-primary tw-leading-tight">{cur.size.value}</div>
-                {cur.size.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1">{cur.size.note}</div>}
-              </div>
-              <div className="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-shrink-0">
-                {cert(cur.size.certainty)}
-                {cur.size.source_ref && srcLink(cur.size.source_ref)}
-              </div>
-            </div>
-          )}
-          {players.length > 0 && (
-            <div>
-              <div className="tw-flex tw-items-center tw-justify-between tw-mb-2">
-                <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><BarChart2 size={14} className="tw-text-accent" />Игроки и доли</div>
-                {positionBadge(m)}
-              </div>
-              <div className="tw-flex tw-flex-col tw-gap-1.5">
-                {players.map((p, i) => {
-                  const v = shareVal(p);
-                  const w = v != null ? Math.max(2, (v / maxShare) * 100) : 0;
+    // ── ракурсы сегмент-контрола ──
+    const maxShare = Math.max(1, ...pPlayers.map((p) => shareVal(p) || 0));
+    const segShares = (pCur.size?.value || pPlayers.length > 0) ? (
+      <div>
+        {pCur.size?.value && (
+          <div className="m5-mrow">
+            <div className="m5-mcell"><div className="m5-ml">Размер рынка</div><div className="m5-mv">{pCur.size.value}</div><div className="m5-mm">{pCur.size_metric || (pCur.size.note || "")}</div></div>
+            {pSelf && <div className="m5-mcell"><div className="m5-ml">Доля компании</div><div className="m5-mv" style={{ color: "var(--accent)" }}>{shareLabel(pSelf)}</div><div className="m5-mm">{POSK[pCur.company_position] || ""}</div></div>}
+          </div>
+        )}
+        {pPlayers.length > 0 && (() => {
+          const withV = pPlayers.filter((p) => shareVal(p) != null);
+          const total = withV.reduce((s, p) => s + shareVal(p), 0) || 1;
+          return (
+            <>
+              {withV.length > 0 && (
+                <div className="m5-segbar">
+                  {withV.map((p, i) => { const v = shareVal(p); const f = Math.max(4, (v / total) * 100); return <div key={i} className="m5-s" style={{ flex: f, background: p.is_company ? "var(--accent)" : PALETTE[(i % (PALETTE.length - 1)) + 1] }}>{Math.round(v)}%</div>; })}
+                </div>
+              )}
+              <div className="m5-seglist">
+                {pPlayers.map((p, i) => { const v = shareVal(p); const w = v != null ? Math.max(3, (v / maxShare) * 100) : 0; const col = p.is_company ? "var(--accent)" : PALETTE[(i % (PALETTE.length - 1)) + 1];
                   return (
-                    <div key={i} className="tw-flex tw-items-center tw-gap-2">
-                      <div className="tw-w-[42%] tw-text-[12.5px] tw-truncate" style={{ fontWeight: p.is_company ? 700 : 400, color: p.is_company ? "var(--accent)" : "var(--text-primary)" }} title={p.name}>{p.name}</div>
-                      <div className="tw-flex-1 tw-h-[18px] tw-rounded-sm tw-bg-bg-base tw-overflow-hidden">
-                        <div className="tw-h-full tw-rounded-sm" style={{ width: `${w}%`, background: p.is_company ? "var(--accent)" : "color-mix(in srgb, var(--accent) 34%, transparent)" }} />
+                    <div key={i} className="m5-segitem">
+                      <div className="m5-segrow">
+                        <span className="m5-dot" style={{ background: col }} />
+                        <span className={`m5-st${p.is_company ? " me" : ""}`} title={p.name}>{p.name}{p.is_company && i === 0 ? <span className="m5-lead-pill">№1</span> : null}</span>
+                        <span className="m5-sv">{shareLabel(p)}{p.certainty ? <> {cert(p.certainty)}</> : null}</span>
                       </div>
-                      <div className="tw-w-[58px] tw-text-right tw-font-mono tw-tabular-nums tw-text-[12px] tw-text-text-secondary tw-shrink-0">{shareLabel(p)}</div>
-                      {cert(p.certainty)}
+                      {v != null && <div className="m5-segiln"><i style={{ width: `${w}%`, background: col, opacity: p.is_company ? 1 : 0.5 }} /></div>}
                     </div>
                   );
                 })}
               </div>
-              {cur.company_position_note && <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2 tw-leading-normal">{cur.company_position_note}</div>}
-            </div>
-          )}
-        </div>
-      ) : null;
-
-      const secDyn = (hist.points?.length > 1 || (hist.key_shifts || []).length > 0) ? (
-        <div>
-          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2">
-            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><Activity size={14} className="tw-text-accent" />Как менялся рынок</div>
-            {T && <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[12px] tw-font-semibold" style={{ color: T.c }}><T.Icon size={14} />{T.t}</span>}
-            {cert(hist.history_certainty)}
-          </div>
-          <HistChart points={hist.points} metric={hist.metric} />
-          {(hist.key_shifts || []).length > 0 && (
-            <ul className="tw-mt-2 tw-flex tw-flex-col tw-gap-1">
-              {hist.key_shifts.map((s, i) => <li key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-flex tw-gap-2"><span className="tw-text-accent">·</span>{s}</li>)}
-            </ul>
-          )}
-        </div>
-      ) : null;
-
-      const secCycle = (cyc && Array.isArray(cyc.phases) && cyc.phases.length > 0) ? (
-        <div>
-          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
-            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><Activity size={14} className="tw-text-accent" />Где рынок в отраслевом цикле</div>
-            {cert(cyc.certainty)}
-          </div>
-          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
-            {cyc.phases.map((p, i) => {
-              const isNow = i === cyc.phases.length - 1;
-              return (
-                <div key={i} className="tw-rounded-md tw-p-3" style={{ background: isNow ? "var(--accent-soft)" : "var(--bg-base)", border: isNow ? "1px solid var(--accent)" : "1px solid var(--border-subtle)" }}>
-                  <div className="tw-font-mono tw-text-[11px] tw-font-semibold" style={{ color: isNow ? "var(--accent)" : "var(--text-tertiary)" }}>{p.period}</div>
-                  <div className="tw-text-[12.5px] tw-font-bold tw-text-text-primary tw-mt-0.5">{p.label}</div>
-                  {p.note && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-1">{p.note}</div>}
-                  {isNow && <span className="tw-inline-block tw-mt-1.5 tw-text-[9px] tw-font-bold tw-uppercase tw-text-accent tw-bg-accent-soft tw-rounded-sm tw-px-1.5 tw-py-0.5">сейчас</span>}
-                </div>
-              );
-            })}
-          </div>
-          {cyc.current_phase && <div className="tw-text-[12px] tw-text-text-secondary tw-mt-3 tw-leading-normal"><b className="tw-font-semibold">Сейчас:</b> {cyc.current_phase}</div>}
-        </div>
-      ) : null;
-
-      const secDrivers = (supp.length > 0 || constr.length > 0) ? (
-        <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-          {supp.length > 0 && (
-            <div className="tw-rounded-md tw-p-3" style={{ background: "var(--success-soft)" }}>
-              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--success)" }}><TrendingUp size={14} />Драйверы роста</div>
-              <div className="tw-flex tw-flex-col tw-gap-1.5">{supp.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
-            </div>
-          )}
-          {constr.length > 0 && (
-            <div className="tw-rounded-md tw-p-3" style={{ background: "var(--danger-soft)" }}>
-              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--danger)" }}><TrendingDown size={14} />Сдерживающие факторы</div>
-              <div className="tw-flex tw-flex-col tw-gap-1.5">{constr.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
-            </div>
-          )}
-        </div>
-      ) : null;
-
-      const secForecast = (fc.growth_orientation || fc.direction) ? (
-        <div className="tw-rounded-md tw-p-3.5" style={{ background: "var(--bg-base)", border: "1px solid var(--border-strong)" }}>
-          <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
-            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[13px] tw-font-bold tw-text-text-primary"><Target size={15} className="tw-text-accent" />Прогноз{fc.horizon ? ` · ${fc.horizon}` : ""}</div>
-            {cert(fc.certainty)}
-          </div>
-          {fc.direction && <div className="tw-text-[13px] tw-font-semibold tw-text-text-primary tw-mb-1">{fc.direction}</div>}
-          {fc.growth_orientation && <Prose className="tw-mb-2"><p>{fc.growth_orientation}</p></Prose>}
-          {(fc.logic?.supporting?.length > 0 || fc.logic?.constraining?.length > 0) && (
-            <div className="tw-grid tw-gap-2 tw-mt-1" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-              {fc.logic?.supporting?.length > 0 && (
-                <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--success)" }}>за рост</div>{fc.logic.supporting.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--success)" }}>▲</span>{s}</div>)}</div>
-              )}
-              {fc.logic?.constraining?.length > 0 && (
-                <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--danger)" }}>против</div>{fc.logic.constraining.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--danger)" }}>▼</span>{s}</div>)}</div>
-              )}
-            </div>
-          )}
-          {fc.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-italic">{fc.note}</div>}
-        </div>
-      ) : null;
-
-      const secOutlook = (co.reasoning || co.share_trajectory || (ie && ie.applicable)) ? (
-        <div className="tw-flex tw-flex-col tw-gap-3">
-          {(co.reasoning || co.share_trajectory) && (
-            <div className="tw-rounded-md tw-px-3 tw-py-2.5" style={{ background: traj.bg, borderLeft: `3px solid ${traj.c}` }}>
-              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
-                <TrajIcon size={15} style={{ color: traj.c }} />
-                <span className="tw-text-[13px] tw-font-bold tw-text-text-primary">Перспектива компании: {co.share_trajectory || "—"}</span>
-                {cert(co.certainty)}
-              </div>
-              {co.reasoning && <Prose><p>{co.reasoning}</p></Prose>}
-            </div>
-          )}
-          {ie && ie.applicable && (
-            <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
-              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary tw-mb-1.5"><Globe size={14} className="tw-text-accent" />Международная экспансия</div>
-              {ie.status && <div className="tw-text-[13px] tw-text-text-primary tw-mb-1.5">{ie.status}</div>}
-              {(ie.external_markets || []).map((e, i) => (
-                <div key={i} className="tw-flex tw-items-start tw-gap-2 tw-mb-1">
-                  <span className="tw-text-accent tw-mt-0.5">·</span>
-                  <div className="tw-flex-1"><b className="tw-text-text-primary tw-text-[12.5px]">{e.market}</b>{e.note ? <span className="tw-text-[12.5px] tw-text-text-secondary"> — {e.note}</span> : null}</div>
-                  {cert(e.certainty)}
-                </div>
-              ))}
-              {ie.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1">{ie.note}</div>}
-            </div>
-          )}
-        </div>
-      ) : null;
-
-      const views = [
-        { id: "shares", label: "Доли", node: secShares },
-        { id: "dyn", label: "Динамика", node: secDyn },
-        { id: "cycle", label: "Цикл", node: secCycle },
-        { id: "drivers", label: "Драйверы", node: secDrivers },
-        { id: "forecast", label: "Прогноз", node: secForecast },
-        { id: "outlook", label: "Перспектива", node: secOutlook },
-      ].filter((v) => v.node);
-
-      if (views.length === 0) return null;
-      const activeId = (marketView && views.some((v) => v.id === marketView)) ? marketView : views[0].id;
-      const active = views.find((v) => v.id === activeId) || views[0];
-
-      return (
-        <div className="tw-flex tw-flex-col tw-gap-4">
-          {views.length > 1 && (
-            <div className="tw-flex tw-flex-wrap tw-gap-1 tw-p-1 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle">
-              {views.map((v) => (
-                <button key={v.id} type="button" onClick={() => setMarketView(v.id)}
-                  className="tw-text-[12px] tw-font-semibold tw-px-3 tw-py-1.5 tw-rounded-sm tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
-                  style={v.id === activeId ? { background: "var(--accent)", color: "var(--on-accent)" } : { background: "transparent", color: "var(--text-secondary)" }}>{v.label}</button>
-              ))}
-            </div>
-          )}
-          <div>{active.node}</div>
-        </div>
-      );
-    };
-
-    const renderSecondary = (m) => (
-      <div className="tw-flex tw-flex-col tw-gap-2">
-        {(m.brief || []).map((b, i) => (
-          <div key={i} className="tw-flex tw-items-start tw-gap-2">
-            <span className="tw-text-accent tw-mt-1 tw-shrink-0">·</span>
-            <div className="tw-flex-1 tw-text-[12.5px] tw-text-text-primary tw-leading-normal">{b.point}</div>
-            {cert(b.certainty)}
-          </div>
-        ))}
+            </>
+          );
+        })()}
+        {pCur.company_position_note && <div className="m5-share-cap">{pCur.company_position_note}</div>}
       </div>
-    );
+    ) : null;
 
-    // ── Блок «Для оценки компании»: вход в ставку роста выручки/g (valuation_inputs) ──
-    const ARCH = { commodity_cyclical: "сырьевой цикл", retail: "ритейл", telecom: "телеком", bank: "банк", tech_growth: "рост / tech", utility: "коммун. услуги", insurance: "страхование", reit: "недвижимость", pharma: "фарма", hybrid: "гибрид" };
-    const sg = (n) => (n == null ? null : (n > 0 ? `+${n}` : `${n}`));
-    const rng = (lo, hi) => { if (lo == null && hi == null) return null; if (lo == null) return `${sg(hi)}%`; if (hi == null) return `${sg(lo)}%`; return lo === hi ? `${sg(lo)}%` : `${sg(lo)} – ${sg(hi)}%`; };
-    const rngTone = (lo, hi) => { const h = hi != null ? hi : lo, l = lo != null ? lo : hi; if (h == null) return "var(--text-primary)"; if (l >= 0) return "var(--success)"; if (h <= 0) return "var(--danger)"; return "var(--text-primary)"; };
+    const segDyn = (pHist.points?.length > 1 || (pHist.key_shifts || []).length > 0) ? (
+      <div>
+        {pHist.metric && <p className="m5-vlead" style={{ fontSize: 13, marginBottom: 10 }}>Как менялся рынок · <b>{pHist.metric}</b>{pHist.trend ? ` — ${TRENDt[pHist.trend] || ""}` : ""} {cert(pHist.history_certainty)}</p>}
+        <M5Chart points={pHist.points} />
+        {(pHist.key_shifts || []).length > 0 && (
+          <div className="m5-tsa-wrap">
+            {pHist.key_shifts.map((s, i) => <div key={i} className="m5-tsa"><span className="m5-ty">·</span><span className="m5-tx">{s}</span></div>)}
+          </div>
+        )}
+      </div>
+    ) : null;
 
-    const renderValuation = (vi) => {
+    const segCycle = (pCyc && Array.isArray(pCyc.phases) && pCyc.phases.length > 0) ? (
+      <div>
+        <p className="m5-vlead" style={{ fontSize: 13, marginBottom: 14 }}>Где рынок в отраслевом цикле {cert(pCyc.certainty)}</p>
+        <div className="m5-cyc" style={{ "--m5-cyc-n": pCyc.phases.length }}>
+          {pCyc.phases.map((p, i) => { const now = i === pCyc.phases.length - 1; return (
+            <div key={i} className={`m5-cph ${now ? "m5-now" : "m5-done"}`}>
+              <div className="m5-cdot" />
+              <div className="m5-cper">{p.period}</div>
+              <div className="m5-clab">{p.label}</div>
+              {p.note && <div className="m5-cnote">{p.note}</div>}
+              {now && <span className="m5-cnow">сейчас</span>}
+            </div>
+          ); })}
+        </div>
+        {pCyc.current_phase && <p className="m5-fnote">Сейчас: {pCyc.current_phase}</p>}
+      </div>
+    ) : null;
+
+    const segDrivers = (supp.length > 0 || constr.length > 0) ? (
+      <div className="m5-dvr">
+        {supp.length > 0 && (
+          <div className="m5-dvcol m5-up">
+            <div className="m5-dvh"><TrendingUp size={15} />Драйверы роста</div>
+            <ul>{supp.map((d, i) => <li key={i}><b>{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</li>)}</ul>
+          </div>
+        )}
+        {constr.length > 0 && (
+          <div className="m5-dvcol m5-dn">
+            <div className="m5-dvh"><TrendingDown size={15} />Сдерживающие факторы</div>
+            <ul>{constr.map((d, i) => <li key={i}><b>{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</li>)}</ul>
+          </div>
+        )}
+      </div>
+    ) : null;
+
+    const segForecast = (pFc.growth_orientation || pFc.direction) ? (
+      <div>
+        {pFc.direction && <p className="m5-vlead" style={{ fontSize: 14 }}>{pFc.direction} {cert(pFc.certainty)}</p>}
+        {pFc.growth_orientation && <p className="m5-fnote" style={{ fontStyle: "normal", fontSize: 13, color: "var(--text-secondary)", margin: "0 0 14px" }}>{pFc.growth_orientation}</p>}
+        {(pFc.logic?.supporting?.length > 0 || pFc.logic?.constraining?.length > 0) && (
+          <div className="m5-scales">
+            {pFc.logic?.supporting?.length > 0 && (
+              <div className="m5-scol m5-pro"><div className="m5-sh">За рост</div><ul>{pFc.logic.supporting.map((s, i) => <li key={i}><span className="m5-g">▲</span>{s}</li>)}</ul></div>
+            )}
+            {pFc.logic?.constraining?.length > 0 && (
+              <div className="m5-scol m5-con"><div className="m5-sh">Против</div><ul>{pFc.logic.constraining.map((s, i) => <li key={i}><span className="m5-g">▼</span>{s}</li>)}</ul></div>
+            )}
+          </div>
+        )}
+        {pFc.horizon && <p className="m5-fnote">Горизонт: {pFc.horizon}.{pFc.note ? ` ${pFc.note}` : ""}</p>}
+        {!pFc.horizon && pFc.note && <p className="m5-fnote">{pFc.note}</p>}
+      </div>
+    ) : null;
+
+    const segOutlook = (pCo.reasoning || pCo.share_trajectory || (pIe && pIe.applicable)) ? (
+      <div>
+        {(pCo.reasoning || pCo.share_trajectory) && (
+          <div className="m5-outlook">
+            <div className="m5-olead">{pCo.share_trajectory && <b>Перспектива: {pCo.share_trajectory}. </b>}{pCo.reasoning} {cert(pCo.certainty)}</div>
+          </div>
+        )}
+        {pIe && pIe.applicable && (
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border-subtle)" }}>
+            <div className="m5-sub" style={{ marginBottom: 10 }}><b style={{ color: "var(--text-secondary)" }}>Международная экспансия</b>{pIe.status ? ` — ${pIe.status}` : ""}</div>
+            <div className="m5-intl">
+              {(pIe.external_markets || []).map((e, i) => (
+                <div key={i} className="m5-intlr"><span className="m5-ai" style={{ background: "var(--accent)" }} /><span><b>{e.market}</b>{e.note ? ` — ${e.note}` : ""} {cert(e.certainty)}</span></div>
+              ))}
+            </div>
+            {pIe.note && <p className="m5-fnote">{pIe.note}</p>}
+          </div>
+        )}
+      </div>
+    ) : null;
+
+    const views = [
+      { id: "shares", label: "Доли", node: segShares },
+      { id: "dyn", label: "Динамика", node: segDyn },
+      { id: "cycle", label: "Цикл", node: segCycle },
+      { id: "drivers", label: "Драйверы", node: segDrivers },
+      { id: "forecast", label: "Прогноз", node: segForecast },
+      { id: "outlook", label: "Перспектива", node: segOutlook },
+    ].filter((v) => v.node);
+    const activeId = (marketView && views.some((v) => v.id === marketView)) ? marketView : (views[0] && views[0].id);
+    const active = views.find((v) => v.id === activeId);
+
+    // ── блок «Для оценки компании» (valuation_inputs) ──
+    const renderVal = () => {
       if (!vi || typeof vi !== "object") return null;
-      const eh = vi.explicit_horizon || {};
-      const scen = eh.scenarios || {};
-      const base = scen.base || {};
+      const eh = vi.explicit_horizon || {}, scen = eh.scenarios || {}, base = scen.base || {};
       const baseGrowth = Array.isArray(base.revenue_growth) ? base.revenue_growth : [];
-      const tg = vi.terminal_growth || {};
-      const mt = vi.margin_trajectory || {};
-      const ac = vi.analyst_consensus || {};
-      const sig = vi.signal_revenue_outlook || {};
-      const crf = vi.country_risk_footnote || {};
-      const isDeep = typeof base.probability_pct !== "number"; // CHGZ/LNZL/UNKL — глубокая неопределённость
+      const tg = vi.terminal_growth || {}, mt = vi.margin_trajectory || {}, ac = vi.analyst_consensus || {}, sig = vi.signal_revenue_outlook || {}, crf = vi.country_risk_footnote || {};
+      const isDeep = typeof base.probability_pct !== "number";
       const archLabel = ARCH[vi.archetype] || vi.archetype;
-      const wp = (s) => (typeof scen[s]?.probability_pct === "number" ? scen[s].probability_pct : null);
-
-      // Шапка блока (общая для обоих режимов)
       const head = (
-        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
-          <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
-          <Target size={16} className="tw-text-accent tw-shrink-0" />
-          <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">Для оценки компании</h4>
-          {archLabel && <Badge tone="neutral">{archLabel}</Badge>}
-          {!isDeep && cert("estimate")}
-          {vi.disclosure_quality && <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-auto">раскрытие: {vi.disclosure_quality === "high" ? "высокое" : vi.disclosure_quality === "medium" ? "среднее" : "низкое"}</span>}
+        <div className="m5-vbh">
+          <Target size={18} style={{ color: "var(--accent)" }} />
+          <h3>Для оценки компании</h3>
+          {archLabel && <span className="m5-tag m5-tag-scen">{archLabel}</span>}
+          {!isDeep && <span className="m5-tag m5-tag-est">оценка-ориентир</span>}
+          {!isDeep && (
+            <div className="m5-nr-toggle">
+              <button type="button" className={valNominal ? "m5-on" : ""} onClick={() => setValNominal(true)}>номинал</button>
+              <button type="button" className={!valNominal ? "m5-on" : ""} onClick={() => setValNominal(false)}>реальный</button>
+            </div>
+          )}
         </div>
       );
-
-      // ── Ветка: глубокая неопределённость (нет вероятностных сценариев) ──
       if (isDeep) {
         return (
-          <Card key="valuation">
+          <div className="m5-valbox">
             {head}
-            <div className="tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--warning-soft)", borderLeft: "3px solid var(--warning)" }}>
-              <div className="tw-text-[13px] tw-font-bold tw-text-text-primary tw-mb-1">Глубокая неопределённость — прогноз выручки не строим</div>
-              <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-normal">
-                Стоимость бумаги определяется не темпом выручки, а корпоративным событием / стоимостью активов (ликвидация, выкуп, NAV).
-                Присваивать сценариям вероятности было бы ложной точностью — даём качественную картину.
-              </div>
-            </div>
-            {sig.direction && <div className="tw-text-[13px] tw-text-text-primary tw-mb-2"><b className="tw-font-semibold">Сигнал:</b> {sig.direction}{sig.driver ? ` — ${sig.driver}` : ""}</div>}
-            {tg.implied_exit_multiple?.value && (
-              <div className="tw-text-[12.5px] tw-text-text-secondary tw-mb-2">Ориентир выхода: {tg.implied_exit_multiple.metric || ""} {tg.implied_exit_multiple.value}{tg.implied_exit_multiple.vs_history ? ` (${tg.implied_exit_multiple.vs_history})` : ""}</div>
-            )}
+            <p className="m5-vbsub">Стоимость определяется не темпом выручки, а корпоративным событием / стоимостью активов. Прогноз выручки не строим — даём качественную картину.</p>
+            <div className="m5-deepbox"><div className="dh">Глубокая неопределённость</div><div className="dx">{sig.direction || "Операционный прогноз не применим."}{sig.driver ? ` — ${sig.driver}` : ""}</div></div>
+            {tg.implied_exit_multiple?.value && <div className="m5-vcd" style={{ paddingTop: 0, marginBottom: 10 }}>Ориентир выхода: {tg.implied_exit_multiple.metric || ""} {tg.implied_exit_multiple.value}{tg.implied_exit_multiple.vs_history ? ` (${tg.implied_exit_multiple.vs_history})` : ""}</div>}
             {Array.isArray(vi.key_assumptions) && vi.key_assumptions.length > 0 && (
-              <div className="tw-mt-2">
-                <div className="tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-1">Ключевые допущения</div>
-                <ul className="tw-flex tw-flex-col tw-gap-1">{vi.key_assumptions.map((a, i) => <li key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-2"><span className="tw-text-accent">·</span>{a}</li>)}</ul>
-              </div>
+              <details className="m5-valassum"><summary>Ключевые допущения</summary><ul>{vi.key_assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul></details>
             )}
-            {(crf.crp_pct != null || crf.caveat) && (
-              <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-pt-2 tw-border-t tw-border-border-subtle tw-italic">
-                Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}
-              </div>
-            )}
-          </Card>
+            {(crf.crp_pct != null || crf.caveat) && <p className="m5-fnote">Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}</p>}
+          </div>
         );
       }
-
-      // ── Карточка одного периода (с тумблером номинал/реал) ──
-      const periodCard = (p, dashed) => {
-        const bigLo = valNominal ? p.low_pct : p.real_low_pct, bigHi = valNominal ? p.high_pct : p.real_high_pct;
-        const subLo = valNominal ? p.real_low_pct : p.low_pct, subHi = valNominal ? p.real_high_pct : p.high_pct;
-        const big = rng(bigLo, bigHi) || "—";
-        const sub = rng(subLo, subHi);
+      const periodCard = (p, dashed, label) => {
+        const bLo = valNominal ? p.low_pct : p.real_low_pct, bHi = valNominal ? p.high_pct : p.real_high_pct;
+        const sLo = valNominal ? p.real_low_pct : p.low_pct, sHi = valNominal ? p.real_high_pct : p.high_pct;
+        const big = rng(bLo, bHi) || "—", sub = rng(sLo, sHi);
         return (
-          <div key={p.period} className="tw-rounded-md tw-p-3 tw-flex tw-flex-col tw-bg-bg-base" style={{ border: dashed ? "1px dashed var(--border-strong)" : "1px solid var(--border-subtle)" }}>
-            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2 tw-leading-tight">{p.period}{p.type && cert(p.type)}</div>
-            <div className="tw-font-mono tw-tabular-nums tw-text-[20px] tw-font-medium tw-leading-none" style={{ color: rngTone(bigLo, bigHi) }}>{big}</div>
-            {sub && <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-mt-1.5">{valNominal ? "реальн." : "номин."}: {sub}</div>}
-            {p.drivers && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2 tw-pt-2 tw-border-t tw-border-border-subtle">{p.drivers}</div>}
+          <div key={label || p.period} className={`m5-vcard${dashed ? " dashed" : ""}`}>
+            <div className="m5-vcl">{label || p.period}{p.type && cert(p.type)}</div>
+            <div className={`m5-vcv ${rngClass(bLo, bHi)}`}>{big}</div>
+            {sub && <div className="m5-vcr">{valNominal ? "реальн." : "номин."}: {sub}</div>}
+            {p.drivers && <div className="m5-vcd">{p.drivers}</div>}
           </div>
         );
       };
-
-      // Терминал как «период»
       const termCard = (tg.nominal_low_pct != null || tg.nominal_high_pct != null) ? periodCard({
-        period: "Долгосрочно · терминал", type: tg.type,
-        low_pct: tg.nominal_low_pct, high_pct: tg.nominal_high_pct,
-        real_low_pct: tg.real_low_pct, real_high_pct: tg.real_high_pct,
+        type: tg.type, low_pct: tg.nominal_low_pct, high_pct: tg.nominal_high_pct, real_low_pct: tg.real_low_pct, real_high_pct: tg.real_high_pct,
         drivers: [tg.anchor, tg.implied_exit_multiple?.value ? `выход ${tg.implied_exit_multiple.metric || ""} ${tg.implied_exit_multiple.value}` : null].filter(Boolean).join(" · "),
-      }, true) : null;
-
-      // Наш ориентир 2027 (для блока консенсуса)
+      }, true, "Долгосрочно · терминал") : null;
       const p2027 = baseGrowth.find((p) => String(p.period).includes("2027"));
       const our2027 = p2027 ? rng(p2027.low_pct, p2027.high_pct) : null;
-
+      const wp = (s) => (typeof scen[s]?.probability_pct === "number" ? scen[s].probability_pct : null);
       return (
-        <Card key="valuation">
+        <div className="m5-valbox">
           {head}
-          <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-flex-wrap tw-mb-3">
-            <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-normal tw-max-w-[68ch]">
-              Ориентиры темпов роста выручки для вашей модели — диапазонами, без ложной точности. Справедливая цена и мультипликаторы — во вкладке «Финансы».
-            </div>
-            <div className="tw-inline-flex tw-rounded-md tw-overflow-hidden tw-border tw-border-border-strong tw-shrink-0">
-              {[["nom", "номинал", true], ["real", "реальный", false]].map(([k, lbl, isNom]) => (
-                <button key={k} type="button" onClick={() => setValNominal(isNom)}
-                  className="tw-text-[11px] tw-font-bold tw-px-3 tw-py-1 tw-leading-none tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
-                  style={valNominal === isNom ? { background: "var(--accent)", color: "var(--on-accent)" } : { background: "var(--bg-base)", color: "var(--text-tertiary)" }}>{lbl}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* Синтез наверху — вердикт поверх данных (рынок → ставка роста) */}
+          <p className="m5-vbsub">Ориентиры темпов роста выручки для вашей модели — диапазонами, без ложной точности. Справедливая цена и мультипликаторы — во вкладке «Финансы».</p>
           {(sig.direction || eh.probability_weighted_note) && (
-            <div className="tw-flex tw-gap-3 tw-items-start tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--accent-soft)" }}>
-              <Target size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
-              <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">
-                <b className="tw-font-semibold">Вход в ставку роста:</b> {sig.direction || ""}{sig.horizon ? ` ${sig.horizon}` : ""}{eh.probability_weighted_note ? `. ${eh.probability_weighted_note}` : ""}
-                <span className="tw-text-text-tertiary"> Это вход в темп выручки, а не прогноз цены акции.</span>
-              </div>
+            <div className="m5-valsynth">
+              <Target size={17} />
+              <span><b>Вход в ставку роста:</b> {sig.direction || ""}{sig.horizon ? ` ${sig.horizon}` : ""}{eh.probability_weighted_note ? `. ${eh.probability_weighted_note}` : ""} <span style={{ color: "var(--text-tertiary)" }}>Это вход в темп выручки, а не прогноз цены акции.</span></span>
             </div>
           )}
-
-          {/* Базовый сценарий: путь выручки по годам + терминал */}
           {baseGrowth.length > 0 && (
-            <div className="tw-grid tw-gap-3 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+            <div className="m5-vgrid3" style={{ gridTemplateColumns: `repeat(${Math.min(3, baseGrowth.length + (termCard ? 1 : 0))}, 1fr)` }}>
               {baseGrowth.map((p) => periodCard(p, false))}
               {termCard}
             </div>
           )}
-
-          {/* Маржа + консенсус */}
-          <div className="tw-grid tw-gap-3 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+          <div className="m5-vgrid2">
             {(mt.from_pct != null || mt.to_pct != null) && (
-              <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
-                <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2">Маржа{mt.metric ? ` · ${mt.metric}` : ""} — куда идёт{mt.certainty && cert(mt.certainty)}</div>
-                <div className="tw-font-mono tw-text-[19px] tw-font-medium tw-flex tw-items-center tw-gap-2">
-                  <span>{mt.from_pct != null ? `${mt.from_pct}%` : "—"}</span>
-                  <span className="tw-text-text-tertiary tw-text-[15px]">→</span>
-                  <span style={{ color: (mt.to_pct != null && mt.from_pct != null && mt.to_pct >= mt.from_pct) ? "var(--success)" : "var(--text-primary)" }}>{mt.to_pct != null ? `${mt.to_pct}%` : "—"}</span>
-                </div>
-                {mt.rationale && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2">{mt.rationale}</div>}
+              <div className="m5-vcard">
+                <div className="m5-vcl">Маржа{mt.metric ? ` · ${mt.metric}` : ""} — куда идёт{mt.certainty && cert(mt.certainty)}</div>
+                <div className="m5-vcv2"><span>{mt.from_pct != null ? `${mt.from_pct}%` : "—"}</span><span className="ar">→</span><span className={mt.to_pct != null && mt.from_pct != null && mt.to_pct >= mt.from_pct ? "to" : ""}>{mt.to_pct != null ? `${mt.to_pct}%` : "—"}</span></div>
+                {mt.rationale && <div className="m5-vcd">{mt.rationale}</div>}
               </div>
             )}
             {(ac.available && (our2027 || ac.revenue_2027_pct)) && (
-              <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
-                <div className="tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2">Второе мнение · консенсус 2027</div>
-                <div className="tw-flex tw-items-baseline tw-gap-2 tw-flex-wrap">
-                  {our2027 && <><span className="tw-font-mono tw-text-[17px] tw-font-semibold tw-text-accent">{our2027}</span><span className="tw-text-[10px] tw-text-text-tertiary tw-mr-1">наш ориентир</span></>}
-                  {ac.revenue_2027_pct && <><span className="tw-font-mono tw-text-[17px] tw-font-semibold tw-text-text-primary">{String(ac.revenue_2027_pct).replace(/%$/, "")}%</span><span className="tw-text-[10px] tw-text-text-tertiary">рынок</span></>}
-                </div>
-                {(ac.note || ac.bias_note) && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2">{ac.note || ac.bias_note}</div>}
+              <div className="m5-vcard">
+                <div className="m5-vcl">Второе мнение · консенсус 2027</div>
+                <div className="m5-vcons">{our2027 && <><span className="cv acc">{our2027}</span><span className="cvs">наш</span></>}{ac.revenue_2027_pct && <><span className="cv">{String(ac.revenue_2027_pct).replace(/%$/, "")}%</span><span className="cvs">рынок</span></>}</div>
+                {(ac.note || ac.bias_note) && <div className="m5-vcd">{ac.note || ac.bias_note}</div>}
               </div>
             )}
           </div>
-
-          {/* Сценарии: веса + перекос риска */}
           {(wp("base") != null || eh.risk_skew) && (
-            <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-3">
-              {wp("base") != null && <span>Сценарии: база {wp("base")}% · оптим. {wp("bull") ?? "—"}% · пессим. {wp("bear") ?? "—"}%. </span>}
-              {eh.risk_skew && <span>Перекос риска: {eh.risk_skew}.</span>}
-            </div>
+            <p className="m5-fnote" style={{ fontStyle: "normal", margin: "0 0 12px" }}>{wp("base") != null && <>Сценарии: база {wp("base")}% · оптим. {wp("bull") ?? "—"}% · пессим. {wp("bear") ?? "—"}%. </>}{eh.risk_skew && <>Перекос риска: {eh.risk_skew}</>}</p>
           )}
-
-          {/* FCF + допущения */}
-          <div className="tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-2 tw-items-start">
-            {vi.fcf_direction?.direction && (
-              <div className="tw-flex-1 tw-min-w-[240px] tw-text-[11.5px] tw-text-text-tertiary tw-leading-snug">
-                <span className="tw-text-accent tw-font-mono">FCF:</span> {vi.fcf_direction.direction}{vi.fcf_direction.rationale ? ` — ${vi.fcf_direction.rationale}` : ""} <span className="tw-opacity-80">Конкретные значения — во вкладке «Финансы».</span>
-              </div>
-            )}
+          <div className="m5-valextra">
+            {vi.fcf_direction?.direction && <div className="m5-fcfnote"><span className="ar">FCF:</span> {vi.fcf_direction.direction}{vi.fcf_direction.rationale ? ` — ${vi.fcf_direction.rationale}` : ""} <span className="muted">Значения — во вкладке «Финансы».</span></div>}
             {Array.isArray(vi.key_assumptions) && vi.key_assumptions.length > 0 && (
-              <details className="tw-text-[11.5px] tw-text-text-tertiary">
-                <summary className="tw-cursor-pointer tw-font-semibold tw-text-accent">Ключевые допущения</summary>
-                <ul className="tw-mt-1.5 tw-pl-4 tw-list-disc tw-leading-relaxed">{vi.key_assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
-              </details>
+              <details className="m5-valassum"><summary>Ключевые допущения</summary><ul>{vi.key_assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul></details>
             )}
           </div>
-
-          {/* Страновая премия (сноска CRP) */}
-          {(crf.crp_pct != null || crf.caveat) && (
-            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-pt-2 tw-border-t tw-border-border-subtle tw-italic tw-leading-snug">
-              Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}
-            </div>
-          )}
-        </Card>
+          {(crf.crp_pct != null || crf.caveat) && <p className="m5-fnote">Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}</p>}
+        </div>
       );
     };
 
-    // ── m5: вердикт-полоса + KPI-strip (данные из главного рынка) ──
-    const primaryM = markets.find((x) => x.tier === "primary") || markets[0] || {};
-    const pCur = primaryM.current || {};
-    const pPlayers = pCur.players || [];
-    const pSelf = pPlayers.find((p) => p.is_company);
-    const POSK = { leader: "№1 · лидер", challenger: "догоняющий", niche: "нишевый", insufficient_data: "—" };
-    const kpis = [
-      primaryM.name && { l: "Главный рынок", v: (GEO[primaryM.geography] || primaryM.geography || "—"), d: primaryM.name },
-      pSelf && { l: "Доля компании", v: shareLabel(pSelf), d: POSK[pCur.company_position] || "", acc: true },
-      pCur.size?.value && { l: "Размер рынка", v: pCur.size.value, d: pCur.size_metric || (primaryM.name || "") },
-      (primaryM.market_cycle?.current_phase || primaryM.history?.trend) && { l: "Фаза / тренд", v: (TREND[primaryM.history?.trend]?.t || "—"), d: (primaryM.market_cycle?.phases?.length ? primaryM.market_cycle.phases[primaryM.market_cycle.phases.length - 1].label : "") },
-    ].filter(Boolean).slice(0, 4);
-
-    // ── m5: конкурентная позиция (head-to-head) ──
-    const comps = Array.isArray(marketJson?.competitors) ? marketJson.competitors.filter((c) => c && c.name && Array.isArray(c.metrics) && c.metrics.length) : [];
+    // ── правый рельс ──
+    const railPos = pSelf && pCur.company_position;
+    const monitorRows = pDrivers.slice(0, 6);
     const compSelf = comps.find((c) => c.is_company) || comps[0];
     const metricLabels = compSelf ? compSelf.metrics.map((mm) => mm.label) : [];
+    const railHasContent = railPos || monitorRows.length > 0 || (comps.length > 1 && metricLabels.length > 0);
 
-    return (
-      <AppearGroup gate={appearGate.current} groupId="markets" className="tw-flex tw-flex-col tw-gap-4">
-        {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
-
-        {/* Вердикт-полоса — главный вывод по рынкам одной мыслью (m5) */}
-        {meta.market_position_summary && (
-          <div className="tw-rounded-lg tw-p-4 tw-flex tw-gap-3 tw-items-start" style={{ background: "linear-gradient(135deg, var(--accent-soft), var(--bg-elevated))", border: "1px solid var(--border-strong)" }}>
-            <Globe size={18} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
-            <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-leading-snug" style={{ maxWidth: "74ch" }}>{meta.market_position_summary}</div>
+    const rail = railHasContent ? (
+      <aside className="m5-mrail">
+        {railPos && (
+          <div className="m5-mrcard">
+            <div className="m5-mrt">Позиция на рынке</div>
+            <div className="m5-mrs">{primaryM.name || "Главный рынок"}</div>
+            <div className="m5-rank-now"><span className="m5-rn">{RANK[pCur.company_position] || "—"}</span><span className="m5-rl">{shareLabel(pSelf)} рынка</span></div>
+            {pCur.company_position && <span className={`m5-posbadge ${POS[pCur.company_position] ? POS[pCur.company_position][0] : "niche"}`}>{POS[pCur.company_position] ? POS[pCur.company_position][1] : pCur.company_position}</span>}
+            {pCur.company_position_note && <div className="m5-rank-cap" style={{ marginTop: 12 }}>{pCur.company_position_note}</div>}
           </div>
         )}
-
-        {/* KPI-strip */}
-        {kpis.length > 0 && (
-          <div className="tw-grid tw-gap-px tw-rounded-md tw-overflow-hidden tw-border tw-border-border-subtle" style={{ gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, minmax(0, 1fr))`, background: "var(--border-subtle)" }}>
-            {kpis.map((k, i) => (
-              <div key={i} className="tw-bg-bg-elevated tw-p-3">
-                <div className="tw-text-[10.5px] tw-uppercase tw-text-text-tertiary tw-tracking-wide tw-leading-tight">{k.l}</div>
-                <div className="tw-font-mono tw-tabular-nums tw-text-[18px] tw-font-medium tw-mt-1 tw-leading-none" style={{ color: k.acc ? "var(--accent)" : "var(--text-primary)" }}>{k.v}</div>
-                {k.d && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1 tw-leading-tight tw-truncate" title={k.d}>{k.d}</div>}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Легенда достоверности */}
-        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-px-1">
-          <span className="tw-font-semibold">Достоверность:</span>
-          {cert("fact")}<span>— факт с источником</span>
-          {cert("estimate")}<span>— оценка-ориентир</span>
-          {cert("model")}<span>— наша оценка по факторам</span>
-        </div>
-
-        {/* Рынки */}
-        {markets.map((m, i) => {
-          const isPrimary = m.tier === "primary";
-          const right = (
-            <div className="tw-flex tw-items-center tw-gap-1.5">
-              <Badge tone={isPrimary ? "accent" : "neutral"}>{isPrimary ? "главный рынок" : "второстепенный"}</Badge>
-              {m.geography && <span className="tw-text-[11px] tw-text-text-tertiary">{GEO[m.geography] || m.geography}</span>}
-            </div>
-          );
-          return (
-            <Card key={i}>
-              {cardHead(isPrimary ? BarChart2 : Layers, m.name || "Рынок", right)}
-              {m.role_for_company && <div className="tw-text-[12.5px] tw-text-text-secondary tw-mb-3 tw-leading-normal">{m.role_for_company}</div>}
-              {isPrimary ? renderPrimary(m) : renderSecondary(m)}
-            </Card>
-          );
-        })}
-
-        {/* Конкурентная позиция — head-to-head с прямыми конкурентами (m5) */}
-        {comps.length > 1 && metricLabels.length > 0 && (
-          <Card>
-            {cardHead(BarChart2, "Конкурентная позиция", compSelf?.name ? <Badge tone="accent">{compSelf.name}</Badge> : null)}
-            <div className="tw-overflow-x-auto tw--mx-1">
-              <table className="tw-w-full tw-text-[12px] tw-border-collapse">
-                <thead>
-                  <tr>
-                    <th className="tw-text-left tw-font-semibold tw-text-text-tertiary tw-p-1.5 tw-align-bottom">Метрика</th>
-                    {comps.map((c, i) => (
-                      <th key={i} className="tw-text-right tw-p-1.5 tw-font-semibold tw-align-bottom" style={{ color: c.is_company ? "var(--accent)" : "var(--text-secondary)" }}>{c.name}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {metricLabels.map((lbl, ri) => (
-                    <tr key={ri} className="tw-border-t tw-border-border-subtle">
-                      <td className="tw-p-1.5 tw-text-text-secondary tw-leading-tight">{lbl}</td>
-                      {comps.map((c, ci) => {
-                        const mm = (c.metrics || []).find((x) => x.label === lbl);
-                        return (
-                          <td key={ci} className="tw-text-right tw-p-1.5 tw-font-mono tw-tabular-nums tw-whitespace-nowrap"
-                            style={{ color: c.is_company ? "var(--accent)" : (mm?.is_best ? "var(--success)" : "var(--text-primary)"), fontWeight: (c.is_company || mm?.is_best) ? 700 : 400 }}>
-                            {mm?.value ?? "—"}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2"><span style={{ color: "var(--accent)" }}>■</span> компания · <span style={{ color: "var(--success)" }}>■</span> лучший по метрике</div>
-          </Card>
-        )}
-
-        {/* Для оценки компании — вход в ставку роста (valuation_inputs) */}
-        {renderValuation(marketJson?.valuation_inputs)}
-
-        {/* Источники */}
-        {sources.length > 0 && (
-          <Card>
-            {cardHead(Info, "Источники")}
-            <div className="tw-flex tw-flex-col tw-gap-1.5">
-              {sources.map((s, i) => (
-                <div key={i} className="tw-flex tw-items-baseline tw-gap-2 tw-text-[12px]">
-                  <span className="tw-font-mono tw-text-text-tertiary tw-shrink-0">{s.id}</span>
-                  {s.url
-                    ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-accent hover:tw-underline">{s.title || s.url}</a>
-                    : <span className="tw-text-text-secondary">{s.title}</span>}
-                  {s.period && <span className="tw-text-text-tertiary">· {s.period}</span>}
-                  {s.reliability && <span className="tw-text-text-tertiary tw-ml-auto tw-shrink-0">надёжность: {s.reliability}</span>}
-                </div>
+        {monitorRows.length > 0 && (
+          <div className="m5-mrcard">
+            <div className="m5-mrt">Что отслеживать</div>
+            <div className="m5-mrs">Сигналы для рынка компании</div>
+            <div className="m5-mon">
+              {monitorRows.map((d, i) => (
+                <div key={i} className="m5-monr"><span className="m5-md" style={{ background: d.direction === "support" ? "var(--success)" : "var(--danger)" }} /><span className="m5-mt2"><b>{d.factor}</b>{d.note ? <span className="m5-mst">{d.note}</span> : null}</span></div>
               ))}
             </div>
-          </Card>
+          </div>
         )}
+        {comps.length > 1 && metricLabels.length > 0 && (
+          <div className="m5-mrcard">
+            <div className="m5-mrt">Конкурентная позиция</div>
+            <div className="m5-mrs">{compSelf?.name} против конкурентов</div>
+            {metricLabels.map((lbl, ri) => {
+              const cells = comps.map((c) => { const mm = (c.metrics || []).find((x) => x.label === lbl); return { c, mm, n: parseNum(mm?.value) }; });
+              const dir = cells.find((x) => x.mm)?.mm?.direction || "higher_better";
+              const nums = cells.map((x) => x.n).filter((n) => n != null);
+              const mx = nums.length ? Math.max(...nums.map(Math.abs)) : null;
+              const mn = nums.length ? Math.min(...nums.map(Math.abs)) : null;
+              return (
+                <div key={ri} className="m5-cmp-row">
+                  <div className="m5-cmp-rh"><span className="m5-crl">{lbl}</span><span className="m5-crw">{dir === "lower_better" ? "ниже — лучше" : "больше — лучше"}</span></div>
+                  <div className="m5-cmp-bars">
+                    {cells.map((x, ci) => {
+                      let w = 0;
+                      if (x.n != null && mx) w = dir === "lower_better" ? Math.max(8, (mn / Math.abs(x.n)) * 100) : Math.max(8, (Math.abs(x.n) / mx) * 100);
+                      return (
+                        <div key={ci} className={`m5-cmp-b${x.c.is_company ? " me" : ""}${x.mm?.is_best ? " best" : ""}`}>
+                          <span className="m5-cbn" title={x.c.name}>{x.c.name}</span>
+                          <span className="m5-cbt"><i style={{ width: `${w}%` }} /></span>
+                          <span className="m5-cbv">{x.mm?.value ?? "—"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+            {pCo.reasoning && <div className="m5-moat"><div className="m5-ml2">Преимущество · суждение</div><div className="m5-mx">{pCo.reasoning}</div></div>}
+          </div>
+        )}
+      </aside>
+    ) : null;
 
-        {/* Сопроводительный текст summary.md */}
-        {mdSections.length > 0 && mdSections.map((sec, i) => (
-          <Card key={`md-${i}`}>
-            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
-              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
-              <Info size={16} className="tw-text-accent tw-shrink-0" />
-              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
+    return (
+      <AppearGroup gate={appearGate.current} groupId="markets" className="m5-root tw-flex tw-flex-col tw-gap-4">
+        {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
+        <div className="m5-layout">
+          <div className="m5-dash">
+            {meta.market_position_summary && (
+              <div className="m5-verdict"><div className="m5-vh">{meta.market_position_summary}</div></div>
+            )}
+            {kpis.length > 0 && (
+              <div className="m5-kstrip" style={{ gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, 1fr)` }}>
+                {kpis.map((k, i) => (
+                  <div key={i} className="m5-k"><div className="m5-kl">{k.l}</div><div className={`m5-kv${k.acc ? " m5-acc" : ""}`}>{k.v}</div>{k.d && <div className="m5-kd" title={k.d}>{k.d}</div>}</div>
+                ))}
+              </div>
+            )}
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-px-1">
+              <span className="tw-font-semibold">Достоверность:</span>{cert("fact")}<span>— факт</span>{cert("estimate")}<span>— оценка</span>{cert("model")}<span>— модель</span>
             </div>
-            <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
-            </Prose>
-          </Card>
+
+            {/* Главный рынок — сегмент-контрол ракурсов */}
+            {active && (
+              <div className="m5-card">
+                <h3>{primaryM.name || "Главный рынок"}
+                  <span className="m5-mtag">
+                    {pCur.company_position && <span className={`m5-posbadge ${POS[pCur.company_position] ? POS[pCur.company_position][0] : "niche"}`}>{POS[pCur.company_position] ? POS[pCur.company_position][1] : pCur.company_position}</span>}
+                    <span className="m5-mt m5-mt-main">главный рынок</span>
+                    {primaryM.geography && <span className="m5-mt-geo">{GEO[primaryM.geography] || primaryM.geography}</span>}
+                  </span>
+                </h3>
+                {primaryM.role_for_company && <p className="m5-sub">{primaryM.role_for_company}</p>}
+                {views.length > 1 && (
+                  <div className="m5-seg">
+                    {views.map((v) => (
+                      <button key={v.id} type="button" className={v.id === activeId ? "m5-on" : ""} onClick={() => setMarketView(v.id)}>{v.label}</button>
+                    ))}
+                  </div>
+                )}
+                <div className="m5-focus"><div className="m5-view-anim" key={activeId}>{active.node}</div></div>
+              </div>
+            )}
+
+            {/* Вспомогательные рынки */}
+            {secondaries.length > 0 && (
+              <div>
+                <div className="m5-subh">Вспомогательные рынки — второстепенные</div>
+                <div className="m5-aux">
+                  {secondaries.map((m, i) => (
+                    <div key={i} className="m5-auxc">
+                      <h4>{m.name || "Рынок"}<span className="m5-amt">второстеп.</span></h4>
+                      {m.role_for_company && <p className="m5-asub">{m.role_for_company}</p>}
+                      {(m.brief || []).map((b, j) => (
+                        <div key={j} className="m5-arow"><span className="m5-ai" /><span>{b.point} {cert(b.certainty)}</span></div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Для оценки компании */}
+            {renderVal()}
+
+            {/* Источники */}
+            {sources.length > 0 && (
+              <div className="m5-card" style={{ padding: "16px 20px" }}>
+                <details className="m5-srcd">
+                  <summary className="m5-src-tog"><Info size={15} />Источники и надёжность<span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-tertiary)", fontWeight: 400 }}>{sources.length} источников{meta.as_of ? ` · ${meta.as_of}` : ""}</span><ChevronDown size={16} className="m5-chev" /></summary>
+                  <div className="m5-srclist">
+                    {sources.map((s, i) => (
+                      <div key={i} className="m5-srcitem">
+                        <span className="m5-si">{s.id}</span>
+                        <span className="m5-stt">{s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>{s.title || s.url}</a> : (s.title || "")}</span>
+                        <span className={`m5-sr${s.reliability === "high" ? " m5-hi" : ""}`}>{[s.period, s.reliability].filter(Boolean).join(" · ")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            )}
+          </div>
+          {rail}
+        </div>
+
+        {/* Аналитическая проза (market_summary.md) */}
+        {mdSections.length > 0 && mdSections.map((sec, i) => (
+          <div key={`md-${i}`} className="m5-card">
+            <h3 style={{ marginBottom: 12 }}><Info size={16} style={{ color: "var(--accent)" }} />{sec.heading}</h3>
+            <Prose><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown></Prose>
+          </div>
         ))}
       </AppearGroup>
     );
