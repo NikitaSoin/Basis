@@ -19,6 +19,7 @@ v0 / предварительная методика: считается из Ф
 from __future__ import annotations
 import json
 import os
+import threading
 import time
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -45,6 +46,8 @@ _CACHE = {"ts": 0.0, "fin": None}
 _CACHE_TTL = 600  # сек; financials.json меняются только при деплое
 _RESULT_CACHE = {}   # (universe, sector) -> (ts, result) — чтобы ответ был мгновенным
 _RESULT_TTL = 300
+_bg_lock = threading.Lock()
+_bg_running: set = set()   # ключи, по которым уже идёт фоновый пересчёт (single-flight)
 
 # Эшелоны (МосБиржа официальный список «эшелонов» не публикует — это неформальная
 # классификация по ликвидности). 1-й эшелон = голубые фишки = состав индекса MOEXBC
@@ -156,13 +159,44 @@ def _percentiles(values_by_ticker, invert):
 
 
 def score_universe(db: Session, universe: str = "all", sector: str | None = None) -> dict:
-    """Считает BASIS/перцентили/карту для выбранного набора. Возвращает rows + distributions.
-    Результат кешируется (TTL) — чтобы ответ был мгновенным и не упирался в таймаут воркера."""
+    """Отдаёт кэш мгновенно. Свежий → сразу; устаревший → старое + пересчёт в ФОНЕ
+    (single-flight), чтобы запрос НИКОГДА не упирался в таймаут воркера/шлюза;
+    холодный кэш → синхронный расчёт (старт прогревается warm_cache)."""
+    key = (universe, sector or "")
+    cached = _RESULT_CACHE.get(key)
+    if cached:
+        if (time.time() - cached[0]) < _RESULT_TTL:
+            return cached[1]
+        _spawn_bg_recompute(key, universe, sector)  # stale-while-revalidate
+        return cached[1]
+    return _compute_universe(db, universe, sector)
+
+
+def _spawn_bg_recompute(key, universe: str, sector: str | None) -> None:
+    with _bg_lock:
+        if key in _bg_running:
+            return
+        _bg_running.add(key)
+
+    def _run():
+        from app.db.session import SessionLocal
+        db = SessionLocal()
+        try:
+            _compute_universe(db, universe, sector)
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            db.close()
+            with _bg_lock:
+                _bg_running.discard(key)
+
+    threading.Thread(target=_run, daemon=True).start()
+
+
+def _compute_universe(db: Session, universe: str = "all", sector: str | None = None) -> dict:
+    """Тяжёлый расчёт набора (без кэш-логики). Пишет результат в _RESULT_CACHE."""
     key = (universe, sector or "")
     now = time.time()
-    cached = _RESULT_CACHE.get(key)
-    if cached and (now - cached[0]) < _RESULT_TTL:
-        return cached[1]
     fin = _load_financials()
 
     # компании + свежая цена + капитализация
