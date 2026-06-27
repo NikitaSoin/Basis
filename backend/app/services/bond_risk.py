@@ -9,6 +9,7 @@
 """
 import json
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
@@ -97,8 +98,14 @@ def _last(seq):
     return None
 
 
+@lru_cache(maxsize=2048)
 def issuer_debt_adjustment(ticker: str | None) -> tuple[float, str | None]:
-    """Поправка к Risk Score из financials.json эмитента (блок A). (Δscore, факт)."""
+    """Поправка к Risk Score из financials.json эмитента (блок A). (Δscore, факт).
+
+    Кэшируется по тикеру: financials.json меняется только при деплое (новый
+    процесс), а скринер прогоняет yield_vs_risk по тысячам бумаг одних эмитентов —
+    без кэша это тысячи лишних чтений файлов на запрос.
+    """
     if not ticker:
         return 0.0, None
     p = COMPANIES_DIR / ticker / "financials.json"

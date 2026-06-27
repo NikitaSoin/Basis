@@ -42,6 +42,15 @@ _Q = text("""
 """)
 
 
+@router.get("/screener/bonds")
+def screener_bonds(db: Session = Depends(get_db)):
+    """Все облигации с вердиктом «доходность vs риск» (светофор + Risk Score 1–5 по
+    методике), производным сектором, флагом квазивалютных и распределениями метрик
+    для гистограмм конструктора. Фильтрация/сортировка/карта — на фронте."""
+    from app.services.screener_bonds import score_bonds
+    return score_bonds(db)
+
+
 @router.get("/screener/stocks")
 def screener_stocks(db: Session = Depends(get_db)):
     """Все акции с метриками + текущей ценой + апсайдом к справедливой цене.
