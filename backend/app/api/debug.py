@@ -145,8 +145,86 @@ def debug_tinkoff():
 @router.get("/debug/env")
 def debug_env():
     """Проверка переменных окружения (без значений секретов)."""
-    keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL", "ANTHROPIC_API_KEY"]
+    keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
+            "ANTHROPIC_API_KEY", "ANTHROPIC_PROXY_URL", "DEEPSEEK_API_KEY", "FRED_API_KEY",
+            "LLM_PROVIDER", "RUN_STARTUP_JOBS"]
     return {
-        k: f"задан ({len(os.environ.get(k, ''))} символов)" if os.environ.get(k) else "НЕ ЗАДАН"
+        k: (f"задан ({len(os.environ.get(k, ''))} символов)" if k.endswith(("KEY", "TOKEN", "PASSWORD"))
+            else os.environ.get(k)) if os.environ.get(k) else "НЕ ЗАДАН"
         for k in keys
+    }
+
+
+@router.get("/debug/connectivity")
+async def debug_connectivity():
+    """Замер исходящей сети С САМОГО ИНСТАНСА: кто доступен, кто режется.
+
+    Отвечает на вопрос «зарубеж блокируется целиком или конкретные сервисы?» и
+    «жив ли Cloudflare-Worker-прокси». TCP+TLS установились (любой HTTP-код, даже
+    401/403/404) = ХОСТ ДОСТУПЕН. ConnectTimeout/ConnectError = НЕДОСТУПЕН.
+    """
+    import asyncio
+    import time as _t
+    import httpx
+
+    proxy = os.environ.get("ANTHROPIC_PROXY_URL")
+    targets = {
+        # рабочая LLM и макро — то, что висит в логах
+        "deepseek (api.deepseek.com)": "https://api.deepseek.com",
+        "fred (api.stlouisfed.org)": "https://api.stlouisfed.org/fred/",
+        # Claude напрямую и через CF-Worker — сравнить
+        "anthropic_direct (api.anthropic.com)": "https://api.anthropic.com",
+        "cf_worker (ANTHROPIC_PROXY_URL)": proxy,
+        # нейтральная зарубежка — общий вердикт «зарубеж режется или нет»
+        "google.com": "https://www.google.com",
+        "cloudflare 1.1.1.1": "https://1.1.1.1",
+        "github.com": "https://github.com",
+        # русские хосты — контроль (должны работать)
+        "moex (iss.moex.com)": "https://iss.moex.com/iss/index.json",
+        "tinkoff": "https://invest-public-api.tinkoff.ru/rest/",
+    }
+
+    async def probe(name: str, url: str | None) -> dict:
+        if not url:
+            return {"target": name, "result": "НЕ ЗАДАН (env пуст)"}
+        t0 = _t.monotonic()
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(10, connect=7),
+                                         follow_redirects=True, verify=False) as c:
+                r = await c.get(url)
+            ms = int((_t.monotonic() - t0) * 1000)
+            return {"target": name, "reachable": True, "http_status": r.status_code, "ms": ms}
+        except Exception as e:  # noqa: BLE001
+            ms = int((_t.monotonic() - t0) * 1000)
+            return {"target": name, "reachable": False, "error": type(e).__name__, "ms": ms}
+
+    net = await asyncio.gather(*(probe(n, u) for n, u in targets.items()))
+
+    # БД — отдельным короткоживущим соединением (НЕ через общий пул: он мог быть
+    # исчерпан фоновыми задачами, тогда обычный /health/db висит).
+    db_res: dict = {}
+    try:
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.pool import NullPool
+        url = os.environ.get("DATABASE_URL")
+        ca = {}
+        if url and "localhost" not in url and "127.0.0.1" not in url:
+            if "sslmode" not in url:
+                ca["sslmode"] = "require"
+            ca["connect_timeout"] = 7
+        t0 = _t.monotonic()
+        eng = create_engine(url, connect_args=ca, poolclass=NullPool)
+        with eng.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        eng.dispose()
+        db_res = {"reachable": True, "ms": int((_t.monotonic() - t0) * 1000)}
+    except Exception as e:  # noqa: BLE001
+        db_res = {"reachable": False, "error": type(e).__name__, "detail": str(e)[:200]}
+
+    return {
+        "llm_provider": os.environ.get("LLM_PROVIDER") or "deepseek (default)",
+        "cf_worker_configured": bool(proxy),
+        "network": net,
+        "database": db_res,
+        "note": "reachable=true даже при http_status 401/403/404 — значит TCP+TLS прошли, хост ДОСТУПЕН. reachable=false с ConnectTimeout — режется.",
     }
