@@ -419,10 +419,15 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
-    # При старте — ТОЛЬКО то, что нужно пользователю сразу и не нагружает тредпул.
-    # Всё остальное работает по крону (данные уже есть в БД).
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
+    asyncio.create_task(_screener_warm())
+    asyncio.create_task(_asset_data_job())
+    asyncio.create_task(_news_job())
+    asyncio.create_task(_macro_startup())
+    asyncio.create_task(_earnings_startup())
+    asyncio.create_task(_geo_startup())
+    asyncio.create_task(_instrument_history_startup())
 
     yield
     scheduler.shutdown()
