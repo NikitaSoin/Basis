@@ -183,7 +183,7 @@
             { "period": "2027", "low_pct": 5, "high_pct": 10, "real_low_pct": 1, "real_high_pct": 6,
               "drivers": "вялое восстановление РФ при усилившемся регулировании и потере доли Юренту; LATAM тянет рост, но не компенсирует стагнацию РФ полностью", "certainty": "limited", "type": "estimate", "source_refs": ["src_12"] },
             { "period": "2028-2030", "low_pct": 3, "high_pct": 7, "real_low_pct": -1, "real_high_pct": 3,
-              "drivers": "затяжная зрелость РФ, рост в основном за счёт LATAM и инфляционного подъёма цен; реальный рост слабый", "certainty": "limited", "type": "model", "source_refs": [] }
+              "drivers": "Затяжная зрелость РФ, рост в основном за счёт LATAM и инфляционного подъёма цен; реальный рост слабый.", "certainty": "limited", "type": "model", "source_refs": [] }
           ]
         },
         "bull": {
