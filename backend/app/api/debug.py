@@ -248,6 +248,75 @@ async def debug_connectivity():
     }
 
 
+def _trace_host(host: str, port: int = 443) -> dict:
+    import socket
+    import ssl as _ssl
+    import time as _t
+    out: dict = {"host": host, "port": port}
+    # 1) DNS — какие адреса (и IPv4/IPv6)
+    try:
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+        addrs, seen = [], set()
+        for fam, _, _, _, sockaddr in infos:
+            ip = sockaddr[0]
+            ver = "IPv6" if fam == socket.AF_INET6 else "IPv4"
+            if (ip, ver) in seen:
+                continue
+            seen.add((ip, ver))
+            addrs.append({"ip": ip, "family": ver})
+        out["dns"] = addrs
+    except Exception as e:  # noqa: BLE001
+        out["dns_error"] = f"{type(e).__name__}: {e}"
+        return out
+    # 2) Сырой TCP-connect к каждому IP на :443 — пускает ли вообще пакеты
+    tcp = []
+    for a in out["dns"]:
+        fam = socket.AF_INET6 if a["family"] == "IPv6" else socket.AF_INET
+        s = socket.socket(fam, socket.SOCK_STREAM)
+        s.settimeout(6)
+        t0 = _t.monotonic()
+        rec = {"ip": a["ip"], "family": a["family"]}
+        try:
+            s.connect((a["ip"], port))
+            rec["tcp"] = "ok"
+            rec["ms"] = int((_t.monotonic() - t0) * 1000)
+            # 3) TLS-хендшейк с SNI — режет ли DPI по имени хоста
+            try:
+                ctx = _ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = _ssl.CERT_NONE
+                ss = ctx.wrap_socket(s, server_hostname=host)
+                ss.settimeout(6)
+                rec["tls"] = "ok"
+                ss.close()
+            except Exception as e:  # noqa: BLE001
+                rec["tls"] = f"FAIL: {type(e).__name__}"
+        except Exception as e:  # noqa: BLE001
+            rec["tcp"] = f"FAIL: {type(e).__name__}"
+            rec["ms"] = int((_t.monotonic() - t0) * 1000)
+        finally:
+            try:
+                s.close()
+            except Exception:
+                pass
+        tcp.append(rec)
+    out["tcp_connect"] = tcp
+    return out
+
+
+@router.get("/debug/trace")
+async def debug_trace(host: str = "api.deepseek.com"):
+    """Послойная трассировка до хоста: DNS (IPv4/IPv6) → сырой TCP :443 → TLS+SNI.
+    Показывает ТОЧНО, где рвётся связь с DeepSeek/FRED:
+      - dns_error → не резолвится;
+      - tcp FAIL → пакеты не доходят (IP/маршрут режется);
+      - tcp ok + tls FAIL → режет DPI по имени хоста (SNI);
+      - всё ok → дело не в сети, а в httpx/таймауте.
+    Примеры: /api/debug/trace?host=api.deepseek.com , ?host=api.stlouisfed.org"""
+    import asyncio
+    return await asyncio.to_thread(_trace_host, host)
+
+
 @router.get("/debug/ping")
 async def debug_ping():
     """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
