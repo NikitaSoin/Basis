@@ -439,8 +439,8 @@ export default function BondScreenerNeo({ onOpenCompany }) {
   if (loading) return <div className="sc-screen"><div className="sc-noresult" style={{ padding: "80px" }}>Загружаем скрин облигаций…</div></div>;
   if (error) return (
     <div className="sc-screen"><div className="sc-noresult" style={{ padding: "64px 24px" }}>
-      <div style={{ color: "var(--cc-danger)", fontWeight: 600, marginBottom: 8 }}>Не удалось загрузить скринер облигаций.</div>
-      <div className="sc-num" style={{ fontSize: 12, color: "var(--cc-ink-3)", marginBottom: 16, wordBreak: "break-word" }}>{String(error)}</div>
+      <div style={{ color: "var(--neg)", fontWeight: 600, marginBottom: 8 }}>Не удалось загрузить скринер облигаций.</div>
+      <div className="sc-num" style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 16, wordBreak: "break-word" }}>{String(error)}</div>
       <button className="sc-btn-primary" style={{ display: "inline-block", width: "auto", padding: "10px 22px" }} onClick={() => setReloadKey((k) => k + 1)}>Повторить</button>
     </div></div>
   );
