@@ -20,9 +20,11 @@ services:
     env_file: ./backend/.env.prod
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/invest_db
+    # НЕ блокируем старт бэка на готовность Postgres: если БД медленно поднимается
+    # (или повреждена после переполнения диска), бэк всё равно стартует и отвечает на
+    # /api/health и / (они без БД) → деплой проходит; запросы к БД ретраятся.
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     # Миграции — в ФОНЕ, uvicorn — СРАЗУ на переднем плане: сервер поднимается всегда
     # (порт открывается немедленно → healthcheck проходит), даже если миграции медленные
     # или падают. Иначе блокирующий `alembic && uvicorn` при зависших миграциях уводит
