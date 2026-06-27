@@ -419,15 +419,23 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
+    # Лёгкие/локальные старт-задачи (быстро освобождают соединение БД) — всегда.
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
     asyncio.create_task(_screener_warm())
-    asyncio.create_task(_asset_data_job())
-    asyncio.create_task(_news_job())
-    asyncio.create_task(_macro_startup())
-    asyncio.create_task(_earnings_startup())
-    asyncio.create_task(_geo_startup())
     asyncio.create_task(_instrument_history_startup())
+
+    # Тяжёлые задачи с ВНЕШНИМИ API (DeepSeek/FRED/массовый MOEX). На инстансе без
+    # внешнего доступа они ВИСЯТ на таймаутах, УДЕРЖИВАЯ соединение БД → пул
+    # исчерпывается → ВСЕ вкладки виснут на «загружаем». Данные уже в БД; их
+    # обновление идёт по КРОНУ (scheduler выше), поэтому при старте их НЕ дёргаем.
+    # Включить разовый прогон при старте можно флагом RUN_STARTUP_JOBS=1.
+    if os.environ.get("RUN_STARTUP_JOBS") == "1":
+        asyncio.create_task(_asset_data_job())
+        asyncio.create_task(_news_job())
+        asyncio.create_task(_macro_startup())
+        asyncio.create_task(_earnings_startup())
+        asyncio.create_task(_geo_startup())
 
     yield
     scheduler.shutdown()
