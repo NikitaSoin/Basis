@@ -3170,6 +3170,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [marketMd, setMarketMd] = useState(null);
   const [marketJson, setMarketJson] = useState(null);
   const [marketLoading, setMarketLoading] = useState(true);
+  const [valNominal, setValNominal] = useState(true); // тумблер номинал/реал в блоке «Для оценки» (Рынки)
   const [macroMd, setMacroMd] = useState(null);
   const [macroJson, setMacroJson] = useState(null);
   const [macroLoading, setMacroLoading] = useState(true);
@@ -5536,6 +5537,190 @@ const CompanyCard = ({ company, onBack }) => {
       </div>
     );
 
+    // ── Блок «Для оценки компании»: вход в ставку роста выручки/g (valuation_inputs) ──
+    const ARCH = { commodity_cyclical: "сырьевой цикл", retail: "ритейл", telecom: "телеком", bank: "банк", tech_growth: "рост / tech", utility: "коммун. услуги", insurance: "страхование", reit: "недвижимость", pharma: "фарма", hybrid: "гибрид" };
+    const sg = (n) => (n == null ? null : (n > 0 ? `+${n}` : `${n}`));
+    const rng = (lo, hi) => { if (lo == null && hi == null) return null; if (lo == null) return `${sg(hi)}%`; if (hi == null) return `${sg(lo)}%`; return lo === hi ? `${sg(lo)}%` : `${sg(lo)} – ${sg(hi)}%`; };
+    const rngTone = (lo, hi) => { const h = hi != null ? hi : lo, l = lo != null ? lo : hi; if (h == null) return "var(--text-primary)"; if (l >= 0) return "var(--success)"; if (h <= 0) return "var(--danger)"; return "var(--text-primary)"; };
+
+    const renderValuation = (vi) => {
+      if (!vi || typeof vi !== "object") return null;
+      const eh = vi.explicit_horizon || {};
+      const scen = eh.scenarios || {};
+      const base = scen.base || {};
+      const baseGrowth = Array.isArray(base.revenue_growth) ? base.revenue_growth : [];
+      const tg = vi.terminal_growth || {};
+      const mt = vi.margin_trajectory || {};
+      const ac = vi.analyst_consensus || {};
+      const sig = vi.signal_revenue_outlook || {};
+      const crf = vi.country_risk_footnote || {};
+      const isDeep = typeof base.probability_pct !== "number"; // CHGZ/LNZL/UNKL — глубокая неопределённость
+      const archLabel = ARCH[vi.archetype] || vi.archetype;
+      const wp = (s) => (typeof scen[s]?.probability_pct === "number" ? scen[s].probability_pct : null);
+
+      // Шапка блока (общая для обоих режимов)
+      const head = (
+        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
+          <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
+          <Target size={16} className="tw-text-accent tw-shrink-0" />
+          <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">Для оценки компании</h4>
+          {archLabel && <Badge tone="neutral">{archLabel}</Badge>}
+          {vi.disclosure_quality && <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-auto">раскрытие: {vi.disclosure_quality === "high" ? "высокое" : vi.disclosure_quality === "medium" ? "среднее" : "низкое"}</span>}
+        </div>
+      );
+
+      // ── Ветка: глубокая неопределённость (нет вероятностных сценариев) ──
+      if (isDeep) {
+        return (
+          <Card key="valuation">
+            {head}
+            <div className="tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--warning-soft)", borderLeft: "3px solid var(--warning)" }}>
+              <div className="tw-text-[13px] tw-font-bold tw-text-text-primary tw-mb-1">Глубокая неопределённость — прогноз выручки не строим</div>
+              <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-normal">
+                Стоимость бумаги определяется не темпом выручки, а корпоративным событием / стоимостью активов (ликвидация, выкуп, NAV).
+                Присваивать сценариям вероятности было бы ложной точностью — даём качественную картину.
+              </div>
+            </div>
+            {sig.direction && <div className="tw-text-[13px] tw-text-text-primary tw-mb-2"><b className="tw-font-semibold">Сигнал:</b> {sig.direction}{sig.driver ? ` — ${sig.driver}` : ""}</div>}
+            {tg.implied_exit_multiple?.value && (
+              <div className="tw-text-[12.5px] tw-text-text-secondary tw-mb-2">Ориентир выхода: {tg.implied_exit_multiple.metric || ""} {tg.implied_exit_multiple.value}{tg.implied_exit_multiple.vs_history ? ` (${tg.implied_exit_multiple.vs_history})` : ""}</div>
+            )}
+            {Array.isArray(vi.key_assumptions) && vi.key_assumptions.length > 0 && (
+              <div className="tw-mt-2">
+                <div className="tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-1">Ключевые допущения</div>
+                <ul className="tw-flex tw-flex-col tw-gap-1">{vi.key_assumptions.map((a, i) => <li key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-2"><span className="tw-text-accent">·</span>{a}</li>)}</ul>
+              </div>
+            )}
+            {(crf.crp_pct != null || crf.caveat) && (
+              <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-pt-2 tw-border-t tw-border-border-subtle tw-italic">
+                Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}
+              </div>
+            )}
+          </Card>
+        );
+      }
+
+      // ── Карточка одного периода (с тумблером номинал/реал) ──
+      const periodCard = (p, dashed) => {
+        const bigLo = valNominal ? p.low_pct : p.real_low_pct, bigHi = valNominal ? p.high_pct : p.real_high_pct;
+        const subLo = valNominal ? p.real_low_pct : p.low_pct, subHi = valNominal ? p.real_high_pct : p.high_pct;
+        const big = rng(bigLo, bigHi) || "—";
+        const sub = rng(subLo, subHi);
+        return (
+          <div key={p.period} className="tw-rounded-md tw-p-3 tw-flex tw-flex-col tw-bg-bg-base" style={{ border: dashed ? "1px dashed var(--border-strong)" : "1px solid var(--border-subtle)" }}>
+            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2 tw-leading-tight">{p.period}{p.type && cert(p.type)}</div>
+            <div className="tw-font-mono tw-tabular-nums tw-text-[20px] tw-font-medium tw-leading-none" style={{ color: rngTone(bigLo, bigHi) }}>{big}</div>
+            {sub && <div className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-mt-1.5">{valNominal ? "реальн." : "номин."}: {sub}</div>}
+            {p.drivers && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2 tw-pt-2 tw-border-t tw-border-border-subtle">{p.drivers}</div>}
+          </div>
+        );
+      };
+
+      // Терминал как «период»
+      const termCard = (tg.nominal_low_pct != null || tg.nominal_high_pct != null) ? periodCard({
+        period: "Долгосрочно · терминал", type: tg.type,
+        low_pct: tg.nominal_low_pct, high_pct: tg.nominal_high_pct,
+        real_low_pct: tg.real_low_pct, real_high_pct: tg.real_high_pct,
+        drivers: [tg.anchor, tg.implied_exit_multiple?.value ? `выход ${tg.implied_exit_multiple.metric || ""} ${tg.implied_exit_multiple.value}` : null].filter(Boolean).join(" · "),
+      }, true) : null;
+
+      // Наш ориентир 2027 (для блока консенсуса)
+      const p2027 = baseGrowth.find((p) => String(p.period).includes("2027"));
+      const our2027 = p2027 ? rng(p2027.low_pct, p2027.high_pct) : null;
+
+      return (
+        <Card key="valuation">
+          {head}
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-flex-wrap tw-mb-3">
+            <div className="tw-text-[12px] tw-text-text-tertiary tw-leading-normal tw-max-w-[68ch]">
+              Ориентиры темпов роста выручки для вашей модели — диапазонами, без ложной точности. Справедливая цена и мультипликаторы — во вкладке «Финансы».
+            </div>
+            <div className="tw-inline-flex tw-rounded-md tw-overflow-hidden tw-border tw-border-border-strong tw-shrink-0">
+              {[["nom", "номинал", true], ["real", "реальный", false]].map(([k, lbl, isNom]) => (
+                <button key={k} type="button" onClick={() => setValNominal(isNom)}
+                  className="tw-text-[11px] tw-font-bold tw-px-3 tw-py-1 tw-leading-none tw-transition-colors"
+                  style={valNominal === isNom ? { background: "var(--accent)", color: "#fff" } : { background: "var(--bg-base)", color: "var(--text-tertiary)" }}>{lbl}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Базовый сценарий: путь выручки по годам + терминал */}
+          {baseGrowth.length > 0 && (
+            <div className="tw-grid tw-gap-2.5 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+              {baseGrowth.map((p) => periodCard(p, false))}
+              {termCard}
+            </div>
+          )}
+
+          {/* Маржа + консенсус */}
+          <div className="tw-grid tw-gap-2.5 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+            {(mt.from_pct != null || mt.to_pct != null) && (
+              <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
+                <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2">Маржа{mt.metric ? ` · ${mt.metric}` : ""} — куда идёт{mt.certainty && cert(mt.certainty)}</div>
+                <div className="tw-font-mono tw-text-[19px] tw-font-medium tw-flex tw-items-center tw-gap-2">
+                  <span>{mt.from_pct != null ? `${mt.from_pct}%` : "—"}</span>
+                  <span className="tw-text-text-tertiary tw-text-[15px]">→</span>
+                  <span style={{ color: (mt.to_pct != null && mt.from_pct != null && mt.to_pct >= mt.from_pct) ? "var(--success)" : "var(--text-primary)" }}>{mt.to_pct != null ? `${mt.to_pct}%` : "—"}</span>
+                </div>
+                {mt.rationale && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2">{mt.rationale}</div>}
+              </div>
+            )}
+            {(ac.available && (our2027 || ac.revenue_2027_pct)) && (
+              <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
+                <div className="tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2">Второе мнение · консенсус 2027</div>
+                <div className="tw-flex tw-items-baseline tw-gap-2 tw-flex-wrap">
+                  {our2027 && <><span className="tw-font-mono tw-text-[17px] tw-font-semibold tw-text-accent">{our2027}</span><span className="tw-text-[10px] tw-text-text-tertiary tw-mr-1">наш ориентир</span></>}
+                  {ac.revenue_2027_pct && <><span className="tw-font-mono tw-text-[17px] tw-font-semibold tw-text-text-primary">{String(ac.revenue_2027_pct).replace(/%$/, "")}%</span><span className="tw-text-[10px] tw-text-text-tertiary">рынок</span></>}
+                </div>
+                {(ac.note || ac.bias_note) && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-2">{ac.note || ac.bias_note}</div>}
+              </div>
+            )}
+          </div>
+
+          {/* Сценарии: веса + перекос риска */}
+          {(wp("base") != null || eh.risk_skew) && (
+            <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-3">
+              {wp("base") != null && <span>Сценарии: база {wp("base")}% · оптим. {wp("bull") ?? "—"}% · пессим. {wp("bear") ?? "—"}%. </span>}
+              {eh.risk_skew && <span>Перекос риска: {eh.risk_skew}.</span>}
+            </div>
+          )}
+
+          {/* Синтез одной строкой */}
+          {(sig.direction || eh.probability_weighted_note) && (
+            <div className="tw-flex tw-gap-2.5 tw-items-start tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--accent-soft)" }}>
+              <Target size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
+              <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">
+                <b className="tw-font-semibold">Вход в ставку роста:</b> {sig.direction || ""}{sig.horizon ? ` ${sig.horizon}` : ""}{eh.probability_weighted_note ? `. ${eh.probability_weighted_note}` : ""}
+                <span className="tw-text-text-tertiary"> Это вход в темп выручки, а не прогноз цены акции.</span>
+              </div>
+            </div>
+          )}
+
+          {/* FCF + допущения */}
+          <div className="tw-flex tw-flex-wrap tw-gap-x-5 tw-gap-y-2 tw-items-start">
+            {vi.fcf_direction?.direction && (
+              <div className="tw-flex-1 tw-min-w-[240px] tw-text-[11.5px] tw-text-text-tertiary tw-leading-snug">
+                <span className="tw-text-accent tw-font-mono">FCF:</span> {vi.fcf_direction.direction}{vi.fcf_direction.rationale ? ` — ${vi.fcf_direction.rationale}` : ""} <span className="tw-opacity-80">Конкретные значения — во вкладке «Финансы».</span>
+              </div>
+            )}
+            {Array.isArray(vi.key_assumptions) && vi.key_assumptions.length > 0 && (
+              <details className="tw-text-[11.5px] tw-text-text-tertiary">
+                <summary className="tw-cursor-pointer tw-font-semibold tw-text-accent">Ключевые допущения</summary>
+                <ul className="tw-mt-1.5 tw-pl-4 tw-list-disc tw-leading-relaxed">{vi.key_assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul>
+              </details>
+            )}
+          </div>
+
+          {/* Страновая премия (сноска CRP) */}
+          {(crf.crp_pct != null || crf.caveat) && (
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-3 tw-pt-2 tw-border-t tw-border-border-subtle tw-italic tw-leading-snug">
+              Страновая премия{crf.crp_pct != null ? ` CRP ${crf.crp_pct}%` : ""}{crf.erp_pct != null ? ` / ERP ${crf.erp_pct}%` : ""}{crf.source ? ` (${crf.source})` : ""}{crf.caveat ? `. ${crf.caveat}` : ""}
+            </div>
+          )}
+        </Card>
+      );
+    };
+
     return (
       <AppearGroup gate={appearGate.current} groupId="markets" className="tw-flex tw-flex-col tw-gap-4">
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
@@ -5569,6 +5754,9 @@ const CompanyCard = ({ company, onBack }) => {
             </Card>
           );
         })}
+
+        {/* Для оценки компании — вход в ставку роста (valuation_inputs) */}
+        {renderValuation(marketJson?.valuation_inputs)}
 
         {/* Источники */}
         {sources.length > 0 && (
