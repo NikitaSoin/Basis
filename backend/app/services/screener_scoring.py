@@ -45,7 +45,7 @@ CONFIG = {
 _CACHE = {"ts": 0.0, "fin": None}
 _CACHE_TTL = 600  # сек; financials.json меняются только при деплое
 _RESULT_CACHE = {}   # (universe, sector) -> (ts, result) — чтобы ответ был мгновенным
-_RESULT_TTL = 300
+_RESULT_TTL = 3600   # 1ч: пересчёт (тяжёлый, морозит 1-CPU) делаем редко; данные меняются при деплое
 _bg_lock = threading.Lock()
 _bg_running: set = set()   # ключи, по которым уже идёт фоновый пересчёт (single-flight)
 
