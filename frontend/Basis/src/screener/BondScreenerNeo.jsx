@@ -89,6 +89,10 @@ const TYPES = [
 ];
 const typePred = (id) => (TYPES.find((t) => t.id === id) || TYPES[0]).pred;
 const CAT = ["--cat-1", "--cat-2", "--cat-3", "--cat-4", "--cat-5", "--cat-6", "--cat-7", "--cat-8"];
+// Сколько строк/точек рисуем за раз: вся БД (~3177 бумаг) в DOM = десятки тысяч узлов
+// и многосекундный рендер. Фильтрация идёт по ВСЕЙ выборке, в DOM — только верхушка
+// по текущей сортировке; ниже подсказка сузить фильтр.
+const RENDER_CAP = 300;
 const METHOD_TIP = "Вердикт «доходность vs риск» по методике Basis (docs/bond_analys.md): фактический спред к ОФЗ → требуемый спред за кредитный риск (медиана группы + Risk Score 1–5) → светофор + проверка ожидаемыми потерями и стоп-правила. Это аналитический ориентир, не сигнал к покупке/продаже.";
 
 const histogram = (arr, dom, buckets = 18) => { const [a, b] = dom; const h = new Array(buckets).fill(0); (arr || []).forEach((v) => { let i = Math.floor((v - a) / (b - a) * buckets); i = Math.max(0, Math.min(buckets - 1, i)); h[i]++; }); return h; };
@@ -142,7 +146,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
           <th className="sc-th sc-th-r2">Оферта / тип</th>
         </tr></thead>
         <tbody>
-          {rows.map((r) => (
+          {rows.slice(0, RENDER_CAP).map((r) => (
             <tr key={r.id} className={picked && picked.id === r.id ? "on" : ""} onClick={() => onPick(r)}>
               <td className="sc-td sc-id">
                 <span className="sc-mono" style={{ background: soft(secColor(r.sec), 18), color: secColor(r.sec) }}>{r.ab}</span>
@@ -161,6 +165,7 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
         </tbody>
       </table>
       {rows.length === 0 && <div className="sc-noresult">Ни одна бумага не проходит все условия. Ослабьте критерии слева.</div>}
+      {rows.length > RENDER_CAP && <div className="sc-noresult" style={{ padding: "12px 16px", textAlign: "left" }}>Показаны первые {RENDER_CAP} из {rows.length} по текущей сортировке. Сузьте фильтр слева, чтобы увидеть остальные.</div>}
     </div>
   );
 }
@@ -203,7 +208,7 @@ function MapView({ rows, onPick, picked, secColor, sectors }) {
   const Y = (v) => H - padB - (Math.max(ya.dom[0], Math.min(ya.dom[1], v)) - ya.dom[0]) / span(ya) * (H - padT - padB);
   const xMid = (xa.dom[0] + xa.dom[1]) / 2, yMid = (ya.dom[0] + ya.dom[1]) / 2;
   const fmtAx = (a, v) => a.rating ? ratingLabel(v) : num(v, a.dec) + (a.unit ? a.unit.trim() : "");
-  const valid = rows.filter((r) => r[xKey] != null && r[yKey] != null);
+  const valid = rows.filter((r) => r[xKey] != null && r[yKey] != null).slice(0, RENDER_CAP);
   return (
     <div className="sc-map">
       <div className="sc-map-ctrls">
@@ -225,7 +230,7 @@ function MapView({ rows, onPick, picked, secColor, sectors }) {
       </svg>
       <div className="sc-map-legend">
         {sectors.map((s) => <span key={s} className="sc-leg"><i style={{ background: secColor(s) }} />{s}</span>)}
-        {valid.length < rows.length && <span className="sc-leg sc-leg-na">{rows.length - valid.length} без данных по осям скрыты</span>}
+        {valid.length < rows.length && <span className="sc-leg sc-leg-na">{rows.length - valid.length} скрыто (нет данных по осям / сверх лимита показа)</span>}
       </div>
     </div>
   );
@@ -449,7 +454,6 @@ export default function BondScreenerNeo({ onOpenCompany }) {
     <div className="sc-screen">
       <div className="sc-page-head">
         <div>
-          <h1 className="sc-page-title">Скринер облигаций</h1>
           <p className="sc-page-sub">Отбор по доходности, риску и сроку. <span className="sc-modeltag" title={METHOD_TIP}>методика · доходность vs риск</span> — показывает, насколько доходность компенсирует кредитный риск, а не просто «где больше процент».</p>
         </div>
         <span className="sc-scale" title="Светофор вердикта: оплачен ли риск доходностью">
