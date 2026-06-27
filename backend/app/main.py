@@ -449,6 +449,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Investment Platform API", lifespan=lifespan)
 
+
+# Корень '/' — для ДЕФОЛТНОГО liveness-пинга платформы (Timeweb шлёт HEAD/GET на '/'
+# даже без настроенного health-path). Без этого роута '/' → 404/405, платформа считает
+# контейнер нездоровым и УБИВАЕТ его → бесконечная петля перезапусков, при которой
+# сайт не грузится. async + без БД — отвечает мгновенно всегда.
+@app.get("/")
+@app.head("/")
+async def _root():
+    return {"status": "ok", "service": "basis-api"}
+
+
 # Сжатие больших JSON-ответов (скринеры на тысячи строк, списки рынка) — кратно меньше
 # трафик и быстрее загрузка у клиента.
 from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
