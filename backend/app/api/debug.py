@@ -221,10 +221,36 @@ async def debug_connectivity():
     except Exception as e:  # noqa: BLE001
         db_res = {"reachable": False, "error": type(e).__name__, "detail": str(e)[:200]}
 
+    # Статус пула соединений общего engine (НЕ создаёт соединение — читает счётчики).
+    # Если checked_out == size+overflow → пул ИСЧЕРПАН (фоновые задачи держат всё) —
+    # это и есть причина зависания всех синхронных роутов.
+    pool_res: dict = {}
+    try:
+        from app.db.session import engine as _eng
+        p = _eng.pool
+        pool_res = {
+            "status": p.status(),
+            "checked_out": p.checkedout(),
+            "checked_in": p.checkedin(),
+            "overflow": p.overflow(),
+            "size": p.size(),
+        }
+    except Exception as e:  # noqa: BLE001
+        pool_res = {"error": type(e).__name__, "detail": str(e)[:200]}
+
     return {
         "llm_provider": os.environ.get("LLM_PROVIDER") or "deepseek (default)",
         "cf_worker_configured": bool(proxy),
         "network": net,
-        "database": db_res,
-        "note": "reachable=true даже при http_status 401/403/404 — значит TCP+TLS прошли, хост ДОСТУПЕН. reachable=false с ConnectTimeout — режется.",
+        "database_fresh_connection": db_res,
+        "db_pool": pool_res,
+        "note": "reachable=true даже при http_status 401/403/404 — значит TCP+TLS прошли, хост ДОСТУПЕН. db_pool.checked_out близко к size+overflow → пул исчерпан фоновыми задачами (причина зависания sync-роутов).",
     }
+
+
+@router.get("/debug/ping")
+async def debug_ping():
+    """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
+    потоков/соединений полностью висит. Если /debug/ping отвечает, а /debug/env
+    (sync) — нет, значит блокировка именно в синхронном пути (пул потоков/БД)."""
+    return {"pong": True}
