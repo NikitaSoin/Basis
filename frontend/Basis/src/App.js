@@ -5410,15 +5410,20 @@ const CompanyCard = ({ company, onBack }) => {
       <div>
         <p className="m5-vlead" style={{ fontSize: 13, marginBottom: 14 }}>Где рынок в отраслевом цикле {cert(pCyc.certainty)}</p>
         <div className="m5-cyc" style={{ "--m5-cyc-n": pCyc.phases.length }}>
-          {pCyc.phases.map((p, i) => { const now = i === pCyc.phases.length - 1; return (
-            <div key={i} className={`m5-cph ${now ? "m5-now" : "m5-done"}`}>
-              <div className="m5-cdot" />
-              <div className="m5-cper">{p.period}</div>
-              <div className="m5-clab">{p.label}</div>
-              {p.note && <div className="m5-cnote">{p.note}</div>}
-              {now && <span className="m5-cnow">сейчас</span>}
-            </div>
-          ); })}
+          {(() => {
+            const cpL = String(pCyc.current_phase || "").toLowerCase();
+            let nowIdx = pCyc.phases.findIndex((ph) => { const l = String(ph.label || "").toLowerCase().trim(); return l && cpL.includes(l); });
+            if (nowIdx < 0) nowIdx = pCyc.phases.length - 1;
+            return pCyc.phases.map((p, i) => { const now = i === nowIdx, done = i < nowIdx; return (
+              <div key={i} className={`m5-cph ${now ? "m5-now" : done ? "m5-done" : ""}`}>
+                <div className="m5-cdot" />
+                <div className="m5-cper">{p.period}</div>
+                <div className="m5-clab">{p.label}</div>
+                {p.note && <div className="m5-cnote">{p.note}</div>}
+                {now && <span className="m5-cnow">сейчас</span>}
+              </div>
+            ); });
+          })()}
         </div>
         {pCyc.current_phase && <p className="m5-fnote">Сейчас: {pCyc.current_phase}</p>}
       </div>
@@ -5743,14 +5748,6 @@ const CompanyCard = ({ company, onBack }) => {
           </div>
           {rail}
         </div>
-
-        {/* Аналитическая проза (market_summary.md) */}
-        {mdSections.length > 0 && mdSections.map((sec, i) => (
-          <div key={`md-${i}`} className="m5-card">
-            <h3 style={{ marginBottom: 12 }}><Info size={16} style={{ color: "var(--accent)" }} />{sec.heading}</h3>
-            <Prose><ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown></Prose>
-          </div>
-        ))}
       </AppearGroup>
     );
   };
