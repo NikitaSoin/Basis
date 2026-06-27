@@ -5319,7 +5319,7 @@ const CompanyCard = ({ company, onBack }) => {
           <path d={line} fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
           {pts.map((p, i) => (
             <g key={i}>
-              <circle cx={X(i)} cy={Y(p.value)} r={i === pts.length - 1 ? 4.5 : 3.5} fill={i === pts.length - 1 ? "var(--accent)" : "var(--accent)"} />
+              <circle cx={X(i)} cy={Y(p.value)} r={i === pts.length - 1 ? 4.5 : 3.5} fill="var(--accent)" />
               <text x={X(i)} y={Y(p.value) - 10} textAnchor="middle" style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, fill: "var(--text-secondary)" }}>{typeof p.value === "number" ? p.value.toLocaleString("ru-RU") : ""}</text>
               <text x={X(i)} y={H - pB + 16} textAnchor="middle" style={{ fontFamily: "var(--font-mono)", fontSize: 11, fill: "var(--text-tertiary)" }}>{p.period}</text>
             </g>
@@ -5342,7 +5342,7 @@ const CompanyCard = ({ company, onBack }) => {
     const supp = pDrivers.filter((d) => d.direction === "support");
     const constr = pDrivers.filter((d) => d.direction === "constrain");
     const pCyc = primaryM.market_cycle;
-    const PALETTE = ["var(--accent)", "#5FB3E6", "#A78BFA", "#6B7280", "#22C55E", "#F59E0B"];
+    const PALETTE = ["var(--accent)", "var(--cat-2)", "var(--cat-7)", "var(--cat-1)", "var(--cat-5)", "var(--cat-8)"];
 
     // KPI-strip
     const POSK = { leader: "№1 · лидер", challenger: "догоняющий", niche: "нишевый", insufficient_data: "—" };
