@@ -54,6 +54,7 @@ import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor
 import { Prose, LeadStatement, KeyTakeaway, Disclosure } from "./design/textblocks";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./company/neo";
 import ScreenerNeo from "./screener/ScreenerNeo";
+import BondScreenerNeo from "./screener/BondScreenerNeo";
 import MarketNeo from "./market/MarketNeo";
 import "./market/market-m5.css";
 import LandingNeo from "./market/LandingNeo";
@@ -2819,187 +2820,23 @@ const OptionCard = ({ secid, onBack }) => {
   );
 };
 
-// ── Скрининг акций (поверх готовых метрик company_metrics) ──
-const SCR_COLS = [
-  { key: "upside_pct", label: "Апсайд к спр.", fmt: (v) => v == null ? "—" : `${v > 0 ? "+" : ""}${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
-  { key: "pe_current", label: "P/E", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 1 }) },
-  { key: "div_yield", label: "Дивдох.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
-  { key: "earnings_yield", label: "EY", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 1 })}%` },
-  { key: "return_total_3y", label: "Доход. 3г", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%`, tone: (v) => v > 0 ? "tw-text-success" : v < 0 ? "tw-text-danger" : "" },
-  { key: "sortino_3y", label: "Сортино", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
-  { key: "beta", label: "Бета", fmt: (v) => v == null ? "—" : fmtNumber(v, { decimals: 2 }) },
-  { key: "volatility", label: "Волат.", fmt: (v) => v == null ? "—" : `${fmtNumber(v, { decimals: 0 })}%` },
-];
-const SCR_FILTERS = [
-  { id: "all", label: "Все" },
-  { id: "undervalued", label: "Апсайд > 0", test: (r) => r.upside_pct != null && r.upside_pct > 0 },
-  { id: "dividend", label: "Дивдох. ≥ 8%", test: (r) => r.div_yield != null && r.div_yield >= 8 },
-  { id: "cheap_pe", label: "P/E < 6", test: (r) => r.pe_current != null && r.pe_current > 0 && r.pe_current < 6 },
-  { id: "lowvol", label: "Бета < 0.8", test: (r) => r.beta != null && r.beta < 0.8 },
-];
-
-// Колонки скрина облигаций (базовые поля; расширенные кастом-фильтры — отдельно потом).
-const _bMaturityYears = (r) => {
-  if (r.duration_years != null) return r.duration_years;
-  const m = r.maturity_date; if (!m) return null;
-  try { return Math.max(0, Math.round((new Date(m) - new Date()) / 31557600000 * 10) / 10); } catch { return null; }
-};
-const _bDate = (s) => s ? `${s.slice(8,10)}.${s.slice(5,7)}.${s.slice(0,4)}` : "—";
-const BOND_COLS = [
-  { key: "coupon_label", label: "Купон", num: false, fmt: (v) => v || "—" },
-  { key: "ytm", label: "YTM", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })}%` : "—" },
-  { key: "_maturity_years", label: "До погашения", num: true, fmt: (v) => v != null ? `${fmtNumber(v, { decimals: 1 })} г.` : "—" },
-  { key: "offer_date", label: "Оферта", num: false, fmt: (v) => _bDate(v) },
-  { key: "agency_rating", label: "Рейтинг", num: false, fmt: (v) => v || "—" },
-  { key: "sector", label: "Сектор", num: false, fmt: (v) => v || "—" },
-];
-const BOND_CLASS_FILTERS = [
-  { id: "all", label: "Все" },
-  { id: "ofz", label: "ОФЗ", test: (r) => r.bond_type === "ofz" },
-  { id: "corporate", label: "Корпоративные", test: (r) => r.bond_type === "corporate" },
-  { id: "fixed", label: "Фикс. купон", test: (r) => r.coupon_type === "fixed" },
-  { id: "floater", label: "Флоатеры", test: (r) => r.coupon_type === "floater" },
-  { id: "has_offer", label: "С офертой", test: (r) => !!r.offer_date },
-];
-
+// ── Скрининг: единый экран-переключатель (акции/облигации); вся механика фильтров,
+//    таблиц и карт — в Neo-движках ScreenerNeo / BondScreenerNeo ──
 const ScreenerView = ({ onSelectCompany }) => {
+  // Класс активов: акции и облигации — отдельные Neo-скрины на живых движках
+  // (/screener/scored и /screener/bonds), каждый самозагружается и держит свои фильтры.
   const [cls, setCls] = usePersistedState("screener.cls", "stocks"); // stocks | bonds
-  const [rows, setRows] = usePersistedState("screener.data", []);
-  const [bondRows, setBondRows] = usePersistedState("screener.bonds", []);
-  const [loading, setLoading] = useState(rows.length === 0);
-  const [bondsLoading, setBondsLoading] = useState(false);
-  const [search, setSearch] = usePersistedState("screener.search", "");
-  const [sector, setSector] = usePersistedState("screener.sector", "Все");
-  const [quick, setQuick] = usePersistedState("screener.quick", "all");
-  const [bquick, setBquick] = usePersistedState("screener.bquick", "all");
-  const [sortKey, setSortKey] = usePersistedState("screener.sortKey", "upside_pct");
-  const [sortDir, setSortDir] = usePersistedState("screener.sortDir", "desc");
-  const [bSortKey, setBSortKey] = usePersistedState("screener.bSortKey", "ytm");
-  const [bSortDir, setBSortDir] = usePersistedState("screener.bSortDir", "desc");
-  useScrollRestore("screener", !loading);
-  const openCompany = (t) => { saveScroll("screener"); onSelectCompany && onSelectCompany(t); };
-  const isBonds = cls === "bonds";
-
-  useEffect(() => {
-    if (rows.length > 0) { setLoading(false); return; }
-    fetch(`${apiBase()}/api/screener/stocks`).then((r) => (r.ok ? r.json() : [])).then((d) => { setRows(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!isBonds || bondRows.length > 0) return;
-    setBondsLoading(true);
-    fetch(`${apiBase()}/api/bonds`).then((r) => (r.ok ? r.json() : [])).then((d) => {
-      const arr = (Array.isArray(d) ? d : []).map((b) => ({ ...b, _maturity_years: _bMaturityYears(b) }));
-      setBondRows(arr); setBondsLoading(false);
-    }).catch(() => setBondsLoading(false));
-  }, [isBonds]);
-
-  const baseRows = isBonds ? bondRows : rows;
-  const sectors = useMemo(() => ["Все", ...Array.from(new Set(baseRows.map((r) => r.sector).filter(Boolean))).sort()], [baseRows]);
-  const view = useMemo(() => {
-    const q = search.toLowerCase();
-    const sk = isBonds ? bSortKey : sortKey, sd = isBonds ? bSortDir : sortDir;
-    const qf = isBonds ? BOND_CLASS_FILTERS.find((f) => f.id === bquick) : SCR_FILTERS.find((f) => f.id === quick);
-    let out = baseRows.filter((r) => {
-      const idf = isBonds ? (r.secid || r.name) : r.ticker;
-      if (q && !((idf || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q))) return false;
-      if (sector !== "Все" && r.sector !== sector) return false;
-      if (qf && qf.test && !qf.test(r)) return false;
-      return true;
-    });
-    out.sort((a, b) => {
-      const av = a[sk], bv = b[sk];
-      if (av == null) return 1; if (bv == null) return -1;
-      if (typeof av === "string") return sd === "desc" ? bv.localeCompare(av) : av.localeCompare(bv);
-      return sd === "desc" ? bv - av : av - bv;
-    });
-    return out;
-  }, [baseRows, isBonds, search, sector, quick, bquick, sortKey, sortDir, bSortKey, bSortDir]);
-
-  const toggleSort = (k) => {
-    if (isBonds) { if (bSortKey === k) setBSortDir((d) => d === "desc" ? "asc" : "desc"); else { setBSortKey(k); setBSortDir("desc"); } }
-    else { if (sortKey === k) setSortDir((d) => d === "desc" ? "asc" : "desc"); else { setSortKey(k); setSortDir("desc"); } }
-  };
-  const curSortKey = isBonds ? bSortKey : sortKey, curSortDir = isBonds ? bSortDir : sortDir;
-
-  // Акции — новый Neo-скрин на живом BASIS-движке (/screener/scored). Облигации — прежний путь ниже.
-  if (!isBonds) {
-    return (
-      <div>
-        <div className="tw-flex tw-gap-1.5 tw-mb-3">
-          {[{ id: "stocks", label: "Акции" }, { id: "bonds", label: "Облигации" }].map((c) => (
-            <Chip key={c.id} selected={cls === c.id} onClick={() => setCls(c.id)}>{c.label}</Chip>
-          ))}
-        </div>
-        <ScreenerNeo onOpenCompany={onSelectCompany} Logo={CompanyLogo} />
-      </div>
-    );
-  }
-
-  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем скринер...</div>;
-
-  const sortLabel = (key, label) => (
-    <button onClick={() => toggleSort(key)} className="tw-inline-flex tw-items-center tw-gap-1 tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-secondary hover:tw-text-text-primary tw-p-0 tw-font-semibold tw-text-[12px]">{label}{curSortKey === key && <span className="tw-text-accent">{curSortDir === "desc" ? "▼" : "▲"}</span>}</button>
-  );
 
   return (
     <div>
-      <div className="tw-flex tw-items-center tw-gap-3 tw-mb-2">
-        <h1 className="tw-text-[36px] tw-leading-[44px] tw-font-medium tw-font-display tw-text-text-primary tw-m-0">Скринер</h1>
-        <Badge tone="neutral">{view.length}{isBonds ? "" : ` из ${rows.length}`}</Badge>
-      </div>
-      <p className="tw-text-[14px] tw-text-text-secondary tw-mb-4">Фильтрация и сортировка по готовым метрикам Basis. {isBonds ? "Облигации: доходность, купон, срок, оферта, рейтинг." : "Акции: справедливая цена, P/E, дивдоходность, доходность/риск."} Это инструмент поиска, выводы за вами.</p>
-
-      {/* Переключатель класса активов */}
-      <div className="tw-flex tw-gap-1.5 tw-mb-4">
+      <div className="tw-flex tw-gap-1.5 tw-mb-3">
         {[{ id: "stocks", label: "Акции" }, { id: "bonds", label: "Облигации" }].map((c) => (
           <Chip key={c.id} selected={cls === c.id} onClick={() => setCls(c.id)}>{c.label}</Chip>
         ))}
       </div>
-
-      <div className="tw-flex tw-flex-col tw-gap-3 tw-mb-5">
-        <div className="tw-flex tw-flex-wrap tw-gap-3 tw-items-center">
-          <div className="tw-relative tw-w-full sm:tw-w-64">
-            <Search size={16} className="tw-absolute tw-left-3 tw-top-1/2 -tw-translate-y-1/2 tw-text-text-tertiary tw-pointer-events-none tw-z-10" />
-            <Input type="text" placeholder={isBonds ? "SECID / эмитент..." : "Тикер / название..."} value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: 36 }} />
-          </div>
-          <select value={sector} onChange={(e) => setSector(e.target.value)} className="tw-text-[13px] tw-px-3 tw-py-2 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-primary focus-visible:tw-outline-none focus-visible:tw-shadow-focus">
-            {sectors.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-        {isBonds
-          ? <FilterChips options={BOND_CLASS_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={bquick} onChange={setBquick} />
-          : <FilterChips options={SCR_FILTERS.map((f) => ({ id: f.id, label: f.label }))} value={quick} onChange={setQuick} />}
-      </div>
-
-      {isBonds && bondsLoading ? (
-        <div className="tw-flex tw-items-center tw-justify-center tw-py-16 tw-text-text-tertiary tw-animate-pulse">Загружаем облигации...</div>
-      ) : isBonds ? (
-        <Table
-          columns={[
-            { key: "name", label: "Эмитент", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary tw-truncate tw-max-w-[260px]">{r.name || r.shortname || r.secid}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.secid}</span></div>) },
-            ...BOND_COLS.map((c) => ({
-              key: c.key,
-              label: c.num ? sortLabel(c.key, c.label) : c.label,
-              render: (v) => <span className="tw-font-mono tw-text-text-secondary">{c.fmt(v)}</span>,
-            })),
-          ]}
-          rows={view}
-        />
-      ) : (
-        <Table
-          columns={[
-            { key: "name", label: "Компания", render: (_, r) => (<div className="tw-flex tw-flex-col"><span className="tw-font-semibold tw-text-text-primary">{r.name}</span><span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary">{r.ticker}</span></div>) },
-            ...SCR_COLS.map((c) => ({
-              key: c.key,
-              label: sortLabel(c.key, c.label),
-              render: (v) => <span className={`tw-font-mono ${c.tone ? c.tone(v) : "tw-text-text-secondary"}`}>{c.fmt(v)}</span>,
-            })),
-          ]}
-          rows={view}
-          onRowClick={(r) => openCompany(r.ticker)}
-        />
-      )}
+      {cls === "bonds"
+        ? <BondScreenerNeo onOpenCompany={onSelectCompany} />
+        : <ScreenerNeo onOpenCompany={onSelectCompany} Logo={CompanyLogo} />}
     </div>
   );
 };

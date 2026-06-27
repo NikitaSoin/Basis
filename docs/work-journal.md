@@ -1467,3 +1467,27 @@ operating profit 18.7 несовместим), DVEC/DIAS/EUTR(off-by-one revenue
 в data_flags соответствующих market.json. agency_rating/отраслевые метки в БД местами устарели (см. ранее).
 ℹ️ DEEP-UNCERTAINTY кейсы (probabilities/terminal=null, верификатор пишет CHECK — НЕ дефект, §6.9; фронту Шага 4 нужна ветка): CHGZ (РН-ЗапСибирь спящая оболочка), LNZL+LNZLP (Лензолото в ликвидации). Прочие «оболочки» (GAZC/GAZS/GAZT холдинги-ГПБ, BLNG, BRZL, GTRK) заполнены сценариями look-through (OK). Резюм: инвентаризация по valuation_inputs → батч 5 обычек через market-analyst (веб-поиск) → /tmp/verify_market.py → коммит без пуша; периодически прогонять pref-sweep (скрипт ниже в истории: копирует vi base→pref для всех 28 префов, идемпотентно). ВАЖНО: тикер-подсказку АРХЕТИПА агент ПЕРЕОПРЕДЕЛЯЕТ по business_model.md (вскрылось: GAZC/GAZS/GAZT=холдинги-ГПБ не газораспределение; GTRK=Globaltruck; GEMA=Гемабанк; HHRU=HEAD дубль). ВСЕ верифицированы (OK, кроме CHGZ — намеренный deep-uncertainty §6.9: спящая оболочка Роснефти, probabilities/terminal=null, НЕ дефект; фронту Шага 4 нужна ветка «глубокая неопределённость»). Коммиты без пуша (пуш ТЗ-Рынки за владельцем).
 🔶 НАХОДКИ СТЫКА (markets-агенты вскрыли расхождения в financials.json — на ревизию финслоя, НЕ в этой кампании): DIAS (финслой на промахнутом гайденсе FY2026 — вышел 25.06.2026: выручка −3%, EBITDA −35%, ЧП −78% → пересчитать), ELFV (EBITDA 2025 reported 23.9 vs press 17.8; operating profit 18.7 несовместим с EBITDA 17.8 → вероятная ошибка), DVEC (ЧП 2025 cbonds 6.39 vs financials 5.29), EUTR (off-by-one в массиве revenue), GAZA (агрегаторная «выручка 313млрд» вероятно операционная Группа ГАЗ, не ПАО — не использовать). Резюм: `cd backend && python3 -c` инвентаризация по valuation_inputs → батчами по 5 через market-analyst (веб-поиск), верификатор /tmp/verify_market.py (или пересоздать: проверяет explicit_horizon.scenarios bear/base/bull=100%, терминал к ОФЗ ном+реал, implied_exit, маржа-метрика по архетипу, fx_driver, premium=null). Коммит по батчу, БЕЗ ПУША. Префы (SNGSP/TATNP/BANEP/...) — копировать valuation_inputs с обычки (company-level). Архетипы все валидированы.
+
+### СКРИНЕР ОБЛИГАЦИЙ (новый, по образцу скринера акций) — собран и запушен
+Задание владельца: сделать скринер облигаций по макету docs/Screeener_obligations.zip (screener/Bonds.html,
+дизайн = скринер акций). Два требования: (1) НЕ использовать выдуманный «базис-балл» (Оценка Basis 35–84
+из мокапа) — заголовок = рейтинг-балл из методики «доходность vs риск»; (2) в выборе типа бумаги добавить
+фиксированные / флоатеры / квазивалютные.
+Сделано:
+- BACKEND: GET /api/screener/bonds (api/screener.py) → сервис services/screener_bonds.py. По ВСЕМ ~3177
+  бумагам считает вердикт тем же движком bond_risk.yield_vs_risk() (светофор light + Risk Score 1–5 +
+  premium/spread/required), что и карточка. Производный сектор (публичный эмитент → сектор компании;
+  непубличный → issuer_type_guess; ОФЗ/муни → категория). Флаг quasi = currency∉{SUR,RUB} (227 бумаг:
+  USD 143/CNY 66/EUR 16/CHF 2). YTM≤0 (структурные ноты/СберИОС) обнуляются. Отдаёт rows + distributions
+  для гистограмм. ~0.8с на 3177 бумаг (issuer_debt_adjustment закэширован lru_cache в bond_risk.py).
+- FRONT: src/screener/BondScreenerNeo.jsx (порт Bonds.html на sc-*-классах, тема-safe color-mix от cc-токенов).
+  Колонка «Вердикт» = пилюля светофора (verdictText/Tip по vkind: premium/floater/ofz/defaulted/near_offer/
+  structured/nodata) + Risk 1–5; сорт по светофору→премии. Тип бумаги (дропдаун): Все/ОФЗ/Корпоративные/
+  Фикс.купон/Флоатеры/Квазивалютные/С офертой. Пресеты, конструктор с гистограммами (ytm/spr/cpn/rat/risk/
+  mat/dur/px), карта (yield×dur, цвет=сектор), drawer (вердикт-проза + параметры + «Открыть эмитента» если
+  публичный). CSS bd-* добавлены в src/styles/screener.css.
+- WIRE: ScreenerView в App.js упрощён до переключателя + ScreenerNeo/BondScreenerNeo (старый табличный путь
+  облигаций и хелперы SCR_COLS/BOND_COLS/… удалены — были только у него). Сборка чистая (CI=false).
+ОСТАЛОСЬ (ОТК на живом): глазами проверить читаемость/сектора (бакет «Корпораты — прочие» крупный),
+поведение типов/пресетов; при желании владельца — открытие карточки самой облигации из drawer (сейчас
+открывается эмитент, как в мокапе). user-persona/design-reviewer на живом не прогонял (нет доступа к экрану).
