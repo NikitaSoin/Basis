@@ -5,3 +5,8 @@ __pycache__/
 venv/
 *.pyc
 .DS_Store
+
+# Исследовательские исходники и макеты — НЕ в репозиторий (раздувают клон/образ; рантайм не использует)
+backend/companies/*/sources/
+docs/*.zip
+docs/*.pdf
