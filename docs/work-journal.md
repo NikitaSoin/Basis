@@ -1401,8 +1401,8 @@ MISB=ТНС МарийЭл и т.п.) → /tmp/verify_market.py → коммит
 копией valuation_inputs с обычки (company-level, скрипт pref-sweep идемпотентен).
 
 ### СЛЕДУЮЩЕЕ — ШАГ 4 (фронт вкладки «Рынки» из markets/markets-m5.html), затем ШАГ 5 (сноска CRP).
-ПЕРЕД Шагом 4 проверить/доделать: (1) бэкенд-эндпоинт карточки должен ОТДАВАТЬ valuation_inputs
-(сейчас market.json читается — убедиться, что блок проксируется во фронт, иначе добавить в сериализацию);
+ПЕРЕД Шагом 4: (1) ✅ ПОДТВЕРЖДЕНО — эндпоинт GET /companies/by-ticker/{ticker}/market
+(companies.py:451) отдаёт ВЕСЬ market.json включая valuation_inputs; бэкенд-работа НЕ нужна, Шаг 4 — чистый фронт;
 (2) фронту нужна ВЕТКА РЕНДЕРА для deep-uncertainty (probabilities/terminal=null → не рисовать
 пустые проценты, показывать «глубокая неопределённость» — CHGZ/LNZL/LNZLP/UNKL); (3) эталон
 дизайна — markets/markets-m5.html (в репо, извлечён из docs/Markets.zip). Пуш Шага 4 — тоже за владельцем.
