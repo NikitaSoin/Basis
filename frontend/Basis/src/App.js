@@ -3171,6 +3171,7 @@ const CompanyCard = ({ company, onBack }) => {
   const [marketJson, setMarketJson] = useState(null);
   const [marketLoading, setMarketLoading] = useState(true);
   const [valNominal, setValNominal] = useState(true); // тумблер номинал/реал в блоке «Для оценки» (Рынки)
+  const [marketView, setMarketView] = useState(null); // активный ракурс сегмент-контрола главного рынка (m5)
   const [macroMd, setMacroMd] = useState(null);
   const [macroJson, setMacroJson] = useState(null);
   const [macroLoading, setMacroLoading] = useState(true);
@@ -5391,10 +5392,11 @@ const CompanyCard = ({ company, onBack }) => {
       const T = TREND[hist.trend];
       const traj = TRAJ[co.share_trajectory] || { c: "var(--text-tertiary)", bg: "var(--bg-base)", Icon: Activity };
       const TrajIcon = traj.Icon;
+      const cyc = m.market_cycle;
 
-      return (
+      // ── m5: каждая секция как самостоятельный «ракурс» сегмент-контрола ──
+      const secShares = (cur.size?.value || players.length > 0) ? (
         <div className="tw-flex tw-flex-col tw-gap-4">
-          {/* Размер рынка */}
           {cur.size?.value && (
             <div className="tw-p-3 tw-rounded-md tw-bg-bg-base tw-flex tw-items-start tw-justify-between tw-gap-3" style={{ borderLeft: "3px solid var(--accent)" }}>
               <div>
@@ -5408,8 +5410,6 @@ const CompanyCard = ({ company, onBack }) => {
               </div>
             </div>
           )}
-
-          {/* Игроки и доли */}
           {players.length > 0 && (
             <div>
               <div className="tw-flex tw-items-center tw-justify-between tw-mb-2">
@@ -5435,66 +5435,89 @@ const CompanyCard = ({ company, onBack }) => {
               {cur.company_position_note && <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2 tw-leading-normal">{cur.company_position_note}</div>}
             </div>
           )}
+        </div>
+      ) : null;
 
-          {/* Динамика */}
-          {(hist.points?.length > 1 || (hist.key_shifts || []).length > 0) && (
-            <div>
-              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2">
-                <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><Activity size={14} className="tw-text-accent" />Как менялся рынок</div>
-                {T && <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[12px] tw-font-semibold" style={{ color: T.c }}><T.Icon size={14} />{T.t}</span>}
-                {cert(hist.history_certainty)}
-              </div>
-              <HistChart points={hist.points} metric={hist.metric} />
-              {(hist.key_shifts || []).length > 0 && (
-                <ul className="tw-mt-2 tw-flex tw-flex-col tw-gap-1">
-                  {hist.key_shifts.map((s, i) => <li key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-flex tw-gap-2"><span className="tw-text-accent">·</span>{s}</li>)}
-                </ul>
+      const secDyn = (hist.points?.length > 1 || (hist.key_shifts || []).length > 0) ? (
+        <div>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2">
+            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><Activity size={14} className="tw-text-accent" />Как менялся рынок</div>
+            {T && <span className="tw-inline-flex tw-items-center tw-gap-1 tw-text-[12px] tw-font-semibold" style={{ color: T.c }}><T.Icon size={14} />{T.t}</span>}
+            {cert(hist.history_certainty)}
+          </div>
+          <HistChart points={hist.points} metric={hist.metric} />
+          {(hist.key_shifts || []).length > 0 && (
+            <ul className="tw-mt-2 tw-flex tw-flex-col tw-gap-1">
+              {hist.key_shifts.map((s, i) => <li key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-flex tw-gap-2"><span className="tw-text-accent">·</span>{s}</li>)}
+            </ul>
+          )}
+        </div>
+      ) : null;
+
+      const secCycle = (cyc && Array.isArray(cyc.phases) && cyc.phases.length > 0) ? (
+        <div>
+          <div className="tw-flex tw-items-center tw-gap-2 tw-mb-3">
+            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary"><Activity size={14} className="tw-text-accent" />Где рынок в отраслевом цикле</div>
+            {cert(cyc.certainty)}
+          </div>
+          <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+            {cyc.phases.map((p, i) => {
+              const isNow = i === cyc.phases.length - 1;
+              return (
+                <div key={i} className="tw-rounded-md tw-p-3" style={{ background: isNow ? "var(--accent-soft)" : "var(--bg-base)", border: isNow ? "1px solid var(--accent)" : "1px solid var(--border-subtle)" }}>
+                  <div className="tw-font-mono tw-text-[11px] tw-font-semibold" style={{ color: isNow ? "var(--accent)" : "var(--text-tertiary)" }}>{p.period}</div>
+                  <div className="tw-text-[12.5px] tw-font-bold tw-text-text-primary tw-mt-0.5">{p.label}</div>
+                  {p.note && <div className="tw-text-[11px] tw-text-text-tertiary tw-leading-snug tw-mt-1">{p.note}</div>}
+                  {isNow && <span className="tw-inline-block tw-mt-1.5 tw-text-[9px] tw-font-bold tw-uppercase tw-text-accent tw-bg-accent-soft tw-rounded-sm tw-px-1.5 tw-py-0.5">сейчас</span>}
+                </div>
+              );
+            })}
+          </div>
+          {cyc.current_phase && <div className="tw-text-[12px] tw-text-text-secondary tw-mt-3 tw-leading-normal"><b className="tw-font-semibold">Сейчас:</b> {cyc.current_phase}</div>}
+        </div>
+      ) : null;
+
+      const secDrivers = (supp.length > 0 || constr.length > 0) ? (
+        <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+          {supp.length > 0 && (
+            <div className="tw-rounded-md tw-p-3" style={{ background: "var(--success-soft)" }}>
+              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--success)" }}><TrendingUp size={14} />Драйверы роста</div>
+              <div className="tw-flex tw-flex-col tw-gap-1.5">{supp.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
+            </div>
+          )}
+          {constr.length > 0 && (
+            <div className="tw-rounded-md tw-p-3" style={{ background: "var(--danger-soft)" }}>
+              <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--danger)" }}><TrendingDown size={14} />Сдерживающие факторы</div>
+              <div className="tw-flex tw-flex-col tw-gap-1.5">{constr.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
+            </div>
+          )}
+        </div>
+      ) : null;
+
+      const secForecast = (fc.growth_orientation || fc.direction) ? (
+        <div className="tw-rounded-md tw-p-3.5" style={{ background: "var(--bg-base)", border: "1px solid var(--border-strong)" }}>
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
+            <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[13px] tw-font-bold tw-text-text-primary"><Target size={15} className="tw-text-accent" />Прогноз{fc.horizon ? ` · ${fc.horizon}` : ""}</div>
+            {cert(fc.certainty)}
+          </div>
+          {fc.direction && <div className="tw-text-[13px] tw-font-semibold tw-text-text-primary tw-mb-1">{fc.direction}</div>}
+          {fc.growth_orientation && <Prose className="tw-mb-2"><p>{fc.growth_orientation}</p></Prose>}
+          {(fc.logic?.supporting?.length > 0 || fc.logic?.constraining?.length > 0) && (
+            <div className="tw-grid tw-gap-2 tw-mt-1" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
+              {fc.logic?.supporting?.length > 0 && (
+                <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--success)" }}>за рост</div>{fc.logic.supporting.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--success)" }}>▲</span>{s}</div>)}</div>
+              )}
+              {fc.logic?.constraining?.length > 0 && (
+                <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--danger)" }}>против</div>{fc.logic.constraining.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--danger)" }}>▼</span>{s}</div>)}</div>
               )}
             </div>
           )}
+          {fc.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-italic">{fc.note}</div>}
+        </div>
+      ) : null;
 
-          {/* Драйверы / сдерживающие факторы */}
-          {(supp.length > 0 || constr.length > 0) && (
-            <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-              {supp.length > 0 && (
-                <div className="tw-rounded-md tw-p-3" style={{ background: "var(--success-soft)" }}>
-                  <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--success)" }}><TrendingUp size={14} />Драйверы роста</div>
-                  <div className="tw-flex tw-flex-col tw-gap-1.5">{supp.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
-                </div>
-              )}
-              {constr.length > 0 && (
-                <div className="tw-rounded-md tw-p-3" style={{ background: "var(--danger-soft)" }}>
-                  <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-mb-1.5" style={{ color: "var(--danger)" }}><TrendingDown size={14} />Сдерживающие факторы</div>
-                  <div className="tw-flex tw-flex-col tw-gap-1.5">{constr.map((d, i) => <div key={i} className="tw-text-[12.5px] tw-text-text-primary"><b className="tw-font-semibold">{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</div>)}</div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Прогноз */}
-          {(fc.growth_orientation || fc.direction) && (
-            <div className="tw-rounded-md tw-p-3.5" style={{ background: "var(--bg-base)", border: "1px solid var(--border-strong)" }}>
-              <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-2">
-                <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[13px] tw-font-bold tw-text-text-primary"><Target size={15} className="tw-text-accent" />Прогноз{fc.horizon ? ` · ${fc.horizon}` : ""}</div>
-                {cert(fc.certainty)}
-              </div>
-              {fc.direction && <div className="tw-text-[13px] tw-font-semibold tw-text-text-primary tw-mb-1">{fc.direction}</div>}
-              {fc.growth_orientation && <Prose className="tw-mb-2"><p>{fc.growth_orientation}</p></Prose>}
-              {(fc.logic?.supporting?.length > 0 || fc.logic?.constraining?.length > 0) && (
-                <div className="tw-grid tw-gap-2 tw-mt-1" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-                  {fc.logic?.supporting?.length > 0 && (
-                    <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--success)" }}>за рост</div>{fc.logic.supporting.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--success)" }}>▲</span>{s}</div>)}</div>
-                  )}
-                  {fc.logic?.constraining?.length > 0 && (
-                    <div><div className="tw-text-[11px] tw-font-bold tw-mb-1" style={{ color: "var(--danger)" }}>против</div>{fc.logic.constraining.map((s, i) => <div key={i} className="tw-text-[12px] tw-text-text-secondary tw-flex tw-gap-1.5"><span style={{ color: "var(--danger)" }}>▼</span>{s}</div>)}</div>
-                  )}
-                </div>
-              )}
-              {fc.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-italic">{fc.note}</div>}
-            </div>
-          )}
-
-          {/* Перспектива компании */}
+      const secOutlook = (co.reasoning || co.share_trajectory || (ie && ie.applicable)) ? (
+        <div className="tw-flex tw-flex-col tw-gap-3">
           {(co.reasoning || co.share_trajectory) && (
             <div className="tw-rounded-md tw-px-3 tw-py-2.5" style={{ background: traj.bg, borderLeft: `3px solid ${traj.c}` }}>
               <div className="tw-flex tw-items-center tw-gap-2 tw-mb-1">
@@ -5505,8 +5528,6 @@ const CompanyCard = ({ company, onBack }) => {
               {co.reasoning && <Prose><p>{co.reasoning}</p></Prose>}
             </div>
           )}
-
-          {/* Международная экспансия */}
           {ie && ie.applicable && (
             <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
               <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[12px] tw-font-bold tw-text-text-secondary tw-mb-1.5"><Globe size={14} className="tw-text-accent" />Международная экспансия</div>
@@ -5521,6 +5542,34 @@ const CompanyCard = ({ company, onBack }) => {
               {ie.note && <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-1">{ie.note}</div>}
             </div>
           )}
+        </div>
+      ) : null;
+
+      const views = [
+        { id: "shares", label: "Доли", node: secShares },
+        { id: "dyn", label: "Динамика", node: secDyn },
+        { id: "cycle", label: "Цикл", node: secCycle },
+        { id: "drivers", label: "Драйверы", node: secDrivers },
+        { id: "forecast", label: "Прогноз", node: secForecast },
+        { id: "outlook", label: "Перспектива", node: secOutlook },
+      ].filter((v) => v.node);
+
+      if (views.length === 0) return null;
+      const activeId = (marketView && views.some((v) => v.id === marketView)) ? marketView : views[0].id;
+      const active = views.find((v) => v.id === activeId) || views[0];
+
+      return (
+        <div className="tw-flex tw-flex-col tw-gap-4">
+          {views.length > 1 && (
+            <div className="tw-flex tw-flex-wrap tw-gap-1 tw-p-1 tw-rounded-md tw-bg-bg-base tw-border tw-border-border-subtle">
+              {views.map((v) => (
+                <button key={v.id} type="button" onClick={() => setMarketView(v.id)}
+                  className="tw-text-[12px] tw-font-semibold tw-px-3 tw-py-1.5 tw-rounded-sm tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+                  style={v.id === activeId ? { background: "var(--accent)", color: "var(--on-accent)" } : { background: "transparent", color: "var(--text-secondary)" }}>{v.label}</button>
+              ))}
+            </div>
+          )}
+          <div>{active.node}</div>
         </div>
       );
     };
@@ -5722,21 +5771,56 @@ const CompanyCard = ({ company, onBack }) => {
       );
     };
 
+    // ── m5: вердикт-полоса + KPI-strip (данные из главного рынка) ──
+    const primaryM = markets.find((x) => x.tier === "primary") || markets[0] || {};
+    const pCur = primaryM.current || {};
+    const pPlayers = pCur.players || [];
+    const pSelf = pPlayers.find((p) => p.is_company);
+    const POSK = { leader: "№1 · лидер", challenger: "догоняющий", niche: "нишевый", insufficient_data: "—" };
+    const kpis = [
+      primaryM.name && { l: "Главный рынок", v: (GEO[primaryM.geography] || primaryM.geography || "—"), d: primaryM.name },
+      pSelf && { l: "Доля компании", v: shareLabel(pSelf), d: POSK[pCur.company_position] || "", acc: true },
+      pCur.size?.value && { l: "Размер рынка", v: pCur.size.value, d: pCur.size_metric || (primaryM.name || "") },
+      (primaryM.market_cycle?.current_phase || primaryM.history?.trend) && { l: "Фаза / тренд", v: (TREND[primaryM.history?.trend]?.t || "—"), d: (primaryM.market_cycle?.phases?.length ? primaryM.market_cycle.phases[primaryM.market_cycle.phases.length - 1].label : "") },
+    ].filter(Boolean).slice(0, 4);
+
+    // ── m5: конкурентная позиция (head-to-head) ──
+    const comps = Array.isArray(marketJson?.competitors) ? marketJson.competitors.filter((c) => c && c.name && Array.isArray(c.metrics) && c.metrics.length) : [];
+    const compSelf = comps.find((c) => c.is_company) || comps[0];
+    const metricLabels = compSelf ? compSelf.metrics.map((mm) => mm.label) : [];
+
     return (
       <AppearGroup gate={appearGate.current} groupId="markets" className="tw-flex tw-flex-col tw-gap-4">
         {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
 
-        {/* Шапка: общая позиция + легенда достоверности */}
-        <Card>
-          {cardHead(Globe, "Рынки компании")}
-          {meta.market_position_summary && <Prose className="tw-mb-3"><p>{meta.market_position_summary}</p></Prose>}
-          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-pt-2 tw-border-t tw-border-border-subtle">
-            <span className="tw-font-semibold">Достоверность:</span>
-            {cert("fact")}<span>— факт с источником</span>
-            {cert("estimate")}<span>— оценка-ориентир</span>
-            {cert("model")}<span>— наша оценка по факторам</span>
+        {/* Вердикт-полоса — главный вывод по рынкам одной мыслью (m5) */}
+        {meta.market_position_summary && (
+          <div className="tw-rounded-lg tw-p-4 tw-flex tw-gap-3 tw-items-start" style={{ background: "linear-gradient(135deg, var(--accent-soft), var(--bg-elevated))", border: "1px solid var(--border-strong)" }}>
+            <Globe size={18} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
+            <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-leading-snug" style={{ maxWidth: "74ch" }}>{meta.market_position_summary}</div>
           </div>
-        </Card>
+        )}
+
+        {/* KPI-strip */}
+        {kpis.length > 0 && (
+          <div className="tw-grid tw-gap-px tw-rounded-md tw-overflow-hidden tw-border tw-border-border-subtle" style={{ gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, minmax(0, 1fr))`, background: "var(--border-subtle)" }}>
+            {kpis.map((k, i) => (
+              <div key={i} className="tw-bg-bg-elevated tw-p-3">
+                <div className="tw-text-[10.5px] tw-uppercase tw-text-text-tertiary tw-tracking-wide tw-leading-tight">{k.l}</div>
+                <div className="tw-font-mono tw-tabular-nums tw-text-[18px] tw-font-medium tw-mt-1 tw-leading-none" style={{ color: k.acc ? "var(--accent)" : "var(--text-primary)" }}>{k.v}</div>
+                {k.d && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-1 tw-leading-tight tw-truncate" title={k.d}>{k.d}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Легенда достоверности */}
+        <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-px-1">
+          <span className="tw-font-semibold">Достоверность:</span>
+          {cert("fact")}<span>— факт с источником</span>
+          {cert("estimate")}<span>— оценка-ориентир</span>
+          {cert("model")}<span>— наша оценка по факторам</span>
+        </div>
 
         {/* Рынки */}
         {markets.map((m, i) => {
@@ -5755,6 +5839,42 @@ const CompanyCard = ({ company, onBack }) => {
             </Card>
           );
         })}
+
+        {/* Конкурентная позиция — head-to-head с прямыми конкурентами (m5) */}
+        {comps.length > 1 && metricLabels.length > 0 && (
+          <Card>
+            {cardHead(BarChart2, "Конкурентная позиция", compSelf?.name ? <Badge tone="accent">{compSelf.name}</Badge> : null)}
+            <div className="tw-overflow-x-auto tw--mx-1">
+              <table className="tw-w-full tw-text-[12px] tw-border-collapse">
+                <thead>
+                  <tr>
+                    <th className="tw-text-left tw-font-semibold tw-text-text-tertiary tw-p-1.5 tw-align-bottom">Метрика</th>
+                    {comps.map((c, i) => (
+                      <th key={i} className="tw-text-right tw-p-1.5 tw-font-semibold tw-align-bottom" style={{ color: c.is_company ? "var(--accent)" : "var(--text-secondary)" }}>{c.name}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {metricLabels.map((lbl, ri) => (
+                    <tr key={ri} className="tw-border-t tw-border-border-subtle">
+                      <td className="tw-p-1.5 tw-text-text-secondary tw-leading-tight">{lbl}</td>
+                      {comps.map((c, ci) => {
+                        const mm = (c.metrics || []).find((x) => x.label === lbl);
+                        return (
+                          <td key={ci} className="tw-text-right tw-p-1.5 tw-font-mono tw-tabular-nums tw-whitespace-nowrap"
+                            style={{ color: c.is_company ? "var(--accent)" : (mm?.is_best ? "var(--success)" : "var(--text-primary)"), fontWeight: (c.is_company || mm?.is_best) ? 700 : 400 }}>
+                            {mm?.value ?? "—"}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2"><span style={{ color: "var(--accent)" }}>■</span> компания · <span style={{ color: "var(--success)" }}>■</span> лучший по метрике</div>
+          </Card>
+        )}
 
         {/* Для оценки компании — вход в ставку роста (valuation_inputs) */}
         {renderValuation(marketJson?.valuation_inputs)}
@@ -10323,7 +10443,7 @@ function ObserverReportView({ token, onSelectCompany }) {
       <div className="tw-grid tw-gap-3 tw-mb-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
         {_RPT_TYPES.map((t) => (
           <button key={t.id} onClick={() => setType(t.id)}
-            className={`tw-text-left tw-rounded-lg tw-border tw-px-4 tw-py-3 tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${type === t.id ? "tw-border-accent tw-bg-accent-soft" : "tw-border-border-subtle tw-bg-bg-surface hover:tw-border-accent"}`}>
+            className={`tw-text-left tw-rounded-lg tw-border tw-px-4 tw-py-3 tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${type === t.id ? "tw-border-accent tw-bg-accent-soft" : "tw-border-border-subtle tw-bg-bg-elevated hover:tw-border-accent"}`}>
             <div className="tw-flex tw-items-baseline tw-gap-2">
               <span className="tw-text-[14px] tw-font-medium tw-text-text-primary">{t.label}</span>
               <span className="tw-text-[11px] tw-text-text-tertiary">{t.horizon} · {t.time}</span>
