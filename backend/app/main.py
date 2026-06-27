@@ -419,24 +419,10 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
-    # Немедленно: только самое необходимое для первых пользовательских запросов.
+    # При старте — ТОЛЬКО то, что нужно пользователю сразу и не нагружает тредпул.
+    # Всё остальное работает по крону (данные уже есть в БД).
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
-
-    # Через 30с — прогрев equity-скринера (bonds — stale-while-revalidate, не греем).
-    asyncio.create_task(_screener_warm())
-
-    # Через 60с — только MOEX-задачи без LLM (быстрые, не блокируют тредпул надолго).
-    # LLM-задачи (news/macro/earnings/geo) НЕ запускаем при старте — они таймаутятся
-    # и забивают все 5 потоков threadpool → сервер перестаёт отвечать. Данные у них
-    # уже есть; крон обновит по расписанию.
-    async def _deferred_startup():
-        await asyncio.sleep(60)
-        asyncio.create_task(_asset_data_job())
-        await asyncio.sleep(30)
-        asyncio.create_task(_instrument_history_startup())
-
-    asyncio.create_task(_deferred_startup())
 
     yield
     scheduler.shutdown()
