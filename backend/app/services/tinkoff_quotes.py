@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import ssl
+import threading
 import time
 import urllib.request
 from datetime import datetime
@@ -190,6 +191,39 @@ def refresh_prices(prev_close_map: dict[str, float | None] | None = None) -> boo
         _last_error = str(e)
         logger.warning("Tinkoff: ошибка получения цен: %s", e)
         return False
+
+
+# Неблокирующее обновление: запрос НИКОГДА не ждёт сетевой вызов к Tinkoff.
+_refresh_lock = threading.Lock()
+_refreshing = False
+_REFRESH_THROTTLE = 15  # сек: не чаще одного фонового обновления
+
+
+def maybe_refresh_async() -> None:
+    """Если кэш устарел (>throttle) — обновить цены В ФОНЕ (single-flight), НЕ блокируя
+    вызывающий запрос. Эндпоинт realtime отдаёт кэш мгновенно, а сеть к Tinkoff
+    дёргается отдельным потоком максимум раз в 15с. Это убирает синхронный сетевой
+    вызов из каждого HTTP-запроса (иначе частый поллинг фронта забивает воркер)."""
+    global _refreshing
+    if not TINKOFF_TOKEN:
+        return
+    if time.time() - _last_success_ts < _REFRESH_THROTTLE:
+        return
+    with _refresh_lock:
+        if _refreshing:
+            return
+        _refreshing = True
+
+    def _run():
+        global _refreshing
+        try:
+            refresh_prices()
+        except Exception:  # noqa: BLE001
+            pass
+        finally:
+            _refreshing = False
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 # ─── публичный интерфейс ───────────────────────────────────────────────────

@@ -161,8 +161,11 @@ def realtime_quotes_endpoint():
 
     # ── Tinkoff (primary) ───────────────────────────────────────────────────
     from app.services import tinkoff_quotes
+    # НЕ блокируем запрос сетевым вызовом: отдаём кэш, обновляем в фоне (throttle 15с).
+    # Раньше refresh_prices() звался синхронно на КАЖДЫЙ запрос → частый поллинг фронта
+    # копил занятые потоки воркера и весь бэк вставал.
     if tinkoff_quotes.is_configured():
-        tinkoff_quotes.refresh_prices()
+        tinkoff_quotes.maybe_refresh_async()
     if tinkoff_quotes.is_available():
         prices = tinkoff_quotes.get_all_prices()
         payload = {ticker: q for ticker, q in prices.items()}
