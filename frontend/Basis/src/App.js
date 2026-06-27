@@ -5694,6 +5694,17 @@ const CompanyCard = ({ company, onBack }) => {
             </div>
           </div>
 
+          {/* Синтез наверху — вердикт поверх данных (рынок → ставка роста) */}
+          {(sig.direction || eh.probability_weighted_note) && (
+            <div className="tw-flex tw-gap-3 tw-items-start tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--accent-soft)" }}>
+              <Target size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
+              <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">
+                <b className="tw-font-semibold">Вход в ставку роста:</b> {sig.direction || ""}{sig.horizon ? ` ${sig.horizon}` : ""}{eh.probability_weighted_note ? `. ${eh.probability_weighted_note}` : ""}
+                <span className="tw-text-text-tertiary"> Это вход в темп выручки, а не прогноз цены акции.</span>
+              </div>
+            </div>
+          )}
+
           {/* Базовый сценарий: путь выручки по годам + терминал */}
           {baseGrowth.length > 0 && (
             <div className="tw-grid tw-gap-3 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
@@ -5732,17 +5743,6 @@ const CompanyCard = ({ company, onBack }) => {
             <div className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-3">
               {wp("base") != null && <span>Сценарии: база {wp("base")}% · оптим. {wp("bull") ?? "—"}% · пессим. {wp("bear") ?? "—"}%. </span>}
               {eh.risk_skew && <span>Перекос риска: {eh.risk_skew}.</span>}
-            </div>
-          )}
-
-          {/* Синтез одной строкой */}
-          {(sig.direction || eh.probability_weighted_note) && (
-            <div className="tw-flex tw-gap-2.5 tw-items-start tw-rounded-md tw-p-3 tw-mb-3" style={{ background: "var(--accent-soft)" }}>
-              <Target size={16} className="tw-text-accent tw-shrink-0 tw-mt-0.5" />
-              <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">
-                <b className="tw-font-semibold">Вход в ставку роста:</b> {sig.direction || ""}{sig.horizon ? ` ${sig.horizon}` : ""}{eh.probability_weighted_note ? `. ${eh.probability_weighted_note}` : ""}
-                <span className="tw-text-text-tertiary"> Это вход в темп выручки, а не прогноз цены акции.</span>
-              </div>
             </div>
           )}
 
