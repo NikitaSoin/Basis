@@ -422,8 +422,14 @@ async def lifespan(app: FastAPI):
     # Лёгкие/локальные старт-задачи (быстро освобождают соединение БД) — всегда.
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
-    asyncio.create_task(_screener_warm())
     asyncio.create_task(_instrument_history_startup())
+    # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
+    # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
+    # health-check Timeweb не отвечает → перезапуск → снова warm → петля, при которой
+    # сайт никогда не грузится. Скоринг считается ЛЕНИВО при первом запросе и кэшируется
+    # надолго (_RESULT_TTL), дальше stale-while-revalidate отдаёт мгновенно.
+    if os.environ.get("RUN_SCREENER_WARM") == "1":
+        asyncio.create_task(_screener_warm())
 
     # Тяжёлые задачи с ВНЕШНИМИ API (DeepSeek/FRED/массовый MOEX). На инстансе без
     # внешнего доступа они ВИСЯТ на таймаутах, УДЕРЖИВАЯ соединение БД → пул
