@@ -5357,6 +5357,7 @@ const CompanyCard = ({ company, onBack }) => {
     const maxShare = Math.max(1, ...pPlayers.map((p) => shareVal(p) || 0));
     const segShares = (pCur.size?.value || pPlayers.length > 0) ? (
       <div>
+        {pCur.company_position_note && <p className="m5-vlead" style={{ fontSize: 14 }}>{pCur.company_position_note}</p>}
         {pCur.size?.value && (
           <div className="m5-mrow">
             <div className="m5-mcell"><div className="m5-ml">Размер рынка</div><div className="m5-mv">{pCur.size.value}</div><div className="m5-mm">{pCur.size_metric || (pCur.size.note || "")}</div></div>
@@ -5390,7 +5391,6 @@ const CompanyCard = ({ company, onBack }) => {
             </>
           );
         })()}
-        {pCur.company_position_note && <div className="m5-share-cap">{pCur.company_position_note}</div>}
       </div>
     ) : null;
 
@@ -5425,7 +5425,9 @@ const CompanyCard = ({ company, onBack }) => {
     ) : null;
 
     const segDrivers = (supp.length > 0 || constr.length > 0) ? (
-      <div className="m5-dvr">
+      <div>
+        <p className="m5-vlead" style={{ fontSize: 14 }}>Сбалансированно: что тянет рынок <b>вверх</b> и что вниз.</p>
+        <div className="m5-dvr">
         {supp.length > 0 && (
           <div className="m5-dvcol m5-up">
             <div className="m5-dvh"><TrendingUp size={15} />Драйверы роста</div>
@@ -5438,6 +5440,7 @@ const CompanyCard = ({ company, onBack }) => {
             <ul>{constr.map((d, i) => <li key={i}><b>{d.factor}</b>{d.note ? ` — ${d.note}` : ""}</li>)}</ul>
           </div>
         )}
+        </div>
       </div>
     ) : null;
 
@@ -6631,10 +6634,11 @@ const CompanyCard = ({ company, onBack }) => {
       })()}
 
       {NEO ? (
-        // Вкладки «Финансы» и «Корп. управление» — на всю ширину: у них свой правый рейл
-        // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл»), глобальный
-        // Decision-rail дублировал бы его.
-        (tab === "finance" || tab === "governance") ? (
+        // Вкладки «Финансы», «Корп. управление» и «Рынки» — на всю ширину: у них свой правый рейл
+        // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл» / Markets — m5 mrail
+        // «Позиция/Что отслеживать/Конкуренты»). Глобальный Decision-rail (справедливая цена) тут НЕ
+        // показываем — в макете m5 его нет.
+        (tab === "finance" || tab === "governance" || tab === "markets") ? (
           <div className="tw-min-w-0">{tabBody}</div>
         ) : (
           <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">
