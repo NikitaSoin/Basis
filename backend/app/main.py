@@ -227,13 +227,12 @@ async def _earnings_startup():
 
 
 async def _screener_warm():
-    """Фоновый прогрев кеша скринера (BASIS-скоринг акций по наборам + облигации) после старта."""
+    """Прогрев кеша скринера акций (BASIS-скоринг). Облигации не греем — stale-while-revalidate."""
+    await asyncio.sleep(30)  # даём серверу принять первые запросы перед тяжёлым расчётом
     try:
         from app.services.screener_scoring import warm_cache
-        from app.services.screener_bonds import warm_bonds_cache
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, warm_cache)
-        await loop.run_in_executor(None, warm_bonds_cache)
     except Exception as e:
         logger.exception("Ошибка прогрева скринера: %s", e)
 
@@ -420,24 +419,29 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
+    # Немедленно: только самое необходимое для первых пользовательских запросов.
     asyncio.create_task(_tinkoff_warmup())
-    # Стартовый сид числа акций + пересчёт капитализации от свежей цены (идемпотентно).
     asyncio.create_task(_seed_shares_startup())
-    # Прогрев кеша скринера (фоном) — чтобы первый запрос /screener/scored был мгновенным.
+
+    # Через 30с — прогрев equity-скринера (bonds — stale-while-revalidate, не греем).
     asyncio.create_task(_screener_warm())
-    # Авто-наполнение данных классов активов при старте (в фоне, грузит только
-    # пустое/устаревшее) — чтобы после деплоя данные оказались на бою без ручной
-    # команды import_data.sh.
-    asyncio.create_task(_asset_data_job())
-    # Разовый прогон ленты новостей при старте (в фоне): после деплоя лента
-    # наполняется сразу, не дожидаясь крона. Дедуп по source_url не даёт повторной
-    # обработки при рестартах.
-    asyncio.create_task(_news_job())
-    asyncio.create_task(_macro_startup())
-    asyncio.create_task(_earnings_startup())
-    asyncio.create_task(_geo_startup())
-    # Бэкафилл истории облигаций/фьючерсов/фондов (фоном, только если пусто).
-    asyncio.create_task(_instrument_history_startup())
+
+    # Через 60с — фоновые задачи наполнения данных (не блокируют ответы сервера).
+    async def _deferred_startup():
+        await asyncio.sleep(60)
+        asyncio.create_task(_asset_data_job())
+        await asyncio.sleep(30)
+        asyncio.create_task(_news_job())
+        await asyncio.sleep(15)
+        asyncio.create_task(_macro_startup())
+        await asyncio.sleep(15)
+        asyncio.create_task(_earnings_startup())
+        await asyncio.sleep(15)
+        asyncio.create_task(_geo_startup())
+        await asyncio.sleep(15)
+        asyncio.create_task(_instrument_history_startup())
+
+    asyncio.create_task(_deferred_startup())
 
     yield
     scheduler.shutdown()
