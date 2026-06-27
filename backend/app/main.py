@@ -426,19 +426,14 @@ async def lifespan(app: FastAPI):
     # Через 30с — прогрев equity-скринера (bonds — stale-while-revalidate, не греем).
     asyncio.create_task(_screener_warm())
 
-    # Через 60с — фоновые задачи наполнения данных (не блокируют ответы сервера).
+    # Через 60с — только MOEX-задачи без LLM (быстрые, не блокируют тредпул надолго).
+    # LLM-задачи (news/macro/earnings/geo) НЕ запускаем при старте — они таймаутятся
+    # и забивают все 5 потоков threadpool → сервер перестаёт отвечать. Данные у них
+    # уже есть; крон обновит по расписанию.
     async def _deferred_startup():
         await asyncio.sleep(60)
         asyncio.create_task(_asset_data_job())
         await asyncio.sleep(30)
-        asyncio.create_task(_news_job())
-        await asyncio.sleep(15)
-        asyncio.create_task(_macro_startup())
-        await asyncio.sleep(15)
-        asyncio.create_task(_earnings_startup())
-        await asyncio.sleep(15)
-        asyncio.create_task(_geo_startup())
-        await asyncio.sleep(15)
         asyncio.create_task(_instrument_history_startup())
 
     asyncio.create_task(_deferred_startup())
