@@ -5341,7 +5341,24 @@ const CompanyCard = ({ company, onBack }) => {
     const pDrivers = primaryM.drivers || [];
     const supp = pDrivers.filter((d) => d.direction === "support");
     const constr = pDrivers.filter((d) => d.direction === "constrain");
-    const pCyc = primaryM.market_cycle;
+    // market_cycle: кураторский (если есть) ИЛИ синтез из history+forecast (чтобы «Цикл» был у всех)
+    const synthCycle = (hist, fc) => {
+      const pts = (hist?.points || []).filter((p) => typeof p.value === "number");
+      if (pts.length < 2) return null;
+      const vals = pts.map((p) => p.value);
+      const phases = pts.map((p, i) => {
+        const prev = i > 0 ? vals[i - 1] : null, next = i < vals.length - 1 ? vals[i + 1] : null;
+        let label;
+        if (prev != null && next != null) label = (p.value >= prev && p.value >= next) ? "Пик" : (p.value <= prev && p.value <= next) ? "Дно" : (p.value > prev ? "Рост" : "Спад");
+        else if (prev != null) label = p.value > prev ? "Рост" : (p.value < prev ? "Спад" : "Плато");
+        else label = next != null ? (next < p.value ? "Локальный максимум" : "Начало периода") : "—";
+        return { period: p.period, label, note: hist.metric ? `${hist.metric}: ${p.value.toLocaleString("ru-RU")}` : null };
+      });
+      const nowIdx = phases.length - 1;
+      if (fc && (fc.direction || fc.growth_orientation)) phases.push({ period: fc.horizon || "далее", label: "Прогноз", note: fc.direction || fc.growth_orientation });
+      return { phases, current_phase: phases[nowIdx]?.label, certainty: "model", nowIdx };
+    };
+    const pCyc = primaryM.market_cycle || synthCycle(primaryM.history, primaryM.forecast);
     const PALETTE = ["var(--accent)", "var(--cat-2)", "var(--cat-7)", "var(--cat-1)", "var(--cat-5)", "var(--cat-8)"];
 
     // KPI-strip
@@ -5411,9 +5428,12 @@ const CompanyCard = ({ company, onBack }) => {
         <p className="m5-vlead" style={{ fontSize: 13, marginBottom: 14 }}>Где рынок в отраслевом цикле {cert(pCyc.certainty)}</p>
         <div className="m5-cyc" style={{ "--m5-cyc-n": pCyc.phases.length }}>
           {(() => {
-            const cpL = String(pCyc.current_phase || "").toLowerCase();
-            let nowIdx = pCyc.phases.findIndex((ph) => { const l = String(ph.label || "").toLowerCase().trim(); return l && cpL.includes(l); });
-            if (nowIdx < 0) nowIdx = pCyc.phases.length - 1;
+            let nowIdx = typeof pCyc.nowIdx === "number" ? pCyc.nowIdx : -1;
+            if (nowIdx < 0) {
+              const cpL = String(pCyc.current_phase || "").toLowerCase();
+              nowIdx = pCyc.phases.findIndex((ph) => { const l = String(ph.label || "").toLowerCase().trim(); return l && cpL.includes(l); });
+              if (nowIdx < 0) nowIdx = pCyc.phases.length - 1;
+            }
             return pCyc.phases.map((p, i) => { const now = i === nowIdx, done = i < nowIdx; return (
               <div key={i} className={`m5-cph ${now ? "m5-now" : done ? "m5-done" : ""}`}>
                 <div className="m5-cdot" />
