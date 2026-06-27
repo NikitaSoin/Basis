@@ -273,7 +273,7 @@ def _trace_host(host: str, port: int = 443) -> dict:
     for a in out["dns"]:
         fam = socket.AF_INET6 if a["family"] == "IPv6" else socket.AF_INET
         s = socket.socket(fam, socket.SOCK_STREAM)
-        s.settimeout(6)
+        s.settimeout(3)
         t0 = _t.monotonic()
         rec = {"ip": a["ip"], "family": a["family"]}
         try:
@@ -332,7 +332,7 @@ def _sni_test(host: str, port: int = 443, decoy: str = "www.google.com") -> dict
 
     def attempt(server_name: str | None) -> dict:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(6)
+        s.settimeout(3)
         t0 = _t.monotonic()
         try:
             s.connect((ip, port))
