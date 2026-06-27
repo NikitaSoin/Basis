@@ -227,10 +227,13 @@ async def _earnings_startup():
 
 
 async def _screener_warm():
-    """Фоновый прогрев кеша скринера (BASIS-скоринг по наборам) после старта."""
+    """Фоновый прогрев кеша скринера (BASIS-скоринг акций по наборам + облигации) после старта."""
     try:
         from app.services.screener_scoring import warm_cache
-        await asyncio.get_event_loop().run_in_executor(None, warm_cache)
+        from app.services.screener_bonds import warm_bonds_cache
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, warm_cache)
+        await loop.run_in_executor(None, warm_bonds_cache)
     except Exception as e:
         logger.exception("Ошибка прогрева скринера: %s", e)
 
@@ -441,6 +444,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Investment Platform API", lifespan=lifespan)
+
+# Сжатие больших JSON-ответов (скринеры на тысячи строк, списки рынка) — кратно меньше
+# трафик и быстрее загрузка у клиента.
+from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 app.add_middleware(
     CORSMiddleware,

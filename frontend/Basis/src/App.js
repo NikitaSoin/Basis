@@ -2827,12 +2827,14 @@ const ScreenerView = ({ onSelectCompany }) => {
   // (/screener/scored и /screener/bonds), каждый самозагружается и держит свои фильтры.
   const [cls, setCls] = usePersistedState("screener.cls", "stocks"); // stocks | bonds
 
+  // Заголовок «Скринер» (один на оба класса) и переключатель класса — общие, в стиле
+  // экрана (sc-*), над фильтрами. Сами движки рендерят свой подзаголовок/фильтры ниже.
   return (
-    <div>
-      <div className="tw-flex tw-gap-1.5 tw-mb-3">
-        {[{ id: "stocks", label: "Акции" }, { id: "bonds", label: "Облигации" }].map((c) => (
-          <Chip key={c.id} selected={cls === c.id} onClick={() => setCls(c.id)}>{c.label}</Chip>
-        ))}
+    <div className="sc-screen">
+      <h1 className="sc-page-title" style={{ marginBottom: 14 }}>Скринер</h1>
+      <div className="sc-seg" role="group" aria-label="Класс активов" style={{ marginBottom: 18 }}>
+        <button className={cls === "stocks" ? "on" : ""} onClick={() => setCls("stocks")}>Акции</button>
+        <button className={cls === "bonds" ? "on" : ""} onClick={() => setCls("bonds")}>Облигации</button>
       </div>
       {cls === "bonds"
         ? <BondScreenerNeo onOpenCompany={onSelectCompany} />

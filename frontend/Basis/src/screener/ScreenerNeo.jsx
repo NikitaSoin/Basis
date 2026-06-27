@@ -418,7 +418,6 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
     <div className="sc-screen">
       <div className="sc-page-head">
         <div>
-          <h1 className="sc-page-title">Скринер</h1>
           <p className="sc-page-sub">Фильтр и сортировка по метрикам Basis. <span className="sc-modeltag" title={METHOD_TIP}>модель · BASIS v0</span> — инструмент поиска, выводы за вами.</p>
         </div>
         <span className="sc-scale"><span className="sc-scale-bar" style={{ background: `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((f) => scoreColor(45 + f * 37)).join(",")})` }} /><span className="sc-scale-lbl"><b>BASIS</b> — слабее → сильнее</span></span>
