@@ -66,11 +66,13 @@ def _api_key(provider: str) -> str:
     return key
 
 
-def _timeout() -> float:
+def _timeout() -> "httpx.Timeout":
     try:
-        return float(os.environ.get("LLM_TIMEOUT", "60"))
+        total = float(os.environ.get("LLM_TIMEOUT", "60"))
     except ValueError:
-        return 60.0
+        total = 60.0
+    # connect_timeout короткий — если сервер недоступен, падаем быстро (не держим тред 3 мин)
+    return httpx.Timeout(total, connect=8.0)
 
 
 def _retries() -> int:

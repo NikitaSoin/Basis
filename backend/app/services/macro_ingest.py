@@ -218,7 +218,7 @@ def ingest_fred(db: Session, recent: int = 48) -> dict:
     cfg = load_macro_config()
     units = {i["code"]: i.get("unit") for i in cfg["indicators"]}
     total = {"insert": 0, "revise": 0, "series": 0, "failed": []}
-    client = httpx.Client(timeout=30, headers=_HTTP)
+    client = httpx.Client(timeout=httpx.Timeout(30, connect=8), headers=_HTTP)
     for code, spec in cfg.get("fred_series", {}).items():
         try:
             r = client.get(_FRED_OBS, params={
