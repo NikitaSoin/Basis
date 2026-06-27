@@ -118,7 +118,9 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
         payload["thinking"] = {"type": "enabled" if thinking else "disabled"}
     headers = {"Authorization": f"Bearer {_api_key(provider)}",
                "Content-Type": "application/json"}
-    with httpx.Client(timeout=_timeout()) as client:
+    from app.services.http_util import make_client
+    # make_client — клампинг TCP MSS (обход MTU black hole к api.deepseek.com).
+    with make_client(timeout=_timeout()) as client:
         resp = client.post(f"{base_url}/chat/completions", json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
