@@ -201,7 +201,7 @@
             { "period": "2027", "low_pct": 5, "high_pct": 10, "real_low_pct": 1, "real_high_pct": 6,
               "drivers": "полный годовой эффект тарифа + продолжение индексации (трансп. газ +11,1%); конденсат стабилен; инфляция к таргету 4%; ЦОД/майнинг ещё не материален в выручке", "certainty": "medium", "type": "estimate", "source_refs": ["src_gas_tariff", "src_cbr_forecast"] },
             { "period": "2028", "low_pct": 4, "high_pct": 8, "real_low_pct": 0, "real_high_pct": 4,
-              "drivers": "тарифная индексация замедляется к инфляции ~4% (трансп. +7%); первые скромные доходы от цифровой генерации (200 МВт, при поэтапном запуске); объёмы флэт", "certainty": "limited", "type": "model", "source_refs": ["src_gas_tariff"] },
+              "drivers": "Тарифная индексация замедляется к инфляции ~4% (трансп. +7%); первые скромные доходы от цифровой генерации (200 МВт, при поэтапном запуске); объёмы флэт.", "certainty": "limited", "type": "model", "source_refs": ["src_gas_tariff"] },
             { "period": "2029-2030", "low_pct": 4, "high_pct": 6, "real_low_pct": 0, "real_high_pct": 2,
               "drivers": "конвергенция к инфляции; объёмы упираются в ёмкость региона; цифровая монетизация — скромный вклад в базе", "certainty": "limited", "type": "model", "source_refs": [] }
           ]
