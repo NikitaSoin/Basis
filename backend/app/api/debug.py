@@ -317,6 +317,60 @@ async def debug_trace(host: str = "api.deepseek.com"):
     return await asyncio.to_thread(_trace_host, host)
 
 
+def _sni_test(host: str, port: int = 443, decoy: str = "www.google.com") -> dict:
+    """Тот же IP, разные имена в TLS. Различает SNI-фильтр от IP/маршрут-проблемы."""
+    import socket
+    import ssl as _ssl
+    import time as _t
+    out: dict = {"host": host}
+    try:
+        ip = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)[0][4][0]
+        out["ip"] = ip
+    except Exception as e:  # noqa: BLE001
+        out["dns_error"] = f"{type(e).__name__}: {e}"
+        return out
+
+    def attempt(server_name: str | None) -> dict:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(6)
+        t0 = _t.monotonic()
+        try:
+            s.connect((ip, port))
+        except Exception as e:  # noqa: BLE001
+            return {"tcp": f"FAIL: {type(e).__name__}", "ms": int((_t.monotonic() - t0) * 1000)}
+        try:
+            ctx = _ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = _ssl.CERT_NONE
+            kw = {"server_hostname": server_name} if server_name else {}
+            ss = ctx.wrap_socket(s, **kw)
+            ss.close()
+            return {"tcp": "ok", "tls": "ok", "ms": int((_t.monotonic() - t0) * 1000)}
+        except Exception as e:  # noqa: BLE001
+            return {"tcp": "ok", "tls": f"FAIL: {type(e).__name__}", "ms": int((_t.monotonic() - t0) * 1000)}
+        finally:
+            try:
+                s.close()
+            except Exception:
+                pass
+
+    out["real_sni (" + host + ")"] = attempt(host)
+    out["decoy_sni (" + decoy + ")"] = attempt(decoy)
+    out["no_sni"] = attempt(None)
+    out["verdict_hint"] = ("real виснет (TimeoutError), а decoy/no_sni отвечают быстро "
+                           "(ok или TLS-alert) → режут по ИМЕНИ хоста (SNI-фильтр на пути). "
+                           "Все три виснут → проблема IP/маршрут/MTU, не имя.")
+    return out
+
+
+@router.get("/debug/sni")
+async def debug_sni(host: str = "api.deepseek.com"):
+    """Решающий тест: один IP, три варианта имени в TLS (настоящее/подставное/без).
+    /api/debug/sni?host=api.deepseek.com , ?host=api.stlouisfed.org"""
+    import asyncio
+    return await asyncio.to_thread(_sni_test, host)
+
+
 @router.get("/debug/ping")
 async def debug_ping():
     """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
