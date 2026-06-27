@@ -1387,6 +1387,30 @@ NB: у AFKS financials.json несёт старую governance-премию +3.0
   Проверять: маржа-метрика по архетипу (НЕ хардкод EBITDA), терминал к ОФЗ, сценарии непустые.
 - Шаг 4 (фронт из m5) — после массового перегона; Шаг 5 — только сноска CRP + коммент про DCF.
 
-## MARKETS-ПРОГРЕСС: 205/264 [NB: GLTR(Globaltrans) делистинг 2024, нет financials — не платформенная, пропускать; не путать с GTRK] valuation_inputs готово (CHMF + M-1 + B-1..B-34 + 45 префов + HHRU=копия HEAD). Сессия 2026-06-27: B-10..B-34 (125 обычек) + HHRU + 45 префов (sweep). ОСТАЛОСЬ 59 = 13 префов (sweep ПОСЛЕ их обычки: SAGOP/SAREP/STSBP/SVETP/TASBP/TGKBP/TORSP/VGSBP/VJGZP/VSYDP/WTCMP/YKENP/YRSBP) + 46 обычек (~9 батчей).
+## ✅ MARKETS-ПРОГРЕСС: 264/264 — ШАГ 3 ЗАВЕРШЁН (валидация 2026-06-27)
+valuation_inputs заполнен у ВСЕХ 264 компаний. Сплошная верификация /tmp/verify_market.py:
+260 OK + 4 намеренных deep-uncertainty CHECK (CHGZ=РН-ЗапСибирь спящая оболочка,
+LNZL+LNZLP=Лензолото в ликвидации, UNKL=Южуралникель производство стоит с 2012 —
+probabilities/terminal=null по §6.9, НЕ дефект). Все коммиты БЕЗ ПУША (пуш ТЗ-Рынки за владельцем,
+68 коммитов накоплено). [NB: GLTR(Globaltrans) делистинг 2024, нет financials — не платформенная;
+не путать с GTRK=Globaltruck.]
+Метод (для воспроизводимости): инвентаризация по valuation_inputs → батч 5 обычек через
+market-analyst (веб-поиск, архетип агент ПЕРЕОПРЕДЕЛЯЕТ по business_model.md — тикер-подсказки
+часто неверны: GAZC/GAZS/GAZT=холдинги-ГПБ, GTRK=Globaltruck, GEMA=Гемабанк, RUSI=РУСС-Инвест,
+MISB=ТНС МарийЭл и т.п.) → /tmp/verify_market.py → коммит без пуша → префы/дубли (HHRU=HEAD)
+копией valuation_inputs с обычки (company-level, скрипт pref-sweep идемпотентен).
+
+### СЛЕДУЮЩЕЕ — ШАГ 4 (фронт вкладки «Рынки» из markets/markets-m5.html), затем ШАГ 5 (сноска CRP).
+ПЕРЕД Шагом 4 проверить/доделать: (1) бэкенд-эндпоинт карточки должен ОТДАВАТЬ valuation_inputs
+(сейчас market.json читается — убедиться, что блок проксируется во фронт, иначе добавить в сериализацию);
+(2) фронту нужна ВЕТКА РЕНДЕРА для deep-uncertainty (probabilities/terminal=null → не рисовать
+пустые проценты, показывать «глубокая неопределённость» — CHGZ/LNZL/LNZLP/UNKL); (3) эталон
+дизайна — markets/markets-m5.html (в репо, извлечён из docs/Markets.zip). Пуш Шага 4 — тоже за владельцем.
+
+🔶 НАХОДКИ СТЫКА (markets-агенты вскрыли в financials.json — на ревизию ФИНСЛОЯ, отдельная кампания, НЕ Рынки):
+DIAS (финслой на промахнутом гайденсе FY2026), ELFV (EBITDA 2025 reported 23.9 vs press 17.8 +
+operating profit 18.7 несовместим), DVEC/DIAS/EUTR(off-by-one revenue)/GAZA/UGLD(ошибочный data_flag
+объёма −49%)/YKEN(сдвиг годов на 1)/GECO(якорь=группа Артген, не standalone) — расхождения помечены
+в data_flags соответствующих market.json. agency_rating/отраслевые метки в БД местами устарели (см. ранее).
 ℹ️ DEEP-UNCERTAINTY кейсы (probabilities/terminal=null, верификатор пишет CHECK — НЕ дефект, §6.9; фронту Шага 4 нужна ветка): CHGZ (РН-ЗапСибирь спящая оболочка), LNZL+LNZLP (Лензолото в ликвидации). Прочие «оболочки» (GAZC/GAZS/GAZT холдинги-ГПБ, BLNG, BRZL, GTRK) заполнены сценариями look-through (OK). Резюм: инвентаризация по valuation_inputs → батч 5 обычек через market-analyst (веб-поиск) → /tmp/verify_market.py → коммит без пуша; периодически прогонять pref-sweep (скрипт ниже в истории: копирует vi base→pref для всех 28 префов, идемпотентно). ВАЖНО: тикер-подсказку АРХЕТИПА агент ПЕРЕОПРЕДЕЛЯЕТ по business_model.md (вскрылось: GAZC/GAZS/GAZT=холдинги-ГПБ не газораспределение; GTRK=Globaltruck; GEMA=Гемабанк; HHRU=HEAD дубль). ВСЕ верифицированы (OK, кроме CHGZ — намеренный deep-uncertainty §6.9: спящая оболочка Роснефти, probabilities/terminal=null, НЕ дефект; фронту Шага 4 нужна ветка «глубокая неопределённость»). Коммиты без пуша (пуш ТЗ-Рынки за владельцем).
 🔶 НАХОДКИ СТЫКА (markets-агенты вскрыли расхождения в financials.json — на ревизию финслоя, НЕ в этой кампании): DIAS (финслой на промахнутом гайденсе FY2026 — вышел 25.06.2026: выручка −3%, EBITDA −35%, ЧП −78% → пересчитать), ELFV (EBITDA 2025 reported 23.9 vs press 17.8; operating profit 18.7 несовместим с EBITDA 17.8 → вероятная ошибка), DVEC (ЧП 2025 cbonds 6.39 vs financials 5.29), EUTR (off-by-one в массиве revenue), GAZA (агрегаторная «выручка 313млрд» вероятно операционная Группа ГАЗ, не ПАО — не использовать). Резюм: `cd backend && python3 -c` инвентаризация по valuation_inputs → батчами по 5 через market-analyst (веб-поиск), верификатор /tmp/verify_market.py (или пересоздать: проверяет explicit_horizon.scenarios bear/base/bull=100%, терминал к ОФЗ ном+реал, implied_exit, маржа-метрика по архетипу, fx_driver, premium=null). Коммит по батчу, БЕЗ ПУША. Префы (SNGSP/TATNP/BANEP/...) — копировать valuation_inputs с обычки (company-level). Архетипы все валидированы.
