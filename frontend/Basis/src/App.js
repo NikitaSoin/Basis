@@ -5565,6 +5565,7 @@ const CompanyCard = ({ company, onBack }) => {
           <Target size={16} className="tw-text-accent tw-shrink-0" />
           <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">Для оценки компании</h4>
           {archLabel && <Badge tone="neutral">{archLabel}</Badge>}
+          {!isDeep && cert("estimate")}
           {vi.disclosure_quality && <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-auto">раскрытие: {vi.disclosure_quality === "high" ? "высокое" : vi.disclosure_quality === "medium" ? "среднее" : "низкое"}</span>}
         </div>
       );
@@ -5638,22 +5639,22 @@ const CompanyCard = ({ company, onBack }) => {
             <div className="tw-inline-flex tw-rounded-md tw-overflow-hidden tw-border tw-border-border-strong tw-shrink-0">
               {[["nom", "номинал", true], ["real", "реальный", false]].map(([k, lbl, isNom]) => (
                 <button key={k} type="button" onClick={() => setValNominal(isNom)}
-                  className="tw-text-[11px] tw-font-bold tw-px-3 tw-py-1 tw-leading-none tw-transition-colors"
-                  style={valNominal === isNom ? { background: "var(--accent)", color: "#fff" } : { background: "var(--bg-base)", color: "var(--text-tertiary)" }}>{lbl}</button>
+                  className="tw-text-[11px] tw-font-bold tw-px-3 tw-py-1 tw-leading-none tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+                  style={valNominal === isNom ? { background: "var(--accent)", color: "var(--on-accent)" } : { background: "var(--bg-base)", color: "var(--text-tertiary)" }}>{lbl}</button>
               ))}
             </div>
           </div>
 
           {/* Базовый сценарий: путь выручки по годам + терминал */}
           {baseGrowth.length > 0 && (
-            <div className="tw-grid tw-gap-2.5 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
+            <div className="tw-grid tw-gap-3 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
               {baseGrowth.map((p) => periodCard(p, false))}
               {termCard}
             </div>
           )}
 
           {/* Маржа + консенсус */}
-          <div className="tw-grid tw-gap-2.5 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+          <div className="tw-grid tw-gap-3 tw-mb-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
             {(mt.from_pct != null || mt.to_pct != null) && (
               <div className="tw-rounded-md tw-p-3 tw-bg-bg-base tw-border tw-border-border-subtle">
                 <div className="tw-flex tw-items-center tw-gap-1.5 tw-text-[11px] tw-font-bold tw-text-text-tertiary tw-uppercase tw-mb-2">Маржа{mt.metric ? ` · ${mt.metric}` : ""} — куда идёт{mt.certainty && cert(mt.certainty)}</div>
