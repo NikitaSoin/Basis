@@ -371,6 +371,62 @@ async def debug_sni(host: str = "api.deepseek.com"):
     return await asyncio.to_thread(_sni_test, host)
 
 
+def _mtu_test(host: str, port: int = 443, mss: int = 1200) -> dict:
+    """Проверка гипотезы MTU: TLS к IP без клампинга MSS и с ним. Если с маленьким
+    MSS рукопожатие проходит, а без — виснет → это MTU black hole на пути (наша сторона)."""
+    import socket
+    import ssl as _ssl
+    import time as _t
+    out: dict = {"host": host, "mss": mss}
+    try:
+        ip = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)[0][4][0]
+        out["ip"] = ip
+    except Exception as e:  # noqa: BLE001
+        out["dns_error"] = f"{type(e).__name__}: {e}"
+        return out
+
+    def attempt(clamp: bool) -> dict:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(6)
+        if clamp:
+            try:
+                s.setsockopt(socket.IPPROTO_TCP, socket.TCP_MAXSEG, mss)
+            except Exception as e:  # noqa: BLE001
+                return {"setsockopt": f"FAIL: {type(e).__name__}"}
+        t0 = _t.monotonic()
+        try:
+            s.connect((ip, port))
+        except Exception as e:  # noqa: BLE001
+            return {"tcp": f"FAIL: {type(e).__name__}", "ms": int((_t.monotonic() - t0) * 1000)}
+        try:
+            ctx = _ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = _ssl.CERT_NONE
+            ss = ctx.wrap_socket(s, server_hostname=host)
+            ss.close()
+            return {"tcp": "ok", "tls": "ok", "ms": int((_t.monotonic() - t0) * 1000)}
+        except Exception as e:  # noqa: BLE001
+            return {"tcp": "ok", "tls": f"FAIL: {type(e).__name__}", "ms": int((_t.monotonic() - t0) * 1000)}
+        finally:
+            try:
+                s.close()
+            except Exception:
+                pass
+
+    out["without_clamp"] = attempt(False)
+    out[f"with_mss_{mss}"] = attempt(True)
+    out["verdict"] = ("with_mss=ok + without_clamp=timeout → это MTU/PMTUD (наша сторона), "
+                      "лечится MSS-клампингом/снижением MTU. Оба ok → MTU не при чём.")
+    return out
+
+
+@router.get("/debug/mtu")
+async def debug_mtu(host: str = "api.deepseek.com", mss: int = 1200):
+    """Тест MTU-гипотезы: /api/debug/mtu?host=api.deepseek.com&mss=1200"""
+    import asyncio
+    return await asyncio.to_thread(_mtu_test, host, 443, mss)
+
+
 @router.get("/debug/ping")
 async def debug_ping():
     """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
