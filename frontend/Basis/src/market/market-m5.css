@@ -18,7 +18,7 @@
   --m5-on-accent: var(--on-accent);
   --m5-pos: var(--success); --m5-pos-soft: var(--success-soft);
   --m5-neg: var(--danger);  --m5-neg-soft: var(--danger-soft);
-  --m5-amber: var(--warning); --m5-amber-soft: var(--warning-soft, rgba(180,83,9,.14));
+  --m5-amber: var(--warning); --m5-amber-soft: var(--warning-soft);
   --m5-violet: var(--accent); --m5-violet-soft: var(--accent-soft);
   --m5-cyan: var(--accent);
   --m5-serif: var(--cc-serif); --m5-mono: var(--font-mono); --m5-sans: var(--font-sans);
