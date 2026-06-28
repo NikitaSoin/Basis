@@ -427,6 +427,15 @@ async def debug_mtu(host: str = "api.deepseek.com", mss: int = 1200):
     return await asyncio.to_thread(_mtu_test, host, 443, mss)
 
 
+@router.get("/debug/echo")
+async def debug_echo(kb: int = 10):
+    """Отдаёт ответ ровно заданного размера (КБ) — чтобы С ВНЕШНЕГО узла найти порог,
+    выше которого прокси Timeweb перестаёт отдавать ответ (code=000). async, без БД."""
+    from fastapi.responses import PlainTextResponse
+    n = max(1, min(kb, 5000))
+    return PlainTextResponse("x" * (n * 1024))
+
+
 @router.get("/debug/selftest")
 async def debug_selftest():
     """Замер ИЗНУТРИ инстанса: бьём в собственный uvicorn на 127.0.0.1:8000 (в обход
