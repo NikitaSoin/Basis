@@ -488,14 +488,14 @@ async def _root():
     return {"status": "ok", "service": "basis-api"}
 
 
-# GZip-сжатие ОТКЛЮЧЕНО: SELFTEST доказал, что бэк изнутри (localhost) отдаёт 200
-# мгновенно, но наружу через прокси Timeweb ответ не доходит. Сжатый ответ
-# (Content-Encoding: gzip) — самый вероятный виновник: прокси нового инстанса его не
-# пропускает. Отдаём НЕсжатый ответ (корректный Content-Length) — прокси форвардит как есть.
-# Вернуть сжатие можно флагом ENABLE_GZIP=1 (когда/если прокси будет ок с gzip).
-if os.environ.get("ENABLE_GZIP") == "1":
+# GZip ВКЛЮЧЁН (по умолчанию). Замер с внешнего узла показал: прокси Timeweb не отдаёт
+# наружу БОЛЬШИЕ ответы (code=000, таймаут), а мелкие (/api/health) отдаёт → лимит/
+# буферизация прокси по размеру. Сжатие держит ответы мелкими (companies ~150КБ→~20КБ,
+# scored ~1МБ→~150КБ) → проходят через прокси. minimum_size=500 — сжимать почти всё.
+# Отключить при необходимости: DISABLE_GZIP=1.
+if os.environ.get("DISABLE_GZIP") != "1":
     from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
-    app.add_middleware(GZipMiddleware, minimum_size=1024)
+    app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
     CORSMiddleware,
