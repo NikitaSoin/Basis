@@ -421,10 +421,6 @@ async def lifespan(app: FastAPI):
         return
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
     scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
-    # Лента новостей Обозревателя — 4 раза/сутки (07:00/13:00/19:00/01:00 МСК).
-    scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
-    # Макрообзор — раз в сутки (мир/FRED/WB) + курсы ЦБ ежедневно утром.
-    scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
     scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
@@ -433,11 +429,20 @@ async def lifespan(app: FastAPI):
     # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
     # утром; плюс разовый прогон при старте (ниже) для авто-наполнения после деплоя.
     scheduler.add_job(_asset_data_job, "cron", hour=6, minute=0, id="asset_data_refresh")
-    # Анализ отчётностей (Направление 3) — раз в сутки ВЕЧЕРОМ (отчёты выходят
-    # нерегулярно). Ограниченный батч, идемпотентно (новые периоды).
-    scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
-    # Геополитика (Направление 7) — раз в сутки (синтез DeepSeek Pro по методичке).
-    scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
+
+    # LLM/FRED-задачи (новости, макро-мир, отчёты, геополитика) ходят в DeepSeek и FRED.
+    # На текущем инстансе они НЕДОСТУПНЫ (ConnectTimeout) — задача висит ~24с на вызов,
+    # УДЕРЖИВАЯ соединение БД, и в это окно витринные запросы виснут → сайт «загружает».
+    # Пользы ноль (внешка всё равно не отвечает), вред прямой. Поэтому по умолчанию
+    # ВЫКЛЮЧЕНЫ; включить, когда восстановится внешний доступ: ENABLE_EXTERNAL_JOBS=1.
+    if os.environ.get("ENABLE_EXTERNAL_JOBS") == "1":
+        scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
+        scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
+        scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
+        scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
+        logger.info("Внешние LLM/FRED-задачи планировщика ВКЛючены (ENABLE_EXTERNAL_JOBS=1)")
+    else:
+        logger.info("Внешние LLM/FRED-задачи (news/macro/earnings/geo) ОТКЛючены — DeepSeek/FRED недоступны")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
