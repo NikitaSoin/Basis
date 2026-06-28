@@ -488,10 +488,14 @@ async def _root():
     return {"status": "ok", "service": "basis-api"}
 
 
-# Сжатие больших JSON-ответов (скринеры на тысячи строк, списки рынка) — кратно меньше
-# трафик и быстрее загрузка у клиента.
-from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
-app.add_middleware(GZipMiddleware, minimum_size=1024)
+# GZip-сжатие ОТКЛЮЧЕНО: SELFTEST доказал, что бэк изнутри (localhost) отдаёт 200
+# мгновенно, но наружу через прокси Timeweb ответ не доходит. Сжатый ответ
+# (Content-Encoding: gzip) — самый вероятный виновник: прокси нового инстанса его не
+# пропускает. Отдаём НЕсжатый ответ (корректный Content-Length) — прокси форвардит как есть.
+# Вернуть сжатие можно флагом ENABLE_GZIP=1 (когда/если прокси будет ок с gzip).
+if os.environ.get("ENABLE_GZIP") == "1":
+    from fastapi.middleware.gzip import GZipMiddleware  # noqa: E402
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 app.add_middleware(
     CORSMiddleware,
