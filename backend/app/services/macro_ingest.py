@@ -205,7 +205,11 @@ def ingest_cbr_currencies(db: Session) -> dict:
 
 
 # ----------------------------- FRED: мир -----------------------------
-_FRED_OBS = "https://api.stlouisfed.org/fred/series/observations"
+# FRED_BASE_URL — релей через Cloudflare Worker (как DEEPSEEK_BASE_URL): egress инстанса
+# к api.stlouisfed.org режется на TLS. Без релея — недостижим.
+def _fred_obs_url() -> str:
+    base = (os.environ.get("FRED_BASE_URL") or "https://api.stlouisfed.org").rstrip("/")
+    return f"{base}/fred/series/observations"
 
 
 def ingest_fred(db: Session, recent: int = 48) -> dict:
@@ -223,7 +227,7 @@ def ingest_fred(db: Session, recent: int = 48) -> dict:
     client = make_client(timeout=httpx.Timeout(30, connect=8), headers=_HTTP)
     for code, spec in cfg.get("fred_series", {}).items():
         try:
-            r = client.get(_FRED_OBS, params={
+            r = client.get(_fred_obs_url(), params={
                 "series_id": spec["series"], "api_key": key, "file_type": "json",
                 "units": spec.get("units", "lin"), "sort_order": "desc", "limit": recent})
             r.raise_for_status()

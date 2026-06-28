@@ -98,6 +98,12 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
                             json_mode: bool, max_tokens: int, temperature: float,
                             thinking: bool, model_override: str | None = None) -> str:
     base_url, _, _ = _PROVIDERS[provider]
+    # Релей через Cloudflare Worker (как ANTHROPIC_PROXY_URL): на этом инстансе egress
+    # к api.deepseek.com режется на TLS (TCP проходит, TLS молча в таймаут — подтверждено
+    # raw-socket + openssl с внешнего узла проходит). DEEPSEEK_BASE_URL направляет вызов
+    # на воркер, который форвардит к DeepSeek со своей сети. Без релея DeepSeek недостижим.
+    if provider == "deepseek" and os.environ.get("DEEPSEEK_BASE_URL"):
+        base_url = os.environ["DEEPSEEK_BASE_URL"].rstrip("/")
     model = model_override or _model(provider)
     payload = {
         "model": model,
