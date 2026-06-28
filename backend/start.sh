@@ -39,4 +39,8 @@ run_migrations &
 
 # Веб-сервер — на переднем плане. exec → uvicorn становится PID 1 и корректно
 # получает сигналы остановки от платформы.
-exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}"
+# --proxy-headers + --forwarded-allow-ips="*": корректная работа за реверс-прокси
+# Timeweb (схема/IP клиента из X-Forwarded-*). Без них за прокси возможны артефакты
+# доставки ответа. --timeout-keep-alive побольше — прокси держит keep-alive дольше.
+exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}" \
+  --proxy-headers --forwarded-allow-ips="*" --timeout-keep-alive 75
