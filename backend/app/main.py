@@ -388,6 +388,28 @@ async def _macro_startup():
         logger.exception("Ошибка старт-наполнения Макрообзора: %s", e)
 
 
+async def _selftest_startup():
+    """Через 25с после старта бьём в собственный uvicorn (localhost) и пишем результат
+    в ЛОГ — чтобы факт «отдаёт ли бэк ответ изнутри» пришёл сам, без ручной проверки.
+    Если localhost быстро 200 → код здоров, виновата отдача наружу (прокси Timeweb)."""
+    await asyncio.sleep(25)
+    import time as _t
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30) as c:
+            for p in ("/api/screener/scored?universe=all", "/api/companies", "/api/market/indices"):
+                t0 = _t.monotonic()
+                try:
+                    r = await c.get(f"http://127.0.0.1:8000{p}")
+                    logger.info("SELFTEST %s → code=%s time=%.2fs size=%d enc=%s",
+                                p, r.status_code, _t.monotonic() - t0, len(r.content),
+                                r.headers.get("content-encoding"))
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("SELFTEST %s → %s после %.2fs", p, type(e).__name__, _t.monotonic() - t0)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("SELFTEST не выполнен: %s", e)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Под тестами (pytest) НЕ запускаем планировщик и старт-задачи: они ходят в сеть
@@ -423,6 +445,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
     asyncio.create_task(_instrument_history_startup())
+    asyncio.create_task(_selftest_startup())
     # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
     # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
     # health-check Timeweb не отвечает → перезапуск → снова warm → петля, при которой
@@ -471,11 +494,14 @@ app.add_middleware(
         "http://localhost:3000",
         "https://inbasis.ru",
         "https://www.inbasis.ru",
-        "https://nikitasoin-basis-a279.twc1.net",
     ],
+    # Разрешаем любой поддомен inbasis.ru и twc1.net (фронт + домены бэка) — на случай
+    # рассогласования origin после пересоздания приложения и preflight-проблем.
+    allow_origin_regex=r"https://([a-z0-9-]+\.)*(inbasis\.ru|twc1\.net)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(health_router, prefix="/api")

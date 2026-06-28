@@ -427,6 +427,31 @@ async def debug_mtu(host: str = "api.deepseek.com", mss: int = 1200):
     return await asyncio.to_thread(_mtu_test, host, 443, mss)
 
 
+@router.get("/debug/selftest")
+async def debug_selftest():
+    """Замер ИЗНУТРИ инстанса: бьём в собственный uvicorn на 127.0.0.1:8000 (в обход
+    прокси Timeweb). Разделяет «виноват прокси/отдача наружу» от «виноват код»:
+      - быстро 200 → uvicorn+код здоровы, проблема в прокси/доставке наружу;
+      - висит/ошибка → проблема в самом коде/хендлере."""
+    import time as _t
+    import httpx
+    base = "http://127.0.0.1:8000"
+    paths = ["/api/screener/scored?universe=all", "/api/companies", "/api/market/indices"]
+    out: dict = {}
+    async with httpx.AsyncClient(timeout=30) as c:
+        for p in paths:
+            t0 = _t.monotonic()
+            try:
+                r = await c.get(base + p)
+                out[p] = {"code": r.status_code, "time_s": round(_t.monotonic() - t0, 2),
+                          "size": len(r.content),
+                          "content_encoding": r.headers.get("content-encoding"),
+                          "content_length": r.headers.get("content-length")}
+            except Exception as e:  # noqa: BLE001
+                out[p] = {"error": type(e).__name__, "time_s": round(_t.monotonic() - t0, 2)}
+    return out
+
+
 @router.get("/debug/ping")
 async def debug_ping():
     """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
