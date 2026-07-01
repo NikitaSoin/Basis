@@ -477,7 +477,14 @@ async def get_macro_json(ticker: str):
     path = COMPANIES_DIR / _safe(ticker).upper() / "macro.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Macro not found")
-    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    # Подстраховка: есть числовые входы, но computed не посчитан (файл запечён без enrich
+    # или устарел) → досчитать детерминированно на лету. Расчёт мгновенный, старые файлы
+    # без quant_inputs не трогаются (computed остаётся пустым, фронт деградирует грациозно).
+    if data.get("quant_inputs") and not (data.get("computed") or {}).get("attribution"):
+        from app.services import macro_quant
+        macro_quant.enrich(data)
+    return JSONResponse(content=data)
 
 
 @router.get("/companies/by-ticker/{ticker}/macro-summary", response_class=PlainTextResponse)
