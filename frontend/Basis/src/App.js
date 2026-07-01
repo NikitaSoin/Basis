@@ -62,6 +62,7 @@ import BusinessModelTab from "./company/BusinessModelTab";
 import FinanceTab from "./company/FinanceTab";
 import GovernanceTab from "./company/GovernanceTab";
 import "./styles/governance.css";
+import "./styles/macro.css";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -5620,199 +5621,452 @@ const CompanyCard = ({ company, onBack }) => {
     if (!macroMd && !macroJson) return renderComingSoon("Макроэкономика");
 
     const meta = macroJson?.meta || {};
-    const snapshot = Array.isArray(macroJson?.snapshot) ? macroJson.snapshot : [];
+    const snap = Array.isArray(macroJson?.snapshot) ? macroJson.snapshot : [];
     const factors = Array.isArray(macroJson?.factors) ? macroJson.factors : [];
+    const comp = macroJson?.computed || {};
+    const attr = comp.attribution || {};
+    const sens = Array.isArray(comp.sensitivities) ? comp.sensitivities : [];
+    const scen = comp.scenarios || {};
+    const cv = macroJson?.competitive_view || {};
+    const cyc = macroJson?.cycle_position || {};
+    const rt = macroJson?.rate_trajectory || {};
+    const vb = macroJson?.valuation_bridge || {};
+    const endo = macroJson?.endogeneity || {};
     const bottom = macroJson?.bottom_line || {};
     const sources = Array.isArray(macroJson?.sources) ? macroJson.sources : [];
     const flags = Array.isArray(macroJson?.data_flags) ? macroJson.data_flags : [];
+    const hc = meta.headline_cost || {};
 
-    // Три уровня достоверности для макро — главный смысловой слой (про доверие).
-    const CERT = {
-      fact:      { c: "var(--success)", bg: "var(--success-soft)", t: "факт",     title: "Факт с источником — текущий макропоказатель" },
-      logic:     { c: "var(--accent)",  bg: "var(--accent-soft)",  t: "механизм", title: "Устойчивая логика — канал влияния (экономическая теория)" },
-      judgement: { c: "var(--warning)", bg: "var(--warning-soft)", t: "суждение", title: "Суждение/оценка — сила и срок эффекта, не факт" },
-    };
-    const cert = (lvl) => {
-      const m = CERT[lvl]; if (!m) return null;
-      return (
-        <span title={m.title} className="tw-inline-flex tw-items-center tw-rounded-pill tw-text-[10px] tw-font-bold tw-px-1.5 tw-py-0.5 tw-leading-none tw-shrink-0"
-          style={{ color: m.c, background: m.bg }}>{m.t}</span>
-      );
-    };
-    const srcOf = (ref) => sources.find((s) => s.id === ref);
-    const srcLink = (ref) => {
-      const s = srcOf(ref); if (!s) return null;
-      return s.url
-        ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-[11px] tw-text-accent hover:tw-underline tw-truncate">{s.title || s.url}</a>
-        : <span className="tw-text-[11px] tw-text-text-tertiary tw-truncate">{s.title}</span>;
-    };
-    const cardHead = (Icon, title, right) => (
-      <div className="tw-flex tw-justify-between tw-items-baseline tw-flex-wrap tw-gap-2 tw-mb-3.5">
-        <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
-          <Icon size={16} className="tw-text-accent tw-shrink-0" />{title}
-        </h4>
-        {right}
-      </div>
+    // ── форматирование чисел (млрд ₽, tabular) ──
+    const nf = (n) => (n == null || isNaN(n)) ? "—" : Math.round(n).toLocaleString("ru-RU");
+    const sf = (n) => (n == null || isNaN(n)) ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(Math.round(n)).toLocaleString("ru-RU");
+    const cls = (n) => n == null ? "" : n > 0 ? "mv3-pos" : n < 0 ? "mv3-neg" : "";
+
+    // ── эпистемические теги (факт/оценка/суждение) ──
+    const TAG = { fact: ["mv3-tag-fact", "факт"], estimate: ["mv3-tag-est", "оценка"], est: ["mv3-tag-est", "оценка"],
+      judgement: ["mv3-tag-judg", "суждение"], logic: ["mv3-tag-judg", "логика"], disclosed: ["mv3-tag-fact", "раскрыто"] };
+    const tag = (lvl) => { const t = TAG[lvl]; return t ? <span className={"mv3-tag " + t[0]}>{t[1]}</span> : null; };
+
+    // ── знак эффекта фактора ──
+    const EFF = { strong_negative: ["Сильный негатив", "var(--danger)", "var(--danger-soft)"],
+      negative: ["Негатив", "var(--danger)", "var(--danger-soft)"],
+      mixed: ["Смешанный", "var(--warning)", "var(--warning-soft)"],
+      neutral: ["Нейтрально", "var(--text-tertiary)", "var(--bg-base)"],
+      positive: ["Позитив", "var(--success)", "var(--success-soft)"],
+      strong_positive: ["Сильный позитив", "var(--success)", "var(--success-soft)"] };
+    const OVR = { supportive: ["Помогает", "var(--success)", "var(--success-soft)"],
+      mixed: ["Смешанный", "var(--warning)", "var(--warning-soft)"],
+      adverse: ["Мешает", "var(--danger)", "var(--danger-soft)"] };
+    const ovr = OVR[meta.overall_effect || bottom.effect] || OVR.mixed;
+    const arrow = (t) => t === "up" ? "▲" : t === "down" ? "▼" : "▬";
+
+    // ── водопад: каскадная геометрия баров ──
+    const neutral = attr.neutral_net_profit;
+    const bridge = Array.isArray(attr.bridge) ? attr.bridge : [];
+    const wfRows = [];
+    if (neutral) {
+      let run = neutral;
+      bridge.forEach((b) => {
+        const from = run; run += (b.delta || 0);
+        wfRows.push({ label: b.label, delta: b.delta, source: b.source, assume: b.assumption,
+          left: Math.min(from, run) / neutral * 100, width: Math.abs(b.delta || 0) / neutral * 100 });
+      });
+      if (attr.residual != null) {
+        const from = run; run += attr.residual;
+        wfRows.push({ label: "Прочее / неразложимо", delta: attr.residual, residual: true,
+          left: Math.min(from, run) / neutral * 100, width: Math.abs(attr.residual) / neutral * 100 });
+      }
+    }
+    const dnArrow = (
+      <svg width="13" height="11" viewBox="0 0 13 11" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M6.5 1v9M3 7l3.5 3 3.5-3" strokeLinecap="round" strokeLinejoin="round" /></svg>
     );
-    const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
-    const mdSections = splitH2(macroMd);
 
-    // Знак эффекта макрофактора на компанию (семантический цвет).
-    const EFF = {
-      strong_positive: { c: "var(--success)", bg: "var(--success-soft)", t: "сильный позитив", Icon: TrendingUp, border: "var(--success)" },
-      positive:        { c: "var(--success)", bg: "var(--success-soft)", t: "позитив", Icon: TrendingUp, border: "var(--success)" },
-      mixed:           { c: "var(--warning)", bg: "var(--warning-soft)", t: "смешанный", Icon: ArrowRightLeft, border: "var(--warning)" },
-      neutral:         { c: "var(--text-tertiary)", bg: "var(--bg-base)", t: "нейтрально", Icon: Activity, border: "var(--border-strong)" },
-      negative:        { c: "var(--danger)", bg: "var(--danger-soft)", t: "негатив", Icon: TrendingDown, border: "var(--danger)" },
-      strong_negative: { c: "var(--danger)", bg: "var(--danger-soft)", t: "сильный негатив", Icon: TrendingDown, border: "var(--danger)" },
-    };
-    const OVERALL = {
-      supportive: { c: "var(--success)", bg: "var(--success-soft)", t: "помогает", Icon: TrendingUp },
-      mixed:      { c: "var(--warning)", bg: "var(--warning-soft)", t: "смешанный эффект", Icon: ArrowRightLeft },
-      adverse:    { c: "var(--danger)",  bg: "var(--danger-soft)",  t: "мешает", Icon: TrendingDown },
-    };
-    const ov = OVERALL[meta.overall_effect || bottom.effect] || null;
+    // сценарии в порядке голубь → база → ястреб (для рельса) и база/ястреб/голубь (для карточек)
+    const scOrder = [["dovish", "Голубиный", "🕊"], ["base", "База", "▪"], ["hawkish", "Ястребиный", "🦅"]];
 
     return (
-      <AppearGroup gate={appearGate.current} groupId="macro" className="tw-flex tw-flex-col tw-gap-4">
-        {meta.data_quality === "low" && <DataQualityBanner flags={flags} />}
+      <div className="mv3-root">
+        <div className="mv3-layout">
+          {/* ===================== ОСНОВНАЯ КОЛОНКА ===================== */}
+          <div className="mv3-dash">
 
-        {/* Шапка: режим макросреды + итоговый знак + легенда достоверности */}
-        <Card>
-          {cardHead(Activity, "Макросреда и компания", ov ? (
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-rounded-pill tw-px-2.5 tw-py-1 tw-text-[12px] tw-font-bold" style={{ color: ov.c, background: ov.bg }}><ov.Icon size={14} />{ov.t}</span>
-          ) : null)}
-          {meta.macro_regime_summary && <Prose className="tw-mb-3"><p>{meta.macro_regime_summary}</p></Prose>}
-          <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-pt-2 tw-border-t tw-border-border-subtle">
-            <span className="tw-font-semibold">Достоверность:</span>
-            {cert("fact")}<span>— факт с источником</span>
-            {cert("logic")}<span>— механизм (теория)</span>
-            {cert("judgement")}<span>— наше суждение</span>
+            {/* BLOCK 1 — режим макросреды */}
+            <div className="mv3-regime">
+              <div className="mv3-regime-top">
+                <div className="mv3-sign">
+                  <span className="mv3-sl">Эффект для компании</span>
+                  <span className="mv3-signpill mv3-mix" style={{ background: ovr[2], color: ovr[1], border: `1px solid ${ovr[1]}` }}>
+                    <span className="mv3-dot" />{ovr[0]}</span>
+                </div>
+                <div className="mv3-regime-txt">
+                  {meta.macro_regime_summary && <p className="mv3-rh">{meta.macro_regime_summary}</p>}
+                  {(meta.main_risk || bottom.main_risk) && (
+                    <div className="mv3-regime-risk"><span className="mv3-rr-k">Главный риск</span>
+                      <span><b>{meta.main_risk || bottom.main_risk}</b>{bottom.risk_detail ? ` — ${bottom.risk_detail}` : ""}</span></div>
+                  )}
+                  {(hc.value != null) && (
+                    <div className="mv3-headline-cost">
+                      <span className="mv3-hk">Текущий макрофон стоит компании ≈</span>
+                      <span className="mv3-hv">{sf(hc.value)} млрд ₽</span>
+                      {hc.pct_of_neutral != null && <span className="mv3-hpct">прибыли {hc.period || "в год"} ({sf(hc.pct_of_neutral)}% к нейтральному макро)</span>}
+                      <span className="mv3-htag">{tag(hc.certainty || "estimate")}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {snap.length > 0 && (
+                <div className="mv3-vector">
+                  {snap.map((s, i) => (
+                    <div className="mv3-vc" key={i}>
+                      <div className="mv3-vk">{s.indicator}</div>
+                      <div className="mv3-vv"><span className={"mv3-ar mv3-" + (s.trend === "up" ? "up" : s.trend === "down" ? "dn" : "fl")}>{arrow(s.trend)}</span>{s.value}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* легенда достоверности */}
+            <div className="mv3-legend">
+              <span className="mv3-lk">Достоверность:</span>
+              <span className="mv3-li">{tag("fact")}<b>из источника</b></span>
+              <span className="mv3-lsep" />
+              <span className="mv3-li">{tag("estimate")}<b>из структуры, с допущением</b></span>
+              <span className="mv3-lsep" />
+              <span className="mv3-li">{tag("judgement")}<b>прогноз вперёд</b></span>
+              <span className="mv3-one"><span className="mv3-oneoff-chip">разовый</span>бумажный, не операционный</span>
+            </div>
+
+            {/* BLOCK 2 — атрибуция (водопад) */}
+            {wfRows.length > 0 && (
+              <div className="mv3-card">
+                <h3>Что макро стоит компании сейчас<span className="mv3-sec-k">атрибуция · в рублях</span></h3>
+                <p className="mv3-sub">Разложение текущей годовой прибыли: от «нейтрального макро» к факту. Видно, какой канал съел больше всего. Числа считает расчётный модуль из коэффициентов.</p>
+                <div className="mv3-wf-anchors">
+                  <div className="mv3-wf-anchor mv3-neutral">
+                    <div className="mv3-wak">Прибыль при нейтральном макро {tag("estimate")}</div>
+                    <div className="mv3-wav">≈ {nf(neutral)}</div>
+                    <div className="mv3-wad">млрд ₽ · гипотетическая, при средних за цикл параметрах</div>
+                  </div>
+                  <div className="mv3-wf-anchor mv3-fact">
+                    <div className="mv3-wak">Факт: чистая прибыль {tag("fact")}</div>
+                    <div className="mv3-wav">{nf(attr.actual_net_profit)}</div>
+                    <div className="mv3-wad">млрд ₽ · МСФО, годовой результат</div>
+                  </div>
+                </div>
+                <div className="mv3-waterfall">
+                  <div className="mv3-wf-row">
+                    <div className="mv3-wl">Нейтральное макро</div>
+                    <div className="mv3-wf-track"><div className="mv3-wf-bar mv3-base" style={{ left: 0, width: "100%" }} /></div>
+                    <div className="mv3-wv mv3-base">{nf(neutral)}</div>
+                  </div>
+                  {wfRows.map((r, i) => (
+                    <React.Fragment key={i}>
+                      <div className="mv3-wf-row">
+                        <div className="mv3-wl">{r.label} {!r.residual && r.source && tag(r.source === "disclosed" ? "disclosed" : "estimate")}</div>
+                        <div className="mv3-wf-track"><div className={"mv3-wf-bar " + (r.delta < 0 ? "mv3-neg" : "mv3-pos")} style={{ left: r.left + "%", width: Math.max(r.width, 0.6) + "%" }} /></div>
+                        <div className={"mv3-wv " + (r.delta < 0 ? "mv3-neg" : "mv3-pos")}>{sf(r.delta)}</div>
+                      </div>
+                      {r.assume && <div className="mv3-wf-assume-row"><span className="mv3-sp" /><span className="mv3-assume">{r.assume}</span></div>}
+                    </React.Fragment>
+                  ))}
+                  <div className="mv3-wf-row mv3-total">
+                    <div className="mv3-wl">= Факт: чистая прибыль</div>
+                    <div className="mv3-wf-track"><div className="mv3-wf-bar mv3-fact" style={{ left: 0, width: (attr.actual_net_profit / neutral * 100) + "%" }} /></div>
+                    <div className="mv3-wv mv3-fact">{nf(attr.actual_net_profit)}</div>
+                  </div>
+                </div>
+                {attr.one_off && attr.one_off.net_profit != null && (
+                  <div className="mv3-oneoff">
+                    <span className="mv3-ok"><span className="mv3-oneoff-chip">разовый</span>{attr.one_off.label}</span>
+                    <span className="mv3-ov">{sf(attr.one_off.net_profit)} млрд ₽</span>
+                    <span className="mv3-od">{attr.one_off.note}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* BLOCK 3 — факторы */}
+            {factors.length > 0 && (
+              <div className="mv3-card" style={{ background: "transparent", border: 0, padding: 0 }}>
+                <h3 style={{ padding: "0 2px" }}>Главные макрофакторы — механизм и число<span className="mv3-sec-k">factors · ядро</span></h3>
+                <p className="mv3-sub" style={{ padding: "0 2px" }}>По каждому фактору: причинная цепочка до метрики, сколько он сейчас стоит в выручке / EBITDA / прибыли, и неочевидный «второй слой».</p>
+                {factors.map((f, i) => {
+                  const q = f.quant_impact || {};
+                  // обратная совместимость: нет chain → строим из channel (старая схема macro.json)
+                  const chain = Array.isArray(f.chain) && f.chain.length ? f.chain
+                    : (f.channel ? f.channel.split("→").map((s) => s.trim()).filter(Boolean) : []);
+                  const hasQuant = q.revenue != null || q.ebitda != null || q.net_profit != null;
+                  const ef = EFF[f.effect_sign] || EFF.mixed;
+                  return (
+                    <div className="mv3-factor" key={i}>
+                      <div className="mv3-factor-h"><span className="mv3-fn">{f.factor}</span>{f.type && <span className="mv3-ftype">{f.type}</span>}{tag(f.current_state?.certainty || "fact")}</div>
+                      {f.current_state?.text && <p className="mv3-factor-state">{f.current_state.text}</p>}
+                      <div className="mv3-fbody" style={hasQuant ? undefined : { gridTemplateColumns: "1fr" }}>
+                        <div className="mv3-chain">
+                          {chain.map((c, j) => (
+                            <React.Fragment key={j}>
+                              <div className={"mv3-cnode" + (j === 0 ? " mv3-factor-node" : j === chain.length - 1 ? " mv3-metric" : "")}>
+                                {j === 0 && <div className="mv3-ck">фактор</div>}
+                                {j === chain.length - 1 && <div className="mv3-ck">метрика</div>}
+                                <div className="mv3-ct">{c}</div>
+                              </div>
+                              {j < chain.length - 1 && <div className="mv3-cstep">{dnArrow}</div>}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                        {hasQuant && (
+                          <div className="mv3-fimpact">
+                            <div className="mv3-fik">Влияние сейчас {tag(q.certainty || "estimate")}</div>
+                            <div className="mv3-fi-line"><span className="mv3-fil">Выручка</span><span className={"mv3-fiv " + (String(q.revenue).includes("−") ? "mv3-neg" : String(q.revenue).includes("+") ? "mv3-pos" : "")}>{q.revenue || "—"}</span></div>
+                            <div className="mv3-fi-line"><span className="mv3-fil">EBITDA</span><span className={"mv3-fiv " + (String(q.ebitda).includes("−") ? "mv3-neg" : String(q.ebitda).includes("+") ? "mv3-pos" : "")}>{q.ebitda || "—"}</span></div>
+                            <div className="mv3-fi-line"><span className="mv3-fil">Чистая прибыль</span><span className={"mv3-fiv " + (String(q.net_profit).includes("−") ? "mv3-neg" : String(q.net_profit).includes("+") ? "mv3-pos" : "")}>{q.net_profit || "—"}</span></div>
+                            {q.assumption && <div className="mv3-fi-assume">{q.assumption}</div>}
+                          </div>
+                        )}
+                      </div>
+                      {!hasQuant && f.note && <p className="mv3-factor-state" style={{ marginTop: 12, marginBottom: 0 }}>{f.note}</p>}
+                      {f.second_layer && (
+                        <div className="mv3-second">
+                          <div className="mv3-s2t"><span className="mv3-s2k">Второй слой · суждение</span>{f.second_layer}</div>
+                        </div>
+                      )}
+                      <div className="mv3-feffect">
+                        <span className="mv3-fe-sign" style={{ background: ef[2], color: ef[1] }}>{ef[0]}</span>
+                        {f.effect_horizon && <span className="mv3-fe-h">Горизонт: {f.effect_horizon}</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* BLOCK 4 — чувствительность */}
+            {sens.length > 0 && (
+              <div className="mv3-card">
+                <h3>Чувствительность — рычаги «что если»<span className="mv3-sec-k">sensitivities · слой B</span></h3>
+                <p className="mv3-sub">На сколько меняются финансы при сдвиге одного фактора на единицу — при прочих равных. Источник: раскрыто компанией = факт, оценено из структуры = оценка.</p>
+                <div className="mv3-sens-tbl">
+                  <div className="mv3-sens-head"><div>Рычаг (на единицу)</div><div>Выручка / год</div><div>EBITDA</div><div>Чистая прибыль</div></div>
+                  {sens.map((r, i) => (
+                    <div className="mv3-sens-row" key={i}>
+                      <div className="mv3-scell"><span className="mv3-lever">{r.label} {r.per ? `(${r.per.replace("_", " ")})` : ""}</span><span className="mv3-lever-d">{r.source === "disclosed" ? "раскрыто компанией" : "оценка из структуры"} {tag(r.source === "disclosed" ? "disclosed" : "estimate")}</span></div>
+                      <div className={"mv3-sv " + cls(r.revenue)}>{r.revenue ? sf(r.revenue) : "≈ 0"}</div>
+                      <div className={"mv3-sv " + cls(r.ebitda)}>{r.ebitda ? sf(r.ebitda) : "≈ 0"}</div>
+                      <div className={"mv3-sv " + cls(r.net_profit)}>{r.net_profit ? sf(r.net_profit) : "≈ 0"}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mv3-sens-foot">{tag("estimate")}Чувствительности из одного набора коэффициентов — те же числа в водопаде и сценариях. Эффекты не строго линейны на больших сдвигах.</div>
+              </div>
+            )}
+
+            {/* BLOCK 5 — конкурентный разрез */}
+            {(cv.who_benefits || cv.who_suffers) && (
+              <div className="mv3-card">
+                <h3>Конкурентный разрез — режим действует неравномерно<span className="mv3-sec-k">competitive · суждение</span></h3>
+                {cv.text && <p className="mv3-sub">{cv.text}</p>}
+                <div className="mv3-compet">
+                  <div className="mv3-cgroup mv3-win">
+                    <div className="mv3-cgh">Кому режим помогает</div>
+                    <ul>{(cv.who_benefits || []).map((x, i) => <li key={i}>{x}</li>)}</ul>
+                  </div>
+                  <div className="mv3-cgroup mv3-lose">
+                    <div className="mv3-cgh">Кому режим мешает</div>
+                    <ul>{(cv.who_suffers || []).map((x, i) => <li key={i}>{x}</li>)}</ul>
+                  </div>
+                </div>
+                {cv.company_position && (
+                  <div className="mv3-cpos"><div className="mv3-cpt"><span className="mv3-cp-k">Где здесь компания</span>{cv.company_position}</div></div>
+                )}
+              </div>
+            )}
+
+            {/* BLOCK 6 — цикл */}
+            {cyc.phase && (
+              <div className="mv3-card">
+                <h3>Где компания в цикле<span className="mv3-sec-k">cycle · суждение</span></h3>
+                <div className="mv3-cycle">
+                  {(cyc.phases_order || ["ранний подъём", "поздний подъём", "замедление", "спад", "дно"]).map((p, i) => (
+                    <div className={"mv3-cph" + (p === cyc.phase ? " mv3-on" : "")} key={i}>
+                      <div className="mv3-cpn">{p[0].toUpperCase() + p.slice(1)}</div>
+                      {cyc.phase_hints?.[p] && <div className="mv3-cpd">{cyc.phase_hints[p]}</div>}
+                    </div>
+                  ))}
+                </div>
+                {cyc.where_company && <p className="mv3-cyc-note">{cyc.where_company}</p>}
+                {Array.isArray(cyc.tags) && cyc.tags.length > 0 && (
+                  <div className="mv3-cyc-tags">{cyc.tags.map((t, i) => <span className="mv3-ct2" key={i}>{t}</span>)}</div>
+                )}
+              </div>
+            )}
+
+            {/* BLOCK 7 — сценарии с числами */}
+            {(scen.base || scen.hawkish || scen.dovish) && (
+              <div className="mv3-card">
+                <h3>Сценарии ставки — взгляд вперёд с числами<span className="mv3-sec-k">rate trajectory · суждение</span></h3>
+                <p className="mv3-sub">Куда вероятно идёт макро на горизонте 12 месяцев и что это даст в деньгах. Дельта прибыли — относительно текущего факта. Значения — суждение с обоснованным центром.</p>
+                <div className="mv3-scn">
+                  {["base", "hawkish", "dovish"].map((k) => {
+                    const sc = scen[k]; if (!sc) return null;
+                    const info = rt[k] || {};
+                    const nm = k === "base" ? "База" : k === "hawkish" ? "Ястребиный" : "Голубиный";
+                    return (
+                      <div className={"mv3-scnc" + (k === "base" ? " mv3-base" : "")} key={k}>
+                        <div className="mv3-scnc-h"><span className="mv3-scn-n">{nm}</span><span className="mv3-scn-prob">{sc.probability || ""}</span></div>
+                        {info.macro && (
+                          <div className="mv3-scn-macro">
+                            {String(info.macro).split(",").map((m, i) => {
+                              const parts = m.trim().split(/\s(.+)/);
+                              return <div className="mv3-scn-mrow" key={i}><span className="mv3-mk">{parts[0]}</span><span className="mv3-mv">{parts[1] || ""}</span></div>;
+                            })}
+                          </div>
+                        )}
+                        <div className="mv3-scn-fin">
+                          <div className="mv3-scn-fk">Дельта финансов к факту</div>
+                          <div className="mv3-scn-frow"><span className="mv3-fk">Выручка</span><span className={"mv3-fv " + cls(sc.revenue_delta)}>{sc.revenue_delta ? sf(sc.revenue_delta) + " млрд" : "≈ 0"}</span></div>
+                          <div className="mv3-scn-frow"><span className="mv3-fk">EBITDA</span><span className={"mv3-fv " + cls(sc.ebitda_delta)}>{sc.ebitda_delta ? sf(sc.ebitda_delta) + " млрд" : "≈ 0"}</span></div>
+                          <div className="mv3-scn-frow"><span className="mv3-fk">Чистая прибыль</span><span className={"mv3-fv " + cls(sc.net_profit_delta)}>{sc.net_profit_delta ? sf(sc.net_profit_delta) + " млрд" : "≈ 0"}</span></div>
+                          {info.split && <div className="mv3-scn-split">{info.split}</div>}
+                        </div>
+                        {Array.isArray(info.triggers) && info.triggers.length > 0 && (
+                          <div className="mv3-scn-trig"><div className="mv3-scn-trig-k">Триггеры</div>
+                            <ul>{info.triggers.map((t, i) => <li key={i}>{t}</li>)}</ul></div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {rt.implication_for_company && <div className="mv3-scn-sens">{rt.implication_for_company}</div>}
+              </div>
+            )}
+
+            {/* BLOCK 8 — мост к оценке */}
+            {vb.text && (
+              <div className="mv3-card">
+                <h3>Мост к оценке — только направление<span className="mv3-sec-k">valuation bridge · суждение</span></h3>
+                <p className="mv3-sub">Числа по выручке / EBITDA / прибыли — выше. Здесь — в какую сторону это давит на стоимость бумаги и через какой канал. Справедливую цену считает вкладка «Финансы».</p>
+                <div className="mv3-vbridge">
+                  <div className="mv3-vb-dir"><span className="mv3-vbk">Давление на оценку</span>
+                    <span className="mv3-vb-pill">{vb.direction || "смешанно"}</span></div>
+                  <div className="mv3-vb-body">{vb.text}</div>
+                </div>
+                {vb.rate_sensitivity_capitalization?.estimate && (
+                  <div className="mv3-vb-cap">
+                    <span className="mv3-vck">Чувствительность капитализации</span>
+                    <span className="mv3-vcv">{vb.rate_sensitivity_capitalization.estimate}</span>
+                    <span className="mv3-vcd">{vb.rate_sensitivity_capitalization.assumption}</span>
+                    <span className="mv3-vctag">{tag(vb.rate_sensitivity_capitalization.certainty || "estimate")}</span>
+                  </div>
+                )}
+                {vb.dcf_channels && (
+                  <>
+                    <div className="mv3-vb-chan-k">Три канала ставки в стоимость</div>
+                    <div className="mv3-vb-chans">
+                      {["discount_rate", "terminal_growth", "fcf"].map((k) => {
+                        const ch = vb.dcf_channels[k]; if (!ch) return null;
+                        return (
+                          <div className={"mv3-vchan" + (ch.rank === 1 ? " mv3-main" : "")} key={k}>
+                            <div className="mv3-vc-rank">{ch.rank}</div>
+                            <div className="mv3-vc-main">
+                              <div className="mv3-vc-h"><span className="mv3-vc-n">{ch.name}</span>{ch.badge && <span className="mv3-vc-badge">{ch.badge}</span>}{tag(ch.certainty || "estimate")}</div>
+                              {Array.isArray(ch.flow) && (
+                                <div className="mv3-vc-flow">{ch.flow.map((s, i) => (
+                                  <React.Fragment key={i}><span className={"mv3-vc-step" + (i === ch.flow.length - 1 ? " mv3-end" : "")}>{s}</span>{i < ch.flow.length - 1 && <span className="mv3-vc-arr">→</span>}</React.Fragment>
+                                ))}</div>
+                              )}
+                              {ch.note && <div className="mv3-vc-note">{ch.note}</div>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
-        </Card>
 
-        {/* Снимок макрофона сейчас */}
-        {snapshot.length > 0 && (
-          <Card>
-            {cardHead(BarChart2, "Макроэкономический фон сейчас")}
-            <div className="tw-grid tw-gap-2.5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
-              {snapshot.map((s, i) => (
-                <div key={i} className="tw-p-2.5 tw-rounded-md tw-bg-bg-base">
-                  <div className="tw-flex tw-items-center tw-justify-between tw-gap-1 tw-mb-0.5">
-                    <div className="tw-text-[11px] tw-text-text-tertiary tw-truncate" title={s.indicator}>{s.indicator}</div>
-                    {cert(s.certainty)}
-                  </div>
-                  <div className="tw-text-[17px] tw-font-bold tw-text-text-primary tw-leading-tight tw-tabular-nums">{s.value}</div>
-                  {s.note && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-0.5">{s.note}</div>}
-                  {s.source_ref && <div className="tw-mt-1">{srcLink(s.source_ref)}</div>}
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {/* Главные макрофакторы — карточки со знаком эффекта */}
-        {factors.map((f, i) => {
-          const E = EFF[f.effect_sign] || EFF.neutral;
-          const steps = String(f.channel || "").split(/\s*(?:→|->)\s*/).filter(Boolean);
-          return (
-            <Card key={i} style={{ borderLeft: `3px solid ${E.border}` }}>
-              <div className="tw-flex tw-justify-between tw-items-start tw-gap-2 tw-mb-3">
-                <h4 className="tw-flex tw-items-center tw-gap-2 tw-text-[14px] tw-font-bold tw-text-text-primary tw-m-0">
-                  <Zap size={16} className="tw-text-accent tw-shrink-0" />{f.factor}
-                </h4>
-                <span className="tw-inline-flex tw-items-center tw-gap-1 tw-rounded-pill tw-px-2 tw-py-1 tw-text-[11px] tw-font-bold tw-shrink-0" style={{ color: E.c, background: E.bg }}><E.Icon size={13} />{E.t}</span>
-              </div>
-
-              {/* Текущее состояние фактора (факт) */}
-              {f.current_state?.text && (
-                <div className="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-mb-3 tw-p-2.5 tw-rounded-md tw-bg-bg-base">
-                  <div className="tw-text-[12.5px] tw-text-text-primary tw-leading-normal">{f.current_state.text}</div>
-                  <div className="tw-flex tw-flex-col tw-items-end tw-gap-1 tw-shrink-0">
-                    {cert(f.current_state.certainty)}
-                    {f.current_state.source_ref && srcLink(f.current_state.source_ref)}
-                  </div>
+          {/* ===================== ПРАВЫЙ РЕЛЬС — ВЫВОД ===================== */}
+          <aside>
+            <div style={{ position: "sticky", top: 130, display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* итог для инвестора */}
+              {(bottom.text || bottom.effect) && (
+                <div className="mv3-bottom-rail">
+                  <div className="mv3-br-sign"><span className="mv3-br-dot" /><span className="mv3-br-sp">{ovr[0]}</span>{hc.value != null && <span className="mv3-br-cost">{sf(hc.value)} млрд ₽/год</span>}</div>
+                  {bottom.text && <p>{bottom.text}</p>}
+                  {(bottom.main_risk || bottom.risk_detail) && (
+                    <div className="mv3-br-risk"><span className="mv3-brk">Главный риск</span><b>{bottom.main_risk}</b>{bottom.risk_detail ? ` — ${bottom.risk_detail}` : ""}</div>
+                  )}
                 </div>
               )}
-
-              {/* Канал передачи — цепочка «как доходит до компании» */}
-              {steps.length > 0 && (
-                <div className="tw-mb-2">
-                  <div className="tw-flex tw-items-center tw-gap-1.5 tw-mb-1.5">
-                    <span className="tw-text-[11px] tw-font-bold tw-text-text-secondary">Как доходит до компании</span>
-                    {cert(f.channel_certainty || "logic")}
-                  </div>
-                  <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-1 tw-gap-y-1.5">
-                    {steps.map((step, k) => (
-                      <React.Fragment key={k}>
-                        <span className="tw-text-[12px] tw-px-2 tw-py-1 tw-rounded-sm tw-bg-bg-base tw-text-text-primary tw-border tw-border-border-subtle">{step}</span>
-                        {k < steps.length - 1 && <ChevronRight size={13} className="tw-text-text-tertiary tw-shrink-0" />}
-                      </React.Fragment>
-                    ))}
-                  </div>
+              {/* ставка → прибыль */}
+              {(scen.base || scen.dovish || scen.hawkish) && (
+                <div className="mv3-ds-card mv3-rail-fork">
+                  <div className="mv3-rf-h">Ставка → чистая прибыль</div>
+                  <div className="mv3-rf-sub">Судьба прибыли висит на траектории ДКП. Изменение к текущей.</div>
+                  {scOrder.map(([k, nm, ic]) => {
+                    const sc = scen[k]; if (!sc) return null;
+                    const info = rt[k] || {};
+                    const rate = (info.macro || "").match(/ставка[^,]*/i);
+                    return (
+                      <div className={"mv3-rf-row" + (k === "base" ? " mv3-base" : "")} key={k}>
+                        <div className="mv3-rf-l"><span className="mv3-rf-ic">{ic}</span><span className="mv3-rf-nm"><b>{nm}</b>{rate && <span className="mv3-rf-rate">{rate[0]}</span>}</span></div>
+                        <span className={"mv3-rf-val " + cls(sc.net_profit_delta)}>{sc.net_profit_delta ? sf(sc.net_profit_delta) + " млрд ₽" : "≈ 0"}</span>
+                      </div>
+                    );
+                  })}
+                  <div className="mv3-rf-tag">{tag("judgement")}</div>
                 </div>
               )}
-
-              {/* Оценка силы эффекта (суждение) */}
-              {f.note && (
-                <div className="tw-flex tw-items-start tw-gap-1.5 tw-mt-2">
-                  <div className="tw-flex-1 tw-text-[12px] tw-text-text-secondary tw-italic tw-leading-normal">{f.note}</div>
-                  {cert(f.effect_strength_certainty || "judgement")}
+              {/* боль / потенциал */}
+              {(hc.value != null || vb.rate_sensitivity_capitalization) && (
+                <div className="mv3-ds-card">
+                  <div className="mv3-rev-pair">
+                    <div className="mv3-rev-cell mv3-pain"><div className="mv3-rvk">Боль сейчас</div><div className="mv3-rvv">{sf(hc.value)} млрд ₽</div><div className="mv3-rvs">в год к нейтральному фону</div></div>
+                    <div className="mv3-rev-cell mv3-gain"><div className="mv3-rvk">Потенциал разворота</div><div className="mv3-rvv">{(vb.rate_sensitivity_capitalization?.estimate || "").replace(/.*≈\s*/, "") || "—"}</div><div className="mv3-rvs">к капитализации на −1 п.п. ставки</div></div>
+                  </div>
+                  {attr.main_driver && <div className="mv3-rev-note">Главный канал — <b>{(bridge.find((b) => b.factor_key === attr.main_driver) || {}).label || attr.main_driver}</b>.</div>}
                 </div>
               )}
-            </Card>
-          );
-        })}
-
-        {/* Итог: помогает / мешает / смешанный + главный риск */}
-        {(bottom.text || bottom.effect) && (() => {
-          const B = OVERALL[bottom.effect] || OVERALL.mixed;
-          return (
-            <Card style={{ background: B.bg, border: `1px solid ${B.c}` }}>
-              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2">
-                <Target size={17} style={{ color: B.c }} />
-                <h4 className="tw-text-[15px] tw-font-bold tw-text-text-primary tw-m-0">Итог: макросреда {B.t}</h4>
-                {cert(bottom.certainty || "judgement")}
-              </div>
-              {bottom.text && <Prose><p>{bottom.text}</p></Prose>}
-              {bottom.main_risk && <div className="tw-mt-2 tw-text-[12.5px] tw-text-text-secondary">Главный риск: <b className="tw-text-text-primary">{bottom.main_risk}</b></div>}
-            </Card>
-          );
-        })()}
-
-        {/* Источники */}
-        {sources.length > 0 && (
-          <Card>
-            {cardHead(Info, "Источники")}
-            <div className="tw-flex tw-flex-col tw-gap-1.5">
-              {sources.map((s, i) => (
-                <div key={i} className="tw-flex tw-items-baseline tw-gap-2 tw-text-[12px]">
-                  <span className="tw-font-mono tw-text-text-tertiary tw-shrink-0">{s.id}</span>
-                  {s.url
-                    ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="tw-text-accent hover:tw-underline">{s.title || s.url}</a>
-                    : <span className="tw-text-text-secondary">{s.title}</span>}
-                  {s.period && <span className="tw-text-text-tertiary">· {s.period}</span>}
-                  {s.reliability && <span className="tw-text-text-tertiary tw-ml-auto tw-shrink-0">надёжность: {s.reliability}</span>}
+              {/* структурные факторы */}
+              {endo.text && (
+                <div className="mv3-endo-rail">
+                  <div className="mv3-er-h">Структурные факторы — почему фон такой и надолго ли</div>
+                  <p>{endo.text}</p>
+                  <div className="mv3-er-tag">{tag("judgement")}</div>
                 </div>
-              ))}
+              )}
+              {/* уверенность вывода */}
+              {bottom.confidence && (
+                <div className="mv3-ds-card">
+                  <div className="mv3-ds-meta"><span>Уверенность вывода</span><b style={{ color: "var(--warning)" }}>{bottom.confidence}</b></div>
+                  <div className="mv3-confbar">{[0, 1, 2, 3, 4].map((i) => <i className={i < (bottom.confidence_level || 3) ? "mv3-on" : ""} key={i} />)}</div>
+                  <div className="mv3-ds-sub" style={{ marginTop: 9 }}>Текущие финансы — факт; чувствительности и атрибуция — оценка из структуры; сценарии вперёд — суждение.</div>
+                </div>
+              )}
             </div>
-          </Card>
-        )}
+          </aside>
+        </div>
 
-        {/* Сопроводительный текст summary.md */}
-        {mdSections.length > 0 && mdSections.map((sec, i) => (
-          <Card key={`md-${i}`}>
-            <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
-              <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
-              <Info size={16} className="tw-text-accent tw-shrink-0" />
-              <h4 className="tw-m-0 tw-text-[15px] tw-font-bold tw-text-text-primary">{sec.heading}</h4>
-            </div>
-            <Prose>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={ANALYST_MD}>{sec.body}</ReactMarkdown>
-            </Prose>
-          </Card>
-        ))}
-      </AppearGroup>
+        {/* ФУТЕР — источники + дисклеймер */}
+        <footer className="mv3-page-foot">
+          <div className="mv3-pf-l">
+            <p>Влияние макросреды на финансы компании — аналитическая оценка Basis, второе мнение перед решением. <b style={{ color: "var(--text-secondary)" }}>Не является инвестиционной рекомендацией.</b></p>
+            {sources.length > 0 && (
+              <details className="mv3-pf-src">
+                <summary>{sources.length} источников · факты</summary>
+                <div className="mv3-pf-list">{sources.map((s, i) => (
+                  <span key={i}>{s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>{s.title}</a> : s.title}{i < sources.length - 1 ? " · " : ""}</span>
+                ))}</div>
+              </details>
+            )}
+            {flags.length > 0 && <div className="mv3-pf-list" style={{ marginTop: 6 }}>{flags.join(" · ")}</div>}
+          </div>
+          {meta.as_of && <div className="mv3-pf-updated">обновлено {meta.as_of}</div>}
+        </footer>
+      </div>
     );
   };
 
@@ -6494,7 +6748,7 @@ const CompanyCard = ({ company, onBack }) => {
         // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл» / Markets — m5 mrail
         // «Позиция/Что отслеживать/Конкуренты»). Глобальный Decision-rail (справедливая цена) тут НЕ
         // показываем — в макете m5 его нет.
-        (tab === "finance" || tab === "governance" || tab === "markets") ? (
+        (tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro") ? (
           <div className="tw-min-w-0">{tabBody}</div>
         ) : (
           <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">

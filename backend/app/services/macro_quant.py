@@ -1,0 +1,235 @@
+"""Детерминированный расчётный модуль макро-квантификации (методичка §14).
+
+Проблема, которую решает: модель ненадёжна в арифметике. Поэтому macro-analyst
+кладёт в macro.json ТОЛЬКО числовые входы и коэффициенты (`quant_inputs`), а
+ВСЮ арифметику — водопад атрибуции, таблицу чувствительности, сценарные дельты —
+считает ЭТОТ код и складывает в `macro.json["computed"]`. Так числа между тремя
+блоками СХОДЯТСЯ (один источник коэффициентов), ничего не «галлюцинируется».
+
+Единая формула по каждому фактору-драйверу:
+    delta_metric = coefficient[metric] × (значение_фактора − ориентир)
+где ориентир — нейтральный уровень (для атрибуции) или текущий (для сценариев).
+
+Единицы: все финансовые величины — в `quant_inputs.unit` (по умолчанию млрд ₽).
+Коэффициент задан «на +1 единицу фактора» (per): fx=+1₽, commodity=+1$,
+rate=+100 б.п.(=1 п.п.), cost_inflation=+1 п.п. Значения макро выражены в тех же
+единицах, поэтому масштаб = 1: delta = coef × (Δ значения в этих единицах).
+"""
+from __future__ import annotations
+
+# Фактор → ключ его драйвера в macro_current / macro_neutral / scenarios.
+_FACTOR_DRIVER = {
+    "fx": "fx_usdrub",
+    "commodity": "commodity_usd",
+    "rate": "key_rate_pct",
+    "cost_inflation": "cost_excess_pp",
+}
+
+# Человекочитаемые подписи по умолчанию (фронт может переопределить из factors[]).
+_FACTOR_LABEL = {
+    "fx": "Курс рубля",
+    "commodity": "Цена сырья",
+    "rate": "Ключевая ставка",
+    "cost_inflation": "Инфляция издержек",
+}
+
+_METRICS = ("revenue", "ebitda", "net_profit")
+
+
+def _num(v):
+    """Число или None. Пустые строки/нечисловое → None (фактор деградирует, не падаем)."""
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    return None
+
+
+def _round(v):
+    """Округление к целым млрд для отображения (числа крупные, дробная часть — шум)."""
+    if v is None:
+        return None
+    return round(v)
+
+
+def _delta(coef_metric, cur, ref):
+    """delta = coef × (значение − ориентир). None-безопасно."""
+    c, x, r = _num(coef_metric), _num(cur), _num(ref)
+    if c is None or x is None or r is None:
+        return None
+    return c * (x - r)
+
+
+def _active_factors(coefficients: dict) -> list[str]:
+    """Факторы, у которых заданы коэффициенты (нерелевантные компания не включает)."""
+    out = []
+    for key in _FACTOR_DRIVER:
+        coef = (coefficients or {}).get(key)
+        if not isinstance(coef, dict):
+            continue
+        # фактор активен, если хотя бы одна метрика — число
+        if any(_num(coef.get(m)) is not None for m in _METRICS):
+            out.append(key)
+    return out
+
+
+def compute_attribution(qi: dict) -> dict:
+    """Слой A — водопад от нейтрального макро к факту (методичка 14.3).
+
+    bridge: по каждому фактору delta_np = coef.net_profit × (текущее − нейтраль).
+    residual = факт − (нейтраль + Σ delta) — показываем ЧЕСТНО, не подгоняем.
+    Разовый эффект (one_off) в водопад НЕ входит — отдельной строкой.
+    """
+    coefficients = qi.get("coefficients") or {}
+    cur = qi.get("macro_current") or {}
+    neu = qi.get("macro_neutral") or {}
+    fin = qi.get("financials") or {}
+    neutral_np = _num(qi.get("neutral_net_profit"))
+    actual_np = _num(fin.get("net_profit"))
+
+    bridge = []
+    sum_delta = 0.0
+    for f in _active_factors(coefficients):
+        driver = _FACTOR_DRIVER[f]
+        coef = coefficients[f]
+        d = _delta(coef.get("net_profit"), cur.get(driver), neu.get(driver))
+        if d is None:
+            continue
+        sum_delta += d
+        bridge.append({
+            "factor_key": f,
+            "label": _FACTOR_LABEL[f],
+            "delta": _round(d),
+            "is_one_off": False,
+            "source": coef.get("source", "estimated"),
+            "assumption": coef.get("assumption", ""),
+        })
+
+    residual = None
+    if neutral_np is not None and actual_np is not None:
+        residual = actual_np - (neutral_np + sum_delta)
+
+    # главный драйвер — фактор с максимальным по модулю вкладом
+    main = None
+    if bridge:
+        main = max(bridge, key=lambda b: abs(b["delta"] or 0))["factor_key"]
+
+    one_off = qi.get("one_off") or {}
+    one_off_np = _num(one_off.get("net_profit"))
+
+    return {
+        "neutral_net_profit": _round(neutral_np),
+        "bridge": bridge,
+        "residual": _round(residual),
+        "actual_net_profit": _round(actual_np),
+        "one_off": ({
+            "label": one_off.get("label", "Разовый эффект"),
+            "net_profit": _round(one_off_np),
+            "note": one_off.get("note", ""),
+            "certainty": one_off.get("certainty", "estimate"),
+        } if one_off_np is not None else None),
+        "main_driver": main,
+        "unit": qi.get("unit", "млрд_руб"),
+    }
+
+
+def compute_sensitivities(qi: dict) -> list[dict]:
+    """Слой B — таблица «± единица фактора → ± финансы» напрямую из коэффициентов.
+
+    Те же coefficients, что в водопаде и сценариях → значения гарантированно согласованы.
+    """
+    coefficients = qi.get("coefficients") or {}
+    rows = []
+    for f in _active_factors(coefficients):
+        coef = coefficients[f]
+        rows.append({
+            "factor_key": f,
+            "label": _FACTOR_LABEL[f],
+            "per": coef.get("per", ""),
+            "revenue": _round(_num(coef.get("revenue"))),
+            "ebitda": _round(_num(coef.get("ebitda"))),
+            "net_profit": _round(_num(coef.get("net_profit"))),
+            "source": coef.get("source", "estimated"),
+            "assumption": coef.get("assumption", ""),
+        })
+    return rows
+
+
+def compute_scenarios(qi: dict) -> dict:
+    """Слой C — дельта финансов к текущему факту по сценариям (методичка 14.5).
+
+    В каждом сценарии: delta_metric = Σ_факторов coef[metric] × (сценарий_драйвер − текущий_драйвер).
+    """
+    coefficients = qi.get("coefficients") or {}
+    cur = qi.get("macro_current") or {}
+    scenarios = qi.get("scenarios") or {}
+    factors = _active_factors(coefficients)
+
+    out = {}
+    for name in ("base", "hawkish", "dovish"):
+        sc = scenarios.get(name)
+        if not isinstance(sc, dict):
+            continue
+        deltas = {m: 0.0 for m in _METRICS}
+        contributions = {}
+        any_metric = False
+        for f in factors:
+            driver = _FACTOR_DRIVER[f]
+            coef = coefficients[f]
+            contrib = {}
+            for m in _METRICS:
+                d = _delta(coef.get(m), sc.get(driver), cur.get(driver))
+                if d is not None:
+                    deltas[m] += d
+                    contrib[m] = _round(d)
+                    any_metric = True
+            if contrib:
+                contributions[f] = contrib
+        out[name] = {
+            "probability": sc.get("probability", ""),
+            "macro": {k: sc.get(k) for k in ("fx_usdrub", "key_rate_pct", "commodity_usd", "cost_excess_pp") if sc.get(k) is not None},
+            "revenue_delta": _round(deltas["revenue"]) if any_metric else None,
+            "ebitda_delta": _round(deltas["ebitda"]) if any_metric else None,
+            "net_profit_delta": _round(deltas["net_profit"]) if any_metric else None,
+            "contributions": contributions,
+        }
+    return out
+
+
+def compute(quant_inputs: dict) -> dict:
+    """Полный расчёт computed-блока из quant_inputs. Пустой вход → пустой (деградация)."""
+    qi = quant_inputs or {}
+    attribution = compute_attribution(qi)
+    sensitivities = compute_sensitivities(qi)
+    scenarios = compute_scenarios(qi)
+
+    # Диагностика сходимости водопада (для ОТК/тестов): насколько остаток велик.
+    residual = attribution.get("residual")
+    neutral = attribution.get("neutral_net_profit")
+    residual_pct = None
+    if residual is not None and neutral:
+        residual_pct = round(100.0 * residual / neutral, 1)
+
+    return {
+        "attribution": attribution,
+        "sensitivities": sensitivities,
+        "scenarios": scenarios,
+        "checks": {
+            "waterfall_has_residual": residual is not None,
+            "residual": residual,
+            "residual_pct_of_neutral": residual_pct,
+            "factors_count": len(sensitivities),
+        },
+        "_note": "computed by backend/app/services/macro_quant.py",
+    }
+
+
+def enrich(macro: dict) -> dict:
+    """Идемпотентно: берёт macro['quant_inputs'], считает и кладёт в macro['computed'].
+    Возвращает тот же dict (мутирует). Нет quant_inputs → computed с пустыми секциями."""
+    if not isinstance(macro, dict):
+        return macro
+    macro["computed"] = compute(macro.get("quant_inputs") or {})
+    return macro
