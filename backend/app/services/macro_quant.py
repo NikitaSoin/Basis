@@ -112,6 +112,7 @@ def compute_attribution(qi: dict) -> dict:
     for f in _active_factors(coefficients):
         driver = _FACTOR_DRIVER[f]
         coef = coefficients[f]
+        cf, x, r = _num(coef.get("net_profit")), _num(cur.get(driver)), _num(neu.get(driver))
         d = _delta(coef.get("net_profit"), cur.get(driver), neu.get(driver))
         if d is None:
             continue
@@ -123,6 +124,12 @@ def compute_attribution(qi: dict) -> dict:
             "is_one_off": False,
             "source": coef.get("source", "estimated"),
             "assumption": coef.get("assumption", ""),
+            # раскладка «как посчитано» (для блока прозрачности на фронте, как в Финансах):
+            # коэффициент × сдвиг фактора (текущее − нейтраль) = дельта
+            "calc": {
+                "coef": _round(cf), "per": coef.get("per", ""),
+                "from": r, "to": x, "shift": _round((x - r)) if (x is not None and r is not None) else None,
+            },
         })
 
     one_off = qi.get("one_off") or {}
