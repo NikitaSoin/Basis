@@ -179,28 +179,43 @@ USD/RUB (и CNY/RUB где важно), доходность длинных ОФ
     // Все coefficients — ОДИН источник (переиспользуются в атрибуции, таблице и сценариях),
     // поэтому числа между блоками сходятся. Чего честно нет — ставь null (фактор деградирует).
     "unit": "млрд_руб",
-    "financials": { "revenue": 0, "ebitda": 0, "net_profit": 0 },   // факт-якоря, числа
-    "macro_current": { "fx_usdrub": 0, "key_rate_pct": 0, "commodity_usd": null, "cost_excess_pp": 0 },
-    // cost_excess_pp — на сколько п.п. инфляция издержек компании опережает нейтральную (для фактора инфляции)
-    "macro_neutral": { "fx_usdrub": 0, "key_rate_pct": 0, "commodity_usd": null, "cost_excess_pp": 0 },
-    // нейтральные ориентиры (ППС/бюджетное правило/нейтральная ставка) — суждение, помечаются estimate
+    // 🔴 financials — БЕРИ ИЗ financials.json (income_statement/adjusted), ТЕ ЖЕ числа, что
+    // показывает вкладка «Финансы». НЕ выдумывай и НЕ округляй «на глаз»: расхождение с
+    // Финансами = брак (единый источник чисел карточки). Год — как на вкладке Финансы (LTM/
+    // последний отчётный). Если поля нет/неполный год → бери надёжный + пометь в data_flags,
+    // при нехватке → запрос financial-analyst (см. правило ниже).
+    "financials": { "revenue": 0, "ebitda": 0, "net_profit": 0, "fiscal_year": "напр. 2025 или LTM" },
+    // 🔴 СТАВКА — СИСТЕМНО, НЕ ЛИНЕЙНО. Ставка ≠ «только проценты по долгу». Разложи её эффект
+    // на ОТДЕЛЬНЫЕ каналы-факторы (методичка Часть 3 — все каналы ДКП): rate (прямой процентный,
+    // долг×ставка), demand (ставка→ВВП/спрос→объём продаж→выручка), labor (ставка→рынок труда→
+    // зарплаты→издержки), fx (ставка→курс — эндогенно). Заполняй те каналы, что реально значимы
+    // для компании. Курс — отдельный fx-фактор (не дублируй курсовой эффект внутри rate). Связь
+    // «ставка→курс/ВВП» отражай в СЦЕНАРИЯХ: там ставка, курс, ВВП двигаются СОГЛАСОВАННО.
+    "macro_current": { "fx_usdrub": 0, "key_rate_pct": 0, "commodity_usd": null, "gdp_growth_pct": null, "wage_growth_pp": null, "cost_excess_pp": 0 },
+    "macro_neutral": { "fx_usdrub": 0, "key_rate_pct": 0, "commodity_usd": null, "gdp_growth_pct": null, "wage_growth_pp": null, "cost_excess_pp": 0 },
+    // нейтральные ориентиры (ППС/бюджетное правило/нейтральная ставка/потенциальный ВВП) — суждение, estimate
     "coefficients": {
       // Знак: эффект на финансы при +1 ЕДИНИЦЫ фактора. Модуль: delta = coef × (значение − нейтраль/текущее).
-      // per: единица измерения коэффициента. source: disclosed (раскрыто компанией = факт) | estimated.
+      // per: единица измерения. source: disclosed (раскрыто компанией = факт) | estimated.
+      // ⚠️ Знак rate ЗАВИСИТ ОТ СТРУКТУРЫ: чистый долг → «−» (проценты); КУБЫШКА (net_debt<0) →
+      //    «+» (процентный доход на кэш). Проверь по financials.json, не ставь знак по шаблону.
       "fx":             { "per": "1_rub", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "" },
       "commodity":      { "per": "1_usd", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "" },
-      "rate":           { "per": "100bp", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "" },
+      "rate":           { "per": "100bp", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "прямой процентный канал: долг/кубышка × ставка" },
+      "demand":         { "per": "1pp_gdp", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "ставка→ВВП→спрос→объём; для циклических значим, для защитных слаб" },
+      "labor":          { "per": "1pp_wage", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "зарплатная инфляция → база издержек" },
       "cost_inflation": { "per": "1pp",   "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "" }
-      // Только доминирующие факторы ЭТОЙ компании. Нерелевантный фактор — не включай (не 0).
+      // Только значимые для ЭТОЙ компании каналы. Нерелевантный — не включай (не 0).
     },
     "one_off": { "label": "Валютная переоценка долга", "net_profit": null, "certainty": "estimate", "note": "" },
     // разовый эффект (is_one_off) — В ВОДОПАД НЕ ВХОДИТ, показывается отдельной строкой. null если нет.
     "neutral_net_profit": null,   // гипотетическая прибыль при нейтральном макро (суждение-якорь водопада)
     "scenarios": {
-      // значения макро по сценарию — числа. Модуль: delta_к_факту = Σ coef × (сценарий − macro_current).
-      "base":    { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "cost_excess_pp": null, "probability": "вероятнее" },
-      "hawkish": { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "cost_excess_pp": null, "probability": "риск" },
-      "dovish":  { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "cost_excess_pp": null, "probability": "менее вероятно" }
+      // Значения макро по сценарию — числа, СОГЛАСОВАННЫЕ между собой (ставка↓ ⇒ обычно курс слабеет,
+      // ВВП ускоряется — задавай их вместе, это и есть системность). Модуль: delta = Σ coef × (сценарий − текущее).
+      "base":    { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "gdp_growth_pct": null, "wage_growth_pp": null, "cost_excess_pp": null, "probability": "вероятнее" },
+      "hawkish": { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "gdp_growth_pct": null, "wage_growth_pp": null, "cost_excess_pp": null, "probability": "риск" },
+      "dovish":  { "fx_usdrub": null, "key_rate_pct": null, "commodity_usd": null, "gdp_growth_pct": null, "wage_growth_pp": null, "cost_excess_pp": null, "probability": "менее вероятно" }
     }
   },
 
@@ -419,6 +434,17 @@ USD/RUB (и CNY/RUB где важно), доходность длинных ОФ
   `scenarios`. Только доминирующие факторы компании; нерелевантный не включай. Чего честно нет —
   `null` (фактор деградирует, не выдумывать). Строковые `factors[].quant_impact`/`attribution`/
   `sensitivities` остаются как человекочитаемая подпись; СХОДЯЩИЕСЯ числа даёт модуль в `computed`.
+- **🔴 ЕДИНЫЙ ИСТОЧНИК ЧИСЕЛ.** `quant_inputs.financials` (revenue/ebitda/net_profit) бери
+  ИЗ `financials.json` — ТЕ ЖЕ значения, что на вкладке «Финансы». Свои числа не выдумывай:
+  расхождение прибыли с Финансами — грубый брак (системная боль платформы). Сверь год/базу (LTM/adjusted).
+- **🔴 СТАВКА СИСТЕМНО.** Не своди ставку к «процентам по долгу». Разложи по каналам
+  (`rate`/`demand`/`labor`/`fx` + связи в сценариях) — методичка Часть 3. Знак `rate` проверь по
+  `net_debt` (кубышка → «+»). Линейный «ставка→только проценты» — типичная ошибка (методичка 15).
+- **🔴 ДЫРЫ В ДАННЫХ → ФИНАНСИСТ.** Не хватает поля для квантификации (доля валютной выручки,
+  размер/структура долга, доля плавающего, средняя стоимость обслуживания, база издержек,
+  раскрытые чувствительности) — НЕ выдумывай: верни в отчёте явный запрос диспетчеру вызвать
+  `financial-analyst` восполнить ИМЕННО эти поля в `financials.json`, затем пересчитай. Если и
+  после нет — `null` + `data_flags`, честно деградируй.
 - **`computed` НЕ трогать** — его заполняет `macro_quant.py` из `quant_inputs`.
 - НЕ выливай формулы/термины (IS-LM, Тейлор, WACC, output gap, pass-through) в текст.
 

@@ -383,7 +383,7 @@
 .mv3-tag-est{background:var(--mv3-amber-soft);color:var(--mv3-amber);}
 .mv3-tag-judg{background:var(--mv3-accent-soft);color:var(--mv3-accent-2);}
 
-/* layout: две колонки (dash + правый рельс), как каркас карточки */
-.mv3-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;}
+/* layout: две колонки (dash + правый рельс) — ширина/гэп как в эталоне bm-shell (.layout) */
+.mv3-layout{display:grid;grid-template-columns:minmax(0,1fr) 312px;gap:30px;align-items:start;padding-top:2px;}
 .mv3-layout > aside{min-width:0;}
-@media(max-width:1080px){.mv3-layout{grid-template-columns:minmax(0,1fr);}.mv3-layout > aside{display:none;}}
+@media(max-width:1000px){.mv3-layout{grid-template-columns:minmax(0,1fr);}.mv3-layout > aside{display:none;}}
