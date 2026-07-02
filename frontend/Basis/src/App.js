@@ -5638,8 +5638,10 @@ const CompanyCard = ({ company, onBack }) => {
     const hc = meta.headline_cost || {};
 
     // ── форматирование чисел (млрд ₽, tabular) ──
-    const nf = (n) => (n == null || isNaN(n)) ? "—" : Math.round(n).toLocaleString("ru-RU");
-    const sf = (n) => (n == null || isNaN(n)) ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(Math.round(n)).toLocaleString("ru-RU");
+    // адаптивная точность: крупные — целые, малые (<10 млрд, мелкие компании) — с десятой
+    const _fmt = (n) => { const a = Math.abs(n); const d = a >= 10 ? 0 : a >= 1 ? 1 : 2; return Math.abs(n).toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d }); };
+    const nf = (n) => (n == null || isNaN(n)) ? "—" : (n < 0 ? "−" : "") + _fmt(n);
+    const sf = (n) => (n == null || isNaN(n)) ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + _fmt(n);
     const cls = (n) => n == null ? "" : n > 0 ? "mv3-pos" : n < 0 ? "mv3-neg" : "";
 
     // ── эпистемические теги (факт/оценка/суждение) ──

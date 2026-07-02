@@ -152,7 +152,7 @@
     {
      "factor_key": "demand",
      "label": "Спрос / ВВП (канал ставки)",
-     "delta": -1,
+     "delta": -1.2,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "Ставка→ВВП/кредитный цикл→спрос. Связь (62% выручки) защитна — почти не реагирует; циклическая часть — финтех МТС Банк (21%, розничный кредит) и AdTech (9%, рекламные бюджеты). +1 п.п. ВВП → ~+6 млрд выручки этих сегментов, часть в OIBDA. Слабо-умеренный канал."
@@ -160,7 +160,7 @@
     {
      "factor_key": "labor",
      "label": "Рынок труда / зарплаты",
-     "delta": -2,
+     "delta": -1.6,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "Расходы на персонал ~13,5% выручки ≈ 109 млрд ₽; структурный дефицит IT-кадров. Ускорение зарплат на +1 п.п. сверх производительности → ~+1,1 млрд издержек → −1,1 EBITDA → −0,8 ЧП (налог 25%)."
@@ -168,13 +168,13 @@
     {
      "factor_key": "cost_inflation",
      "label": "Инфляция издержек",
-     "delta": -1,
+     "delta": -0.75,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "База неперсональных опекс (энергия, эксплуатация сети, интерконнект, контент) ~200 млрд; ограниченная ценовая сила (тарифы под надзором ФАС, лёгкий переход абонента). Тарифная индексация +8–10% частично компенсирует → чистый эффект на +1 п.п. сверхинфляции издержек ~−1,0 EBITDA."
     }
    ],
-   "residual": 1,
+   "residual": 0.62,
    "operating_net_profit": 35,
    "actual_net_profit": 35,
    "one_off": null,
@@ -188,7 +188,7 @@
     "per": "100bp",
     "revenue": null,
     "ebitda": null,
-    "net_profit": -4,
+    "net_profit": -3.5,
     "source": "estimated",
     "assumption": "Прямой процентный канал: чистый долг ~635 млрд, финдолг ~713 млрд; переоцениваемая в течение года база (краткосрочный долг 379 млрд + рефинансируемые выпуски) ~500–600 млрд. +100 б.п. → ~+4,5–5 млрд процентных расходов до налога → ~−3,5 млрд ЧП после налога 25%. Знак «−»: МТС — чистый заёмщик (НЕ кубышка). В EBITDA не входит — эффект ниже OIBDA."
    },
@@ -196,9 +196,9 @@
     "factor_key": "demand",
     "label": "Спрос / ВВП (канал ставки)",
     "per": "1pp_gdp",
-    "revenue": 6,
-    "ebitda": 2,
-    "net_profit": 2,
+    "revenue": 6.0,
+    "ebitda": 2.0,
+    "net_profit": 1.5,
     "source": "estimated",
     "assumption": "Ставка→ВВП/кредитный цикл→спрос. Связь (62% выручки) защитна — почти не реагирует; циклическая часть — финтех МТС Банк (21%, розничный кредит) и AdTech (9%, рекламные бюджеты). +1 п.п. ВВП → ~+6 млрд выручки этих сегментов, часть в OIBDA. Слабо-умеренный канал."
    },
@@ -207,8 +207,8 @@
     "label": "Рынок труда / зарплаты",
     "per": "1pp_wage",
     "revenue": null,
-    "ebitda": -1,
-    "net_profit": -1,
+    "ebitda": -1.1,
+    "net_profit": -0.8,
     "source": "estimated",
     "assumption": "Расходы на персонал ~13,5% выручки ≈ 109 млрд ₽; структурный дефицит IT-кадров. Ускорение зарплат на +1 п.п. сверх производительности → ~+1,1 млрд издержек → −1,1 EBITDA → −0,8 ЧП (налог 25%)."
    },
@@ -217,8 +217,8 @@
     "label": "Инфляция издержек",
     "per": "1pp",
     "revenue": null,
-    "ebitda": -1,
-    "net_profit": -1,
+    "ebitda": -1.0,
+    "net_profit": -0.75,
     "source": "estimated",
     "assumption": "База неперсональных опекс (энергия, эксплуатация сети, интерконнект, контент) ~200 млрд; ограниченная ценовая сила (тарифы под надзором ФАС, лёгкий переход абонента). Тарифная индексация +8–10% частично компенсирует → чистый эффект на +1 п.п. сверхинфляции издержек ~−1,0 EBITDA."
    }
@@ -231,25 +231,25 @@
      "key_rate_pct": 11.0,
      "cost_excess_pp": 0.5
     },
-    "revenue_delta": 3,
-    "ebitda_delta": 2,
+    "revenue_delta": 3.0,
+    "ebitda_delta": 2.0,
     "net_profit_delta": 13,
     "contributions": {
      "rate": {
       "net_profit": 11
      },
      "demand": {
-      "revenue": 3,
-      "ebitda": 1,
-      "net_profit": 1
+      "revenue": 3.0,
+      "ebitda": 1.0,
+      "net_profit": 0.75
      },
      "labor": {
-      "ebitda": 1,
-      "net_profit": 0
+      "ebitda": 0.55,
+      "net_profit": 0.4
      },
      "cost_inflation": {
-      "ebitda": 0,
-      "net_profit": 0
+      "ebitda": 0.5,
+      "net_profit": 0.38
      }
     }
    },
@@ -260,25 +260,25 @@
      "key_rate_pct": 14.5,
      "cost_excess_pp": 1.5
     },
-    "revenue_delta": -1,
-    "ebitda_delta": -1,
-    "net_profit_delta": -2,
+    "revenue_delta": -1.2,
+    "ebitda_delta": -1.4,
+    "net_profit_delta": -1.9,
     "contributions": {
      "rate": {
-      "net_profit": -1
+      "net_profit": -0.88
      },
      "demand": {
-      "revenue": -1,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": -1.2,
+      "ebitda": -0.4,
+      "net_profit": -0.3
      },
      "labor": {
-      "ebitda": -1,
-      "net_profit": 0
+      "ebitda": -0.55,
+      "net_profit": -0.4
      },
      "cost_inflation": {
-      "ebitda": 0,
-      "net_profit": 0
+      "ebitda": -0.5,
+      "net_profit": -0.38
      }
     }
    },
@@ -289,33 +289,33 @@
      "key_rate_pct": 9.5,
      "cost_excess_pp": 0.0
     },
-    "revenue_delta": 7,
-    "ebitda_delta": 4,
+    "revenue_delta": 6.6,
+    "ebitda_delta": 4.3,
     "net_profit_delta": 20,
     "contributions": {
      "rate": {
       "net_profit": 17
      },
      "demand": {
-      "revenue": 7,
-      "ebitda": 2,
-      "net_profit": 2
+      "revenue": 6.6,
+      "ebitda": 2.2,
+      "net_profit": 1.7
      },
      "labor": {
-      "ebitda": 1,
-      "net_profit": 1
+      "ebitda": 1.1,
+      "net_profit": 0.8
      },
      "cost_inflation": {
-      "ebitda": 1,
-      "net_profit": 1
+      "ebitda": 1.0,
+      "net_profit": 0.75
      }
     }
    }
   },
   "checks": {
    "waterfall_has_residual": true,
-   "residual": 1,
-   "residual_pct_of_neutral": 1.7,
+   "residual": 0.62,
+   "residual_pct_of_neutral": 1.0,
    "factors_count": 4
   },
   "_note": "computed by backend/app/services/macro_quant.py"

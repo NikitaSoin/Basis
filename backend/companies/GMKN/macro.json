@@ -168,7 +168,7 @@
     {
      "factor_key": "rate",
      "label": "Ставка (процентный канал)",
-     "delta": -6,
+     "delta": -5.8,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "знак «−» (чистый долг положительный 703 млрд, не кубышка), НО эффект МАЛ: основной долг в USD/CNY по фикс. ставкам; рублёвый плавающий ~150 млрд ₽ (оценка); налог 25%"
@@ -176,7 +176,7 @@
     {
      "factor_key": "labor",
      "label": "Рынок труда / зарплаты",
-     "delta": -3,
+     "delta": -3.0,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "ФОТ ~40% денежных опрасходов (~480 млрд ₽ всего); зарплаты сверх производительности; нет ценовой силы (price-taker), частично гасится программами эффективности"
@@ -184,7 +184,7 @@
     {
      "factor_key": "cost_inflation",
      "label": "Инфляция издержек",
-     "delta": -4,
+     "delta": -4.4,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "материалы+энергия ~60% денежных опрасходов; price-taker не может переложить в цену металла; истощение богатых руд растит удельные издержки"
@@ -195,7 +195,7 @@
    "actual_net_profit": 207,
    "one_off": {
     "label": "Валютная переоценка валютного долга",
-    "net_profit": 6,
+    "net_profit": 6.5,
     "note": "FY2025 fx_differences = +6 501 млн ₽ (прибыль, малая). Разовое/бумажное, НЕ в EBITDA. Внимание: дальнейшее ослабление рубля переоценивает ~$9 млрд валютного долга в бо́льшую рублёвую сумму → риск УБЫТКА переоценки (в 2023 было −122 млрд, в 2024 −32 млрд)",
     "certainty": "estimate"
    },
@@ -209,7 +209,7 @@
     "per": "1_rub",
     "revenue": 13,
     "ebitda": 11,
-    "net_profit": 8,
+    "net_profit": 8.3,
     "source": "estimated",
     "assumption": "≈88% валютной выручки от 1147 млрд ₽, база курса ~78; издержки преимущественно рублёвые → большая часть дельты выручки падает в EBITDA; налог 25%; НДПИ/пошлины малы (~1,5% издержек)"
    },
@@ -217,9 +217,9 @@
     "factor_key": "commodity",
     "label": "Цена сырья",
     "per": "1_usd_pd_oz",
-    "revenue": 0,
-    "ebitda": 0,
-    "net_profit": 0,
+    "revenue": 0.21,
+    "ebitda": 0.18,
+    "net_profit": 0.14,
     "source": "estimated",
     "assumption": "палладий как прокси риска корзины: производство 2 725 тыс унц × курс 78; НЕ включает платину/медь/никель (см. residual в атрибуции)"
    },
@@ -229,7 +229,7 @@
     "per": "100bp",
     "revenue": null,
     "ebitda": null,
-    "net_profit": -1,
+    "net_profit": -1.1,
     "source": "estimated",
     "assumption": "знак «−» (чистый долг положительный 703 млрд, не кубышка), НО эффект МАЛ: основной долг в USD/CNY по фикс. ставкам; рублёвый плавающий ~150 млрд ₽ (оценка); налог 25%"
    },
@@ -238,8 +238,8 @@
     "label": "Рынок труда / зарплаты",
     "per": "1pp_wage",
     "revenue": null,
-    "ebitda": -2,
-    "net_profit": -2,
+    "ebitda": -2.0,
+    "net_profit": -1.5,
     "source": "estimated",
     "assumption": "ФОТ ~40% денежных опрасходов (~480 млрд ₽ всего); зарплаты сверх производительности; нет ценовой силы (price-taker), частично гасится программами эффективности"
    },
@@ -248,8 +248,8 @@
     "label": "Инфляция издержек",
     "per": "1pp",
     "revenue": null,
-    "ebitda": -3,
-    "net_profit": -2,
+    "ebitda": -3.0,
+    "net_profit": -2.2,
     "source": "estimated",
     "assumption": "материалы+энергия ~60% денежных опрасходов; price-taker не может переложить в цену металла; истощение богатых руд растит удельные издержки"
    }
@@ -273,20 +273,20 @@
       "net_profit": 58
      },
      "commodity": {
-      "revenue": 9,
-      "ebitda": 7,
-      "net_profit": 6
+      "revenue": 8.5,
+      "ebitda": 7.4,
+      "net_profit": 5.6
      },
      "rate": {
-      "net_profit": 1
+      "net_profit": 1.4
      },
      "labor": {
-      "ebitda": 0,
-      "net_profit": 0
+      "ebitda": -0.0,
+      "net_profit": -0.0
      },
      "cost_inflation": {
-      "ebitda": 0,
-      "net_profit": 0
+      "ebitda": -0.0,
+      "net_profit": -0.0
      }
     }
    },
@@ -313,15 +313,15 @@
       "net_profit": -29
      },
      "rate": {
-      "net_profit": -2
+      "net_profit": -1.9
      },
      "labor": {
-      "ebitda": -2,
-      "net_profit": -2
+      "ebitda": -2.0,
+      "net_profit": -1.5
      },
      "cost_inflation": {
-      "ebitda": -3,
-      "net_profit": -2
+      "ebitda": -3.0,
+      "net_profit": -2.2
      }
     }
    },
@@ -348,15 +348,15 @@
       "net_profit": 27
      },
      "rate": {
-      "net_profit": 4
+      "net_profit": 3.6
      },
      "labor": {
-      "ebitda": 1,
-      "net_profit": 1
+      "ebitda": 1.0,
+      "net_profit": 0.75
      },
      "cost_inflation": {
-      "ebitda": 2,
-      "net_profit": 1
+      "ebitda": 1.5,
+      "net_profit": 1.1
      }
     }
    }

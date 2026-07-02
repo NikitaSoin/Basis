@@ -152,7 +152,7 @@
     {
      "factor_key": "demand",
      "label": "Спрос / ВВП (канал ставки)",
-     "delta": 0,
+     "delta": -0.5,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "реальные доходы/ВВП → трафик → натуральный объём. Ритейл продуктов защитный, эластичность спроса низкая ~0,3-0,4; +1 п.п. роста доходов → ~+12 млрд ₽ выручки (~0,35% × 3509)"
@@ -160,7 +160,7 @@
     {
      "factor_key": "labor",
      "label": "Рынок труда / зарплаты",
-     "delta": -5,
+     "delta": -4.6,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "ФОТ ~278-333 млрд ₽ (9,5% выручки); при дефиците кадров зарплаты растут быстрее переноса в полку. +1 п.п. зарплатной инфляции сверх переноса → ориентировочно −3 млрд ₽ EBITDA"
@@ -168,13 +168,13 @@
     {
      "factor_key": "cost_inflation",
      "label": "Инфляция издержек",
-     "delta": -2,
+     "delta": -1.9,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "аренда + логистика + коммуналка ~200+ млрд ₽; издержковая инфляция сверх возможности переложить давит на маржу. ⚠️ ВАЖНО (§12.8): для ритейлера инфляция ДВОЯКА — она же раздувает номинальную выручку через средний чек; поэтому дезинфляция снимает допинг с выручки — этот эффект отражён в demand/сценариях, здесь только маржинальное давление издержек"
     }
    ],
-   "residual": 1,
+   "residual": 0.98,
    "operating_net_profit": 22,
    "actual_net_profit": -17,
    "one_off": {
@@ -191,9 +191,9 @@
     "factor_key": "rate",
     "label": "Ставка (процентный канал)",
     "per": "100bp",
-    "revenue": 0,
-    "ebitda": 0,
-    "net_profit": -2,
+    "revenue": 0.0,
+    "ebitda": 0.0,
+    "net_profit": -1.9,
     "source": "estimated",
     "assumption": "чистый процентный долг без аренды ~250 млрд ₽ (много короткого/переоцениваемого, кэш частично компенсирует), налог 25%: +100 б.п. → ориентировочно −1,9 млрд ₽ прибыли (диапазон −1,6…−2,2). Знак «−»: чистый должник, не кубышка. Лизинг МСФО 16 в чувствительность не входит — ставка по действующим договорам зафиксирована при заключении"
    },
@@ -202,8 +202,8 @@
     "label": "Спрос / ВВП (канал ставки)",
     "per": "1pp_gdp",
     "revenue": 12,
-    "ebitda": 1,
-    "net_profit": 1,
+    "ebitda": 1.4,
+    "net_profit": 1.0,
     "source": "estimated",
     "assumption": "реальные доходы/ВВП → трафик → натуральный объём. Ритейл продуктов защитный, эластичность спроса низкая ~0,3-0,4; +1 п.п. роста доходов → ~+12 млрд ₽ выручки (~0,35% × 3509)"
    },
@@ -211,9 +211,9 @@
     "factor_key": "labor",
     "label": "Рынок труда / зарплаты",
     "per": "1pp_wage",
-    "revenue": 0,
-    "ebitda": -3,
-    "net_profit": -2,
+    "revenue": 0.0,
+    "ebitda": -3.0,
+    "net_profit": -2.3,
     "source": "estimated",
     "assumption": "ФОТ ~278-333 млрд ₽ (9,5% выручки); при дефиците кадров зарплаты растут быстрее переноса в полку. +1 п.п. зарплатной инфляции сверх переноса → ориентировочно −3 млрд ₽ EBITDA"
    },
@@ -221,9 +221,9 @@
     "factor_key": "cost_inflation",
     "label": "Инфляция издержек",
     "per": "1pp",
-    "revenue": 0,
-    "ebitda": -2,
-    "net_profit": -2,
+    "revenue": 0.0,
+    "ebitda": -2.5,
+    "net_profit": -1.9,
     "source": "estimated",
     "assumption": "аренда + логистика + коммуналка ~200+ млрд ₽; издержковая инфляция сверх возможности переложить давит на маржу. ⚠️ ВАЖНО (§12.8): для ритейлера инфляция ДВОЯКА — она же раздувает номинальную выручку через средний чек; поэтому дезинфляция снимает допинг с выручки — этот эффект отражён в demand/сценариях, здесь только маржинальное давление издержек"
    }
@@ -236,29 +236,29 @@
      "key_rate_pct": 11.0,
      "cost_excess_pp": 0.5
     },
-    "revenue_delta": 4,
-    "ebitda_delta": 3,
-    "net_profit_delta": 9,
+    "revenue_delta": 3.6,
+    "ebitda_delta": 3.2,
+    "net_profit_delta": 8.6,
     "contributions": {
      "rate": {
-      "revenue": 0,
-      "ebitda": 0,
-      "net_profit": 6
+      "revenue": -0.0,
+      "ebitda": -0.0,
+      "net_profit": 6.2
      },
      "demand": {
-      "revenue": 4,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": 3.6,
+      "ebitda": 0.42,
+      "net_profit": 0.3
      },
      "labor": {
-      "revenue": 0,
-      "ebitda": 2,
-      "net_profit": 1
+      "revenue": -0.0,
+      "ebitda": 1.5,
+      "net_profit": 1.1
      },
      "cost_inflation": {
-      "revenue": 0,
-      "ebitda": 1,
-      "net_profit": 1
+      "revenue": -0.0,
+      "ebitda": 1.2,
+      "net_profit": 0.95
      }
     }
    },
@@ -269,29 +269,29 @@
      "key_rate_pct": 14.5,
      "cost_excess_pp": 1.5
     },
-    "revenue_delta": -6,
-    "ebitda_delta": -3,
-    "net_profit_delta": -3,
+    "revenue_delta": -6.0,
+    "ebitda_delta": -3.5,
+    "net_profit_delta": -3.1,
     "contributions": {
      "rate": {
-      "revenue": 0,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": 0.0,
+      "ebitda": 0.0,
+      "net_profit": -0.47
      },
      "demand": {
-      "revenue": -6,
-      "ebitda": -1,
-      "net_profit": 0
+      "revenue": -6.0,
+      "ebitda": -0.7,
+      "net_profit": -0.5
      },
      "labor": {
-      "revenue": 0,
-      "ebitda": -2,
-      "net_profit": -1
+      "revenue": 0.0,
+      "ebitda": -1.5,
+      "net_profit": -1.1
      },
      "cost_inflation": {
-      "revenue": 0,
-      "ebitda": -1,
-      "net_profit": -1
+      "revenue": 0.0,
+      "ebitda": -1.2,
+      "net_profit": -0.95
      }
     }
    },
@@ -303,36 +303,36 @@
      "cost_excess_pp": 0
     },
     "revenue_delta": 12,
-    "ebitda_delta": 7,
+    "ebitda_delta": 6.9,
     "net_profit_delta": 16,
     "contributions": {
      "rate": {
-      "revenue": 0,
-      "ebitda": 0,
+      "revenue": -0.0,
+      "ebitda": -0.0,
       "net_profit": 11
      },
      "demand": {
       "revenue": 12,
-      "ebitda": 1,
-      "net_profit": 1
+      "ebitda": 1.4,
+      "net_profit": 1.0
      },
      "labor": {
-      "revenue": 0,
-      "ebitda": 3,
-      "net_profit": 2
+      "revenue": -0.0,
+      "ebitda": 3.0,
+      "net_profit": 2.3
      },
      "cost_inflation": {
-      "revenue": 0,
-      "ebitda": 2,
-      "net_profit": 2
+      "revenue": -0.0,
+      "ebitda": 2.5,
+      "net_profit": 1.9
      }
     }
    }
   },
   "checks": {
    "waterfall_has_residual": true,
-   "residual": 1,
-   "residual_pct_of_neutral": 2.6,
+   "residual": 0.98,
+   "residual_pct_of_neutral": 2.5,
    "factors_count": 4
   },
   "_note": "computed by backend/app/services/macro_quant.py"

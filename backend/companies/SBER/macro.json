@@ -168,13 +168,13 @@
     {
      "factor_key": "cost_inflation",
      "label": "Инфляция издержек",
-     "delta": -4,
+     "delta": -4.5,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "неоперационная инфляция издержек (IT-инфраструктура, аренда, амортизация) сверх заложенной"
     }
    ],
-   "residual": 2,
+   "residual": 1.5,
    "operating_net_profit": 1707,
    "actual_net_profit": 1707,
    "one_off": null,
@@ -208,7 +208,7 @@
     "per": "1pp_wage",
     "revenue": null,
     "ebitda": null,
-    "net_profit": -4,
+    "net_profit": -4.0,
     "source": "estimated",
     "assumption": "зарплатная инфляция + дефицит IT-кадров раздувают опекс (расходы на персонал — крупнейшая статья); давит на CIR и прибыль"
    },
@@ -218,7 +218,7 @@
     "per": "1pp",
     "revenue": null,
     "ebitda": null,
-    "net_profit": -3,
+    "net_profit": -3.0,
     "source": "estimated",
     "assumption": "неоперационная инфляция издержек (IT-инфраструктура, аренда, амортизация) сверх заложенной"
    }
@@ -232,7 +232,7 @@
      "cost_excess_pp": 1.0
     },
     "revenue_delta": -118,
-    "ebitda_delta": 0,
+    "ebitda_delta": 0.0,
     "net_profit_delta": -46,
     "contributions": {
      "rate": {
@@ -241,13 +241,13 @@
      },
      "demand": {
       "revenue": 12,
-      "net_profit": 8
+      "net_profit": 7.5
      },
      "labor": {
-      "net_profit": 4
+      "net_profit": 4.0
      },
      "cost_inflation": {
-      "net_profit": 2
+      "net_profit": 1.5
      }
     }
    },
@@ -259,22 +259,22 @@
      "cost_excess_pp": 2.0
     },
     "revenue_delta": -10,
-    "ebitda_delta": 0,
-    "net_profit_delta": -6,
+    "ebitda_delta": 0.0,
+    "net_profit_delta": -6.0,
     "contributions": {
      "rate": {
       "revenue": -10,
-      "net_profit": -4
+      "net_profit": -4.5
      },
      "demand": {
-      "revenue": 0,
-      "net_profit": 0
+      "revenue": 0.0,
+      "net_profit": 0.0
      },
      "labor": {
-      "net_profit": 0
+      "net_profit": -0.0
      },
      "cost_inflation": {
-      "net_profit": -2
+      "net_profit": -1.5
      }
     }
    },
@@ -286,7 +286,7 @@
      "cost_excess_pp": 0.0
     },
     "revenue_delta": -225,
-    "ebitda_delta": 0,
+    "ebitda_delta": 0.0,
     "net_profit_delta": -85,
     "contributions": {
      "rate": {
@@ -298,17 +298,17 @@
       "net_profit": 15
      },
      "labor": {
-      "net_profit": 8
+      "net_profit": 8.0
      },
      "cost_inflation": {
-      "net_profit": 4
+      "net_profit": 4.5
      }
     }
    }
   },
   "checks": {
    "waterfall_has_residual": true,
-   "residual": 2,
+   "residual": 1.5,
    "residual_pct_of_neutral": 0.1,
    "factors_count": 4
   },
