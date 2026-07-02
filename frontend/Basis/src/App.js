@@ -5771,17 +5771,24 @@ const CompanyCard = ({ company, onBack }) => {
                       {r.assume && <div className="mv3-wf-assume-row"><span className="mv3-sp" /><span className="mv3-assume">{r.assume}</span></div>}
                     </React.Fragment>
                   ))}
-                  <div className="mv3-wf-row mv3-total">
-                    <div className="mv3-wl">= Факт: чистая прибыль</div>
-                    <div className="mv3-wf-track"><div className="mv3-wf-bar mv3-fact" style={{ left: 0, width: (attr.actual_net_profit / neutral * 100) + "%" }} /></div>
-                    <div className="mv3-wv mv3-fact">{nf(attr.actual_net_profit)}</div>
-                  </div>
+                  {(() => {
+                    // Итог операционного водопада = операционная прибыль (без разового).
+                    // Если one_off нет — операционная = отчётной (operating_net_profit её и вернёт).
+                    const opNP = attr.operating_net_profit != null ? attr.operating_net_profit : attr.actual_net_profit;
+                    return (
+                      <div className="mv3-wf-row mv3-total">
+                        <div className="mv3-wl">{attr.one_off && attr.one_off.net_profit != null ? "= Операционная прибыль" : "= Факт: чистая прибыль"}</div>
+                        <div className="mv3-wf-track"><div className="mv3-wf-bar mv3-fact" style={{ left: 0, width: Math.max(0, opNP / neutral * 100) + "%" }} /></div>
+                        <div className="mv3-wv mv3-fact">{nf(opNP)}</div>
+                      </div>
+                    );
+                  })()}
                 </div>
                 {attr.one_off && attr.one_off.net_profit != null && (
                   <div className="mv3-oneoff">
                     <span className="mv3-ok"><span className="mv3-oneoff-chip">разовый</span>{attr.one_off.label}</span>
                     <span className="mv3-ov">{sf(attr.one_off.net_profit)} млрд ₽</span>
-                    <span className="mv3-od">{attr.one_off.note}</span>
+                    <span className="mv3-od">{attr.one_off.note} <b style={{ color: "var(--text-secondary)" }}>Операционная {nf(attr.operating_net_profit)} {sf(attr.one_off.net_profit)} = отчётная {nf(attr.actual_net_profit)} млрд ₽.</b></span>
                   </div>
                 )}
               </div>

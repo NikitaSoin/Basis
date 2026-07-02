@@ -119,23 +119,31 @@ def compute_attribution(qi: dict) -> dict:
             "assumption": coef.get("assumption", ""),
         })
 
+    one_off = qi.get("one_off") or {}
+    one_off_np = _num(one_off.get("net_profit"))
+
+    # Разовое (one_off, напр. курсовая переоценка долга) НЕ входит в операционный водопад
+    # (методичка 14.2). Водопад ведёт к ОПЕРАЦИОННОЙ прибыли = отчётная − разовое; one_off —
+    # отдельный мост к отчётной. Так residual не раздувается на бумажную переоценку.
+    operating_np = None
+    if actual_np is not None:
+        operating_np = actual_np - (one_off_np or 0.0)
+
     residual = None
-    if neutral_np is not None and actual_np is not None:
-        residual = actual_np - (neutral_np + sum_delta)
+    if neutral_np is not None and operating_np is not None:
+        residual = operating_np - (neutral_np + sum_delta)
 
     # главный драйвер — фактор с максимальным по модулю вкладом
     main = None
     if bridge:
         main = max(bridge, key=lambda b: abs(b["delta"] or 0))["factor_key"]
 
-    one_off = qi.get("one_off") or {}
-    one_off_np = _num(one_off.get("net_profit"))
-
     return {
         "neutral_net_profit": _round(neutral_np),
         "bridge": bridge,
         "residual": _round(residual),
-        "actual_net_profit": _round(actual_np),
+        "operating_net_profit": _round(operating_np),   # итог операционного водопада
+        "actual_net_profit": _round(actual_np),          # отчётная (операционная + one_off)
         "one_off": ({
             "label": one_off.get("label", "Разовый эффект"),
             "net_profit": _round(one_off_np),
