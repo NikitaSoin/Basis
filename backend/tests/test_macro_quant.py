@@ -46,10 +46,11 @@ def test_attribution_deltas_match_reference():
 
 
 def test_attribution_residual_closes_waterfall():
-    """residual = факт − (нейтраль + Σ дельт). Водопад сходится к факту через остаток."""
+    """Водопад сходится к ОПЕРАЦИОННОЙ прибыли; + one_off = отчётная (методичка 14.2)."""
     a = macro_quant.compute_attribution(ROSN_QI)
     total = a["neutral_net_profit"] + sum(b["delta"] for b in a["bridge"]) + a["residual"]
-    assert total == a["actual_net_profit"] == 1100
+    assert total == a["operating_net_profit"]                          # водопад → операционная
+    assert a["operating_net_profit"] + a["one_off"]["net_profit"] == a["actual_net_profit"] == 1100
 
 
 def test_one_off_excluded_from_bridge():
