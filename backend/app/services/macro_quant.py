@@ -87,7 +87,8 @@ def _driver_of(factor_key: str, coef: dict) -> str | None:
 
 
 def _label_of(factor_key: str, coef: dict) -> str:
-    return _FACTOR_LABEL.get(factor_key) or (coef or {}).get("label") or factor_key
+    # явная подпись агента приоритетнее дефолта (напр. commodity → «Цена золота»/«Цена удобрений»)
+    return (coef or {}).get("label") or _FACTOR_LABEL.get(factor_key) or factor_key
 
 
 def _active_factors(coefficients: dict) -> list[str]:
