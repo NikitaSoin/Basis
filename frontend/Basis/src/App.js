@@ -5643,6 +5643,9 @@ const CompanyCard = ({ company, onBack }) => {
     const nf = (n) => (n == null || isNaN(n)) ? "—" : (n < 0 ? "−" : "") + _fmt(n);
     const sf = (n) => (n == null || isNaN(n)) ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + _fmt(n);
     const cls = (n) => n == null ? "" : n > 0 ? "mv3-pos" : n < 0 ? "mv3-neg" : "";
+    // приводим к списку: агент может дать массив ИЛИ строку (who_benefits/triggers и т.п.) —
+    // строку показываем одним пунктом, не роняя .map (иначе вкладка падает)
+    const toList = (v) => Array.isArray(v) ? v : (v != null && String(v).trim() ? [String(v)] : []);
 
     // ── эпистемические теги (факт/оценка/суждение) ──
     const TAG = { fact: ["mv3-tag-fact", "факт"], estimate: ["mv3-tag-est", "оценка"], est: ["mv3-tag-est", "оценка"],
@@ -5879,11 +5882,11 @@ const CompanyCard = ({ company, onBack }) => {
                 <div className="mv3-compet">
                   <div className="mv3-cgroup mv3-win">
                     <div className="mv3-cgh">Кому режим помогает</div>
-                    <ul>{(cv.who_benefits || []).map((x, i) => <li key={i}>{x}</li>)}</ul>
+                    <ul>{toList(cv.who_benefits).map((x, i) => <li key={i}>{x}</li>)}</ul>
                   </div>
                   <div className="mv3-cgroup mv3-lose">
                     <div className="mv3-cgh">Кому режим мешает</div>
-                    <ul>{(cv.who_suffers || []).map((x, i) => <li key={i}>{x}</li>)}</ul>
+                    <ul>{toList(cv.who_suffers).map((x, i) => <li key={i}>{x}</li>)}</ul>
                   </div>
                 </div>
                 {cv.company_position && (
@@ -5939,9 +5942,9 @@ const CompanyCard = ({ company, onBack }) => {
                           <div className="mv3-scn-frow"><span className="mv3-fk">Чистая прибыль</span><span className={"mv3-fv " + cls(sc.net_profit_delta)}>{sc.net_profit_delta ? sf(sc.net_profit_delta) + " млрд" : "≈ 0"}</span></div>
                           {info.split && <div className="mv3-scn-split">{info.split}</div>}
                         </div>
-                        {Array.isArray(info.triggers) && info.triggers.length > 0 && (
+                        {toList(info.triggers).length > 0 && (
                           <div className="mv3-scn-trig"><div className="mv3-scn-trig-k">Триггеры</div>
-                            <ul>{info.triggers.map((t, i) => <li key={i}>{t}</li>)}</ul></div>
+                            <ul>{toList(info.triggers).map((t, i) => <li key={i}>{t}</li>)}</ul></div>
                         )}
                       </div>
                     );
