@@ -80,17 +80,32 @@ def _delta(coef_metric, cur, ref):
     return c * (x - r)
 
 
+def _driver_of(factor_key: str, coef: dict) -> str | None:
+    """Ключ драйвера фактора: из фиксированной карты ИЛИ явный coef['driver']
+    (для произвольных секторных каналов — CoR банка, цены металлов, и т.п.)."""
+    return _FACTOR_DRIVER.get(factor_key) or (coef or {}).get("driver")
+
+
+def _label_of(factor_key: str, coef: dict) -> str:
+    return _FACTOR_LABEL.get(factor_key) or (coef or {}).get("label") or factor_key
+
+
 def _active_factors(coefficients: dict) -> list[str]:
-    """Факторы, у которых заданы коэффициенты (нерелевантные компания не включает)."""
+    """Факторы с заданными коэффициентами. Помимо фиксированных (fx/rate/...) поддержаны
+    ПРОИЗВОЛЬНЫЕ каналы: если у коэффициента задан свой 'driver' (ключ в macro_current/
+    neutral) — фактор активен (напр. cost_of_risk у банка, metals_price у металлурга)."""
     out = []
-    for key in _FACTOR_DRIVER:
-        coef = (coefficients or {}).get(key)
+    for key, coef in (coefficients or {}).items():
         if not isinstance(coef, dict):
             continue
-        # фактор активен, если хотя бы одна метрика — число
+        if _driver_of(key, coef) is None:
+            continue  # нет драйвера — не считаем
         if any(_num(coef.get(m)) is not None for m in _METRICS):
             out.append(key)
-    return out
+    # стабильный порядок: сначала фиксированные (как в _FACTOR_DRIVER), потом прочие
+    fixed = [k for k in _FACTOR_DRIVER if k in out]
+    extra = [k for k in out if k not in _FACTOR_DRIVER]
+    return fixed + extra
 
 
 def compute_attribution(qi: dict) -> dict:
@@ -110,8 +125,8 @@ def compute_attribution(qi: dict) -> dict:
     bridge = []
     sum_delta = 0.0
     for f in _active_factors(coefficients):
-        driver = _FACTOR_DRIVER[f]
         coef = coefficients[f]
+        driver = _driver_of(f, coef)
         cf, x, r = _num(coef.get("net_profit")), _num(cur.get(driver)), _num(neu.get(driver))
         d = _delta(coef.get("net_profit"), cur.get(driver), neu.get(driver))
         if d is None:
@@ -119,7 +134,7 @@ def compute_attribution(qi: dict) -> dict:
         sum_delta += d
         bridge.append({
             "factor_key": f,
-            "label": _FACTOR_LABEL[f],
+            "label": _label_of(f, coefficients[f]),
             "delta": _round(d),
             "is_one_off": False,
             "source": coef.get("source", "estimated"),
@@ -179,7 +194,7 @@ def compute_sensitivities(qi: dict) -> list[dict]:
         coef = coefficients[f]
         rows.append({
             "factor_key": f,
-            "label": _FACTOR_LABEL[f],
+            "label": _label_of(f, coefficients[f]),
             "per": coef.get("per", ""),
             "revenue": _round(_num(coef.get("revenue"))),
             "ebitda": _round(_num(coef.get("ebitda"))),
@@ -209,8 +224,8 @@ def compute_scenarios(qi: dict) -> dict:
         contributions = {}
         any_metric = False
         for f in factors:
-            driver = _FACTOR_DRIVER[f]
             coef = coefficients[f]
+            driver = _driver_of(f, coef)
             contrib = {}
             for m in _METRICS:
                 d = _delta(coef.get(m), sc.get(driver), cur.get(driver))

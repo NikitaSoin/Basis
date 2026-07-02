@@ -211,6 +211,14 @@ USD/RUB (и CNY/RUB где важно), доходность длинных ОФ
       "labor":          { "per": "1pp_wage", "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "зарплатная инфляция → база издержек" },
       "cost_inflation": { "per": "1pp",   "revenue": null, "ebitda": null, "net_profit": null, "source": "estimated", "assumption": "" }
       // Только значимые для ЭТОЙ компании каналы. Нерелевантный — не включай (не 0).
+      // ПРОИЗВОЛЬНЫЙ секторный канал (сверх fx/rate/...): добавь коэффициент со СВОИМ драйвером —
+      //   "cost_of_risk": { "driver": "cor_bps", "label": "Стоимость риска (резервы)", "per": "1bp",
+      //                     "net_profit": -3.8, "source": "estimated", "assumption": "..." }
+      // и положи ключ драйвера в macro_current/macro_neutral/scenarios (напр. "cor_bps": 150 / 108).
+      // 🔴 ЕДИНИЦЫ: значение драйвера в macro_current/neutral ДОЛЖНО быть в тех же единицах, что "per"
+      //   (per "1bp" → cor_bps в базисных пунктах; per "10bp" → драйвер в десятках б.п.). Модуль
+      //   считает delta = coef × (текущее − нейтраль) без пересчёта единиц — рассинхрон завысит канал.
+      //   Примеры каналов: банк — cost_of_risk (cor_bps); металлург — metals_price (индекс/уровень).
     },
     "one_off": { "label": "Валютная переоценка долга", "net_profit": null, "certainty": "estimate", "note": "" },
     // разовый эффект (is_one_off) — В ВОДОПАД НЕ ВХОДИТ, показывается отдельной строкой. null если нет.
