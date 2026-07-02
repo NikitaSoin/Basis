@@ -175,7 +175,7 @@
     {
      "factor_key": "cost_inflation",
      "label": "Инфляция издержек",
-     "delta": -6,
+     "delta": -6.0,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "тарифы Транснефти и ФОТ индексируются выше инфляции при нулевой ценовой силе (цена нефти экзогенна) — умеренное давление на маржу"
@@ -199,8 +199,8 @@
     "label": "Курс рубля",
     "per": "1_rub",
     "revenue": 13,
-    "ebitda": 7,
-    "net_profit": 5,
+    "ebitda": 7.0,
+    "net_profit": 5.0,
     "source": "estimated",
     "assumption": "ОПЕРАЦИОННЫЙ экспортный канал: рублёвая выручка = цена Urals × объём × курс; доля экспортной/паритетной выручки ~50%, издержки рублёвые, НДПИ/НДД частично абсорбируют прирост. Разовая переоценка кубышки сюда НЕ входит — она в one_off."
    },
@@ -209,8 +209,8 @@
     "label": "Цена сырья",
     "per": "1_usd",
     "revenue": 15,
-    "ebitda": 7,
-    "net_profit": 5,
+    "ebitda": 7.0,
+    "net_profit": 5.0,
     "source": "estimated",
     "assumption": "~54 млн т добычи (~396 млн барр), экспортный нетбэк; НДПИ/НДД изымают ~40% прироста цены; при курсе ~78"
    },
@@ -229,8 +229,8 @@
     "label": "Инфляция издержек",
     "per": "1pp",
     "revenue": null,
-    "ebitda": -4,
-    "net_profit": -3,
+    "ebitda": -4.0,
+    "net_profit": -3.0,
     "source": "estimated",
     "assumption": "тарифы Транснефти и ФОТ индексируются выше инфляции при нулевой ценовой силе (цена нефти экзогенна) — умеренное давление на маржу"
    }
@@ -246,7 +246,7 @@
     },
     "revenue_delta": 78,
     "ebitda_delta": 46,
-    "net_profit_delta": -6,
+    "net_profit_delta": -5.5,
     "contributions": {
      "fx": {
       "revenue": 78,
@@ -254,16 +254,16 @@
       "net_profit": 30
      },
      "commodity": {
-      "revenue": 0,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": 0.0,
+      "ebitda": 0.0,
+      "net_profit": 0.0
      },
      "rate": {
       "net_profit": -38
      },
      "cost_inflation": {
-      "ebitda": 4,
-      "net_profit": 3
+      "ebitda": 4.0,
+      "net_profit": 3.0
      }
     }
    },
@@ -281,8 +281,8 @@
     "contributions": {
      "fx": {
       "revenue": -13,
-      "ebitda": -7,
-      "net_profit": -5
+      "ebitda": -7.0,
+      "net_profit": -5.0
      },
      "commodity": {
       "revenue": -90,
@@ -293,8 +293,8 @@
       "net_profit": 10
      },
      "cost_inflation": {
-      "ebitda": -4,
-      "net_profit": -3
+      "ebitda": -4.0,
+      "net_profit": -3.0
      }
     }
    },
@@ -324,8 +324,8 @@
       "net_profit": -74
      },
      "cost_inflation": {
-      "ebitda": 8,
-      "net_profit": 6
+      "ebitda": 8.0,
+      "net_profit": 6.0
      }
     }
    }

@@ -60,10 +60,16 @@ def _num(v):
 
 
 def _round(v):
-    """Округление к целым млрд для отображения (числа крупные, дробная часть — шум)."""
+    """Адаптивное округление: крупные компании — целые млрд (дробь = шум), малые (POSI,
+    неликвид) — с десятыми, иначе коэффициенты <1 млрд занулялись бы в 0 и вкладка пустела."""
     if v is None:
         return None
-    return round(v)
+    av = abs(v)
+    if av >= 10:
+        return round(v)
+    if av >= 1:
+        return round(v, 1)
+    return round(v, 2)
 
 
 def _delta(coef_metric, cur, ref):

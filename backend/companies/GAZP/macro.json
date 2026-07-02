@@ -183,7 +183,7 @@
     {
      "factor_key": "demand",
      "label": "Спрос / ВВП (канал ставки)",
-     "delta": -2,
+     "delta": -2.5,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "ставка→ВВП→внутренний спрос на газ/электроэнергию/нефтепродукты; слабый канал: внутренний газ по регулируемым тарифам, экспорт по контрактам → низкая эластичность (защитный)"
@@ -234,7 +234,7 @@
     "per": "1_usd",
     "revenue": 25,
     "ebitda": 12,
-    "net_profit": 8,
+    "net_profit": 8.0,
     "source": "estimated",
     "assumption": "Urals для нефтяного сегмента (Газпром нефть ~40% выручки); НДПИ/демпфер изымают большую часть роста цены; газ отдельно — контракт с Китаем ценово непрозрачен, Европа обнулилась, поэтому commodity ≈ нефтяной канал"
    },
@@ -253,8 +253,8 @@
     "label": "Спрос / ВВП (канал ставки)",
     "per": "1pp_gdp",
     "revenue": 20,
-    "ebitda": 8,
-    "net_profit": 5,
+    "ebitda": 8.0,
+    "net_profit": 5.0,
     "source": "estimated",
     "assumption": "ставка→ВВП→внутренний спрос на газ/электроэнергию/нефтепродукты; слабый канал: внутренний газ по регулируемым тарифам, экспорт по контрактам → низкая эластичность (защитный)"
    },
@@ -263,8 +263,8 @@
     "label": "Рынок труда / зарплаты",
     "per": "1pp_wage",
     "revenue": null,
-    "ebitda": -5,
-    "net_profit": -4,
+    "ebitda": -5.0,
+    "net_profit": -4.0,
     "source": "estimated",
     "assumption": "крупный персонал группы (сотни тысяч человек), ФОТ ~13,5% издержек; зарплатная гонка при дефиците кадров поднимает базу издержек"
    },
@@ -273,8 +273,8 @@
     "label": "Инфляция издержек",
     "per": "1pp",
     "revenue": null,
-    "ebitda": -8,
-    "net_profit": -6,
+    "ebitda": -8.0,
+    "net_profit": -6.0,
     "source": "estimated",
     "assumption": "операционные/транспортные расходы на содержание ЕСГ ~17,5% + закупка газа/сырья; слабо сжимаются при падении объёмов"
    }
@@ -306,17 +306,17 @@
       "net_profit": 26
      },
      "demand": {
-      "revenue": 0,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": 0.0,
+      "ebitda": 0.0,
+      "net_profit": 0.0
      },
      "labor": {
-      "ebitda": 2,
-      "net_profit": 2
+      "ebitda": 2.5,
+      "net_profit": 2.0
      },
      "cost_inflation": {
-      "ebitda": 4,
-      "net_profit": 3
+      "ebitda": 4.0,
+      "net_profit": 3.0
      }
     }
    },
@@ -343,20 +343,20 @@
       "net_profit": -40
      },
      "rate": {
-      "net_profit": -4
+      "net_profit": -3.8
      },
      "demand": {
       "revenue": -10,
-      "ebitda": -4,
-      "net_profit": -2
+      "ebitda": -4.0,
+      "net_profit": -2.5
      },
      "labor": {
-      "ebitda": -2,
-      "net_profit": -2
+      "ebitda": -2.5,
+      "net_profit": -2.0
      },
      "cost_inflation": {
-      "ebitda": -4,
-      "net_profit": -3
+      "ebitda": -4.0,
+      "net_profit": -3.0
      }
     }
    },
@@ -387,16 +387,16 @@
      },
      "demand": {
       "revenue": 10,
-      "ebitda": 4,
-      "net_profit": 2
+      "ebitda": 4.0,
+      "net_profit": 2.5
      },
      "labor": {
-      "ebitda": 5,
-      "net_profit": 4
+      "ebitda": 5.0,
+      "net_profit": 4.0
      },
      "cost_inflation": {
-      "ebitda": 8,
-      "net_profit": 6
+      "ebitda": 8.0,
+      "net_profit": 6.0
      }
     }
    }

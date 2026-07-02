@@ -145,7 +145,7 @@
     {
      "factor_key": "demand",
      "label": "Спрос / ВВП (канал ставки)",
-     "delta": 0,
+     "delta": -0.5,
      "is_one_off": false,
      "source": "estimated",
      "assumption": "Вторичный доходно-занятостный канал сверх ставки: реальные доходы/занятость → платёжеспособный спрос на жильё массового сегмента. Слабее долгового/ипотечного канала (тот живёт в rate), но не нулевой."
@@ -159,7 +159,7 @@
      "assumption": "Опережение себестоимости стройки над отпускными ценами. База издержек ~75% выручки ≈ 577 млрд ₽ → 1 п.п. превышения ≈ −5,8 млрд EBITDA. Драйверы: стройматериалы + зарплаты строителей (+40% г/г, оффер >100 тыс ₽/мес) при слабом спросе, не позволяющем поднимать цены так же быстро. Именно этот канал сжал EBITDA-маржу с ~21% до ~16% в 2025."
     }
    ],
-   "residual": 2,
+   "residual": 2.2,
    "operating_net_profit": 68,
    "actual_net_profit": 68,
    "one_off": null,
@@ -171,9 +171,9 @@
     "factor_key": "rate",
     "label": "Ставка (процентный канал)",
     "per": "100bp",
-    "revenue": -6,
-    "ebitda": -3,
-    "net_profit": -5,
+    "revenue": -6.0,
+    "ebitda": -3.0,
+    "net_profit": -5.0,
     "source": "estimated",
     "assumption": "ДВОЙНОЙ канал ставки для эскроу-девелопера (методичка §12.7): (а) спрос — ключевая ставка тянет рыночную ипотеку (~19%) → контрактация метров → выручка признаётся с лагом по готовности; (б) долг — проектное финансирование на НЕПРОДАННЫЕ квартиры стоит по рынку, на проданные (наполненный эскроу) дёшево, поэтому ставка бьёт по финрасходам (101 млрд в 2025), частично сглажено капитализацией процентов в себестоимость и процентным доходом на 359 млрд кэша. net_profit-чувствительность > ebitda, т.к. долговой канал ниже EBITDA. Оценка: точный split ПФ (рыночная/покрытая) и распроданность не раскрыты."
    },
@@ -181,9 +181,9 @@
     "factor_key": "demand",
     "label": "Спрос / ВВП (канал ставки)",
     "per": "1pp_gdp",
-    "revenue": 4,
-    "ebitda": 1,
-    "net_profit": 1,
+    "revenue": 4.0,
+    "ebitda": 1.0,
+    "net_profit": 1.0,
     "source": "estimated",
     "assumption": "Вторичный доходно-занятостный канал сверх ставки: реальные доходы/занятость → платёжеспособный спрос на жильё массового сегмента. Слабее долгового/ипотечного канала (тот живёт в rate), но не нулевой."
    },
@@ -192,8 +192,8 @@
     "label": "Инфляция издержек",
     "per": "1pp",
     "revenue": null,
-    "ebitda": -6,
-    "net_profit": -4,
+    "ebitda": -6.0,
+    "net_profit": -4.5,
     "source": "estimated",
     "assumption": "Опережение себестоимости стройки над отпускными ценами. База издержек ~75% выручки ≈ 577 млрд ₽ → 1 п.п. превышения ≈ −5,8 млрд EBITDA. Драйверы: стройматериалы + зарплаты строителей (+40% г/г, оффер >100 тыс ₽/мес) при слабом спросе, не позволяющем поднимать цены так же быстро. Именно этот канал сжал EBITDA-маржу с ~21% до ~16% в 2025."
    }
@@ -212,17 +212,17 @@
     "contributions": {
      "rate": {
       "revenue": 16,
-      "ebitda": 8,
+      "ebitda": 8.2,
       "net_profit": 14
      },
      "demand": {
-      "revenue": 1,
-      "ebitda": 0,
-      "net_profit": 0
+      "revenue": 1.2,
+      "ebitda": 0.3,
+      "net_profit": 0.3
      },
      "cost_inflation": {
-      "ebitda": 9,
-      "net_profit": 7
+      "ebitda": 9.0,
+      "net_profit": 6.8
      }
     }
    },
@@ -233,23 +233,23 @@
      "key_rate_pct": 15,
      "cost_excess_pp": 6
     },
-    "revenue_delta": -7,
-    "ebitda_delta": -9,
-    "net_profit_delta": -9,
+    "revenue_delta": -7.3,
+    "ebitda_delta": -8.9,
+    "net_profit_delta": -8.9,
     "contributions": {
      "rate": {
-      "revenue": -4,
-      "ebitda": -2,
-      "net_profit": -4
+      "revenue": -4.5,
+      "ebitda": -2.2,
+      "net_profit": -3.8
      },
      "demand": {
-      "revenue": -3,
-      "ebitda": -1,
-      "net_profit": -1
+      "revenue": -2.8,
+      "ebitda": -0.7,
+      "net_profit": -0.7
      },
      "cost_inflation": {
-      "ebitda": -6,
-      "net_profit": -4
+      "ebitda": -6.0,
+      "net_profit": -4.5
      }
     }
    },
@@ -270,9 +270,9 @@
       "net_profit": 26
      },
      "demand": {
-      "revenue": 4,
-      "ebitda": 1,
-      "net_profit": 1
+      "revenue": 4.0,
+      "ebitda": 1.0,
+      "net_profit": 1.0
      },
      "cost_inflation": {
       "ebitda": 15,
@@ -283,8 +283,8 @@
   },
   "checks": {
    "waterfall_has_residual": true,
-   "residual": 2,
-   "residual_pct_of_neutral": 1.7,
+   "residual": 2.2,
+   "residual_pct_of_neutral": 1.9,
    "factors_count": 3
   },
   "_note": "computed by backend/app/services/macro_quant.py"
