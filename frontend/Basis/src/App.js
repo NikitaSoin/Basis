@@ -5646,6 +5646,9 @@ const CompanyCard = ({ company, onBack }) => {
     // приводим к списку: агент может дать массив ИЛИ строку (who_benefits/triggers и т.п.) —
     // строку показываем одним пунктом, не роняя .map (иначе вкладка падает)
     const toList = (v) => Array.isArray(v) ? v : (v != null && String(v).trim() ? [String(v)] : []);
+    // подпись единицы коэффициента (для выкладки «как посчитано»)
+    const perLabel = (p) => ({ "1_rub": "1 ₽", "100bp": "100 б.п.", "1_usd": "$1", "1pp": "1 п.п.",
+      "1pp_gdp": "1 п.п. ВВП", "1pp_wage": "1 п.п. з/п" }[p] || p || "ед.");
 
     // ── эпистемические теги (факт/оценка/суждение) ──
     const TAG = { fact: ["mv3-tag-fact", "факт"], estimate: ["mv3-tag-est", "оценка"], est: ["mv3-tag-est", "оценка"],
@@ -5673,7 +5676,7 @@ const CompanyCard = ({ company, onBack }) => {
       let run = neutral;
       bridge.forEach((b) => {
         const from = run; run += (b.delta || 0);
-        wfRows.push({ label: b.label, delta: b.delta, source: b.source, assume: b.assumption,
+        wfRows.push({ label: b.label, delta: b.delta, source: b.source, assume: b.assumption, calc: b.calc,
           left: Math.min(from, run) / neutral * 100, width: Math.abs(b.delta || 0) / neutral * 100 });
       });
       if (attr.residual != null) {
@@ -5773,7 +5776,13 @@ const CompanyCard = ({ company, onBack }) => {
                         <div className="mv3-wf-track"><div className={"mv3-wf-bar " + (r.delta < 0 ? "mv3-neg" : "mv3-pos")} style={{ left: r.left + "%", width: Math.max(r.width, 0.6) + "%" }} /></div>
                         <div className={"mv3-wv " + (r.delta < 0 ? "mv3-neg" : "mv3-pos")}>{sf(r.delta)}</div>
                       </div>
-                      {r.assume && <div className="mv3-wf-assume-row"><span className="mv3-sp" /><span className="mv3-assume">{r.assume}</span></div>}
+                      {(r.assume || r.calc) && <div className="mv3-wf-assume-row"><span className="mv3-sp" /><span className="mv3-assume">
+                        {r.calc && r.calc.coef != null && r.calc.shift != null && (
+                          <b style={{ color: "var(--text-secondary)", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                            {sf(r.calc.coef)} млрд/{perLabel(r.calc.per)} × ({nf(r.calc.from)}→{nf(r.calc.to)}, {sf(r.calc.shift)}) = {sf(r.delta)} млрд.{" "}
+                          </b>
+                        )}
+                        {r.assume}</span></div>}
                     </React.Fragment>
                   ))}
                   {(() => {
