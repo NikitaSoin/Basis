@@ -369,9 +369,9 @@
         null,
         3589,
         4462,
-        null,
+        9890,
         6050,
-        null
+        2730
       ],
       "short_term_investments": [
         null,
@@ -400,9 +400,9 @@
     },
     "total_assets": [
       null,
-      null,
-      null,
-      null,
+      34281,
+      33161,
+      41300,
       38961,
       49589
     ],
@@ -443,7 +443,7 @@
         null,
         23097,
         26963,
-        null,
+        34600,
         30765,
         36691
       ]
@@ -452,7 +452,7 @@
       null,
       23097,
       26963,
-      null,
+      34600,
       30765,
       36691
     ],
@@ -461,7 +461,7 @@
         null,
         489,
         0,
-        null,
+        0,
         0,
         null
       ],
@@ -477,7 +477,7 @@
         null,
         468,
         468,
-        null,
+        876,
         1400,
         null
       ],
@@ -485,7 +485,7 @@
         null,
         4818,
         1686,
-        null,
+        876,
         1400,
         null
       ]
@@ -495,7 +495,7 @@
         null,
         1786,
         106,
-        null,
+        0,
         0,
         null
       ],
@@ -519,26 +519,26 @@
         null,
         6366,
         4512,
-        null,
-        null,
+        5824,
+        6796,
         null
       ]
     },
     "total_liabilities": [
       null,
-      null,
-      null,
-      null,
+      11184,
+      6198,
+      6700,
       8196,
       12898
     ],
     "net_debt": [
       null,
       -2994,
-      null,
-      null,
+      -4356,
+      -9014,
       -4650,
-      null
+      3574
     ],
     "net_debt_note": "2021: финдолг = LT 489 + ST 106 = 595; кэш 3589; net_debt = 595-3589 = -2994 млн. 2024: финдолг=0, lease IFRS16=1400, кэш=6050; net_debt = 1400-6050 = -4650 млн (чистая денежная позиция). 2025: данные о cash недостаточны → null.",
     "tangible_equity": [
@@ -555,17 +555,17 @@
         null,
         0.026,
         0.004,
-        null,
+        0.025,
         0.0,
         null
       ],
       "net_debt_ebitda": [
         null,
         -0.36,
-        null,
-        null,
+        -0.656,
+        -0.978,
         -0.42,
-        null
+        0.262
       ],
       "current_ratio": [
         null,
@@ -661,25 +661,25 @@
       null,
       21.33,
       14.02,
-      null,
+      18.35,
       26.5,
       26.76
     ],
     "roa": [
       null,
-      null,
-      null,
-      null,
+      14.37,
+      11.4,
+      15.37,
       20.93,
       19.8
     ],
     "roic": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      24.71,
+      16.48,
+      22.01,
+      26.19,
+      20.1
     ],
     "ros": [
       18.08,
@@ -691,9 +691,9 @@
     ],
     "asset_turnover": [
       null,
-      null,
-      null,
-      null,
+      0.736,
+      0.761,
+      0.669,
       0.85,
       0.88
     ]
@@ -701,59 +701,59 @@
   "metrics_timeseries": {
     "pe": [
       null,
-      null,
-      null,
-      null,
-      null,
+      9.84,
+      5.25,
+      7.45,
+      6.8,
       10.23
     ],
     "pb": [
       null,
       4.35,
       3.73,
-      null,
+      1.8,
       3.27,
       2.74
     ],
     "ps": [
       null,
-      null,
-      null,
-      null,
-      null,
+      2.34,
+      0.95,
+      2.06,
+      2.04,
       2.31
     ],
     "ev_ebitda": [
       null,
-      null,
-      null,
-      null,
-      null,
+      7.48,
+      3.49,
+      5.34,
+      5.76,
       7.02
     ],
     "roe": [
       null,
       21.33,
       14.02,
-      null,
+      18.35,
       26.5,
       26.76
     ],
     "roa": [
       null,
-      null,
-      null,
-      null,
+      14.37,
+      11.4,
+      15.37,
       20.93,
       19.8
     ],
     "roic": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      24.71,
+      16.48,
+      22.01,
+      26.19,
+      20.1
     ],
     "gross_margin": [
       40.0,
@@ -790,10 +790,10 @@
     "net_debt_ebitda": [
       null,
       -0.36,
-      null,
-      null,
+      -0.656,
+      -0.978,
       -0.42,
-      null
+      0.262
     ],
     "revenue_growth": [
       null,
@@ -815,42 +815,42 @@
   "multiples": {
     "pe": [
       null,
-      null,
-      null,
-      null,
-      null,
+      9.84,
+      5.25,
+      7.45,
+      6.8,
       9.34
     ],
     "ps": [
       null,
-      null,
-      null,
-      null,
-      null,
+      2.34,
+      0.95,
+      2.06,
+      2.04,
       2.31
     ],
     "pb": [
       null,
       4.35,
       3.73,
-      null,
+      1.8,
       3.27,
       2.74
     ],
     "ev_ebitda": [
       null,
-      null,
-      null,
-      null,
-      null,
+      7.48,
+      3.49,
+      5.34,
+      5.76,
       7.02
     ],
     "pe_adj": [
       null,
-      null,
-      null,
-      null,
-      null,
+      11.99,
+      6.33,
+      8.95,
+      8.28,
       10.23
     ],
     "current": {
@@ -863,11 +863,13 @@
     },
     "current_note": "pe=9.34 от NP_rep_2025=10753 млн; pe_adj=10.23 от NP_adj_2025=9818 млн (ETR нормализована до 25%). EV=95814 млн = Mcap 100464 + lease 1400 - cash 6050.",
     "historical_avg": {
-      "pe_basis": "нет исторических цен MDMG на конец года — ряд P/E не построен; peer-anchor от GEMC",
-      "pe_value": null,
-      "pe_adj_value": null,
-      "pb_value": null,
-      "period": "2021-2025 (только P/B по 3 точкам с известным equity)"
+      "pe_basis": "5y_mean (CV=0.22)",
+      "pe_value": 7.74,
+      "pe_adj_basis": "5y_mean (CV=0.21)",
+      "pe_adj_value": 9.16,
+      "pb_basis": "5y_mean (CV=0.36) (smart-lab year-end; see data_flags re existing pb array)",
+      "pb_value": 2.43,
+      "period": "2021-2025 (P/E/EV year-end smart-lab; 2025 P/E uses June-2026 price)"
     }
   },
   "forecast": {
@@ -1189,7 +1191,14 @@
     "DPS 2024 = 205 ₽ (141₽ спецдив из накопленной прибыли + промежуточные) — разовый компонент; в дивидендную модель не включён",
     "DPS 2025 = 89 ₽ (42₽ выплачено за 1П-2025 + 47₽ рекомендованы СД, утверждение ГОСА 25.06.2026)",
     "finance_income 2021-2024 частично известны (93, 355, 426, 1073 млн); 2020 и 2025 — null",
-    "Impairment 2022 = 1286 млн — уже отражён в operating_profit; дополнительная корректировка NP_adj не применяется (только ETR-нормализация)"
+    "Impairment 2022 = 1286 млн — уже отражён в operating_profit; дополнительная корректировка NP_adj не применяется (только ETR-нормализация)",
+    "Balance 2021/2022: total_assets and total_liabilities derived arithmetically (non_current+current; cross-check equity+liabilities=assets ✓)",
+    "Balance 2023: total_assets=41300, total_equity=34600 from smart-lab (billion-level precision); cash=9890 confirmed by press release '9.9 млрд'; lease=876 млн from annual report; total_liabilities derived 6700",
+    "Balance 2025: cash=2730 млн (smart-lab); IFRS16 lease 2025 estimated ~6304 млн (per existing data_flag); net_debt_2025=+3574 judgement (lease-inclusive, consistent with 2024 treatment); smart-lab net_debt_2025=-2730 (excludes IFRS16, different convention)",
+    "Multiples timeseries 2021-2024: P/E, EV/EBITDA filled from smart-lab year-end prices; P/B 2023=1.80 (smart-lab); P/S derived as P/E×(NP_rep/Revenue); pe_adj = pe_reported×(NP_rep/NP_adj)",
+    "Existing pb array 2021/2022/2024/2025 use June-2026 price on historical BVPS (methodologically inconsistent with year-end peer comparison); historical_avg.pb_value uses correct smart-lab year-end series 2.90/1.27/1.80/2.38/3.82 → mean 2.43×",
+    "Returns ROA/ROIC 2021-2024: computed from NP_adj and derived total_assets; ROIC = NOPAT(EBIT×0.75)/(equity+net_debt); 25% tax; all adj-based",
+    "Balance 2020: entirely null — MDMG listed on MOEX March 2021 (re-domicile); 2020 balance not in standard МСФО MOEX filing cycle"
   ],
   "segments": [
     {
