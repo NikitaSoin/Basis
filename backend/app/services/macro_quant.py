@@ -81,9 +81,14 @@ def _delta(coef_metric, cur, ref):
 
 
 def _driver_of(factor_key: str, coef: dict) -> str | None:
-    """Ключ драйвера фактора: из фиксированной карты ИЛИ явный coef['driver']
-    (для произвольных секторных каналов — CoR банка, цены металлов, и т.п.)."""
-    return _FACTOR_DRIVER.get(factor_key) or (coef or {}).get("driver")
+    """Ключ драйвера фактора: ЯВНЫЙ coef['driver'] приоритетнее фиксированной карты.
+    Это позволяет переопределить драйвер даже у стандартного фактора (напр. фактор
+    'demand' у ALRS завязан не на ВВП РФ, а на мировой люкс-спрос lux_demand_pp;
+    у нефтяников commodity может ссылаться на Urals-специфичный ключ). Явное намерение
+    агента (driver) всегда бьёт дефолт; если driver не задан — берём фиксированную карту
+    (fx→fx_usdrub, rate→key_rate_pct, ...); для произвольных ключей (cost_of_risk и т.п.)
+    работает только driver."""
+    return (coef or {}).get("driver") or _FACTOR_DRIVER.get(factor_key)
 
 
 def _label_of(factor_key: str, coef: dict) -> str:

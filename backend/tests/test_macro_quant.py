@@ -120,3 +120,25 @@ def test_empty_input_degrades_gracefully():
     assert out["sensitivities"] == []
     assert out["attribution"]["bridge"] == []
     assert out["scenarios"] == {}
+
+
+def test_explicit_driver_overrides_fixed_map():
+    """Явный coef['driver'] на СТАНДАРТНОМ факторе (demand) бьёт фиксированную карту
+    (регресс ALRS: 'demand' завязан на lux_demand_pp, не на gdp_growth_pct)."""
+    qi = {
+        "unit": "млрд_руб",
+        "financials": {"net_profit": 10.0},
+        "neutral_net_profit": 20.0,
+        "coefficients": {
+            "demand": {"net_profit": 5.0, "driver": "lux_demand_pp", "per": "1pp"},
+        },
+        # фиксированная карта дала бы gdp_growth_pct; проверяем, что берётся lux_demand_pp
+        "macro_current": {"lux_demand_pp": -2.0, "gdp_growth_pct": 1.0},
+        "macro_neutral": {"lux_demand_pp": 0.0, "gdp_growth_pct": 1.5},
+    }
+    out = macro_quant.compute(qi)
+    b = out["attribution"]["bridge"][0]
+    assert b["factor_key"] == "demand"
+    # 5.0 × (−2 − 0) = −10 по lux_demand_pp; НЕ 5.0 × (1 − 1.5) = −2.5 по ВВП
+    assert b["delta"] == -10.0
+    assert b["calc"]["to"] == -2.0 and b["calc"]["from"] == 0.0
