@@ -33,20 +33,20 @@
   },
   "bank_pnl": {
     "interest_income": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      133118,
+      183094,
+      246075,
+      314712,
+      602482,
+      748348
     ],
     "interest_expense": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -53306,
+      -67001,
+      -143047,
+      -175850,
+      -444421,
+      -571829
     ],
     "net_interest_income": [
       138862,
@@ -57,20 +57,20 @@
       176500
     ],
     "fee_income": [
-      null,
-      null,
-      null,
-      null,
+      31988,
+      45495,
+      34230,
+      34866,
       39000,
-      null
+      59060
     ],
     "fee_expense": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -8189,
+      -10012,
+      -9420,
+      -8044,
+      -9159,
+      -10166
     ],
     "net_fee_income": [
       23799,
@@ -89,15 +89,15 @@
       null
     ],
     "operating_income": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      113995,
+      155289,
+      93153,
+      220726,
+      245640,
+      266545
     ],
     "operating_expenses": [
-      null,
+      43154,
       64800,
       75800,
       94100,
@@ -105,28 +105,28 @@
       157900
     ],
     "other_income": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      6511,
+      16430,
+      27139,
+      43328,
+      70885,
       164400
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      48547,
+      61062,
+      -23023,
+      109723,
+      79708,
+      66509
     ],
     "income_tax": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -9346,
+      -11353,
+      4440,
+      -14687,
+      -2474,
+      -13277
     ],
     "net_profit": [
       25000,
@@ -234,9 +234,9 @@
       341534,
       651092,
       807408,
-      null,
+      392906,
       722000,
-      null
+      971773
     ],
     "cogs": [
       null,
@@ -319,20 +319,20 @@
       null
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      48547,
+      61062,
+      -23023,
+      109723,
+      79708,
+      66509
     ],
     "income_tax": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -9346,
+      -11353,
+      4440,
+      -14687,
+      -2474,
+      -13277
     ],
     "net_profit": [
       25000,
@@ -368,12 +368,12 @@
         null
       ],
       "ros": [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
+        7.32,
+        7.74,
+        -1.81,
+        24.18,
+        10.7,
+        5.47
       ]
     }
   },
@@ -413,12 +413,12 @@
     "capex_sustainable_mln": null,
     "capex_note": "Для банка FCF/capex не используются как база оценки.",
     "etr_reported": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      19.3,
+      18.6,
+      19.3,
+      13.4,
+      3.1,
+      20.0
     ],
     "etr_sustainable": 25.0,
     "bridge": [
@@ -1376,6 +1376,12 @@
       "title": "Дивиденды SVCB 2025 (0.35 ₽, 7.86 млрд), консенсус 12м ~18.6 ₽",
       "url": "https://www.akm.ru/news/sovkombank_napravit_7_9_mlrd_rub_na_dividendy_za_2025_god/",
       "type": "web"
+    },
+    {
+      "id": "src_7",
+      "title": "Совкомбанк Databook Q1 2026 — официальный МСФО-датабук FY2009-FY2025 + 1кв2026",
+      "url": "https://sovcombank.ru/document/16131",
+      "type": "company_databook"
     }
   ],
   "data_flags": [
@@ -1386,7 +1392,14 @@
     "Гудвил от M&A не выделен отдельно в добытых данных — tangible_equity принят = балансовому капиталу (требует уточнения из примечаний МСФО).",
     "Число акций 22 516 млн (после присоединения Хоум Банка 2024); до 2024 было 19.7-20.7 млрд — historical P/B считан по годовым акциям.",
     "Бета 1.15 — гибрид-оценка (малый free-float ~5%, санкции, волатильность прибыли); не наблюдаемая рыночная.",
-    "peers.json сектора finance не пересобран в этом прогоне — относительная оценка использует экспертный sector P/B 0.9."
+    "peers.json сектора finance не пересобран в этом прогоне — относительная оценка использует экспертный sector P/B 0.9.",
+    "CRITICAL NII year-shift: bank_pnl.interest_income и interest_expense из официального датабука FY2020-FY2025 дают расчётное NII = 79812/116093/103028/138862/158061/176519. Existing bank_pnl.net_interest_income = 138862/84500/49100/138900/158100/176500 — содержит сдвиг лет для 2020-2022 (из PDF-инфографики). interest_income − |interest_expense| = databook NII (проверено, нулевое расхождение). 2023-2025 совпадают в обоих рядах (NII 138862/158061/176519 vs 138900/158100/176500, дельта < 50 млн — округление).",
+    "bank_pnl.fee_income[2024]=39000 (existing) ≈ net fee income; databook gross fee 2024=48610, net=39451. Расхождение: в existing записан нетто, не брутто. Заменено не было (per instructions); fee_expense заполнен из датабука корректно.",
+    "bank_pnl.provisions (existing series 2020-2024) = STOCK резервов со сдвигом лет (file[i] ≈ databook total provisions stock[i+1]): значения это БАЛАНС резервов на конец года. P&L LLP charge из датабука: 20937/31637/53942/32513/73907/80721 (FY2020-2025). 2025 provisions оставлен null (FY2026 stock отсутствует).",
+    "ETR 2024 = 3.1% аномально низкий: databook показывает income_tax expense всего 2474 млн на PBT 79708 млн. Причина: tax benefit на bargain purchase gain 18342 млн + одноразовый налоговый эффект 7250 млн (из датабука adj). Не репрезентативен для устойчивой ставки.",
+    "ETR 2023 = 13.4% ниже норматива 20%: частично из-за прибыли банковской группы на присоединении Хоум Банка (структуры освобождения). Устойчивая ETR = 20-25%.",
+    "income_statement.pre_tax_profit и income_tax из официального датабука. Расчётный net_profit: 2020=39201 vs file=25000 (разница ~14 млрд, вероятно файл использовал РСБУ или оценочный ряд); 2022=-18583 vs file=-14600 (разница 4 млрд). 2021/2023/2024/2025 сходятся хорошо.",
+    "bank_pnl.operating_income = banking-only operating income (pre-LLP), НЕ включает non-banking business (non-banking revenues отдельно в other_income). Для полного PBT: operating_income − LLP(P&L) − opex + non_bank_net(rev−costs) + misc = pre_tax. Non-banking costs (−109894 в 2025) и прочие статьи не имеют отдельных полей в схеме."
   ],
   "segments": [
     {
