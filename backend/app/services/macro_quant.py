@@ -142,7 +142,11 @@ def compute_attribution(qi: dict) -> dict:
             "factor_key": f,
             "label": _label_of(f, coefficients[f]),
             "delta": _round(d),
-            "is_one_off": False,
+            # обычно фактор операционный (False); но фактор-переоценка (напр. bond_reval
+            # у страховщика — латентная переоценка облигаций от УРОВНЯ ставки) помечается
+            # в коэффициенте is_one_off:true → фронт покажет строку как бумажную/разовую.
+            # Математику водопада не меняем (строка остаётся в sum_delta) — это флаг подачи.
+            "is_one_off": bool(coef.get("is_one_off", False)),
             "source": coef.get("source", "estimated"),
             "assumption": coef.get("assumption", ""),
             # раскладка «как посчитано» (для блока прозрачности на фронте, как в Финансах):
