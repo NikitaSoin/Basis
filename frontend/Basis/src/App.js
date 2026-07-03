@@ -4067,11 +4067,15 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Чистый долг", arr: bs.net_debt },
       { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
     ] : [
-      { label: "Активы", arr: bs.total_assets, bold: true },
-      { label: "Капитал", arr: totalEquityArr, bold: true },
-      { label: "Обязательства", arr: bs.total_liabilities },
-      { label: "Балансовая ст-ть / акция", arr: bs.book_value_per_share, muted: true },
-    ];
+      // TODO(bank-balance): детальная структура — кредиты по сегментам / ц.бумаги / МБК —
+      // будет добавлена после загрузки данных финансистом. Пока компактные итоги + кредит/депозиты.
+      { label: "Активы", arr: bs.total_assets, bold: true, delta: true },
+      { label: "Кредитный портфель", arr: ga(bs, "loans_to_clients_net") || ga(bs, "loan_portfolio_gross") || ga(bmx, "loan_portfolio"), delta: true },
+      { label: "Средства клиентов", arr: ga(bmx, "deposits") || ga(bs, "client_deposits"), delta: true },
+      { label: "Капитал", arr: totalEquityArr, bold: true, delta: true },
+      { label: "Обязательства", arr: bs.total_liabilities, delta: true },
+      { label: "Балансовая ст-ть / акция, ₽", arr: bs.book_value_per_share, fmt: (v) => formatNumber(v, { decimals: 2 }), muted: true },
+    ].filter((r) => r.bold || (Array.isArray(r.arr) && r.arr.some((x) => x != null)));
 
     // ОДДС — три потока + итог; детальные статьи каждого потока (cfo/cfi/cff_lines)
     // показываются с отступом при раскрытии. Свёрнуто (filter !indent) — только потоки.
@@ -4090,19 +4094,39 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "FCF-маржа, %", arr: cf.ratios?.fcf_margin, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
     ] : [];
     const bankPnlRows = isBank ? [
-      { label: "Чистый проц. доход", arr: bp.net_interest_income, bold: true, delta: true },
-      { label: "Чистый комис. доход", arr: bp.net_fee_income, delta: true },
-      { label: "Операц. доходы", arr: bp.operating_income },
-      { label: "Резервы", arr: bp.provisions },
-      { label: "Чистая прибыль", arr: bp.net_profit, bold: true, delta: true },
-    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+      // ── Процентная книга — детали (indent = только при раскрытии) ──
+      { label: "Процентные доходы",         arr: ga(bp, "interest_income_gross") || ga(bp, "interest_income") || ga(bp, "total_interest_income"), indent: true, delta: true },
+      { label: "Процентные расходы",         arr: ga(bp, "interest_expense_gross") || ga(bp, "interest_expense"), indent: true, muted: true, delta: true },
+      { label: "Чистый процентный доход",    arr: bp.net_interest_income, bold: true, delta: true },
+      // ── Комиссионная книга — детали ──
+      { label: "Комиссионные доходы",        arr: ga(bp, "fee_income_gross") || ga(bp, "fee_income"), indent: true, delta: true },
+      { label: "Комиссионные расходы",       arr: ga(bp, "fee_expense"), indent: true, muted: true, delta: true },
+      { label: "Чистый комиссионный доход",  arr: bp.net_fee_income, bold: true, delta: true },
+      // ── Казначейство / прочий доход (объясняет волатильность ОД) ──
+      { label: "Доход казначейства и прочий", arr: ga(bp, "other_income"), indent: true, muted: true, delta: true },
+      // ── Итоги (видны в свёрнутом виде) ──
+      { label: "Операционные доходы",        arr: bp.operating_income, bold: true, delta: true },
+      { label: "Резервы (CoR)",              arr: bp.provisions, delta: true },
+      { label: "Операционные расходы",       arr: bp.operating_expenses, delta: true },
+      // ── Нижняя цепочка — детали ──
+      { label: "Прибыль до налога",          arr: ga(bp, "pre_tax_profit"), indent: true, delta: true },
+      { label: "Налог на прибыль",           arr: ga(bp, "income_tax"), indent: true, muted: true },
+      { label: "Чистая прибыль",             arr: bp.net_profit, bold: true, delta: true },
+      { label: "Чистая прибыль (норм.)",     arr: ga(bp, "net_profit_adj") || ga(adjBlk, "net_profit_adj"), bold: true, accent: true, delta: true },
+    ].filter((r) => r.arr && Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
     const bankMetricRows = isBank ? [
-      { label: "ЧПМ (NIM), %", arr: bmx.nim, fmt: (v) => fmtPercent(v, { decimals: 2 }), muted: true },
-      { label: "Стоимость риска, %", arr: bmx.cost_of_risk, fmt: (v) => fmtPercent(v, { decimals: 2 }), muted: true },
-      { label: "CIR, %", arr: bmx.cir, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-      { label: "ROE, %", arr: bmx.roe, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-      { label: "Достаточность кап., %", arr: bmx.capital_adequacy, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true },
-    ].filter((r) => Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
+      { label: "ЧПМ (NIM), %",               arr: bmx.nim,                                                          fmt: (v) => fmtPercent(v, { decimals: 2 }), bold: true, delta: true },
+      { label: "Стоимость риска (CoR), %",    arr: bmx.cost_of_risk,                                                 fmt: (v) => fmtPercent(v, { decimals: 2 }), delta: true },
+      { label: "CIR, %",                      arr: bmx.cir,                                                          fmt: (v) => fmtPercent(v, { decimals: 1 }), delta: true },
+      { label: "ROE, %",                      arr: bmx.roe,                                                          fmt: (v) => fmtPercent(v, { decimals: 1 }), bold: true, delta: true },
+      { label: "ROE норм., %",                arr: ga(bmx, "roe_adjusted"),                                          fmt: (v) => fmtPercent(v, { decimals: 1 }), accent: true, delta: true },
+      { label: "ROA, %",                      arr: bmx.roa,                                                          fmt: (v) => fmtPercent(v, { decimals: 2 }), delta: true },
+      { label: "Н1.0, %",                     arr: ga(bmx, "n1_0") || ga(bmx, "capital_adequacy_n10") || ga(bmx, "capital_adequacy"), fmt: (v) => fmtPercent(v, { decimals: 1 }), delta: true },
+      { label: "Н1.2, %",                     arr: ga(bmx, "n1_2") || ga(bmx, "capital_adequacy_n12"),               fmt: (v) => fmtPercent(v, { decimals: 1 }), delta: true },
+      { label: "Кредитный портфель",          arr: ga(bmx, "loan_portfolio"),                                        fmt: fmtBig, bold: true, delta: true },
+      { label: "Депозиты клиентов",           arr: ga(bmx, "deposits"),                                              fmt: fmtBig, delta: true },
+      { label: "BVPS, ₽/акц.",               arr: ga(bs, "book_value_per_share"),                                   fmt: (v) => formatNumber(v, { decimals: 2 }), muted: true },
+    ].filter((r) => r.arr && Array.isArray(r.arr) && r.arr.some((x) => x != null)) : [];
 
     // Мультипликаторы компании по годам (строки = метрики, столбцы = годы)
     const ml = finJson?.multiples || {}, rt = finJson?.returns || {};
@@ -4591,6 +4615,120 @@ const CompanyCard = ({ company, onBack }) => {
       );
     };
 
+    // ── E-commerce: GMV и монетизация (только если есть gmv_mlrd, напр. OZON) ──
+    const renderGmvBlock = () => {
+      const gmv = finJson?.gmv_mlrd;
+      if (!gmv || !Array.isArray(gmv.values) || !gmv.values.some((x) => x != null)) return null;
+      const gmvYears = Array.isArray(gmv.fiscal_years) ? gmv.fiscal_years : years;
+      const takeRate = Array.isArray(gmv.revenue_take_rate_pct) ? gmv.revenue_take_rate_pct : null;
+      return (
+        <Card>
+          {cardHead(TrendingUp, "GMV и монетизация")}
+          <div className="tw-overflow-x-auto tw-rounded-md tw-border tw-border-border-strong">
+            <table className="tw-w-full tw-border-collapse" style={{ minWidth: 400 }}>
+              <thead className="tw-bg-bg-base">
+                <tr>
+                  <th className="tw-text-left tw-px-2.5 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong">Показатель</th>
+                  {gmvYears.map((y) => (
+                    <th key={y} className="tw-text-right tw-px-2.5 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-font-mono tw-tabular-nums">{y}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="tw-px-2.5 tw-py-2 tw-text-[13px] tw-font-semibold tw-text-text-primary tw-whitespace-nowrap">GMV, млрд ₽</td>
+                  {gmv.values.map((v, i) => {
+                    const d = yoy(v, gmv.values[i - 1]);
+                    return (
+                      <td key={i} className="tw-px-2.5 tw-py-2 tw-text-right">
+                        <span className="tw-inline-flex tw-flex-col tw-items-end">
+                          <span className="tw-font-mono tw-tabular-nums tw-text-[13px] tw-font-semibold tw-text-text-primary tw-whitespace-nowrap">
+                            {v == null ? <span className="tw-text-text-tertiary">—</span> : formatNumber(v, { decimals: 0 })}
+                          </span>
+                          {d != null && <span className="tw-text-[10px]"><Delta value={d} /></span>}
+                        </span>
+                      </td>
+                    );
+                  })}
+                </tr>
+                {takeRate && (
+                  <tr className="tw-bg-bg-base">
+                    <td className="tw-px-2.5 tw-py-2 tw-text-[13px] tw-text-text-secondary tw-whitespace-nowrap">Take rate (выручка/GMV), %</td>
+                    {takeRate.map((v, i) => {
+                      const prev = typeof takeRate[i - 1] === "number" ? takeRate[i - 1] : null;
+                      const d = (typeof v === "number" && prev != null) ? v - prev : null;
+                      return (
+                        <td key={i} className="tw-px-2.5 tw-py-2 tw-text-right">
+                          <span className="tw-inline-flex tw-flex-col tw-items-end">
+                            <span className="tw-font-mono tw-tabular-nums tw-text-[13px] tw-text-text-secondary tw-whitespace-nowrap">
+                              {v == null ? <span className="tw-text-text-tertiary">—</span> : fmtPercent(v, { decimals: 1 })}
+                            </span>
+                            {d != null && Math.abs(d) >= 0.1 && (
+                              <span className={cx("tw-text-[10px] tw-font-mono tw-tabular-nums", d > 0 ? "tw-text-success" : "tw-text-danger")}>
+                                {d > 0 ? "▲" : "▼"}{fmtPercent(Math.abs(d), { decimals: 1 })}пп
+                              </span>
+                            )}
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {gmv.note && <div className="tw-text-[11px] tw-text-text-tertiary tw-mt-2 tw-leading-relaxed">{gmv.note}</div>}
+        </Card>
+      );
+    };
+
+    // ── Нефтегаз: НДПИ-нагрузка + доля меньшинства (только если поля есть) ──
+    const renderOilSectorBlock = () => {
+      if (isBank) return null;
+      const ndpiLine = Array.isArray(is.expense_lines)
+        ? is.expense_lines.find((el) => /НДПИ|Налоги,?\s*кроме/i.test(el.name))
+        : null;
+      const ndpiArr = ndpiLine && Array.isArray(ndpiLine.values) ? ndpiLine.values : null;
+      const minArr = ga(is, "minority_interest");
+      const npTotalArr = ga(is, "net_profit_total");
+      if (!ndpiArr && !minArr) return null;
+
+      const taxBurdenArr = (ndpiArr && Array.isArray(is.revenue))
+        ? years.map((_, i) => {
+            const r = is.revenue[i]; const t = ndpiArr[i];
+            return (typeof r === "number" && r !== 0 && typeof t === "number") ? (t / r) * 100 : null;
+          })
+        : null;
+      const minoRatioArr = (minArr && npTotalArr)
+        ? years.map((_, i) => {
+            const m = minArr[i]; const t = npTotalArr[i];
+            return (typeof m === "number" && typeof t === "number" && t !== 0) ? (m / Math.abs(t)) * 100 : null;
+          })
+        : null;
+
+      const sectorRows = [
+        ndpiArr && ndpiArr.some((x) => x != null) && {
+          label: ndpiLine.name,
+          arr: ndpiArr, bold: true, delta: true,
+        },
+        taxBurdenArr && taxBurdenArr.some((x) => x != null) && {
+          label: "НДПИ / Выручка, %",
+          arr: taxBurdenArr, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true,
+        },
+        minArr && minArr.some((x) => x != null) && {
+          label: "Доля меньшинства",
+          arr: minArr, delta: true,
+        },
+        minoRatioArr && minoRatioArr.some((x) => x != null) && {
+          label: "Доля меньш. / ЧП группы, %",
+          arr: minoRatioArr, fmt: (v) => fmtPercent(v, { decimals: 1 }), muted: true,
+        },
+      ].filter(Boolean);
+
+      if (!sectorRows.length) return null;
+      return tableSection(Database, "Отраслевые показатели", sectorRows, true);
+    };
+
     // Убираем из «Комментария аналитика» служебный мета-футер (Период/Applied/
     // not_applicable/peers.json не обновлён/data_flags/adjustments_aggressive/sapex/
     // CFO|CFI|CFF=null) — это внутренняя кухня модели. Человеческие оговорки оставляем.
@@ -4744,7 +4882,7 @@ const CompanyCard = ({ company, onBack }) => {
           <>
             {collapStmt(BarChart2, "Отчёт о прибылях (банк)", bankPnlRows, pnlExpanded, setPnlExpanded, null, null, "Раскрыть статьи")}
             {renderBridgePlate()}
-            {tableSection(Target, "Банковские метрики", bankMetricRows, true)}
+            {tableSection(Target, "Банковские метрики по годам", bankMetricRows, true)}
             {collapStmt(Scale, "Баланс", bsRows, bsExpanded, setBsExpanded, null, null, "Раскрыть статьи")}
           </>
         ) : (
@@ -4756,6 +4894,9 @@ const CompanyCard = ({ company, onBack }) => {
             {collapStmt(Wallet, "Денежные потоки (ОДДС)", cfRows, cfExpanded, setCfExpanded, convYears, convNote, "Раскрыть детализацию потоков")}
           </>
         )}
+
+        {renderGmvBlock()}
+        {renderOilSectorBlock()}
 
         {finMd && (
           <Card>
