@@ -221,7 +221,13 @@ def compute_scenarios(qi: dict) -> dict:
     В каждом сценарии: delta_metric = Σ_факторов coef[metric] × (сценарий_драйвер − текущий_драйвер).
     """
     coefficients = qi.get("coefficients") or {}
-    cur = qi.get("macro_current") or {}
+    # База сценариев — «сегодня» (спот). Для большинства компаний = macro_current.
+    # Но у компаний с ТЕМПОРАЛЬНЫМ якорем (macro_current = средние условия периода, при
+    # которых заработана отчётная прибыль — напр. средняя ставка FY2025 у VTBR/HYDR/IRAO,
+    # где ставка сильно менялась внутри года) сценарии нужно мерить от СПОТА, иначе
+    # forward-сценарий смещён на разницу «средняя года vs сегодня». Такие кладут отдельный
+    # macro_spot; если его нет — падаем на macro_current (обратная совместимость).
+    cur = qi.get("macro_spot") or qi.get("macro_current") or {}
     scenarios = qi.get("scenarios") or {}
     factors = _active_factors(coefficients)
 

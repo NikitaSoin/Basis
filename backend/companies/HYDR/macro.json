@@ -167,7 +167,19 @@
     "subsidy_bn": 80,
     "probability": "менее вероятно"
    }
-  }
+  },
+  "macro_spot": {
+   "fx_usdrub": 85,
+   "key_rate_pct": 14.25,
+   "commodity_usd": null,
+   "gdp_growth_pct": 1.0,
+   "wage_growth_pp": null,
+   "cost_excess_pp": 2.0,
+   "tariff_index_pp": 9.5,
+   "dfo_liber_bn": 8,
+   "subsidy_bn": 77.5
+  },
+  "_macro_spot_note": "macro_current=средние условия FY2025 (якорь атрибуции); macro_spot=сегодня (спот ставки 14.25) для forward-сценариев"
  },
  "computed": {
   "attribution": {
@@ -343,10 +355,10 @@
     },
     "revenue_delta": 15,
     "ebitda_delta": 16,
-    "net_profit_delta": 36,
+    "net_profit_delta": 25,
     "contributions": {
      "rate": {
-      "net_profit": 24
+      "net_profit": 13
      },
      "demand": {
       "revenue": 0.75,
@@ -383,10 +395,10 @@
     },
     "revenue_delta": -10,
     "ebitda_delta": -11,
-    "net_profit_delta": 2.0,
+    "net_profit_delta": -9.4,
     "contributions": {
      "rate": {
-      "net_profit": 10
+      "net_profit": -0.88
      },
      "demand": {
       "revenue": -0.75,
@@ -423,10 +435,10 @@
     },
     "revenue_delta": 27,
     "ebitda_delta": 27,
-    "net_profit_delta": 54,
+    "net_profit_delta": 42,
     "contributions": {
      "rate": {
-      "net_profit": 33
+      "net_profit": 22
      },
      "demand": {
       "revenue": 1.8,

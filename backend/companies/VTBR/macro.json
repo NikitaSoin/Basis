@@ -134,7 +134,16 @@
     "cor_bps": 95,
     "probability": "менее вероятно"
    }
-  }
+  },
+  "macro_spot": {
+   "fx_usdrub": 78.7,
+   "key_rate_pct": 14.25,
+   "commodity_usd": null,
+   "gdp_growth_pct": 1.5,
+   "wage_growth_pp": 13.0,
+   "cor_bps": 99
+  },
+  "_macro_spot_note": "macro_current=средние условия FY2025 (якорь атрибуции); macro_spot=сегодня (спот ставки 14.25) для forward-сценариев"
  },
  "computed": {
   "attribution": {
@@ -262,14 +271,14 @@
      "fx_usdrub": 83,
      "key_rate_pct": 12
     },
-    "revenue_delta": 214,
-    "ebitda_delta": 199,
-    "net_profit_delta": 145,
+    "revenue_delta": 82,
+    "ebitda_delta": 79,
+    "net_profit_delta": 51,
     "contributions": {
      "rate": {
-      "revenue": 210,
-      "ebitda": 192,
-      "net_profit": 150
+      "revenue": 79,
+      "ebitda": 72,
+      "net_profit": 56
      },
      "demand": {
       "revenue": 3.6,
@@ -291,14 +300,14 @@
      "fx_usdrub": 90,
      "key_rate_pct": 15
     },
-    "revenue_delta": 97,
-    "ebitda_delta": 88,
-    "net_profit_delta": 2.0,
+    "revenue_delta": -35,
+    "ebitda_delta": -32,
+    "net_profit_delta": -92,
     "contributions": {
      "rate": {
-      "revenue": 105,
-      "ebitda": 96,
-      "net_profit": 75
+      "revenue": -26,
+      "ebitda": -24,
+      "net_profit": -19
      },
      "demand": {
       "revenue": -8.4,
@@ -320,14 +329,14 @@
      "fx_usdrub": 80,
      "key_rate_pct": 10
     },
-    "revenue_delta": 292,
-    "ebitda_delta": 274,
-    "net_profit_delta": 222,
+    "revenue_delta": 161,
+    "ebitda_delta": 154,
+    "net_profit_delta": 128,
     "contributions": {
      "rate": {
-      "revenue": 280,
-      "ebitda": 256,
-      "net_profit": 200
+      "revenue": 149,
+      "ebitda": 136,
+      "net_profit": 106
      },
      "demand": {
       "revenue": 12,

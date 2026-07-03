@@ -149,7 +149,15 @@
     "cost_excess_pp": 1,
     "probability": "менее вероятно"
    }
-  }
+  },
+  "macro_spot": {
+   "fx_usdrub": 85,
+   "key_rate_pct": 14.25,
+   "aluminum_usd": 2560,
+   "alumina_usd": 600,
+   "cost_excess_pp": 3
+  },
+  "_macro_spot_note": "macro_current=средние условия FY2025 (якорь атрибуции); macro_spot=сегодня (спот ставки 14.25) для forward-сценариев"
  },
  "computed": {
   "attribution": {
@@ -305,7 +313,7 @@
     },
     "revenue_delta": 880,
     "ebitda_delta": 2065,
-    "net_profit_delta": 1720,
+    "net_profit_delta": 1611,
     "contributions": {
      "fx": {
       "revenue": -0.0,
@@ -315,7 +323,7 @@
      "rate": {
       "revenue": -0.0,
       "ebitda": -0.0,
-      "net_profit": 161
+      "net_profit": 52
      },
      "cost_inflation": {
       "revenue": -0.0,
@@ -343,7 +351,7 @@
     },
     "revenue_delta": -720,
     "ebitda_delta": -225,
-    "net_profit_delta": -76,
+    "net_profit_delta": -185,
     "contributions": {
      "fx": {
       "revenue": -0.0,
@@ -351,9 +359,9 @@
       "net_profit": -369
      },
      "rate": {
-      "revenue": -0.0,
-      "ebitda": -0.0,
-      "net_profit": 92
+      "revenue": 0.0,
+      "ebitda": 0.0,
+      "net_profit": -17
      },
      "cost_inflation": {
       "revenue": 0.0,
@@ -381,7 +389,7 @@
     },
     "revenue_delta": 1730,
     "ebitda_delta": 3605,
-    "net_profit_delta": 2947,
+    "net_profit_delta": 2838,
     "contributions": {
      "fx": {
       "revenue": 0.0,
@@ -391,7 +399,7 @@
      "rate": {
       "revenue": -0.0,
       "ebitda": -0.0,
-      "net_profit": 230
+      "net_profit": 121
      },
      "cost_inflation": {
       "revenue": -0.0,
