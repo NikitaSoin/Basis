@@ -118,8 +118,8 @@
       null,
       null,
       null,
-      null,
-      null
+      573294,
+      239154
     ],
     "income_tax": [
       null,
@@ -127,8 +127,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -73083,
+      -53121
     ],
     "net_profit": [
       865477,
@@ -176,7 +176,58 @@
         31.92,
         12.66
       ]
-    }
+    },
+    "cost_format": "by_nature",
+    "expense_lines": [
+      {
+        "name": "Taxes other than income tax (NDPI, property tax)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          -222471,
+          -194478
+        ]
+      },
+      {
+        "name": "Depreciation, depletion and amortization",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          -91429,
+          -107183
+        ]
+      },
+      {
+        "name": "Materials, services and other",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          -57433,
+          -72601
+        ]
+      },
+      {
+        "name": "Other operating income (expense), net",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          -849736,
+          -790374
+        ]
+      }
+    ]
   },
   "balance_sheet": {
     "non_current_assets": {
@@ -186,8 +237,8 @@
         null,
         null,
         null,
-        null,
-        null
+        1274406,
+        1257823
       ],
       "intangibles": [
         null,
@@ -213,8 +264,8 @@
         null,
         null,
         null,
-        null,
-        null
+        1831251,
+        1560850
       ],
       "other_non_current": [
         null,
@@ -231,8 +282,8 @@
         null,
         null,
         null,
-        null,
-        null
+        3105657,
+        2818673
       ]
     },
     "current_assets": {
@@ -278,8 +329,8 @@
         null,
         null,
         null,
-        null,
-        null
+        456692,
+        432508
       ],
       "total_current": [
         null,
@@ -287,8 +338,8 @@
         null,
         null,
         null,
-        null,
-        null
+        635128,
+        770433
       ]
     },
     "total_assets": [
@@ -372,8 +423,8 @@
         null,
         null,
         null,
-        null,
-        null
+        187426,
+        106694
       ],
       "total_non_current_liab": [
         null,
@@ -381,8 +432,8 @@
         null,
         null,
         null,
-        null,
-        null
+        397700,
+        323609
       ]
     },
     "current_liabilities": {
@@ -410,8 +461,8 @@
         null,
         null,
         null,
-        null,
-        null
+        385315,
+        341452
       ],
       "total_current_liab": [
         null,
@@ -419,8 +470,8 @@
         null,
         null,
         null,
-        null,
-        null
+        495084,
+        423192
       ]
     },
     "total_liabilities": [
@@ -498,7 +549,7 @@
       null,
       433316,
       357142,
-      503000
+      503328
     ],
     "cfi": [
       null,
@@ -506,8 +557,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -260700,
+      -128871
     ],
     "cff": [
       null,
@@ -515,8 +566,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -76064,
+      -195920
     ],
     "net_change_in_cash": [
       null,
@@ -524,8 +575,8 @@
       null,
       null,
       null,
-      null,
-      null
+      20775,
+      159489
     ],
     "capex": [
       145332,
@@ -543,7 +594,7 @@
       null,
       null,
       164142,
-      353000
+      353328
     ],
     "ratios": {
       "fcf_margin": [
@@ -553,7 +604,7 @@
         null,
         null,
         10.62,
-        24.42
+        24.44
       ],
       "cfo_to_capex": [
         2.12,
@@ -562,7 +613,7 @@
         null,
         null,
         1.85,
-        3.35
+        3.36
       ],
       "capex_to_revenue": [
         16.84,
@@ -979,6 +1030,13 @@
       "title": "MOEX/веб — цена акции 1218,8 ₽, число акций 3 036,31 млн; консенсус аналитиков 1517-1700 ₽; config/market_params.json",
       "period": "2026-05",
       "reliability": "medium"
+    },
+    {
+      "id": "src_4",
+      "type": "official_report",
+      "title": "PAO NOVATEK Disclosable Consolidated Financial Statements for the year ended 31 December 2025 (audited by Technologies of Trust – Audit JSC, 10 Feb 2026). Available: novatek.ru/common/upload/doc/Novatek_FS_12m2025_ENG.pdf",
+      "period": "2024-2025",
+      "reliability": "high"
     }
   ],
   "data_flags": [
@@ -992,7 +1050,11 @@
     "CFO 2025 = 503 млрд и capex ~150 млрд — из пресс-релиза (src_2); capex 2023 в источнике null. FCF 2025 ~353 млрд. CFO 2025 > EBITDA → нормализован на ~73 млрд высвобождения оборотного капитала (judgement).",
     "FCF₁ в DCF = устойчивый 215 млрд: фактический capex 2025 (150) занижен паузой строек СПГ; устойчивый capex ~215 млрд (14,9% выручки). Оценка консервативна.",
     "Бета принята 0,9 (оценка): точная не раскрыта; чувствительность к бете высокая из-за ERP 9%.",
-    "ГЛАВНЫЙ МЕТОДОЛОГИЧЕСКИЙ ФЛАГ: при ОФЗ 14,6% и ERP 9% Ke≈22,7% структурно занижает DCF/DDM по российским дивидендным акциям. DCF 398 ₽ — нижняя интринсик-граница при текущих ставках, не «справедливая цена −67%». Рынок и консенсус (1218-1700 ₽) закладывают снижение ставок."
+    "ГЛАВНЫЙ МЕТОДОЛОГИЧЕСКИЙ ФЛАГ: при ОФЗ 14,6% и ERP 9% Ke≈22,7% структурно занижает DCF/DDM по российским дивидендным акциям. DCF 398 ₽ — нижняя интринсик-граница при текущих ставках, не «справедливая цена −67%». Рынок и консенсус (1218-1700 ₽) закладывают снижение ставок.",
+    "ETR 2024 = 12.75% (структурно низкая, НЕ разовая): «Прочие доходы/(расходы), нетто» 2024 = +248 512 млн включает долю прибыли СП (Ямал СПГ и др.) и финансовые статьи — этот доход приходит к НОВАТЭКу после налогообложения на уровне СП, поэтому EIFF у NVTK ниже. ETR нормализации не требует. ETR 2025 = 22.21% (в норме при преобладании операционного дохода).",
+    "CFI/CFF 2024-2025 из официальной консолидированной отчётности (disclosable FS, src_4): CFI 2025 = −128 871 млн (меньше capex ~150 млрд — разница покрыта дивидендами из СП и прочими поступлениями от инвестдеятельности); CFI 2024 = −260 700 млн. CFF 2025 = −195 920 млн (выплата дивидендов + погашение долга); CFF 2024 = −76 064 млн.",
+    "Expense lines 2024-2025 раскрыты по природе из disclosable FS (src_4). «Other operating income (expense), net» — агрегированная строка per Постановление РФ №1490: включает закупки углеводородов, транспорт, Г&А, долю прибыли СП (операционную часть), обесценения, ГРР и прочее — детализация как «чувствительная информация» не раскрывается. 2019-2023: expense_lines=null (нет разбивки по природе в доступных источниках).",
+    "pre_tax_profit и income_tax заполнены только для 2024-2025 (из disclosable FS, src_4). 2019-2021, 2023 — первичные отчёты не загружены, данные null."
   ],
   "relative_peers_sector": {
     "peer_median_ev_ebitda_2025": 4.13,
@@ -1046,8 +1108,8 @@
       null,
       null,
       null,
-      null,
-      null
+      12.75,
+      22.21
     ],
     "etr_sustainable": 25.0,
     "bridge": [
