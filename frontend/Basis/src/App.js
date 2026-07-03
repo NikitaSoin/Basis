@@ -3838,7 +3838,27 @@ const CompanyCard = ({ company, onBack }) => {
     const years = meta.fiscal_years || [];
     const at = (arr, i) => (Array.isArray(arr) ? (arr[i] ?? null) : null);
     const isBank = meta.profile === "bank";
-    const fmtBig = (v) => { if (typeof v !== "number") return "—"; const a = Math.abs(v); if (a >= 1000000) return formatNumber(v / 1000000, { decimals: 2 }) + " трлн"; if (a >= 1000) return formatNumber(v / 1000, { decimals: 1 }) + " млрд"; return formatNumber(v) + " млн"; };
+    // fmtBig: adaptive scale for monetary values stored in meta.unit=«млн».
+    // Rules: ≥1 000 000 млн → трлн (2 dec if abs<10, else 1); ≥1 000 → млрд (1 dec);
+    // else → млн (1 dec). Unit suffix appended with NBSP so it never wraps.
+    // meta.unit РАЗНЫЙ по компаниям (~250 «млн», 11 «млрд», единицы «тыс») → нормируем к млн.
+    const _unitToMln = (() => {
+      const u = String(meta.unit || "млн").toLowerCase();
+      if (u.startsWith("млрд")) return 1000;
+      if (u.startsWith("тыс") || u === "тысячи") return 0.001;
+      return 1;
+    })();
+    const fmtBig = (v) => {
+      if (typeof v !== "number") return "—";
+      const m = v * _unitToMln;
+      const a = Math.abs(m);
+      if (a >= 1e6) {
+        const s = m / 1e6;
+        return formatNumber(s, { decimals: Math.abs(s) >= 10 ? 1 : 2 }) + " трлн";
+      }
+      if (a >= 1e3) return formatNumber(m / 1e3, { decimals: 1 }) + " млрд";
+      return formatNumber(m, { decimals: 1 }) + " млн";
+    };
     const yoy = (c, p) => (typeof c === "number" && typeof p === "number" && p !== 0) ? ((c - p) / Math.abs(p)) * 100 : null;
     // Section card header: accent icon + title + optional right slot.
     const cardHead = (Icon, title, right) => (
@@ -4213,7 +4233,7 @@ const CompanyCard = ({ company, onBack }) => {
                     <tr>
                       <th className="tw-text-left tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Год</th>
                       <th className="tw-text-left tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong">Корректировка</th>
-                      <th className="tw-text-right tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Сумма, млн ₽</th>
+                      <th className="tw-text-right tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Сумма, ₽</th>
                       <th className="tw-text-center tw-px-3 tw-py-2 tw-text-[11px] tw-font-medium tw-text-text-tertiary tw-border-b tw-border-border-strong tw-whitespace-nowrap">Уровень</th>
                     </tr>
                   </thead>
