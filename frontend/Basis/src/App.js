@@ -4129,11 +4129,14 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Комиссионные доходы",        arr: ga(bp, "fee_income_gross") || ga(bp, "fee_income"), indent: true, delta: true },
       { label: "Комиссионные расходы",       arr: ga(bp, "fee_expense"), indent: true, muted: true, delta: true },
       { label: "Чистый комиссионный доход",  arr: bp.net_fee_income, bold: true, delta: true },
+      // Страховой/иной сегментный доход (ТКС/Т — net_insurance_income); условная строка
+      { label: "Чистый страховой доход",     arr: ga(bp, "net_insurance_income"), delta: true },
       // ── Казначейство / прочий доход (объясняет волатильность ОД) ──
       { label: "Доход казначейства и прочий", arr: ga(bp, "other_income"), indent: true, muted: true, delta: true },
-      // ── Итоги (видны в свёрнутом виде) ──
-      { label: "Операционные доходы",        arr: bp.operating_income, bold: true, delta: true },
-      { label: "Резервы (CoR)",              arr: bp.provisions, delta: true },
+      // ── Итоги (видны в свёрнутом виде) ── операц.доход: явный ИЛИ сумма компонент (у части банков нет поля)
+      { label: "Операционные доходы",        arr: orSum(ga(bp, "operating_income"), [bp.net_interest_income, bp.net_fee_income, ga(bp, "net_insurance_income"), ga(bp, "other_income")]), bold: true, delta: true },
+      // Резервы: разные банки — provisions ИЛИ impairment_charges (Т-Технологии)
+      { label: "Резервы (CoR)",              arr: ga(bp, "provisions") || ga(bp, "impairment_charges"), delta: true },
       { label: "Операционные расходы",       arr: bp.operating_expenses, delta: true },
       // ── Нижняя цепочка — детали ──
       { label: "Прибыль до налога",          arr: ga(bp, "pre_tax_profit"), indent: true, delta: true },
