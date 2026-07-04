@@ -90,6 +90,14 @@
       null,
       null
     ],
+    "trading_income": [
+      -500,
+      null,
+      3960,
+      4250,
+      -1240,
+      3380
+    ],
     "pre_tax_profit": [
       null,
       null,
@@ -896,9 +904,170 @@
     "ДИВИДЕНДЫ: Фактический payout 2025 превышает 100% ЧП 2025 (выплачено ~7.2 млрд из нераспределённой прибыли при ЧП 4.7 млрд). Дивидендная история ненадёжна.",
     "ИСТОРИЧЕСКИЙ P/B: Не рассчитан из-за отсутствия исторических котировок в локальной БД — помечен insufficient_data.",
     "DATA_QUALITY=medium: отсутствуют процентные доходы/расходы, NPL, достаточность капитала — ключевые метрики для банка. Основные данные (NII, комиссии, резервы, P&L, баланс) высокого качества.",
-    "GOVERNANCE: применён governance_discount +2 п.п. к Ke (21,35%→23,35%) за сверхконцентрацию контроля семьи Коган (~82%), малоликвид и приоритет капитализации над дивидендами. Справедливая цена по P/BV×ROE снижена до ~0.049 ₽ (медианный ROE) / 0.019 ₽ (текущий ROE). related_party_signal=elevated_structural (учтён через Ke)."
+    "GOVERNANCE: применён governance_discount +2 п.п. к Ke (21,35%→23,35%) за сверхконцентрацию контроля семьи Коган (~82%), малоликвид и приоритет капитализации над дивидендами. Справедливая цена по P/BV×ROE снижена до ~0.049 ₽ (медианный ROE) / 0.019 ₽ (текущий ROE). related_party_signal=elevated_structural (учтён через Ke).",
+    "BALANCE_SHEET CANONICAL (2026-07-04): gross_loans 2020/2022/2023/2024/2025 — smart-lab aggregator (gross кредитный портфель); 2024 подтверждён Interfax МСФО пресс-релизом (466.7 млрд до резервов).",
+    "BALANCE_SHEET CANONICAL: net_loans 2024=422800 из Interfax МСФО 2024; другие годы нет надёжного первичного источника — null.",
+    "BALANCE_SHEET CANONICAL: loan_provisions 2024=43900 выведено из Interfax (gross 466700 − net 422800); другие годы null (smart-lab provisions ненадёжны — занижают на ~10 млрд для 2024).",
+    "BALANCE_SHEET CANONICAL: customer_deposits [2020/2022/2023/2024/2025] из smart-lab; 2023 (442800) и 2024 (539900) подтверждены Interfax МСФО. 2021 — данных нет, null.",
+    "BALANCE_SHEET CANONICAL: deposits_retail + deposits_corporate — smart-lab, арифметика проверена: сумма = customer_deposits для 2020-2024 (diff=0); 2025: сумма 593800 vs итог 593700 (расхождение 100 млн = округление smart-lab).",
+    "РАСХОЖДЕНИЕ: bank_balance.deposits [350513...667507] из аналитического PDF включает ВСЕ привлечённые средства (клиенты + банки + возможно облигации). balance_sheet.customer_deposits [329100...593700] = только средства клиентов по МСФО. Использовать balance_sheet.customer_deposits для анализа клиентской базы.",
+    "РАСХОЖДЕНИЕ: bank_balance.loans_gross [244385...508599] из аналитического PDF. balance_sheet.gross_loans [222800...503200] из smart-lab (первичка), 2024=466700 из Interfax МСФО. Оба ряда имеют расхождение для 2024 (443012 vs 466700), использовать Interfax-подтверждённый 466700.",
+    "БАНК_P&L: trading_income — smart-lab (доходы от операций с ценными бумагами/торговые), 2021 нет данных. Уровень надёжности: medium.",
+    "БАНК_P&L: interest_income, interest_expense, fee_income, fee_expense, pre_tax_profit, income_tax — не раскрыты в доступных публичных МСФО пресс-релизах Уралсиб. Требуется первичный PDF МСФО (недоступен программно — редиректы, CMS). Null + flag."
   ],
   "balance_sheet": {
+    "cash_and_equivalents": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_from_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "gross_loans": [
+      222800,
+      null,
+      312900,
+      373900,
+      466700,
+      503200
+    ],
+    "loan_provisions": [
+      null,
+      null,
+      null,
+      null,
+      43900,
+      null
+    ],
+    "net_loans": [
+      null,
+      null,
+      null,
+      null,
+      422800,
+      null
+    ],
+    "ppe_intangibles": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      505592,
+      530534,
+      710870,
+      678175,
+      862161,
+      784813
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "customer_deposits": [
+      329100,
+      null,
+      482400,
+      442800,
+      539900,
+      593700
+    ],
+    "deposits_retail": [
+      185200,
+      null,
+      193600,
+      198900,
+      251300,
+      293300
+    ],
+    "deposits_corporate": [
+      143900,
+      null,
+      288800,
+      243900,
+      288600,
+      300500
+    ],
+    "debt_securities_issued": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "subordinated_debt": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      409196,
+      422959,
+      596133,
+      561565,
+      752191,
+      669406
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "retained_earnings": [
+      41847,
+      53604,
+      61265,
+      64690,
+      58306,
+      63117
+    ],
     "total_equity": [
       96396,
       107575,
