@@ -4087,14 +4087,21 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Чистый долг", arr: bs.net_debt },
       { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
     ] : [
-      // TODO(bank-balance): детальная структура — кредиты по сегментам / ц.бумаги / МБК —
-      // будет добавлена после загрузки данных финансистом. Пока компактные итоги + кредит/депозиты.
-      { label: "Активы", arr: bs.total_assets, bold: true, delta: true },
-      { label: "Кредитный портфель", arr: ga(bs, "loans_to_clients_net") || ga(bs, "loan_portfolio_gross") || ga(bmx, "loan_portfolio"), delta: true },
-      { label: "Средства клиентов", arr: ga(bmx, "deposits") || ga(bs, "client_deposits"), delta: true },
+      // ── АКТИВЫ ──
+      { label: "Кредитный портфель (валовой)", arr: ga(bs, "gross_loans"), bold: true, delta: true },
+      { label: "Резервы под потери", arr: ga(bs, "loan_provisions"), indent: true, muted: true, delta: true },
+      { label: "Кредиты юрлицам", arr: ga(bs, "loans_corporate"), indent: true, delta: true },
+      { label: "Кредиты физлицам", arr: ga(bs, "loans_retail"), indent: true, delta: true },
+      { label: "Кредитный портфель (чистый)", arr: ga(bs, "net_loans"), bold: true, delta: true },
+      { label: "Портфель ценных бумаг", arr: ga(bs, "securities") || ga(bs, "investment_securities"), delta: true },
+      { label: "ИТОГО АКТИВЫ", arr: ga(bs, "total_assets") || bs.total_assets, bold: true, delta: true },
+      // ── ПАССИВЫ ──
+      { label: "Средства клиентов", arr: orSum(ga(bs, "customer_deposits"), [ga(bs, "deposits_retail"), ga(bs, "deposits_corporate")]), bold: true, delta: true },
+      { label: "Депозиты физлиц", arr: ga(bs, "deposits_retail"), indent: true, delta: true },
+      { label: "Депозиты юрлиц", arr: ga(bs, "deposits_corporate"), indent: true, delta: true },
+      { label: "Средства банков (МБК)", arr: ga(bs, "due_to_banks"), delta: true },
       { label: "Капитал", arr: totalEquityArr, bold: true, delta: true },
-      { label: "Обязательства", arr: bs.total_liabilities, delta: true },
-      { label: "Балансовая ст-ть / акция, ₽", arr: bs.book_value_per_share, fmt: (v) => formatNumber(v, { decimals: 2 }), muted: true },
+      { label: "Балансовая ст-ть / акция, ₽", arr: ga(bs, "book_value_per_share"), fmt: (v) => formatNumber(v, { decimals: 2 }), muted: true },
     ].filter((r) => r.bold || (Array.isArray(r.arr) && r.arr.some((x) => x != null)));
 
     // ОДДС — три потока + итог; детальные статьи каждого потока (cfo/cfi/cff_lines)
