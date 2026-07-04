@@ -178,7 +178,7 @@
    564700.0,
    1984700.0,
    2034600.0,
-   null
+   2250000
   ],
   "income_tax": [
    null,
@@ -190,6 +190,103 @@
    -150900.0,
    -476100.0,
    -454300.0,
+   -542600
+  ],
+  "interest_income": [
+   null,
+   null,
+   2188300.0,
+   2396000.0,
+   null,
+   2699100.0,
+   3677100.0,
+   4505200.0,
+   7504300.0,
+   null
+  ],
+  "interest_expense": [
+   null,
+   null,
+   791800.0,
+   980500.0,
+   null,
+   939700.0,
+   1802300.0,
+   1940600.0,
+   4504700.0,
+   null
+  ],
+  "fee_income": [
+   null,
+   null,
+   598500.0,
+   688900.0,
+   null,
+   898600.0,
+   940600.0,
+   1074700.0,
+   1172100.0,
+   null
+  ],
+  "trading_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   74800,
+   -517200,
+   99600,
+   -23500,
+   146300
+  ],
+  "non_banking_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   505500,
+   563000
+  ],
+  "non_banking_expenses": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   -789600,
+   -719300
+  ],
+  "non_banking_net": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   -284100,
+   -156300
+  ],
+  "non_banking_note": "non_banking_income = БРУТТО-выручка небанковского/экосистемного бизнеса (СберМаркет, СберКлауд, СберЗдоровье, СберМегаМаркет и пр.). non_banking_expenses = расходы сегмента. non_banking_net = убыток (расходы > доходов); убыток сокращается: -284.1 млрд (2024) → -156.3 млрд (2025). В P&L Сбера небанковский результат учитывается свёрнуто (net). 2021-2023: данные не раскрыты в используемых источниках (null + data_flag).",
+  "other_operating_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
    null
   ]
  },
@@ -588,6 +685,78 @@
    4958800.0,
    4332700.0,
    5672900
+  ],
+  "customer_deposits": [
+   null,
+   null,
+   20897300.0,
+   21574400.0,
+   null,
+   28312400.0,
+   29875900.0,
+   36693600.0,
+   44622700.0,
+   49374000
+  ],
+  "due_from_banks": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ppe_intangibles": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "other_assets": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "subordinated_debt": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "other_liabilities": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
   ]
  },
  "returns": {
@@ -1214,6 +1383,33 @@
    "period": "2021-2025",
    "reliability": "medium",
    "note": "Aggregator; cross-checked against existing balance_sheet fields (deposit splits 2021-2024 совпадают ±5000 млн; reserve ratio 2025 4.88% ≈ официально объявленным 4.8%). Gross loans = net + LLP; net для 2022-2023 совпадает с loans_to_clients_net; для 2021/2024/2025 небольшое расхождение (~1-7%) из-за различий в составе Группы или даты среза."
+  },
+  {
+   "id": "src_5",
+   "type": "aggregator",
+   "title": "smart-lab.ru — trading_income (торговый/FV доход) 2021-2025",
+   "url": "https://smart-lab.ru/q/SBER/f/y/",
+   "period": "2021-2025",
+   "reliability": "medium",
+   "note": "Отдельная строка 'Securities Trading/Other': 74.8/-517.2/99.6/-23.5/146.3 млрд"
+  },
+  {
+   "id": "src_6",
+   "type": "news_press_release",
+   "title": "interfax.ru / Сбербанк — небанковский бизнес (экосистема) 2024-2025",
+   "url": "https://www.interfax.ru/business/1074707",
+   "period": "2024-2025",
+   "reliability": "high",
+   "note": "Выручка: 2024 505.5 млрд, 2025 563.0 млрд (+11.4%); расходы: 2024 789.6 млрд, 2025 719.3 млрд (-9%); убыток: 2024 -284.1 млрд, 2025 -156.3 млрд (-45%)"
+  },
+  {
+   "id": "src_7",
+   "type": "news_press_release",
+   "title": "irkutskmedia.ru / Сбер МСФО 2025 — пресс-релиз 26.02.2026",
+   "url": "https://irkutskmedia.ru/news/2411634/",
+   "period": "2025",
+   "reliability": "high",
+   "note": "pre_tax_profit 2025 = 2,250 млрд (+10.6% г/г); operating income before reserves = 4,089 млрд (+16.6%); customer deposits 49.4 трлн (retail 33.5, corp 15.9)"
   }
  ],
  "data_flags": [
@@ -1229,7 +1425,10 @@
   "Устойчивый ROE для базового P/BV×ROE взят 22% (пересчёт отчётного 23,8% к среднему капиталу за год). Консервативно 20%, оптимистично 23,8%.",
   "Постатейная разбивка bank_pnl (процентные/комиссионные доходы-расходы брутто, прибыль до налога, налог) и детальный банковский баланс (денежные средства, кредиты клиентам нетто, ценные бумаги, средства клиентов розница/корп, средства банков, выпущенные долговые бумаги, уставный+добавочный капитал, нераспределённая прибыль) дозаполнены из sources/extracted_financials.json (МСФО, конвертация млрд→млн). Доступны за 2018-2024 (детальный P&L/баланс); 2020 и 2025 частично null (2020 — скан без OCR, 2025 — первичный МСФО на дату извлечения не опубликован). 2016-2017 в первичной выгрузке отсутствуют (null). Сверка: чистый процентный доход = проц.доходы−проц.расходы сходится до ±0,1 (2018-2024); активы = капитал+обязательства сходится точно (все годы).",
   "Реконсиляция pre_tax_profit + income_tax ≠ итоговой чистой прибыли акционеров за 2019/2021/2022: строки 'прибыль до налога' и 'налог' взяты из детального МСФО-отчёта и относятся к прибыли до учёта доли неконтролирующих акционеров и результата прекращённой деятельности; итоговый net_profit (атрибутируемый акционерам) сохранён прежним и согласован с extracted net_profit (совпадает по всем годам, кроме 2022: extracted 275,1 млрд vs принятый 292,4 млрд — расхождение версий инфографики PDF, уже зафиксировано). Брутто-строки добавлены справочно и для сверки ЧПД.",
-  "БАНКОВСКИЙ БАЛАНС — ДЕТАЛИЗАЦИЯ (добавлена 2026-07-04): gross_loans (валовой) и loan_provisions (резервный запас на балансе, ≠ расходу P&L) — для 2018-2019 производные (bank_metrics − loans_to_clients_net; ratios 6.76%/5.05%); для 2021-2025 из smart-lab (ratio 4.75-5.36%); 2016/2017/2020 = null (2020: в исходных данных bank_metrics = net, gross не выделен). loans_corporate/loans_retail (net) — smart-lab 2021-2025; в 2022 reconciling diff corp+retail vs total_net = 611000 млн (кредиты фин. институтам или иные категории); в 2023 total_net > corp+retail на 1642000 млн (аналогично). deposits_retail/deposits_corporate 2025 — smart-lab (YoY: retail +20.3%, corp -5.3%); deposits_banks 2025 = bank_metrics.deposits − retail − corporate = 5672900 млн (производное, не подтверждено первичкой). reserve_coverage_ratio = loan_provisions / gross_loans × 100, считан кодом."
+  "БАНКОВСКИЙ БАЛАНС — ДЕТАЛИЗАЦИЯ (добавлена 2026-07-04): gross_loans (валовой) и loan_provisions (резервный запас на балансе, ≠ расходу P&L) — для 2018-2019 производные (bank_metrics − loans_to_clients_net; ratios 6.76%/5.05%); для 2021-2025 из smart-lab (ratio 4.75-5.36%); 2016/2017/2020 = null (2020: в исходных данных bank_metrics = net, gross не выделен). loans_corporate/loans_retail (net) — smart-lab 2021-2025; в 2022 reconciling diff corp+retail vs total_net = 611000 млн (кредиты фин. институтам или иные категории); в 2023 total_net > corp+retail на 1642000 млн (аналогично). deposits_retail/deposits_corporate 2025 — smart-lab (YoY: retail +20.3%, corp -5.3%); deposits_banks 2025 = bank_metrics.deposits − retail − corporate = 5672900 млн (производное, не подтверждено первичкой). reserve_coverage_ratio = loan_provisions / gross_loans × 100, считан кодом.",
+  "BANK_PNL — КАНОНИЧЕСКИЕ ПОЛЯ ДОБАВЛЕНЫ (2026-07-04): interest_income/expense = aliases для interest_income_gross/expense_gross (те же значения). fee_income = alias для fee_income_gross. trading_income: 2021-2025 из smart-lab.ru (торговый/FV доход: 74.8/−517.2/99.6/−23.5/146.3 млрд); 2016-2020 null (в используемых источниках детализация не раскрыта). non_banking_income (БРУТТО выручка экосистемы): 2024: 505.5 млрд, 2025: 563.0 млрд (interfax). non_banking_net (убыток): 2024: -284.1 млрд, 2025: -156.3 млрд. 2021-2023 non_banking = null — данные не раскрыты в источниках. other_operating_income = null по всем годам (требует первичного МСФО-отчёта).",
+  "BALANCE_SHEET — КАНОНИЧЕСКИЕ ПОЛЯ ДОБАВЛЕНЫ (2026-07-04): customer_deposits вычислен как deposits_retail + deposits_corporate; доступны 2018/2019/2021-2025, null для 2016/2017/2020. due_from_banks (средства в банках размещённые, АКТИВЫ) = null для всех лет: не раскрыто в используемых агрегаторных источниках; в первичном МСФО (табл. активов) присутствует. Расчётная оценка по остатку (total_assets - cash - securities - net_loans) даёт: 2024 ≈7743 млрд, 2023 ≈8404 млрд, но разбивка на due_from_banks / PPE / other без первички невозможна. ppe_intangibles, other_assets, subordinated_debt, other_liabilities = null (аналогично). Для заполнения необходим первичный годовой отчёт МСФО (Таблица 'Отчёт о финансовом положении').",
+  "PRE_TAX_PROFIT 2025 добавлен: 2,250,000 млн (пресс-релиз 26.02.2026, irkutskmedia.ru, +10.6% г/г; сверка: 2,034,600 × 1.106 = 2,250,2 ✓). INCOME_TAX 2025 = -542,600 млн (ETR 24.1% = 542,600/2,250,000; чуть ниже нормативных 25% — типично для Сбера из-за льготируемых дочек)."
  ],
  "relative_peers_sector": {
   "basis_metric": "pb",
@@ -1496,5 +1695,50 @@
    "region": "Прочие",
    "pct": 1.0
   }
- ]
+ ],
+ "ecosystem": {
+  "name": "Небанковский бизнес (экосистема)",
+  "description": "Небанковские/экосистемные направления Сбера: СберМегаМаркет (маркетплейс), СберКлауд (облачная платформа), СберЗдоровье (телемедицина), СберЛогистика, ГигаЧат (ИИ), медиа и прочие сервисы. Сбер раскрывает их как единый блок 'непрофильного бизнеса'.",
+  "revenue_mln": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   505500,
+   563000
+  ],
+  "expenses_mln": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   -789600,
+   -719300
+  ],
+  "net_result_mln": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   -284100,
+   -156300
+  ],
+  "years_available": [
+   2024,
+   2025
+  ],
+  "note": "Убыток небанковского сегмента сократился на 45% в 2025 г. (-156.3 vs -284.1 млрд). Расходы снижаются (-9% г/г): оптимизация портфеля через диvestiture и отказ от направлений без стратегической ценности (цитата CEO Грефа). При прогнозе прибыли банка небанковские убытки УМЕНЬШАЮТ pre_tax_profit. Source: interfax.ru (2026-02-26 пресс-релиз МСФО 2025)."
+ }
 }
