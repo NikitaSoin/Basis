@@ -26,18 +26,18 @@
  },
  "bank_pnl": {
   "net_interest_income": [
-   132600,
-   143900,
-   230000,
-   380000,
-   520000
+   132558,
+   143897,
+   230323,
+   379602,
+   520036
   ],
   "net_fee_income": [
-   null,
-   null,
+   47290,
+   77050,
    73065,
    105588,
-   146000
+   146119
   ],
   "net_insurance_income": [
    null,
@@ -70,11 +70,11 @@
   ],
   "provisions_note": "Дубль-поле impairment_charges для совместимости единой схемы с другими банками. Значения идентичны impairment_charges. Резерв под кредитные убытки (P&L charge, ECL stage 1-3). Скриншот src_10 показывает: 2023=50239, 2024=129552, 2025=165231; расхождение 2024 +10.1% задокументировано в impairment_note (разные методики консолидации).",
   "operating_expenses": [
-   null,
-   null,
+   59460,
+   93717,
    122854,
    198284,
-   276000
+   276268
   ],
   "pre_tax_profit": [
    null,
@@ -98,7 +98,45 @@
    192000
   ],
   "data_note": "2021-2022: NII из smart-lab (headline); строки fee/impairment/opex — только 2023-2025 из отчётов/пресс-релизов; 2025 PBT/tax рассчитаны от operating NI 174.4 млрд при ETR=25%",
-  "impairment_note": "2021-2022: из годового отчёта МСФО 2025 (скриншот). 2023: 51 777 млн (existing, diff -3.1% vs scr 50239 — в пределах точности). 2024: 116 446 млн (existing); скриншот 129 552 млн (diff +10.1%) — возможно разная методика COR. 2025: 165 000 млн (existing, diff -0.1% vs scr 165231 ✓)."
+  "impairment_note": "2021-2022: из годового отчёта МСФО 2025 (скриншот). 2023: 51 777 млн (existing, diff -3.1% vs scr 50239 — в пределах точности). 2024: 116 446 млн (existing); скриншот 129 552 млн (diff +10.1%) — возможно разная методика COR. 2025: 165 000 млн (existing, diff -0.1% vs scr 165231 ✓).",
+  "interest_income": [
+   null,
+   null,
+   null,
+   686164,
+   null
+  ],
+  "interest_expense": [
+   null,
+   null,
+   null,
+   313281,
+   null
+  ],
+  "interest_notes": "2024: gross interest income 686164 / expense 313281 / NII 379668 — from PDF МСФО 2024 (extracted_financials.json, src_6). Gap NII 379668 vs 686164-313281=372883 (+6785): rounding or FX/accrual adjustments. 2021-2023: only heuristic extrapolations available (unreliable) → null. 2025: not extracted.",
+  "trading_income": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "trading_income_note": "Не извлечено из МСФО примечаний (trading / FV changes). Данные по этой строке раскрыты в Примечании к финансовым инструментам FVTPL (~стр.35-50 PDF 2024). В 2022 — вероятно значительный отрицательный торговый результат (объясняет падение операционного дохода с 140601 до 123709 при росте NII). 2024: вычитаемый остаток (NII+fee+insurance - opex - provisions - PBT) указывает на существенные отрицательные переоценки (~-50-65 млрд по FVTPL), вероятно по портфелю облигаций Росбанка в условиях высокой ставки. Требует парсинга Примечания.",
+  "non_banking_income": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "non_banking_net": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "non_banking_note": "Небанковский / экосистемный доход. Частично раскрыт: net_insurance_income (страхование Т-Страхование/Ингосстрах) уже отдельной строкой: 2023=27577, 2024=46694 млн; рост 69% г/г, доля ~8-10% от операционного дохода. Остальные экосистемные направления (Т-Мобайл, Т-Инвестиции, Т-Бизнес, подписки) НЕ выделены в извлечённых данных — они включены в net_fee_income и 'прочий доход'. По бизнес-модели: страхование ~8%, Т-Мобайл + прочее ~4% выручки по сегментам. Полная разбивка: Примечание 'Сегментная информация' (~стр.60-80 PDF 2025). non_banking_income / non_banking_net = null до парсинга этого примечания."
  },
  "bank_balance": {
   "loans_gross": [
@@ -180,10 +218,10 @@
    null,
    null,
    null,
-   null,
+   250000,
    null
   ],
-  "interbank_note": "null — данные МБК (placed/borrowed) не извлечены из МСФО; требуется парсинг."
+  "interbank_note": "due_to_banks_borrowed 2024 = 250000 млн — из extracted_financials.json (PDF парс, средства привлечённые от банков и ЦБ). Confidence: medium (primary PDF 2024). 2025: из остатка обязательств (5278532 - 4547726 депозиты = 730806 млн) — разбивка на МБК / выпущенные бумаги / субординированный долг / прочие не извлечена. 2021-2023: значения из extracted_financials экстраполированы → null. due_to_banks_placed (средства размещённые в банках — актив) → см. due_from_banks в balance_sheet."
  },
  "bank_metrics": {
   "roe_adj_pct": [
@@ -764,6 +802,13 @@
    "file": "companies/T/sources/Тинькофф (МСФО 2025) на 16.05.2026г.pdf",
    "period": "2025",
    "note": "Скриншоты из PDF: (1) динамика балансовых показателей — net_loans, deposits, NII, fee income, operating_income, impairment, opex 2016-2025; (2) кредитный/депозитный портфель — LTD 74% верифицирован; (3) структура активов; (4) мультипликаторы и метрики. operating_income добавлен в bank_pnl по этому источнику. Постатейная разбивка (loans_corporate/retail, deposits_retail/corporate, securities, due_to_banks) отсутствует в инфографике — требует парсинга примечаний к балансу (прибл. стр.25-35 PDF). Суммарный баланс assets=liab+equity проверен по всем 5 годам."
+  },
+  {
+   "id": "src_11",
+   "type": "extracted",
+   "title": "extracted_financials.json: поля 2024 (interest_income, interest_expense, cash_and_equivalents, other_assets, debt_securities_issued, subordinated_debt, other_liabilities, due_to_banks). Index 0 = 2024 (PDF-парс); indices 1-4 = экстраполяция.",
+   "period": "2024",
+   "confidence": "medium (primary PDF 2024 / extrapolated for earlier)"
   }
  ],
  "data_flags": [
@@ -782,7 +827,13 @@
   "LOANS_DEPOSITS_SPLIT_NULL: Разбивка кредитного портфеля (loans_corporate/loans_retail) и депозитной базы (deposits_retail/deposits_corporate) не доступна из инфографики src_10. По бизнес-модели Т — преимущественно розничный банк; после консолидации Росбанка появился значимый корпоративный сегмент (Росбанк — корпоративный банк с МСБ). Количественная разбивка требует парсинга примечаний МСФО. Установлены null.",
   "DUE_TO_BANKS_NULL: Средства банков и ЦБ (привлечённые МБК) = null — данные не извлечены из примечаний МСФО. По размеру баланса 2025 (5.28 трлн обязательств) при депозитах 4.55 трлн — остаток ~730 млрд покрывает выпущенные бумаги, МБК, прочие обязательства; точная разбивка требует парсинга.",
   "OPERATING_INCOME_ADDED: bank_pnl.operating_income добавлен по src_10 (инфографика МСФО 2025). Верификация через CIR: 2023=122854/225761=54.4% (✓ ≈54%), 2024=198284/282043=70.3% (✓ ≈70%), 2025=276000/403265=68.4% (✓ ≈69%). 2022: операционный доход снизился (123709 vs 2021: 140601) — торговые убытки в кризисный год.",
-  "PROVISIONS_ALIAS: bank_pnl.provisions добавлен как алиас impairment_charges для совместимости единой схемы банков. Значения идентичны."
+  "PROVISIONS_ALIAS: bank_pnl.provisions добавлен как алиас impairment_charges для совместимости единой схемы банков. Значения идентичны.",
+  "NII_PRECISION_UPDATE: net_interest_income уточнён по инфографике МСФО 2025 (slide 4): [132558, 143897, 230323, 379602, 520036] вместо округлённых [132600, 143900, 230000, 380000, 520000].",
+  "FEE_OPEX_2021_2022_FILLED: net_fee_income и operating_expenses для 2021-2022 заполнены по инфографике МСФО 2025 (slide 1, slide 6). fee: 2021=47290, 2022=77050; opex: 2021=59460, 2022=93717.",
+  "TRADING_INCOME_NULL: Строка торгового/FV дохода не извлечена из примечаний МСФО. В 2022 предположительно крупный отрицательный trading result (кризис). В 2024 — возможны убытки по FVTPL портфелю Росбанка при росте ставок. Требует парсинга примечания по финансовым инструментам FVTPL.",
+  "NON_BANKING_SPLIT_NULL: non_banking_income / non_banking_net не извлечены из сегментной отчётности МСФО. Страховой доход (net_insurance_income) уже зафиксирован отдельной строкой. Т-Мобайл, Т-Инвестиции и прочие нефинансовые направления включены агрегатно в fee/other. Требует парсинга Note 'Segment information'.",
+  "BALANCE_SHEET_EXTENDED: Добавлены поля balance_sheet: cash_and_equivalents, due_from_banks, ppe_intangibles, other_assets, debt_securities_issued, subordinated_debt, other_liabilities. Источник 2024: extracted_financials.json (PDF МСФО 2024, confidence medium). Liability sanity 2024: deposits(4080929)+due_to_banks(250000)+debt_issued(80000)+subord(50000)+other_liab(130000) = 4590929 vs total_liab 4596604 (delta 5675 ✓). 2025 и 2021-2023 = null (не извлечены или экстраполированы в source).",
+  "GROSS_INTEREST_2024: interest_income=686164, interest_expense=313281 добавлены в bank_pnl из extracted_financials.json (PDF 2024). Расчётный NII=372883 vs официальный 379602 — дельта +6719 (акрруал/FX эффект). 2025 и ранее: null."
  ],
  "balance_sheet": {
   "total_equity": [
@@ -867,7 +918,63 @@
    null,
    null
   ],
-  "due_to_banks_note": "null — средства банков и ЦБ (привлечённые МБК, РЕПО с ЦБ) не извлечены из примечаний МСФО. При объёме обязательств 2025 ~5.28 трлн и депозитах 4.55 трлн остаток ~730 млрд распределён между выпущенными бумагами, МБК и прочими обязательствами. Требуется парсинг примечания «Средства банков»."
+  "due_to_banks_note": "null — средства банков и ЦБ (привлечённые МБК, РЕПО с ЦБ) не извлечены из примечаний МСФО. При объёме обязательств 2025 ~5.28 трлн и депозитах 4.55 трлн остаток ~730 млрд распределён между выпущенными бумагами, МБК и прочими обязательствами. Требуется парсинг примечания «Средства банков».",
+  "cash_and_equivalents": [
+   null,
+   null,
+   null,
+   1426625,
+   null
+  ],
+  "cash_note": "2024 = 1426625 млн — из extracted_financials.json (PDF МСФО 2024, str. 18-21). Включает наличные, обязательные резервы в ЦБ, краткосрочные межбанковские размещения overnight (IFRS определение 'cash and cash equivalents'). 27.9% от total_assets 2024 — высокая доля после консолидации Росбанка. 2025: не извлечено (инфографика не раскрывает); остаток total_assets за вычетом net_loans: 6083903-3363618=2720285 — включает кэш+ценные бумаги+прочие активы. 2021-2023: экстраполированы в extracted → null (ненадёжно).",
+  "due_from_banks": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "due_from_banks_note": "null — средства размещённые в банках (межбанковские кредиты выданные, ностро-счета) не извлечены из примечаний МСФО. Исторически Тинькофф держал небольшой межбанковский портфель. После консолидации Росбанка объём мог существенно вырасти. Требует парсинга Примечания 'Due from banks' (~стр.25-35 PDF).",
+  "ppe_intangibles": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ppe_intangibles_note": "null — ОС и НМА не извлечены из МСФО. Т — asset-light банк (нет физических отделений), ОС/НМА минимальны vs баланс (~1-2% активов). Основные НМА: программное обеспечение, лицензии. Гудвил от Росбанка мог быть значимым или негативным (IFRS 3). Требует парсинга Balance Sheet Notes (~стр.25-35 PDF).",
+  "other_assets": [
+   null,
+   null,
+   null,
+   220000,
+   null
+  ],
+  "other_assets_note": "2024 = 220000 млн — из extracted_financials.json (PDF 2024, partial confidence). Прочие активы: отложенный налог, производные инструменты, прочие финансовые активы. Sanity check 2024: net_loans(2585465) + cash(1426625) + other_assets(220000) = 4232090; residual до total_assets 5118041 = 885951 — включает ценные бумаги, due_from_banks, ОС/НМА/гудвил. Цифра 220000 вероятно не включает ценные бумаги (они отдельно). 2025: null — не извлечено. 2021-2023: extrapolated → null.",
+  "debt_securities_issued": [
+   null,
+   null,
+   null,
+   80000,
+   null
+  ],
+  "debt_securities_issued_note": "2024 = 80000 млн — из extracted_financials.json ('debt_issued', PDF 2024). Выпущенные долговые ценные бумаги (биржевые облигации ПАО 'Т-Банк'). Sanity: deposits(4080929) + due_to_banks(250000) + debt_issued(80000) + subord(50000) + other_liab(130000) = 4590929 vs total_liabilities 4596604 (delta 5675 = rounding / прочие мелкие статьи ✓). 2025: не извлечено.",
+  "subordinated_debt": [
+   null,
+   null,
+   null,
+   50000,
+   null
+  ],
+  "subordinated_debt_note": "2024 = 50000 млн — из extracted_financials.json (PDF 2024). Субординированные облигации (капитал второго уровня Tier 2). Включаются в расчёт достаточности капитала Н1.2. Пропорция с балансом разумная: ~0.97% обязательств. 2025: не извлечено.",
+  "other_liabilities": [
+   null,
+   null,
+   null,
+   130000,
+   null
+  ],
+  "other_liabilities_note": "2024 = 130000 млн — из extracted_financials.json (PDF 2024). Прочие обязательства: отложенные налоговые обязательства, кредиторская задолженность, производные инструменты (обязательства), прочие. 2025: не извлечено."
  },
  "segments": [
   {
