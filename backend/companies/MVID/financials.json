@@ -464,13 +464,13 @@
       null
     ],
     "ps": [
-      null,
-      null,
-      null
+      0.072,
+      0.068,
+      0.024
     ],
     "ev_ebitda": [
-      null,
-      null,
+      5.42,
+      4.53,
       5.5
     ],
     "ev_ebitda_note": "2024: EV = кап + ЧД + аренда IFRS16 = 11049+85800+67000 = 163849 млн. EBITDA оценочная 29950. 2022-2023: исторические рыночные данные не собраны.",
@@ -532,9 +532,9 @@
       null
     ],
     "ps": [
-      null,
-      null,
-      null
+      0.072,
+      0.068,
+      0.024
     ],
     "pb": [
       null,
@@ -542,8 +542,8 @@
       null
     ],
     "ev_ebitda": [
-      null,
-      null,
+      5.42,
+      4.53,
       5.5
     ],
     "pe_adj": [
@@ -554,7 +554,7 @@
     "current": {
       "pe": null,
       "pe_adj": null,
-      "ps": null,
+      "ps": 0.024,
       "pb": null,
       "ev_ebitda": 5.5,
       "ev_sales": 0.36,
@@ -566,9 +566,12 @@
       "pe_value": null,
       "pe_adj_value": null,
       "pb_value": null,
-      "ev_ebitda_basis": "2024 only (оценочная EBITDA)",
-      "ev_ebitda_value": 5.5,
-      "period": "2024"
+      "ev_ebitda_basis": "3y_mean (CV=0.08, 2022-2024; EBITDA оценочная)",
+      "ev_ebitda_value": 5.14,
+      "ps_basis": "3y_mean (CV=0.40, 2022-2024; 2024 использует цену июн.2026, не year-end)",
+      "ps_value": 0.055,
+      "period": "2022-2024",
+      "note": "P/E и P/B не применимы: убытки все годы, капитал отрицательный с 2023. EV/EBITDA на оценочной EBITDA (D&A не раскрыта). P/S 2024 использует текущую цену 61.46 руб (июн.2026), а не year-end 2024 — среднее по трём годам менее показательно."
     }
   },
   "forecast": {

@@ -468,7 +468,11 @@
       "ps_5y_median": 0.15,
       "period": "2021-2025; для P/E медиана не считается (два убыточных года + спекулятивные значения в годы малой прибыли)",
       "pe_adj_5y_median": null,
-      "pb_5y_median": null
+      "pb_5y_median": null,
+      "ev_ebitda_5y_median": 3.59,
+      "ev_ebitda_5y_mean": 5.7,
+      "ev_ebitda_basis": "5y_median (CV=0.51, период 2020-2024; 2025 null — EBITDA отрицательная)",
+      "ev_ebitda_period": "2020-2024"
     },
     "pe_adj": [
       null,
