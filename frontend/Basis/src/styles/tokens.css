@@ -34,9 +34,9 @@
   --text-tertiary:  #7B8499;
 
   /* ---- Accent (signature: cobalt) ---- */
-  --accent:         #2347D9;
-  --accent-hover:   #1D3CB8;
-  --accent-soft:    rgba(35,71,217,0.10);
+  --accent:         #C97A4A;
+  --accent-hover:   #8A4A26;
+  --accent-soft:    rgba(201,122,74,0.12);
   --on-accent:      #FFFFFF;
 
   /* ---- Accent-2 (violet — marketing only: landing hero gradient).
@@ -117,7 +117,7 @@
   --accent-h:      var(--accent-hover);
   --accent-fade:   var(--accent-soft);
   --accent-text:   var(--accent);
-  --accent-border: rgba(35,71,217,0.25);
+  --accent-border: rgba(201,122,74,0.28);
 
   --positive:      var(--success);
   --pos-fade:      var(--success-soft);
@@ -197,9 +197,9 @@
   --text-tertiary:  #919BB2;
 
   /* ---- Accent (signature: cobalt, lightened for dark bg) ---- */
-  --accent:         #5B79FF;
-  --accent-hover:   #7B93FF;
-  --accent-soft:    rgba(91,121,255,0.12);
+  --accent:         #DB9463;
+  --accent-hover:   #C97A4A;
+  --accent-soft:    rgba(219,148,99,0.14);
   --on-accent:      #0B1220;
 
   /* ---- Accent-2 (violet, lightened so the gradient reads on near-black) ---- */
@@ -231,14 +231,14 @@
   --bg-surface:    #252523;
   --bg-hover:      #2D2D2B;
   --bg-overlay:    rgba(0,0,0,0.65);
-  --accent-border: rgba(91,121,255,0.30);
+  --accent-border: rgba(219,148,99,0.32);
   --gold-border:   rgba(245,158,11,0.30);
 
   /* ---- Decor visibility (per-theme) — DARK.
      On warm near-black #111110 a thin accent ring at light opacity
      disappears, so lift opacity and use a brighter accent glow. */
   --decor-opacity: 0.22;   /* hero orbit ring on dark bg (more to read through near-black) */
-  --decor-glow:    rgba(91,121,255,0.20);  /* corner glow brightest at the very top-right corner */
+  --decor-glow:    rgba(219,148,99,0.20);  /* corner glow brightest at the very top-right corner */
   --decor-glow-2:  rgba(139,92,246,0.10);  /* mid-stop: slight violet (--accent-2) hue shift */
 
   /* ---- Categorical palette (dark): hues lightened a touch so they
@@ -312,10 +312,10 @@
   --cc-ink:           #16130E;
   --cc-ink-2:         #544E44;
   --cc-ink-3:         #857D6F;
-  --cc-accent:        #1F3FC4;
-  --cc-accent-hover:  #18308F;
-  --cc-accent-2:      #23379C;
-  --cc-accent-soft:   rgba(31,63,196,0.08);
+  --cc-accent:        #C97A4A;
+  --cc-accent-hover:  #8A4A26;
+  --cc-accent-2:      #A85A30;
+  --cc-accent-soft:   rgba(201,122,74,0.10);
   --cc-amber:         #9A5B12;
   --cc-amber-soft:    rgba(154,91,18,0.10);
   --cc-success:       #15803D;
@@ -324,7 +324,7 @@
   --cc-info:          #0A5E8A;
   --cc-chart-grid:    rgba(20,18,14,0.06);
   --cc-hero-texture:  rgba(20,18,14,0.05);
-  --cc-hero-glow:     rgba(31,63,196,0.07);
+  --cc-hero-glow:     rgba(201,122,74,0.09);
 
   --cc-serif: "Fraunces", Georgia, "Times New Roman", serif;
   --cc-sans:  "Inter", system-ui, sans-serif;
@@ -374,7 +374,7 @@
   --cc-ink:           #ECEFF5;
   --cc-ink-2:         #A2ABBC;
   --cc-ink-3:         #717A89;
-  --cc-accent:        #5B7CFF;
+  --cc-accent:        #DB9463;
   --cc-accent-hover:  #7088F2;
   --cc-accent-2:      #93A8F5;
   --cc-accent-soft:   rgba(91,124,255,0.13);
