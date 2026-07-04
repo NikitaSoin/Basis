@@ -317,28 +317,49 @@ def market_geopolitics_region(region: str, tab: str = "deep",
     return _geo_block_dict(b, set())
 
 
+def _split_markers(markers) -> tuple[list, list]:
+    """Разбивает what_report_showed на positives (✅) и risks (❌/❗)."""
+    if not markers:
+        return [], []
+    pos, neg = [], []
+    for m in markers:
+        s = str(m).strip()
+        if s.startswith("✅"):
+            pos.append(s)
+        elif s.startswith("❌") or s.startswith("❗"):
+            neg.append(s)
+        else:
+            pos.append(s)   # нейтральные → в позитив
+    return pos, neg
+
+
 @router.get("/market/earnings")
 def market_earnings(portfolio_only: bool = False, limit: int = 60,
                     db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
     """Лента вышедших отчётов (Направление 3): тикер, период, одна строка сути, важность.
     Тап → карточка. portfolio_only — только бумаги портфеля."""
     from app.models.earnings import EarningsReport, EarningsDigest
-    from app.models.calendar_event import CalendarEvent  # noqa: F401 (consistency)
-    q = (db.query(EarningsReport, EarningsDigest)
+    q = (db.query(EarningsReport, EarningsDigest, Company.sector)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
+         .outerjoin(Company, Company.ticker == EarningsReport.ticker)
          .order_by(EarningsReport.created_at.desc()))
     if portfolio_only:
         tickers, _ = _portfolio_filter(db, user)
         q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)
     rows = q.limit(limit).all()
     out = []
-    for r, dg in rows:
+    for r, dg, sector in rows:
+        positives, risks = _split_markers(dg.what_report_showed if dg else None)
         out.append({
             "ticker": r.ticker, "period": r.period, "standard": r.standard,
             "report_type": r.report_type, "status": r.status,
             "published_at": r.published_at.isoformat() if r.published_at else None,
+            "sector": sector,
             "one_liner": dg.one_liner if dg else None,
             "importance": dg.importance if dg else None,
+            "positives": positives,
+            "risks": risks,
+            "conclusion": (dg.summary if dg else None),
         })
     return {"count": len(out), "reports": out}
 
