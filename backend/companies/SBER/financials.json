@@ -130,7 +130,7 @@
    3677100.0,
    4505200.0,
    7504300.0,
-   null
+   9645500
   ],
   "interest_expense_gross": [
    null,
@@ -142,7 +142,7 @@
    1802300.0,
    1940600.0,
    4504700.0,
-   null
+   6089500
   ],
   "fee_income_gross": [
    null,
@@ -154,7 +154,7 @@
    940600.0,
    1074700.0,
    1172100.0,
-   null
+   1217100
   ],
   "fee_expense": [
    null,
@@ -166,7 +166,7 @@
    243500.0,
    310800.0,
    329200.0,
-   null
+   383400
   ],
   "pre_tax_profit": [
    null,
@@ -202,7 +202,7 @@
    3677100.0,
    4505200.0,
    7504300.0,
-   null
+   9645500
   ],
   "interest_expense": [
    null,
@@ -214,7 +214,7 @@
    1802300.0,
    1940600.0,
    4504700.0,
-   null
+   6089500
   ],
   "fee_income": [
    null,
@@ -226,7 +226,7 @@
    940600.0,
    1074700.0,
    1172100.0,
-   null
+   1217100
   ],
   "trading_income": [
    null,
@@ -280,14 +280,14 @@
   "other_operating_income": [
    null,
    null,
+   9500,
+   3500,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   40500,
+   40500,
+   48700,
+   47500,
+   60000
   ]
  },
  "bank_metrics": {
@@ -528,7 +528,7 @@
    1392500.0,
    2386600.0,
    2252200.0,
-   null
+   3938000
   ],
   "securities": [
    null,
@@ -540,7 +540,7 @@
    7481600.0,
    3958800.0,
    7017700.0,
-   null
+   6864500
   ],
   "deposits_retail": [
    null,
@@ -576,7 +576,7 @@
    741100.0,
    652000.0,
    512600.0,
-   null
+   672800
   ],
   "share_capital_and_premium": [
    null,
@@ -701,62 +701,62 @@
   "due_from_banks": [
    null,
    null,
+   1420700,
+   1083200,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   1532500,
+   1267500,
+   1153200,
+   2615500,
+   1872200
   ],
   "ppe_intangibles": [
    null,
    null,
+   593900,
+   695100,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   827800,
+   819700,
+   1002900,
+   1204300,
+   2067100
   ],
   "other_assets": [
    null,
    null,
+   764700,
+   908900,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   1989100,
+   1344800,
+   1702600,
+   1983000,
+   1483800
   ],
   "subordinated_debt": [
    null,
    null,
+   707300,
+   619900,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   552500,
+   467600,
+   413200,
+   410000,
+   507600
   ],
   "other_liabilities": [
    null,
    null,
+   1290100,
+   1547100,
    null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
+   2700700,
+   2153200,
+   1258400,
+   1559500,
+   1519500
   ]
  },
  "returns": {
@@ -1410,6 +1410,15 @@
    "period": "2025",
    "reliability": "high",
    "note": "pre_tax_profit 2025 = 2,250 млрд (+10.6% г/г); operating income before reserves = 4,089 млрд (+16.6%); customer deposits 49.4 трлн (retail 33.5, corp 15.9)"
+  },
+  {
+   "id": "src_8",
+   "type": "company_ir",
+   "title": "Обобщённая консолидированная финансовая отчётность МСФО 2025 (2025+2024)",
+   "url": "https://cdn.financemarker.ru/reports/2025/MOEX/S/SBER_2025_12_Y_%D0%9C%D0%A1%D0%A4%D0%9E.pdf",
+   "period": "2025, 2024",
+   "reliability": "high",
+   "note": "Подписано 25.02.2026. Первичка: баланс 2025 и 2024 (ФП+ПУ). Новое в 2025: НМА стала отдельной статьёй баланса (670.0 млрд), не была отдельной в 2024."
   }
  ],
  "data_flags": [
@@ -1428,7 +1437,8 @@
   "БАНКОВСКИЙ БАЛАНС — ДЕТАЛИЗАЦИЯ (добавлена 2026-07-04): gross_loans (валовой) и loan_provisions (резервный запас на балансе, ≠ расходу P&L) — для 2018-2019 производные (bank_metrics − loans_to_clients_net; ratios 6.76%/5.05%); для 2021-2025 из smart-lab (ratio 4.75-5.36%); 2016/2017/2020 = null (2020: в исходных данных bank_metrics = net, gross не выделен). loans_corporate/loans_retail (net) — smart-lab 2021-2025; в 2022 reconciling diff corp+retail vs total_net = 611000 млн (кредиты фин. институтам или иные категории); в 2023 total_net > corp+retail на 1642000 млн (аналогично). deposits_retail/deposits_corporate 2025 — smart-lab (YoY: retail +20.3%, corp -5.3%); deposits_banks 2025 = bank_metrics.deposits − retail − corporate = 5672900 млн (производное, не подтверждено первичкой). reserve_coverage_ratio = loan_provisions / gross_loans × 100, считан кодом.",
   "BANK_PNL — КАНОНИЧЕСКИЕ ПОЛЯ ДОБАВЛЕНЫ (2026-07-04): interest_income/expense = aliases для interest_income_gross/expense_gross (те же значения). fee_income = alias для fee_income_gross. trading_income: 2021-2025 из smart-lab.ru (торговый/FV доход: 74.8/−517.2/99.6/−23.5/146.3 млрд); 2016-2020 null (в используемых источниках детализация не раскрыта). non_banking_income (БРУТТО выручка экосистемы): 2024: 505.5 млрд, 2025: 563.0 млрд (interfax). non_banking_net (убыток): 2024: -284.1 млрд, 2025: -156.3 млрд. 2021-2023 non_banking = null — данные не раскрыты в источниках. other_operating_income = null по всем годам (требует первичного МСФО-отчёта).",
   "BALANCE_SHEET — КАНОНИЧЕСКИЕ ПОЛЯ ДОБАВЛЕНЫ (2026-07-04): customer_deposits вычислен как deposits_retail + deposits_corporate; доступны 2018/2019/2021-2025, null для 2016/2017/2020. due_from_banks (средства в банках размещённые, АКТИВЫ) = null для всех лет: не раскрыто в используемых агрегаторных источниках; в первичном МСФО (табл. активов) присутствует. Расчётная оценка по остатку (total_assets - cash - securities - net_loans) даёт: 2024 ≈7743 млрд, 2023 ≈8404 млрд, но разбивка на due_from_banks / PPE / other без первички невозможна. ppe_intangibles, other_assets, subordinated_debt, other_liabilities = null (аналогично). Для заполнения необходим первичный годовой отчёт МСФО (Таблица 'Отчёт о финансовом положении').",
-  "PRE_TAX_PROFIT 2025 добавлен: 2,250,000 млн (пресс-релиз 26.02.2026, irkutskmedia.ru, +10.6% г/г; сверка: 2,034,600 × 1.106 = 2,250,2 ✓). INCOME_TAX 2025 = -542,600 млн (ETR 24.1% = 542,600/2,250,000; чуть ниже нормативных 25% — типично для Сбера из-за льготируемых дочек)."
+  "PRE_TAX_PROFIT 2025 добавлен: 2,250,000 млн (пресс-релиз 26.02.2026, irkutskmedia.ru, +10.6% г/г; сверка: 2,034,600 × 1.106 = 2,250,2 ✓). INCOME_TAX 2025 = -542,600 млн (ETR 24.1% = 542,600/2,250,000; чуть ниже нормативных 25% — типично для Сбера из-за льготируемых дочек).",
+  "ПОСТАТЕЙНАЯ ПЕРВИЧКА ДОБАВЛЕНА (2026-07-04): due_from_banks (Средства в банках) — 2018/2019/2021-2025 из первичных МСФО; ppe_intangibles (Основные средства+ПП+НМА) — 2018/2019/2021-2025; ВАЖНО: для 2025 в ОС+НМА включены отдельные строки ОС=1397.1+НМА=670.0=2067.1 млрд (НМА стала отдельной статьёй только в 2025 МСФО; в 2018-2024 НМА была частью Прочих активов); other_assets (Прочие активы) — 2018/2019/2021-2025; ВАЖНО: 2018 другие активы = 764.7 млрд без 'Активы групп выбытия' (2569.9 млрд от продажи Denizbank); subordinated_debt (Субординированные займы) — 2018/2019/2021-2025; other_liabilities (Прочие обязательства) — 2018/2019/2021-2025; other_operating_income (Прочие чистые операционные доходы) — 2018/2019/2021-2025; 2025 interest_income=9645500 (ЭПС 8651.6+прочие 993.9 млрд); 2025 interest_expense=6089500 (ЭПС 5662.4+прочие 271.4+страх.вкладов 155.7 млрд); 2025 fee_income=1217100; fee_expense=383400; 2025 cash_and_equivalents=3938000; securities=6864500; debt_securities_issued=672800; Источники: первичные МСФО PDF (2019/2022/2024/2025 гг.), cdn.financemarker.ru/reports/{год}/MOEX/S/SBER_{год}_12_Y_МСФО.pdf. Арифметика: NII, Net Fee, Assets=Liab+Eq — проверено по всем годам (2021-2025) — PASSED. 2025 МСФО подписан 25.02.2026; отдельного поля customer_deposits 2025 не меняли (было заполнено)."
  ],
  "relative_peers_sector": {
   "basis_metric": "pb",
