@@ -802,12 +802,12 @@
 }
 
 .obs-cal-seg-opt {
-  padding: 6px 16px;
+  padding: 9px 20px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   cursor: pointer;
-  border-radius: var(--radius-pill);
+  border-radius: 999px;
   white-space: nowrap;
   transition: background 160ms ease, color 160ms ease;
   border: none;
@@ -2337,6 +2337,13 @@
   margin-top: 7px;
   display: block;
   transition: color 120ms ease;
+  /* remove default button styling */
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
 }
 
 /* Semantic delta colours (always paired with ▲ / ▼ glyph) */
@@ -2566,4 +2573,84 @@
   color: var(--text-tertiary);
   margin-bottom: 22px;
   line-height: 1.5;
+}
+
+/* =============================================================
+   LINE CHART TOOLTIP — obs-chart-tooltip
+   Зависает над SVG, флипает влево при близости к правому краю.
+   ============================================================= */
+.obs-chart-tooltip {
+  position: absolute;
+  background: var(--bg-overlay, #111A2E);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  padding: 10px 13px;
+  pointer-events: none;
+  z-index: 20;
+  min-width: 150px;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.25);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* =============================================================
+   ASSET CLASS TOGGLE / SECTOR CHIPS (map panel)
+   ============================================================= */
+.obs-asset-toggle {
+  display: inline-flex;
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 18px;
+}
+
+.obs-sector-filterbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.obs-asset-stub {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  background: var(--bg-base);
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Inflation mom/yoy micro-toggle */
+.obs-infl-toggle {
+  display: inline-flex;
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.obs-infl-toggle-opt {
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.obs-infl-toggle-opt--on {
+  background: var(--accent);
+  color: #fff;
 }
