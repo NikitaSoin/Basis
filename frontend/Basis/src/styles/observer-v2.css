@@ -2148,6 +2148,106 @@
 }
 
 /* =============================================================
+   OBS-AI CONTROLS ROW — prototype flex layout (Глубина + Тема + Кнопка-right)
+   ============================================================= */
+
+/* Single horizontal row: Глубина block | Тема block | Кнопка (margin-left:auto) */
+.obs-ai-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 26px;
+  margin-bottom: 22px;
+}
+
+/* Remove inherited top-margin from section labels when inside the controls row */
+.obs-ai-controls-row .obs-ai-section-label {
+  margin-top: 0;
+}
+
+/* Remove top-margin from generate button when it lives inside the controls row */
+.obs-ai-controls-row .obs-ai-generate-btn {
+  margin-top: 0;
+}
+
+/* "История отчётов →" link in sec-head right slot */
+.obs-ai-hist-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  transition: opacity 150ms ease;
+  white-space: nowrap;
+}
+.obs-ai-hist-link:hover  { opacity: 0.75; }
+.obs-ai-hist-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-radius: var(--radius-xs);
+}
+
+/* "← Назад" button in history view */
+.obs-ai-hist-back {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin-bottom: 18px;
+  transition: color 150ms ease;
+}
+.obs-ai-hist-back:hover  { color: var(--text-primary); }
+.obs-ai-hist-back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-radius: var(--radius-xs);
+}
+
+/* Filter chip bar for history view */
+.obs-ai-hist-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.obs-ai-hist-filter-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+.obs-ai-hist-filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.obs-ai-hist-filter-chip--on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.obs-ai-hist-filter-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* =============================================================
    OBS-ECONOMY — Экономическая статистика
    Mirror of prototype panel-economy (observer-sidebar-v2.html)
    ============================================================= */
