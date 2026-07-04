@@ -11145,6 +11145,78 @@ function ObserverV2({ token, onSelectCompany }) {
             <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
+      case "economy":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Данные</span>
+              <h2 className="obs-sec-title">Экономическая статистика</h2>
+            </div>
+            <MacroView token={token} portfolioOnly={portfolioOnly} />
+          </div>
+        );
+      case "maps":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Рынок</span>
+              <h2 className="obs-sec-title">Карта рынка</h2>
+            </div>
+            <MarketMaps token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      case "calendar":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Рынок</span>
+              <h2 className="obs-sec-title">Календарь событий</h2>
+            </div>
+            <CalendarView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      case "reports":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Рынок</span>
+              <h2 className="obs-sec-title">Отчёты</h2>
+            </div>
+            <EarningsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      case "macro":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Разбор</span>
+              <h2 className="obs-sec-title">Макроэкономика</h2>
+            </div>
+            <MacroInterpreterTab token={token} />
+          </div>
+        );
+      case "geo":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Разбор</span>
+              <h2 className="obs-sec-title">Геополитика</h2>
+            </div>
+            <GeopoliticsView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      case "institutions":
+        return <ObsSectionPlaceholder sectionId="institutions" />;
+      case "ai":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Разбор</span>
+              <h2 className="obs-sec-title">ИИ-обзор и анализ</h2>
+            </div>
+            <ObserverReportView token={token} onSelectCompany={onSelectCompany} />
+          </div>
+        );
       default:
         return <ObsSectionPlaceholder sectionId={activeSection} />;
     }
