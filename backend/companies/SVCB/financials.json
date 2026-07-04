@@ -211,22 +211,24 @@
       18.17
     ],
     "loans_gross": [
-      null,
-      1177000,
-      1387000,
-      1895000,
-      2782000,
-      3200000
+      1673071,
+      1220738,
+      1407689,
+      1915252,
+      2685703,
+      3054907
     ],
     "deposits": [
-      1419000,
-      1419000,
-      1688000,
-      2500000,
-      3041000,
-      3428000
+      1153172,
+      1668913,
+      1782091,
+      2639222,
+      3276446,
+      3710809
     ],
-    "cost_of_risk_note": "CoR в рознице ~5.0% за 9М2025, корпоративный ~1.3% (бизнес-модель)."
+    "cost_of_risk_note": "CoR в рознице ~5.0% за 9М2025, корпоративный ~1.3% (бизнес-модель).",
+    "loans_gross_note": "PDF Databook 'КРЕДИТНЫЙ ПОРТФЕЛЬ' (ОБЩАЯ СУММА КРЕДИТОВ); брутто. Расхождение с prежними значениями aggregator (2024: 2782000→2685703) устранено. 2020: 1673071 — аномально высокий, вероятно след поглощения или иного события; флаг.",
+    "provision_stock_note": "loan_provisions = STOCK резервов под обесценение на конец года. Ряд скорректирован: original bank_pnl.provisions был сдвинут на +1 год. 2025=152169 подтверждён независимым анализом (marten_resting, +28.8% г/г от 118145). 2020 stock = null (нет данных за 2019 для сдвига)."
   },
   "income_statement": {
     "cost_format": "by_nature",
@@ -733,7 +735,87 @@
         null,
         null
       ]
-    }
+    },
+    "gross_loans": [
+      1673071,
+      1220738,
+      1407689,
+      1915252,
+      2685703,
+      3054907
+    ],
+    "loan_provisions": [
+      null,
+      32513,
+      80500,
+      88200,
+      118100,
+      152169
+    ],
+    "net_loans": [
+      null,
+      1188225,
+      1327189,
+      1827052,
+      2567603,
+      2902738
+    ],
+    "loans_corporate": [
+      null,
+      null,
+      null,
+      1098000,
+      1384000,
+      null
+    ],
+    "loans_retail": [
+      null,
+      null,
+      null,
+      794000,
+      1279000,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "customer_deposits": [
+      null,
+      null,
+      null,
+      null,
+      3042000,
+      3500000
+    ],
+    "deposits_retail": [
+      null,
+      null,
+      null,
+      null,
+      1188000,
+      1400000
+    ],
+    "deposits_corporate": [
+      null,
+      null,
+      null,
+      null,
+      1854000,
+      2100000
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      234446,
+      210809
+    ]
   },
   "cash_flow": {
     "cfo": [
@@ -1399,7 +1481,14 @@
     "ETR 2024 = 3.1% аномально низкий: databook показывает income_tax expense всего 2474 млн на PBT 79708 млн. Причина: tax benefit на bargain purchase gain 18342 млн + одноразовый налоговый эффект 7250 млн (из датабука adj). Не репрезентативен для устойчивой ставки.",
     "ETR 2023 = 13.4% ниже норматива 20%: частично из-за прибыли банковской группы на присоединении Хоум Банка (структуры освобождения). Устойчивая ETR = 20-25%.",
     "income_statement.pre_tax_profit и income_tax из официального датабука. Расчётный net_profit: 2020=39201 vs file=25000 (разница ~14 млрд, вероятно файл использовал РСБУ или оценочный ряд); 2022=-18583 vs file=-14600 (разница 4 млрд). 2021/2023/2024/2025 сходятся хорошо.",
-    "bank_pnl.operating_income = banking-only operating income (pre-LLP), НЕ включает non-banking business (non-banking revenues отдельно в other_income). Для полного PBT: operating_income − LLP(P&L) − opex + non_bank_net(rev−costs) + misc = pre_tax. Non-banking costs (−109894 в 2025) и прочие статьи не имеют отдельных полей в схеме."
+    "bank_pnl.operating_income = banking-only operating income (pre-LLP), НЕ включает non-banking business (non-banking revenues отдельно в other_income). Для полного PBT: operating_income − LLP(P&L) − opex + non_bank_net(rev−costs) + misc = pre_tax. Non-banking costs (−109894 в 2025) и прочие статьи не имеют отдельных полей в схеме.",
+    "BALANCE_SHEET CANON: gross_loans из PDF Databook 'КРЕДИТНЫЙ ПОРТФЕЛЬ' (src_7). 2020=1673071 аномально высокий — возможны специфические операции или поглощение; флаг для верификации в МСФО-примечаниях.",
+    "BALANCE_SHEET CANON: loan_provisions (STOCK резервов) = скорректированный ряд: file[year-1] → stock[year] (сдвиг +1 год из bank_pnl.provisions). 2025=152169 подтверждён независимо (+28.8% г/г). 2020=null (нет данных за 2019). Ряд: [null, 32513, 80500, 88200, 118100, 152169].",
+    "BALANCE_SHEET CANON: net_loans = gross_loans - loan_provisions (арифметика). 2020 = null т.к. loan_provisions 2020 недоступен.",
+    "BALANCE_SHEET CANON: loans_corporate / loans_retail — только 2023-2024 из пресс-релизов: 2024 corp=1384000 (+26% г/г), retail=1279000 (+61% г/г); 2023 backwards через ÷ г/г: corp≈1098000, retail≈794000 (суждение). Проверка: corp+retail 2024 = 2663000 vs gross 2685703 (расхождение 0.8% = прочие категории). 2025 и 2020-2022 = null.",
+    "BALANCE_SHEET CANON: securities (ценные бумаги / казначейский портфель) = null по всем годам. Не раскрыто в PDF Databook на доступных страницах. Известно: отрицательная переоценка портфеля облигаций 36 млрд в 2024; казначейский сегмент ~16% выручки. Требует МСФО-примечаний для точного значения.",
+    "BALANCE_SHEET CANON: customer_deposits — только 2024 и 2025 из пресс-релизов: 2024=3042000 (юрлиц 1854000 + физлиц 1188000); 2025=3500000 (юрлиц 2100000 + физлиц 1400000). 2020-2023 = null (разбивка на 'только клиентские' недоступна). bank_metrics.deposits = PDF 'ОБЩАЯ СУММА ДЕПОЗИТОВ' (шире: включает межбанк).",
+    "BALANCE_SHEET CANON: due_to_banks — приблизительно как разница PDF total deposits и customer_deposits: 2024≈234446, 2025≈210809 млн. СУЖДЕНИЕ — может включать выпущенные облигации; точный split требует МСФО-примечаний."
   ],
   "segments": [
     {
