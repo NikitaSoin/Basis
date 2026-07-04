@@ -63,6 +63,7 @@ import FinanceTab from "./company/FinanceTab";
 import GovernanceTab from "./company/GovernanceTab";
 import "./styles/governance.css";
 import "./styles/macro.css";
+import "./styles/observer-v2.css";
 import { BondRiskAnalysis } from "./design/bondrisk";
 import { AppearGroup, PageDecor, DECOR_ENABLED } from "./design/motion";
 
@@ -11059,7 +11060,161 @@ function CalendarView({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =========================
-// OVERVIEW VIEW (Обозреватель)
+// OBSERVER V2 — sidebar layout (Этап 1 каркас)
+// Тёмный фиксированный сайдбар, 3 зоны, 9 разделов.
+// Пилот: «Лента новостей» → реальный <NewsFeed>.
+// Остальные 8 — структурные плейсхолдеры.
+// =========================
+
+const OBS_ZONES = [
+  {
+    id: "data",
+    label: "Данные",
+    items: [
+      { id: "news",    label: "Лента новостей",           icon: Newspaper  },
+      { id: "economy", label: "Экономическая статистика", icon: Activity   },
+    ],
+  },
+  {
+    id: "market",
+    label: "Рынок",
+    items: [
+      { id: "maps",     label: "Карта рынка",        icon: Layers   },
+      { id: "calendar", label: "Календарь событий",  icon: Calendar },
+      { id: "reports",  label: "Отчёты",             icon: FileText },
+    ],
+  },
+  {
+    id: "analysis",
+    label: "Разбор",
+    items: [
+      { id: "macro",        label: "Макроэкономика",          icon: BarChart2  },
+      { id: "geo",          label: "Геополитика",             icon: Globe      },
+      { id: "institutions", label: "Институциональная среда", icon: ShieldCheck },
+      { id: "ai",           label: "ИИ-обзор и анализ",       icon: Sparkles   },
+    ],
+  },
+];
+
+// Описания для плейсхолдеров (не пилотных разделов)
+const OBS_SECTION_META = {
+  economy:      { title: "Экономическая статистика", eyebrow: "Данные",  blurb: "Ключевые макроиндикаторы России: ставка ЦБ, инфляция, ВВП, курсы валют, занятость. Раздел в подготовке." },
+  maps:         { title: "Карта рынка",              eyebrow: "Рынок",   blurb: "Тепловая карта акций, облигаций и фьючерсов — размер плитки по капитализации, цвет по динамике." },
+  calendar:     { title: "Календарь событий",        eyebrow: "Рынок",   blurb: "Дивидендные отсечки, собрания акционеров, публикации отчётностей, макростатистика." },
+  reports:      { title: "Отчёты",                   eyebrow: "Рынок",   blurb: "Разборы вышедших квартальных и годовых результатов с оценкой ключевых метрик." },
+  macro:        { title: "Макроэкономика",           eyebrow: "Разбор",  blurb: "Аналитические записки ЦБ, ЦМАКП, прогнозы — с интерпретацией Basis: что из этого следует для инвестора." },
+  geo:          { title: "Геополитика",              eyebrow: "Разбор",  blurb: "Ключевые геополитические события и их влияние на рынок — экспортёры, сырьё, курс рубля." },
+  institutions: { title: "Институциональная среда",  eyebrow: "Разбор",  blurb: "Изменения в регулировании, налоговой политике и корпоративных правилах, влияющих на эмитентов." },
+  ai:           { title: "ИИ-обзор и анализ",        eyebrow: "Разбор",  blurb: "Еженедельный синтез: что происходит на рынке и какие выводы делает Basis по совокупности сигналов." },
+};
+
+function ObsSectionPlaceholder({ sectionId }) {
+  const meta = OBS_SECTION_META[sectionId] || { title: "Раздел", eyebrow: "Обозреватель", blurb: "Раздел в подготовке." };
+  const Icon = (OBS_ZONES.flatMap((z) => z.items).find((i) => i.id === sectionId) || {}).icon || Sparkles;
+  return (
+    <div className="obs-panel">
+      <div className="obs-sec-head">
+        <span className="obs-sec-eyebrow">{meta.eyebrow}</span>
+        <h2 className="obs-sec-title">{meta.title}</h2>
+      </div>
+      <div className="obs-placeholder">
+        <div className="obs-placeholder__icon">
+          <Icon size={24} aria-hidden="true" />
+        </div>
+        <h3 className="obs-placeholder__title">Раздел в подготовке</h3>
+        <p className="obs-placeholder__body">{meta.blurb}</p>
+        <span className="obs-placeholder__badge">Скоро</span>
+      </div>
+    </div>
+  );
+}
+
+function ObserverV2({ token, onSelectCompany }) {
+  const [activeSection, setActiveSection] = useState("news");
+  const [portfolioOnly, setPortfolioOnly] = useState(false);
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case "news":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Данные</span>
+              <h2 className="obs-sec-title">Лента новостей</h2>
+            </div>
+            <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      default:
+        return <ObsSectionPlaceholder sectionId={activeSection} />;
+    }
+  };
+
+  return (
+    <div className="obs-shell">
+      {/* ---- Dark sidebar ---- */}
+      <nav className="obs-sidebar" aria-label="Разделы Обозревателя">
+        <div className="obs-depth-strip" aria-hidden="true" />
+        <div className="obs-eyebrow">Обозреватель</div>
+
+        {OBS_ZONES.map((zone) => (
+          <div key={zone.id} className="obs-zone">
+            <div className="obs-zone-label">{zone.label}</div>
+            {zone.items.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className={`obs-item${activeSection === id ? " obs-item--active" : ""}`}
+                onClick={() => setActiveSection(id)}
+                aria-current={activeSection === id ? "page" : undefined}
+              >
+                <span className="obs-item__icon"><Icon size={15} aria-hidden="true" /></span>
+                {label}
+              </button>
+            ))}
+          </div>
+        ))}
+
+        <div className="obs-foot">
+          <button
+            type="button"
+            onClick={() => setPortfolioOnly((v) => !v)}
+            aria-pressed={portfolioOnly}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              background: portfolioOnly ? "var(--accent)" : "transparent",
+              border: `1px solid ${portfolioOnly ? "var(--accent)" : "var(--obs-deep-line)"}`,
+              color: portfolioOnly ? "#fff" : "var(--obs-deep-ink2)",
+              borderRadius: "999px",
+              padding: "7px 13px",
+              fontSize: "12px",
+              fontWeight: 600,
+              cursor: "pointer",
+              width: "100%",
+              justifyContent: "center",
+              marginBottom: "10px",
+              transition: "background 160ms ease, border-color 160ms ease, color 160ms ease",
+            }}
+          >
+            <Briefcase size={13} aria-hidden="true" />
+            Только мой портфель
+          </button>
+          Basis не брокер и не&nbsp;даёт рекомендаций «купить/продать».
+        </div>
+      </nav>
+
+      {/* ---- Light main area ---- */}
+      <main className="obs-main" key={activeSection}>
+        {renderSection()}
+      </main>
+    </div>
+  );
+}
+
+// =========================
+// OVERVIEW VIEW (Обозреватель — легаси, заменён ObserverV2)
 // =========================
 
 function OverviewView({ token, onSelectCompany }) {
@@ -11399,7 +11554,7 @@ export default function App() {
       case "screener":
         return <ScreenerView onSelectCompany={setSelectedCompany} />;
       case "overview":
-        return <OverviewView token={token} onSelectCompany={setSelectedCompany} />;
+        return <ObserverV2 token={token} onSelectCompany={setSelectedCompany} />;
       case "portfolio":
         return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "strategies":

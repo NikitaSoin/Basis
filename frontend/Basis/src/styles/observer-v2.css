@@ -1,0 +1,260 @@
+/* =============================================================
+   OBSERVER V2 — Sidebar layout
+   Prefix: .obs-*
+   Tokens: all colours via var(--*) from tokens.css — NO hardcoded hex.
+   Dark sidebar uses scoped --obs-deep* vars so it stays dark in both
+   light and dark themes (sidebarual always = deep/dark per design spec).
+   ============================================================= */
+
+/* ---- Sidebar colour vars (scoped to .obs-sidebar, theme-invariant dark) ---- */
+.obs-sidebar {
+  --obs-deep:       #12131A;
+  --obs-deep-2:     #1B1C26;
+  --obs-deep-3:     #24252F;
+  --obs-deep-line:  rgba(255,255,255,0.10);
+  --obs-deep-ink:   #EDEBE3;
+  --obs-deep-ink2:  #9B9AA8;
+  --obs-deep-ink3:  #6C6B78;
+}
+
+/* ---- Shell: sidebar + main side by side ---- */
+.obs-shell {
+  display: flex;
+  min-height: calc(100vh - 56px); /* subtract top nav height */
+  position: relative;
+}
+
+/* ---- Sidebar ---- */
+.obs-sidebar {
+  position: fixed;
+  top: 56px;            /* below global top nav */
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  background: var(--obs-deep);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  overflow-y: auto;
+  border-right: 1px solid var(--obs-deep-line);
+  scrollbar-width: thin;
+  scrollbar-color: var(--obs-deep-line) transparent;
+}
+
+/* ---- Left depth strip (decorative, low opacity) ---- */
+.obs-depth-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--accent) 40%,
+    var(--obs-deep-2) 75%,
+    var(--obs-deep) 100%
+  );
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ---- Eyebrow above zones ---- */
+.obs-eyebrow {
+  padding: 20px 22px 12px 28px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--obs-deep-ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Zone (groups of nav items) ---- */
+.obs-zone {
+  padding: 2px 12px 16px 16px;
+}
+
+.obs-zone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 6px 10px 6px;
+  color: var(--obs-deep-ink3);
+}
+
+/* ---- Nav item ---- */
+.obs-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--obs-deep-ink2);
+  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.obs-item:hover {
+  background: var(--obs-deep-2);
+  color: var(--obs-deep-ink);
+}
+
+.obs-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.obs-item.obs-item--active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 12px -3px rgba(201, 122, 74, 0.40);
+}
+
+.obs-item__icon {
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.obs-item--active .obs-item__icon {
+  opacity: 1;
+}
+
+/* ---- Sidebar footer ---- */
+.obs-foot {
+  margin-top: auto;
+  padding: 18px 22px 22px 28px;
+  font-size: 11px;
+  color: var(--obs-deep-ink3);
+  line-height: 1.55;
+  border-top: 1px solid var(--obs-deep-line);
+}
+
+/* ---- Main content area ---- */
+.obs-main {
+  margin-left: 260px;
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-base);
+}
+
+/* ---- Panel (each section's content wrapper) ---- */
+.obs-panel {
+  padding: 28px 32px 72px;
+  animation: obsSlideIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes obsSlideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obs-panel {
+    animation: none;
+  }
+}
+
+/* ---- Section header: eyebrow + serif title ---- */
+.obs-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.obs-sec-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-hover, var(--accent));
+  background: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.obs-sec-title {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ---- Placeholder card (for sections not yet implemented) ---- */
+.obs-placeholder {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg, 12px);
+  padding: 48px 32px;
+  text-align: center;
+  max-width: 520px;
+  box-shadow: var(--shadow-sm);
+}
+
+.obs-placeholder__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--accent);
+}
+
+.obs-placeholder__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.obs-placeholder__body {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.obs-placeholder__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--bg-surface, var(--bg-base));
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ---- Responsive: on narrow screens collapse sidebar to 0 (future: toggle) ---- */
+@media (max-width: 768px) {
+  .obs-sidebar {
+    display: none;
+  }
+  .obs-main {
+    margin-left: 0;
+  }
+}
