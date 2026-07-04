@@ -3886,17 +3886,26 @@ const CompanyCard = ({ company, onBack }) => {
       });
       const cols = columns.map((c, ci) => {
         if (ci === 0) {
-          return { ...c, render: (_v, r) => (
-            <span className={cx(
-              r._row.accent ? "tw-text-accent tw-text-[12px]" : (r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]"),
-              r._row.bold ? "tw-font-semibold" : "tw-font-normal",
-              "tw-whitespace-nowrap"
-            )} style={r._row.indent ? { paddingLeft: 12 } : undefined}>{r._row.label}</span>
-          ) };
+          return { ...c, render: (_v, r) => {
+            if (r._row.sectionHeader) {
+              return (
+                <span className="tw-block tw-text-[10px] tw-font-semibold tw-uppercase tw-text-text-tertiary tw-pt-2 tw-pb-0" style={{ letterSpacing: "0.1em" }}>{r._row.label}</span>
+              );
+            }
+            return (
+              <span className={cx(
+                r._row.accent ? "tw-text-accent tw-text-[12px]" : (r._row.muted ? "tw-text-text-tertiary tw-text-[12px]" : "tw-text-text-primary tw-text-[13px]"),
+                r._row.bold ? "tw-font-semibold" : "tw-font-normal",
+                "tw-whitespace-nowrap"
+              )} style={r._row.indent ? { paddingLeft: 12 } : undefined}>{r._row.label}</span>
+            );
+          } };
         }
         const i = ci - 1;
         return { ...c, render: (_v, r) => {
-          const row = r._row; const f = row.fmt || fmtBig; const v = at(row.arr, i);
+          const row = r._row;
+          if (row.sectionHeader) return <span />;
+          const f = row.fmt || fmtBig; const v = at(row.arr, i);
           const d = row.delta ? yoy(v, at(row.arr, i - 1)) : null;
           return (
             <span className="tw-inline-flex tw-flex-col tw-items-end">
@@ -4087,22 +4096,34 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Чистый долг", arr: bs.net_debt },
       { label: "ND / EBITDA", arr: bs.ratios?.net_debt_ebitda, fmt: (v) => formatMultiple(v, { decimals: 2 }), muted: true },
     ] : [
-      // ── АКТИВЫ ──
-      { label: "Кредитный портфель (валовой)", arr: ga(bs, "gross_loans"), bold: true, delta: true },
-      { label: "Резервы под потери", arr: ga(bs, "loan_provisions"), indent: true, muted: true, delta: true },
+      // ════ АКТИВЫ ════
+      { label: "АКТИВЫ", sectionHeader: true },
+      { label: "Денежные средства", arr: ga(bs, "cash_and_equivalents"), delta: true },
+      { label: "Средства в банках (МБК)", arr: ga(bs, "due_from_banks"), delta: true },
+      { label: "Портфель ценных бумаг", arr: ga(bs, "securities") || ga(bs, "investment_securities"), delta: true },
+      { label: "Кредитный портфель валовой", arr: ga(bs, "gross_loans"), bold: true, delta: true },
+      { label: "Резервы", arr: ga(bs, "loan_provisions"), indent: true, muted: true, delta: true },
       { label: "Кредиты юрлицам", arr: ga(bs, "loans_corporate"), indent: true, delta: true },
       { label: "Кредиты физлицам", arr: ga(bs, "loans_retail"), indent: true, delta: true },
-      { label: "Кредитный портфель (чистый)", arr: ga(bs, "net_loans"), bold: true, delta: true },
-      { label: "Портфель ценных бумаг", arr: ga(bs, "securities") || ga(bs, "investment_securities"), delta: true },
+      { label: "Кредитный портфель чистый", arr: ga(bs, "net_loans"), bold: true, delta: true },
+      { label: "Основные средства и НМА", arr: ga(bs, "ppe_intangibles"), delta: true },
+      { label: "Прочие активы", arr: ga(bs, "other_assets"), delta: true },
       { label: "ИТОГО АКТИВЫ", arr: ga(bs, "total_assets") || bs.total_assets, bold: true, delta: true },
-      // ── ПАССИВЫ ──
+      // ════ ПАССИВЫ ════
+      { label: "ПАССИВЫ", sectionHeader: true },
+      { label: "Средства банков (МБК)", arr: ga(bs, "due_to_banks"), delta: true },
       { label: "Средства клиентов", arr: orSum(ga(bs, "customer_deposits"), [ga(bs, "deposits_retail"), ga(bs, "deposits_corporate")]), bold: true, delta: true },
       { label: "Депозиты физлиц", arr: ga(bs, "deposits_retail"), indent: true, delta: true },
       { label: "Депозиты юрлиц", arr: ga(bs, "deposits_corporate"), indent: true, delta: true },
-      { label: "Средства банков (МБК)", arr: ga(bs, "due_to_banks"), delta: true },
+      { label: "Выпущенные облигации", arr: ga(bs, "debt_securities_issued"), delta: true },
+      { label: "Субординированный долг", arr: ga(bs, "subordinated_debt"), delta: true },
+      { label: "Прочие обязательства", arr: ga(bs, "other_liabilities"), delta: true },
+      { label: "ИТОГО ОБЯЗАТЕЛЬСТВА", arr: ga(bs, "total_liabilities") || bs.total_liabilities, bold: true, delta: true },
       { label: "Капитал", arr: totalEquityArr, bold: true, delta: true },
+      { label: "Уставный капитал", arr: ga(bs, "share_capital_and_premium"), indent: true, muted: true, delta: true },
+      { label: "Нераспределённая прибыль", arr: ga(bs, "retained_earnings") || ga(eqb, "retained_earnings"), indent: true, muted: true, delta: true },
       { label: "Балансовая ст-ть / акция, ₽", arr: ga(bs, "book_value_per_share"), fmt: (v) => formatNumber(v, { decimals: 2 }), muted: true },
-    ].filter((r) => r.bold || (Array.isArray(r.arr) && r.arr.some((x) => x != null)));
+    ].filter((r) => r.bold || r.sectionHeader || (Array.isArray(r.arr) && r.arr.some((x) => x != null)));
 
     // ОДДС — три потока + итог; детальные статьи каждого потока (cfo/cfi/cff_lines)
     // показываются с отступом при раскрытии. Свёрнуто (filter !indent) — только потоки.
@@ -4133,8 +4154,11 @@ const CompanyCard = ({ company, onBack }) => {
       { label: "Чистый страховой доход",     arr: ga(bp, "net_insurance_income"), delta: true },
       // ── Казначейство / прочий доход (объясняет волатильность ОД) ──
       { label: "Доход казначейства и прочий", arr: ga(bp, "other_income"), indent: true, muted: true, delta: true },
+      { label: "Торговый доход",              arr: ga(bp, "trading_income"), indent: true, muted: true, delta: true },
       // ── Итоги (видны в свёрнутом виде) ── операц.доход: явный ИЛИ сумма компонент (у части банков нет поля)
       { label: "Операционные доходы",        arr: orSum(ga(bp, "operating_income"), [bp.net_interest_income, bp.net_fee_income, ga(bp, "net_insurance_income"), ga(bp, "other_income")]), bold: true, delta: true },
+      // Небанковский/экосистемный сегмент нетто (условная, только если поле есть)
+      { label: "Небанк./экосистема нетто",   arr: ga(bp, "non_banking_net"), indent: true, delta: true },
       // Резервы: разные банки — provisions ИЛИ impairment_charges (Т-Технологии)
       { label: "Резервы (CoR)",              arr: ga(bp, "provisions") || ga(bp, "impairment_charges"), delta: true },
       { label: "Операционные расходы",       arr: bp.operating_expenses, delta: true },
@@ -4914,6 +4938,17 @@ const CompanyCard = ({ company, onBack }) => {
             {renderBridgePlate()}
             {tableSection(Target, "Банковские метрики по годам", bankMetricRows, true)}
             {collapStmt(Scale, "Баланс", bsRows, bsExpanded, setBsExpanded, null, null, "Раскрыть статьи")}
+            {(() => {
+              const eco = finJson?.ecosystem;
+              if (!eco) return null;
+              const ecoRows = [
+                { label: "Выручка", arr: ga(eco, "revenue_mln"), bold: true, delta: true },
+                { label: "Расходы", arr: ga(eco, "expenses_mln"), muted: true, delta: true },
+                { label: "Результат нетто", arr: ga(eco, "net_result_mln"), bold: true, accent: true, delta: true },
+              ].filter((r) => r.bold || (Array.isArray(r.arr) && r.arr.some((x) => x != null)));
+              if (!ecoRows.length) return null;
+              return tableSection(Globe, "Небанковский бизнес (экосистема)", withDelta(ecoRows), true);
+            })()}
           </>
         ) : (
           <>
