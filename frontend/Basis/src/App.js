@@ -11129,6 +11129,231 @@ function ObsSectionPlaceholder({ sectionId }) {
   );
 }
 
+// =============================================================
+// ObsNewsFeed — «Лента новостей» точно по прототипу observer-sidebar-v2.html
+// Два filterbar (важность + тема), клиентские фильтры, карточки .obs-news-card,
+// cursor прочтения из localStorage (перенесён из NewsFeed).
+// =============================================================
+
+const _NEWS_TOPIC_MAP = {
+  business: ["Бизнес"],
+  macro:    ["Экономика", "Рынки", "Макроэкономика"],
+  politics: ["Политика", "Геополитика"],
+};
+
+function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [importance, setImportance] = useState("all");
+  const [topic, setTopic] = useState("all");
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  // Unread cursor (frozen on open, updates localStorage in background)
+  const uid = (() => { try { return JSON.parse(localStorage.getItem("basis_user"))?.id ?? "anon"; } catch { return "anon"; } })();
+  const cursorKey = `basis_news_read_${uid}`;
+  const baselineRef = useRef(null);
+  if (baselineRef.current === null) {
+    const v = Number(localStorage.getItem(cursorKey));
+    baselineRef.current = Number.isFinite(v) ? v : 0;
+  }
+  const baseline = baselineRef.current;
+  const seenRef = useRef(baseline);
+  const saveTimer = useRef(null);
+  const firstUnreadRef = useRef(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    const params = new URLSearchParams({ limit: "120" });
+    if (portfolioOnly) params.set("portfolio_only", "true");
+    fetch(`${apiUrl}/api/market/news?${params}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setItems(Array.isArray(d) ? d : []); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  // Sort newest-first
+  const sorted = [...items].sort((a, b) => {
+    const ta = new Date(a.published_at || 0).getTime(), tb = new Date(b.published_at || 0).getTime();
+    return (tb - ta) || ((b.id || 0) - (a.id || 0));
+  });
+
+  // Client-side filters
+  const filtered = sorted.filter((n) => {
+    const impOk = importance === "all" || (importance === "important" && n.importance === "high");
+    const cat = n.category || "";
+    const topicOk = topic === "all" || (_NEWS_TOPIC_MAP[topic] || []).some((t) => cat.includes(t));
+    return impOk && topicOk;
+  });
+
+  const firstUnreadIdx = filtered.findIndex((n) => (n.id || 0) > baseline);
+
+  // Scroll to first unread after load
+  useEffect(() => {
+    if (loading || filtered.length === 0) return;
+    const t = setTimeout(() => {
+      if (firstUnreadRef.current) firstUnreadRef.current.scrollIntoView({ block: "center", behavior: "auto" });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [loading]);
+
+  const markSeen = (id) => {
+    if (!id || id <= seenRef.current) return;
+    seenRef.current = id;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      localStorage.setItem(cursorKey, String(seenRef.current));
+    }, 500);
+  };
+
+  return (
+    <div>
+      {/* Two filterbar rows: importance + vertical divider + topic */}
+      <div className="obs-news-filters">
+        <div className="obs-news-filterbar">
+          {[
+            { id: "all",       label: "Все" },
+            { id: "important", label: "Важное" },
+          ].map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              className={"obs-news-chip" + (importance === o.id ? " obs-news-chip--active" : "")}
+              onClick={() => setImportance(o.id)}
+              aria-pressed={importance === o.id}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+        <div className="obs-news-divider" aria-hidden="true" />
+        <div className="obs-news-filterbar">
+          {[
+            { id: "all",      label: "Все" },
+            { id: "business", label: "Бизнес" },
+            { id: "macro",    label: "Макроэкономика" },
+            { id: "politics", label: "Политика" },
+          ].map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              className={"obs-news-chip" + (topic === o.id ? " obs-news-chip--active" : "")}
+              onClick={() => setTopic(o.id)}
+              aria-pressed={topic === o.id}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content area */}
+      {loading ? (
+        <div className="obs-news-loading">Загружаем ленту…</div>
+      ) : error ? (
+        <div className="obs-news-empty">Не удалось загрузить ленту. Попробуйте обновить страницу.</div>
+      ) : filtered.length === 0 ? (
+        <div className="obs-news-empty">
+          {portfolioOnly
+            ? "По вашему портфелю значимых новостей за этот период нет."
+            : "Новостей по выбранным фильтрам нет."}
+        </div>
+      ) : (
+        <div className="obs-news-list">
+          {filtered.map((n, i) => {
+            const isFirstUnread = i === firstUnreadIdx;
+            const unread = (n.id || 0) > baseline;
+            return (
+              <React.Fragment key={n.id ?? i}>
+                {isFirstUnread && (
+                  <div ref={firstUnreadRef} className="obs-news-unread-sep" role="separator" aria-label="Непрочитанные новости">
+                    <span className="obs-news-unread-label">Непрочитанное</span>
+                  </div>
+                )}
+                <ObsNewsCardItem
+                  n={n}
+                  unread={unread}
+                  onSeen={markSeen}
+                  onSelectCompany={onSelectCompany}
+                />
+              </React.Fragment>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ObsNewsCardItem({ n, unread, onSeen, onSelectCompany }) {
+  const high = n.importance === "high";
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!onSeen || !ref.current) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) onSeen(n.id); });
+    }, { threshold: 0.6 });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [n.id]);
+
+  const source = _SOURCE_LABEL[n.source] || n.source || "Источник";
+  const time   = n.published_at ? _newsTime(n.published_at) : "";
+  const cat    = n.category || "";
+
+  // Build impact text: prefer impact_comment; fall back to generic phrasing with tickers
+  const hasImpact = n.impact_comment || (n.affected_tickers && n.affected_tickers.length > 0);
+  const impactText = n.impact_comment || (n.affected_tickers && n.affected_tickers.length > 0
+    ? `затрагивает ${n.affected_tickers.join(", ")}`
+    : null);
+
+  return (
+    <div ref={ref} className={"obs-news-card" + (unread ? " obs-news-card--unread" : "")}>
+      {/* Meta: source · time · category | tag-judgment */}
+      <div className="obs-news-meta">
+        <div className="obs-news-meta-left">
+          <span className="obs-news-source">{source}</span>
+          {time && <><span aria-hidden="true">&nbsp;·&nbsp;</span><span className="obs-news-time">{time}</span></>}
+          {cat  && <><span aria-hidden="true">&nbsp;·&nbsp;</span><span className="obs-news-category">{cat}</span></>}
+        </div>
+        {high && <span className="obs-tag-judgment" aria-label="Важное событие">важное</span>}
+      </div>
+
+      {/* Headline */}
+      <h3 className="obs-news-title">{n.title}</h3>
+
+      {/* Body summary */}
+      {n.summary && <p className="obs-news-body">{n.summary}</p>}
+
+      {/* Impact callout (↳ …) */}
+      {hasImpact && impactText && (
+        <div className="obs-news-impact">↳ {impactText}</div>
+      )}
+
+      {/* Clickable ticker chips (always show, even if already in impact text) */}
+      {n.affected_tickers && n.affected_tickers.length > 0 && onSelectCompany && (
+        <div className="obs-news-tickers">
+          {n.affected_tickers.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className="obs-news-ticker"
+              onClick={() => onSelectCompany(t)}
+              aria-label={"Открыть карточку " + t}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ObserverV2({ token, onSelectCompany }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
@@ -11142,7 +11367,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Данные</span>
               <h2 className="obs-sec-title">Лента новостей</h2>
             </div>
-            <NewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsNewsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "economy":
