@@ -1198,7 +1198,7 @@
   line-height: 1;
 }
 
-.obs-seg-opt:hover {
+.obs-seg-opt:not(.obs-seg-opt--on):hover {
   background: var(--bg-elevated);
 }
 
@@ -2394,11 +2394,12 @@
 .obs-dd-panel {
   position: absolute;
   top: calc(100% + 5px);
-  left: 0;
+  right: 0;
+  left: auto;
   min-width: 230px;
   max-height: 260px;
   overflow-y: auto;
-  background: var(--bg-overlay);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
   border-radius: 11px;
   box-shadow: var(--shadow-lg);
