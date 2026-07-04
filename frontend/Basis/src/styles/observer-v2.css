@@ -291,7 +291,7 @@
 
 /* ---- Chip button (pill, mimics prototype .chip) ---- */
 .obs-news-chip {
-  padding: 7px 15px;
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-strong);
   background: var(--bg-elevated);
@@ -556,7 +556,7 @@
 }
 
 .obs-rep-chip {
-  padding: 7px 15px;
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-strong);
   background: var(--bg-elevated);
@@ -1185,9 +1185,9 @@
 }
 
 .obs-seg-opt {
-  padding: 6px 18px;
+  padding: 9px 20px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   cursor: pointer;
   border-radius: var(--radius-pill);
@@ -1224,7 +1224,7 @@
 }
 
 .obs-chip {
-  padding: 7px 15px;
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-strong);
   background: var(--bg-elevated);
