@@ -1168,3 +1168,568 @@
   font-weight: 600;
   color: var(--accent-hover, var(--accent));
 }
+
+/* =============================================================
+   SEGMENT TOGGLE — obs-seg / obs-seg-opt (reusable, macro + geo)
+   Same pill shape as obs-cal-seg but not scoped to calendar.
+   ============================================================= */
+.obs-seg {
+  display: inline-flex;
+  background: var(--bg-surface, var(--bg-base));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-bottom: 18px;
+}
+
+.obs-seg-opt {
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+  border: none;
+  background: transparent;
+  line-height: 1;
+}
+
+.obs-seg-opt:hover {
+  background: var(--bg-elevated);
+}
+
+.obs-seg-opt--on {
+  background: var(--accent);
+  color: #fff;
+}
+
+.obs-seg-opt:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* =============================================================
+   GENERIC FILTER CHIPS — obs-filterbar / obs-chip / obs-chip--active
+   Used by macro article filter (Все / ЦМАКП / Банк России) and geo regions.
+   ============================================================= */
+.obs-filterbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.obs-chip {
+  padding: 7px 15px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.obs-chip:hover {
+  border-color: var(--border-hover, var(--accent));
+}
+
+.obs-chip--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.obs-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* =============================================================
+   ARTICLE CARDS — obs-art-*
+   Macro "Обзор" section: analytics docs from ЦБ/ЦМАКП.
+   Mirrors prototype .article-card / .ac-* classes.
+   ============================================================= */
+.obs-art-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 760px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.obs-art-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 900px;
+}
+
+.obs-art-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
+}
+
+.obs-art-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Meta row: source · doc_type · date */
+.obs-art-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.obs-art-head b {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.obs-art-date {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* Article title */
+.obs-art-title {
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* Chip-stats row (key metrics inline): */
+.obs-art-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.obs-art-chipstat {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-surface, var(--bg-base));
+  border-radius: 9px;
+  padding: 9px 14px;
+  border: 1px solid var(--border-subtle);
+}
+
+.obs-art-chipstat .cs-lbl {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.obs-art-chipstat .cs-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Takeaway (lead text) */
+.obs-art-takeaway {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* Expand / collapse toggle */
+.obs-art-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent-hover, var(--accent));
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.obs-art-toggle:hover {
+  opacity: 0.75;
+}
+
+.obs-art-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* Expandable full-text section */
+.obs-art-full {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.obs-art-full p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.obs-art-full ul {
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+/* Basis interpretation callout inside article */
+.obs-art-callout {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.obs-art-callout svg {
+  flex-shrink: 0;
+  color: var(--accent-hover, var(--accent));
+  margin-top: 2px;
+}
+
+.obs-art-callout p {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.obs-art-callout b {
+  color: var(--text-primary);
+}
+
+.obs-art-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-hover, var(--accent));
+  text-decoration: none;
+}
+
+.obs-art-link:hover {
+  text-decoration: underline;
+}
+
+/* Empty state for filtered list */
+.obs-art-empty {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  max-width: 900px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* =============================================================
+   DARK PREMIUM CARD — obs-deep-*
+   Theme-invariant: always dark background regardless of light/dark mode.
+   Scoped CSS vars mirror --deep-* from prototype.
+   ============================================================= */
+.obs-deep-card {
+  --obs-dc-bg:    #1B1C26;
+  --obs-dc-line:  rgba(255,255,255,0.10);
+  --obs-dc-ink:   #EDEBE3;
+  --obs-dc-ink2:  #9B9AA8;
+  --obs-dc-ink3:  #6C6B78;
+  --obs-dc-copper: #C97A4A;
+  --obs-dc-copper-soft: rgba(201,122,74,0.22);
+
+  background: var(--obs-dc-bg);
+  border: 1px solid var(--obs-dc-line);
+  border-radius: var(--radius-lg);
+  color: var(--obs-dc-ink);
+  padding: 26px 28px;
+  max-width: 920px;
+}
+
+.obs-deep-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--obs-dc-ink3);
+  margin-bottom: 12px;
+}
+
+.obs-deep-card h3 {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--obs-dc-ink);
+  margin: 0 0 12px;
+  line-height: 1.35;
+}
+
+.obs-deep-card p {
+  color: var(--obs-dc-ink2);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.obs-deep-divider {
+  border-top: 1px solid var(--obs-dc-line);
+  padding-top: 16px;
+  margin-top: 18px;
+}
+
+.obs-deep-divider-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--obs-dc-ink);
+  margin-bottom: 5px;
+}
+
+.obs-deep-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* Sector chip on dark card */
+.obs-deep-chip-sector {
+  background: var(--obs-dc-copper-soft);
+  color: var(--obs-dc-copper);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+}
+
+/* Ticker chip on dark card */
+.obs-deep-chip-ticker {
+  background: #24252F;
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--obs-dc-ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 140ms ease;
+}
+
+.obs-deep-chip-ticker:hover {
+  border-color: var(--obs-dc-copper);
+  color: var(--obs-dc-copper);
+}
+
+.obs-deep-chip-ticker:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--obs-dc-copper);
+}
+
+/* =============================================================
+   SCENARIO ROW — obs-scenario-*
+   3-column base / bull / bear grid. Mirrors prototype .scenario-row.
+   soft backgrounds use design-system tokens.
+   ============================================================= */
+.obs-scenario-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .obs-scenario-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.obs-scenario-card {
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+}
+
+.obs-scenario-card--bull {
+  background: var(--success-soft);
+  border-color: transparent;
+}
+
+.obs-scenario-card--bear {
+  background: var(--danger-soft);
+  border-color: transparent;
+}
+
+.obs-scenario-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.obs-scenario-prob {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.obs-scenario-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.obs-scenario-trig {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.obs-scenario-trig b {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+/* =============================================================
+   SECTOR GRID + WIND TAGS — obs-sector-* / obs-wind-tag
+   Sector impact tiles (macro / geo). Mirrors .sector-grid / .wind-tag.
+   ============================================================= */
+.obs-sector-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .obs-sector-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.obs-sector-tile {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 14px 15px;
+  box-shadow: var(--shadow-sm);
+}
+
+.obs-sector-tile__name {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.obs-sector-tile__note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Wind direction tag: inline epistemic label */
+.obs-wind-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.obs-wind-tag--up {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.obs-wind-tag--down {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.obs-wind-tag--neutral {
+  background: var(--bg-surface, var(--bg-base));
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* =============================================================
+   SYNTH SECTION — obs-synth-*
+   Used in macro assessment: "Текущая картина" / "Ставка" / "Рынок и сектора".
+   Mirrors prototype .synth-section / .synth-head / .synth-lead.
+   ============================================================= */
+.obs-synth-section {
+  margin-bottom: 26px;
+}
+
+.obs-synth-head {
+  font-family: var(--font-sans);
+  font-size: 16.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.obs-synth-lead {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+
+.obs-synth-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}

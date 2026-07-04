@@ -11892,6 +11892,560 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
   );
 }
 
+// =========================
+// OBS ARTICLE CARD — expandable разбор-карточка документа ЦБ/ЦМАКП
+// =========================
+function ObsArticleCard({ doc }) {
+  const [open, setOpen] = useState(false);
+  const SOURCE_LABELS = { cmakp: "ЦМАКП", cbr: "Банк России" };
+  const srcLabel = SOURCE_LABELS[doc.source] || doc.source || "Источник";
+  const dateStr = doc.published_at ? doc.published_at.slice(0, 10) : "";
+
+  return (
+    <div className="obs-art-card">
+      {/* Шапка: источник · тип документа · дата */}
+      <div className="obs-art-head">
+        <b>{srcLabel}</b>
+        {doc.doc_type && <span>· {doc.doc_type} ·</span>}
+        <span className="obs-art-date">{dateStr}</span>
+      </div>
+
+      {/* Заголовок */}
+      <div className="obs-art-title">{doc.title}</div>
+
+      {/* Выжимка (takeaway) */}
+      {doc.summary && <div className="obs-art-takeaway">{doc.summary}</div>}
+
+      {/* Кнопка раскрытия */}
+      <button
+        className="obs-art-toggle"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+      >
+        {open ? "Свернуть ▴" : "Читать разбор целиком ▾"}
+      </button>
+
+      {/* Раскрытая секция */}
+      {open && (
+        <div className="obs-art-full">
+          {Array.isArray(doc.key_takeaways) && doc.key_takeaways.length > 0 && (
+            <ul>
+              {doc.key_takeaways.map((t, i) => <li key={i}>{t}</li>)}
+            </ul>
+          )}
+
+          {doc.interpretation && (
+            <div className="obs-art-callout">
+              {/* Молния-иконка (Basis interpretation) */}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+                <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+              </svg>
+              <p><b>Интерпретация Basis.</b> {doc.interpretation}</p>
+            </div>
+          )}
+
+          {doc.source_url && (
+            <a href={doc.source_url} target="_blank" rel="noreferrer" className="obs-art-link">
+              Оригинал ↗
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================
+// OBS MACRO ARTICLES — Обозреватель · Разбор · Макроэкономика
+// Две вкладки: Обзор (article-cards из /macro/analytics) +
+//              Оценка ситуации (deep-card из /macro/interpretation).
+// =========================
+function ObsMacroArticles({ token }) {
+  const [mode, setMode] = useState("overview"); // overview | assessment
+  const [docs, setDocs] = useState([]);
+  const [interp, setInterp] = useState(null);
+  const [interpLoading, setInterpLoading] = useState(false);
+  const [srcFilter, setSrcFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  // Загружаем список аналитических записок один раз
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${apiUrl}/api/market/macro/analytics?limit=20`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => { setDocs(d || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [apiUrl]);
+
+  // Загружаем интерпретацию при переключении на «Оценка ситуации»
+  useEffect(() => {
+    if (mode === "assessment" && interp === null) {
+      setInterpLoading(true);
+      fetch(`${apiUrl}/api/market/macro/interpretation`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { setInterp(d); setInterpLoading(false); })
+        .catch(() => setInterpLoading(false));
+    }
+  }, [mode, apiUrl, interp]);
+
+  const SOURCE_CHIPS = [
+    { id: "all", label: "Все" },
+    { id: "cmakp", label: "ЦМАКП" },
+    { id: "cbr", label: "Банк России" },
+  ];
+
+  const filteredDocs = docs.filter((d) =>
+    srcFilter === "all" || d.source === srcFilter
+  );
+
+  // Секции интерпретации (порядок из прототипа)
+  const INTERP_SECTIONS = [
+    { key: "current_picture", label: "Текущая картина" },
+    { key: "rate_outlook", label: "Ставка: ближайшее решение и траектория" },
+    { key: "cb_forecast_view", label: "Прогноз ЦБ: оценка вероятности" },
+    { key: "market_sectors", label: "Рынок и сектора" },
+  ];
+
+  const interpSections = interp?.sections || null;
+  const scenarios = interpSections?.scenarios;
+
+  return (
+    <div>
+      <p className="obs-art-desc">
+        «Обзор» — записки ЦБ и ЦМАКП как есть. «Оценка ситуации» — что из этого следует, по мнению Basis.
+      </p>
+
+      {/* Сег-переключатель */}
+      <div className="obs-seg">
+        <button
+          className={`obs-seg-opt${mode === "overview" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("overview")}
+        >
+          Обзор
+        </button>
+        <button
+          className={`obs-seg-opt${mode === "assessment" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("assessment")}
+        >
+          Оценка ситуации
+        </button>
+      </div>
+
+      {/* ===== ОБЗОР: article-cards ===== */}
+      {mode === "overview" && (
+        <>
+          {/* Фильтр по источнику */}
+          <div className="obs-filterbar">
+            {SOURCE_CHIPS.map(({ id, label }) => (
+              <button
+                key={id}
+                className={`obs-chip${srcFilter === id ? " obs-chip--active" : ""}`}
+                onClick={() => setSrcFilter(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {loading && (
+            <div className="obs-news-loading">Загружаем аналитику…</div>
+          )}
+
+          {!loading && filteredDocs.length === 0 && (
+            <div className="obs-art-empty">
+              Нет документов для выбранного источника. Аналитические записки ЦБ и ЦМАКП
+              появятся здесь после публикации.
+            </div>
+          )}
+
+          <div className="obs-art-list">
+            {filteredDocs.map((doc) => (
+              <ObsArticleCard key={doc.id} doc={doc} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* ===== ОЦЕНКА СИТУАЦИИ: deep-card + секции интерпретации ===== */}
+      {mode === "assessment" && (
+        <>
+          {interpLoading && (
+            <div className="obs-news-loading">Загружаем интерпретацию…</div>
+          )}
+
+          {!interpLoading && !interpSections && (
+            <div className="obs-deep-card">
+              <div className="obs-deep-eyebrow">Оценка ситуации · суждение Basis</div>
+              <h3>Интерпретация ещё не сформирована</h3>
+              <p>
+                Обновите анализ на вкладке «Макроэкономика → Экономическая статистика»,
+                нажав кнопку «Обновить анализ» — ИИ-интерпретатор соберёт связную картину
+                по всем показателям, аналитике ЦБ/ЦМАКП и прогнозу (~1–2 мин).
+              </p>
+            </div>
+          )}
+
+          {!interpLoading && interpSections && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {interp.generated_at && (
+                <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+                  Срез на {new Date(interp.generated_at).toLocaleString("ru-RU")}
+                  {interp.model_used ? ` · ${interp.model_used}` : ""}
+                  {" · Это оценка Basis, не факт и не рекомендация."}
+                </div>
+              )}
+
+              {/* Текстовые секции (кроме scenarios) */}
+              {INTERP_SECTIONS.map(({ key, label }) =>
+                interpSections[key] ? (
+                  <div key={key} className="obs-deep-card">
+                    <div className="obs-deep-eyebrow">{label} · суждение Basis</div>
+                    <h3>{label}</h3>
+                    <p style={{ whiteSpace: "pre-line" }}>{interpSections[key]}</p>
+                  </div>
+                ) : null
+              )}
+
+              {/* Сценарии base/bull/bear */}
+              {scenarios && (
+                <div>
+                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>Сценарии</div>
+                  <div className="obs-scenario-row">
+                    {/* Base */}
+                    {scenarios.base && (
+                      <div className="obs-scenario-card">
+                        <div className="obs-scenario-title">Базовый</div>
+                        {scenarios.base.probability && (
+                          <div className="obs-scenario-prob">вероятность: {scenarios.base.probability}</div>
+                        )}
+                        {scenarios.base.key_numbers && (
+                          <div className="obs-scenario-num">{scenarios.base.key_numbers}</div>
+                        )}
+                        {scenarios.base.triggers && (
+                          <div className="obs-scenario-trig">
+                            <b>Триггеры</b>
+                            {scenarios.base.triggers}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {/* Bull */}
+                    {scenarios.bull && (
+                      <div className="obs-scenario-card obs-scenario-card--bull">
+                        <div className="obs-scenario-title">Бычий</div>
+                        {scenarios.bull.probability && (
+                          <div className="obs-scenario-prob">вероятность: {scenarios.bull.probability}</div>
+                        )}
+                        {scenarios.bull.key_numbers && (
+                          <div className="obs-scenario-num">{scenarios.bull.key_numbers}</div>
+                        )}
+                        {scenarios.bull.triggers && (
+                          <div className="obs-scenario-trig">
+                            <b>Триггеры</b>
+                            {scenarios.bull.triggers}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {/* Bear */}
+                    {scenarios.bear && (
+                      <div className="obs-scenario-card obs-scenario-card--bear">
+                        <div className="obs-scenario-title">Медвежий</div>
+                        {scenarios.bear.probability && (
+                          <div className="obs-scenario-prob">вероятность: {scenarios.bear.probability}</div>
+                        )}
+                        {scenarios.bear.key_numbers && (
+                          <div className="obs-scenario-num">{scenarios.bear.key_numbers}</div>
+                        )}
+                        {scenarios.bear.triggers && (
+                          <div className="obs-scenario-trig">
+                            <b>Триггеры</b>
+                            {scenarios.bear.triggers}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+// =========================
+// OBS GEOPOLITICS — Обозреватель · Разбор · Геополитика
+// Регион-фильтр (чипы) + сег-переключатель Обзор/Оценка ситуации +
+// deep-card по прототипу (тёмная карточка с суждением Basis).
+// Данные: GET /api/market/geopolitics
+// =========================
+function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [region, setRegion] = useState(null); // null = первый из списка
+  const [mode, setMode] = useState("overview"); // overview | assessment
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true);
+    setError(false);
+    fetch(
+      `${apiUrl}/api/market/geopolitics?portfolio_only=${portfolioOnly}`,
+      { headers: authHeaders }
+    )
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token, apiUrl]);
+
+  // Данные приходят раздельно по вкладкам (overview / deep).
+  // Мы объединяем всё в один список регионов.
+  const allBlocks = [
+    ...(data?.tabs?.overview || []),
+    ...(data?.tabs?.deep || []),
+  ];
+
+  // Уникальные регионы (ключи) из обоих наборов
+  const regionMap = new Map();
+  (data?.tabs?.overview || []).forEach((b) => {
+    if (!regionMap.has(b.region)) regionMap.set(b.region, { overview: b, deep: null });
+    else regionMap.get(b.region).overview = b;
+  });
+  (data?.tabs?.deep || []).forEach((b) => {
+    if (!regionMap.has(b.region)) regionMap.set(b.region, { overview: null, deep: b });
+    else regionMap.get(b.region).deep = b;
+  });
+
+  const regions = Array.from(regionMap.keys());
+  const activeRegion = region || regions[0] || null;
+  const regionData = activeRegion ? regionMap.get(activeRegion) : null;
+
+  // Блок для текущего режима
+  const overviewBlock = regionData?.overview;
+  const deepBlock = regionData?.deep;
+
+  // Секторы из active block (объединяем оба источника)
+  const affectedSectors = [
+    ...new Set([
+      ...(overviewBlock?.affected_sectors || []),
+      ...(deepBlock?.affected_sectors || []),
+    ])
+  ];
+  const affectedTickers = [
+    ...new Set([
+      ...(overviewBlock?.affected_tickers || []),
+      ...(deepBlock?.affected_tickers || []),
+    ])
+  ];
+
+  const titleBlock = overviewBlock || deepBlock;
+
+  return (
+    <div>
+      <p className="obs-art-desc">
+        «Обзор» — что произошло (факты). «Оценка ситуации» — прогноз Basis: куда идёт регион
+        и что это значит для российского рынка.
+      </p>
+
+      {/* Фильтр регионов */}
+      {regions.length > 0 && (
+        <div className="obs-filterbar">
+          {regions.map((r) => {
+            const b = regionMap.get(r);
+            const lbl = (b.overview?.title || b.deep?.title || r);
+            return (
+              <button
+                key={r}
+                className={`obs-chip${activeRegion === r ? " obs-chip--active" : ""}`}
+                onClick={() => setRegion(r)}
+              >
+                {lbl}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Сег-переключатель */}
+      <div className="obs-seg">
+        <button
+          className={`obs-seg-opt${mode === "overview" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("overview")}
+        >
+          Обзор
+        </button>
+        <button
+          className={`obs-seg-opt${mode === "assessment" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("assessment")}
+        >
+          Оценка ситуации
+        </button>
+      </div>
+
+      {loading && (
+        <div className="obs-news-loading">Загрузка геополитики…</div>
+      )}
+      {error && (
+        <div style={{ color: "var(--danger)", fontSize: 13, padding: "24px 0" }}>
+          Не удалось загрузить геополитику.
+        </div>
+      )}
+
+      {!loading && !error && regions.length === 0 && (
+        <div className="obs-art-empty">
+          {portfolioOnly
+            ? "По бумагам портфеля значимых изменений нет."
+            : "Нет геополитических данных."}
+        </div>
+      )}
+
+      {!loading && !error && activeRegion && (
+        <>
+          {/* ===== ОБЗОР: deep-card с фактами ===== */}
+          {mode === "overview" && (
+            <div className="obs-deep-card">
+              <div className="obs-deep-eyebrow">Обзор · факты</div>
+              <h3>{titleBlock?.title || activeRegion}</h3>
+              {overviewBlock?.status_text && (
+                <p style={{ marginBottom: 18 }}>{overviewBlock.status_text}</p>
+              )}
+              {(affectedSectors.length > 0 || affectedTickers.length > 0) && (
+                <div className="obs-deep-chips">
+                  {affectedSectors.map((s, i) => (
+                    <span key={"s" + i} className="obs-deep-chip-sector">{s}</span>
+                  ))}
+                  {affectedTickers.map((t, i) => (
+                    <button
+                      key={"t" + i}
+                      className="obs-deep-chip-ticker"
+                      onClick={() => onSelectCompany && onSelectCompany(t)}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ===== ОЦЕНКА СИТУАЦИИ: deep-card с суждением Basis ===== */}
+          {mode === "assessment" && (
+            <div className="obs-deep-card">
+              <div className="obs-deep-eyebrow">Оценка ситуации · суждение Basis</div>
+              <h3>Куда идёт ситуация и что это значит для рынка</h3>
+
+              {deepBlock?.market_impact && (
+                <p style={{ marginBottom: 18 }}>{deepBlock.market_impact}</p>
+              )}
+              {!deepBlock?.market_impact && overviewBlock?.status_text && (
+                <p style={{ marginBottom: 18 }}>{overviewBlock.status_text}</p>
+              )}
+
+              {/* Первыми затронуты — каналы влияния */}
+              {Array.isArray(deepBlock?.channels) && deepBlock.channels.length > 0 && (
+                <div className="obs-deep-divider">
+                  <div className="obs-deep-divider-title">Каналы влияния</div>
+                  {deepBlock.channels.map((c, i) => (
+                    <div key={i} style={{ marginBottom: 10 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, color: "var(--obs-dc-ink)", marginBottom: 3 }}>
+                        {c.channel}
+                      </div>
+                      {c.effect && (
+                        <p style={{ marginBottom: 0, fontSize: 13 }}>{c.effect}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Сценарии */}
+              {deepBlock?.scenarios && (
+                <div className="obs-deep-divider">
+                  <div className="obs-deep-divider-title" style={{ marginBottom: 14 }}>
+                    Сценарии — оценка Basis
+                  </div>
+                  {/* Сценарии рендерим в светлой карточке, вне dark-card — для читаемости */}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Сценарии вне dark-card (светлый фон, tabular) */}
+          {mode === "assessment" && deepBlock?.scenarios && (
+            <div style={{ marginTop: 16 }}>
+              <div className="obs-scenario-row">
+                {deepBlock.scenarios.base && (
+                  <div className="obs-scenario-card">
+                    <div className="obs-scenario-title">Базовый</div>
+                    {deepBlock.scenarios.base.probability && (
+                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.base.probability}</div>
+                    )}
+                    {(deepBlock.scenarios.base.key_numbers || deepBlock.scenarios.base.description) && (
+                      <div className="obs-scenario-num">
+                        {deepBlock.scenarios.base.key_numbers || deepBlock.scenarios.base.description}
+                      </div>
+                    )}
+                    {deepBlock.scenarios.base.triggers && (
+                      <div className="obs-scenario-trig">
+                        <b>Триггеры</b>
+                        {deepBlock.scenarios.base.triggers}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {deepBlock.scenarios.bull && (
+                  <div className="obs-scenario-card obs-scenario-card--bull">
+                    <div className="obs-scenario-title">Оптимистичный</div>
+                    {deepBlock.scenarios.bull.probability && (
+                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.bull.probability}</div>
+                    )}
+                    {(deepBlock.scenarios.bull.key_numbers || deepBlock.scenarios.bull.description) && (
+                      <div className="obs-scenario-num">
+                        {deepBlock.scenarios.bull.key_numbers || deepBlock.scenarios.bull.description}
+                      </div>
+                    )}
+                    {deepBlock.scenarios.bull.triggers && (
+                      <div className="obs-scenario-trig">
+                        <b>Триггеры</b>
+                        {deepBlock.scenarios.bull.triggers}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {deepBlock.scenarios.bear && (
+                  <div className="obs-scenario-card obs-scenario-card--bear">
+                    <div className="obs-scenario-title">Негативный</div>
+                    {deepBlock.scenarios.bear.probability && (
+                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.bear.probability}</div>
+                    )}
+                    {(deepBlock.scenarios.bear.key_numbers || deepBlock.scenarios.bear.description) && (
+                      <div className="obs-scenario-num">
+                        {deepBlock.scenarios.bear.key_numbers || deepBlock.scenarios.bear.description}
+                      </div>
+                    )}
+                    {deepBlock.scenarios.bear.triggers && (
+                      <div className="obs-scenario-trig">
+                        <b>Триггеры</b>
+                        {deepBlock.scenarios.bear.triggers}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function ObserverV2({ token, onSelectCompany }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
@@ -11955,7 +12509,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Разбор</span>
               <h2 className="obs-sec-title">Макроэкономика</h2>
             </div>
-            <MacroInterpreterTab token={token} />
+            <ObsMacroArticles token={token} />
           </div>
         );
       case "geo":
@@ -11965,7 +12519,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Разбор</span>
               <h2 className="obs-sec-title">Геополитика</h2>
             </div>
-            <GeopoliticsView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsGeopolitics token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "institutions":
