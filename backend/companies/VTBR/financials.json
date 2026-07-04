@@ -498,7 +498,116 @@
    535300.0,
    483700.0
   ],
-  "pnl_detail_note": "Детальный P&L (проц.доходы EIR, прочие проц.доходы, всего проц.доходы, проц.расходы, платежи ДСВ, ЧПД после резервов, всего непроц.расходы, прибыль до налога, налог, ЧП группы и акционеров) дозаполнен из первичных МСФО-PDF за 2021–2024 (млрд→млн ×1000); 2019–2020 и 2025 — детальная разбивка не публиковалась (null). ЧПД 2022 и 2024 приведены к первичному отчёту (321 000 и 487 200 млн), см. data_flags. bank_pnl агрегаты/net_profit_adj не менялись."
+  "pnl_detail_note": "Детальный P&L (проц.доходы EIR, прочие проц.доходы, всего проц.доходы, проц.расходы, платежи ДСВ, ЧПД после резервов, всего непроц.расходы, прибыль до налога, налог, ЧП группы и акционеров) дозаполнен из первичных МСФО-PDF за 2021–2024 (млрд→млн ×1000); 2019–2020 и 2025 — детальная разбивка не публиковалась (null). ЧПД 2022 и 2024 приведены к первичному отчёту (321 000 и 487 200 млн), см. data_flags. bank_pnl агрегаты/net_profit_adj не менялись.",
+  "total_other_operating_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   127300,
+   316600,
+   null
+  ],
+  "trading_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   242500,
+   null
+  ],
+  "fx_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   50700,
+   null
+  ],
+  "other_income_residual": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   23400,
+   null
+  ],
+  "total_net_operating_income_official": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   1105700,
+   1072800,
+   null
+  ],
+  "gross_commission_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   291800,
+   347900,
+   null
+  ],
+  "commission_expenses": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   -74800,
+   -78900,
+   null
+  ],
+  "non_banking_income": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "non_banking_net": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "other_operating_income_note": "Разбивка 'Прочих операционных доходов' из официальной презентации МСФО ВТБ 2024 (25.02.2025, стр.5). 2024 (факт): trading_income (финансовые инструменты по СС) 242 500 млн, fx_income (валютные операции) 50 700 млн, other_income_residual (прочие, вкл. страховые) 23 400 млн, итого total_other_operating_income 316 600 млн. 2023 (факт): total_other_operating_income 127 300 млн; подкомпоненты 2023 не добавлены — обратный расчёт по YoY-процентам даёт ~79 000 млн, что не сходится с 127 300 (возможна реклассификация после интеграции Открытия). total_net_operating_income_official = NII + комиссии + прочие ДО резервов по официальной презентации; отличается от legacy-поля operating_income (инфографика — см. data_flags). gross_commission_income/commission_expenses: из стр.7 презентации (нетто = net_fee_income ✓). non_banking_income/non_banking_net = null: ВТБ Страхование консолидировано (insurance_liabilities в балансе), но отдельной строки небанковских доходов в публичном МСФО-раскрытии нет — embedded в other_income_residual. [src_9]"
  },
  "bank_metrics": {
   "nim": [
@@ -1049,7 +1158,56 @@
    12742000,
    13907000,
    13877000
-  ]
+  ],
+  "due_from_banks": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   818900.0,
+   1082900.0,
+   1680500.0,
+   null
+  ],
+  "securities": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   4324200.0,
+   3901600.0,
+   5406100.0,
+   null
+  ],
+  "ppe_intangibles": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   968600.0,
+   1122800.0,
+   null
+  ],
+  "debt_securities_issued": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   187800.0,
+   316900.0,
+   426100.0,
+   null
+  ],
+  "canonical_aliases_note": "Канонические псевдонимы (июл 2026): due_from_banks=interbank_assets, securities=investment_securities, ppe_intangibles=ppe_and_intangibles, debt_securities_issued=issued_debt_securities. Значения идентичны первичным полям; первичные поля сохранены без изменений. Добавлены для соответствия расширенному банковскому канону."
  },
  "returns": {
   "roe": [
@@ -1699,6 +1857,13 @@
    "title": "Ведомости/Эксперт — 2025: прибыль 502.1 млрд (акционеры), разовые: признание ОНА и роспуск резервов; DPS FY2025 = 9.71 ₽",
    "period": "2025-2026",
    "reliability": "medium"
+  },
+  {
+   "id": "src_9",
+   "type": "official_report",
+   "title": "ВТБ Группа — Презентация финансовых результатов 2024 по МСФО (25.02.2025, vtb.ru/ir, PDF 4.8 МБ)",
+   "period": "2023-2024",
+   "reliability": "high"
   }
  ],
  "data_flags": [
@@ -1722,7 +1887,14 @@
   "ДОБАВЛЕНО loan_provisions (остаток резервов на балансе): 2023 = 1 141 900 млн (primary: gross 20 999 600 − net 19 857 700); 2024 = 1 157 000 млн (primary: gross 23 763 700 − net 22 606 700); 2025 = 1 278 000 млн (оценочно: NPL 3.5% × gross 24 493 000 × coverage 149.1%; certainty=logic); 2016–2022 = null (нет разбивки gross/net из первичных PDF).",
   "ДОБАВЛЕНО retail_deposits и corporate_deposits (разбивка депозитов физ/юр лиц): 2022–2025 из smart-lab; суммы сходятся с client_deposits ±200 млн. 2016–2021 = null (2021: smart-lab показывает 15 150 000 млн, но это не согласуется с client_deposits[2021]=16 823 300 из инфографики; разбивка не добавлялась во избежание несходимости).",
   "ДОБАВЛЕНО loans_to_clients_gross[2025] = 24 493 000 млн (пресс-релиз МСФО 2025: «совокупный кредитный портфель до вычета резервов 24.5 трлн, рост 3.1%»; smart-lab: 24 493 000). Ранее было null.",
-  "NII 2025 ПРЕДУПРЕЖДЕНИЕ: bank_pnl.net_interest_income[2025] = 190 400 млн (из инфографики). Внешние источники (T-Investments, smart-lab) указывают NII 2025 = 433 600 млн, NIM = 1.4% (против NIM в file = 0.52%). Возможная причина: инфографика показывала sub-line (ЧПД после резервов или только EIR-компонент) вместо суммарного ЧПД. P&L в этом проходе не изменялся — требует верификации по первичному PDF 2025."
+  "NII 2025 ПРЕДУПРЕЖДЕНИЕ: bank_pnl.net_interest_income[2025] = 190 400 млн (из инфографики). Внешние источники (T-Investments, smart-lab) указывают NII 2025 = 433 600 млн, NIM = 1.4% (против NIM в file = 0.52%). Возможная причина: инфографика показывала sub-line (ЧПД после резервов или только EIR-компонент) вместо суммарного ЧПД. P&L в этом проходе не изменялся — требует верификации по первичному PDF 2025.",
+  "ДОБАВЛЕНО bank_pnl (июл 2026): trading_income, fx_income, other_income_residual, total_other_operating_income — разбивка 'Прочих операционных доходов' из официальной МСФО-презентации ВТБ 2024 (стр.5). 2024 (факт): FV/торговые 242 500 млн, FX 50 700 млн, прочие 23 400 млн, итого 316 600 млн. 2023: только total 127 300 млн (факт); подкомпоненты null из-за несходимости обратного расчёта (~79 000 ≠ 127 300). [src_9]",
+  "ДОБАВЛЕНО bank_pnl: total_net_operating_income_official — чистые операционные доходы ДО резервов из официальной презентации: 2023=1 105 700 млн (761 400+217 000+127 300), 2024=1 072 800 млн (487 200+269 000+316 600). ОТЛИЧАЕТСЯ от legacy-поля operating_income: 2023 разрыв 131 100 млн, 2024 разрыв 18 900 млн. Вероятная причина: legacy взято из инфографики, которая исключала 'прочие операционные доходы' или использовала иное определение. Поле operating_income НЕ изменено (legacy сохранено). [src_9]",
+  "ДОБАВЛЕНО bank_pnl: gross_commission_income / commission_expenses. 2023: 291 800 / −74 800 (нетто 217 000 = net_fee_income ✓). 2024: 347 900 / −78 900 (нетто 269 000 = net_fee_income ✓). [src_9]",
+  "ДОБАВЛЕНО bank_pnl: non_banking_income = non_banking_net = null (весь период). ВТБ Страхование консолидировано (insurance_liabilities в балансе 1 101 500 / 1 146 300 за 2023/2024), но отдельной строки небанковских доходов в публичном МСФО-раскрытии не существует. Для детализации требуется primarn МСФО (примечания по сегментам). [src_9]",
+  "ДОБАВЛЕНО balance_sheet: канонические псевдонимы due_from_banks, securities, ppe_intangibles, debt_securities_issued — идентичны interbank_assets, investment_securities, ppe_and_intangibles, issued_debt_securities. Первичные поля сохранены. [src_9]",
+  "РАСХОЖДЕНИЕ резервные расходы: официальная МСФО-презентация 2024 (стр.10) показывает расходы на создание резервов под обесценение кредитов: 2024=65 300 млн (ЮЛ +97 600, ФЛ −32 300), 2023=166 700 млн. Существующие поля provisions[2024]=23 900 и provisions[2023]=175 600 (источник — инфографика). Расхождение 2024: 41 400 млн; 2023: 8 900 млн. Поле provisions НЕ изменено (требуется верификация по первичному PDF). [src_9]",
+  "РАСХОЖДЕНИЕ coverage_ratio 2024: официальная презентация 31.12.2024 = 138.7% (оценочное значение в примечании loan_provisions[2025] было 149.1%). Балансовый резерв 1 157 000 млн совпадает с файлом. [src_9]"
  ],
  "cash_flow": {
   "cfo": [
