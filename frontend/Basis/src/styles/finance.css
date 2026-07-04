@@ -145,6 +145,7 @@
 .fin-hybrid .ftbl tr.accent td{color:var(--accent-2);}.fin-hybrid .ftbl tr.accent td:first-child{color:var(--accent-2);}
 .fin-hybrid .ftbl tr.me td{background:var(--accent-soft);}.fin-hybrid .ftbl tr.me td:first-child{color:var(--accent-2);font-weight:600;}
 .fin-hybrid .ftbl tr.med td{border-top:2px solid var(--line-2);color:var(--ink);font-weight:600;}
+.fin-hybrid .ftbl tr.section-hdr td{background:var(--panel-2);color:var(--ink-3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 11px;font-family:var(--sans);text-align:left;border-bottom:1px solid var(--line-2);}
 .fin-hybrid .fc-note{font-size:12px;line-height:1.5;color:var(--ink-3);margin-top:12px;padding:10px 13px;background:var(--panel-2);border-radius:8px;}
 .fin-hybrid .fc-note b{color:var(--ink-2);}
 .fin-hybrid .miniseg{display:inline-flex;gap:3px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:8px;padding:3px;margin-bottom:12px;flex-wrap:wrap;}

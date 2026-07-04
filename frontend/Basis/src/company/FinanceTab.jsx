@@ -260,6 +260,12 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     const out = Array.from({ length: n }, (_, i) => { let s = null; cs.forEach((a) => { if (a[i] != null) s = (s ?? 0) + a[i]; }); return s; });
     return out.some((x) => x != null) ? out : null;
   };
+  // bmA — банковские метрики добывались разными агентами с разными именами полей.
+  // Перебирает алиасы и возвращает первый непустой массив.
+  const bmA = (...names) => {
+    for (const n of names) { const a = ga(bmx, n); if (a) return a; }
+    return null;
+  };
   const eqb = (bs.equity && !Array.isArray(bs.equity)) ? bs.equity : {};
   const nca = bs.non_current_assets || {}, cua = bs.current_assets || {};
   const ncl = bs.non_current_liabilities || {}, cul = bs.current_liabilities || {};
@@ -309,7 +315,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     { label: "P/B", value: cur.pb, median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true, unit: "x" },
     { label: "P/S", value: cur.ps, median: sm ? sm.ps : (hist.ps_5y_median ?? hist.ps_5y_avg), lower: true, unit: "x" },
     { label: "ND/EBITDA", value: nde, median: sm ? sm.nd_ebitda : null, lower: true, unit: "x" },
-    { label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" },
+    ...(!isBank ? [{ label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" }] : []),
   ];
 
   /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
@@ -319,11 +325,22 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const M = (l, a, o = {}) => ({ l, a, kind: "money", ...o });
   const pnlRows = isBank
     ? [
-        M("Чистый проц. доход", bp.net_interest_income, { bold: true }),
-        M("Чистый комис. доход", bp.net_fee_income),
-        M("Операц. доходы", bp.operating_income),
-        M("Резервы", bp.provisions),
-        M("Чистая прибыль", bp.net_profit, { bold: true }),
+        M("Процентные доходы",         ga(bp,"interest_income_gross")||ga(bp,"interest_income")||ga(bp,"total_interest_income"), { det: true }),
+        M("Процентные расходы",         ga(bp,"interest_expense_gross")||ga(bp,"interest_expense"), { det: true, muted: true }),
+        M("Чистый процентный доход",    bp.net_interest_income, { bold: true }),
+        M("Комиссионные доходы",        ga(bp,"fee_income_gross")||ga(bp,"fee_income"), { det: true }),
+        M("Комиссионные расходы",       ga(bp,"fee_expense"), { det: true, muted: true }),
+        M("Чистый комиссионный доход",  bp.net_fee_income, { bold: true }),
+        M("Чистый страховой доход",     ga(bp,"net_insurance_income")),
+        M("Торговый доход",             ga(bp,"trading_income"), { det: true, muted: true }),
+        M("Небанк./экосистема нетто",   ga(bp,"non_banking_net"), { det: true }),
+        M("Операционные доходы",        orSum(ga(bp,"operating_income"), [bp.net_interest_income, bp.net_fee_income, ga(bp,"net_insurance_income"), ga(bp,"other_income")]), { bold: true }),
+        M("Резервы (CoR)",              ga(bp,"provisions")||ga(bp,"impairment_charges")),
+        M("Операционные расходы",       bp.operating_expenses),
+        M("Прибыль до налога",          ga(bp,"pre_tax_profit"), { det: true }),
+        M("Налог на прибыль",           ga(bp,"income_tax"), { det: true, muted: true }),
+        M("Чистая прибыль",             bp.net_profit, { bold: true }),
+        M("Чистая прибыль (норм.)",     ga(bp,"net_profit_adj")||ga(adjBlk,"net_profit_adj"), { bold: true, accent: true }),
       ]
     : [
         M("Выручка", is.revenue, { bold: true }),
@@ -350,10 +367,31 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
       ];
   const bsRows = isBank
     ? [
-        M("Активы", bs.total_assets, { bold: true }),
-        M("Капитал", totalEquityArr, { bold: true }),
-        M("Обязательства", bs.total_liabilities),
-        { l: "Балансовая ст-ть / акция", a: bs.book_value_per_share, kind: "rub", muted: true },
+        { l: "АКТИВЫ", sectionHeader: true },
+        M("Денежные средства",          ga(bs,"cash_and_equivalents")||ga(bs,"cash")||cua.cash),
+        M("Средства в банках (МБК)",    ga(bs,"due_from_banks")),
+        M("Портфель ценных бумаг",      ga(bs,"securities")||ga(bs,"investment_securities")),
+        M("Кредитный портфель валовой", ga(bs,"gross_loans"), { bold: true }),
+        M("Резервы",                    ga(bs,"loan_provisions"), { det: true, muted: true }),
+        M("Кредиты юрлицам",            ga(bs,"loans_corporate"), { det: true }),
+        M("Кредиты физлицам",           ga(bs,"loans_retail"), { det: true }),
+        M("Кредитный портфель чистый",  ga(bs,"net_loans"), { bold: true }),
+        M("Основные средства и НМА",    ga(bs,"ppe_intangibles")),
+        M("Прочие активы",              ga(bs,"other_assets")),
+        M("ИТОГО АКТИВЫ",               ga(bs,"total_assets")||bs.total_assets, { bold: true }),
+        { l: "ПАССИВЫ", sectionHeader: true },
+        M("Средства банков (МБК)",      ga(bs,"due_to_banks")),
+        M("Средства клиентов",          orSum(ga(bs,"customer_deposits"),[ga(bs,"deposits_retail"),ga(bs,"deposits_corporate")]), { bold: true }),
+        M("Депозиты физлиц",            ga(bs,"deposits_retail"), { det: true }),
+        M("Депозиты юрлиц",             ga(bs,"deposits_corporate"), { det: true }),
+        M("Выпущенные облигации",        ga(bs,"debt_securities_issued")),
+        M("Субординированный долг",      ga(bs,"subordinated_debt")),
+        M("Прочие обязательства",        ga(bs,"other_liabilities")),
+        M("ИТОГО ОБЯЗАТЕЛЬСТВА",         ga(bs,"total_liabilities")||bs.total_liabilities, { bold: true }),
+        M("Капитал",                     totalEquityArr, { bold: true }),
+        M("Уставный капитал",            ga(bs,"share_capital_and_premium")||eqb.share_capital, { det: true, muted: true }),
+        M("Нераспределённая прибыль",    ga(bs,"retained_earnings")||eqb.retained_earnings, { det: true, muted: true }),
+        { l: "Балансовая ст-ть / акция", a: ga(bs,"book_value_per_share")||bs.book_value_per_share, kind: "rub", muted: true },
       ]
     : [
         M("Внеоборотные активы", orSum(ga(nca, "total_non_current"), [nca.ppe, nca.intangibles, nca.goodwill, nca.long_term_investments, nca.other_non_current]), { bold: true }),
@@ -406,24 +444,34 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     { l: "P/S", a: mult.ps, kind: "ratio" },
     { l: "P/B", a: mult.pb, kind: "ratio" },
     { l: "EV/EBITDA", a: mult.ev_ebitda, kind: "ratio" },
-    { l: "ROE", a: ret.roe, kind: "pct", muted: true },
-    { l: "ROA", a: ret.roa, kind: "pct", muted: true },
-    { l: "ROIC", a: ret.roic, kind: "pct", muted: true },
+    ...(!isBank ? [
+      { l: "ROE", a: ret.roe, kind: "pct", muted: true },
+      { l: "ROA", a: ret.roa, kind: "pct", muted: true },
+      { l: "ROIC", a: ret.roic, kind: "pct", muted: true },
+    ] : []),
     { l: "Маржа EBITDA", a: margins.ebitda_margin, kind: "pct", muted: true },
     { l: "Чистая маржа", a: margins.net_margin, kind: "pct", muted: true },
-    ...(isBank ? [
-      { l: "ЧПМ (NIM)", a: bmx.nim, kind: "pct", muted: true },
-      { l: "Стоимость риска", a: bmx.cost_of_risk, kind: "pct", muted: true },
-      { l: "CIR", a: bmx.cir, kind: "pct", muted: true },
-      { l: "Достаточность кап.", a: bmx.capital_adequacy, kind: "pct", muted: true },
-    ] : []),
   ];
+  // Банковские метрики — отдельная таблица (владелец: «у Сбера метрики в мультипликаторах — вынести отдельно»)
+  const bankMetricRows = isBank ? [
+    { l: "ЧПМ (NIM), %",              a: bmA("nim","nim_pct","nim_proxy_pct"),                                      kind: "pct", bold: true },
+    { l: "Стоимость риска (CoR), %",  a: bmA("cost_of_risk","cor","cor_pct","cost_of_risk_pct","cor_pct_implied"),  kind: "pct" },
+    { l: "CIR, %",                    a: bmA("cir","cir_pct"),                                                      kind: "pct" },
+    { l: "ROE, %",                    a: bmA("roe","roe_pct","roe_rep_pct","roe_reported_pct","roe_reported"),       kind: "pct", bold: true },
+    { l: "ROE норм., %",              a: bmA("roe_adjusted","roe_adj","roe_adj_pct"),                               kind: "pct", accent: true },
+    { l: "ROA, %",                    a: bmA("roa","roa_pct","roa_adj_pct"),                                        kind: "pct" },
+    { l: "Н1.0, %",                   a: bmA("n1_0","capital_adequacy_n10","capital_adequacy","capital_adequacy_h1_0_pct","capital_adequacy_h1"), kind: "pct" },
+    { l: "Н1.2, %",                   a: bmA("n1_2","capital_adequacy_n12"),                                        kind: "pct" },
+    { l: "Кредитный портфель",        a: bmA("loan_portfolio","loan_portfolio_gross","loan_portfolio_net_mln","loan_portfolio_mln","loans_gross"), kind: "money", bold: true },
+    { l: "Депозиты клиентов",         a: bmA("deposits","deposits_mln"),                                            kind: "money" },
+    { l: "BVPS, ₽/акц.",             a: bmA("bvps")||ga(bs,"book_value_per_share"),                               kind: "rub", muted: true },
+  ].filter((r) => r.a && sl(r.a).some((x) => x != null)) : [];
   const TABLES = { pnl: pnlRows, bs: bsRows, cf: cfRows, mult: multRows };
-  const hasTable = (k) => TABLES[k].some((r) => sl(r.a).some((x) => x != null));
+  const hasTable = (k) => TABLES[k].some((r) => !r.sectionHeader && sl(r.a).some((x) => x != null));
   const tabsAvail = ["pnl", "bs", "cf", "mult"].filter(hasTable);
   const curTab = tabsAvail.includes(tab) ? tab : (tabsAvail[0] || "pnl");
   const TLABEL = { pnl: "P&L", bs: "Баланс", cf: "ОДДС", mult: "Мультипликаторы" };
-  const curHasDet = TABLES[curTab].some((r) => r.det && sl(r.a).some((x) => x != null));
+  const curHasDet = TABLES[curTab].some((r) => !r.sectionHeader && r.det && sl(r.a).some((x) => x != null));
   // форматирование ячейки по kind
   const fmtCell = (r, v) => {
     if (v == null || isNaN(v)) return "—";
@@ -610,6 +658,9 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     <thead><tr><th>{unitNote}</th>{yslice.map((y) => <th key={y}>{y}</th>)}</tr></thead>
                     <tbody>
                       {TABLES[curTab].map((r, i) => {
+                        if (r.sectionHeader) return (
+                          <tr key={i} className="section-hdr"><td colSpan={yslice.length + 1}>{r.l}</td></tr>
+                        );
                         if (r.det && !detOpen) return null;
                         const vals = sl(r.a);
                         if (!vals.some((x) => x != null)) return null;
@@ -636,6 +687,69 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
               </div>
             </details>
           )}
+
+          {/* 4b. Банковские метрики по годам */}
+          {isBank && bankMetricRows.length > 0 && (
+            <details className="disc" open>
+              <summary><div><div className="dt">Банковские метрики по годам</div><div className="dd">NIM · CoR · CIR · ROE · достаточность капитала · портфель</div></div><span className="tag tag-fact" style={{ marginLeft: 8 }}>факт</span><span className="chev">▾</span></summary>
+              <div className="disc-body">
+                <div className="tbl-scroll">
+                  <table className="ftbl">
+                    <thead><tr><th>Показатель</th>{yslice.map((y) => <th key={y}>{y}</th>)}</tr></thead>
+                    <tbody>
+                      {bankMetricRows.map((r, i) => {
+                        const vals = sl(r.a);
+                        const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
+                        return (
+                          <tr className={cls} key={i}>
+                            <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
+                            {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="foot-note">NIM — чистая процентная маржа; CoR — стоимость кредитного риска; CIR — отношение расходов к доходам; Н1.0/Н1.2 — нормативы достаточности капитала (РСБУ). Источник: financials.json (bank_metrics).</div>
+              </div>
+            </details>
+          )}
+
+          {/* 4c. Небанковский бизнес (экосистема) */}
+          {isBank && (() => {
+            const eco = fin.ecosystem;
+            if (!eco) return null;
+            const ecoRows = [
+              M("Выручка",         ga(eco,"revenue_mln"),    { bold: true }),
+              M("Расходы",         ga(eco,"expenses_mln"),   { muted: true }),
+              M("Результат нетто", ga(eco,"net_result_mln"), { bold: true, accent: true }),
+            ].filter((r) => r.a && sl(r.a).some((x) => x != null));
+            if (!ecoRows.length) return null;
+            return (
+              <details className="disc" open>
+                <summary><div><div className="dt">Небанковский бизнес (экосистема)</div><div className="dd">Выручка · расходы · результат нетто по годам</div></div><span className="tag tag-fact" style={{ marginLeft: 8 }}>факт</span><span className="chev">▾</span></summary>
+                <div className="disc-body">
+                  <div className="tbl-scroll">
+                    <table className="ftbl">
+                      <thead><tr><th>млрд ₽</th>{yslice.map((y) => <th key={y}>{y}</th>)}</tr></thead>
+                      <tbody>
+                        {ecoRows.map((r, i) => {
+                          const vals = sl(r.a);
+                          const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
+                          return (
+                            <tr className={cls} key={i}>
+                              <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
+                              {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
+            );
+          })()}
 
           {/* 5. Позиционирование в секторе */}
           {peerObj && peerRows.length > 1 && (
