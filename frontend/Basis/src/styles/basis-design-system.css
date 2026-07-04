@@ -1,0 +1,225 @@
+/* СГЕНЕРИРОВАНО из docs/basis-design-system (1).css с префиксом bs- (токены --bs-*, классы .bs-*)
+   во избежание конфликта с текущими токенами NEO (--ink/--line/--serif/--mono) и классами (.card/.tag-fact/.pill/.chip).
+   Подключается ПОСЛЕ styles.css. Применяется точечно: навешивать .bs-* на компоненты. */
+
+/* ============================================================================
+   BASIS DESIGN SYSTEM — переносимый визуальный слой
+   ============================================================================
+   Что это: только внешний вид (шрифты, цвета, отступы, кнопки, чипы, теги,
+   карточки, dropdown). НЕ содержит разметки конкретных страниц/разделов —
+   это универсальный набор, применимый к любой странице платформы.
+
+   Как подключить:
+   1. Загрузить шрифты (см. FONTS ниже) — либо через Google Fonts <link>,
+      либо self-host, если так принято на платформе по требованиям
+      приватности/производительности.
+   2. Подключить этот файл ПОСЛЕ текущих стилей сайта, чтобы токены
+      могли переопределить старые (или подключить раньше и повысить
+      специфичность — зависит от текущей архитектуры CSS сайта).
+   3. ПЕРЕД подключением проверить пересечение имён CSS-переменных
+      с уже существующими на платформе (--bs-surface, --bs-line и т.п.) —
+      если такие есть, переименовать здесь во избежание конфликта.
+   4. HTML-разметку менять НЕ нужно для базовых элементов — если на сайте
+      уже используются классы вроде .bs-card/.bs-chip с другим значением,
+      нужно решить: заменить их использование на классы отсюда, или
+      переименовать классы в этом файле под другой префикс (например
+      .bs-card, .bs-chip), чтобы не конфликтовать со старыми стилями.
+
+   Тёмная тема: сейчас не вынесена в отдельный [data-theme] переключатель —
+   тёмные поверхности (--bs-deep-*) используются как отдельная палитра для
+   конкретных компонентов (deep-card), а не как альтернативная тема всего
+   сайта. Если на платформе уже есть светлая/тёмная тема с другой логikой,
+   это нужно свести отдельно — не выведено автоматически.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   FONTS — подключить перед этим файлом:
+   <link href="https://fonts.bs-googleapis.bs-com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+--------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+   ТОКЕНЫ — единый источник правды для цвета/шрифта/радиуса/тени
+--------------------------------------------------------------------------- */
+:root{
+  /* поверхности и текст (светлая тема) */
+  --bs-surface:#F7F5F0; --bs-surface-2:#FFFFFF; --bs-surface-3:#EFEAE0;
+  --bs-ink:#161510; --bs-ink-2:#5C574A; --bs-ink-3:#8C8672;
+  --bs-line:#DCD5C2; --bs-line-2:#CFC6AC;
+
+  /* тёмные поверхности — для акцентных карточек интерпретации/сайдбара, не альтернативная тема */
+  --bs-deep:#12131A; --bs-deep-2:#1B1C26; --bs-deep-3:#24252F; --bs-deep-line:#33343F;
+  --bs-deep-ink:#EDEBE3; --bs-deep-ink2:#9B9AA8; --bs-deep-ink3:#6C6B78;
+
+  /* акцентный цвет платформы */
+  --bs-copper:#C97A4A; --bs-copper-soft:#F0DDCC; --bs-copper-deep:#8A4A26;
+  --bs-copper-glow:rgba(201,122,74,.35);
+
+  /* направление изменения (рост/падение) — используется везде, где есть % или дельта */
+  --bs-up:#3E8464; --bs-up-soft:#E4F3EA;
+  --bs-down:#B8503F; --bs-down-soft:#FBEAEA;
+
+  /* эпистемический уровень "оценка" (между фактом и суждением) */
+  --bs-estimate:#1F5FC4; --bs-estimate-soft:#E5EEFB;
+
+  /* типографика */
+  --bs-serif:'Fraunces',Georgia,serif;      /* заголовки */
+  --bs-sans:'Inter',system-ui,sans-serif;   /* интерфейс, текст */
+  --bs-mono:'IBM Plex Mono',monospace;      /* числа, тикеры, даты */
+
+  /* геометрия и движение */
+  --bs-radius:12px;
+  --bs-ease:cubic-bezier(.25,.7,.4,1);
+}
+
+/* ---------------------------------------------------------------------------
+   RESET / БАЗОВАЯ ТИПОГРАФИКА
+--------------------------------------------------------------------------- */
+/* Глобальный body-стиль из исходного ДС НЕ применяем автоматически — он перекрасил бы весь сайт
+   (фон/цвет/размер) и сломал темы NEO. Облик раскатываем ТОЧЕЧНО через .bs-* (Шаг 3). Эталон исходного:
+     body{font-family:var(--bs-sans); background:var(--bs-surface); color:var(--bs-ink); font-size:14.5px; line-height:1.55;}
+   Утилита для осознанного применения фона+типографики ДС к контейнеру-обёртке: */
+.bs-root{font-family:var(--bs-sans); background:var(--bs-surface); color:var(--bs-ink); font-size:14.5px; line-height:1.55;}
+.bs-mono{font-family:var(--bs-mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+.bs-serif{font-family:var(--bs-serif);}
+@media(prefers-reduced-motion: reduce){.bs-root *,[class^="bs-"]{transition:none !important; animation:none !important;}}
+
+/* цвет по направлению — использовать на любой цифре с ростом/падением */
+.bs-d-bad{color:var(--bs-down);} .bs-d-good{color:var(--bs-up);} .bs-d-neutral{color:var(--bs-ink-3);}
+
+/* ---------------------------------------------------------------------------
+   ЭПИСТЕМИЧЕСКИЕ ТЕГИ — факт / оценка / суждение
+   Продуктовый принцип Basis: явно различать данность, модель и интерпретацию.
+   Использовать на каждом выводе/числе, где уместно.
+--------------------------------------------------------------------------- */
+.bs-tag-fact{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--bs-surface-3); color:var(--bs-ink-2);}
+.bs-tag-estimate{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--bs-estimate-soft); color:var(--bs-estimate);}
+.bs-tag-judgment{display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:4px 9px; border-radius:6px; background:var(--bs-copper-soft); color:var(--bs-copper-deep);}
+.bs-tag-judgment::before{content:'◆'; font-size:8px;}
+
+/* тег направления сектора/фактора (попутный/встречный/нейтрально) */
+.bs-wind-tag{display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:6px;}
+.bs-wind-up{background:var(--bs-up-soft); color:var(--bs-up);}
+.bs-wind-down{background:var(--bs-down-soft); color:var(--bs-down);}
+.bs-wind-neutral{background:var(--bs-surface-3); color:var(--bs-ink-3);}
+
+/* ---------------------------------------------------------------------------
+   ЗАГОЛОВОК СЕКЦИИ — метка раздела ("Данные"/"Рынок"/"Разбор") + заголовок
+--------------------------------------------------------------------------- */
+.bs-sec-head{display:flex; align-items:baseline; gap:13px; margin-bottom:26px;}
+.bs-sec-head .bs-eyebrow{font-family:var(--bs-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--bs-copper-deep); background:var(--bs-copper-soft); padding:4px 11px; border-radius:6px;}
+.bs-sec-head h2{font-family:var(--bs-serif); font-size:27px; font-weight:600;}
+
+/* ---------------------------------------------------------------------------
+   КАРТОЧКИ
+--------------------------------------------------------------------------- */
+.bs-card{background:var(--bs-surface-2); border:1px solid var(--bs-line); border-radius:var(--bs-radius); transition:box-shadow .18s;}
+
+/* акцентная тёмная карточка — для интерпретации/суждений, НЕ фон всей страницы */
+.bs-deep-card{background:var(--bs-deep-2); border:1px solid var(--bs-deep-line); border-radius:var(--bs-radius); color:var(--bs-deep-ink); padding:26px 28px;}
+.bs-deep-card .bs-deep-eyebrow{font-family:var(--bs-mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--bs-deep-ink3); margin-bottom:12px;}
+.bs-deep-card h3{font-family:var(--bs-serif); font-size:20px; font-weight:600; margin-bottom:12px;}
+.bs-deep-card p{color:var(--bs-deep-ink2); font-size:13.5px; line-height:1.7;}
+.bs-deep-chip-sector{background:rgba(201,122,74,.22); color:var(--bs-copper); font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:99px;}
+.bs-deep-chip-ticker{background:var(--bs-deep-3); border:1px solid var(--bs-deep-line); color:var(--bs-deep-ink); font-family:var(--bs-mono); font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px;}
+
+/* callout-плашка — короткая врезка "На что влияет" / "Интерпретация Basis" */
+.bs-callout{display:flex; gap:10px; align-items:flex-start; background:var(--bs-copper-soft); border-radius:10px; padding:14px 16px;}
+.bs-callout svg{flex:none; width:16px; height:16px; color:var(--bs-copper-deep); margin-top:2px;}
+.bs-callout p{color:var(--bs-ink-2); font-size:13.5px; line-height:1.55;}
+.bs-callout b{color:var(--bs-ink);}
+
+/* маленький чип-цифра (метрика с подписью) */
+.bs-chip-stat{display:inline-flex; flex-direction:column; gap:2px; background:var(--bs-surface-3); border-radius:9px; padding:9px 14px;}
+.bs-chip-stat .bs-cs-lbl{font-size:10.5px; color:var(--bs-ink-3); font-weight:600;}
+.bs-chip-stat .bs-cs-val{font-family:var(--bs-mono); font-size:15px; font-weight:700;}
+
+/* выбираемая карточка-опция (например, выбор глубины отчёта) */
+.bs-ai-plan{border:1.5px solid var(--bs-line); border-radius:11px; padding:16px 18px; cursor:pointer; transition:border-color .15s, background .15s;}
+.bs-ai-plan.bs-on{border-color:var(--bs-copper); background:var(--bs-copper-soft);}
+
+/* ---------------------------------------------------------------------------
+   КНОПКИ
+--------------------------------------------------------------------------- */
+/* овальная кнопка-пилюля (использовать для CTA) */
+.bs-pill{border-radius:999px; display:inline-flex; align-items:center; gap:6px; transition:box-shadow .15s, opacity .15s;}
+.bs-pill:hover{box-shadow:0 6px 16px -6px rgba(0,0,0,.18);}
+
+/* ---------------------------------------------------------------------------
+   ФИЛЬТРЫ И ПЕРЕКЛЮЧАТЕЛИ
+--------------------------------------------------------------------------- */
+/* набор фильтр-чипов (Все / категория 1 / категория 2 ...) — множественные видимые опции */
+.bs-filterbar{display:flex; gap:8px; flex-wrap:wrap;}
+.bs-chip{padding:8px 16px; border-radius:999px; border:1px solid var(--bs-line); background:var(--bs-surface-2); color:var(--bs-ink-2); font-size:13px; font-weight:600; cursor:pointer; transition:background .15s, border-color .15s, color .15s;}
+.bs-chip:hover{border-color:var(--bs-line-2);}
+.bs-chip.bs-active{background:var(--bs-copper); border-color:var(--bs-copper); color:#fff;}
+
+/* сегментированный переключатель (2-4 взаимоисключающих режима) — независимые кнопки,
+   НЕ sliding-thumb: заливка активной ограничена её собственным контентом, наехать не может */
+.bs-seg-toggle{display:inline-flex; background:var(--bs-surface-3); border-radius:99px; padding:4px; gap:2px;}
+.bs-seg-opt{padding:9px 20px; font-size:13px; font-weight:700; color:var(--bs-ink-2); cursor:pointer; border-radius:99px; white-space:nowrap; transition:background .16s var(--bs-ease), color .16s var(--bs-ease);}
+.bs-seg-opt.bs-on{background:var(--bs-copper); color:#fff; box-shadow:0 3px 10px -2px var(--bs-copper-glow);}
+.bs-seg-opt:not(.bs-on):hover{background:rgba(0,0,0,.045);}
+
+/* ---------------------------------------------------------------------------
+   КАСТОМНЫЙ DROPDOWN — заменяет нативный <select>, чтобы открытый список
+   тоже был в дизайн-системе (нативный select нельзя стилизовать в открытом
+   состоянии — это системный UI браузера/ОС).
+   Требует небольшой JS-логики (открытие/закрытие/click-outside) — см. пример
+   в конце файла.
+--------------------------------------------------------------------------- */
+.bs-custom-dd{position:relative; display:inline-block;}
+.bs-dd-trigger{display:inline-flex; align-items:center; gap:8px; background:var(--bs-surface-3); border:1px solid var(--bs-line); padding:8px 14px; border-radius:9px; font-family:var(--bs-sans); font-size:12.5px; font-weight:600; color:var(--bs-ink); cursor:pointer; transition:border-color .15s;}
+.bs-dd-trigger:hover{border-color:var(--bs-line-2);}
+.bs-dd-trigger .bs-dd-arrow{font-size:10px; color:var(--bs-ink-3); transition:transform .15s;}
+.bs-custom-dd.bs-open .bs-dd-trigger .bs-dd-arrow{transform:rotate(180deg);}
+.bs-dd-panel{position:absolute; top:calc(100% + 6px); left:0; min-width:220px; max-height:280px; overflow-y:auto; background:var(--bs-surface-2); border:1px solid var(--bs-line); border-radius:11px; box-shadow:0 14px 32px -10px rgba(0,0,0,.22); z-index:50; padding:6px; display:none;}
+.bs-custom-dd.bs-open .bs-dd-panel{display:block;}
+.bs-dd-option{padding:9px 12px; border-radius:7px; font-size:13px; color:var(--bs-ink-2); cursor:pointer; transition:background .12s;}
+.bs-dd-option:hover{background:var(--bs-surface-3);}
+.bs-dd-option.bs-selected{background:var(--bs-copper-soft); color:var(--bs-copper-deep); font-weight:600;}
+
+/* ---------------------------------------------------------------------------
+   ГРАФИК: обёртка + тултип при наведении
+--------------------------------------------------------------------------- */
+.bs-chart-wrap{position:relative;}
+.bs-chart-wrap svg{width:100%; height:auto; cursor:crosshair; touch-action:none;}
+.bs-chart-tooltip{position:absolute; background:var(--bs-deep-2); border:1px solid var(--bs-deep-line); border-radius:9px; padding:10px 13px; pointer-events:none; opacity:0; transition:opacity .1s; z-index:20; min-width:150px; box-shadow:0 8px 20px -6px rgba(0,0,0,.25);}
+.bs-chart-tooltip, .bs-chart-tooltip *{color:var(--bs-deep-ink) !important;}
+.bs-legend{display:flex; gap:22px; font-size:12px; color:var(--bs-ink-2); margin-bottom:12px; flex-wrap:wrap;}
+.bs-legend span{display:flex; align-items:center; gap:6px;}
+.bs-legend i{width:15px; height:3px; display:inline-block; border-radius:2px;}
+
+/* ---------------------------------------------------------------------------
+   СВОРАЧИВАЕМЫЙ БЛОК (раскрытие "читать целиком / подробнее")
+   Продуктовый принцип: структура/вывод — видно сразу, полный текст — по клику.
+--------------------------------------------------------------------------- */
+.bs-ac-toggle{font-size:12.5px; font-weight:700; color:var(--bs-copper-deep); cursor:pointer; display:inline-flex; align-items:center; gap:5px;}
+.bs-ac-full{display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--bs-line);}
+.bs-ac-full.bs-open{display:block;}
+.bs-ac-full p{font-size:13.5px; color:var(--bs-ink-2); line-height:1.7; margin-bottom:10px;}
+.bs-ac-full ul{padding-left:18px; color:var(--bs-ink-2); font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:5px; margin-bottom:12px;}
+
+/* ---------------------------------------------------------------------------
+   МИНИМАЛЬНЫЙ JS ДЛЯ КОМПОНЕНТОВ ВЫШЕ (dropdown open/close, сворачивание)
+   Скопировать как есть — логика универсальна, не зависит от конкретной страницы.
+   ---------------------------------------------------------------------------
+
+   function toggleDropdown(id){
+     const dd = document.bs-getElementById(id);
+     const wasOpen = dd.bs-classList.bs-contains('open');
+     document.bs-querySelectorAll('.bs-custom-dd.bs-open').bs-forEach(x=>x.bs-classList.bs-remove('open'));
+     if(!wasOpen) dd.bs-classList.bs-add('open');
+   }
+   document.bs-addEventListener('click', function(ev){
+     document.bs-querySelectorAll('.bs-custom-dd.bs-open').bs-forEach(dd=>{
+       if(!dd.bs-contains(ev.bs-target)) dd.bs-classList.bs-remove('open');
+     });
+   });
+
+   function toggleCollapsible(el){
+     if(!el.bs-dataset.bs-label) el.bs-dataset.bs-label = el.bs-textContent;
+     const full = el.bs-nextElementSibling;
+     const open = full.bs-classList.bs-toggle('open');
+     el.bs-textContent = open ? 'Свернуть ▴' : el.bs-dataset.bs-label;
+   }
+--------------------------------------------------------------------------- */
