@@ -88,11 +88,11 @@
       48623
     ],
     "other_income": [
-      null,
-      null,
-      null,
-      null,
-      null
+      22564,
+      8076,
+      10074,
+      -4770,
+      -904
     ],
     "pre_tax_profit": [
       34956,
@@ -114,7 +114,8 @@
       47112,
       65614,
       88693
-    ]
+    ],
+    "other_income_note": "other_income = operating_income − NII (остаток: комиссии + торговые результаты + прочее). 2024-2025: отрицательный — торговые/FV-убытки перекрывают fee-доход при росте ставок. Разбивка fee vs FV-losses без МСФО-приложений недоступна — net_fee_income оставлен null."
   },
   "adjusted": {
     "net_profit_adj": [
@@ -756,7 +757,11 @@
     "Состав и независимость наблюдательного совета не подтверждены.",
     "Debt_issued (ИЦБ ДОМ.РФ) = null: в полном балансе эмиссия ипотечных облигаций значительна — при уточнении потребует корректировки структуры пассивов.",
     "Conservative adj NP при ETR 25%: [24823, 24714, 34365, 48295, 60937] млн — стресс: adj ROE 2023-2025 = [12.6%, 13.6%, 14.3%], fair P/B = 0.575x, цена ~1502 руб.",
-    "Дивполитика 50% ЧП исполнена 1 раз (2025). Нерегулярность до IPO — risk factor."
+    "Дивполитика 50% ЧП исполнена 1 раз (2025). Нерегулярность до IPO — risk factor.",
+    "balance_sheet.gross_loans и loan_provisions: оценка (judgement). 2024 — от NPL 0.6%/coverage 256% GROUP; прочие годы — scaled от Банк ДОМ.РФ. Точные данные — в МСФО-примечаниях по обесценению.",
+    "balance_sheet.loans_corporate/loans_retail: scaled от Банк ДОМ.РФ на GROUP-объёмы; до IPO (2021-2024) bank≠group по портфелю; certainty=judgement. Разбивка может не совпасть с GROUP МСФО-приложениями.",
+    "balance_sheet.customer_deposits: реальные клиентские депозиты (данные Банк ДОМ.РФ). bank_balance.deposits = customer_deposits + ИЦБ-облигации (~580-905 млрд). deposits_retail/corporate 2021-2024 — bank-уровень, не масштабированы на GROUP.",
+    "bank_pnl.other_income = operating_income − NII: residual-линия, включает fee+FV+прочее. Отрицательные значения 2024-2025 (-4770, -904 млн) отражают FV-убытки при высоких ставках КС."
   ],
   "balance_sheet": {
     "total_equity": [
@@ -765,7 +770,78 @@
       328024,
       379836,
       470017
-    ]
+    ],
+    "gross_loans": [
+      1423363,
+      2216975,
+      3161659,
+      4298046,
+      4980363
+    ],
+    "loan_provisions": [
+      37100,
+      45200,
+      53800,
+      66000,
+      98400
+    ],
+    "net_loans": [
+      1386263,
+      2171775,
+      3107859,
+      4232046,
+      4881963
+    ],
+    "loans_corporate": [
+      69400,
+      175900,
+      244600,
+      549900,
+      771000
+    ],
+    "loans_retail": [
+      1316900,
+      1995900,
+      2863300,
+      3682100,
+      4110900
+    ],
+    "securities": [
+      218883,
+      342911,
+      490714,
+      668217,
+      770836
+    ],
+    "customer_deposits": [
+      503300,
+      1111900,
+      1765500,
+      2468000,
+      2965000
+    ],
+    "deposits_retail": [
+      354700,
+      518300,
+      836400,
+      1116000,
+      1526000
+    ],
+    "deposits_corporate": [
+      148600,
+      593600,
+      929100,
+      1352000,
+      1439000
+    ],
+    "due_to_banks": [
+      416610,
+      660072,
+      940316,
+      1297161,
+      1488404
+    ],
+    "balance_sheet_note": "net_loans = bank_balance.loans_net (подтверждённые GROUP данные). loan_provisions: 2024 — из NPL 0.6%/покрытие 256% по GROUP; 2021-2023: scaled от bank (Банк ДОМ.РФ) по коэффициенту GROUP/bank; 2025: bank≈group. gross_loans = net + provisions. loans_corporate/retail: scaled от Банк ДОМ.РФ на GROUP net_loans; certainty=judgement. customer_deposits: реальные клиентские депозиты (без ИЦБ); bank_balance.deposits = customer_deposits + debt_issued (ИЦБ ~580-905 млрд). deposits_retail/corporate: bank-уровень (2025 ≈ GROUP); certainty=judgement."
   },
   "segments": [
     {
