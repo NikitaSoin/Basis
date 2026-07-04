@@ -1115,8 +1115,20 @@
    "total_pbt": 104091
   },
   "annual_insurance_net": {
-   "values": [null, null, 27577, 46694, null],
-   "fiscal_years": [2021, 2022, 2023, 2024, 2025],
+   "values": [
+    null,
+    null,
+    27577,
+    46694,
+    null
+   ],
+   "fiscal_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+   ],
    "note": "net_insurance_income за полный год. 2023-2024: из Note 22 МСФО (primary, verified: 75735-29041=46694 ✓). 2025 full year: не извлечено (9М 2025 = 33416 mlн; Q4 2025 estimate ~11200 → full year ~44600 — НЕ записано, экстраполяция). 2021-2022: null."
   },
   "non_banking_9m_totals": {

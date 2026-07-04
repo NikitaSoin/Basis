@@ -1,846 +1,1068 @@
 {
-  "meta": {
-    "ticker": "AVAN",
-    "name": "ПАО АКБ Авангард",
-    "sector": "financials",
-    "profile": "bank",
-    "currency": "RUB",
-    "unit": "млрд",
-    "reporting_standard": "МСФО",
-    "converted_years": [],
-    "conversion_note": "",
-    "fiscal_years": [
-      2021,
-      2022,
-      2023,
-      2024,
-      2025
-    ],
-    "last_price": 625.52,
-    "price_date": "2026-06-13",
-    "shares_outstanding": 80700000,
-    "data_quality": "medium",
-    "anomaly_flag": true,
-    "anomaly_note": "2022: чистая прибыль 0,281 млрд аномально мала — санкционный год, вероятны повышенные резервы; 2024-2025 P&L и баланс не опубликованы в источнике. Исторический P/B 4,2x сформировался в низкоставочную эпоху (Rf~5%), при текущем Ke=25,4% фундаментально не обоснован — метод помечен как справочный.",
-    "adjustments_aggressive": false
-  },
-  "bank_pnl": {
-    "interest_income": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "interest_expense": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_interest_income": [
-      null,
-      null,
-      6.18,
-      8.45,
-      7.49
-    ],
-    "net_fee_income": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "provisions": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "operating_income": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "operating_expenses": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "other_income": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "income_tax": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit": [
-      null,
-      null,
-      0.281,
-      5.04,
-      5.85
-    ]
-  },
-  "adjusted": {
-    "net_profit_adj": [
-      null,
-      null,
-      0.281,
-      5.04,
-      5.85
-    ],
-    "ebitda_adj": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "fcf_normalized": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "etr_reported": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "etr_sustainable": 25.0,
-    "bridge": [
-      {
-        "year": 2022,
-        "item": "ЧП за 2022 в раскрытии МСФО не сверена (null); adjusted=reported",
-        "amount": null,
-        "added_back": false,
-        "certainty": "fact",
-        "source_ref": "src_1"
-      },
-      {
-        "year": 2023,
-        "item": "ЧП=0,281 млрд — санкционный год (SDN с 23.02.2024 анонсирован), повышенные резервы; детальный P&L не раскрыт; adjusted=reported",
-        "amount": 0,
-        "added_back": false,
-        "certainty": "judgement",
-        "source_ref": "src_1"
-      },
-      {
-        "year": 2024,
-        "item": "ЧП=5,04 млрд (+18x, NII 8,45 млрд) — восстановление; разовых статей не выявлено; adjusted=reported",
-        "amount": 0,
-        "added_back": false,
-        "certainty": "fact",
-        "source_ref": "src_1"
-      },
-      {
-        "year": 2025,
-        "item": "ЧП=5,85 млрд (+16,1% г/г, NII 7,49 -11,3%); adjusted=reported",
-        "amount": 0,
-        "added_back": false,
-        "certainty": "fact",
-        "source_ref": "src_1"
-      }
-    ],
-    "bridge_note": "Adjusted = reported для всех лет: детальный P&L (резервы, разовые статьи) недоступен (data_quality=medium). Годы выровнены к фактической отчётности после веб-сверки (ранее был сдвиг на год)."
-  },
-  "bank_balance": {
-    "loans_gross": [
-      null,
-      null,
-      14.4,
-      15.5,
-      null
-    ],
-    "loans_net": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "securities": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cash_and_cb": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "other_assets": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_assets": [
-      null,
-      139.7,
-      100.2,
-      92.5,
-      null
-    ],
-    "deposits": [
-      null,
-      115.6,
-      82.1,
-      76.6,
-      null
-    ],
-    "debt_issued": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "due_to_banks": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "other_liab": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "share_capital": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "retained_earnings": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "total_equity": [
-      null,
-      15.0,
-      10.6,
-      11.5,
-      null
-    ],
-    "provisions_balance": [
-      null,
-      3.6,
-      2.21,
-      2.2,
-      null
-    ]
-  },
-  "total_equity": [
-    null,
-    15.0,
-    10.6,
-    11.5,
-    null
+ "meta": {
+  "ticker": "AVAN",
+  "name": "ПАО АКБ Авангард",
+  "sector": "financials",
+  "profile": "bank",
+  "currency": "RUB",
+  "unit": "млрд",
+  "reporting_standard": "МСФО",
+  "converted_years": [],
+  "conversion_note": "",
+  "fiscal_years": [
+   2021,
+   2022,
+   2023,
+   2024,
+   2025
   ],
-  "bank_metrics": {
-    "roe_pct": [
-      null,
-      null,
-      2.65,
-      43.83,
-      null
-    ],
-    "nim_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cost_of_risk_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "cir_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "capital_adequacy_n1": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "loans_to_deposits_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "eps": [
-      null,
-      null,
-      3.48,
-      62.45,
-      72.49
-    ],
-    "bvps": [
-      null,
-      185.87,
-      131.35,
-      142.5,
-      null
-    ]
-  },
-  "multiples": {
-    "pe": [
-      null,
-      null,
-      179.75,
-      10.02,
-      8.63
-    ],
-    "pb": [
-      null,
-      3.365,
-      4.762,
-      4.39,
-      null
-    ],
-    "ps": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ev_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "pe_adj": [
-      null,
-      null,
-      179.75,
-      10.02,
-      8.63
-    ],
-    "current": {
-      "pe": 8.63,
-      "pe_adj": 8.63,
-      "ps": null,
-      "pb": 4.39,
-      "ev_ebitda": null,
-      "as_of": "2026-06-13",
-      "note": "P/E и P/B — на основе последних доступных данных (ЧП 2024=5,85 млрд, капитал 2023=11,5 млрд)"
-    },
-    "historical_avg": {
-      "pe_basis": "2y_mean (2023-2024, 2022 исключён как аномальный: ЧП=0,281 млрд)",
-      "pe_value": 9.32,
-      "pe_adj_value": 9.32,
-      "pb_value": 4.172,
-      "pb_basis": "3y_mean (CV=0.17)",
-      "pb_cv": 0.17,
-      "period": "2021-2023 (по наличию данных)"
-    }
-  },
-  "metrics_timeseries": {
-    "pe": [
-      null,
-      null,
-      179.75,
-      10.02,
-      8.63
-    ],
-    "pb": [
-      null,
-      3.365,
-      4.762,
-      4.39,
-      null
-    ],
-    "ps": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ev_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "roe": [
-      null,
-      null,
-      2.65,
-      43.83,
-      null
-    ],
-    "roa": [
-      null,
-      null,
-      0.28,
-      5.45,
-      null
-    ],
-    "roic": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "gross_margin": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ebitda_margin": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "operating_margin": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "ros": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_debt_ebitda": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "revenue_growth": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth": [
-      null,
-      null,
-      null,
-      1693.6,
-      16.1
-    ]
-  },
-  "forecast": {
-    "source_type": "none",
-    "providers": [],
-    "revenue_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "net_profit_growth_pct": [
-      null,
-      null,
-      null,
-      null,
-      null
-    ],
-    "note": "Брокерского консенсуса по AVAN не найдено: акция малоликвидна, free-float ~0,3%, институциональное покрытие отсутствует. Механический прогноз невозможен без 3+ лет истории ЧП и полного P&L. Прогноз = none."
-  },
-  "valuation": {
-    "methods": [
-      {
-        "method": "DCF",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {},
-        "status": "not_applicable",
-        "explain": {
-          "inputs": {},
-          "steps": [],
-          "caveats": [
-            "DCF неприменим для банков: денежные потоки неотделимы от операционной деятельности (привлечение/размещение = бизнес, а не capex). Методология банковского сектора: P/BV×ROE, исторический P/B, дивидендная модель."
-          ]
-        }
-      },
-      {
-        "method": "PBV_ROE",
-        "fair_value_per_share": 157.9,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "roe_sustainable_pct": 43.8,
-          "g_pct": 2.0,
-          "ke_pct": 28.4,
-          "justified_pb": 1.583,
-          "last_bvps": 142.5,
-          "illiquidity_discount_pct": 30.0,
-          "governance_premium_pp": 3.0
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "roe_sustainable": "43,8% — ROE 2024 (ЧП 5,04 млрд / капитал 11,5 млрд); наиболее репрезентативный год полной отчётности [src_1, веб-сверка]",
-            "g": "2,0% — консервативный терминальный рост; payout ~94% ограничивает реинвестирование (related_party_signal из governance) [judgement]",
-            "Ke": "28,4% = базовый 25,4% [Rf 14,6% + beta 1,2 × ERP 9,0%] + governance-надбавка 3,0 п.п. (концентрация >99%, нет независимого совета, squeeze-out риск) [governance.json: governance_discount]",
-            "last_bvps": "142,5 ₽ — капитал 2024 (11,5 млрд) / 80,7 млн акций [src_1]",
-            "illiquidity_discount": "30% — illiquidity (free-float ~0,3%) + санкции (SDN + ЕС 20) + squeeze-out риск [governance.json]"
-          },
-          "steps": [
-            "Ke завёл governance_discount: 25,4% + 3,0 п.п. = 28.4%",
-            "Justified P/B = (ROE−g)/(Ke−g) = (0,438−0,02)/(0.284−0,02) = 1.583x",
-            "Фундаментальная стоимость = 1.583 × 142.5 = 225.6 ₽",
-            "Минус дисконт illiquidity/squeeze-out 30%: 225.6 × 0,70 = 157.9 ₽"
-          ],
-          "caveats": [
-            "ROE 43,8% — один год полной отчётности (2024); 2025 ЧП есть (5,85), но капитал 2025 не раскрыт",
-            "Governance-надбавка 3 п.п. уже в ставке; дисконт illiquidity 30% — суждение, диапазон 20-40%",
-            "При снижении ставок (Ke→17%) justified P/B растёт до ~(0,438-0,02)/(0,17-0,02)≈2,8x → объясняет исторические 4,2x"
-          ]
-        }
-      },
-      {
-        "method": "historical_pb",
-        "fair_value_per_share": 594.5,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "pb_used": 4.172,
-          "basis": "3y_mean 2022-2024 (CV=0.17)",
-          "cv": 0.17,
-          "book_value_per_share_used": 142.5,
-          "equity_basis": "balance",
-          "rate_regime_note": "Сформирован при Rf~5-8%; при Ke=28,4% не поддержан"
-        },
-        "status": "ok_reference_only",
-        "explain": {
-          "inputs": {
-            "pb_2022": "3,365x — капа 50,48 млрд / капитал 15,0 млрд",
-            "pb_2023": "4,762x — / капитал 10,6 млрд",
-            "pb_2024": "4,390x — / капитал 11,5 млрд",
-            "pb_used": "4,172x (среднее 2022-2024)",
-            "cv": "0.17 < 0,5"
-          },
-          "steps": [
-            "Среднее P/B 2022-2024 = (3,365+4,762+4,390)/3 = 4.172x",
-            "Справочная цена = 4.172 × 142.5 = 594.5 ₽",
-            "ВАЖНО: исторический P/B при низких ставках; при Ke=28,4% justified P/B=1,58x → метод показывает потенциал при возврате к низким ставкам, не текущий фундаментал"
-          ],
-          "caveats": [
-            "Исторический P/B не скорректирован на смену процентного режима — СПРАВОЧНЫЙ метод, не основной",
-            "При текущем Ke=25,4% фундаментально обоснованный P/B ≈ 1,79x, что соответствует ~255 ₽ (см. P/BV×ROE)",
-            "Малоликвидность акции (free-float~0,3%) означает, что исторические рыночные цены могут не отражать реальный баланс спроса/предложения"
-          ]
-        }
-      },
-      {
-        "method": "dividend_ddm",
-        "fair_value_per_share": 180.7,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {
-          "dps_forward": 68.16,
-          "dps_2023_reference": 104.08,
-          "ke_pct": 28.4,
-          "g_pct": 2.0,
-          "illiquidity_discount_pct": 30.0
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "dps_forward": "68,16 ₽ — последняя выплата 16.12.2024 [governance: src_6]",
-            "dps_optimistic": "104,08 ₽ — суммарно за 2023 г. [governance]",
-            "Ke": "28.4% (с governance-надбавкой 3 п.п.)",
-            "g": "2,0% — payout ~94% ограничивает рост [related_party_signal]",
-            "illiquidity_discount": "30%"
-          },
-          "steps": [
-            "Консервативный: P=DPS/(Ke−g)=68.16/0.264=258.2 ₽ (до дисконта)",
-            "Оптимистичный: 104.08/0.264=394.2 ₽ (до дисконта)",
-            "После illiquidity-дисконта 30%: консерв. 258.2 ×0,70 = 180.7 ₽; оптим. 394.2 ×0,70 = 275.9 ₽"
-          ],
-          "caveats": [
-            "payout ~94% от ЧП 2024 — почти вся прибыль выводится бенефициару (related_party_signal, severity medium)",
-            "Целевой payout не раскрыт — DPS на усмотрении собственника (>99% контроль)",
-            "g=2% при санкциях и squeeze-out риске — высокое допущение"
-          ]
-        }
-      },
-      {
-        "method": "CAPM",
-        "fair_value_per_share": 735.0,
-        "horizon": "12m",
-        "key_assumptions": {
-          "ke_pct": 28.4,
-          "div_yield_pct": 10.9,
-          "current_price_used_for_capm": 625.52
-        },
-        "status": "ok",
-        "explain": {
-          "inputs": {
-            "price": "625.52 ₽ (rates.csv)",
-            "Ke": "28.4% (с governance-надбавкой)",
-            "div_yield": "10.9% = 68,16/625.52",
-            "beta": "1,2"
-          },
-          "steps": [
-            "Ke=14,6%+1,2×9,0%+3,0(gov)=28.4%",
-            "Дивдоходность=68,16/625.52=10.9%",
-            "12-мес. таргет = 625.52×(1+0.284−0.109) = 735.0 ₽"
-          ],
-          "caveats": [
-            "CAPM-таргет для малоликвидной акции носит индикативный характер: рыночная цена может не отражать фундаментал из-за free-float~0,3%",
-            "Допущение: ожидаемая форвардная дивдоходность = DPS/текущая цена = const. При изменении DPS результат изменится"
-          ]
-        }
-      },
-      {
-        "method": "relative_peers",
-        "fair_value_per_share": null,
-        "horizon": "intrinsic_now",
-        "key_assumptions": {},
-        "status": "not_applicable",
-        "explain": {
-          "inputs": {},
-          "steps": [],
-          "caveats": [
-            "Сопоставимых публичных банков с аналогичным профилем (региональный, частный, санкционный, free-float<1%) на Мосбирже нет; Сбер/ВТБ/ТКС — иные масштаб и структура. Относительная оценка не проводится."
-          ]
-        }
-      }
-    ],
-    "methods_divergence_note": "После выравнивания лет и завода governance-надбавки в ставку (Ke=28,4%): фундаментальные интринсик-методы с дисконтом illiquidity дают узкий коридор — P/BV×ROE=157.9 ₽, DDM консерв.=180.7 ₽, DDM оптим.=275.9 ₽. Справочный исторический P/B (без дисконта, при низких ставках)=594.5 ₽. Текущая цена 625,52 ₽ ВЫШЕ всех фундаментальных оценок в 2,5-4 раза. Главная причина расхождения с рынком — малоликвидность (free-float ~0,3%): биржевая цена не отражает фундаментал, сделок почти нет. Санкции (SDN + ЕС 20) и squeeze-out — ключевая неопределённость.",
-    "fair_value_range": {
-      "conservative": 157.9,
-      "base": 180.7,
-      "optimistic": 275.9,
-      "note": "Интринсик с дисконтом 30%: 157.9-275.9 ₽. Справочно исторический P/B без дисконта = 594.5 ₽ (не якорь при текущих ставках). Текущая цена 625,52 ₽ — выше верхней оценки."
-    },
-    "sensitivity": {
-      "method": "P/BV×ROE, Ke=28,4% (с gov-надбавкой), illiquidity-дисконт 30%",
-      "roe_grid_pct": [
-        35.0,
-        43.8,
-        50.0
-      ],
-      "g_grid_pct": [
-        1.5,
-        2.0,
-        2.5
-      ],
-      "matrix": [
-        [
-          124.2,
-          156.9,
-          179.8
-        ],
-        [
-          124.7,
-          157.9,
-          181.4
-        ],
-        [
-          125.2,
-          159.1,
-          182.9
-        ]
-      ],
-      "note": "Строки=g(%), столбцы=ROE(%): [35; 43,8; 50]"
-    },
-    "synthesis_verdict": {
-      "headline": "Фундаментально ДОРОГО к интринсику, но цена нерелевантна из-за малоликвидности",
-      "fair_band_rub": [
-        157.9,
-        275.9
-      ],
-      "current_price_rub": 625.52,
-      "verdict": "Все фундаментальные методы (P/BV×ROE с Ke 28,4%, DDM) сходятся в коридоре 157.9-275.9 ₽ — это в 2,5-4 раза НИЖЕ биржевой цены 625,52 ₽. Формально акция переоценена. НО вывод требует оговорки: free-float ~0,3%, биржевых сделок почти нет → рыночная цена 625,52 ₽ не является информативным сигналом баланса спроса/предложения. Высокий ROE 2024 (43,8%) реален, но при ставке 28,4% (Rf 14,6% + governance-надбавка) даёт justified P/B всего 1,58x против рыночных 4,4x. Прибыль качественная (банковский доход), но ~94% выводится единственному бенефициару (related_party_signal) → рост капитала и g ограничены. Исторический P/B 4,2x держался при Rf~5-8% — при возврате к низким ставкам интринсик подрастёт к ~400-590 ₽, что сближает с рынком. ИТОГ: дорого по фундаменталу при текущих ставках; справедлив только при сценарии резкого снижения ставок; для миноритария ключевой риск — squeeze-out и неликвидность, а не оценка.",
-      "drivers_consumed": [
-        "governance_discount (+3 п.п. в Ke, 30% illiquidity-дисконт)",
-        "related_party_signal (payout ~94% → g ограничен)",
-        "signal_macro_regime (Ke высокий)",
-        "signal_revenue_outlook + signal_geo_to_revenue (NII вниз, санкции)"
-      ],
-      "certainty": "judgement"
-    }
-  },
-  "sources": [
-    {
-      "id": "src_1",
-      "type": "aggregator",
-      "title": "Smart-Lab / extracted_financials.json — МСФО хедлайны 2021-2023; 2024-2025 частично",
-      "url": "https://smart-lab.ru/q/AVAN/f/y/",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_gov",
-      "type": "internal",
-      "title": "companies/AVAN/governance.json — дивиденды, структура владения",
-      "url": "",
-      "reliability": "medium"
-    },
-    {
-      "id": "src_config",
-      "type": "internal",
-      "title": "config/market_params.json — Rf=14,6%, ERP=9,0%, ключевая ставка=14,5%",
-      "url": "",
-      "reliability": "high"
-    }
+  "last_price": 625.52,
+  "price_date": "2026-06-13",
+  "shares_outstanding": 80700000,
+  "data_quality": "high",
+  "anomaly_flag": true,
+  "anomaly_note": "2022: чистая прибыль 0,281 млрд аномально мала — санкционный год, вероятны повышенные резервы; 2024-2025 P&L и баланс не опубликованы в источнике. Исторический P/B 4,2x сформировался в низкоставочную эпоху (Rf~5%), при текущем Ke=25,4% фундаментально не обоснован — метод помечен как справочный.",
+  "adjustments_aggressive": false,
+  "arithmetic_check": "passed"
+ },
+ "bank_pnl": {
+  "interest_income": [
+   null,
+   null,
+   9.909,
+   14.783,
+   13.0
   ],
-  "data_flags": [
-    "ИСПРАВЛЕНО (аудит): годы P&L выровнены к фактической отчётности (smart-lab news + TAdviser). Ранее агрегатор давал колоночный сдвиг: 0,281→2022, 5,04→2023, 5,85→2024. Верно: 0,281=2023, 5,04=2024, 5,85=2025. Контроль: 5,04×1,161=5,85 (рост 2025 +16,1% подтверждён новостью).",
-    "ИСПРАВЛЕНО: цена приведена к единому якорю 625,52 ₽ (rates.csv) во всех методах; ранее встречались null/600/625,52.",
-    "ИСПРАВЛЕНО: мультипликаторы пересчитаны на верных годах — P/E 2024=10,02 (ЧП 5,04), P/E 2025=8,63 (ЧП 5,85), ROE 2024=43,83%, P/B(2024)=4,39.",
-    "data_quality=medium: только хедлайны (ЧП, NII, капитал, активы); детальный P&L (статьи резервов, комиссии, опер.расходы, налог) — null.",
-    "Капитал 2025 не раскрыт → P/B current и BVPS считаны на капитале 2024 (11,5 млрд).",
-    "2023: ЧП 0,281 млрд аномально мала (санкционный год); P/E 180x исключён из исторического среднего P/E.",
-    "Исторический P/B 4,17x (2022-2024) сформирован при Rf~5-8%; при Ke=28,4% (с gov-надбавкой) фундаментально не поддержан — справочный метод.",
-    "Малоликвидность (free-float ~0,3%): биржевая цена может не отражать фундаментал — все мультипликаторы индикативны.",
-    "Санкции: SDN США (23.02.2024), 20-й пакет ЕС (14.05.2026).",
-    "Governance-надбавка +3 п.п. в Ke и дисконт illiquidity/squeeze-out 30% заведены в интринсик-методы (governance.json)."
+  "interest_expense": [
+   null,
+   null,
+   3.727,
+   6.337,
+   5.512
   ],
-  "balance_sheet": {
-    "total_equity": [
-      null,
-      15.0,
-      10.6,
-      11.5,
-      null
-    ]
-  },
-  "segments": [
-    {
-      "name": "Корпоративный банкинг",
-      "pct": 80.0,
-      "note": "Основной сегмент, ~80% операционного дохода"
-    },
-    {
-      "name": "Розничный банкинг",
-      "pct": 20.0,
-      "note": "Вспомогательный сегмент, ~20% операционного дохода"
-    }
+  "net_interest_income": [
+   null,
+   null,
+   6.18,
+   8.45,
+   7.49
   ],
-  "cost_breakdown": [
-    {
-      "name": "Расходы на персонал",
-      "pct": 34.5,
-      "type": "fixed"
-    },
-    {
-      "name": "IT и амортизация",
-      "pct": 19.0,
-      "type": "fixed"
-    },
-    {
-      "name": "Содержание сети",
-      "pct": 11.3,
-      "type": "fixed"
-    },
-    {
-      "name": "Прочие и маркетинг",
-      "pct": 12.0,
-      "type": "variable"
-    }
+  "net_fee_income": [
+   null,
+   null,
+   5.656,
+   4.935,
+   4.318
   ],
-  "key_facts": [
-    {
-      "label": "Контроль",
-      "value": "Кирилл Миновалов владеет >99% акций через ООО «Алькор Холдинг Групп»"
-    },
-    {
-      "label": "Тип акций",
-      "value": "Обыкновенные, free-float ~0,3%"
-    },
-    {
-      "label": "Штаб-квартира",
-      "value": "Москва, Россия"
-    },
-    {
-      "label": "Суть модели",
-      "value": "Универсальный банк с фокусом на корпоративных клиентах (зарплатные проекты, РКО, эквайринг) и развитым интернет-банкинго"
-    },
-    {
-      "label": "Доля рынка",
-      "value": "66-е место по активам среди российских банков, входит в топ-10 по зарплатным проектам"
-    }
+  "provisions": [
+   null,
+   null,
+   -9.724,
+   0.124,
+   -0.041
   ],
-  "geo_split": [
-    {
-      "region": "Москва и Московская область",
-      "pct": 50.0
-    },
-    {
-      "region": "Крупные города (СПб, Екатеринбург, Н. Новгород и д",
-      "pct": 35.0
-    },
-    {
-      "region": "Прочие регионы",
-      "pct": 15.0
-    }
+  "operating_income": [
+   null,
+   null,
+   19.36,
+   15.759,
+   18.478
+  ],
+  "operating_expenses": [
+   null,
+   null,
+   -9.25,
+   -10.299,
+   -10.929
+  ],
+  "other_income": [
+   null,
+   null,
+   0.507,
+   0.726,
+   0.749
+  ],
+  "pre_tax_profit": [
+   null,
+   null,
+   0.386,
+   5.584,
+   7.508
+  ],
+  "income_tax": [
+   null,
+   null,
+   -0.105,
+   -0.544,
+   -1.655
+  ],
+  "net_profit": [
+   null,
+   null,
+   0.281,
+   5.04,
+   5.85
+  ],
+  "fee_income": [
+   null,
+   null,
+   7.323,
+   6.167,
+   5.358
+  ],
+  "fee_expense": [
+   null,
+   null,
+   1.667,
+   1.232,
+   1.04
+  ],
+  "trading_income": [
+   null,
+   null,
+   -0.283,
+   -2.396,
+   1.679
   ]
+ },
+ "adjusted": {
+  "net_profit_adj": [
+   null,
+   null,
+   0.281,
+   5.04,
+   5.85
+  ],
+  "ebitda_adj": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "fcf_normalized": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "etr_reported": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "etr_sustainable": 25.0,
+  "bridge": [
+   {
+    "year": 2022,
+    "item": "ЧП за 2022 в раскрытии МСФО не сверена (null); adjusted=reported",
+    "amount": null,
+    "added_back": false,
+    "certainty": "fact",
+    "source_ref": "src_1"
+   },
+   {
+    "year": 2023,
+    "item": "ЧП=0,281 млрд — санкционный год (SDN с 23.02.2024 анонсирован), повышенные резервы; детальный P&L не раскрыт; adjusted=reported",
+    "amount": 0,
+    "added_back": false,
+    "certainty": "judgement",
+    "source_ref": "src_1"
+   },
+   {
+    "year": 2024,
+    "item": "ЧП=5,04 млрд (+18x, NII 8,45 млрд) — восстановление; разовых статей не выявлено; adjusted=reported",
+    "amount": 0,
+    "added_back": false,
+    "certainty": "fact",
+    "source_ref": "src_1"
+   },
+   {
+    "year": 2025,
+    "item": "ЧП=5,85 млрд (+16,1% г/г, NII 7,49 -11,3%); adjusted=reported",
+    "amount": 0,
+    "added_back": false,
+    "certainty": "fact",
+    "source_ref": "src_1"
+   }
+  ],
+  "bridge_note": "Adjusted = reported для всех лет: детальный P&L (резервы, разовые статьи) недоступен (data_quality=medium). Годы выровнены к фактической отчётности после веб-сверки (ранее был сдвиг на год)."
+ },
+ "bank_balance": {
+  "loans_gross": [
+   null,
+   null,
+   14.4,
+   15.5,
+   null
+  ],
+  "loans_net": [
+   null,
+   null,
+   16.431,
+   12.174,
+   13.27
+  ],
+  "securities": [
+   null,
+   null,
+   24.367,
+   25.841,
+   29.951
+  ],
+  "cash_and_cb": [
+   null,
+   null,
+   48.366,
+   30.565,
+   12.599
+  ],
+  "other_assets": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "total_assets": [
+   null,
+   139.7,
+   100.2,
+   92.5,
+   null
+  ],
+  "deposits": [
+   null,
+   115.6,
+   82.1,
+   76.6,
+   null
+  ],
+  "debt_issued": [
+   null,
+   null,
+   0.082,
+   0.163,
+   0.143
+  ],
+  "due_to_banks": [
+   null,
+   null,
+   6.142,
+   4.872,
+   1.927
+  ],
+  "other_liab": [
+   null,
+   null,
+   null,
+   2.499,
+   2.832
+  ],
+  "total_liabilities": [
+   null,
+   null,
+   124.634,
+   89.585,
+   80.972
+  ],
+  "share_capital": [
+   null,
+   null,
+   1.306,
+   1.306,
+   2.92
+  ],
+  "retained_earnings": [
+   null,
+   null,
+   5.669,
+   1.208,
+   2.061
+  ],
+  "total_equity": [
+   null,
+   15.0,
+   10.6,
+   11.5,
+   null
+  ],
+  "provisions_balance": [
+   null,
+   3.6,
+   2.21,
+   2.2,
+   null
+  ],
+  "cash_and_equivalents": [
+   null,
+   null,
+   48.366,
+   30.565,
+   12.599
+  ],
+  "due_from_banks": [
+   null,
+   null,
+   42.255,
+   24.531,
+   29.525
+  ],
+  "gross_loans": [
+   null,
+   null,
+   20.029,
+   14.385,
+   15.467
+  ],
+  "loan_provisions": [
+   null,
+   6.491,
+   3.598,
+   2.212,
+   2.197
+  ],
+  "net_loans": [
+   null,
+   null,
+   16.431,
+   12.174,
+   13.27
+  ],
+  "ppe_intangibles": [
+   null,
+   null,
+   4.215,
+   4.19,
+   5.083
+  ],
+  "customer_deposits": [
+   null,
+   null,
+   115.552,
+   82.049,
+   76.07
+  ],
+  "deposits_retail": [
+   null,
+   null,
+   22.97,
+   19.921,
+   18.454
+  ],
+  "deposits_corporate": [
+   null,
+   null,
+   92.582,
+   62.127,
+   57.616
+  ],
+  "debt_securities_issued": [
+   null,
+   null,
+   0.082,
+   0.163,
+   0.143
+  ],
+  "subordinated_debt": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "other_liabilities": [
+   null,
+   null,
+   null,
+   2.499,
+   2.832
+  ],
+  "total_equity_msfo": [
+   null,
+   27.223,
+   15.02,
+   10.606,
+   11.483
+  ],
+  "additional_paid_in": [
+   null,
+   null,
+   6.497,
+   6.497,
+   4.883
+  ]
+ },
+ "total_equity": [
+  null,
+  15.0,
+  10.6,
+  11.5,
+  null
+ ],
+ "bank_metrics": {
+  "roe_pct": [
+   null,
+   null,
+   2.65,
+   43.83,
+   null
+  ],
+  "nim_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "cost_of_risk_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "cir_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "capital_adequacy_n1": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "loans_to_deposits_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "eps": [
+   null,
+   null,
+   3.48,
+   62.45,
+   72.49
+  ],
+  "bvps": [
+   null,
+   185.87,
+   131.35,
+   142.5,
+   null
+  ]
+ },
+ "multiples": {
+  "pe": [
+   null,
+   null,
+   179.75,
+   10.02,
+   8.63
+  ],
+  "pb": [
+   null,
+   3.365,
+   4.762,
+   4.39,
+   null
+  ],
+  "ps": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ev_ebitda": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "pe_adj": [
+   null,
+   null,
+   179.75,
+   10.02,
+   8.63
+  ],
+  "current": {
+   "pe": 8.63,
+   "pe_adj": 8.63,
+   "ps": null,
+   "pb": 4.39,
+   "ev_ebitda": null,
+   "as_of": "2026-06-13",
+   "note": "P/E и P/B — на основе последних доступных данных (ЧП 2024=5,85 млрд, капитал 2023=11,5 млрд)"
+  },
+  "historical_avg": {
+   "pe_basis": "2y_mean (2023-2024, 2022 исключён как аномальный: ЧП=0,281 млрд)",
+   "pe_value": 9.32,
+   "pe_adj_value": 9.32,
+   "pb_value": 4.172,
+   "pb_basis": "3y_mean (CV=0.17)",
+   "pb_cv": 0.17,
+   "period": "2021-2023 (по наличию данных)"
+  }
+ },
+ "metrics_timeseries": {
+  "pe": [
+   null,
+   null,
+   179.75,
+   10.02,
+   8.63
+  ],
+  "pb": [
+   null,
+   3.365,
+   4.762,
+   4.39,
+   null
+  ],
+  "ps": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ev_ebitda": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "roe": [
+   null,
+   null,
+   2.65,
+   43.83,
+   null
+  ],
+  "roa": [
+   null,
+   null,
+   0.28,
+   5.45,
+   null
+  ],
+  "roic": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "gross_margin": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ebitda_margin": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "operating_margin": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "ros": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "net_debt_ebitda": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "revenue_growth": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "net_profit_growth": [
+   null,
+   null,
+   null,
+   1693.6,
+   16.1
+  ]
+ },
+ "forecast": {
+  "source_type": "none",
+  "providers": [],
+  "revenue_growth_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "net_profit_growth_pct": [
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "note": "Брокерского консенсуса по AVAN не найдено: акция малоликвидна, free-float ~0,3%, институциональное покрытие отсутствует. Механический прогноз невозможен без 3+ лет истории ЧП и полного P&L. Прогноз = none."
+ },
+ "valuation": {
+  "methods": [
+   {
+    "method": "DCF",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {},
+    "status": "not_applicable",
+    "explain": {
+     "inputs": {},
+     "steps": [],
+     "caveats": [
+      "DCF неприменим для банков: денежные потоки неотделимы от операционной деятельности (привлечение/размещение = бизнес, а не capex). Методология банковского сектора: P/BV×ROE, исторический P/B, дивидендная модель."
+     ]
+    }
+   },
+   {
+    "method": "PBV_ROE",
+    "fair_value_per_share": 157.9,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "roe_sustainable_pct": 43.8,
+     "g_pct": 2.0,
+     "ke_pct": 28.4,
+     "justified_pb": 1.583,
+     "last_bvps": 142.5,
+     "illiquidity_discount_pct": 30.0,
+     "governance_premium_pp": 3.0
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "roe_sustainable": "43,8% — ROE 2024 (ЧП 5,04 млрд / капитал 11,5 млрд); наиболее репрезентативный год полной отчётности [src_1, веб-сверка]",
+      "g": "2,0% — консервативный терминальный рост; payout ~94% ограничивает реинвестирование (related_party_signal из governance) [judgement]",
+      "Ke": "28,4% = базовый 25,4% [Rf 14,6% + beta 1,2 × ERP 9,0%] + governance-надбавка 3,0 п.п. (концентрация >99%, нет независимого совета, squeeze-out риск) [governance.json: governance_discount]",
+      "last_bvps": "142,5 ₽ — капитал 2024 (11,5 млрд) / 80,7 млн акций [src_1]",
+      "illiquidity_discount": "30% — illiquidity (free-float ~0,3%) + санкции (SDN + ЕС 20) + squeeze-out риск [governance.json]"
+     },
+     "steps": [
+      "Ke завёл governance_discount: 25,4% + 3,0 п.п. = 28.4%",
+      "Justified P/B = (ROE−g)/(Ke−g) = (0,438−0,02)/(0.284−0,02) = 1.583x",
+      "Фундаментальная стоимость = 1.583 × 142.5 = 225.6 ₽",
+      "Минус дисконт illiquidity/squeeze-out 30%: 225.6 × 0,70 = 157.9 ₽"
+     ],
+     "caveats": [
+      "ROE 43,8% — один год полной отчётности (2024); 2025 ЧП есть (5,85), но капитал 2025 не раскрыт",
+      "Governance-надбавка 3 п.п. уже в ставке; дисконт illiquidity 30% — суждение, диапазон 20-40%",
+      "При снижении ставок (Ke→17%) justified P/B растёт до ~(0,438-0,02)/(0,17-0,02)≈2,8x → объясняет исторические 4,2x"
+     ]
+    }
+   },
+   {
+    "method": "historical_pb",
+    "fair_value_per_share": 594.5,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "pb_used": 4.172,
+     "basis": "3y_mean 2022-2024 (CV=0.17)",
+     "cv": 0.17,
+     "book_value_per_share_used": 142.5,
+     "equity_basis": "balance",
+     "rate_regime_note": "Сформирован при Rf~5-8%; при Ke=28,4% не поддержан"
+    },
+    "status": "ok_reference_only",
+    "explain": {
+     "inputs": {
+      "pb_2022": "3,365x — капа 50,48 млрд / капитал 15,0 млрд",
+      "pb_2023": "4,762x — / капитал 10,6 млрд",
+      "pb_2024": "4,390x — / капитал 11,5 млрд",
+      "pb_used": "4,172x (среднее 2022-2024)",
+      "cv": "0.17 < 0,5"
+     },
+     "steps": [
+      "Среднее P/B 2022-2024 = (3,365+4,762+4,390)/3 = 4.172x",
+      "Справочная цена = 4.172 × 142.5 = 594.5 ₽",
+      "ВАЖНО: исторический P/B при низких ставках; при Ke=28,4% justified P/B=1,58x → метод показывает потенциал при возврате к низким ставкам, не текущий фундаментал"
+     ],
+     "caveats": [
+      "Исторический P/B не скорректирован на смену процентного режима — СПРАВОЧНЫЙ метод, не основной",
+      "При текущем Ke=25,4% фундаментально обоснованный P/B ≈ 1,79x, что соответствует ~255 ₽ (см. P/BV×ROE)",
+      "Малоликвидность акции (free-float~0,3%) означает, что исторические рыночные цены могут не отражать реальный баланс спроса/предложения"
+     ]
+    }
+   },
+   {
+    "method": "dividend_ddm",
+    "fair_value_per_share": 180.7,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {
+     "dps_forward": 68.16,
+     "dps_2023_reference": 104.08,
+     "ke_pct": 28.4,
+     "g_pct": 2.0,
+     "illiquidity_discount_pct": 30.0
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "dps_forward": "68,16 ₽ — последняя выплата 16.12.2024 [governance: src_6]",
+      "dps_optimistic": "104,08 ₽ — суммарно за 2023 г. [governance]",
+      "Ke": "28.4% (с governance-надбавкой 3 п.п.)",
+      "g": "2,0% — payout ~94% ограничивает рост [related_party_signal]",
+      "illiquidity_discount": "30%"
+     },
+     "steps": [
+      "Консервативный: P=DPS/(Ke−g)=68.16/0.264=258.2 ₽ (до дисконта)",
+      "Оптимистичный: 104.08/0.264=394.2 ₽ (до дисконта)",
+      "После illiquidity-дисконта 30%: консерв. 258.2 ×0,70 = 180.7 ₽; оптим. 394.2 ×0,70 = 275.9 ₽"
+     ],
+     "caveats": [
+      "payout ~94% от ЧП 2024 — почти вся прибыль выводится бенефициару (related_party_signal, severity medium)",
+      "Целевой payout не раскрыт — DPS на усмотрении собственника (>99% контроль)",
+      "g=2% при санкциях и squeeze-out риске — высокое допущение"
+     ]
+    }
+   },
+   {
+    "method": "CAPM",
+    "fair_value_per_share": 735.0,
+    "horizon": "12m",
+    "key_assumptions": {
+     "ke_pct": 28.4,
+     "div_yield_pct": 10.9,
+     "current_price_used_for_capm": 625.52
+    },
+    "status": "ok",
+    "explain": {
+     "inputs": {
+      "price": "625.52 ₽ (rates.csv)",
+      "Ke": "28.4% (с governance-надбавкой)",
+      "div_yield": "10.9% = 68,16/625.52",
+      "beta": "1,2"
+     },
+     "steps": [
+      "Ke=14,6%+1,2×9,0%+3,0(gov)=28.4%",
+      "Дивдоходность=68,16/625.52=10.9%",
+      "12-мес. таргет = 625.52×(1+0.284−0.109) = 735.0 ₽"
+     ],
+     "caveats": [
+      "CAPM-таргет для малоликвидной акции носит индикативный характер: рыночная цена может не отражать фундаментал из-за free-float~0,3%",
+      "Допущение: ожидаемая форвардная дивдоходность = DPS/текущая цена = const. При изменении DPS результат изменится"
+     ]
+    }
+   },
+   {
+    "method": "relative_peers",
+    "fair_value_per_share": null,
+    "horizon": "intrinsic_now",
+    "key_assumptions": {},
+    "status": "not_applicable",
+    "explain": {
+     "inputs": {},
+     "steps": [],
+     "caveats": [
+      "Сопоставимых публичных банков с аналогичным профилем (региональный, частный, санкционный, free-float<1%) на Мосбирже нет; Сбер/ВТБ/ТКС — иные масштаб и структура. Относительная оценка не проводится."
+     ]
+    }
+   }
+  ],
+  "methods_divergence_note": "После выравнивания лет и завода governance-надбавки в ставку (Ke=28,4%): фундаментальные интринсик-методы с дисконтом illiquidity дают узкий коридор — P/BV×ROE=157.9 ₽, DDM консерв.=180.7 ₽, DDM оптим.=275.9 ₽. Справочный исторический P/B (без дисконта, при низких ставках)=594.5 ₽. Текущая цена 625,52 ₽ ВЫШЕ всех фундаментальных оценок в 2,5-4 раза. Главная причина расхождения с рынком — малоликвидность (free-float ~0,3%): биржевая цена не отражает фундаментал, сделок почти нет. Санкции (SDN + ЕС 20) и squeeze-out — ключевая неопределённость.",
+  "fair_value_range": {
+   "conservative": 157.9,
+   "base": 180.7,
+   "optimistic": 275.9,
+   "note": "Интринсик с дисконтом 30%: 157.9-275.9 ₽. Справочно исторический P/B без дисконта = 594.5 ₽ (не якорь при текущих ставках). Текущая цена 625,52 ₽ — выше верхней оценки."
+  },
+  "sensitivity": {
+   "method": "P/BV×ROE, Ke=28,4% (с gov-надбавкой), illiquidity-дисконт 30%",
+   "roe_grid_pct": [
+    35.0,
+    43.8,
+    50.0
+   ],
+   "g_grid_pct": [
+    1.5,
+    2.0,
+    2.5
+   ],
+   "matrix": [
+    [
+     124.2,
+     156.9,
+     179.8
+    ],
+    [
+     124.7,
+     157.9,
+     181.4
+    ],
+    [
+     125.2,
+     159.1,
+     182.9
+    ]
+   ],
+   "note": "Строки=g(%), столбцы=ROE(%): [35; 43,8; 50]"
+  },
+  "synthesis_verdict": {
+   "headline": "Фундаментально ДОРОГО к интринсику, но цена нерелевантна из-за малоликвидности",
+   "fair_band_rub": [
+    157.9,
+    275.9
+   ],
+   "current_price_rub": 625.52,
+   "verdict": "Все фундаментальные методы (P/BV×ROE с Ke 28,4%, DDM) сходятся в коридоре 157.9-275.9 ₽ — это в 2,5-4 раза НИЖЕ биржевой цены 625,52 ₽. Формально акция переоценена. НО вывод требует оговорки: free-float ~0,3%, биржевых сделок почти нет → рыночная цена 625,52 ₽ не является информативным сигналом баланса спроса/предложения. Высокий ROE 2024 (43,8%) реален, но при ставке 28,4% (Rf 14,6% + governance-надбавка) даёт justified P/B всего 1,58x против рыночных 4,4x. Прибыль качественная (банковский доход), но ~94% выводится единственному бенефициару (related_party_signal) → рост капитала и g ограничены. Исторический P/B 4,2x держался при Rf~5-8% — при возврате к низким ставкам интринсик подрастёт к ~400-590 ₽, что сближает с рынком. ИТОГ: дорого по фундаменталу при текущих ставках; справедлив только при сценарии резкого снижения ставок; для миноритария ключевой риск — squeeze-out и неликвидность, а не оценка.",
+   "drivers_consumed": [
+    "governance_discount (+3 п.п. в Ke, 30% illiquidity-дисконт)",
+    "related_party_signal (payout ~94% → g ограничен)",
+    "signal_macro_regime (Ke высокий)",
+    "signal_revenue_outlook + signal_geo_to_revenue (NII вниз, санкции)"
+   ],
+   "certainty": "judgement"
+  }
+ },
+ "sources": [
+  {
+   "id": "src_1",
+   "type": "aggregator",
+   "title": "Smart-Lab / extracted_financials.json — МСФО хедлайны 2021-2023; 2024-2025 частично",
+   "url": "https://smart-lab.ru/q/AVAN/f/y/",
+   "reliability": "medium"
+  },
+  {
+   "id": "src_gov",
+   "type": "internal",
+   "title": "companies/AVAN/governance.json — дивиденды, структура владения",
+   "url": "",
+   "reliability": "medium"
+  },
+  {
+   "id": "src_config",
+   "type": "internal",
+   "title": "config/market_params.json — Rf=14,6%, ERP=9,0%, ключевая ставка=14,5%",
+   "url": "",
+   "reliability": "high"
+  }
+ ],
+ "data_flags": [
+  "МСФО ПЕРВИЧКА ДОБАВЛЕНА (2026-07-04): Обобщенная финансовая отчётность из Отчётов эмитента 12 мес. 2025 (opubl. 24.04.2026) и 12 мес. 2024 (opubl. 25.04.2025). Источник: avangard.ru/rus/about/inforaskr/pdf/emitent20260527.pdf и emitent202412.pdf",
+  "СТАНДАРТ: Обобщённая отчётность в отчётах эмитента представлена как МСФО ('Обобщенный отчет о прибыли или убытке', 'Обобщенный отчет о финансовом положении'). Все постатейные данные 2023-2025 из первичного МСФО источника.",
+  "АРИФМЕТИКА (2023/2024/2025): NII = ii - ie (0%); net_profit = pre_tax + tax (0%); net_loans = gross_loans - prov (0%); total_assets = total_equity + total_liab (0%). Все проверки пройдены.",
+  "ЕДИНИЦА: existing unit=млрд. Все новые поля добавлены в млрд (тыс.руб. ÷ 1 000 000). Существующие значения (unit=млрд) не тронуты.",
+  "ГОД-СДВИГ (КРИТИЧНО): существующие поля bank_balance — total_assets, total_equity, deposits, loans_gross, provisions_balance — содержат СДВИГ НА 1 ГОД (значение года N было labelled как N-1). Пример: total_assets[pos2022]=139.7 — это МСФО 2023 (139.65 млрд). Эти поля НЕ изменены (правило). Используй КАНОНИЧЕСКИЕ поля: cash_and_equivalents, due_from_banks, gross_loans, loan_provisions, net_loans, customer_deposits, total_equity_msfo — они имеют ПРАВИЛЬНУЮ год-выравненность.",
+  "bank_pnl.net_interest_income, net_profit — ранее заполненные значения сохранены без изменений (не трогать). Для точных значений: NII 2023=6.182, 2024=8.446, 2025=7.488 млрд; ЧП 2025=5.853 (≠ 5.85 в поле — незначительное округление).",
+  "2023: убытки от обесценения 9.724 млрд (provision expense) — аномальное формирование резервов — объясняет ЧП=0.281 млрд. 2024: восстановление 0.124 млрд → ЧП восстановилась до 5.04 млрд.",
+  "2021, 2022: МСФО данные НЕ ДОСТУПНЫ. ЦБ РФ запретил раскрытие финансовых показателей кредитных организаций в 2022-2023 годах (Решения от 29.12.2022 и 26.12.2023). Отчёты эмитента за эти годы содержат только Capital (Basel III).",
+  "loan_provisions[2022]=6.491 млрд — из таблицы движения резерва за 2023 год (opening balance Dec 31, 2022). Остальные данные 2022 из МСФО не доступны.",
+  "РСБУ за 2022 (форма 806, из Отчёта эмитента за 2023): total_assets 2022 РСБУ=136.14 млрд, equity 2022 РСБУ=26.22 млрд. Не добавлены (стандарт МСФО). Для сравнения: МСФО equity 2022=27.22 млрд (из equity waterfall).",
+  "balance_sheet.total_equity_msfo — НОВОЕ КАНОНИЧЕСКОЕ ПОЛЕ с правильным год-выравниванием: [null, 27.223, 15.020, 10.606, 11.483] млрд. Существующее total_equity=[null, 15.0, 10.6, 11.5, null] содержит ГОД-СДВИГ (значения сдвинуты на -1 год относительно реальности).",
+  "ИСПРАВЛЕНО (аудит): годы P&L выровнены к фактической отчётности (smart-lab news + TAdviser). Ранее агрегатор давал колоночный сдвиг: 0,281→2022, 5,04→2023, 5,85→2024. Верно: 0,281=2023, 5,04=2024, 5,85=2025. Контроль: 5,04×1,161=5,85 (рост 2025 +16,1% подтверждён новостью).",
+  "ИСПРАВЛЕНО: цена приведена к единому якорю 625,52 ₽ (rates.csv) во всех методах; ранее встречались null/600/625,52.",
+  "ИСПРАВЛЕНО: мультипликаторы пересчитаны на верных годах — P/E 2024=10,02 (ЧП 5,04), P/E 2025=8,63 (ЧП 5,85), ROE 2024=43,83%, P/B(2024)=4,39.",
+  "data_quality=medium: только хедлайны (ЧП, NII, капитал, активы); детальный P&L (статьи резервов, комиссии, опер.расходы, налог) — null.",
+  "Капитал 2025 не раскрыт → P/B current и BVPS считаны на капитале 2024 (11,5 млрд).",
+  "2023: ЧП 0,281 млрд аномально мала (санкционный год); P/E 180x исключён из исторического среднего P/E.",
+  "Исторический P/B 4,17x (2022-2024) сформирован при Rf~5-8%; при Ke=28,4% (с gov-надбавкой) фундаментально не поддержан — справочный метод.",
+  "Малоликвидность (free-float ~0,3%): биржевая цена может не отражать фундаментал — все мультипликаторы индикативны.",
+  "Санкции: SDN США (23.02.2024), 20-й пакет ЕС (14.05.2026).",
+  "Governance-надбавка +3 п.п. в Ke и дисконт illiquidity/squeeze-out 30% заведены в интринсик-методы (governance.json)."
+ ],
+ "balance_sheet": {
+  "total_equity": [
+   null,
+   15.0,
+   10.6,
+   11.5,
+   null
+  ],
+  "cash_and_equivalents": [
+   null,
+   null,
+   48.366,
+   30.565,
+   12.599
+  ],
+  "due_from_banks": [
+   null,
+   null,
+   42.255,
+   24.531,
+   29.525
+  ],
+  "securities": [
+   null,
+   null,
+   24.367,
+   25.841,
+   29.951
+  ],
+  "gross_loans": [
+   null,
+   null,
+   20.029,
+   14.385,
+   15.467
+  ],
+  "loan_provisions": [
+   null,
+   6.491,
+   3.598,
+   2.212,
+   2.197
+  ],
+  "net_loans": [
+   null,
+   null,
+   16.431,
+   12.174,
+   13.27
+  ],
+  "ppe_intangibles": [
+   null,
+   null,
+   4.215,
+   4.19,
+   5.083
+  ],
+  "due_to_banks": [
+   null,
+   null,
+   6.142,
+   4.872,
+   1.927
+  ],
+  "customer_deposits": [
+   null,
+   null,
+   115.552,
+   82.049,
+   76.07
+  ],
+  "deposits_retail": [
+   null,
+   null,
+   22.97,
+   19.921,
+   18.454
+  ],
+  "deposits_corporate": [
+   null,
+   null,
+   92.582,
+   62.127,
+   57.616
+  ],
+  "debt_securities_issued": [
+   null,
+   null,
+   0.082,
+   0.163,
+   0.143
+  ],
+  "other_liabilities": [
+   null,
+   null,
+   null,
+   2.499,
+   2.832
+  ]
+ },
+ "segments": [
+  {
+   "name": "Корпоративный банкинг",
+   "pct": 80.0,
+   "note": "Основной сегмент, ~80% операционного дохода"
+  },
+  {
+   "name": "Розничный банкинг",
+   "pct": 20.0,
+   "note": "Вспомогательный сегмент, ~20% операционного дохода"
+  }
+ ],
+ "cost_breakdown": [
+  {
+   "name": "Расходы на персонал",
+   "pct": 34.5,
+   "type": "fixed"
+  },
+  {
+   "name": "IT и амортизация",
+   "pct": 19.0,
+   "type": "fixed"
+  },
+  {
+   "name": "Содержание сети",
+   "pct": 11.3,
+   "type": "fixed"
+  },
+  {
+   "name": "Прочие и маркетинг",
+   "pct": 12.0,
+   "type": "variable"
+  }
+ ],
+ "key_facts": [
+  {
+   "label": "Контроль",
+   "value": "Кирилл Миновалов владеет >99% акций через ООО «Алькор Холдинг Групп»"
+  },
+  {
+   "label": "Тип акций",
+   "value": "Обыкновенные, free-float ~0,3%"
+  },
+  {
+   "label": "Штаб-квартира",
+   "value": "Москва, Россия"
+  },
+  {
+   "label": "Суть модели",
+   "value": "Универсальный банк с фокусом на корпоративных клиентах (зарплатные проекты, РКО, эквайринг) и развитым интернет-банкинго"
+  },
+  {
+   "label": "Доля рынка",
+   "value": "66-е место по активам среди российских банков, входит в топ-10 по зарплатным проектам"
+  }
+ ],
+ "geo_split": [
+  {
+   "region": "Москва и Московская область",
+   "pct": 50.0
+  },
+  {
+   "region": "Крупные города (СПб, Екатеринбург, Н. Новгород и д",
+   "pct": 35.0
+  },
+  {
+   "region": "Прочие регионы",
+   "pct": 15.0
+  }
+ ]
 }
