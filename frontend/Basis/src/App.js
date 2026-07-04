@@ -11354,6 +11354,544 @@ function ObsNewsCardItem({ n, unread, onSeen, onSelectCompany }) {
   );
 }
 
+// =============================================================
+// ObsReports — «Отчёты» точно по прототипу observer-sidebar-v2.html
+// Карточки с метрик-чипами (Выручка/EBITDA/Прибыль, цвет по знаку),
+// вердикт, разворот с секциями positives/risks/conclusion.
+// Данные: GET /api/market/earnings (поля: revenue_pct, ebitda_pct,
+// profit_pct, positives[], risks[], conclusion, sector, importance).
+// =============================================================
+
+function ObsReports({ token, portfolioOnly, onSelectCompany }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [openCards, setOpenCards] = useState({});
+  const [sectorFilter, setSectorFilter] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    fetch(`${apiUrl}/api/market/earnings?portfolio_only=${portfolioOnly}`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  const reports = data?.reports || [];
+  const sectors = [...new Set(reports.map((r) => r.sector).filter(Boolean))].sort();
+  const filtered = sectorFilter ? reports.filter((r) => r.sector === sectorFilter) : reports;
+
+  // Detect negative value: starts with unicode minus '−' or ascii '-'
+  const isNeg = (v) => v && (String(v).trimStart().startsWith("−") || String(v).trimStart().startsWith("-"));
+  const metricColor = (v) => isNeg(v) ? "var(--danger)" : "var(--success)";
+  const toggleCard = (i) => setOpenCards((o) => ({ ...o, [i]: !o[i] }));
+
+  return (
+    <div>
+      <p className="obs-rep-desc">
+        Вышедшие отчётности: цифры видно сразу, полный разбор — по клику. Ознакомительно, не ИИР.
+      </p>
+
+      {/* Sector filter chips */}
+      {sectors.length > 0 && (
+        <div className="obs-rep-filters" role="group" aria-label="Фильтр по сектору">
+          <button
+            type="button"
+            className={`obs-rep-chip${!sectorFilter ? " obs-rep-chip--active" : ""}`}
+            onClick={() => setSectorFilter(null)}
+          >Все</button>
+          {sectors.map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={`obs-rep-chip${sectorFilter === s ? " obs-rep-chip--active" : ""}`}
+              onClick={() => setSectorFilter(s)}
+            >{s}</button>
+          ))}
+        </div>
+      )}
+
+      {loading && <div className="obs-news-loading">Загрузка отчётов…</div>}
+      {error && <div className="obs-news-loading" style={{ color: "var(--danger)" }}>Не удалось загрузить отчёты.</div>}
+      {!loading && !error && filtered.length === 0 && (
+        <div className="obs-news-empty">
+          {portfolioOnly ? "По бумагам портфеля новых отчётов нет." : "Отчётов не найдено."}
+        </div>
+      )}
+
+      {!loading && filtered.length > 0 && (
+        <div className="obs-rep-list">
+          {filtered.map((r, i) => {
+            const hasDetail = (r.positives && r.positives.length > 0)
+              || (r.risks && r.risks.length > 0)
+              || r.conclusion;
+            const isOpen = !!openCards[i];
+            const period = [r.period, r.standard || r.report_type, r.sector].filter(Boolean).join(" · ");
+            return (
+              <div key={i} className="obs-rep-card">
+                {/* Header: ticker · period · importance badge */}
+                <div className="obs-rep-card-head">
+                  <span className="obs-rep-ticker">{r.ticker}</span>
+                  <span className="obs-rep-period">{period}</span>
+                  {r.importance === "high"
+                    ? <span className="obs-tag-judgment" style={{ marginLeft: "auto" }}>важно</span>
+                    : <span className="obs-tag-fact" style={{ marginLeft: "auto" }}>средне</span>
+                  }
+                </div>
+
+                {/* Metric chips — shown only if structured pct fields present */}
+                {(r.revenue_pct || r.ebitda_pct || r.profit_pct) && (
+                  <div className="obs-rep-metrics">
+                    {r.revenue_pct && (
+                      <div className="obs-rep-metric">
+                        <span className="rm-lbl">Выручка</span>
+                        <span className="rm-val" style={{ color: metricColor(r.revenue_pct) }}>{r.revenue_pct}</span>
+                      </div>
+                    )}
+                    {r.ebitda_pct && (
+                      <div className="obs-rep-metric">
+                        <span className="rm-lbl">EBITDA</span>
+                        <span className="rm-val" style={{ color: metricColor(r.ebitda_pct) }}>{r.ebitda_pct}</span>
+                      </div>
+                    )}
+                    {r.profit_pct && (
+                      <div className="obs-rep-metric">
+                        <span className="rm-lbl">Чистая прибыль</span>
+                        <span className="rm-val" style={{ color: metricColor(r.profit_pct) }}>{r.profit_pct}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Verdict / one-liner */}
+                {(r.one_liner || r.verdict) && (
+                  <div className="obs-rep-verdict">{r.one_liner || r.verdict}</div>
+                )}
+
+                {/* Expand toggle + collapsible detail */}
+                {hasDetail && (
+                  <>
+                    <button
+                      type="button"
+                      className="obs-rep-toggle"
+                      onClick={() => toggleCard(i)}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? "Свернуть ▴" : "Читать разбор ▾"}
+                    </button>
+                    <div className={`obs-rep-detail${isOpen ? " open" : ""}`}>
+                      {r.positives && r.positives.length > 0 && (
+                        <div className="obs-rep-section">
+                          <div className="obs-rep-section-title positive">Позитив</div>
+                          {r.positives.map((b, j) => (
+                            <div key={j} className="obs-rep-bullet positive">{b}</div>
+                          ))}
+                        </div>
+                      )}
+                      {r.risks && r.risks.length > 0 && (
+                        <div className="obs-rep-section">
+                          <div className="obs-rep-section-title risk">Риски</div>
+                          {r.risks.map((b, j) => (
+                            <div key={j} className="obs-rep-bullet risk">{b}</div>
+                          ))}
+                        </div>
+                      )}
+                      {r.conclusion && (
+                        <div className="obs-rep-conclusion">
+                          <b>Вывод.</b> {r.conclusion}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================
+// ObsCalendar — «Календарь событий» точно по прототипу observer-sidebar-v2.html
+// Два вида: список (timeline) и сетка месяца (7 колонок, навигация,
+// клик по дню → детали ниже). Фильтры по типу события.
+// Данные: GET /api/market/calendar (поля: id, date, time, type,
+// title, ticker, status, payload, source_url).
+// =============================================================
+
+const OBS_CAL_TYPE_META = {
+  macro:         { label: "Макро",       color: "var(--text-secondary)"       },
+  dividend:      { label: "Дивиденды",   color: "var(--success)"              },
+  corporate:     { label: "СД · ГОСА",   color: "var(--info)"                 },
+  board:         { label: "СД · ГОСА",   color: "var(--info)"                 },
+  ipo:           { label: "IPO · SPO",   color: "#8A4FBF"                     }, // data cat colour
+  bond_offer:    { label: "Оферта",      color: "var(--warning)"              },
+  bond_maturity: { label: "Погашение",   color: "var(--text-tertiary)"        },
+  expiration:    { label: "Экспирация",  color: "var(--text-tertiary)"        },
+};
+
+const OBS_CAL_FILTERS = [
+  { id: "all",       label: "Все"        },
+  { id: "dividend",  label: "Дивиденды"  },
+  { id: "earnings",  label: "Отчётности" },
+  { id: "corporate", label: "СД · ГОСА"  },
+  { id: "macro",     label: "Макро"      },
+  { id: "ipo",       label: "IPO · SPO"  },
+];
+
+const OBS_MONTH_NAMES = [
+  "Январь","Февраль","Март","Апрель","Май","Июнь",
+  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь",
+];
+
+const OBS_TECH_TYPES = ["bond_offer", "bond_maturity", "expiration"];
+
+function _obsDateRu(iso) {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
+  const [view, setView] = useState("list");        // "list" | "grid"
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [gridDate, setGridDate] = useState(() => {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), 1);
+  });
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    const evParam = typeFilter !== "all" ? `&event_type=${typeFilter}` : "";
+    fetch(
+      `${apiUrl}/api/market/calendar?scope=upcoming&portfolio_only=${portfolioOnly}${evParam}`,
+      { headers: authHeaders }
+    )
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [typeFilter, portfolioOnly, token]);
+
+  const events = data?.events || [];
+  // In "all" mode: split tech events (bond ofers/maturities/expirations) into separate section
+  const splitTech = typeFilter === "all";
+  const techEvents = splitTech ? events.filter((e) => OBS_TECH_TYPES.includes(e.type)) : [];
+  const mainEvents = splitTech ? events.filter((e) => !OBS_TECH_TYPES.includes(e.type)) : events;
+
+  // Build date → events map for grid view
+  const byDate = {};
+  mainEvents.forEach((e) => {
+    if (!byDate[e.date]) byDate[e.date] = [];
+    byDate[e.date].push(e);
+  });
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  // Resolve type meta (label + color)
+  const typeM = (type) => OBS_CAL_TYPE_META[type] || { label: type, color: "var(--text-tertiary)" };
+
+  // ---- Build calendar grid cells ----
+  const buildCells = () => {
+    const year = gridDate.getFullYear();
+    const month = gridDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // Monday = 0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    const cells = [];
+    // leading days from prev month
+    for (let i = 0; i < startOffset; i++) {
+      cells.push({ day: daysInPrevMonth - startOffset + i + 1, current: false });
+    }
+    // current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      cells.push({ day: d, current: true, iso, events: byDate[iso] || [] });
+    }
+    // trailing days from next month
+    const trailing = (7 - ((startOffset + daysInMonth) % 7)) % 7;
+    for (let i = 1; i <= trailing; i++) {
+      cells.push({ day: i, current: false });
+    }
+    return cells;
+  };
+
+  const shiftMonth = (delta) => {
+    setGridDate((d) => new Date(d.getFullYear(), d.getMonth() + delta, 1));
+    setSelectedDay(null);
+  };
+
+  const toggleDay = (iso) => setSelectedDay((prev) => (prev === iso ? null : iso));
+
+  // ---- Sub-render: timeline list view ----
+  const renderTimeline = () => {
+    const sorted = [...mainEvents].sort((a, b) => a.date.localeCompare(b.date));
+    if (sorted.length === 0) {
+      return (
+        <div className="obs-news-empty">
+          {portfolioOnly ? "В портфеле событий не найдено." : "Предстоящих событий нет."}
+        </div>
+      );
+    }
+    return (
+      <div className="obs-cal-card">
+        <div className="obs-tl-wrap">
+          <div className="obs-tl-line" aria-hidden="true" />
+          {sorted.map((e, i) => (
+            <div key={e.id || i} className="obs-tl-item">
+              <div className="obs-tl-dot" style={{ background: typeM(e.type).color }} />
+              <div className="obs-tl-date">
+                {_obsDateRu(e.date)}{e.time ? ` · ${e.time} МСК` : ""}
+              </div>
+              <div className="obs-tl-title">
+                {e.ticker && onSelectCompany
+                  ? (
+                    <button
+                      type="button"
+                      className="obs-rep-toggle"
+                      style={{ fontSize: "14.5px", fontWeight: 600 }}
+                      onClick={() => onSelectCompany(e.ticker)}
+                    >{e.title}</button>
+                  )
+                  : e.title
+                }
+              </div>
+              {e.type === "dividend" && e.payload && (
+                <div className="obs-tl-sub">
+                  {e.payload.buy_by_date && `Купить до ${_obsDateRu(e.payload.buy_by_date)}`}
+                  {e.payload.record_date && ` · отсечка ${_obsDateRu(e.payload.record_date)}`}
+                  {e.payload.dividend_yield != null && ` · доходность ▲ ${e.payload.dividend_yield}%`}
+                </div>
+              )}
+              {(e.status || (e.payload && e.payload.note)) && e.type !== "dividend" && (
+                <div className="obs-tl-sub">
+                  {[e.status, e.payload?.note].filter(Boolean).join(" · ")}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // ---- Sub-render: month grid view ----
+  const renderGrid = () => {
+    const year = gridDate.getFullYear();
+    const month = gridDate.getMonth();
+    const cells = buildCells();
+    const selEvents = selectedDay ? (byDate[selectedDay] || []) : [];
+    return (
+      <div>
+        {/* Month navigation */}
+        <div className="obs-cal-nav">
+          <button
+            type="button"
+            className="obs-cal-nav-btn"
+            onClick={() => shiftMonth(-1)}
+            aria-label="Предыдущий месяц"
+          >←</button>
+          <div className="obs-cal-month-label">{OBS_MONTH_NAMES[month]} {year}</div>
+          <button
+            type="button"
+            className="obs-cal-nav-btn"
+            onClick={() => shiftMonth(1)}
+            aria-label="Следующий месяц"
+          >→</button>
+        </div>
+
+        {/* Legend */}
+        <div className="obs-cal-legend">
+          {[
+            { label: "Дивиденды",  color: "var(--success)"  },
+            { label: "Отчётности", color: "var(--accent)"   },
+            { label: "СД · ГОСА",  color: "var(--info)"     },
+            { label: "Макро",      color: "var(--text-secondary)" },
+            { label: "IPO · SPO",  color: "#8A4FBF"         },
+          ].map((l) => (
+            <span key={l.label} className="obs-cal-legend-item">
+              <span className="obs-cal-legend-dot" style={{ background: l.color }} />
+              <span>{l.label}</span>
+            </span>
+          ))}
+        </div>
+
+        {/* 7-column grid */}
+        <div
+          className="obs-cal-grid"
+          role="grid"
+          aria-label={`${OBS_MONTH_NAMES[month]} ${year}`}
+        >
+          {/* Day-of-week headers */}
+          {["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((d) => (
+            <div key={d} className="obs-cal-weekday" role="columnheader">{d}</div>
+          ))}
+
+          {/* Day cells */}
+          {cells.map((cell, idx) => {
+            if (!cell.current) {
+              return (
+                <div key={`prev-${idx}`} className="obs-cal-day other-month" role="gridcell" aria-disabled="true">
+                  <div className="obs-cal-day-num">{cell.day}</div>
+                </div>
+              );
+            }
+            const isToday = cell.iso === todayIso;
+            const isSel   = cell.iso === selectedDay;
+            const evts    = cell.events || [];
+            return (
+              <div
+                key={cell.iso}
+                className={`obs-cal-day${isToday ? " today" : ""}${isSel ? " selected" : ""}`}
+                role="gridcell"
+                aria-selected={isSel}
+                aria-label={`${cell.day} ${OBS_MONTH_NAMES[month]}${evts.length ? `, ${evts.length} событий` : ""}`}
+                tabIndex={0}
+                onClick={() => toggleDay(cell.iso)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDay(cell.iso); }
+                }}
+              >
+                <div className="obs-cal-day-num">{cell.day}</div>
+                {evts.slice(0, 2).map((ev, j) => (
+                  <div
+                    key={j}
+                    className="obs-cal-pill"
+                    style={{ background: typeM(ev.type).color }}
+                  >
+                    {ev.short || (ev.title && ev.title.length > 18 ? ev.title.slice(0, 16) + "…" : ev.title)}
+                  </div>
+                ))}
+                {evts.length > 2 && (
+                  <div className="obs-cal-more">+{evts.length - 2} ещё</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Selected day detail */}
+        {selectedDay && (
+          <div className="obs-cal-day-detail">
+            <div className="obs-cal-detail-title">{_obsDateRu(selectedDay)}</div>
+            {selEvents.length === 0
+              ? <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>На этот день событий нет.</p>
+              : selEvents.map((e, i) => (
+                <div key={i} className="obs-cal-detail-card">
+                  <div
+                    className="obs-cal-detail-type"
+                    style={{ background: typeM(e.type).color }}
+                  >{typeM(e.type).label}</div>
+                  <div className="obs-cal-detail-event-title">{e.title}</div>
+                  {e.status && <div className="obs-cal-detail-sub">{e.status}</div>}
+                  {e.type === "dividend" && e.payload && e.payload.dividend_yield != null && (
+                    <div className="obs-cal-detail-sub">
+                      Дивидендная доходность: ▲ {e.payload.dividend_yield}%
+                    </div>
+                  )}
+                </div>
+              ))
+            }
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <p className="obs-cal-desc">
+        Предстоящие события: дивиденды, отчётности, собрания СД/ГОСА, макростатистика, IPO/SPO.
+        Оферты, погашения и экспирации — вынесены отдельно ниже.
+      </p>
+
+      {/* Controls: view toggle + type filter chips */}
+      <div className="obs-cal-controls">
+        {/* List / Grid segment */}
+        <div className="obs-cal-seg" role="group" aria-label="Вид отображения">
+          {[{ id: "list", label: "Список" }, { id: "grid", label: "Календарь" }].map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className={`obs-cal-seg-opt${view === v.id ? " obs-cal-seg-opt--on" : ""}`}
+              onClick={() => setView(v.id)}
+              aria-pressed={view === v.id}
+            >{v.label}</button>
+          ))}
+        </div>
+
+        {/* Type filter */}
+        <div className="obs-cal-filterbar" role="group" aria-label="Тип события">
+          {OBS_CAL_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={`obs-cal-chip${typeFilter === f.id ? " obs-cal-chip--active" : ""}`}
+              onClick={() => setTypeFilter(f.id)}
+            >{f.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {loading && <div className="obs-news-loading">Загрузка календаря…</div>}
+      {error && (
+        <div className="obs-news-loading" style={{ color: "var(--danger)" }}>
+          Не удалось загрузить календарь.
+        </div>
+      )}
+
+      {!loading && !error && (view === "list" ? renderTimeline() : renderGrid())}
+
+      {/* Tech events section: bond offers / maturities / expirations */}
+      {!loading && !error && techEvents.length > 0 && (
+        <div style={{ marginTop: "14px", maxWidth: "960px" }}>
+          <Disclosure
+            summary={`Технические события — оферты · погашения · экспирации (${techEvents.length})`}
+            defaultOpen={false}
+          >
+            <div className="obs-cal-card" style={{ marginTop: "8px" }}>
+              <div className="obs-tl-wrap">
+                <div className="obs-tl-line" aria-hidden="true" />
+                {[...techEvents]
+                  .sort((a, b) => a.date.localeCompare(b.date))
+                  .map((e, i) => (
+                    <div key={e.id || i} className="obs-tl-item">
+                      <div className="obs-tl-dot" style={{ background: typeM(e.type).color }} />
+                      <div className="obs-tl-date">{_obsDateRu(e.date)}</div>
+                      <div className="obs-tl-title" style={{ fontSize: "13.5px" }}>{e.title}</div>
+                      {e.payload && (
+                        <div className="obs-tl-sub">
+                          {[
+                            e.payload.coupon_type === "floater" ? "флоатер"
+                              : e.payload.coupon_type === "fixed" ? "фикс. купон"
+                              : e.payload.coupon_type || null,
+                            e.payload.ytm != null ? `YTM ~${e.payload.ytm}%${e.payload.yield_indicative ? " (индикативно)" : ""}` : null,
+                            e.payload.rating || null,
+                          ].filter(Boolean).join(" · ")}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          </Disclosure>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ObserverV2({ token, onSelectCompany }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
@@ -11397,7 +11935,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Календарь событий</h2>
             </div>
-            <CalendarView token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsCalendar token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "reports":
@@ -11407,7 +11945,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Отчёты</h2>
             </div>
-            <EarningsFeed token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsReports token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "macro":
