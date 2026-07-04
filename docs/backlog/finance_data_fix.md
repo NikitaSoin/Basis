@@ -56,3 +56,18 @@ CARM/ZAYM. Также bank_pnl РАЗНОБОЙ: у T резервы=impairment_
 +net_insurance_income; у MBNK/PRMB нет резервов/опер.дохода. Фронт получил фолбэки (provisions||
 impairment_charges, опер.доход=сумма компонент, строка страхового дохода). TODO: финансист добивает
 канон-баланс + унифицирует bank_pnl по остальным банкам (приоритет ликвидные: DOMRF в работе).
+
+## 🔴 РАСШИРЕННЫЙ КАНОН банка (полная структура — фидбек владельца)
+Банкам мало кредиты+депозиты — нужна ПОЛНАЯ структура + экосистема. Финансист по канону, фронт показывает.
+БАЛАНС-АКТИВЫ (balance_sheet): cash_and_equivalents, due_from_banks (МБК размещ.), securities (торг+инвест),
+  gross_loans, loan_provisions, net_loans (+loans_corporate/retail), ppe_intangibles (ОС/НМА), other_assets, total_assets.
+БАЛАНС-ПАССИВЫ: due_to_banks (МБК привлеч.), customer_deposits (+deposits_retail/corporate),
+  debt_securities_issued (облигации), subordinated_debt (суборд), other_liabilities, total_liabilities,
+  total_equity (+share_capital, retained_earnings).
+P&L (bank_pnl): interest_income, interest_expense, net_interest_income, fee_income, fee_expense,
+  net_fee_income, trading_income (торговый/FV), non_banking_income (небанк/экосистема — ВАЖНО: Т мобайл/
+  страхование, Сбер экосистема), other_operating_income, operating_income, provisions, operating_expenses,
+  pre_tax_profit, income_tax, net_profit.
+СЕГМЕНТЫ: банковские + небанковские/экосистемные (доходы/EBITDA отдельно).
+Пилот SBER → раскатка на все 17 банков. Фронт: bsRows структура активы/пассивы разделами; bankPnlRows
++ строки торговый/небанковский доход; метрики (уже отдельно от мультипликаторов) — данными дополнить.
