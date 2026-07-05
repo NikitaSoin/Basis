@@ -1959,3 +1959,13 @@ e-disclosure через playwright (headless chromium установлен) ИЛ
   сдвиг total_assets, MDMG налог NCI, TRNFP pre_tax +35млрд). Sonnet не только добывает, но чистит.
 Метод надёжен: сайт компании прямой PDF (rosneft/aeroflot/novatek/pik-group/mcclinics) + OCR где скан.
 RNFT писал в extracted → перенос в основной (диспетчер). Осталось ~182. ПРОДОЛЖАТЬ на Sonnet батчами.
+
+## 2026-07-05 — Раскатка ОДДС: чекпойнт (батчи 1-8, ~30 компаний, пауза)
+Sonnet report-fetcher: батчи 6-8 сильно лучше Haiku (полная постатейка + исправления ошибок данных).
+UGLD доказал: e-disclosure через PLAYWRIGHT (headless chromium) ОБХОДИТ Cloudflare — диверсификация
+двух источников (сайт+e-disclosure) работает у Sonnet-агента.
+ПОСТАТЕЙКА ГОТОВА (~22): RUAL MVID SELG FLOT MTLR ENPG OGKB SFIN SMLT TGKA UPRO AKRN NVTK RNFT SIBN
+TRNFP AFLT PIKK ROSN MDMG UGLD PRMD. Частично: RASP MAGN MSRS DVEC LENT SNGS TATN POSI(cfo нет) RENI(сканы).
+🔴 НЮАНС: report-fetcher иногда пишет в sources/extracted_financials.json (контракт роли) — диспетчер
+переносит в основной financials.json (скрипт: cfo/cfi/cff_lines + P&L/баланс дыры по годам). RENI —
+сканы, нужен OCR (tesseract) — дольше, отдельный заход. ОСТАЛОСЬ ~180. Продолжать батчами по 4 на Sonnet.
