@@ -185,9 +185,12 @@ function corrCell(v) {
     return { bg: "color-mix(in srgb, var(--cat-8) 22%, var(--bg-elevated))", fg: "var(--text-secondary)" };
   }
   if (v >= 0.5) {
+    // Тёплый терракотовый (accent-hover), не --danger (холодный malinовый) — так же,
+    // как в прототипе (rgb 184,80,63): «высокая связь» тут не алерт, а часть той же
+    // тёплой шкалы диаграммы, что и остальной Портфель.
     const mag = Math.min(1, (v - 0.5) / 0.5);
     return {
-      bg: `color-mix(in srgb, var(--danger) ${Math.round(mag * 55 + 14)}%, var(--bg-elevated))`,
+      bg: `color-mix(in srgb, var(--accent-hover) ${Math.round(mag * 55 + 14)}%, var(--bg-elevated))`,
       fg: "var(--text-primary)",
     };
   }

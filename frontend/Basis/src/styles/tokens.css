@@ -15,8 +15,10 @@
      user's globally-saved theme. */
   /* ---- Surfaces (warm hybrid: prior cream/beige) ---- */
   --bg-base:        #F8F7F4;   /* app background (warm cream — restored) */
-  --bg-elevated:    #FFFFFF;   /* cards / panels */
-  --bg-overlay-srf: #FFFFFF;   /* modals / dropdowns (paired with shadow) */
+  --bg-elevated:    #F4F0E6;   /* cards / panels — warm cream (2026-07-06, было #FFFFFF
+                                   чисто белое; владелец попросил перенести тёплый тон
+                                   HTML-прототипа Портфеля глобально на весь сайт) */
+  --bg-overlay-srf: #F4F0E6;   /* modals / dropdowns (paired with shadow) */
 
   /* ---- Borders (warm-neutral, softer than cool blue-grey) ---- */
   --border-subtle:  rgba(0,0,0,0.08);   /* hairlines (internal rows / sub-dividers) */
