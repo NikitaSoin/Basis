@@ -1,0 +1,356 @@
+/* =============================================================
+   PORTFOLIO V2 — Sidebar layout (mirrors observer-v2.css / .obs-*)
+   Prefix: .pf-*
+   Tokens: all colours via var(--*) from tokens.css — NO hardcoded hex,
+   except the scoped --pf-deep* vars below (sidebar stays visually dark
+   in both light and dark themes, same rationale as Обозреватель).
+   ============================================================= */
+
+/* ---- Sidebar colour vars (scoped to .pf-sidebar, theme-invariant dark) ---- */
+.pf-sidebar {
+  --pf-deep:       #12131A;
+  --pf-deep-2:     #1B1C26;
+  --pf-deep-3:     #24252F;
+  --pf-deep-line:  rgba(255,255,255,0.10);
+  --pf-deep-ink:   #EDEBE3;
+  --pf-deep-ink2:  #9B9AA8;
+  --pf-deep-ink3:  #6C6B78;
+}
+
+/* ---- Shell: sidebar + main side by side ---- */
+.pf-shell {
+  display: flex;
+  min-height: calc(100vh - 56px);
+  position: relative;
+}
+
+/* ---- Sidebar ---- */
+.pf-sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  background: var(--pf-deep);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  overflow-y: auto;
+  border-right: 1px solid var(--pf-deep-line);
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf-deep-line) transparent;
+}
+
+.pf-depth-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--accent) 40%,
+    var(--pf-deep-2) 75%,
+    var(--pf-deep) 100%
+  );
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.pf-eyebrow {
+  padding: 20px 22px 12px 28px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--pf-deep-ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-zone {
+  padding: 2px 12px 16px 16px;
+}
+
+.pf-zone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 6px 10px 6px;
+  color: var(--pf-deep-ink3);
+}
+
+.pf-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--pf-deep-ink2);
+  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.pf-item:hover {
+  background: var(--pf-deep-2);
+  color: var(--pf-deep-ink);
+}
+
+.pf-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.pf-item.pf-item--active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 12px -3px rgba(201, 122, 74, 0.40);
+}
+
+.pf-item__icon {
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.pf-item--active .pf-item__icon {
+  opacity: 1;
+}
+
+.pf-foot {
+  margin-top: auto;
+  padding: 18px 22px 22px 28px;
+  font-size: 11px;
+  color: var(--pf-deep-ink3);
+  line-height: 1.55;
+  border-top: 1px solid var(--pf-deep-line);
+}
+
+/* ---- Main content area ---- */
+.pf-main {
+  margin-left: 260px;
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-base);
+}
+
+/* ---- Topbar: subtitle + portfolio switcher + add-portfolio ---- */
+.pf-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-base);
+  flex-wrap: wrap;
+}
+
+.pf-topbar__hint {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  min-width: 0;
+}
+
+.pf-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ---- Panel (each section's content wrapper) ---- */
+.pf-panel {
+  padding: 28px 32px 72px;
+  animation: pfSlideIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pfSlideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-panel { animation: none; }
+}
+
+.pf-sec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.pf-sec-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-hover, var(--accent));
+  background: var(--accent-soft);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.pf-sec-title {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ---- Epistemic tags (mirror prototype tag-fact/estimate/judgment) ---- */
+.pf-tag-fact,
+.pf-tag-estimate,
+.pf-tag-judgment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm, 6px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pf-tag-fact {
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.pf-tag-estimate {
+  background: var(--info-soft, var(--accent-soft));
+  color: var(--info, var(--accent));
+}
+
+.pf-tag-judgment {
+  background: var(--accent-soft);
+  color: var(--accent-hover, var(--accent));
+}
+
+.pf-tag-judgment::before {
+  content: '\25C6';
+  font-size: 7px;
+}
+
+/* ---- KPI hero (headline value + accent-divided right column) ---- */
+.pf-kpi-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 40px;
+  align-items: end;
+}
+
+@media (max-width: 900px) {
+  .pf-kpi-hero { grid-template-columns: 1fr; }
+}
+
+.pf-kpi-hero__right {
+  border-left: 2px solid var(--accent);
+  padding-left: 24px;
+}
+
+/* ---- Stress-test scenario picker ---- */
+.pf-stress-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .pf-stress-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .pf-stress-grid { grid-template-columns: 1fr; }
+}
+
+.pf-stress-card {
+  border: 1.5px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  background: var(--bg-elevated);
+  transition: border-color 150ms ease, background 150ms ease;
+  text-align: left;
+}
+
+.pf-stress-card:hover {
+  border-color: var(--accent);
+}
+
+.pf-stress-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.pf-stress-card.pf-stress-card--on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.pf-stress-card.pf-stress-card--custom {
+  border-style: dashed;
+}
+
+.pf-stress-name {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.pf-stress-mech {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* ---- Placeholder / honest stub badge ---- */
+.pf-badge-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-base);
+  color: var(--text-tertiary);
+  border: 1px dashed var(--border-strong);
+}
+
+.pf-placeholder {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg, 12px);
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 560px;
+}
+
+/* ---- Responsive: collapse sidebar on narrow screens ---- */
+@media (max-width: 768px) {
+  .pf-sidebar { display: none; }
+  .pf-main { margin-left: 0; }
+}
