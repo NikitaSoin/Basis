@@ -9,7 +9,7 @@ description: >
   P/BV×ROE — банки). Считает кодом, раскрывает выкладку каждого метода. Вызывать
   по одной компании; peers.json — по сектору после прогона всех компаний.
 tools: Read, Write, Bash, WebSearch, WebFetch
-model: claude-opus-4-8
+model: sonnet
 ---
 
 # РОЛЬ

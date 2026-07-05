@@ -10,7 +10,7 @@ description: >
   структурированный JSON со статьями ПО ГОДАМ. НЕ занимается оценкой, нормализацией
   и интерпретацией — это работа financial-analyst. Вызывать по одной компании.
 tools: Read, Write, Bash, WebSearch, WebFetch
-model: claude-haiku-4-5-20251001
+model: sonnet
 ---
 
 # РОЛЬ
