@@ -266,6 +266,45 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     for (const n of names) { const a = ga(bmx, n); if (a) return a; }
     return null;
   };
+  // ── Pre-computed bank arrays (used in rows, kfi, mcards, pnlRows) ──────────
+  const bNipArr  = isBank ? (ga(bp,"net_interest_income") || null) : null;
+  const bNpArr   = isBank ? (ga(bp,"net_profit") || ga(is,"net_profit") || null) : null;
+  const bRoeArr  = isBank ? bmA("roe","roe_pct","roe_rep_pct","roe_reported_pct","roe_reported") : null;
+  const bNimArr  = isBank ? bmA("nim","nim_pct","nim_proxy_pct") : null;
+  const bN10Arr  = isBank ? bmA("n1_0","capital_adequacy_n10","capital_adequacy","capital_adequacy_h1_0_pct","capital_adequacy_h1") : null;
+  const bLoanArr = isBank ? (bmA("loan_portfolio","loan_portfolio_gross","loan_portfolio_net_mln","loan_portfolio_mln","loans_gross") || ga(bs,"net_loans") || ga(bs,"gross_loans")) : null;
+  const bDepArr  = isBank ? (ga(bs,"customer_deposits") || bmA("deposits","deposits_mln")) : null;
+  const bProvArr = isBank ? (ga(bp,"provisions") || ga(bp,"impairment_charges")) : null;
+  const bNfiArr  = isBank ? (ga(bp,"net_fee_income") || null) : null;
+  const bTradArr = isBank ? ga(bp,"trading_income") : null;
+  const bInsArr  = isBank ? ga(bp,"net_insurance_income") : null;
+  // Итоговый массив операционных доходов (explicit или сумма компонент)
+  const bOpFinalArr = isBank
+    ? orSum(ga(bp,"operating_income"), [bNipArr, bNfiArr, bInsArr, ga(bp,"other_income")])
+    : null;
+  // Computed: "Прочие операционные доходы" — plug = bOpFinal − сумма известных компонент
+  const bOtherOpArr = isBank && bOpFinalArr ? (() => {
+    const comps = [bNipArr, bNfiArr, bTradArr, bInsArr].filter(Array.isArray);
+    if (!comps.length) return null;
+    const len = Math.max(bOpFinalArr.length, ...comps.map((a) => a.length));
+    const out = Array.from({ length: len }, (_, i) => {
+      const oi = bOpFinalArr[i]; if (oi == null) return null;
+      let sub = 0; comps.forEach((a) => { if (a[i] != null) sub += a[i]; });
+      const diff = oi - sub;
+      return Math.abs(diff) > Math.abs(oi) * 0.05 ? diff : null;
+    });
+    return out.some((x) => x != null) ? out : null;
+  })() : null;
+  // Computed: "ОД после резервов" = bOpFinal − |provisions|
+  const bOpAfterProvArr = isBank && bOpFinalArr && bProvArr ? (() => {
+    const len = Math.max(bOpFinalArr.length, bProvArr.length);
+    const out = Array.from({ length: len }, (_, i) => {
+      const oi = bOpFinalArr[i], prov = bProvArr[i];
+      if (oi == null || prov == null) return null;
+      return oi - Math.abs(prov);
+    });
+    return out.some((x) => x != null) ? out : null;
+  })() : null;
   const eqb = (bs.equity && !Array.isArray(bs.equity)) ? bs.equity : {};
   const nca = bs.non_current_assets || {}, cua = bs.current_assets || {};
   const ncl = bs.non_current_liabilities || {}, cul = bs.current_liabilities || {};
@@ -277,14 +316,27 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
 
   /* 1. Разбор отчёта */
   const revYoy = yoy(is.revenue), npYoy = yoy(is.net_profit), ebYoy = yoy(is.ebitda);
+  const bNipYoy = isBank ? yoy(bNipArr) : null;
+  const bNpYoy  = isBank ? yoy(bNpArr)  : null;
   const rows = [];
-  if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-  if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
-  if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль <b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до {b.v} {b.u}</> }); }
-  if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {B(nd).v} {B(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
-  const verdictHead = (npYoy != null && revYoy != null)
-    ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
-    : `Итоги ${lastYr} · ${std}`;
+  if (isBank) {
+    if (lastN(bNipArr) != null) { const b = B(lastN(bNipArr)); rows.push({ ic: bNipYoy >= 0 ? "ok" : "warn", t: <>ЧПД {bNipYoy != null ? <><b>{bNipYoy >= 0 ? "+" : "−"}{num(Math.abs(bNipYoy), 1)} %</b> </> : ""}до {b.v} {b.u}</> }); }
+    if (lastN(bNpArr) != null) { const b = B(lastN(bNpArr)); rows.push({ ic: bNpYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль {bNpYoy != null ? <><b>{bNpYoy >= 0 ? "+" : "−"}{num(Math.abs(bNpYoy), 1)} %</b> </> : ""}до {b.v} {b.u}</> }); }
+    const roeVal = lastN(bRoeArr); if (roeVal != null) { const tone = roeVal >= 15 ? "ok" : roeVal >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>ROE <b>{num(roeVal, 1)} %</b> — {roeVal >= 15 ? "высокая" : roeVal >= 8 ? "умеренная" : "низкая"} рентабельность капитала</> }); }
+    const n10Val = lastN(bN10Arr); if (n10Val != null) { const tone = n10Val >= 12 ? "ok" : n10Val >= 8 ? "warn" : "no"; rows.push({ ic: tone, t: <>Достаточность капитала Н1.0 <b>{num(n10Val, 1)} %</b> — {n10Val >= 12 ? "выше нормы" : n10Val >= 8 ? "у минимума" : "ниже нормы"}</> }); }
+  } else {
+    if (lastN(is.revenue) != null) { const b = B(lastN(is.revenue)); rows.push({ ic: "ok", t: <>Выручка {revYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(revYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+    if (lastN(is.ebitda) != null) { const b = B(lastN(is.ebitda)); rows.push({ ic: "ok", t: <>EBITDA {ebYoy >= 0 ? "выросла" : "снизилась"} на <b>{num(Math.abs(ebYoy), 1)} %</b> до {b.v} {b.u}{ebMargin != null && <>; рентабельность <b>{num(ebMargin, 1)} %</b></>}</> }); }
+    if (lastN(is.net_profit) != null) { const b = B(lastN(is.net_profit)); rows.push({ ic: npYoy >= 0 ? "ok" : "warn", t: <>Чистая прибыль <b>{npYoy >= 0 ? "+" : "−"}{num(Math.abs(npYoy), 1)} %</b> до {b.v} {b.u}</> }); }
+    if (nde != null) { const tone = nde < 1.5 ? "ok" : nde <= 3 ? "warn" : "no"; const word = nde < 1.5 ? "низкая" : nde <= 3 ? "умеренная" : "повышенная"; const nd = lastN(bs.net_debt); rows.push({ ic: tone, t: <>{nd != null && <>Чистый долг {B(nd).v} {B(nd).u}, </>}<b>ND/EBITDA {num(nde, 2)}×</b> — {word} долговая нагрузка</> }); }
+  }
+  const verdictHead = isBank
+    ? (bNpYoy != null
+        ? `Чистая прибыль ${bNpYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(bNpYoy), 0)} %${bNipYoy != null ? ` при ${bNipYoy >= 0 ? "росте" : "снижении"} ЧПД на ${num(Math.abs(bNipYoy), 1)} %` : ""}`
+        : `Итоги ${lastYr} · ${std}`)
+    : ((npYoy != null && revYoy != null)
+        ? `Чистая прибыль ${npYoy >= 0 ? "выросла" : "снизилась"} на ${num(Math.abs(npYoy), 0)} % при ${revYoy >= 0 ? "росте" : "снижении"} выручки на ${num(Math.abs(revYoy), 1)} %`
+        : `Итоги ${lastYr} · ${std}`);
 
   /* 2. Справедливая стоимость */
   const base = typeof fvr.base === "number" ? fvr.base : null;
@@ -302,20 +354,34 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const divergenceNote = val.methods_divergence_note;
 
   /* 3. Ключевые показатели + мультипликаторы */
-  const kfi = [
+  const kfi = isBank ? [
+    { l: "Чистый процентный доход", a: bNipArr,  d: bNipYoy },
+    { l: "Чистая прибыль",          a: bNpArr,   d: bNpYoy },
+    { l: "ROE",        pctv: lastN(bRoeArr), d: yoy(bRoeArr),  isPP: true },
+    { l: "ЧПМ (NIM)", pctv: lastN(bNimArr), d: yoy(bNimArr),  isPP: true },
+    { l: "Кредитный портфель", a: bLoanArr, d: yoy(bLoanArr) },
+    { l: "Средства клиентов",  a: bDepArr,  d: yoy(bDepArr)  },
+  ] : [
     { l: "Выручка", a: is.revenue, d: revYoy }, { l: "EBITDA", a: is.ebitda, d: ebYoy },
     { l: "Чистая прибыль", a: is.net_profit, d: npYoy }, { l: "FCF", a: cf.fcf, d: yoy(cf.fcf) },
     { l: "Маржа EBITDA", pctv: ebMargin, d: (ebMargin != null && prevN(margins.ebitda_margin) != null) ? ebMargin - prevN(margins.ebitda_margin) : null, isPP: true },
     { l: "Чистый долг", a: bs.net_debt, d: yoy(bs.net_debt) },
   ];
   const sm = sectorMult && company && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4 ? sectorMult[company.sector] : null;
-  const mcards = [
+  const mcards = isBank ? [
+    { label: "P/E",        value: cur.pe,  median: sm ? sm.pe : (hist.pe_5y_median ?? hist.pe_5y_avg), lower: true,  unit: "x" },
+    { label: "P/B",        value: cur.pb,  median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true,  unit: "x" },
+    { label: "ROE",        value: lastN(bRoeArr), median: sm ? sm.roe : null, lower: false, unit: "pct" },
+    { label: "ЧПМ (NIM)", value: lastN(bNimArr), median: null, lower: false, unit: "pct" },
+    { label: "CoR",        value: lastN(bmA("cost_of_risk","cor","cor_pct","cost_of_risk_pct","cost_of_risk_pct_implied")), median: null, lower: true, unit: "pct" },
+    { label: "CIR",        value: lastN(bmA("cir","cir_pct")), median: null, lower: true, unit: "pct" },
+  ] : [
     { label: "P/E", value: cur.pe, median: sm ? sm.pe : (hist.pe_5y_median ?? hist.pe_5y_avg), lower: true, unit: "x" },
     { label: "EV/EBITDA", value: cur.ev_ebitda, median: sm ? sm.ev_ebitda : (hist.ev_ebitda_5y_median ?? hist.ev_ebitda_5y_avg), lower: true, unit: "x" },
     { label: "P/B", value: cur.pb, median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true, unit: "x" },
     { label: "P/S", value: cur.ps, median: sm ? sm.ps : (hist.ps_5y_median ?? hist.ps_5y_avg), lower: true, unit: "x" },
     { label: "ND/EBITDA", value: nde, median: sm ? sm.nd_ebitda : null, lower: true, unit: "x" },
-    ...(!isBank ? [{ label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" }] : []),
+    { label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" },
   ];
 
   /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
@@ -325,23 +391,30 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const M = (l, a, o = {}) => ({ l, a, kind: "money", ...o });
   const pnlRows = isBank
     ? [
-        M("Процентные доходы",         ga(bp,"interest_income_gross")||ga(bp,"interest_income")||ga(bp,"total_interest_income"), { det: true }),
-        M("Процентные расходы",         ga(bp,"interest_expense_gross")||ga(bp,"interest_expense"), { det: true, muted: true }),
-        M("Чистый процентный доход",    bp.net_interest_income, { bold: true }),
-        M("Комиссионные доходы",        ga(bp,"fee_income_gross")||ga(bp,"fee_income"), { det: true }),
-        M("Комиссионные расходы",       ga(bp,"fee_expense"), { det: true, muted: true }),
-        M("Чистый комиссионный доход",  bp.net_fee_income, { bold: true }),
-        M("Чистый страховой доход",     ga(bp,"net_insurance_income")),
-        M("Торговый доход",             ga(bp,"trading_income"), { det: true, muted: true }),
-        M("Небанк./экосистема нетто",   ga(bp,"non_banking_net"), { det: true }),
-        M("Операционные доходы",        orSum(ga(bp,"operating_income"), [bp.net_interest_income, bp.net_fee_income, ga(bp,"net_insurance_income"), ga(bp,"other_income")]), { bold: true }),
-        M("Резервы (CoR)",              ga(bp,"provisions")||ga(bp,"impairment_charges")),
-        M("Операционные расходы",       bp.operating_expenses),
-        M("Прибыль до налога",          ga(bp,"pre_tax_profit"), { det: true }),
-        M("Налог на прибыль",           ga(bp,"income_tax"), { det: true, muted: true }),
-        M("Чистая прибыль",             bp.net_profit, { bold: true }),
-        M("Чистая прибыль (норм.)",     ga(bp,"net_profit_adj")||ga(adjBlk,"net_profit_adj"), { bold: true, accent: true }),
-      ]
+        // ── Процентный блок ──────────────────────────────────────────────────
+        M("Процентные доходы",              ga(bp,"interest_income_gross")||ga(bp,"interest_income")||ga(bp,"total_interest_income"), { det: true }),
+        M("Процентные расходы",             ga(bp,"interest_expense_gross")||ga(bp,"interest_expense"), { det: true, muted: true, sign: -1 }),
+        M("Чистый процентный доход",        ga(bp,"net_interest_income"), { bold: true }),
+        // ── Комиссионный блок ────────────────────────────────────────────────
+        M("Комиссионные доходы",            ga(bp,"fee_income_gross")||ga(bp,"fee_income"), { det: true }),
+        M("Комиссионные расходы",           ga(bp,"fee_expense"), { det: true, muted: true, sign: -1 }),
+        M("Чистый комиссионный доход",      ga(bp,"net_fee_income"), { bold: true }),
+        // ── Прочие операционные доходы ───────────────────────────────────────
+        M("Торговый доход",                 ga(bp,"trading_income")),
+        M("Чистый страховой доход",         ga(bp,"net_insurance_income")),
+        bOtherOpArr ? M("Прочие операционные доходы", bOtherOpArr, { muted: true }) : null,
+        // ── Операционные доходы (итог до резервов) ───────────────────────────
+        M("Операционные доходы (до резервов)", bOpFinalArr, { bold: true }),
+        // ── Резервы и итог после резервов ────────────────────────────────────
+        M("Резервы под кредитные убытки (CoR)", ga(bp,"provisions")||ga(bp,"impairment_charges"), { muted: true, sign: -1 }),
+        bOpAfterProvArr ? M("Операционные доходы после резервов", bOpAfterProvArr, { bold: true }) : null,
+        // ── Расходы → прибыль ────────────────────────────────────────────────
+        M("Операционные расходы",           ga(bp,"operating_expenses"), { muted: true, sign: -1 }),
+        M("Прибыль до налога",              ga(bp,"pre_tax_profit"), { bold: true }),
+        M("Налог на прибыль",               ga(bp,"income_tax"), { det: true, muted: true, sign: -1 }),
+        M("Чистая прибыль",                 ga(bp,"net_profit"), { bold: true }),
+        M("Чистая прибыль (норм.)",         ga(bp,"net_profit_adj")||ga(adjBlk,"net_profit_adj"), { bold: true, accent: true }),
+      ].filter(Boolean)
     : [
         M("Выручка", is.revenue, { bold: true }),
         ...(isByFunc
@@ -662,8 +735,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                           <tr key={i} className="section-hdr"><td colSpan={yslice.length + 1}>{r.l}</td></tr>
                         );
                         if (r.det && !detOpen) return null;
-                        const vals = sl(r.a);
-                        if (!vals.some((x) => x != null)) return null;
+                        const rawVals = sl(r.a);
+                        if (!rawVals.some((x) => x != null)) return null;
+                        // sign=-1: вычитаемые строки (расходы/резервы/налог) показываем отрицательно
+                        const vals = r.sign === -1 ? rawVals.map((v) => (v == null ? null : -Math.abs(v))) : rawVals;
                         const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
                         return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
                       })}
