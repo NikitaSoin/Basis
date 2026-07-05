@@ -174,34 +174,26 @@ export function MetricBar({ label, value, max = 100, colorVar, suffix = `/${100}
 /* ---------- CorrelationHeatmap — token-based, semantic ramp ---------- */
 // High correlation (→1) = warm danger-tinted; low/negative = cool success-
 // tinted; near-zero = neutral. Diagonal (self, =1) reads as neutral strong.
-function corrCell(v) {
-  // v in [-1, 1]; map magnitude → opacity, sign of (v-0.5)ish → warm/cool.
-  // We treat >0.5 as "concentrated/warm" (danger hint), <0.3 as "diversifying/cool".
+function corrCell(v, isDiag) {
+  // Диагональ (бумага сама с собой) — явно нейтральная, вне шкалы (не данные,
+  // тавтология), как в HTML-прототипе (.corr-diag).
+  if (isDiag) {
+    return { bg: "var(--pf-surface-3)", fg: "var(--pf-ink-3)", diag: true };
+  }
   if (v == null || typeof v !== "number") {
     // мало совпадающих торговых дат у пары — корреляция не рассчитана
     return { bg: "var(--bg-elevated)", fg: "var(--text-tertiary)" };
   }
-  if (v >= 0.999) {
-    return { bg: "color-mix(in srgb, var(--cat-8) 22%, var(--bg-elevated))", fg: "var(--text-secondary)" };
-  }
-  if (v >= 0.5) {
-    // Буквальный --down из HTML-прототипа (rgb 184,80,63) — «высокая связь»
-    // тут не алерт (--danger), а часть той же тёплой диверг. шкалы, что в HTML.
-    const mag = Math.min(1, (v - 0.5) / 0.5);
-    return {
-      bg: `color-mix(in srgb, var(--pf-down) ${Math.round(mag * 55 + 14)}%, var(--bg-elevated))`,
-      fg: "var(--pf-ink)",
-    };
-  }
-  if (v <= 0.3) {
-    const mag = Math.min(1, (0.3 - v) / 1.3);
-    return {
-      bg: `color-mix(in srgb, var(--pf-up) ${Math.round(mag * 45 + 10)}%, var(--bg-elevated))`,
-      fg: "var(--pf-ink)",
-    };
-  }
-  // 0.3..0.5 neutral mid
-  return { bg: "color-mix(in srgb, var(--cat-8) 14%, var(--bg-elevated))", fg: "var(--text-secondary)" };
+  // Линейная интерполяция neutral→red (v>=0) / neutral→green (v<0), буквально
+  // как corrColor() в HTML-прототипе (red=184,80,63 / green=62,132,100 /
+  // neutral=239,234,224 ≈ --pf-surface-3), не пороговая ступенчатая шкала.
+  const clamp = Math.max(-1, Math.min(1, v));
+  const pct = Math.round(Math.abs(clamp) * 100);
+  const varName = clamp >= 0 ? "--pf-down" : "--pf-up";
+  return {
+    bg: `color-mix(in srgb, var(${varName}) ${pct}%, var(--pf-surface-3))`,
+    fg: pct > 55 ? "#fff" : "var(--pf-ink)",
+  };
 }
 
 export function CorrelationHeatmap({ labels = [], matrix = [] }) {
@@ -232,19 +224,20 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
               {rowLabel}
             </div>
             {(matrix[i] || []).map((v, j) => {
-              const { bg, fg } = corrCell(v);
+              const { bg, fg, diag } = corrCell(v, i === j);
               return (
                 <div
                   key={`${i}-${j}`}
                   className="tw-flex tw-items-center tw-justify-center tw-rounded-sm tw-text-[12px] tw-font-mono tw-tabular-nums tw-py-2"
                   style={{
                     background: bg,
+                    border: diag ? "1px dashed var(--pf-line-2)" : "1px solid var(--border-subtle)",
                     color: fg,
-                    border: "1px solid var(--border-subtle)",
+                    fontWeight: diag ? 400 : 700,
                     opacity: reduced || appeared ? 1 : 0,
                     transition: reduced ? undefined : `opacity 280ms ease ${(i * n + j) * 22}ms`,
                   }}
-                  title={v == null ? `${rowLabel} · ${labels[j]}: мало совпадающих дат` : `${rowLabel} · ${labels[j]}: ${formatNumber(v, { decimals: 2 })}`}
+                  title={diag ? `${rowLabel} · ${rowLabel}: бумага сама с собой (не данные)` : v == null ? `${rowLabel} · ${labels[j]}: мало совпадающих дат` : `${rowLabel} · ${labels[j]}: ${formatNumber(v, { decimals: 2 })}`}
                 >
                   {v == null ? "—" : formatNumber(v, { decimals: 2 })}
                 </div>

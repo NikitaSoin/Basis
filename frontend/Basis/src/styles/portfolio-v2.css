@@ -397,3 +397,40 @@
   .pf-sidebar { display: none; }
   .pf-main { margin-left: 0; }
 }
+
+/* ---- Клик по значку ⓘ у заголовка таблицы → скролл к карточке-метрике +
+   кратковременная вспышка рамкой (как в HTML-прототипе .flash) ---- */
+.pf-metric-card.pf-flash {
+  animation: pfMetricFlash 1.2s cubic-bezier(0.25, 0.7, 0.4, 1);
+}
+@keyframes pfMetricFlash {
+  0%   { box-shadow: 0 0 0 3px var(--pf-copper-soft); }
+  70%  { box-shadow: 0 0 0 3px var(--pf-copper-soft); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pf-metric-card.pf-flash { animation: none; }
+}
+
+.pf-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--pf-ink-3);
+  color: var(--pf-ink-3);
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.pf-info-icon:hover {
+  background: var(--pf-copper);
+  border-color: var(--pf-copper);
+  color: #fff;
+}
