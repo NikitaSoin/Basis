@@ -3,12 +3,13 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.schemas.portfolio import (
     PortfolioCreate, PortfolioMetricsResponse, PortfolioResponse,
-    PositionCreate, PositionResponse, PositionUpdate,
+    PositionCreate, PositionResponse, PositionUpdate, TradeCreate, TradeResponse,
 )
 from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
     create_portfolio, add_position, delete_position, update_position,
     compute_portfolio_metrics, compute_factor_profile, compute_custom_stress,
+    record_trade, compute_position_pnl,
 )
 from app.auth import get_current_user, get_current_user_optional
 from app.models.user import User, SubscriptionType
@@ -95,6 +96,47 @@ def update_position_endpoint(
     if not position:
         raise HTTPException(status_code=404, detail="Позиция не найдена")
     return position
+
+
+@router.post("/portfolios/{portfolio_id}/positions/{position_id}/trades", response_model=PositionResponse, status_code=status.HTTP_201_CREATED)
+def record_trade_endpoint(
+    portfolio_id: int,
+    position_id: int,
+    data: TradeCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Совершить сделку (не исправление) — заводит запись в истории и
+    пересчитывает qty/среднюю по методу средневзвешенной цены."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    try:
+        position = record_trade(db, portfolio_id, position_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if not position:
+        raise HTTPException(status_code=404, detail="Позиция не найдена")
+    return position
+
+
+@router.get("/portfolios/{portfolio_id}/positions/{position_id}/pnl")
+def position_pnl_endpoint(
+    portfolio_id: int,
+    position_id: int,
+    current_price: float | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Реализовано / не реализовано / дивиденды получено / комиссии уплачено —
+    из истории сделок позиции (см. compute_position_pnl)."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    result = compute_position_pnl(db, portfolio_id, position_id, current_price)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Позиция не найдена или нет истории сделок")
+    return result
 
 
 @router.get("/portfolios/{portfolio_id}/metrics", response_model=PortfolioMetricsResponse)

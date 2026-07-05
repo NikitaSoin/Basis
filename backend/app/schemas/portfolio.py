@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from pydantic import BaseModel, Field
 
@@ -15,6 +15,29 @@ class PositionUpdate(BaseModel):
     """Прямое редактирование позиции (количество / средняя цена)."""
     quantity: Decimal | None = Field(default=None, gt=0)
     avg_buy_price: Decimal | None = Field(default=None, gt=0)
+
+
+class TradeCreate(BaseModel):
+    """Сделка (не прямое исправление) — заводит запись в portfolio_transactions
+    и пересчитывает qty/avg_buy_price позиции по методу средневзвешенной цены."""
+    side: str = Field(pattern="^(buy|sell)$")
+    quantity: Decimal = Field(gt=0)
+    price: Decimal = Field(gt=0)
+    fee: Decimal = Field(default=Decimal("0"), ge=0)
+    trade_date: date
+
+
+class TradeResponse(BaseModel):
+    id: int
+    position_id: int
+    side: str
+    quantity: Decimal
+    price: Decimal
+    fee: Decimal
+    trade_date: date
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
 
 
 class PositionResponse(BaseModel):

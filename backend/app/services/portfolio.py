@@ -1,11 +1,13 @@
 import math
+from datetime import date as date_cls
+from decimal import Decimal
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 from app.models.company import Company, Quote
 from app.models.company_metrics import CompanyMetrics
-from app.models.portfolio import Portfolio, PortfolioPosition
-from app.schemas.portfolio import PortfolioCreate, PositionCreate
+from app.models.portfolio import Portfolio, PortfolioPosition, PortfolioTransaction
+from app.schemas.portfolio import PortfolioCreate, PositionCreate, TradeCreate
 
 
 def get_all_portfolios(db: Session) -> list[Portfolio]:
@@ -41,9 +43,134 @@ def create_portfolio(db: Session, data: PortfolioCreate) -> Portfolio:
 def add_position(db: Session, portfolio_id: int, data: PositionCreate) -> PortfolioPosition:
     position = PortfolioPosition(portfolio_id=portfolio_id, **data.model_dump())
     db.add(position)
+    db.flush()
+    # Открывающая сделка — чтобы у новых позиций СРАЗУ была история (реализовано/
+    # дивиденды/комиссии считаются от неё, не от бэкфилла задним числом).
+    db.add(PortfolioTransaction(
+        position_id=position.id, side="buy", quantity=position.quantity,
+        price=position.avg_buy_price, fee=Decimal("0"), trade_date=date_cls.today(),
+    ))
     db.commit()
     db.refresh(position)
     return position
+
+
+def record_trade(db: Session, portfolio_id: int, position_id: int, data: TradeCreate) -> PortfolioPosition | None:
+    """Совершить сделку (buy/sell) — средневзвешенная цена на покупке,
+    средняя НЕ меняется на продаже (реализованный P&L считается отдельно,
+    из истории сделок, см. compute_position_pnl)."""
+    position = (
+        db.query(PortfolioPosition)
+        .filter(PortfolioPosition.id == position_id, PortfolioPosition.portfolio_id == portfolio_id)
+        .first()
+    )
+    if not position:
+        return None
+
+    old_qty, old_avg = position.quantity, position.avg_buy_price
+    if data.side == "buy":
+        new_qty = old_qty + data.quantity
+        position.avg_buy_price = (old_qty * old_avg + data.quantity * data.price) / new_qty
+        position.quantity = new_qty
+    else:
+        if data.quantity > old_qty:
+            raise ValueError(f"Нельзя продать {data.quantity} — в позиции только {old_qty}")
+        position.quantity = old_qty - data.quantity
+        # avg_buy_price не меняется при продаже
+
+    db.add(PortfolioTransaction(
+        position_id=position.id, side=data.side, quantity=data.quantity,
+        price=data.price, fee=data.fee, trade_date=data.trade_date,
+    ))
+    db.commit()
+    db.refresh(position)
+    return position
+
+
+def compute_position_pnl(db: Session, portfolio_id: int, position_id: int, current_price: float | None) -> dict | None:
+    """Реализовано / не реализовано / дивиденды получено / комиссии уплачено —
+    из истории сделок (portfolio_transactions), реплеем в хронологическом
+    порядке (средневзвешенная цена на покупках, реализация на продажах).
+    Дивиденды — по факту владения на дату отсечки (CalendarEvent), не по
+    текущему кол-ву, чтобы не завышать/занижать при частичных продажах."""
+    from app.models.calendar_event import CalendarEvent
+
+    position = (
+        db.query(PortfolioPosition)
+        .filter(PortfolioPosition.id == position_id, PortfolioPosition.portfolio_id == portfolio_id)
+        .first()
+    )
+    if not position:
+        return None
+    trades = (
+        db.query(PortfolioTransaction)
+        .filter(PortfolioTransaction.position_id == position_id)
+        .order_by(PortfolioTransaction.trade_date, PortfolioTransaction.id)
+        .all()
+    )
+    if not trades:
+        return None
+
+    company = db.query(Company).filter(Company.id == position.company_id).first()
+    ticker = company.ticker if company else None
+
+    # Реплей: держим (дата → кол-во после сделки) для дивидендов + realized/комиссии
+    qty = Decimal("0")
+    avg = Decimal("0")
+    realized = Decimal("0")
+    fees_paid = Decimal("0")
+    holdings_by_date: list[tuple[date_cls, Decimal]] = []  # (дата сделки, кол-во ПОСЛЕ неё)
+    first_trade_date = trades[0].trade_date
+    for t in trades:
+        fees_paid += t.fee
+        if t.side == "buy":
+            new_qty = qty + t.quantity
+            avg = (qty * avg + t.quantity * t.price) / new_qty if new_qty else t.price
+            qty = new_qty
+        else:
+            realized += t.quantity * (t.price - avg) - t.fee
+            qty -= t.quantity
+        holdings_by_date.append((t.trade_date, qty))
+
+    def qty_held_on(d: date_cls) -> Decimal:
+        held = Decimal("0")
+        for td, q in holdings_by_date:
+            if td <= d:
+                held = q
+            else:
+                break
+        return held
+
+    dividends_received = Decimal("0")
+    if ticker:
+        events = (
+            db.query(CalendarEvent)
+            .filter(CalendarEvent.event_type == "dividend", CalendarEvent.ticker == ticker,
+                    CalendarEvent.event_date >= first_trade_date, CalendarEvent.event_date <= date_cls.today())
+            .all()
+        )
+        for e in events:
+            amount = (e.payload or {}).get("amount")
+            record_date_str = (e.payload or {}).get("record_date")
+            if amount is None or not record_date_str:
+                continue
+            record_date = date_cls.fromisoformat(record_date_str)
+            held = qty_held_on(record_date)
+            if held > 0:
+                dividends_received += held * Decimal(str(amount))
+
+    unrealized = None
+    if current_price is not None and qty > 0:
+        unrealized = qty * (Decimal(str(current_price)) - position.avg_buy_price)
+
+    return {
+        "realized": round(float(realized), 2),
+        "unrealized": round(float(unrealized), 2) if unrealized is not None else None,
+        "dividends_received": round(float(dividends_received), 2),
+        "commissions_paid": round(float(fees_paid), 2),
+        "trade_count": len(trades),
+        "first_trade_date": first_trade_date.isoformat(),
+    }
 
 
 def _clamp01(x: float) -> float:
