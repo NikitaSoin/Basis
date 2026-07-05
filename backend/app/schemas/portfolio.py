@@ -98,6 +98,8 @@ class PositionMetrics(BaseModel):
     sortino_3y: float | None = None       # (R_total − Rf) / downside_vol
     sharpe_3y: float | None = None        # (R_total − Rf) / volatility
     capm_expected: float | None = None    # CAPM-ожидание (модель), % годовых
+    max_drawdown: float | None = None         # макс. просадка за окно, % (отрицательное)
+    risk_contribution_pct: float | None = None  # доля в ОБЩЕМ РИСКЕ портфеля, % (сумма=100)
 
 
 class WeightedMetric(BaseModel):
@@ -124,6 +126,7 @@ class PortfolioWeighted(BaseModel):
     var_95: float | None = None                 # дневной VaR 95% портфеля, % потери
     downside_vol: float | None = None           # нисходящая σ портфеля, годовая %
     r_squared: float | None = None              # R² портфеля против IMOEX
+    max_drawdown: float | None = None           # макс. просадка накопленной кривой портфеля, %
 
 
 class MarketRates(BaseModel):

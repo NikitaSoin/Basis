@@ -448,18 +448,23 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     # поэтому портфельная σ ниже за счёт диверсификации.
     from app.services.risk_metrics import (
         load_price_series, log_returns, pairwise_correlation,
-        portfolio_volatility, window_start,
+        portfolio_volatility, risk_contributions, max_drawdown_pct, window_start,
     )
     since = window_start()
     returns_by_ticker = {}
+    max_dd_by_ticker = {}
     for p in valued:
         cid = next((i for i, c in companies.items() if c.ticker == p["ticker"]), None)
         if cid is None:
             continue
         series = load_price_series(db, cid, since)
+        max_dd_by_ticker[p["ticker"]] = max_drawdown_pct(series)
         rets = log_returns(series)
         if rets:
             returns_by_ticker[p["ticker"]] = rets
+
+    for p in positions:
+        p["max_drawdown"] = max_dd_by_ticker.get(p["ticker"])
 
     correlation = None
     if len(returns_by_ticker) >= 2:
@@ -486,6 +491,11 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     pf_volatility = portfolio_volatility(returns_by_ticker, weights) if returns_by_ticker else None
     portfolio_row["volatility"] = {"value": pf_volatility,
                                    "n": len(returns_by_ticker), "m": len(valued)}
+
+    risk_contrib = risk_contributions(returns_by_ticker, weights) if returns_by_ticker else None
+    if risk_contrib:
+        for p in positions:
+            p["risk_contribution_pct"] = risk_contrib.get(p["ticker"])
     portfolio_row["return_total_3y"] = _weighted_avg([(p["value"], p["return_total_3y"]) for p in valued])
 
     # ── Этап 3: Шарп/Сортино/альфа портфеля + сравнение с бенчмарком ──
@@ -589,9 +599,16 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             imoex = load_index_series(db, "IMOEX", since)
             chart_dates, pf_curve, mc_curve, im_curve = [], [], [], []
             acc = 1.0
+            peak = 1.0
+            max_dd = 0.0
             mc0 = im0 = None
             for d, r in zip(common_dates, pf_daily):
                 acc *= (1 + r)
+                if acc > peak:
+                    peak = acc
+                dd = (acc - peak) / peak
+                if dd < max_dd:
+                    max_dd = dd
                 if d in mcftr and d in imoex:
                     if mc0 is None:
                         mc0, im0 = mcftr[d], imoex[d]
@@ -612,6 +629,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                 "benchmark_total_pct": mc_curve[-1] if mc_curve else None,
                 "note": "веса позиций зафиксированы текущими долями (приближение)",
             }
+            portfolio_row["max_drawdown"] = round(max_dd * 100, 2)
     portfolio_row["sortino"] = sortino_p
 
     # CAPM-ожидание портфеля (модель) и earnings yield от портфельного P/E

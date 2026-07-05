@@ -207,6 +207,26 @@ def cagr_pct(series: dict[date, float]) -> float | None:
     return round(((p1 / p0) ** (1 / years) - 1) * 100, 2)
 
 
+def max_drawdown_pct(series: dict[date, float]) -> float | None:
+    """Максимальная просадка, %: самое глубокое падение от локального максимума
+    до последующего минимума за всю историю ряда (не от начала окна — от
+    исторического пика). Отрицательное число = величина просадки."""
+    series = normalize_splits(series)
+    dates = sorted(series)
+    if len(dates) < 2:
+        return None
+    peak = series[dates[0]]
+    max_dd = 0.0
+    for d in dates:
+        p = series[d]
+        if p > peak:
+            peak = p
+        dd = (p - peak) / peak
+        if dd < max_dd:
+            max_dd = dd
+    return round(max_dd * 100, 2)
+
+
 def total_return_pct(series: dict[date, float], dividends: dict[date, float]) -> float | None:
     """ПОЛНАЯ доходность за период, % годовых: цена + дивиденды.
 
@@ -347,3 +367,36 @@ def portfolio_volatility(returns_by_ticker: dict[str, dict[date, float]],
     if var_p < 0:
         return None
     return round(math.sqrt(var_p) * math.sqrt(TRADING_DAYS) * 100, 2)
+
+
+def risk_contributions(returns_by_ticker: dict[str, dict[date, float]],
+                       weights: dict[str, float]) -> dict[str, float] | None:
+    """Вклад каждой бумаги в ОБЩИЙ РИСК портфеля, % (сумма = 100%) — Эйлерова
+    декомпозиция дисперсии: вклад_i = w_i × (Σw)_i / (wᵀΣw). Отвечает на вопрос
+    «кто реально держит риск», который отличается от «доли в стоимости»
+    (низкобета-бумага весит много в деньгах, но мало в риске, и наоборот)."""
+    tickers = [t for t in returns_by_ticker if weights.get(t)]
+    if not tickers:
+        return None
+    w = np.array([weights[t] for t in tickers])
+    w = w / w.sum()
+    n = len(tickers)
+    cov = np.zeros((n, n))
+    for a in range(n):
+        ra = returns_by_ticker[tickers[a]]
+        if len(ra) < MIN_OVERLAP:
+            return None
+        cov[a][a] = float(np.var(list(ra.values()), ddof=1))
+        for b in range(a + 1, n):
+            rb = returns_by_ticker[tickers[b]]
+            common = sorted(set(ra) & set(rb))
+            if len(common) >= MIN_OVERLAP:
+                va = np.array([ra[d] for d in common])
+                vb = np.array([rb[d] for d in common])
+                cov[a][b] = cov[b][a] = float(np.cov(va, vb, ddof=1)[0][1])
+    var_p = float(w @ cov @ w)
+    if var_p <= 0:
+        return None
+    marginal = cov @ w  # (Σw)_i
+    contrib = w * marginal / var_p  # доли, сумма = 1
+    return {tickers[i]: round(float(contrib[i]) * 100, 1) for i in range(n)}
