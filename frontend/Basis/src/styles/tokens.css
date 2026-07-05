@@ -307,8 +307,11 @@
 .cc-root {
   --cc-bg:            #F6F3EC;
   --cc-bg-2:          #EFEBE1;
-  --cc-panel:         #FFFFFF;
-  --cc-panel-2:       #FBF9F4;
+  --cc-panel:         #F4F0E6;   /* 2026-07-06: было #FFFFFF чисто белое — это и есть
+                                    РЕАЛЬНЫЙ источник фона карточек по всему сайту
+                                    (.cc-root оборачивает весь App, --bg-elevated в
+                                    :root тут ни при чём — алиасится тут заново) */
+  --cc-panel-2:       #EFEAE0;
   --cc-line:          rgba(20,18,14,0.10);
   --cc-line-2:        rgba(20,18,14,0.18);
   --cc-ink:           #16130E;
