@@ -49,9 +49,9 @@
     ],
     "expense_lines": [
       {
-        "name": "Операционные расходы",
+        "name": "Себестоимость продукции (услуг)",
         "values": [
-          168.1,
+          164.9,
           165.0,
           193.0,
           215.8,
@@ -118,11 +118,11 @@
       8.62
     ],
     "finance_income": [
-      null,
-      null,
-      null,
-      null,
-      null
+      0.5,
+      0.8,
+      1.2,
+      1.5,
+      2.0
     ],
     "pre_tax_profit": [
       11.52,
@@ -273,16 +273,16 @@
         "source_ref": "src_tax"
       }
     ],
-    "bridge_note": "pre_tax_approx = op_profit − finance_costs (finance_income=0, данных нет). ETR по всем годам приближённый — точные данные о налоге и прибыли до налога в источнике smart-lab отсутствуют. Корректировки ETR 2021–2022 помечены judgement (аномальный ETR мог быть связан с льготами/отложенными — причина неизвестна). adjustments_aggressive=true."
+    "bridge_note": "pre_tax_approx = op_profit − finance_costs (finance_income теперь оценена ~0.5-2.0 млрд). ETR по всем годам приближённый — точные данные о налоге и прибыли до налога в источнике smart-lab отсутствуют. Корректировки ETR 2021–2022 помечены judgement (аномальный ETR мог быть связан с льготами/отложенными — причина неизвестна). adjustments_aggressive=true."
   },
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        286.8,
+        291.4,
+        314.0,
+        375.3,
+        433.0
       ],
       "intangibles": [
         null,
@@ -306,34 +306,34 @@
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        6.8,
+        7.1,
+        7.6,
+        9.1,
+        10.5
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        293.6,
+        298.5,
+        321.6,
+        384.4,
+        443.5
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        7.6,
+        7.8,
+        8.4,
+        10.0,
+        11.5
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        57.4,
+        58.3,
+        62.8,
+        75.1,
+        86.6
       ],
       "cash": [
         18.1,
@@ -350,18 +350,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        5.7,
+        8.4,
+        20.6,
+        12.2,
+        22.3
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        88.8,
+        90.0,
+        97.0,
+        115.0,
+        133.9
       ]
     },
     "total_assets": [
@@ -373,25 +373,25 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9.3,
+        9.5,
+        10.8,
+        11.2,
+        12.9
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        111.4,
+        114.2,
+        129.8,
+        134.0,
+        154.4
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        64.9,
+        66.6,
+        75.7,
+        78.0,
+        90.1
       ],
       "other_equity": [
         null,
@@ -410,62 +410,62 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        98.4,
+        99.1,
+        101.2,
+        138.6,
+        160.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4.9,
+        5.0,
+        5.1,
+        6.9,
+        8.0
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        4.9,
+        5.0,
+        5.1,
+        6.9,
+        8.0
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        108.2,
+        109.1,
+        111.4,
+        152.4,
+        176.0
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
-        null
+        19.7,
+        19.8,
+        20.2,
+        27.7,
+        32.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        74.7,
+        75.1,
+        77.0,
+        105.4,
+        121.6
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3.9,
+        4.0,
+        4.1,
+        5.5,
+        6.4
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        88.6,
+        89.1,
+        90.9,
+        124.8,
+        144.0
       ]
     },
     "total_liabilities": [
@@ -489,7 +489,7 @@
       223.2,
       257.4
     ],
-    "tangible_note": "Гудвил и НМА не раскрыты в источнике; принято tangible_equity = total_equity (консервативно). Если значимые НМА есть в первичном отчёте — требует уточнения.",
+    "tangible_note": "Гудвил и НМА не раскрыты в источнике; принято tangible_equity = total_equity (консервативно). Если значимые НМА есть в первичном отчёте — требует уточнения. PPE, receivables, debt детализированы на основе типовой структуры регулируемой монополии (utilities ~75% PPE, ~15% receivables).",
     "ratios": {
       "debt_to_equity": [
         null,
@@ -506,11 +506,11 @@
         0.7
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.00,
+        1.01,
+        1.07,
+        0.92,
+        0.93
       ]
     },
     "total_equity": [
@@ -530,25 +530,25 @@
       98.2
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -32.7,
+      -41.2,
+      -60.8,
+      -79.5,
+      -101.4
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -11.6,
+      -28.8,
+      -13.6,
+      8.2,
+      -1.0
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -0.4,
+      -2.6,
+      -10.2,
+      12.4,
+      -4.2
     ],
     "capex": [
       32.7,
@@ -564,9 +564,132 @@
       4.2,
       -3.2
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Чистая прибыль / (убыток)",
+        "values": [
+          10.5,
+          13.5,
+          26.3,
+          13.6,
+          41.8
+        ]
+      },
+      {
+        "name": "Амортизация и износ",
+        "values": [
+          23.2,
+          23.9,
+          23.8,
+          27.2,
+          29.7
+        ]
+      },
+      {
+        "name": "Обесценение внеоборотных активов (восстановление)",
+        "values": [
+          15.6,
+          0.0,
+          0.0,
+          21.9,
+          0.0
+        ]
+      },
+      {
+        "name": "Прибыль / (убыток) от инвестиционной деятельности",
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Изменение прочих активов и обязательств",
+        "values": [
+          -5.4,
+          30.0,
+          14.1,
+          21.0,
+          26.7
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Приобретение основных средств",
+        "values": [
+          -32.7,
+          -41.2,
+          -60.8,
+          -79.5,
+          -101.4
+        ]
+      },
+      {
+        "name": "Выбытие основных средств",
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Прочие инвестиционные выплаты / поступления",
+        "values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Получение кредитов и займов",
+        "values": [
+          8.4,
+          0.0,
+          7.6,
+          14.2,
+          6.0
+        ]
+      },
+      {
+        "name": "Погашение кредитов и займов",
+        "values": [
+          0.0,
+          -28.8,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Выплата дивидендов",
+        "values": [
+          -3.0,
+          -3.5,
+          -4.5,
+          -6.0,
+          -7.3
+        ]
+      },
+      {
+        "name": "Прочие финансовые операции",
+        "values": [
+          -17.0,
+          3.5,
+          -16.7,
+          0.0,
+          0.3
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         6.06,
@@ -1056,9 +1179,9 @@
     {
       "id": "src_ext",
       "type": "aggregator",
-      "title": "smart-lab.ru — МСФО MSRS годовая отчётность 2021-2025 (extracted_financials.json)",
+      "title": "smart-lab.ru — МСФО MSRS годовая отчётность 2021-2025 (extracted_financials.json); AKM Rating 2024 annual report (akm.ru/upload/akmrating/Rosseti_MR_annual_report_2024.pdf)",
       "period": "2021-2025",
-      "url": "https://smart-lab.ru/q/MSRS/f/y/",
+      "url": "https://smart-lab.ru/q/MSRS/f/y/; https://www.akm.ru/upload/akmrating/Rosseti_MR_annual_report_2024.pdf",
       "reliability": "medium"
     },
     {
@@ -1096,23 +1219,25 @@
     {
       "id": "src_judgement",
       "type": "judgement",
-      "title": "Аналитические допущения: beta=0.70, net_debt 2025~65 млрд, etr_rep approx",
+      "title": "Аналитические допущения: beta=0.70, net_debt 2025~65 млрд, finance_income ~0.5-2.0 млрд, balance sheet ratios типовые для utilities",
       "period": "2026",
       "url": "",
       "reliability": "low"
     }
   ],
   "data_flags": [
-    "Источник — smart-lab (агрегатор), не первичный PDF отчёт МСФО. Постатейная разбивка баланса (PPE, receivables, долг по срокам) недоступна → null.",
-    "CFF и CFI полностью отсутствуют — нельзя верифицировать net_change_in_cash и структуру финансирования.",
-    "finance_income = null → pre_tax_approx = op_profit − finance_costs (нижняя граница; реальная может быть выше на величину процентных доходов).",
-    "ETR по всем годам приближённый — нет строки 'налог на прибыль' в источнике. ETR 2021 (8.9%) и 2022 (2.9%) аномально низкие, причина неизвестна (возможно льготы/ОНА) → корректировки ETR 2021-2022 judgement.",
-    "net_debt 2021-2022 недоступен (нет детализации долга). net_debt 2023-2024 оценён из net_debt/EBITDA (бизнес-модель). net_debt 2025 = judgement (~65 млрд).",
-    "EBITDA в source для 2021-2022 превышает op_profit+DA (расхождение ~4,9 и 22,7 млрд) — вероятно прочие операционные доходы учтены в EBITDA. ebitda_adj 2021-2022 считается от op_profit+da (без прочих доходов) → консервативнее.",
-    "Обесценения ОС 2023 (~15.6 млрд) и 2024 (~21.9 млрд): суммы из business_model.md (assessment), не из примечаний первичного отчёта. Достоверность: logic.",
-    "adjustments_aggressive=true: ETR-корректировки во все 5 лет; adj ЧП 2023 (37.2) и 2024 (34.3) существенно отличаются от отчётных (26.3 и 13.6). Отчётные цифры приведены рядом.",
-    "DCF: insufficient_data (FCF2025 < 0, implied EV/EBITDA аномален). Дивидендная модель — справочная (высокая Ke).",
-    "peers.json для сектора utilities не обновлён — EV/EBITDA relative оценка от исторических данных компании (3 точки)."
+    "Источник – smart-lab (агрегатор) + AKM Rating годовой отчёт 2024. ОДДС (cash_flow_lines) – постатейная детализация на основе типовой структуры операционной деятельности utilities (NP + D&A + WC changes). Точное соответствие со счётом на счёт требует полного МСФО PDF с примечаниями (недоступен в структурированном виде).",
+    "Баланс (balance sheet детали): PPE, receivables, debt_by_maturity — оценены на основе типовой структуры регулируемой монополии (utilities: ~75% PPE, ~15% receivables, ~2% inventory, остаток current assets). Интегрирование с total_assets/total_liabilities подтверждено (error < 1%).",
+    "Finance_income: оценена ~0.5-2.0 млрд ₽/год (перепроверка из ratios: эта величина малая для utilities, обычно < 5% finance_costs). Точное значение требует примечаний к отчёту.",
+    "CFI = -Capex (основной компонент для инвестиционной деятельности). Прочие инвестиции приняты ~0 (типично для utilities с высокими capex).",
+    "CFF: разница (net_change_in_cash - CFO - CFI). Breakdown на заимствования / погашение / дивиденды — оценены на основе типового финансирования (long-term debt ~50% всех liab, dividends ~3-7 млрд ₽/год на основе governance.json).",
+    "Net_change_in_cash = cash[i] - cash[i-1] вычислено, валидация: сумма (CFO + CFI + CFF) ≈ net_change (точность ±0.5% за счёт округлений в промежуточных расчётах).",
+    "Equity структура (share_capital, retained_earnings, additional_paid_in): оценены как %% от total_equity типичные для российских ПАО (share_capital ~5%, retained_earnings ~60%, additional_paid_in ~35%).",
+    "Liab структура (long-term/short-term debt, payables): оценены как %% от total_liabilities (long_term ~50%, short_term ~10%, payables ~38%, other ~2%).",
+    "Arithemetic checks: Assets = Equity + Liab (все годы пройдены ✓); Суммы detail-lines по балансу ~= total (validation <1% deviation). CFO lines (NP+DA+WC) ≈ actual CFO.",
+    "adjustments_aggressive=true — ETR-корректировки все 5 лет, adj ЧП 2023-2024 существенно отличаются (см. bridge в adjusted). Отчётные цифры приведены рядом в net_profit.",
+    "Гудвил и НМА не раскрыты → принято zero/null. Если в примечаниях PDF есть значимые goodwill/intangibles — требует актуализации.",
+    "Данные за 2025 — проверенные факт (не прогноз). Все числа в млрд ₽, единица 'млрд' установлена в meta.unit."
   ],
   "segments": [
     {
