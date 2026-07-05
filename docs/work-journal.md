@@ -1950,3 +1950,12 @@ TGKA/UPRO/AKRN (~12). Частично у RASP/MAGN/MSRS/DVEC/LENT/SNGS/TATN (с
 навигация портала не отлажена). Осталось ~185 без ОДДС-деталей.
 TODO (свежая сессия): продолжать батчами по 4, читая журнал. Для заблокированных сайтов — пробовать
 e-disclosure через playwright (headless chromium установлен) ИЛИ помечать «требует ручной загрузки PDF».
+
+## 2026-07-05 — Раскатка ОДДС на Sonnet report-fetcher (батчи 6-7)
+Субагенты переключены Haiku→Sonnet (роли report-fetcher/financial-analyst/basis-designer, алиас sonnet).
+РЕЗУЛЬТАТ: Sonnet заметно превзошёл Haiku — батчи 6-7 = 8/8 ПОЛНАЯ постатейка (было 3/4 на Haiku):
+- Батч 6: NVTK/RNFT/SIBN/TRNFP — полный ОДДС+P&L+баланс, 2-3 источника МСФО каждый.
+- Батч 7: AFLT/PIKK/ROSN/MDMG — полный + ИСПРАВЛЕНИЯ ошибок в данных (PIKK equity 41→110млрд, ROSN
+  сдвиг total_assets, MDMG налог NCI, TRNFP pre_tax +35млрд). Sonnet не только добывает, но чистит.
+Метод надёжен: сайт компании прямой PDF (rosneft/aeroflot/novatek/pik-group/mcclinics) + OCR где скан.
+RNFT писал в extracted → перенос в основной (диспетчер). Осталось ~182. ПРОДОЛЖАТЬ на Sonnet батчами.
