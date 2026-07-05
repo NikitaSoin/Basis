@@ -76,9 +76,10 @@ function BarChart({ data, color, fmt }) {
 }
 
 /* ── карточка мультипликатора с позицией к медиане сектора (порт mcard) ── */
-function MCard({ label, value, median, lower, unit }) {
+function MCard({ label, value, median, lower, unit, lossValue }) {
   const has = typeof value === "number" && !isNaN(value);
   const hasMed = typeof median === "number" && !isNaN(median) && median !== 0;
+  const isLoss = !has && typeof lossValue === "number" && lossValue < 0;
   const fmtV = (x) => num(x, Math.abs(x) >= 100 ? 0 : x >= 10 ? 1 : 2) + (unit === "pct" ? " %" : "×");
   let left = 50, col = "var(--ink-3)", txt = "норма не задана";
   if (has && hasMed) {
@@ -96,8 +97,23 @@ function MCard({ label, value, median, lower, unit }) {
   }
   return (
     <div className="mc">
-      <div className="mc-top"><span className="mc-l">{label}</span><span className="mc-v">{has ? fmtV(value) : "—"}</span></div>
-      {hasMed ? (
+      <div className="mc-top">
+        <span className="mc-l">{label}</span>
+        <span className="mc-v">
+          {has
+            ? fmtV(value)
+            : isLoss
+              ? <span style={{ color: "var(--ink-3)" }}>—</span>
+              : <span style={{ color: "var(--ink-3)", fontSize: 12 }}>н.д.</span>}
+        </span>
+      </div>
+      {!has ? (
+        <div className="mc-ctx" style={{ marginTop: 9 }}>
+          <span className="med" style={{ fontStyle: "italic" }}>
+            {isLoss ? "убыток — неприменимо" : "нет данных"}
+          </span>
+        </div>
+      ) : hasMed ? (
         <>
           <div className="mc-track"><span className="mc-med" style={{ left: "50%" }} /><span className="mc-dot" style={{ left: `${left}%`, background: col }} /></div>
           <div className="mc-ctx"><span className="med">среднее {fmtV(median)}</span><span style={{ color: col, fontWeight: 600 }}>{txt}</span></div>
@@ -368,20 +384,23 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     { l: "Чистый долг", a: bs.net_debt, d: yoy(bs.net_debt) },
   ];
   const sm = sectorMult && company && company.sector && sectorMult[company.sector] && sectorMult[company.sector].n >= 4 ? sectorMult[company.sector] : null;
+  const npLast = lastN(is.net_profit);
+  const ebLast = lastN(is.ebitda);
+  const bNpLast = isBank ? lastN(bNpArr) : null;
   const mcards = isBank ? [
-    { label: "P/E",        value: cur.pe,  median: sm ? sm.pe : (hist.pe_5y_median ?? hist.pe_5y_avg), lower: true,  unit: "x" },
-    { label: "P/B",        value: cur.pb,  median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true,  unit: "x" },
+    { label: "P/E",        value: cur.pe,  median: sm ? sm.pe : (hist.pe_5y_median ?? hist.pe_5y_avg), lower: true,  unit: "x", lossValue: bNpLast },
+    { label: "P/B",        value: cur.pb,  median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true,  unit: "x", lossValue: bNpLast },
     { label: "ROE",        value: lastN(bRoeArr), median: sm ? sm.roe : null, lower: false, unit: "pct" },
     { label: "ЧПМ (NIM)", value: lastN(bNimArr), median: null, lower: false, unit: "pct" },
     { label: "CoR",        value: lastN(bmA("cost_of_risk","cor","cor_pct","cost_of_risk_pct","cost_of_risk_pct_implied")), median: null, lower: true, unit: "pct" },
     { label: "CIR",        value: lastN(bmA("cir","cir_pct")), median: null, lower: true, unit: "pct" },
   ] : [
-    { label: "P/E", value: cur.pe, median: sm ? sm.pe : (hist.pe_5y_median ?? hist.pe_5y_avg), lower: true, unit: "x" },
-    { label: "EV/EBITDA", value: cur.ev_ebitda, median: sm ? sm.ev_ebitda : (hist.ev_ebitda_5y_median ?? hist.ev_ebitda_5y_avg), lower: true, unit: "x" },
-    { label: "P/B", value: cur.pb, median: sm ? sm.pb : (hist.pb_5y_median ?? hist.pb_5y_avg), lower: true, unit: "x" },
-    { label: "P/S", value: cur.ps, median: sm ? sm.ps : (hist.ps_5y_median ?? hist.ps_5y_avg), lower: true, unit: "x" },
-    { label: "ND/EBITDA", value: nde, median: sm ? sm.nd_ebitda : null, lower: true, unit: "x" },
-    { label: "ROE", value: lastN(ret.roe), median: sm ? sm.roe : null, lower: false, unit: "pct" },
+    { label: "P/E",       value: cur.pe,       median: sm ? sm.pe       : (hist.pe_5y_median       ?? hist.pe_5y_avg),       lower: true,  unit: "x",   lossValue: npLast },
+    { label: "EV/EBITDA", value: cur.ev_ebitda, median: sm ? sm.ev_ebitda: (hist.ev_ebitda_5y_median ?? hist.ev_ebitda_5y_avg), lower: true,  unit: "x",   lossValue: ebLast },
+    { label: "P/B",       value: cur.pb,       median: sm ? sm.pb       : (hist.pb_5y_median       ?? hist.pb_5y_avg),       lower: true,  unit: "x",   lossValue: npLast },
+    { label: "P/S",       value: cur.ps,       median: sm ? sm.ps       : (hist.ps_5y_median       ?? hist.ps_5y_avg),       lower: true,  unit: "x",   lossValue: npLast },
+    { label: "ND/EBITDA", value: nde,           median: sm ? sm.nd_ebitda: null,                                              lower: true,  unit: "x" },
+    { label: "ROE",       value: lastN(ret.roe), median: sm ? sm.roe     : null,                                              lower: false, unit: "pct" },
   ];
 
   /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
@@ -511,12 +530,14 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     M("Свободный поток (FCF)", cf.fcf, { bold: true, accent: true }),
     { l: "FCF-маржа", a: cf.ratios && cf.ratios.fcf_margin, kind: "pct", muted: true },
   ];
+  const npSlice = sl(is.net_profit);
+  const ebSlice = sl(is.ebitda);
   const multRows = [
-    { l: "P/E", a: mult.pe, kind: "ratio" },
-    { l: "P/E (норм.)", a: mult.pe_adj, kind: "ratio", accent: true },
-    { l: "P/S", a: mult.ps, kind: "ratio" },
-    { l: "P/B", a: mult.pb, kind: "ratio" },
-    { l: "EV/EBITDA", a: mult.ev_ebitda, kind: "ratio" },
+    { l: "P/E",         a: mult.pe,       kind: "ratio",              lossArr: npSlice },
+    { l: "P/E (норм.)", a: mult.pe_adj,   kind: "ratio", accent: true, lossArr: npSlice },
+    { l: "P/S",         a: mult.ps,       kind: "ratio",              lossArr: npSlice },
+    { l: "P/B",         a: mult.pb,       kind: "ratio",              lossArr: npSlice },
+    { l: "EV/EBITDA",   a: mult.ev_ebitda, kind: "ratio",              lossArr: ebSlice },
     ...(!isBank ? [
       { l: "ROE", a: ret.roe, kind: "pct", muted: true },
       { l: "ROA", a: ret.roa, kind: "pct", muted: true },
@@ -546,8 +567,13 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const TLABEL = { pnl: "P&L", bs: "Баланс", cf: "ОДДС", mult: "Мультипликаторы" };
   const curHasDet = TABLES[curTab].some((r) => !r.sectionHeader && r.det && sl(r.a).some((x) => x != null));
   // форматирование ячейки по kind
-  const fmtCell = (r, v) => {
-    if (v == null || isNaN(v)) return "—";
+  // j — индекс в yslice (для проверки убытка по соответствующему году)
+  const fmtCell = (r, v, j) => {
+    if (v == null || isNaN(v)) {
+      if (r.lossArr && j != null && r.lossArr[j] != null && r.lossArr[j] < 0)
+        return <span style={{ color: "var(--ink-3)", fontSize: 11 }} title="убыток — неприменимо">—</span>;
+      return <span style={{ color: "var(--ink-3)", fontSize: 11 }}>н.д.</span>;
+    }
     if (r.kind === "pct") return num(v, 1) + " %";
     if (r.kind === "ratio") return num(v, 2);
     if (r.kind === "x") return num(v, 2) + "×";
@@ -740,7 +766,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         // sign=-1: вычитаемые строки (расходы/резервы/налог) показываем отрицательно
                         const vals = r.sign === -1 ? rawVals.map((v) => (v == null ? null : -Math.abs(v))) : rawVals;
                         const cls = [r.bold ? "bold" : "", r.accent ? "accent" : ""].filter(Boolean).join(" ");
-                        return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
+                        return (<tr className={cls} key={i}><td style={{ paddingLeft: r.det ? 24 : undefined, color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>{yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}</tr>);
                       })}
                     </tbody>
                   </table>
@@ -778,7 +804,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                         return (
                           <tr className={cls} key={i}>
                             <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
-                            {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}
+                            {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}
                           </tr>
                         );
                       })}
@@ -814,7 +840,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                           return (
                             <tr className={cls} key={i}>
                               <td style={{ color: r.muted && !r.bold ? "var(--ink-3)" : undefined }}>{r.l}</td>
-                              {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j])}</span>{cellDelta(r, vals, j)}</td>)}
+                              {yslice.map((y, j) => <td key={y}><span className="cv">{fmtCell(r, vals[j], j)}</span>{cellDelta(r, vals, j)}</td>)}
                             </tr>
                           );
                         })}
