@@ -17,6 +17,41 @@
   --pf-deep-ink3:  #6C6B78;
 }
 
+/* ---- Literal palette from docs/portfolio-analytics.html <style> :root ----
+   Владелец: HTML — точная спецификация для этой страницы, не вдохновение.
+   Взято 1:1 (не наши --success/--danger/--info), скоуплено под .pf-shell —
+   на остальной сайт не влияет. */
+.pf-shell {
+  --pf-tan:         #E9E4D6;   /* фон страницы (body) */
+  --pf-tan-surface: #F4F0E6;   /* фон карточек (уже совпадает с --cc-panel) */
+  --pf-surface-3:   #EFEAE0;   /* --surface-3 (чипы, полосы фона) */
+  --pf-ink:         #161510;
+  --pf-ink-2:       #5C574A;
+  --pf-ink-3:       #8C8672;
+  --pf-line:        #DCD5C2;
+  --pf-line-2:      #CFC6AC;
+  --pf-copper:       #C97A4A;
+  --pf-copper-soft:  #F0DDCC;
+  --pf-copper-deep:  #8A4A26;
+  --pf-up:          #3E8464;
+  --pf-up-soft:     #E4F3EA;
+  --pf-down:        #B8503F;
+  --pf-down-soft:   #FBEAEA;
+  --pf-estimate:      #1F5FC4;
+  --pf-estimate-soft: #E5EEFB;
+
+  /* Перекрываем сами app-токены внутри Портфеля — так ЛЮБОЙ переиспользуемый
+     компонент (Delta, WeightBar, MetricBar, KeyTakeaway, Badge…), который
+     читает --success/--danger/--info напрямую, автоматически получает
+     буквальные up/down/estimate из HTML, без правки самих компонентов. */
+  --success:      var(--pf-up);
+  --success-soft: var(--pf-up-soft);
+  --danger:       var(--pf-down);
+  --danger-soft:  var(--pf-down-soft);
+  --info:         var(--pf-estimate);
+  --info-soft:    var(--pf-estimate-soft);
+}
+
 /* ---- Shell: sidebar + main side by side ---- */
 .pf-shell {
   display: flex;
@@ -142,7 +177,7 @@
   margin-left: 260px;
   flex: 1;
   min-width: 0;
-  background: var(--bg-base);
+  background: var(--pf-tan);
 }
 
 /* ---- Topbar: subtitle + portfolio switcher + add-portfolio ---- */
@@ -152,14 +187,14 @@
   align-items: center;
   gap: 16px;
   padding: 16px 32px;
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-base);
+  border-bottom: 1px solid var(--pf-line);
+  background: var(--pf-tan);
   flex-wrap: wrap;
 }
 
 .pf-topbar__hint {
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: var(--pf-ink-3);
   min-width: 0;
 }
 
@@ -175,6 +210,15 @@
   padding: 28px 32px 72px;
   animation: pfSlideIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Общие компоненты (Delta, KeyTakeaway и т.п.) внутри Портфеля используют
+   --success/--danger/--info из дизайн-системы — здесь перекрашиваем на
+   буквальные up/down/estimate из HTML-прототипа, не трогая сами компоненты
+   (они общие с остальным сайтом). */
+.pf-panel .tw-text-success { color: var(--pf-up) !important; }
+.pf-panel .tw-text-danger  { color: var(--pf-down) !important; }
+.pf-panel .tw-bg-success-soft { background-color: var(--pf-up-soft) !important; }
+.pf-panel .tw-bg-danger-soft  { background-color: var(--pf-down-soft) !important; }
 
 @keyframes pfSlideIn {
   from { opacity: 0; transform: translateY(5px); }
@@ -232,19 +276,18 @@
 }
 
 .pf-tag-fact {
-  background: var(--bg-base);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
+  background: var(--pf-surface-3);
+  color: var(--pf-ink-2);
 }
 
 .pf-tag-estimate {
-  background: var(--info-soft, var(--accent-soft));
-  color: var(--info, var(--accent));
+  background: var(--pf-estimate-soft);
+  color: var(--pf-estimate);
 }
 
 .pf-tag-judgment {
-  background: var(--accent-soft);
-  color: var(--accent-hover, var(--accent));
+  background: var(--pf-copper-soft);
+  color: var(--pf-copper-deep);
 }
 
 .pf-tag-judgment::before {

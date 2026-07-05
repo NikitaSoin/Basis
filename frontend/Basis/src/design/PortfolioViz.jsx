@@ -185,20 +185,19 @@ function corrCell(v) {
     return { bg: "color-mix(in srgb, var(--cat-8) 22%, var(--bg-elevated))", fg: "var(--text-secondary)" };
   }
   if (v >= 0.5) {
-    // Тёплый терракотовый (accent-hover), не --danger (холодный malinовый) — так же,
-    // как в прототипе (rgb 184,80,63): «высокая связь» тут не алерт, а часть той же
-    // тёплой шкалы диаграммы, что и остальной Портфель.
+    // Буквальный --down из HTML-прототипа (rgb 184,80,63) — «высокая связь»
+    // тут не алерт (--danger), а часть той же тёплой диверг. шкалы, что в HTML.
     const mag = Math.min(1, (v - 0.5) / 0.5);
     return {
-      bg: `color-mix(in srgb, var(--accent-hover) ${Math.round(mag * 55 + 14)}%, var(--bg-elevated))`,
-      fg: "var(--text-primary)",
+      bg: `color-mix(in srgb, var(--pf-down) ${Math.round(mag * 55 + 14)}%, var(--bg-elevated))`,
+      fg: "var(--pf-ink)",
     };
   }
   if (v <= 0.3) {
     const mag = Math.min(1, (0.3 - v) / 1.3);
     return {
-      bg: `color-mix(in srgb, var(--success) ${Math.round(mag * 45 + 10)}%, var(--bg-elevated))`,
-      fg: "var(--text-primary)",
+      bg: `color-mix(in srgb, var(--pf-up) ${Math.round(mag * 45 + 10)}%, var(--bg-elevated))`,
+      fg: "var(--pf-ink)",
     };
   }
   // 0.3..0.5 neutral mid
@@ -331,7 +330,7 @@ export function ImpactBar({ value, max = 25 }) {
         className={cx("tw-absolute tw-top-0 tw-bottom-0", neg ? "tw-right-1/2" : "tw-left-1/2")}
         style={{
           width: `${pct / 2}%`,
-          background: neg ? "var(--danger)" : "var(--success)",
+          background: neg ? "var(--pf-down)" : "var(--pf-up)",
           transition: reduced ? undefined : "width 800ms cubic-bezier(0.16,1,0.3,1)",
           borderRadius: 9999,
         }}
