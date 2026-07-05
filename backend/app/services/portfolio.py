@@ -579,3 +579,165 @@ def delete_position(db: Session, portfolio_id: int, position_id: int) -> bool:
     db.delete(position)
     db.commit()
     return True
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Факторный профиль портфеля (чувствительность к ставке ЦБ) — читает
+# quant_inputs.coefficients из companies/<TICKER>/macro.json (заполнено
+# macro-analyst, ~сектор/голубые фишки + второй эшелон в раскатке).
+# Честно: только канал "ставка" (per == "100bp", устойчивый маркер во всех
+# файлах — driver не всегда заполнен). Курс рубля НЕ агрегируем: единицы
+# в файлах несопоставимы (per=1_rub у одних компаний, per=1_usd у других,
+# без единого нормирующего допущения) — раскатка честной агрегации фикса
+# отдельная задача, не выдумываем число сейчас.
+# ─────────────────────────────────────────────────────────────────────────
+from pathlib import Path as _Path
+import json as _json
+
+_COMPANIES_DIR = _Path(__file__).parent.parent.parent / "companies"
+
+
+def _load_macro_json(ticker: str) -> dict | None:
+    path = _COMPANIES_DIR / ticker.upper() / "macro.json"
+    if not path.exists():
+        return None
+    try:
+        return _json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def compute_factor_profile(db: Session, portfolio_id: int) -> dict | None:
+    """Взвешенная чувствительность портфеля к ставке ЦБ (+100 б.п.), % от
+    чистой прибыли покрытых бумаг. Возвращает None, если ни одна позиция не
+    покрыта макро-данными (честная деградация — не выдуманное число)."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or not portfolio.positions:
+        return None
+
+    company_ids = [p.company_id for p in portfolio.positions]
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+    latest_by_company = {
+        c.id: db.query(Quote.close).filter(Quote.company_id == c.id).order_by(Quote.date.desc()).first()
+        for c in companies.values()
+    }
+
+    rows = []
+    total_value = 0.0
+    covered_value = 0.0
+    for pos in portfolio.positions:
+        company = companies.get(pos.company_id)
+        if not company:
+            continue
+        price_row = latest_by_company.get(company.id)
+        price = float(price_row[0]) if price_row and price_row[0] else float(pos.avg_buy_price)
+        value = float(pos.quantity) * price
+        total_value += value
+
+        macro = _load_macro_json(company.ticker)
+        if not macro:
+            rows.append({"ticker": company.ticker, "value": value, "covered": False})
+            continue
+        coeffs = (macro.get("quant_inputs") or {}).get("coefficients") or {}
+        rate_np_per_100bp = sum(
+            c["net_profit"] for c in coeffs.values()
+            if c.get("per") == "100bp" and c.get("net_profit") is not None
+        )
+        baseline_np = ((macro.get("quant_inputs") or {}).get("financials") or {}).get("net_profit")
+        if not baseline_np:
+            rows.append({"ticker": company.ticker, "value": value, "covered": False})
+            continue
+        pct_per_100bp = round(rate_np_per_100bp / baseline_np * 100, 1)
+        rows.append({"ticker": company.ticker, "value": value, "covered": True, "pct_per_100bp": pct_per_100bp})
+        covered_value += value
+
+    if total_value <= 0 or covered_value <= 0:
+        return None
+
+    weighted = sum(r["pct_per_100bp"] * r["value"] for r in rows if r["covered"]) / covered_value
+    return {
+        "rate_pct_per_100bp": round(weighted, 1),
+        "coverage_pct": round(covered_value / total_value * 100, 1),
+        "covered_tickers": [r["ticker"] for r in rows if r["covered"]],
+        "uncovered_tickers": [r["ticker"] for r in rows if not r["covered"]],
+        "fx_available": False,
+        "note": "Чувствительность к курсу рубля пока не агрегируется — единицы измерения в"
+                " карточках компаний ещё не приведены к общему знаменателю по всем секторам.",
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Свой сценарий стресс-теста: пользователь задаёт сдвиг ставки (б.п.) и/или
+# индекса МосБиржи (%); просадка по позиции = бета × индексный шок (стандартная
+# линейная аппроксимация CAPM) + ставочный канал из macro.json (net_profit на
+# 100 б.п. как % от чистой прибыли компании, тот же метод, что и в
+# compute_factor_profile, — допущение «P/E не меняется» ⇒ % прибыли ≈ % цены).
+# Курс рубля НЕ применяется к расчёту (см. compute_factor_profile) — честно
+# отражено в ответе, а не тихо игнорируется.
+# ─────────────────────────────────────────────────────────────────────────
+def compute_custom_stress(db: Session, portfolio_id: int, rate_shock_bp: float = 0.0,
+                          index_shock_pct: float = 0.0, fx_shock_pct: float = 0.0) -> dict | None:
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or not portfolio.positions:
+        return None
+
+    company_ids = [p.company_id for p in portfolio.positions]
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+    metrics_by_ticker = {
+        m.ticker: m for m in db.query(CompanyMetrics)
+        .filter(CompanyMetrics.ticker.in_([c.ticker for c in companies.values()])).all()
+    }
+    latest_by_company = {
+        c.id: db.query(Quote.close).filter(Quote.company_id == c.id).order_by(Quote.date.desc()).first()
+        for c in companies.values()
+    }
+
+    rows = []
+    total_value = 0.0
+    for pos in portfolio.positions:
+        company = companies.get(pos.company_id)
+        if not company:
+            continue
+        price_row = latest_by_company.get(company.id)
+        price = float(price_row[0]) if price_row and price_row[0] else float(pos.avg_buy_price)
+        value = float(pos.quantity) * price
+        total_value += value
+
+        m = metrics_by_ticker.get(company.ticker)
+        beta = float(m.beta) if m and m.beta is not None else 1.0  # честный рыночный дефолт
+        index_component = beta * index_shock_pct
+
+        macro = _load_macro_json(company.ticker)
+        rate_component = 0.0
+        rate_covered = False
+        if macro and rate_shock_bp:
+            coeffs = (macro.get("quant_inputs") or {}).get("coefficients") or {}
+            rate_np_per_100bp = sum(
+                c["net_profit"] for c in coeffs.values()
+                if c.get("per") == "100bp" and c.get("net_profit") is not None
+            )
+            baseline_np = ((macro.get("quant_inputs") or {}).get("financials") or {}).get("net_profit")
+            if baseline_np:
+                rate_component = (rate_np_per_100bp / baseline_np * 100) * (rate_shock_bp / 100)
+                rate_covered = True
+
+        drop_pct = index_component + rate_component
+        rows.append({
+            "ticker": company.ticker, "name": company.name, "value": value,
+            "drop_pct": round(drop_pct, 1), "value_loss": round(value * drop_pct / 100, 0),
+            "beta": round(beta, 2), "rate_covered": rate_covered,
+        })
+
+    if total_value <= 0:
+        return None
+
+    portfolio_drop = sum(r["drop_pct"] * r["value"] for r in rows) / total_value
+    portfolio_loss = total_value * portfolio_drop / 100
+    return {
+        "rate_shock_bp": rate_shock_bp, "index_shock_pct": index_shock_pct, "fx_shock_pct": fx_shock_pct,
+        "fx_applied": False,
+        "drop_pct": round(portfolio_drop, 1),
+        "value_loss": round(portfolio_loss, 0),
+        "positions": rows,
+        "note": ("Ставочный канал учтён только для покрытых macro.json бумаг" if rate_shock_bp else None),
+    }

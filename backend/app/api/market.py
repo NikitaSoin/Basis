@@ -233,6 +233,52 @@ def generate_overview_endpoint(
         raise HTTPException(status_code=500, detail=f"Ошибка генерации: {e}")
 
 
+@router.get("/market/compare-asset")
+def compare_asset_series(ticker: str, db: Session = Depends(get_db)):
+    """Накопленная полная доходность (цена+дивиденды) произвольного тикера за
+    стандартное окно (3 года) — для конструктора «+ Добавить сравнение» на
+    вкладке «Сравнение» портфеля. Независим от портфеля: любая бумага с рынка,
+    как в прототипе ("не только из вашего портфеля")."""
+    from app.services.risk_metrics import load_price_series, normalize_splits, window_start
+    from app.services.moex_dividends import load_dividends_map
+
+    company = db.query(Company).filter(Company.ticker == ticker.upper()).first()
+    if not company:
+        raise HTTPException(status_code=404, detail=f"Тикер {ticker} не найден")
+
+    since = window_start()
+    series = load_price_series(db, company.id, since)
+    if len(series) < 2:
+        return {"ticker": ticker.upper(), "dates": [], "cum_pct": [], "total_pct": None,
+                "note": "недостаточно истории котировок"}
+
+    norm = normalize_splits(series)
+    dates = sorted(norm)
+    dividends = load_dividends_map(db, ticker.upper())
+    p0 = norm[dates[0]]
+    div_factor = 1.0
+    out_dates, out_curve = [], []
+    for d in dates:
+        # дивиденд на дату отсечки (или ближайшую предыдущую торговую) —
+        # тот же метод накопления, что и у бенчмарк-кривой портфеля
+        if d in dividends:
+            amount = dividends[d]
+            p = norm[d]
+            if p > 0 and 0 < amount / p < 1:
+                div_factor *= 1 + amount / p
+        cum = (norm[d] / p0) * div_factor
+        out_dates.append(d.isoformat())
+        out_curve.append(round((cum - 1) * 100, 2))
+
+    return {
+        "ticker": ticker.upper(),
+        "name": company.name,
+        "dates": out_dates,
+        "cum_pct": out_curve,
+        "total_pct": out_curve[-1] if out_curve else None,
+    }
+
+
 @router.get("/market/calendar")
 def market_calendar(event_type: str | None = None, sector: str | None = None,
                     portfolio_only: bool = False, scope: str = "upcoming",

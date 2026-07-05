@@ -8,7 +8,7 @@ from app.schemas.portfolio import (
 from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
     create_portfolio, add_position, delete_position, update_position,
-    compute_portfolio_metrics,
+    compute_portfolio_metrics, compute_factor_profile, compute_custom_stress,
 )
 from app.auth import get_current_user, get_current_user_optional
 from app.models.user import User, SubscriptionType
@@ -112,6 +112,46 @@ def portfolio_metrics_endpoint(
     if portfolio.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Нет доступа")
     return compute_portfolio_metrics(db, portfolio_id)
+
+
+@router.get("/portfolios/{portfolio_id}/factor-profile")
+def portfolio_factor_profile_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Взвешенная чувствительность портфеля к ставке ЦБ (вкладка «ИИ-Диагноз»),
+    из quant_inputs.coefficients в companies/<TICKER>/macro.json. Возвращает
+    null, если ни одна позиция не покрыта макро-данными (честная деградация)."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    return compute_factor_profile(db, portfolio_id)
+
+
+@router.get("/portfolios/{portfolio_id}/stress-test")
+def portfolio_custom_stress_endpoint(
+    portfolio_id: int,
+    rate_shock_bp: float = 0.0,
+    index_shock_pct: float = 0.0,
+    fx_shock_pct: float = 0.0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Свой сценарий стресс-теста («Стресс-тест» → «+ Свой сценарий»): просадка
+    по позиции = бета×индексный шок + ставочный канал из macro.json (где
+    покрыто). Курс рубля пока НЕ применяется к расчёту (fx_applied=false)."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    result = compute_custom_stress(db, portfolio_id, rate_shock_bp, index_shock_pct, fx_shock_pct)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Недостаточно данных для расчёта")
+    return result
 
 
 @router.delete("/portfolios/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
