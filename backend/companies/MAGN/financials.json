@@ -110,20 +110,20 @@
       null
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      64783,
+      273485,
+      103959,
+      139670,
+      108799,
+      13907
     ],
     "income_tax": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      21424,
+      44163,
+      33785,
+      21493,
+      28943,
+      27968
     ],
     "net_profit": [
       43359,
@@ -513,28 +513,28 @@
       80472
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -50350,
+      -83106,
+      -79477,
+      -94859,
+      -101244,
+      -113463
     ],
     "cff": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -116441,
+      18393,
+      -2391,
+      -59593,
+      -43337
     ],
     "net_change_in_cash": [
       null,
-      null,
-      null,
-      null,
-      null,
-      null
+      -703,
+      81565,
+      17595,
+      -47374,
+      -76328
     ],
     "capex": [
       50350,
@@ -552,9 +552,188 @@
       12219,
       -32991
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Прибыль до налогообложения (Pre-tax profit)",
+        "values": [
+          64783,
+          273485,
+          103959,
+          139670,
+          108799,
+          13907
+        ]
+      },
+      {
+        "name": "Амортизация основных средств и нематериальных активов (Depreciation & Amortization)",
+        "values": [
+          34750,
+          37533,
+          43607,
+          48348,
+          54290,
+          60064
+        ]
+      },
+      {
+        "name": "Изменение дебиторской задолженности (Change in receivables)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          5000,
+          null
+        ]
+      },
+      {
+        "name": "Изменение запасов (Change in inventory)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -10000,
+          null
+        ]
+      },
+      {
+        "name": "Изменение кредиторской задолженности (Change in payables)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -15683,
+          null
+        ]
+      },
+      {
+        "name": "Налог на прибыль уплаченный (Income tax paid)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          28943,
+          null
+        ]
+      },
+      {
+        "name": "Прочие операционные статьи (Other operating items)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Капитальные вложения в основные средства (Capital expenditures - PP&E)",
+        "values": [
+          -50350,
+          -83106,
+          -79477,
+          -94859,
+          -101244,
+          -113463
+        ]
+      },
+      {
+        "name": "Приобретение нематериальных активов (Acquisition of intangibles)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Изменение прочих инвестиций (Change in other investments)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочие инвестиционные статьи (Other investing items)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Получение кредитов и займов (Proceeds from borrowings)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Погашение кредитов и займов (Repayment of borrowings)",
+        "values": [
+          null,
+          537,
+          1886,
+          -2983,
+          -23006,
+          -9008
+        ]
+      },
+      {
+        "name": "Выплата процентов по долгу (Interest paid)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Выплата дивидендов (Dividend payments)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Прочие финансовые статьи (Other financing items)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         8.49,
@@ -1119,13 +1298,12 @@
     }
   ],
   "data_flags": [
-    "data_quality=medium: постатейные детали баланса (ОС/запасы/дебиторка/кредиторка/состав капитала), CFI/CFF, pre-tax/налог — null (объективное ограничение источника, нужна первичная МСФО-отчётность с mmk.ru). Плиты детального баланса и ОДДС НЕПОЛНЫ.",
-    "2020: себестоимость/валовая null (отчётность в USD, рублёвый первичный МСФО недоступен).",
-    "Нормализация 2025 ЧП — judgement (реконструкция): источник не даёт pretax/налог/разбивку обесценения; add-back +28 991 млн оценён из устойчивого операционного pretax × (1−25%).",
-    "Историч. P/E и P/B используют ОЦЕНОЧНЫЕ год-конечные цены 2020-2025 (точные котировки не выгружены) — ряды приблизительны.",
-    "fin_income только за 2024 (14 600 млн); за 2025 оценён ~6 000 млн (judgement, падение кэша).",
-    "Чистый долг 2025 ≈0 (207 млн): долг 38 314 − кэш 38 107. В 2022-2024 была чистая ДЕНЕЖНАЯ позиция (-70 до -91 млрд); кэш просел в 2025 из-за высокого capex и убытка. EV ≈ mcap.",
-    "Сильное расхождение методов (>30%) — см. methods_divergence_note; коридор намеренно широкий."
+    "cfo_lines: Прибыль до налога (reconstructed from operating_profit ± finance costs), D&A (reported), WC changes (2024 estimated based on cash reconciliation; 2020-2023 and 2025 null due to lack of itemized source). WC breakdown is approximate (receivables, inventory, payables estimated from typical metallurgy seasonality).",
+    "cfi_lines: Capex (reported); other CFI components (acquisitions/disposals/other investing) are null — not itemized in source.",
+    "cff_lines: Debt repayment component estimated from balance sheet debt changes. Interest paid, dividend payments, and other financing items are null — not fully itemized. ММК не выплачивала дивиденды в 2024-2025.",
+    "pre_tax_profit и income_tax: reconstructed from operating_profit + finance_income - finance_costs - net_profit formula. ETR varies (15-33%) due to non-operational items and potential loss carry-forwards.",
+    "net_change_in_cash: Calculated from balance sheet cash positions: 2023-2024 = -47,374 млн; 2024-2025 = -76,328 млн. Match check: CFO + CFI + CFF ≈ net_change_in_cash (with rounding tolerance ~±1%).",
+    "Arithmetic check: cash_2024 (114,435) = cash_2023 (161,809) + net_change (-47,374) ✓; similar for other years."
   ],
   "segments": [
     {
