@@ -516,14 +516,36 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
         M("Чистый долг", bs.net_debt),
         { l: "ND / EBITDA", a: ndeArr, kind: "x", muted: true },
       ];
-  const cfoLines = Array.isArray(cf.cfo_lines) ? cf.cfo_lines : [];
-  const cfiLines = Array.isArray(cf.cfi_lines) ? cf.cfi_lines : [];
-  const cffLines = Array.isArray(cf.cff_lines) ? cf.cff_lines : [];
+  // Детализация статей ОДДС добывается по одной компании за раз (report-fetcher
+  // из разных PDF) — качество покрытия сильно разное. Показывать список из
+  // 15-20 статей, где заполнено 1-2, хуже, чем не показывать вовсе («простыня
+  // пропусков» — жалоба владельца). Порог: статью включаем, только если у неё
+  // заполнено ≥40% лет; весь блок статей потока — только если так заполнено
+  // большинство статей (иначе оставляем один агрегат CFO/CFI/CFF без разбивки).
+  const fillRatio = (vals) => {
+    const arr = Array.isArray(vals) ? vals : [];
+    if (!arr.length) return 0;
+    return arr.filter((v) => v != null).length / arr.length;
+  };
+  const usableLines = (lines) => {
+    if (!lines.length) return [];
+    const decent = lines.filter((l) => fillRatio(l.values) >= 0.4);
+    return decent.length / lines.length >= 0.5 ? decent : [];
+  };
+  const cfoLines = usableLines(Array.isArray(cf.cfo_lines) ? cf.cfo_lines : []);
+  const cfiLinesRaw = Array.isArray(cf.cfi_lines) ? cf.cfi_lines : [];
+  const cfiLines = usableLines(cfiLinesRaw);
+  const cffLines = usableLines(Array.isArray(cf.cff_lines) ? cf.cff_lines : []);
+  // Капзатраты — отдельное поле cf.capex, независимое от cfi_lines (детализация
+  // инвестпотока не всегда явно называет статью «капзатраты» на разбор PDF) —
+  // показываем его ВСЕГДА, если есть значения, не только когда cfi_lines пустой.
+  const capexAlreadyListed = cfiLines.some((l) => /капзатрат|капвложен|capex/i.test(l.name || ""));
   const cfRows = isBank ? [] : [
     M("Операционный поток (CFO)", cf.cfo, { bold: true }),
     ...cfoLines.map((l) => M(l.name, l.values, { det: true, muted: true })),
     M("Инвестиционный поток (CFI)", cf.cfi, { bold: true }),
-    ...(cfiLines.length ? cfiLines.map((l) => M(l.name, l.values, { det: true, muted: true })) : [M("Капзатраты", cf.capex, { det: true, muted: true })]),
+    ...(!capexAlreadyListed && fillRatio(cf.capex) > 0 ? [M("Капзатраты", cf.capex, { det: true, muted: true })] : []),
+    ...cfiLines.map((l) => M(l.name, l.values, { det: true, muted: true })),
     M("Финансовый поток (CFF)", cf.cff, { bold: true }),
     ...cffLines.map((l) => M(l.name, l.values, { det: true, muted: true })),
     M("Чистое изменение ДС", orSum(cf.net_change_in_cash, [cf.cfo, cf.cfi, cf.cff]), { bold: true }),
