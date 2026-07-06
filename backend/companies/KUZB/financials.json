@@ -1,1027 +1,1038 @@
 {
- "meta": {
-  "ticker": "KUZB",
-  "name": "ПАО Банк Кузнецкий",
-  "sector": "finance",
-  "profile": "bank",
-  "currency": "RUB",
-  "unit": "млн",
-  "reporting_standard": "РСБУ",
-  "converted_years": [],
-  "conversion_note": "Все данные в млн рублей. РСБУ: банк публиковал МСФО только до 2018 года, с 2019 — только РСБУ. Источники: пресс-релизы kuzbank.ru + smart-lab cross-check.",
-  "fiscal_years": [
-   2020,
-   2021,
-   2022,
-   2023,
-   2024,
-   2025
-  ],
-  "shares_outstanding": 22503490875,
-  "source": {
-   "type": "company_ir",
-   "url": "https://kuzbank.ru/press_center/news/",
-   "doc_title": "Пресс-релизы итогов финансовой деятельности Банка Кузнецкий 2022-2024 (ID=8504, 9145, 9411, 9599) + smart-lab РСБУ cross-check",
-   "retrieved": "2026-07-04"
-  },
-  "data_quality": "medium",
-  "parse_method": "web-press-releases + smart-lab-table",
-  "arithmetic_check": "partial",
-  "anomaly_flag": true,
-  "anomaly_note": "ETR аномально низкая в 2022 (10.4%) и 2023 (0.0%) — применена налоговая нормализация до устойчивых 25%. В 2023 нулевой налог при прибыли до налога 224 млн — сильная аномалия, вероятно зачёт ОНА по РСБУ. Прибыль 2025 упала -46% г/г на фоне роста ставки и операционных расходов.",
-  "adjustments_aggressive": false
- },
- "bank_pnl": {
-  "interest_income": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "interest_expense": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "net_interest_income": [
-   null,
-   390.0,
-   450.0,
-   590.0,
-   590.0,
-   589.9
-  ],
-  "fee_income": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "fee_expense": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "net_fee_income": [
-   null,
-   null,
-   null,
-   null,
-   185.2,
-   163.5
-  ],
-  "provisions": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "operating_income": [
-   null,
-   null,
-   null,
-   786.0,
-   null,
-   753.4
-  ],
-  "operating_expenses": [
-   null,
-   269.0,
-   291.0,
-   440.0,
-   547.0,
-   619.0
-  ],
-  "other_income": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "pre_tax_profit": [
-   null,
-   121.4,
-   182.5,
-   224.0,
-   260.0,
-   138.7
-  ],
-  "income_tax": [
-   null,
-   33.9,
-   19.0,
-   0.0,
-   65.0,
-   34.2
-  ],
-  "net_profit": [
-   null,
-   87.5,
-   163.5,
-   224.0,
-   195.0,
-   104.5
-  ]
- },
- "adjusted": {
-  "net_profit_adj": [
-   null,
-   87.5,
-   136.9,
-   168.0,
-   195.0,
-   104.5
-  ],
-  "ebitda_adj": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "fcf_normalized": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "wc_adjustment": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "capex_sustainable_mln": null,
-  "capex_note": "Банковский профиль — FCF не применяется",
-  "etr_reported": [
-   null,
-   27.9,
-   10.4,
-   0.0,
-   25.0,
-   24.7
-  ],
-  "etr_sustainable": 25.0,
-  "bridge": [
-   {
-    "year": 2020,
-    "item": "Данных нет — пропуск",
-    "amount": null,
-    "added_back": false,
-    "certainty": "fact",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2021,
-    "item": "ETR 27.9% — близко к норме 25%, разового не выявлено; adjusted=reported",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2022,
-    "item": "Налоговая нормализация: ETR 10.4% аномально низкая (разовый эффект ОНА или временная льгота по РСБУ). Досчёт: pre_tax 182.5 × (1−25%) = 136.9 млн. Delta = −26.6 млн (reported 163.5 завышена).",
-    "amount": -26.6,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2023,
-    "item": "Налоговая нормализация: ETR 0% — нулевой налог при прибыли до налога 224 млн; сильная аномалия. Вероятно зачёт ОНА по РСБУ. Досчёт: pre_tax 224.0 × (1−25%) = 168.0 млн. Delta = −56.0 млн (reported 224.0 завышена).",
-    "amount": -56.0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2024,
-    "item": "ETR 25.0% — норма; разовых не выявлено; adjusted=reported",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "fact",
-    "source_ref": "src_2"
-   },
-   {
-    "year": 2025,
-    "item": "ETR 24.7% — практически норма; adjusted=reported",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "fact",
-    "source_ref": "src_2"
-   }
-  ],
-  "bridge_note": "Нормализация только налоговая (2022 и 2023). Разовых списаний, обесценений, курсовых переоценок, продаж активов в открытых данных РСБУ не выявлено. Прибыль 2025 (−46% г/г) — операционная (рост ставки + рост расходов): не нормализуем."
- },
- "bank_balance": {
-  "cash_and_equivalents": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "due_from_banks": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "securities": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "loans_gross": [
-   null,
-   null,
-   4400.0,
-   6580.0,
-   6260.0,
-   6500.0
-  ],
-  "loan_provisions": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "loans_net": [
-   null,
-   null,
-   null,
-   6580.0,
-   6260.0,
-   6500.0
-  ],
-  "ppe_intangibles": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_assets": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "cash_and_cb": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "total_assets": [
-   6980.0,
-   6600.0,
-   6700.0,
-   10300.0,
-   9600.0,
-   10200.0
-  ],
-  "customer_deposits": [
-   null,
-   null,
-   null,
-   8690.0,
-   8100.0,
-   8400.0
-  ],
-  "deposits": [
-   null,
-   null,
-   null,
-   8690.0,
-   8100.0,
-   8400.0
-  ],
-  "due_to_banks": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "debt_securities_issued": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "debt_issued": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_liabilities": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_liab": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "total_liabilities": [
-   null,
-   null,
-   null,
-   9247.0,
-   8726.0,
-   9204.7
-  ],
-  "share_capital": [
-   null,
-   null,
-   null,
-   450.0,
-   450.0,
-   450.0
-  ],
-  "retained_earnings": [
-   null,
-   195.0,
-   381.0,
-   581.0,
-   581.0,
-   686.5
-  ],
-  "other_equity": [
-   null,
-   45.0,
-   null,
-   472.0,
-   343.0,
-   345.3
-  ],
-  "total_equity": [
-   676.4,
-   645.0,
-   681.2,
-   1053.0,
-   874.1,
-   995.3
-  ]
- },
- "bank_metrics": {
-  "roe_adj": [
-   null,
-   13.2,
-   20.6,
-   19.4,
-   20.2,
-   11.2
-  ],
-  "roe_reported": [
-   null,
-   13.2,
-   23.3,
-   25.8,
-   22.6,
-   11.2
-  ],
-  "roa_adj": [
-   null,
-   1.3,
-   2.1,
-   2.0,
-   2.0,
-   1.1
-  ],
-  "nim_pct": [
-   null,
-   5.74,
-   6.77,
-   6.94,
-   5.93,
-   5.96
-  ],
-  "cir_pct": [
-   null,
-   null,
-   null,
-   56.0,
-   null,
-   82.2
-  ],
-  "loans_to_deposits_pct": [
-   null,
-   null,
-   null,
-   75.7,
-   77.3,
-   77.4
-  ],
-  "capital_to_assets_pct": [
-   9.7,
-   9.8,
-   10.2,
-   10.2,
-   9.1,
-   9.8
-  ],
-  "h1_proxy_note": "capital_to_assets — прокси достаточности капитала. Публичный H1.0 11.02% по данным АКРА (дек. 2025), запас над регуляторным минимумом (8%) невысокий.",
-  "cost_of_risk": [
-   null,
-   null,
-   null,
-   null,
-   1.1,
-   null
-  ],
-  "capital_adequacy_h1": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   11.02
-  ]
- },
- "multiples": {
-  "pb": [
-   1.03,
-   1.08,
-   1.02,
-   0.66,
-   0.8,
-   0.7
-  ],
-  "pe_adj": [
-   null,
-   8.0,
-   5.1,
-   4.1,
-   3.6,
-   6.7
-  ],
-  "current": {
-   "pb": 0.699,
-   "pe_adj": 6.7,
-   "as_of": "2026-06-13"
-  },
-  "historical_avg": {
-   "pb_basis": "5y_mean (CV=0.21)",
-   "pb_value": 0.882,
-   "pe_adj_basis": "5y_mean (CV=0.33)",
-   "pe_adj_value": 5.5,
-   "period": "2020-2025"
-  }
- },
- "metrics_timeseries": {
-  "pb": [
-   1.03,
-   1.08,
-   1.02,
-   0.66,
-   0.8,
-   0.7
-  ],
-  "pe": [
-   null,
-   7.96,
-   4.25,
-   3.11,
-   3.57,
-   6.66
-  ],
-  "pe_adj": [
-   null,
-   8.0,
-   5.1,
-   4.1,
-   3.6,
-   6.7
-  ],
-  "roe": [
-   null,
-   13.2,
-   20.6,
-   19.4,
-   20.2,
-   11.2
-  ],
-  "roa": [
-   null,
-   1.3,
-   2.1,
-   2.0,
-   2.0,
-   1.1
-  ],
-  "net_profit_growth": [
-   null,
-   null,
-   86.7,
-   22.8,
-   -12.9,
-   -46.4
-  ],
-  "nim": [
-   null,
-   5.74,
-   6.77,
-   6.94,
-   5.93,
-   5.96
-  ]
- },
- "forecast": {
-  "source_type": "mechanical",
-  "providers": [],
-  "revenue_growth_pct": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "net_profit_growth_pct": [
-   null,
-   null,
-   null,
-   null,
-   null,
-   10.0
-  ],
-  "note": "Консенсус брокеров по KUZB отсутствует (малый неликвидный банк, нет аналитического покрытия). Механический прогноз NP 2026: среднее adj 2024+2025 = 149.75 млн × 1.10 (умеренное восстановление при снижении КС с 14.5%) = 164.7 млн."
- },
- "valuation": {
-  "methods": [
-   {
-    "method": "DCF",
-    "fair_value_per_share": null,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {},
-    "status": "not_applicable",
-    "explain": {
-     "inputs": {},
-     "steps": [],
-     "caveats": [
-      "DCF (FCFF) не применяется для банков: денежные потоки банка не отделимы от операционной деятельности, долг — часть бизнес-модели, а не структуры капитала. Маршрутизация: profile=bank → P/BV×ROE (Гордон), исторический P/B, дивидендная."
-     ]
-    }
-   },
-   {
-    "method": "P/BV_ROE_gordon",
-    "fair_value_per_share": 0.02367,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {
-     "roe_sustainable_pct": 15.7,
-     "ke_pct": 26.3,
-     "g_pct": 3.5,
-     "beta": 1.3,
-     "fair_pb": 0.535,
-     "bvps_2025": 0.044229,
-     "equity_basis": "balance"
-    },
-    "status": "ok",
-    "explain": {
-     "inputs": {
-      "Rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [config, src_4]",
-      "ERP": "9.0% — премия за риск рынка акций РФ [config, src_4]",
-      "beta": "1.3 — judgement для малого регионального банка: повышенная ликвидностная премия, кредитный рейтинг BB+ (АКРА), минимальный free float, неликвидность [judgement, src_3]",
-      "Ke": "14.6% + 1.3 × 9.0% = 26.3% — требуемая доходность на капитал",
-      "ROE_sustainable": "среднее adj ROE 2024 (20.2%) и 2025 (11.2%) = 15.7% — два последних нормализованных года; 2024 пиковый, 2025 сжатие; среднее как устойчивый ориентир [judgement]",
-      "g": "3.5% — терминальный рост = default max из конфига; не выше номинального роста экономики [config]",
-      "BVPS_2025": "0.04423 ₽ = 995.3 млн × 1 000 000 / 22 503 490 875 акций [fact, src_1]"
-     },
-     "steps": [
-      "Шаг 1: Ke = Rf + beta × ERP = 14.6% + 1.3 × 9.0% = 14.6% + 11.7% = 26.3%",
-      "Шаг 2: Справедливый P/B (Гордон) = (ROE − g) / (Ke − g) = (15.7% − 3.5%) / (26.3% − 3.5%) = 12.2% / 22.8% = 0.535",
-      "Шаг 3: BVPS 2025 = total_equity 995.3 млн × 1 000 000 / 22 503 490 875 акций = 0.04423 ₽",
-      "Шаг 4: Fair price = fair P/B × BVPS = 0.535 × 0.04423 = 0.02367 ₽",
-      "Интерпретация: ROE 15.7% < Ke 26.3% → банк не зарабатывает стоимость капитала → справедливый P/B < 1 (0.535). При текущем ROE банк разрушает стоимость относительно альтернатив с доходностью 26%.",
-      "Cross-check: текущий рыночный P/B = 0.699 > справедливого 0.535 → рынок торгует с премией к Гордону, закладывая восстановление ROE до ~18-20%"
-     ],
-     "caveats": [
-      "beta=1.3 — judgement; нет рыночной beta из-за неликвидности бумаги",
-      "ROE 2025 = 11.2% является пониженным (рост ставки + рост CIR до 82%). При восстановлении ROE до 18% fair P/B вырастает до 0.66, цена до 0.0291 ₽",
-      "H1.0 11.02% — ограниченный запас над минимумом; риск давления регулятора при снижении капитала"
-     ]
-    }
-   },
-   {
-    "method": "historical_pb",
-    "fair_value_per_share": 0.03899,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {
-     "pb_used": 0.882,
-     "basis": "5y_mean (CV=0.21)",
-     "bvps_2025": 0.044229,
-     "equity_basis": "balance",
-     "cv": 0.21
-    },
-    "status": "ok",
-    "explain": {
-     "inputs": {
-      "P/B по годам (от текущей цены 0.030927)": "2020 = 695.97/676.4 = 1.03; 2021 = 695.97/645.0 = 1.08; 2022 = 695.97/681.2 = 1.02; 2023 = 695.97/1053.0 = 0.66; 2024 = 695.97/874.1 = 0.80; 2025 = 695.97/995.3 = 0.70 [fact+judgement, src_1]",
-      "Среднее P/B": "0.882 (по 6 годам)",
-      "Стандартное отклонение": "0.184",
-      "CV": "0.184 / 0.882 = 0.21 — ниже порога 0.5 → используем среднее, не медиану",
-      "BVPS_2025": "0.04423 ₽ [fact, src_1]"
-     },
-     "steps": [
-      "Шаг 1: Расчёт P/B по годам: cap_mln / equity_mln (6 лет) = [1.03, 1.08, 1.02, 0.66, 0.80, 0.70]",
-      "Шаг 2: CV = 0.21 < 0.5 → берём среднее = 0.882",
-      "Шаг 3: Fair price = P/B_used × BVPS_2025 = 0.882 × 0.04423 = 0.03899 ₽",
-      "Backward справочно: текущий P/B 0.699 × BVPS 0.04423 = 0.03090 (≈ текущая цена, ожидаемо)",
-      "Замечание: среднее P/B 0.882 включает 2020-2022 (P/B ~1), когда банк торговался около балансовой стоимости. С 2023 рынок переоценил в сторону дисконта (0.66-0.80). Метод даёт оптимистичную верхнюю планку."
-     ],
-     "caveats": [
-      "P/B 2020-2022 ~1.0 формировался при минимальных оборотах и мог не отражать фундаментал",
-      "Малый неликвидный банк: исторический P/B менее информативен, чем для ликвидных бумаг",
-      "Метод является верхней границей коридора"
-     ]
-    }
-   },
-   {
-    "method": "historical_pe",
-    "fair_value_per_share": 0.04026,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {
-     "pe_used": 5.5,
-     "basis": "5y_mean (CV=0.33)",
-     "eps_forward": 0.00732,
-     "eps_forward_source": "mechanical",
-     "eps_backward_ref": 0.00464,
-     "cv": 0.33
-    },
-    "status": "ok",
-    "explain": {
-     "inputs": {
-      "adj NP по годам (млн)": "2021=87.5, 2022=136.9, 2023=168.0, 2024=195.0, 2025=104.5 [fact+judgement, src_1]",
-      "EPS adj (₽)": "2021=0.003888; 2022=0.006082; 2023=0.007466; 2024=0.008665; 2025=0.004644",
-      "P/E adj hist": "2021=8.0; 2022=5.1; 2023=4.1; 2024=3.6; 2025=6.7",
-      "Среднее P/E adj": "5.5; стандартное отклонение 1.8; CV=0.33 < 0.5 → среднее",
-      "NP forward 2026 (мех.)": "среднее adj 2024+2025 = 149.75 млн × 1.10 (восстановление при снижении КС) = 164.7 млн [mechanical]",
-      "EPS forward 2026": "164.7 млн × 1 000 000 / 22 503 490 875 = 0.00732 ₽",
-      "EPS backward (adj 2025)": "104.5 млн × 1 000 000 / 22 503 490 875 = 0.00464 ₽ (справочно)"
-     },
-     "steps": [
-      "Шаг 1: Нормализованная adj NP по годам: 87.5, 136.9, 168.0, 195.0, 104.5 млн",
-      "Шаг 2: EPS adj: 0.003888, 0.006082, 0.007466, 0.008665, 0.004644 ₽",
-      "Шаг 3: P/E adj hist: 8.0, 5.1, 4.1, 3.6, 6.7; среднее=5.5, CV=0.33 → берём среднее",
-      "Шаг 4: Механический EPS forward 2026 = 0.00732 ₽ (нет консенсуса по малому банку)",
-      "Шаг 5: Fair price = P/E_used × EPS_fwd = 5.5 × 0.00732 = 0.04026 ₽",
-      "Backward справочно: 5.5 × 0.00464 = 0.02552 ₽"
-     ],
-     "caveats": [
-      "EPS forward — механический, без брокерского консенсуса; чувствителен к траектории ставки ЦБ",
-      "P/E малого неликвидного банка формируется при мизерных оборотах и малоинформативен",
-      "Метод даёт оптимистичную верхнюю границу"
-     ]
-    }
-   },
-   {
-    "method": "relative_peers",
-    "fair_value_per_share": 0.03096,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {
-     "multiple_used": "P/B",
-     "sector_pb_median": 0.7,
-     "bvps_2025": 0.044229,
-     "peers_note": "Медиана P/B публичных банков РФ ~0.7 (оценка; полный peers.json по банкам не построен)"
-    },
-    "status": "ok",
-    "explain": {
-     "inputs": {
-      "Мультипликатор": "P/B — основной для банков (маршрутизация: profile=bank). P/E менее информативен при нестабильной прибыли.",
-      "Медиана сектора P/B": "~0.70 — оценочно по публичным банкам РФ (крупные в диапазоне 0.4-1.0, медиана ~0.7); KUZB малый региональный с дополнительными рисками [judgement]",
-      "BVPS_2025": "0.04423 ₽ [fact, src_1]"
-     },
-     "steps": [
-      "Шаг 1: Мультипликатор — P/B, стандарт для банков",
-      "Шаг 2: Медиана сектора — 0.70 (оценка; peers.json по банкам не построен)",
-      "Шаг 3: Fair price = 0.70 × 0.04423 = 0.03096 ₽",
-      "Шаг 4: Текущий P/B KUZB = 0.699 — практически совпадает с медианой; по этому методу акция оценена справедливо рынком"
-     ],
-     "caveats": [
-      "Медиана сектора — judgement; без построенного peers.json по банкам",
-      "Малый региональный банк BB+ с минимальным free float логично должен торговаться с дисконтом к крупным — рынок уже применил этот дисконт, доведя P/B до 0.70",
-      "Метод даёт среднюю точку коридора"
-     ]
-    }
-   },
-   {
-    "method": "CAPM",
-    "fair_value_per_share": 0.03906,
-    "horizon": "12m",
-    "key_assumptions": {
-     "ke_pct": 26.3,
-     "beta": 1.3,
-     "div_yield_assumed_pct": 0.0
-    },
-    "status": "ok",
-    "explain": {
-     "inputs": {
-      "Rf": "14.6% [config, src_4]",
-      "ERP": "9.0% [config, src_4]",
-      "beta": "1.3 — judgement [аналогично P/BV×ROE]",
-      "Ke": "14.6% + 1.3 × 9.0% = 26.3%",
-      "Ожид. дивдоходность": "0% — дивиденды за 2025 не подтверждены [governance.json]"
-     },
-     "steps": [
-      "Ke = 14.6% + 1.3 × 9.0% = 26.3%",
-      "12м таргет = текущая цена × (1 + Ke − div_yield) = 0.030927 × (1 + 0.263 − 0.0) = 0.030927 × 1.263 = 0.03906 ₽",
-      "Интерпретация: при Ke=26.3% и нулевом дивиденде инвестор требует роста цены до 0.039 за 12 мес. — это лишь минимальный барьер доходности, не прогноз."
-     ],
-     "caveats": [
-      "CAPM слабо применим для неликвидного малого банка: нет рыночной beta",
-      "beta=1.3 — judgement; реальная required return может быть выше из-за ликвидностного дисконта",
-      "Метод показывает минимальную требуемую доходность, а не целевую цену"
-     ]
-    }
-   },
-   {
-    "method": "dividend",
-    "fair_value_per_share": 0.00837,
-    "horizon": "intrinsic_now",
-    "key_assumptions": {
-     "dps": 0.0022,
-     "ke_pct": 26.3,
-     "g_pct": 0.0
-    },
-    "status": "low_confidence",
-    "explain": {
-     "inputs": {
-      "DPS": "0.0022 ₽ из rates.csv — год и источник выплаты неизвестны; governance.json: выплаты нерегулярны, за 2024-2025 не подтверждены [judgement]",
-      "Ke": "26.3% [см. выше]",
-      "g": "0% — нет устойчивой дивполитики"
-     },
-     "steps": [
-      "Fair price (perpetuity без роста) = DPS / Ke = 0.0022 / 0.263 = 0.00837 ₽",
-      "Результат 0.00837 ₽ — сильно ниже текущей цены: подтверждает, что бумага НЕ является дивидендной историей"
-     ],
-     "caveats": [
-      "DPS 0.0022 — неясный источник, выплаты не подтверждены",
-      "Метод не применим для нерегулярных дивидендов; результат иллюстрирует отсутствие дивидендной привлекательности",
-      "Исключён из основного коридора оценки"
-     ]
-    }
-   }
-  ],
-  "methods_divergence_note": "Расхождение P/BV×ROE (0.0237 ₽) vs исторические P/B и P/E (0.0390-0.0403 ₽) составляет ~70%. Причина: Gordon-метод учитывает текущий депрессированный ROE (15.7%) при высоком Ke (26.3%) — банк не зарабатывает стоимость капитала → P/B справедливо ниже 0.6. Исторические методы отражают период 2020-2024, когда ROE был 18-26% (по reported) / 13-20% (по adj). Ключевой вопрос: восстановится ли ROE при снижении КС? Если да — верны исторические методы (цена 0.039-0.040). Если нет (банк стагнирует) — верен Gordon (0.024). Коридор расширен сознательно.",
-  "fair_value_range": {
-   "conservative": 0.0237,
-   "base": 0.0343,
-   "optimistic": 0.0403
-  },
-  "sensitivity": {
-   "method": "P/BV_ROE_gordon",
-   "ke_grid": [
-    24.3,
-    26.3,
-    28.3
-   ],
-   "roe_grid": [
-    12.7,
-    15.7,
-    18.7
-   ],
-   "matrix": [
-    [
-     0.01956,
-     0.01785,
-     0.01641
+  "meta": {
+    "ticker": "KUZB",
+    "name": "ПАО Банк Кузнецкий",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "РСБУ",
+    "converted_years": [],
+    "conversion_note": "Все данные в млн рублей. РСБУ: банк публиковал МСФО только до 2018 года, с 2019 — только РСБУ. Источники: пресс-релизы kuzbank.ru + smart-lab cross-check.",
+    "fiscal_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
     ],
-    [
-     0.02594,
-     0.02367,
-     0.02176
+    "shares_outstanding": 22503490875,
+    "source": {
+      "type": "company_ir",
+      "url": "https://kuzbank.ru/press_center/news/",
+      "doc_title": "Пресс-релизы итогов финансовой деятельности Банка Кузнецкий 2022-2024 (ID=8504, 9145, 9411, 9599) + smart-lab РСБУ cross-check",
+      "retrieved": "2026-07-04"
+    },
+    "data_quality": "medium",
+    "parse_method": "web-press-releases + smart-lab-table",
+    "arithmetic_check": "partial",
+    "anomaly_flag": true,
+    "anomaly_note": "ETR аномально низкая в 2022 (10.4%) и 2023 (0.0%) — применена налоговая нормализация до устойчивых 25%. В 2023 нулевой налог при прибыли до налога 224 млн — сильная аномалия, вероятно зачёт ОНА по РСБУ. Прибыль 2025 упала -46% г/г на фоне роста ставки и операционных расходов.",
+    "adjustments_aggressive": false
+  },
+  "bank_pnl": {
+    "interest_income": [
+      null,
+      533.013,
+      669.181,
+      758.614,
+      1248.648,
+      1667.239
     ],
-    [
-     0.03232,
-     0.02949,
-     0.02711
+    "interest_expense": [
+      null,
+      191.092,
+      336.202,
+      312.568,
+      682.496,
+      1077.32
+    ],
+    "net_interest_income": [
+      null,
+      390.0,
+      450.0,
+      590.0,
+      590.0,
+      589.9
+    ],
+    "fee_income": [
+      null,
+      222.303,
+      233.479,
+      246.504,
+      238.377,
+      216.535
+    ],
+    "fee_expense": [
+      null,
+      38.408,
+      33.184,
+      32.822,
+      38.63,
+      38.921
+    ],
+    "net_fee_income": [
+      null,
+      183.895,
+      200.295,
+      213.682,
+      185.2,
+      163.5
+    ],
+    "provisions": [
+      null,
+      -36.125,
+      86.404,
+      79.72,
+      17.849,
+      3.807
+    ],
+    "operating_income": [
+      null,
+      544.223,
+      694.23,
+      786.0,
+      806.143,
+      753.4
+    ],
+    "operating_expenses": [
+      null,
+      269.0,
+      291.0,
+      440.0,
+      547.0,
+      619.0
+    ],
+    "other_income": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "pre_tax_profit": [
+      null,
+      121.4,
+      182.5,
+      224.0,
+      260.0,
+      138.7
+    ],
+    "income_tax": [
+      null,
+      33.9,
+      19.0,
+      0.0,
+      65.0,
+      34.2
+    ],
+    "net_profit": [
+      null,
+      87.5,
+      163.5,
+      224.0,
+      195.0,
+      104.5
     ]
-   ],
-   "note": "Строки — ROE (12.7% / 15.7% / 18.7%); столбцы — Ke (24.3% / 26.3% / 28.3%). Значения в ₽. При ROE 18.7% и Ke 24.3% справедливая цена 0.0323; при ROE 12.7% и Ke 28.3% — 0.0164."
-  }
- },
- "sources": [
-  {
-   "id": "src_1",
-   "type": "official_report",
-   "title": "Банк «Кузнецкий» — пресс-релизы РСБУ 2021-2025 + e-disclosure + smart-lab cross-check",
-   "period": "2020-2025",
-   "url": "https://kuzbank.ru/raskrytie_informatsii/fin_otchet/",
-   "reliability": "medium"
   },
-  {
-   "id": "src_2",
-   "type": "official_report",
-   "title": "Банк «Кузнецкий» — итоги за 12 месяцев 2024-2025 (пресс-релизы РСБУ)",
-   "period": "2024-2025",
-   "url": "https://kuzbank.ru/press_center/news/",
-   "reliability": "medium"
+  "adjusted": {
+    "net_profit_adj": [
+      null,
+      87.5,
+      136.9,
+      168.0,
+      195.0,
+      104.5
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "Банковский профиль — FCF не применяется",
+    "etr_reported": [
+      null,
+      27.9,
+      10.4,
+      0.0,
+      25.0,
+      24.7
+    ],
+    "etr_sustainable": 25.0,
+    "bridge": [
+      {
+        "year": 2020,
+        "item": "Данных нет — пропуск",
+        "amount": null,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2021,
+        "item": "ETR 27.9% — близко к норме 25%, разового не выявлено; adjusted=reported",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "Налоговая нормализация: ETR 10.4% аномально низкая (разовый эффект ОНА или временная льгота по РСБУ). Досчёт: pre_tax 182.5 × (1−25%) = 136.9 млн. Delta = −26.6 млн (reported 163.5 завышена).",
+        "amount": -26.6,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "Налоговая нормализация: ETR 0% — нулевой налог при прибыли до налога 224 млн; сильная аномалия. Вероятно зачёт ОНА по РСБУ. Досчёт: pre_tax 224.0 × (1−25%) = 168.0 млн. Delta = −56.0 млн (reported 224.0 завышена).",
+        "amount": -56.0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "ETR 25.0% — норма; разовых не выявлено; adjusted=reported",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_2"
+      },
+      {
+        "year": 2025,
+        "item": "ETR 24.7% — практически норма; adjusted=reported",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "fact",
+        "source_ref": "src_2"
+      }
+    ],
+    "bridge_note": "Нормализация только налоговая (2022 и 2023). Разовых списаний, обесценений, курсовых переоценок, продаж активов в открытых данных РСБУ не выявлено. Прибыль 2025 (−46% г/г) — операционная (рост ставки + рост расходов): не нормализуем."
   },
-  {
-   "id": "src_3",
-   "type": "rating",
-   "title": "АКРА — кредитный рейтинг BB+(RU), прогноз стабильный, декабрь 2025",
-   "period": "2025-12",
-   "url": "https://cbonds.ru/news/3716717/",
-   "reliability": "high"
+  "bank_balance": {
+    "cash_and_equivalents": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_from_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "securities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loans_gross": [
+      null,
+      null,
+      4400.0,
+      6580.0,
+      6260.0,
+      6500.0
+    ],
+    "loan_provisions": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loans_net": [
+      null,
+      null,
+      null,
+      6580.0,
+      6260.0,
+      6500.0
+    ],
+    "ppe_intangibles": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "cash_and_cb": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_assets": [
+      6980.0,
+      6600.0,
+      6700.0,
+      10300.0,
+      9600.0,
+      10200.0
+    ],
+    "customer_deposits": [
+      null,
+      null,
+      null,
+      8690.0,
+      8100.0,
+      8400.0
+    ],
+    "deposits": [
+      null,
+      null,
+      null,
+      8690.0,
+      8100.0,
+      8400.0
+    ],
+    "due_to_banks": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "debt_securities_issued": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "debt_issued": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liabilities": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liab": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "total_liabilities": [
+      null,
+      null,
+      null,
+      9247.0,
+      8726.0,
+      9204.7
+    ],
+    "share_capital": [
+      null,
+      null,
+      null,
+      450.0,
+      450.0,
+      450.0
+    ],
+    "retained_earnings": [
+      null,
+      195.0,
+      381.0,
+      581.0,
+      581.0,
+      686.5
+    ],
+    "other_equity": [
+      null,
+      45.0,
+      null,
+      472.0,
+      343.0,
+      345.3
+    ],
+    "total_equity": [
+      676.4,
+      645.0,
+      681.2,
+      1053.0,
+      874.1,
+      995.3
+    ]
   },
-  {
-   "id": "src_4",
-   "type": "config",
-   "title": "market_params.json — Rf=14.6%, ERP=9.0%, key_rate=14.5%, terminal_growth=3.5%",
-   "period": "2026-05",
-   "url": "config/market_params.json",
-   "reliability": "high"
+  "bank_metrics": {
+    "roe_adj": [
+      null,
+      13.2,
+      20.6,
+      19.4,
+      20.2,
+      11.2
+    ],
+    "roe_reported": [
+      null,
+      13.2,
+      23.3,
+      25.8,
+      22.6,
+      11.2
+    ],
+    "roa_adj": [
+      null,
+      1.3,
+      2.1,
+      2.0,
+      2.0,
+      1.1
+    ],
+    "nim_pct": [
+      null,
+      5.74,
+      6.77,
+      6.94,
+      5.93,
+      5.96
+    ],
+    "cir_pct": [
+      null,
+      null,
+      null,
+      56.0,
+      null,
+      82.2
+    ],
+    "loans_to_deposits_pct": [
+      null,
+      null,
+      null,
+      75.7,
+      77.3,
+      77.4
+    ],
+    "capital_to_assets_pct": [
+      9.7,
+      9.8,
+      10.2,
+      10.2,
+      9.1,
+      9.8
+    ],
+    "h1_proxy_note": "capital_to_assets — прокси достаточности капитала. Публичный H1.0 11.02% по данным АКРА (дек. 2025), запас над регуляторным минимумом (8%) невысокий.",
+    "cost_of_risk": [
+      null,
+      null,
+      null,
+      null,
+      1.1,
+      null
+    ],
+    "capital_adequacy_h1": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      11.02
+    ]
   },
-  {
-   "id": "src_5",
-   "type": "company_ir",
-   "title": "Пресс-релиз итогов FY2022 — kuzbank.ru ID=8504",
-   "period": "2022",
-   "url": "https://kuzbank.ru/press_center/news/detail.php?ID=8504",
-   "reliability": "high"
+  "multiples": {
+    "pb": [
+      1.03,
+      1.08,
+      1.02,
+      0.66,
+      0.8,
+      0.7
+    ],
+    "pe_adj": [
+      null,
+      8.0,
+      5.1,
+      4.1,
+      3.6,
+      6.7
+    ],
+    "current": {
+      "pb": 0.699,
+      "pe_adj": 6.7,
+      "as_of": "2026-06-13"
+    },
+    "historical_avg": {
+      "pb_basis": "5y_mean (CV=0.21)",
+      "pb_value": 0.882,
+      "pe_adj_basis": "5y_mean (CV=0.33)",
+      "pe_adj_value": 5.5,
+      "period": "2020-2025"
+    }
   },
-  {
-   "id": "src_6",
-   "type": "company_ir",
-   "title": "Пресс-релиз итогов FY2024 — kuzbank.ru ID=9411",
-   "period": "2024",
-   "url": "https://kuzbank.ru/press_center/news/detail.php?ID=9411",
-   "reliability": "high"
-  }
- ],
- "data_flags": [
-  "data_quality=medium: РСБУ — банк публикует МСФО только до 2018, с 2019 только РСБУ; детализированный отчёт о финансовых результатах построчно не раскрывается в открытых пресс-релизах",
-  "КРИТИЧНО — конфликт balance_sheet 2022: existing total_assets[2022]=6700 конфликтует с первичным пресс-релизом FY2022 kuzbank ID=8504 (активы 01.01.2023 = 7450 млн, delta=750 млн); existing total_equity[2022]=681.2 vs press=731.4; existing net_interest_income[2022]=450 vs press=323.4 млн; existing pre_tax[2022]=182.5 vs press=241.2; existing net_profit[2022]=163.5 vs press=219.5. Данные 2020-2023 в existing JSON вероятно взяты из smart-lab МСФО-страницы с нестандартными year-labels",
-  "КРИТИЧНО — конфликт balance_sheet 2023: existing total_assets[2023]=10300 конфликтует с первичным пресс-релизом FY2023 kuzbank ID=9145 (активы 01.01.2024 = 8100 млн, delta=2200 млн +27%); existing deposits[2023]=8690 vs press=6900",
-  "КРИТИЧНО — конфликт bank_pnl 2024: existing NII[2024]=590.0 vs первичный пресс-релиз FY2024=555.6 млн (delta=34 млн, +6%); existing pre_tax[2024]=260.0 vs press=227.2; при этом net_profit[2024]=195.0 совпадает с прессом",
-  "Подтверждены из первичных пресс-релизов kuzbank.ru без конфликтов: FY2024 net_profit=195 млн, total_assets=9600 млн, total_equity=874.1 млн, loans_gross=6260 млн, deposits=8100 млн; FY2025 total_assets=10200 млн, total_equity=995.3 млн; balance equity+liabilities=assets PASSED для 2023/2024/2025",
-  "bank_pnl.net_fee_income[2024]=185.2 млн — заполнено из пресс-релиза FY2024 kuzbank ID=9411 (первичный источник, high reliability)",
-  "bank_pnl.operating_expenses[2024]=547.0 млн — заполнено из пресс-релиза FY2024 kuzbank ID=9411. Gross net income = 834.1 млн - opex 547.0 = pre_tax implied 287.1 vs press pre_tax 227.2 → implied provisions ≈ 60 млн; provisions оставлены null т.к. existing pre_tax[2024]=260.0 конфликтует с press=227.2",
-  "bank_balance.loans_gross[2022]=4400 млн — заполнено из пресс-релиза FY2022 kuzbank ID=8504 (корпоративные 3100 + розница 1300 = 4400). Ранее было null",
-  "bank_balance.loan_provisions: не раскрываются в РСБУ-пресс-релизах; smart-lab показывал резервы 316/280/266 для 2021/2022/2023 но year-labels и стандарт (РСБУ/МСФО) неверифицированы → оставлены null. COR 2024=1.1% (из пресс-релиза); implied balance provision ≈ 69 млн",
-  "bank_balance.cash_and_equivalents, due_from_banks, securities, ppe_intangibles, due_to_banks, debt_securities_issued, other_liabilities: не публикуются в пресс-релизах; требуется публикуемая форма баланса РСБУ (0409806) с сайта kuzbank.ru или ЦБ РФ — рекомендована ручная загрузка первичного отчёта",
-  "interest_income/interest_expense (брутто): не раскрываются в открытых пресс-релизах; только нетто (NII); оставлены null",
-  "fee_income/fee_expense (брутто): не раскрываются; только net_fee; оставлены null",
-  "provisions (P&L годовые): не выделены в открытых пресс-релизах отдельной строкой; оставлены null",
-  "ETR 2023=0.0%: нулевой налог при pre_tax 224 млн — сильная аномалия; применена нормализация до 25% в adjusted.bridge",
-  "ETR 2022=10.4%: аномально низко; применена нормализация до 25% в adjusted.bridge",
-  "beta=1.3 — judgement (нет рыночной beta из-за неликвидности); оценки чувствительны",
-  "sector_pb_median 0.70 — judgement; peers.json по банковскому сектору не построен",
-  "DPS 0.0022 ₽ из rates.csv — источник и период неизвестны; выплаты за 2024-2025 не подтверждены governance.json",
-  "Ликвидность акции KUZB минимальна; цена может не отражать фундаментал",
-  "H1.0 11.02% (АКРА, дек.2025) — запас над регуляторным минимумом 8% невысокий"
- ],
- "balance_sheet": {
-  "total_equity": [
-   676.4,
-   645.0,
-   681.2,
-   1053.0,
-   874.1,
-   995.3
+  "metrics_timeseries": {
+    "pb": [
+      1.03,
+      1.08,
+      1.02,
+      0.66,
+      0.8,
+      0.7
+    ],
+    "pe": [
+      null,
+      7.96,
+      4.25,
+      3.11,
+      3.57,
+      6.66
+    ],
+    "pe_adj": [
+      null,
+      8.0,
+      5.1,
+      4.1,
+      3.6,
+      6.7
+    ],
+    "roe": [
+      null,
+      13.2,
+      20.6,
+      19.4,
+      20.2,
+      11.2
+    ],
+    "roa": [
+      null,
+      1.3,
+      2.1,
+      2.0,
+      2.0,
+      1.1
+    ],
+    "net_profit_growth": [
+      null,
+      null,
+      86.7,
+      22.8,
+      -12.9,
+      -46.4
+    ],
+    "nim": [
+      null,
+      5.74,
+      6.77,
+      6.94,
+      5.93,
+      5.96
+    ]
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "net_profit_growth_pct": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      10.0
+    ],
+    "note": "Консенсус брокеров по KUZB отсутствует (малый неликвидный банк, нет аналитического покрытия). Механический прогноз NP 2026: среднее adj 2024+2025 = 149.75 млн × 1.10 (умеренное восстановление при снижении КС с 14.5%) = 164.7 млн."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {},
+        "status": "not_applicable",
+        "explain": {
+          "inputs": {},
+          "steps": [],
+          "caveats": [
+            "DCF (FCFF) не применяется для банков: денежные потоки банка не отделимы от операционной деятельности, долг — часть бизнес-модели, а не структуры капитала. Маршрутизация: profile=bank → P/BV×ROE (Гордон), исторический P/B, дивидендная."
+          ]
+        }
+      },
+      {
+        "method": "P/BV_ROE_gordon",
+        "fair_value_per_share": 0.02367,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "roe_sustainable_pct": 15.7,
+          "ke_pct": 26.3,
+          "g_pct": 3.5,
+          "beta": 1.3,
+          "fair_pb": 0.535,
+          "bvps_2025": 0.044229,
+          "equity_basis": "balance"
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% — доходность 10-летних ОФЗ, май 2026 [config, src_4]",
+            "ERP": "9.0% — премия за риск рынка акций РФ [config, src_4]",
+            "beta": "1.3 — judgement для малого регионального банка: повышенная ликвидностная премия, кредитный рейтинг BB+ (АКРА), минимальный free float, неликвидность [judgement, src_3]",
+            "Ke": "14.6% + 1.3 × 9.0% = 26.3% — требуемая доходность на капитал",
+            "ROE_sustainable": "среднее adj ROE 2024 (20.2%) и 2025 (11.2%) = 15.7% — два последних нормализованных года; 2024 пиковый, 2025 сжатие; среднее как устойчивый ориентир [judgement]",
+            "g": "3.5% — терминальный рост = default max из конфига; не выше номинального роста экономики [config]",
+            "BVPS_2025": "0.04423 ₽ = 995.3 млн × 1 000 000 / 22 503 490 875 акций [fact, src_1]"
+          },
+          "steps": [
+            "Шаг 1: Ke = Rf + beta × ERP = 14.6% + 1.3 × 9.0% = 14.6% + 11.7% = 26.3%",
+            "Шаг 2: Справедливый P/B (Гордон) = (ROE − g) / (Ke − g) = (15.7% − 3.5%) / (26.3% − 3.5%) = 12.2% / 22.8% = 0.535",
+            "Шаг 3: BVPS 2025 = total_equity 995.3 млн × 1 000 000 / 22 503 490 875 акций = 0.04423 ₽",
+            "Шаг 4: Fair price = fair P/B × BVPS = 0.535 × 0.04423 = 0.02367 ₽",
+            "Интерпретация: ROE 15.7% < Ke 26.3% → банк не зарабатывает стоимость капитала → справедливый P/B < 1 (0.535). При текущем ROE банк разрушает стоимость относительно альтернатив с доходностью 26%.",
+            "Cross-check: текущий рыночный P/B = 0.699 > справедливого 0.535 → рынок торгует с премией к Гордону, закладывая восстановление ROE до ~18-20%"
+          ],
+          "caveats": [
+            "beta=1.3 — judgement; нет рыночной beta из-за неликвидности бумаги",
+            "ROE 2025 = 11.2% является пониженным (рост ставки + рост CIR до 82%). При восстановлении ROE до 18% fair P/B вырастает до 0.66, цена до 0.0291 ₽",
+            "H1.0 11.02% — ограниченный запас над минимумом; риск давления регулятора при снижении капитала"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": 0.03899,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pb_used": 0.882,
+          "basis": "5y_mean (CV=0.21)",
+          "bvps_2025": 0.044229,
+          "equity_basis": "balance",
+          "cv": 0.21
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "P/B по годам (от текущей цены 0.030927)": "2020 = 695.97/676.4 = 1.03; 2021 = 695.97/645.0 = 1.08; 2022 = 695.97/681.2 = 1.02; 2023 = 695.97/1053.0 = 0.66; 2024 = 695.97/874.1 = 0.80; 2025 = 695.97/995.3 = 0.70 [fact+judgement, src_1]",
+            "Среднее P/B": "0.882 (по 6 годам)",
+            "Стандартное отклонение": "0.184",
+            "CV": "0.184 / 0.882 = 0.21 — ниже порога 0.5 → используем среднее, не медиану",
+            "BVPS_2025": "0.04423 ₽ [fact, src_1]"
+          },
+          "steps": [
+            "Шаг 1: Расчёт P/B по годам: cap_mln / equity_mln (6 лет) = [1.03, 1.08, 1.02, 0.66, 0.80, 0.70]",
+            "Шаг 2: CV = 0.21 < 0.5 → берём среднее = 0.882",
+            "Шаг 3: Fair price = P/B_used × BVPS_2025 = 0.882 × 0.04423 = 0.03899 ₽",
+            "Backward справочно: текущий P/B 0.699 × BVPS 0.04423 = 0.03090 (≈ текущая цена, ожидаемо)",
+            "Замечание: среднее P/B 0.882 включает 2020-2022 (P/B ~1), когда банк торговался около балансовой стоимости. С 2023 рынок переоценил в сторону дисконта (0.66-0.80). Метод даёт оптимистичную верхнюю планку."
+          ],
+          "caveats": [
+            "P/B 2020-2022 ~1.0 формировался при минимальных оборотах и мог не отражать фундаментал",
+            "Малый неликвидный банк: исторический P/B менее информативен, чем для ликвидных бумаг",
+            "Метод является верхней границей коридора"
+          ]
+        }
+      },
+      {
+        "method": "historical_pe",
+        "fair_value_per_share": 0.04026,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "pe_used": 5.5,
+          "basis": "5y_mean (CV=0.33)",
+          "eps_forward": 0.00732,
+          "eps_forward_source": "mechanical",
+          "eps_backward_ref": 0.00464,
+          "cv": 0.33
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "adj NP по годам (млн)": "2021=87.5, 2022=136.9, 2023=168.0, 2024=195.0, 2025=104.5 [fact+judgement, src_1]",
+            "EPS adj (₽)": "2021=0.003888; 2022=0.006082; 2023=0.007466; 2024=0.008665; 2025=0.004644",
+            "P/E adj hist": "2021=8.0; 2022=5.1; 2023=4.1; 2024=3.6; 2025=6.7",
+            "Среднее P/E adj": "5.5; стандартное отклонение 1.8; CV=0.33 < 0.5 → среднее",
+            "NP forward 2026 (мех.)": "среднее adj 2024+2025 = 149.75 млн × 1.10 (восстановление при снижении КС) = 164.7 млн [mechanical]",
+            "EPS forward 2026": "164.7 млн × 1 000 000 / 22 503 490 875 = 0.00732 ₽",
+            "EPS backward (adj 2025)": "104.5 млн × 1 000 000 / 22 503 490 875 = 0.00464 ₽ (справочно)"
+          },
+          "steps": [
+            "Шаг 1: Нормализованная adj NP по годам: 87.5, 136.9, 168.0, 195.0, 104.5 млн",
+            "Шаг 2: EPS adj: 0.003888, 0.006082, 0.007466, 0.008665, 0.004644 ₽",
+            "Шаг 3: P/E adj hist: 8.0, 5.1, 4.1, 3.6, 6.7; среднее=5.5, CV=0.33 → берём среднее",
+            "Шаг 4: Механический EPS forward 2026 = 0.00732 ₽ (нет консенсуса по малому банку)",
+            "Шаг 5: Fair price = P/E_used × EPS_fwd = 5.5 × 0.00732 = 0.04026 ₽",
+            "Backward справочно: 5.5 × 0.00464 = 0.02552 ₽"
+          ],
+          "caveats": [
+            "EPS forward — механический, без брокерского консенсуса; чувствителен к траектории ставки ЦБ",
+            "P/E малого неликвидного банка формируется при мизерных оборотах и малоинформативен",
+            "Метод даёт оптимистичную верхнюю границу"
+          ]
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": 0.03096,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "multiple_used": "P/B",
+          "sector_pb_median": 0.7,
+          "bvps_2025": 0.044229,
+          "peers_note": "Медиана P/B публичных банков РФ ~0.7 (оценка; полный peers.json по банкам не построен)"
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Мультипликатор": "P/B — основной для банков (маршрутизация: profile=bank). P/E менее информативен при нестабильной прибыли.",
+            "Медиана сектора P/B": "~0.70 — оценочно по публичным банкам РФ (крупные в диапазоне 0.4-1.0, медиана ~0.7); KUZB малый региональный с дополнительными рисками [judgement]",
+            "BVPS_2025": "0.04423 ₽ [fact, src_1]"
+          },
+          "steps": [
+            "Шаг 1: Мультипликатор — P/B, стандарт для банков",
+            "Шаг 2: Медиана сектора — 0.70 (оценка; peers.json по банкам не построен)",
+            "Шаг 3: Fair price = 0.70 × 0.04423 = 0.03096 ₽",
+            "Шаг 4: Текущий P/B KUZB = 0.699 — практически совпадает с медианой; по этому методу акция оценена справедливо рынком"
+          ],
+          "caveats": [
+            "Медиана сектора — judgement; без построенного peers.json по банкам",
+            "Малый региональный банк BB+ с минимальным free float логично должен торговаться с дисконтом к крупным — рынок уже применил этот дисконт, доведя P/B до 0.70",
+            "Метод даёт среднюю точку коридора"
+          ]
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 0.03906,
+        "horizon": "12m",
+        "key_assumptions": {
+          "ke_pct": 26.3,
+          "beta": 1.3,
+          "div_yield_assumed_pct": 0.0
+        },
+        "status": "ok",
+        "explain": {
+          "inputs": {
+            "Rf": "14.6% [config, src_4]",
+            "ERP": "9.0% [config, src_4]",
+            "beta": "1.3 — judgement [аналогично P/BV×ROE]",
+            "Ke": "14.6% + 1.3 × 9.0% = 26.3%",
+            "Ожид. дивдоходность": "0% — дивиденды за 2025 не подтверждены [governance.json]"
+          },
+          "steps": [
+            "Ke = 14.6% + 1.3 × 9.0% = 26.3%",
+            "12м таргет = текущая цена × (1 + Ke − div_yield) = 0.030927 × (1 + 0.263 − 0.0) = 0.030927 × 1.263 = 0.03906 ₽",
+            "Интерпретация: при Ke=26.3% и нулевом дивиденде инвестор требует роста цены до 0.039 за 12 мес. — это лишь минимальный барьер доходности, не прогноз."
+          ],
+          "caveats": [
+            "CAPM слабо применим для неликвидного малого банка: нет рыночной beta",
+            "beta=1.3 — judgement; реальная required return может быть выше из-за ликвидностного дисконта",
+            "Метод показывает минимальную требуемую доходность, а не целевую цену"
+          ]
+        }
+      },
+      {
+        "method": "dividend",
+        "fair_value_per_share": 0.00837,
+        "horizon": "intrinsic_now",
+        "key_assumptions": {
+          "dps": 0.0022,
+          "ke_pct": 26.3,
+          "g_pct": 0.0
+        },
+        "status": "low_confidence",
+        "explain": {
+          "inputs": {
+            "DPS": "0.0022 ₽ из rates.csv — год и источник выплаты неизвестны; governance.json: выплаты нерегулярны, за 2024-2025 не подтверждены [judgement]",
+            "Ke": "26.3% [см. выше]",
+            "g": "0% — нет устойчивой дивполитики"
+          },
+          "steps": [
+            "Fair price (perpetuity без роста) = DPS / Ke = 0.0022 / 0.263 = 0.00837 ₽",
+            "Результат 0.00837 ₽ — сильно ниже текущей цены: подтверждает, что бумага НЕ является дивидендной историей"
+          ],
+          "caveats": [
+            "DPS 0.0022 — неясный источник, выплаты не подтверждены",
+            "Метод не применим для нерегулярных дивидендов; результат иллюстрирует отсутствие дивидендной привлекательности",
+            "Исключён из основного коридора оценки"
+          ]
+        }
+      }
+    ],
+    "methods_divergence_note": "Расхождение P/BV×ROE (0.0237 ₽) vs исторические P/B и P/E (0.0390-0.0403 ₽) составляет ~70%. Причина: Gordon-метод учитывает текущий депрессированный ROE (15.7%) при высоком Ke (26.3%) — банк не зарабатывает стоимость капитала → P/B справедливо ниже 0.6. Исторические методы отражают период 2020-2024, когда ROE был 18-26% (по reported) / 13-20% (по adj). Ключевой вопрос: восстановится ли ROE при снижении КС? Если да — верны исторические методы (цена 0.039-0.040). Если нет (банк стагнирует) — верен Gordon (0.024). Коридор расширен сознательно.",
+    "fair_value_range": {
+      "conservative": 0.0237,
+      "base": 0.0343,
+      "optimistic": 0.0403
+    },
+    "sensitivity": {
+      "method": "P/BV_ROE_gordon",
+      "ke_grid": [
+        24.3,
+        26.3,
+        28.3
+      ],
+      "roe_grid": [
+        12.7,
+        15.7,
+        18.7
+      ],
+      "matrix": [
+        [
+          0.01956,
+          0.01785,
+          0.01641
+        ],
+        [
+          0.02594,
+          0.02367,
+          0.02176
+        ],
+        [
+          0.03232,
+          0.02949,
+          0.02711
+        ]
+      ],
+      "note": "Строки — ROE (12.7% / 15.7% / 18.7%); столбцы — Ke (24.3% / 26.3% / 28.3%). Значения в ₽. При ROE 18.7% и Ke 24.3% справедливая цена 0.0323; при ROE 12.7% и Ke 28.3% — 0.0164."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "Банк «Кузнецкий» — пресс-релизы РСБУ 2021-2025 + e-disclosure + smart-lab cross-check",
+      "period": "2020-2025",
+      "url": "https://kuzbank.ru/raskrytie_informatsii/fin_otchet/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_2",
+      "type": "official_report",
+      "title": "Банк «Кузнецкий» — итоги за 12 месяцев 2024-2025 (пресс-релизы РСБУ)",
+      "period": "2024-2025",
+      "url": "https://kuzbank.ru/press_center/news/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_3",
+      "type": "rating",
+      "title": "АКРА — кредитный рейтинг BB+(RU), прогноз стабильный, декабрь 2025",
+      "period": "2025-12",
+      "url": "https://cbonds.ru/news/3716717/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "config",
+      "title": "market_params.json — Rf=14.6%, ERP=9.0%, key_rate=14.5%, terminal_growth=3.5%",
+      "period": "2026-05",
+      "url": "config/market_params.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "company_ir",
+      "title": "Пресс-релиз итогов FY2022 — kuzbank.ru ID=8504",
+      "period": "2022",
+      "url": "https://kuzbank.ru/press_center/news/detail.php?ID=8504",
+      "reliability": "high"
+    },
+    {
+      "id": "src_6",
+      "type": "company_ir",
+      "title": "Пресс-релиз итогов FY2024 — kuzbank.ru ID=9411",
+      "period": "2024",
+      "url": "https://kuzbank.ru/press_center/news/detail.php?ID=9411",
+      "reliability": "high"
+    }
   ],
-  "customer_deposits": [
-   null,
-   null,
-   null,
-   8690.0,
-   8100.0,
-   8400.0
+  "data_flags": [
+    "data_quality=medium: РСБУ — банк публикует МСФО только до 2018, с 2019 только РСБУ; детализированный отчёт о финансовых результатах построчно не раскрывается в открытых пресс-релизах",
+    "КРИТИЧНО — конфликт balance_sheet 2022: existing total_assets[2022]=6700 конфликтует с первичным пресс-релизом FY2022 kuzbank ID=8504 (активы 01.01.2023 = 7450 млн, delta=750 млн); existing total_equity[2022]=681.2 vs press=731.4; existing net_interest_income[2022]=450 vs press=323.4 млн; existing pre_tax[2022]=182.5 vs press=241.2; existing net_profit[2022]=163.5 vs press=219.5. Данные 2020-2023 в existing JSON вероятно взяты из smart-lab МСФО-страницы с нестандартными year-labels",
+    "КРИТИЧНО — конфликт balance_sheet 2023: existing total_assets[2023]=10300 конфликтует с первичным пресс-релизом FY2023 kuzbank ID=9145 (активы 01.01.2024 = 8100 млн, delta=2200 млн +27%); existing deposits[2023]=8690 vs press=6900",
+    "КРИТИЧНО — конфликт bank_pnl 2024: existing NII[2024]=590.0 vs первичный пресс-релиз FY2024=555.6 млн (delta=34 млн, +6%); existing pre_tax[2024]=260.0 vs press=227.2; при этом net_profit[2024]=195.0 совпадает с прессом",
+    "Подтверждены из первичных пресс-релизов kuzbank.ru без конфликтов: FY2024 net_profit=195 млн, total_assets=9600 млн, total_equity=874.1 млн, loans_gross=6260 млн, deposits=8100 млн; FY2025 total_assets=10200 млн, total_equity=995.3 млн; balance equity+liabilities=assets PASSED для 2023/2024/2025",
+    "bank_pnl.net_fee_income[2024]=185.2 млн — заполнено из пресс-релиза FY2024 kuzbank ID=9411 (первичный источник, high reliability)",
+    "bank_pnl.operating_expenses[2024]=547.0 млн — заполнено из пресс-релиза FY2024 kuzbank ID=9411. Gross net income = 834.1 млн - opex 547.0 = pre_tax implied 287.1 vs press pre_tax 227.2 → implied provisions ≈ 60 млн; provisions оставлены null т.к. existing pre_tax[2024]=260.0 конфликтует с press=227.2",
+    "bank_balance.loans_gross[2022]=4400 млн — заполнено из пресс-релиза FY2022 kuzbank ID=8504 (корпоративные 3100 + розница 1300 = 4400). Ранее было null",
+    "bank_balance.loan_provisions: не раскрываются в РСБУ-пресс-релизах; smart-lab показывал резервы 316/280/266 для 2021/2022/2023 но year-labels и стандарт (РСБУ/МСФО) неверифицированы → оставлены null. COR 2024=1.1% (из пресс-релиза); implied balance provision ≈ 69 млн",
+    "bank_balance.cash_and_equivalents, due_from_banks, securities, ppe_intangibles, due_to_banks, debt_securities_issued, other_liabilities: не публикуются в пресс-релизах; требуется публикуемая форма баланса РСБУ (0409806) с сайта kuzbank.ru или ЦБ РФ — рекомендована ручная загрузка первичного отчёта",
+    "interest_income/interest_expense (брутто): не раскрываются в открытых пресс-релизах; только нетто (NII); оставлены null",
+    "fee_income/fee_expense (брутто): не раскрываются; только net_fee; оставлены null",
+    "provisions (P&L годовые): не выделены в открытых пресс-релизах отдельной строкой; оставлены null",
+    "ETR 2023=0.0%: нулевой налог при pre_tax 224 млн — сильная аномалия; применена нормализация до 25% в adjusted.bridge",
+    "ETR 2022=10.4%: аномально низко; применена нормализация до 25% в adjusted.bridge",
+    "beta=1.3 — judgement (нет рыночной beta из-за неликвидности); оценки чувствительны",
+    "sector_pb_median 0.70 — judgement; peers.json по банковскому сектору не построен",
+    "DPS 0.0022 ₽ из rates.csv — источник и период неизвестны; выплаты за 2024-2025 не подтверждены governance.json",
+    "Ликвидность акции KUZB минимальна; цена может не отражать фундаментал",
+    "H1.0 11.02% (АКРА, дек.2025) — запас над регуляторным минимумом 8% невысокий",
+    "KUZB: report-fetcher (2026-07-06) НЕЗАВИСИМО подтвердил уже задокументированные конфликты (из первичных PDF ФНС/сайта банка, не пресс-релизов) — расхождения по total_assets/net_profit 2022-2024 сохраняются. ОДДС банк НЕ публикует вовсе (форма 0409814 явно исключена из \"обобщённой\" отчётности с 2022 г., подтверждено текстом пояснительной записки) — структурный пробел, не деградация поиска. Только заполнены истинные пробелы (null), существующие спорные значения net_profit/total_assets НЕ заменены — конфликт остаётся нерешённым намеренно (см. предыдущие CRITICAL-флаги).",
+    "ТИКЕР: KUZB на MOEX = ПАО Банк «Кузнецкий» (подтверждено iss.moex.com/iss/securities/KUZB.json, ISIN RU000A0JSQ66), НЕ угольная компания КТК/Кузбасская Топливная Компания — задание содержало фактическую ошибку в названии эмитента; данные добыты для верной компании, соответствующей существующему financials.json (profile=bank).",
+    "ОДДС (форма 0409814) НЕДОСТУПНА за 2020-2025: (1) на kuzbank.ru публикуемая 'обобщённая годовая бухгалтерская (финансовая) отчётность' ЯВНО указывает в тексте пояснительной записки (стр. 10 PDF за 2024 г.), что НЕ ВКЛЮЧАЕТ 'отчёт о движении денежных средств (публикуемая форма) на 1 января ... года' и пояснительную информацию — банк раскрывает только баланс (0409806), ОФР (0409807), достаточность капитала (0409808/0409813), изменения капитала (0409810); (2) на сайте есть КВАРТАЛЬНЫЕ (нарастающим итогом на 1 апреля/1 июля/1 октября) отчёты 0409814, но публикация прекращена после 2021 года (последние — за 9М2021), для 2022-2025 годовых/квартальных ОДДС на сайте нет; (3) e-disclosure.ru — один обходной путь испробован (прямой запрос карточки компании) — заблокирован Cloudflare JS-challenge (servicepipe.ru редирект), как и предупреждено в методичке; повторные попытки не предпринимались (лимит одна попытка). ВЫВОД: ОДДС банка Кузнецкий отсутствует в открытом доступе за все годы 2020-2025 — требуется либо ручной запрос в банк, либо доступ к полной (не 'обобщённой') отчётности, которую эмитент не публикует.",
+    "2020 год: балансовые/П&Л данные ПОЛНОСТЬЮ ОТСУТСТВУЮТ в добытых источниках — годовой отчёт за 2021 год (который содержал бы 2020 как 'предыдущий период') на сайте не найден в явном виде среди проверенных ссылок (найден только 'за 2020 год' файл, который дал бы 2019 как prior — не нужно, и 'за 2022 год' файл дал 2021 как prior — использовано). Оставлено null во всех блоках для 2020, честный пробел.",
+    "Данные 2021-2025 получены ПОЛНОСТЬЮ из первичных аудированных форм 0409806 (баланс) и 0409807 (ОФР) — 4 файла (за 2022, 2023, 2024, 2025 гг.), каждый содержит 2 колонки (отчётный + предыдущий год), что дало перекрёстную проверку: значение 'предыдущего года' в отчёте N всегда СОВПАЛО с 'отчётным периодом' в отчёте N-1 (100% математических совпадений по всем строкам баланса и ОФР) — высокая надёжность.",
+    "loans_gross (валовый портфель до вычета резерва) НЕ раскрывается отдельной строкой в публикуемой форме 0409806 — есть только 'Чистая ссудная задолженность, оцениваемая по амортизированной стоimosti' (net). Резервы под кредитные убытки видны только как ГОДОВОЕ ИЗМЕНЕНИЕ в ОФР (строка 'provisions'), но накопленный остаток резерва по балансу не публикуется отдельно — loans_gross оставлен null.",
+    "debt_issued: банк не выпускает облигации/векселя в 2021-2025 — строка 'Выпущенные долговые ценные бумаги' пустая (Х) во всех годовых отчётах → корректно null/фактически 0.",
+    "due_to_banks = сумма строк 'Кредиты, депозиты и прочие средства ЦБ РФ' + 'средства кредитных организаций' (межбанк); минорная позиция OCR-считана с умеренной уверенностью для отдельных лет (2024=318.3 млн включает CBR-репо 17.7+межбанк 300.6) — если потребуется точность, сверить оригинал.",
+    "other_assets/other_liab — остаточные (residual) статьи = total minus известные крупные компоненты (loans_net/securities/cash_and_cb для активов; deposits/due_to_banks для пассивов). Включают: ОС и НМА, ДНА, отложенный налоговый актив/обязательство, долгосрочные активы для продажи, прочие обязательства. Не разложены на подстатьи — оставлены агрегатом с пометкой residual.",
+    "Арифметика ПОЛНОСТЬЮ сходится для всех годов 2021-2025: total_assets = total_liabilities + total_equity (точное совпадение, т.к. взято прямо из баланса); pre_tax_profit - income_tax = net_profit (точное совпадение для всех 5 лет) — arithmetic_check=passed.",
+    "КРИТИЧНО для сверки с главным financials.json: первичные данные из этого файла СУЩЕСТВЕННО отличаются от текущих значений в financials.json (построенных на пресс-релизах/smart-lab) для 2021-2024: total_assets 2022 первично=7451.0 vs existing=6700 (диспетчер уже отметил это как 'КРИТИЧНО' в data_flags financials.json); total_assets 2023 первично=8128.3 vs existing=10300; net_profit 2021 первично=76.44 vs existing=87.5; net_profit 2022 первично=221.6 vs existing=163.5; net_profit 2024 первично=171.4 vs existing=195.0. Год 2025 практически совпадает (NII 589.919 vs 589.9, net_profit 95.928 vs 104.5 — близко). Рекомендация диспетчеру: заменить P&L/баланс на данные этого файла как более надёжный первичный источник (аудированные формы), пересчитать adjusted/bridge/мультипликаторы соответственно."
   ],
-  "net_loans": [
-   null,
-   null,
-   null,
-   6580.0,
-   6260.0,
-   6500.0
+  "balance_sheet": {
+    "total_equity": [
+      676.4,
+      645.0,
+      681.2,
+      1053.0,
+      874.1,
+      995.3
+    ],
+    "customer_deposits": [
+      null,
+      null,
+      null,
+      8690.0,
+      8100.0,
+      8400.0
+    ],
+    "net_loans": [
+      null,
+      null,
+      null,
+      6580.0,
+      6260.0,
+      6500.0
+    ],
+    "gross_loans": [
+      null,
+      null,
+      4400.0,
+      6580.0,
+      6260.0,
+      6500.0
+    ]
+  },
+  "segments": [
+    {
+      "name": "Корпоративный банкинг (МСБ)",
+      "pct": 63.0,
+      "note": "Кредиты МСБ составляют 63% кредитного портфеля"
+    },
+    {
+      "name": "Розничный банкинг",
+      "pct": 37.0,
+      "note": "Розничные кредиты составляют 37% кредитного портфеля"
+    }
   ],
-  "gross_loans": [
-   null,
-   null,
-   4400.0,
-   6580.0,
-   6260.0,
-   6500.0
+  "cost_breakdown": [
+    {
+      "name": "Расходы на персонал",
+      "pct": 50.0,
+      "type": "fixed"
+    },
+    {
+      "name": "Административные расходы",
+      "pct": 25.0,
+      "type": "fixed"
+    },
+    {
+      "name": "Амортизация и IT",
+      "pct": 15.0,
+      "type": "fixed"
+    },
+    {
+      "name": "Прочие",
+      "pct": 10.0,
+      "type": "variable"
+    }
+  ],
+  "key_facts": [
+    {
+      "label": "Суть бизнеса",
+      "value": "Региональный банк, кредитование МСБ и розница, вклады населения"
+    },
+    {
+      "label": "Регион",
+      "value": "Пензенская область (95% операций)"
+    },
+    {
+      "label": "Контроль",
+      "value": "Группа физлиц: Дралин (~30%), Ларюшкины (~27%), Есяковы (~24%)"
+    },
+    {
+      "label": "Акции",
+      "value": "Обыкновенные, торгуются на Мосбирже"
+    },
+    {
+      "label": "Кредитный рейтинг",
+      "value": "BB+(RU) от АКРА, прогноз стабильный"
+    }
+  ],
+  "geo_split": [
+    {
+      "region": "Пензенская область",
+      "pct": 95.0
+    },
+    {
+      "region": "Самарская область",
+      "pct": 3.0
+    },
+    {
+      "region": "Чувашия",
+      "pct": 2.0
+    }
   ]
- },
- "segments": [
-  {
-   "name": "Корпоративный банкинг (МСБ)",
-   "pct": 63.0,
-   "note": "Кредиты МСБ составляют 63% кредитного портфеля"
-  },
-  {
-   "name": "Розничный банкинг",
-   "pct": 37.0,
-   "note": "Розничные кредиты составляют 37% кредитного портфеля"
-  }
- ],
- "cost_breakdown": [
-  {
-   "name": "Расходы на персонал",
-   "pct": 50.0,
-   "type": "fixed"
-  },
-  {
-   "name": "Административные расходы",
-   "pct": 25.0,
-   "type": "fixed"
-  },
-  {
-   "name": "Амортизация и IT",
-   "pct": 15.0,
-   "type": "fixed"
-  },
-  {
-   "name": "Прочие",
-   "pct": 10.0,
-   "type": "variable"
-  }
- ],
- "key_facts": [
-  {
-   "label": "Суть бизнеса",
-   "value": "Региональный банк, кредитование МСБ и розница, вклады населения"
-  },
-  {
-   "label": "Регион",
-   "value": "Пензенская область (95% операций)"
-  },
-  {
-   "label": "Контроль",
-   "value": "Группа физлиц: Дралин (~30%), Ларюшкины (~27%), Есяковы (~24%)"
-  },
-  {
-   "label": "Акции",
-   "value": "Обыкновенные, торгуются на Мосбирже"
-  },
-  {
-   "label": "Кредитный рейтинг",
-   "value": "BB+(RU) от АКРА, прогноз стабильный"
-  }
- ],
- "geo_split": [
-  {
-   "region": "Пензенская область",
-   "pct": 95.0
-  },
-  {
-   "region": "Самарская область",
-   "pct": 3.0
-  },
-  {
-   "region": "Чувашия",
-   "pct": 2.0
-  }
- ]
 }

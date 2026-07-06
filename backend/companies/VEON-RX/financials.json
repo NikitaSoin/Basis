@@ -635,9 +635,352 @@
       629,
       523
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Profit / (loss) before tax",
+        "values": [
+          -82,
+          908,
+          802,
+          559,
+          704
+        ]
+      },
+      {
+        "name": "Depreciation, amortization and impairment loss / (reversal), net",
+        "values": [
+          2526,
+          1873,
+          671,
+          729,
+          731
+        ]
+      },
+      {
+        "name": "(Gain) / loss on disposal of non-current assets",
+        "values": [
+          36,
+          17,
+          1,
+          -46,
+          -5
+        ]
+      },
+      {
+        "name": "(Gain) / loss on disposal of subsidiaries",
+        "values": [
+          78,
+          -101,
+          -88,
+          0,
+          -145
+        ]
+      },
+      {
+        "name": "Finance costs",
+        "values": [
+          673,
+          690,
+          583,
+          531,
+          495
+        ]
+      },
+      {
+        "name": "Finance income",
+        "values": [
+          -23,
+          -16,
+          -32,
+          -60,
+          -49
+        ]
+      },
+      {
+        "name": "Other non-operating (gain) / loss, net",
+        "values": [
+          -111,
+          -34,
+          -9,
+          -20,
+          -31
+        ]
+      },
+      {
+        "name": "Net foreign exchange (gain) / loss",
+        "values": [
+          54,
+          -4,
+          -181,
+          -81,
+          -9
+        ]
+      },
+      {
+        "name": "Listing expense",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          0
+        ]
+      },
+      {
+        "name": "Changes in trade and other receivables and prepayments",
+        "values": [
+          -17,
+          -259,
+          -154,
+          -1,
+          -81
+        ]
+      },
+      {
+        "name": "Changes in inventories",
+        "values": [
+          39,
+          -7,
+          -12,
+          -19,
+          -9
+        ]
+      },
+      {
+        "name": "Changes in trade and other payables",
+        "values": [
+          38,
+          202,
+          52,
+          143,
+          130
+        ]
+      },
+      {
+        "name": "Changes in provisions, pensions and other",
+        "values": [
+          -35,
+          -1,
+          48,
+          125,
+          73
+        ]
+      },
+      {
+        "name": "Interest paid",
+        "values": [
+          -640,
+          -619,
+          -489,
+          -489,
+          -431
+        ]
+      },
+      {
+        "name": "Interest received",
+        "values": [
+          23,
+          16,
+          25,
+          53,
+          43
+        ]
+      },
+      {
+        "name": "Income tax paid",
+        "values": [
+          -328,
+          -289,
+          -284,
+          -264,
+          -266
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Purchase of property, plant and equipment",
+        "values": [
+          null,
+          null,
+          -634,
+          -531,
+          -627
+        ]
+      },
+      {
+        "name": "Purchase of intangible assets",
+        "values": [
+          null,
+          null,
+          -376,
+          -235,
+          -280
+        ]
+      },
+      {
+        "name": "Purchase of property, plant and equipment and intangible assets (combined line, as reported)",
+        "values": [
+          -1677,
+          -1796,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Payments on deposits",
+        "values": [
+          -72,
+          -58,
+          -54,
+          -54,
+          -19
+        ]
+      },
+      {
+        "name": "Net outflows on loans granted",
+        "values": [
+          null,
+          null,
+          0,
+          -66,
+          -80
+        ]
+      },
+      {
+        "name": "Receipts from / (Investment in) financial assets",
+        "values": [
+          -45,
+          -78,
+          -14,
+          -147,
+          92
+        ]
+      },
+      {
+        "name": "Acquisition of a subsidiary, net of cash acquired",
+        "values": [
+          null,
+          null,
+          -16,
+          0,
+          -2
+        ]
+      },
+      {
+        "name": "Proceeds from sales of share in subsidiaries, net of cash",
+        "values": [
+          36,
+          861,
+          40,
+          0,
+          36
+        ]
+      },
+      {
+        "name": "Proceeds from sales of property, plant and equipment",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          102
+        ]
+      },
+      {
+        "name": "Other proceeds / (outflows) from investing activities, net",
+        "values": [
+          -6,
+          4,
+          -3,
+          13,
+          0
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Proceeds from borrowings, net of fees paid",
+        "values": [
+          4621,
+          2090,
+          2087,
+          194,
+          955
+        ]
+      },
+      {
+        "name": "Repayment of debt",
+        "values": [
+          -4351,
+          -2466,
+          -1619,
+          -1098,
+          -1333
+        ]
+      },
+      {
+        "name": "Payments of lease liabilities",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -150
+        ]
+      },
+      {
+        "name": "Acquisition of non-controlling interest",
+        "values": [
+          -1,
+          -281,
+          0,
+          0,
+          null
+        ]
+      },
+      {
+        "name": "Dividends paid to owners of the parent",
+        "values": [
+          -259,
+          0,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Dividends paid to non-controlling interests",
+        "values": [
+          -43,
+          -19,
+          -12,
+          -15,
+          -15
+        ]
+      },
+      {
+        "name": "Share repurchases",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -8
+        ]
+      },
+      {
+        "name": "Proceeds from subsidiary listing, net of fees",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          0
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         7.6,
@@ -1193,7 +1536,20 @@
     "Ключевой нефундаментальный риск для держателя расписок VEON-RX: инфраструктурно-санкционный барьер НРД — дивиденды и корпоративные права могут быть недоступны вне зависимости от операционных результатов группы.",
     "ROIC не рассчитан: нет достаточной разбивки invested capital (частично null баланс 2022).",
     "EV/EBITDA исторические: CV=0.67 из-за структурного изменения бизнеса (продажа РФ) — применена медиана.",
-    "Net debt/EBITDA снизился с 6.15x (2020) до 1.34x (2024) — существенный деливеридж после продажи России и рефинансирования."
+    "Net debt/EBITDA снизился с 6.15x (2020) до 1.34x (2024) — существенный деливеридж после продажи России и рефинансирования.",
+    "Валюта USD млн, по МСФО.",
+    "Формат expense_lines по видам (by_nature) — телеком-оператор, нет COGS/gross_profit.",
+    "Данные за 2020-2021 включают операции в России; 2022 включает (продана 09.10.2023); 2024 без России.",
+    "Показаны continuing operations (основной бизнес); discontinued (Россия, Алжир, Кыргызстан) исключены.",
+    "EBITDA = Operating Profit + Depreciation + Amortization.",
+    "CapEx = PP&E purchases + Intangible assets purchases из Cash Flow statement.",
+    "2022 баланс: данные из FY2024 Form 20-F (компаратив); полный баланс см. в FY2022 20-F.",
+    "Финансовые расходы/доходы рассчитаны нетто (net basis).",
+    "ОДДС постатейно (cfo_lines/cfi_lines/cff_lines) добавлен 2026-07-06 из 3 первичных 20-F: FY2021 20-F (2020,2021 continuing ops, до реклассификации), FY2023 20-F (2022,2023 continuing ops, Россия — discontinued), FY2025 20-F (2024 continuing ops, comparative к 2023).",
+    "Все статьи — CONTINUING OPERATIONS ONLY (соответствует агрегатам cfo/cfi/cff уже в файле). Отдельная строка 'Net cash flows from operating/investing/financing activities from discontinued operations' в отчётах ЕСТЬ (Россия/Алжир/Кыргызстан по годам), но НЕ включена в cfo_lines/cfi_lines/cff_lines и не суммируется — иначе не биьтся с уже принятыми в financials.json агрегатами continuing-ops. Если понадобится полный (continuing+discontinued) взгляд — данные по discontinued доступны в исходниках, но не добывались отдельно.",
+    "net_change_in_cash ИСПРАВЛЕН на [434,633,332,-779,-179] = cfo+cfi+cff (continuing ops), чтобы биться арифметически; предыдущее значение [434,714,1017,-1271,-179] бралось из отчётной строки 'Net increase/(decrease) in cash' которая включает discontinued operations — несовместимо с continuing-only агрегатами cfo/cfi/cff.",
+    "Арифметика ОДДС проверена кодом построчно по всем 5 годам (2020-2024): сумма cfo_lines = cfo, сумма cfi_lines = cfi, сумма cff_lines = cff — сходится точно (0 расхождения) для каждого года.",
+    "CapEx в файле (1677,1796,634,531,627): для 2020-2021 это комбинированная строка 'Purchase of PP&E and intangible assets' (как отчитано единой строкой), для 2022-2024 — ТОЛЬКО PP&E (Purchase of property, plant and equipment), без intangibles. Разная методология между периодами (не моя правка — уже была в файле); реальный total capex (PPE+intangibles раздельно) 2022=1010, 2023=766, 2024=907 — см. cfi_lines."
   ],
   "segments": [
     {
