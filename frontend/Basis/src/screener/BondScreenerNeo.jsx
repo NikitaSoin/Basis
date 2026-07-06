@@ -346,7 +346,7 @@ function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAd
         <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0)} активных условий</span></div>
       </div>
       <div className="sc-rail-scroll">
-        {activeKeys.length === 0 && !sector && <div className="sc-empty">Фильтров нет — показаны все бумаги. Добавьте критерий или выберите готовый скрин.</div>}
+        {activeKeys.length === 0 && !sector && typeId === "all" && !lightFilter && <div className="sc-empty">Фильтров нет — показаны все бумаги. Добавьте критерий или выберите готовый скрин.</div>}
         {GROUPS.map((g) => { const ks = activeKeys.filter((k) => METRICS[k].group === g); return ks.length ? (
           <div key={g} className="sc-crit-grp"><div className="sc-crit-grp-t">{g}</div>
             {ks.map((k) => <CriterionRow key={k} mkey={k} range={ranges[k]} matchCount={countFor(k)} dist={distributions[k]} onChange={(rr) => onRangeChange(k, rr)} onRemove={() => onRemove(k)} />)}
