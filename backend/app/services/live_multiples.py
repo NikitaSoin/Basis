@@ -17,16 +17,30 @@ EV_live = EV_frozen + (MCap_live − MCap_frozen), затем ev_ebitda_live = E
 """
 
 
+def _as_float(v):
+    """Приводит к float число из ЛЮБОГО источника — JSON (int/float), сырой SQL-
+    запрос через text() (Decimal для Numeric-колонок вроде companies.market_cap),
+    строку. isinstance(x, (int, float)) ложно отбраковывал Decimal — из-за этого
+    live-пересчёт молча не срабатывал ни разу (везде, где market_cap приходит из
+    SELECT ... FROM companies, а не из ORM-объекта)."""
+    try:
+        f = float(v)
+        return f if f == f else None  # NaN-guard
+    except (TypeError, ValueError):
+        return None
+
+
 def _last_num(arr):
     if not isinstance(arr, list):
         return None
     for v in reversed(arr):
-        if isinstance(v, (int, float)):
-            return float(v)
+        f = _as_float(v)
+        if f is not None:
+            return f
     return None
 
 
-def live_scale_multiples(fin: dict, market_cap: float | None, shares_outstanding: float | None) -> dict:
+def live_scale_multiples(fin: dict, market_cap, shares_outstanding) -> dict:
     """Возвращает live-пересчитанный multiples.current (или исходный, если не хватает
     данных для масштабирования — цена/капа/акции). Не мутирует fin."""
     mult = fin.get("multiples") or {}
@@ -34,10 +48,12 @@ def live_scale_multiples(fin: dict, market_cap: float | None, shares_outstanding
     if not cur:
         return cur
     meta = fin.get("meta") or {}
-    frozen_price = meta.get("last_price")
-    if not (isinstance(frozen_price, (int, float)) and frozen_price > 0
-            and isinstance(market_cap, (int, float)) and market_cap > 0
-            and isinstance(shares_outstanding, (int, float)) and shares_outstanding > 0):
+    frozen_price = _as_float(meta.get("last_price"))
+    market_cap = _as_float(market_cap)
+    shares_outstanding = _as_float(shares_outstanding)
+    if not (frozen_price and frozen_price > 0
+            and market_cap and market_cap > 0
+            and shares_outstanding and shares_outstanding > 0):
         return cur
 
     mcap_frozen = frozen_price * shares_outstanding
