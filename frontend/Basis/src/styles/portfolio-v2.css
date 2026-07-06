@@ -647,3 +647,153 @@
   box-shadow: 0 10px 26px -14px rgba(0,0,0,.22);
   border-color: #CDC5B0;
 }
+
+/* =============================================================
+   POSITIONS TABLE — literal 1:1 из docs/portfolio-analytics.html
+   (.pos-table / .pos-asset / .pos-logo / .pos-name / .edit-row и т.д.)
+   ============================================================= */
+.pf-pos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.pf-pos-table th {
+  text-align: right;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--pf-ink-3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--pf-line);
+}
+.pf-pos-table th:first-child,
+.pf-pos-table td:first-child {
+  text-align: left;
+}
+.pf-pos-table td {
+  padding: 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--pf-line);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  color: var(--pf-ink);
+}
+.pf-pos-table tr:last-child td {
+  border-bottom: none;
+}
+.pf-pos-table tr.pf-pos-row {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.pf-pos-row:hover {
+  background: var(--pf-surface-3);
+}
+.pf-pos-asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+}
+.pf-pos-logo {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  flex: none;
+}
+.pf-pos-logo:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px -4px rgba(0,0,0,.25);
+}
+.pf-pos-name {
+  display: flex;
+  flex-direction: column;
+}
+.pf-pos-name b {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--pf-ink);
+}
+.pf-pos-name span {
+  font-size: 11.5px;
+  color: var(--pf-ink-3);
+  font-weight: 400;
+}
+.pf-pos-weight {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+.pf-pos-weight-track {
+  width: 56px;
+  height: 4px;
+  background: var(--pf-surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pf-pos-weight-fill {
+  height: 100%;
+  background: var(--pf-copper);
+  transition: width 1s cubic-bezier(.25,.7,.4,1);
+}
+.pf-pos-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.35;
+}
+.pf-pos-result span {
+  font-size: 11.5px;
+}
+.pf-pos-edit-btn {
+  cursor: pointer;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  border-radius: 4px;
+}
+.pf-pos-edit-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* ---- Матрица корреляций — литеральные ячейки (.corr-table / .corr-cell) ---- */
+.pf-corr-table {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+.pf-corr-table th,
+.pf-corr-table td {
+  padding: 12px 18px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.pf-corr-table th {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--pf-ink-2);
+  font-weight: 700;
+}
+.pf-corr-table tbody th:first-child {
+  width: 64px;
+}
+.pf-corr-table th.pf-corr-corner {
+  width: 64px;
+  padding: 0;
+}
+.pf-corr-cell {
+  border-radius: 6px;
+  transition: background-color .6s ease, color .6s ease;
+}
+.pf-corr-cell--diag {
+  background: var(--pf-surface-3) !important;
+  color: var(--pf-ink-3) !important;
+  font-weight: 400;
+  border: 1px dashed var(--pf-line-2);
+}
