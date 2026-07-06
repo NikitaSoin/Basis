@@ -39,6 +39,7 @@
   --pf-down-soft:   #FBEAEA;
   --pf-estimate:      #1F5FC4;
   --pf-estimate-soft: #E5EEFB;
+  --pf-surface-2:   #FFFFFF;  /* --surface-2 (карточка-плашка, дропдаун, .chip фон) */
 
   /* Перекрываем сами app-токены внутри Портфеля — так ЛЮБОЙ переиспользуемый
      компонент (Delta, WeightBar, MetricBar, KeyTakeaway, Badge…), который
@@ -438,6 +439,7 @@
   max-width: 560px;
 }
 
+
 /* ---- Responsive: collapse sidebar on narrow screens ---- */
 @media (max-width: 768px) {
   .pf-sidebar { display: none; }
@@ -479,4 +481,157 @@
   background: var(--pf-copper);
   border-color: var(--pf-copper);
   color: #fff;
+}
+
+/* =============================================================
+   PILL / CHIP / SEGMENT CONTROL — буквальные значения из прототипа
+   (docs/portfolio-analytics.html: .pill, .chip, .seg-toggle/.seg-opt,
+   .chip-stat). "On"/"active" состояния используют var(--accent) вместо
+   зашитого var(--pf-copper) — токен уже равен #C97A4A на светлой теме
+   и осветлённой меди на тёмной (.cc-root), т.е. остаётся тем же
+   значением, но не ломает тёмную тему (как .pf-item--active рядом).
+   Fallback-значения в var(--pf-*, #hex) — на случай рендера ВНЕ .pf-shell
+   (EditPositionModal общий и с легаси PortfolioView, docs/status.md). ---- */
+
+/* ---- Generic pill (HTML: .pill — форма, без цвета) ---- */
+.pf-pill {
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 150ms ease, opacity 150ms ease;
+  font-family: var(--font-sans);
+}
+.pf-pill:hover {
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.18);
+}
+.pf-pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* HTML: "+ Добавить сравнение" / "+ Добавить позицию" — .pill с
+   background:var(--surface-3); border:1px solid var(--line); padding:9px 18px */
+.pf-pill--soft {
+  background: var(--pf-surface-3, #EFEAE0);
+  border: 1px solid var(--pf-line, #DCD5C2);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pf-ink, #161510);
+}
+.pf-pill--soft:hover {
+  border-color: var(--pf-line-2, #CFC6AC);
+}
+
+/* HTML: "+ Добавить портфель" — .pill акцентный, background:var(--copper);
+   padding:10px 20px; font-weight:700 */
+.pf-pill--accent {
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---- Filter chips (HTML: .filterbar / .chip / .chip.active) ---- */
+.pf-filterbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pf-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--pf-line, #DCD5C2);
+  background: var(--pf-surface-2, #FFFFFF);
+  color: var(--pf-ink-2, #5C574A);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.pf-chip:hover {
+  border-color: var(--pf-line-2, #CFC6AC);
+}
+.pf-chip--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.pf-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- Segmented toggle (HTML: .seg-toggle / .seg-opt / .seg-opt.on) ---- */
+.pf-seg {
+  display: inline-flex;
+  background: var(--pf-surface-3, #EFEAE0);
+  border-radius: 99px;
+  padding: 4px;
+  gap: 2px;
+}
+.pf-seg-opt {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pf-ink-2, #5C574A);
+  cursor: pointer;
+  border-radius: 99px;
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  line-height: 1.2;
+  font-family: var(--font-sans);
+  transition: background 160ms cubic-bezier(0.25, 0.7, 0.4, 1), color 160ms cubic-bezier(0.25, 0.7, 0.4, 1);
+}
+.pf-seg-opt:not(.pf-seg-opt--on):hover {
+  background: rgba(0, 0, 0, 0.045);
+}
+.pf-seg-opt--on {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 10px -2px var(--accent-soft);
+}
+.pf-seg-opt:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Вариант buy/sell — семантические цвета вместо копперного акцента
+   (нет в HTML-прототипе буквально, но следует тому же .seg-opt каркасу;
+   зелёный/красный — по смыслу действия, не по вкусу). */
+.pf-seg-opt--buy-on {
+  background: var(--success);
+  color: #fff;
+  box-shadow: 0 3px 10px -2px var(--success-soft);
+}
+.pf-seg-opt--sell-on {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 3px 10px -2px var(--danger-soft);
+}
+
+/* ---- Chip-stat (HTML: .chip-stat / .cs-lbl / .cs-val) ---- */
+.pf-chip-stat {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--pf-surface-3, #EFEAE0);
+  border-radius: 9px;
+  padding: 9px 14px;
+}
+.pf-chip-stat__lbl {
+  font-size: 10.5px;
+  color: var(--pf-ink-3, #8C8672);
+  font-weight: 600;
+}
+.pf-chip-stat__val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
