@@ -635,3 +635,15 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* Карточка Портфеля — кремовый фон + hover как в Обозревателе (прототип .card) */
+.pf-card {
+  background: var(--pf-tan-surface);
+  border: 1px solid var(--pf-line);
+  border-radius: 14px;
+  transition: box-shadow .18s ease, border-color .18s ease;
+}
+.pf-card:hover {
+  box-shadow: 0 10px 26px -14px rgba(0,0,0,.22);
+  border-color: #CDC5B0;
+}
