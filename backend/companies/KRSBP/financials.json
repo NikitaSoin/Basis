@@ -34,18 +34,18 @@
       49200
     ],
     "cogs": [
-      null,
-      null,
-      null,
-      null,
-      null
+      33726.9,
+      36332.6,
+      39423.2,
+      42970.6,
+      50334.8
     ],
     "gross_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
+      3400.1,
+      3762.5,
+      4376.9,
+      5201.5,
+      5399.5
     ],
     "expense_lines": [
       {
@@ -82,31 +82,31 @@
     ],
     "finance_costs": [
       null,
-      null,
-      null,
-      null,
-      null
+      0.5,
+      1.6,
+      2.3,
+      5.2
     ],
     "finance_income": [
-      null,
-      null,
-      null,
-      null,
-      null
+      89.7,
+      238.3,
+      273.8,
+      517.0,
+      788.3
     ],
     "pre_tax_profit": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1632.7,
+      1657.9,
+      2302.7,
+      3125.4,
+      3117.8
     ],
     "income_tax": [
-      null,
-      null,
-      null,
-      null,
-      null
+      361.5,
+      388.2,
+      474.5,
+      573.9,
+      843.3
     ],
     "net_profit": [
       1270,
@@ -278,11 +278,11 @@
       ]
     },
     "total_assets": [
-      null,
-      null,
-      null,
-      null,
-      null
+      6294.4,
+      8134.7,
+      9256.9,
+      10759.1,
+      11905.4
     ],
     "equity": {
       "share_capital": [
@@ -382,11 +382,11 @@
       ]
     },
     "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
-      null
+      3690.4,
+      4819.0,
+      5027.8,
+      5014.6,
+      5611.1
     ],
     "net_debt": [
       null,
@@ -436,39 +436,39 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
-      null,
-      null
+      1438.3,
+      2032.4,
+      1804.1,
+      2093.6,
+      2886.7
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -489.7,
+      -869.6,
+      -440.2,
+      -456.2,
+      -940.4
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -489.8,
+      -641.5,
+      -865.3,
+      -1011.6,
+      -1713.2
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null,
-      null
+      458.8,
+      521.4,
+      498.7,
+      625.7,
+      233.1
     ],
     "capex": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -484.6,
+      -861.3,
+      -444.5,
+      -454.8,
+      -956.2
     ],
     "fcf": [
       null,
@@ -1008,7 +1008,8 @@
     "beta KRSB (0.55) — judgement (нет биржевого расчёта по 3-му эшелону).",
     "DPS 2025E = 2.20 руб — прогноз (не утверждённый); фактический DPS может отличаться.",
     "Исторический P/E рассчитан от одной точки цены (текущая 22.423 руб) — не является полноценной исторической серией; ограничение раскрыто в multiples.historical_avg.note.",
-    "Рекомендация: загрузить первичные МСФО PDF в sources/ — пересчитать EBITDA, FCF, полный баланс, нормализацию; peers.json для сектора energy_utilities не сформирован."
+    "Рекомендация: загрузить первичные МСФО PDF в sources/ — пересчитать EBITDA, FCF, полный баланс, нормализацию; peers.json для сектора energy_utilities не сформирован.",
+    "income_statement/balance_sheet/cash_flow дозаполнены из KRSB (диспетчер, 2026-07-07) — один эмитент, РСБУ без консолидации."
   ],
   "segments": [
     {
