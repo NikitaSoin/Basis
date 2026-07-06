@@ -114,6 +114,7 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
     rat = ((j.get("balance_sheet") or {}).get("ratios") or {})
     marg = ((j.get("income_statement") or {}).get("margins") or {})
     cf = j.get("cash_flow") or {}
+    bank_m = j.get("bank_metrics") or {}
 
     fair_base = _num(fr.get("base"))
     upside = ((fair_base - price) / price * 100.0) if (fair_base and price) else None
@@ -121,12 +122,23 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
     # financials в млн → в рубли; market_cap в рублях
     fcf_yield = (fcf * 1e6 / market_cap * 100.0) if (fcf is not None and market_cap) else None
 
+    # ROE: у банков (profile=bank) свой блок статей — bank_pnl/bank_balance/
+    # bank_metrics, СОВСЕМ другая форма, без стандартного returns.roe (там пусто).
+    # Реальный ROE у части банков лежит в bank_metrics.roe_adj_pct/roe_rep_pct —
+    # без этого фолбэка банки со свежим форматом (T, MBNK, PRMB) молча выпадали
+    # из ROE-фильтров скринера, хотя в их же карточке ROE показан.
+    roe = _num(_last(ret.get("roe")))
+    if roe is None:
+        roe = _num(_last(bank_m.get("roe_adj_pct")))
+    if roe is None:
+        roe = _num(_last(bank_m.get("roe_rep_pct")))
+
     raw = {
         "upside": upside,
         "pe": _num(cur.get("pe")) or _num(cm.get("pe_current")),
         "ev_ebitda": _num(cur.get("ev_ebitda")),
         "div_yield": _num(cm.get("div_yield")),
-        "roe": _num(_last(ret.get("roe"))),
+        "roe": roe,
         "ebitda_margin": _num(_last(marg.get("ebitda"))),
         "fcf_yield": fcf_yield,
         "nd_ebitda": _num(_last(rat.get("net_debt_ebitda"))),
