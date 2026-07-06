@@ -321,10 +321,10 @@
       ]
     },
     "total_assets": [
-      null,
-      null,
-      null,
-      null,
+      36922.088,
+      36937.045,
+      37152.11,
+      37022.765,
       71300
     ],
     "equity": {
@@ -425,10 +425,10 @@
       ]
     },
     "total_liabilities": [
-      null,
-      null,
-      null,
-      null,
+      2.771,
+      3.254,
+      1.685,
+      0.961,
       100
     ],
     "net_debt": [
