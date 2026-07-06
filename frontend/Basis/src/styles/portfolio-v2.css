@@ -64,15 +64,27 @@
   --border-subtle: var(--pf-line);
   --border-strong: var(--pf-line-2);
   --border-hover:  var(--pf-line-2);
+
+  /* HTML: .card — ПЛОСКАЯ плитка (только тонкая рамка, без тени), тень
+     появляется ЛИШЬ на hover (.card:hover). Наш общий Card — постоянная
+     tw-shadow-md («парящая» плитка) + hover — ещё гуще. Убираем базовую
+     тень внутри Портфеля, оставляем лёгкую только на hover (--shadow-lg
+     уже используется в hover:tw-shadow-lg). */
+  --shadow-md: none;
+  --shadow-lg: 0 10px 26px -14px rgba(0, 0, 0, 0.22);
 }
 
-/* tw-font-display у Tailwind скомпилирован как ЛИТЕРАЛ ("Inter Display", ...),
-   не как font-family:var(--font-display) — переопределение самой CSS-
-   переменной внутри .pf-shell (выше) на класс НЕ действует. Единственный
-   способ — прямая точечная перебивка класса, скоуплено под .pf-shell, чтобы
-   не задеть tw-font-display на остальном сайте. */
+/* tw-font-display и tw-rounded-md у Tailwind скомпилированы ЛИТЕРАЛАМИ
+   ("Inter Display", 8px), не через var(--font-display)/var(--radius-md) —
+   переопределение самих CSS-переменных внутри .pf-shell (выше) на эти
+   классы НЕ действует. Единственный способ — прямая точечная перебивка
+   класса, скоуплено под .pf-shell, чтобы не задеть остальной сайт.
+   border-radius:12px — буквально --radius из HTML (было 8px). */
 .pf-shell .tw-font-display {
   font-family: var(--pf-serif);
+}
+.pf-shell .tw-rounded-md {
+  border-radius: 12px;
 }
 
 /* ---- Shell: sidebar + main side by side ----
