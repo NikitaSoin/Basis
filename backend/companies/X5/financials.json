@@ -87,17 +87,17 @@
       247644
     ],
     "da": [
-      96971,
-      114580,
-      138359,
+      150273,
+      164731,
+      165956,
       181252,
       193032
     ],
-    "da_note": "2021-2023: расчётная оценка (DA/revenue = среднее 2024-2025 = 4.916%); 2024-2025 из отчёта. DA включает амортизацию RUA по IFRS 16 (~71 000 млн/год оценка) и PP&E+НМА (~45 000 млн/год оценка).",
+    "da_note": "2021-2023 исправлено 2026-07-06: было оценкой [96971, 114580, 138359], теперь реальные значения из реконсиляции CFO первичного отчёта.",
     "ebitda": [
-      214810,
-      253744,
-      317232,
+      268112,
+      303895,
+      344829,
       399390,
       440676
     ],
@@ -327,8 +327,8 @@
         26011,
         41732,
         39104,
-        39104,
-        67933
+        67933,
+        178454
       ],
       "short_term_investments": [
         0,
@@ -350,7 +350,8 @@
         447821,
         447821,
         645597
-      ]
+      ],
+      "cash_fix_note": "Исправлено 2026-07-06: было [26011, 41732, 39104, 39104, 67933] (дублирование 2023→2024, сдвиг), верно из ОДДС cash_ending первичного отчёта."
     },
     "total_assets": [
       1257470,
@@ -555,50 +556,473 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
-      null,
-      null
+      229793,
+      219544,
+      270279,
+      277383,
+      300569
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -86169,
+      -124810,
+      -194255,
+      -236053,
+      -31623
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -137618,
+      -78950,
+      -78694,
+      -12549,
+      -156630
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null,
-      null
+      6006,
+      15721,
+      -2628,
+      28829,
+      110521
     ],
     "capex": [
-      null,
-      null,
-      null,
-      59554,
-      null
+      76835,
+      60502,
+      104490,
+      139309,
+      188151
     ],
     "fcf": [
-      null,
-      null,
-      null,
-      null,
-      null
+      153,
+      159042,
+      165789,
+      138074,
+      112418
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Profit before taxation",
+        "values": [
+          61081,
+          66032,
+          103916,
+          127475,
+          108788
+        ]
+      },
+      {
+        "name": "Depreciation, amortisation and impairment of PP&E, right-of-use assets, investment property, other intangible assets, goodwill (and investments in associates from 2025)",
+        "values": [
+          150273,
+          164731,
+          165956,
+          181252,
+          193032
+        ]
+      },
+      {
+        "name": "Gain on disposal of PP&E, investment property, and intangible assets, and gain on derecognition of right-of-use assets",
+        "values": [
+          -3345,
+          -2270,
+          -1475,
+          -945,
+          -2479
+        ]
+      },
+      {
+        "name": "Net finance costs",
+        "values": [
+          57323,
+          71259,
+          70374,
+          87121,
+          139997
+        ]
+      },
+      {
+        "name": "Expenses from expected credit losses on financial assets",
+        "values": [
+          158,
+          347,
+          75,
+          310,
+          4948
+        ]
+      },
+      {
+        "name": "Impairment of prepayments",
+        "values": [
+          220,
+          401,
+          25,
+          269,
+          371
+        ]
+      },
+      {
+        "name": "Foreign exchange (gain)/loss",
+        "values": [
+          -565,
+          1873,
+          4583,
+          3542,
+          -1163
+        ]
+      },
+      {
+        "name": "Share of loss of associates and joint ventures",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          22
+        ]
+      },
+      {
+        "name": "Other non-cash items",
+        "values": [
+          601,
+          -912,
+          -1154,
+          697,
+          2572
+        ]
+      },
+      {
+        "name": "Net cash flows from operating activities before changes in working capital (subtotal)",
+        "values": [
+          265746,
+          301461,
+          342300,
+          399721,
+          446088
+        ]
+      },
+      {
+        "name": "Increase in trade and other receivables, prepayments, and VAT/other taxes receivable",
+        "values": [
+          -976,
+          -352,
+          -8442,
+          -11110,
+          -18511
+        ]
+      },
+      {
+        "name": "Increase in inventories",
+        "values": [
+          -22447,
+          -37060,
+          -22519,
+          -88267,
+          -16702
+        ]
+      },
+      {
+        "name": "Increase in trade payables",
+        "values": [
+          42108,
+          22833,
+          44272,
+          83466,
+          26462
+        ]
+      },
+      {
+        "name": "Increase in other payables and contract liabilities",
+        "values": [
+          10891,
+          21315,
+          11468,
+          13820,
+          20372
+        ]
+      },
+      {
+        "name": "Net cash flows from operations (subtotal)",
+        "values": [
+          295322,
+          308197,
+          367079,
+          397630,
+          457709
+        ]
+      },
+      {
+        "name": "Interest paid",
+        "values": [
+          -56385,
+          -73066,
+          -80414,
+          -112226,
+          -164559
+        ]
+      },
+      {
+        "name": "Interest received",
+        "values": [
+          60,
+          2435,
+          8845,
+          26969,
+          27684
+        ]
+      },
+      {
+        "name": "Income tax paid",
+        "values": [
+          -9204,
+          -18022,
+          -25231,
+          -34990,
+          -20265
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Purchase of property, plant and equipment and initial direct costs associated with right-of-use assets",
+        "values": [
+          -76835,
+          -60502,
+          -104490,
+          -139309,
+          -188151
+        ]
+      },
+      {
+        "name": "Acquisition of businesses, net of cash acquired",
+        "values": [
+          -1771,
+          -5495,
+          -18449,
+          -3717,
+          -2865
+        ]
+      },
+      {
+        "name": "Acquisition of subsidiaries from related parties",
+        "values": [
+          -1928,
+          0,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Acquisition of equity interests in associates and joint ventures",
+        "values": [
+          null,
+          null,
+          null,
+          -30,
+          -450
+        ]
+      },
+      {
+        "name": "Proceeds from disposal of property, plant and equipment, investment property, and intangible assets",
+        "values": [
+          4611,
+          3192,
+          7726,
+          4014,
+          1741
+        ]
+      },
+      {
+        "name": "Proceeds from disposal of other investment assets",
+        "values": [
+          0,
+          0,
+          53,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Purchase of other intangible assets",
+        "values": [
+          -15481,
+          -14122,
+          -13194,
+          -17903,
+          -25870
+        ]
+      },
+      {
+        "name": "Loans granted to related parties",
+        "values": [
+          -1087,
+          -417,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Repayment of loans granted to related parties",
+        "values": [
+          6322,
+          2534,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Payments for/related to financial investments",
+        "values": [
+          0,
+          -50000,
+          -65747,
+          -76160,
+          0
+        ]
+      },
+      {
+        "name": "Proceeds from financial investments",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          191908
+        ]
+      },
+      {
+        "name": "Proceeds from the principal portion of the net investment in leases",
+        "values": [
+          0,
+          0,
+          54,
+          233,
+          488
+        ]
+      },
+      {
+        "name": "Other payments for/related to investing activities",
+        "values": [
+          0,
+          0,
+          -208,
+          -3181,
+          -8424
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Proceeds from borrowings",
+        "values": [
+          132345,
+          148974,
+          183594,
+          164400,
+          315591
+        ]
+      },
+      {
+        "name": "Repayment of borrowings",
+        "values": [
+          -99585,
+          -210615,
+          -192007,
+          -106520,
+          -197180
+        ]
+      },
+      {
+        "name": "Proceeds from loans received from related parties",
+        "values": [
+          59,
+          0,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Repayment of loans received from related parties",
+        "values": [
+          -327,
+          -170,
+          -249,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Payments of the principal portion of lease liabilities",
+        "values": [
+          -64610,
+          -66013,
+          -69831,
+          -69533,
+          -63877
+        ]
+      },
+      {
+        "name": "Other payments for/related to financing activities",
+        "values": [
+          0,
+          0,
+          -168,
+          -376,
+          -446
+        ]
+      },
+      {
+        "name": "Additions to property",
+        "values": [
+          0,
+          48874,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Dividends paid to shareholders of the parent",
+        "values": [
+          -105500,
+          0,
+          0,
+          0,
+          -158730
+        ]
+      },
+      {
+        "name": "Dividends paid to non-controlling interests",
+        "values": [
+          0,
+          0,
+          -33,
+          -520,
+          0
+        ]
+      },
+      {
+        "name": "Acquisition of non-controlling interests",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          -6616
+        ]
+      },
+      {
+        "name": "Repurchase of treasury shares",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          -45372
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         null,
@@ -621,7 +1045,14 @@
         1.52,
         null
       ]
-    }
+    },
+    "fx_effect_on_cash": [
+      0,
+      -63,
+      42,
+      48,
+      -1795
+    ]
   },
   "returns": {
     "roe": [
@@ -1138,7 +1569,23 @@
     "СПЕЦДИВИДЕНД 2024: 648 руб. — разовый, накопленная прибыль после паузы 2022-2024. Не включать в устойчивую дивидендную модель.",
     "ПРОГНОЗ МЕХАНИЧЕСКИЙ: консенсус брокеров не привлекался. Неопределённость EPS +/-20%.",
     "ROE/ROIC АРТЕФАКТЫ: ROE 95% (2021) из-за малого equity (реорг.резерв). ROIC завышен без аренды в IC. Реальный ROIC с IC incl lease ~15-18%.",
-    "КАЗНАЧЕЙСКИЙ ПАКЕТ 9.7%: на балансе ПАО (governance.json). Может быть погашен или распределён -> потенциальный dilution/buyback эффект."
+    "КАЗНАЧЕЙСКИЙ ПАКЕТ 9.7%: на балансе ПАО (governance.json). Может быть погашен или распределён -> потенциальный dilution/buyback эффект.",
+    "IFRS 16 LEASE OBLIGATIONS: RUA (right-of-use assets) = 502-576 млн, lease liabilities = 507-593 млн non-current + 66-78 млн current. CRITICAL for leverage analysis: Do NOT add to traditional debt without understanding implicit nature.",
+    "2024 REORGANIZATION (July 2024, re-domiciled RF): Share capital increased to 316,181 млн (was 2,458 млн for 2021-2023); reorganisation reserve of -312,190 млн offsets balance sheet. Equity structure fundamentally changed.",
+    "DEBT: Long-term debt declining 207→127→125 млн (2021-2025); short-term debt rising 87→162 млн by 2025 (refinancing/maturity profile).",
+    "GROSS MARGIN: Stable 24-25% (2021-2023), improved 25-27% (2024-2025) due to scale and operational leverage.",
+    "FINANCE COSTS: Raised sharply 58→168 млн (2021-2025) due to: IFRS16 implicit lease interest + operational debt + rate environment. FX impact ~4.5 млн swing (2024 loss, 2025 gain).",
+    "INVENTORY: Doubling from 167→326 млн (2021-2025) as store count and assortment expanded; reflected in supply chain investment.",
+    "P&L STRUCTURE: Cost of sales 74% of revenue (2021) → 76% (2025); SG&A 21%→19% (improving with scale). Pre-IFRS16 EBITDA margin ~7% (reported); post-IFRS16 operating margin = 5% (2025).",
+    "BALANCE SHEET VALIDATION: All years pass arithmetic (Assets = Equity + Liabilities). 2024 shows 2023 year-end comparative (report issued 2025-03-21 for FY2024).",
+    "2023 DATA: Sourced from 2021-2023 consolidated file (published 2024-08-14). 2024-2025 from 2024 & 2025 annual reports respectively.",
+    "RELATED PARTY: Long-term loans to related parties (18 млн in 2021) → reduced to zero by 2023; suggests debt restructuring within group during reorganization prep.",
+    "CURRENCY: All RUB, no forex conversion needed. Unit: млн (millions).",
+    "ОБНОВЛЕНО 2026-07-06 — ОДДС ИЗВЛЕЧЁН ПОЛНОСТЬЮ построчно за все 5 лет (2021-2025) из тех же двух первичных PDF X5 IR. Cross-check: cfo+cfi+cff+fx_effect = net_change_in_cash сошёлся точно для каждого года (2021:6006, 2022:15721, 2023:-2628, 2024:28829, 2025:110521).",
+    "НЕСОСТЫКОВКА С ГЛАВНЫМ financials.json (balance_sheet.cash): унаследованный массив [26011,41732,39104,39104,67933] содержит дублирование 2023 в позицию 2024 и сдвиг 2024-значения в позицию 2025. Настоящие значения (из ОДДС cash_ending): 2021=26011, 2022=41732, 2023=39104, 2024=67933, 2025=178454. Нужна правка баланса диспетчером.",
+    "НЕСОСТЫКОВКА CAPEX: главный financials.json имел capex только для 2024 = 59554 млн; первичный ОДДС даёт capex 2024 = 139309 млн (включает ROU initial costs). Заменено на первичное значение в данном файле; диспетчеру нужно перенести и в главный financials.json, пересчитав capex_to_revenue и fcf.",
+    "D&A ОБНОВЛЁН: 2021-2023 ранее были расчётной оценкой в главном json, теперь заполнены реальными отчётными значениями (150273/164731/165956). EBITDA пересчитан соответственно (268112/303895/344829/399390/440676) — 2023-2025 сходятся с независимой инфографикой-агрегатором точно, 2021 близко, 2022 расходится заметнее (нужна проверка аналитиком).",
+    "Некоторые cfi/cff строки существуют только в части лет (напр. 'Acquisition of subsidiaries from related parties' только 2021-2023, 'Acquisition of equity interests in associates' только 2024-2025) — отмечены null там, где строка физически отсутствует в отчёте за этот год (не 0, т.к. дефис в отчёте означает именно ноль, а отсутствие строки — иное)."
   ],
   "segments": [
     {
