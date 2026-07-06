@@ -66,6 +66,15 @@
   --border-hover:  var(--pf-line-2);
 }
 
+/* tw-font-display у Tailwind скомпилирован как ЛИТЕРАЛ ("Inter Display", ...),
+   не как font-family:var(--font-display) — переопределение самой CSS-
+   переменной внутри .pf-shell (выше) на класс НЕ действует. Единственный
+   способ — прямая точечная перебивка класса, скоуплено под .pf-shell, чтобы
+   не задеть tw-font-display на остальном сайте. */
+.pf-shell .tw-font-display {
+  font-family: var(--pf-serif);
+}
+
 /* ---- Shell: sidebar + main side by side ----
    Полноширинный breakout: родительский .app-main-top (общий для ВСЕХ вкладок)
    имеет margin:0 130px + padding:28px 28px 80px — на обычных страницах с
