@@ -1021,7 +1021,15 @@
     "dcf_capex_bias: DCF от FCF занижает стоимость из-за капексоёмкости (capex/EBITDA ~58%); основные методы — EV/EBITDA и P/B",
     "no_consensus: брокерский консенсус на дату расчёта не найден; прогноз механический",
     "no_peers_data: peers.json для utilities не заполнен; относительная оценка — по собственной истории MRKP",
-    "tangible_equity_unverified: гудвил и НМА отдельно не раскрыты; tangible_equity = total_equity условно"
+    "tangible_equity_unverified: гудвил и НМА отдельно не раскрыты; tangible_equity = total_equity условно",
+    "no-primary-pdf: не удалось получить полный консолидированный МСФО PDF ни с mrsk-cp.ru (сайт недоступен из среды — TLS timeout, проверено curl + headless Chromium), ни с e-disclosure.ru (JS-antibot challenge Servicepipe, не пробивается headless Chromium)",
+    "rossetimr.ru отдаёт 403; conomy.ru отдаёт данные через JS/API, не вытащено за разумное число попыток",
+    "cash-flow-incomplete: известны только агрегаты CFO и capex (из smart-lab); CFI/CFF/net_change_in_cash и построчные cfo_lines/cfi_lines/cff_lines НЕ извлечены — оставлены null/пусто, не выдуманы",
+    "partial-p-l: expense_lines по-прежнему агрегированы (Операционные расходы + Амортизация), детальные статьи (покупная энергия, потери, услуги по передаче, персонал) не распарсены — нет доступа к первичке",
+    "balance-incomplete: детализация баланса не извлечена (только total_assets)",
+    "no-2020: данные за 2020 не найдены",
+    "ТРЕБУЕТСЯ РУЧНАЯ ЗАГРУЗКА PDF консолидированной МСФО-отчётности в sources/ — без этого построчный ОДДС недоступен через текущие каналы",
+    "MRKP: ОДДС не добыт — сайт компании недоступен (TLS timeout), e-disclosure за антибот-челленджем, conomy JS-only. Нужна ручная загрузка PDF."
   ],
   "segments": [
     {
