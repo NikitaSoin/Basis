@@ -751,8 +751,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -4968,
+      -21144
     ],
     "cff": [
       null,
@@ -761,8 +761,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -14131,
+      -2080
     ],
     "net_change_in_cash": [
       null,
@@ -771,8 +771,8 @@
       null,
       null,
       null,
-      null,
-      null
+      -949,
+      -1345
     ],
     "capex": [
       null,
@@ -794,9 +794,278 @@
       null,
       -16375
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Денежные средства от операционной деятельности до уплаты налога на прибыль",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          24541,
+          25196,
+          null
+        ]
+      },
+      {
+        "name": "Уплаченный налог на прибыль",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -6371,
+          -3320,
+          null
+        ]
+      },
+      {
+        "name": "Чистая сумма денежных средств, полученных от операционной деятельности (=CFO)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          18170,
+          21876,
+          null
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Приобретение основных средств",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -20574,
+          -21921,
+          null
+        ]
+      },
+      {
+        "name": "Приобретение нематериальных активов и прочих долгосрочных активов",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -36,
+          -145,
+          null
+        ]
+      },
+      {
+        "name": "Возврат депозита",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          8000,
+          0,
+          null
+        ]
+      },
+      {
+        "name": "Поступления от продажи дочернего общества за вычетом денежных средств в проданном обществе",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          152,
+          null
+        ]
+      },
+      {
+        "name": "Проценты полученные",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          1155,
+          516,
+          null
+        ]
+      },
+      {
+        "name": "Займы выданные",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -5000,
+          0,
+          null
+        ]
+      },
+      {
+        "name": "Возврат займов выданных",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          10000,
+          43,
+          null
+        ]
+      },
+      {
+        "name": "Поступления от продажи основных средств",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          1340,
+          211,
+          null
+        ]
+      },
+      {
+        "name": "Прочее",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          147,
+          0,
+          null
+        ]
+      },
+      {
+        "name": "Чистая сумма денежных средств, использованных в инвестиционной деятельности (=CFI)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -4968,
+          -21144,
+          null
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Поступление заемных средств",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          2100,
+          11930,
+          null
+        ]
+      },
+      {
+        "name": "Погашение заемных средств",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          -2100,
+          null
+        ]
+      },
+      {
+        "name": "Проценты уплаченные",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          -798,
+          null
+        ]
+      },
+      {
+        "name": "Дивиденды выплаченные",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -16231,
+          -11101,
+          null
+        ]
+      },
+      {
+        "name": "Банковские комиссии уплаченные",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          -11,
+          null
+        ]
+      },
+      {
+        "name": "Чистая сумма денежных средств, использованных в финансовой деятельности (=CFF)",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          -14131,
+          -2080,
+          null
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         null,
@@ -1458,7 +1727,8 @@
     "Исторические P/E рассчитаны по текущей рыночной цене к историческим прибылям (нет котировок по годам) — ограничение интерпретации",
     "EV/EBITDA 2023: исключён из-за отсутствия net_debt 2023 в источнике",
     "data_quality=medium: хорошие данные P&L для 7 из 8 лет, но баланс неполный, ОДДС частичный (только CFO)",
-    "total_assets 2024 ИСПРАВЛЕНО: extracted_financials давал 182345 млн, что не бьётся с балансовым уравнением (equity 143791 + liabilities 71285 = 215076). Исправлено на 215076. Ошибка вероятно от сдвига столбца в PDF-дашборде. ROA пересчитан."
+    "total_assets 2024 ИСПРАВЛЕНО: extracted_financials давал 182345 млн, что не бьётся с балансовым уравнением (equity 143791 + liabilities 71285 = 215076). Исправлено на 215076. Ошибка вероятно от сдвига столбца в PDF-дашборде. ROA пересчитан.",
+    "cash_flow скопирован из KZOS (диспетчер, 2026-07-06) — KZOSP и KZOS один эмитент, финотчётность общая."
   ],
   "segments": [
     {
