@@ -99,6 +99,8 @@ const METHOD_TIP = "Вердикт «доходность vs риск» по м�
 
 const histogram = (arr, dom, buckets = 18) => { const [a, b] = dom; const h = new Array(buckets).fill(0); (arr || []).forEach((v) => { let i = Math.floor((v - a) / (b - a) * buckets); i = Math.max(0, Math.min(buckets - 1, i)); h[i]++; }); return h; };
 const matchesRanges = (row, ranges) => { for (const k in ranges) { const [lo, hi] = ranges[k]; const v = row[k]; if (v == null) return false; if (v < lo - 1e-9 || v > hi + 1e-9) return false; } return true; };
+const median = (arr) => { const a = arr.filter((v) => v != null).sort((x, y) => x - y); if (!a.length) return null; const mid = a.length >> 1; return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2; };
+const lightFilterPresetName = (lf) => { if (!lf) return null; const p = PRESETS.find((pp) => Array.isArray(pp.light) && pp.light.length === lf.length && pp.light.every((v, i) => v === lf[i])); return p ? p.name : "Светофор: " + lf.join(", "); };
 
 // ───────────────────────────── sub-components ─────────────────────────────
 function ConfDots({ level }) {
@@ -303,10 +305,14 @@ function HistogramRangeSlider({ mkey, range, onChange, dist }) {
   );
 }
 const fmtBound = (mkey, v) => { const M = METRICS[mkey]; return M.rating ? ratingLabel(v) : num(v, M.dec) + (M.unit || ""); };
-function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
+function rangeReadout(mkey, range) {
   const M = METRICS[mkey]; const [lo, hi] = range;
   const atFloor = lo <= M.dom[0] + 1e-9, atCeil = hi >= M.dom[1] - 1e-9;
-  const readout = atFloor && !atCeil ? "≤ " + fmtBound(mkey, hi) : !atFloor && atCeil ? "≥ " + fmtBound(mkey, lo) : fmtBound(mkey, lo) + " – " + fmtBound(mkey, hi);
+  return atFloor && !atCeil ? "≤ " + fmtBound(mkey, hi) : !atFloor && atCeil ? "≥ " + fmtBound(mkey, lo) : fmtBound(mkey, lo) + " – " + fmtBound(mkey, hi);
+}
+function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
+  const M = METRICS[mkey];
+  const readout = rangeReadout(mkey, range);
   return (
     <div className="sc-crit">
       <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span><span className="sc-crit-count">{matchCount}</span>
@@ -375,6 +381,30 @@ function PickDropdown({ label, value, valueLabel, dot, options, onChange }) {
   );
 }
 
+function ActiveFiltersStrip({ typeId, sector, lightFilter, ranges, total, secColor, onClearType, onClearSector, onClearLight, onRemoveRange, onResetAll }) {
+  const chips = [];
+  if (typeId !== "all") { const t = TYPES.find((x) => x.id === typeId); chips.push({ key: "type", label: t ? t.label : typeId, onRemove: onClearType }); }
+  if (sector) chips.push({ key: "sector", label: sector, dot: secColor(sector), onRemove: onClearSector });
+  if (lightFilter) chips.push({ key: "light", label: lightFilterPresetName(lightFilter), onRemove: onClearLight });
+  Object.keys(ranges).forEach((k) => chips.push({ key: "r:" + k, label: METRICS[k].label + " " + rangeReadout(k, ranges[k]), onRemove: () => onRemoveRange(k) }));
+  return (
+    <div className="sc-active-strip">
+      {chips.length === 0 ? <span className="sc-active-empty">Фильтров нет — показаны все {total} бумаг</span> : <>
+        {chips.map((c) => (
+          <span key={c.key} className="sc-active-chip">
+            {c.dot && <span className="sc-sec-dot" style={{ background: c.dot }} />}
+            {c.label}
+            <button className="sc-active-chip-x" onClick={c.onRemove} aria-label={"Убрать условие: " + c.label}>
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+          </span>
+        ))}
+        <button className="sc-active-clear" onClick={onResetAll}>Сбросить всё</button>
+      </>}
+    </div>
+  );
+}
+
 // ───────────────────────────── main ─────────────────────────────
 export default function BondScreenerNeo({ onOpenCompany }) {
   const [data, setData] = useState(null);
@@ -388,7 +418,7 @@ export default function BondScreenerNeo({ onOpenCompany }) {
   const [sort, setSort] = useState({ key: "verdict", dir: "desc" });
   const [density, setDensity] = useState("comfortable");
   const [view, setView] = useState("table");
-  const [railOpen, setRailOpen] = useState(true);
+  const [railOpen, setRailOpen] = useState(false);
   const [picked, setPicked] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -436,7 +466,11 @@ export default function BondScreenerNeo({ onOpenCompany }) {
     return out;
   }, [rows, ranges, sector, typeId, lightFilter, sort]);
 
+  const ytmMedian = useMemo(() => median(filtered.map((r) => r.ytm)), [filtered]);
+  const greenCount = useMemo(() => filtered.filter((r) => r.light === "green").length, [filtered]);
+
   const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); setSector(""); setTypeId(p.type || "all"); setLightFilter(p.light || null); };
+  const removeRange = (k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); };
   const reset = () => { setRanges({}); setSector(""); setTypeId("all"); setLightFilter(null); setPresetId("all"); };
   const total = rows.length;
   const activeN = Object.keys(ranges).length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0);
@@ -465,32 +499,41 @@ export default function BondScreenerNeo({ onOpenCompany }) {
         </span>
       </div>
 
+      <div className="sc-scope-row">
+        <div className="sc-filter-eyebrow">Тип бумаги</div>
+        <div className="sc-scope-picks">
+          <PickDropdown label="Тип" value={typeId} valueLabel={(TYPES.find((t) => t.id === typeId) || TYPES[0]).label} options={typeOptions} onChange={(id) => { setTypeId(id); setPresetId(null); }} />
+          <PickDropdown label="Сектор" value={sector} valueLabel={sector || "Все секторы"} dot={sector ? secColor(sector) : null} options={sectorOptions} onChange={(id) => { setSector(id); setPresetId(null); }} />
+        </div>
+      </div>
+
       <div className="sc-filter-bar">
         <div className="sc-filter-presets">
           <div className="sc-filter-eyebrow">Готовые скрины</div>
           <div className="sc-presets">{PRESETS.map((p) => <button key={p.id} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><div className="pn">{p.name}</div><div className="pd">{p.desc}</div></button>)}</div>
         </div>
-        <div className="sc-filter-universe">
-          <div className="sc-filter-eyebrow">Тип бумаги</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <PickDropdown label="Тип" value={typeId} valueLabel={(TYPES.find((t) => t.id === typeId) || TYPES[0]).label} options={typeOptions} onChange={(id) => { setTypeId(id); setPresetId(null); }} />
-            <PickDropdown label="Сектор" value={sector} valueLabel={sector || "Все секторы"} dot={sector ? secColor(sector) : null} options={sectorOptions} onChange={(id) => { setSector(id); setPresetId(null); }} />
-          </div>
-        </div>
       </div>
+
+      <ActiveFiltersStrip typeId={typeId} sector={sector} lightFilter={lightFilter} ranges={ranges} total={total} secColor={secColor}
+        onClearType={() => setTypeId("all")} onClearSector={() => setSector("")} onClearLight={() => setLightFilter(null)}
+        onRemoveRange={removeRange} onResetAll={reset} />
 
       <div className={"sc-layout" + (railOpen ? "" : " sc-collapsed")}>
         {railOpen && (
           <CriteriaRail ranges={ranges} sector={sector} typeId={typeId} lightFilter={lightFilter}
             onRangeChange={(k, rr) => { setRanges((rs) => ({ ...rs, [k]: rr })); setPresetId(null); }}
             onAdd={(k) => { setRanges((rs) => ({ ...rs, [k]: [...METRICS[k].dom] })); setPresetId(null); }}
-            onRemove={(k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); }}
+            onRemove={removeRange}
             onReset={reset} resultCount={filtered.length} total={total} distributions={distributions} allRows={rows} onCollapse={() => setRailOpen(false)} />
         )}
         <div className="sc-results">
+          <div className="sc-signal">
+            <b className="sc-num">{filtered.length}</b> бумаг проходят фильтр
+            {filtered.length > 0 && ytmMedian != null && <> · медианная доходность <b className="sc-num">{num(ytmMedian, 1)}%</b></>}
+            {filtered.length > 0 && <> · <b className="sc-num">{greenCount}</b> с вердиктом «риск оплачен»</>}
+          </div>
           <div className="sc-toolbar"><div className="sc-toolbar-top">
             {!railOpen && <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{activeN > 0 && <span className="sc-filters-n">{activeN}</span>}</button>}
-            <span className="sc-count"><b>{filtered.length}</b> из {total}</span>
             <div className="sc-tool-r">
               <div className="sc-seg" role="group" aria-label="Плотность"><button className={density === "comfortable" ? "on" : ""} onClick={() => setDensity("comfortable")}>Просторно</button><button className={density === "compact" ? "on" : ""} onClick={() => setDensity("compact")}>Плотно</button></div>
               <div className="sc-seg" role="group" aria-label="Вид">

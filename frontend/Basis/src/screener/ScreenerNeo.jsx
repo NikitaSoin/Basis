@@ -53,6 +53,7 @@ const fmtMetric = (k, v) => {
 };
 const histogram = (arr, dom, buckets = 18) => { const [a, b] = dom; const h = new Array(buckets).fill(0); (arr || []).forEach((v) => { let i = Math.floor((v - a) / (b - a) * buckets); i = Math.max(0, Math.min(buckets - 1, i)); h[i]++; }); return h; };
 const matchesRanges = (row, ranges) => { for (const k in ranges) { const [lo, hi] = ranges[k]; const v = k === "mcap" ? row.mcap : row.raw[k]; if (v == null) return false; if (v < lo - 1e-9 || v > hi + 1e-9) return false; } return true; };
+const median = (arr) => { const a = arr.filter((v) => v != null).sort((x, y) => x - y); if (!a.length) return null; const mid = a.length >> 1; return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2; };
 
 // ───────────────────────────────────────── sub-components ─────────────────────────────────────────
 function ConfDots({ level }) {
@@ -258,10 +259,14 @@ function HistogramRangeSlider({ mkey, range, onChange, dist }) {
   );
 }
 function fmtBound(mkey, v) { const M = METRICS[mkey]; return M.money ? money(v) : num(v, M.dec) + (M.unit || ""); }
-function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
+function rangeReadout(mkey, range) {
   const M = METRICS[mkey]; const [lo, hi] = range;
   const atFloor = lo <= M.dom[0] + 1e-9, atCeil = hi >= M.dom[1] - 1e-9;
-  const readout = atFloor && !atCeil ? "≤ " + fmtBound(mkey, hi) : !atFloor && atCeil ? "≥ " + fmtBound(mkey, lo) : fmtBound(mkey, lo) + " – " + fmtBound(mkey, hi);
+  return atFloor && !atCeil ? "≤ " + fmtBound(mkey, hi) : !atFloor && atCeil ? "≥ " + fmtBound(mkey, lo) : fmtBound(mkey, lo) + " – " + fmtBound(mkey, hi);
+}
+function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
+  const M = METRICS[mkey];
+  const readout = rangeReadout(mkey, range);
   return (
     <div className="sc-crit">
       <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span><span className="sc-crit-count">{matchCount}</span>
@@ -348,6 +353,29 @@ function SectorPicker({ value, onChange, sectors, secColor }) {
   );
 }
 
+function ActiveFiltersStrip({ universe, sector, ranges, total, secColor, onClearUniverse, onClearSector, onRemoveRange, onResetAll }) {
+  const chips = [];
+  if (universe !== "all") { const u = UNIVERSES.find((x) => x.id === universe); chips.push({ key: "universe", label: u ? u.label : universe, onRemove: onClearUniverse }); }
+  if (sector) chips.push({ key: "sector", label: sector, dot: secColor(sector), onRemove: onClearSector });
+  Object.keys(ranges).forEach((k) => chips.push({ key: "r:" + k, label: METRICS[k].label + " " + rangeReadout(k, ranges[k]), onRemove: () => onRemoveRange(k) }));
+  return (
+    <div className="sc-active-strip">
+      {chips.length === 0 ? <span className="sc-active-empty">Фильтров нет — показаны все {total} бумаг</span> : <>
+        {chips.map((c) => (
+          <span key={c.key} className="sc-active-chip">
+            {c.dot && <span className="sc-sec-dot" style={{ background: c.dot }} />}
+            {c.label}
+            <button className="sc-active-chip-x" onClick={c.onRemove} aria-label={"Убрать условие: " + c.label}>
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+            </button>
+          </span>
+        ))}
+        <button className="sc-active-clear" onClick={onResetAll}>Сбросить всё</button>
+      </>}
+    </div>
+  );
+}
+
 // ───────────────────────────────────────── main ─────────────────────────────────────────
 export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const [universe, setUniverse] = useState("all");
@@ -360,7 +388,7 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
   const [sort, setSort] = useState({ key: "basis", dir: "desc" });
   const [density, setDensity] = useState("comfortable");
   const [view, setView] = useState("table");
-  const [railOpen, setRailOpen] = useState(true);
+  const [railOpen, setRailOpen] = useState(false);
   const [picked, setPicked] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -401,8 +429,12 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
     return out;
   }, [rows, ranges, sector, sort]);
 
-  const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); };
-  const reset = () => { setRanges({}); setSector(""); setPresetId("all"); };
+  const basisMedian = useMemo(() => median(filtered.map((r) => r.basis)), [filtered]);
+  const topRow = useMemo(() => { const s = filtered.filter((r) => r.basis != null).sort((a, b) => b.basis - a.basis); return s[0] || null; }, [filtered]);
+
+  const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); setSector(""); setUniverse("all"); };
+  const removeRange = (k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); };
+  const reset = () => { setRanges({}); setSector(""); setUniverse("all"); setPresetId("all"); };
   const total = rows.length;
 
   if (loading) return <div className="sc-screen"><div className="sc-noresult" style={{ padding: "80px" }}>Загружаем скрин…</div></div>;
@@ -423,6 +455,14 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
         <span className="sc-scale"><span className="sc-scale-bar" style={{ background: `linear-gradient(90deg, ${[0, .25, .5, .75, 1].map((f) => scoreColor(45 + f * 37)).join(",")})` }} /><span className="sc-scale-lbl"><b>BASIS</b> — слабее → сильнее</span></span>
       </div>
 
+      <div className="sc-scope-row">
+        <div className="sc-filter-eyebrow">Набор акций</div>
+        <div className="sc-scope-picks">
+          <UniversePicker value={universe} onChange={setUniverse} count={data?.universe?.count} />
+          <SectorPicker value={sector} onChange={setSector} sectors={secList} secColor={secColor} />
+        </div>
+      </div>
+
       <div className="sc-filter-bar">
         <div className="sc-filter-presets">
           <div className="sc-filter-eyebrow">Готовые скрины</div>
@@ -430,27 +470,28 @@ export default function ScreenerNeo({ onOpenCompany, Logo }) {
             {PRESETS.map((p) => <button key={p.id} className={"sc-preset" + (presetId === p.id ? " on" : "")} onClick={() => applyPreset(p)}><div className="pn">{p.name}</div><div className="pd">{p.desc}</div></button>)}
           </div>
         </div>
-        <div className="sc-filter-universe">
-          <div className="sc-filter-eyebrow">Набор акций</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <UniversePicker value={universe} onChange={setUniverse} count={data?.universe?.count} />
-            <SectorPicker value={sector} onChange={setSector} sectors={secList} secColor={secColor} />
-          </div>
-        </div>
       </div>
+
+      <ActiveFiltersStrip universe={universe} sector={sector} ranges={ranges} total={total} secColor={secColor}
+        onClearUniverse={() => setUniverse("all")} onClearSector={() => setSector("")}
+        onRemoveRange={removeRange} onResetAll={reset} />
 
       <div className={"sc-layout" + (railOpen ? "" : " sc-collapsed")}>
         {railOpen && (
           <CriteriaRail ranges={ranges} sector={sector}
             onRangeChange={(k, r) => { setRanges((rs) => ({ ...rs, [k]: r })); setPresetId(null); }}
             onAdd={(k) => { setRanges((rs) => ({ ...rs, [k]: [...METRICS[k].dom] })); setPresetId(null); }}
-            onRemove={(k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); }}
+            onRemove={removeRange}
             onReset={reset} resultCount={filtered.length} total={total} distributions={distributions} allRows={rows} onCollapse={() => setRailOpen(false)} />
         )}
         <div className="sc-results">
+          <div className="sc-signal">
+            <b className="sc-num">{filtered.length}</b> бумаг проходят фильтр
+            {filtered.length > 0 && basisMedian != null && <> · медиана BASIS <b className="sc-num">{Math.round(basisMedian)}</b></>}
+            {filtered.length > 0 && topRow && <> · лидер <b>{topRow.n}</b> <span className="sc-num">({topRow.basis})</span></>}
+          </div>
           <div className="sc-toolbar"><div className="sc-toolbar-top">
-            {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
-            <span className="sc-count"><b>{filtered.length}</b> из {total}</span>
+            {!railOpen && (() => { const n = Object.keys(ranges).length + (sector ? 1 : 0) + (universe !== "all" ? 1 : 0); return <button className="sc-filters-btn" onClick={() => setRailOpen(true)}>Фильтры{n > 0 && <span className="sc-filters-n">{n}</span>}</button>; })()}
             <div className="sc-tool-r">
               <div className="sc-seg" role="group" aria-label="Плотность"><button className={density === "comfortable" ? "on" : ""} onClick={() => setDensity("comfortable")}>Просторно</button><button className={density === "compact" ? "on" : ""} onClick={() => setDensity("compact")}>Плотно</button></div>
               <div className="sc-seg" role="group" aria-label="Вид">
