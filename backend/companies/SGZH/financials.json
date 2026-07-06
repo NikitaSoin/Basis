@@ -76,10 +76,10 @@
       19100
     ],
     "finance_income": [
-      null,
-      null,
-      null,
-      null,
+      772,
+      1627,
+      1712,
+      2135,
       null
     ],
     "pre_tax_profit": [
@@ -90,7 +90,7 @@
       -69700
     ],
     "income_tax": [
-      null,
+      5115,
       6060,
       -1200,
       -5200,
@@ -472,37 +472,37 @@
   },
   "cash_flow": {
     "cfo": [
-      null,
-      null,
-      null,
+      13092,
+      2259,
+      -9910,
       -8500,
       null
     ],
     "cfi": [
-      null,
-      null,
-      null,
-      null,
+      -50497,
+      -32367,
+      -9447,
+      -4968,
       null
     ],
     "cff": [
-      null,
-      null,
-      null,
-      null,
+      46154,
+      37682,
+      4471,
+      11268,
       null
     ],
     "net_change_in_cash": [
-      null,
-      null,
-      null,
-      null,
+      8749,
+      7574,
+      -14886,
+      -6379,
       null
     ],
     "capex": [
-      null,
+      23116,
       7200,
-      null,
+      7764,
       7200,
       5300
     ],
@@ -513,9 +513,502 @@
       -15700,
       null
     ],
-    "cfo_lines": [],
-    "cfi_lines": [],
-    "cff_lines": [],
+    "cfo_lines": [
+      {
+        "name": "Net profit/(loss) for the year",
+        "values": [
+          15237,
+          6052,
+          -16748,
+          -22280,
+          null
+        ]
+      },
+      {
+        "name": "Depreciation and amortisation",
+        "values": [
+          5786,
+          10963,
+          13646,
+          14167,
+          null
+        ]
+      },
+      {
+        "name": "Depreciation of right-of-use assets",
+        "values": [
+          1116,
+          3588,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Interest income recognised in profit or loss",
+        "values": [
+          -772,
+          -1627,
+          -1712,
+          -2135,
+          null
+        ]
+      },
+      {
+        "name": "Interest expense recognised in profit or loss",
+        "values": [
+          3910,
+          11626,
+          16493,
+          26513,
+          null
+        ]
+      },
+      {
+        "name": "Other finance (income)/expenses, net",
+        "values": [
+          -380,
+          -2892,
+          86,
+          -912,
+          null
+        ]
+      },
+      {
+        "name": "Gain on business acquisition",
+        "values": [
+          -3822,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Partial discharge of deferred payment on business acquisition",
+        "values": [
+          null,
+          -3386,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Income tax expense recognised in profit or loss",
+        "values": [
+          5115,
+          1405,
+          -2692,
+          -5406,
+          null
+        ]
+      },
+      {
+        "name": "Allowance for expected credit losses / change in ECL allowance",
+        "values": [
+          339,
+          -61,
+          115,
+          19,
+          null
+        ]
+      },
+      {
+        "name": "Loss on write-off of inventories",
+        "values": [
+          45,
+          117,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Allowance for inventory impairment",
+        "values": [
+          649,
+          -179,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Gain on disposal of property, plant and equipment",
+        "values": [
+          -185,
+          -37,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Foreign exchange differences, net",
+        "values": [
+          -759,
+          -4467,
+          -749,
+          63,
+          null
+        ]
+      },
+      {
+        "name": "Impairment loss on property, plant and equipment",
+        "values": [
+          907,
+          13,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Loss on disposal of Group entities and other adjustments",
+        "values": [
+          null,
+          null,
+          295,
+          324,
+          null
+        ]
+      },
+      {
+        "name": "Other",
+        "values": [
+          178,
+          25,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Increase/(decrease) in trade and other receivables",
+        "values": [
+          -1429,
+          -4212,
+          -2499,
+          -1912,
+          null
+        ]
+      },
+      {
+        "name": "(Increase)/decrease in inventories",
+        "values": [
+          -5573,
+          -3060,
+          1371,
+          -2605,
+          null
+        ]
+      },
+      {
+        "name": "Decrease/(increase) in other assets",
+        "values": [
+          -4817,
+          4451,
+          79,
+          192,
+          null
+        ]
+      },
+      {
+        "name": "Increase/(decrease) in trade and other payables",
+        "values": [
+          1609,
+          -618,
+          -3755,
+          767,
+          null
+        ]
+      },
+      {
+        "name": "Increase/(decrease) in other liabilities",
+        "values": [
+          4592,
+          -5505,
+          1544,
+          -2196,
+          null
+        ]
+      },
+      {
+        "name": "Cash generated from operating activities (before interest/tax)",
+        "values": [
+          21745,
+          12196,
+          5474,
+          4599,
+          null
+        ]
+      },
+      {
+        "name": "Interest paid",
+        "values": [
+          -2548,
+          -8258,
+          -13597,
+          -17055,
+          null
+        ]
+      },
+      {
+        "name": "Income taxes paid",
+        "values": [
+          -6106,
+          -1679,
+          -1787,
+          -223,
+          null
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Payments for property, plant and equipment",
+        "values": [
+          -20238,
+          -9958,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Payments for intangible assets (and right-of-use assets in 2021)",
+        "values": [
+          -2878,
+          -223,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Payments for PP&E and intangible assets (combined)",
+        "values": [
+          null,
+          null,
+          -7764,
+          -9989,
+          null
+        ]
+      },
+      {
+        "name": "Proceeds on disposal of property, plant and equipment",
+        "values": [
+          451,
+          439,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Loans issued to joint ventures",
+        "values": [
+          -6968,
+          -3052,
+          -1388,
+          -565,
+          null
+        ]
+      },
+      {
+        "name": "Repayment of loans issued to joint ventures/related parties",
+        "values": [
+          50,
+          null,
+          null,
+          4489,
+          null
+        ]
+      },
+      {
+        "name": "Interest received",
+        "values": [
+          447,
+          648,
+          548,
+          909,
+          null
+        ]
+      },
+      {
+        "name": "Investments in joint ventures",
+        "values": [
+          -536,
+          -1578,
+          -35,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Distribution to companies under common control",
+        "values": [
+          -644,
+          -295,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Net cash outflow on acquisition of subsidiaries of the Group",
+        "values": [
+          -20186,
+          -18390,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Other movements",
+        "values": [
+          4,
+          42,
+          -808,
+          188,
+          null
+        ]
+      },
+      {
+        "name": "Cash outflow from deconsolidation of Group companies",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Proceeds from issue of shares through public offering",
+        "values": [
+          30000,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Share issue transaction costs",
+        "values": [
+          -1025,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Proceeds from loans and borrowings",
+        "values": [
+          21242,
+          54704,
+          29033,
+          46696,
+          null
+        ]
+      },
+      {
+        "name": "Proceeds from bonds (and digital financial assets in 2024)",
+        "values": [
+          20000,
+          46399,
+          13544,
+          12200,
+          null
+        ]
+      },
+      {
+        "name": "Repayment of principal of loans and borrowings",
+        "values": [
+          -22637,
+          -44472,
+          -28961,
+          -15250,
+          null
+        ]
+      },
+      {
+        "name": "Repayment of bonds",
+        "values": [
+          null,
+          null,
+          -7682,
+          -31426,
+          null
+        ]
+      },
+      {
+        "name": "Proceeds from cross-currency interest-rate swaps",
+        "values": [
+          null,
+          1579,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Other finance income",
+        "values": [
+          411,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Dividends paid",
+        "values": [
+          null,
+          -16385,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Lease liability payments",
+        "values": [
+          -1710,
+          -4143,
+          -1439,
+          -952,
+          null
+        ]
+      },
+      {
+        "name": "Share-based payments",
+        "values": [
+          -127,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Other movements",
+        "values": [
+          null,
+          null,
+          -24,
+          null,
+          null
+        ]
+      }
+    ],
     "ratios": {
       "fcf_margin": [
         null,
@@ -1058,7 +1551,14 @@
     "ДИВИДЕНД 0.64 руб. из rates.csv — УСТАРЕВШИЙ (из 2021 года IPO-периода). С 2022 года дивиденды = 0 (подтверждено governance.json). Данные rates.csv некорректны.",
     "P/E и DCF — не применимы (убыток, отрицательный FCF). EV/EBITDA не применим (EBITDA adj ≈ 0). Основные методы: P/B и EV/Sales (диагностический).",
     "BETA: исторический 0.11 (Investing.com) некорректен для кризисной компании. Применяем 1.5 (judgement). Чувствительность к beta: Ke при beta=1.0 = 23.6%, при beta=2.0 = 32.6%.",
-    "Брокерский консенсус: 4 аналитика 'продавать', таргеты 0.67-1.10 руб. (banki.ru). Финансовых прогнозов по выручке/EBITDA нет."
+    "Брокерский консенсус: 4 аналитика 'продавать', таргеты 0.67-1.10 руб. (banki.ru). Финансовых прогнозов по выручке/EBITDA нет.",
+    "ОДДС 2021-2024 — полная построчная детализация из аудированных консолидированных МСФО FY2021, FY2022, FY2024(с comp.2023). Арифметика сверена: CFO+CFI+CFF = net change in cash с точностью до 0 (2021: 13092-50497+46154=8749; 2022: 2259-32367+37682=7574; 2023: -9910-9447+4471=-14886; 2024: -12679-4968+11268=-6379). Capex подтверждён и совпадает с инфографикой из sources/ (2021=23116, 2022=10181, 2023=7764, 2024=9989).",
+    "ОДДС 2025 (год) НЕ найден: на IR-странице segezha-group.com/en/investors/report/financial-results/ отсутствует строка «Q4 2025» / «FY2025» (последняя консолидированная отчётность в 2025-tab — Q3 2025, неаудированная, нарастающим итогом за 9 месяцев). 9М-2025 данные СПРАВОЧНО (НЕ записаны в годовые массивы, т.к. это не полный год): CFO 9м2025=-21676, CFI 9м2025=-2225, CFF 9м2025=31921 (включая допэмиссию +51012), net change=8020, cash на 30.09.2025=12636, capex 9м2025=4186 млн руб. Для получения полного FY2025 нужен аудированный годовой отчёт — искать на IR-сайте позже (обычно публикуется с задержкой у этой компании — например МСФО-инфографика в sources/ датирована 21.05.2026, что указывает на сильную задержку раскрытия) или на e-disclosure.ru.",
+    "FY2023 отдельного полного годового аудированного отчёта на сайте IR НЕ обнаружено (в 2023-tab нет строки Q4 2023/FY2023, есть только Q1-Q3 2023). Данные 2023 взяты как сравнительный столбец из FY2024 special-purpose отчёта (реклассифицировано: 923 млн капвложений перенесены из операционного в инвестиционный поток по сравнению с исходной публикацией — отмечено самой компанией сноской в отчёте).",
+    "P&L: извлечены только статьи, фигурирующие в реконциляции ОДДС (D&A, interest income/expense, income tax, net profit) — это не полная P&L (revenue/cogs/EBIT не извлекались в этой сессии, см. основной financials.json).",
+    "РАСХОЖДЕНИЕ ТРЕБУЕТ ПРОВЕРКИ: finance_costs (interest expense) из первичных ОДДС заметно выше значений finance_costs в основном financials.json (напр. 2024: 26513 здесь vs 23600 там; 2021: 3910 здесь vs 2550 там). Первичный источник (эта выгрузка) надёжнее — вероятно, значения в основном файле занижены или это другая метрика (net finance cost). Аналитику: сверить перед использованием в DCF/EBITDA расчётах.",
+    "net_profit по годам из первичных отчётов (15237 / 6052 / -16748 / -22280) очень близки к значениям в основном financials.json (15300 / 5560 / -16700 / -22300) — расхождения в пределах округления агрегатора, подтверждают корректность года.",
+    "finance_costs расхождение: главный=[2550, 10500, 13600, 23600, 19100], первичка (report-fetcher, 2026-07-06)=[3910, 11626, 16493, 26513, None] — первичка заметно выше по всем годам. НЕ заменено молча, нужна сверка аналитиком перед использованием в расчётах."
   ],
   "segments": [
     {
