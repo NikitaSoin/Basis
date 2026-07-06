@@ -24,6 +24,8 @@ import time
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.services.live_multiples import live_scale_multiples
+
 COMPANIES_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "companies")
 
 # ─────────── КОНФИГ (продуктовые ручки владельца — менять здесь, не по месту) ───────────
@@ -95,7 +97,7 @@ def _load_financials() -> dict:
     return out
 
 
-def _extract_raw(ticker, fin, cm, price, market_cap):
+def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
     """Сырые метрики тикера + флаги достоверности. cm — строка company_metrics (dict)."""
     j = fin.get(ticker.upper()) or {}
     meta = j.get("meta") or {}
@@ -105,7 +107,9 @@ def _extract_raw(ticker, fin, cm, price, market_cap):
     suspect = anomaly or dq == "low"   # искажающие оценочные метрики не учитываем
 
     fr = ((j.get("valuation") or {}).get("fair_value_range") or {})
-    cur = ((j.get("multiples") or {}).get("current") or {})
+    # P/E и EV/EBITDA — от ЖИВОЙ капы (тот же live_scale_multiples, что и карточка
+    # компании), а не застывший снимок аналитика на дату его прогона.
+    cur = live_scale_multiples(j, market_cap, shares_outstanding)
     ret = j.get("returns") or {}
     rat = ((j.get("balance_sheet") or {}).get("ratios") or {})
     marg = ((j.get("income_statement") or {}).get("margins") or {})
@@ -199,10 +203,10 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
     now = time.time()
     fin = _load_financials()
 
-    # компании + свежая цена + капитализация
+    # компании + свежая цена + капитализация + число акций (для live-пересчёта мультипликаторов)
     rows = db.execute(text("""
         WITH latest AS (SELECT DISTINCT ON (company_id) company_id, close FROM quotes ORDER BY company_id, date DESC)
-        SELECT c.ticker, c.name, c.sector, c.market_cap, l.close AS price
+        SELECT c.ticker, c.name, c.sector, c.market_cap, c.shares_outstanding, l.close AS price
         FROM companies c LEFT JOIN latest l ON l.company_id = c.id
     """)).fetchall()
     metrics_rows = {r._mapping["ticker"]: dict(r._mapping)
@@ -214,11 +218,12 @@ def _compute_universe(db: Session, universe: str = "all", sector: str | None = N
         t = d["ticker"]
         price = _num(d.get("price"))
         mcap = _num(d.get("market_cap"))
+        shares = _num(d.get("shares_outstanding"))
         cm = metrics_rows.get(t, {})
         # только акции с метриками (есть строка company_metrics) и ценой
         if t not in metrics_rows or price is None:
             continue
-        raw, profile, dq, anomaly, suspect, fair = _extract_raw(t, fin, cm, price, mcap)
+        raw, profile, dq, anomaly, suspect, fair = _extract_raw(t, fin, cm, price, mcap, shares)
         base.append({"ticker": t, "name": d.get("name"), "sector": d.get("sector"),
                      "profile": profile, "data_quality": dq, "anomaly": anomaly,
                      "suspect": suspect, "price": price, "market_cap": mcap,
