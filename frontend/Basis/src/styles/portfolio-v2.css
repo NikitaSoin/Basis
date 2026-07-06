@@ -50,13 +50,38 @@
   --danger-soft:  var(--pf-down-soft);
   --info:         var(--pf-estimate);
   --info-soft:    var(--pf-estimate-soft);
+
+  /* Шрифты — буквально из HTML (Fraunces/Inter/IBM Plex Mono), Fraunces уже
+     подключён в public/index.html (используется .cc-serif) — здесь просто
+     переиспользуем файл, не тянем новый. tw-font-display (крупные заголовки/
+     цифры) → Fraunces вместо Inter Display — самый заметный шрифтовой разрыв
+     с прототипом. */
+  --font-display: 'Fraunces', Georgia, serif;
+  --pf-serif: 'Fraunces', Georgia, serif;
+
+  /* Бордеры карточек — буквальный тёплый --line/--line-2 (сплошной тон),
+     не полупрозрачный чёрный border-strong дизайн-системы. */
+  --border-subtle: var(--pf-line);
+  --border-strong: var(--pf-line-2);
+  --border-hover:  var(--pf-line-2);
 }
 
-/* ---- Shell: sidebar + main side by side ---- */
+/* ---- Shell: sidebar + main side by side ----
+   Полноширинный breakout: родительский .app-main-top (общий для ВСЕХ вкладок)
+   имеет margin:0 130px + padding:28px 28px 80px — на обычных страницах с
+   текстовым контентом это нужный отступ, но для полнополосного сайдбар-layout
+   (как здесь и в Обозревателе) он оставляет видимую белую кайму по краям на
+   фоне --pf-tan. Классический CSS-приём «full-bleed»: ширина 100vw независимо
+   от родительских отступов, не трогая сам .app-main-top (общий для сайта). */
 .pf-shell {
   display: flex;
   min-height: calc(100vh - 56px);
   position: relative;
+  width: 100vw;
+  left: 50%;
+  margin-left: -50vw;
+  margin-top: -28px;
+  margin-bottom: -80px;
 }
 
 /* ---- Sidebar ---- */

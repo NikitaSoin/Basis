@@ -208,7 +208,7 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
   return (
     <div className="tw-overflow-x-auto">
       <div
-        className="tw-inline-grid tw-gap-1"
+        className="tw-inline-grid"
         style={{ gridTemplateColumns: `auto repeat(${n}, minmax(56px, 1fr))` }}
       >
         {/* corner */}
@@ -228,12 +228,13 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
               return (
                 <div
                   key={`${i}-${j}`}
-                  className="tw-flex tw-items-center tw-justify-center tw-rounded-sm tw-text-[12px] tw-font-mono tw-tabular-nums tw-py-2"
+                  className="tw-flex tw-items-center tw-justify-center tw-text-[12px] tw-font-mono tw-tabular-nums tw-py-3"
                   style={{
                     background: bg,
-                    border: diag ? "1px dashed var(--pf-line-2)" : "1px solid var(--border-subtle)",
+                    border: diag ? "1px dashed var(--pf-line-2)" : "none",
+                    borderRadius: 0,
                     color: fg,
-                    fontWeight: diag ? 400 : 700,
+                    fontWeight: diag ? 400 : 600,
                     opacity: reduced || appeared ? 1 : 0,
                     transition: reduced ? undefined : `opacity 280ms ease ${(i * n + j) * 22}ms`,
                   }}
