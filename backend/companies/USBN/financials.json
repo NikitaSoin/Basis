@@ -913,7 +913,20 @@
     "РАСХОЖДЕНИЕ: bank_balance.deposits [350513...667507] из аналитического PDF включает ВСЕ привлечённые средства (клиенты + банки + возможно облигации). balance_sheet.customer_deposits [329100...593700] = только средства клиентов по МСФО. Использовать balance_sheet.customer_deposits для анализа клиентской базы.",
     "РАСХОЖДЕНИЕ: bank_balance.loans_gross [244385...508599] из аналитического PDF. balance_sheet.gross_loans [222800...503200] из smart-lab (первичка), 2024=466700 из Interfax МСФО. Оба ряда имеют расхождение для 2024 (443012 vs 466700), использовать Interfax-подтверждённый 466700.",
     "БАНК_P&L: trading_income — smart-lab (доходы от операций с ценными бумагами/торговые), 2021 нет данных. Уровень надёжности: medium.",
-    "БАНК_P&L: interest_income, interest_expense, fee_income, fee_expense, pre_tax_profit, income_tax — не раскрыты в доступных публичных МСФО пресс-релизах Уралсиб. Требуется первичный PDF МСФО (недоступен программно — редиректы, CMS). Null + flag."
+    "БАНК_P&L: interest_income, interest_expense, fee_income, fee_expense, pre_tax_profit, income_tax — не раскрыты в доступных публичных МСФО пресс-релизах Уралсиб. Требуется первичный PDF МСФО (недоступен программно — редиректы, CMS). Null + flag.",
+    "Источник 1: аналитический PDF (Уралсиб (МСФО 2024) на 16.05.2026г.pdf) — сводная инфографика, содержит агрегированные показатели. НЕ является первичной МСФО отчётностью. Прямой доступ к первичному PDF с сайта uralsib.ru технически заблокирован (CMS-редиректы). Статус: добытчик честно деградировал, null + flag.",
+    "Источник 2: smart-lab агрегатор (q/USBN/f/y) — gross_loans, customer_deposits, deposits_retail, deposits_corporate, trading_income. Уровень доверия: medium.",
+    "Источник 3: Interfax МСФО пресс-релизы 2023/2024 — подтверждены customer_deposits 2023=442800, 2024=539900; gross_loans 2024=466700, net_loans 2024=422800, provisions 2024=43900. Уровень доверия: high.",
+    "РАСХОЖДЕНИЕ gross_loans: bank_balance.loans_gross (из аналитического PDF) vs balance_sheet.gross_loans (smart-lab/Interfax). 2024: 443012 vs 466700. Использовать balance_sheet.gross_loans как более достоверный ряд.",
+    "РАСХОЖДЕНИЕ deposits: bank_balance.deposits (из аналитического PDF) vs balance_sheet.customer_deposits (из МСФО). 2024: 667507 vs 539900 — разница 127607. bank_balance.deposits включает все пассивы (клиенты + банки + прочее); balance_sheet.customer_deposits = только средства клиентов по МСФО.",
+    "НУЛЕВЫЕ ПОЛЯ: interest_income, interest_expense, fee_income, fee_expense, pre_tax_profit, income_tax — не раскрыты в публичных источниках. Требуется первичный PDF МСФО (полный аудиторский отчёт, не пресс-релиз).",
+    "2021: нет данных smart-lab для gross_loans, customer_deposits, deposits_retail, deposits_corporate — null по всем ячейкам 2021 в balance_sheet.",
+    "2025 deposits: deposits_retail(293300)+deposits_corporate(300500)=593800 vs customer_deposits(593700) — расхождение 100 млн (округление smart-lab).",
+    "trading_income 2021: данных smart-lab нет — null.",
+    "АРИФМЕТИКА: Assets=Liab+Equity — проверено, все годы прошли (delta<=1). Deposit split — проверено (2025 delta=100 округление). Loans 2024 gross-prov=net — проверено.",
+    "CASH_FLOW (новое, 2026-07-07): cfo и capex извлечены построчно из аналитического PDF (Уралсиб МСФО 2024 на 16.05.2026, раздел «Динамика основных балансовых показателей» — строки «Чистый операционный денежный поток» и «Капитальные вложения»). Источник — сторонний агрегатор-инфографика (СРКИ/телеграм-канал «Финансовая отчетность»), НЕ первичная строка МСФО отчёта — reliability=medium. 2022 и 2023 отсутствуют в самом источнике (пробелы в инфографике, не наша потеря) — null. cfi, cff, net_change_in_cash не публикуются агрегатором — null. Полная построчная ОДДС (форма 0409814) банком Уралсиб не найдена ни в одном из проверенных источников (CBR coinfo, uralsib.ru, e-disclosure.ru — все технически недоступны; smart-lab не публикует ОДДС) — возможно, банк пользуется льготой ЦБ РФ по нераскрытию ОДДС.",
+    "ПОПЫТКИ ДОБОРА 2026-07-07: CBR coinfo (регномер 2275 найден, но страницы coinfo.asp и banking_sector/credit/coinfo редиректят на error/tech — раскрытие форм 806/807/814 не получено); uralsib.ru — бесконечный редирект; e-disclosure.ru — Cloudflare challenge не пройден (curl + playwright headless); smart-lab.ru — только сводные агрегаты, без interest_income/expense, fee_income/expense, pre_tax_profit, income_tax, CFI, CFF. Эти поля остаются null — честный структурный пробел, требуется ручная загрузка полного PDF МСФО (не инфографики) в sources/ для дальнейшего добора.",
+    "USBN: только агрегаты cfo/capex — построчный ОДДС не найден (cbr.ru редиректит на битую страницу, uralsib.ru редирект-петля, e-disclosure капча)."
   ],
   "balance_sheet": {
     "cash_and_equivalents": [
@@ -1133,5 +1146,23 @@
       "region": "Россия",
       "pct": 100.0
     }
-  ]
+  ],
+  "cash_flow": {
+    "cfo": [
+      69788,
+      -23863,
+      null,
+      null,
+      142896,
+      -39504
+    ],
+    "capex": [
+      1151,
+      702,
+      null,
+      null,
+      1147,
+      661
+    ]
+  }
 }
