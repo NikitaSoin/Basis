@@ -28,6 +28,7 @@ from app.services.company import (
     get_all_companies, get_company_by_id, get_company_by_ticker,
     create_company, get_analyses, add_analysis, get_quotes, add_quote,
 )
+from app.services.live_multiples import live_scale_multiples
 
 router = APIRouter()
 
@@ -301,12 +302,22 @@ def _normalize_financials(fin: dict) -> dict:
 
 
 @router.get("/companies/by-ticker/{ticker}/financials")
-async def get_financials_json(ticker: str):
-    """Блок «Финансы и оценка» в виде JSON (его рисует фронтенд)."""
+async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
+    """Блок «Финансы и оценка» в виде JSON (его рисует фронтенд). multiples.current
+    пересчитывается от ЖИВОЙ капитализации (см. live_scale_multiples) — цена не
+    застывает на дату последнего прогона аналитика."""
     path = COMPANIES_DIR / _safe(ticker).upper() / "financials.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Financials not found")
-    return JSONResponse(content=_normalize_financials(json.loads(path.read_text(encoding="utf-8"))))
+    fin = _normalize_financials(json.loads(path.read_text(encoding="utf-8")))
+    row = db.execute(
+        text("SELECT market_cap, shares_outstanding FROM companies WHERE ticker = :t"),
+        {"t": _safe(ticker).upper()},
+    ).first()
+    if row is not None and fin.get("multiples", {}).get("current"):
+        live_cur = live_scale_multiples(fin, row[0], row[1])
+        fin.setdefault("multiples", {})["current"] = live_cur
+    return JSONResponse(content=fin)
 
 
 @router.get("/companies/by-ticker/{ticker}/earnings/latest")
@@ -550,9 +561,11 @@ def sector_multiples(db: Session = Depends(get_db)):
             return None
         return round(xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2, 2)
 
-    sectors = {r[0]: r[1] for r in db.execute(text("SELECT ticker, sector FROM companies")).all()}
+    sectors = {r[0]: (r[1], r[2], r[3]) for r in db.execute(
+        text("SELECT ticker, sector, market_cap, shares_outstanding FROM companies")
+    ).all()}
     buckets: dict = {}
-    for tk, sec in sectors.items():
+    for tk, (sec, mcap, so) in sectors.items():
         if not sec:
             continue
         fp = COMPANIES_DIR / tk / "financials.json"
@@ -564,7 +577,7 @@ def sector_multiples(db: Session = Depends(get_db)):
             continue
         if d.get("anomaly_flag"):
             continue
-        cur = (d.get("multiples") or {}).get("current") or {}
+        cur = live_scale_multiples(d, mcap, so)
         mt = d.get("metrics_timeseries") or {}
         rs = d.get("returns") or {}
 
@@ -616,9 +629,11 @@ def sector_peers_multiples(db: Session = Depends(get_db)):
         except (TypeError, ValueError):
             return None
 
-    sectors = {r[0]: (r[1], r[2]) for r in db.execute(text("SELECT ticker, sector, name FROM companies")).all()}
+    sectors = {r[0]: (r[1], r[2], r[3], r[4]) for r in db.execute(
+        text("SELECT ticker, sector, name, market_cap, shares_outstanding FROM companies")
+    ).all()}
     out: dict = {}
-    for tk, (sec, nm) in sectors.items():
+    for tk, (sec, nm, mcap, so) in sectors.items():
         if not sec:
             continue
         fp = COMPANIES_DIR / tk / "financials.json"
@@ -648,6 +663,14 @@ def sector_peers_multiples(db: Session = Depends(get_db)):
                     row[k] = v
             if row:
                 by_year[y] = row
+        # Последний год в ряду = «текущий» снимок (совпадает с multiples.current) —
+        # он устаревает так же, как и сам current; пересчитываем от живой капы.
+        if years and years[-1] in by_year:
+            live_cur = live_scale_multiples(d, mcap, so)
+            for k in ("pe", "ps", "pb", "ev_ebitda"):
+                v = live_cur.get(k)
+                if isinstance(v, (int, float)):
+                    by_year[years[-1]][k] = round(v, 2)
         if not by_year:
             continue
         out.setdefault(sec, {"years": [], "peers": []})
