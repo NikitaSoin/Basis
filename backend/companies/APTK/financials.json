@@ -231,24 +231,24 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
+        2075,
+        2059,
+        1804,
+        1559,
         null
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
+        9278,
+        9326,
+        10215,
+        10167,
         null
       ],
       "goodwill": [
-        null,
-        null,
-        null,
-        null,
+        3582,
+        4171,
+        6973,
+        9431,
         null
       ],
       "long_term_investments": [
@@ -259,40 +259,40 @@
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
+        9396,
+        13265,
+        15956,
+        18446,
         null
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
+        24331,
+        28821,
+        34948,
+        39603,
         null
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
+        6404,
+        8477,
+        10455,
+        13258,
         null
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
+        3301,
+        3737,
+        4664,
+        5608,
         null
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
+        1727,
+        811,
+        2086,
+        1955,
         1360
       ],
       "short_term_investments": [
@@ -303,17 +303,17 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
+        2068,
+        1772,
+        1065,
+        362,
         null
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
+        13500,
+        14797,
+        18270,
+        21183,
         null
       ]
     },
@@ -326,98 +326,98 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
+        4883,
+        4883,
+        4883,
+        4883,
         null
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
+        -56118,
+        -55895,
+        -55775,
+        -55508,
         null
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
+        44581,
+        44581,
+        44581,
+        44581,
         null
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
+        0,
+        0,
+        -520,
+        -1520,
         null
       ],
       "total_equity": [
-        null,
-        null,
-        null,
-        null,
+        -6654,
+        -6431,
+        -6831,
+        -7564,
         -7300
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
-        null,
+        10000,
+        12978,
+        15978,
+        15378,
         null
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
-        null,
+        165,
+        347,
+        415,
+        314,
         null
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        5426,
+        9190,
+        11933,
+        13983,
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        15591,
+        22515,
+        28326,
+        29675,
         null
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
-        null,
+        11634,
+        5936,
+        4704,
+        7733,
         null
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
+        10647,
+        14639,
+        18444,
+        22460,
         null
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        6613,
+        6959,
+        8575,
+        8482,
         null
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
+        28894,
+        27534,
+        31723,
+        38675,
         null
       ]
     },

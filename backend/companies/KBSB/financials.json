@@ -214,11 +214,11 @@
         null
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3462.7,
+        3031.6,
+        7389.9,
+        8012.0,
+        8702.2
       ]
     },
     "current_assets": {
@@ -237,11 +237,11 @@
         null
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        null
+        356.8,
+        590.4,
+        2231.4,
+        4332.2,
+        9428.8
       ],
       "short_term_investments": [
         null,
@@ -258,11 +258,11 @@
         null
       ],
       "total_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        9304.1,
+        9772.9,
+        6575.5,
+        10189.6,
+        16346.4
       ]
     },
     "total_assets": [
@@ -274,11 +274,11 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
       ],
       "retained_earnings": [
         null,
@@ -332,11 +332,11 @@
         null
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        386.5,
+        190.8,
+        190.8,
+        0.0,
+        0.0
       ]
     },
     "current_liabilities": {
@@ -362,11 +362,11 @@
         null
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        10050.7,
+        10776.4,
+        8319.0,
+        10973.5,
+        13535.2
       ]
     },
     "total_liabilities": [

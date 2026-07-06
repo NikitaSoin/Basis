@@ -297,6 +297,26 @@
         1426.817,
         null,
         null
+      ],
+      "lease_assets": [
+        103341,
+        131239
+      ],
+      "assoc_investments": [
+        92720,
+        81297
+      ],
+      "other_investments": [
+        100615,
+        80037
+      ],
+      "other_financial_assets_nca": [
+        61200,
+        52538
+      ],
+      "deferred_tax_assets": [
+        83027,
+        90826
       ]
     },
     "current_assets": {
@@ -335,6 +355,18 @@
         1117.237,
         null,
         null
+      ],
+      "advance_given": [
+        48531,
+        104139
+      ],
+      "other_receivables": [
+        66898,
+        81657
+      ],
+      "other_financial_assets_ca": [
+        80952,
+        78366
       ]
     },
     "total_assets": [
@@ -373,6 +405,26 @@
         974.733,
         null,
         null
+      ],
+      "share_premium": [
+        612097,
+        625127
+      ],
+      "treasury_stock": [
+        -447849,
+        -421985
+      ],
+      "other_comprehensive_income": [
+        0,
+        -50305
+      ],
+      "total_equity_parent": [
+        341039,
+        500488
+      ],
+      "non_controlling_interests": [
+        229216,
+        474245
       ]
     },
     "non_current_liabilities": {
@@ -399,6 +451,18 @@
         1007.924,
         null,
         null
+      ],
+      "bonds_issued": [
+        587175,
+        426896
+      ],
+      "advance_received_lt": [
+        366002,
+        460955
+      ],
+      "lease_liabilities_lt": [
+        111363,
+        119765
       ]
     },
     "current_liabilities": {
@@ -425,6 +489,22 @@
         561.397,
         null,
         null
+      ],
+      "bonds_current": [
+        84435,
+        219720
+      ],
+      "advance_received_st": [
+        185306,
+        213823
+      ],
+      "taxes_payable": [
+        24565,
+        24844
+      ],
+      "lease_liabilities_st": [
+        11693,
+        19532
       ]
     },
     "total_liabilities": [

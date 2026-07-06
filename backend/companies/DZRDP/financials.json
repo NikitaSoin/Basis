@@ -202,11 +202,11 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
+        914,
+        1045,
         null,
-        null,
-        null,
-        null,
-        null
+        2661,
+        1376
       ],
       "intangibles": [
         null,
@@ -223,54 +223,54 @@
         null
       ],
       "long_term_investments": [
+        234,
+        269,
         null,
-        null,
-        null,
-        null,
-        null
+        225,
+        420
       ],
       "other_non_current": [
+        13,
+        19,
         null,
-        null,
-        null,
-        null,
-        null
+        118,
+        27
       ],
       "total_non_current": [
+        1161,
+        1333,
         null,
-        null,
-        null,
-        null,
-        null
+        3004,
+        1824
       ]
     },
     "current_assets": {
       "inventory": [
+        314,
+        325,
         null,
-        null,
-        null,
-        null,
-        null
+        503,
+        352
       ],
       "receivables": [
-        null,
-        null,
+        2245,
+        2262,
         null,
         126,
-        null
+        2070
       ],
       "cash": [
-        null,
-        null,
-        null,
-        null,
-        null
+        85,
+        58,
+        58,
+        60,
+        89
       ],
       "short_term_investments": [
         null,
         null,
         null,
-        null,
+        6,
         null
       ],
       "other_current": [
@@ -281,11 +281,11 @@
         null
       ],
       "total_current": [
+        2644,
+        2645,
         null,
-        null,
-        null,
-        null,
-        null
+        696,
+        2512
       ]
     },
     "total_assets": [
@@ -297,36 +297,36 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.458,
+        0.458,
+        0.458,
+        0.458,
+        0.458
       ],
       "retained_earnings": [
+        2714,
+        2876,
         null,
-        null,
-        null,
-        null,
-        null
+        2442,
+        3003
       ],
       "additional_paid_in": [
+        82,
+        82,
         null,
-        null,
-        null,
-        null,
-        null
+        72,
+        82
       ],
       "other_equity": [
+        2,
+        2,
         null,
-        null,
-        null,
-        null,
-        null
+        0.114,
+        0.114
       ],
       "total_equity": [
-        null,
-        null,
+        2799,
+        2961,
         null,
         3379,
         3580
@@ -334,18 +334,18 @@
     },
     "non_current_liabilities": {
       "long_term_debt": [
+        680,
+        627,
         null,
-        null,
-        null,
-        null,
-        null
+        273,
+        675
       ],
       "deferred_tax": [
+        70,
+        81,
         null,
         null,
-        null,
-        null,
-        null
+        86
       ],
       "other_non_current_liab": [
         null,
@@ -355,41 +355,41 @@
         null
       ],
       "total_non_current_liab": [
+        749,
+        708,
         null,
-        null,
-        null,
-        null,
-        null
+        273,
+        761
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
+        160,
+        175,
         null,
-        null,
-        null,
-        null,
+        350,
         null
       ],
       "payables": [
+        58,
+        101,
         null,
-        null,
-        null,
-        null,
-        null
+        562,
+        489
       ],
       "other_current_liab": [
-        null,
+        41,
         null,
         null,
         null,
         null
       ],
       "total_current_liab": [
+        258,
+        309,
         null,
-        null,
-        null,
-        null,
-        null
+        912,
+        489
       ]
     },
     "total_liabilities": [
