@@ -30,11 +30,11 @@ const TABLE_METRICS = ["fair_value", "pe", "ev_ebitda", "roe", "nd_ebitda", "div
 const COL_LABEL = (k) => k === "fair_value" ? "Справ. цена" : METRICS[k].label;
 const PRESETS = [
   { id: "all", name: "Все бумаги", desc: "Без фильтров", ranges: {} },
-  { id: "cheapcf", name: "Дешёвый кэшфлоу", desc: "EV/EBITDA ≤ 4 · FCF-дох ≥ 8", ranges: { ev_ebitda: [0, 4], fcf_yield: [8, 25] } },
-  { id: "divcov", name: "Дивиденд с покрытием", desc: "Дивдох ≥ 9% · долг ≤ 1,5×", ranges: { div_yield: [9, 18], nd_ebitda: [-5, 1.5] } },
+  { id: "undervalued", name: "Ниже справедливой цены Basis", desc: "Апсайд к оценке Basis ≥ 80%", ranges: { upside: [80, 150] } },
+  { id: "divcov", name: "Дивиденд с покрытием", desc: "Дивдоходность ≥ 11% · долг ≤ 1,5×", ranges: { div_yield: [11, 18], nd_ebitda: [-5, 1.5] } },
   { id: "qgarp", name: "Качество по цене", desc: "ROE ≥ 20% · P/E ≤ 7", ranges: { roe: [20, 45], pe: [0, 7] } },
   { id: "lowlev", name: "Низкий долг", desc: "Чист. долг/EBITDA ≤ 0,5×", ranges: { nd_ebitda: [-5, 0.5] } },
-  { id: "undervalued", name: "С потенциалом", desc: "Потенциал к справедливой ≥ 20%", ranges: { upside: [20, 150] } },
+  { id: "calm", name: "Спокойные бумаги", desc: "Бета ≤ 0,8 · волатильность ≤ 30%", ranges: { beta: [0, 0.8], volatility: [0, 30] } },
 ];
 const UNIVERSES = [
   { id: "all", label: "Все акции", short: "Все акции" },

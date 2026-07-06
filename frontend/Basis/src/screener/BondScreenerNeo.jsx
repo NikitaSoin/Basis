@@ -72,11 +72,13 @@ const fmtMetric = (k, v) => { if (v == null) return "—"; const M = METRICS[k];
 
 const PRESETS = [
   { id: "all", name: "Все бумаги", desc: "Без фильтров", ranges: {}, type: "all" },
-  { id: "safeinc", name: "Надёжный доход", desc: "Рейтинг ≥ A− · YTM ≥ 18%", ranges: { rat: [14, 20], ytm: [18, 40] }, type: "all" },
+  { id: "paidrisk", name: "Риск оплачен", desc: "Доходность оправдывает риск · методика Basis", ranges: {}, type: "all", light: ["green"] },
+  { id: "safeinc", name: "Надёжный доход", desc: "Оценка риска Basis ≤ 1,8 из 5", ranges: { risk: [1, 1.8] }, type: "all" },
   { id: "short", name: "Короткие ≤ 2 лет", desc: "До погашения ≤ 2 лет", ranges: { mat: [0, 2] }, type: "all" },
-  { id: "premium", name: "Премия в корпоратах", desc: "Спред ≥ 300 б.п. · рейтинг ≥ BBB−", ranges: { spr: [300, 2000], rat: [11, 20] }, type: "corp" },
-  { id: "float", name: "Флоатеры", desc: "Защита от ставки", ranges: {}, type: "float" },
-  { id: "hy", name: "Высокая доходность", desc: "YTM ≥ 24% · повышенный риск", ranges: { ytm: [24, 40] }, type: "all" },
+  { id: "premium", name: "Премия в корпоратах", desc: "Спред ≥ 300 б.п. · рейтинг ≥ BBB−", ranges: { spr: [300, 2000], rat: [11, 20], risk: [1, 3.4] }, type: "corp" },
+  { id: "float", name: "Флоатеры", desc: "Купон следует за ключевой ставкой", ranges: {}, type: "float" },
+  { id: "quasi", name: "Валютные (замещающие)", desc: "Номинал в валюте — защита от девальвации", ranges: {}, type: "quasi" },
+  { id: "hy", name: "ВДО — высокий риск", desc: "Спред ≥ 600 б.п. · риск повышен", ranges: { spr: [600, 2000], risk: [3.4, 5] }, type: "all" },
 ];
 const TYPES = [
   { id: "all", label: "Все облигации", pred: () => true },
@@ -328,7 +330,7 @@ function AddCriterion({ activeKeys, onAdd }) {
     </div>
   );
 }
-function CriteriaRail({ ranges, sector, typeId, onRangeChange, onAdd, onRemove, onReset, resultCount, total, distributions, allRows, onCollapse }) {
+function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAdd, onRemove, onReset, resultCount, total, distributions, allRows, onCollapse }) {
   const activeKeys = Object.keys(ranges);
   const countFor = (k) => allRows.filter((r) => matchesRanges(r, { [k]: ranges[k] }) && (!sector || r.sec === sector) && typePred(typeId)(r)).length;
   return (
@@ -341,7 +343,7 @@ function CriteriaRail({ ranges, sector, typeId, onRangeChange, onAdd, onRemove, 
       </div>
       <div className="sc-funnel">
         <div className="sc-funnel-bar"><span className="sc-funnel-fill" style={{ width: (total ? resultCount / total * 100 : 0) + "%" }} /></div>
-        <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0)} активных условий</span></div>
+        <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0)} активных условий</span></div>
       </div>
       <div className="sc-rail-scroll">
         {activeKeys.length === 0 && !sector && <div className="sc-empty">Фильтров нет — показаны все бумаги. Добавьте критерий или выберите готовый скрин.</div>}
@@ -381,6 +383,7 @@ export default function BondScreenerNeo({ onOpenCompany }) {
   const [ranges, setRanges] = useState({});
   const [sector, setSector] = useState("");
   const [typeId, setTypeId] = useState("all");
+  const [lightFilter, setLightFilter] = useState(null);
   const [presetId, setPresetId] = useState("all");
   const [sort, setSort] = useState({ key: "verdict", dir: "desc" });
   const [density, setDensity] = useState("comfortable");
@@ -421,7 +424,7 @@ export default function BondScreenerNeo({ onOpenCompany }) {
 
   const filtered = useMemo(() => {
     const pred = typePred(typeId);
-    let out = rows.filter((r) => matchesRanges(r, ranges) && (!sector || r.sec === sector) && pred(r));
+    let out = rows.filter((r) => matchesRanges(r, ranges) && (!sector || r.sec === sector) && pred(r) && (!lightFilter || lightFilter.includes(r.light)));
     const { key, dir } = sort;
     out = [...out].sort((a, b) => {
       if (key === "n") return dir === "desc" ? (b.n || "").localeCompare(a.n || "", "ru") : (a.n || "").localeCompare(b.n || "", "ru");
@@ -431,12 +434,12 @@ export default function BondScreenerNeo({ onOpenCompany }) {
       return dir === "desc" ? bv - av : av - bv;
     });
     return out;
-  }, [rows, ranges, sector, typeId, sort]);
+  }, [rows, ranges, sector, typeId, lightFilter, sort]);
 
-  const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); setSector(""); setTypeId(p.type || "all"); };
-  const reset = () => { setRanges({}); setSector(""); setTypeId("all"); setPresetId("all"); };
+  const applyPreset = (p) => { setPresetId(p.id); setRanges({ ...p.ranges }); setSector(""); setTypeId(p.type || "all"); setLightFilter(p.light || null); };
+  const reset = () => { setRanges({}); setSector(""); setTypeId("all"); setLightFilter(null); setPresetId("all"); };
   const total = rows.length;
-  const activeN = Object.keys(ranges).length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0);
+  const activeN = Object.keys(ranges).length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0);
 
   const typeOptions = TYPES.map((t) => ({ id: t.id, label: t.label, count: rows.filter(t.pred).length }));
   const sectorOptions = [{ id: "", label: "Все секторы" }, ...secList.map((s) => ({ id: s, label: s, dot: secColor(s) }))];
@@ -478,7 +481,7 @@ export default function BondScreenerNeo({ onOpenCompany }) {
 
       <div className={"sc-layout" + (railOpen ? "" : " sc-collapsed")}>
         {railOpen && (
-          <CriteriaRail ranges={ranges} sector={sector} typeId={typeId}
+          <CriteriaRail ranges={ranges} sector={sector} typeId={typeId} lightFilter={lightFilter}
             onRangeChange={(k, rr) => { setRanges((rs) => ({ ...rs, [k]: rr })); setPresetId(null); }}
             onAdd={(k) => { setRanges((rs) => ({ ...rs, [k]: [...METRICS[k].dom] })); setPresetId(null); }}
             onRemove={(k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); }}
