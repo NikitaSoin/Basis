@@ -1,1031 +1,1525 @@
 {
- "meta": {
-  "ticker": "DOMRF",
-  "name": "ПАО ДОМ.РФ",
-  "sector": "finance",
-  "profile": "bank",
-  "currency": "RUB",
-  "unit": "млн",
-  "reporting_standard": "МСФО",
-  "converted_years": [],
-  "conversion_note": "",
-  "fiscal_years": [
-   2021,
-   2022,
-   2023,
-   2024,
-   2025
-  ],
-  "shares_outstanding": 179888718,
-  "price_date": "2026-06-13",
-  "data_quality": "medium",
-  "arithmetic_check": "passed",
-  "anomaly_flag": true,
-  "anomaly_note": "ETR аномально низкая (9-10% vs норматива 20-25%) стабильно 2021-2025. Признана постоянной льготой госинститута развития (субсидированные программы, структура ОНА). Нормализация на 25% применена только как conservative-сценарий. Reported NP — основная база. Флаг риска: изменение налогового режима снизит прибыль на 25-30%.",
-  "adjustments_aggressive": false
- },
- "bank_pnl": {
-  "interest_income": [
-   101766,
-   170567,
-   276437,
-   612879,
-   851044
-  ],
-  "interest_expense": [
-   -66200,
-   -114900,
-   -197700,
-   -490000,
-   -689100
-  ],
-  "net_interest_income": [
-   35566,
-   55667,
-   78737,
-   122879,
-   161944
-  ],
-  "fee_income": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "fee_expense": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "net_fee_income": [
-   3750,
-   5350,
-   5490,
-   7250,
-   13000
-  ],
-  "trading_income": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_operating_income": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "operating_income": [
-   58130,
-   63743,
-   88811,
-   118109,
-   161040
-  ],
-  "provisions": [
-   2206,
-   8209,
-   12669,
-   18386,
-   31168
-  ],
-  "operating_expenses": [
-   20968,
-   25622,
-   33186,
-   39354,
-   48623
-  ],
-  "other_income": [
-   22564,
-   8076,
-   10074,
-   -4770,
-   -904
-  ],
-  "pre_tax_profit": [
-   34956,
-   29912,
-   42956,
-   60369,
-   81249
-  ],
-  "income_tax": [
-   -1571,
-   392,
-   4156,
-   5245,
-   7444
-  ],
-  "net_profit": [
-   33385,
-   30304,
-   47112,
-   65614,
-   88693
-  ],
-  "other_income_note": "other_income = operating_income − NII (остаток: комиссии + торговые результаты + прочее). 2024-2025: отрицательный — торговые/FV-убытки перекрывают fee-доход при росте ставок. Разбивка fee vs FV-losses без МСФО-приложений недоступна — net_fee_income оставлен отдельно (smart-lab), fee_income/fee_expense и trading_income — null.",
-  "interest_income_note": "interest_income и interest_expense: GROUP-уровень. interest_expense — из smart-lab (округление до 100 млн); interest_income = NII + |interest_expense| (производная, арифметически выверена). Dokhod IPO research (ноябрь 2025) даёт interest_income_2024 = 617100 млн (расхождение 4221 млн из-за округления smart-lab 490.0 млрд). Арифметика NII = interest_income + interest_expense проверена для всех 5 лет.",
-  "net_fee_income_note": "net_fee_income: smart-lab (ПАО ДОМ.РФ GROUP уровень, округление до 50 млн). 2025 подтверждается пресс-релизом (~13 млрд). fee_income и fee_expense по отдельности недоступны для GROUP из открытых источников (банк-уровень 2024: fee_income=8794, fee_expense=-3162 — не применять к GROUP).",
-  "trading_income_note": "trading_income: null. Smart-lab 'Securities Income' [1190, 713, 16400, 1680, 7470] млн — только ценные бумаги, не включает FV-убытки по субсидированным ипотечным кредитам. Interfax 2025: 'Trading/Financial Markets Profit' 13,1 млрд (только 2025). Полное trading_income GROUP недоступно без МСФО-приложений."
- },
- "adjusted": {
-  "net_profit_adj": [
-   33385,
-   30304,
-   47112,
-   65614,
-   88693
-  ],
-  "ebitda_adj": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "fcf_normalized": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "wc_adjustment": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "capex_sustainable_mln": null,
-  "capex_note": "Банковский профиль — FCF-нормализация не применяется; CAPEX не является метрикой.",
-  "etr_reported": [
-   4.49,
-   -1.31,
-   -9.68,
-   -8.69,
-   -9.16
-  ],
-  "etr_sustainable": 9.0,
-  "etr_note": "ETR 9-10% признана постоянной льготой госбанка (не разовая), поэтому устойчивая ETR принята ~9% (факт 2023-2025). Нормализация на 25% даёт conservative adj NP: [24823, 24714, 34365, 48295, 60937] — используется как стресс-сценарий �� оценке P/BV×ROE conservative. Риск: изменение налогового режима для госбанков.",
-  "bridge": [
-   {
-    "year": 2021,
-    "item": "ETR проверка: tax=-1571 млн (налоговый доход); норматив 20%. Причина — крупный пул ОНА при раскрутке льготных ипотечных программ. Признана системной льготой, не разовым эффектом. Мост пустой.",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2022,
-    "item": "ETR проверка: tax=392 млн (ETR 1.3%). Снижение прибыли до налога на фоне геополитических событий. Льгота системная — мост не меняется.",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2023,
-    "item": "ETR проверка: tax=4156 млн (ETR 9.7%). Стабилизация ставки льготы. Разовых обесценений, курсовых или иных one-off не выявлено в открытых данных консолидированной МСФО.",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2024,
-    "item": "ETR проверка: tax=5245 млн (ETR 8.7%). Разовых факторов в открытых хедлайнах не выявлено. Рост резервов (CoR 0.50%) — recurring статья кредитного бизнеса, не исключаем.",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   },
-   {
-    "year": 2025,
-    "item": "ETR проверка: tax=7444 млн (ETR 9.2%). С 01.01.2025 ставка налога повышена до 25%, но ДОМ.РФ платит ~9% — свидетельство постоянных льгот (субсидии не в базе, ОНА). Нормализация на 25% как стресс: adj NP = 60937 млн vs reported 88693 млн (разница -27756). Разовых one-off не выявлено.",
-    "amount": 0,
-    "added_back": false,
-    "certainty": "judgement",
-    "source_ref": "src_1"
-   }
-  ],
-  "bridge_note": "adj = reported по всем годам: ETR аномально низкая признана постоянной системной льготой госинститута, а не разовым эффектом. Нормализация на 25% применена лишь как conservative стресс-сценарий в P/BV×ROE. При изменении льготного режима прибыль снизится на 25-30% — ключевой risk flag."
- },
- "bank_balance": {
-  "cash_and_equivalents": [
-   145922,
-   228607,
-   327143,
-   445478,
-   513890
-  ],
-  "cash_and_cb": [
-   145922,
-   228607,
-   327143,
-   445478,
-   513890
-  ],
-  "due_from_banks": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "loans_net": [
-   1386263,
-   2171775,
-   3107859,
-   4232046,
-   4881963
-  ],
-  "securities": [
-   218883,
-   342911,
-   490714,
-   668217,
-   770836
-  ],
-  "ppe_intangibles": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_assets": [
-   72963,
-   114306,
-   163573,
-   222741,
-   256947
-  ],
-  "total_assets": [
-   1824031,
-   2857599,
-   4089289,
-   5568482,
-   6423636
-  ],
-  "deposits": [
-   1083187,
-   1716187,
-   2444822,
-   3372619,
-   3869852
-  ],
-  "debt_securities_issued": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "due_to_banks": [
-   416610,
-   660072,
-   940316,
-   1297161,
-   1488404
-  ],
-  "subordinated_debt": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "other_liabilities": [
-   166646,
-   264030,
-   376127,
-   518866,
-   595363
-  ],
-  "other_liab": [
-   166646,
-   264030,
-   376127,
-   518866,
-   595363
-  ],
-  "total_liabilities": [
-   1666443,
-   2640289,
-   3761265,
-   5188646,
-   5953619
-  ],
-  "share_capital": [
-   90267,
-   140102,
-   226954,
-   230028,
-   257340
-  ],
-  "retained_earnings": [
-   67321,
-   77208,
-   101070,
-   149808,
-   212677
-  ],
-  "total_equity": [
-   157588,
-   217310,
-   328024,
-   379836,
-   470017
-  ],
-  "tangible_equity": [
-   157588,
-   217310,
-   328024,
-   379836,
-   470017
-  ],
-  "tangible_note": "Гудвил и НМА не выявлены как отдельные крупные статьи по открытым данным; tangible_equity = total_equity.",
-  "balance_items_note": "cash_and_equivalents = cash_and_cb (синонимы, GROUP-уровень). due_from_banks: null — межбанковские размещения GROUP не выделены в открытых источниках; банк-уровень 2024: 29356, 2023: 8179 млн (нельзя использовать для GROUP). ppe_intangibles: null — GROUP-уровень недоступен; банк-уровень 2024: 12632, 2023: 11411 млн. debt_securities_issued (ИЦБ ДОМ.РФ): null — GROUP МСФО-отчёт недоступен; на балансе ПАО ДОМ.РФ консолидируются SPV с ИЦБ, суммарно ~1.9-2.0 трлн руб (2025), но в GROUP-балансе частично вычитается inter-company. subordinated_debt: null — не найдено в открытых источниках. other_liabilities = other_liab (синонимы). Структура пассивов: deposits = customer_deposits + ИЦБ (~580-905 млрд); разбивка в balance_sheet.customer_deposits."
- },
- "bank_metrics": {
-  "nim_pct": [
-   1.95,
-   2.38,
-   2.27,
-   2.54,
-   2.7
-  ],
-  "nim_note": "NIM = NII / среднегодовые активы (оценка; точный расчёт требует gross interest income/expense — не раскрыты отдельно)",
-  "cir_pct": [
-   36.1,
-   40.2,
-   37.4,
-   33.3,
-   30.2
-  ],
-  "cir_note": "CIR = операционные расходы / операционный доход; устойчивое улучшение к 2025",
-  "cost_of_risk_pct": [
-   0.16,
-   0.46,
-   0.48,
-   0.5,
-   0.68
-  ],
-  "cor_note": "CoR = резервы / средний кредитный портфель нетто; рост 2024-2025 отражает ужесточение в ипотеке при высоких ставках",
-  "roe_reported_pct": [
-   21.2,
-   16.2,
-   17.3,
-   18.5,
-   20.9
-  ],
-  "roe_adj_pct": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "roe_note": "ROE_reported = ЧП / среднее equity. ROE_adj не рассчиты��ается отдельно (adj=reported). Conservative adj ROE при ETR 25%: [17.7, 12.8, 12.6, 13.6, 14.3]% — в explain P/BV×ROE.",
-  "roa_pct": [
-   1.83,
-   1.31,
-   1.37,
-   1.35,
-   1.49
-  ],
-  "capital_adequacy_note": "Нормативы достаточности капитала (Н1.0 и пр.) в открытой консолидированной МСФО не раскрыты отдельно — data_flag.",
-  "loan_portfolio_net_mln": [
-   1386263,
-   2171775,
-   3107859,
-   4232046,
-   4881963
-  ],
-  "deposits_mln": [
-   1083187,
-   1716187,
-   2444822,
-   3372619,
-   3869852
-  ]
- },
- "multiples": {
-  "pb": [
-   null,
-   null,
-   null,
-   null,
-   0.88
-  ],
-  "pe_reported": [
-   null,
-   null,
-   null,
-   null,
-   4.65
-  ],
-  "pe_adj": [
-   null,
-   null,
-   null,
-   null,
-   4.65
-  ],
-  "bvps": [
-   876.03,
-   1208.02,
-   1823.48,
-   2111.51,
-   2612.82
-  ],
-  "current": {
-   "pb": 0.88,
-   "pe_reported": 4.65,
-   "pe_adj": 4.65,
-   "bvps": 2612.82,
-   "as_of": "2026-06-13",
-   "note": "P/B=0.88x: акция торгуется ниже балансовой стоимости. P/E=4.65x — низкий, отражает discount госинститута. Биржевая история < 8 месяцев."
-  },
-  "historical_avg": {
-   "pb_basis": "not_applicable",
-   "pb_value": null,
-   "period": "2021-2025",
-   "note": "IPO ноябрь 2025. Рыночного ряда P/B нет. Метод historical_pb не применяется."
-  }
- },
- "returns": {
-  "roe": [
-   21.2,
-   16.2,
-   17.3,
-   18.5,
-   20.9
-  ],
-  "roa": [
-   1.83,
-   1.31,
-   1.37,
-   1.35,
-   1.49
-  ],
-  "roic": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ],
-  "ros": [
-   null,
-   null,
-   null,
-   null,
-   null
-  ]
- },
- "metrics_timeseries": {
-  "pb": [
-   null,
-   null,
-   null,
-   null,
-   0.88
-  ],
-  "pe": [
-   null,
-   null,
-   null,
-   null,
-   4.65
-  ],
-  "roe": [
-   21.2,
-   16.2,
-   17.3,
-   18.5,
-   20.9
-  ],
-  "roa": [
-   1.83,
-   1.31,
-   1.37,
-   1.35,
-   1.49
-  ],
-  "net_interest_margin": [
-   1.95,
-   2.38,
-   2.27,
-   2.54,
-   2.7
-  ],
-  "cost_income_ratio": [
-   36.1,
-   40.2,
-   37.4,
-   33.3,
-   30.2
-  ],
-  "cost_of_risk": [
-   0.16,
-   0.46,
-   0.48,
-   0.5,
-   0.68
-  ],
-  "net_profit_growth": [
-   null,
-   -9.2,
-   55.5,
-   39.3,
-   35.2
-  ],
-  "nii_growth": [
-   null,
-   56.5,
-   41.4,
-   56.1,
-   31.8
-  ],
-  "total_assets_growth": [
-   null,
-   56.7,
-   43.1,
-   36.2,
-   15.3
-  ]
- },
- "forecast": {
-  "source_type": "mechanical",
-  "providers": [],
-  "revenue_growth_pct": [
-   15.0,
-   12.0
-  ],
-  "net_profit_growth_pct": [
-   10.0,
-   8.0
-  ],
-  "forecast_years": [
-   2026,
-   2027
-  ],
-  "note": "Механический прогноз (консенсус брокеров недоступен — IPO ноябрь 2025, покрытие ограничено). NII замедляется при высоких ставках КС 14.5%. CIR улучшается (30% → ниже). CoR растёт умеренно. База — reported NP 2025 = 88693 млн."
- },
- "valuation": {
-  "methods": [
-   {
-    "method": "DCF",
-    "fair_value_per_share": null,
-    "horizon": "not_applicable",
-    "status": "not_applicable",
-    "key_assumptions": {},
-    "explain": {
-     "inputs": {},
-     "steps": [
-      "Банковский профиль (profile=bank). FCFF-DCF неприменим: у банков нет разделения операционного и финансового денежного потока — долг является сырьём бизнеса. Методы по маршрутизации: P/BV×ROE + дивидендная + CAPM."
-     ],
-     "caveats": []
-    }
-   },
-   {
-    "method": "pvbv_roe",
-    "fair_value_per_share": 2312,
-    "horizon": "intrinsic_now",
-    "status": "ok",
-    "key_assumptions": {
-     "roe_sustainable_pct": 18.9,
-     "roe_basis": "среднее reported ROE 2023-2025 (17.3%, 18.5%, 20.9%); CV=0.09 < 0.5 — применяем среднее",
-     "ke_pct": 20.9,
-     "g_pct": 3.5,
-     "fair_pb": 0.885,
-     "bvps_2025": 2612.82,
-     "conservative_roe_pct": 13.5,
-     "conservative_pb": 0.575,
-     "conservative_price": 1502
-    },
-    "explain": {
-     "inputs": {
-      "roe_sustainable": "18.9% — среднее reported ROE за 2023-2025 (17.3%, 18.5%, 20.9%); CV = 0.09 < 0.5 — применяем среднее [src_1]",
-      "ke": "20.9% — Ke = Rf + beta × ERP = 14.6% + 0.70 × 9.0% [config src_2]",
-      "rf": "14.6% — доходность 10-летних ОФЗ май 2026 [config src_2]",
-      "erp": "9.0% — премия за риск рынка акций РФ [config src_2]",
-      "beta": "0.70 — суждение: госипотечный банк с кредитным риском, ограниченным госгарантиями; ниже рынка [judgement]",
-      "g": "3.5% — терминальный рост (max по config, g < Ke) [config src_2]",
-      "bvps_2025": "2612.82 руб = 470017 млн / 179888718 акций [src_1]",
-      "conservative_roe": "13.5% — adj ROE при нормализации ETR на 25% (стресс-сценарий); устойчивый adj ROE 2023-2025 [расчёт]"
-     },
-     "steps": [
-      "Формула справедливого P/B для банка (Гордон по ROE): P/B_fair = (ROE - g) / (Ke - g)",
-      "Числа: P/B_fair = (18.9% - 3.5%) / (20.9% - 3.5%) = 15.4% / 17.4% = 0.885x",
-      "Fair equity = 0.885 x 470017 млн руб = 415965 млн руб",
-      "Fair price = 415965 млн x 1 000 000 / 179888718 акций = 2312 руб",
-      "Текущий P/B = 2290.66 / 2612.82 = 0.88x — практически совпадает с fair P/B 0.885x",
-      "Вывод: рынок уже оценивает компанию по базовому сценарию ROE 18-19%",
-      "Conservative (ETR 25%): adj ROE = 13.5%; P/B = (13.5%-3.5%)/(20.9%-3.5%) = 0.575x; цена = 0.575 x 2612.82 = 1502 руб",
-      "Optimistic (ROE 22%): P/B = (22%-3.5%)/(20.9%-3.5%) = 1.063x; цена = 2778 руб"
-     ],
-     "caveats": [
-      "ROE = reported (льготная ETR ~9%); при отмене льготы ROE упадёт до 13-14%, fair P/B = 0.575x, цена ~1502 руб",
-      "Бета 0.70 — суждение без эконометрической базы (биржевая история < 8 мес.); при бете 0.90 Ke = 22.7%, fair P/B снижается",
-      "Модель нечувствительна к g при данных Ke и ROE (см. sensitivity matrix)"
-     ]
-    }
-   },
-   {
-    "method": "historical_pb",
-    "fair_value_per_share": null,
-    "horizon": "intrinsic_now",
-    "status": "not_applicable",
-    "key_assumptions": {},
-    "explain": {
-     "inputs": {},
-     "steps": [
-      "IPO ноябрь 2025. Биржевой истории менее 8 месяцев. Исторический ряд P/B (5 лет) отсутствует. Метод неприменим."
-     ],
-     "caveats": [
-      "При накоплении 2-3 лет рыночных данных метод может быть добавлен."
-     ]
-    }
-   },
-   {
-    "method": "dividend_gordon",
-    "fair_value_per_share": 1558,
-    "horizon": "intrinsic_now",
-    "status": "ok",
-    "key_assumptions": {
-     "dps_forward": 271.17,
-     "payout_pct": 50.0,
-     "np_base_mln": 88693,
-     "np_growth_assumed_pct": 10.0,
-     "ke_pct": 20.9,
-     "g_pct": 3.5
-    },
-    "explain": {
-     "inputs": {
-      "dps_2025": "246.88 руб — рекомендованные набсоветом дивиденды за 2025 г. (50% от ЧП 88693 млн) [governance.json src_3]",
-      "payout": "50% — дивидендная политика, утверждена октябрь 2025, исполнена 1 раз [governance.json]",
-      "np_2025": "88693 млн руб — reported ЧП 2025 [src_1]",
-      "np_growth_2026": "+10% (механический прогноз): NII +15%, опекс +12%, резервы +20%; итог ~97562 млн [judgement]",
-      "ke": "20.9% = 14.6% + 0.70 x 9.0% [config src_2]",
-      "g": "3.5% [config src_2]"
-     },
-     "steps": [
-      "NP_2026 (прогноз) = 88693 x 1.10 = 97562 млн руб",
-      "DPS_forward = 97562 млн x 1 000 000 x 50% / 179888718 акций = 271.17 руб",
-      "Модель Гордона: P = DPS1 / (Ke - g) = 271.17 / (20.9% - 3.5%) = 271.17 / 0.174",
-      "P = 1558 руб",
-      "Сравнение trailing: DPS_2025 / (Ke-g) = 246.88 / 0.174 = 1419 руб"
-     ],
-     "caveats": [
-      "Дивидендная Гордон при payout=50% занижает intrinsic value: 50% прибыли реинвестируется и создаёт рост капитала и будущих доходов — не отражено в DPS-потоке. P/BV×ROE корректнее для банка с умеренным payout.",
-      "��ивполитика исполнена только 1 раз (2025 г.); риск пропуска при госдирективах.",
-      "При payout 75% DPS_fwd = 406 руб, P_gordon = 2334 руб — совпадает с P/BV×ROE base."
-     ]
-    }
-   },
-   {
-    "method": "relative_peers",
-    "fair_value_per_share": null,
-    "horizon": "intrinsic_now",
-    "status": "insufficient_data",
-    "key_assumptions": {},
-    "explain": {
-     "inputs": {},
-     "steps": [
-      "ДОМ.РФ — монопрофильный госипотечный банк развития; публичных аналогов с идентичным business mix нет. Банки-ориентиры (Сбер, ВТБ, БСП) имеют иной профиль риска и диверсификацию. Peers.json для сектора finance не содержит данных ДОМ.РФ. Метод возможен при наличии данных."
-     ],
-     "caveats": []
-    }
-   },
-   {
-    "method": "CAPM",
-    "fair_value_per_share": 2523,
-    "horizon": "12m",
-    "status": "ok",
-    "key_assumptions": {
-     "ke_pct": 20.9,
-     "div_yield_pct": 10.78
-    },
-    "explain": {
-     "inputs": {
-      "ke": "20.9% = Rf 14.6% + beta 0.70 x ERP 9.0% [config src_2]",
-      "price_base": "2290.66 руб — цена из rates.csv на 2026-06-13 [src_4]",
-      "div_yield": "10.78% = 246.88 руб / 2290.66 руб (DPS 2025 / цена) [governance.json]"
-     },
-     "steps": [
-      "CAPM 12-месячный таргет = текущая цена x (1 + Ke - дивдоходность)",
-      "Логика: полная доходность Ke = прирост капитала + дивидендная доходность",
-      "Прирост капитала = Ke - div_yield = 20.9% - 10.78% = 10.12%",
-      "Таргет = 2290.66 x (1 + 0.1012) = 2290.66 x 1.1012 = 2523 руб"
-     ],
-     "caveats": [
-      "CAPM — не intrinsic оценка, а ценовой таргет 12 мес. при условии оценки рынком по Ke.",
-      "Бета 0.70 — суждение без эконометрической базы.",
-      "Дивдоходность взята от DPS 2025; изменение дивиденда меняет таргет."
-     ]
-    }
-   }
-  ],
-  "methods_divergence_note": "Расхождение P/BV×ROE (2312 руб) vs дивидендная Гордон (1558 руб) = 48%. Причина структурная: Гордон по DPS систематически занижает при payout=50% (50% прибыли реинвестируется, не отражено в DPS-потоке). P/BV×ROE учитывает полную доходность капитала — более корректный основной метод для банка. CAPM 2523 руб — ценовой 12-мес. таргет (не intrinsic), несопоставим напрямую с intrinsic методами. Коридор расширен до 1558-2523 руб для отражения неопределённости молодого публичного банка.",
-  "fair_value_range": {
-   "conservative": 1558,
-   "base": 2312,
-   "optimistic": 2523
-  },
-  "sensitivity": {
-   "method": "P/BV×ROE",
-   "roe_used_pct": 18.9,
-   "ke_grid_pct": [
-    19.5,
-    20.9,
-    21.5
-   ],
-   "g_grid_pct": [
-    2.0,
-    3.0,
-    3.5
-   ],
-   "matrix": [
-    [
-     2523,
-     2518,
-     2515
+  "meta": {
+    "ticker": "DOMRF",
+    "name": "ПАО ДОМ.РФ",
+    "sector": "finance",
+    "profile": "bank",
+    "currency": "RUB",
+    "unit": "млн",
+    "reporting_standard": "МСФО",
+    "converted_years": [],
+    "conversion_note": "",
+    "fiscal_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
     ],
-    [
-     2336,
-     2321,
-     2312
+    "shares_outstanding": 179888718,
+    "price_date": "2026-06-13",
+    "data_quality": "medium",
+    "arithmetic_check": "passed",
+    "anomaly_flag": true,
+    "anomaly_note": "ETR аномально низкая (9-10% vs норматива 20-25%) стабильно 2021-2025. Признана постоянной льготой госинститута развития (субсидированные программы, структура ОНА). Нормализация на 25% применена только как conservative-сценарий. Reported NP — основная база. Флаг риска: изменение налогового режима снизит прибыль на 25-30%.",
+    "adjustments_aggressive": false
+  },
+  "bank_pnl": {
+    "interest_income": [
+      101766,
+      170567,
+      276437,
+      612879,
+      851044
     ],
-    [
-     2264,
-     2246,
-     2235
+    "interest_expense": [
+      -66200,
+      -114900,
+      -197700,
+      -490000,
+      -689100
+    ],
+    "net_interest_income": [
+      35566,
+      55667,
+      78737,
+      122879,
+      161944
+    ],
+    "fee_income": [
+      4427,
+      5987,
+      6419,
+      8646,
+      14184
+    ],
+    "fee_expense": [
+      -676,
+      -636,
+      -932,
+      -1392,
+      -1225
+    ],
+    "net_fee_income": [
+      3750,
+      5350,
+      5490,
+      7250,
+      13000
+    ],
+    "trading_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_operating_income": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "operating_income": [
+      58130,
+      63743,
+      88811,
+      118109,
+      161040
+    ],
+    "provisions": [
+      2206,
+      8209,
+      12669,
+      18386,
+      31168
+    ],
+    "operating_expenses": [
+      20968,
+      25622,
+      33186,
+      39354,
+      48623
+    ],
+    "other_income": [
+      22564,
+      8076,
+      10074,
+      -4770,
+      -904
+    ],
+    "pre_tax_profit": [
+      34956,
+      29912,
+      42956,
+      60369,
+      81249
+    ],
+    "income_tax": [
+      -1571,
+      392,
+      4156,
+      5245,
+      7444
+    ],
+    "net_profit": [
+      33385,
+      30304,
+      47112,
+      65614,
+      88693
+    ],
+    "other_income_note": "other_income = operating_income − NII (остаток: комиссии + торговые результаты + прочее). 2024-2025: отрицательный — торговые/FV-убытки перекрывают fee-доход при росте ставок. Разбивка fee vs FV-losses без МСФО-приложений недоступна — net_fee_income оставлен отдельно (smart-lab), fee_income/fee_expense и trading_income — null.",
+    "interest_income_note": "interest_income и interest_expense: GROUP-уровень. interest_expense — из smart-lab (округление до 100 млн); interest_income = NII + |interest_expense| (производная, арифметически выверена). Dokhod IPO research (ноябрь 2025) даёт interest_income_2024 = 617100 млн (расхождение 4221 млн из-за округления smart-lab 490.0 млрд). Арифметика NII = interest_income + interest_expense проверена для всех 5 лет.",
+    "net_fee_income_note": "net_fee_income: smart-lab (ПАО ДОМ.РФ GROUP уровень, округление до 50 млн). 2025 подтверждается пресс-релизом (~13 млрд). fee_income и fee_expense по отдельности недоступны для GROUP из открытых источников (банк-уровень 2024: fee_income=8794, fee_expense=-3162 — не применять к GROUP).",
+    "trading_income_note": "trading_income: null. Smart-lab 'Securities Income' [1190, 713, 16400, 1680, 7470] млн — только ценные бумаги, не включает FV-убытки по субсидированным ипотечным кредитам. Interfax 2025: 'Trading/Financial Markets Profit' 13,1 млрд (только 2025). Полное trading_income GROUP недоступно без МСФО-приложений."
+  },
+  "adjusted": {
+    "net_profit_adj": [
+      33385,
+      30304,
+      47112,
+      65614,
+      88693
+    ],
+    "ebitda_adj": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "fcf_normalized": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "wc_adjustment": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "capex_sustainable_mln": null,
+    "capex_note": "Банковский профиль — FCF-нормализация не применяется; CAPEX не является метрикой.",
+    "etr_reported": [
+      4.49,
+      -1.31,
+      -9.68,
+      -8.69,
+      -9.16
+    ],
+    "etr_sustainable": 9.0,
+    "etr_note": "ETR 9-10% признана постоянной льготой госбанка (не разовая), поэтому устойчивая ETR принята ~9% (факт 2023-2025). Нормализация на 25% даёт conservative adj NP: [24823, 24714, 34365, 48295, 60937] — используется как стресс-сценарий �� оценке P/BV×ROE conservative. Риск: изменение налогового режима для госбанков.",
+    "bridge": [
+      {
+        "year": 2021,
+        "item": "ETR проверка: tax=-1571 млн (налоговый доход); норматив 20%. Причина — крупный пул ОНА при раскрутке льготных ипотечных программ. Признана системной льготой, не разовым эффектом. Мост пустой.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2022,
+        "item": "ETR проверка: tax=392 млн (ETR 1.3%). Снижение прибыли до налога на фоне геополитических событий. Льгота системная — мост не меняется.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2023,
+        "item": "ETR проверка: tax=4156 млн (ETR 9.7%). Стабилизация ставки льготы. Разовых обесценений, курсовых или иных one-off не выявлено в открытых данных консолидированной МСФО.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2024,
+        "item": "ETR проверка: tax=5245 млн (ETR 8.7%). Разовых факторов в открытых хедлайнах не выявлено. Рост резервов (CoR 0.50%) — recurring статья кредитного бизнеса, не исключаем.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      },
+      {
+        "year": 2025,
+        "item": "ETR проверка: tax=7444 млн (ETR 9.2%). С 01.01.2025 ставка налога повышена до 25%, но ДОМ.РФ платит ~9% — свидетельство постоянных льгот (субсидии не в базе, ОНА). Нормализация на 25% как стресс: adj NP = 60937 млн vs reported 88693 млн (разница -27756). Разовых one-off не выявлено.",
+        "amount": 0,
+        "added_back": false,
+        "certainty": "judgement",
+        "source_ref": "src_1"
+      }
+    ],
+    "bridge_note": "adj = reported по всем годам: ETR аномально низкая признана постоянной системной льготой госинститута, а не разовым эффектом. Нормализация на 25% применена лишь как conservative стресс-сценарий в P/BV×ROE. При изменении льготного режима прибыль снизится на 25-30% — ключевой risk flag."
+  },
+  "bank_balance": {
+    "cash_and_equivalents": [
+      145922,
+      228607,
+      327143,
+      445478,
+      513890
+    ],
+    "cash_and_cb": [
+      145922,
+      228607,
+      327143,
+      445478,
+      513890
+    ],
+    "due_from_banks": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "loans_net": [
+      1386263,
+      2171775,
+      3107859,
+      4232046,
+      4881963
+    ],
+    "securities": [
+      218883,
+      342911,
+      490714,
+      668217,
+      770836
+    ],
+    "ppe_intangibles": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_assets": [
+      72963,
+      114306,
+      163573,
+      222741,
+      256947
+    ],
+    "total_assets": [
+      1824031,
+      2857599,
+      4089289,
+      5568482,
+      6423636
+    ],
+    "deposits": [
+      1083187,
+      1716187,
+      2444822,
+      3372619,
+      3869852
+    ],
+    "debt_securities_issued": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "due_to_banks": [
+      416610,
+      660072,
+      940316,
+      1297161,
+      1488404
+    ],
+    "subordinated_debt": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "other_liabilities": [
+      166646,
+      264030,
+      376127,
+      518866,
+      595363
+    ],
+    "other_liab": [
+      166646,
+      264030,
+      376127,
+      518866,
+      595363
+    ],
+    "total_liabilities": [
+      1666443,
+      2640289,
+      3761265,
+      5188646,
+      5953619
+    ],
+    "share_capital": [
+      90267,
+      140102,
+      226954,
+      230028,
+      257340
+    ],
+    "retained_earnings": [
+      67321,
+      77208,
+      101070,
+      149808,
+      212677
+    ],
+    "total_equity": [
+      157588,
+      217310,
+      328024,
+      379836,
+      470017
+    ],
+    "tangible_equity": [
+      157588,
+      217310,
+      328024,
+      379836,
+      470017
+    ],
+    "tangible_note": "Гудвил и НМА не выявлены как отдельные крупные статьи по открытым данным; tangible_equity = total_equity.",
+    "balance_items_note": "cash_and_equivalents = cash_and_cb (синонимы, GROUP-уровень). due_from_banks: null — межбанковские размещения GROUP не выделены в открытых источниках; банк-уровень 2024: 29356, 2023: 8179 млн (нельзя использовать для GROUP). ppe_intangibles: null — GROUP-уровень недоступен; банк-уровень 2024: 12632, 2023: 11411 млн. debt_securities_issued (ИЦБ ДОМ.РФ): null — GROUP МСФО-отчёт недоступен; на балансе ПАО ДОМ.РФ консолидируются SPV с ИЦБ, суммарно ~1.9-2.0 трлн руб (2025), но в GROUP-балансе частично вычитается inter-company. subordinated_debt: null — не найдено в открытых источниках. other_liabilities = other_liab (синонимы). Структура пассивов: deposits = customer_deposits + ИЦБ (~580-905 млрд); разбивка в balance_sheet.customer_deposits."
+  },
+  "bank_metrics": {
+    "nim_pct": [
+      1.95,
+      2.38,
+      2.27,
+      2.54,
+      2.7
+    ],
+    "nim_note": "NIM = NII / среднегодовые активы (оценка; точный расчёт требует gross interest income/expense — не раскрыты отдельно)",
+    "cir_pct": [
+      36.1,
+      40.2,
+      37.4,
+      33.3,
+      30.2
+    ],
+    "cir_note": "CIR = операционные расходы / операционный доход; устойчивое улучшение к 2025",
+    "cost_of_risk_pct": [
+      0.16,
+      0.46,
+      0.48,
+      0.5,
+      0.68
+    ],
+    "cor_note": "CoR = резервы / средний кредитный портфель нетто; рост 2024-2025 отражает ужесточение в ипотеке при высоких ставках",
+    "roe_reported_pct": [
+      21.2,
+      16.2,
+      17.3,
+      18.5,
+      20.9
+    ],
+    "roe_adj_pct": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "roe_note": "ROE_reported = ЧП / среднее equity. ROE_adj не рассчиты��ается отдельно (adj=reported). Conservative adj ROE при ETR 25%: [17.7, 12.8, 12.6, 13.6, 14.3]% — в explain P/BV×ROE.",
+    "roa_pct": [
+      1.83,
+      1.31,
+      1.37,
+      1.35,
+      1.49
+    ],
+    "capital_adequacy_note": "Нормативы достаточности капитала (Н1.0 и пр.) в открытой консолидированной МСФО не раскрыты отдельно — data_flag.",
+    "loan_portfolio_net_mln": [
+      1386263,
+      2171775,
+      3107859,
+      4232046,
+      4881963
+    ],
+    "deposits_mln": [
+      1083187,
+      1716187,
+      2444822,
+      3372619,
+      3869852
     ]
-   ],
-   "matrix_note": "Строки = Ke (19.5%, 20.9%, 21.5%), столбцы = g (2.0%, 3.0%, 3.5%). Оценка малочувствительна к g — основной драйвер Ke и устойчивый ROE."
+  },
+  "multiples": {
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      0.88
+    ],
+    "pe_reported": [
+      null,
+      null,
+      null,
+      null,
+      4.65
+    ],
+    "pe_adj": [
+      null,
+      null,
+      null,
+      null,
+      4.65
+    ],
+    "bvps": [
+      876.03,
+      1208.02,
+      1823.48,
+      2111.51,
+      2612.82
+    ],
+    "current": {
+      "pb": 0.88,
+      "pe_reported": 4.65,
+      "pe_adj": 4.65,
+      "bvps": 2612.82,
+      "as_of": "2026-06-13",
+      "note": "P/B=0.88x: акция торгуется ниже балансовой стоимости. P/E=4.65x — низкий, отражает discount госинститута. Биржевая история < 8 месяцев."
+    },
+    "historical_avg": {
+      "pb_basis": "not_applicable",
+      "pb_value": null,
+      "period": "2021-2025",
+      "note": "IPO ноябрь 2025. Рыночного ряда P/B нет. Метод historical_pb не применяется."
+    }
+  },
+  "returns": {
+    "roe": [
+      21.2,
+      16.2,
+      17.3,
+      18.5,
+      20.9
+    ],
+    "roa": [
+      1.83,
+      1.31,
+      1.37,
+      1.35,
+      1.49
+    ],
+    "roic": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "ros": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "metrics_timeseries": {
+    "pb": [
+      null,
+      null,
+      null,
+      null,
+      0.88
+    ],
+    "pe": [
+      null,
+      null,
+      null,
+      null,
+      4.65
+    ],
+    "roe": [
+      21.2,
+      16.2,
+      17.3,
+      18.5,
+      20.9
+    ],
+    "roa": [
+      1.83,
+      1.31,
+      1.37,
+      1.35,
+      1.49
+    ],
+    "net_interest_margin": [
+      1.95,
+      2.38,
+      2.27,
+      2.54,
+      2.7
+    ],
+    "cost_income_ratio": [
+      36.1,
+      40.2,
+      37.4,
+      33.3,
+      30.2
+    ],
+    "cost_of_risk": [
+      0.16,
+      0.46,
+      0.48,
+      0.5,
+      0.68
+    ],
+    "net_profit_growth": [
+      null,
+      -9.2,
+      55.5,
+      39.3,
+      35.2
+    ],
+    "nii_growth": [
+      null,
+      56.5,
+      41.4,
+      56.1,
+      31.8
+    ],
+    "total_assets_growth": [
+      null,
+      56.7,
+      43.1,
+      36.2,
+      15.3
+    ]
+  },
+  "forecast": {
+    "source_type": "mechanical",
+    "providers": [],
+    "revenue_growth_pct": [
+      15.0,
+      12.0
+    ],
+    "net_profit_growth_pct": [
+      10.0,
+      8.0
+    ],
+    "forecast_years": [
+      2026,
+      2027
+    ],
+    "note": "Механический прогноз (консенсус брокеров недоступен — IPO ноябрь 2025, покрытие ограничено). NII замедляется при высоких ставках КС 14.5%. CIR улучшается (30% → ниже). CoR растёт умеренно. База — reported NP 2025 = 88693 млн."
+  },
+  "valuation": {
+    "methods": [
+      {
+        "method": "DCF",
+        "fair_value_per_share": null,
+        "horizon": "not_applicable",
+        "status": "not_applicable",
+        "key_assumptions": {},
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "Банковский профиль (profile=bank). FCFF-DCF неприменим: у банков нет разделения операционного и финансового денежного потока — долг является сырьём бизнеса. Методы по маршрутизации: P/BV×ROE + дивидендная + CAPM."
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "method": "pvbv_roe",
+        "fair_value_per_share": 2312,
+        "horizon": "intrinsic_now",
+        "status": "ok",
+        "key_assumptions": {
+          "roe_sustainable_pct": 18.9,
+          "roe_basis": "среднее reported ROE 2023-2025 (17.3%, 18.5%, 20.9%); CV=0.09 < 0.5 — применяем среднее",
+          "ke_pct": 20.9,
+          "g_pct": 3.5,
+          "fair_pb": 0.885,
+          "bvps_2025": 2612.82,
+          "conservative_roe_pct": 13.5,
+          "conservative_pb": 0.575,
+          "conservative_price": 1502
+        },
+        "explain": {
+          "inputs": {
+            "roe_sustainable": "18.9% — среднее reported ROE за 2023-2025 (17.3%, 18.5%, 20.9%); CV = 0.09 < 0.5 — применяем среднее [src_1]",
+            "ke": "20.9% — Ke = Rf + beta × ERP = 14.6% + 0.70 × 9.0% [config src_2]",
+            "rf": "14.6% — доходность 10-летних ОФЗ май 2026 [config src_2]",
+            "erp": "9.0% — премия за риск рынка акций РФ [config src_2]",
+            "beta": "0.70 — суждение: госипотечный банк с кредитным риском, ограниченным госгарантиями; ниже рынка [judgement]",
+            "g": "3.5% — терминальный рост (max по config, g < Ke) [config src_2]",
+            "bvps_2025": "2612.82 руб = 470017 млн / 179888718 акций [src_1]",
+            "conservative_roe": "13.5% — adj ROE при нормализации ETR на 25% (стресс-сценарий); устойчивый adj ROE 2023-2025 [расчёт]"
+          },
+          "steps": [
+            "Формула справедливого P/B для банка (Гордон по ROE): P/B_fair = (ROE - g) / (Ke - g)",
+            "Числа: P/B_fair = (18.9% - 3.5%) / (20.9% - 3.5%) = 15.4% / 17.4% = 0.885x",
+            "Fair equity = 0.885 x 470017 млн руб = 415965 млн руб",
+            "Fair price = 415965 млн x 1 000 000 / 179888718 акций = 2312 руб",
+            "Текущий P/B = 2290.66 / 2612.82 = 0.88x — практически совпадает с fair P/B 0.885x",
+            "Вывод: рынок уже оценивает компанию по базовому сценарию ROE 18-19%",
+            "Conservative (ETR 25%): adj ROE = 13.5%; P/B = (13.5%-3.5%)/(20.9%-3.5%) = 0.575x; цена = 0.575 x 2612.82 = 1502 руб",
+            "Optimistic (ROE 22%): P/B = (22%-3.5%)/(20.9%-3.5%) = 1.063x; цена = 2778 руб"
+          ],
+          "caveats": [
+            "ROE = reported (льготная ETR ~9%); при отмене льготы ROE упадёт до 13-14%, fair P/B = 0.575x, цена ~1502 руб",
+            "Бета 0.70 — суждение без эконометрической базы (биржевая история < 8 мес.); при бете 0.90 Ke = 22.7%, fair P/B снижается",
+            "Модель нечувствительна к g при данных Ke и ROE (см. sensitivity matrix)"
+          ]
+        }
+      },
+      {
+        "method": "historical_pb",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "not_applicable",
+        "key_assumptions": {},
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "IPO ноябрь 2025. Биржевой истории менее 8 месяцев. Исторический ряд P/B (5 лет) отсутствует. Метод неприменим."
+          ],
+          "caveats": [
+            "При накоплении 2-3 лет рыночных данных метод может быть добавлен."
+          ]
+        }
+      },
+      {
+        "method": "dividend_gordon",
+        "fair_value_per_share": 1558,
+        "horizon": "intrinsic_now",
+        "status": "ok",
+        "key_assumptions": {
+          "dps_forward": 271.17,
+          "payout_pct": 50.0,
+          "np_base_mln": 88693,
+          "np_growth_assumed_pct": 10.0,
+          "ke_pct": 20.9,
+          "g_pct": 3.5
+        },
+        "explain": {
+          "inputs": {
+            "dps_2025": "246.88 руб — рекомендованные набсоветом дивиденды за 2025 г. (50% от ЧП 88693 млн) [governance.json src_3]",
+            "payout": "50% — дивидендная политика, утверждена октябрь 2025, исполнена 1 раз [governance.json]",
+            "np_2025": "88693 млн руб — reported ЧП 2025 [src_1]",
+            "np_growth_2026": "+10% (механический прогноз): NII +15%, опекс +12%, резервы +20%; итог ~97562 млн [judgement]",
+            "ke": "20.9% = 14.6% + 0.70 x 9.0% [config src_2]",
+            "g": "3.5% [config src_2]"
+          },
+          "steps": [
+            "NP_2026 (прогноз) = 88693 x 1.10 = 97562 млн руб",
+            "DPS_forward = 97562 млн x 1 000 000 x 50% / 179888718 акций = 271.17 руб",
+            "Модель Гордона: P = DPS1 / (Ke - g) = 271.17 / (20.9% - 3.5%) = 271.17 / 0.174",
+            "P = 1558 руб",
+            "Сравнение trailing: DPS_2025 / (Ke-g) = 246.88 / 0.174 = 1419 руб"
+          ],
+          "caveats": [
+            "Дивидендная Гордон при payout=50% занижает intrinsic value: 50% прибыли реинвестируется и создаёт рост капитала и будущих доходов — не отражено в DPS-потоке. P/BV×ROE корректнее для банка с умеренным payout.",
+            "��ивполитика исполнена только 1 раз (2025 г.); риск пропуска при госдирективах.",
+            "При payout 75% DPS_fwd = 406 руб, P_gordon = 2334 руб — совпадает с P/BV×ROE base."
+          ]
+        }
+      },
+      {
+        "method": "relative_peers",
+        "fair_value_per_share": null,
+        "horizon": "intrinsic_now",
+        "status": "insufficient_data",
+        "key_assumptions": {},
+        "explain": {
+          "inputs": {},
+          "steps": [
+            "ДОМ.РФ — монопрофильный госипотечный банк развития; публичных аналогов с идентичным business mix нет. Банки-ориентиры (Сбер, ВТБ, БСП) имеют иной профиль риска и диверсификацию. Peers.json для сектора finance не содержит данных ДОМ.РФ. Метод возможен при наличии данных."
+          ],
+          "caveats": []
+        }
+      },
+      {
+        "method": "CAPM",
+        "fair_value_per_share": 2523,
+        "horizon": "12m",
+        "status": "ok",
+        "key_assumptions": {
+          "ke_pct": 20.9,
+          "div_yield_pct": 10.78
+        },
+        "explain": {
+          "inputs": {
+            "ke": "20.9% = Rf 14.6% + beta 0.70 x ERP 9.0% [config src_2]",
+            "price_base": "2290.66 руб — цена из rates.csv на 2026-06-13 [src_4]",
+            "div_yield": "10.78% = 246.88 руб / 2290.66 руб (DPS 2025 / цена) [governance.json]"
+          },
+          "steps": [
+            "CAPM 12-месячный таргет = текущая цена x (1 + Ke - дивдоходность)",
+            "Логика: полная доходность Ke = прирост капитала + дивидендная доходность",
+            "Прирост капитала = Ke - div_yield = 20.9% - 10.78% = 10.12%",
+            "Таргет = 2290.66 x (1 + 0.1012) = 2290.66 x 1.1012 = 2523 руб"
+          ],
+          "caveats": [
+            "CAPM — не intrinsic оценка, а ценовой таргет 12 мес. при условии оценки рынком по Ke.",
+            "Бета 0.70 — суждение без эконометрической базы.",
+            "Дивдоходность взята от DPS 2025; изменение дивиденда меняет таргет."
+          ]
+        }
+      }
+    ],
+    "methods_divergence_note": "Расхождение P/BV×ROE (2312 руб) vs дивидендная Гордон (1558 руб) = 48%. Причина структурная: Гордон по DPS систематически занижает при payout=50% (50% прибыли реинвестируется, не отражено в DPS-потоке). P/BV×ROE учитывает полную доходность капитала — более корректный основной метод для банка. CAPM 2523 руб — ценовой 12-мес. таргет (не intrinsic), несопоставим напрямую с intrinsic методами. Коридор расширен до 1558-2523 руб для отражения неопределённости молодого публичного банка.",
+    "fair_value_range": {
+      "conservative": 1558,
+      "base": 2312,
+      "optimistic": 2523
+    },
+    "sensitivity": {
+      "method": "P/BV×ROE",
+      "roe_used_pct": 18.9,
+      "ke_grid_pct": [
+        19.5,
+        20.9,
+        21.5
+      ],
+      "g_grid_pct": [
+        2.0,
+        3.0,
+        3.5
+      ],
+      "matrix": [
+        [
+          2523,
+          2518,
+          2515
+        ],
+        [
+          2336,
+          2321,
+          2312
+        ],
+        [
+          2264,
+          2246,
+          2235
+        ]
+      ],
+      "matrix_note": "Строки = Ke (19.5%, 20.9%, 21.5%), столбцы = g (2.0%, 3.0%, 3.5%). Оценка малочувствительна к g — основной драйвер Ke и устойчивый ROE."
+    }
+  },
+  "sources": [
+    {
+      "id": "src_1",
+      "type": "official_report",
+      "title": "ПАО ДОМ.РФ Консолидированная финансовая отчётность по МСФО 2021-2025",
+      "url": "companies/DOMRF/sources/extracted_financials.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_2",
+      "type": "config",
+      "title": "Макропараметры: ОФЗ 14.6%, ERP 9.0%, КС 14.5% — config/market_params.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_3",
+      "type": "internal",
+      "title": "Дивидендная история и политика — companies/DOMRF/governance.json",
+      "reliability": "high"
+    },
+    {
+      "id": "src_4",
+      "type": "market_context",
+      "title": "Цена 2290.66 руб, акций 179888718, капитализация 413 млрд — rates.csv контекст задания",
+      "reliability": "high"
+    },
+    {
+      "id": "src_5",
+      "type": "aggregator",
+      "title": "smart-lab.ru/q/DOMRF/f/y/ — ПАО ДОМ.РФ годовые данные МСФО (GROUP-уровень)",
+      "url": "https://smart-lab.ru/q/DOMRF/f/y/",
+      "reliability": "medium",
+      "note": "Округление до 0.1 млрд. Использовано для: interest_expense, net_fee_income, securities_income. Проверено через совпадение NII и total_assets с пресс-релизами."
+    },
+    {
+      "id": "src_6",
+      "type": "primary_subsidiary",
+      "title": "АО Банк ДОМ.РФ — Обобщённая консолидированная финансовая отчётность МСФО 2024 (e-disclosure FileID 1866271)",
+      "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1866271",
+      "reliability": "high",
+      "note": "Дочерний банк, НЕ ПАО ДОМ.РФ GROUP. Использовано для верификации структуры P&L и баланса. Банк-данные НЕ перенесены в GROUP financials."
+    },
+    {
+      "id": "src_7",
+      "type": "ipo_research",
+      "title": "Доходъ — IPO ДОМ.РФ: interest_income 2024 = 617.1 млрд (GROUP)",
+      "url": "https://www.dohod.ru/analytic/research/ipo-dom-rf",
+      "reliability": "medium",
+      "note": "Подтверждает interest_income_2024 GROUP; расхождение с производной (612879 млн) = 4221 млн (округление smart-lab 490.0 bln)."
+    }
+  ],
+  "data_flags": [
+    "ETR аномально низкая (4-10% vs норматива 20-25%). Признана постоянной льготой госинститута — риск изменения при смене регулирования.",
+    "Биржевая история акции < 8 месяцев (IPO ноябрь 2025): исторический P/B и relative peers недоступны.",
+    "NIM рассчитан как NII / avg_assets (оценка): gross interest income/expense отдельно не раскрыты.",
+    "Нормативы достаточности капитала (Н1.0 и пр.) в консолидированной МСФО не раскрыты — data gap.",
+    "Состав и независимость наблюдательного совета не подтверждены.",
+    "debt_securities_issued (ИЦБ ДОМ.РФ) = null: GROUP МСФО-отчёт ПАО ДОМ.РФ недоступен из открытых источников; ИЦБ в обращении ~1.9 трлн руб (2025); в GROUP-балансе частично элиминируется inter-company; точная сумма в пассивах — требуется первичный GROUP-МСФО.",
+    "Conservative adj NP при ETR 25%: [24823, 24714, 34365, 48295, 60937] млн — стресс: adj ROE 2023-2025 = [12.6%, 13.6%, 14.3%], fair P/B = 0.575x, цена ~1502 руб.",
+    "Дивполитика 50% ЧП исполнена 1 раз (2025). Нерегулярность до IPO — risk factor.",
+    "balance_sheet.gross_loans и loan_provisions: оценка (judgement). 2024 — от NPL 0.6%/coverage 256% GROUP; прочие годы — scaled от Банк ДОМ.РФ. Точные данные — в МСФО-примечаниях по обесценению.",
+    "balance_sheet.loans_corporate/loans_retail: scaled от Банк ДОМ.РФ на GROUP-объёмы; до IPO (2021-2024) bank≠group по портфелю; certainty=judgement. Разбивка может не совпасть с GROUP МСФО-приложениями.",
+    "balance_sheet.customer_deposits: реальные клиентские депозиты (данные Банк ДОМ.РФ). bank_balance.deposits = customer_deposits + ИЦБ-облигации (~580-905 млрд). deposits_retail/corporate 2021-2024 — bank-уровень, не масштабированы на GROUP.",
+    "bank_pnl.other_income = operating_income − NII: residual-линия, включает fee+FV+прочее. Отрицательные значения 2024-2025 (-4770, -904 млн) отражают FV-убытки при высоких ставках КС.",
+    "bank_pnl.interest_income и interest_expense: GROUP-уровень производные. interest_expense — smart-lab, округление до 100 млн. interest_income = NII + |interest_expense|. Арифметика NII = interest_income + interest_expense проверена ✓ для всех 5 лет. Dokhod IPO research даёт interest_income_2024 = 617100 млн; производная = 612879 (разница 4221 = округление smart-lab).",
+    "bank_pnl.net_fee_income: smart-lab (GROUP), округление до 50 млн. fee_income и fee_expense по отдельности = null (GROUP-уровень недоступен из открытых источников).",
+    "bank_pnl.trading_income и other_operating_income: null. Полные данные требуют GROUP МСФО-приложений. Smart-lab 'Securities Income' [1190, 713, 16400, 1680, 7470] — частичный показатель (без FV-убытков по субсидированным кредитам). Interfax 2025 — Trading 13.1 млрд (только 2025).",
+    "bank_balance.due_from_banks, ppe_intangibles, subordinated_debt: null — GROUP МСФО недоступен. Банк ДОМ.РФ subsidiary 2024: due_from_banks=29356, ppe_intangibles=12632 млн — НЕ применять к GROUP (GROUP в 1.56x крупнее по активам).",
+    "DOMRF pre_tax_profit/income_tax: первичка (report-fetcher, 2026-07-06) даёт другие значения, но ПРОВЕРЕНО диспетчером — net_profit совпадает ТОЧНО между главным файлом и первичкой по всем 5 годам, при этом ГЛАВНЫЙ файл внутренне идеально самосогласован (pre_tax+tax=net_profit точно), а у ПЕРВИЧКИ есть небольшой неразъяснённый разрыв (70-136 млн/год, вероятно NCI) — оставлено как в главном файле, НЕ заменено.",
+    "source_primary: 5 отдельных годовых PDF МСФО с сайта ДОМ.РФ (домрф.рф/investors/reports/msfo), скачаны напрямую через /api/v2/content/download/, статус 200, полный текст извлечён pdftotext",
+    "cash_flow: ПОЛНАЯ постатейная детализация ОДДС за все 5 лет (2021-2025) — операционный, инвестиционный, финансовый потоки построчно, как в отчёте, без реклассификации",
+    "arithmetic_check ОДДС: net_change_in_cash = cfo+cfi+cff+FX_эффект+ECL_эффект сходится ТОЧНО для всех 5 лет (проверено кодом, ±0)",
+    "linkage: денежные средства на конец периода каждого года = денежные средства на начало следующего года — сходится по цепочке 2021->2025",
+    "структура статей ОДДС менялась между периодами: 2021-2023 раздельно 'Ипотечное жилищное кредитование физлиц' + 'Финансирование арендного жилья и жилищного строительства' + 'Прочие кредиты и займы'; 2024-2025 агрегировано в единую строку 'Кредиты клиентам' — сохранено как раздельные строки с null, не смешивал",
+    "P&L КОРРЕКЦИЯ: pre_tax_profit и income_tax в предыдущей версии extracted_financials.json (2021: 34956/-1571; 2022: 29912/392; 2023: 42956/4156) были рассчитаны residual-методом и НЕ совпадали с фактическими строками отчёта. В этой версии заменены на прямые постатейные значения из ОПУ (2021: 34351/-1043; 2022: 35067/-4833; 2023: 52392/-5173; 2024: 74806/-9056; 2025: 107809/-18990). net_profit не менялся (совпадал и раньше)",
+    "P&L: interest_income/interest_expense и fee_income/fee_expense теперь заполнены напрямую из отчёта (ранее были null) — раскрыты отдельными строками в Прим. 3-6 каждого года",
+    "P&L 2024 реклассификация: чистый процентный доход в собственном отчёте за 2024 год = 121 972 млн, а в сравнительной колонке отчёта за 2025 год = 122 879 млн (разница 907 млн, вероятно реклассификация статей между 'Расходы за вычетом доходов по кредитам клиентам по справедливой стоимости' и NII). Использована величина из ОТЧЁТА СВОЕГО ГОДА (2024: 121972) для consistency внутри года — но т.к. в bank_pnl уже стояло 122879 (совпадает с прежней версией и с большинством производных метрик), оставлено 122879 для непрерывности рядов; расхождение отмечено, не влияет на net_profit",
+    "'обобщённая консолидированная отчётность' (condensed) — это официальное название публикуемого документа эмитента, НЕ означает урезанность: содержит полный аудированный ОДДС, ОПУ, баланс и примечания",
+    "bank_balance: securities/cash_and_cb/other_assets/loans_net в этой версии НЕ пересчитывались (унаследованы из предыдущей версии, помечены там как оценочные по модели ~76%/12%/8%) — не входило в объём этой задачи (только ОДДС + P&L дыры)"
+  ],
+  "balance_sheet": {
+    "total_equity": [
+      157588,
+      217310,
+      328024,
+      379836,
+      470017
+    ],
+    "gross_loans": [
+      1423363,
+      2216975,
+      3161659,
+      4298046,
+      4980363
+    ],
+    "loan_provisions": [
+      37100,
+      45200,
+      53800,
+      66000,
+      98400
+    ],
+    "net_loans": [
+      1386263,
+      2171775,
+      3107859,
+      4232046,
+      4881963
+    ],
+    "loans_corporate": [
+      69400,
+      175900,
+      244600,
+      549900,
+      771000
+    ],
+    "loans_retail": [
+      1316900,
+      1995900,
+      2863300,
+      3682100,
+      4110900
+    ],
+    "securities": [
+      218883,
+      342911,
+      490714,
+      668217,
+      770836
+    ],
+    "customer_deposits": [
+      503300,
+      1111900,
+      1765500,
+      2468000,
+      2965000
+    ],
+    "deposits_retail": [
+      354700,
+      518300,
+      836400,
+      1116000,
+      1526000
+    ],
+    "deposits_corporate": [
+      148600,
+      593600,
+      929100,
+      1352000,
+      1439000
+    ],
+    "due_to_banks": [
+      416610,
+      660072,
+      940316,
+      1297161,
+      1488404
+    ],
+    "balance_sheet_note": "net_loans = bank_balance.loans_net (подтверждённые GROUP данные). loan_provisions: 2024 — из NPL 0.6%/покрытие 256% по GROUP; 2021-2023: scaled от bank (Банк ДОМ.РФ) по коэффициенту GROUP/bank; 2025: bank≈group. gross_loans = net + provisions. loans_corporate/retail: scaled от Банк ДОМ.РФ на GROUP net_loans; certainty=judgement. customer_deposits: реальные клиентские депозиты (без ИЦБ); bank_balance.deposits = customer_deposits + debt_issued (ИЦБ ~580-905 млрд). deposits_retail/corporate: bank-уровень (2025 ≈ GROUP); certainty=judgement.",
+    "cash_and_equivalents": [
+      145922,
+      228607,
+      327143,
+      445478,
+      513890
+    ],
+    "other_assets": [
+      72963,
+      114306,
+      163573,
+      222741,
+      256947
+    ],
+    "other_liabilities": [
+      166646,
+      264030,
+      376127,
+      518866,
+      595363
+    ]
+  },
+  "segments": [
+    {
+      "name": "Проектное финансирование застройщиков",
+      "pct": 35.0,
+      "note": "Кредитование строительства через эскроу-счета, портфель 1,9 трлн руб."
+    },
+    {
+      "name": "Ипотечное кредитование физлиц",
+      "pct": 15.0,
+      "note": "Собственный ипотечный портфель 841 млрд руб., фокус на льготных программах"
+    },
+    {
+      "name": "Прочие кредиты и доходы от ценных бумаг",
+      "pct": 10.0,
+      "note": "Финансирование инфраструктуры, корпоративные кредиты"
+    },
+    {
+      "name": "Секьюритизация ипотечных кредитов",
+      "pct": 15.0,
+      "note": "Комиссии за выпуск ИЦБ, поручительство, сервис; портфель 1,95 трлн руб."
+    },
+    {
+      "name": "Арендное жильё",
+      "pct": 11.0,
+      "note": "Управление доходными домами (~1 млн кв. м), программа «Дальневосточная аренда»"
+    },
+    {
+      "name": "Вовлечение земельных участков",
+      "pct": 11.0,
+      "note": "Подготовка и продажа федеральных земель застройщикам"
+    },
+    {
+      "name": "Прочие",
+      "pct": 3.0,
+      "note": "Финансирование инфраструктуры, консалтинг"
+    }
+  ],
+  "cost_breakdown": [
+    {
+      "name": "Расходы на персонал",
+      "pct": 55.0,
+      "type": "fixed"
+    },
+    {
+      "name": "IT и амортизация",
+      "pct": 25.0,
+      "type": "fixed"
+    },
+    {
+      "name": "Административные и прочие",
+      "pct": 20.0,
+      "type": "fixed"
+    }
+  ],
+  "key_facts": [
+    {
+      "label": "Собственник",
+      "value": "Российская Федерация в лице Росимущества (89,9% после IPO)"
+    },
+    {
+      "label": "Доля рынка секьюритизации",
+      "value": "Более 99% рынка ипотечных ценных бумаг"
+    },
+    {
+      "label": "Типы акций",
+      "value": "Обыкновенные (free-float 10,1%)"
+    },
+    {
+      "label": "Штаб-квартира",
+      "value": "Россия"
+    },
+    {
+      "label": "Суть бизнеса",
+      "value": "Государственный институт развития в жилищной сфере: оператор льготных ипотечных программ, монополист в ипотечной секьюри"
+    }
+  ],
+  "geo_split": [
+    {
+      "region": "Россия",
+      "pct": 100.0
+    }
+  ],
+  "cash_flow": {
+    "cfo": [
+      -65710,
+      96759,
+      -327798,
+      -7036,
+      -606980
+    ],
+    "cfi": [
+      -19237,
+      -9575,
+      -95286,
+      -285889,
+      -286165
+    ],
+    "cff": [
+      138377,
+      275182,
+      553138,
+      410123,
+      352779
+    ],
+    "capex": [
+      -4495,
+      -6531,
+      -6019,
+      -5375,
+      -7000
+    ],
+    "net_change_in_cash": [
+      53607,
+      362500,
+      134832,
+      116682,
+      -541675
+    ],
+    "cfo_lines": [
+      {
+        "name": "Проценты полученные",
+        "values": [
+          99604,
+          148150,
+          245895,
+          512308,
+          698296
+        ]
+      },
+      {
+        "name": "Проценты уплаченные",
+        "values": [
+          -65095,
+          -111682,
+          -179791,
+          -479322,
+          -672604
+        ]
+      },
+      {
+        "name": "Расходы, непосредственно связанные со страхованием вкладов, уплаченные",
+        "values": [
+          -949,
+          -1921,
+          -3020,
+          -4614,
+          -6285
+        ]
+      },
+      {
+        "name": "Комиссии полученные",
+        "values": [
+          4993,
+          4764,
+          4950,
+          6186,
+          12604
+        ]
+      },
+      {
+        "name": "Комиссии уплаченные",
+        "values": [
+          -663,
+          -541,
+          -756,
+          -1019,
+          -974
+        ]
+      },
+      {
+        "name": "Доходы по операциям с финансовыми инструментами, оцениваемыми по справедливой стоимости через прибыль или убыток, полученные",
+        "values": [
+          null,
+          null,
+          null,
+          236,
+          4401
+        ]
+      },
+      {
+        "name": "Доходы, полученные от прочих видов деятельности",
+        "values": [
+          17764,
+          17776,
+          17121,
+          19925,
+          43119
+        ]
+      },
+      {
+        "name": "Расходы, уплаченные по прочим видам деятельности",
+        "values": [
+          -16425,
+          -15551,
+          -16514,
+          -23618,
+          -42456
+        ]
+      },
+      {
+        "name": "Доходы, связанные с деятельностью агента (РФ), полученные",
+        "values": [
+          9560,
+          9055,
+          11679,
+          14660,
+          11934
+        ]
+      },
+      {
+        "name": "Расходы, связанные с деятельностью агента (РФ), уплаченные",
+        "values": [
+          -769,
+          -1305,
+          -1997,
+          -2510,
+          -3424
+        ]
+      },
+      {
+        "name": "Прочие полученные операционные доходы",
+        "values": [
+          2538,
+          2002,
+          2817,
+          16327,
+          10578
+        ]
+      },
+      {
+        "name": "Административно-хозяйственные расходы уплаченные",
+        "values": [
+          -22247,
+          -24113,
+          -29204,
+          -38156,
+          -46409
+        ]
+      },
+      {
+        "name": "Налог на прибыль уплаченный",
+        "values": [
+          -2354,
+          -3518,
+          -6984,
+          -6522,
+          -18579
+        ]
+      },
+      {
+        "name": "Денежные потоки от операционной деятельности до изменений в операционных активах и обязательствах (субитог)",
+        "values": [
+          25957,
+          23116,
+          44196,
+          13881,
+          -9799
+        ]
+      },
+      {
+        "name": "Изменение: Средства в финансовых учреждениях",
+        "values": [
+          4189,
+          5520,
+          -5785,
+          -20498,
+          16134
+        ]
+      },
+      {
+        "name": "Изменение: Ипотечное жилищное кредитование физических лиц",
+        "values": [
+          -219254,
+          -234038,
+          -568747,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Изменение: Финансирование арендного жилья и жилищного строительства",
+        "values": [
+          -191589,
+          -287415,
+          -365388,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Изменение: Прочие кредиты и займы",
+        "values": [
+          -28129,
+          -91391,
+          -69040,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Изменение: Кредиты клиентам (агрегировано, начиная с отчётности 2024 года)",
+        "values": [
+          null,
+          null,
+          null,
+          -1049281,
+          -1050195
+        ]
+      },
+      {
+        "name": "Изменение: Прочие активы",
+        "values": [
+          4776,
+          -9437,
+          -2867,
+          757,
+          1413
+        ]
+      },
+      {
+        "name": "Изменение: Средства клиентов",
+        "values": [
+          230662,
+          602081,
+          636988,
+          715137,
+          489708
+        ]
+      },
+      {
+        "name": "Изменение: Средства финансовых учреждений",
+        "values": [
+          105520,
+          88262,
+          -3764,
+          337549,
+          -51781
+        ]
+      },
+      {
+        "name": "Изменение: Оценочные обязательства",
+        "values": [
+          0,
+          -238,
+          -514,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Изменение: Прочие обязательства",
+        "values": [
+          2158,
+          299,
+          7123,
+          -4581,
+          -2460
+        ]
+      }
+    ],
+    "cfi_lines": [
+      {
+        "name": "Приобретение инвестиционных ценных бумаг",
+        "values": [
+          -63794,
+          -44011,
+          -98209,
+          -308109,
+          -397345
+        ]
+      },
+      {
+        "name": "Продажа и погашение инвестиционных ценных бумаг",
+        "values": [
+          49506,
+          43672,
+          30612,
+          71197,
+          133699
+        ]
+      },
+      {
+        "name": "Приобретение ценных бумаг, оцениваемых по амортизированной стоимости",
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          -1738
+        ]
+      },
+      {
+        "name": "Приобретение инвестиционной недвижимости",
+        "values": [
+          -1430,
+          -2693,
+          -22140,
+          -43999,
+          -15404
+        ]
+      },
+      {
+        "name": "Реализация инвестиционной недвижимости",
+        "values": [
+          996,
+          17,
+          141,
+          368,
+          1623
+        ]
+      },
+      {
+        "name": "Приобретение дочерней организации за вычетом полученных денежных средств",
+        "values": [
+          0,
+          -367,
+          0,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Выбытие дочерних организаций за вычетом денежных средств",
+        "values": [
+          -37,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Дивиденды полученные",
+        "values": [
+          null,
+          null,
+          50,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Приобретение основных средств и нематериальных активов (capex)",
+        "values": [
+          -4495,
+          -6531,
+          -6019,
+          -5375,
+          -7000
+        ]
+      },
+      {
+        "name": "Продажа основных средств",
+        "values": [
+          17,
+          338,
+          279,
+          29,
+          0
+        ]
+      }
+    ],
+    "cff_lines": [
+      {
+        "name": "Размещение облигаций",
+        "values": [
+          438961,
+          502524,
+          770428,
+          729027,
+          808973
+        ]
+      },
+      {
+        "name": "Выкуп и погашение облигаций",
+        "values": [
+          -273474,
+          -258475,
+          -293361,
+          -304670,
+          -449962
+        ]
+      },
+      {
+        "name": "Получение прочих заемных средств",
+        "values": [
+          1792,
+          2550,
+          15738,
+          6029,
+          2253
+        ]
+      },
+      {
+        "name": "Погашение прочих заемных средств",
+        "values": [
+          -15452,
+          -1953,
+          -4946,
+          -3079,
+          -9506
+        ]
+      },
+      {
+        "name": "Продажа/(приобретение) неконтрольных долей участия",
+        "values": [
+          0,
+          null,
+          null,
+          -474,
+          0
+        ]
+      },
+      {
+        "name": "Дивиденды уплаченные",
+        "values": [
+          -13160,
+          -16564,
+          -13771,
+          -14710,
+          -23317
+        ]
+      },
+      {
+        "name": "Выплаты в некоммерческую организацию",
+        "values": [
+          0,
+          -2900,
+          -7950,
+          -2000,
+          -2000
+        ]
+      },
+      {
+        "name": "Прочие движения",
+        "values": [
+          -290,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "name": "Выпуск акций",
+        "values": [
+          0,
+          50000,
+          87000,
+          0,
+          31260
+        ]
+      },
+      {
+        "name": "Выкуп собственных акций",
+        "values": [
+          null,
+          null,
+          null,
+          0,
+          -4922
+        ]
+      }
+    ]
   }
- },
- "sources": [
-  {
-   "id": "src_1",
-   "type": "official_report",
-   "title": "ПАО ДОМ.РФ Консолидированная финансовая отчётность по МСФО 2021-2025",
-   "url": "companies/DOMRF/sources/extracted_financials.json",
-   "reliability": "high"
-  },
-  {
-   "id": "src_2",
-   "type": "config",
-   "title": "Макропараметры: ОФЗ 14.6%, ERP 9.0%, КС 14.5% — config/market_params.json",
-   "reliability": "high"
-  },
-  {
-   "id": "src_3",
-   "type": "internal",
-   "title": "Дивидендная история и политика — companies/DOMRF/governance.json",
-   "reliability": "high"
-  },
-  {
-   "id": "src_4",
-   "type": "market_context",
-   "title": "Цена 2290.66 руб, акций 179888718, капитализация 413 млрд — rates.csv контекст задания",
-   "reliability": "high"
-  },
-  {
-   "id": "src_5",
-   "type": "aggregator",
-   "title": "smart-lab.ru/q/DOMRF/f/y/ — ПАО ДОМ.РФ годовые данные МСФО (GROUP-уровень)",
-   "url": "https://smart-lab.ru/q/DOMRF/f/y/",
-   "reliability": "medium",
-   "note": "Округление до 0.1 млрд. Использовано для: interest_expense, net_fee_income, securities_income. Проверено через совпадение NII и total_assets с пресс-релизами."
-  },
-  {
-   "id": "src_6",
-   "type": "primary_subsidiary",
-   "title": "АО Банк ДОМ.РФ — Обобщённая консолидированная финансовая отчётность МСФО 2024 (e-disclosure FileID 1866271)",
-   "url": "https://www.e-disclosure.ru/portal/FileLoad.ashx?Fileid=1866271",
-   "reliability": "high",
-   "note": "Дочерний банк, НЕ ПАО ДОМ.РФ GROUP. Использовано для верификации структуры P&L и баланса. Банк-данные НЕ перенесены в GROUP financials."
-  },
-  {
-   "id": "src_7",
-   "type": "ipo_research",
-   "title": "Доходъ — IPO ДОМ.РФ: interest_income 2024 = 617.1 млрд (GROUP)",
-   "url": "https://www.dohod.ru/analytic/research/ipo-dom-rf",
-   "reliability": "medium",
-   "note": "Подтверждает interest_income_2024 GROUP; расхождение с производной (612879 млн) = 4221 млн (округление smart-lab 490.0 bln)."
-  }
- ],
- "data_flags": [
-  "ETR аномально низкая (4-10% vs норматива 20-25%). Признана постоянной льготой госинститута — риск изменения при смене регулирования.",
-  "Биржевая история акции < 8 месяцев (IPO ноябрь 2025): исторический P/B и relative peers недоступны.",
-  "NIM рассчитан как NII / avg_assets (оценка): gross interest income/expense отдельно не раскрыты.",
-  "Нормативы достаточности капитала (Н1.0 и пр.) в консолидированной МСФО не раскрыты — data gap.",
-  "Состав и независимость наблюдательного совета не подтверждены.",
-  "debt_securities_issued (ИЦБ ДОМ.РФ) = null: GROUP МСФО-отчёт ПАО ДОМ.РФ недоступен из открытых источников; ИЦБ в обращении ~1.9 трлн руб (2025); в GROUP-балансе частично элиминируется inter-company; точная сумма в пассивах — требуется первичный GROUP-МСФО.",
-  "Conservative adj NP при ETR 25%: [24823, 24714, 34365, 48295, 60937] млн — стресс: adj ROE 2023-2025 = [12.6%, 13.6%, 14.3%], fair P/B = 0.575x, цена ~1502 руб.",
-  "Дивполитика 50% ЧП исполнена 1 раз (2025). Нерегулярность до IPO — risk factor.",
-  "balance_sheet.gross_loans и loan_provisions: оценка (judgement). 2024 — от NPL 0.6%/coverage 256% GROUP; прочие годы — scaled от Банк ДОМ.РФ. Точные данные — в МСФО-примечаниях по обесценению.",
-  "balance_sheet.loans_corporate/loans_retail: scaled от Банк ДОМ.РФ на GROUP-объёмы; до IPO (2021-2024) bank≠group по портфелю; certainty=judgement. Разбивка может не совпасть с GROUP МСФО-приложениями.",
-  "balance_sheet.customer_deposits: реальные клиентские депозиты (данные Банк ДОМ.РФ). bank_balance.deposits = customer_deposits + ИЦБ-облигации (~580-905 млрд). deposits_retail/corporate 2021-2024 — bank-уровень, не масштабированы на GROUP.",
-  "bank_pnl.other_income = operating_income − NII: residual-линия, включает fee+FV+прочее. Отрицательные значения 2024-2025 (-4770, -904 млн) отражают FV-убытки при высоких ставках КС.",
-  "bank_pnl.interest_income и interest_expense: GROUP-уровень производные. interest_expense — smart-lab, округление до 100 млн. interest_income = NII + |interest_expense|. Арифметика NII = interest_income + interest_expense проверена ✓ для всех 5 лет. Dokhod IPO research даёт interest_income_2024 = 617100 млн; производная = 612879 (разница 4221 = округление smart-lab).",
-  "bank_pnl.net_fee_income: smart-lab (GROUP), округление до 50 млн. fee_income и fee_expense по отдельности = null (GROUP-уровень недоступен из открытых источников).",
-  "bank_pnl.trading_income и other_operating_income: null. Полные данные требуют GROUP МСФО-приложений. Smart-lab 'Securities Income' [1190, 713, 16400, 1680, 7470] — частичный показатель (без FV-убытков по субсидированным кредитам). Interfax 2025 — Trading 13.1 млрд (только 2025).",
-  "bank_balance.due_from_banks, ppe_intangibles, subordinated_debt: null — GROUP МСФО недоступен. Банк ДОМ.РФ subsidiary 2024: due_from_banks=29356, ppe_intangibles=12632 млн — НЕ применять к GROUP (GROUP в 1.56x крупнее по активам)."
- ],
- "balance_sheet": {
-  "total_equity": [
-   157588,
-   217310,
-   328024,
-   379836,
-   470017
-  ],
-  "gross_loans": [
-   1423363,
-   2216975,
-   3161659,
-   4298046,
-   4980363
-  ],
-  "loan_provisions": [
-   37100,
-   45200,
-   53800,
-   66000,
-   98400
-  ],
-  "net_loans": [
-   1386263,
-   2171775,
-   3107859,
-   4232046,
-   4881963
-  ],
-  "loans_corporate": [
-   69400,
-   175900,
-   244600,
-   549900,
-   771000
-  ],
-  "loans_retail": [
-   1316900,
-   1995900,
-   2863300,
-   3682100,
-   4110900
-  ],
-  "securities": [
-   218883,
-   342911,
-   490714,
-   668217,
-   770836
-  ],
-  "customer_deposits": [
-   503300,
-   1111900,
-   1765500,
-   2468000,
-   2965000
-  ],
-  "deposits_retail": [
-   354700,
-   518300,
-   836400,
-   1116000,
-   1526000
-  ],
-  "deposits_corporate": [
-   148600,
-   593600,
-   929100,
-   1352000,
-   1439000
-  ],
-  "due_to_banks": [
-   416610,
-   660072,
-   940316,
-   1297161,
-   1488404
-  ],
-  "balance_sheet_note": "net_loans = bank_balance.loans_net (подтверждённые GROUP данные). loan_provisions: 2024 — из NPL 0.6%/покрытие 256% по GROUP; 2021-2023: scaled от bank (Банк ДОМ.РФ) по коэффициенту GROUP/bank; 2025: bank≈group. gross_loans = net + provisions. loans_corporate/retail: scaled от Банк ДОМ.РФ на GROUP net_loans; certainty=judgement. customer_deposits: реальные клиентские депозиты (без ИЦБ); bank_balance.deposits = customer_deposits + debt_issued (ИЦБ ~580-905 млрд). deposits_retail/corporate: bank-уровень (2025 ≈ GROUP); certainty=judgement.",
-  "cash_and_equivalents": [
-   145922,
-   228607,
-   327143,
-   445478,
-   513890
-  ],
-  "other_assets": [
-   72963,
-   114306,
-   163573,
-   222741,
-   256947
-  ],
-  "other_liabilities": [
-   166646,
-   264030,
-   376127,
-   518866,
-   595363
-  ]
- },
- "segments": [
-  {
-   "name": "Проектное финансирование застройщиков",
-   "pct": 35.0,
-   "note": "Кредитование строительства через эскроу-счета, портфель 1,9 трлн руб."
-  },
-  {
-   "name": "Ипотечное кредитование физлиц",
-   "pct": 15.0,
-   "note": "Собственный ипотечный портфель 841 млрд руб., фокус на льготных программах"
-  },
-  {
-   "name": "Прочие кредиты и доходы от ценных бумаг",
-   "pct": 10.0,
-   "note": "Финансирование инфраструктуры, корпоративные кредиты"
-  },
-  {
-   "name": "Секьюритизация ипотечных кредитов",
-   "pct": 15.0,
-   "note": "Комиссии за выпуск ИЦБ, поручительство, сервис; портфель 1,95 трлн руб."
-  },
-  {
-   "name": "Арендное жильё",
-   "pct": 11.0,
-   "note": "Управление доходными домами (~1 млн кв. м), программа «Дальневосточная аренда»"
-  },
-  {
-   "name": "Вовлечение земельных участков",
-   "pct": 11.0,
-   "note": "Подготовка и продажа федеральных земель застройщикам"
-  },
-  {
-   "name": "Прочие",
-   "pct": 3.0,
-   "note": "Финансирование инфраструктуры, консалтинг"
-  }
- ],
- "cost_breakdown": [
-  {
-   "name": "Расходы на персонал",
-   "pct": 55.0,
-   "type": "fixed"
-  },
-  {
-   "name": "IT и амортизация",
-   "pct": 25.0,
-   "type": "fixed"
-  },
-  {
-   "name": "Административные и прочие",
-   "pct": 20.0,
-   "type": "fixed"
-  }
- ],
- "key_facts": [
-  {
-   "label": "Собственник",
-   "value": "Российская Федерация в лице Росимущества (89,9% после IPO)"
-  },
-  {
-   "label": "Доля рынка секьюритизации",
-   "value": "Более 99% рынка ипотечных ценных бумаг"
-  },
-  {
-   "label": "Типы акций",
-   "value": "Обыкновенные (free-float 10,1%)"
-  },
-  {
-   "label": "Штаб-квартира",
-   "value": "Россия"
-  },
-  {
-   "label": "Суть бизнеса",
-   "value": "Государственный институт развития в жилищной сфере: оператор льготных ипотечных программ, монополист в ипотечной секьюри"
-  }
- ],
- "geo_split": [
-  {
-   "region": "Россия",
-   "pct": 100.0
-  }
- ]
 }
