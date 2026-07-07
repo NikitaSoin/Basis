@@ -321,7 +321,13 @@
         null
       ]
     },
-    "total_equity": null,
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
     "non_current_liabilities": {
       "long_term_debt": [
         null,

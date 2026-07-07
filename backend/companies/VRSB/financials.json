@@ -466,7 +466,14 @@
         null,
         null
       ]
-    }
+    },
+    "total_equity": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
   },
   "cash_flow": {
     "cfo": [
