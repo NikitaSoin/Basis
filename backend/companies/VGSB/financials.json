@@ -466,10 +466,10 @@
       ]
     },
     "total_equity": [
-      null,
-      null,
-      null,
-      null,
+      -6231.3,
+      -5485.6,
+      -3794.5,
+      -1440.3,
       770
     ]
   },
@@ -1057,7 +1057,8 @@
     "net_profit по ГИР БО близок к старой версии, но не идентичен (2021: 278 vs 284; 2022: 657 vs 883; 2023: 1691 vs 1770; 2024: 2197 vs 2230; 2025: 2199 vs 2140 (в старом файле 2025 стоял net_profit=2140, видимо предварительная/иная оценка) — расхождения от 1% до 26% (2022), возможна разница РСБУ/МСФО учёта смены типа выручки, либо smart-lab использовал иную периметр/корректировки.",
     "'Прочие доходы' (2340) и 'Прочие расходы' (2350) — крупные суммы (сопоставимы по величине с себестоимостью в 2021-2023), характерно для энергосбытовых компаний (переток/урегулирование дебиторки, спецнадбавки, штрафы потребителям сетей) — НЕ являются финансовыми доходами/расходами в узком смысле, положены в expense_lines как отдельные строки (не в finance_income/finance_costs, туда положены только проценты к получению/уплате стр. 2320/2330).",
     "da/ebitda оставлены null — форма №2 РСБУ не содержит явной строки амортизации отдельно от себестоимости/управленческих расходов; пояснения (форма 5) к отчётности не запрошены в этом проходе.",
-    "Арифметика проверена кодом: gross_profit=revenue-cogs (сходится по всем годам), operating_profit=gross_profit-2210-2220 (сходится), pre_tax_profit=operating_profit+finance_income-finance_costs+2340-2350 (сходится), net_profit=pre_tax_profit+income_tax(с учётом знака)+прочее (сходится), total_assets=total_equity+total_non_current_liab+total_current_liab (сходится все 5 лет), net_change_in_cash=cfo+cfi+cff (сходится все 5 лет, включая восстановленный 2024 год) — arithmetic_check=passed."
+    "Арифметика проверена кодом: gross_profit=revenue-cogs (сходится по всем годам), operating_profit=gross_profit-2210-2220 (сходится), pre_tax_profit=operating_profit+finance_income-finance_costs+2340-2350 (сходится), net_profit=pre_tax_profit+income_tax(с учётом знака)+прочее (сходится), total_assets=total_equity+total_non_current_liab+total_current_liab (сходится все 5 лет), net_change_in_cash=cfo+cfi+cff (сходится все 5 лет, включая восстановленный 2024 год) — arithmetic_check=passed.",
+    "VGSB: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка."
   ],
   "segments": [],
   "cost_breakdown": [

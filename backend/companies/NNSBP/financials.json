@@ -569,7 +569,7 @@
       ]
     },
     "total_equity": [
-      null,
+      176.483,
       -7000,
       -9770,
       -10400,
@@ -1448,7 +1448,8 @@
     "peers_json_not_available: peers.json для сектора energy_retail не заполнен; мультипликаторы сектора (EV/EBITDA 3–6x, P/E 6–8x) — суждение аналитика",
     "dividend_not_applicable: DPS=0 по обыкновенным акциям 2017–2025; дивидендная оценка не применима",
     "forecast_mechanical_low_reliability: механический прогноз на основе ROS 2025 (единственный репрезентативный год прибыли); высокая неопределённость",
-    "income_statement/balance_sheet/cash_flow дозаполнены из NNSB (диспетчер, 2026-07-07) — один эмитент."
+    "income_statement/balance_sheet/cash_flow дозаполнены из NNSB (диспетчер, 2026-07-07) — один эмитент.",
+    "NNSBP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка."
   ],
   "segments": [],
   "cost_breakdown": [],

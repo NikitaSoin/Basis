@@ -457,11 +457,11 @@
       ]
     },
     "total_equity": [
-      null,
-      null,
-      null,
-      null,
-      null
+      144.4,
+      209.7,
+      245.3,
+      650.8,
+      1586.9
     ]
   },
   "cash_flow": {
@@ -1228,7 +1228,8 @@
     "САРE обычка дивидендов не платит: дивидендная модель not_applicable.",
     "DCF insufficient_data: только 1 год CFO/capex.",
     "P/B insufficient_data: total_equity по годам недоступен.",
-    "income_statement/balance_sheet/cash_flow дозаполнены из SARE (диспетчер, 2026-07-07) — один эмитент."
+    "income_statement/balance_sheet/cash_flow дозаполнены из SARE (диспетчер, 2026-07-07) — один эмитент.",
+    "SAREP: total_equity дозаполнен производным способом (total_assets - total_liabilities) — оба компонента подтверждены арифметикой отдельно, вычитание точное, не оценка."
   ],
   "segments": [
     {
