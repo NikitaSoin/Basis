@@ -307,9 +307,9 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
+        702.164,
+        771.729,
+        920.989,
         1021.976
       ],
       "intangibles": [
@@ -326,40 +326,40 @@
       ],
       "long_term_investments": [
         null,
-        null,
-        null,
-        null
+        14.131,
+        16.038,
+        17.68
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        76.42
+        55.252,
+        43.242,
+        48.22,
+        58.74
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
+        757.416,
+        829.102,
+        985.247,
         1098.396
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
+        38.871,
+        50.882,
+        58.943,
         72.764
       ],
       "receivables": [
-        null,
-        null,
-        null,
+        63.518,
+        67.396,
+        75.975,
         88.363
       ],
       "cash": [
-        null,
-        null,
-        null,
+        59.806,
+        36.923,
+        32.364,
         91.265
       ],
       "short_term_investments": [
@@ -369,112 +369,112 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
+        10.876,
+        9.097,
+        11.824,
         14.944
       ],
       "total_current": [
-        null,
-        null,
-        null,
+        173.071,
+        164.298,
+        179.106,
         267.336
       ]
     },
     "total_assets": [
-      null,
-      null,
-      null,
+      930.487,
+      993.4,
+      1164.353,
       1365.732
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
+        439.289,
+        439.289,
+        444.793,
         444.793
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
+        145.773,
+        139.709,
+        151.002,
         98.961
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
+        39.202,
+        39.202,
+        39.202,
         39.202
       ],
       "other_equity": [
-        null,
-        null,
-        null,
+        5.089,
+        11.991,
+        10.211,
         2.348
       ],
       "total_equity": [
-        null,
-        null,
-        null,
+        629.353,
+        630.191,
+        645.208,
         585.304
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
-        null,
-        null,
-        null,
+        98.602,
+        139.731,
+        292.821,
         396.487
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
+        10.067,
+        11.749,
+        13.393,
         28.82
       ],
       "other_non_current_liab": [
-        null,
-        null,
-        null,
+        38.68,
+        37.518,
+        38.552,
         55.843
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
+        147.349,
+        188.998,
+        344.766,
         481.15
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
-        null,
-        null,
-        null,
+        72.347,
+        82.065,
+        63.691,
         171.007
       ],
       "payables": [
-        null,
-        null,
-        null,
+        55.019,
+        64.997,
+        92.6,
         99.534
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
+        26.419,
+        27.149,
+        18.088,
         28.737
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
+        153.785,
+        174.211,
+        174.379,
         299.278
       ]
     },
     "total_liabilities": [
-      null,
-      null,
-      null,
+      301.134,
+      363.209,
+      519.145,
       780.428
     ],
     "net_debt": [
@@ -1136,7 +1136,8 @@
     "ДИВИДЕНДНЫЙ МОРАТОРИЙ: до ~2028-2030 по решению государства. При прибыли 114 млрд в 2025 году дивиденд = 0. Дивидендный метод — low_confidence.",
     "ИСТОРИЧЕСКИЕ МУЛЬТИПЛИКАТОРЫ: P/E исторический не рассчитан (нет котировок в системе). P/B исторический — judgement (диапазон 0.2-0.5x).",
     "PEERS ОТСУТСТВУЮТ: sectors/utilities/peers.json не создан. EV/EBITDA сектора 4.0x — judgement. После создания peers — пересчитать relative_peers.",
-    "GOVERNANCE РИСК: государственный контроль ~75%, дивмораторий, capex по госзадаче. Ключевой риск для миноритария."
+    "GOVERNANCE РИСК: государственный контроль ~75%, дивмораторий, capex по госзадаче. Ключевой риск для миноритария.",
+    "RHYD: баланс дозаполнен за 2021-2023 (тыс.млн→млрд конвертация), 2024 подтверждён."
   ],
   "segments": [],
   "cost_breakdown": [],
