@@ -20,7 +20,8 @@
     "data_quality": "medium",
     "anomaly_flag": true,
     "anomaly_note": "2024: аномальный ETR 56.9% (ОНО по СПГ-инвестициям, deferred_tax вырос с 2177 до 3158 млн) — ЧП занижена; нормализована к ставке 20%. ОДДС доступна только за 2025; DA раскрыта только за 2025; EBITDA рассчитана только за 2025.",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "last_price": 41.6233
   },
   "income_statement": {
     "cost_format": "by_function",
@@ -989,7 +990,8 @@
     "Бета ЯТКГ отсутствует в рыночных данных из-за тонкого рынка; использована отраслевая оценка 0.9 (judgement).",
     "Расхождение DCF (2 ₽) и P/E (57 ₽) — структурное: инвестфаза + thin market + высокая ставка; коридор намеренно широкий (11-50 ₽).",
     "СПГ-проект заморожен (окт. 2025): списания по СПГ-активам возможны в 2025-2026; уточнить по примечаниям МСФО.",
-    "YAKG: total_assets дозаполнен производным способом (total_liabilities + total_equity)."
+    "YAKG: total_assets дозаполнен производным способом (total_liabilities + total_equity).",
+    "meta.last_price добавлен (41.6233 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ],
   "segments": [
     {

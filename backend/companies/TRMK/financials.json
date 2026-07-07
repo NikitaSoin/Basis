@@ -22,7 +22,8 @@
     "data_quality": "medium",
     "anomaly_flag": true,
     "anomaly_note": "Убыток 2024 −27,7 млрд из-за удвоения финансовых расходов (ключевая ставка ЦБ); D/E 6,67x; ND/EBITDA_adj 2,82x. Tangible equity 2024 = 4,5 млрд (после вычета гудвила 40,9 млрд и НМА 11,9 млрд) — критически мала. Оценочные методы крайне чувствительны к EV-мультипликатору из-за высокого финансового рычага.",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "last_price": 93.5863
   },
   "income_statement": {
     "cost_format": "by_function",
@@ -1395,7 +1396,8 @@
     "Баланс (2020/2021) НЕ извлекался в этом проходе — задача касалась только ОДДС/дыр P&L; total_equity/total_liabilities за эти годы уже есть в главном financials.json.",
     "cost_format=by_function подтверждён по обоим первичным отчётам (Себестоимость/Валовая прибыль присутствуют — не переизвлекались повторно, взяты из старого extracted_financials.json без изменений).",
     "da (амортизация) расхождение: главный financials.json содержит [12651, 17799, 36459, 56043], первичный ОДДС (report-fetcher) даёт [12651, 17799, 22560, 25773] за 2023/2024 — вероятно, в главном смешана амортизация с обесценением/др. корректировками EBITDA. НЕ заменено молча, нужна проверка аналитиком.",
-    "TRMK: total_assets дозаполнен производным способом (total_liabilities + total_equity)."
+    "TRMK: total_assets дозаполнен производным способом (total_liabilities + total_equity).",
+    "meta.last_price добавлен (93.5863 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ],
   "segments": [
     {

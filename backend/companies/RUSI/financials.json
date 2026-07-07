@@ -20,7 +20,8 @@
     "data_quality": "medium",
     "anomaly_flag": true,
     "anomaly_note": "Компания торгуется с ПРЕМИЕЙ к NAV: P/NAV=2.05x при цене 67.45 руб. и NAV/акцию 32.87 руб. (2024). Для закрытой ИК без дивидендов 16 лет и непрозрачным портфелем нормальный дисконт к NAV 40-60%. Рыночная оценка экономически необъяснима с фундаментальной точки зрения. Данные баланса 2022 содержат расхождение: equity+liab (4 366 млн) ≠ total_assets (3 629 млн) на 737 млн — вероятно обязательства 2022 относятся к другому периоду или partial data.",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "last_price": 67.4522
   },
   "income_statement": {
     "cost_format": "investment_company",
@@ -1061,7 +1062,8 @@
     "P&L 2023/2024 — полная построчная форма, единицы тыс. руб., подтверждена; полностью совпадает с уже имеющимися в financials.json значениями net_profit и pre_tax_profit по годам 2023/2024.",
     "Баланс 2024: total_assets=3 790 350 тыс. руб. и total_liabilities=207 363 тыс. руб. НАЙДЕНЫ (в financials.json сейчас null) — можно закрыть дыру.",
     "Единицы: все значения в этом файле — ТЫСЯЧИ рублей (не млн). При переносе в financials.json (unit=млн) — делить на 1000.",
-    "Источники: company_ir (russ-invest.com), прямые PDF без Cloudflare — e-disclosure/smart-lab не потребовались."
+    "Источники: company_ir (russ-invest.com), прямые PDF без Cloudflare — e-disclosure/smart-lab не потребовались.",
+    "meta.last_price добавлен (67.4522 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ],
   "segments": [],
   "cost_breakdown": [],

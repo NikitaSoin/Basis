@@ -21,7 +21,8 @@
     "data_quality": "medium",
     "anomaly_flag": true,
     "anomaly_note": "2020-2021: данные включают российский бизнес ВымпелКом/Билайн (continuing operations, но масштаб ~7.3-7.8 млрд USD несопоставим с текущим 3.7-4.0 млрд). 2022: частичный год России (продана 09.10.2023). Основная аналитика и оценка ориентируются на 2023-2024.",
-    "adjustments_aggressive": false
+    "adjustments_aggressive": false,
+    "last_price": 0.7249
   },
   "income_statement": {
     "cost_format": "by_nature",
@@ -1549,7 +1550,8 @@
     "Все статьи — CONTINUING OPERATIONS ONLY (соответствует агрегатам cfo/cfi/cff уже в файле). Отдельная строка 'Net cash flows from operating/investing/financing activities from discontinued operations' в отчётах ЕСТЬ (Россия/Алжир/Кыргызстан по годам), но НЕ включена в cfo_lines/cfi_lines/cff_lines и не суммируется — иначе не биьтся с уже принятыми в financials.json агрегатами continuing-ops. Если понадобится полный (continuing+discontinued) взгляд — данные по discontinued доступны в исходниках, но не добывались отдельно.",
     "net_change_in_cash ИСПРАВЛЕН на [434,633,332,-779,-179] = cfo+cfi+cff (continuing ops), чтобы биться арифметически; предыдущее значение [434,714,1017,-1271,-179] бралось из отчётной строки 'Net increase/(decrease) in cash' которая включает discontinued operations — несовместимо с continuing-only агрегатами cfo/cfi/cff.",
     "Арифметика ОДДС проверена кодом построчно по всем 5 годам (2020-2024): сумма cfo_lines = cfo, сумма cfi_lines = cfi, сумма cff_lines = cff — сходится точно (0 расхождения) для каждого года.",
-    "CapEx в файле (1677,1796,634,531,627): для 2020-2021 это комбинированная строка 'Purchase of PP&E and intangible assets' (как отчитано единой строкой), для 2022-2024 — ТОЛЬКО PP&E (Purchase of property, plant and equipment), без intangibles. Разная методология между периодами (не моя правка — уже была в файле); реальный total capex (PPE+intangibles раздельно) 2022=1010, 2023=766, 2024=907 — см. cfi_lines."
+    "CapEx в файле (1677,1796,634,531,627): для 2020-2021 это комбинированная строка 'Purchase of PP&E and intangible assets' (как отчитано единой строкой), для 2022-2024 — ТОЛЬКО PP&E (Purchase of property, plant and equipment), без intangibles. Разная методология между периодами (не моя правка — уже была в файле); реальный total capex (PPE+intangibles раздельно) 2022=1010, 2023=766, 2024=907 — см. cfi_lines.",
+    "meta.last_price добавлен (0.7249 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ],
   "segments": [
     {

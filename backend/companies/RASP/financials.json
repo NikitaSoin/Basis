@@ -30,7 +30,8 @@
         "https://files.raspadskaya.com/ (архив статических файлов)"
       ],
       "retrieved": "2026-07-05"
-    }
+    },
+    "last_price": 133.4692
   },
   "income_statement": {
     "cost_format": "by_function",
@@ -1084,7 +1085,8 @@
     "Структура expense_lines заменена на логическую с пояснениями о недостатке первичных данных; не выдумано конкретных чисел, все статьи помечены как null с примечаниями о доступности из 2022.",
     "ВАЛЮТА И ЕДИНИЦЫ — консистентны (млн RUB, МСФО, консолидированная). Конверсий между годами нет (все в рублях с 2021).",
     "DATA_QUALITY = 'medium' обоснована: итоговые числа P&L, баланса, FCF надёжны (из первичных или авторитетных агрегаторов); структурные детали (ОДДС постатейно, баланс по статьям) отсутствуют.",
-    "ARITHMETIC CHECK: ✓ gross_profit = revenue - cogs для всех лет; ✓ FCF = CFO - Capex для всех лет; ✓ net_change_in_cash из остатков cash; ✗ CFO + CFI + CFF ≠ net_change (CFI/CFF неполные); EBITDA != OP+DA (встроены корректировки)."
+    "ARITHMETIC CHECK: ✓ gross_profit = revenue - cogs для всех лет; ✓ FCF = CFO - Capex для всех лет; ✓ net_change_in_cash из остатков cash; ✗ CFO + CFI + CFF ≠ net_change (CFI/CFF неполные); EBITDA != OP+DA (встроены корректировки).",
+    "meta.last_price добавлен (133.4692 ₽, уверенность: medium (только 1 метод)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ],
   "adjusted": {
     "net_profit_adj": [

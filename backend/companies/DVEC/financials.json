@@ -34,7 +34,8 @@
       "retrieved": "2026-07-05",
       "parse_method": "web_aggregator",
       "notes": "Первичный PDF с dvec.ru недоступен (Cloudflare), используется агрегатор smart-lab. Для полного ОДДС требуется ручная загрузка PDF в sources/."
-    }
+    },
+    "last_price": 1.761
   },
   "income_statement": {
     "cost_format": "by_nature",
@@ -1173,6 +1174,7 @@
     "капитал (total_equity): вычислен как Assets - Liabilities в исходных данных, детали статей капитала отсутствуют.",
     "arithmetic_check: PARTIAL — total_assets ≈ total_equity + total_liabilities сходится (≤1% за все годы); revenue - opex(агрегат) НЕ сходится точно с operating_profit (расхождение ~1% от выручки, ожидаемо для агрегированной сторонней метрики, не первичной постатейки) — поэтому expense_lines.opex помечен как несводимый агрегат, а не проверенная статья.",
     "data_quality: medium — вторичный агрегатор (smart-lab), не первичная МСФО. Для перехода на high качество нужен PDF консолидированной МСФО с dvec.ru/stockholder/financial_statements/msfo/ или e-disclosure.ru — оба технически недоступны из текущего окружения агента на момент прогона (2026-07-07); рекомендуется РУЧНАЯ загрузка PDF владельцем в companies/DVEC/sources/.",
-    "source_reliability_hierarchy применён: (1) manual PDF — отсутствует; (2) company IR dvec.ru — недоступен технически; (3) e-disclosure.ru — недоступен (капча); (4) smart-lab — использован, как единственный работающий источник."
+    "source_reliability_hierarchy применён: (1) manual PDF — отсутствует; (2) company IR dvec.ru — недоступен технически; (3) e-disclosure.ru — недоступен (капча); (4) smart-lab — использован, как единственный работающий источник.",
+    "meta.last_price добавлен (1.761 ₽, уверенность: high (2 независимых метода согласуются)) — реконструирован из multiples.current (pe×net_profit/shares и/или pb×equity/shares). Без этого поля live_scale_multiples молча не пересчитывал мультипликаторы от текущей цены (системный баг — компания не проходила через ветку кода с frozen_price)."
   ]
 }
