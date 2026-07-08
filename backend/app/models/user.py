@@ -7,6 +7,7 @@ from app.db.session import Base
 
 class SubscriptionType(str, enum.Enum):
     free = "free"
+    plus = "plus"
     premium = "premium"
 
 

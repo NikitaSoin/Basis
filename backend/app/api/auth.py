@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse
+from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse, SubscriptionChangeRequest
 from app.services.user import create_user, get_user_by_email, authenticate_user
 from app.auth import create_access_token, get_current_user
-from app.models.user import User
+from app.models.user import User, SubscriptionType
 
 router = APIRouter(prefix="/auth")
 
@@ -38,3 +39,24 @@ def me(current_user: User = Depends(get_current_user)):
 def logout():
     # JWT stateless — клиент просто удаляет токен
     return {"message": "Вышли из системы"}
+
+
+@router.post("/me/subscription", response_model=UserResponse)
+def change_subscription(
+    data: SubscriptionChangeRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Смена тарифа БЕЗ оплаты — платёжного шлюза ещё нет (см. CLAUDE.md/status.md),
+    это демо-переключатель, чтобы видеть, как тариф выглядит и что открывает.
+    Разово подставляем 30 дней «активности» для платных тарифов — как только
+    появится реальный биллинг, дату продления будет проставлять он."""
+    current_user.subscription_type = data.tier
+    current_user.subscription_expires_at = (
+        datetime.now(timezone.utc) + timedelta(days=30)
+        if data.tier != SubscriptionType.free
+        else None
+    )
+    db.commit()
+    db.refresh(current_user)
+    return current_user
