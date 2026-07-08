@@ -66,15 +66,18 @@ PHOR, T, AKRN, X5, CHMF, RUAL, NLMK, MTSS, MOEX, PIKK, IRAO, VSMO, MAGN, SVCB,
 MGNT, ENPG, BANE, TRNFP, ALRS, LENT, CBOM, AFLT, FLOT, RTKM, LSNG, HYDR, NMTP,
 UGLD, FEES, BSPB, VKCO, HEAD, AFKS
 
-**Готово (20/45, commit 83ed282c):** SBER, LKOH, ROSN, NVTK, GAZP, YDEX, MOEX,
-MTSS, TATN, PLZL, GMKN, SIBN, VTBR, OZON, PHOR, T, AKRN, X5, CHMF + SVET
-(пилот, вне списка блю-чипов). Батчи 3-6 собраны через ужатый скоуп (лимит 8
-запросов, P&L-приоритет) — все честно неполные (дыры по годам/кварталам,
-баланс/ОДДС почти нигде не собраны), подробности в data_flags каждого файла.
-**SNGS** — попытка остановлена (агент запутался между РСБУ/МСФО и валютной
-переоценкой «кубышки», превысил лимит без записи) — вернуться отдельно с более
-узкой инструкцией («только МСФО, игнорируй РСБУ»). **Осталось собрать (27):**
-SNGS (повтор), RUAL, NLMK, PIKK, IRAO, VSMO, MAGN, SVCB,
+**Готово (24/45, commit 8b509f31):** SBER, LKOH, ROSN, NVTK, GAZP, YDEX, MOEX,
+MTSS, TATN, PLZL, GMKN, SIBN, VTBR, OZON, PHOR, T, AKRN, X5, CHMF, RUAL, NLMK,
+PIKK, IRAO + SVET (пилот, вне списка блю-чипов). Батчи 3-7 собраны через
+ужатый скоуп (лимит 8 запросов, P&L-приоритет) — все честно неполные (дыры по
+годам/кварталам, баланс/ОДДС почти нигде не собраны), подробности в
+data_flags каждого файла. 🔴 На батче 7 поймана и исправлена ошибка единиц
+измерения у NLMK (агент записал млрд вместо млн meta.unit) — впредь ПРОВЕРЯТЬ
+порядок величины interim.revenue против annual revenue при приёмке каждого
+батча. **SNGS** — попытка остановлена (агент запутался между РСБУ/МСФО и
+валютной переоценкой «кубышки», превысил лимит без записи) — вернуться
+отдельно с более узкой инструкцией («только МСФО, игнорируй РСБУ»).
+**Осталось собрать (23):** SNGS (повтор), VSMO, MAGN, SVCB,
 MGNT, ENPG, BANE, TRNFP, ALRS, LENT, CBOM, AFLT, FLOT, RTKM, LSNG, HYDR, NMTP,
 UGLD, FEES, BSPB, VKCO, HEAD, AFKS.
 Рабочий паттерн, подтверждённый батчем 3: ставить report-fetcher жёсткий лимит
