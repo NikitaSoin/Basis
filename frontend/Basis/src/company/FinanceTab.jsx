@@ -572,6 +572,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const bankMetricRows = isBank ? [
     { l: "ЧПМ (NIM), %",              a: bmA("nim","nim_pct","nim_proxy_pct"),                                      kind: "pct", bold: true },
     { l: "Стоимость риска (CoR), %",  a: bmA("cost_of_risk","cor","cor_pct","cost_of_risk_pct","cor_pct_implied"),  kind: "pct" },
+    { l: "Стоимость фондирования, %", a: bmA("funding_rate_pct","cost_of_funding_pct"),                             kind: "pct" },
     { l: "CIR, %",                    a: bmA("cir","cir_pct"),                                                      kind: "pct" },
     { l: "ROE, %",                    a: bmA("roe","roe_pct","roe_rep_pct","roe_reported_pct","roe_reported"),       kind: "pct", bold: true },
     { l: "ROE норм., %",              a: bmA("roe_adjusted","roe_adj","roe_adj_pct"),                               kind: "pct", accent: true },
@@ -833,7 +834,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                     </tbody>
                   </table>
                 </div>
-                <div className="foot-note">NIM — чистая процентная маржа; CoR — стоимость кредитного риска; CIR — отношение расходов к доходам; Н1.0/Н1.2 — нормативы достаточности капитала (РСБУ). Источник: financials.json (bank_metrics).</div>
+                <div className="foot-note">NIM — чистая процентная маржа; CoR — стоимость кредитного риска; стоимость фондирования — процентные расходы к средним процентным обязательствам; CIR — отношение расходов к доходам; Н1.0/Н1.2 — нормативы достаточности капитала (РСБУ). Источник: financials.json (bank_metrics).</div>
               </div>
             </details>
           )}
