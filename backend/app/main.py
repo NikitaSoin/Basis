@@ -76,6 +76,14 @@ async def _history_job():
         await asyncio.get_event_loop().run_in_executor(None, catch_up_history)
     except Exception as e:
         logger.exception("Ошибка дообновления истории котировок: %s", e)
+    # Бэкфилл истории под прежними тикерами (редомициляция, напр. YDEX←YNDX) —
+    # идемпотентно, дёшево при повторных запусках, поэтому просто в том же
+    # ежедневном слоте, без отдельного ручного шага после деплоя миграции.
+    try:
+        from app.services.moex_history import backfill_historical_tickers
+        await asyncio.get_event_loop().run_in_executor(None, backfill_historical_tickers)
+    except Exception as e:
+        logger.exception("Ошибка бэкфилла прежних тикеров: %s", e)
     # история облигаций/фьючерсов/фондов (instrument_history) — тот же вечерний слот
     try:
         from app.services.instrument_history import catch_up_instrument_history

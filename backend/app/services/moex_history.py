@@ -262,6 +262,46 @@ def upsert_index_rows(db: Session, ticker: str, rows: list[dict]) -> int:
     return written
 
 
+# ──────────────────── бэкфилл прежних тикеров (редомициляция) ────────────────────
+
+def backfill_historical_tickers(tickers: list[str] | None = None) -> None:
+    """Докачивает историю котировок под ПРЕЖНИМИ тикерами компании (поле
+    Company.historical_tickers) в ТУ ЖЕ company_id — чтобы редомициляция/
+    смена тикера (напр. Yandex N.V. YNDX → МКПАО «Яндекс» YDEX) не обрывала
+    историю для метрик доходности/риска. Идемпотентно (ON CONFLICT
+    company_id+date) и дёшево при повторных запусках — можно смело держать
+    в ежедневном джобе (см. _history_job в main.py), а не только как
+    разовый ручной скрипт (scripts/backfill_historical_tickers.py).
+
+    tickers — фильтр по ТЕКУЩЕМУ тикеру компании (не по старому), None = все
+    компании с непустым historical_tickers.
+    """
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+
+    db = SessionLocal()
+    try:
+        q = db.query(Company).filter(Company.historical_tickers.isnot(None))
+        if tickers:
+            q = q.filter(Company.ticker.in_(tickers))
+        companies = q.all()
+        if not companies:
+            return
+        for c in companies:
+            for old_ticker in (c.historical_tickers or []):
+                try:
+                    rows = fetch_share_history(old_ticker, date(2015, 1, 1), date.today())
+                    written = upsert_share_rows(db, c.id, rows)
+                    db.commit()
+                    logger.info("Бэкфилл %s (было %s): %d строк", c.ticker, old_ticker, written)
+                except Exception as e:
+                    db.rollback()
+                    logger.warning("Бэкфилл %s (было %s): %s", c.ticker, old_ticker, e)
+                time.sleep(REQUEST_PAUSE)
+    finally:
+        db.close()
+
+
 # ──────────────────────── ежедневное дообновление ────────────────────────
 
 def catch_up_history(days_back_max: int = 30) -> None:

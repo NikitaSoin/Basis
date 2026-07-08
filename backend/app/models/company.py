@@ -18,6 +18,11 @@ class Company(Base):
     # живьём = последний close из quotes × shares_outstanding (см. quotes_updater).
     shares_outstanding: Mapped[int | None] = mapped_column(BigInteger)
     paired_ticker: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    # Прежние тикеры компании (редомициляция/переименование, напр. Yandex N.V.
+    # YNDX → МКПАО «Яндекс» YDEX) — список строк. История котировок под этими
+    # тикерами бэкфиллится в ТУ ЖЕ company_id (см. scripts/backfill_historical_tickers.py),
+    # чтобы метрики доходности/риска не обрывались на дате смены тикера.
+    historical_tickers: Mapped[list | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
