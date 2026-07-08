@@ -1670,5 +1670,161 @@
       "region": "Россия",
       "pct": 100.0
     }
-  ]
+  ],
+  "interim": {
+    "periods": [
+      {
+        "label": "1кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1П2023",
+        "type": "half_year",
+        "fiscal_year": 2023,
+        "end_date": "2023-06-30",
+        "cumulative": true,
+        "standard": "МСФО",
+        "note": "adjusted EBITDA/net profit заявлены компанией как pre-IFRS16 (non-GAAP), revenue — обычная (IFRS16 не влияет на выручку)"
+      },
+      {
+        "label": "1кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-06-30",
+        "cumulative": false,
+        "standard": "МСФО",
+        "note": "производный расчёт: 9М2024 минус 1кв минус 3кв (9М revenue дан округлённо ~2.83 трлн — приблизительно)"
+      },
+      {
+        "label": "3кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "9М2024",
+        "type": "9_months",
+        "fiscal_year": 2024,
+        "end_date": "2024-09-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2026",
+        "type": "quarter",
+        "fiscal_year": 2026,
+        "end_date": "2026-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      }
+    ],
+    "income_statement": {
+      "revenue": [
+        696360,
+        1468407,
+        886220,
+        965224,
+        978556,
+        2830000,
+        1070000,
+        1174000,
+        1160000,
+        1238000,
+        1191000
+      ],
+      "operating_profit": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        25800,
+        86600,
+        65500,
+        69800,
+        33800
+      ],
+      "ebitda": [
+        70190,
+        100748,
+        90730,
+        36865,
+        71278,
+        198873,
+        51100,
+        78900,
+        74200,
+        80800,
+        64300
+      ],
+      "net_profit": [
+        9690,
+        41661,
+        20870,
+        38520,
+        35293,
+        94683,
+        18400,
+        23900,
+        23400,
+        17500,
+        13300
+      ]
+    },
+    "data_flags": [
+      "Единицы: revenue/operating_profit/net_profit в млн руб (как в годовом financials.json).",
+      "ВАЖНО (методологическое расхождение, требует внимания financial-analyst): поле ebitda в этом interim-блоке взято из квартальных пресс-релизов X5 и представляет 'скорректированную EBITDA pre-IFRS16' (non-GAAP метрика компании) — она СУЩЕСТВЕННО МЕНЬШЕ и НЕ сопоставима напрямую с годовым income_statement.ebitda в основном файле (который = operating_profit + D&A, post-IFRS16, включает эффект аренды). Проверка: сумма квартальных ebitda за 2025 (Q1-Q4) = 285 000 млн, тогда как годовой ebitda 2025 в основном файле = 440 676 млн — расхождение ~35%, ожидаемо из-за разных определений, НЕ ошибка ввода.",
+      "revenue и net_profit сверены с годовыми суммами: сумма кварталов 2025 revenue = 4 642 000 млн vs годовой revenue 2025 = 4 642 034 млн (совпадает); сумма net_profit 2025 = 83 200 млн vs годовой net_profit 2025 = 83 139 млн (совпадает, ±0.1%) — эти два поля надёжны.",
+      "2кв2024 — НЕ прямое значение из пресс-релиза, а производный расчёт (9М2024 минус 1кв минус 3кв); revenue 9М2024 источник дал округлённо ('2.83 трлн руб'), поэтому 2кв2024.revenue — приблизительное значение.",
+      "Не найдены (в рамках лимита в 8 web-запросов) дискретные Q2/Q3/Q4 2023 и Q4 2024 — отсутствуют в periods. Баланс и ОДДС по кварталам НЕ собирались (P&L был приоритетом по заданию); operating_profit заполнен только для 2025-2026 кварталов (из smart-lab), для 2023-2024 периодов null.",
+      "Источники: smart-lab.ru/q/X5/f/q/MSFO/ (2025 Q1 - 2026 Q1, сверено с годовыми числами); web-поиск пресс-релизов x5.ru/en/news (Q1 2023, H1 2023, Q1/Q3/9М 2024) — вторичное цитирование (TASS/AKM/research-tree), первичные PDF X5 не скачивались из-за лимита запросов."
+    ]
+  }
 }
