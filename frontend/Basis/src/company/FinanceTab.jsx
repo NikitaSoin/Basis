@@ -808,6 +808,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   <div className="fc-note">Корректировки нормализуют разовые статьи (обесценение, курсовые) — операционный результат ровнее отчётной строки. Источник чисел — financials.json (adjusted).</div>
                 </>)}
                 <div className="foot-note">Числа карточки — из единого источника financials.json ({std}). Для циклических компаний P/E на отдельном годе менее надёжен, чем EV/EBITDA и P/B.</div>
+                {meta.disclosure_note && <div className="foot-note" style={{ color: "var(--ink-3)" }}>Почему часть строк пуста: {meta.disclosure_note}</div>}
               </div>
             </details>
           )}
@@ -835,6 +836,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   </table>
                 </div>
                 <div className="foot-note">NIM — чистая процентная маржа; CoR — стоимость кредитного риска; стоимость фондирования — процентные расходы к средним процентным обязательствам; CIR — отношение расходов к доходам; Н1.0/Н1.2 — нормативы достаточности капитала (РСБУ). Источник: financials.json (bank_metrics).</div>
+                {meta.disclosure_note && <div className="foot-note" style={{ color: "var(--ink-3)" }}>Почему часть строк пуста: {meta.disclosure_note}</div>}
               </div>
             </details>
           )}
