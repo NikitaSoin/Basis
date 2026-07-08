@@ -2648,5 +2648,278 @@
       "region": "Международные операции",
       "pct": 5.0
     }
-  ]
+  ],
+  "interim": {
+    "periods": [
+      {
+        "label": "1кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1п2023",
+        "type": "half_year",
+        "fiscal_year": 2023,
+        "end_date": "2023-06-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "9М2023",
+        "type": "nine_months",
+        "fiscal_year": 2023,
+        "end_date": "2023-09-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1п2024",
+        "type": "half_year",
+        "fiscal_year": 2024,
+        "end_date": "2024-06-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "9М2024",
+        "type": "nine_months",
+        "fiscal_year": 2024,
+        "end_date": "2024-09-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2026",
+        "type": "quarter",
+        "fiscal_year": 2026,
+        "end_date": "2026-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      }
+    ],
+    "bank_pnl": {
+      "interest_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "interest_expense": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_interest_income": [
+        null,
+        null,
+        null,
+        23600,
+        null,
+        null,
+        21300,
+        20700,
+        30100,
+        33200,
+        29800
+      ],
+      "fee_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fee_expense": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_fee_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "provisions": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        5010,
+        6400,
+        187600,
+        25200,
+        6120
+      ],
+      "operating_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        17100,
+        23600,
+        35300,
+        215900,
+        31600
+      ],
+      "operating_expenses": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        9840,
+        11000,
+        7320,
+        7490,
+        6480
+      ],
+      "other_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "pre_tax_profit": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "income_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_profit": [
+        13000,
+        30400,
+        48300,
+        14000,
+        19500,
+        28000,
+        2300,
+        4640,
+        21900,
+        -6240,
+        14300
+      ]
+    },
+    "data_flags": [
+      "Единицы: млн руб (как в meta.unit годового файла) — исходные пресс-релизы давали млрд, пересчитано ×1000.",
+      "2023 и 2024: только press-release net_profit (кумулятивно Q1/H1/9M) и NII только за 1кв2024 (23.6 млрд) — операционные расходы/резервы/операционный доход по 2023-2024 не найдены в рамках лимита запросов, оставлены null.",
+      "2025Q1-2026Q1: дискретные (не кумулятивные) квартальные данные со smart-lab.ru (МСФО), включая net_interest_income, provisions, operating_income (net operating income), operating_expenses, net_profit.",
+      "Сверка: сумма дискретных net_profit по кварталам 2025 (2300+4640+21900-6240=22600) практически совпадает с годовым bank_pnl.net_profit[2025]=22611 млн — подтверждает единицы и корректность значений.",
+      "2024: кумулятивные значения net_profit подразумевают Q2 2024 ≈ 5.5 млрд (H1 19.5 - Q1 14.0) и Q4 2024 ≈ -7.1 млрд (год 20.9 - 9М 28.0) — резкое падение прибыли в Q4 2024, согласуется с ростом резервов по заблокированным активам (пресс-релиз МКБ за 12 мес. 2024: резервы 41.6 млрд, из-за изменения подхода ЦБ к заблокированным активам). Это разложение НЕ проверялось детально — зона financial-analyst.",
+      "3кв2025 provisions=187.6 млрд (аномально высокие, из смарт-лаб) согласуются с годовым anomaly_note о резком росте резервов (42→224 млрд за 2025 год, преимущественно проблемные корпоративные кредиты).",
+      "4кв2025 operating_income=215.9 млрд (аномальный скачок в смарт-лаб) — в годовом anomaly_note упомянут разовый прочий доход ~195 млрд, приписанный преимущественно 3кв2025; в квартальных данных smart-lab скачок операционного дохода виден в 4кв2025, а не в 3кв — расхождение периода не устранено, для проверки financial-analyst.",
+      "Баланс (bank_balance) за интерим-периоды не собирался — банк, приоритет отдан bank_pnl по условиям задания."
+    ]
+  }
 }
