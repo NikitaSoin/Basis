@@ -192,18 +192,18 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1045.7,
+        1859.8,
+        2122.9,
+        2356.8,
+        3014.2
       ],
       "intangibles": [
-        null,
-        null,
-        null,
-        null,
-        null
+        33.5,
+        29.3,
+        27.3,
+        198.2,
+        322.1
       ],
       "goodwill": [
         null,
@@ -220,41 +220,41 @@
         null
       ],
       "other_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        294.3,
+        478.2,
+        481.9,
+        304.2,
+        284.9
       ],
       "total_non_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1373.6,
+        2367.2,
+        2632.2,
+        2859.2,
+        3621.2
       ]
     },
     "current_assets": {
       "inventory": [
-        null,
-        null,
-        null,
-        null,
-        null
+        64.3,
+        71.7,
+        92.8,
+        109.0,
+        91.2
       ],
       "receivables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2707.1,
+        3018.4,
+        3329.9,
+        3941.2,
+        4299.0
       ],
       "cash": [
-        null,
-        2100,
-        null,
-        null,
-        3880
+        1995.5,
+        2516.9,
+        3015.5,
+        3641.3,
+        3874.4
       ],
       "short_term_investments": [
         null,
@@ -264,18 +264,18 @@
         null
       ],
       "other_current": [
-        null,
-        null,
-        null,
-        null,
-        null
+        153.9,
+        160.6,
+        186.4,
+        208.4,
+        15.1
       ],
       "total_current": [
-        5940,
-        null,
-        null,
-        null,
-        null
+        4920.8,
+        5767.5,
+        6624.7,
+        7899.9,
+        8284.1
       ]
     },
     "total_assets": [
@@ -287,53 +287,53 @@
     ],
     "equity": {
       "share_capital": [
-        null,
-        null,
-        null,
-        null,
-        null
+        15.3,
+        15.3,
+        15.3,
+        15.3,
+        15.3
       ],
       "retained_earnings": [
-        null,
-        null,
-        null,
-        null,
-        null
+        2459.9,
+        3171.6,
+        4085.0,
+        5600.3,
+        6150.0
       ],
       "additional_paid_in": [
-        null,
-        null,
-        null,
-        null,
-        null
+        128.1,
+        128.1,
+        128.1,
+        128.1,
+        128.1
       ],
       "other_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8
       ],
       "total_equity": [
-        4640,
-        null,
-        null,
-        null,
-        null
+        2604.0,
+        3315.7,
+        4229.1,
+        5744.5,
+        6294.2
       ]
     },
     "non_current_liabilities": {
       "long_term_debt": [
         null,
-        null,
-        null,
-        null,
-        null
+        11.7,
+        11.7,
+        18.6,
+        0.0
       ],
       "deferred_tax": [
-        null,
-        null,
-        null,
+        21.6,
+        60.0,
+        99.5,
         null,
         null
       ],
@@ -342,44 +342,44 @@
         null,
         null,
         null,
-        null
+        51.2
       ],
       "total_non_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        21.6,
+        71.7,
+        111.2,
+        18.6,
+        51.2
       ]
     },
     "current_liabilities": {
       "short_term_debt": [
         null,
-        null,
-        null,
-        null,
-        null
+        3.4,
+        5.3,
+        3.4,
+        0.0
       ],
       "payables": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3164.3,
+        3874.4,
+        4090.7,
+        4265.8,
+        4887.4
       ],
       "other_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        504.5,
+        869.5,
+        820.6,
+        726.8,
+        672.5
       ],
       "total_current_liab": [
-        null,
-        null,
-        null,
-        null,
-        null
+        3668.8,
+        4747.3,
+        4916.6,
+        4996.0,
+        5559.9
       ]
     },
     "total_liabilities": [
@@ -390,27 +390,27 @@
       5611.1
     ],
     "net_debt": [
-      null,
-      null,
-      null,
-      null,
-      null
+      -1995.5,
+      -2501.8,
+      -2998.5,
+      -3619.3,
+      -3874.4
     ],
     "tangible_equity": [
-      4640,
-      null,
-      null,
-      null,
-      null
+      2604.0,
+      3315.7,
+      4229.1,
+      5744.5,
+      6294.2
     ],
-    "tangible_note": "Только 2021 г. из источника; 2022–2025 null — первичный баланс недоступен. Гудвил/НМА неизвестны, ощутимый капитал = балансовому за 2021.",
+    "tangible_note": "Ощутимый капитал = балансовому: гудвила нет (goodwill=null), НМА — лицензии/ПО (реальные, не переоценка). РСБУ, постатейный баланс из ФНС ГИР БО.",
     "ratios": {
       "debt_to_equity": [
-        null,
-        null,
-        null,
-        null,
-        null
+        0.0,
+        0.0046,
+        0.004,
+        0.0038,
+        0.0
       ],
       "net_debt_ebitda": [
         null,
@@ -420,19 +420,19 @@
         null
       ],
       "current_ratio": [
-        null,
-        null,
-        null,
-        null,
-        null
+        1.34,
+        1.21,
+        1.35,
+        1.58,
+        1.49
       ]
     },
     "total_equity": [
-      4640,
+      2604.0,
       3315.7,
       4229.1,
       5744.5,
-      6294.3
+      6294.2
     ]
   },
   "cash_flow": {
@@ -670,18 +670,18 @@
   },
   "returns": {
     "roe": [
-      27.4,
-      null,
-      null,
-      null,
-      null
+      48.8,
+      43.6,
+      46.9,
+      50.9,
+      38.0
     ],
     "roa": [
-      null,
-      null,
-      null,
-      null,
-      null
+      20.2,
+      17.9,
+      20.4,
+      25.4,
+      20.2
     ],
     "roic": [
       null,
@@ -698,11 +698,11 @@
       4.65
     ],
     "asset_turnover": [
-      null,
-      null,
-      null,
-      null,
-      null
+      5.34,
+      5.02,
+      4.53,
+      4.31,
+      4.34
     ]
   },
   "metrics_timeseries": {
@@ -714,11 +714,11 @@
       5.84
     ],
     "pb": [
-      null,
-      null,
-      null,
-      null,
-      null
+      5.136,
+      4.033,
+      3.162,
+      2.328,
+      2.125
     ],
     "ps": [
       0.398,
@@ -735,18 +735,18 @@
       null
     ],
     "roe": [
-      27.4,
-      null,
-      null,
-      null,
-      null
+      48.8,
+      43.6,
+      46.9,
+      50.9,
+      38.0
     ],
     "roa": [
-      null,
-      null,
-      null,
-      null,
-      null
+      20.2,
+      17.9,
+      20.4,
+      25.4,
+      20.2
     ],
     "roic": [
       null,
@@ -821,11 +821,11 @@
       0.272
     ],
     "pb": [
-      null,
-      null,
-      null,
-      null,
-      null
+      5.136,
+      4.033,
+      3.162,
+      2.328,
+      2.125
     ],
     "ev_ebitda": [
       null,
@@ -845,7 +845,7 @@
       "pe": 5.84,
       "pe_adj": 5.84,
       "ps": 0.272,
-      "pb": null,
+      "pb": 2.125,
       "ev_ebitda": null,
       "as_of": "2026-06-08"
     },
