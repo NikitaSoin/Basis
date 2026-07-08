@@ -20,6 +20,7 @@ from app.api.options import router as options_router
 from app.api.screener import router as screener_router
 from app.api.macro import router as macro_router
 from app.api.observer import router as observer_router
+from app.api.assistant import router as assistant_router
 
 logger = logging.getLogger(__name__)
 
@@ -528,6 +529,7 @@ app.include_router(options_router, prefix="/api")
 app.include_router(screener_router, prefix="/api")
 app.include_router(macro_router, prefix="/api")
 app.include_router(observer_router, prefix="/api")
+app.include_router(assistant_router, prefix="/api")
 
 
 @app.get("/")

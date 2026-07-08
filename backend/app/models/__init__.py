@@ -9,9 +9,11 @@ from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
 from app.models.geo import GeoBlock
 from app.models.observer_report import ObserverReport
 from app.models.instrument import InstrumentHistory
+from app.models.assistant import Conversation, Message
 
 __all__ = [
     "GeoBlock", "ObserverReport",
+    "Conversation", "Message",
     "EarningsReport", "EarningsFigures", "EarningsDigest",
     "User",
     "Company", "CompanyAnalysis", "Quote",
