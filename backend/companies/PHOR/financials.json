@@ -1387,5 +1387,184 @@
       "region": "Россия (внутренний рынок)",
       "pct": 27.5
     }
-  ]
+  ],
+  "interim": {
+    "periods": [
+      {
+        "label": "1кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2023",
+        "type": "quarter",
+        "fiscal_year": 2023,
+        "end_date": "2023-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2024",
+        "type": "quarter",
+        "fiscal_year": 2024,
+        "end_date": "2024-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2026",
+        "type": "quarter",
+        "fiscal_year": 2026,
+        "end_date": "2026-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      }
+    ],
+    "income_statement": {
+      "revenue": [
+        116178,
+        96622,
+        116100,
+        111400,
+        119272,
+        122328,
+        129400,
+        136700,
+        159400,
+        139200,
+        143200,
+        131800,
+        131500
+      ],
+      "ebitda_disclosed": [
+        48978,
+        47522,
+        54600,
+        31900,
+        37876,
+        39024,
+        46600,
+        53500,
+        65300,
+        50000,
+        49000,
+        12000,
+        27300
+      ],
+      "net_profit": [
+        28059,
+        null,
+        null,
+        null,
+        18754,
+        null,
+        null,
+        null,
+        36700,
+        25000,
+        27500,
+        13600,
+        null
+      ],
+      "net_profit_adj_disclosed": [
+        33897,
+        null,
+        null,
+        21200,
+        21486,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "data_flags": [
+      "Q2/Q3 2023 и Q2-Q4 2024 revenue/EBITDA получены КАК РАЗНИЦА между кумулятивными раскрытиями компании (1П/9М/12М минус предыдущий период), а не как отдельно раскрытые дискретные квартальные цифры — компания с 2023 г. не всегда публикует отдельный квартальный пресс-релиз за Q2/Q3, только нарастающим итогом (кроме Q1 и Q4/12мес, которые есть отдельно).",
+      "ebitda_disclosed смешивает разные методологии по кварталам: где возможно — скорректированная EBITDA (Q1 2023, Q1-Q2 2024), где явно не указано adj — использована EBITDA как раскрыта в источнике (Q3-Q4 2023, Q3-Q4 2024, 2025 из smart-lab); сумма Q1-Q4 2025 (176.3 млрд) НЕ совпадает с adj EBITDA 2025 в годовом financials.json (199.4 млрд) — вероятно smart-lab даёт неполную/иную (не полностью adj) базу. Не использовать ebitda_disclosed как точную замену годовой adjusted EBITDA методики Basis, только для тренда.",
+      "net_profit для Q2/Q3 2023, Q2-Q4 2024, Q1 2026 не найден отдельно (компания не всегда публикует чистую прибыль подквартально в пресс-релизах, только скорр. на кумулятивной основе) — оставлено null, не выдумано.",
+      "net_profit_adj_disclosed — 'скорректированная чистая прибыль' как её называет сама компания в пресс-релизах (Q1 2023: 33897; Q4 2023 дискретно: 21200; Q1 2024: 21486) — это НЕ то же самое, что net_profit_adj в годовом adjusted-блоке Basis (иная методология нормализации), не смешивать при анализе.",
+      "Проверка суммы: Q1-Q4 2025 revenue (159.4+139.2+143.2+131.8=573.6 млрд) сходится с годовой revenue 2025 (573628 млн) — хорошая консистентность для revenue.",
+      "Баланс и ОДДС по кварталам НЕ собраны (вторичный приоритет, лимит запросов исчерпан) — только P&L (revenue/EBITDA/net profit).",
+      "Источники: smart-lab.ru/q/PHOR/f/q/MSFO/ (Q1-Q4 2025, Q1 2026) и пресс-релизы phosagro.ru/press/company/ (Q1 2023, Q1 2024, 1П2023, 9М2023, 12М2023, 1П2024, 9М2024, 12М2024)."
+    ]
+  }
 }
