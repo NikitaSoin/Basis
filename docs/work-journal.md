@@ -66,12 +66,17 @@ PHOR, T, AKRN, X5, CHMF, RUAL, NLMK, MTSS, MOEX, PIKK, IRAO, VSMO, MAGN, SVCB,
 MGNT, ENPG, BANE, TRNFP, ALRS, LENT, CBOM, AFLT, FLOT, RTKM, LSNG, HYDR, NMTP,
 UGLD, FEES, BSPB, VKCO, HEAD, AFKS
 
-**Готово (5/45):** SBER, LKOH, ROSN, NVTK + SVET (пилот, вне списка блю-чипов,
-не убирать — уже полезные данные). **Прервано, начать заново (4):** GAZP,
-YDEX, MOEX, MTSS. **Осталось собрать (36):** PLZL, SIBN, GMKN, TATN, VTBR,
-SNGS, OZON, PHOR, T, AKRN, X5, CHMF, RUAL, NLMK, PIKK, IRAO, VSMO, MAGN, SVCB,
-MGNT, ENPG, BANE, TRNFP, ALRS, LENT, CBOM, AFLT, FLOT, RTKM, LSNG, HYDR, NMTP,
-UGLD, FEES, BSPB, VKCO, HEAD, AFKS.
+**Готово (9/45, commit 5432910a):** SBER, LKOH, ROSN, NVTK, GAZP, YDEX, MOEX,
+MTSS + SVET (пилот, вне списка блю-чипов). Батч 3 собран через ужатый скоуп
+(лимит 8-15 запросов, P&L-приоритет) — GAZP/YDEX/MOEX/MTSS честно неполные
+(дыры по годам/кварталам, MTSS только 5 последних кварталов вместо всех 13),
+подробности в data_flags каждого файла. **Осталось собрать (36):** PLZL, SIBN,
+GMKN, TATN, VTBR, SNGS, OZON, PHOR, T, AKRN, X5, CHMF, RUAL, NLMK, PIKK, IRAO,
+VSMO, MAGN, SVCB, MGNT, ENPG, BANE, TRNFP, ALRS, LENT, CBOM, AFLT, FLOT, RTKM,
+LSNG, HYDR, NMTP, UGLD, FEES, BSPB, VKCO, HEAD, AFKS.
+Рабочий паттерн, подтверждённый батчем 3: ставить report-fetcher жёсткий лимит
+(8-15 запросов), P&L-приоритет, баланс/ОДДС — вторично; так агент укладывается
+в разумное время (2-4 мин активного счёта) вместо часа+ на полноту.
 
 Ориентир по типу компании из пилота: банки/блю-чипы обычно квартальные
 (SBER-паттерн); крупный нефтегаз после 2022 — часто только полугодие
