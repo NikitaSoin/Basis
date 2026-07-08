@@ -13,6 +13,9 @@
     ],
     "conversion_note": "Исходная отчётность в тыс. руб., пересчитана в млн (/ 1000) для единообразия.",
     "fiscal_years": [
+      2021,
+      2022,
+      2023,
       2024,
       2025
     ],
@@ -27,14 +30,23 @@
   "income_statement": {
     "cost_format": "by_function",
     "revenue": [
+      null,
+      null,
+      null,
       6.199,
       6.199
     ],
     "cogs": [
+      null,
+      null,
+      null,
       0.505,
       0.41
     ],
     "gross_profit": [
+      null,
+      null,
+      null,
       5.694,
       5.789
     ],
@@ -42,6 +54,9 @@
       {
         "name": "Общехозяйственные и административные расходы",
         "values": [
+          null,
+          null,
+          null,
           3.734,
           4.735
         ]
@@ -49,6 +64,9 @@
       {
         "name": "Прочие операционные доходы/(расходы), нетто",
         "values": [
+          null,
+          null,
+          null,
           8.122,
           null
         ]
@@ -56,6 +74,9 @@
       {
         "name": "Доля в результате ассоциированных организаций (убыток)",
         "values": [
+          null,
+          null,
+          null,
           -2066.359,
           -8804.582
         ]
@@ -63,57 +84,96 @@
       {
         "name": "Прочие расходы/(доходы) по курсовым разницам, нетто",
         "values": [
+          null,
+          null,
+          null,
           -0.593,
           4.261
         ]
       }
     ],
     "operating_profit": [
+      null,
+      null,
+      null,
       10.082,
       1.054
     ],
     "da": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "ebitda": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "finance_costs": [
+      null,
+      null,
+      null,
       0.593,
       4.261
     ],
     "finance_income": [
+      null,
+      null,
+      null,
       96.489,
       95.418
     ],
     "pre_tax_profit": [
+      null,
+      null,
+      null,
       -1960.381,
       -8712.371
     ],
     "income_tax": [
+      null,
+      null,
+      null,
       -80.561,
       1145.816
     ],
     "net_profit": [
+      null,
+      null,
+      null,
       -2040.942,
       -7566.555
     ],
     "margins": {
       "gross_margin": [
+        null,
+        null,
+        null,
         91.9,
         93.4
       ],
       "ebitda_margin": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "operating_margin": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "ros": [
+        null,
+        null,
+        null,
         null,
         null
       ]
@@ -121,24 +181,39 @@
   },
   "adjusted": {
     "net_profit_adj": [
+      null,
+      null,
+      null,
       -491.2,
       -963.1
     ],
     "ebitda_adj": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "fcf_normalized": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "wc_adjustment": [
+      null,
+      null,
+      null,
       null,
       null
     ],
     "capex_sustainable_mln": null,
     "capex_note": "Нет операционной деятельности; capex отсутствует.",
     "etr_reported": [
+      null,
+      null,
+      null,
       4.1,
       -13.2
     ],
@@ -190,26 +265,44 @@
   "balance_sheet": {
     "non_current_assets": {
       "ppe": [
+        null,
+        null,
+        null,
         12.296,
         12.188
       ],
       "intangibles": [
+        null,
+        null,
+        null,
         1.772,
         1.767
       ],
       "goodwill": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "long_term_investments": [
+        null,
+        null,
+        null,
         9547.013,
         742.431
       ],
       "other_non_current": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "total_non_current": [
+        null,
+        null,
+        null,
         null,
         null
       ]
@@ -217,55 +310,94 @@
     "current_assets": {
       "inventory": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "receivables": [
+        null,
+        null,
+        null,
         2096.529,
         2194.822
       ],
       "cash": [
+        0.12,
+        0.112,
         0.065,
+        0.04,
         0.055
       ],
       "short_term_investments": [
+        null,
+        null,
+        null,
         0.05,
         0.65
       ],
       "other_current": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "total_current": [
+        null,
+        null,
+        null,
         null,
         null
       ]
     },
     "total_assets": [
+      null,
+      null,
+      null,
       11757.0,
       3570.7
     ],
     "total_equity": [
+      null,
+      null,
+      null,
       11136.9,
       3570.3
     ],
     "equity": {
       "share_capital": [
+        null,
+        null,
+        null,
         11.5,
         11.5
       ],
       "retained_earnings": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "additional_paid_in": [
+        null,
+        null,
+        null,
         11125.389,
         3558.834
       ],
       "other_equity": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "total_equity": [
+        null,
+        null,
+        null,
         11136.9,
         3570.3
       ]
@@ -273,17 +405,29 @@
     "non_current_liabilities": {
       "long_term_debt": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "deferred_tax": [
+        null,
+        null,
+        null,
         619.502,
         null
       ],
       "other_non_current_liab": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "total_non_current_liab": [
+        null,
+        null,
+        null,
         619.502,
         null
       ]
@@ -291,44 +435,74 @@
     "current_liabilities": {
       "short_term_debt": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "payables": [
+        null,
+        null,
+        null,
         0.56,
         0.354
       ],
       "other_current_liab": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "total_current_liab": [
+        null,
+        null,
+        null,
         0.56,
         0.354
       ]
     },
     "total_liabilities": [
+      null,
+      null,
+      null,
       620.062,
       0.354
     ],
     "net_debt": [
+      -0.12,
+      -0.112,
       -0.065,
+      -0.04,
       -0.055
     ],
     "tangible_equity": [
+      null,
+      null,
+      null,
       11136.9,
       3570.3
     ],
     "tangible_note": "Гудвил = 0, НМА минимальны (1.8 млн). Ощутимый капитал ≈ балансовому. Однако качество активов под вопросом: займы выданные и дебиторка (~2–2.8 млрд) — вероятно внутригрупповые (связанные с ММК); возвратность не подтверждена отдельным раскрытием.",
     "ratios": {
       "debt_to_equity": [
+        null,
+        null,
+        null,
         0.0,
         0.0
       ],
       "net_debt_ebitda": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "current_ratio": [
+        null,
+        null,
+        null,
         null,
         null
       ]
@@ -336,26 +510,44 @@
   },
   "cash_flow": {
     "cfo": [
+      -8.692,
+      -7.788,
+      -8.888,
       -7.938,
       -15.585
     ],
     "cfi": [
+      8.796,
+      7.78,
+      8.841,
       7.913,
       15.6
     ],
     "cff": [
       0.0,
+      0.0,
+      0.0,
+      0.0,
       0.0
     ],
     "net_change_in_cash": [
+      0.104,
+      -0.008,
+      -0.047,
       -0.025,
       0.015
     ],
     "capex": [
       0.0,
+      0.0,
+      0.0,
+      0.0,
       0.0
     ],
     "fcf": [
+      null,
+      null,
+      null,
       null,
       null
     ],
@@ -363,6 +555,9 @@
       {
         "name": "Поступления — всего (стр. 4110)",
         "values": [
+          5.547,
+          5.803,
+          7.111,
           7.164,
           6.208
         ]
@@ -370,6 +565,9 @@
       {
         "name": "в т.ч. арендные/лицензионные/роялти/комиссионные и иные аналогичные платежи (стр. 4112)",
         "values": [
+          5.397,
+          5.793,
+          6.199,
           6.199,
           6.199
         ]
@@ -377,6 +575,9 @@
       {
         "name": "в т.ч. прочие поступления (стр. 4119)",
         "values": [
+          0.15,
+          0.01,
+          0.912,
           0.965,
           0.009
         ]
@@ -384,6 +585,9 @@
       {
         "name": "Платежи — всего (стр. 4120)",
         "values": [
+          14.239,
+          13.591,
+          15.999,
           15.102,
           21.793
         ]
@@ -391,6 +595,9 @@
       {
         "name": "в т.ч. поставщикам (подрядчикам) за сырьё, материалы, работы, услуги (стр. 4121)",
         "values": [
+          2.92,
+          2.02,
+          3.105,
           2.425,
           7.309
         ]
@@ -398,6 +605,9 @@
       {
         "name": "в т.ч. в связи с оплатой труда работников (стр. 4122)",
         "values": [
+          0.77,
+          0.751,
+          0.908,
           0.879,
           0.579
         ]
@@ -405,6 +615,9 @@
       {
         "name": "в т.ч. налог на прибыль организаций (стр. 4124)",
         "values": [
+          9.1,
+          9.6,
+          9.6,
           9.6,
           8.94
         ]
@@ -412,6 +625,9 @@
       {
         "name": "в т.ч. прочие платежи (стр. 4129)",
         "values": [
+          1.449,
+          1.22,
+          2.386,
           2.198,
           4.965
         ]
@@ -419,6 +635,9 @@
       {
         "name": "Сальдо денежных потоков от текущих операций (стр. 4100 = CFO)",
         "values": [
+          -8.692,
+          -7.788,
+          -8.888,
           -7.938,
           -15.585
         ]
@@ -428,6 +647,9 @@
       {
         "name": "Поступления — всего (стр. 4210)",
         "values": [
+          14.696,
+          14.18,
+          15.691,
           15.113,
           22.6
         ]
@@ -435,6 +657,9 @@
       {
         "name": "в т.ч. от возврата предоставленных займов, от продажи долговых ц.б./прав требования (стр. 4213)",
         "values": [
+          14.584,
+          14.1,
+          15.627,
           15.09,
           22.6
         ]
@@ -442,6 +667,9 @@
       {
         "name": "в т.ч. дивиденды/проценты по долговым фин. вложениям (стр. 4214)",
         "values": [
+          0.112,
+          0.08,
+          0.064,
           0.023,
           0.0
         ]
@@ -449,6 +677,9 @@
       {
         "name": "Платежи — всего (стр. 4220)",
         "values": [
+          5.9,
+          6.4,
+          6.85,
           7.2,
           7.0
         ]
@@ -456,6 +687,9 @@
       {
         "name": "в т.ч. в связи с приобретением долговых ц.б./предоставлением займов другим лицам (стр. 4223)",
         "values": [
+          5.9,
+          6.4,
+          6.85,
           7.2,
           7.0
         ]
@@ -464,12 +698,18 @@
         "name": "в т.ч. приобретение/создание/модернизация внеоборотных активов — CAPEX (стр. 4221)",
         "values": [
           0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ]
       },
       {
         "name": "Сальдо денежных потоков от инвестиционных операций (стр. 4200 = CFI)",
         "values": [
+          8.796,
+          7.78,
+          8.841,
           7.913,
           15.6
         ]
@@ -480,12 +720,18 @@
         "name": "Поступления — всего (стр. 4310, кредиты/займы/вклады собственников/выпуск акций)",
         "values": [
           0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ]
       },
       {
         "name": "Платежи — всего (стр. 4320, выкуп акций/дивиденды/погашение долга)",
         "values": [
+          0.0,
+          0.0,
+          0.0,
           0.0,
           0.0
         ]
@@ -494,20 +740,56 @@
         "name": "Сальдо денежных потоков от финансовых операций (стр. 4300 = CFF)",
         "values": [
           0.0,
+          0.0,
+          0.0,
+          0.0,
           0.0
         ]
       }
     ],
+    "cash_reconciliation": {
+      "cash_at_period_start": [
+        0.016,
+        0.12,
+        0.112,
+        0.065,
+        0.04
+      ],
+      "net_change_in_cash": [
+        0.104,
+        -0.008,
+        -0.047,
+        -0.025,
+        0.015
+      ],
+      "cash_at_period_end": [
+        0.12,
+        0.112,
+        0.065,
+        0.04,
+        0.055
+      ],
+      "note": "Остаток на начало + чистое изменение = остаток на конец, сходится по всем 5 годам (ГИР БО ФНС, форма 4, self-consistent chain). Значения в млн руб. (исходно тыс)."
+    },
     "ratios": {
       "fcf_margin": [
+        null,
+        null,
+        null,
         null,
         null
       ],
       "cfo_to_capex": [
         null,
+        null,
+        null,
+        null,
         null
       ],
       "capex_to_revenue": [
+        null,
+        null,
+        null,
         null,
         null
       ]
@@ -515,22 +797,37 @@
   },
   "returns": {
     "roe": [
+      null,
+      null,
+      null,
       -18.3,
       -211.9
     ],
     "roa": [
+      null,
+      null,
+      null,
       -17.4,
       -211.9
     ],
     "roic": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "ros": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "asset_turnover": [
+      null,
+      null,
+      null,
       0.001,
       0.002
     ]
@@ -538,57 +835,99 @@
   "metrics_timeseries": {
     "pe": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "pb": [
+      null,
+      null,
+      null,
       1.099,
       3.428
     ],
     "ps": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "ev_ebitda": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "roe": [
+      null,
+      null,
+      null,
       -18.3,
       -211.9
     ],
     "roa": [
+      null,
+      null,
+      null,
       -17.4,
       -211.9
     ],
     "roic": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "gross_margin": [
+      null,
+      null,
+      null,
       91.9,
       93.4
     ],
     "ebitda_margin": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "operating_margin": [
+      null,
+      null,
+      null,
       null,
       null
     ],
     "ros": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "net_debt_ebitda": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "revenue_growth": [
+      null,
+      null,
+      null,
       0.0,
       0.0
     ],
     "net_profit_growth": [
+      null,
+      null,
+      null,
       null,
       null
     ]
@@ -596,21 +935,36 @@
   "multiples": {
     "pe": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "ps": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "pb": [
+      null,
+      null,
+      null,
       1.099,
       3.428
     ],
     "ev_ebitda": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "pe_adj": [
+      null,
+      null,
+      null,
       null,
       null
     ],
@@ -635,9 +989,15 @@
     "providers": [],
     "revenue_growth_pct": [
       null,
+      null,
+      null,
+      null,
       null
     ],
     "net_profit_growth_pct": [
+      null,
+      null,
+      null,
       null,
       null
     ],
