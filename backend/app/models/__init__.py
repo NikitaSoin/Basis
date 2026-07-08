@@ -1,6 +1,7 @@
 from app.models.user import User
 from app.models.company import Company, CompanyAnalysis, Quote
 from app.models.portfolio import Portfolio, PortfolioPosition
+from app.models.portfolio_diagnosis import PortfolioDiagnosis
 from app.models.market import MarketUpdate, MarketOverview
 from app.models.company_profile import CompanyProfile
 from app.models.bond import Bond
@@ -17,7 +18,7 @@ __all__ = [
     "EarningsReport", "EarningsFigures", "EarningsDigest",
     "User",
     "Company", "CompanyAnalysis", "Quote",
-    "Portfolio", "PortfolioPosition",
+    "Portfolio", "PortfolioPosition", "PortfolioDiagnosis",
     "MarketUpdate", "MarketOverview",
     "CompanyProfile",
     "Bond",

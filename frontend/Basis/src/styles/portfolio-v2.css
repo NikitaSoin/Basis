@@ -337,6 +337,7 @@
 /* ---- Epistemic tags (mirror prototype tag-fact/estimate/judgment) ---- */
 .pf-tag-fact,
 .pf-tag-estimate,
+.pf-tag-model,
 .pf-tag-judgment {
   display: inline-flex;
   align-items: center;
@@ -359,6 +360,11 @@
 .pf-tag-estimate {
   background: var(--pf-estimate-soft);
   color: var(--pf-estimate);
+}
+
+.pf-tag-model {
+  background: color-mix(in srgb, var(--accent-2) 16%, transparent);
+  color: var(--accent-2);
 }
 
 .pf-tag-judgment {

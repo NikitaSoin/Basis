@@ -11,6 +11,7 @@ from app.services.portfolio import (
     compute_portfolio_metrics, compute_factor_profile, compute_custom_stress,
     record_trade, compute_position_pnl,
 )
+from app.services.portfolio_diagnosis import generate_diagnosis
 from app.auth import get_current_user, get_current_user_optional
 from app.models.user import User, SubscriptionType
 
@@ -194,6 +195,55 @@ def portfolio_custom_stress_endpoint(
     if result is None:
         raise HTTPException(status_code=404, detail="Недостаточно данных для расчёта")
     return result
+
+
+def _serialize_diagnosis(diag) -> dict:
+    return {
+        "shield": diag.shield or [],
+        "vulnerabilities": diag.vulnerabilities or [],
+        "summary": {"text": diag.summary, "type": diag.summary_type} if diag.summary else None,
+        "portfolio_snapshot": diag.portfolio_snapshot or [],
+        "generated_at": diag.generated_at.isoformat() if diag.generated_at else None,
+    }
+
+
+@router.get("/portfolios/{portfolio_id}/diagnosis")
+def portfolio_diagnosis_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Кэшированный ИИ-Диагноз портфеля (вкладка «ИИ-Диагноз»). null, если ещё
+    ни разу не сгенерирован — фронт предлагает нажать «Обновить диагноз»."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    from app.models.portfolio_diagnosis import PortfolioDiagnosis
+    diag = db.query(PortfolioDiagnosis).filter_by(portfolio_id=portfolio_id).first()
+    return _serialize_diagnosis(diag) if diag else None
+
+
+@router.post("/portfolios/{portfolio_id}/diagnosis/refresh")
+def portfolio_diagnosis_refresh_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Перегенерировать ИИ-Диагноз (LLM-вызов — по кнопке, не на каждый рендер)."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    try:
+        diag = generate_diagnosis(db, portfolio_id)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Не удалось сгенерировать диагноз: {e}")
+    if diag is None:
+        raise HTTPException(status_code=404, detail="Недостаточно данных портфеля для диагноза")
+    return _serialize_diagnosis(diag)
 
 
 @router.delete("/portfolios/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
