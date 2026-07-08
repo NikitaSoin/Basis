@@ -75,6 +75,35 @@
   --shadow-lg: 0 10px 26px -14px rgba(0, 0, 0, 0.22);
 }
 
+/* ---- Dark theme (Command Center graphite) — параллельная палитра поверх
+   буквального HTML-прототипа выше. Тот же приём, что в токенах верхнего
+   уровня (tokens.css :root vs .dark): имена переменных те же, значения
+   переопределены для тёмного фона. Соответствия взяты из глобальных дарк-
+   токенов (tokens.css .dark), чтобы Портфель визуально совпадал с тёмной
+   темой Обозревателя, а не изобретал свою тональность. */
+.dark .pf-shell {
+  --pf-tan:         #111110;   /* = --bg-base (dark) */
+  --pf-tan-surface: #1C1C1A;   /* = --bg-elevated (dark) */
+  --pf-surface-3:   #232320;   /* = --bg-overlay-srf (dark) */
+  --pf-ink:         #E6EAF2;   /* = --text-primary (dark) */
+  --pf-ink-2:       #ADB6CA;   /* = --text-secondary (dark) */
+  --pf-ink-3:       #919BB2;   /* = --text-tertiary (dark) */
+  --pf-line:        rgba(255,255,255,0.10);   /* = --border-subtle (dark) */
+  --pf-line-2:      rgba(255,255,255,0.24);   /* = --border-strong (dark) */
+  --pf-copper:       #DB9463;  /* = --accent (dark, lightened for contrast) */
+  --pf-copper-soft:  rgba(219,148,99,0.14);   /* = --accent-soft (dark) */
+  --pf-copper-deep:  #F0DDCC;  /* тёмный текст на copper-soft → нужен светлый оттенок */
+  --pf-up:          #22C55E;   /* = --success (dark) */
+  --pf-up-soft:     rgba(34,197,94,0.14);
+  --pf-down:        #F43F5E;   /* = --danger (dark) */
+  --pf-down-soft:   rgba(244,63,94,0.14);
+  --pf-estimate:      #38BDF8; /* = --info (dark) */
+  --pf-estimate-soft: rgba(56,189,248,0.14);
+  --pf-surface-2:   #232320;   /* карточка-плашка/дропдаун — на тёмном фоне не белая */
+
+  --shadow-lg: 0 10px 30px -14px rgba(0,0,0,0.55);
+}
+
 /* tw-font-display и tw-rounded-md у Tailwind скомпилированы ЛИТЕРАЛАМИ
    ("Inter Display", 8px), не через var(--font-display)/var(--radius-md) —
    переопределение самих CSS-переменных внутри .pf-shell (выше) на эти
@@ -645,7 +674,7 @@
 }
 .pf-card:hover {
   box-shadow: 0 10px 26px -14px rgba(0,0,0,.22);
-  border-color: #CDC5B0;
+  border-color: var(--pf-line-2);
 }
 
 /* =============================================================

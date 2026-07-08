@@ -206,7 +206,7 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
   }, [reduced]);
   const n = labels.length;
   return (
-    <div className="tw-overflow-x-auto">
+    <div className="tw-flex tw-justify-center tw-overflow-x-auto">
       <div
         className="tw-inline-grid"
         style={{ gridTemplateColumns: `auto repeat(${n}, minmax(56px, 1fr))` }}
