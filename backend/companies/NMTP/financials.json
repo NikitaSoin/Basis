@@ -2143,5 +2143,197 @@
       "value": "Инфраструктурный бизнес с тарифным ценообразованием, высокая маржа EBITDA ~69%."
     }
   ],
-  "geo_split": []
+  "geo_split": [],
+  "interim": {
+    "periods": [
+      {
+        "label": "1П2023",
+        "type": "half_year",
+        "fiscal_year": 2023,
+        "end_date": "2023-06-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1П2024",
+        "type": "half_year",
+        "fiscal_year": 2024,
+        "end_date": "2024-06-30",
+        "cumulative": true,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2026",
+        "type": "quarter",
+        "fiscal_year": 2026,
+        "end_date": "2026-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      }
+    ],
+    "income_statement": {
+      "revenue": [
+        34588,
+        38618,
+        19800,
+        18900,
+        17600,
+        20200,
+        19800
+      ],
+      "operating_profit": [
+        21382,
+        24855,
+        14500,
+        12300,
+        9390,
+        10600,
+        11300
+      ],
+      "ebitda": [
+        24542,
+        28092,
+        16000,
+        13900,
+        11000,
+        11800,
+        12800
+      ],
+      "da": [
+        3160,
+        3237,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "finance_income": [
+        1094,
+        3231,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "finance_costs": [
+        1429,
+        1374,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "pre_tax_profit": [
+        22173,
+        26899,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "income_tax": [
+        4358,
+        5030,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_profit": [
+        17535,
+        21701,
+        10300,
+        10900,
+        10100,
+        8620,
+        10500
+      ]
+    },
+    "cash_flow": {
+      "cfo": [
+        22156,
+        24472,
+        9110,
+        13000,
+        7440,
+        12800,
+        8740
+      ],
+      "capex": [
+        null,
+        null,
+        2080,
+        4730,
+        6560,
+        5990,
+        5420
+      ],
+      "fcf": [
+        null,
+        null,
+        8590,
+        11200,
+        4450,
+        8500,
+        4990
+      ]
+    },
+    "balance_sheet": {
+      "current_assets": {
+        "cash": [
+          28104,
+          42636,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "data_flags": [
+      "H1 2023 / H1 2024 — из первичного PDF (раскрываемая промежуточная сокращённая консолидированная МСФО отчётность за 1-е полугодие 2024, cdn.financemarker.ru/reports/2024/MOEX/N/NMTP_2024_6_6M_МСФО.pdf, содержит сравнительный столбец за 1П2023). Полная построчная P&L + CFO + cash на конец периода. net_profit = прибыль, относимая на акционеров ПАО «НМТП» (не включая НКД). Арифметика сходится (revenue-opex-D&A=operating_profit; +fin.income-fin.costs+fx+JV+other=pre_tax; -tax=net_profit total).",
+      "2025Q1-2026Q1 — из smart-lab.ru/q/NMTP/f/q/MSFO/ (дискретные кварталы, НЕ нарастающим итогом). da/finance_income/finance_costs/pre_tax/tax по кварталам не публикуются на smart-lab — null. net_profit по кварталам — не уточнено, относится ли к акционерам или итого (вероятно к акционерам, но не подтверждено первичкой) — использовать с осторожностью.",
+      "Отдельных квартальных МСФО-отчётов за 2023-2024гг у НМТП НЕ обнаружено (компания в этот период публиковала только полугодовую и годовую МСФО) — 2023Q1/Q3, 2024Q1/Q3 честно отсутствуют (не null-заполнены, периоды просто не включены).",
+      "Сверка: сумма Q1-Q4 2025 revenue = 76500 млн, EBITDA = 52700 млн, net_profit = 39920 млн — сходится с годовыми оценками 2025 в основном файле (forecast.note: revenue 76500, EBITDA 52700, ЧП 40500 adj) — расхождение ЧП ~600 млн в пределах adj/reported разницы, не критично.",
+      "Единица измерения — млн руб., как и в meta.unit основного файла; квартальные smart-lab-значения (были в млрд) пересчитаны ×1000."
+    ]
+  }
 }
