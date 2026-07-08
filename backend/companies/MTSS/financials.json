@@ -1532,5 +1532,139 @@
       "region": "Беларусь и прочие СНГ",
       "pct": 3.0
     }
-  ]
+  ],
+  "interim": {
+    "periods": [
+      {
+        "label": "1кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "2кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "3кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "4кв2025",
+        "type": "quarter",
+        "fiscal_year": 2025,
+        "end_date": "2025-12-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      },
+      {
+        "label": "1кв2026",
+        "type": "quarter",
+        "fiscal_year": 2026,
+        "end_date": "2026-03-31",
+        "cumulative": false,
+        "standard": "МСФО"
+      }
+    ],
+    "income_statement": {
+      "revenue": [
+        175500,
+        195400,
+        213800,
+        222500,
+        201300
+      ],
+      "cogs": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "gross_profit": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "expense_lines": [],
+      "operating_profit": [
+        31900,
+        39400,
+        38300,
+        45100,
+        41000
+      ],
+      "da": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda": [
+        63300,
+        72700,
+        71800,
+        71900,
+        74700
+      ],
+      "finance_costs": [
+        32600,
+        38300,
+        39900,
+        32200,
+        31800
+      ],
+      "finance_income": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "pre_tax_profit": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "income_tax": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_profit": [
+        4900,
+        2790,
+        5980,
+        25000,
+        7170
+      ]
+    },
+    "balance_sheet": null,
+    "cash_flow": null,
+    "data_flags": [
+      "Скоуп задания сужен до P&L (баланс и ОДДС сознательно НЕ собирались — отдельная задача из-за прекращённой деятельности в Чехии, усложняющей структуру баланса).",
+      "Источник — распарсенная таблица smart-lab.ru/q/MTSS/f/q/MSFO/ (агрегатор), НЕ первичный xlsx с ir.mts.ru — прямую ссылку на файл 'МТС финансовые и операционные результаты, Excel-таблицы' (storage.ir.mts.ru/mts-ir или static.ssl.mts.ru/mts_rf/contents/.../MTS_SummaryFinancials_*.xlsx) для актуальных кварталов найти в рамках лимита запросов не удалось — известный рабочий паттерн 'static.ssl.mts.ru/mts_rf/contents/10610/MTS_SummaryFinancials_1Q25.xlsx' подтверждён для 1кв2025, но для более свежих/старых кварталов ID контента не угадывается перебором (все проверенные варианты — 404).",
+      "smart-lab по умолчанию показывает ТОЛЬКО последние 5 кварталов (2025Q1-2026Q1) — кварталы 1кв2023..4кв2024 (8 кварталов) НЕ собраны в этом проходе, требуется отдельный подход (найти прямые xlsx-ссылки на ir.mts.ru через сайт-карту результатов или архив пресс-релизов постранично).",
+      "cogs/gross_profit/da/finance_income/pre_tax_profit/income_tax — не раскрыты в сводной таблице smart-lab (только revenue, OIBDA/EBITDA, operating_profit, finance_costs, net_profit) — оставлены null, не выдуманы.",
+      "ebitda в массиве — это OIBDA (операционная прибыль до вычета D&A), как раскрывает МТС; net_profit за 4кв2025 (25.0 млрд) содержит разовые эффекты (см. основной income_statement/data_flags за годовой 2025) — не нормализовано в этом проходе (не входит в скоуп механической добычи).",
+      "Единицы: источник в млрд руб, сконвертировано ×1000 в млн руб (соответствует meta.unit='млн' основного файла)."
+    ]
+  }
 }
