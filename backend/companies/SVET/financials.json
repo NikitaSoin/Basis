@@ -1319,5 +1319,258 @@
       "value": "Малая, входит в Сектор Роста Московской биржи"
     }
   ],
-  "geo_split": []
+  "geo_split": [],
+  "interim": {
+    "periods": [
+      {
+        "label": "1П2023",
+        "type": "half_year",
+        "fiscal_year": 2023,
+        "end_date": "2023-06-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      },
+      {
+        "label": "9М2023",
+        "type": "9m",
+        "fiscal_year": 2023,
+        "end_date": "2023-09-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      },
+      {
+        "label": "1П2024",
+        "type": "half_year",
+        "fiscal_year": 2024,
+        "end_date": "2024-06-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      },
+      {
+        "label": "9М2024",
+        "type": "9m",
+        "fiscal_year": 2024,
+        "end_date": "2024-09-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      },
+      {
+        "label": "1П2025",
+        "type": "half_year",
+        "fiscal_year": 2025,
+        "end_date": "2025-06-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      },
+      {
+        "label": "9М2025",
+        "type": "9m",
+        "fiscal_year": 2025,
+        "end_date": "2025-09-30",
+        "cumulative": true,
+        "standard": "РСБУ"
+      }
+    ],
+    "income_statement": {
+      "cost_format": "by_function",
+      "revenue": [
+        281.5,
+        353.3,
+        377.33,
+        448.21,
+        290.0,
+        322.81
+      ],
+      "cogs": [
+        null,
+        null,
+        null,
+        null,
+        246.0,
+        284.0
+      ],
+      "gross_profit": [
+        null,
+        null,
+        null,
+        null,
+        44.0,
+        38.8
+      ],
+      "operating_profit": [
+        null,
+        null,
+        null,
+        null,
+        26.0,
+        12.0
+      ],
+      "da": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "ebitda": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "finance_costs": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "finance_income": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "pre_tax_profit": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "income_tax": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_profit": [
+        32.7,
+        73.9,
+        94.79,
+        100.61,
+        19.0,
+        4.53
+      ],
+      "margins": {
+        "gross_margin": [
+          null,
+          null,
+          null,
+          null,
+          15.2,
+          12.0
+        ],
+        "operating_margin": [
+          null,
+          null,
+          null,
+          null,
+          9.0,
+          3.7
+        ],
+        "ros": [
+          11.6,
+          20.9,
+          25.1,
+          22.4,
+          6.6,
+          1.4
+        ]
+      }
+    },
+    "balance_sheet": {
+      "total_assets": [
+        null,
+        null,
+        null,
+        null,
+        862.0,
+        733.0
+      ],
+      "total_equity": [
+        null,
+        null,
+        null,
+        null,
+        570.0,
+        553.0
+      ],
+      "net_debt": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "cash_flow": {
+      "cfo": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cfi": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "cff": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "net_change_in_cash": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "capex": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "fcf": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "data_flags": [
+      "Источник интерим — агрегатор Smart-Lab (квартальная РСБУ) + новости cbonds/finviewer; первичка ФНС ГИР БО / e-disclosure не выгружалась постатейно. reliability medium.",
+      "2025: поквартальные РСБУ Smart-Lab (1кв выр 225 / ЧП 76; 2кв 65 / -57; 3кв 32 / -15; 4кв 42 / 3) суммированы в нарастающий итог; сходятся с годовыми FY2025 (выручка 364, ЧП 7.0) в точности — контроль пройден.",
+      "9М2025 (выручка 322.81, ЧП 4.53) и 1П2024 (377.33 / 94.79), 9М2024 (448.21 / 100.61) — прямые из новостной отчётности cbonds/finviewer.",
+      "1П2023 (281.5 / 32.7) и 9М2023 (353.3 / 73.9) РАССЧИТАНЫ обратным ходом из опубликованных темпов роста г/г (1П2024 +34.02% выр / +189.58% ЧП; 9М2024 +26.85% / +36.15%) — не первичка, оценка, возможна погрешность округления.",
+      "Балансовые срезы доступны только на 30.06.2025 (активы 862, капитал 570) и 30.09.2025 (активы 733, капитал 553); за 2023-2024 промежуточных срезов баланса в источниках нет.",
+      "РСБУ-интерим не содержит ОДДС и разбивки затрат (кроме себестоимости 2025); D&A/EBITDA не раскрываются — ограничение РСБУ микрокапа 3-го эшелона."
+    ]
+  }
 }

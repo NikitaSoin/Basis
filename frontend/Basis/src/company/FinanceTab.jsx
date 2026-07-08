@@ -232,13 +232,17 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const [tab, setTab] = useState("pnl");
   const [detOpen, setDetOpen] = useState(false);
   const [peerYear, setPeerYear] = useState(null);
+  const [period, setPeriod] = useState("annual"); // "annual" | "interim" — переключатель периодичности таблиц
   if (!fin) return null;
 
   const meta = fin.meta || {};
-  const is = fin.income_statement || {};
+  const interim = fin.interim || {};
+  const hasInterim = Array.isArray(interim.periods) && interim.periods.length > 0;
+  const usingInterim = hasInterim && period === "interim";
+  const is = (usingInterim ? interim.income_statement : fin.income_statement) || {};
   const adj = fin.adjusted || {};
-  const bs = fin.balance_sheet || {};
-  const cf = fin.cash_flow || {};
+  const bs = (usingInterim ? interim.balance_sheet : fin.balance_sheet) || {};
+  const cf = (usingInterim ? interim.cash_flow : fin.cash_flow) || {};
   const ret = fin.returns || {};
   const mt = fin.metrics_timeseries || {};
   const mult = fin.multiples || {};
@@ -246,7 +250,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const hist = mult.historical_avg || {};
   const val = fin.valuation || {};
   const fvr = val.fair_value_range || {};
-  const years = (meta.fiscal_years || []).map(String);
+  const years = usingInterim ? interim.periods.map((p) => p.label) : (meta.fiscal_years || []).map(String);
   const std = meta.reporting_standard || "МСФО";
   const lastYr = years[years.length - 1] || "";
   const ccy = "₽";
@@ -266,7 +270,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   // статьи затрат, потоки ОДДС, банковский профиль ── */
   const isBank = meta.profile === "bank";
   const adjBlk = fin.adjusted || {};
-  const bp = fin.bank_pnl || {}, bmx = fin.bank_metrics || {};
+  const bp = (usingInterim ? interim.bank_pnl : fin.bank_pnl) || {}, bmx = (usingInterim ? interim.bank_metrics : fin.bank_metrics) || {};
   const ga = (o, k) => (o && Array.isArray(o[k]) && o[k].some((x) => x != null)) ? o[k] : null;
   const orSum = (explicit, comps) => {
     if (Array.isArray(explicit) && explicit.some((x) => x != null)) return explicit;
@@ -405,8 +409,8 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
 
   /* 4. Таблицы по годам — ПОЛНЫЕ статьи (как в прежнем рендере). kind: money|pct|ratio|x|rub.
         det:true — деталь (скрыта до «Детализация статей»). */
-  const yslice = years.slice(-5);
-  const sl = (a) => (Array.isArray(a) ? a.slice(-5) : []);
+  const yslice = years.slice(usingInterim ? -8 : -5);
+  const sl = (a) => (Array.isArray(a) ? a.slice(usingInterim ? -8 : -5) : []);
   const M = (l, a, o = {}) => ({ l, a, kind: "money", ...o });
   const pnlRows = isBank
     ? [
@@ -585,7 +589,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   ].filter((r) => r.a && sl(r.a).some((x) => x != null)) : [];
   const TABLES = { pnl: pnlRows, bs: bsRows, cf: cfRows, mult: multRows };
   const hasTable = (k) => TABLES[k].some((r) => !r.sectionHeader && sl(r.a).some((x) => x != null));
-  const tabsAvail = ["pnl", "bs", "cf", "mult"].filter(hasTable);
+  const tabsAvail = ["pnl", "bs", "cf", ...(usingInterim ? [] : ["mult"])].filter(hasTable);
   const curTab = tabsAvail.includes(tab) ? tab : (tabsAvail[0] || "pnl");
   const TLABEL = { pnl: "P&L", bs: "Баланс", cf: "ОДДС", mult: "Мультипликаторы" };
   const curHasDet = TABLES[curTab].some((r) => !r.sectionHeader && r.det && sl(r.a).some((x) => x != null));
@@ -768,7 +772,15 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
 
                 <div className="subh">Отчётность и мультипликаторы</div>
                 <div className="mtbar">
-                  <div className="miniseg">{tabsAvail.map((k) => <button key={k} className={curTab === k ? "on" : ""} onClick={() => setTab(k)}>{TLABEL[k]}</button>)}</div>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+                    {hasInterim && (
+                      <div className="miniseg">
+                        <button className={period === "annual" ? "on" : ""} onClick={() => setPeriod("annual")}>Годовые</button>
+                        <button className={period === "interim" ? "on" : ""} onClick={() => setPeriod("interim")}>Квартальные</button>
+                      </div>
+                    )}
+                    <div className="miniseg">{tabsAvail.map((k) => <button key={k} className={curTab === k ? "on" : ""} onClick={() => setTab(k)}>{TLABEL[k]}</button>)}</div>
+                  </div>
                   {curHasDet && <button className={`det-toggle${detOpen ? " on" : ""}`} type="button" onClick={() => setDetOpen((o) => !o)}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M7 12h10M10 18h4" /></svg>
                     <span>Детализация статей</span>
