@@ -1,0 +1,189 @@
+/* ============================================================================
+   Basis Account — Тарифы (.tar-*) и Профиль (.acct-*), NEO.
+   Локальные алиасы к каноническим cc-токенам (тот же приём, что screener.css /
+   portfolio-v2.css): экран живёт в одной системе с приложением и переключает
+   темы через .dark .cc-root — никакого hardcoded hex здесь. Скоуплено под
+   .tar-screen / .acct-screen, на остальное приложение не влияет.
+   ============================================================================ */
+
+.tar-screen, .acct-screen {
+  --bg: var(--cc-bg); --bg-2: var(--cc-bg-2); --panel: var(--cc-panel); --panel-2: var(--cc-panel-2);
+  --line: var(--cc-line); --line-2: var(--cc-line-2);
+  --ink: var(--cc-ink); --ink-2: var(--cc-ink-2); --ink-3: var(--cc-ink-3);
+  --accent: var(--cc-accent); --accent-2: var(--cc-accent-2); --accent-soft: var(--cc-accent-soft);
+  --success: var(--cc-success); --danger: var(--cc-danger); --info: var(--cc-info);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ---- shared: error line under a CTA (both pages) ---- */
+.tar-error { color: var(--danger); font-size: 12.5px; line-height: 1.4; margin: 8px 0 0; }
+
+/* ============================================================
+   ТАРИФЫ — .tar-*
+   ============================================================ */
+
+.tar-page { max-width: 1120px; margin: 0 auto; }
+
+.tar-status {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px;
+  font-size: 14px; line-height: 1.5; color: var(--ink-2);
+  background: var(--panel); border: 1px solid var(--line); border-left: 2px solid var(--accent);
+  border-radius: 0 9px 9px 0; padding: 12px 16px; margin-bottom: 24px;
+}
+.tar-status b { color: var(--ink); font-weight: 600; }
+
+.tar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 900px) { .tar-grid { grid-template-columns: 1fr; } }
+
+.tar-card {
+  display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  padding: 28px;
+}
+.tar-card--plus { border-left: 2px solid var(--accent); }
+
+.tar-eyebrow-slot { min-height: 18px; margin-bottom: 8px; }
+.tar-eyebrow { color: var(--accent); }
+
+.tar-name { font-family: var(--cc-serif); font-size: 21px; font-weight: 600; letter-spacing: -0.005em; color: var(--ink); margin: 0 0 14px; }
+
+.tar-price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 14px; }
+.tar-price-num {
+  font-family: var(--cc-mono); font-size: 34px; font-weight: 500; letter-spacing: -0.01em;
+  color: var(--ink); font-variant-numeric: tabular-nums lining-nums;
+}
+.tar-price-period { font-size: 13px; color: var(--ink-3); }
+
+.tar-quota { margin: 0 0 16px; }
+
+.tar-desc { font-family: var(--cc-serif); font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin: 0 0 20px; }
+
+.tar-bullets { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.tar-bullet { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.tar-bullet svg { flex-shrink: 0; margin-top: 2px; color: var(--ink-2); }
+.tar-bullet--accent { font-weight: 500; color: var(--ink); }
+.tar-bullet--accent svg { color: var(--ink); }
+.tar-bullet-badge { flex-shrink: 0; margin-left: auto; }
+
+.tar-cta-slot { margin-top: auto; padding-top: 4px; min-height: 40px; display: flex; align-items: center; }
+
+.tar-note { font-size: 12.5px; color: var(--ink-3); text-align: center; margin: 16px 0 32px; }
+
+.tar-compare-lead { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); margin: 0 0 16px; max-width: 78ch; }
+
+.tar-compare-scroll { overflow-x: auto; }
+.tar-compare {
+  min-width: 580px;
+  border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); overflow: hidden; background: var(--panel);
+}
+
+.tar-compare-head {
+  display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr);
+  background: var(--panel-2); border-bottom: 1px solid var(--line-2);
+}
+.tar-compare-head-cell {
+  padding: 14px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3); text-align: center; display: flex; align-items: center; justify-content: center;
+}
+.tar-compare-head-cell--label {
+  text-align: left; justify-content: flex-start; text-transform: none; letter-spacing: 0;
+  font-size: 12.5px; font-weight: 500; color: var(--ink-2);
+}
+.tar-compare-head-cell--current { background: var(--accent-soft); color: var(--accent-2); }
+
+.tar-compare-group-t {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3);
+  background: var(--panel-2); padding: 9px 16px; border-top: 1px solid var(--line);
+}
+.tar-compare-group:first-child .tar-compare-group-t { border-top: 0; }
+
+.tar-compare-row { display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr); border-top: 1px solid var(--line); }
+.tar-compare-row-label { padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--ink); display: flex; align-items: center; }
+.tar-compare-cell { padding: 12px 14px; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); display: flex; align-items: center; justify-content: center; text-align: center; }
+.tar-compare-cell--current { background: var(--accent-soft); }
+.tar-compare-cell--dash { color: var(--ink-3); }
+
+/* ============================================================
+   ПРОФИЛЬ — .acct-*
+   ============================================================ */
+
+.acct-page { max-width: 880px; margin: 0 auto; }
+.acct-stack { display: flex; flex-direction: column; gap: 20px; }
+
+.acct-identity {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  padding: 20px 24px;
+}
+.acct-avatar {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent-soft); color: var(--accent-2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--cc-mono); font-size: 18px; font-weight: 600;
+}
+.acct-identity-main { flex: 1; min-width: 0; }
+.acct-identity-email { font-size: 15px; font-weight: 600; color: var(--ink); word-break: break-all; }
+.acct-identity-sub { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+.acct-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); flex-shrink: 0; white-space: nowrap; }
+.acct-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.acct-status-dot--off { background: var(--ink-3); }
+
+.acct-plan-card {
+  display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  padding: 28px;
+}
+@media (max-width: 720px) { .acct-plan-card { grid-template-columns: 1fr; } }
+
+.acct-plan-left { display: flex; flex-direction: column; }
+.acct-plan-name { font-family: var(--cc-serif); font-size: 24px; font-weight: 600; margin: 6px 0 10px; color: var(--ink); }
+.acct-plan-desc { font-family: var(--cc-serif); font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin: 0; max-width: 52ch; }
+
+.acct-plan-right {
+  display: flex; flex-direction: column; justify-content: center; gap: 10px;
+  border-left: 2px solid var(--accent); padding-left: 28px;
+}
+@media (max-width: 720px) {
+  .acct-plan-right { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 20px; }
+}
+.acct-plan-status { font-size: 13px; color: var(--ink-2); margin: 0; }
+.acct-plan-hint { font-size: 12px; color: var(--ink-3); margin: 0; }
+.acct-plan-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+
+.acct-row-list { background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); padding: 4px 24px; }
+.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.acct-row:last-child { border-bottom: 0; }
+.acct-row-label { font-size: 13px; color: var(--ink-2); }
+.acct-row-value { font-size: 13px; font-weight: 500; color: var(--ink); text-align: right; }
+
+.acct-cap-card { background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); padding: 24px; }
+.acct-cap-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 14px; }
+.acct-cap-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.acct-cap-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.acct-cap-item svg { flex-shrink: 0; margin-top: 2px; color: var(--ink-2); }
+.acct-cap-link {
+  font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px; border-radius: 4px;
+}
+.acct-cap-link:hover { opacity: 0.82; }
+.acct-cap-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.acct-billing-card {
+  border: 1px dashed var(--line-2); border-radius: var(--cc-r-lg); background: var(--panel-2);
+  padding: 32px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.acct-billing-icon {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; color: var(--ink-3);
+}
+.acct-billing-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.acct-billing-note { font-size: 12.5px; line-height: 1.5; color: var(--ink-3); max-width: 46ch; margin: 0; }
+
+.acct-logout { display: flex; justify-content: center; padding-top: 4px; }
+/* Doubled class = specificity (0,3,0), beats the Button primitive's own
+   `hover:tw-text-text-primary` (0,2,0) WITHOUT !important — see ProfileView.jsx
+   comment. Owner: stay --text-secondary at rest, only hint --danger on hover
+   (not a permanently "alarming" red exit button). */
+.acct-logout-btn.acct-logout-btn:hover { color: var(--danger); background: var(--danger-soft); }
