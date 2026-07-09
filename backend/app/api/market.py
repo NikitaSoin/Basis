@@ -154,6 +154,29 @@ def market_valuation(portfolio_only: bool = False,
     return market_maps.valuation(db, tickers_filter=tickers)
 
 
+@router.get("/market/maps/heatmap/futures")
+def market_heatmap_futures(db: Session = Depends(get_db)):
+    """Тепловая карта фьючерсов: вес — условная стоимость открытых позиций
+    (ликвидность/интерес рынка), цвет — изменение расчётной цены к клирингу."""
+    from app.services import market_maps
+    return market_maps.heatmap_futures(db)
+
+
+@router.get("/market/maps/heatmap/funds")
+def market_heatmap_funds(db: Session = Depends(get_db)):
+    """Тепловая карта фондов (БПИФ/ETF): вес — дневной торговый оборот, цвет —
+    изменение цены пая."""
+    from app.services import market_maps
+    return market_maps.heatmap_funds(db)
+
+
+@router.get("/market/maps/spot")
+def market_spot_grid(db: Session = Depends(get_db)):
+    """Валюта/металлы — плоская сетка (6 инструментов, курируемый набор), без treemap."""
+    from app.services import market_maps
+    return market_maps.spot_grid(db)
+
+
 @router.get("/market/news", response_model=list[NewsItemResponse])
 def list_news_endpoint(
     limit: int = Query(50, ge=1, le=200),

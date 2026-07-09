@@ -176,3 +176,77 @@ def _pack_sectors(by_sector: dict[str, list]) -> list:
         out.append({"sector": sector, "tiles": tiles, "market_cap": cap_sum})
     out.sort(key=lambda s: s["market_cap"], reverse=True)
     return out
+
+
+_FUTURES_KIND_LABEL = {
+    "currency": "Валютные", "index": "Индексные", "commodity": "Сырьевые",
+    "stock": "На акции", "rate": "Процентные", "other": "Прочие",
+}
+_FUND_TYPE_LABEL = {
+    "equity": "Акции", "bonds": "Облигации", "gold": "Золото",
+    "money_market": "Денежный рынок", "currency": "Валютные", "mixed": "Смешанные",
+}
+
+
+def heatmap_futures(db: Session) -> dict:
+    """Тепловая карта фьючерсов. Вес плитки — условная стоимость открытых позиций
+    (open_position × contract_value, аналог капитализации: размер интереса рынка к
+    контракту). Цвет — изменение расчётной цены к предыдущему клирингу.
+    Группировка — по asset_kind (валютные/индексные/сырьевые/на акции/процентные)."""
+    from app.models.future import Future
+    rows = db.query(Future).all()
+    by_kind: dict[str, list] = {}
+    for f in rows:
+        last = float(f.last_price) if f.last_price is not None else None
+        prev = float(f.prev_settle) if f.prev_settle is not None else None
+        change = round((last / prev - 1) * 100, 2) if last and prev else None
+        oi = float(f.open_position) if f.open_position is not None else 0.0
+        cv = float(f.contract_value) if f.contract_value is not None else 1.0
+        weight = oi * cv if oi and cv else oi or 0.0
+        kind = _FUTURES_KIND_LABEL.get(f.asset_kind, f.asset_kind or "Прочие")
+        by_kind.setdefault(kind, []).append({
+            "ticker": f.secid, "name": f.asset_name or f.short_name, "sector": kind,
+            "market_cap": weight, "change_pct": change,
+        })
+    sectors = _pack_sectors(by_kind)
+    return {"map": "heatmap", "asset_class": "futures", "sectors": sectors,
+            "count": sum(len(s["tiles"]) for s in sectors)}
+
+
+def heatmap_funds(db: Session) -> dict:
+    """Тепловая карта фондов (БПИФ/ETF). Вес плитки — дневной торговый оборот
+    (val_today, ₽) — прокси ликвидности вместо капитализации (СЧА фонда на MOEX не
+    публикуется по каждой бумаге). Цвет — дневное изменение цены пая из
+    instrument_history (там уже посчитан change_pct). Группировка — по fund_type."""
+    from app.models.fund import Fund
+    from app.services.instrument_history import get_sparklines
+    rows = db.query(Fund).all()
+    secids = [f.secid for f in rows]
+    sparks = get_sparklines(db, "fund", secids, days=2) if secids else {}
+    by_type: dict[str, list] = {}
+    for f in rows:
+        change = (sparks.get(f.secid) or {}).get("change_pct")
+        weight = float(f.val_today) if f.val_today else 0.0
+        ftype = _FUND_TYPE_LABEL.get(f.fund_type, f.fund_type or "Прочие")
+        by_type.setdefault(ftype, []).append({
+            "ticker": f.secid, "name": f.sec_name or f.short_name, "sector": ftype,
+            "market_cap": weight, "change_pct": round(change, 2) if change is not None else None,
+        })
+    sectors = _pack_sectors(by_type)
+    return {"map": "heatmap", "asset_class": "funds", "sectors": sectors,
+            "count": sum(len(s["tiles"]) for s in sectors)}
+
+
+def spot_grid(db: Session) -> dict:
+    """Валюта/металлы — курируемый набор из 6 инструментов, без treemap (слишком мало
+    бумаг для осмысленной карты): плоский список с ценой и дневным изменением."""
+    from app.models.spot import SpotAsset
+    rows = db.query(SpotAsset).all()
+    kind_label = {"currency": "Валюта", "metal": "Металл"}
+    items = [{
+        "ticker": r.secid, "name": r.name, "kind": kind_label.get(r.kind, r.kind),
+        "last_price": float(r.last_price) if r.last_price is not None else None,
+        "change_pct": float(r.change_pct) if r.change_pct is not None else None,
+    } for r in rows]
+    items.sort(key=lambda x: (x["kind"] != "Валюта", x["ticker"]))
+    return {"map": "heatmap", "asset_class": "currency", "items": items, "count": len(items)}
