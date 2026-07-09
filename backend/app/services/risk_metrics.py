@@ -461,12 +461,27 @@ def recalc_all_company_metrics() -> dict:
         now = datetime.now(timezone.utc)
         update_sql = _text(_RECALC_UPDATE_SQL_TEXT)
 
+        # try/except НА КАЖДУЮ компанию — раньше одна ошибка (плохие данные
+        # дивидендов/котировок у одного тикера) роняла ВЕСЬ пересчёт ДО
+        # db.commit() (он был один в конце цикла), и company_metrics ВСЕХ
+        # компаний оставалась на снапшоте предыдущего успешного прогона —
+        # поймал на живом проде: RAGR несколько деплоев подряд не обновлялся,
+        # хотя T/HEAD/X5 из того же коммита обновились (значит цикл падал
+        # НА КАКОЙ-ТО компании раньше финального commit, и RAGR — с ней или
+        # позже — просто не успевал дойти до записи).
         from app.services.moex_dividends import load_dividends_map
+        failed = []
         for c in companies:
-            divs = load_dividends_map(db, c.ticker)
-            m = compute_for_company(db, c.id, index_returns, since, dividends=divs)
-            db.execute(update_sql, {"ticker": c.ticker, "updated_at": now, **m})
+            try:
+                divs = load_dividends_map(db, c.ticker)
+                m = compute_for_company(db, c.id, index_returns, since, dividends=divs)
+                db.execute(update_sql, {"ticker": c.ticker, "updated_at": now, **m})
+            except Exception as e:  # noqa: BLE001
+                failed.append(c.ticker)
+                logger.warning("Пересчёт company_metrics: %s пропущен (%s)", c.ticker, e)
         db.commit()
+        if failed:
+            logger.warning("Пересчёт company_metrics: %d тикеров пропущено: %s", len(failed), ", ".join(failed))
 
         # Rf/Rm → альфа/Сортино/CAPM (те же формулы, что и раньше в скрипте)
         from app.services.moex_dividends import update_risk_free_rate
@@ -492,6 +507,6 @@ def recalc_all_company_metrics() -> dict:
             """), {"rf": rf, "rm": rm})
             db.commit()
         logger.info("Пересчёт company_metrics: %d компаний, Rf=%s Rm=%s", len(companies), rf, rm)
-        return {"companies": len(companies), "rf": rf, "rm": rm}
+        return {"companies": len(companies), "rf": rf, "rm": rm, "failed": failed}
     finally:
         db.close()
