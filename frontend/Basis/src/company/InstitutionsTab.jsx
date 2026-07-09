@@ -176,7 +176,7 @@ function buildTriggers(json) {
 }
 
 /* ── канал трансляции в оценку (WACC-премия / FCF-haircut / дисконт) ─────── */
-function Channel({ eyebrow, point, sign, unit, range, note }) {
+function Channel({ eyebrow, def, point, sign, unit, range, note }) {
   const big = range
     ? `${range.loStr}–${range.hiStr} ${unit}`
     : point == null ? "—" : `≈ ${sign}${fmtPt(Math.abs(point))} ${unit}`;
@@ -188,6 +188,7 @@ function Channel({ eyebrow, point, sign, unit, range, note }) {
     <div className="ichannel">
       <Tag type="est" className="ichannel-tag" />
       <div className="ichannel-eyebrow">{eyebrow}</div>
+      {def && <div className="ichannel-def">{def}</div>}
       <div className="ichannel-big">{big}</div>
       {range && (
         <div className="ichannel-track">
@@ -257,9 +258,9 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
 
   const ranges = parseChannelRanges(instJson?.data_flags);
   const channels = [
-    { key: "wacc", eyebrow: "Канал 1 · Премия к WACC", point: vt.wacc_premium_pp, sign: "+", unit: "п.п.", note: vt.wacc_premium_note, range: ranges.wacc },
-    { key: "fcf", eyebrow: "Канал 2 · Вычет из FCF", point: vt.fcf_haircut_pct, sign: "−", unit: "%", note: vt.fcf_haircut_note, range: ranges.fcf },
-    { key: "mult", eyebrow: "Канал 3 · Дисконт мультипликатора", point: vt.multiple_discount_pct, sign: "−", unit: "%", note: vt.multiple_discount_note, range: ranges.mult },
+    { key: "wacc", eyebrow: "Канал 1 · Премия к WACC", def: "растёт требуемая доходность инвестора", point: vt.wacc_premium_pp, sign: "+", unit: "п.п.", note: vt.wacc_premium_note, range: ranges.wacc },
+    { key: "fcf", eyebrow: "Канал 2 · Вычет из FCF", def: "меньше живых денег достаётся акционеру", point: vt.fcf_haircut_pct, sign: "−", unit: "%", note: vt.fcf_haircut_note, range: ranges.fcf },
+    { key: "mult", eyebrow: "Канал 3 · Дисконт мультипликатора", def: "рынок платит меньше за рубль прибыли", point: vt.multiple_discount_pct, sign: "−", unit: "%", note: vt.multiple_discount_note, range: ranges.mult },
   ];
   const hasChannels = channels.some((c) => c.point != null || c.range);
   const hasCalcDetail = vt.wacc_premium_note || vt.fcf_haircut_note || vt.multiple_discount_note || vt.anti_double_count_check;
@@ -299,6 +300,12 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
 
         {verdict && <p className="ihero-verdict">{verdict}</p>}
 
+        {attr.note && (
+          <div className="ihero-note">
+            <KeyTakeaway tone="info">{cleanText(attr.note)}</KeyTakeaway>
+          </div>
+        )}
+
         {hasChannels && (
           <div className="ichannels">
             {channels.map((c) => <Channel key={c.key} {...c} />)}
@@ -321,22 +328,21 @@ export default function InstitutionsTab({ instJson, instMd, onNavigateTab }) {
         )}
       </div>
 
-      {/* Слой 2 — что здесь от институтов, а не от рынка и цикла */}
-      {(ATTR5.length > 0 || attr.note) && (
+      {/* Слой 2 — что здесь от институтов, а не от рынка и цикла (итог-фраза
+          attr.note переехала в hero, сразу после вердикта — честный контекст
+          должен встречать читателя ДО трёх чисел, не после) */}
+      {ATTR5.length > 0 && (
         <div className="icard">
           <h3><Scale size={16} aria-hidden="true" />Что здесь от институтов, а не от рынка и цикла <Tag type="judg" /></h3>
           <p className="icard-sub">Причинная атрибуция по 5 каналам — не всё, что случилось с бумагой, объясняется институтами</p>
-          {ATTR5.length > 0 && (
-            <div className="iattr5">
-              {ATTR5.map((c) => (
-                <div className={`iof${c.acc ? " acc" : ""}`} key={c.key}>
-                  <div className="iofl">{c.label}</div>
-                  <div className="iofv">{shortProse(attr[c.key], 100)}</div>
-                </div>
-              ))}
-            </div>
-          )}
-          {attr.note && <KeyTakeaway tone="info">{cleanText(attr.note)}</KeyTakeaway>}
+          <div className="iattr5">
+            {ATTR5.map((c) => (
+              <div className={`iof${c.acc ? " acc" : ""}`} key={c.key}>
+                <div className="iofl">{c.label}</div>
+                <div className="iofv">{shortProse(attr[c.key], 100)}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
