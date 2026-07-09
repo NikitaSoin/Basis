@@ -187,9 +187,28 @@ def sync_forecast(db: Session) -> dict:
 
 # ОНДКП — «Основные направления единой государственной денежно-кредитной политики»,
 # годовой документ с полным набором сценариев (базовый + дезинфляционный +
-# проинфляционный + рисковый). Публикуется ~раз в год (обычно окт-ноя) — URL меняется
-# год от года (on_2026_2028 → on_2027_2029 и т.п.), ОБНОВЛЯТЬ при выходе новой версии.
+# проинфляционный + рисковый). ВАЖНО: HTML-страница (on_2026_2028/) — только обзорная
+# статья, реальные таблицы сценариев (Табл. 3.2-3.5) есть ТОЛЬКО в PDF, в разделе 3
+# (проверено: страницы ~70-88 из ~180, 0-индексация pypdf). Публикуется ~раз в год
+# (окт-ноя) — И URL HTML, И URL PDF меняются год от года, ОБНОВЛЯТЬ при новой версии.
 _ONDKP_URL = "https://www.cbr.ru/about_br/publ/ondkp/on_2026_2028/"
+_ONDKP_PDF_URL = "https://www.cbr.ru/Content/Document/File/180751/on_2026(2027-2028).pdf"
+_ONDKP_PDF_PAGES = (68, 88)  # диапазон [start, end) — весь «Раздел 3. Сценарии» с запасом
+
+
+def _ondkp_pdf_text() -> str | None:
+    try:
+        r = httpx.Client(timeout=60, headers=_HTTP, follow_redirects=True).get(_ONDKP_PDF_URL)
+        r.raise_for_status()
+        from pypdf import PdfReader
+        import io
+        reader = PdfReader(io.BytesIO(r.content))
+        lo, hi = _ONDKP_PDF_PAGES
+        parts = [reader.pages[i].extract_text() or "" for i in range(lo, min(hi, len(reader.pages)))]
+        return re.sub(r"\s+", " ", " ".join(parts)).strip() or None
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync: ОНДКП PDF недоступен/не распарсен: %s", type(e).__name__)
+        return None
 
 
 def _alt_scenarios_stale(db: Session, max_age_days: int = 300) -> bool:
@@ -205,13 +224,13 @@ def _alt_scenarios_stale(db: Session, max_age_days: int = 300) -> bool:
 
 def sync_forecast_annual(db: Session, force: bool = False) -> dict:
     """Альтернативные сценарии (дезинфляционный/проинфляционный/рисковый) из годового
-    документа ОНДКП. Дорогой парсинг большой HTML-страницы + LLM — гоняем редко
-    (staleness-gate), не на каждый ежедневный прогон."""
+    PDF ОНДКП (HTML-страница — не источник, см. _ONDKP_URL). Дорогой парсинг большого
+    PDF + LLM — гоняем редко (staleness-gate), не на каждый ежедневный прогон."""
     if not force and not _alt_scenarios_stale(db):
         return {"skipped": "not_stale"}
-    text = _fetch_text(_ONDKP_URL, limit=30000)
+    text = _ondkp_pdf_text()
     if not text:
-        return {"error": "ondkp page unavailable"}
+        return {"error": "ondkp pdf unavailable"}
     try:
         out = llm.complete(_FC_SYS, text, json_mode=True, max_tokens=4000)
     except llm.LLMError as e:
