@@ -248,4 +248,8 @@ class PortfolioMetricsResponse(BaseModel):
     rates: MarketRates | None = None
     benchmark: BenchmarkSeries | None = None
     quality: QualityIndex | None = None
+    # Индекс качества v2.1 Фаза 1 (docs/Basis_методика_индекса_качества_портфеля_v2.1.md) —
+    # живёт рядом со старым quality (v1), схема свободнее (dict) — субиндексы
+    # v2 несут доп. поля (coverage_note), которых нет в жёсткой QualityIndex.
+    quality_v2: dict | None = None
     risk_metrics_scope: str | None = None  # "equity_only" | "all" — честная граница риск-метрик

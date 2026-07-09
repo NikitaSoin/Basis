@@ -717,6 +717,18 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         alpha=portfolio_row.get("alpha"),
     )
 
+    # v2.1 (Фаза 1) — живёт РЯДОМ со старым quality (см. app/services/
+    # portfolio_quality_v2.py), не заменяет его до приёмки методики владельцем.
+    from app.services.portfolio_quality_v2 import compute_quality_index_v2
+    quality_v2 = compute_quality_index_v2(
+        db, positions=positions, total_value=total_value,
+        correlation=correlation, sector_allocation=sector_allocation,
+        volatility=portfolio_row["volatility"]["value"],
+        var_95=portfolio_row.get("var_95"),
+        max_drawdown=portfolio_row.get("max_drawdown"),
+        alpha=portfolio_row.get("alpha"),
+    )
+
     return {
         "positions": positions,
         "portfolio": portfolio_row,
@@ -727,6 +739,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "rates": rates,
         "benchmark": benchmark,
         "quality": quality,
+        "quality_v2": quality_v2,
         # Риск-метрики (волатильность/бета/Шарп/корреляции/кривая "если бы
         # держали") считаются ТОЛЬКО по equity-подпортфелю, честно перевзвешенному
         # среди самих акций — не по всему портфелю. Non-equity классы (облигации/
