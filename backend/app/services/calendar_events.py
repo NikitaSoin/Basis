@@ -217,25 +217,37 @@ def build_futures(db: Session) -> list[dict]:
     return out
 
 
+# ЦБ публикует график заседаний по ключевой ставке на год вперёд (обычно в декабре).
+# Опорные заседания (с публикацией среднесрочного прогноза) помечены отдельно.
+# Источник: https://cbr.ru/dkp/cal_mp/ — ОБНОВЛЯТЬ ЕЖЕГОДНО, когда публикуют график
+# следующего года (декабрь). Проверено веб-поиском 2026-07-09.
+_CB_RATE_SCHEDULE_2026 = [
+    ("2026-02-13", True), ("2026-03-20", False), ("2026-04-24", True),
+    ("2026-06-19", False), ("2026-07-24", True), ("2026-09-11", False),
+    ("2026-10-23", True), ("2026-12-18", False),
+]
+
+
 # ----------------------------- МАКРОРЕЛИЗЫ (ЦБ + ИПЦ) -----------------------------
 def build_macro(db: Session) -> list[dict]:
-    """Заседание ЦБ по ставке (из RateMeeting, авторитетная дата) + оценочный релиз ИПЦ."""
+    """Заседания ЦБ по ставке (весь известный график на год, не только ближайшее из
+    RateMeeting) + оценочный релиз ИПЦ."""
     out: list[dict] = []
     today = date.today()
-    try:
-        from app.models.macro import RateMeeting
-        m = (db.query(RateMeeting).order_by(RateMeeting.decision_date.desc()).first())
-        if m and m.next_meeting_date and m.next_meeting_date >= today:
-            out.append({
-                "event_type": "macro", "event_date": m.next_meeting_date, "event_time": "13:30",
-                "ticker": None, "sector": None,
-                "title": "Заседание ЦБ РФ по ключевой ставке", "status": "ожидается",
-                "source": "cbr", "source_url": "https://www.cbr.ru/dkp/",
-                "payload": {"kind": "cb_rate", "note": "Решение ~13:30, пресс-конференция ~15:00 МСК"},
-                "dedup_key": f"macro:cb_rate:{m.next_meeting_date.isoformat()}",
-            })
-    except Exception as e:  # noqa: BLE001
-        logger.warning("Календарь: макро-ЦБ не добавлено: %s", e)
+    for d_str, is_key in _CB_RATE_SCHEDULE_2026:
+        d = date.fromisoformat(d_str)
+        if d < today:
+            continue
+        title = "Заседание ЦБ РФ по ключевой ставке" + (" (опорное, с прогнозом)" if is_key else "")
+        out.append({
+            "event_type": "macro", "event_date": d, "event_time": "13:30",
+            "ticker": None, "sector": None,
+            "title": title, "status": "ожидается",
+            "source": "cbr", "source_url": "https://www.cbr.ru/dkp/cal_mp/",
+            "payload": {"kind": "cb_rate", "key_meeting": is_key,
+                       "note": "Решение ~13:30, пресс-конференция ~15:00 МСК"},
+            "dedup_key": f"macro:cb_rate:{d.isoformat()}",
+        })
     # Оценочный релиз месячной инфляции Росстата (~12-е число след. месяца).
     nm = (today.replace(day=1) + timedelta(days=32)).replace(day=12)
     out.append({
