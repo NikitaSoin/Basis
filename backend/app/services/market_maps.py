@@ -237,6 +237,64 @@ def heatmap_funds(db: Session) -> dict:
             "count": sum(len(s["tiles"]) for s in sectors)}
 
 
+def heatmap_bonds(db: Session) -> dict:
+    """Тепловая карта облигаций. Вес плитки — дневной торговый оборот
+    (instrument_history.value, ₽, последнее известное значение за 30 дней) — прокси
+    ликвидности, как у фондов/фьючерсов. Цвет — изменение цены (% от номинала) к
+    предыдущему торговому дню. ЧЕСТНОЕ ПОКРЫТИЕ: показываем только бумаги, у которых
+    реально есть данные хотя бы за один день из последних 30 (российский рынок
+    корпоративных облигаций объективно неоднородно ликвиден — многие выпуски не
+    торгуются каждый день, это не пробел загрузки, а свойство рынка); остальные — не
+    считаются нулём, просто не попадают на карту. Растёт по мере накопления истории
+    (ежедневный крон подхватывает РАЗНЫЕ бумаги в разные дни)."""
+    from app.models.bond import Bond
+    from app.models.company import Company
+    rows = (
+        db.query(Bond, Company.sector)
+        .outerjoin(Company, Company.ticker == Bond.issuer_ticker)
+        .all()
+    )
+    total_bonds = len(rows)
+    secids = [b.secid for b, _ in rows]
+    if not secids:
+        return {"map": "heatmap", "asset_class": "bonds", "sectors": [], "count": 0,
+                "coverage_pct": 0.0, "total_universe": 0}
+    hist = db.execute(text("""
+        SELECT DISTINCT ON (secid) secid, close, value,
+               LAG(close) OVER (PARTITION BY secid ORDER BY date) AS prev_close
+        FROM instrument_history
+        WHERE asset_class='bond' AND secid = ANY(:ids) AND date >= CURRENT_DATE - INTERVAL '30 days'
+        ORDER BY secid, date DESC
+    """), {"ids": secids}).all()
+    by_secid = {r.secid: r for r in hist}
+
+    by_sector: dict[str, list] = {}
+    for b, company_sector in rows:
+        h = by_secid.get(b.secid)
+        if h is None or h.value is None:
+            continue  # нет реальных данных об обороте — честно не рисуем плитку
+        change = None
+        if h.close is not None and h.prev_close:
+            change = round((float(h.close) / float(h.prev_close) - 1) * 100, 2)
+        if b.bond_type == "ofz":
+            sector = "Госдолг (ОФЗ)"
+        elif b.bond_type == "muni":
+            sector = "Муниципальные"
+        elif company_sector:
+            sector = company_sector
+        else:
+            sector = "Корпораты — прочие"
+        by_sector.setdefault(sector, []).append({
+            "ticker": b.secid, "name": b.short_name, "sector": sector,
+            "market_cap": float(h.value), "change_pct": change,
+        })
+    sectors = _pack_sectors(by_sector)
+    covered = sum(len(s["tiles"]) for s in sectors)
+    return {"map": "heatmap", "asset_class": "bonds", "sectors": sectors, "count": covered,
+            "coverage_pct": round(covered / total_bonds * 100, 1) if total_bonds else 0.0,
+            "total_universe": total_bonds}
+
+
 def spot_grid(db: Session) -> dict:
     """Валюта/металлы — курируемый набор из 6 инструментов, без treemap (слишком мало
     бумаг для осмысленной карты): плоский список с ценой и дневным изменением."""

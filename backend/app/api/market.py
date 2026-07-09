@@ -154,6 +154,15 @@ def market_valuation(portfolio_only: bool = False,
     return market_maps.valuation(db, tickers_filter=tickers)
 
 
+@router.get("/market/maps/heatmap/bonds")
+def market_heatmap_bonds(db: Session = Depends(get_db)):
+    """Тепловая карта облигаций: вес — дневной торговый оборот, цвет — изменение
+    цены. Честное покрытие — только бумаги с реальными данными об обороте за
+    последние 30 дней (см. coverage_pct/total_universe в ответе)."""
+    from app.services import market_maps
+    return market_maps.heatmap_bonds(db)
+
+
 @router.get("/market/maps/heatmap/futures")
 def market_heatmap_futures(db: Session = Depends(get_db)):
     """Тепловая карта фьючерсов: вес — условная стоимость открытых позиций
