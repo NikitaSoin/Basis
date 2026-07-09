@@ -233,18 +233,81 @@ def generate_overview_endpoint(
         raise HTTPException(status_code=500, detail=f"Ошибка генерации: {e}")
 
 
+def _compare_index_series(ticker: str, db: Session) -> dict:
+    """Фолбэк compare-asset для бенчмарк-индексов (IMOEX/MCFTR — ценовой vs
+    дивидендный; RTSI — долларовый) — для «своего конструктора» отношений
+    (напр. MCFTR ÷ LQDT), не только акции/фонды портфеля."""
+    from app.services.risk_metrics import window_start
+    from app.models.market import IndexHistory
+
+    since = window_start()
+    rows = (
+        db.query(IndexHistory.date, IndexHistory.close)
+        .filter(IndexHistory.ticker == ticker.upper(), IndexHistory.date >= since)
+        .order_by(IndexHistory.date)
+        .all()
+    )
+    if len(rows) < 2:
+        return {"ticker": ticker.upper(), "dates": [], "cum_pct": [], "total_pct": None,
+                "note": "недостаточно истории индекса"}
+    p0 = float(rows[0].close)
+    out_dates = [r.date.isoformat() for r in rows]
+    out_curve = [round((float(r.close) / p0 - 1) * 100, 2) for r in rows]
+    return {
+        "ticker": ticker.upper(), "name": ticker.upper(),
+        "dates": out_dates, "cum_pct": out_curve, "total_pct": out_curve[-1] if out_curve else None,
+    }
+
+
+def _compare_fund_series(ticker: str, db: Session) -> dict:
+    """Фолбэк compare-asset для фондов (SECID, не тикер компании) — по
+    instrument_history, цена пая без реконструкции дивидендов/распределений."""
+    from app.models.fund import Fund
+    from app.models.instrument import InstrumentHistory
+    from app.services.risk_metrics import window_start
+
+    fund = db.query(Fund).filter(Fund.secid == ticker.upper()).first()
+    if not fund:
+        raise HTTPException(status_code=404, detail=f"Тикер {ticker} не найден")
+
+    since = window_start()
+    rows = (
+        db.query(InstrumentHistory.date, InstrumentHistory.close)
+        .filter(InstrumentHistory.asset_class == "fund", InstrumentHistory.secid == ticker.upper(),
+                InstrumentHistory.date >= since, InstrumentHistory.close.isnot(None))
+        .order_by(InstrumentHistory.date)
+        .all()
+    )
+    if len(rows) < 2:
+        return {"ticker": ticker.upper(), "dates": [], "cum_pct": [], "total_pct": None,
+                "note": "недостаточно истории котировок"}
+    p0 = float(rows[0].close)
+    out_dates = [r.date.isoformat() for r in rows]
+    out_curve = [round((float(r.close) / p0 - 1) * 100, 2) for r in rows]
+    return {
+        "ticker": ticker.upper(), "name": fund.short_name,
+        "dates": out_dates, "cum_pct": out_curve, "total_pct": out_curve[-1] if out_curve else None,
+        "note": "цена пая, без учёта распределений — фонд как правило накопительный",
+    }
+
+
 @router.get("/market/compare-asset")
 def compare_asset_series(ticker: str, db: Session = Depends(get_db)):
     """Накопленная полная доходность (цена+дивиденды) произвольного тикера за
     стандартное окно (3 года) — для конструктора «+ Добавить сравнение» на
     вкладке «Сравнение» портфеля. Независим от портфеля: любая бумага с рынка,
-    как в прототипе ("не только из вашего портфеля")."""
+    как в прототипе ("не только из вашего портфеля"). Акции — из quotes (с
+    дивидендами); если тикер не акция, пробуем фонд (SECID) — по цене пая из
+    instrument_history (без реконструкции распределений — фонды почти все
+    накопительные, NAV уже отражает реинвест)."""
     from app.services.risk_metrics import load_price_series, normalize_splits, window_start
     from app.services.moex_dividends import load_dividends_map
 
     company = db.query(Company).filter(Company.ticker == ticker.upper()).first()
     if not company:
-        raise HTTPException(status_code=404, detail=f"Тикер {ticker} не найден")
+        if ticker.upper() in ("IMOEX", "RTSI", "MCFTR"):
+            return _compare_index_series(ticker, db)
+        return _compare_fund_series(ticker, db)
 
     since = window_start()
     series = load_price_series(db, company.id, since)
