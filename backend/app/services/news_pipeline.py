@@ -244,8 +244,14 @@ _FILTER_SYS = (
 _SUMMARY_SYS = (
     "По каждой новости верни: (1) summary — выжимка 2-3 предложения с КОНКРЕТНОЙ ФАКТУРОЙ из "
     "текста источника: суммы, числа, проценты, сроки/даты, кто именно (компания/ведомство/"
-    "страна), и СТАТУС события; (2) impact — 1-2 предложения «на что влияет»: какой рынок/"
-    "сектор/бумаги и через какой механизм.\n"
+    "страна), и СТАТУС события; (2) impact — «на что влияет».\n"
+    "ВАЖНО про глубину impact: у каждой новости передан importance (high/medium/low) — "
+    "УЖЕ решено фильтром важности, не переоценивай его. Для importance=\"high\" impact "
+    "делай РАЗВЁРНУТЫМ (2-4 предложения): назови КОНКРЕТНЫЙ механизм (через что именно "
+    "событие влияет — выручку, маржу, стоимость долга, курс, спрос), КОГО затрагивает "
+    "(конкретные бумаги/сектора, не общие слова) и ПОЧЕМУ это существенно именно сейчас "
+    "(масштаб/контекст), а не просто констатируй факт влияния. Для medium/low — как раньше, "
+    "1-2 сжатых предложения.\n"
     "СТАТУС события различай и называй явно, НЕ смешивай: «подписано/принято/вступает в силу» "
     "≠ «одобрено/рекомендовано» ≠ «обсуждается/на рассмотрении» ≠ «только заявлено/анонсировано» "
     "≠ «по данным СМИ/источников».\n"
@@ -331,9 +337,12 @@ def filter_importance(reps: list[dict], batch: int = 25) -> dict:
 
 
 def summarize(reps: list[dict], batch: int = 15) -> dict:
+    """reps должны нести importance (проставлено шагом фильтра, run_pipeline) —
+    от него зависит глубина impact (см. _SUMMARY_SYS)."""
     res = {}
     for ch in _chunks(reps, batch):
-        payload = {"news": [{"id": r["id"], "title": r["title"], "text": r["announce"]}
+        payload = {"news": [{"id": r["id"], "title": r["title"], "text": r["announce"],
+                             "importance": r.get("importance", "medium")}
                             for r in ch]}
         res.update(_llm_results(_SUMMARY_SYS, payload, max_tokens=8192))
     return res
@@ -464,6 +473,9 @@ def run_pipeline(db: Session) -> dict:
     if undecided:
         logger.warning("News: %d событий без решения фильтра (сбой LLM?) — будут переобработаны",
                        undecided)
+    # importance из шага фильтра — нужен summarize() для глубины impact
+    for r in kept:
+        r["importance"] = keep_map.get(r["id"], {}).get("importance", "medium")
 
     # Шаг 4 — выжимка + impact (только по прошедшим фильтр)
     sum_map = summarize(kept) if kept else {}

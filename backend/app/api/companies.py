@@ -531,6 +531,29 @@ async def get_geo_summary_md(ticker: str):
     )
 
 
+@router.get("/companies/by-ticker/{ticker}/institutions")
+async def get_institutions_json(ticker: str):
+    """Блок «Институты» (IRI): клановый патронаж, S1-S15, трёхканальная
+    институциональная поправка к оценке. Методика — docs/Институты_агенты.md,
+    docs/Институты_дополнение.md; заполняет institutional-company-analyst."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "institutions.json"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Institutions not found")
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+
+
+@router.get("/companies/by-ticker/{ticker}/institutions-summary", response_class=PlainTextResponse)
+async def get_institutions_summary_md(ticker: str):
+    """Текстовая интерпретация блока «Институты» (markdown)."""
+    path = COMPANIES_DIR / _safe(ticker).upper() / "institutions_summary.md"
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Institutions summary not found")
+    return PlainTextResponse(
+        content=path.read_text(encoding="utf-8"),
+        media_type="text/markdown; charset=utf-8",
+    )
+
+
 @router.get("/sectors/{sector_key}/peers")
 async def get_sector_peers(sector_key: str):
     """Сравнение конкурентов по сектору + данные для карт-координат."""

@@ -1,5 +1,6 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from anthropic import Anthropic
@@ -414,6 +415,22 @@ def market_geopolitics(portfolio_only: bool = False,
     for tab in out:
         out[tab].sort(key=lambda x: order.get(x["region"], 9))
     return {"tabs": out, "disclaimer": "Прогнозы — оценка Basis (сценарные, условные). Не является ИИР."}
+
+
+@router.get("/market/institutions")
+def market_institutions():
+    """Институциональная среда (Обозреватель): барометр M1-M13, карта власти/
+    кланов, активные сценарии и алерты. Методика — docs/Институты_агенты.md,
+    docs/Институты_дополнение.md; заполняет institutional-macro-analyst,
+    файл config/institutional_barometer.json (не пилотный per-company блок —
+    единый рыночный документ, обновляется отдельным прогоном)."""
+    import json as _json
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "config", "institutional_barometer.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
+    with open(path, encoding="utf-8") as f:
+        return JSONResponse(content=_json.load(f))
 
 
 @router.get("/market/geopolitics/{region}")
