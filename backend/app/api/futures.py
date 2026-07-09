@@ -123,16 +123,25 @@ def _row_to_dict(r) -> dict:
 @router.get("/futures")
 def list_futures(
     asset_kind: str | None = Query(None, description="currency|index|commodity|stock|rate|other"),
+    search: str | None = Query(None, description="поиск по SECID/названию (добавление в портфель)"),
     db: Session = Depends(get_db),
 ):
     """Список контрактов для раздела «Рынок» (сгруппирован по типу базового актива)."""
     q = "SELECT * FROM futures"
+    where = []
     params = {}
     if asset_kind:
-        q += " WHERE asset_kind = :k"
+        where.append("asset_kind = :k")
         params["k"] = asset_kind
+    if search:
+        where.append("(secid ILIKE :s OR short_name ILIKE :s OR asset_name ILIKE :s)")
+        params["s"] = f"%{search}%"
+    if where:
+        q += " WHERE " + " AND ".join(where)
     # по ликвидности (открытые позиции) внутри — чтобы ближние/живые были вверху
     q += " ORDER BY asset_kind, open_position DESC NULLS LAST"
+    if search:
+        q += " LIMIT 8"
     return [_row_to_dict(r) for r in db.execute(text(q), params)]
 
 

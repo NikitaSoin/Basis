@@ -351,15 +351,24 @@ def _risk_verdict(d: dict) -> str | None:
 @router.get("/bonds")
 def list_bonds(
     bond_type: str | None = Query(None, description="ofz | corporate"),
+    search: str | None = Query(None, description="поиск по SECID/названию/эмитенту (добавление в портфель)"),
     db: Session = Depends(get_db),
 ):
     """Список облигаций для раздела «Рынок» (по образцу списка акций)."""
     q = "SELECT * FROM bonds"
+    where = []
     params = {}
     if bond_type:
-        q += " WHERE bond_type = :t"
+        where.append("bond_type = :t")
         params["t"] = bond_type
+    if search:
+        where.append("(secid ILIKE :s OR short_name ILIKE :s OR issuer_name ILIKE :s)")
+        params["s"] = f"%{search}%"
+    if where:
+        q += " WHERE " + " AND ".join(where)
     q += " ORDER BY bond_type, risk_tier, ytm DESC NULLS LAST"
+    if search:
+        q += " LIMIT 8"
     return [_row_to_dict(r) for r in db.execute(text(q), params)]
 
 

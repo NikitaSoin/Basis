@@ -28,9 +28,17 @@ class PortfolioPosition(Base):
     portfolio_id: Mapped[int] = mapped_column(
         ForeignKey("portfolios.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    company_id: Mapped[int] = mapped_column(
-        ForeignKey("companies.id", ondelete="CASCADE"), nullable=False
+    # NULL для non-equity позиций (bond/future/fund/cash) — идентификатор
+    # тогда secid, метаданные класса в своей таблице (bonds/futures/funds).
+    company_id: Mapped[int | None] = mapped_column(
+        ForeignKey("companies.id", ondelete="CASCADE"), nullable=True
     )
+    # equity|bond|future|fund|cash. Значение quantity/avg_buy_price по типу:
+    # equity — акции/цена акции; bond — штуки/грязная цена ₽; future — контракты/
+    # цена в пунктах на момент покупки; fund — паи/цена пая; cash — сумма/1 (номинал).
+    instrument_type: Mapped[str] = mapped_column(String(10), nullable=False, default="equity")
+    secid: Mapped[str | None] = mapped_column(String(40), nullable=True)  # non-equity: ключ в bonds/futures/funds/instrument_history
+    currency: Mapped[str] = mapped_column(String(10), nullable=False, default="RUB")
     quantity: Mapped[Decimal] = mapped_column(Numeric(16, 4), nullable=False)
     avg_buy_price: Mapped[Decimal] = mapped_column(Numeric(12, 4), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

@@ -1,14 +1,37 @@
 from datetime import date, datetime
 from decimal import Decimal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+
+INSTRUMENT_TYPES = ("equity", "bond", "future", "fund", "cash")
 
 
 class PositionCreate(BaseModel):
-    company_id: int
+    company_id: int | None = None
+    instrument_type: str = Field(default="equity", pattern="^(equity|bond|future|fund|cash)$")
+    secid: str | None = None       # non-equity: SECID из bonds/futures/funds
+    currency: str = "RUB"
     # gt=0: позиция с нулём/минусом акций ломала расчёт долей и метрик —
     # такие значения отбрасываются на входе (защита в корне)
     quantity: Decimal = Field(gt=0)
     avg_buy_price: Decimal = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _check_instrument_reference(self) -> "PositionCreate":
+        if self.instrument_type == "equity":
+            if not self.company_id:
+                raise ValueError("equity-позиции нужен company_id")
+            self.secid = None
+        elif self.instrument_type == "cash":
+            # денежные средства — всегда номинал, avg_buy_price не имеет
+            # смысла (нет «цены покупки» у рубля), фиксируем на 1.
+            self.company_id = None
+            self.secid = None
+            self.avg_buy_price = Decimal("1")
+        else:  # bond | future | fund
+            if not self.secid:
+                raise ValueError(f"{self.instrument_type}-позиции нужен secid")
+            self.company_id = None
+        return self
 
 
 class PositionUpdate(BaseModel):
@@ -43,7 +66,10 @@ class TradeResponse(BaseModel):
 class PositionResponse(BaseModel):
     id: int
     portfolio_id: int
-    company_id: int
+    company_id: int | None
+    instrument_type: str = "equity"
+    secid: str | None = None
+    currency: str = "RUB"
     quantity: Decimal
     avg_buy_price: Decimal
     created_at: datetime
@@ -74,6 +100,8 @@ class PositionMetrics(BaseModel):
     ticker: str
     name: str
     company_id: int | None = None   # для перехода в карточку компании из портфеля
+    instrument_type: str = "equity"  # equity|bond|future|fund|cash
+    data_flag: str | None = None     # non-equity: почему value=None, если не удалось оценить
     sector: str
     value: float | None          # текущая стоимость позиции, ₽
     weight_pct: float | None     # доля в портфеле, %
@@ -214,3 +242,4 @@ class PortfolioMetricsResponse(BaseModel):
     rates: MarketRates | None = None
     benchmark: BenchmarkSeries | None = None
     quality: QualityIndex | None = None
+    risk_metrics_scope: str | None = None  # "equity_only" | "all" — честная граница риск-метрик

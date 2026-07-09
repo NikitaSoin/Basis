@@ -57,15 +57,24 @@ def _ter_in_money(ter: float | None) -> dict | None:
 @router.get("/funds")
 def list_funds(
     fund_type: str | None = Query(None),
+    search: str | None = Query(None, description="поиск по SECID/названию (добавление в портфель)"),
     db: Session = Depends(get_db),
 ):
     """Список фондов для раздела «Рынок» (группировка по типу)."""
     q = "SELECT * FROM funds"
+    where = []
     params = {}
     if fund_type:
-        q += " WHERE fund_type = :t"
+        where.append("fund_type = :t")
         params["t"] = fund_type
+    if search:
+        where.append("(secid ILIKE :s OR short_name ILIKE :s)")
+        params["s"] = f"%{search}%"
+    if where:
+        q += " WHERE " + " AND ".join(where)
     q += " ORDER BY fund_type, val_today DESC NULLS LAST"
+    if search:
+        q += " LIMIT 8"
     return [_row_to_dict(r) for r in db.execute(text(q), params)]
 
 

@@ -111,7 +111,7 @@ def compute_position_pnl(db: Session, portfolio_id: int, position_id: int, curre
     if not trades:
         return None
 
-    company = db.query(Company).filter(Company.id == position.company_id).first()
+    company = db.query(Company).filter(Company.id == position.company_id).first() if position.company_id else None
     ticker = company.ticker if company else None
 
     # Реплей: держим (дата → кол-во после сделки) для дивидендов + realized/комиссии
@@ -162,6 +162,13 @@ def compute_position_pnl(db: Session, portfolio_id: int, position_id: int, curre
     unrealized = None
     if current_price is not None and qty > 0:
         unrealized = qty * (Decimal(str(current_price)) - position.avg_buy_price)
+    elif position.instrument_type != "equity" and qty > 0:
+        # Non-equity: цену не запрашивают с фронта (там её взять неоткуда для
+        # облигации/фьючерса) — считаем сами по формуле класса актива.
+        from app.services.portfolio_instruments import compute_non_equity_pnl
+        pnl = compute_non_equity_pnl(db, position)
+        if pnl is not None:
+            unrealized = Decimal(str(pnl["unrealized_pnl"]))
 
     return {
         "realized": round(float(realized), 2),
@@ -343,16 +350,17 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     if not portfolio:
         return None
 
-    company_ids = [p.company_id for p in portfolio.positions]
-    if not company_ids:
+    equity_positions_raw = [p for p in portfolio.positions if p.instrument_type == "equity"]
+    non_equity_raw = [p for p in portfolio.positions if p.instrument_type != "equity"]
+    company_ids = [p.company_id for p in equity_positions_raw]
+    if not company_ids and not non_equity_raw:
         return {
             "positions": [], "portfolio": {}, "sector_allocation": [],
-            "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
-            "concentration": None, "correlation": None,
+            "asset_classes": [], "concentration": None, "correlation": None,
             "rates": {}, "benchmark": None,
         }
 
-    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()} if company_ids else {}
 
     # Последняя цена закрытия по каждой компании портфеля
     latest_sq = (
@@ -376,7 +384,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     }
 
     positions = []
-    for p in portfolio.positions:
+    for p in equity_positions_raw:
         c = companies.get(p.company_id)
         if not c:
             continue
@@ -423,7 +431,24 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "alpha_3y": float(m.alpha_3y) if m and m.alpha_3y is not None else None,
             "sortino_3y": float(m.sortino_3y) if m and m.sortino_3y is not None else None,
             "capm_expected": float(m.capm_expected) if m and m.capm_expected is not None else None,
+            "instrument_type": "equity",
         })
+
+    # Non-equity позиции (bond/future/fund/cash) — только текущая стоимость,
+    # БЕЗ риск-метрик (бета/волатильность/корреляции честно null — не
+    # посчитано, не «риска нет»). См. app/services/portfolio_instruments.py.
+    if non_equity_raw:
+        from app.services.portfolio_instruments import value_non_equity_positions
+        for row in value_non_equity_positions(db, non_equity_raw):
+            positions.append({
+                **{k: None for k in (
+                    "pe_current", "pe_historical", "div_yield", "volatility", "beta", "return_3y",
+                    "history_years", "beta_source", "r_squared", "downside_vol", "var_95",
+                    "earnings_yield", "return_total_3y", "alpha_3y", "sortino_3y", "capm_expected",
+                )},
+                "short_history": False,
+                **row,
+            })
 
     total_value = sum(p["value"] for p in positions if p["value"] is not None)
     for p in positions:
@@ -652,6 +677,21 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         key=lambda x: -x["value"],
     ) if total_value > 0 else []
 
+    # Классы активов — по факту instrument_type (акции/облигации/фьючерсы/
+    # фонды/денежные средства), не хардкод «100% акции».
+    ASSET_CLASS_NAME = {"equity": "Акции", "bond": "Облигации", "future": "Фьючерсы",
+                        "fund": "Фонды", "cash": "Денежные средства"}
+    by_class: dict[str, float] = {}
+    for p in valued:
+        by_class[p["instrument_type"]] = by_class.get(p["instrument_type"], 0.0) + p["value"]
+    asset_classes = sorted(
+        (
+            {"name": ASSET_CLASS_NAME.get(k, k), "share_pct": round(v / total_value * 100, 2)}
+            for k, v in by_class.items()
+        ),
+        key=lambda x: -x["share_pct"],
+    ) if total_value > 0 else []
+
     # Концентрация: крупнейшая позиция и топ-3 по стоимости
     concentration = None
     if total_value > 0 and valued:
@@ -677,14 +717,18 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         "positions": positions,
         "portfolio": portfolio_row,
         "sector_allocation": sector_allocation,
-        # Пока в модели только акции; блок готов принять облигации/фонды,
-        # когда позиции получат класс актива (отдельный трек).
-        "asset_classes": [{"name": "Акции", "share_pct": 100.0}],
+        "asset_classes": asset_classes,
         "concentration": concentration,
         "correlation": correlation,
         "rates": rates,
         "benchmark": benchmark,
         "quality": quality,
+        # Риск-метрики (волатильность/бета/Шарп/корреляции/кривая "если бы
+        # держали") считаются ТОЛЬКО по equity-подпортфелю, честно перевзвешенному
+        # среди самих акций — не по всему портфелю. Non-equity классы (облигации/
+        # фьючерсы/фонды/кэш) входят в стоимость/веса/секторное распределение
+        # выше, но не в эти цифры (для них пока нет истории доходности в модели).
+        "risk_metrics_scope": "equity_only" if non_equity_raw else "all",
     }
 
 
