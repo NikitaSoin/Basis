@@ -1580,6 +1580,44 @@
   box-shadow: 0 0 0 2px var(--obs-dc-copper);
 }
 
+/* Светлый вариант deep-card для блока «Оценка ситуации» в Макроэкономике —
+   в отличие от Геополитики (obs-deep-card, намеренно тёмная «премиум» карточка),
+   Макро должна выглядеть в едином светлом ряду с остальными блоками раздела. */
+.obs-macro-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  padding: 24px 28px;
+  max-width: 920px;
+  box-shadow: var(--shadow-sm);
+}
+
+.obs-macro-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.obs-macro-card h3 {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  line-height: 1.35;
+}
+
+.obs-macro-card p {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+
 /* =============================================================
    SCENARIO ROW — obs-scenario-*
    3-column base / bull / bear grid. Mirrors prototype .scenario-row.
