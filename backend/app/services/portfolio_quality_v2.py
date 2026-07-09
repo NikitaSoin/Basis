@@ -1,36 +1,57 @@
-"""Индекс качества портфеля v2.1 — ФАЗА 1 (рыночные модули, без новых LLM-задач).
+"""Индекс качества портфеля v2.1 — ФАЗА 1 + частичная ФАЗА 2 (методика
+docs/Basis_методика_индекса_качества_портфеля_v2.1.md, владелец, 2026-07-09).
 
-Методика: docs/Basis_методика_индекса_качества_портфеля_v2.1.md (владелец,
-2026-07-09). Реализована ТОЛЬКО Фаза 1 (раздел 15 методики):
-  - D  (Диверсификация) — IssuerD + SectorD + CorrD, БЕЗ FactorD (факторные
-    экспозиции компаний — Фаза 2, нужен код-маппер + субагент exposure-filler).
-  - MR (Рыночный риск) — σ + MDD + VaR95 дневной.
-  - L  (Ликвидность) — новый модуль, доля портфеля ликвидируемая ≤1 дня +
-    доля в неликвидных бумагах (спред — Фаза 3, нужен стакан).
-  - ERR — ТОЛЬКО исторический слой (альфа Дженсена); forward-слой требует
-    сценарной библиотеки (Фаза 3) — не считается.
-  FQ / V / MGI НЕ реализованы (нужны новые LLM-субагенты quality-scorer и
-  exposure-filler + сценарная библиотека — Фаза 2/3, отдельная задача).
+Реализовано:
+  - D   (Диверсификация) — IssuerD + SectorD + CorrD + FactorD (код-маппер
+    экспозиций из macro.json/geo.json effect_sign, §3.1-3.2).
+  - MR  (Рыночный риск) — σ + MDD + VaR95 дневной.
+  - FQ  (Фундаментальное качество) — ЧАСТИЧНО: FS (код из financials.json) +
+    Gov (governance.json scoring.overall_score). BM/MP/CA (бизнес-модель/
+    рыночная позиция/capital allocation) требуют нового LLM-субагента
+    quality-scorer — НЕ реализованы, FQ_p считается на доступных FS+Gov с
+    перенормировкой весов (честная деградация, не молчаливый ноль).
+  - V   (Запас прочности) — Confidence кодом (ширина коридора/расхождение
+    методов/data_quality) × Upside к fair_value_range.base → RAU.
+  - MGI (Сценарная устойчивость) — через общий факторный движок
+    (factor_engine.py): StressLoss + BearLoss по 4 сценариям (§3.3-3.4).
+  - ERR — исторический слой (альфа Дженсена) + форвардный слой (сценарная
+    ожидаемая доходность через тот же факторный движок, что MGI).
+  - L   (Ликвидность) — доля портфеля ликвидируемая ≤1 дня + доля в
+    неликвидных бумагах (спред — Фаза 3, нужен стакан).
 
-Живёт РЯДОМ со старым compute_quality_index (v1, App.js это поле "quality") —
-не заменяет его. Возвращает частичный Overall (раздел 15: "Overall
-помечается «частичный»", веса перенормированы на доступные модули) с явным
-methodology_version и бейджем фазы.
+Живёт РЯДОМ со старым compute_quality_index (v1, App.js поле "quality") —
+не заменяет его. Overall помечается частичным там, где модуль недоступен
+(веса перенормируются на доступные — раздел 15 методики).
 
 MVP-охват — раздел 12 методики: акции + кэш. Облигации/фьючерсы/фонды пока
 НЕ участвуют (не разбавляют — исключены из базы, а не считаются нулём).
 """
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
+from pathlib import Path
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.company import Quote
 from app.services.portfolio import _lin_score, _clamp01
+from app.services import factor_exposures, factor_engine
 
-METHODOLOGY_VERSION = "v2.1-phase1"
+METHODOLOGY_VERSION = "v2.1-phase2-partial"
+
+COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
+
+
+def _load_company_json(ticker: str, filename: str) -> dict | None:
+    path = COMPANIES_DIR / ticker.upper() / filename
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
 
 # Не-эмитентские "секторы", которые батч мульти-класса добавил в
 # sector_allocation (Денежные средства/Облигации/Фонды/Фьючерсы) — для
@@ -149,6 +170,228 @@ def _compute_liquidity(db: Session, equity_positions: list[dict], cash_value: fl
     }
 
 
+def _last(series: list | None):
+    if not series:
+        return None
+    return next((v for v in reversed(series) if v is not None), None)
+
+
+def _fs_score(ticker: str) -> float | None:
+    """FS — финансовая устойчивость, кодом из financials.json (методика §6.1).
+    Банки/страховые (ND/EBITDA неприменим) — не считается, «открытый пункт»
+    методики (раздел 18.7), честно исключается из FQ_p для этих компаний."""
+    fin = _load_company_json(ticker, "financials.json")
+    if not fin:
+        return None
+    if (fin.get("meta") or {}).get("profile") == "bank":
+        return None
+    bal = fin.get("balance_sheet") or {}
+    ratios = bal.get("ratios") or {}
+    inc = fin.get("income_statement") or {}
+    adj = fin.get("adjusted") or {}
+
+    nd_ebitda = _last(ratios.get("net_debt_ebitda"))
+    ebitda = _last(inc.get("ebitda"))
+    finance_costs = _last(inc.get("finance_costs"))
+    icr = (ebitda / finance_costs) if (ebitda is not None and finance_costs) else None
+    fcf = _last(adj.get("fcf_normalized"))
+    revenue = _last(inc.get("revenue"))
+    fcf_margin = (fcf / revenue * 100) if (fcf is not None and revenue) else None
+    st = _last(bal.get("short_term_debt"))
+    lt = _last(bal.get("long_term_debt"))
+    short_ratio = (st / (st + lt) * 100) if (st is not None and lt is not None and (st + lt) > 0) else None
+
+    parts = [
+        _lin_score(nd_ebitda, best=0.5, worst=4),
+        _lin_score(icr, best=8, worst=1.5),
+        _lin_score(fcf_margin, best=12, worst=0),
+        _lin_score(short_ratio, best=15, worst=60),
+    ]
+    parts = [p for p in parts if p is not None]
+    return round(sum(parts) / len(parts)) if parts else None
+
+
+def _gov_score(ticker: str) -> float | None:
+    gov = _load_company_json(ticker, "governance.json")
+    if not gov:
+        return None
+    overall = ((gov.get("scoring") or {}).get("overall_score"))
+    if overall is None:
+        return None
+    return _lin_score(overall, best=5, worst=1)  # шкала governance 1-5 → 0-100
+
+
+def _compute_fq(equity: list[dict]) -> dict | None:
+    """FQ_p — ЧАСТИЧНЫЙ (только FS 25% + Gov 20% из полных весов методики,
+    BM/MP/CA нужен quality-scorer — не реализован). Перенормировка на
+    доступные компоненты, штраф MultiWeakShare пока не считается (нужны
+    red_flags по ВСЕМ компонентам, часть которых недоступна)."""
+    FQ_SUB_WEIGHTS = {"fs": 0.25, "gov": 0.20}
+    total_w = sum(p["value"] for p in equity)
+    if total_w <= 0:
+        return None
+    num, covered_w = 0.0, 0.0
+    per_company = []
+    for p in equity:
+        fs = _fs_score(p["ticker"])
+        gov = _gov_score(p["ticker"])
+        parts = [(k, s) for k, s in (("fs", fs), ("gov", gov)) if s is not None]
+        if not parts:
+            continue
+        den = sum(FQ_SUB_WEIGHTS[k] for k, _ in parts)
+        company_fq = sum(FQ_SUB_WEIGHTS[k] * s for k, s in parts) / den
+        num += p["value"] * company_fq
+        covered_w += p["value"]
+        per_company.append({"ticker": p["ticker"], "fs": fs, "gov": gov, "fq": round(company_fq)})
+    if covered_w <= 0:
+        return None
+    fq_p = round(num / covered_w)
+    coverage_pct = round(covered_w / total_w * 100)
+    fs_vals = [c["fs"] for c in per_company if c.get("fs") is not None]
+    gov_vals = [c["gov"] for c in per_company if c.get("gov") is not None]
+    fs_avg = round(sum(fs_vals) / len(fs_vals)) if fs_vals else None
+    gov_avg = round(sum(gov_vals) / len(gov_vals)) if gov_vals else None
+    return {
+        "key": "fundamental_quality_v2", "label": "Фундаментальное качество", "score": fq_p,
+        "confidence": "оценка + суждение",
+        "coverage_note": f"ЧАСТИЧНЫЙ: только финансовая устойчивость (FS) и управление (Gov) — "
+                         f"25%+20% из полных весов методики. Бизнес-модель/рыночная позиция/"
+                         f"capital allocation (BM/MP/CA, 55% веса FQ) требуют LLM-субагента "
+                         f"quality-scorer — не реализованы. Покрытие: {coverage_pct}% стоимости акций.",
+        "components": [
+            {"name": "Финансовая устойчивость (ND/EBITDA, покрытие процентов, FCF-маржа, срочность долга)",
+             "value": f"{fs_avg}" if fs_avg is not None else "—", "score": fs_avg},
+            {"name": "Корпоративное управление (governance-балл)",
+             "value": f"{gov_avg}" if gov_avg is not None else "—", "score": gov_avg},
+        ],
+        "verdict": (
+            "По доступным данным (устойчивость баланса + управление) портфель держит качественные компании."
+            if fq_p >= 60 else
+            "Смешанная картина по устойчивости баланса и управлению — не все компании одинаково крепки."
+            if fq_p >= 40 else
+            "По доступным данным заметная доля портфеля — компании с повышенным долговым риском и/или слабым управлением."
+        ),
+        "per_company": per_company,
+    }
+
+
+def _v_confidence(fv: dict, divergence_pct: float | None, data_quality: str | None) -> float:
+    """Confidence кодом (методика §7, произвол): старт 0.9, штрафы за ширину
+    коридора/расхождение методов/data_quality, пол 0.2."""
+    conf = 0.9
+    cons, base = fv.get("conservative"), fv.get("base")
+    if cons is not None and base:
+        width_pct = abs(base - cons) / abs(base) * 100
+        if width_pct > 50:
+            conf -= 0.45
+        elif width_pct > 30:
+            conf -= 0.30
+        elif width_pct > 15:
+            conf -= 0.15
+    if divergence_pct is not None and divergence_pct > 30:
+        conf -= 0.15
+    dq_penalty = {"high": 0.0, "medium": 0.10, "low": 0.25}.get((data_quality or "").lower(), 0.10)
+    conf -= dq_penalty
+    return max(0.2, conf)
+
+
+def _compute_v(equity: list[dict]) -> dict | None:
+    """V — запас прочности. RAU(i) = Upside_base × Confidence; PortfolioRAU —
+    взвешенное среднее по покрытым (методика §7)."""
+    total_w = sum(p["value"] for p in equity)
+    if total_w <= 0:
+        return None
+    num, covered_w = 0.0, 0.0
+    for p in equity:
+        fin = _load_company_json(p["ticker"], "financials.json")
+        if not fin:
+            continue
+        fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
+        base, price = fv.get("base"), fv.get("current_price")
+        if base is None or not price:
+            continue
+        upside = (base - price) / price
+        methods = (fin.get("valuation") or {}).get("methods") or []
+        vals = [m.get("fair_value_per_share") for m in methods if isinstance(m.get("fair_value_per_share"), (int, float))]
+        divergence_pct = ((max(vals) - min(vals)) / base * 100) if len(vals) >= 2 and base else None
+        data_quality = (fin.get("meta") or {}).get("data_quality")
+        confidence = _v_confidence(fv, divergence_pct, data_quality)
+        rau = upside * confidence
+        num += p["value"] * rau
+        covered_w += p["value"]
+    if covered_w <= 0:
+        return None
+    portfolio_rau = num / covered_w
+    v_score = _lin_score(portfolio_rau * 100, best=25, worst=-10)
+    if v_score is None:
+        return None
+    coverage_pct = round(covered_w / total_w * 100)
+    return {
+        "key": "value_v2", "label": "Запас прочности", "score": v_score,
+        "confidence": "суждение",
+        "coverage_note": f"Покрытие: {coverage_pct}% стоимости акций (модельная справедливая цена доступна не по всем компаниям).",
+        "components": [
+            {"name": "Взвешенный апсайд к справедливой цене × уверенность в оценке",
+             "value": f"{portfolio_rau*100:+.1f}%", "score": v_score},
+        ],
+        "verdict": (
+            "В среднем портфель куплен с запасом прочности к модельной справедливой цене."
+            if v_score >= 60 else
+            "Портфель в среднем близок к справедливой цене — запас прочности умеренный."
+            if v_score >= 40 else
+            "В среднем портфель куплен дороже модельной справедливой цены — запаса прочности нет."
+        ),
+        "limitation": "Модельная оценка Basis (не факт, не таргет аналитиков). Апсайд — не годовая доходность "
+                      "сама по себе (см. ERR — там премия соотнесена со сроком и риском).",
+    }
+
+
+def _compute_mgi(weights_eq: dict[str, float]) -> dict | None:
+    """MGI — сценарная устойчивость через общий факторный движок (методика §8)."""
+    losses = factor_engine.portfolio_scenario_losses(weights_eq)
+    if not losses:
+        return None
+    stress_loss = (losses.get("stress") or {}).get("loss_pct")
+    bear_loss = (losses.get("bear") or {}).get("loss_pct")
+    stress_score = _lin_score(stress_loss, best=10, worst=40)
+    bear_score = _lin_score(bear_loss, best=5, worst=25)
+    parts = [(0.60, stress_score), (0.40, bear_score)]
+    parts = [(w, s) for w, s in parts if s is not None]
+    if not parts:
+        return None
+    den = sum(w for w, _ in parts)
+    mgi_score = round(sum(w * s for w, s in parts) / den)
+    coverage_pct = (losses.get("stress") or {}).get("coverage_pct")
+    return {
+        "key": "mgi_v2", "label": "Сценарная устойчивость", "score": mgi_score,
+        "confidence": "суждение",
+        "coverage_note": f"Сценарная библиотека Basis (§3.3 методики): база 55% / бычий 15% / медвежий 25% / "
+                         f"стрессовый 5%. Покрытие факторными данными: {coverage_pct}% стоимости акций.",
+        "components": [
+            c for c in [
+                {"name": "Потери в стрессовом сценарии (эскалация + санкции + просадка сырья/ставки)",
+                 "value": f"{stress_loss:.1f}%" if stress_loss is not None else "—", "score": stress_score},
+                {"name": "Потери в медвежьем сценарии (ставка выше дольше, слабый спрос/сырьё)",
+                 "value": f"{bear_loss:.1f}%" if bear_loss is not None else "—", "score": bear_score},
+            ] if c["score"] is not None
+        ],
+        "verdict": (
+            "Портфель относительно устойчив к плохим макро/гео-сценариям."
+            if mgi_score >= 60 else
+            "Заметные потери в плохих сценариях — портфель чувствителен к ставке/санкциям/сырью."
+            if mgi_score >= 40 else
+            "Портфель тяжело переносит стрессовые сценарии — концентрация в уязвимых к ставке/санкциям/сырью факторах."
+        ),
+        "limitation": "Грубая линейная модель (сценарная реакция = экспозиция × интенсивность), явно помечена "
+                      "методикой как суждение, не прогноз. Экспозиции берутся из карточек компаний (macro.json/"
+                      "geo.json) — это снимок ТЕКУЩЕГО тренда фактора («цена сырья сейчас давит»/«помогает»), "
+                      "не всегда чистая структурная бета к уровню фактора; для части компаний может расходиться "
+                      "со здравым смыслом («сырьевик страдает от низкой цены» — это верно только если фактор "
+                      "интерпретируется как «текущее давление», не «структурная любовь к высокой цене»). "
+                      "Вероятности сценариев — центральный домашний взгляд Basis, не консенсус рынка.",
+    }
+
+
 def compute_quality_index_v2(
     db: Session, *,
     positions: list[dict], total_value: float,
@@ -173,33 +416,55 @@ def compute_quality_index_v2(
 
     subindices = []
 
-    # ── D (частично: без FactorD — Фаза 2) ──
+    # ── D: IssuerD + SectorD + CorrD + FactorD ──
     weights_eq = {p["ticker"]: p["value"] for p in equity}
     issuer_score = _lin_score(_n_eff(list(weights_eq.values())), best=8, worst=1)
     sector_score = _lin_score(_sector_n_eff(sector_allocation), best=5, worst=1)
     weighted_corr = _weighted_corr_normalized(correlation, weights_eq)
     corr_score = _lin_score(weighted_corr, best=0.2, worst=0.7)
-    D_WEIGHTS = {"issuer": 0.30, "sector": 0.20, "corr": 0.25}
-    d_parts = [(k, s) for k, s in (("issuer", issuer_score), ("sector", sector_score), ("corr", corr_score)) if s is not None]
+
+    exp_data = factor_exposures.get_portfolio_exposures(weights_eq)
+    factor_conc_score, factor_conc_pct, factor_conc_label = None, None, None
+    if exp_data.get("per_company"):
+        tot_eq = sum(weights_eq.values())
+        neg_shares = {}
+        for k in factor_exposures.FACTOR_KEYS:
+            neg_w = sum(w for t, w in weights_eq.items()
+                       if (exp_data["per_company"].get(t, {}).get(k) or 0) <= -1)
+            neg_shares[k] = neg_w / tot_eq if tot_eq else 0
+        if neg_shares:
+            factor_conc_label = max(neg_shares, key=neg_shares.get)
+            factor_conc_pct = neg_shares[factor_conc_label] * 100
+            factor_conc_score = _lin_score(factor_conc_pct, best=25, worst=75)
+
+    D_WEIGHTS = {"issuer": 0.30, "sector": 0.20, "corr": 0.25, "factor": 0.25}
+    d_parts = [(k, s) for k, s in (("issuer", issuer_score), ("sector", sector_score),
+                                    ("corr", corr_score), ("factor", factor_conc_score)) if s is not None]
     if d_parts:
         den = sum(D_WEIGHTS[k] for k, _ in d_parts)
         d_score = round(sum(D_WEIGHTS[k] * s for k, s in d_parts) / den)
+        d_components = [
+            c for c in [
+                {"name": "Эффективное число эмитентов", "value": f"{_n_eff(list(weights_eq.values())):.1f}" if issuer_score is not None else "—", "score": issuer_score},
+                {"name": "Эффективное число секторов", "value": f"{_sector_n_eff(sector_allocation):.1f}" if sector_score is not None else "—", "score": sector_score},
+                {"name": "Взвешенная корреляция (нормированная)", "value": f"{weighted_corr:.2f}" if weighted_corr is not None else "—", "score": corr_score},
+            ] if c["score"] is not None
+        ]
+        if factor_conc_score is not None:
+            d_components.append({
+                "name": f"Концентрация по фактору «{factor_exposures.FACTOR_LABELS.get(factor_conc_label, factor_conc_label)}» (доля с выраженной негативной чувствительностью)",
+                "value": f"{factor_conc_pct:.0f}%", "score": factor_conc_score,
+            })
         subindices.append({
             "key": "diversification_v2", "label": "Диверсификация", "score": d_score,
-            "confidence": "факт", "coverage_note": "без факторной концентрации (FactorD) — Фаза 2 методики",
-            "components": [
-                c for c in [
-                    {"name": "Эффективное число эмитентов", "value": f"{_n_eff(list(weights_eq.values())):.1f}" if issuer_score is not None else "—", "score": issuer_score},
-                    {"name": "Эффективное число секторов", "value": f"{_sector_n_eff(sector_allocation):.1f}" if sector_score is not None else "—", "score": sector_score},
-                    {"name": "Взвешенная корреляция (нормированная)", "value": f"{weighted_corr:.2f}" if weighted_corr is not None else "—", "score": corr_score},
-                ] if c["score"] is not None
-            ],
+            "confidence": "факт (+суждение в факторной концентрации)",
+            "components": d_components,
             "verdict": (
-                "Капитал разложен по разным эмитентам и секторам, бумаги слабо коррелируют."
+                "Капитал разложен по разным эмитентам, секторам и факторам риска, бумаги слабо коррелируют."
                 if d_score >= 60 else
-                "Часть капитала сконцентрирована — в узком круге эмитентов, секторе или бумагах, которые двигаются вместе."
+                "Часть капитала сконцентрирована — в узком круге эмитентов, секторе, факторе риска или бумагах, которые двигаются вместе."
                 if d_score >= 40 else
-                "Сильная концентрация: узкий круг эмитентов/секторов, высокая взаимная корреляция — просадки придут одновременно."
+                "Сильная концентрация: узкий круг эмитентов/секторов/факторов риска, высокая взаимная корреляция — просадки придут одновременно."
             ),
         })
 
@@ -233,22 +498,75 @@ def compute_quality_index_v2(
             "limitation": "Рыночный риск (волатильность/просадка/VaR). Сценарный «хвостовой» риск (макро/гео-шоки) сюда не входит — модуль MGI методики, Фаза 3.",
         })
 
-    # ── ERR: только исторический слой (альфа Дженсена к MCFTR) ──
-    err_score = _lin_score(alpha, best=6, worst=-6)
-    if err_score is not None:
+    # ── ERR: исторический слой (альфа Дженсена) + форвардный (сценарная премия/StressLoss) ──
+    hist_score = _lin_score(alpha, best=6, worst=-6)
+
+    fwd_score, fwd_note = None, None
+    from app.services.moex_dividends import get_market_param
+    rf_row = get_market_param(db, "risk_free_1y")
+    rf = rf_row[0] / 100 if rf_row else None
+    upside_by_ticker, div_by_ticker = {}, {}
+    for p in equity:
+        fin = _load_company_json(p["ticker"], "financials.json")
+        if fin:
+            fv = (fin.get("valuation") or {}).get("fair_value_range") or {}
+            base, price = fv.get("base"), fv.get("current_price")
+            if base is not None and price:
+                upside_by_ticker[p["ticker"]] = (base - price) / price
+        gov = _load_company_json(p["ticker"], "governance.json")
+        if gov:
+            hist_div = ((gov.get("dividends") or {}).get("history") or [])
+            last = hist_div[-1] if hist_div else None
+            if last and last.get("yield_pct") is not None:
+                div_by_ticker[p["ticker"]] = last["yield_pct"] / 100
+    if rf is not None and upside_by_ticker:
+        fwd = factor_engine.expected_scenario_return(weights_eq, upside_by_ticker, div_by_ticker)
+        losses = factor_engine.portfolio_scenario_losses(weights_eq)
+        stress_loss_frac = ((losses.get("stress") or {}).get("loss_pct") or 0) / 100
+        if fwd.get("expected") is not None and stress_loss_frac > 0:
+            risk_premium = fwd["expected"] - rf
+            reward_to_risk = risk_premium / stress_loss_frac
+            fwd_score = _lin_score(reward_to_risk, best=0.6, worst=0)
+            fwd_note = {"expected_return": fwd["expected"], "risk_premium": risk_premium,
+                       "reward_to_risk": reward_to_risk, "stress_loss": stress_loss_frac}
+
+    ERR_WEIGHTS = {"hist": 0.30, "fwd": 0.70}
+    err_parts = [(k, s) for k, s in (("hist", hist_score), ("fwd", fwd_score)) if s is not None]
+    if err_parts:
+        den = sum(ERR_WEIGHTS[k] for k, _ in err_parts)
+        err_score = round(sum(ERR_WEIGHTS[k] * s for k, s in err_parts) / den)
+        err_components = [{"name": "Альфа Дженсена (к MCFTR, истор.)", "value": f"{alpha:+.1f}%", "score": hist_score}] if hist_score is not None else []
+        if fwd_score is not None and fwd_note:
+            err_components.append({
+                "name": "Сценарная премия к риск-фри / стресс-потеря (форвард)",
+                "value": f"{fwd_note['risk_premium']*100:+.1f}пп / {fwd_note['stress_loss']*100:.1f}%",
+                "score": fwd_score,
+            })
         subindices.append({
-            "key": "err_hist_v2", "label": "Доходность к риску (истор.)", "score": err_score,
-            "confidence": "оценка",
-            "components": [{"name": "Альфа Дженсена (к MCFTR)", "value": f"{alpha:+.1f}%", "score": err_score}],
+            "key": "err_v2", "label": "Доходность к риску", "score": err_score,
+            "confidence": "оценка + суждение",
+            "coverage_note": None if fwd_score is not None else "только исторический слой — нет данных по справедливой цене/риск-фри ставке для форвардного слоя",
+            "components": err_components,
             "verdict": (
-                "Портфель исторически обгонял рынок за свой уровень риска."
+                "Ожидаемая премия за риск оправдывает потенциальный ущерб в плохих сценариях."
                 if err_score >= 60 else
-                "Портфель шёл примерно вровень с рынком за свой риск."
+                "Премия за риск умеренная относительно возможного ущерба в плохих сценариях."
                 if err_score >= 40 else
-                "За свой уровень риска портфель отставал от рынка."
+                "Премия за риск не компенсирует возможный ущерб в плохих сценариях."
             ),
-            "limitation": "Только исторический слой (факт прошлого). Форвардная ожидаемая доходность к риску (сценарная премия/потеря) — Фаза 3 методики, не считается.",
+            "limitation": "Форвардный слой — грубая линейная сценарная модель (тот же движок, что MGI), явно суждение, не прогноз.",
         })
+
+    # ── FQ, V, MGI ──
+    fq = _compute_fq(equity)
+    if fq is not None:
+        subindices.append(fq)
+    v = _compute_v(equity)
+    if v is not None:
+        subindices.append(v)
+    mgi = _compute_mgi(weights_eq)
+    if mgi is not None:
+        subindices.append(mgi)
 
     # ── L: ликвидность ──
     liquidity = _compute_liquidity(db, equity, cash_value, total_value)
@@ -258,9 +576,12 @@ def compute_quality_index_v2(
     if not subindices:
         return None
 
-    # Overall — переразвешено на ДОСТУПНЫЕ Фазе-1 модули (полные веса методики:
-    # D 20% / MR 15% / ERR 10% / L 5% = 50% суммы; FQ/V/MGI недоступны — Фаза 2/3)
-    OVERALL_WEIGHTS = {"diversification_v2": 0.20, "market_risk_v2": 0.15, "err_hist_v2": 0.10, "liquidity": 0.05}
+    # Overall — переразвешено на ДОСТУПНЫЕ модули (полные веса методики §2:
+    # D 20% / MR 15% / FQ 20% / V 15% / MGI 15% / ERR 10% / L 5%)
+    OVERALL_WEIGHTS = {
+        "diversification_v2": 0.20, "market_risk_v2": 0.15, "fundamental_quality_v2": 0.20,
+        "value_v2": 0.15, "mgi_v2": 0.15, "err_v2": 0.10, "liquidity": 0.05,
+    }
     num = sum(OVERALL_WEIGHTS[s["key"]] * s["score"] for s in subindices)
     den = sum(OVERALL_WEIGHTS[s["key"]] for s in subindices)
     overall = round(num / den) if den else None
@@ -272,11 +593,13 @@ def compute_quality_index_v2(
         "weights": {s["key"]: OVERALL_WEIGHTS[s["key"]] for s in subindices},
         "methodology_version": METHODOLOGY_VERSION,
         "phase_note": (
-            "Фаза 1 методики v2.1 — частичный индекс: реализованы только рыночные модули "
-            "(Диверсификация без факторной концентрации, Рыночный риск, Ликвидность, "
-            "Доходность к риску — только исторический слой). Фундаментальное качество компаний, "
-            "запас прочности к справедливой цене, сценарная устойчивость и форвардная доходность "
-            "к риску требуют новых аналитических субагентов — следующая фаза, пока не реализованы."
+            "Все 7 модулей методики v2.1 считаются, но «Фундаментальное качество» — ЧАСТИЧНО: "
+            "реализованы только финансовая устойчивость (код) и корпоративное управление "
+            "(уже готовый governance-балл) — 45% из полного веса модуля. Бизнес-модель, "
+            "рыночная позиция и capital allocation (BM/MP/CA, 55% веса) требуют нового "
+            "LLM-субагента quality-scorer с откалиброванными эталонами — не реализованы, "
+            "следующая фаза. Сценарная устойчивость и форвардная доходность — по грубой "
+            "линейной факторной модели (явно суждение, не прогноз), см. лимитации модулей."
         ),
         "note": "Якоря и веса — продуктовое решение (произвол), калибруются после первых прогонов "
                 "на реальных портфелях — docs/Basis_методика_индекса_качества_портфеля_v2.1.md.",
