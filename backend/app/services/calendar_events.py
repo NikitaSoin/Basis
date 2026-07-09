@@ -261,6 +261,119 @@ def build_macro(db: Session) -> list[dict]:
     return out
 
 
+# ----------------------------- РОССТАТ: график анонсов (реальные даты) -----------------------------
+_ROSSTAT_ANNOUNCEMENTS = "https://rosstat.gov.ru/announcements"
+
+
+def build_rosstat_releases(db: Session) -> list[dict]:
+    """Реальный график публикаций Росстата (ИПЦ/ИЦП/ВВП/безработица/зарплата и т.д.) —
+    НЕ оценка формулой (как build_macro.cpi выше), а факт из официального графика
+    на весь текущий период. Страница отдаёт HTML-таблицу с прямыми ссылками вида
+    .../N_DD-MM-YYYY.html — дата публикации зашита в href, надёжнее парсинга русских
+    названий месяцев текстом. TLS-сертификат сайта не проходит стандартную проверку
+    (не WAF, просто неполная цепочка) — verify=False, как для других обходных путей
+    Rosstat в проекте."""
+    import re
+    import httpx
+    out: list[dict] = []
+    today = date.today()
+    try:
+        r = httpx.get(_ROSSTAT_ANNOUNCEMENTS, timeout=30, verify=False,
+                      headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Календарь Росстата: страница недоступна: %s", type(e).__name__)
+        return out
+    for table in re.findall(r"<table>(.*?)</table>", html, re.S):
+        for row in re.findall(r"<tr[^>]*>(.*?)</tr>", table, re.S):
+            tds = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
+            if len(tds) != 3:
+                continue
+            title_td = tds[1]
+            m = re.search(r"_(\d{2})-(\d{2})-(\d{4})\.html", title_td)
+            if not m:
+                continue
+            dd, mo, yyyy = m.groups()
+            try:
+                ev_date = date(int(yyyy), int(mo), int(dd))
+            except ValueError:
+                continue
+            if ev_date < today - timedelta(days=1):
+                continue  # прошедшее — не засоряем календарь
+            title = re.sub(r"<[^>]+>", " ", title_td)
+            title = title.replace("&nbsp;", " ")
+            title = re.sub(r"\s+", " ", title).strip()
+            if not title:
+                continue
+            href_m = re.search(r'href="([^"]+)"', title_td)
+            src_url = ("https://rosstat.gov.ru" + href_m.group(1)) if href_m else _ROSSTAT_ANNOUNCEMENTS
+            out.append({
+                "event_type": "macro", "event_date": ev_date, "event_time": None,
+                "ticker": None, "sector": None,
+                "title": title[:300], "status": "ожидается",
+                "source": "rosstat", "source_url": src_url,
+                "payload": {"kind": "rosstat_release"},
+                "dedup_key": f"macro:rosstat:{ev_date.isoformat()}:{title[:60]}",
+            })
+    logger.info("Календарь Росстата: %d публикаций", len(out))
+    return out
+
+
+# ----------------------------- ЦБ: календарь публикации статистики (.ics) -----------------------------
+_CB_INDCALENDAR_PAGE = "https://www.cbr.ru/statistics/indcalendar/"
+
+
+def build_cb_indcalendar(db: Session) -> list[dict]:
+    """Календарь БУДУЩИХ публикаций статистики ЦБ (платёжный баланс, денежная база,
+    международные резервы и т.п.) — НЕ пересекается с macro_cb_sync.py (тот тянет
+    текст решений/прогноза по ставке через LLM). Источник — .ics с cbr.ru, ссылка на
+    актуальный файл берётся с html-страницы динамически (numeric id в пути меняется
+    при обновлении файла на стороне ЦБ, поэтому не хардкодим URL)."""
+    import re
+    import httpx
+    out: list[dict] = []
+    today = date.today()
+    try:
+        page = httpx.get(_CB_INDCALENDAR_PAGE, timeout=30).text
+        m = re.search(r'href="(/Queries/FileSource/\d+/vCalendar\.ics[^"]*)"', page)
+        if not m:
+            logger.warning("Календарь ЦБ (.ics): ссылка на файл не найдена на странице")
+            return out
+        ics_url = "https://www.cbr.ru" + m.group(1)
+        ics = httpx.get(ics_url, timeout=30).text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Календарь ЦБ (.ics): недоступен: %s", type(e).__name__)
+        return out
+    # VEVENT-блоки; DTSTART:YYYYMMDDT... (иногда с продолжением строки через таб —
+    # RFC5545 folding, склеиваем перед парсингом), SUMMARY;LANGUAGE=ru:<текст>
+    ics_unfolded = re.sub(r"\r?\n[ \t]", "", ics)
+    for block in re.findall(r"BEGIN:VEVENT(.*?)END:VEVENT", ics_unfolded, re.S):
+        dm = re.search(r"DTSTART:(\d{4})(\d{2})(\d{2})", block)
+        sm = re.search(r"SUMMARY;LANGUAGE=ru:(.+?)(?:\n\S|\Z)", block, re.S)
+        if not dm or not sm:
+            continue
+        try:
+            ev_date = date(int(dm.group(1)), int(dm.group(2)), int(dm.group(3)))
+        except ValueError:
+            continue
+        if ev_date < today:
+            continue
+        title = re.sub(r"\s+", " ", sm.group(1)).strip()
+        if not title:
+            continue
+        out.append({
+            "event_type": "macro", "event_date": ev_date, "event_time": None,
+            "ticker": None, "sector": None,
+            "title": title[:300], "status": "ожидается",
+            "source": "cbr_indcalendar", "source_url": _CB_INDCALENDAR_PAGE,
+            "payload": {"kind": "cbr_stat_release"},
+            "dedup_key": f"macro:cbr_stat:{ev_date.isoformat()}:{title[:60]}",
+        })
+    logger.info("Календарь ЦБ (.ics): %d публикаций", len(out))
+    return out[:400]  # предохранитель — 742 события в источнике на 1.5 года вперёд, не нужно всё разом
+
+
 # ----------------------------- IPO (из Ленты) -----------------------------
 def build_ipo(db: Session) -> list[dict]:
     """IPO/размещения из анонсов Ленты (best-effort по ключевым словам). Пусто — норма."""
@@ -379,6 +492,14 @@ def refresh_all(db: Session, with_dividends: bool = True) -> dict:
         res["macro"] = _upsert(db, build_macro(db))
     except Exception as e:  # noqa: BLE001
         logger.exception("Календарь macro: %s", e); res["macro"] = f"err:{type(e).__name__}"
+    try:
+        res["rosstat"] = _upsert(db, build_rosstat_releases(db))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Календарь Росстата: %s", e); res["rosstat"] = f"err:{type(e).__name__}"
+    try:
+        res["cbr_indcalendar"] = _upsert(db, build_cb_indcalendar(db))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Календарь ЦБ (.ics): %s", e); res["cbr_indcalendar"] = f"err:{type(e).__name__}"
     try:
         res["ipo"] = _upsert(db, build_ipo(db))
     except Exception as e:  # noqa: BLE001
