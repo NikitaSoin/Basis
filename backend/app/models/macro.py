@@ -125,6 +125,26 @@ class MacroForecast(Base):
     )
 
 
+class MacroExpertSurvey(Base):
+    """Макроэкономический опрос Банка России — медианные прогнозы профессиональных
+    аналитиков (~30 организаций, ежемесячно). Отдельно от MacroForecast: там —
+    сценарии САМОГО ЦБ (базовый/альтернативные из ОНДКП), здесь — независимый
+    консенсус рынка. Источник: cbr.ru/statistics/ddkp/mo_br/."""
+    __tablename__ = "macro_expert_surveys"
+    __table_args__ = (UniqueConstraint("as_of", "indicator", "year", name="uq_macro_expert_survey"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    as_of: Mapped[date_type] = mapped_column(Date, nullable=False)  # дата проведения опроса
+    indicator: Mapped[str] = mapped_column(String(80), nullable=False)
+    year: Mapped[int] = mapped_column(nullable=False)
+    value: Mapped[str | None] = mapped_column(String(48))
+    n_respondents: Mapped[int | None] = mapped_column()
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
 class MacroInterpretation(Base):
     """G: ИИ-интерпретация всей макроситуации (срез на момент, по методичке)."""
     __tablename__ = "macro_interpretations"

@@ -16,7 +16,8 @@ from app.auth import get_current_user_optional
 from app.models.company import Company
 from app.models.portfolio import Portfolio, PortfolioPosition
 from app.models.macro import (MacroIndicator, MacroDataPoint, RateMeeting,
-                              MacroAnalyticsDoc, MacroForecast, MacroInterpretation)
+                              MacroAnalyticsDoc, MacroForecast, MacroInterpretation,
+                              MacroExpertSurvey)
 
 router = APIRouter()
 
@@ -135,13 +136,28 @@ def macro_analytics(limit: int = Query(20, ge=1, le=100), source: str | None = N
 
 @router.get("/market/macro/forecast")
 def macro_forecast(db: Session = Depends(get_db)):
-    """Среднесрочный прогноз ЦБ (последняя публикация)."""
+    """Среднесрочный прогноз ЦБ (последняя публикация ПО КАЖДОМУ сценарию отдельно).
+
+    Базовый сценарий уточняется на каждом заседании (~раз в 6 недель, комментарий к
+    решению по ставке), альтернативные (дезинфляционный/проинфляционный/рисковый) —
+    раз в год в ОНДКП. У них РАЗНЫЕ as_of — если брать один глобальный latest, при
+    более свежем базовом альтернативные сценарии пропадали бы из ответа. Берём max
+    as_of отдельно для каждого сценария."""
+    from sqlalchemy import func
     latest = db.query(MacroForecast).order_by(MacroForecast.as_of.desc()).first()
     if not latest:
         return {"rows": [], "as_of": None, "scenarios": []}
-    all_rows = (db.query(MacroForecast)
-                .filter(MacroForecast.as_of == latest.as_of)
-                .order_by(MacroForecast.year).all())
+    per_scen_latest = dict(
+        db.query(MacroForecast.scenario, func.max(MacroForecast.as_of))
+        .group_by(MacroForecast.scenario).all()
+    )
+    all_rows = []
+    for scen, as_of in per_scen_latest.items():
+        all_rows.extend(
+            db.query(MacroForecast)
+            .filter(MacroForecast.scenario == scen, MacroForecast.as_of == as_of)
+            .order_by(MacroForecast.year).all()
+        )
     # Группируем по сценариям; базовый — первым.
     by_scen: dict[str, list] = {}
     for r in all_rows:
@@ -163,6 +179,24 @@ def macro_forecast(db: Session = Depends(get_db)):
         "rows": base["rows"] if base else [],
         # все сценарии
         "scenarios": scenarios,
+    }
+
+
+@router.get("/market/macro/expert-survey")
+def macro_expert_survey(db: Session = Depends(get_db)):
+    """Макроэкономический опрос ЦБ — медианный консенсус ~30 независимых аналитиков
+    (отдельно от прогноза самого ЦБ выше)."""
+    latest = db.query(MacroExpertSurvey).order_by(MacroExpertSurvey.as_of.desc()).first()
+    if not latest:
+        return {"as_of": None, "rows": [], "n_respondents": None}
+    rows = (db.query(MacroExpertSurvey)
+            .filter(MacroExpertSurvey.as_of == latest.as_of)
+            .order_by(MacroExpertSurvey.year).all())
+    return {
+        "as_of": latest.as_of.isoformat(),
+        "n_respondents": latest.n_respondents,
+        "source_url": latest.source_url,
+        "rows": [{"indicator": r.indicator, "year": r.year, "value": r.value} for r in rows],
     }
 
 

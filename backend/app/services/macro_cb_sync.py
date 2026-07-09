@@ -19,7 +19,7 @@ from datetime import date, datetime, timedelta
 import httpx
 from sqlalchemy.orm import Session
 
-from app.models.macro import RateMeeting, MacroForecast
+from app.models.macro import RateMeeting, MacroForecast, MacroExpertSurvey
 from app.services import llm
 from app.services.macro_ingest import upsert_point
 
@@ -134,21 +134,11 @@ def _latest_forecast_url(db: Session) -> str | None:
     return best if best.startswith("http") else "https://www.cbr.ru" + best
 
 
-def sync_forecast(db: Session) -> dict:
-    """Среднесрочный прогноз ЦБ (базовый сценарий) → MacroForecast (по году/показателю)."""
-    url = _latest_forecast_url(db)
-    if not url:
-        return {"error": "forecast url not found"}
-    text = _fetch_text(url)
-    if not text:
-        return {"error": "forecast page unavailable"}
-    try:
-        out = llm.complete(_FC_SYS, text, json_mode=True, max_tokens=2000)
-    except llm.LLMError as e:
-        logger.warning("CB-sync: прогноз не извлечён: %s", e)
-        return {"error": "llm"}
+def _save_forecast_scenarios(db: Session, out: dict, url: str) -> dict:
+    """Общая логика сохранения scenarios[] (или legacy rows[] верхнего уровня) в
+    MacroForecast — переиспользуется и для прогноза при заседании (базовый), и для
+    годового ОНДКП (все 4 сценария)."""
     as_of = _to_date(out.get("as_of")) or date.today()
-    # Поддержка и нового формата (scenarios[]), и старого (rows на верхнем уровне).
     scenarios = out.get("scenarios")
     if not scenarios:
         scenarios = [{"scenario": out.get("scenario") or "базовый",
@@ -175,6 +165,120 @@ def sync_forecast(db: Session) -> dict:
             saved += 1
     db.commit()
     return {"as_of": str(as_of), "rows": saved, "scenarios": seen_scen, "url": url}
+
+
+def sync_forecast(db: Session) -> dict:
+    """Среднесрочный прогноз ЦБ — базовый сценарий, обновляется на каждом заседании
+    (комментарий к решению по ставке обычно содержит только базовый). Альтернативные
+    сценарии — отдельно, см. sync_forecast_annual (публикуются раз в год в ОНДКП)."""
+    url = _latest_forecast_url(db)
+    if not url:
+        return {"error": "forecast url not found"}
+    text = _fetch_text(url)
+    if not text:
+        return {"error": "forecast page unavailable"}
+    try:
+        out = llm.complete(_FC_SYS, text, json_mode=True, max_tokens=2000)
+    except llm.LLMError as e:
+        logger.warning("CB-sync: прогноз не извлечён: %s", e)
+        return {"error": "llm"}
+    return _save_forecast_scenarios(db, out, url)
+
+
+# ОНДКП — «Основные направления единой государственной денежно-кредитной политики»,
+# годовой документ с полным набором сценариев (базовый + дезинфляционный +
+# проинфляционный + рисковый). Публикуется ~раз в год (обычно окт-ноя) — URL меняется
+# год от года (on_2026_2028 → on_2027_2029 и т.п.), ОБНОВЛЯТЬ при выходе новой версии.
+_ONDKP_URL = "https://www.cbr.ru/about_br/publ/ondkp/on_2026_2028/"
+
+
+def _alt_scenarios_stale(db: Session, max_age_days: int = 300) -> bool:
+    """Альтернативные сценарии обновляются ~раз в год — гоняем sync редко (не в
+    ежедневном cron), только если давно не обновляли или их нет вовсе."""
+    row = (db.query(MacroForecast)
+           .filter(MacroForecast.scenario != "базовый")
+           .order_by(MacroForecast.as_of.desc()).first())
+    if not row:
+        return True
+    return (date.today() - row.as_of).days > max_age_days
+
+
+def sync_forecast_annual(db: Session, force: bool = False) -> dict:
+    """Альтернативные сценарии (дезинфляционный/проинфляционный/рисковый) из годового
+    документа ОНДКП. Дорогой парсинг большой HTML-страницы + LLM — гоняем редко
+    (staleness-gate), не на каждый ежедневный прогон."""
+    if not force and not _alt_scenarios_stale(db):
+        return {"skipped": "not_stale"}
+    text = _fetch_text(_ONDKP_URL, limit=30000)
+    if not text:
+        return {"error": "ondkp page unavailable"}
+    try:
+        out = llm.complete(_FC_SYS, text, json_mode=True, max_tokens=4000)
+    except llm.LLMError as e:
+        logger.warning("CB-sync: ОНДКП не извлечён: %s", e)
+        return {"error": "llm"}
+    return _save_forecast_scenarios(db, out, _ONDKP_URL)
+
+
+# Макроэкономический опрос ЦБ — независимый консенсус ~30 аналитиков (не сценарии
+# самого ЦБ). Публикуется ежемесячно, страница всегда отдаёт ПОСЛЕДНИЙ опрос по
+# тому же URL (без даты в адресе, в отличие от ОНДКП).
+_SURVEY_URL = "https://cbr.ru/statistics/ddkp/mo_br/"
+_SURVEY_SYS = (
+    "Это страница Банка России «Макроэкономический опрос» — медианные прогнозы "
+    "профессиональных аналитиков. Извлеки дату проведения опроса (обычно указана "
+    "в начале, напр. «5–9 июня 2026»), число респондентов/организаций если указано, "
+    "и таблицу медианных прогнозов ПО ГОДАМ для показателей: ИПЦ (инфляция), "
+    "Ключевая ставка, ВВП (рост), Курс USD/RUB, Цена нефти. Бери ТЕКУЩИЙ опрос, "
+    "не значения из скобок (это предыдущий опрос для сравнения — игнорируй). "
+    "Верни строго JSON: {\"as_of\":\"YYYY-MM-DD\" (последний день окна опроса), "
+    "\"n_respondents\":<число или null>, \"rows\":[{\"indicator\":\"ИПЦ\"|"
+    "\"Ключевая ставка\"|\"ВВП\"|\"Курс USD/RUB\"|\"Цена нефти\", \"year\":<год>, "
+    "\"value\":\"<число или диапазон>\"}]}. Только факты из текста, без выдумок. "
+    "Никакого текста вне JSON."
+)
+
+
+def _survey_stale(db: Session, max_age_days: int = 25) -> bool:
+    row = db.query(MacroExpertSurvey).order_by(MacroExpertSurvey.as_of.desc()).first()
+    if not row:
+        return True
+    return (date.today() - row.as_of).days > max_age_days
+
+
+def sync_expert_survey(db: Session, force: bool = False) -> dict:
+    """Макроэкономический опрос ЦБ (медианный консенсус аналитиков) → MacroExpertSurvey.
+    Публикуется раз в месяц — staleness-gate, не гоняем каждый день."""
+    if not force and not _survey_stale(db):
+        return {"skipped": "not_stale"}
+    text = _fetch_text(_SURVEY_URL, limit=20000)
+    if not text:
+        return {"error": "survey page unavailable"}
+    try:
+        out = llm.complete(_SURVEY_SYS, text, json_mode=True, max_tokens=1500)
+    except llm.LLMError as e:
+        logger.warning("CB-sync: опрос аналитиков не извлечён: %s", e)
+        return {"error": "llm"}
+    as_of = _to_date(out.get("as_of")) or date.today()
+    n_resp = out.get("n_respondents") if isinstance(out.get("n_respondents"), int) else None
+    saved = 0
+    for r in out.get("rows") or []:
+        ind = (r.get("indicator") or "").strip()
+        yr = r.get("year")
+        val = r.get("value")
+        if not ind or not isinstance(yr, int) or val in (None, ""):
+            continue
+        existing = (db.query(MacroExpertSurvey)
+                    .filter_by(as_of=as_of, indicator=ind, year=yr).first())
+        if existing:
+            existing.value = str(val); existing.n_respondents = n_resp
+            existing.source_url = _SURVEY_URL
+        else:
+            db.add(MacroExpertSurvey(as_of=as_of, indicator=ind, year=yr, value=str(val),
+                                     n_respondents=n_resp, source_url=_SURVEY_URL))
+        saved += 1
+    db.commit()
+    return {"as_of": str(as_of), "rows": saved, "n_respondents": n_resp}
 
 
 _INFL_PAGE = "https://www.cbr.ru/hd_base/infl/"
@@ -299,5 +403,7 @@ def sync_m2(db: Session) -> dict:
 
 def sync_cb(db: Session) -> dict:
     return {"rate": sync_rate_meeting(db), "forecast": sync_forecast(db),
+            "forecast_annual": sync_forecast_annual(db),
+            "expert_survey": sync_expert_survey(db),
             "inflation": sync_inflation(db), "expectations": sync_expectations(db),
             "m2": sync_m2(db)}
