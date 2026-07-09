@@ -1,0 +1,156 @@
+/* Вкладка «Институты» — институциональный/политический риск эмитента (клановый
+   патронаж конкретных лиц, риск изъятия государством, санкционный контур),
+   переведённый в поправку к оценке. Самая политически чувствительная вкладка
+   платформы — нейтральный тон, эпистемические теги на КАЖДОЙ карточке, провенанс
+   инлайн у клановых/экспроприационных атрибуций (НЕ отдельная карточка «Источники»).
+   Одна колонка (нет естественного контента для правого рейла, в отличие от
+   Governance/Finance). Переменные — тот же ремап cc-токенов, что у .gov-hybrid
+   (governance.css:7-16), + явный --info (у Governance его нет в ремапе).
+   Данные — institutions.json (institutional-company-analyst) + institutions_summary.md
+   (используется только для финальной фразы-вердикта и фолбэка «Сути»). */
+.inst-hybrid{
+  --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
+  --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
+  --line:var(--cc-line); --line-2:var(--cc-line-2);
+  --accent:var(--cc-accent); --accent-soft:var(--cc-accent-soft);
+  --amber:var(--cc-amber); --amber-soft:color-mix(in srgb,var(--cc-amber) 12%,transparent);
+  --pos:var(--cc-success); --pos-soft:color-mix(in srgb,var(--cc-success) 13%,transparent);
+  --neg:var(--cc-danger); --neg-soft:color-mix(in srgb,var(--cc-danger) 12%,transparent);
+  --violet:var(--cc-violet);
+  --info:var(--cc-info);
+  --serif:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
+  --r-lg:16px; --r:11px;
+  display:flex; flex-direction:column; gap:16px;
+  color:var(--ink); font-family:var(--sans); font-variant-numeric:tabular-nums lining-nums;
+}
+
+/* ── frame (Слой 0) ─────────────────────────────────────────────────────── */
+.inst-hybrid .ifr-frame{font-size:12.5px;line-height:1.5;color:var(--ink-3);max-width:68ch;margin:0;}
+
+/* ── epistemic tags (схема GovernanceTab: факт=нейтраль, оценка=info, суждение=violet — НЕ зелёный факт, у институтов «факт» часто плохая новость) ── */
+.inst-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;white-space:nowrap;}
+.inst-hybrid .tag-fact{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
+.inst-hybrid .tag-judg{background:color-mix(in srgb,var(--violet) 12%,transparent);color:var(--violet);}
+.inst-hybrid .tag-est{background:color-mix(in srgb,var(--info) 12%,transparent);color:var(--info);}
+
+/* ── generic card shell (Слои 2 / 3.1 / 3.3 / 3.4 / 3.5 / 4) ─────────────── */
+.inst-hybrid .icard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
+.inst-hybrid .icard h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.inst-hybrid .icard h3 svg{color:var(--ink-3);flex-shrink:0;}
+.inst-hybrid .icard-sub{font-size:12.5px;color:var(--ink-3);margin:0 0 16px;line-height:1.5;}
+.inst-hybrid .ihmeta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400;}
+.inst-hybrid .iri-badge{margin-left:auto;font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink);}
+.inst-hybrid .iri-badge s{font-size:11px;color:var(--ink-3);text-decoration:none;font-weight:400;margin-left:2px;}
+
+/* ── hero (Слой 1) — ПЛОСКИЙ фон, НЕ тонируется по итоговому баллу ───────── */
+.inst-hybrid .ihero{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;}
+.inst-hybrid .ihero-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.inst-hybrid .ihero-meta-l{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;}
+.inst-hybrid .ihero-patron{font-size:12.5px;color:var(--ink-2);}
+.inst-hybrid .ihero-patron b{color:var(--ink);font-weight:600;}
+.inst-hybrid .ihero-asof{font-size:11px;color:var(--ink-3);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+.inst-hybrid .ihero-verdict{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--ink);line-height:1.35;max-width:64ch;margin:0;}
+
+/* ── 3 канала (Слой 1) ────────────────────────────────────────────────────  */
+.inst-hybrid .ichannels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line);}
+@media(max-width:720px){.inst-hybrid .ichannels{grid-template-columns:1fr;}}
+.inst-hybrid .ichannel{position:relative;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;}
+.inst-hybrid .ichannel-tag{position:absolute;top:13px;right:13px;}
+.inst-hybrid .ichannel-eyebrow{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);max-width:80%;}
+.inst-hybrid .ichannel-big{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);margin-top:9px;}
+.inst-hybrid .ichannel-track{position:relative;height:8px;background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid var(--line);border-radius:5px;margin:11px 0 4px;}
+.inst-hybrid .ichannel-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--panel-2);}
+.inst-hybrid .ichannel-note{font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:7px;}
+
+/* ── «Как считали три канала» (details, закрыт по умолчанию) ─────────────── */
+.inst-hybrid .idet{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:16px;background:var(--panel-2);}
+.inst-hybrid .idet>summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:11px 15px;font-size:12.5px;font-weight:600;color:var(--ink-2);}
+.inst-hybrid .idet>summary::-webkit-details-marker{display:none;}
+.inst-hybrid .idet-body{padding:2px 15px 15px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;}
+.inst-hybrid .idet-body p{margin:0;font-size:12.5px;line-height:1.58;color:var(--ink-2);}
+.inst-hybrid .idet-body p b{color:var(--ink);font-weight:600;}
+.inst-hybrid .idet-check{padding-top:8px;border-top:1px dashed var(--line);}
+
+/* chevron (переиспользуется .idet и .icluster) */
+.inst-hybrid .chev{color:var(--ink-3);transition:transform .2s;flex-shrink:0;}
+.inst-hybrid details[open] .chev{transform:rotate(180deg);}
+.inst-hybrid .idet>summary .chev{margin-left:auto;}
+.inst-hybrid summary{outline:none;}
+.inst-hybrid summary:focus-visible{box-shadow:0 0 0 3px var(--accent-soft);border-radius:8px;}
+
+/* ── 5-ячеечная атрибуция (Слой 2) ────────────────────────────────────────  */
+.inst-hybrid .iattr5{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;margin-bottom:14px;}
+.inst-hybrid .iof{background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--line-2);border-radius:0 9px 9px 0;padding:10px 12px;min-width:0;}
+.inst-hybrid .iof.acc{border-left-color:var(--accent);}
+.inst-hybrid .iofl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);}
+.inst-hybrid .iofv{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.42;}
+.inst-hybrid .iofv.b{font-size:13.5px;color:var(--ink);font-weight:700;}
+
+/* ── 15 факторов — 5 кластеров (Слой 3.1-3.2) ─────────────────────────────  */
+.inst-hybrid .iclusters{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.inst-hybrid .icluster{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
+.inst-hybrid .icluster>summary{cursor:pointer;list-style:none;}
+.inst-hybrid .icluster>summary::-webkit-details-marker{display:none;}
+.inst-hybrid .icluster-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 15px;background:var(--panel-2);}
+.inst-hybrid .icluster-ic{flex-shrink:0;}
+.inst-hybrid .icluster-name{font-size:13.5px;font-weight:600;color:var(--ink);}
+.inst-hybrid .isegbar{display:flex;gap:2px;flex-shrink:0;}
+.inst-hybrid .isegbar i{width:12px;height:7px;border-radius:2px;background:var(--line-2);}
+.inst-hybrid .isegbar i.on{background:var(--sc);}
+.inst-hybrid .icluster-val{margin-left:auto;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--sc);text-align:right;white-space:nowrap;}
+.inst-hybrid .icluster-val s{display:block;font-size:9px;color:var(--ink-3);text-decoration:none;font-weight:500;white-space:normal;text-align:right;}
+.inst-hybrid .icluster-body{display:flex;flex-direction:column;gap:2px;padding:6px 15px 14px;border-top:1px solid var(--line);background:var(--panel);}
+.inst-hybrid .isub{padding:10px 0;border-bottom:1px solid var(--line);}
+.inst-hybrid .isub:last-child{border-bottom:0;}
+.inst-hybrid .isub-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.inst-hybrid .isub-name{font-size:12.5px;font-weight:600;color:var(--ink);flex:1;min-width:120px;}
+.inst-hybrid .isub-score{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--sc);margin-left:auto;}
+.inst-hybrid .isub-score s{font-size:9px;color:var(--ink-3);text-decoration:none;font-weight:500;}
+.inst-hybrid .isub-why{font-size:12.5px;line-height:1.58;color:var(--ink-2);margin-top:5px;}
+
+/* ── клановый патронаж (Слой 3.3) ─────────────────────────────────────────  */
+.inst-hybrid .ifacts4{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+.inst-hybrid .iconflicts{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+.inst-hybrid .iconflicts-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:8px;}
+.inst-hybrid .iconflicts ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;}
+.inst-hybrid .iconflicts li{font-size:12.5px;line-height:1.5;color:var(--ink-2);}
+.inst-hybrid .iprov{font-size:11.5px;font-style:italic;color:var(--ink-3);margin-top:10px;}
+
+/* ── паттерны риска изъятия (Слой 3.4) ────────────────────────────────────  */
+.inst-hybrid .ipatterns{display:flex;flex-direction:column;gap:10px;}
+.inst-hybrid .ipattern{background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--sev);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;}
+.inst-hybrid .ipattern-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.inst-hybrid .ipattern-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line);color:var(--ink-3);white-space:nowrap;}
+.inst-hybrid .ipattern-pill.on{background:var(--neg-soft);color:var(--neg);border-color:transparent;}
+.inst-hybrid .ipattern-name{font-size:13.5px;font-weight:600;color:var(--ink);}
+.inst-hybrid .ipattern-note{font-size:13px;line-height:1.58;color:var(--ink-2);margin-top:8px;}
+
+/* ── похожие кейсы (Слой 3.5) ─────────────────────────────────────────────  */
+.inst-hybrid .icases{display:flex;flex-direction:column;gap:10px;}
+.inst-hybrid .icase{font-size:13px;line-height:1.55;color:var(--ink-2);}
+.inst-hybrid .icase-name{color:var(--ink);font-weight:600;}
+.inst-hybrid .iprov-inline{font-size:11.5px;font-style:italic;color:var(--ink-3);}
+
+/* ── сверка с корп. управлением (Слой 3.6) — узкая полоса, НЕ карточка ───── */
+.inst-hybrid .isverka{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;}
+.inst-hybrid .isverka-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:10px;}
+.inst-hybrid .isverka-rows{display:flex;flex-direction:column;gap:8px;}
+.inst-hybrid .isverka-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:12px;}
+.inst-hybrid .isverka-name{color:var(--ink);font-weight:600;min-width:150px;flex-shrink:0;}
+.inst-hybrid .isverka-score{font-family:var(--mono);font-weight:600;flex-shrink:0;}
+.inst-hybrid .isverka-score s{font-size:9px;color:var(--ink-3);text-decoration:none;}
+.inst-hybrid .isverka-why{color:var(--ink-3);flex:1;min-width:180px;}
+.inst-hybrid .isverka-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.inst-hybrid .isverka-link{background:none;border:0;padding:4px 2px;margin:-4px -2px;font:inherit;font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;border-radius:4px;}
+.inst-hybrid .isverka-link:hover{color:var(--accent-hover,var(--accent));}
+.inst-hybrid .isverka-link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
+.inst-hybrid .isverka-link-static{font-size:12px;color:var(--ink-3);}
+
+/* ── «За чем следить» (Слой 4) ────────────────────────────────────────────  */
+.inst-hybrid .itrig-list{display:flex;flex-direction:column;gap:12px;}
+.inst-hybrid .itrigger{display:flex;gap:12px;align-items:baseline;}
+.inst-hybrid .itrig-n{font-family:var(--mono);font-size:12px;color:var(--ink-3);flex-shrink:0;}
+.inst-hybrid .itrig-t{font-size:13.5px;line-height:1.55;color:var(--ink);}
+
+/* ── дисклеймер ────────────────────────────────────────────────────────────  */
+.inst-hybrid .iend-note{font-size:11px;line-height:1.5;color:var(--ink-3);padding:0 2px;margin:0;}
