@@ -3183,7 +3183,7 @@ P&L завышен в разы). Рекомендация вошла в реал
 `subagent_type: advisor` должен заработать напрямую.
 
 **Батч E** (commit `7a799088`) — новые классы активов в портфеле:
-- Миграция `e4f9a6c3d213_portfolio_multi_asset` применена и проверена
+- Миграция `e4f9a6c3d215_portfolio_multi_asset` применена и проверена
   локально (8 старых equity-позиций корректно бэкфилнуты instrument_type=
   'equity', CHECK-констрейнт валиден).
 - Backend: `app/services/portfolio_instruments.py` (оценка non-equity
