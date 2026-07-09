@@ -236,7 +236,9 @@ def sync_forecast_annual(db: Session, force: bool = False) -> dict:
     except llm.LLMError as e:
         logger.warning("CB-sync: ОНДКП не извлечён: %s", e)
         return {"error": "llm"}
-    return _save_forecast_scenarios(db, out, _ONDKP_URL)
+    result = _save_forecast_scenarios(db, out, _ONDKP_URL)
+    logger.info("CB-sync: ОНДКП сценарии сохранены: %s", result)
+    return result
 
 
 # Макроэкономический опрос ЦБ — независимый консенсус ~30 аналитиков (не сценарии
@@ -297,7 +299,9 @@ def sync_expert_survey(db: Session, force: bool = False) -> dict:
                                      n_respondents=n_resp, source_url=_SURVEY_URL))
         saved += 1
     db.commit()
-    return {"as_of": str(as_of), "rows": saved, "n_respondents": n_resp}
+    result = {"as_of": str(as_of), "rows": saved, "n_respondents": n_resp}
+    logger.info("CB-sync: макроопрос аналитиков сохранён: %s", result)
+    return result
 
 
 _INFL_PAGE = "https://www.cbr.ru/hd_base/infl/"
@@ -421,8 +425,20 @@ def sync_m2(db: Session) -> dict:
 
 
 def sync_cb(db: Session) -> dict:
-    return {"rate": sync_rate_meeting(db), "forecast": sync_forecast(db),
-            "forecast_annual": sync_forecast_annual(db),
-            "expert_survey": sync_expert_survey(db),
-            "inflation": sync_inflation(db), "expectations": sync_expectations(db),
-            "m2": sync_m2(db)}
+    """Изоляция ошибок ПО КАЖДОЙ подзадаче: раньше необработанное исключение в
+    одной (напр. упавшая транзакция БД) прерывало весь словарь — остальные
+    синки НИКОГДА не запускались в этом прогоне. Теперь одна упавшая задача не
+    блокирует остальные (тот же паттерн, что recalc_all_company_metrics)."""
+    out = {}
+    for key, fn in (
+        ("rate", sync_rate_meeting), ("forecast", sync_forecast),
+        ("forecast_annual", sync_forecast_annual), ("expert_survey", sync_expert_survey),
+        ("inflation", sync_inflation), ("expectations", sync_expectations), ("m2", sync_m2),
+    ):
+        try:
+            out[key] = fn(db)
+        except Exception as e:  # noqa: BLE001
+            logger.exception("CB-sync: %s упал необработанным исключением: %s", key, e)
+            db.rollback()
+            out[key] = {"error": f"unhandled:{type(e).__name__}"}
+    return out
