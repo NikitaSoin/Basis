@@ -335,7 +335,9 @@ def build_corporate(db: Session) -> list[dict]:
             continue  # дивиденды — отдельным билдером; «other» не классифицируем
         ticker = desc.split(":")[0].strip() if ":" in desc else None
         ticker = ticker if (ticker and ticker in sectors) else None
-        ev_type = "ipo" if kind == "ipo" else "corporate"
+        # report — отдельный event_type "earnings" (свой фильтр/цвет на фронте,
+        # отличный от СД/собраний, которые остаются под "corporate")
+        ev_type = "ipo" if kind == "ipo" else "earnings" if kind == "report" else "corporate"
         h = hashlib.md5(desc.encode("utf-8")).hexdigest()[:10]
         out.append({
             "event_type": ev_type, "event_date": ev_date, "event_time": None,

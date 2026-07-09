@@ -487,18 +487,26 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
                     db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
     """Лента вышедших отчётов (Направление 3): тикер, период, одна строка сути, важность.
     Тап → карточка. portfolio_only — только бумаги портфеля."""
-    from app.models.earnings import EarningsReport, EarningsDigest
-    q = (db.query(EarningsReport, EarningsDigest, Company.sector)
+    from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
+    q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
+         .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
          .outerjoin(Company, Company.ticker == EarningsReport.ticker)
          .order_by(EarningsReport.created_at.desc()))
     if portfolio_only:
         tickers, _ = _portfolio_filter(db, user)
         q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)
     rows = q.limit(limit).all()
+
+    def _yoy_pct(now, prev):
+        if now is None or prev is None or float(prev) == 0:
+            return None
+        return round((float(now) / float(prev) - 1) * 100, 1)
+
     out = []
-    for r, dg, sector in rows:
+    for r, dg, fig, sector in rows:
         positives, risks = _split_markers(dg.what_report_showed if dg else None)
+        prev = (fig.prev or {}) if fig else {}
         out.append({
             "ticker": r.ticker, "period": r.period, "standard": r.standard,
             "report_type": r.report_type, "status": r.status,
@@ -509,6 +517,9 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "positives": positives,
             "risks": risks,
             "conclusion": (dg.summary if dg else None),
+            "revenue_pct": _yoy_pct(fig.revenue_ttm if fig else None, prev.get("revenue")),
+            "ebitda_pct": _yoy_pct(fig.ebitda if fig else None, prev.get("ebitda")),
+            "profit_pct": _yoy_pct(fig.net_profit_ttm if fig else None, prev.get("net_profit")),
         })
     return {"count": len(out), "reports": out}
 

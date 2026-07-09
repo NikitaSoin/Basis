@@ -13,7 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
 # Типы событий (валидация на уровне приложения; в БД String — принцип «простые решения»).
-EVENT_TYPES = ("dividend", "bond_offer", "bond_maturity", "macro", "corporate", "ipo", "expiration")
+EVENT_TYPES = ("dividend", "bond_offer", "bond_maturity", "macro", "corporate", "earnings", "ipo", "expiration")
 
 
 class CalendarEvent(Base):
