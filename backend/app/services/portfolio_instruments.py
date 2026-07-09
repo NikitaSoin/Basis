@@ -67,9 +67,9 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
     for p in by_type.get("cash", []):
         qty = float(p.quantity)
         out.append({
-            "ticker": p.currency or "RUB", "name": f"Денежные средства ({p.currency or 'RUB'})",
-            "company_id": None, "sector": ASSET_CLASS_LABEL["cash"], "instrument_type": "cash",
-            "value": round(qty, 2), "quantity": qty, "price": 1.0, "data_flag": None,
+            "id": p.id, "ticker": p.currency or "RUB", "name": f"Денежные средства ({p.currency or 'RUB'})",
+            "company_id": None, "secid": None, "sector": ASSET_CLASS_LABEL["cash"], "instrument_type": "cash",
+            "value": round(qty, 2), "quantity": qty, "avg_buy_price": 1.0, "price": 1.0, "data_flag": None,
         })
 
     # ── Фонды: last_price свежее, fallback на instrument_history ──
@@ -84,10 +84,10 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
                 float(hist[p.secid].close) if p.secid in hist and hist[p.secid].close is not None else None)
             qty = float(p.quantity)
             out.append({
-                "ticker": p.secid, "name": f.short_name if f else p.secid,
-                "company_id": None, "sector": ASSET_CLASS_LABEL["fund"], "instrument_type": "fund",
+                "id": p.id, "ticker": p.secid, "name": f.short_name if f else p.secid,
+                "company_id": None, "secid": p.secid, "sector": ASSET_CLASS_LABEL["fund"], "instrument_type": "fund",
                 "value": round(qty * price, 2) if price is not None else None,
-                "quantity": qty, "price": price,
+                "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
                 "data_flag": None if price is not None else "нет актуальной цены фонда",
             })
 
@@ -107,10 +107,10 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
                 price = clean + accrued
             qty = float(p.quantity)
             out.append({
-                "ticker": p.secid, "name": b.short_name if b else p.secid,
-                "company_id": None, "sector": ASSET_CLASS_LABEL["bond"], "instrument_type": "bond",
+                "id": p.id, "ticker": p.secid, "name": b.short_name if b else p.secid,
+                "company_id": None, "secid": p.secid, "sector": ASSET_CLASS_LABEL["bond"], "instrument_type": "bond",
                 "value": round(qty * price, 2) if price is not None else None,
-                "quantity": qty, "price": price,
+                "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
                 "data_flag": None if price is not None else "нет актуальной цены облигации",
             })
 
@@ -124,10 +124,10 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
             margin = float(f.initial_margin) if f and f.initial_margin is not None else None
             qty = float(p.quantity)
             out.append({
-                "ticker": p.secid, "name": f.short_name if f else p.secid,
-                "company_id": None, "sector": ASSET_CLASS_LABEL["future"], "instrument_type": "future",
+                "id": p.id, "ticker": p.secid, "name": f.short_name if f else p.secid,
+                "company_id": None, "secid": p.secid, "sector": ASSET_CLASS_LABEL["future"], "instrument_type": "future",
                 "value": round(qty * margin, 2) if margin is not None else None,
-                "quantity": qty, "price": float(f.settle_price) if f and f.settle_price is not None else None,
+                "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": float(f.settle_price) if f and f.settle_price is not None else None,
                 "data_flag": None if margin is not None else "нет данных по ГО контракта",
             })
 

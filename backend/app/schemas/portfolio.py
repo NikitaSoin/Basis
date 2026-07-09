@@ -97,10 +97,15 @@ class PortfolioResponse(BaseModel):
 # ── Аналитические метрики портфеля (Этап 1) ──
 
 class PositionMetrics(BaseModel):
+    id: int | None = None        # non-equity: id позиции (для удаления/редактирования в таблице)
     ticker: str
     name: str
     company_id: int | None = None   # для перехода в карточку компании из портфеля
     instrument_type: str = "equity"  # equity|bond|future|fund|cash
+    secid: str | None = None
+    quantity: float | None = None       # non-equity: штук/паёв/контрактов/сумма
+    avg_buy_price: float | None = None  # non-equity: средняя цена покупки
+    price: float | None = None          # non-equity: текущая рыночная цена/оценка
     data_flag: str | None = None     # non-equity: почему value=None, если не удалось оценить
     sector: str
     value: float | None          # текущая стоимость позиции, ₽
@@ -138,6 +143,7 @@ class WeightedMetric(BaseModel):
 
 
 class PortfolioWeighted(BaseModel):
+    total_value: float | None = None   # грандтотал по ВСЕМ классам активов, ₽
     pe_current: WeightedMetric | None = None
     pe_historical: WeightedMetric | None = None
     div_yield: WeightedMetric | None = None

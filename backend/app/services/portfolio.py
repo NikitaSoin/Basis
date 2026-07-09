@@ -460,6 +460,10 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     # портфель и портфель из одной бумаги обрабатываются штатно.
     valued = [p for p in positions if p["value"]]
     portfolio_row = {
+        # Грандтотал ПО ВСЕМ классам (акции+облигации+фьючерсы+фонды+кэш) —
+        # фронт использует его для заголовочной суммы «Стоимость портфеля» и
+        # для веса equity-строк в общей таблице, а не total_value одних акций.
+        "total_value": round(total_value, 2),
         "pe_current": _weighted_avg([(p["value"], p["pe_current"]) for p in valued]),
         "pe_historical": _weighted_avg([(p["value"], p["pe_historical"]) for p in valued]),
         "div_yield": _weighted_avg([(p["value"], p["div_yield"]) for p in valued]),
