@@ -98,8 +98,11 @@ def generate(db: Session) -> MacroInterpretation:
     user = ("Данные платформы на текущий момент (используй конкретные значения):\n\n"
             + json.dumps(snapshot, ensure_ascii=False, indent=1))
     model = llm.pro_model()
+    # max_tokens поднят с 8192: новый структурированный scenarios (3 сценария × 3 поля)
+    # добавил объём, и с thinking=True рассуждение тоже расходует общий бюджет —
+    # раньше не хватало на последний ключ scenarios, JSON приходил валидным, но без него.
     out = llm.complete(system, user, json_mode=True, thinking=True,
-                       model=model, max_tokens=8192, temperature=0.4)
+                       model=model, max_tokens=16000, temperature=0.4)
     sections = out.get("sections") if isinstance(out, dict) else None
     if not sections:
         raise llm.LLMError("Интерпретатор: модель не вернула sections")
