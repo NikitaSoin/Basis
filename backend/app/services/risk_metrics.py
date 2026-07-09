@@ -400,3 +400,98 @@ def risk_contributions(returns_by_ticker: dict[str, dict[date, float]],
     marginal = cov @ w  # (Σw)_i
     contrib = w * marginal / var_p  # доли, сумма = 1
     return {tickers[i]: round(float(contrib[i]) * 100, 1) for i in range(n)}
+
+
+# ──────────────── пересчёт company_metrics (было: только ручной скрипт) ────────────────
+
+_RECALC_UPDATE_SQL_TEXT = """
+    UPDATE company_metrics
+    SET beta_calc = :beta_calc,
+        volatility = :volatility,
+        return_3y = :return_3y,
+        return_total_3y = :return_total_3y,
+        history_years = :history_years,
+        downside_vol = :downside_vol,
+        var_95 = :var_95,
+        r_squared = COALESCE(r_squared_moex, :r_squared_calc),
+        earnings_yield = CASE WHEN pe_current IS NOT NULL AND pe_current > 0
+                              THEN ROUND(100.0 / pe_current, 2) END,
+        beta = COALESCE(beta_moex, :beta_calc),
+        beta_source = CASE WHEN beta_moex IS NOT NULL THEN 'moex'
+                           WHEN :beta_calc IS NOT NULL THEN 'calc' END,
+        updated_at = :updated_at
+    WHERE ticker = :ticker
+"""
+
+
+def recalc_all_company_metrics() -> dict:
+    """Пересчитывает company_metrics (бета/волатильность/доходность/Шарп/
+    Сортино/CAPM/альфа) для ВСЕХ компаний из СВЕЖЕЙ истории quotes/index_history.
+
+    Раньше это была ТОЛЬКО ручная операция (scripts/recalc_risk_metrics.py,
+    "cron позже" по докстрингу) — на практике никто не гонял её регулярно,
+    поэтому company_metrics годами показывала снапшот на момент последнего
+    ручного запуска: бэкфилл истории (напр. YDEX←YNDX) обновляет quotes, но
+    БЕЗ этого пересчёта history_years/beta/return_3y в UI не меняются, даже
+    когда рынок ощутимо двигается. Теперь вызывается из ежедневного джоба
+    (main.py _history_job) ПОСЛЕ обновления истории котировок — та же логика,
+    что раньше жила только в scripts/recalc_risk_metrics.py.
+    """
+    from datetime import datetime, timezone
+    from sqlalchemy import text as _text
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+
+    db = SessionLocal()
+    try:
+        try:
+            from app.services.moex_coefficients import sync_official_betas
+            sync_official_betas()
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Официальные беты MOEX: пропуск (%s)", e)
+
+        since = window_start()
+        index_series = load_index_series(db, "IMOEX", since)
+        if len(index_series) < 100:
+            logger.warning("Пересчёт risk-метрик: в index_history мало данных IMOEX (%d) — пропуск", len(index_series))
+            return {"skipped": True}
+        index_returns = log_returns(index_series)
+
+        companies = db.query(Company).order_by(Company.ticker).all()
+        now = datetime.now(timezone.utc)
+        update_sql = _text(_RECALC_UPDATE_SQL_TEXT)
+
+        from app.services.moex_dividends import load_dividends_map
+        for c in companies:
+            divs = load_dividends_map(db, c.ticker)
+            m = compute_for_company(db, c.id, index_returns, since, dividends=divs)
+            db.execute(update_sql, {"ticker": c.ticker, "updated_at": now, **m})
+        db.commit()
+
+        # Rf/Rm → альфа/Сортино/CAPM (те же формулы, что и раньше в скрипте)
+        from app.services.moex_dividends import update_risk_free_rate
+        rf = update_risk_free_rate(db)
+        rm = market_return_3y(db, "MCFTR")
+        if rf is not None and rm is not None:
+            db.execute(_text("""
+                INSERT INTO market_params (key, value, as_of, note, updated_at)
+                VALUES ('market_return_3y', :rm, CURRENT_DATE,
+                        'CAGR MCFTR (полная доходность) за окно 3 года', :now)
+                ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value,
+                    as_of=EXCLUDED.as_of, updated_at=EXCLUDED.updated_at
+            """), {"rm": rm, "now": now})
+            db.execute(_text("""
+                UPDATE company_metrics SET
+                    capm_expected = ROUND((:rf + beta * (:rm - :rf))::numeric, 2),
+                    alpha_3y = CASE WHEN return_total_3y IS NOT NULL AND beta IS NOT NULL
+                        THEN ROUND((return_total_3y - (:rf + beta * (:rm - :rf)))::numeric, 2) END,
+                    sortino_3y = CASE WHEN return_total_3y IS NOT NULL
+                                       AND downside_vol IS NOT NULL AND downside_vol > 0
+                        THEN ROUND(((return_total_3y - :rf) / downside_vol)::numeric, 2) END
+                WHERE beta IS NOT NULL
+            """), {"rf": rf, "rm": rm})
+            db.commit()
+        logger.info("Пересчёт company_metrics: %d компаний, Rf=%s Rm=%s", len(companies), rf, rm)
+        return {"companies": len(companies), "rf": rf, "rm": rm}
+    finally:
+        db.close()

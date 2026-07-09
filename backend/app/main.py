@@ -90,6 +90,16 @@ async def _history_job():
         await asyncio.get_event_loop().run_in_executor(None, catch_up_instrument_history)
     except Exception as e:
         logger.exception("Ошибка дообновления истории инструментов: %s", e)
+    # Пересчёт company_metrics (бета/волатильность/доходность/Шарп/CAPM) из
+    # СВЕЖЕЙ истории — раньше это была ТОЛЬКО ручная операция (scripts/
+    # recalc_risk_metrics.py), поэтому метрики годами не менялись даже при
+    # заметном движении рынка. ОБЯЗАТЕЛЬНО последним шагом в этом джобе —
+    # зависит от уже обновлённых quotes/index_history выше.
+    try:
+        from app.services.risk_metrics import recalc_all_company_metrics
+        await asyncio.get_event_loop().run_in_executor(None, recalc_all_company_metrics)
+    except Exception as e:
+        logger.exception("Ошибка пересчёта company_metrics: %s", e)
 
 
 async def _tinkoff_warmup():
@@ -233,6 +243,28 @@ async def _earnings_startup():
     """Стартовый сид разборов отчётов курируемого набора — чтобы лента/карточки имели
     контент сразу после деплоя. Идемпотентно (существующие периоды не пересоздаются)."""
     await _earnings_job(seed_only=True)
+
+
+async def _risk_metrics_startup():
+    """Разовый прогон при старте (в дополнение к ежедневному джобу в 19:30 МСК):
+    бэкфилл истории под прежними тикерами + пересчёт company_metrics. Без
+    этого свежедеплоенный фикс (напр. YDEX←YNDX) не подействует до вечера —
+    а пересчёт МЕСЯЦАМИ не запускался вообще (была только ручная команда),
+    поэтому бета/волатильность/доходность в UI могли быть стухшим снапшотом
+    независимо от реального движения рынка. Обе операции идемпотентны и
+    дёшевы (~10с локально на 261 компанию) — безопасно гонять при каждом
+    рестарте, не только руками."""
+    try:
+        from app.services.moex_history import backfill_historical_tickers
+        await asyncio.get_event_loop().run_in_executor(None, backfill_historical_tickers)
+    except Exception as e:
+        logger.exception("Старт: ошибка бэкфилла прежних тикеров: %s", e)
+    try:
+        from app.services.risk_metrics import recalc_all_company_metrics
+        res = await asyncio.get_event_loop().run_in_executor(None, recalc_all_company_metrics)
+        logger.info("Старт: пересчёт company_metrics — %s", res)
+    except Exception as e:
+        logger.exception("Старт: ошибка пересчёта company_metrics: %s", e)
 
 
 async def _screener_warm():
@@ -459,6 +491,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
     asyncio.create_task(_instrument_history_startup())
+    asyncio.create_task(_risk_metrics_startup())
     asyncio.create_task(_selftest_startup())
     # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
     # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
