@@ -683,6 +683,13 @@
   border-color: var(--pf-line-2);
 }
 
+/* ИИ-Диагноз: карточка-вердикт — крупнейший визуальный вес на странице
+   после заголовка (слой «сигнал» в 4-слойном чтении Basis). Акцентная
+   левая полоса отличает её от рядовых карточек-доказательств ниже. */
+.pf-ai-verdict {
+  border-left: 3px solid var(--accent);
+}
+
 /* =============================================================
    POSITIONS TABLE — literal 1:1 из docs/portfolio-analytics.html
    (.pos-table / .pos-asset / .pos-logo / .pos-name / .edit-row и т.д.)
