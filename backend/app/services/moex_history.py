@@ -264,6 +264,45 @@ def upsert_index_rows(db: Session, ticker: str, rows: list[dict]) -> int:
 
 # ──────────────────── бэкфилл прежних тикеров (редомициляция) ────────────────────
 
+_PRICE_FIELDS = ("OPEN", "CLOSE", "HIGH", "LOW", "LEGALCLOSEPRICE")
+
+
+def _drop_frozen_tail(rows: list[dict]) -> list[dict]:
+    """Обрезает хвост строк БЕЗ реального CLOSE (только замороженный
+    LEGALCLOSEPRICE, который ISS продолжает отдавать ГОДАМИ после
+    делистинга/переименования — проверено на AGRO: 1085.2 повторяется
+    даже спустя месяцы ПОСЛЕ того, как новый тикер RAGR уже реально
+    торговался). Без этой обрезки upsert_share_rows() пишет close =
+    LEGALCLOSEPRICE для этих строк и COALESCE(EXCLUDED.close, ...) в
+    upsert затирает УЖЕ РЕАЛЬНЫЕ котировки нового тикера замороженным
+    значением старого — нашёл на живом бэкфилле RAGR (перезаписало
+    реальные цены на 155.03 = 1085.2/7 на несколько недель вперёд)."""
+    last_real = -1
+    for i, r in enumerate(rows):
+        if r.get("CLOSE") is not None:
+            last_real = i
+    return rows[:last_real + 1] if last_real >= 0 else []
+
+
+def _apply_split_ratio(rows: list[dict], ratio: float) -> list[dict]:
+    """Делит цены старого тикера на коэффициент сплита ПЕРЕД склейкой в
+    непрерывный ряд — напр. Русагро сделал сплит 1:7 при редомициляции
+    (акция ~1450₽ → ~210₽ на новую), без деления доходность/волатильность
+    на стыке считались бы по ложному разрыву цены ×7, а не по факту. VALUE
+    (оборот в рублях за день) НЕ делим — это факт торгов дня независимо от
+    того, сколько «новых» акций эквивалентно одной «старой»."""
+    if ratio == 1:
+        return rows
+    out = []
+    for r in rows:
+        r2 = dict(r)
+        for f in _PRICE_FIELDS:
+            if r2.get(f) is not None:
+                r2[f] = r2[f] / ratio
+        out.append(r2)
+    return out
+
+
 def backfill_historical_tickers(tickers: list[str] | None = None) -> None:
     """Докачивает историю котировок под ПРЕЖНИМИ тикерами компании (поле
     Company.historical_tickers) в ТУ ЖЕ company_id — чтобы редомициляция/
@@ -275,6 +314,11 @@ def backfill_historical_tickers(tickers: list[str] | None = None) -> None:
 
     tickers — фильтр по ТЕКУЩЕМУ тикеру компании (не по старому), None = все
     компании с непустым historical_tickers.
+
+    Элемент historical_tickers — либо строка (старый тикер, конверсия 1:1),
+    либо объект {"ticker": ..., "split_ratio": N} — если при смене тикера
+    БЫЛ сплит/консолидация (напр. Русагро 1:7), цены старого тикера делятся
+    на split_ratio перед склейкой (см. _apply_split_ratio).
     """
     from app.db.session import SessionLocal
     from app.models.company import Company
@@ -288,9 +332,15 @@ def backfill_historical_tickers(tickers: list[str] | None = None) -> None:
         if not companies:
             return
         for c in companies:
-            for old_ticker in (c.historical_tickers or []):
+            for entry in (c.historical_tickers or []):
+                old_ticker = entry if isinstance(entry, str) else entry.get("ticker")
+                ratio = 1 if isinstance(entry, str) else float(entry.get("split_ratio") or 1)
+                if not old_ticker:
+                    continue
                 try:
                     rows = fetch_share_history(old_ticker, date(2015, 1, 1), date.today())
+                    rows = _drop_frozen_tail(rows)
+                    rows = _apply_split_ratio(rows, ratio)
                     written = upsert_share_rows(db, c.id, rows)
                     db.commit()
                     logger.info("Бэкфилл %s (было %s): %d строк", c.ticker, old_ticker, written)
