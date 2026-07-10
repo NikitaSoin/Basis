@@ -148,11 +148,29 @@ NKNC: IRI 3.3 — сестра KZOS (Сибур/Татарстан), но жёс
 демографический (рождаемость −42% с 2014), не институциональный. Все 4 JSON
 прошли json.load с первого раза. Коммит 14553f39.
 
-Итого 64/262 компаний с блоком «Институты» на конец сессии:
-AFKS/AFLT/AGRO/ALRS/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/ETLN/FEES/FIXR/FLOT/GAZP/
-GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LENT/LKOH/LSRG/MAGN/MDMG/MGNT/MOEX/MSRS/MTLR/MTSS/
-MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/RTKM/RUAL/
-SBER/SELG/SFIN/SGZH/SMLT/SNGS/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/VTBR/X5/YDEX.
+## 2026-07-10 (продолжение) — Институты батч 17: DOMRF/SPBE/WUSH/GEMC (68/262)
+DOMRF: IRI 3.4, WACC+4.5пп (осознанно ниже пола 6.0, обоснование во флагах) —
+сам государственный актив (89.9% РФ), риск изъятия near-zero; риск —
+квазигосударственный мандат может сжимать маржу (аналог Транснефть-40%).
+SPBE: IRI 2.8, мультипликатор −30% (главный канал) — правильная атрибуция:
+обвал (-80% от IPO) от внешнего санкционного удара (SDN OFAC ноябрь 2023) +
+идиосинкразия бизнес-модели, НЕ внутреннее изъятие (0/7 паттернов); опцион на
+делистинг из SDN — главный апсайд-триггер. 🔴 Починен схемный баг (fcf_haircut/
+multiple_discount записаны вне valuation_translation — тот же повторяющийся
+паттерн, что NLMK/RUAL/FIXR — агент преждевременно закрывает объект после
+wacc_premium_note; json.load-проверка перед коммитом снова поймала). WUSH:
+IRI 3.7 — 0/7 паттернов изъятия (гринфилд-компания), убыток 2025 — финансовый
++ отраслевой каналы (муниципальные запреты СИМ — регулирование, не изъятие).
+GEMC: IRI 3.4 — заметно слабее аналога MDMG не из-за риска изъятия, а из-за
+governance (3-й год без дивидендов, непрозрачный держатель, новый акционер
+Мордашов санкционно под SDN). Коммит 8a353968.
+
+Итого 68/262 компаний с блоком «Институты» на конец сессии:
+AFKS/AFLT/AGRO/ALRS/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DOMRF/ETLN/FEES/FIXR/FLOT/
+GAZP/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LENT/LKOH/LSRG/MAGN/MDMG/MGNT/MOEX/MSRS/
+MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/
+RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/SNGS/SPBE/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/
+VTBR/WUSH/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
