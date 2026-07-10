@@ -13,6 +13,7 @@ from app.db.session import Base
 
 REPORT_TYPES = ("express", "detailed", "deep")
 HORIZON_DAYS = {"express": 2, "detailed": 7, "deep": 30}
+TOPICS = ("biz", "macro", "geo", "institutions", "mixed")
 
 
 class ObserverReport(Base):
@@ -22,6 +23,7 @@ class ObserverReport(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"),
                                          nullable=False, index=True)
     report_type: Mapped[str] = mapped_column(String(16), nullable=False)  # express|detailed|deep
+    topic: Mapped[str] = mapped_column(String(16), nullable=False, default="mixed")  # см. TOPICS
     horizon_days: Mapped[int] = mapped_column(Integer, nullable=False)
     content: Mapped[str | None] = mapped_column(Text)            # markdown-текст отчёта
     source_refs: Mapped[list | None] = mapped_column(JSONB)      # [{ref,kind,id/ticker,title,url}]

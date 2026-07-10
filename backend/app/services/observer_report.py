@@ -30,66 +30,135 @@ def _portfolio(db: Session, user_id: int) -> tuple[set[str], set[str]]:
 
 
 # ----------------------------- СБОР КОНТЕКСТА -----------------------------
-def _gather(db: Session, rtype: str, pf_tickers: set[str], pf_sectors: set[str]) -> tuple[dict, list]:
-    """Контекст обозревателя по горизонту/охвату типа + список source_refs (ref→элемент)."""
+# Тема (topic) — ЧТО класть в контекст (фокус источников); глубина (rtype) — СКОЛЬКО
+# и как подробно. Раньше topic приходил с фронта и полностью игнорировался — эта
+# таблица задаёт реальный множитель объёма каждого источника ПО ТЕМЕ (1.0 = как для
+# rtype-глубины по умолчанию, 0 = не собирать вовсе). "mixed" — прежнее поведение.
+_TOPIC_WEIGHT = {
+    #           news  earnings  calendar  macro  geo   institutions
+    "biz":         (0.6,  1.5,     0.8,     0.0,  0.0,  0.0),
+    "macro":       (0.5,  0.0,     0.6,     1.5,  0.3,  0.0),
+    "geo":         (0.5,  0.0,     0.4,     0.3,  1.5,  0.0),
+    "institutions":(0.3,  0.0,     0.3,     0.2,  0.5,  1.5),
+    "mixed":       (1.0,  1.0,     1.0,     1.0,  1.0,  1.0),
+}
+
+
+def _gather(db: Session, rtype: str, topic: str, pf_tickers: set[str], pf_sectors: set[str]) -> tuple[dict, list]:
+    """Контекст обозревателя по горизонту/охвату (rtype) И теме-фокусу (topic) +
+    список source_refs (ref→элемент)."""
     today = date.today()
     days = HORIZON_DAYS[rtype]
-    ctx: dict = {"today": today.isoformat(), "report_type": rtype, "horizon_days": days,
+    w_news, w_earn, w_cal, w_macro, w_geo, w_inst = _TOPIC_WEIGHT.get(topic, _TOPIC_WEIGHT["mixed"])
+    ctx: dict = {"today": today.isoformat(), "report_type": rtype, "topic": topic, "horizon_days": days,
                  "portfolio_tickers": sorted(pf_tickers), "portfolio_sectors": sorted(pf_sectors)}
     refs: list = []
 
-    n_news = {"express": 4, "detailed": 12, "deep": 30}[rtype]
-    from app.models.market import MarketUpdate
-    news = (db.query(MarketUpdate).filter(MarketUpdate.status == "published")
-            .order_by(MarketUpdate.published_at.desc()).limit(n_news).all())
+    n_news = round({"express": 4, "detailed": 12, "deep": 30}[rtype] * w_news)
     ctx["news"] = []
-    for i, u in enumerate(news, 1):
-        ref = f"N{i}"
-        tickers = u.affected_tickers or []
-        ctx["news"].append({"ref": ref, "title": u.title,
-                            "impact": (u.impact_comment or "")[:200], "category": u.category,
-                            "tickers": tickers, "in_portfolio": bool(set(tickers) & pf_tickers)})
-        refs.append({"ref": ref, "kind": "news", "id": u.id, "title": u.title, "url": u.source_url})
+    if n_news > 0:
+        from app.models.market import MarketUpdate
+        news = (db.query(MarketUpdate).filter(MarketUpdate.status == "published")
+                .order_by(MarketUpdate.published_at.desc()).limit(n_news).all())
+        for i, u in enumerate(news, 1):
+            ref = f"N{i}"
+            tickers = u.affected_tickers or []
+            ctx["news"].append({"ref": ref, "title": u.title,
+                                "impact": (u.impact_comment or "")[:200], "category": u.category,
+                                "tickers": tickers, "in_portfolio": bool(set(tickers) & pf_tickers)})
+            refs.append({"ref": ref, "kind": "news", "id": u.id, "title": u.title, "url": u.source_url})
 
     # Отчёты (Напр.3) — портфель + крупные
-    from app.models.earnings import EarningsReport, EarningsDigest
-    er = (db.query(EarningsReport, EarningsDigest)
-          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
-          .order_by(EarningsReport.created_at.desc())
-          .limit({"express": 6, "detailed": 14, "deep": 30}[rtype]).all())
+    n_earn = round({"express": 6, "detailed": 14, "deep": 30}[rtype] * w_earn)
     ctx["earnings"] = []
-    for i, (r, dg) in enumerate(er, 1):
-        ref = f"E{i}"
-        ctx["earnings"].append({"ref": ref, "ticker": r.ticker, "period": r.period,
-                               "standard": r.standard, "one_liner": dg.one_liner if dg else None,
-                               "in_portfolio": r.ticker in pf_tickers})
-        refs.append({"ref": ref, "kind": "earnings", "ticker": r.ticker, "title": f"{r.ticker} {r.period}"})
+    if n_earn > 0:
+        from app.models.earnings import EarningsReport, EarningsDigest
+        er = (db.query(EarningsReport, EarningsDigest)
+              .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
+              .order_by(EarningsReport.created_at.desc())
+              .limit(n_earn).all())
+        for i, (r, dg) in enumerate(er, 1):
+            ref = f"E{i}"
+            ctx["earnings"].append({"ref": ref, "ticker": r.ticker, "period": r.period,
+                                   "standard": r.standard, "one_liner": dg.one_liner if dg else None,
+                                   "in_portfolio": r.ticker in pf_tickers})
+            refs.append({"ref": ref, "kind": "earnings", "ticker": r.ticker, "title": f"{r.ticker} {r.period}"})
 
     # Календарь (Напр.4) — будущие события в горизонте
-    from app.models.calendar_event import CalendarEvent
     horizon = today + timedelta(days=days)
-    ce = (db.query(CalendarEvent)
-          .filter(CalendarEvent.event_date >= today, CalendarEvent.event_date <= horizon)
-          .order_by(CalendarEvent.event_date.asc())
-          .limit({"express": 8, "detailed": 25, "deep": 60}[rtype]).all())
+    n_cal = round({"express": 8, "detailed": 25, "deep": 60}[rtype] * w_cal)
     ctx["calendar"] = []
-    for i, e in enumerate(ce, 1):
-        ref = f"C{i}"
-        ctx["calendar"].append({"ref": ref, "type": e.event_type, "date": e.event_date.isoformat(),
-                               "title": e.title, "ticker": e.ticker,
-                               "in_portfolio": bool(e.ticker and e.ticker in pf_tickers)})
-        refs.append({"ref": ref, "kind": "calendar", "id": e.id, "title": e.title})
+    if n_cal > 0:
+        from app.models.calendar_event import CalendarEvent
+        ce = (db.query(CalendarEvent)
+              .filter(CalendarEvent.event_date >= today, CalendarEvent.event_date <= horizon)
+              .order_by(CalendarEvent.event_date.asc())
+              .limit(n_cal).all())
+        for i, e in enumerate(ce, 1):
+            ref = f"C{i}"
+            ctx["calendar"].append({"ref": ref, "type": e.event_type, "date": e.event_date.isoformat(),
+                                   "title": e.title, "ticker": e.ticker,
+                                   "in_portfolio": bool(e.ticker and e.ticker in pf_tickers)})
+            refs.append({"ref": ref, "kind": "calendar", "id": e.id, "title": e.title})
 
-    # Макро (Напр.2) — для detailed/deep
-    if rtype in ("detailed", "deep"):
+    # Макро (Напр.2) — по умолчанию для detailed/deep; тема macro включает всегда
+    # (даже express), тема biz/institutions с низким весом — выключает вовсе
+    if w_macro > 0 and (rtype in ("detailed", "deep") or topic == "macro"):
         ctx["macro"] = _macro_snapshot(db, today, horizon)
 
-    # Геополитика (Напр.7) + Карты (Напр.6) — только deep
-    if rtype == "deep":
+    # Геополитика (Напр.7) + Карты (Напр.6) — по умолчанию только deep; тема geo
+    # включает на любой глубине
+    if w_geo > 0 and (rtype == "deep" or topic == "geo"):
         ctx["geopolitics"] = _geo_snapshot(db)
+    if rtype == "deep" or topic in ("biz", "mixed"):
         ctx["valuation_map"] = _maps_snapshot(db, pf_tickers)
 
+    # Институты (Направление «Институциональная среда») — только тема institutions
+    # (не входит в mixed по умолчанию: отдельный, специфический срез, не общий фон)
+    if w_inst > 0:
+        ctx["institutions"] = _institutions_snapshot(pf_tickers)
+
     return ctx, refs
+
+
+def _institutions_snapshot(pf_tickers: set[str]) -> dict:
+    """Институциональный барометр (макро) + институциональные разборы компаний
+    портфеля, если есть (пилот раскатан на 16 голубых фишек, не на все 262)."""
+    import json
+    from pathlib import Path
+    companies_dir = Path(__file__).parent.parent.parent / "companies"
+    config_dir = Path(__file__).parent.parent.parent / "config"
+    out: dict = {}
+    try:
+        barometer_path = config_dir / "institutional_barometer.json"
+        if barometer_path.exists():
+            b = json.loads(barometer_path.read_text(encoding="utf-8"))
+            out["barometer"] = {"overall": (b.get("barometer") or {}).get("overall"),
+                                "label": (b.get("barometer") or {}).get("label"),
+                                "scenario": (b.get("scenario") or {}).get("current"),
+                                "alerts": [a.get("title") for a in (b.get("alerts") or [])[:5]]}
+    except Exception:  # noqa: BLE001
+        pass
+    companies = []
+    for t in sorted(pf_tickers):
+        p = companies_dir / t.upper() / "institutions.json"
+        if not p.exists():
+            continue
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+            iri = (d.get("iri_scoring") or {}).get("overall")
+            vt = d.get("valuation_translation") or {}
+            companies.append({"ticker": t, "iri_overall": iri,
+                              "wacc_premium_pp": vt.get("wacc_premium_pp"),
+                              "patron_change_risk": (d.get("clan_patronage") or {}).get("patron_change_risk")})
+        except Exception:  # noqa: BLE001
+            continue
+    out["portfolio_companies"] = companies
+    out["portfolio_coverage_note"] = (
+        f"Институциональный разбор есть по {len(companies)} из {len(pf_tickers)} бумаг портфеля "
+        "(пилот на голубых фишках, раскатка на остальные компании продолжается)."
+    )
+    return out
 
 
 def _macro_snapshot(db: Session, today: date, horizon: date) -> dict:
@@ -159,13 +228,35 @@ _LEVEL = {
              "(перегрето/недооценено — модельная оценка, не сигнал); Темы месяца и связки "
              "между направлениями; Полный календарь вперёд. Персональный месячный обзор."),
 }
+# Тема — ФОКУС содержания поверх глубины выше (что подчёркивать/группировать),
+# без нового обхода источников (тот уже задан _TOPIC_WEIGHT в _gather).
+_TOPIC_FOCUS = {
+    "biz": ("ФОКУС ТЕМЫ — БИЗНЕС компаний портфеля: вышедшие отчёты, что изменилось в "
+            "выручке/марже/долге, что это значит для держателя бумаги. Макро/геополитику "
+            "почти не касайся (если только напрямую не бьёт по конкретной компании)."),
+    "macro": ("ФОКУС ТЕМЫ — МАКРОЭКОНОМИКА: ставка/инфляция/курс/бюджет и что это значит "
+              "для рынка и портфеля через каналы трансмиссии. Отчётности отдельных компаний "
+              "почти не касайся, если только не иллюстрируют макро-эффект."),
+    "geo": ("ФОКУС ТЕМЫ — ГЕОПОЛИТИКА: санкции/конфликты/внешние ограничения и их канал "
+            "влияния на рынок/сектора/портфель. Нейтральный тон, явно суждение там, где "
+            "не факт. Финансовые отчёты почти не касайся."),
+    "institutions": ("ФОКУС ТЕМЫ — ИНСТИТУЦИОНАЛЬНАЯ СРЕДА: барометр (конфигурация власти, "
+                     "защита собственности, госсектор), активные алерты, и — если есть данные "
+                     "по компаниям портфеля (institutions.institutions в контексте) — их "
+                     "клановый патронаж/риск изъятия/институциональная премия к оценке. "
+                     "Если по компании данных нет — честно скажи, что разбор пока не сделан, "
+                     "не выдумывай. Это суждение, не факт — подчёркивай явно."),
+    "mixed": "ФОКУС ТЕМЫ — СМЕШАННЫЙ (все источники сбалансированно, как раньше).",
+}
 
 
-def generate(db: Session, user_id: int, rtype: str) -> ObserverReport:
+def generate(db: Session, user_id: int, rtype: str, topic: str = "mixed") -> ObserverReport:
     from app.services.llm import complete, pro_model
+    if topic not in _TOPIC_FOCUS:
+        topic = "mixed"
     pf_t, pf_s = _portfolio(db, user_id)
-    ctx, refs = _gather(db, rtype, pf_t, pf_s)
-    system = _FRAMEWORK + "\n\nУРОВЕНЬ: " + _LEVEL[rtype]
+    ctx, refs = _gather(db, rtype, topic, pf_t, pf_s)
+    system = _FRAMEWORK + "\n\nУРОВЕНЬ: " + _LEVEL[rtype] + "\n\n" + _TOPIC_FOCUS[topic]
     thinking = rtype in ("detailed", "deep")
     max_tokens = {"express": 1500, "detailed": 4000, "deep": 8000}[rtype]
     content = complete(system, json.dumps(ctx, ensure_ascii=False), json_mode=False,
@@ -173,10 +264,10 @@ def generate(db: Session, user_id: int, rtype: str) -> ObserverReport:
                        temperature=0.3)
     if not isinstance(content, str):
         content = str(content)
-    rep = ObserverReport(user_id=user_id, report_type=rtype, horizon_days=HORIZON_DAYS[rtype],
+    rep = ObserverReport(user_id=user_id, report_type=rtype, topic=topic, horizon_days=HORIZON_DAYS[rtype],
                          content=content.strip(), source_refs=refs,
                          portfolio_snapshot=sorted(pf_t), model_used="deepseek-pro",
                          generated_at=datetime.now(timezone.utc))
     db.add(rep); db.commit(); db.refresh(rep)
-    logger.info("Обозревательский отчёт %s сгенерирован для user=%s (refs=%d)", rtype, user_id, len(refs))
+    logger.info("Обозревательский отчёт %s/%s сгенерирован для user=%s (refs=%d)", rtype, topic, user_id, len(refs))
     return rep
