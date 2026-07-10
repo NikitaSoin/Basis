@@ -198,12 +198,29 @@ FESH: IRI 2.6 — изъятие уже реализовано (Магомедо
 смягчён наличием справедливой оферты (в отличие от ЮГК). Все 4 JSON прошли
 json.load с первого раза. Коммит c9643045.
 
-Итого 76/262 компаний с блоком «Институты» на конец сессии:
+## 2026-07-10 (продолжение) — Институты батч 20: MBNK/KMAZ/LSNG/MSTT (80/262)
+MBNK: IRI 3.1 — второй этаж пирамиды АФК Система (Евтушенков→МТС→МТС Банк ~87%),
+но регулирование ЦБ ограничивает вывод капитала в отличие от обычной дочки;
+риск — размытие (допэмиссия до 20% УК) + подчинённость стратегии МТС. KMAZ:
+IRI 2.9, мультипликатор −35% — институциональный антипод жертвы изъятия
+(Ростех/Чемезов + Татарстан), убыток 2025 — отраслевой обвал рынка грузовиков
++ проценты, не институты; риск — размытие (прецедент допэмиссии ОАК, аналог
+Сегежа). LSNG: IRI 3.3 — лучше аналога MSRS: город СПб держит 28% напрямую
+(встроенный про-дивидендный лоббист), дивполитика 50% соблюдается без искажений
+(в отличие от MSRS); дисконт от тонкого free float обыкновенных (~2-3%), не от
+риска изъятия. MSTT: IRI 2.9, мультипликатор −50% (крупнейший дисконт в
+раскатке на сегодня) — тезис задания не подтвердился: Ротенберг НЕ продавал
+контроль в 2019-2020, продал операционные активы в непубличный Нацпроектстрой,
+оставив публичное ПАО обескровленной оболочкой (выручка 65.7→~4 млрд); риск
+изъятия near-zero (инсайдер в Политбюро 2.0), но стоимость утекает мимо
+миноритария. Все 4 JSON прошли json.load с первого раза. Коммит fe72fb69.
+
+Итого 80/262 компаний с блоком «Институты» на конец сессии:
 AFKS/AFLT/AGRO/AKRN/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/DOMRF/
-DVEC/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LEAS/
-LENT/LKOH/LSRG/MAGN/MDMG/MGNT/MOEX/MSRS/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/
-OZON/OZPH/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/
-SNGS/SPBE/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/VTBR/WUSH/X5/YDEX.
+DVEC/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KMAZ/KZOS/
+LEAS/LENT/LKOH/LSNG/LSRG/MAGN/MBNK/MDMG/MGNT/MOEX/MSRS/MSTT/MTLR/MTSS/MVID/NKNC/
+NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/RTKM/RUAL/SBER/
+SELG/SFIN/SGZH/SMLT/SNGS/SPBE/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/VTBR/WUSH/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
