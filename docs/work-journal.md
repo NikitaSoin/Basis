@@ -263,14 +263,33 @@ TGKN: IRI 1.7 (самый низкий балл раскатки на сегод
 ~в 110 раз после долговой катастрофы ИСТ Груп, актив перешёл к орбите УГМК.
 Все 4 JSON прошли json.load с первого раза. Коммит 89491d37.
 
-Итого 92/262 компаний с блоком «Институты» на конец сессии (~35%):
+## 2026-07-10 (продолжение) — Институты батч 24: MSNG/SVAV/RTGZ/NKHP (96/262)
+MSNG: IRI 3.7 — чище аналога TGKA: оба контролирующих акционера госструктуры
+(ГЭХ+Москва), нет замороженного иностранного акционера (в отличие от Fortum у
+ТГК-1); дивиденды платятся стабильно 10+ лет — дисконт мультипликатора вдвое
+ниже TGKA (12% vs 25%). SVAV: IRI 3.0 — иностранный совладелец (Ford) выкуплен
+в 2022, снят главный триггер изъятий; риск смещён на санкционную изоляцию (SDN
+США) + зависимость от господдержки/китайских компонентов. RTGZ: 🔴 поймана
+ошибка идентификации в постановке задачи — тикер RTGZ на платформе это НЕ
+холдинг «Роснефтегаз» (непубличный, без биржевого тикера — 100% Росимущества,
+держит ~40% Роснефти и ~11% Газпрома), а «Газпром газораспределение Ростов-на-
+Дону» (региональная ГРО, подтверждено по MOEX/financials.json/governance.json
+в самой папке компании). IRI 2.7, WACC+5.0пп (ниже пола, обоснование во
+флагах) — риск инвертирован: актив уже государственный, но экстракция
+стоимости у миноритария высокая (0 дивидендов >10 лет). NKHP: IRI 3.0 —
+структура постановки устарела (ВТБ продал 45% Деметры Оману, Marathon/
+Винокуров вышел, не Мошкович); риск — регуляторная экстракция маржи (зерновая
+квота дала −71% прибыли H1 2025), не изъятие. Все 4 JSON прошли json.load с
+первого раза. Коммит 13da05de.
+
+Итого 96/262 компаний с блоком «Институты» на конец сессии (~37%):
 ABRD/AFKS/AFLT/AGRO/AKRN/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/
 DIAS/DOMRF/DVEC/ELMT/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HNFG/
 HYDR/IRAO/IRKT/IVAT/KMAZ/KZOS/LEAS/LENT/LKOH/LSNG/LSRG/MAGN/MBNK/MDMG/MGNT/
-MOEX/MSRS/MSTT/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/
-PLZL/POSI/RASP/RENI/RNFT/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SIBN/SMLT/SNGS/
-SPBE/SVCB/T/TATN/TGKA/TGKN/TRMK/TRNFP/UGLD/UPRO/UWGN/VKCO/VSMO/VTBR/WUSH/X5/
-YDEX.
+MOEX/MSNG/MSRS/MSTT/MTLR/MTSS/MVID/NKHP/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/
+PHOR/PIKK/PLZL/POSI/RASP/RENI/RNFT/ROSN/RTGZ/RTKM/RUAL/SBER/SELG/SFIN/SGZH/
+SIBN/SMLT/SNGS/SPBE/SVAV/SVCB/T/TATN/TGKA/TGKN/TRMK/TRNFP/UGLD/UPRO/UWGN/VKCO/
+VSMO/VTBR/WUSH/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
