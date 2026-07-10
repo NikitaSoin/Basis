@@ -85,10 +85,26 @@ SFIN: IRI 3.4 — холдинг Гуцериевых (уточнено прот
 институциональной поправки. Все 4 JSON прошли json.load с первого раза.
 Коммит e4fc303c.
 
-Итого 48/262 компаний с блоком «Институты» на конец сессии:
-AFKS/AFLT/AGRO/ALRS/ASTR/BSPB/CBOM/CHMF/ETLN/FEES/FLOT/GAZP/GMKN/HHRU/HYDR/IRAO/
-LENT/LKOH/LSRG/MAGN/MGNT/MOEX/MTSS/MVID/NLMK/NVTK/OZON/PHOR/PIKK/PLZL/POSI/ROSN/
-RTKM/RUAL/SBER/SFIN/SGZH/SMLT/SNGS/SVCB/T/TATN/TGKA/TRNFP/VKCO/VTBR/X5/YDEX.
+## 2026-07-10 (продолжение) — Институты батч 13: BANE/RASP/BELU/AQUA (52/262)
+BANE: IRI 2.7, FCF-хейркат −20% (крупнейший в раскатке) — актив уже деприватизирован
+(Евтушенков 2014→Роснефть), риск не в будущем изъятии, а в систематическом выводе
+денег в пользу Роснефти через дебиторку связанных сторон (~164 млрд руб.) при
+payout 25%. RASP: IRI 2.6 — Evraz Plc → онширинг в ПАО «Евраз» (указ 25.11.2025,
+защитный перевод в РФ-контур, НЕ отход государству); убыток 2025 на 75-85%
+макро/отрасль (цены угля, крепкий рубль, тарифы РЖД), институты вторичны; риск —
+сверхнизкий free float ~6.76%. BELU: IRI 3.1, WACC+5.0пп (осознанно ниже пола 6.0,
+обоснование во флагах) — редкий кейс без риска изъятия (0/7 паттернов), реальный
+риск — акцизное давление + governance миноритария (байбэк за долг у связанных лиц).
+AQUA: IRI 3.6 — Воробьёв полностью вышел из капитала апр-май 2026 (был патронаж
+семьи губернатора Подмосковья), 0/7 паттернов изъятия; падение выручки 2025 −22%
+это биологическая катастрофа (гибель рыбы), не институты. Все 4 JSON прошли
+json.load с первого раза. Коммит 32cc6054.
+
+Итого 52/262 компаний с блоком «Институты» на конец сессии:
+AFKS/AFLT/AGRO/ALRS/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/ETLN/FEES/FLOT/GAZP/GMKN/
+HHRU/HYDR/IRAO/LENT/LKOH/LSRG/MAGN/MGNT/MOEX/MTSS/MVID/NLMK/NVTK/OZON/PHOR/PIKK/
+PLZL/POSI/RASP/ROSN/RTKM/RUAL/SBER/SFIN/SGZH/SMLT/SNGS/SVCB/T/TATN/TGKA/TRNFP/
+VKCO/VTBR/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
