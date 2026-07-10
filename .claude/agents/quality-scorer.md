@@ -7,9 +7,9 @@ description: >
   скор компании по одному из этих измерений (по тикеру) — читает уже готовые
   блоки карточки (business_model.md / market.json+market_summary.md /
   governance.json+financials.json), НЕ пересчитывает и не ходит в веб. Пишет
-  в таблицу company_scores. Вызывать по одной компании (все три измерения за
-  один прогон — экономнее, чем три отдельных вызова).
-tools: Read, Bash
+  companies/<TICKER>/quality_scores.json. Вызывать по одной компании (все три
+  измерения за один прогон — экономнее, чем три отдельных вызова).
+tools: Read, Write
 model: claude-opus-4-8
 ---
 
@@ -119,51 +119,38 @@ business-model-analyst, market-analyst, governance-analyst, financial-analyst)
 
 # ФОРМАТ ВЫВОДА — ОДНА операция записи в конце
 
-Не файл в companies/ — запись СТРОК в таблицу `company_scores` через Python/
-SQLAlchemy инфраструктуру бэкенда (НЕ psql — DATABASE_URL не экспортирован в
-окружении сессии, а backend/.env его не подхватит без загрузки приложения).
-Запусти из `backend/` (`cd backend` если нужно) ОДНИМ Bash-вызовом в конце:
+Файл `backend/companies/<TICKER>/quality_scores.json` (тот же паттерн, что
+`institutions.json`/`business_model.md` — коммитится и деплоится через git,
+не пишется напрямую в БД):
 
-```bash
-python3 -c "
-from datetime import date
-from app.db.session import SessionLocal
-from app.models.company_score import CompanyScore
-
-db = SessionLocal()
-rows = [
-    CompanyScore(ticker='SBER', dimension='bm', score=85,
-                 rationale='Обоснование...',
-                 evidence=['факт 1 из business_model.md', 'факт 2'],
-                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
-                 as_of=date.today()),
-    CompanyScore(ticker='SBER', dimension='mp', score=78,
-                 rationale='Обоснование...', evidence=['факт 1'],
-                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
-                 as_of=date.today()),
-    CompanyScore(ticker='SBER', dimension='ca', score=72,
-                 rationale='Обоснование...', evidence=['факт 1'],
-                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
-                 as_of=date.today()),
-]
-for r in rows:
-    existing = (db.query(CompanyScore)
-                .filter_by(ticker=r.ticker, dimension=r.dimension, as_of=r.as_of).first())
-    if existing:
-        existing.score = r.score; existing.rationale = r.rationale; existing.evidence = r.evidence
-    else:
-        db.add(r)
-db.commit()
-db.close()
-print('OK: записано', len(rows), 'строк')
-"
+```json
+{
+  "as_of": "2026-07-10",
+  "model": "claude-opus-4-8",
+  "prompt_version": "v1",
+  "card_version": "2026-07",
+  "bm": {
+    "score": 85,
+    "rationale": "Обоснование в 2-4 предложения...",
+    "evidence": ["факт 1 из business_model.md с указанием источника", "факт 2"]
+  },
+  "mp": {
+    "score": 78,
+    "rationale": "...",
+    "evidence": ["..."]
+  },
+  "ca": {
+    "score": 72,
+    "rationale": "...",
+    "evidence": ["..."]
+  }
+}
 ```
 
-Если venv бэкенда не активирован в сессии — сначала `source venv/bin/activate`
-(из `backend/`). `card_version` — год-месяц среза (`meta.as_of`/`meta.price_date`
-карточки, если есть, иначе текущий YYYY-MM). Если измерение пропущено (нет
-файла-источника) — не включай его в список `rows` вовсе, не пиши null-скор.
+`card_version` — год-месяц среза (`meta.as_of`/`meta.price_date` карточки,
+если есть, иначе текущий YYYY-MM). Если измерение пропущено (нет
+файла-источника) — не включай его ключ в JSON вовсе (не `null`, а ключа нет),
+портфельный сервис читает `.get(dim)` и корректно деградирует.
 
 В конце верни короткое текстовое резюме (3 строки: BM/MP/CA — балл и одна
-фраза почему), НЕ файл — запись в БД это и есть твой единственный
-результирующий артефакт.
+фраза почему), НЕ повторяй файл целиком.

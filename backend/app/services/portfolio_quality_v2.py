@@ -7,7 +7,7 @@ docs/Basis_методика_индекса_качества_портфеля_v2.
   - MR  (Рыночный риск) — σ + MDD + VaR95 дневной.
   - FQ  (Фундаментальное качество) — ВСЕ 5 компонент методики: FS (код из
     financials.json) + Gov (governance.json scoring.overall_score) + BM/MP/CA
-    (субагент .claude/agents/quality-scorer.md → таблица company_scores).
+    (субагент .claude/agents/quality-scorer.md → companies/<TICKER>/quality_scores.json).
     Раскатка BM/MP/CA идёт постепенно по компаниям (не на все 262 сразу) —
     для непокрытых компаний FQ(i) считается на доступных FS+Gov с
     перенормировкой весов (честная деградация, не молчаливый ноль);
@@ -224,23 +224,18 @@ def _gov_score(ticker: str) -> float | None:
 
 
 def _llm_scores(ticker: str) -> dict[str, float | None]:
-    """Последние BM/MP/CA скоры компании из company_scores (субагент
-    quality-scorer, методика §6.1/§13). Пусто, если компания ещё не в
-    раскатке — честная деградация, не выдумываем."""
-    from app.models.company_score import CompanyScore
-    from sqlalchemy import desc
-    from app.db.session import SessionLocal
-    out: dict[str, float | None] = {"bm": None, "mp": None, "ca": None}
-    db2 = SessionLocal()
-    try:
-        for dim in ("bm", "mp", "ca"):
-            row = (db2.query(CompanyScore)
-                   .filter(CompanyScore.ticker == ticker.upper(), CompanyScore.dimension == dim)
-                   .order_by(desc(CompanyScore.as_of)).first())
-            if row:
-                out[dim] = float(row.score)
-    finally:
-        db2.close()
+    """Последние BM/MP/CA скоры компании из companies/<TICKER>/quality_scores.json
+    (субагент quality-scorer, методика §6.1/§13). Файл, не таблица БД — тот же
+    паттерн, что у financials.json/governance.json (деплой через git, не через
+    прямую запись в прод-БД, к которой у раскатывающих субагентов нет доступа).
+    Пусто, если компания ещё не в раскатке — честная деградация, не выдумываем."""
+    data = _load_company_json(ticker, "quality_scores.json")
+    if not data:
+        return {"bm": None, "mp": None, "ca": None}
+    out: dict[str, float | None] = {}
+    for dim in ("bm", "mp", "ca"):
+        v = (data.get(dim) or {}).get("score")
+        out[dim] = float(v) if isinstance(v, (int, float)) else None
     return out
 
 
@@ -250,7 +245,7 @@ FQ_SUB_WEIGHTS = {"bm": 0.30, "fs": 0.25, "gov": 0.20, "mp": 0.15, "ca": 0.10}
 
 def _compute_fq(equity: list[dict]) -> dict | None:
     """FQ_p — все 5 компонент методики §6.1, с честной перенормировкой там, где
-    BM/MP/CA ещё не раскатаны на конкретную компанию (company_scores, раскатка
+    BM/MP/CA ещё не раскатаны на конкретную компанию (quality_scores.json, раскатка
     quality-scorer идёт постепенно — не на все 262 компании сразу)."""
     total_w = sum(p["value"] for p in equity)
     if total_w <= 0:
@@ -636,7 +631,7 @@ def compute_quality_index_v2(
         "phase_note": (
             "Все 7 модулей методики v2.1 считаются по полной формуле. «Фундаментальное "
             "качество» использует все 5 компонент (BM/FS/Gov/MP/CA) там, где по компании "
-            "уже прогнан субагент quality-scorer (см. company_scores) — раскатка идёт "
+            "уже прогнан субагент quality-scorer (см. quality_scores.json) — раскатка идёт "
             "постепенно по компаниям, не на все 262 сразу; для ещё не раскатанных компаний "
             "FQ считается на доступных FS+Gov с честной перенормировкой весов (не молчаливый "
             "ноль) — см. coverage_note модуля. Сценарная устойчивость и форвардная доходность "
