@@ -30,13 +30,18 @@ MOEX 86/88/82 (эталон CA — нулевой долг), VTBR 52/66/18 (дн
 трёх низкий CA обоснован РЕАЛЬНЫМ фактом (отмена дивидендов без структурной
 причины / апстрим в АФК Систему через долг), не выдуман для заполнения.
 
-**Раскатка Институтов — 16→20 компаний**: батч PLZL/X5/OZON/NLMK добавлен к уже
-готовым 16. NLMK поймал и починил битый JSON (агент случайно закрыл
-`valuation_translation` слишком рано after `wacc_premium_note` — fcf_haircut_pct и
-остальные поля повисли вне объекта; починил вручную перед коммитом, проверил
-`json.load`). Итого 20/262 компаний с блоком «Институты» на конец сессии:
-AFKS/ALRS/CHMF/GAZP/GMKN/LKOH/MAGN/MOEX/MTSS/NVTK/OZON/PLZL/ROSN/SBER/T/TATN/
-VTBR/X5/YDEX/NLMK.
+**Раскатка Институтов — 20→36 компаний** (продолжение той же сессии, 4 батча):
++PLZL/X5/OZON/NLMK, +RUAL/PHOR/IRAO/RTKM, +AFLT/HYDR/SNGS/TRNFP,
++PIKK/SMLT/CBOM/BSPB, +ASTR/POSI/ETLN/LSRG. Два JSON пришли битыми (NLMK и RUAL —
+одна и та же ошибка схемы, агент преждевременно закрывал `valuation_translation`
+после `wacc_premium_pp/note`, остальные 3 поля повисали вне объекта) — оба раза
+поймал и починил вручную перед коммитом (`json.load` проверка — обязательный шаг
+перед каждым коммитом батча институтов, не пропускать).
+
+Итого 36/262 компаний с блоком «Институты» на конец сессии:
+AFKS/AFLT/ALRS/ASTR/BSPB/CBOM/CHMF/ETLN/GAZP/GMKN/HYDR/IRAO/LKOH/LSRG/MAGN/MOEX/
+MTSS/NLMK/NVTK/OZON/PHOR/PIKK/PLZL/POSI/ROSN/RTKM/RUAL/SBER/SMLT/SNGS/T/TATN/
+TRNFP/VTBR/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
