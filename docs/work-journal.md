@@ -165,12 +165,28 @@ GEMC: IRI 3.4 — заметно слабее аналога MDMG не из-за
 governance (3-й год без дивидендов, непрозрачный держатель, новый акционер
 Мордашов санкционно под SDN). Коммит 8a353968.
 
-Итого 68/262 компаний с блоком «Институты» на конец сессии:
-AFKS/AFLT/AGRO/ALRS/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DOMRF/ETLN/FEES/FIXR/FLOT/
-GAZP/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LENT/LKOH/LSRG/MAGN/MDMG/MGNT/MOEX/MSRS/
-MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/
-RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/SNGS/SPBE/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/
-VTBR/WUSH/X5/YDEX.
+## 2026-07-10 (продолжение) — Институты батч 18: DELI/OZPH/APTK/DVEC (72/262)
+DELI: IRI 3.3 — 1/7 паттернов срабатывает (иностранный бенефициар Трани,
+гражданин Италии, необредомицилированный люксембургский холдинг); риск умеренный
+(не стратегический, убыточный актив, лоялен); убыток 2025 — финансовый канал
+(лизинг/долг ND/EBITDA 4.8x), не институты. 🔴 Первая попытка агента упала
+API-ошибкой (response stalled) до записи файла — проверил, файл действительно
+отсутствовал, перезапустил точечно только этот тикер, без потери остального
+батча. OZPH: IRI 3.6 — 0/7 паттернов изъятия (не путать с маркетплейсом Ozon),
+риск — ценовое регулирование ЖНВЛП (кейс ФАС/Азатиоприн март-2026), не изъятие.
+APTK: IRI 2.5, мультипликатор −45% (крупнейший дисконт в раскатке на сегодня) —
+не риск изъятия (0/7 паттернов), а беззащитность миноритария: free float ~6%,
+отриц. капитал, buyback≈делистинг, свежий гражданский иск с арестом активов.
+DVEC: IRI 2.6 — актив уже государственный (РусГидро ~94.5%), но тоньше free
+float (~5%) и ближе к squeeze-out, чем у HYDR; дальневосточная тарифная
+надбавка фиксируется по номиналу — риск эрозии субсидии инфляцией. Коммит afe68ebd.
+
+Итого 72/262 компаний с блоком «Институты» на конец сессии:
+AFKS/AFLT/AGRO/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/DOMRF/DVEC/ETLN/
+FEES/FIXR/FLOT/GAZP/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LENT/LKOH/LSRG/MAGN/MDMG/
+MGNT/MOEX/MSRS/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/PLZL/
+POSI/RASP/RENI/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/SNGS/SPBE/SVCB/T/TATN/
+TGKA/TRNFP/UGLD/VKCO/VTBR/WUSH/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
