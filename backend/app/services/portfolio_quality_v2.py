@@ -5,11 +5,13 @@ docs/Basis_методика_индекса_качества_портфеля_v2.
   - D   (Диверсификация) — IssuerD + SectorD + CorrD + FactorD (код-маппер
     экспозиций из macro.json/geo.json effect_sign, §3.1-3.2).
   - MR  (Рыночный риск) — σ + MDD + VaR95 дневной.
-  - FQ  (Фундаментальное качество) — ЧАСТИЧНО: FS (код из financials.json) +
-    Gov (governance.json scoring.overall_score). BM/MP/CA (бизнес-модель/
-    рыночная позиция/capital allocation) требуют нового LLM-субагента
-    quality-scorer — НЕ реализованы, FQ_p считается на доступных FS+Gov с
-    перенормировкой весов (честная деградация, не молчаливый ноль).
+  - FQ  (Фундаментальное качество) — ВСЕ 5 компонент методики: FS (код из
+    financials.json) + Gov (governance.json scoring.overall_score) + BM/MP/CA
+    (субагент .claude/agents/quality-scorer.md → таблица company_scores).
+    Раскатка BM/MP/CA идёт постепенно по компаниям (не на все 262 сразу) —
+    для непокрытых компаний FQ(i) считается на доступных FS+Gov с
+    перенормировкой весов (честная деградация, не молчаливый ноль);
+    coverage_note различает "хотя бы одна компонента" и "полное покрытие".
   - V   (Запас прочности) — Confidence кодом (ширина коридора/расхождение
     методов/data_quality) × Upside к fair_value_range.base → RAU.
   - MGI (Сценарная устойчивость) — через общий факторный движок
@@ -39,7 +41,7 @@ from app.models.company import Quote
 from app.services.portfolio import _lin_score, _clamp01
 from app.services import factor_exposures, factor_engine
 
-METHODOLOGY_VERSION = "v2.1-phase2-partial"
+METHODOLOGY_VERSION = "v2.1-phase2"
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
@@ -221,12 +223,35 @@ def _gov_score(ticker: str) -> float | None:
     return _lin_score(overall, best=5, worst=1)  # шкала governance 1-5 → 0-100
 
 
+def _llm_scores(ticker: str) -> dict[str, float | None]:
+    """Последние BM/MP/CA скоры компании из company_scores (субагент
+    quality-scorer, методика §6.1/§13). Пусто, если компания ещё не в
+    раскатке — честная деградация, не выдумываем."""
+    from app.models.company_score import CompanyScore
+    from sqlalchemy import desc
+    from app.db.session import SessionLocal
+    out: dict[str, float | None] = {"bm": None, "mp": None, "ca": None}
+    db2 = SessionLocal()
+    try:
+        for dim in ("bm", "mp", "ca"):
+            row = (db2.query(CompanyScore)
+                   .filter(CompanyScore.ticker == ticker.upper(), CompanyScore.dimension == dim)
+                   .order_by(desc(CompanyScore.as_of)).first())
+            if row:
+                out[dim] = float(row.score)
+    finally:
+        db2.close()
+    return out
+
+
+# Полные веса методики §6.1: FQ(i) = 30%BM + 25%FS + 20%Gov + 15%MP + 10%CA
+FQ_SUB_WEIGHTS = {"bm": 0.30, "fs": 0.25, "gov": 0.20, "mp": 0.15, "ca": 0.10}
+
+
 def _compute_fq(equity: list[dict]) -> dict | None:
-    """FQ_p — ЧАСТИЧНЫЙ (только FS 25% + Gov 20% из полных весов методики,
-    BM/MP/CA нужен quality-scorer — не реализован). Перенормировка на
-    доступные компоненты, штраф MultiWeakShare пока не считается (нужны
-    red_flags по ВСЕМ компонентам, часть которых недоступна)."""
-    FQ_SUB_WEIGHTS = {"fs": 0.25, "gov": 0.20}
+    """FQ_p — все 5 компонент методики §6.1, с честной перенормировкой там, где
+    BM/MP/CA ещё не раскатаны на конкретную компанию (company_scores, раскатка
+    quality-scorer идёт постепенно — не на все 262 компании сразу)."""
     total_w = sum(p["value"] for p in equity)
     if total_w <= 0:
         return None
@@ -235,41 +260,57 @@ def _compute_fq(equity: list[dict]) -> dict | None:
     for p in equity:
         fs = _fs_score(p["ticker"])
         gov = _gov_score(p["ticker"])
-        parts = [(k, s) for k, s in (("fs", fs), ("gov", gov)) if s is not None]
+        llm = _llm_scores(p["ticker"])
+        parts = [(k, s) for k, s in (("bm", llm["bm"]), ("fs", fs), ("gov", gov),
+                                      ("mp", llm["mp"]), ("ca", llm["ca"])) if s is not None]
         if not parts:
             continue
         den = sum(FQ_SUB_WEIGHTS[k] for k, _ in parts)
         company_fq = sum(FQ_SUB_WEIGHTS[k] * s for k, s in parts) / den
         num += p["value"] * company_fq
         covered_w += p["value"]
-        per_company.append({"ticker": p["ticker"], "fs": fs, "gov": gov, "fq": round(company_fq)})
+        per_company.append({"ticker": p["ticker"], "fs": fs, "gov": gov,
+                            "bm": llm["bm"], "mp": llm["mp"], "ca": llm["ca"], "fq": round(company_fq)})
     if covered_w <= 0:
         return None
     fq_p = round(num / covered_w)
     coverage_pct = round(covered_w / total_w * 100)
-    fs_vals = [c["fs"] for c in per_company if c.get("fs") is not None]
-    gov_vals = [c["gov"] for c in per_company if c.get("gov") is not None]
-    fs_avg = round(sum(fs_vals) / len(fs_vals)) if fs_vals else None
-    gov_avg = round(sum(gov_vals) / len(gov_vals)) if gov_vals else None
+    ticker_value = {p["ticker"]: p["value"] for p in equity}
+    full_coverage_w = sum(ticker_value.get(c["ticker"], 0) for c in per_company if c.get("bm") is not None)
+    full_coverage_pct = round(full_coverage_w / total_w * 100) if total_w else 0
+
+    def _avg(key):
+        vals = [c[key] for c in per_company if c.get(key) is not None]
+        return round(sum(vals) / len(vals)) if vals else None
+    bm_avg, fs_avg, gov_avg, mp_avg, ca_avg = _avg("bm"), _avg("fs"), _avg("gov"), _avg("mp"), _avg("ca")
     return {
         "key": "fundamental_quality_v2", "label": "Фундаментальное качество", "score": fq_p,
         "confidence": "оценка + суждение",
-        "coverage_note": f"ЧАСТИЧНЫЙ: только финансовая устойчивость (FS) и управление (Gov) — "
-                         f"25%+20% из полных весов методики. Бизнес-модель/рыночная позиция/"
-                         f"capital allocation (BM/MP/CA, 55% веса FQ) требуют LLM-субагента "
-                         f"quality-scorer — не реализованы. Покрытие: {coverage_pct}% стоимости акций.",
+        "coverage_note": (
+            f"Покрытие (хотя бы одна компонента): {coverage_pct}% стоимости акций. "
+            f"Полное покрытие (все 5 компонент, включая BM/MP/CA от quality-scorer): {full_coverage_pct}%"
+            + (" — раскатка на остальные компании продолжается." if full_coverage_pct < coverage_pct else ".")
+        ),
         "components": [
-            {"name": "Финансовая устойчивость (ND/EBITDA, покрытие процентов, FCF-маржа, срочность долга)",
-             "value": f"{fs_avg}" if fs_avg is not None else "—", "score": fs_avg},
-            {"name": "Корпоративное управление (governance-балл)",
-             "value": f"{gov_avg}" if gov_avg is not None else "—", "score": gov_avg},
+            c for c in [
+                {"name": "Бизнес-модель (устойчивость источника прибыли, ров)",
+                 "value": f"{bm_avg}" if bm_avg is not None else "—", "score": bm_avg},
+                {"name": "Финансовая устойчивость (ND/EBITDA, покрытие процентов, FCF-маржа, срочность долга)",
+                 "value": f"{fs_avg}" if fs_avg is not None else "—", "score": fs_avg},
+                {"name": "Корпоративное управление (governance-балл)",
+                 "value": f"{gov_avg}" if gov_avg is not None else "—", "score": gov_avg},
+                {"name": "Рыночная позиция (доля, конкуренция, потенциал роста)",
+                 "value": f"{mp_avg}" if mp_avg is not None else "—", "score": mp_avg},
+                {"name": "Capital allocation (дивиденды/CAPEX/M&A/допэмиссии)",
+                 "value": f"{ca_avg}" if ca_avg is not None else "—", "score": ca_avg},
+            ] if c["score"] is not None
         ],
         "verdict": (
-            "По доступным данным (устойчивость баланса + управление) портфель держит качественные компании."
+            "Портфель держит компании с качественными бизнес-моделями, крепкими балансами и разумным управлением капиталом."
             if fq_p >= 60 else
-            "Смешанная картина по устойчивости баланса и управлению — не все компании одинаково крепки."
+            "Смешанная картина по качеству компаний — не все одинаково крепки по бизнес-модели, балансу или управлению."
             if fq_p >= 40 else
-            "По доступным данным заметная доля портфеля — компании с повышенным долговым риском и/или слабым управлением."
+            "Заметная доля портфеля — компании со слабой бизнес-моделью, повышенным долговым риском и/или слабым управлением капиталом."
         ),
         "per_company": per_company,
     }
@@ -593,13 +634,14 @@ def compute_quality_index_v2(
         "weights": {s["key"]: OVERALL_WEIGHTS[s["key"]] for s in subindices},
         "methodology_version": METHODOLOGY_VERSION,
         "phase_note": (
-            "Все 7 модулей методики v2.1 считаются, но «Фундаментальное качество» — ЧАСТИЧНО: "
-            "реализованы только финансовая устойчивость (код) и корпоративное управление "
-            "(уже готовый governance-балл) — 45% из полного веса модуля. Бизнес-модель, "
-            "рыночная позиция и capital allocation (BM/MP/CA, 55% веса) требуют нового "
-            "LLM-субагента quality-scorer с откалиброванными эталонами — не реализованы, "
-            "следующая фаза. Сценарная устойчивость и форвардная доходность — по грубой "
-            "линейной факторной модели (явно суждение, не прогноз), см. лимитации модулей."
+            "Все 7 модулей методики v2.1 считаются по полной формуле. «Фундаментальное "
+            "качество» использует все 5 компонент (BM/FS/Gov/MP/CA) там, где по компании "
+            "уже прогнан субагент quality-scorer (см. company_scores) — раскатка идёт "
+            "постепенно по компаниям, не на все 262 сразу; для ещё не раскатанных компаний "
+            "FQ считается на доступных FS+Gov с честной перенормировкой весов (не молчаливый "
+            "ноль) — см. coverage_note модуля. Сценарная устойчивость и форвардная доходность "
+            "— по грубой линейной факторной модели (явно суждение, не прогноз), см. "
+            "лимитации модулей."
         ),
         "note": "Якоря и веса — продуктовое решение (произвол), калибруются после первых прогонов "
                 "на реальных портфелях — docs/Basis_методика_индекса_качества_портфеля_v2.1.md.",
