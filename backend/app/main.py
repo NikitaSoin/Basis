@@ -148,14 +148,22 @@ async def _asset_data_job():
     Грузит только устаревшее/пустое (идемпотентно) — поэтому после деплоя с новой
     миграцией данные подтягиваются САМИ, без ручной команды на консоли. Тяжёлая
     загрузка (облигации ~15-20 мин) идёт в executor-потоке и НЕ блокирует сервер."""
-    try:
+    def _refresh_assets():
+        if not _wait_for_db():
+            logger.error("Классы активов: БД так и не стала доступна — джоб пропущен")
+            return
         from app.services.asset_data import refresh_all_if_stale
-        await asyncio.get_event_loop().run_in_executor(None, refresh_all_if_stale)
+        refresh_all_if_stale()
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _refresh_assets)
     except Exception as e:
         logger.exception("Ошибка авто-обновления данных классов активов: %s", e)
     # Календарь событий (Направление 4) — после загрузки облигаций/фьючерсов.
     try:
         def _cal():
+            if not _wait_for_db():
+                logger.error("Календарь: БД так и не стала доступна — джоб пропущен")
+                return {"error": "db_unavailable"}
             from app.db.session import SessionLocal
             from app.services.calendar_events import refresh_all
             db = SessionLocal()
@@ -188,10 +196,36 @@ async def _news_job():
         logger.exception("Ошибка прогона ленты новостей: %s", e)
 
 
+def _wait_for_db(max_attempts: int = 6, delay_seconds: float = 5.0) -> bool:
+    """Ждать готовности БД перед джобом, который НЕ ретраит сам (в отличие от
+    alembic upgrade в start.sh, который умеет). Найдено по логам: контейнер
+    иногда стартует/крон срабатывает раньше, чем Postgres принимает соединения
+    ("Connection refused" на первой попытке) — без ретрая вся дневная синхронизация
+    (напр. sync_cb — сценарии ЦБ/макроопрос) молча теряется до следующего крона."""
+    import time
+    from sqlalchemy import text as _sql_text
+    from app.db.session import SessionLocal
+    for attempt in range(1, max_attempts + 1):
+        db = SessionLocal()
+        try:
+            db.execute(_sql_text("SELECT 1"))
+            return True
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Ожидание БД: попытка %d/%d не удалась: %s", attempt, max_attempts, type(e).__name__)
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+        finally:
+            db.close()
+    return False
+
+
 async def _macro_job():
     """Макрообзор: дневной ингест мира/курсов (ЦБ+FRED+World Bank) + сид справочника.
     Числовые ряды из Ленты приходят отдельно (в news-пайплайне). В executor-потоке."""
     def _run():
+        if not _wait_for_db():
+            logger.error("Макрообзор: БД так и не стала доступна за отведённые попытки — джоб пропущен")
+            return {"error": "db_unavailable"}
         from app.services.macro_ingest import seed_indicators, ingest_all_world, check_staleness
         from app.services.macro_analytics import process as analytics_process
         from app.services.macro_cb_sync import sync_cb

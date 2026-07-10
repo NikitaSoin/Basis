@@ -144,15 +144,28 @@ def debug_tinkoff():
 
 @router.get("/debug/env")
 def debug_env():
-    """Проверка переменных окружения (без значений секретов)."""
+    """Проверка переменных окружения (без значений секретов).
+
+    ВАЖНО: DATABASE_URL — connection string с паролем ВНУТРИ (postgresql://user:pass@host)
+    — раньше уходил в открытом виде (маскировались только KEY/TOKEN/PASSWORD по суффиксу
+    имени переменной, DATABASE_URL под этот паттерн не попадал). Теперь такие URL-секреты
+    маскируются отдельно (регэксп на userinfo часть), не просто по суффиксу имени ключа."""
+    import re
     keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
             "ANTHROPIC_API_KEY", "ANTHROPIC_PROXY_URL", "DEEPSEEK_API_KEY", "FRED_API_KEY",
             "LLM_PROVIDER", "RUN_STARTUP_JOBS"]
-    return {
-        k: (f"задан ({len(os.environ.get(k, ''))} символов)" if k.endswith(("KEY", "TOKEN", "PASSWORD"))
-            else os.environ.get(k)) if os.environ.get(k) else "НЕ ЗАДАН"
-        for k in keys
-    }
+    out = {}
+    for k in keys:
+        v = os.environ.get(k)
+        if not v:
+            out[k] = "НЕ ЗАДАН"
+        elif k.endswith(("KEY", "TOKEN", "PASSWORD")):
+            out[k] = f"задан ({len(v)} символов)"
+        elif "://" in v and "@" in v:  # connection-string с userinfo (напр. DATABASE_URL)
+            out[k] = re.sub(r"://[^@/]+@", "://***:***@", v)
+        else:
+            out[k] = v
+    return out
 
 
 @router.get("/debug/connectivity")
