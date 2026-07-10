@@ -482,3 +482,34 @@ async def debug_ping():
     потоков/соединений полностью висит. Если /debug/ping отвечает, а /debug/env
     (sync) — нет, значит блокировка именно в синхронном пути (пул потоков/БД)."""
     return {"pong": True}
+
+
+@router.post("/debug/trigger-macro-sync")
+def debug_trigger_macro_sync():
+    """Ручной запуск sync_cb() (ставка/прогноз ЦБ/ОНДКП-сценарии/макроопрос/
+    инфляция/ожидания/M2) синхронно, БЕЗ ожидания дневного крона (06:30) — для
+    разовой проверки после фикса, не гонять регулярно (несколько LLM-вызовов,
+    минуты). force=True на дорогих (staleness-gated) шагах, чтобы точно
+    прогнать сейчас, а не пропустить по "not_stale"."""
+    from app.db.session import SessionLocal
+    from app.services.macro_cb_sync import (sync_rate_meeting, sync_forecast, sync_forecast_annual,
+                                             sync_expert_survey, sync_inflation, sync_expectations, sync_m2)
+    db = SessionLocal()
+    out = {}
+    try:
+        for key, fn in (
+            ("rate", lambda: sync_rate_meeting(db)), ("forecast", lambda: sync_forecast(db)),
+            ("forecast_annual", lambda: sync_forecast_annual(db, force=True)),
+            ("expert_survey", lambda: sync_expert_survey(db, force=True)),
+            ("inflation", lambda: sync_inflation(db)), ("expectations", lambda: sync_expectations(db)),
+            ("m2", lambda: sync_m2(db)),
+        ):
+            try:
+                out[key] = fn()
+            except Exception as e:  # noqa: BLE001
+                logger.exception("debug trigger-macro-sync: %s упал: %s", key, e)
+                db.rollback()
+                out[key] = {"error": f"{type(e).__name__}: {e}"}
+        return out
+    finally:
+        db.close()
