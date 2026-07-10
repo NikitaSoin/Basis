@@ -484,6 +484,49 @@ async def debug_ping():
     return {"pong": True}
 
 
+@router.post("/debug/purge-future-macro")
+def debug_purge_future_macro():
+    """Удаляет точки macro_data_points с as_of в будущем (баг: LLM-извлечение
+    иногда путает прогнозную строку на странице ЦБ с фактическим месячным
+    значением — see sync_inflation future-date guard). Разовая очистка уже
+    накопленного мусора, не гонять регулярно."""
+    from datetime import date
+    from app.db.session import SessionLocal
+    from app.models.macro import MacroDataPoint
+    db = SessionLocal()
+    try:
+        rows = db.query(MacroDataPoint).filter(MacroDataPoint.as_of > date.today()).all()
+        deleted = [{"code": r.indicator_code, "metric": r.metric, "as_of": str(r.as_of), "value": float(r.value)} for r in rows]
+        for r in rows:
+            db.delete(r)
+        db.commit()
+        return {"deleted_count": len(deleted), "deleted": deleted}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug purge-future-macro: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-calendar")
+def debug_trigger_calendar():
+    """Ручной запуск refresh_all() календаря событий (Обозреватель → Календарь),
+    БЕЗ ожидания фонового джоба после старта контейнера — для диагностики
+    (проверить, что дивиденды/отчёты/облигации реально собираются, не гонять
+    регулярно: dividends-шаг делает per-ticker запросы к MOEX ISS, минуты)."""
+    from app.db.session import SessionLocal
+    from app.services.calendar_events import refresh_all
+    db = SessionLocal()
+    try:
+        return refresh_all(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-calendar: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-sync")
 def debug_trigger_macro_sync():
     """Ручной запуск sync_cb() (ставка/прогноз ЦБ/ОНДКП-сценарии/макроопрос/

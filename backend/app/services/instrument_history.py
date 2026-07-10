@@ -187,7 +187,7 @@ def _flt(v):
     return float(v) if v is not None else None
 
 
-def catch_up_instrument_history(days_back: int = 7) -> None:
+def catch_up_instrument_history(days_back: int = 14) -> None:
     """Ежедневная докачка истории по всем классам (последние days_back дней).
     Вызывается из вечернего _history_job после акций/индексов."""
     from app.db.session import SessionLocal

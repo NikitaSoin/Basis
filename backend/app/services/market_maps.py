@@ -280,6 +280,10 @@ def heatmap_bonds(db: Session) -> dict:
             sector = "Госдолг (ОФЗ)"
         elif b.bond_type == "muni":
             sector = "Муниципальные"
+        elif b.currency and b.currency != "RUB":
+            # замещающие/квазивалютные — номинал в иностранной валюте (USD/EUR/CNY),
+            # расчёты в рублях; отдельная категория (валютный риск), не сектор эмитента
+            sector = "Замещающие/валютные"
         elif company_sector:
             sector = company_sector
         else:

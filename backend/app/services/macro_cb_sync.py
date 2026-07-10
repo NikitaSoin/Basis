@@ -341,7 +341,11 @@ def sync_inflation(db: Session) -> dict:
             yoy = float(r.get("yoy"))
         except (TypeError, ValueError):
             yoy = None
-        if d is None or yoy is None or not (-5 <= yoy <= 60):
+        # future-date guard: страница ЦБ иногда содержит прогнозную строку на
+        # конец года рядом с фактическими месячными данными — LLM может её
+        # спутать с историей и записать как "фактическую" инфляцию будущего
+        # месяца (сломает "последнюю точку" в UI). Инфляция yoy — только факт.
+        if d is None or yoy is None or not (-5 <= yoy <= 60) or d > date.today():
             continue
         res = upsert_point(db, "inflation", d, "yoy", yoy, unit="%", source="ЦБ РФ",
                            source_url=_INFL_PAGE, ingested_via="cbr", commit=False)

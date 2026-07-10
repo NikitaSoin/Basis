@@ -158,19 +158,28 @@ async def _asset_data_job():
         await asyncio.get_event_loop().run_in_executor(None, _refresh_assets)
     except Exception as e:
         logger.exception("Ошибка авто-обновления данных классов активов: %s", e)
-    # Календарь событий (Направление 4) — после загрузки облигаций/фьючерсов.
+
+
+async def _calendar_job():
+    """Календарь событий (Направление 4) — НАМЕРЕННО отдельная задача/крон от
+    _asset_data_job: раньше календарь обновлялся ПОСЛЕ загрузки облигаций/
+    фьючерсов внутри одной последовательной задачи (~15-20+ мин); при частых
+    перезапусках контейнера (Timeweb) задача обрывалась ДО календаря, и
+    дивиденды/отчётность/корпсобытия месяцами не обновлялись, хотя сам билдер
+    рабочий (см. debug/trigger-calendar). Разделение убирает эту зависимость —
+    у календаря свой крон, не блокируемый длинной загрузкой активов."""
+    def _cal():
+        if not _wait_for_db():
+            logger.error("Календарь: БД так и не стала доступна — джоб пропущен")
+            return {"error": "db_unavailable"}
+        from app.db.session import SessionLocal
+        from app.services.calendar_events import refresh_all
+        db = SessionLocal()
+        try:
+            return refresh_all(db)
+        finally:
+            db.close()
     try:
-        def _cal():
-            if not _wait_for_db():
-                logger.error("Календарь: БД так и не стала доступна — джоб пропущен")
-                return {"error": "db_unavailable"}
-            from app.db.session import SessionLocal
-            from app.services.calendar_events import refresh_all
-            db = SessionLocal()
-            try:
-                return refresh_all(db)
-            finally:
-                db.close()
         res = await asyncio.get_event_loop().run_in_executor(None, _cal)
         logger.info("Календарь событий обновлён: %s", res)
     except Exception as e:
@@ -504,20 +513,29 @@ async def lifespan(app: FastAPI):
     # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
     # утром; плюс разовый прогон при старте (ниже) для авто-наполнения после деплоя.
     scheduler.add_job(_asset_data_job, "cron", hour=6, minute=0, id="asset_data_refresh")
+    # Календарь событий — НАМЕРЕННО отдельный крон от asset_data_refresh (см.
+    # docstring _calendar_job): раньше был хвостом asset_data_job и часто не
+    # успевал выполниться при рестартах контейнера — дивиденды/отчётность/
+    # корпсобытия месяцами не обновлялись. Отдельное время (после asset_data,
+    # но не зависит от его завершения).
+    scheduler.add_job(_calendar_job, "cron", hour=6, minute=45, id="calendar_refresh")
 
     # LLM/FRED-задачи (новости, макро-мир, отчёты, геополитика) ходят в DeepSeek и FRED.
-    # На текущем инстансе они НЕДОСТУПНЫ (ConnectTimeout) — задача висит ~24с на вызов,
-    # УДЕРЖИВАЯ соединение БД, и в это окно витринные запросы виснут → сайт «загружает».
-    # Пользы ноль (внешка всё равно не отвечает), вред прямой. Поэтому по умолчанию
-    # ВЫКЛЮЧЕНЫ; включить, когда восстановится внешний доступ: ENABLE_EXTERNAL_JOBS=1.
-    if os.environ.get("ENABLE_EXTERNAL_JOBS") == "1":
+    # ИСТОРИЧЕСКИ были выключены по умолчанию — на момент внедрения DeepSeek/FRED были
+    # недоступны с этого инстанса (ConnectTimeout), задача висела ~24с, держа соединение
+    # БД, и витринные запросы подвисали. С тех пор внешняя связность ВОССТАНОВИЛАСЬ
+    # (подтверждено /api/debug/connectivity: deepseek/fred reachable=true) — держать их
+    # выключенными означает, что лента новостей/отчёты/геополитика НИКОГДА не обновляются
+    # сами, вопреки принципу самоподдерживающейся системы. Поэтому теперь ВКЛЮЧЕНЫ по
+    # умолчанию; если внешняя связность снова пропадёт — выключить явно DISABLE_EXTERNAL_JOBS=1.
+    if os.environ.get("DISABLE_EXTERNAL_JOBS") == "1":
+        logger.info("Внешние LLM/FRED-задачи (news/macro/earnings/geo) ОТКЛючены явно (DISABLE_EXTERNAL_JOBS=1)")
+    else:
         scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
         scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
         scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
-        logger.info("Внешние LLM/FRED-задачи планировщика ВКЛючены (ENABLE_EXTERNAL_JOBS=1)")
-    else:
-        logger.info("Внешние LLM/FRED-задачи (news/macro/earnings/geo) ОТКЛючены — DeepSeek/FRED недоступны")
+        logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo)")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
