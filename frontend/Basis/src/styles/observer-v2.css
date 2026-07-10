@@ -2857,3 +2857,689 @@
   background: var(--accent);
   color: #fff;
 }
+
+/* =============================================================
+   INSTITUTIONS — obs-inst-*
+   «Институциональная среда»: барометр M1-M13, CRP-«пол», сценарий,
+   алерты, карта конфликтов. Собственный словарь классов (не generic
+   Card+inline-tailwind) — визуальный вес наследует .obs-hero-rate /
+   .obs-art-card / .obs-deep-card (padding 26/28, radius-lg, shadow-sm).
+   Все цвета — токены tokens.css (:root/.dark), обе темы корректны.
+   ============================================================= */
+
+/* ---- Generic card shell (все секции ниже hero) ---- */
+.obs-inst-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.obs-inst-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.obs-inst-card-title svg {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.obs-inst-card-sub {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  margin: 0 0 16px;
+  max-width: 68ch;
+}
+
+.obs-inst-card-meta {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* ---- Epistemic tags (факт переиспользует .obs-tag-fact сайта; здесь —
+   только оценка/суждение, которых там не было). Медь/--accent НЕ занята —
+   зарезервирована под кликабельные тикер-чипы. ---- */
+.obs-inst-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.obs-inst-tag--est {
+  background: var(--info-soft);
+  color: var(--info);
+}
+.obs-inst-tag--judg {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+/* ---- <details> generic disclosure (CRP «как считали») ---- */
+.obs-inst-details {
+  margin-top: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-base);
+  overflow: hidden;
+}
+.obs-inst-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.obs-inst-details > summary::-webkit-details-marker { display: none; }
+.obs-inst-details-body {
+  padding: 2px 14px 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-details-body p {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.obs-inst-chev {
+  color: var(--text-tertiary);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+details[open] > summary .obs-inst-chev,
+.obs-inst-details[open] .obs-inst-chev {
+  transform: rotate(180deg);
+}
+.obs-inst-details summary:focus-visible,
+.obs-inst-cluster summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-radius: var(--radius-sm);
+}
+
+/* =============================================================
+   HERO — общий барометр + вердикт + явный баланс
+   ============================================================= */
+.obs-inst-hero {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.obs-inst-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.obs-inst-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.obs-inst-hero-asof {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.obs-inst-hero-score-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.obs-inst-hero-score {
+  font-family: var(--font-mono);
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.obs-inst-hero-score-max {
+  font-size: 0.4em;
+  font-weight: 500;
+  opacity: 0.6;
+  margin-left: 2px;
+}
+
+/* Вердикт — крупный serif-заголовок (Fraunces подключён глобально в
+   public/index.html; --font-serif на уровне :root не существует —
+   литерал, как и у соседних market.css/screener.css .sc-dr-thesis). */
+.obs-inst-hero-verdict {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
+  max-width: 62ch;
+  margin: 0 0 14px;
+}
+
+.obs-inst-hero-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.obs-inst-hero-balance-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.obs-inst-hero-balance-row svg { flex-shrink: 0; margin-top: 2px; }
+.obs-inst-hero-balance-row--down { color: var(--danger); }
+.obs-inst-hero-balance-row--up { color: var(--success); }
+.obs-inst-hero-balance-row span { color: var(--text-secondary); }
+.obs-inst-hero-balance-row--down svg,
+.obs-inst-hero-balance-row--up svg { color: inherit; }
+
+.obs-inst-hero-drift {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-hero-drift-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+.obs-inst-hero-drift p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 70ch;
+}
+
+.obs-inst-frame {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+  max-width: 800px;
+  margin: 0;
+  padding: 0 2px;
+}
+
+/* =============================================================
+   CRP-«пол» — точка/диапазон
+   ============================================================= */
+.obs-inst-crp-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.obs-inst-crp-unit {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.obs-inst-crp-range { margin-top: 16px; }
+.obs-inst-crp-track {
+  position: relative;
+  height: 8px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+}
+.obs-inst-crp-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+}
+.obs-inst-crp-endpoints {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+.obs-inst-crp-endpoints span:last-child { text-align: right; }
+
+.obs-inst-crp-fallback {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* =============================================================
+   SCENARIO — вероятностная лесенка + чекпойнт
+   ============================================================= */
+.obs-inst-scenario-current {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  margin-left: 4px;
+}
+
+.obs-inst-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obs-inst-ladder-row {
+  display: grid;
+  grid-template-columns: 148px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+}
+.obs-inst-ladder-row--current {
+  background: var(--accent-soft);
+}
+
+.obs-inst-ladder-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.obs-inst-ladder-row--current .obs-inst-ladder-name {
+  color: var(--accent);
+}
+
+.obs-inst-ladder-bar-track {
+  position: relative;
+  display: block;
+  height: 7px;
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.obs-inst-ladder-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--text-tertiary);
+  border-radius: 4px;
+  transition: width 250ms var(--ease-out, ease);
+}
+.obs-inst-ladder-row--current .obs-inst-ladder-bar-fill {
+  background: var(--accent);
+}
+
+.obs-inst-ladder-pct {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.obs-inst-checkpoint {
+  margin-top: 16px;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-elevated));
+  padding: 10px 14px 11px;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.obs-inst-checkpoint-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-hover, var(--accent));
+  margin-bottom: 4px;
+}
+.obs-inst-checkpoint-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .obs-inst-ladder-row { grid-template-columns: 110px 1fr 40px; }
+}
+
+/* =============================================================
+   SUBINDICES — 4 кластера-аккордеона (M1-M12; M13 → hero)
+   ============================================================= */
+.obs-inst-clusters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obs-inst-cluster {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.obs-inst-cluster-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--bg-base);
+  cursor: pointer;
+  list-style: none;
+}
+.obs-inst-cluster-head::-webkit-details-marker { display: none; }
+.obs-inst-cluster-icon { color: var(--text-tertiary); flex-shrink: 0; }
+.obs-inst-cluster-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.obs-inst-segbar {
+  display: inline-flex;
+  gap: 2px;
+}
+.obs-inst-segbar i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  font-style: normal;
+}
+.obs-inst-segbar i.on {
+  background: var(--sc, var(--accent));
+}
+
+.obs-inst-cluster-avg {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.obs-inst-cluster-avg-max {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-left: 1px;
+}
+
+.obs-inst-cluster-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.obs-inst-sub {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.obs-inst-sub:last-child { border-bottom: none; padding-bottom: 2px; }
+
+.obs-inst-sub-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.obs-inst-sub-key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+.obs-inst-sub-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 140px;
+}
+.obs-inst-sub-score {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-left: auto;
+}
+.obs-inst-sub-score-max {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.obs-inst-sub-rationale {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-top: 5px;
+}
+
+/* =============================================================
+   ALERTS / CONFLICTS — общий формат строк
+   ============================================================= */
+.obs-inst-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.obs-inst-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.obs-inst-row:last-child { border-bottom: none; padding-bottom: 2px; }
+
+.obs-inst-row-main { min-width: 0; flex: 1; }
+
+.obs-inst-row-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+.obs-inst-row-why {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-top: 4px;
+}
+.obs-inst-row-status {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.obs-inst-row-meta {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.obs-inst-row-date {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.obs-inst-row-source {
+  font-family: var(--font-sans);
+}
+
+.obs-inst-caveat {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--warning);
+  background: var(--warning-soft);
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+}
+.obs-inst-caveat svg { flex-shrink: 0; margin-top: 1px; }
+.obs-inst-caveat span { color: inherit; }
+
+/* =============================================================
+   WATCHLIST — «За чем следить»
+   ============================================================= */
+.obs-inst-watch-group + .obs-inst-watch-group {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-inst-watch-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+.obs-inst-watch-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  padding: 6px 0;
+}
+.obs-inst-watch-n {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.obs-inst-watch-row--flag {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+.obs-inst-watch-row--flag svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--warning);
+}
+
+/* =============================================================
+   BRIDGE — «что это значит для разных типов бумаг»
+   ============================================================= */
+.obs-inst-bridge-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 640px) {
+  .obs-inst-bridge-grid { grid-template-columns: 1fr; }
+}
+
+.obs-inst-bridge-item {
+  background: var(--bg-base);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: 3px solid var(--border-strong);
+  padding: 12px 14px;
+}
+.obs-inst-bridge-item--high { border-left-color: var(--danger); }
+.obs-inst-bridge-item--low { border-left-color: var(--success); }
+
+.obs-inst-bridge-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.obs-inst-bridge-item--high .obs-inst-bridge-label { color: var(--danger); }
+.obs-inst-bridge-item--low .obs-inst-bridge-label { color: var(--success); }
+
+.obs-inst-bridge-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.obs-inst-bridge-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
