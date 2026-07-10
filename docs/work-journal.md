@@ -248,13 +248,29 @@ JSON прошли json.load с первого раза. 🔵 Заметный п
 Газпромбанк, VSMO/Ростех-контроль) — агент каждый раз ловил и исправлял через
 собственный веб-поиск, не подтверждал слепо гипотезу диспетчера. Коммит 07b1dd3b.
 
-Итого 88/262 компаний с блоком «Институты» на конец сессии:
+## 2026-07-10 (продолжение) — Институты батч 23: TGKN/DIAS/UPRO/UWGN (92/262)
+TGKN: IRI 1.7 (самый низкий балл раскатки на сегодня) — сам прецедентный кейс,
+на который ссылались другие разборы (TGKA "зеркало ТГК-14"); 6/7 паттернов
+изъятия сработали, прокуратура Забайкалья (май 2026) требует признать сделку
+2021 недействительной и обратить ~79% в доход РФ, дивиденды за 2025 отменены —
+статус идущий процесс, не финальный. DIAS: IRI 3.7 — 0/7 паттернов, бенефициар
+импортозамещения банковского софта, не мишень. UPRO: IRI 2.9, WACC+8.0пп (выше
+пола) — приватизация НЕ завершена (83.73% Uniper заморожены указом №302,
+продать нельзя), операционно компания здорова, но дивидендов нет с 2022 (не
+платят никому, не только заблокированному немцу); прямой близнец — Фортум/
+ТГК-1. UWGN: IRI 2.9, мультипликатор −25% — риск не изъятие (0/7 паттернов), а
+уже реализованное уничтожение миноритария: допэмиссия 2023 размыла держателей
+~в 110 раз после долговой катастрофы ИСТ Груп, актив перешёл к орбите УГМК.
+Все 4 JSON прошли json.load с первого раза. Коммит 89491d37.
+
+Итого 92/262 компаний с блоком «Институты» на конец сессии (~35%):
 ABRD/AFKS/AFLT/AGRO/AKRN/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/
-DOMRF/DVEC/ELMT/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HNFG/HYDR/
-IRAO/IRKT/IVAT/KMAZ/KZOS/LEAS/LENT/LKOH/LSNG/LSRG/MAGN/MBNK/MDMG/MGNT/MOEX/
-MSRS/MSTT/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/PLZL/
-POSI/RASP/RENI/RNFT/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SIBN/SMLT/SNGS/SPBE/
-SVCB/T/TATN/TGKA/TRMK/TRNFP/UGLD/VKCO/VSMO/VTBR/WUSH/X5/YDEX.
+DIAS/DOMRF/DVEC/ELMT/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HNFG/
+HYDR/IRAO/IRKT/IVAT/KMAZ/KZOS/LEAS/LENT/LKOH/LSNG/LSRG/MAGN/MBNK/MDMG/MGNT/
+MOEX/MSRS/MSTT/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/
+PLZL/POSI/RASP/RENI/RNFT/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SIBN/SMLT/SNGS/
+SPBE/SVCB/T/TATN/TGKA/TGKN/TRMK/TRNFP/UGLD/UPRO/UWGN/VKCO/VSMO/VTBR/WUSH/X5/
+YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
