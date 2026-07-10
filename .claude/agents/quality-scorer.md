@@ -119,28 +119,51 @@ business-model-analyst, market-analyst, governance-analyst, financial-analyst)
 
 # ФОРМАТ ВЫВОДА — ОДНА операция записи в конце
 
-Не файл в companies/ — запись СТРОК в таблицу `company_scores` через прямой
-SQL (psql/Bash), т.к. это структурные данные для агрегации кодом, не текстовая
-аналитика для карточки. Пример (адаптируй под реальные значения, экранируй
-одинарные кавычки в тексте удвоением):
+Не файл в companies/ — запись СТРОК в таблицу `company_scores` через Python/
+SQLAlchemy инфраструктуру бэкенда (НЕ psql — DATABASE_URL не экспортирован в
+окружении сессии, а backend/.env его не подхватит без загрузки приложения).
+Запусти из `backend/` (`cd backend` если нужно) ОДНИМ Bash-вызовом в конце:
 
 ```bash
-psql "$DATABASE_URL" -c "
-INSERT INTO company_scores (ticker, dimension, score, rationale, evidence, model, prompt_version, card_version, as_of, created_at)
-VALUES
-  ('SBER', 'bm', 85, 'Обоснование...', '[\"факт 1\", \"факт 2\"]'::jsonb, 'claude-opus-4-8', 'v1', '2026-07', CURRENT_DATE, NOW()),
-  ('SBER', 'mp', 78, 'Обоснование...', '[\"факт 1\"]'::jsonb, 'claude-opus-4-8', 'v1', '2026-07', CURRENT_DATE, NOW()),
-  ('SBER', 'ca', 72, 'Обоснование...', '[\"факт 1\"]'::jsonb, 'claude-opus-4-8', 'v1', '2026-07', CURRENT_DATE, NOW())
-ON CONFLICT (ticker, dimension, as_of) DO UPDATE SET
-  score=EXCLUDED.score, rationale=EXCLUDED.rationale, evidence=EXCLUDED.evidence;
+python3 -c "
+from datetime import date
+from app.db.session import SessionLocal
+from app.models.company_score import CompanyScore
+
+db = SessionLocal()
+rows = [
+    CompanyScore(ticker='SBER', dimension='bm', score=85,
+                 rationale='Обоснование...',
+                 evidence=['факт 1 из business_model.md', 'факт 2'],
+                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
+                 as_of=date.today()),
+    CompanyScore(ticker='SBER', dimension='mp', score=78,
+                 rationale='Обоснование...', evidence=['факт 1'],
+                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
+                 as_of=date.today()),
+    CompanyScore(ticker='SBER', dimension='ca', score=72,
+                 rationale='Обоснование...', evidence=['факт 1'],
+                 model='claude-opus-4-8', prompt_version='v1', card_version='2026-07',
+                 as_of=date.today()),
+]
+for r in rows:
+    existing = (db.query(CompanyScore)
+                .filter_by(ticker=r.ticker, dimension=r.dimension, as_of=r.as_of).first())
+    if existing:
+        existing.score = r.score; existing.rationale = r.rationale; existing.evidence = r.evidence
+    else:
+        db.add(r)
+db.commit()
+db.close()
+print('OK: записано', len(rows), 'строк')
 "
 ```
 
-`DATABASE_URL` — переменная окружения (уже задана в окружении бэкенда).
-`card_version` — год-месяц среза (`meta.as_of`/`meta.price_date` карточки,
-если есть, иначе текущий YYYY-MM). Если измерение пропущено (нет файла) — не
-вставляй по нему строку вообще, не пиши null-скор.
+Если venv бэкенда не активирован в сессии — сначала `source venv/bin/activate`
+(из `backend/`). `card_version` — год-месяц среза (`meta.as_of`/`meta.price_date`
+карточки, если есть, иначе текущий YYYY-MM). Если измерение пропущено (нет
+файла-источника) — не включай его в список `rows` вовсе, не пиши null-скор.
 
 В конце верни короткое текстовое резюме (3 строки: BM/MP/CA — балл и одна
-фраза почему), НЕ файл — SQL-вставка это и есть твой единственный
+фраза почему), НЕ файл — запись в БД это и есть твой единственный
 результирующий артефакт.
