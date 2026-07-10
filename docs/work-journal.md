@@ -181,12 +181,29 @@ DVEC: IRI 2.6 — актив уже государственный (РусГид
 float (~5%) и ближе к squeeze-out, чем у HYDR; дальневосточная тарифная
 надбавка фиксируется по номиналу — риск эрозии субсидии инфляцией. Коммит afe68ebd.
 
-Итого 72/262 компаний с блоком «Институты» на конец сессии:
-AFKS/AFLT/AGRO/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/DOMRF/DVEC/ETLN/
-FEES/FIXR/FLOT/GAZP/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LENT/LKOH/LSRG/MAGN/MDMG/
-MGNT/MOEX/MSRS/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/OZON/OZPH/PHOR/PIKK/PLZL/
-POSI/RASP/RENI/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/SNGS/SPBE/SVCB/T/TATN/
-TGKA/TRNFP/UGLD/VKCO/VTBR/WUSH/X5/YDEX.
+## 2026-07-10 (продолжение) — Институты батч 19: FESH/AKRN/GCHE/LEAS (76/262)
+FESH: IRI 2.6 — изъятие уже реализовано (Магомедов→конфискация 2023→Росатом
+92.5%), риск для сегодняшнего миноритария не в повторной национализации, а в
+исходе сделки Росатом/DP World (СП «Глобальная логистика») — оферта/цена не
+определены, дан интервал. AKRN: IRI 2.5 — свежий разворот: Кантор
+расанкционирован (март 2025), но запущен механизм ЭЗО (принудительная
+деофшоризация люксембургской Redbrick 34.16% через суд, январь-март 2026) —
+риск сместился со санкций на структуру собственности; ближе к X5
+(деофшоризация ≠ отъём), чем к Русагро. GCHE: IRI 3.13 — поймана ловушка тёзок
+(гендиректор Михайлов С.И. ≠ сенатор Михайлов С.П. — источник ошибочной посылки
+в постановке задачи), у бенефициаров Черкизово нет госдолжности-рычага в
+отличие от Мошковича/Струкова; риск не изъятие, а сверхнизкий free float
+(~2-5%). LEAS: IRI 3.3 — после перехода к Альфа-Банку (дек 2025) риск не в
+изъятии государством, а в вытеснении миноритария (delisting/squeeze-out),
+смягчён наличием справедливой оферты (в отличие от ЮГК). Все 4 JSON прошли
+json.load с первого раза. Коммит c9643045.
+
+Итого 76/262 компаний с блоком «Институты» на конец сессии:
+AFKS/AFLT/AGRO/AKRN/ALRS/APTK/AQUA/ASTR/BANE/BELU/BSPB/CBOM/CHMF/DELI/DOMRF/
+DVEC/ETLN/FEES/FESH/FIXR/FLOT/GAZP/GCHE/GEMC/GMKN/HHRU/HYDR/IRAO/IRKT/KZOS/LEAS/
+LENT/LKOH/LSRG/MAGN/MDMG/MGNT/MOEX/MSRS/MTLR/MTSS/MVID/NKNC/NLMK/NMTP/NVTK/OKEY/
+OZON/OZPH/PHOR/PIKK/PLZL/POSI/RASP/RENI/ROSN/RTKM/RUAL/SBER/SELG/SFIN/SGZH/SMLT/
+SNGS/SPBE/SVCB/T/TATN/TGKA/TRNFP/UGLD/VKCO/VTBR/WUSH/X5/YDEX.
 
 🔵 **Открыто на будущее (многосессионная раскатка, не одна задача)**: и
 quality-scorer (12/262), и institutional-company-analyst (~20/262) покрывают
