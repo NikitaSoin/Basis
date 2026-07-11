@@ -4480,3 +4480,27 @@ d14aedd8, d0b89f10.
 TASB/TASBP/VGSB/VGSBP/VRSB/VRSBP/YRSB/YRSBP), префы уже разобранных обычек
 (KCHEP/KGKCP и др.), региональные МРСК/энергетика и мелкие микрокапы. GLRX
 пропущен (business_model.md испорчен). Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 46-47: KGKCP/KRSB/NNSB/PMSB + KCHEP/KRSBP/NNSBP/PMSBP (188/264)
+Батч 46: KGKCP преф КГК — приоритетный дивиденд (обычно в 4-5 раз выше обычки)
+обнулён убытком-2025, ядро наследовано (изъятие Росимуществом). KRSB — 🔴 паттерн
+«*SB=ТНС энерго» НЕ подтвердился: это Красноярскэнергосбыт группы РусГидро
+(госконтур + En+/Дерипаска), риск на миноритарии, не на изъятии. NNSB — ТНС
+энерго Нижний Новгород, прямой узел уголовного дела (обвиняемый гендиректор
+дочки). PMSB — 🔴 паттерн тоже НЕ подтвердился: Пермэнергосбыт (Т Плюс/
+Вексельберг + частный Киташев), не ТНС. Вывод: тикеры *SB — смешанная группа,
+проверять каждый отдельно.
+Батч 47 (префы к уже разобранным): KCHEP/KRSBP/NNSBP/PMSBP — Каналы 1-2
+наследуются от обычки, вся преф-специфика в Канале 3. NNSBP примечателен:
+дивиденд мёртв с 2016 даже в прибыльные годы. PMSBP — редкий случай, где
+уставная защита реально работает 10+ лет. Все 8 JSON+MD подтверждены.
+Коммиты 3b529396, 4033be4d.
+
+Итого 188/264 компаний с блоком «Институты» (~71%). Остаток — KLSB, KMEZ,
+KRKN/KRKNP/KRKOP, KROT/KROTP, KUZB, LIFE, LMBZ, LNZL/LNZLP, LPSB, LSNGP, LVHK,
+MAGE/MAGEP, MFGS/MFGSP, MGKL, MGNZ, MGTSP, MISB/MISBP, MRKV/MRKY/MRKZ, MRSB,
+NAUK, NFAZ, NSVZ, OGKB, OMZZP, PAZA, PRFN, PRMB, RAGR, RDRB, RHYD, ROLO,
+RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP,
+TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ,
+VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. GLRX пропущен.
+Продолжать батчами по 4.
