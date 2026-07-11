@@ -4759,3 +4759,19 @@ SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN,
 UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP,
 YKEN/YKENP, YRSB/YRSBP. Плюс SAGOP, RTSBP, MISBP, KRKOP (флаги). GLRX
 пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 58: SARE/SLEN/STSB/SVETP (232/264)
+SARE — Саратовэнерго (Интер РАО), риск в наращивании доли мажоритарием +
+сквиз-ауте. SLEN — Сахалинэнерго (РусГидро), инвертированный профиль. 🔴 STSB
+— Ставропольэнергосбыт, РЕАЛИЗОВАННЫЙ кейс: Генпрокуратура изъяла ~72.3%
+голосующих акций (июль 2025, дело Каитова экс-МРСК Северного Кавказа),
+Росимущество — контролирующий собственник; free float остался у миноритариев
+(в отличие от СМЗ). SVETP — преф SVET, ядро наследуется с корректировкой
+(преф-пул публично размещён, не весь у семьи). Все 8 JSON+MD подтверждены.
+Коммит 584d8a72.
+
+Итого 232/264 компаний с блоком «Институты» (~88%). Остаток: TASB/TASBP,
+TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ,
+VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс SAREP,
+STSBP, SAGOP, RTSBP, MISBP, KRKOP (флаги). GLRX пропущен. Продолжать
+батчами по 4.
