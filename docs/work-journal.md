@@ -4636,3 +4636,19 @@ SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
 VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP.
 Плюс KRKOP (идентичность не подтверждена). GLRX пропущен. Продолжать
 батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 53: MISB/MRKV/MRKY/MRKZ (212/264)
+MISB — ТНС энерго Марий Эл, риск не в изъятии актива, а в проблемном холдинге-
+родителе (Аржанов под уголовкой/банкротится); MISBP не разобран (флаг — иной
+баланс каналов). MRKV — Россети Волга, чистая госистория, Prosperity-
+миноритарий без санкционного навеса. MRKY — Россети Юг, риск снят, угроза —
+допэмиссии + мораторий на дивиденды. MRKZ — Россети Северо-Запад, слабейшая
+дочка семьи, не платит дивиденды 4+ года, арктический соцмандат. Все 8
+JSON+MD подтверждены. Коммит b446ce6f.
+
+Итого 212/264 компаний с блоком «Институты» (~80%). Остаток: MRSB, NAUK, NFAZ,
+NSVZ, OGKB, OMZZP, PAZA, PRFN, PRMB, RAGR, RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB,
+SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP,
+TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH,
+VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс MISBP, KRKOP (флаги).
+GLRX пропущен. Продолжать батчами по 4.
