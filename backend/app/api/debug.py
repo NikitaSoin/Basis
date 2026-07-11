@@ -580,3 +580,21 @@ def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back
         return {"error": f"{type(e).__name__}: {e}"}
     finally:
         db.close()
+
+
+@router.post("/debug/trigger-refresh-funds")
+def debug_trigger_refresh_funds():
+    """Ручной запуск refresh_funds() синхронно — для разовой проверки после
+    фикса борда TQTF→TQBR (см. trigger-instrument-history), не ждать до 06:00
+    ночного asset_data_refresh."""
+    from app.db.session import SessionLocal
+    from app.services.asset_data import refresh_funds
+    db = SessionLocal()
+    try:
+        n = refresh_funds(db)
+        return {"funds_in_db": n}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-refresh-funds: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
