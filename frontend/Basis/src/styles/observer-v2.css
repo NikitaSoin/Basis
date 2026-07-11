@@ -2738,7 +2738,7 @@
    ============================================================= */
 .obs-chart-tooltip {
   position: absolute;
-  background: var(--bg-overlay, #111A2E);
+  background: var(--bg-overlay-srf);
   border: 1px solid var(--border-subtle);
   border-radius: 9px;
   padding: 10px 13px;
