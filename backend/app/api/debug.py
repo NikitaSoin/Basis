@@ -195,6 +195,9 @@ async def debug_connectivity():
         # русские хосты — контроль (должны работать)
         "moex (iss.moex.com)": "https://iss.moex.com/iss/index.json",
         "tinkoff": "https://invest-public-api.tinkoff.ru/rest/",
+        "cbr (cbr.ru)": "https://www.cbr.ru/",
+        "minfin (minfin.gov.ru)": "https://minfin.gov.ru/ru/press-center/",
+        "prime_disclosure (1prime.ru)": "https://disclosure.1prime.ru/",
     }
 
     async def probe(name: str, url: str | None) -> dict:

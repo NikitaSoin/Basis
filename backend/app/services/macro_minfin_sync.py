@@ -56,29 +56,30 @@ def _month_end(year: int, month: int) -> date:
     return nxt - timedelta(days=1)
 
 
-def _latest_release() -> tuple[str, date] | None:
-    """(url, as_of=конец периода из URL-слага — надёжнее, чем просить LLM угадать дату)."""
+def _latest_release() -> tuple[str, date] | str:
+    """(url, as_of=конец периода из URL-слага — надёжнее, чем просить LLM угадать дату)
+    ЛИБО строка с причиной сбоя (для диагностики через debug-эндпоинт)."""
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_PRESS_CENTER)
         r.raise_for_status()
         html = r.text
     except Exception as e:  # noqa: BLE001
         logger.warning("Минфин-sync: пресс-центр недоступен: %s", type(e).__name__)
-        return None
+        return f"fetch_failed:{type(e).__name__}"
     matches = _SLUG_RE.findall(html)
     if not matches:
-        return None
+        return f"no_matches (html_len={len(html)})"
     href, _id, _start_mon, end_mon, year = sorted(matches, key=lambda m: int(m[1]))[-1]
     month_num = _TRANSLIT_MONTHS.get(end_mon)
     if not month_num:
-        return None
+        return f"bad_month:{end_mon}"
     return "https://minfin.gov.ru" + href, _month_end(int(year), month_num)
 
 
 def sync_gov_spending(db: Session) -> dict:
     found = _latest_release()
-    if not found:
-        return {"error": "index"}
+    if isinstance(found, str):
+        return {"error": "index", "reason": found}
     url, d = found
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(url)
