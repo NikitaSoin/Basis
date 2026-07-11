@@ -242,13 +242,21 @@ async def _macro_job():
         db = SessionLocal()
         try:
             from app.services.macro_rosstat import ingest_rosstat_file
+            from app.services.macro_minfin_sync import sync_gov_spending
             seed_indicators(db)
             world = ingest_all_world(db)
-            cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2 (машинный первоисточник)
+            cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2+кредит экономике (машинный первоисточник)
             ros = ingest_rosstat_file(db)  # Росстат: ручная выгрузка из fedstat (WAF блокирует машину)
+            try:
+                minfin = sync_gov_spending(db)
+            except Exception as e:  # noqa: BLE001 — не роняем весь джоб из-за одного источника
+                logger.exception("Минфин-sync (госрасходы) упал: %s", e)
+                db.rollback()
+                minfin = {"error": f"unhandled:{type(e).__name__}"}
             analytics = analytics_process(db)
             stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
-            return {"world": world, "cb": cb, "rosstat": ros, "analytics": analytics, "stale": len(stale)}
+            return {"world": world, "cb": cb, "rosstat": ros, "minfin": minfin,
+                    "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()
     try:
