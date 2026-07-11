@@ -229,7 +229,11 @@ def heatmap_funds(db: Session) -> dict:
     from app.services.instrument_history import get_sparklines
     rows = db.query(Fund).all()
     secids = [f.secid for f in rows]
-    sparks = get_sparklines(db, "fund", secids, days=2) if secids else {}
+    # days=2 календарных было слишком узко у выходных/праздников (сегодня-2 дня
+    # могло не зацепить ни одного торгового дня для неликвидного фонда) —
+    # get_sparklines сам берёт последние ДВЕ РЕАЛЬНЫЕ closes из окна, так что
+    # более широкое окно только помогает найти данные, не искажает расчёт.
+    sparks = get_sparklines(db, "fund", secids, days=7) if secids else {}
     by_type: dict[str, list] = {}
     for f in rows:
         change = (sparks.get(f.secid) or {}).get("change_pct")
@@ -296,16 +300,23 @@ def heatmap_bonds(db: Session) -> dict:
             change = None
         else:
             continue  # вообще нет данных о цене — не рисуем
+        # "SUR" — код рубля в MOEX ISS (legacy от «советский рубль», НЕ иностранная
+        # валюта) — 93% облигаций в базе так помечены. Прежняя проверка
+        # `currency != "RUB"` ловила и SUR тоже — обычные рублёвые корпоративные
+        # бумаги (МТС, Газпром, ВТБ и т.п. с известным сектором эмитента) массово
+        # уезжали в «Замещающие/валютные» вместо своего реального сектора.
+        is_fx = b.currency and b.currency not in ("RUB", "SUR")
         if b.bond_type == "ofz":
             sector = "Госдолг (ОФЗ)"
         elif b.bond_type == "muni":
             sector = "Муниципальные"
-        elif b.currency and b.currency != "RUB":
-            # замещающие/квазивалютные — номинал в иностранной валюте (USD/EUR/CNY),
-            # расчёты в рублях; отдельная категория (валютный риск), не сектор эмитента
-            sector = "Замещающие/валютные"
         elif company_sector:
+            # Сектор эмитента — приоритет ДАЖЕ для валютных бумаг (замещающая
+            # облигация Газпрома — это «Нефть и газ», как и его рублёвые
+            # выпуски; валютный риск виден отдельно в самой карточке облигации).
             sector = company_sector
+        elif is_fx:
+            sector = "Замещающие/валютные — прочие"
         else:
             sector = "Корпораты — прочие"
         by_sector.setdefault(sector, []).append({
