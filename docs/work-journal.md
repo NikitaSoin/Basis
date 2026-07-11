@@ -4681,3 +4681,18 @@ RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP,
 TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
 VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP,
 YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 56: PRMB/RAGR/RDRB/RHYD (224/264)
+PRMB — Банк «Приморье» (семья Дарькина), риск в SDN-санкциях + непрозрачной
+продаже контроля (дробление долей ниже 10% в обход раскрытия ЦБ, апрель 2026).
+🔴 RAGR — Русагро, РЕАЛИЗОВАННЫЙ кейс #32: конфискация доли Мошковича
+(5.05.2026), но Мосгорсуд 17.06.2026 отменил изъятие у племянника (IPO-акции)
+— контраст с СМЗ. IRI 1.8. RDRB — РосДорБанк, честный низкий риск. 🔵 RHYD —
+дубликат HYDR (РусГидро), синхронизирован без повторного анализа. Все 8
+JSON+MD подтверждены. Коммит 84761398.
+
+Итого 224/264 компаний с блоком «Институты» (~85%). Остаток: ROLO,
+RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP,
+TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
+VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP,
+YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен. Продолжать батчами по 4.
