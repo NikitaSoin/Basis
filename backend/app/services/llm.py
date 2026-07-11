@@ -131,10 +131,20 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
         resp.raise_for_status()
         data = resp.json()
     msg = data["choices"][0]["message"]
+    if msg.get("content"):
+        return msg["content"]
     # Reasoning-модели (напр. deepseek-v4-flash) кладут размышления в
-    # reasoning_content и при нехватке max_tokens отдают ПУСТОЙ content. Если так —
-    # подстраховываемся текстом reasoning_content (из него извлечём JSON ниже).
-    return msg.get("content") or msg.get("reasoning_content") or ""
+    # reasoning_content и при нехватке max_tokens отдают ПУСТОЙ content. Фолбэк на
+    # reasoning_content оправдан ТОЛЬКО для json_mode=True — ниже мы вытаскиваем из
+    # него вложенный {...} JSON. Для прозного вывода (json_mode=False, напр.
+    # ИИ-обзор Обозревателя) reasoning_content — сырой черновик размышлений модели
+    # (часто визуально похож на JSON/структурные заметки, раз входной контекст сам
+    # JSON) — если его вернуть как есть, пользователь получает нечитаемую «простыню
+    # похожую на JSON» вместо отчёта. Честно возвращаем пусто — вызывающий код должен
+    # трактовать это как отказ (retry/ошибка), а не сохранять мусор.
+    if json_mode:
+        return msg.get("reasoning_content") or ""
+    return ""
 
 
 def _call_claude(system_prompt: str, user_content: str, json_mode: bool,

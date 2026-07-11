@@ -133,7 +133,8 @@ def _institutions_snapshot(pf_tickers: set[str]) -> dict:
         barometer_path = config_dir / "institutional_barometer.json"
         if barometer_path.exists():
             b = json.loads(barometer_path.read_text(encoding="utf-8"))
-            out["barometer"] = {"overall": (b.get("barometer") or {}).get("overall"),
+            out["barometer"] = {"overall_out_of_5": (b.get("barometer") or {}).get("overall"),
+                                "scale_note": "шкала 0-5, где 5 — лучший институциональный профиль (НЕ из 10)",
                                 "label": (b.get("barometer") or {}).get("label"),
                                 "scenario": (b.get("scenario") or {}).get("current"),
                                 "alerts": [a.get("title") for a in (b.get("alerts") or [])[:5]]}
@@ -251,21 +252,31 @@ _TOPIC_FOCUS = {
 
 
 def generate(db: Session, user_id: int, rtype: str, topic: str = "mixed") -> ObserverReport:
-    from app.services.llm import complete, pro_model
+    from app.services.llm import complete, pro_model, LLMError
     if topic not in _TOPIC_FOCUS:
         topic = "mixed"
     pf_t, pf_s = _portfolio(db, user_id)
     ctx, refs = _gather(db, rtype, topic, pf_t, pf_s)
     system = _FRAMEWORK + "\n\nУРОВЕНЬ: " + _LEVEL[rtype] + "\n\n" + _TOPIC_FOCUS[topic]
     thinking = rtype in ("detailed", "deep")
-    max_tokens = {"express": 1500, "detailed": 4000, "deep": 8000}[rtype]
+    # detailed/deep включают thinking=True (DeepSeek reasoning) — токены на
+    # рассуждение и на финальный текст делят один бюджет max_tokens; при узком
+    # бюджете reasoning-модель успевала «подумать», но не успевала дописать
+    # content → llm.py раньше подставлял сырой reasoning_content (черновик
+    # размышлений поверх входного JSON-контекста — выглядит как «JSON-файл»).
+    # Запас увеличен, и (см. llm.py) для json_mode=False такой фолбэк убран —
+    # теперь при нехватке бюджета придёт честно пустая строка, а не мусор.
+    max_tokens = {"express": 1500, "detailed": 6000, "deep": 12000}[rtype]
     content = complete(system, json.dumps(ctx, ensure_ascii=False), json_mode=False,
                        thinking=thinking, model=pro_model(), max_tokens=max_tokens,
                        temperature=0.3)
     if not isinstance(content, str):
         content = str(content)
+    content = content.strip()
+    if len(content) < 40:
+        raise LLMError("модель вернула пустой или слишком короткий ответ")
     rep = ObserverReport(user_id=user_id, report_type=rtype, topic=topic, horizon_days=HORIZON_DAYS[rtype],
-                         content=content.strip(), source_refs=refs,
+                         content=content, source_refs=refs,
                          portfolio_snapshot=sorted(pf_t), model_used="deepseek-pro",
                          generated_at=datetime.now(timezone.utc))
     db.add(rep); db.commit(); db.refresh(rep)
