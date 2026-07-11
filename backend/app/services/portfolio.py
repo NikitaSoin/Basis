@@ -411,6 +411,9 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
             "company_id": p.company_id,
             "sector": c.sector or "Прочее",
             "value": round(value, 2) if value is not None else None,
+            "price": round(price, 2) if price is not None else None,
+            "quantity": float(p.quantity),
+            "avg_buy_price": float(p.avg_buy_price),
             "pe_current": pe_dynamic,
             "pe_historical": float(m.pe_historical) if m and m.pe_historical is not None else None,
             "div_yield": dy_dynamic,
@@ -453,6 +456,14 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     total_value = sum(p["value"] for p in positions if p["value"] is not None)
     for p in positions:
         p["weight_pct"] = round(p["value"] / total_value * 100, 2) if p["value"] and total_value > 0 else None
+        # «Ваша доходность» — к ЛИЧНОЙ цене входа (avg_buy_price), в отличие от
+        # return_total_3y (доходность самого актива по рынку за 3 года,
+        # независимо от того, когда куплен). Конкурентный разбор Инвестминт/
+        # ПроФинанс 2026-07-11 — честное разделение «рынок» vs «ваш вход»,
+        # работает единообразно для всех классов (price/avg_buy_price уже есть
+        # и у equity, и у bond/future/fund/cash — value_non_equity_positions).
+        price, avg = p.get("price"), p.get("avg_buy_price")
+        p["your_return_pct"] = round((price / avg - 1) * 100, 2) if price and avg else None
 
     # Средневзвешенные по портфелю (нормировка только на позиции с метрикой).
     # Вырожденные случаи не валят расчёт: позиции с нулевой стоимостью
@@ -470,6 +481,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         # бета и доходность портфеля линейны по весам → честное средневзвешенное
         "beta": _weighted_avg([(p["value"], p["beta"]) for p in valued]),
         "return_3y": _weighted_avg([(p["value"], p["return_3y"]) for p in valued]),
+        "your_return_pct": _weighted_avg([(p["value"], p["your_return_pct"]) for p in valued]),
     }
 
     # Этап 2: корреляции и волатильность портфеля — НА ЛЕТУ (зависят от состава).
