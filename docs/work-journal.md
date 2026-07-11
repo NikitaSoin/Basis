@@ -4652,3 +4652,18 @@ SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP,
 TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH,
 VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс MISBP, KRKOP (флаги).
 GLRX пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 54: MRSB/NAUK/NFAZ/NSVZ (216/264)
+MRSB — Мордовэнергосбыт (ЭнергоИнвест/Мордвинова), независима, риск в
+концентрации/неликвидности. NAUK — НПО «Наука» (авиакосмос, орбита Ростеха
+через Технодинамику) — бенефициар военного крена, не жертва. NFAZ — НЕФАЗ
+(КАМАЗ/Ростех) — кэптивная госдочка, риск в трансфертном ценообразовании.
+NSVZ — Наука-Связь (частный телеком/ИТ) — честный кейс без институционального
+риска изъятия. Все 8 JSON+MD подтверждены. Коммит af5312f5.
+
+Итого 216/264 компаний с блоком «Институты» (~82%). Остаток: OGKB, OMZZP,
+PAZA, PRFN, PRMB, RAGR, RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP,
+SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL,
+URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP,
+WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен.
+Продолжать батчами по 4.
