@@ -522,6 +522,95 @@ def build_corporate(db: Session) -> list[dict]:
     return out
 
 
+# ----------------------------- MOEX «Центр корпоративной информации» (форвард-календарь) -----------------------------
+_MOEX_IR_CALENDAR = "https://iss.moex.com/iss/cci/calendars/ir-calendar.json"
+_IR_TYPE_MAP = {"Публикация отчетности": "earnings", "Собрания владельцев ценных бумаг": "corporate"}
+_IR_STATUS_LABEL = {"earnings": "отчётность", "corporate": "собрание акционеров"}
+
+
+def build_ir_calendar(db: Session) -> list[dict]:
+    """Форвард-календарь отчётностей/ГОСА-ВОСА — MOEX ISS «Центр корпоративной информации»
+    (эндпоинт не в официальном /iss/reference/, но публичный, без авторизации, проверен вручную
+    2026-07-11: ?limit=max отдаёт 1984 события, включая даты на 2027-2030 год). ГЛАВНОЕ ОТЛИЧИЕ
+    от build_corporate (smart-lab): горизонт МЕСЯЦЫ/ГОДЫ вперёд, а не ~неделя — MOEX сам
+    агрегирует из открытых источников (IR-страницы/пресс-релизы эмитентов) и от части эмитентов
+    напрямую (data_source_code public/issuer). Это ГРАФИК компании, не гарантированный факт —
+    статус помечен так же, как у smart-lab-эквивалента (единый визуальный язык), точность —
+    в payload.confidence на будущее.
+    Покрытие частичное (~76 эмитентов из 261 на момент проверки — MOEX явно охватывает не всех) —
+    ДОПОЛНЯЕТ smart-lab, не заменяет. Бонд-купоны/погашения из этого фида (event_type_name=
+    "Выплаты по инструментам") НЕ берём — уже есть из таблицы Bond (build_bonds). Дивиденд-даты
+    внутри той же категории (напр. «дата определения лиц, имеющих право на получение дивидендов»)
+    — тоже не берём в этом заходе: в фиде нет суммы дивиденда (она есть только у smart-lab/
+    rates.csv) — отдельная точка расширения, не хотим показывать «пустое» событие.
+    Дедуп ПРОТИВ smart-lab: без общего dedup_key (разные источники/тексты) — чтобы не плодить
+    вторую карточку на ту же дату, когда smart-lab «подхватывает» событие в свою ~недельную зону
+    видимости, СНАЧАЛА исключаем (event_type, ticker, event_date), уже присутствующие в БД из
+    ДРУГИХ источников (типично smart-lab ближе к дате) — на дальнем горизонте конфликтов нет.
+    🔴 event_id из ЭТОГО фида НЕ глобально уникален (это счётчик ВНУТРИ эмитента — секунда
+    проверка нашла 7 коллизий типа ir_calendar:9 у ZAYM И у DOMRF одновременно) — ключ
+    ОБЯЗАТЕЛЬНО включает secid."""
+    import httpx
+    out: list[dict] = []
+    try:
+        r = httpx.get(_MOEX_IR_CALENDAR, params={"limit": "max"}, timeout=30)
+        r.raise_for_status()
+        block = (r.json() or {}).get("cci_ir_calendar") or {}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Календарь ir-calendar (MOEX CCI): недоступен: %s", type(e).__name__)
+        return out
+    cols = block.get("columns") or []
+    rows = block.get("data") or []
+    if not cols or not rows:
+        return out
+    idx = {c: i for i, c in enumerate(cols)}
+    companies = {c.ticker: c for c in db.query(Company).all()}
+    today = date.today()
+    existing = {
+        (r.event_type, r.ticker, r.event_date)
+        for r in db.query(CalendarEvent.event_type, CalendarEvent.ticker, CalendarEvent.event_date)
+        .filter(CalendarEvent.event_type.in_(("earnings", "corporate")),
+                CalendarEvent.source != "moex_ir_calendar",
+                CalendarEvent.event_date >= today).all()
+    }
+    for row in rows:
+        ev_type = _IR_TYPE_MAP.get(row[idx["event_type_name"]])
+        if not ev_type:
+            continue  # бонд-купоны/IR-звонки — не берём (см. докстринг)
+        secid = row[idx["secid"]]
+        c = companies.get(secid) if secid else None
+        if not c:
+            continue  # без сопоставления с нашей компанией — нет карточки/сектора, не показываем
+        ev_date_raw = row[idx["event_date"]]
+        if not ev_date_raw:
+            continue
+        try:
+            ev_date = date.fromisoformat(ev_date_raw[:10])
+        except (TypeError, ValueError):
+            continue
+        if ev_date < today or (ev_type, secid, ev_date) in existing:
+            continue
+        desc = (row[idx["event_description"]] or "").strip()
+        if not desc:
+            continue
+        event_link = row[idx["event_link"]]
+        source_code = row[idx["data_source_code"]]
+        out.append({
+            "event_type": ev_type, "event_date": ev_date, "event_time": None,
+            "ticker": secid, "sector": c.sector,
+            "title": f"{c.name}: {desc}"[:300], "status": _IR_STATUS_LABEL[ev_type],
+            "source": "moex_ir_calendar",
+            "source_url": event_link or f"https://www.moex.com/ru/issue.aspx?code={secid}",
+            "payload": {"subtype": "report" if ev_type == "earnings" else "meeting",
+                        "confidence": "issuer" if source_code == "issuer" else "public_aggregated",
+                        "description": desc[:500]},
+            "dedup_key": f"ir_calendar:{secid}:{row[idx['event_id']]}",
+        })
+    logger.info("Календарь ir-calendar (MOEX CCI): %d событий, %d эмитентов",
+                len(out), len({e['ticker'] for e in out}))
+    return out
+
+
 # ----------------------------- ОРКЕСТРАЦИЯ -----------------------------
 def refresh_all(db: Session, with_dividends: bool = True) -> dict:
     """Полный пересбор календаря (идемпотентно). Вызывать раз в сутки."""
@@ -554,6 +643,10 @@ def refresh_all(db: Session, with_dividends: bool = True) -> dict:
         res["corporate"] = _upsert(db, build_corporate(db))
     except Exception as e:  # noqa: BLE001
         res["corporate"] = f"err:{type(e).__name__}"
+    try:
+        res["ir_calendar"] = _upsert(db, build_ir_calendar(db))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Календарь ir_calendar: %s", e); res["ir_calendar"] = f"err:{type(e).__name__}"
     if with_dividends:
         try:
             res["dividends"] = _upsert(db, build_dividends(db))
