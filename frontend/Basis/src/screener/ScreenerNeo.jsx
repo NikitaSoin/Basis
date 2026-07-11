@@ -498,6 +498,11 @@ function ActiveFiltersStrip({ universe, sector, ranges, total, secColor, onClear
   );
 }
 
+// Переиспользуются в CompareView (App.js) — «Сравнение активов» строит свою
+// таблицу метрик на тех же METRICS/GROUPS/InfoTip/fmtMetric, что скринер, не
+// изобретает вторую копию списка+объяснений метрик.
+export { METRICS, GROUPS, InfoTip, fmtMetric, FAIR_VALUE_HINT, money, num };
+
 // ───────────────────────────────────────── main ─────────────────────────────────────────
 export default function ScreenerNeo({ onOpenCompany, Logo, token, onAuthRequired }) {
   const [universe, setUniverse] = useState("all");
