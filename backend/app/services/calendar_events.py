@@ -846,6 +846,15 @@ def refresh_all(db: Session, with_dividends: bool = True) -> dict:
     except Exception as e:  # noqa: BLE001
         logger.exception("Календарь ir_calendar: %s", e); res["ir_calendar"] = f"err:{type(e).__name__}"
     try:
+        # Полная пересборка форварда: набор событий может СЖИМАТЬСЯ между прогонами
+        # (ужесточение фильтра повестки, снятая с повестки СД дата) — upsert по
+        # dedup_key апдейтит/добавляет, но НЕ удаляет то, что билдер больше не
+        # производит. Без явной очистки отфильтрованные события зависают в БД
+        # навсегда (реальный инцидент 2026-07-11: после ужесточения фильтра
+        # материальности повестки на бою остались 5 старых шумовых записей).
+        db.query(CalendarEvent).filter(CalendarEvent.source == "prime_disclosure",
+                                        CalendarEvent.event_date >= date.today()).delete()
+        db.commit()
         res["prime_disclosure"] = _upsert(db, build_prime_disclosure(db))
     except Exception as e:  # noqa: BLE001
         logger.exception("Календарь prime_disclosure: %s", e); res["prime_disclosure"] = f"err:{type(e).__name__}"
