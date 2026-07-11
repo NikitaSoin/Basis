@@ -6,7 +6,7 @@ import ssl
 import urllib.request
 import urllib.error
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -554,5 +554,29 @@ def debug_trigger_macro_sync():
                 db.rollback()
                 out[key] = {"error": f"{type(e).__name__}: {e}"}
         return out
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-instrument-history")
+def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400)):
+    """Ручной запуск load_range() для одного класса instrument_history синхронно —
+    для разового закрытия дыры после фикса SOURCES (напр. MOEX перевёл фонды с
+    борда TQTF на TQBR 2026-06-22, нужно было закрыть разрыв с даты перевода без
+    ожидания следующего ночного крона с окном в 14 дней). Не гонять регулярно на
+    больших days_back — по дню на запрос к MOEX ISS с паузой между вызовами."""
+    from datetime import date, timedelta
+    from app.db.session import SessionLocal
+    from app.services.instrument_history import load_range, SOURCES
+    if asset_class not in SOURCES:
+        return {"error": f"unknown asset_class {asset_class!r}, expected one of {list(SOURCES)}"}
+    db = SessionLocal()
+    try:
+        today = date.today()
+        n = load_range(db, asset_class, today - timedelta(days=days_back), today)
+        return {"asset_class": asset_class, "days_back": days_back, "rows_written": n}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-instrument-history: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
     finally:
         db.close()

@@ -27,9 +27,15 @@ logger = logging.getLogger(__name__)
 _ISS = "https://iss.moex.com/iss/history/engines/{engine}/markets/{market}"
 
 # asset_class → (engine, market, boards | None).  None = весь рынок (фьючерсы).
+# ВАЖНО: MOEX перевёл ETF/БПИФ с борда TQTF на TQBR (общий борд «Акции и ДР»)
+# 2026-06-22 (TQTF с этой даты is_traded=0, listed_till=2026-06-22 — проверено
+# напрямую в ISS). TQBR отдаёт ВСЮ доску (тысячи строк акций+фондов одним
+# вызовом), но load_range уже фильтрует по known_secids(fund) — фонды
+# корректно вычленяются, лишнее не сохраняется. TQTF/TQIF оставлены для
+# бэкафилла дат ДО перевода (там у них ещё есть история).
 SOURCES: dict[str, tuple[str, str, list[str] | None]] = {
     "bond":   ("stock",   "bonds",  ["TQOB", "TQCB", "TQOY", "TQOD", "TQRD"]),
-    "fund":   ("stock",   "shares", ["TQTF", "TQIF"]),
+    "fund":   ("stock",   "shares", ["TQTF", "TQIF", "TQBR"]),
     "future": ("futures", "forts",  None),
 }
 

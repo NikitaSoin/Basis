@@ -194,7 +194,14 @@ def heatmap_futures(db: Session) -> dict:
     контракту). Цвет — изменение расчётной цены к предыдущему клирингу.
     Группировка — по asset_kind (валютные/индексные/сырьевые/на акции/процентные)."""
     from app.models.future import Future
-    rows = db.query(Future).all()
+    # Экспирировавшие контракты (последний торговый день в прошлом) больше не
+    # торгуются — оставлять их на карте вводит в заблуждение (мёртвая цена,
+    # никто не может по ней ничего сделать). NULL-дата (не должно быть в
+    # нормальных данных, но на всякий случай) — не исключаем, честнее показать.
+    today = date.today()
+    rows = db.query(Future).filter(
+        (Future.expiration_date.is_(None)) | (Future.expiration_date >= today)
+    ).all()
     by_kind: dict[str, list] = {}
     for f in rows:
         last = float(f.last_price) if f.last_price is not None else None
@@ -241,12 +248,16 @@ def heatmap_bonds(db: Session) -> dict:
     """Тепловая карта облигаций. Вес плитки — дневной торговый оборот
     (instrument_history.value, ₽, последнее известное значение за 30 дней) — прокси
     ликвидности, как у фондов/фьючерсов. Цвет — изменение цены (% от номинала) к
-    предыдущему торговому дню. ЧЕСТНОЕ ПОКРЫТИЕ: показываем только бумаги, у которых
-    реально есть данные хотя бы за один день из последних 30 (российский рынок
-    корпоративных облигаций объективно неоднородно ликвиден — многие выпуски не
-    торгуются каждый день, это не пробел загрузки, а свойство рынка); остальные — не
-    считаются нулём, просто не попадают на карту. Растёт по мере накопления истории
-    (ежедневный крон подхватывает РАЗНЫЕ бумаги в разные дни)."""
+    предыдущему торговому дню.
+
+    ПОКРЫТИЕ: показываем ВСЕ бумаги с известной ценой (bonds.last_price — это поле
+    заполнено у подавляющего большинства выпусков независимо от instrument_history).
+    У кого есть реальная история оборота за 30 дней — честный вес по обороту и
+    реальный change_pct день-к-дню. У кого нет (российский рынок корпоративных
+    облигаций объективно неоднородно ликвиден — многие выпуски не торгуются каждый
+    день, это свойство рынка, не пробел загрузки) — честная деградация: маленький
+    фиксированный вес (не выдумываем размер интереса рынка), change_pct=None
+    (нейтральный цвет плитки, не выдумываем движение)."""
     from app.models.bond import Bond
     from app.models.company import Company
     rows = (
@@ -267,15 +278,24 @@ def heatmap_bonds(db: Session) -> dict:
         ORDER BY secid, date DESC
     """), {"ids": secids}).all()
     by_secid = {r.secid: r for r in hist}
+    # ~p5-10 реального дневного оборота облигаций (см. распределение
+    # instrument_history.value) — маленькая, но видимая плитка для бумаг без
+    # данных оборота, не конкурирует по размеру с реально ликвидными выпусками.
+    FALLBACK_WEIGHT = 5000.0
 
     by_sector: dict[str, list] = {}
     for b, company_sector in rows:
         h = by_secid.get(b.secid)
-        if h is None or h.value is None:
-            continue  # нет реальных данных об обороте — честно не рисуем плитку
-        change = None
-        if h.close is not None and h.prev_close:
-            change = round((float(h.close) / float(h.prev_close) - 1) * 100, 2)
+        if h is not None and h.value is not None:
+            weight = float(h.value)
+            change = None
+            if h.close is not None and h.prev_close:
+                change = round((float(h.close) / float(h.prev_close) - 1) * 100, 2)
+        elif b.last_price is not None:
+            weight = FALLBACK_WEIGHT
+            change = None
+        else:
+            continue  # вообще нет данных о цене — не рисуем
         if b.bond_type == "ofz":
             sector = "Госдолг (ОФЗ)"
         elif b.bond_type == "muni":
@@ -290,7 +310,7 @@ def heatmap_bonds(db: Session) -> dict:
             sector = "Корпораты — прочие"
         by_sector.setdefault(sector, []).append({
             "ticker": b.secid, "name": b.short_name, "sector": sector,
-            "market_cap": float(h.value), "change_pct": change,
+            "market_cap": weight, "change_pct": change,
         })
     sectors = _pack_sectors(by_sector)
     covered = sum(len(s["tiles"]) for s in sectors)
