@@ -583,6 +583,31 @@ def debug_trigger_macro_analytics():
         db.close()
 
 
+@router.post("/debug/purge-shallow-geo-digest")
+def debug_purge_shallow_geo_digest():
+    """Одноразовая чистка: удаляет карточки geo_digest_articles, сохранённые ДО фикса
+    глубины пересказа (пустой key_takeaways — старый узкий формат на огрызке текста).
+    После удаления source_url больше не в known → следующий trigger-geo-digest
+    переобработает те же статьи заново уже с полным текстом и подробным промптом."""
+    from app.db.session import SessionLocal
+    from app.models.geo_digest import GeoDigestArticle
+    from sqlalchemy import or_
+    db = SessionLocal()
+    try:
+        removed = (db.query(GeoDigestArticle)
+                  .filter(or_(GeoDigestArticle.key_takeaways.is_(None),
+                              GeoDigestArticle.key_takeaways == []))
+                  .delete(synchronize_session=False))
+        db.commit()
+        return {"removed": removed}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.exception("debug purge-shallow-geo-digest: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-geo-digest")
 def debug_trigger_geo_digest():
     """Ручной запуск geo_digest.refresh() (карточки-статьи Рыбарь/re:russia/Carnegie
