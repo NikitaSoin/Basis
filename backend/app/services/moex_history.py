@@ -45,6 +45,17 @@ SHARE_COLUMNS = "TRADEDATE,OPEN,LOW,HIGH,CLOSE,LEGALCLOSEPRICE,VALUE,BOARDID"
 INDEX_COLUMNS = "TRADEDATE,OPEN,LOW,HIGH,CLOSE,VALUE,BOARDID"
 
 BENCHMARK_TICKERS = ["IMOEX", "RTSI", "MCFTR"]
+# Доп. индексы/ставки для блока «Обзор рынка» Обозревателя (2026-07-11) — те же
+# рынок index MOEX ISS/тот же generic fetch_index_history/fetch_index_live, что и
+# BENCHMARK_TICKERS (проверено напрямую в ISS перед реализацией — RGBI/RVI/RUSFAR*/
+# секторальные индексы MOEX все живут на market=index, просто разные борды: SNDX у
+# секторальных и RGBI, MMIX у RUSFAR*, RTSI у RVI — ISS-функциям борд не нужен,
+# они берут его из ответа автоматически). Отдельный список (не смешиваем с
+# BENCHMARK_TICKERS) — RUSFAR* это СТАВКА, не ценовой индекс, семантика другая.
+MARKET_PULSE_TICKERS = [
+    "RGBI", "RVI", "RUSFAR", "RUSFARCNY",
+    "MOEXOG", "MOEXEU", "MOEXTL", "MOEXCH", "MOEXMM", "MOEXFN", "MOEXCN", "MOEXIT", "MOEXTN", "MOEXRE",
+]
 
 REQUEST_PAUSE = 0.25       # сек между запросами — не долбим MOEX
 RETRIES = 4                # попыток на один URL
@@ -396,7 +407,7 @@ def catch_up_history(days_back_max: int = 30) -> None:
         db.commit()
 
         idx_rows = 0
-        for t in BENCHMARK_TICKERS:
+        for t in BENCHMARK_TICKERS + MARKET_PULSE_TICKERS:
             last = db.execute(
                 text("SELECT max(date) FROM index_history WHERE ticker = :t"), {"t": t}
             ).scalar()

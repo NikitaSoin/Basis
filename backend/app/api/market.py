@@ -47,6 +47,18 @@ def market_indices(db: Session = Depends(get_db)):
     return get_indices(db)
 
 
+@router.get("/market/pulse")
+def market_pulse(db: Session = Depends(get_db)):
+    """Блок «Обзор рынка» Обозревателя: индексы (IMOEX/МПД/РТС/RGBI), секторальные
+    индексы MOEX (10 шт.), ставки денежного рынка (RUSFAR руб./юань), нефть Brent
+    (прокси — ближайший фьючерс), драгметаллы (spot_assets), индекс страха и
+    жадности Basis (v0, оценка/модель)."""
+    from app.services.market_pulse import get_market_overview, get_fear_greed
+    overview = get_market_overview(db)
+    overview["fear_greed"] = get_fear_greed(db)
+    return overview
+
+
 @router.get("/market/drivers")
 def market_drivers(db: Session = Depends(get_db)):
     """«Что движет рынком сегодня» для пульса: Brent / USD-RUB / Ставка ЦБ / ОФЗ-10.

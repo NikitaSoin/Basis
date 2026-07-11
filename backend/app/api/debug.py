@@ -638,3 +638,38 @@ def debug_trigger_refresh_funds():
         return {"error": f"{type(e).__name__}: {e}"}
     finally:
         db.close()
+
+
+@router.post("/debug/trigger-index-backfill")
+def debug_trigger_index_backfill(tickers: str = Query(..., description="через запятую, напр. RGBI,RVI,RUSFAR"),
+                                  days_back: int = Query(365, ge=1, le=1500)):
+    """Разовый глубокий бэкафилл index_history для НОВЫХ тикеров (напр. RGBI/RVI/
+    RUSFAR*/секторальные MOEXOG..MOEXRE, добавленные в MARKET_PULSE_TICKERS 2026-07-11
+    для блока «Обзор рынка» + индекса страха/жадности) — обычный ночной
+    catch_up_history берёт только последние 30 дней для тикера без истории, для
+    MA125/перцентилей за год нужна разовая более глубокая докачка. fetch_index_history
+    отдаёт весь диапазон за один вызов к MOEX ISS (не по дню, как instrument_history) —
+    дёшево, без чанкования."""
+    from datetime import date, timedelta
+    from app.db.session import SessionLocal
+    from app.services.moex_history import fetch_index_history, upsert_index_rows
+    tlist = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+    if not tlist:
+        return {"error": "tickers пуст"}
+    db = SessionLocal()
+    out = {}
+    try:
+        today = date.today()
+        start = today - timedelta(days=days_back)
+        for t in tlist:
+            try:
+                rows = fetch_index_history(t, start, today)
+                n = upsert_index_rows(db, t, rows)
+                db.commit()
+                out[t] = {"rows_written": n}
+            except Exception as e:  # noqa: BLE001
+                db.rollback()
+                out[t] = {"error": f"{type(e).__name__}: {e}"}
+        return out
+    finally:
+        db.close()
