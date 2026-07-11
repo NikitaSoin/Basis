@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Пока только главная — приложение без клиентского роутинга (все разделы живут
+     на "/" как состояние вкладок, реальных URL нет). Расширить список после
+     введения React Router под индивидуальные страницы компаний/облигаций/скринера
+     (SEO-план, средний приоритет). -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://inbasis.ru/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
