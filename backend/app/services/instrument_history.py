@@ -1,17 +1,21 @@
-"""Дневная история цен облигаций/фьючерсов/фондов с MOEX ISS → instrument_history.
+"""Дневная история цен облигаций/фьючерсов/фондов/валюты-металлов с MOEX ISS →
+instrument_history.
 
-Один движок на три класса. Источник — официальная история MOEX ISS (без ключей):
+Один движок на четыре класса. Источник — официальная история MOEX ISS (без ключей):
 эндпоинт «вся доска за дату» (?date=) отдаёт все бумаги доски одним запросом —
 это на порядок дешевле, чем дёргать каждую бумагу отдельно.
 
   - облигации: stock/bonds, борды TQOB/TQCB/TQOY/TQOD/TQRD (CLOSE % номинала,
     YIELDCLOSE — YTM, ACCINT — НКД);
-  - фонды:     stock/shares, борды TQTF/TQIF (обычный OHLC);
-  - фьючерсы:  futures/forts, весь рынок (CLOSE/SETTLEPRICE/OPENPOSITION — ОИ).
+  - фонды:     stock/shares, борды TQTF/TQIF/TQBR (обычный OHLC);
+  - фьючерсы:  futures/forts, весь рынок (CLOSE/SETTLEPRICE/OPENPOSITION — ОИ);
+  - валюта/металлы: currency/selt, борд CETS (обычный OHLC; курируемый список
+    инструментов — те же 6, что в moex_spot.SPOT_INSTRUMENTS).
 
-Складываем ТОЛЬКО бумаги, которые есть в наших метаданных (bonds/futures/funds),
-чтобы не засорять таблицу мёртвыми/неотслеживаемыми выпусками. Идемпотентно
-(ON CONFLICT asset_class+secid+date). Метаданные НЕ дублируем — связь по secid.
+Складываем ТОЛЬКО бумаги, которые есть в наших метаданных (bonds/futures/funds/
+spot_assets), чтобы не засорять таблицу мёртвыми/неотслеживаемыми выпусками.
+Идемпотентно (ON CONFLICT asset_class+secid+date). Метаданные НЕ дублируем —
+связь по secid.
 """
 import logging
 import time
@@ -34,12 +38,13 @@ _ISS = "https://iss.moex.com/iss/history/engines/{engine}/markets/{market}"
 # корректно вычленяются, лишнее не сохраняется. TQTF/TQIF оставлены для
 # бэкафилла дат ДО перевода (там у них ещё есть история).
 SOURCES: dict[str, tuple[str, str, list[str] | None]] = {
-    "bond":   ("stock",   "bonds",  ["TQOB", "TQCB", "TQOY", "TQOD", "TQRD"]),
-    "fund":   ("stock",   "shares", ["TQTF", "TQIF", "TQBR"]),
-    "future": ("futures", "forts",  None),
+    "bond":   ("stock",    "bonds",  ["TQOB", "TQCB", "TQOY", "TQOD", "TQRD"]),
+    "fund":   ("stock",    "shares", ["TQTF", "TQIF", "TQBR"]),
+    "future": ("futures",  "forts",  None),
+    "spot":   ("currency", "selt",   ["CETS"]),
 }
 
-_META_TABLE = {"bond": "bonds", "fund": "funds", "future": "futures"}
+_META_TABLE = {"bond": "bonds", "fund": "funds", "future": "futures", "spot": "spot_assets"}
 
 _UPSERT = text("""
     INSERT INTO instrument_history
@@ -73,12 +78,30 @@ def known_secids(db: Session, asset_class: str) -> set[str]:
 
 
 def _fetch_board_date(engine: str, market: str, board: str | None, d: date_type) -> list[dict]:
+    """ISS отдаёт максимум 100 строк за вызов (own pagination, start=). Доски
+    покрупнее (TQCB ~300+/день, весь рынок FORTS ~780+/день) молча обрезались
+    до первых 100 — часть бумаг (по алфавиту/внутренней сортировке ISS дальше
+    100-й) НИКОГДА не попадала в instrument_history. Отсюда «серые» плитки на
+    карте рынка облигаций/фьючерсов и дыры в графиках цены — не проблема
+    ликвидности бумаги, а недокачка. Долистываем start=0,100,200... до пустой
+    страницы."""
     base = _ISS.format(engine=engine, market=market)
     suffix = f"/boards/{board}/securities.json" if board else "/securities.json"
-    url = f"{base}{suffix}?iss.meta=off&date={d.isoformat()}"
-    data = _get_json(url)
-    cols = data["history"]["columns"]
-    return [dict(zip(cols, r)) for r in data["history"]["data"]]
+    out = []
+    start = 0
+    while True:
+        url = f"{base}{suffix}?iss.meta=off&date={d.isoformat()}&start={start}"
+        data = _get_json(url)
+        cols = data["history"]["columns"]
+        rows = data["history"]["data"]
+        if not rows:
+            break
+        out.extend(dict(zip(cols, r)) for r in rows)
+        if len(rows) < 100:
+            break
+        start += 100
+        time.sleep(REQUEST_PAUSE)
+    return out
 
 
 def _map_row(asset_class: str, r: dict) -> dict | None:

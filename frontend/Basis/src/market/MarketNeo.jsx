@@ -475,6 +475,18 @@ function LevBadge({ lev }) {
   const tone = lev >= 10 ? "neg" : lev >= 7 ? "amber" : "warn";
   return <span className={"mk-lev mk-lev-" + tone}>{num(lev, 1)}×</span>;
 }
+// Ячейка «изменение за день» — «—» читается как «у платформы нет данных», хотя
+// на деле часто это низкая ликвидность (цену знаем — last_price есть, — а
+// дельту посчитать не по чему, сделok в окне не было). known = знаем ли
+// текущую цену бумаги — различает эти два честных состояния.
+function ChgTd({ chg, known }) {
+  if (chg == null) {
+    return known
+      ? <span className="dim mk-chg-illiquid" title="Низкая ликвидность — нет сделок за последние дни, дельту не по чему посчитать">нет сделок</span>
+      : <span className="dim">—</span>;
+  }
+  return <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>;
+}
 function FuturesTab({ rows, query, onOpen }) {
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState("default");
@@ -524,7 +536,7 @@ function FuturesTab({ rows, query, onOpen }) {
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
                       <td className="l"><div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.asset_name || f.sec_name}</span></div></td>
                       <td className="num strong">{f.last_price != null ? num(f.last_price, 2) : "—"}</td>
-                      <td className="num">{chg == null ? <span className="dim">—</span> : <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>}</td>
+                      <td className="num"><ChgTd chg={chg} known={f.last_price != null} /></td>
                       <td className="num"><LevBadge lev={f.leverage} /></td>
                       <td className="num">{f.days_to_expiry != null ? f.days_to_expiry + NB + "дн" : "—"}</td>
                       <td className="num">{f.initial_margin != null ? grp(Math.round(f.initial_margin)) + NB + "₽" : "—"}</td>
@@ -589,7 +601,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
                       <td className="l"><div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.sec_name}</span></div></td>
                       <td className="l dim">{f.benchmark || "—"}</td>
                       <td className="num">{num(f.last_price, 2)}{NB}₽</td>
-                      <td className="num">{chg == null ? <span className="dim">—</span> : <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>}</td>
+                      <td className="num"><ChgTd chg={chg} known={f.last_price != null} /></td>
                       <td className="num strong">{f.ter != null ? num(f.ter, 2) + NB + "%" : "—"}</td>
                       <td className="num dim">{f.val_today != null ? money(f.val_today) : "—"}</td>
                     </tr>
@@ -616,7 +628,7 @@ function FxMetalsTab({ rows, onOpen }) {
             <tr key={r.secid} onClick={() => onOpen(r.secid)} style={{ cursor: "pointer" }}>
               <td className="l"><b className="mk-fx-n">{r.name}</b></td>
               <td className="num">{num(r.last_price, dec)}</td>
-              <td className="num">{r.change_pct == null ? <span className="dim">—</span> : <span className={"mk-delta " + (r.change_pct > 0 ? "up" : r.change_pct < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{r.change_pct > 0 ? "+" : ""}{num(r.change_pct, 2)}{NB}%</span></span>}</td>
+              <td className="num"><ChgTd chg={r.change_pct} known={r.last_price != null} /></td>
             </tr>
           ))}
         </tbody>

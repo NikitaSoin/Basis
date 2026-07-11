@@ -94,6 +94,7 @@
 .mk-screen .mk-table tbody tr:hover{background:var(--panel-2);}
 .mk-screen .num.strong{font-weight:600;color:var(--ink);}
 .mk-screen .num.dim,.mk-screen .dim{color:var(--ink-3);}
+.mk-screen .mk-chg-illiquid{font-size:11.5px;font-style:italic;cursor:help;}
 .mk-screen .mk-bond-id b,.mk-screen .mk-fx-n{font-size:14px;font-weight:600;color:var(--ink);}
 .mk-screen .mk-bond-id{display:flex;flex-direction:column;line-height:1.3;}
 .mk-screen .mk-sub{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);}
