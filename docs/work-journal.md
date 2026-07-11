@@ -4696,3 +4696,17 @@ RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP,
 TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
 VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP,
 YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 57: ROLO/RTSB/RZSB/SAGO (228/264)
+ROLO — Русолово (97.99% Селигдар), уголовное дело бенефициаров группы (не про
+олово), риск в раздавливании миноритария материнской. RTSB — ТНС энерго
+Ростов-на-Дону, паттерн подтвердился. RZSB — РЭСК (ЭСК РусГидро), инверти-
+рованный профиль, риск в governance-конфликте. SAGO — Самараэнерго (Аветисян,
+экс-Ренова), риск в сквиз-ауте (контроль ~79% у порога 95%). Все 8 JSON+MD
+подтверждены. Коммит 68974ce4.
+
+Итого 228/264 компаний с блоком «Институты» (~86%). Остаток: SARE/SAREP,
+SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN,
+UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP,
+YKEN/YKENP, YRSB/YRSBP. Плюс SAGOP, RTSBP, MISBP, KRKOP (флаги). GLRX
+пропущен. Продолжать батчами по 4.
