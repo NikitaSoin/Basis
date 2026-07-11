@@ -385,7 +385,63 @@ function AddCriterion({ activeKeys, onAdd }) {
     </div>
   );
 }
-function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAdd, onRemove, onReset, resultCount, total, distributions, allRows, onCollapse }) {
+// Сохранённые пользовательские наборы фильтров — см. идентичный компонент и
+// обоснование в ScreenerNeo.jsx.
+function SavedFilters({ assetClass, token, onAuthRequired, currentConfig, onApply }) {
+  const [saved, setSaved] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+
+  const load = useCallback(() => {
+    if (!token) { setSaved([]); return; }
+    fetch(`${apiBase()}/api/screener/saved-filters?asset_class=${assetClass}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((r) => (r.ok ? r.json() : [])).then((d) => setSaved(Array.isArray(d) ? d : [])).catch(() => {});
+  }, [token, assetClass]);
+  useEffect(() => { load(); }, [load]);
+
+  const startSave = () => {
+    if (!token) { onAuthRequired && onAuthRequired(); return; }
+    setSaving(true);
+  };
+  const confirmSave = () => {
+    const name = nameInput.trim();
+    if (!name) return;
+    fetch(`${apiBase()}/api/screener/saved-filters`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ asset_class: assetClass, name, config: currentConfig }),
+    }).then((r) => (r.ok ? r.json() : null)).then(() => { setSaving(false); setNameInput(""); load(); });
+  };
+  const remove = (id, e) => {
+    e.stopPropagation();
+    fetch(`${apiBase()}/api/screener/saved-filters/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } })
+      .then(() => load());
+  };
+
+  return (
+    <div className="sc-savedf">
+      {saved.map((f) => (
+        <button key={f.id} className="sc-savedf-chip" onClick={() => onApply(f.config)}>
+          {f.name}
+          <span className="sc-savedf-x" onClick={(e) => remove(f.id, e)} role="button" aria-label={`Удалить «${f.name}»`}>×</span>
+        </button>
+      ))}
+      {saving ? (
+        <span className="sc-savedf-form">
+          <input autoFocus value={nameInput} onChange={(e) => setNameInput(e.target.value)} placeholder="Название фильтра" maxLength={80}
+            onKeyDown={(e) => { if (e.key === "Enter") confirmSave(); if (e.key === "Escape") setSaving(false); }} />
+          <button onClick={confirmSave} disabled={!nameInput.trim()}>Сохранить</button>
+          <button onClick={() => { setSaving(false); setNameInput(""); }} className="sc-savedf-cancel">Отмена</button>
+        </span>
+      ) : (
+        <button className="sc-savedf-add" onClick={startSave}>+ Сохранить текущий фильтр</button>
+      )}
+    </div>
+  );
+}
+
+function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAdd, onRemove, onReset, resultCount, total, distributions, allRows, onCollapse, token, onAuthRequired, currentConfig, onApplyConfig }) {
   const activeKeys = Object.keys(ranges);
   const countFor = (k) => allRows.filter((r) => matchesRanges(r, { [k]: ranges[k] }) && (!sector || r.sec === sector) && typePred(typeId)(r)).length;
   return (
@@ -396,6 +452,7 @@ function CriteriaRail({ ranges, sector, typeId, lightFilter, onRangeChange, onAd
           <button className="sc-collapse" onClick={onCollapse} title="Свернуть фильтры" aria-label="Свернуть"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 3.5L5 8l4.5 4.5" /><path d="M13 3.5v9" /></svg></button>
         </div>
       </div>
+      <SavedFilters assetClass="bonds" token={token} onAuthRequired={onAuthRequired} currentConfig={currentConfig} onApply={onApplyConfig} />
       <div className="sc-funnel">
         <div className="sc-funnel-bar"><span className="sc-funnel-fill" style={{ width: (total ? resultCount / total * 100 : 0) + "%" }} /></div>
         <div className="sc-funnel-txt"><b>{resultCount}</b> из {total} бумаг проходят<span className="sc-funnel-sub">{activeKeys.length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0)} активных условий</span></div>
@@ -455,7 +512,7 @@ function ActiveFiltersStrip({ typeId, sector, lightFilter, ranges, total, secCol
 }
 
 // ───────────────────────────── main ─────────────────────────────
-export default function BondScreenerNeo({ onOpenCompany }) {
+export default function BondScreenerNeo({ onOpenCompany, token, onAuthRequired }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -522,6 +579,15 @@ export default function BondScreenerNeo({ onOpenCompany }) {
   const removeRange = (k) => { setRanges((rs) => { const n = { ...rs }; delete n[k]; return n; }); setPresetId(null); };
   const reset = () => { setRanges({}); setSector(""); setTypeId("all"); setLightFilter(null); setPresetId("all"); };
   const total = rows.length;
+
+  // Сохранённые фильтры — снапшот текущего стейта конструктора / восстановление.
+  const currentConfig = { ranges, sector, typeId, lightFilter, sort };
+  const applyConfig = (cfg) => {
+    setRanges(cfg.ranges || {}); setSector(cfg.sector || ""); setTypeId(cfg.typeId || "all");
+    setLightFilter(cfg.lightFilter || null);
+    if (cfg.sort) setSort(cfg.sort);
+    setPresetId(null);
+  };
   const activeN = Object.keys(ranges).length + (sector ? 1 : 0) + (typeId !== "all" ? 1 : 0) + (lightFilter ? 1 : 0);
 
   const typeOptions = TYPES.map((t) => ({ id: t.id, label: t.label, count: rows.filter(t.pred).length }));
@@ -573,7 +639,8 @@ export default function BondScreenerNeo({ onOpenCompany }) {
             onRangeChange={(k, rr) => { setRanges((rs) => ({ ...rs, [k]: rr })); setPresetId(null); }}
             onAdd={(k) => { setRanges((rs) => ({ ...rs, [k]: [...METRICS[k].dom] })); setPresetId(null); }}
             onRemove={removeRange}
-            onReset={reset} resultCount={filtered.length} total={total} distributions={distributions} allRows={rows} onCollapse={() => setRailOpen(false)} />
+            onReset={reset} resultCount={filtered.length} total={total} distributions={distributions} allRows={rows} onCollapse={() => setRailOpen(false)}
+            token={token} onAuthRequired={onAuthRequired} currentConfig={currentConfig} onApplyConfig={applyConfig} />
         )}
         <div className="sc-results">
           <div className="sc-signal">

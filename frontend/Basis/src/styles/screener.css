@@ -89,6 +89,19 @@
 .sc-crit-x{border:0;background:transparent;color:var(--ink-3);cursor:pointer;padding:2px;display:flex;border-radius:5px;}
 .sc-crit-x:hover{color:var(--neg);background:color-mix(in srgb,var(--neg) 12%,transparent);}
 
+.sc-savedf{display:flex;flex-wrap:wrap;gap:7px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);}
+.sc-savedf-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink-2);background:var(--panel);border:1px solid var(--line-2);border-radius:999px;padding:6px 8px 6px 12px;cursor:pointer;}
+.sc-savedf-chip:hover{border-color:var(--accent);color:var(--accent-2);}
+.sc-savedf-x{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;color:var(--ink-3);font-size:13px;line-height:1;}
+.sc-savedf-x:hover{background:color-mix(in srgb,var(--neg) 15%,transparent);color:var(--neg);}
+.sc-savedf-add{font-size:12px;font-weight:600;color:var(--accent-2);background:var(--accent-soft);border:1px dashed var(--accent);border-radius:999px;padding:6px 12px;cursor:pointer;}
+.sc-savedf-add:hover{background:var(--accent);color:var(--panel);}
+.sc-savedf-form{display:inline-flex;align-items:center;gap:6px;}
+.sc-savedf-form input{font:inherit;font-size:12.5px;border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);width:150px;}
+.sc-savedf-form button{font-size:12px;font-weight:600;border-radius:8px;padding:6px 10px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--panel);}
+.sc-savedf-form button:disabled{opacity:.5;cursor:default;}
+.sc-savedf-form button.sc-savedf-cancel{border-color:var(--line-2);background:transparent;color:var(--ink-2);}
+
 .sc-infotip{position:relative;display:inline-flex;}
 .sc-infotip-btn{width:14px;height:14px;border-radius:50%;border:1px solid var(--line-2);background:var(--panel-2);color:var(--ink-3);font:600 9.5px/1 "IBM Plex Mono",monospace;display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer;flex:none;}
 .sc-infotip-btn:hover{border-color:var(--accent);color:var(--accent-2);background:var(--accent-soft);}

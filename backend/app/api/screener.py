@@ -5,13 +5,64 @@
 quotes (для апсайда к справедливой цене). Без «купить/продать» — инструмент
 фильтрации, выводы делает пользователь.
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.auth import get_current_user
+from app.models.user import User
+from app.models.screener_filter import SavedScreenerFilter
 
 router = APIRouter()
+
+
+class SavedFilterCreate(BaseModel):
+    asset_class: str  # stocks | bonds
+    name: str
+    config: dict
+
+
+@router.get("/screener/saved-filters")
+def list_saved_filters(asset_class: str = Query(...), db: Session = Depends(get_db),
+                        current_user: User = Depends(get_current_user)):
+    """Сохранённые наборы фильтров текущего пользователя (Сохранить/Сбросить свой
+    сет — конкурентный разбор ПроФинанс 2026-07-11, у Basis раньше были только
+    зашитые в код пресеты)."""
+    rows = (db.query(SavedScreenerFilter)
+            .filter(SavedScreenerFilter.user_id == current_user.id,
+                    SavedScreenerFilter.asset_class == asset_class)
+            .order_by(SavedScreenerFilter.created_at.desc()).all())
+    return [{"id": r.id, "name": r.name, "config": r.config, "created_at": r.created_at.isoformat()} for r in rows]
+
+
+@router.post("/screener/saved-filters")
+def create_saved_filter(data: SavedFilterCreate, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
+    name = data.name.strip()[:80]
+    if not name:
+        raise HTTPException(status_code=400, detail="Название не может быть пустым")
+    if data.asset_class not in ("stocks", "bonds"):
+        raise HTTPException(status_code=400, detail="asset_class должен быть stocks или bonds")
+    row = SavedScreenerFilter(user_id=current_user.id, asset_class=data.asset_class, name=name, config=data.config)
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"id": row.id, "name": row.name, "config": row.config, "created_at": row.created_at.isoformat()}
+
+
+@router.delete("/screener/saved-filters/{filter_id}")
+def delete_saved_filter(filter_id: int, db: Session = Depends(get_db),
+                         current_user: User = Depends(get_current_user)):
+    row = db.query(SavedScreenerFilter).filter(SavedScreenerFilter.id == filter_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Не найдено")
+    if row.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    db.delete(row)
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/screener/scored")

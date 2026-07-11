@@ -11,6 +11,7 @@ from app.models.geo import GeoBlock
 from app.models.observer_report import ObserverReport
 from app.models.instrument import InstrumentHistory
 from app.models.assistant import Conversation, Message
+from app.models.screener_filter import SavedScreenerFilter
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -24,4 +25,5 @@ __all__ = [
     "Bond",
     "CalendarEvent",
     "InstrumentHistory",
+    "SavedScreenerFilter",
 ]
