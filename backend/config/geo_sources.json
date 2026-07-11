@@ -9,9 +9,10 @@
      "regions": ["svo", "middle_east", "atr"], "enabled": true},
     {"key": "carnegie", "role": "analysis", "method": "rss",
      "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
-     "regions": ["svo", "middle_east"], "enabled": true},
+     "regions": ["svo", "middle_east"], "enabled": false,
+     "_disabled_reason": "Сайт carnegieendowment.org перешёл на Next.js SPA — RSS удалён отовсюду (проверено 2026-07-11: /posts/feed, /rss/all, /russia-eurasia/rss, /politika/rss, /feed, /ru/rss — все отдают HTML-заглушку 200 вместо XML). Рабочего адреса не нашлось; включить обратно, если Carnegie восстановит фид."},
     {"key": "rerussia", "role": "analysis", "method": "rss",
-     "url": "https://re-russia.net/rss/",
+     "url": "https://re-russia.net/feed-ru.xml",
      "regions": ["svo"], "enabled": true}
   ],
   "region_keywords": {
