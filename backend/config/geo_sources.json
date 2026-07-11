@@ -36,7 +36,11 @@
     {"key": "economist_finance", "role": "analysis", "method": "rss",
      "url": "https://www.economist.com/finance-and-economics/rss.xml",
      "regions": ["svo", "middle_east", "atr"], "enabled": true,
-     "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."}
+     "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."},
+    {"key": "isw", "role": "analysis", "method": "wp_json",
+     "url": "https://www.understandingwar.org/wp-json/wp/v2/posts", "params": {"per_page": 15},
+     "regions": ["svo", "middle_east", "atr"], "enabled": true,
+     "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."}
   ],
   "region_keywords": {
     "svo": ["украин", "сво", "донба", "фронт", "запорож", "херсон", "купянск", "санкци", "офз", "москв", "киев", "нато", "переговор", "обстрел", "удар по"],
