@@ -224,14 +224,22 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
             summary = (it.get("summary") or "").strip()
             if not summary:
                 continue
+            # Коммит ПО ОДНОЙ статье: параллельный прогон (cron + ручной debug-триггер
+            # почти одновременно) может успеть вставить тот же source_url раньше —
+            # конфликт уникальности не должен ронять всю пачку остальных статей.
             db.add(GeoDigestArticle(
                 target=target, title=(it.get("title") or art["title"])[:300],
                 summary=summary, investor_relevance=(it.get("investor_relevance") or "").strip() or None,
                 published_at=pub, source_url=art["url"], source_key=art["src"],
                 model_used="deepseek",
             ))
-            saved += 1
-    db.commit()
+            try:
+                db.commit()
+                saved += 1
+            except Exception as e:  # noqa: BLE001
+                db.rollback()
+                logger.warning("GEO-дайджест: пропуск дубля/конфликта при сохранении %s: %s",
+                               art["url"], type(e).__name__)
     res = {"discovered": len(fresh), "saved": saved, "blind": blind}
     logger.info("GEO-дайджест: %s", res)
     return res
