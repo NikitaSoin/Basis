@@ -157,6 +157,9 @@
     "ppi": {"name": "индекс цен производителей РФ (ИЦП)", "metrics": ["yoy", "mom"], "unit": "%", "min": -30, "max": 60},
     "pmi_composite": {"name": "PMI РФ (композит/пром/услуги, итоговое число)", "metrics": ["level"], "unit": "ед", "min": 20, "max": 70},
     "nominal_wage": {"name": "номинальная зарплата РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 50},
-    "budget_balance": {"name": "баланс федерального бюджета РФ", "metrics": ["level"], "unit": "трлн руб", "min": -20, "max": 20}
+    "budget_balance": {"name": "баланс федерального бюджета РФ", "metrics": ["level"], "unit": "трлн руб", "min": -20, "max": 20},
+    "urals": {"name": "цена нефти Urals (баррель, USD)", "metrics": ["level"], "unit": "usd", "min": 10, "max": 150},
+    "hh_index": {"name": "индекс рынка труда hh.ru (резюме на вакансию)", "metrics": ["level"], "unit": "ед", "min": 0.1, "max": 20},
+    "real_wage": {"name": "реальная заработная плата РФ (темп г/г)", "metrics": ["yoy"], "unit": "%", "min": -30, "max": 50}
   }
 }

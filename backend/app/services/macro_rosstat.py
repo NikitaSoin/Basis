@@ -242,3 +242,95 @@ def ingest_fedstat(db: Session, recent_months: int = 60) -> dict:
         out["loaded"][code] = saved
     logger.info("fedstat ингест: %s", out)
     return out
+
+
+# ----------------------------- ИЦП: реальные бюллетени rosstat.gov.ru (НЕ fedstat.ru) -----------------------------
+# fedstat.ru закрыт WAF (см. докстринг файла), но САМ rosstat.gov.ru — другой домен, публичный
+# (TLS-сертификат просто с неполной цепочкой, не WAF — verify=False, как build_rosstat_releases
+# в calendar_events.py). Ежемесячный пресс-бюллетень «Об индексе цен производителей промышленных
+# товаров» — реальный, содержательный текст с таблицей г/г — раньше ИЦП имел только ручной CSV,
+# застрявший на 2026-03-31. Найдено при разведке 2026-07-11 (owner попросил проверить hh.ru/urals/
+# зарплаты/безработицу — заодно проверил и обнаружил рабочий канал для ИЦП).
+_ROSSTAT_ANNOUNCEMENTS = "https://rosstat.gov.ru/announcements"
+_ROSSTAT_HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                               "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
+_PPI_TITLE_RE = re.compile(r"индексе\s+цен\s+производителей", re.IGNORECASE)
+_PPI_SYS = (
+    "Это пресс-бюллетень Росстата «Об индексе цен производителей промышленных товаров» за "
+    "конкретный месяц (таблица сравнений). Извлеки индекс ГОД К ГОДУ — строка «Индекс цен "
+    "производителей промышленных товаров» (сводный, НЕ по отдельным отраслям типа «Добыча "
+    "полезных ископаемых»), столбец «к <тот же месяц прошлого года>» (например «к маю 2025 г.», "
+    "если бюллетень про май 2026) — НЕ месяц-к-месяцу и НЕ накопленным с начала года/декабрю. "
+    "Верни строго JSON: {\"month\":\"YYYY-MM\", \"yoy_index\":<число>}. yoy_index — САМ ИНДЕКС "
+    "(100 = без изменений, 109.4 значит +9.4% г/г), не вычтенный процент. Только из текста "
+    "бюллетеня. Без текста вне JSON."
+)
+
+
+def _month_end_str(ym: str) -> date | None:
+    try:
+        y, m = (ym or "").split("-")
+        y, m = int(y), int(m)
+        nxt = date(y + (m == 12), (m % 12) + 1, 1)
+        from datetime import timedelta
+        return nxt - timedelta(days=1)
+    except (ValueError, AttributeError):
+        return None
+
+
+def _latest_ppi_release() -> str | None:
+    """URL последнего бюллетеня ИЦП — ищем по заголовку в общей ленте анонсов Росстата
+    (та же лента, что уже парсит build_rosstat_releases в calendar_events.py — но там
+    берутся только ДАТЫ, здесь идём по ссылке за реальным ТЕКСТОМ/цифрами)."""
+    try:
+        r = httpx.get(_ROSSTAT_ANNOUNCEMENTS, timeout=30, verify=False, headers=_ROSSTAT_HTTP)
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Росстат-ИЦП: лента анонсов недоступна: %s", type(e).__name__)
+        return None
+    candidates = []
+    for m in re.finditer(r'<a[^>]+href="([^"]+_(\d{2})-(\d{2})-(\d{4})\.html)"[^>]*>(.*?)</a>',
+                         html, re.S):
+        href, dd, mo, yyyy, title = m.groups()
+        title_clean = re.sub(r"<[^>]+>", " ", title)
+        if _PPI_TITLE_RE.search(title_clean):
+            candidates.append((f"{yyyy}{mo}{dd}", href))
+    if not candidates:
+        return None
+    _, href = sorted(candidates)[-1]
+    return "https://rosstat.gov.ru" + href
+
+
+def sync_ppi(db: Session) -> dict:
+    """ИЦП г/г — реальный бюллетень Росстата (не CSV-выгрузка). Раньше застрял на
+    2026-03-31 (только ручной rosstat_manual.csv)."""
+    from app.services import llm
+    url = _latest_ppi_release()
+    if not url:
+        return {"error": "index"}
+    try:
+        r = httpx.get(url, timeout=30, verify=False, headers=_ROSSTAT_HTTP)
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Росстат-ИЦП: бюллетень недоступен: %s", type(e).__name__)
+        return {"error": "page"}
+    text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()[:4000]
+    try:
+        out = llm.complete(_PPI_SYS, text, json_mode=True, max_tokens=300)
+    except llm.LLMError:
+        return {"error": "llm"}
+    d = _month_end_str(out.get("month", ""))
+    try:
+        idx = float(str(out.get("yoy_index")).replace(",", "."))
+        val = round(idx - 100, 2)
+    except (TypeError, ValueError):
+        val = None
+    if d is None or val is None or not (-30 <= val <= 60):
+        return {"error": "parse"}
+    upsert_point(db, "ppi", d, "yoy", val, unit="%", source="Росстат",
+                 source_url=url, ingested_via="rosstat")
+    return {"month": str(d), "ppi_yoy": val}
