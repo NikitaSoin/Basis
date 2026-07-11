@@ -363,12 +363,15 @@ _EXP_SYS = (
     "ретроспективных сравнений/графиков за прошлые годы. Верни строго JSON {\"expectation\":<число>}. "
     "Без текста вне JSON."
 )
-_M2_PAGE = "https://www.cbr.ru/statistics/ms/"
-_M2_SYS = (
-    "Из текста страницы Банка России о денежной массе (национальное определение) извлеки темп "
-    "прироста денежного агрегата M2 ГОД К ГОДУ (% г/г) за САМЫЙ СВЕЖИЙ (последний) месяц в данных "
-    "(2026 год), не за прошлые годы. Верни строго JSON {\"month\":\"YYYY-MM\", \"m2_yoy\":<число>}. "
-    "Если свежих данных за 2026 в тексте нет — верни {\"month\":null}. Только из текста. Без текста вне JSON."
+_CREDIT_M2_HUB = "https://www.cbr.ru/statistics/macro_itm/dkfs/"
+_CREDIT_M2_SYS = (
+    "Это таблица «Денежные агрегаты и кредит экономике (основные показатели)» из ежемесячного "
+    "бюллетеня Банка России. Извлеки ГОДОВЫЕ темпы прироста (г/г, %) за САМЫЙ ПОСЛЕДНИЙ (правый) "
+    "месяц таблицы (не за предыдущий месяц-столбец) для строк: «Денежная масса М2» (НЕ М2Х и НЕ М0), "
+    "«Кредит экономике», «Требования к организациям», «Требования к населению». "
+    "Верни строго JSON: {\"m2_yoy\":<число>, \"credit_economy_yoy\":<число>, "
+    "\"claims_organizations_yoy\":<число>, \"claims_households_yoy\":<число>}. "
+    "Число через точку, не через запятую. Только из текста, без выдумок. Без текста вне JSON."
 )
 
 
@@ -406,26 +409,73 @@ def sync_expectations(db: Session) -> dict:
     return {"month": str(d), "expectation": exp}
 
 
-def sync_m2(db: Session) -> dict:
-    """Темп прироста M2 г/г с ЦБ → ряд m2/level."""
-    text = _fetch_text(_M2_PAGE)
-    if not text:
-        return {"error": "page"}
+def _latest_credit_m2_pdf() -> tuple[str, str] | None:
+    """(url, 'YYYY-MM') последнего PDF «Денежные агрегаты и кредит экономике» —
+    имя файла публикуется предсказуемо (credit_m2x_YYYY-MM.pdf), но numeric ID в
+    пути /Collection/Collection/File/{id}/ меняется при публикации — берём с хаба."""
     try:
-        out = llm.complete(_M2_SYS, text, json_mode=True, max_tokens=600)
+        r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_CREDIT_M2_HUB)
+        r.raise_for_status()
+        html = r.text
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync credit_m2: хаб недоступен: %s", type(e).__name__)
+        return None
+    links = re.findall(r'href="(/Collection/Collection/File/\d+/credit_m2x_(\d{4}-\d{2})\.pdf)"', html)
+    if not links:
+        return None
+    href, ym = sorted(links, key=lambda t: t[1])[-1]
+    return "https://www.cbr.ru" + href, ym
+
+
+def sync_credit_m2(db: Session) -> dict:
+    """M2 + кредит экономике + требования к организациям/населению — ОДИН ежемесячный
+    PDF-бюллетень ЦБ («Денежные агрегаты и кредит экономике», Табл. 1, страница 2).
+    Чинит sync_m2 (старая страница cbr.ru/statistics/ms/ — статичная JS-заглушка с
+    2021 года; материал переехал/переименован в апреле 2026, до этого молча копил
+    ошибки "page"/"stale_or_parse" 105 дней подряд) + впервые даёт credit_economy/
+    claims_organizations/claims_households (раньше — только разовый бэкфилл
+    cb_model_big.csv БЕЗ крона, застрявший на 2026-03-28, см. work-journal)."""
+    found = _latest_credit_m2_pdf()
+    if not found:
+        return {"error": "hub"}
+    url, ym = found
+    try:
+        r = httpx.Client(timeout=30, headers=_HTTP, follow_redirects=True).get(url)
+        r.raise_for_status()
+        pdf_bytes = r.content
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync credit_m2: PDF недоступен: %s", type(e).__name__)
+        return {"error": "pdf"}
+    try:
+        import io
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        text = "\n".join((p.extract_text() or "") for p in reader.pages[:2])
+    except Exception as e:  # noqa: BLE001
+        logger.warning("CB-sync credit_m2: парсинг PDF упал: %s", type(e).__name__)
+        return {"error": "parse_pdf"}
+    try:
+        out = llm.complete(_CREDIT_M2_SYS, text[:6000], json_mode=True, max_tokens=400)
     except llm.LLMError:
         return {"error": "llm"}
-    d = _month_end(out.get("month", ""))
-    try:
-        val = float(out.get("m2_yoy"))
-    except (TypeError, ValueError):
-        val = None
-    # recency-guard: не сохраняем устаревшую строку из исторической таблицы
-    if d is None or val is None or not (-10 <= val <= 60) or d < (date.today() - timedelta(days=150)):
+    d = _month_end(ym)
+    if d is None or d < (date.today() - timedelta(days=150)):
         return {"error": "stale_or_parse"}
-    upsert_point(db, "m2", d, "level", val, unit="%", source="ЦБ РФ",
-                 source_url=_M2_PAGE, ingested_via="cbr")
-    return {"month": str(d), "m2_yoy": val}
+    res = {}
+    for code, metric, key in (("m2", "level", "m2_yoy"),
+                               ("credit_economy", "yoy", "credit_economy_yoy"),
+                               ("claims_organizations", "yoy", "claims_organizations_yoy"),
+                               ("claims_households", "yoy", "claims_households_yoy")):
+        try:
+            val = float(out.get(key))
+        except (TypeError, ValueError):
+            continue
+        if not (-30 <= val <= 60):
+            continue
+        upsert_point(db, code, d, metric, val, unit="%", source="ЦБ РФ",
+                     source_url=url, ingested_via="cbr")
+        res[code] = val
+    return res or {"error": "parse"}
 
 
 def sync_cb(db: Session) -> dict:
@@ -437,7 +487,8 @@ def sync_cb(db: Session) -> dict:
     for key, fn in (
         ("rate", sync_rate_meeting), ("forecast", sync_forecast),
         ("forecast_annual", sync_forecast_annual), ("expert_survey", sync_expert_survey),
-        ("inflation", sync_inflation), ("expectations", sync_expectations), ("m2", sync_m2),
+        ("inflation", sync_inflation), ("expectations", sync_expectations),
+        ("credit_m2", sync_credit_m2),
     ):
         try:
             out[key] = fn(db)
