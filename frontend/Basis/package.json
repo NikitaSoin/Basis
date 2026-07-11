@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && python3 scripts/generate_seo_pages.py",
     "test": "craco test --env=jsdom",
     "eject": "react-scripts eject"
   },
