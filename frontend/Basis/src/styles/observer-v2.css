@@ -2618,6 +2618,127 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
 .obs-d-bad     { color: var(--danger); }
 .obs-d-neutral { color: var(--text-tertiary); }
 
+/* ── ObsMarketPulse («Обзор рынка») ── */
+.obs-fg-comps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-top: 4px;
+}
+@media (max-width: 900px) { .obs-fg-comps { grid-template-columns: repeat(2, 1fr); } }
+.obs-fg-comp {
+  background: var(--bg-base);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.obs-fg-comp-lbl {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  line-height: 1.3;
+}
+.obs-fg-comp-val {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Бегущая лента — тот же приём CSS-marquee, что на лендинге (дублированный
+   список + translateX(-50%) для бесшовной петли), своя разметка под Обозреватель. */
+.obs-ticker {
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  margin-bottom: 18px;
+}
+.obs-ticker-row {
+  display: flex;
+  width: max-content;
+  animation: obs-tick 40s linear infinite;
+}
+.obs-ticker:hover .obs-ticker-row { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .obs-ticker-row { animation: none; } }
+@keyframes obs-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.obs-ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-right: 1px solid var(--border-subtle);
+  white-space: nowrap;
+  background: transparent;
+  border-top: none; border-bottom: none; border-left: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+.obs-ticker-item:hover { background: var(--bg-base); }
+.obs-ticker-px { color: var(--text-secondary); }
+.obs-ticker-chg { font-weight: 700; }
+
+/* Лидеры дня — перенесены из «Рынок» → Акции → карта (были доступны только
+   после скролла под картой), теперь в «Обзор рынка». */
+.obs-movers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+@media (max-width: 640px) { .obs-movers-grid { grid-template-columns: 1fr; } }
+.obs-movers-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.obs-mover-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.obs-mover-row:hover { background: var(--bg-elevated); }
+.obs-mover-id { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.obs-mover-id b { font-size: 13px; color: var(--text-primary); }
+.obs-mover-n {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.obs-mover-px {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.obs-mover-chg {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  min-width: 74px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* 3. Custom dropdown (Наложить) */
 .obs-dd {
   position: relative;

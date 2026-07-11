@@ -244,25 +244,6 @@ function Heatmap({ stocks, onOpen }) {
   );
 }
 
-function Movers({ stocks, onOpen, Logo }) {
-  const sorted = stocks.filter(s => s.chg != null).sort((a, b) => b.chg - a.chg);
-  const gain = sorted.slice(0, 5), lose = [...sorted].reverse().slice(0, 5);
-  const Row = ({ s }) => (
-    <button className="mk-mv" onClick={() => onOpen(s)}>
-      {Logo ? <Logo ticker={s.t} name={s.n} size={30} /> : <Mono t={s.t} color={secColor(s.sec)} sm />}
-      <span className="mk-mv-id"><b>{s.n}</b><span className="mk-mv-tk">{s.t}</span></span>
-      <span className="mk-mv-px">{num(s.price, 2)}<span className="mk-cur"> ₽</span></span>
-      <span className={"mk-mv-chg " + (s.chg > 0 ? "up" : s.chg < 0 ? "dn" : "fl")}>{s.chg > 0 ? "▲" : s.chg < 0 ? "▼" : "▬"} {num(Math.abs(s.chg), 2)}%</span>
-    </button>
-  );
-  return (
-    <div className="mk-movers">
-      <div className="mk-mv-col"><div className="mk-eyebrow up-e">↑ Лидеры роста</div>{gain.map(s => <Row key={s.t} s={s} />)}</div>
-      <div className="mk-mv-col"><div className="mk-eyebrow dn-e">↓ Лидеры падения</div>{lose.map(s => <Row key={s.t} s={s} />)}</div>
-    </div>
-  );
-}
-
 function ToneChip({ upside, conf }) {
   if (upside == null) return <span className="mk-tone"><span className="mk-epi">нет оценки</span></span>;
   const fv = Math.round(upside), c = fvColor(fv);
@@ -859,7 +840,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
       {loading && tab === "stocks" ? <div className="mk-loading">Загружаем рынок…</div> : (
         <>
-          {tab === "stocks" && stockView === "map" && <><Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} /><div className="mk-sec-title">Лидеры дня</div><Movers stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} /></>}
+          {tab === "stocks" && stockView === "map" && <Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} />}
           {tab === "stocks" && stockView === "rows" && <StockRows stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
           {tab === "stocks" && stockView === "list" && <StockCards stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
           {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} />}
