@@ -32,7 +32,9 @@ logger = logging.getLogger(__name__)
 _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                        "(KHTML, like Gecko) Chrome/120.0 Safari/537.36",
          "Accept-Language": "ru-RU,ru;q=0.9"}
-_MAX_PER_RUN = 24   # потолок новых статей за прогон (контроль стоимости LLM)
+_MAX_PER_RUN = 60   # потолок новых статей за прогон (контроль стоимости LLM)
+_MAX_AGE_DAYS = 14  # архивные RSS (напр. Economist отдаёт ~300 старых записей на
+                    # раздел) — не тащим глубокий архив, только недавнее
 _BATCH = 12
 _KEEP_DAYS = 30     # сколько дней держим карточку в дайджесте
 
@@ -99,6 +101,14 @@ def fetch_all(cfg: dict) -> tuple[list[dict], list[str]]:
             continue
         try:
             got = _fetch_wp_json(src) if src["method"] == "wp_json" else _fetch_rss(src)
+            if src.get("no_pubdate"):
+                # источник не публикует дату нигде (проверено вручную) — раз статья в
+                # текущей ротации фида, она свежая; день неизвестен, ставим дату
+                # обнаружения. НЕ путать с фиксом бага macro_analytics: там подставлялась
+                # случайная дата для документа неизвестного возраста, здесь — честная
+                # метка "видели сегодня" для заведомо свежей статьи.
+                for a in got:
+                    a["_no_pubdate"] = True
             if not got:
                 blind.append(src["key"])
                 logger.warning("GEO-дайджест-АЛЕРТ: источник %s вернул 0 статей", src["key"])
@@ -181,9 +191,22 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     if blind:
         logger.warning("GEO-дайджест-АЛЕРТ: ослепшие источники: %s", blind)
     known = _known_urls(db)
-    fresh = [a for a in raw if a["url"] not in known]
+    cutoff = date.today() - timedelta(days=_MAX_AGE_DAYS)
+    fresh = []
+    for a in raw:
+        if a["url"] in known:
+            continue
+        if a.get("_no_pubdate"):
+            pub = date.today()  # источник без дат вообще — см. fetch_all()
+        else:
+            pub = _parse_date(a.get("date_raw"))
+        if pub is None or pub < cutoff:
+            continue  # архив (напр. Economist отдаёт ~300 старых записей на раздел) — не тащим
+        a["_pub"] = pub
+        fresh.append(a)
     if not fresh:
         return {"discovered": 0, "saved": 0, "blind": blind}
+    fresh.sort(key=lambda a: a["_pub"], reverse=True)  # свежее — в приоритете за прогон
     fresh = fresh[:max_new]
     saved = 0
     for i in range(0, len(fresh), _BATCH):
@@ -197,9 +220,7 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
             if target not in GEO_DIGEST_TARGETS:
                 continue
             art = chunk[idx]
-            pub = _parse_date(art.get("date_raw"))
-            if pub is None:
-                continue  # дата не определена по метаданным — не публикуем (не выдумываем)
+            pub = art["_pub"]  # уже определена и провалидирована на этапе фильтрации fresh
             summary = (it.get("summary") or "").strip()
             if not summary:
                 continue
