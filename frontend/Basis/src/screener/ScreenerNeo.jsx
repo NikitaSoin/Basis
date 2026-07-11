@@ -12,19 +12,36 @@ const num = (v, d = 1) => { if (v == null || isNaN(v)) return null; const s = Nu
 const money = (rub) => { if (rub == null) return null; if (Math.abs(rub) >= 1e12) return num(rub / 1e12, 2) + NB + "трлн" + NB + "₽"; return num(rub / 1e9, rub / 1e9 >= 100 ? 0 : 1) + NB + "млрд" + NB + "₽"; };
 
 // Метрики UI (ключи = ключи бэка). dir: low = меньше выгоднее.
+// hint — короткое объяснение метрики «для непонятных терминов», по образцу
+// кнопки-«i» у профильных конкурентов (ПроФинанс/Инвестминт, конкурентный
+// разбор 2026-07-11): эвристика в духе «что это значит», не сухое
+// определение — но без псевдо-сигналов «дёшево/дорого» (Basis не красит
+// мультипликаторы как хорошо/плохо, только однозначные метрики).
 const METRICS = {
-  upside:        { label: "Потенциал", unit: "%", dir: "high", dom: [-50, 150], dec: 0, group: "Оценка" },
-  pe:            { label: "P / E", unit: "×", dir: "low", dom: [0, 20], dec: 1, group: "Оценка" },
-  ev_ebitda:     { label: "EV / EBITDA", unit: "×", dir: "low", dom: [0, 12], dec: 1, group: "Оценка" },
-  div_yield:     { label: "Дивдоходность", unit: "%", dir: "high", dom: [0, 18], dec: 1, group: "Оценка" },
-  roe:           { label: "ROE", unit: "%", dir: "high", dom: [0, 45], dec: 0, group: "Качество" },
-  ebitda_margin: { label: "EBITDA-маржа", unit: "%", dir: "high", dom: [0, 65], dec: 0, group: "Качество" },
-  fcf_yield:     { label: "FCF-доходность", unit: "%", dir: "high", dom: [-5, 25], dec: 1, group: "Качество" },
-  nd_ebitda:     { label: "Чист. долг / EBITDA", unit: "×", dir: "low", dom: [-5, 4], dec: 1, group: "Устойчивость" },
-  beta:          { label: "Бета", unit: "", dir: "low", dom: [0, 2], dec: 2, group: "Устойчивость" },
-  volatility:    { label: "Волатильность", unit: "%", dir: "low", dom: [0, 80], dec: 0, group: "Устойчивость" },
-  mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер" },
+  upside:        { label: "Потенциал", unit: "%", dir: "high", dom: [-50, 150], dec: 0, group: "Оценка",
+    hint: "Разница между справедливой ценой Basis и текущей ценой акции. Положительное значение — по модели акция недооценена, отрицательное — переоценена. Это ОЦЕНКА по модели, а не гарантия движения цены." },
+  pe:            { label: "P / E", unit: "×", dir: "low", dom: [0, 20], dec: 1, group: "Оценка",
+    hint: "Цена акции делённая на прибыль на акцию за год — за сколько лет компания «окупает себя» текущей прибылью. Низкий P/E не всегда значит «дёшево» — может отражать реальный риск, не только недооценку." },
+  ev_ebitda:     { label: "EV / EBITDA", unit: "×", dir: "low", dom: [0, 12], dec: 1, group: "Оценка",
+    hint: "Стоимость компании с учётом долга, делённая на операционную прибыль до амортизации. Удобнее P/E для сравнения компаний с разной долговой нагрузкой." },
+  div_yield:     { label: "Дивдоходность", unit: "%", dir: "high", dom: [0, 18], dec: 1, group: "Оценка",
+    hint: "Годовые дивиденды на акцию к текущей цене, в процентах. Основано на факте прошлых выплат — не гарантия будущих дивидендов." },
+  roe:           { label: "ROE", unit: "%", dir: "high", dom: [0, 45], dec: 0, group: "Качество",
+    hint: "Чистая прибыль к собственному капиталу — насколько эффективно компания зарабатывает на деньгах акционеров." },
+  ebitda_margin: { label: "EBITDA-маржа", unit: "%", dir: "high", dom: [0, 65], dec: 0, group: "Качество",
+    hint: "Доля операционной прибыли (до амортизации) в выручке — сколько компания зарабатывает с каждого рубля продаж до неоперационных расходов." },
+  fcf_yield:     { label: "FCF-доходность", unit: "%", dir: "high", dom: [-5, 25], dec: 1, group: "Качество",
+    hint: "Свободный денежный поток (после капзатрат) к капитализации — реальные деньги, из которых платятся дивиденды и гасится долг, относительно рыночной цены компании." },
+  nd_ebitda:     { label: "Чист. долг / EBITDA", unit: "×", dir: "low", dom: [-5, 4], dec: 1, group: "Устойчивость",
+    hint: "Сколько лет годовой EBITDA потребуется, чтобы полностью погасить чистый долг. Выше 3× обычно считается повышенной долговой нагрузкой." },
+  beta:          { label: "Бета", unit: "", dir: "low", dom: [0, 2], dec: 2, group: "Устойчивость",
+    hint: "Чувствительность акции к движениям всего рынка. Бета выше 1 — акция обычно двигается сильнее рынка (в обе стороны), ниже 1 — слабее." },
+  volatility:    { label: "Волатильность", unit: "%", dir: "low", dom: [0, 80], dec: 0, group: "Устойчивость",
+    hint: "Насколько сильно исторически колеблется цена акции. Выше волатильность — шире диапазон возможных движений цены как вверх, так и вниз." },
+  mcap:          { label: "Капитализация", unit: "", dir: "high", dom: [0, 9e12], dec: 0, money: true, group: "Размер",
+    hint: "Рыночная стоимость всех акций компании — цена акции умноженная на число акций в обращении." },
 };
+const FAIR_VALUE_HINT = "Расчётная стоимость акции по методике Basis (DCF/мультипликаторы/аналоги — маршрут зависит от сектора). Это ОЦЕНКА по модели с допущениями, не гарантированная цена — сверяйте с потенциалом и уровнем уверенности расчёта.";
 const GROUPS = ["Оценка", "Качество", "Устойчивость", "Размер"];
 const TABLE_METRICS = ["fair_value", "pe", "ev_ebitda", "roe", "nd_ebitda", "div_yield", "mcap"];
 const COL_LABEL = (k) => k === "fair_value" ? "Справ. цена" : METRICS[k].label;
@@ -56,6 +73,51 @@ const matchesRanges = (row, ranges) => { for (const k in ranges) { const [lo, hi
 const median = (arr) => { const a = arr.filter((v) => v != null).sort((x, y) => x - y); if (!a.length) return null; const mid = a.length >> 1; return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2; };
 
 // ───────────────────────────────────────── sub-components ─────────────────────────────────────────
+// Кнопка-«i» с пояснением метрики по клику (не hover — доступнее и на мобильных).
+// Паттерн подсмотрен у профильных конкурентов: единообразная точка входа в
+// объяснение термина везде, где встречается метрика (заголовок таблицы,
+// конструктор фильтра). Поповер — position:fixed с координатами от
+// getBoundingClientRect, не absolute: кнопка часто лежит внутри контейнеров с
+// overflow:hidden (.sc-rail, .sc-tablewrap) — та же природа бага, что уже
+// чинили в этой кодовой базе для sc-add-menu (обрезание всплывающего меню
+// родителем), fixed-позиционирование не зависит от overflow предков вообще.
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const popRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("scroll", () => setOpen(false), { capture: true, once: true });
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+  if (!text) return null;
+  const toggle = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const W = 260;
+      const left = Math.max(12, Math.min(r.left, window.innerWidth - W - 12));
+      setPos({ top: r.bottom + 6, left });
+    }
+    setOpen((o) => !o);
+  };
+  return (
+    <span className="sc-infotip">
+      <button ref={btnRef} type="button" className="sc-infotip-btn" aria-label="Пояснение" onClick={toggle}>i</button>
+      {open && pos && (
+        <span ref={popRef} className="sc-infotip-pop" style={{ position: "fixed", top: pos.top, left: pos.left }}
+          onClick={(e) => e.stopPropagation()} role="tooltip">{text}</span>
+      )}
+    </span>
+  );
+}
 function ConfDots({ level }) {
   const n = level === "high" ? 3 : level === "medium" ? 2 : 1;
   return <span className="sc-conf" title={"Уверенность: " + (level === "high" ? "высокая" : level === "medium" ? "средняя" : "низкая (мало валидных метрик / искажения)")}>{[0, 1, 2].map((i) => <i key={i} className={i < n ? "on" : ""} />)}</span>;
@@ -75,12 +137,13 @@ function MetricCell({ mkey, v, pct }) {
   return <td className="sc-td sc-num"><span className="sc-cellval">{fmtMetric(mkey, v)}</span>{!noBar && <PctBar pct={pct} />}</td>;
 }
 
-function SortHead({ label, k, sort, setSort, align = "right", title }) {
+function SortHead({ label, k, sort, setSort, align = "right", title, hint }) {
   const active = sort.key === k;
   return (
-    <th className={"sc-th" + (align === "left" ? " sc-th-l" : "") + (active ? " on" : "")} title={title}
+    <th className={"sc-th" + (align === "left" ? " sc-th-l" : "") + (active ? " on" : "")} title={hint ? undefined : title}
       onClick={() => setSort((s) => ({ key: k, dir: s.key === k && s.dir === "desc" ? "asc" : "desc" }))}>
       <span>{label}</span>
+      {hint && <InfoTip text={hint} />}
       <svg className="sc-sort" width="9" height="11" viewBox="0 0 9 11" aria-hidden="true">
         <path d="M4.5 0l3 4h-6z" className={active && sort.dir === "asc" ? "a" : ""} />
         <path d="M4.5 11l-3-4h6z" className={active && sort.dir === "desc" ? "a" : ""} />
@@ -96,8 +159,8 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
         <thead>
           <tr>
             <SortHead label="Компания" k="n" sort={sort} setSort={setSort} align="left" />
-            <SortHead label="BASIS" k="basis" sort={sort} setSort={setSort} title="Композитная оценка Basis v0" />
-            {TABLE_METRICS.map((k) => <SortHead key={k} label={COL_LABEL(k)} k={k} sort={sort} setSort={setSort} />)}
+            <SortHead label="BASIS" k="basis" sort={sort} setSort={setSort} hint={METHOD_TIP} />
+            {TABLE_METRICS.map((k) => <SortHead key={k} label={COL_LABEL(k)} k={k} sort={sort} setSort={setSort} hint={k === "fair_value" ? FAIR_VALUE_HINT : METRICS[k].hint} />)}
           </tr>
         </thead>
         <tbody>
@@ -220,7 +283,7 @@ function DetailDrawer({ row, onClose, onOpenCompany, secColor, Logo }) {
         <div className="sc-dr-stats">
           {stats.map((k) => { const v = row.raw[k], p = row.percentiles[k]; return (
             <div key={k} className="sc-dr-stat">
-              <div className="sc-dr-stat-l">{METRICS[k].label}</div>
+              <div className="sc-dr-stat-l">{METRICS[k].label}{METRICS[k].hint && <InfoTip text={METRICS[k].hint} />}</div>
               <div className="sc-dr-stat-v">{fmtMetric(k, v)}</div>
               {v != null && <PctBar pct={p} big />}
             </div>); })}
@@ -269,7 +332,7 @@ function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
   const readout = rangeReadout(mkey, range);
   return (
     <div className="sc-crit">
-      <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span><span className="sc-crit-count">{matchCount}</span>
+      <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span>{M.hint && <InfoTip text={M.hint} />}<span className="sc-crit-count">{matchCount}</span>
         <button className="sc-crit-x" onClick={onRemove} aria-label="Убрать критерий"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg></button>
       </div>
       <div className="sc-crit-readout">{readout}</div>

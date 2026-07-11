@@ -57,14 +57,22 @@ const couponLine = (r) => {
 
 // Метрики конструктора/таблицы (ключи = ключи строки бэка).
 const METRICS = {
-  ytm: { label: "Доходность", short: "YTM", unit: "%", dir: "high", dom: [0, 40], dec: 1, group: "Доходность" },
-  spr: { label: "Спред к ОФЗ", short: "Спред", unit: " б.п.", dir: "high", dom: [0, 2000], dec: 0, group: "Доходность" },
-  cpn: { label: "Купон", short: "Купон", unit: "%", dir: "high", dom: [0, 28], dec: 1, group: "Доходность" },
-  rat: { label: "Кред. рейтинг", short: "Рейтинг", unit: "", dir: "high", dom: [1, 20], dec: 0, group: "Кредитный риск", rating: true },
-  risk: { label: "Risk Score", short: "Risk", unit: "", dir: "low", dom: [1, 5], dec: 1, group: "Кредитный риск" },
-  mat: { label: "До погашения", short: "Срок", unit: " г.", dir: "low", dom: [0, 15], dec: 1, group: "Срок" },
-  dur: { label: "Дюрация", short: "Дюрация", unit: " г.", dir: "low", dom: [0, 10], dec: 1, group: "Срок" },
-  px: { label: "Цена", short: "Цена", unit: "%", dir: "low", dom: [40, 110], dec: 1, group: "Цена / объём" },
+  ytm: { label: "Доходность", short: "YTM", unit: "%", dir: "high", dom: [0, 40], dec: 1, group: "Доходность",
+    hint: "Доходность к погашению (YTM) — сколько вы заработаете в год, если купите облигацию сейчас и продержите её до погашения, реинвестируя купоны по той же ставке." },
+  spr: { label: "Спред к ОФЗ", short: "Спред", unit: " б.п.", dir: "high", dom: [0, 2000], dec: 0, group: "Доходность",
+    hint: "Разница в доходности между этой облигацией и государственной (ОФЗ) сопоставимого срока — сколько дополнительной доходности рынок требует за риск именно этого эмитента." },
+  cpn: { label: "Купон", short: "Купон", unit: "%", dir: "high", dom: [0, 28], dec: 1, group: "Доходность",
+    hint: "Ставка регулярного купонного дохода в процентах от номинала облигации в год." },
+  rat: { label: "Кред. рейтинг", short: "Рейтинг", unit: "", dir: "high", dom: [1, 20], dec: 0, group: "Кредитный риск", rating: true,
+    hint: "Кредитный рейтинг эмитента/выпуска от рейтингового агентства — оценка вероятности своевременного погашения долга. Выше рейтинг — ниже воспринимаемый риск дефолта." },
+  risk: { label: "Risk Score", short: "Risk", unit: "", dir: "low", dom: [1, 5], dec: 1, group: "Кредитный риск",
+    hint: "Внутренняя оценка риска Basis по методике «доходность vs риск» (1 — минимальный риск, 5 — максимальный). Учитывает финансы эмитента, параметры выпуска и рыночный сентимент." },
+  mat: { label: "До погашения", short: "Срок", unit: " г.", dir: "low", dom: [0, 15], dec: 1, group: "Срок",
+    hint: "Сколько лет осталось до даты погашения — даты, когда эмитент обязан вернуть номинал." },
+  dur: { label: "Дюрация", short: "Дюрация", unit: " г.", dir: "low", dom: [0, 10], dec: 1, group: "Срок",
+    hint: "Чувствительность цены облигации к изменению ставки ЦБ — чем выше дюрация, тем сильнее качнётся цена тела облигации при изменении ставки." },
+  px: { label: "Цена", short: "Цена", unit: "%", dir: "low", dom: [40, 110], dec: 1, group: "Цена / объём",
+    hint: "Текущая рыночная цена облигации в процентах от номинала. 100% — торгуется по номиналу; ниже/выше — с дисконтом/премией." },
 };
 const GROUPS = ["Доходность", "Кредитный риск", "Срок", "Цена / объём"];
 const TABLE_METRICS = ["ytm", "spr", "cpn", "mat", "rat", "dur", "px"];
@@ -103,6 +111,46 @@ const median = (arr) => { const a = arr.filter((v) => v != null).sort((x, y) => 
 const lightFilterPresetName = (lf) => { if (!lf) return null; const p = PRESETS.find((pp) => Array.isArray(pp.light) && pp.light.length === lf.length && pp.light.every((v, i) => v === lf[i])); return p ? p.name : "Светофор: " + lf.join(", "); };
 
 // ───────────────────────────── sub-components ─────────────────────────────
+// Кнопка-«i» с пояснением метрики по клику — см. идентичный компонент и
+// обоснование fixed-позиционирования (overflow:hidden у .sc-rail/.sc-tablewrap)
+// в ScreenerNeo.jsx.
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const popRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("scroll", () => setOpen(false), { capture: true, once: true });
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+  if (!text) return null;
+  const toggle = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const W = 260;
+      const left = Math.max(12, Math.min(r.left, window.innerWidth - W - 12));
+      setPos({ top: r.bottom + 6, left });
+    }
+    setOpen((o) => !o);
+  };
+  return (
+    <span className="sc-infotip">
+      <button ref={btnRef} type="button" className="sc-infotip-btn" aria-label="Пояснение" onClick={toggle}>i</button>
+      {open && pos && (
+        <span ref={popRef} className="sc-infotip-pop" style={{ position: "fixed", top: pos.top, left: pos.left }}
+          onClick={(e) => e.stopPropagation()} role="tooltip">{text}</span>
+      )}
+    </span>
+  );
+}
 function ConfDots({ level }) {
   const n = level === "high" ? 3 : level === "medium" ? 2 : 1;
   return <span className="sc-conf" title={"Уверенность данных: " + (level === "high" ? "высокая" : level === "medium" ? "средняя" : "низкая")}>{[0, 1, 2].map((i) => <i key={i} className={i < n ? "on" : ""} />)}</span>;
@@ -128,12 +176,13 @@ function MetricCell({ mkey, v, pct }) {
   if (v == null) return <td className="sc-td sc-num sc-na">—</td>;
   return <td className="sc-td sc-num"><span className="sc-cellval">{fmtMetric(mkey, v)}</span>{mkey !== "px" && <PctBar pct={pct} />}</td>;
 }
-function SortHead({ label, k, sort, setSort, align = "right", title }) {
+function SortHead({ label, k, sort, setSort, align = "right", title, hint }) {
   const active = sort.key === k;
   return (
-    <th className={"sc-th" + (align === "left" ? " sc-th-l" : "") + (active ? " on" : "")} title={title}
+    <th className={"sc-th" + (align === "left" ? " sc-th-l" : "") + (active ? " on" : "")} title={hint ? undefined : title}
       onClick={() => setSort((s) => ({ key: k, dir: s.key === k && s.dir === "desc" ? "asc" : "desc" }))}>
       <span>{label}</span>
+      {hint && <InfoTip text={hint} />}
       <svg className="sc-sort" width="9" height="11" viewBox="0 0 9 11" aria-hidden="true"><path d="M4.5 0l3 4h-6z" className={active && sort.dir === "asc" ? "a" : ""} /><path d="M4.5 11l-3-4h6z" className={active && sort.dir === "desc" ? "a" : ""} /></svg>
     </th>
   );
@@ -145,8 +194,8 @@ function ResultsTable({ rows, sort, setSort, density, onPick, picked, secColor, 
       <table className="sc-table">
         <thead><tr>
           <SortHead label="Выпуск" k="n" sort={sort} setSort={setSort} align="left" />
-          <SortHead label="Вердикт" k="verdict" sort={sort} setSort={setSort} title="Доходность vs риск — оплачен ли риск (методика Basis)" />
-          {TABLE_METRICS.map((k) => <SortHead key={k} label={METRICS[k].short} k={k} sort={sort} setSort={setSort} title={METRICS[k].label} />)}
+          <SortHead label="Вердикт" k="verdict" sort={sort} setSort={setSort} hint="Доходность vs риск — оплачен ли риск (методика Basis): сравнение фактического спреда к ОФЗ с требуемым за такой уровень риска." />
+          {TABLE_METRICS.map((k) => <SortHead key={k} label={METRICS[k].short} k={k} sort={sort} setSort={setSort} hint={METRICS[k].hint} />)}
           <th className="sc-th sc-th-r2">Оферта / тип</th>
         </tr></thead>
         <tbody>
@@ -315,7 +364,7 @@ function CriterionRow({ mkey, range, onChange, onRemove, matchCount, dist }) {
   const readout = rangeReadout(mkey, range);
   return (
     <div className="sc-crit">
-      <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span><span className="sc-crit-count">{matchCount}</span>
+      <div className="sc-crit-head"><span className="sc-crit-label">{M.label}</span>{M.hint && <InfoTip text={M.hint} />}<span className="sc-crit-count">{matchCount}</span>
         <button className="sc-crit-x" onClick={onRemove} aria-label="Убрать критерий"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg></button>
       </div>
       <div className="sc-crit-readout">{readout}</div>
