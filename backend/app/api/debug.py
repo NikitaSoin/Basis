@@ -559,7 +559,9 @@ def debug_trigger_macro_sync():
 
 
 @router.post("/debug/trigger-instrument-history")
-def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400)):
+def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400),
+                                      date_from: str | None = Query(None, description="ISO-дата — точный левый край окна (переопределяет days_back), для чанкованного бэкафилла без повторной прокачки уже загруженных дней"),
+                                      date_till: str | None = Query(None, description="ISO-дата — правый край окна, по умолчанию сегодня")):
     """Ручной запуск load_range() для одного класса instrument_history синхронно —
     для разового закрытия дыры после фикса SOURCES (напр. MOEX перевёл фонды с
     борда TQTF на TQBR 2026-06-22, нужно было закрыть разрыв с даты перевода без
@@ -573,8 +575,10 @@ def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back
     db = SessionLocal()
     try:
         today = date.today()
-        n = load_range(db, asset_class, today - timedelta(days=days_back), today)
-        return {"asset_class": asset_class, "days_back": days_back, "rows_written": n}
+        till = date.fromisoformat(date_till) if date_till else today
+        frm = date.fromisoformat(date_from) if date_from else today - timedelta(days=days_back)
+        n = load_range(db, asset_class, frm, till)
+        return {"asset_class": asset_class, "date_from": frm.isoformat(), "date_till": till.isoformat(), "rows_written": n}
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-instrument-history: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}
