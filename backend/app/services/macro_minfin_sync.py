@@ -17,6 +17,7 @@ budget_balance (%ВВП) СОЗНАТЕЛЬНО НЕ реализован зде
 from __future__ import annotations
 
 import logging
+import os
 import re
 from datetime import date, timedelta
 
@@ -30,8 +31,14 @@ logger = logging.getLogger(__name__)
 
 _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                        "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}  # minfin.gov.ru
-# WAF режет generic/бот UA (проверено вручную 2026-07-11: BasisMacroBot → 503, браузерный → 200)
-_PRESS_CENTER = "https://minfin.gov.ru/ru/press-center/"
+# 🔴 Прод-IP Timeweb получает 503 от minfin.gov.ru ДАЖЕ с этим UA (проверено 2026-07-12,
+# reachable=true в /api/debug/connectivity, но http_status=503, стабильно, не транзиентно —
+# похоже на бан по IP/ASN дата-центра WAF'ом, не на UA-фильтр — с домашней сети тот же
+# запрос отдаёт 200). MINFIN_BASE_URL — опциональный релей через Cloudflare Worker (тот же
+# паттерн, что DEEPSEEK_BASE_URL/FRED_BASE_URL в llm.py/macro_ingest.py) — если владелец
+# поднимет Worker, достаточно задать переменную окружения, код подхватит сам, без деплоя.
+_BASE = (os.environ.get("MINFIN_BASE_URL") or "https://minfin.gov.ru").rstrip("/")
+_PRESS_CENTER = _BASE + "/ru/press-center/"
 _SLUG_RE = re.compile(
     r'href="(/ru/press-center/\?id_4=(\d+)-predvaritelnaya_otsenka_ispolneniya_federalnogo_byudzheta_za_'
     r'([a-z]+)-([a-z]+)_(\d{4})_goda)"'
@@ -73,7 +80,7 @@ def _latest_release() -> tuple[str, date] | str:
     month_num = _TRANSLIT_MONTHS.get(end_mon)
     if not month_num:
         return f"bad_month:{end_mon}"
-    return "https://minfin.gov.ru" + href, _month_end(int(year), month_num)
+    return _BASE + href, _month_end(int(year), month_num)
 
 
 def sync_gov_spending(db: Session) -> dict:

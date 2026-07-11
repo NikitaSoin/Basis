@@ -543,6 +543,7 @@ def debug_trigger_macro_sync():
                                              sync_credit_m2)
     from app.services.macro_minfin_sync import sync_gov_spending
     from app.services.macro_rosstat import sync_ppi
+    from app.services.macro_hh_sync import sync_hh_index
     db = SessionLocal()
     out = {}
     try:
@@ -554,6 +555,7 @@ def debug_trigger_macro_sync():
             ("credit_m2", lambda: sync_credit_m2(db)),
             ("gov_spending", lambda: sync_gov_spending(db)),
             ("ppi", lambda: sync_ppi(db)),
+            ("hh_index", lambda: sync_hh_index(db)),
         ):
             try:
                 out[key] = fn()
