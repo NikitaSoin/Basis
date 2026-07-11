@@ -126,9 +126,12 @@ def list_futures(
     search: str | None = Query(None, description="поиск по SECID/названию (добавление в портфель)"),
     db: Session = Depends(get_db),
 ):
-    """Список контрактов для раздела «Рынок» (сгруппирован по типу базового актива)."""
+    """Список контрактов для раздела «Рынок» (сгруппирован по типу базового актива).
+    Экспирировавшие контракты (последний торговый день в прошлом) исключены —
+    мёртвая цена, по которой ничего нельзя сделать (тот же фильтр, что и на
+    карте рынка, heatmap_futures)."""
     q = "SELECT * FROM futures"
-    where = []
+    where = ["(expiration_date IS NULL OR expiration_date >= CURRENT_DATE)"]
     params = {}
     if asset_kind:
         where.append("asset_kind = :k")
