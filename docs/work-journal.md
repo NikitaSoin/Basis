@@ -4775,3 +4775,15 @@ TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ,
 VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс SAREP,
 STSBP, SAGOP, RTSBP, MISBP, KRKOP (флаги). GLRX пропущен. Продолжать
 батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 59: TASB/TGKBP/TORSP/TUZA (236/264)
+TASB — Тамбовэнергосбыт (Интер РАО), риск в притеснении миноритария, профиль
+близок к SARE. TGKBP — преф ТГК-2, актуализирован свежий факт про Газпром/
+ГЭХ (расхождение с TGKB отмечено, не переписан). TORSP — преф Россети Томск,
+ядро наследовано от TORS. TUZA — новый разбор. Все 8 JSON+MD подтверждены.
+Коммит 5dbd0f6e.
+
+Итого 236/264 компаний с блоком «Институты» (~89%). Остаток: UNKL, URKZ, USBN,
+UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP,
+YKEN/YKENP, YRSB/YRSBP. Плюс TASBP, SAREP, STSBP, SAGOP, RTSBP, MISBP, KRKOP
+(флаги). GLRX пропущен. Продолжать батчами по 4.
