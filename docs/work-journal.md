@@ -4667,3 +4667,17 @@ SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL,
 URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP,
 WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен.
 Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 55: OGKB/OMZZP/PAZA/PRFN (220/264)
+OGKB — ОГК-2 (Газпром энергохолдинг), инвертированный профиль: риск в
+подчинённости миноритария, не деприватизации. OMZZP — преф ОМЗ, крон-джуэл
+(реакторы ВВЭР) уже продан Росатому в 2022, минори-риск внутри квазигосхолдинга.
+PAZA — Павловский автобус (Группа ГАЗ/Дерипаска, санкции OFAC), риск
+корпоративно-миноритарный. PRFN — ТЕПЛАНТ восток (Свеженцевы), честный низкий
+риск. Все 8 JSON+MD подтверждены. Коммит 0ff9604c.
+
+Итого 220/264 компаний с блоком «Институты» (~83%). Остаток: PRMB, RAGR, RDRB,
+RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP,
+TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
+VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP,
+YRSB/YRSBP. Плюс MISBP, KRKOP (флаги). GLRX пропущен. Продолжать батчами по 4.
