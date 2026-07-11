@@ -1,9 +1,18 @@
 """Биржевые фонды (БПИФ/ETF) с MOEX ISS (класс активов «Фонды»).
 
 Список и параметры:
-  /iss/engines/stock/markets/shares/boards/TQTF/securities.json
+  /iss/engines/stock/markets/shares/boards/TQBR/securities.json
   securities (SECID, SHORTNAME, SECNAME, ISIN, LISTLEVEL) + marketdata
   (LAST, LCURRENTPRICE, VALTODAY — оборот/ликвидность, NUMTRADES).
+
+ВАЖНО: MOEX перевёл все ETF/БПИФ с прежнего борда TQTF на TQBR (общий борд
+«Акции и ДР») 2026-06-22 — TQTF с этой даты is_traded=0 (проверено напрямую в
+ISS). TQBR отдаёт ВСЮ доску (акции + фонды одним списком, тысячи строк) —
+fetch_funds() возвращает всё как есть, а refresh_funds() (asset_data.py)
+ФИЛЬТРУЕТ по уже известным secid из таблицы funds перед upsert, иначе сюда бы
+записались тысячи обычных акций как «фонды». Список фондов — курируемый
+(добавляется вручную/скриптом), этот модуль только освежает live-метаданные
+уже известных бумаг, не открывает новые сам.
 
 Тип фонда классифицируется по имени (SECNAME). TER/состав — не на MOEX
 (сайты УК), заполняются курируемо/аналитиком. Методика — docs/funds-methodology.md.
@@ -24,7 +33,7 @@ _ssl_ctx.check_hostname = False
 _ssl_ctx.verify_mode = ssl.CERT_NONE
 _HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Accept": "application/json"}
 
-FUNDS_URL = ("https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTF/securities.json"
+FUNDS_URL = ("https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json"
              "?iss.meta=off&iss.only=securities,marketdata"
              "&securities.columns=SECID,SHORTNAME,SECNAME,ISIN,FACEUNIT,LISTLEVEL"
              "&marketdata.columns=SECID,LAST,LCURRENTPRICE,VALTODAY,NUMTRADES")
@@ -73,7 +82,9 @@ def _f(v):
 
 
 def fetch_funds() -> list[dict]:
-    """Сырые записи фондов борда TQTF (securities + marketdata)."""
+    """Сырые записи ВСЕЙ доски TQBR (securities + marketdata) — акции и фонды
+    вперемешку, фильтрация по известным фондам — на вызывающей стороне
+    (asset_data.refresh_funds), у неё есть доступ к БД."""
     data = _get(FUNDS_URL)
     sc, md = data["securities"], data["marketdata"]
     mi = md["columns"].index("SECID")

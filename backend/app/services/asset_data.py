@@ -71,9 +71,14 @@ def refresh_futures(db: Session) -> int:
 
 
 def refresh_funds(db: Session) -> int:
-    """Все фонды борда TQTF (один запрос)."""
+    """Освежает live-метаданные УЖЕ известных фондов (список курируемый, эта
+    функция не открывает новые). fetch_funds() с 2026-06-22 читает TQBR — общий
+    борд «Акции и ДР» (MOEX перевёл туда все ETF/БПИФ с прежнего TQTF) — отдаёт
+    ВСЮ доску, тысячи акций вперемешку с фондами; фильтруем по secid, которые
+    уже есть в таблице funds, иначе записали бы акции как «фонды»."""
     from app.services.moex_funds import fetch_funds, upsert_fund
-    recs = fetch_funds()
+    known = {row[0] for row in db.execute(text("SELECT secid FROM funds")).all()}
+    recs = [r for r in fetch_funds() if r["s"]["SECID"] in known]
     for rec in recs:
         try:
             with db.begin_nested():
