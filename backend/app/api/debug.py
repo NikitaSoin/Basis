@@ -558,6 +558,42 @@ def debug_trigger_macro_sync():
         db.close()
 
 
+@router.post("/debug/trigger-macro-analytics")
+def debug_trigger_macro_analytics():
+    """Ручной запуск macro_analytics.process() (мониторинг PDF-обзоров ЦБ/ЦМАКП)
+    синхронно, БЕЗ ожидания дневного крона (06:30, часть _macro_job) — для разовой
+    проверки/добора после фикса или простоя (напр. если контейнер был неактивен и
+    крон пропустил несколько дней). Не гонять часто — сетевые запросы + LLM на
+    каждый новый документ."""
+    from app.db.session import SessionLocal
+    from app.services.macro_analytics import process
+    db = SessionLocal()
+    try:
+        return process(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-analytics: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.post("/debug/trigger-geo-digest")
+def debug_trigger_geo_digest():
+    """Ручной запуск geo_digest.refresh() (карточки-статьи Рыбарь/re:russia/Carnegie
+    по регионам геополитики + институциональная среда) синхронно, без ожидания
+    дневного крона (21:00, часть _geo_job). Для разовой проверки после деплоя/фикса."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import refresh
+    db = SessionLocal()
+    try:
+        return refresh(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-geo-digest: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-instrument-history")
 def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400),
                                       date_from: str | None = Query(None, description="ISO-дата — точный левый край окна (переопределяет days_back), для чанкованного бэкафилла без повторной прокачки уже загруженных дней"),

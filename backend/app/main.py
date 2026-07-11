@@ -397,13 +397,18 @@ async def _seed_shares_startup():
 
 
 async def _geo_job():
-    """Геополитика: пересбор синтеза по методичке (DeepSeek Pro). Раз в сутки."""
+    """Геополитика: пересбор синтеза по методичке (DeepSeek Pro) + дайджест отдельных
+    статей (Рыбарь/re:russia/Carnegie → карточки по региону + институциональная среда).
+    Раз в сутки."""
     def _run():
         from app.db.session import SessionLocal
         from app.services.geopolitics import refresh
+        from app.services.geo_digest import refresh as digest_refresh
         db = SessionLocal()
         try:
-            return refresh(db)
+            synth = refresh(db)
+            digest = digest_refresh(db)
+            return {"synthesis": synth, "digest": digest}
         finally:
             db.close()
     try:
@@ -415,13 +420,14 @@ async def _geo_job():
 
 async def _geo_startup():
     """Стартовый синтез геополитики — чтобы вкладки имели контент после деплоя.
-    Только если блоков ещё нет (не гоняем Pro на каждом рестарте)."""
+    Только если блоков ЛИБО дайджест-статей ещё нет (не гоняем Pro на каждом рестарте)."""
     def _has():
         from app.db.session import SessionLocal
         from app.models.geo import GeoBlock
+        from app.models.geo_digest import GeoDigestArticle
         db = SessionLocal()
         try:
-            return db.query(GeoBlock).count() > 0
+            return db.query(GeoBlock).count() > 0 and db.query(GeoDigestArticle).count() > 0
         finally:
             db.close()
     try:

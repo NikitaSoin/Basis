@@ -64,9 +64,10 @@ def doc_date(url: str) -> date | None:
         yy, mm = 2000 + int(m.group(1)), int(m.group(2))
         if 1 <= mm <= 12 and 2008 <= yy <= 2030:
             return date(yy, mm, 28)
-    m = re.search(r"(20[0-2]\d)", s)  # голый год (2008-2029)
-    if m:
-        return date(int(m.group(1)), 6, 30)
+    # УДАЛЁН fallback «голый год → 30 июня»: он подставлял вымышленную дату
+    # (не факт публикации) для любого URL без месяца/дня — типично для ЦМАКП
+    # (forecast.ru). При «голом годе» вызывающий код обязан обратиться к
+    # page_date() (реальная дата со страницы), а не выдумывать середину года.
     return None
 
 
@@ -98,11 +99,11 @@ def page_date(url: str) -> date | None:
 
 
 def _is_fresh(url: str) -> bool:
-    """Свежий ли документ — гейт на ВХОДЕ (по дате из URL, без сетевых запросов).
-    ПРИ СОМНЕНИИ ОТБРАСЫВАЕМ: дату из URL не извлекли → НЕ берём (лучше пробел, чем
-    архив 2014 года). Документы со свежей датой только на странице — редкость для
-    cbr/cmasf (там дата в имени файла), ими жертвуем ради нуля архива."""
-    d = doc_date(url)
+    """Свежий ли документ. Сначала дата из URL (без сетевых запросов); если там только
+    «голый год» (типично для ЦМАКП) — один сетевой запрос на страницу за реальной датой.
+    ПРИ СОМНЕНИИ ОТБРАСЫВАЕМ: дату определить не удалось → НЕ берём (лучше пробел, чем
+    архив с выдуманной датой)."""
+    d = doc_date(url) or page_date(url)
     return d is not None and d >= (date.today() - timedelta(days=_FRESH_DAYS))
 
 
@@ -245,6 +246,11 @@ def process(db: Session, max_docs: int = _MAX_PER_RUN) -> dict:
     model_used = f"{llm.provider_info().get('provider')}:{llm.provider_info().get('model')}"
     saved = 0
     for c in candidates[:max_docs]:
+        pub_date = doc_date(c["url"]) or page_date(c["url"])
+        if pub_date is None:
+            logger.warning("Аналитика: дата публикации не определена для %s — пропуск "
+                           "(не выдумываем)", c["url"])
+            continue
         text = _pdf_text(c["url"])
         if not text or len(text) < 400:
             continue  # не извлеклось содержимое — пропускаем (не выдумываем)
@@ -262,7 +268,7 @@ def process(db: Session, max_docs: int = _MAX_PER_RUN) -> dict:
         db.add(MacroAnalyticsDoc(
             source=c["source"], doc_type=c["doc_type"], title=title,
             summary=summary, key_takeaways=takeaways, interpretation=interp,
-            published_at=doc_date(c["url"]) or date.today(), source_url=c["url"],
+            published_at=pub_date, source_url=c["url"],
             model_used=model_used + ("+pro" if interp else ""),
         ))
         saved += 1
