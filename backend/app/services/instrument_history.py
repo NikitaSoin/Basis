@@ -153,8 +153,12 @@ def get_history(db: Session, asset_class: str, secid: str, days: int = 180) -> d
         elif asset_class == "future":
             p["settle"] = _flt(m["settle"]); p["oi"] = m["oi"]
         pts.append(p)
-    last = pts[-1]["close"] if pts else None
-    prev = pts[-2]["close"] if len(pts) >= 2 else None
+    # Эффективная цена точки: close, а если его нет (частый случай для
+    # фьючерсов — close пуст почти везде, торгуется по settle) — settle.
+    eff = [p["close"] if p["close"] is not None else p.get("settle") for p in pts]
+    eff = [v for v in eff if v is not None]
+    last = eff[-1] if eff else None
+    prev = eff[-2] if len(eff) >= 2 else None
     change_pct = round((last / prev - 1) * 100, 2) if last and prev else None
     return {"asset_class": asset_class, "secid": secid, "last": last,
             "change_pct": change_pct, "points": pts}

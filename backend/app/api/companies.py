@@ -1,7 +1,8 @@
 import json
 import re
+from datetime import date, timedelta
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse, PlainTextResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -248,6 +249,29 @@ def list_quotes_endpoint(company_id: int, db: Session = Depends(get_db)):
     if not get_company_by_id(db, company_id):
         raise HTTPException(status_code=404, detail="Company not found")
     return get_quotes(db, company_id)
+
+
+@router.get("/companies/by-ticker/{ticker}/quotes/history")
+def quotes_history_endpoint(ticker: str, days: int = Query(180, ge=5, le=4000),
+                            db: Session = Depends(get_db)):
+    """Дневной ряд цены акции для графика (вкладка «Обзор» карточки компании,
+    период по выбору). Источник — quotes (та же таблица, что живая цена).
+    Формат ответа зеркалит /market/instruments/{asset_class}/{secid}/history
+    (облигации/фьючерсы/фонды) — на фронте один общий компонент графика для
+    всех классов активов."""
+    company = get_company_by_ticker(db, _safe(ticker).upper())
+    if not company:
+        raise HTTPException(status_code=404, detail="Компания не найдена")
+    start = date.today() - timedelta(days=days)
+    rows = db.execute(text(
+        "SELECT date, close FROM quotes WHERE company_id=:cid AND date>=:d "
+        "ORDER BY date ASC"), {"cid": company.id, "d": start}).all()
+    pts = [{"date": str(r.date), "close": float(r.close) if r.close is not None else None} for r in rows]
+    last = pts[-1]["close"] if pts else None
+    prev = pts[-2]["close"] if len(pts) >= 2 else None
+    change_pct = round((last / prev - 1) * 100, 2) if last and prev else None
+    return {"asset_class": "stock", "ticker": ticker.upper(), "last": last,
+            "change_pct": change_pct, "points": pts}
 
 
 @router.get("/companies/by-ticker/{ticker}/profile")
