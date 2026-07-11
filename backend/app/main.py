@@ -397,42 +397,62 @@ async def _seed_shares_startup():
 
 
 async def _geo_job():
-    """Геополитика: пересбор синтеза по методичке (DeepSeek Pro) + дайджест отдельных
-    статей (Рыбарь/re:russia/Carnegie → карточки по региону + институциональная среда).
-    Раз в сутки."""
+    """Геополитика: пересбор слитого синтеза по методичке (DeepSeek Pro, дорогой
+    reasoning-вызов). Раз в сутки. Дайджест отдельных статей — отдельный, более
+    частый job (_geo_digest_job), не завязан на этот."""
     def _run():
         from app.db.session import SessionLocal
         from app.services.geopolitics import refresh
-        from app.services.geo_digest import refresh as digest_refresh
         db = SessionLocal()
         try:
-            synth = refresh(db)
-            digest = digest_refresh(db)
-            return {"synthesis": synth, "digest": digest}
+            return refresh(db)
         finally:
             db.close()
     try:
         res = await asyncio.get_event_loop().run_in_executor(None, _run)
-        logger.info("Геополитика обновлена: %s", res)
+        logger.info("Геополитика (синтез) обновлена: %s", res)
     except Exception as e:
         logger.exception("Ошибка обновления геополитики: %s", e)
 
 
+async def _geo_digest_job():
+    """Дайджест отдельных статей (Рыбарь/re:russia/Economist → карточки по региону
+    геополитики + институциональная среда). Часто (в отличие от _geo_job) —
+    источники вроде Рыбаря публикуют постоянно, редкий крон вытесняет старые
+    статьи новыми до синтеза."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.geo_digest import refresh
+        db = SessionLocal()
+        try:
+            return refresh(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Гео-дайджест обновлён: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка обновления гео-дайджеста: %s", e)
+
+
 async def _geo_startup():
-    """Стартовый синтез геополитики — чтобы вкладки имели контент после деплоя.
-    Только если блоков ЛИБО дайджест-статей ещё нет (не гоняем Pro на каждом рестарте)."""
+    """Стартовый прогон геополитики (синтез + дайджест) — чтобы вкладки имели
+    контент после деплоя. Только если данных ещё нет (не гоняем Pro на рестарте)."""
     def _has():
         from app.db.session import SessionLocal
         from app.models.geo import GeoBlock
         from app.models.geo_digest import GeoDigestArticle
         db = SessionLocal()
         try:
-            return db.query(GeoBlock).count() > 0 and db.query(GeoDigestArticle).count() > 0
+            return db.query(GeoBlock).count() > 0, db.query(GeoDigestArticle).count() > 0
         finally:
             db.close()
     try:
-        if not await asyncio.get_event_loop().run_in_executor(None, _has):
+        has_blocks, has_digest = await asyncio.get_event_loop().run_in_executor(None, _has)
+        if not has_blocks:
             await _geo_job()
+        if not has_digest:
+            await _geo_digest_job()
     except Exception as e:  # noqa: BLE001
         logger.warning("Геополитика старт: %s", e)
 
@@ -541,7 +561,8 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
         scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
-        logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo)")
+        scheduler.add_job(_geo_digest_job, "cron", minute=10, id="geo_digest")  # каждый час
+        logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
 
