@@ -4598,3 +4598,22 @@ TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH,
 VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Ещё LNZLP (преф Лензолото — флаг:
 может иметь ИНОЙ знак риска, приоритет в ликвидационной очереди) и KRKOP
 (идентичность не подтверждена). GLRX пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 51: LNZLP/LVHK/MAGE/MFGS (204/264)
+LNZLP — 🔵 флаг из LNZL проверен и ОПРОВЕРГНУТ веб-поиском + сходимостью
+баланса: уставная фиксация ликвидстоимости означает преф НЕ участвует в
+распределении остатка — экономически хуже обычки, а не лучше (несмотря на
+формальный приоритет очереди). LVHK — Левенгук (оптика), низкий риск изъятия,
+риск в трансграничной хрупкости. MAGE — Магаданэнерго (РусГидро), риск не в
+изъятии, а в моратории на дивиденды группы до 2030. MFGS — Славнефть-
+Мегионнефтегаз (Роснефть+Газпром нефть 50/50) — перевёрнутый профиль:
+экспроприация миноритария трансфертным ценообразованием, не деприватизация.
+Все 8 JSON+MD подтверждены. Коммит 0c02a6a9.
+
+Итого 204/264 компаний с блоком «Институты» (~77%). Остаток: MAGEP, MFGSP,
+MGKL, MGNZ, MGTSP, MISB/MISBP, MRKV/MRKY/MRKZ, MRSB, NAUK, NFAZ, NSVZ, OGKB,
+OMZZP, PAZA, PRFN, PRMB, RAGR, RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP,
+SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL,
+URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP,
+WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс KRKOP (идентичность не подтверждена).
+GLRX пропущен. Продолжать батчами по 4.
