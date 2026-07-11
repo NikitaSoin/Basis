@@ -4578,3 +4578,23 @@ SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
 VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP.
 KRKOP — идентичность не подтверждена, требует отдельной проверки. GLRX пропущен.
 Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 50: LMBZ/LNZL/LPSB/LSNGP (200/264)
+LMBZ — Ламбумиз (упаковка, Абалаков), низкоинституциональный кейс, риск в
+governance/ликвидности. LNZL — 🔴 Лензолото, нестандартный кейс: не госизъятие,
+а корпоративная сделка со связанной стороной (Полюс/Керимов выкупил актив у
+публичной «дочки» 2020) + добровольная ликвидация с 2025, цена ~12x NAV —
+рыночная переоценка. LPSB — Липецкая энергосбытовая, независима от известных
+групп, ~94.5% контролирует кипрский офшор ZEVAFEL, связь с Лисиным/НЛМК не
+подтверждена (суждение). LSNGP — преф Ленэнерго, устав 10% ЧП РСБУ реально
+работает, мультипликатор мягче обычки. Все 8 JSON+MD подтверждены. Коммит
+4798ff98.
+
+Итого 200/264 компаний с блоком «Институты» (~76%). Остаток: LVHK, MAGE/MAGEP,
+MFGS/MFGSP, MGKL, MGNZ, MGTSP, MISB/MISBP, MRKV/MRKY/MRKZ, MRSB, NAUK, NFAZ,
+NSVZ, OGKB, OMZZP, PAZA, PRFN, PRMB, RAGR, RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB,
+SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP,
+TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH,
+VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. Ещё LNZLP (преф Лензолото — флаг:
+может иметь ИНОЙ знак риска, приоритет в ликвидационной очереди) и KRKOP
+(идентичность не подтверждена). GLRX пропущен. Продолжать батчами по 4.
