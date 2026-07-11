@@ -4617,3 +4617,22 @@ SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL,
 URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP,
 WTCMP, YKEN/YKENP, YRSB/YRSBP. Плюс KRKOP (идентичность не подтверждена).
 GLRX пропущен. Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 52: MAGEP/MFGSP/MGKL/MGNZ (208/264)
+MAGEP — преф Магаданэнерго, «пустой приоритет» (мораторий группы РусГидро).
+MFGSP — преф Мегионнефтегаза, флаг из MFGS уточнён: дивиденд типа А привязан
+к ЧП, но трансфертные цены её обнуляют — приоритет юридически нейтрализован.
+MGKL — Мосгорломбард, редкий низкий институциональный риск, обвал маржи —
+сдвиг бизнес-микса (не институты). 🔴 MGNZ — Соликамский магниевый завод,
+САМ эталонный кейс №9 базы знаний (используется как прецедент во всех
+остальных разборах этой раскатки) — риск полностью реализован, ВС РФ отказал
+в пересмотре 22.12.2025, компенсация ~9653 руб/акция, IRI 1.7 — минимальный
+за всю раскатку. Все 8 JSON+MD подтверждены. Коммит cfdd9eba.
+
+Итого 208/264 компаний с блоком «Институты» (~79%). Остаток: MISB/MISBP,
+MRKV/MRKY/MRKZ, MRSB, NAUK, NFAZ, NSVZ, OGKB, OMZZP, PAZA, PRFN, PRMB, RAGR,
+RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP,
+SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
+VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP.
+Плюс KRKOP (идентичность не подтверждена). GLRX пропущен. Продолжать
+батчами по 4.
