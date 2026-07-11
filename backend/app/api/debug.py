@@ -542,6 +542,7 @@ def debug_trigger_macro_sync():
                                              sync_expert_survey, sync_inflation, sync_expectations,
                                              sync_credit_m2)
     from app.services.macro_minfin_sync import sync_gov_spending
+    from app.services.macro_rosstat import sync_ppi
     db = SessionLocal()
     out = {}
     try:
@@ -552,6 +553,7 @@ def debug_trigger_macro_sync():
             ("inflation", lambda: sync_inflation(db)), ("expectations", lambda: sync_expectations(db)),
             ("credit_m2", lambda: sync_credit_m2(db)),
             ("gov_spending", lambda: sync_gov_spending(db)),
+            ("ppi", lambda: sync_ppi(db)),
         ):
             try:
                 out[key] = fn()
