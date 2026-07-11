@@ -52,16 +52,28 @@
   gap: 4px;
   width: 150px;
   padding: 14px;
-  border: 1px solid var(--border-subtle);
+  /* border-strong (не border-subtle) — самостоятельная карточка-«плитка», не
+     внутренняя ячейка; border-subtle зарезервирован под внутренние разделители
+     (см. tokens.css). Дизайн-ревью 2026-07-12: карточка была визуально
+     «плоской» рядом с эталонным .mk-card на «Рынке» (та же тень+hover-lift). */
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 140ms ease, transform 140ms ease;
 }
+.cmp-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .cmp-card-x {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 20px;
-  height: 20px;
+  top: 4px;
+  right: 4px;
+  /* было 20×20 — ниже минимума тач-зоны (32px desktop по дизайн-конституции).
+     Визуальный размер иконки не меняем (font-size 15px), только хит-зону. */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -88,7 +100,11 @@
 .cmp-card-tk { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
 .cmp-card-px { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 4px; }
 
-.cmp-table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+/* border-strong + фон + тень — тот же язык, что .mk-tablewrap на «Рынке».
+   Без фона таблица выглядела «инородной» рядом с остальными панелями сайта,
+   и .cmp-group-row (фон --bg-base) сливался с фоном страницы — группы
+   метрик были визуально неотличимы от обычных строк. Дизайн-ревью 2026-07-12. */
+.cmp-table-wrap { overflow-x: auto; border: 1px solid var(--border-strong); border-radius: var(--radius-md); background: var(--bg-elevated); box-shadow: var(--shadow-sm); }
 .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .cmp-table th, .cmp-table td {
   padding: 9px 14px;
