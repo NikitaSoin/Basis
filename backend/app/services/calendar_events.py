@@ -611,6 +611,145 @@ def build_ir_calendar(db: Session) -> list[dict]:
     return out
 
 
+# ----------------------------- ПРАЙМ (disclosure.1prime.ru) — крупная нефтянка/металлургия -----------------------------
+# Аккредитованный ЦБ РФ сервер раскрытия информации (альтернатива e-disclosure/Интерфакс,
+# НЕ закрыт анти-ботом — проверено вручную curl'ом 2026-07-11). Точечно закрывает дыру
+# MOEX ir-calendar: крупная нефтянка (Роснефть/Лукойл/Новатэк/Газпромнефть/Сургутнефтегаз/
+# Татнефть/Транснефть/Башнефть) и часть металлургии (Русал/НЛМК/ММК/Алроса/ВСМПО-Ависма) +
+# ПИК — у этих компаний 0 записей в MOEX-фиде вообще (проверено), вероятно потому что они
+# не ведут публичный IR-календарь (санкционная сдержанность с 2022), но раскрытие
+# существенных фактов ПО ЗАКОНУ обязательно и продолжается через аккредитованные агентства.
+_PRIME_BASE = "https://disclosure.1prime.ru"
+_PRIME_ISSUERS = {  # ИНН проверены вручную 2026-07-11 (сверка названия через профиль СКРИН)
+    "ROSN": "7706107510", "LKOH": "7708004767", "NVTK": "6316031581",
+    "SIBN": "5504036333", "SNGS": "8602060555", "TATN": "1644003838",
+    "RUAL": "3906394938", "NLMK": "4823006703", "MAGN": "7414003633",
+    "ALRS": "1433000147", "TRNFP": "7706061801", "BANE": "0274051582",
+    "PIKK": "7713011336", "VSMO": "6607000556",
+}
+# Только 2 типа регуляторных сообщений (стандартный шаблон Положения №714-П, поля
+# пронумерованы — надёжно парсить): заседание СД (форвард-дата в поле "Дата проведения
+# заседания совета директоров") и созыв ГОСА/ВОСА (дата в тексте после "проводится").
+# НЕ берём "Дата, на которую определяются лица, имеющие право..." (дивиденд-отсечка) —
+# в сообщении НЕТ суммы дивиденда (она в отдельном решении СД/ГОСА) — та же политика,
+# что и в build_ir_calendar: не показываем «пустое» дивидендное событие без суммы.
+_PRIME_TITLE_MAP = {
+    "проведение заседания совета директоров": ("board", "заседание совета директоров"),
+    "созыв общего собрания": ("meeting", "собрание акционеров"),
+}
+_RU_MONTHS = {"января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
+              "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12}
+
+
+def _parse_ru_date(s: str) -> date | None:
+    """Дата словом («8 июля 2026 года») ИЛИ числом (ТАТН пишет «25.06.2026») — оба формата
+    реально встречаются в разных шаблонах разных эмитентов (проверено 2026-07-11)."""
+    import re
+    m = re.search(r"(\d{1,2})\s+(" + "|".join(_RU_MONTHS) + r")\s+(\d{4})", s, re.IGNORECASE)
+    if m:
+        d, mon, y = m.groups()
+        try:
+            return date(int(y), _RU_MONTHS[mon.lower()], int(d))
+        except ValueError:
+            return None
+    m = re.search(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", s)
+    if m:
+        d, mo, y = m.groups()
+        try:
+            return date(int(y), int(mo), int(d))
+        except ValueError:
+            return None
+    return None
+
+
+def build_prime_disclosure(db: Session) -> list[dict]:
+    """Заседания СД + созыв ГОСА/ВОСА для 14 крупных эмитентов вне MOEX ir-calendar,
+    источник — ПРАЙМ (см. докстринг блока выше). На компанию: скан таблицы сообщений
+    (`portal/default.aspx?emId=ИНН`), берём последние ДО 8 совпадений по заголовку
+    (экономия — не гоняем полный текст всех сотен строк), для каждого — полный текст
+    (`Portal/GetMessage.aspx`), регекс на нужное пронумерованное поле. Дедуп по guid
+    сообщения (реальный UUID Банка России — глобально уникален, в отличие от event_id
+    MOEX ir-calendar) + против других источников тем же паттерном (event_type, ticker,
+    event_date), что в build_ir_calendar.
+    🔴 Паузы между запросами ОБЯЗАТЕЛЬНЫ: без них локальный тест поймал HTTPStatusError
+    на 6 из 14 компаний подряд (частый анти-скрейпинг по частоте, не по IP/UA — тот же
+    запрос через секунды успешно повторялся вручную)."""
+    import httpx, re, time
+    out: list[dict] = []
+    companies = {c.ticker: c for c in db.query(Company).all()}
+    today = date.today()
+    existing = {
+        (r.event_type, r.ticker, r.event_date)
+        for r in db.query(CalendarEvent.event_type, CalendarEvent.ticker, CalendarEvent.event_date)
+        .filter(CalendarEvent.event_type == "corporate",
+                CalendarEvent.source != "prime_disclosure",
+                CalendarEvent.ticker.in_(list(_PRIME_ISSUERS)),
+                CalendarEvent.event_date >= today).all()
+    }
+    for ticker, inn in _PRIME_ISSUERS.items():
+        c = companies.get(ticker)
+        if not c:
+            continue
+        time.sleep(0.6)
+        try:
+            r = httpx.get(f"{_PRIME_BASE}/portal/default.aspx", params={"emId": inn}, timeout=30)
+            r.raise_for_status()
+            html = r.text
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Календарь prime_disclosure %s: страница недоступна: %s", ticker, type(e).__name__)
+            continue
+        candidates = []
+        for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+            if "GetMessage" not in row:
+                continue
+            cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
+            if len(cells) < 2:
+                continue
+            title = re.sub(r"<[^>]+>", " ", cells[1]).strip()
+            title_l = title.lower()
+            kind = next((v for kw, v in _PRIME_TITLE_MAP.items() if kw in title_l), None)
+            if not kind:
+                continue
+            gm = re.search(r"guid=(\{[0-9A-Fa-f-]+\})", row)
+            if not gm:
+                continue
+            candidates.append((title, kind, gm.group(1)))
+            if len(candidates) >= 8:
+                break
+        for title, (subtype, label), guid in candidates:
+            time.sleep(0.3)
+            try:
+                mr = httpx.get(f"{_PRIME_BASE}/Portal/GetMessage.aspx",
+                                params={"emId": inn, "guid": guid}, timeout=30)
+                mr.raise_for_status()
+                msg_text = mr.text
+            except Exception:  # noqa: BLE001
+                continue
+            if subtype == "board":
+                # очное «заседание» И заочное «голосование» — оба формата решения СД
+                # (проверено 2026-07-11: ЛУКОЙЛ пишет «заочного голосования», Роснефть —
+                # «заседания»); регистр названия «Совета директоров» тоже плавает по эмитентам.
+                fm = re.search(r"Дата проведения (?:заседания|заочного голосования) совета директоров[^:]*:\s*([^<\n]+)",
+                               msg_text, re.IGNORECASE)
+            else:
+                fm = re.search(r"проводится\s+(\d{1,2}\s+\S+\s+\d{4}\s+года)", msg_text, re.IGNORECASE)
+            ev_date = _parse_ru_date(fm.group(1)) if fm else None
+            if not ev_date or ev_date < today or ("corporate", ticker, ev_date) in existing:
+                continue
+            out.append({
+                "event_type": "corporate", "event_date": ev_date, "event_time": None,
+                "ticker": ticker, "sector": c.sector,
+                "title": f"{c.name}: {title}"[:300], "status": label,
+                "source": "prime_disclosure",
+                "source_url": f"{_PRIME_BASE}/Portal/GetMessage.aspx?emId={inn}&guid={guid}",
+                "payload": {"subtype": subtype, "confidence": "issuer"},
+                "dedup_key": f"corporate:{ticker}:{guid}",
+            })
+    logger.info("Календарь prime_disclosure: %d событий, %d эмитентов",
+                len(out), len({e['ticker'] for e in out}))
+    return out
+
+
 # ----------------------------- ОРКЕСТРАЦИЯ -----------------------------
 def refresh_all(db: Session, with_dividends: bool = True) -> dict:
     """Полный пересбор календаря (идемпотентно). Вызывать раз в сутки."""
@@ -647,6 +786,10 @@ def refresh_all(db: Session, with_dividends: bool = True) -> dict:
         res["ir_calendar"] = _upsert(db, build_ir_calendar(db))
     except Exception as e:  # noqa: BLE001
         logger.exception("Календарь ir_calendar: %s", e); res["ir_calendar"] = f"err:{type(e).__name__}"
+    try:
+        res["prime_disclosure"] = _upsert(db, build_prime_disclosure(db))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Календарь prime_disclosure: %s", e); res["prime_disclosure"] = f"err:{type(e).__name__}"
     if with_dividends:
         try:
             res["dividends"] = _upsert(db, build_dividends(db))
