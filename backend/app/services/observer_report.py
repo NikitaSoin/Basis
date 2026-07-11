@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import text
@@ -34,9 +35,16 @@ def _portfolio(db: Session, user_id: int) -> tuple[set[str], set[str]]:
 # и как подробно. Раньше topic приходил с фронта и полностью игнорировался — эта
 # таблица задаёт реальный множитель объёма каждого источника ПО ТЕМЕ (1.0 = как для
 # rtype-глубины по умолчанию, 0 = не собирать вовсе). "mixed" — прежнее поведение.
+# "biz" раньше зануляла macro И geo ОДНОВРЕМЕННО (0.0, 0.0) — если главные
+# драйверы месяца были ставка ЦБ (macro) и санкции (geo), держатель бумаги с
+# темой «Бизнес» получал отчёт, слепой к обеим причинам разом (ломало именно
+# ту причинную связку, которую отчёт должен вскрывать). По образцу остальных
+# строк (у каждой — небольшой ненулевой вес на «не свою» причинную ось) даны
+# 0.2/0.2 — достаточно, чтобы всплыл ГЛАВНЫЙ драйвер каждой оси, не растворяя
+# фокус на бизнесе.
 _TOPIC_WEIGHT = {
     #           news  earnings  calendar  macro  geo   institutions
-    "biz":         (0.6,  1.5,     0.8,     0.0,  0.0,  0.0),
+    "biz":         (0.6,  1.5,     0.8,     0.2,  0.2,  0.0),
     "macro":       (0.5,  0.0,     0.6,     1.5,  0.3,  0.0),
     "geo":         (0.5,  0.0,     0.4,     0.3,  1.5,  0.0),
     "institutions":(0.3,  0.0,     0.3,     0.2,  0.5,  1.5),
@@ -102,7 +110,9 @@ def _gather(db: Session, rtype: str, topic: str, pf_tickers: set[str], pf_sector
             refs.append({"ref": ref, "kind": "calendar", "id": e.id, "title": e.title})
 
     # Макро (Напр.2) — по умолчанию для detailed/deep; тема macro включает всегда
-    # (даже express), тема biz/institutions с низким весом — выключает вовсе
+    # (даже express); тема institutions с низким весом (0.0) выключает вовсе,
+    # тема biz с малым весом (0.2) — включает на detailed/deep, чтобы не быть
+    # слепой к главному макро-драйверу месяца, но не на express (терсность)
     if w_macro > 0 and (rtype in ("detailed", "deep") or topic == "macro"):
         ctx["macro"] = _macro_snapshot(db, today, horizon)
 
@@ -275,10 +285,17 @@ def generate(db: Session, user_id: int, rtype: str, topic: str = "mixed") -> Obs
     content = content.strip()
     if len(content) < 40:
         raise LLMError("модель вернула пустой или слишком короткий ответ")
+    # _gather() кладёт в refs КАЖДЫЙ собранный элемент безусловно (до ~120 для
+    # Глубокого) — модель реально цитирует в тексте обычно меньше половины.
+    # Нефильтрованный список внизу читается как сырой кусок контекста, а не как
+    # осмысленные источники — оставляем только то, что реально процитировано.
+    cited = set(re.findall(r"\[([A-ZА-Я]\d+)\]", content))
+    cited_refs = [r for r in refs if r.get("ref") in cited] or refs[:12]
     rep = ObserverReport(user_id=user_id, report_type=rtype, topic=topic, horizon_days=HORIZON_DAYS[rtype],
-                         content=content, source_refs=refs,
+                         content=content, source_refs=cited_refs,
                          portfolio_snapshot=sorted(pf_t), model_used="deepseek-pro",
                          generated_at=datetime.now(timezone.utc))
     db.add(rep); db.commit(); db.refresh(rep)
-    logger.info("Обозревательский отчёт %s/%s сгенерирован для user=%s (refs=%d)", rtype, topic, user_id, len(refs))
+    logger.info("Обозревательский отчёт %s/%s сгенерирован для user=%s (refs=%d/%d процитировано)",
+               rtype, topic, user_id, len(cited_refs), len(refs))
     return rep
