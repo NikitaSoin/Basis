@@ -510,10 +510,13 @@ def build_corporate(db: Session) -> list[dict]:
         # отличный от СД/собраний, которые остаются под "corporate")
         ev_type = "ipo" if kind == "ipo" else "earnings" if kind == "report" else "corporate"
         h = hashlib.md5(desc.encode("utf-8")).hexdigest()[:10]
+        # МСФО/РСБУ/операционные — иначе на витрине неотличимая «отчётность» тонет в
+        # частых РСБУ/операционных публикациях (см. _classify_report_kind).
+        status = _classify_report_kind(desc) if kind == "report" else _SUBTYPE_LABEL.get(kind)
         out.append({
             "event_type": ev_type, "event_date": ev_date, "event_time": None,
             "ticker": ticker, "sector": sectors.get(ticker) if ticker else None,
-            "title": desc[:300], "status": _SUBTYPE_LABEL.get(kind),
+            "title": desc[:300], "status": status,
             "source": "smartlab", "source_url": _SMARTLAB_CAL,
             "payload": {"subtype": kind},
             "dedup_key": f"{ev_type}:{ev_date.isoformat()}:{h}",
@@ -595,10 +598,13 @@ def build_ir_calendar(db: Session) -> list[dict]:
             continue
         event_link = row[idx["event_link"]]
         source_code = row[idx["data_source_code"]]
+        # МСФО/РСБУ/операционные — та же логика, что в build_corporate (см.
+        # _classify_report_kind): "отчётность" одна на всех тонула в частой РСБУ/операционке.
+        status = _classify_report_kind(desc) if ev_type == "earnings" else _IR_STATUS_LABEL[ev_type]
         out.append({
             "event_type": ev_type, "event_date": ev_date, "event_time": None,
             "ticker": secid, "sector": c.sector,
-            "title": f"{c.name}: {desc}"[:300], "status": _IR_STATUS_LABEL[ev_type],
+            "title": f"{c.name}: {desc}"[:300], "status": status,
             "source": "moex_ir_calendar",
             "source_url": event_link or f"https://www.moex.com/ru/issue.aspx?code={secid}",
             "payload": {"subtype": "report" if ev_type == "earnings" else "meeting",
@@ -660,6 +666,46 @@ def _parse_ru_date(s: str) -> date | None:
         except ValueError:
             return None
     return None
+
+
+def _classify_report_kind(text: str) -> str:
+    """Вид отчётности по ключевым словам заголовка/описания — владелец справедливо
+    заметил (2026-07-11), что в ближайшие недели видна почти только РСБУ/операционка
+    (публикуются чаще МСФО), а generic статус «отчётность» их не различал на витрине."""
+    t = text.lower()
+    if "мсфо" in t or "ifrs" in t:
+        return "МСФО"
+    if "рсбу" in t or "рпбу" in t:
+        return "РСБУ"
+    if "операцион" in t:
+        return "операционные результаты"
+    return "отчётность"
+
+
+# Эвристика важности повестки заседания СД для МИНОРИТАРНОГО инвестора (не биржевой
+# юрист) — владелец явно сузил: не любая внутренняя повестка, а дивиденды/M&A/байбек/
+# SPO. Проверено на реальных повестках 2026-07-11: из 6 заседаний прошли фильтр только
+# приобретение доли в другой организации (M&A) — остальные 5 (утилизация ПНГ, отчёт
+# аудитора, допсоглашение по займу с "дочкой", проспект облигаций, план работы СД
+# Роснефти) корректно отсеялись как непубличный шум. Не исчерпывающий список — лучше
+# честно недосказать редкий случай, чем захламить витрину внутренней текучкой.
+def _agenda_is_material(agenda_l: str) -> bool:
+    if "дивиденд" in agenda_l:
+        return True
+    if "байбек" in agenda_l or "выкуп" in agenda_l:
+        return True
+    if "spo" in agenda_l or "ipo" in agenda_l or "допэмисс" in agenda_l:
+        return True
+    if "размещени" in agenda_l and ("акци" in agenda_l or "ценных бумаг" in agenda_l):
+        return True
+    if "делистинг" in agenda_l or ("листинг" in agenda_l and "делистинг" not in agenda_l):
+        return True
+    if any(k in agenda_l for k in ("приобретен", "продаж", "отчужден", "поглощен")) and \
+       any(k in agenda_l for k in ("дол", "акци", "пакет")):
+        return True
+    if any(k in agenda_l for k in ("слияни", "реорганизац", "присоедин")):
+        return True
+    return False
 
 
 def build_prime_disclosure(db: Session) -> list[dict]:
@@ -725,12 +771,25 @@ def build_prime_disclosure(db: Session) -> list[dict]:
                 msg_text = mr.text
             except Exception:  # noqa: BLE001
                 continue
+            item_title = title
             if subtype == "board":
                 # очное «заседание» И заочное «голосование» — оба формата решения СД
                 # (проверено 2026-07-11: ЛУКОЙЛ пишет «заочного голосования», Роснефть —
                 # «заседания»); регистр названия «Совета директоров» тоже плавает по эмитентам.
                 fm = re.search(r"Дата проведения (?:заседания|заочного голосования) совета директоров[^:]*:\s*([^<\n]+)",
                                msg_text, re.IGNORECASE)
+                # 🔴 Владелец справедливо указал (2026-07-11): «просто заседания по
+                # внутренней повестке не нужны — нужны про дивиденды/M&A/байбек/SPO».
+                # Без фильтра из 6 реальных заседаний прошли бы все 6 (утилизация ПНГ,
+                # отчёт аудитора, проспект облигаций, допсоглашение по займу...) —
+                # проверено вручную, отсеиваем по повестке (см. _agenda_is_material).
+                am = re.search(r"Повестка дня (?:заседания|заочного голосования) совета директоров[^:]*:(.*?)3\.\s*Подпись",
+                                msg_text, re.IGNORECASE | re.DOTALL)
+                agenda = re.sub(r"<[^>]+>", " ", am.group(1)).strip() if am else ""
+                agenda = re.sub(r"\s+", " ", agenda)
+                if not agenda or not _agenda_is_material(agenda.lower()):
+                    continue
+                item_title = agenda[:250]  # конкретный пункт повестки вместо шаблонной фразы
             else:
                 fm = re.search(r"проводится\s+(\d{1,2}\s+\S+\s+\d{4}\s+года)", msg_text, re.IGNORECASE)
             ev_date = _parse_ru_date(fm.group(1)) if fm else None
@@ -739,7 +798,7 @@ def build_prime_disclosure(db: Session) -> list[dict]:
             out.append({
                 "event_type": "corporate", "event_date": ev_date, "event_time": None,
                 "ticker": ticker, "sector": c.sector,
-                "title": f"{c.name}: {title}"[:300], "status": label,
+                "title": f"{c.name}: {item_title}"[:300], "status": label,
                 "source": "prime_disclosure",
                 "source_url": f"{_PRIME_BASE}/Portal/GetMessage.aspx?emId={inn}&guid={guid}",
                 "payload": {"subtype": subtype, "confidence": "issuer"},
