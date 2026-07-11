@@ -488,15 +488,19 @@ def market_geopolitics_region(region: str, tab: str = "deep",
 
 
 def _digest_dict(a) -> dict:
+    from app.services.geo_digest import SOURCE_LABELS
     return {"id": a.id, "title": a.title, "summary": a.summary,
+            "key_takeaways": a.key_takeaways or [],
             "investor_relevance": a.investor_relevance,
+            "source_label": SOURCE_LABELS.get(a.source_key, a.source_key),
             "published_at": a.published_at.isoformat() if a.published_at else None}
 
 
 @router.get("/market/geopolitics/{region}/digest")
 def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depends(get_db)):
-    """Отдельные статьи-карточки по региону (не слитый синтез geo_blocks) — пересказ
-    политкорректно, без ссылок на источник (geo_digest.py, Направление 7 доп.)."""
+    """Отдельные статьи-карточки по региону (не слитый синтез geo_blocks) — подробный
+    пересказ + тезисы. source_label показывается (временно, обкатка пайплайна —
+    geo_digest.py)."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
     if region not in GEO_DIGEST_TARGETS or region == "institutions":
         raise HTTPException(status_code=404, detail="Неизвестный регион")
