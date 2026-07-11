@@ -30,7 +30,7 @@
      "influence_short": "Выше 50 — экономика расширяется, ниже 50 — сжимается; опережающий индикатор деловой активности."},
     {"code": "ppi", "title": "Индекс цен производителей (ИЦП)", "unit": "%", "country": "ru", "frequency": "monthly", "metric_types": ["yoy"], "display_group": "ru", "sort_order": 12, "source_type": "news",
      "influence_short": "Опережает потребительскую инфляцию: рост цен производителей со временем перекладывается в розницу."},
-    {"code": "urals", "title": "Нефть Urals", "unit": "usd", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 13, "source_type": "news",
+    {"code": "urals", "title": "Нефть Urals", "unit": "usd", "country": "ru", "frequency": "daily", "metric_types": ["level"], "display_group": "ru", "sort_order": 13, "source_type": "tankermap",
      "influence_short": "Дорогая нефть — выигрыш нефтегаза и пополнение бюджета; влияет на курс рубля и инфляцию."},
     {"code": "budget_balance", "title": "Баланс бюджета", "unit": "%ВВП", "country": "ru", "frequency": "monthly", "metric_types": ["level"], "display_group": "ru", "sort_order": 14, "source_type": "minfin",
      "influence_short": "Рост дефицита → больше заимствований (рост предложения ОФЗ и доходностей) + фискальный импульс → проинфляционно → давление на ставку.",
@@ -158,7 +158,6 @@
     "pmi_composite": {"name": "PMI РФ (композит/пром/услуги, итоговое число)", "metrics": ["level"], "unit": "ед", "min": 20, "max": 70},
     "nominal_wage": {"name": "номинальная зарплата РФ (темп)", "metrics": ["yoy"], "unit": "%", "min": -20, "max": 50},
     "budget_balance": {"name": "баланс федерального бюджета РФ", "metrics": ["level"], "unit": "трлн руб", "min": -20, "max": 20},
-    "urals": {"name": "цена нефти Urals (баррель, USD)", "metrics": ["level"], "unit": "usd", "min": 10, "max": 150},
     "hh_index": {"name": "индекс рынка труда hh.ru (резюме на вакансию)", "metrics": ["level"], "unit": "ед", "min": 0.1, "max": 20},
     "real_wage": {"name": "реальная заработная плата РФ (темп г/г)", "metrics": ["yoy"], "unit": "%", "min": -30, "max": 50}
   }

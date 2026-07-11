@@ -244,6 +244,7 @@ async def _macro_job():
             from app.services.macro_rosstat import ingest_rosstat_file, sync_ppi
             from app.services.macro_minfin_sync import sync_gov_spending
             from app.services.macro_hh_sync import sync_hh_index
+            from app.services.macro_tankermap_sync import sync_urals
             seed_indicators(db)
             world = ingest_all_world(db)
             cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2+кредит экономике (машинный первоисточник)
@@ -266,10 +267,16 @@ async def _macro_job():
                 logger.exception("hh-sync упал: %s", e)
                 db.rollback()
                 hh = {"error": f"unhandled:{type(e).__name__}"}
+            try:
+                urals = sync_urals(db)  # Urals дневной ряд — TankerMap (не офиц. источник, см. докстринг)
+            except Exception as e:  # noqa: BLE001
+                logger.exception("TankerMap-Urals упал: %s", e)
+                db.rollback()
+                urals = {"error": f"unhandled:{type(e).__name__}"}
             analytics = analytics_process(db)
             stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
             return {"world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
-                    "hh": hh, "analytics": analytics, "stale": len(stale)}
+                    "hh": hh, "urals": urals, "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()
     try:
