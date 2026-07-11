@@ -4553,3 +4553,28 @@ RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP, SVETP, TASB/TASBP,
 TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP, VJGZ/VJGZP, VLHZ,
 VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP. GLRX пропущен.
 Продолжать батчами по 4.
+
+## 2026-07-11 (продолжение) — Институты батч 48-49: KLSB/KMEZ/KRKN/KROT + KRKNP/KROTP/KUZB/LIFE (196/264)
+Батч 48: KLSB — 🔴 паттерн *SB=ТНС энерго снова не подтвердился (независимая
+Калужская сбытовая), редкий случай низкого риска изъятия, WACC ниже пола.
+KMEZ — Ковровский мехзавод (ТВЭЛ/Росатом, центрифуги), риск на миноритарии
+(squeeze-out >95%, тот же контур что СМЗ). KRKN — Саратовский НПЗ (Роснефть/
+Сечин), толлинговая модель, прецедент ТНК-BP по оферте; KRKNP подтверждён
+как преф с реальными выплатами, KRKOP — принадлежность не подтверждена.
+KROT — МКФ «Красный Октябрь» (группа «Гута»), крон-джуэл риск (недвижимость
+у Кремля выведена в отдельную структуру).
+Батч 49 (два префа к уже разобранным + два новых): KRKNP/KROTP — преф-разборы,
+мультипликатор мягче/жёстче обычки в зависимости от реальности выплат. KUZB —
+🔴 не уголь, а Банк «Кузнецкий» (Пенза) — все 7 паттернов изъятия не срабатывают.
+LIFE — Фармсинтез, 🔴 не институциональный кейс, а банкротство (иск ФНС июнь 2026,
+Роснано как токсичный акционер-кредитор, не щит). Все 8 JSON+MD подтверждены.
+Коммиты 95405b0f, c1f91653.
+
+Итого 196/264 компаний с блоком «Институты» (~74%). Остаток: LMBZ, LNZL/LNZLP,
+LPSB, LSNGP, LVHK, MAGE/MAGEP, MFGS/MFGSP, MGKL, MGNZ, MGTSP, MISB/MISBP,
+MRKV/MRKY/MRKZ, MRSB, NAUK, NFAZ, NSVZ, OGKB, OMZZP, PAZA, PRFN, PRMB, RAGR,
+RDRB, RHYD, ROLO, RTSB/RTSBP, RZSB, SAGO/SAGOP, SARE/SAREP, SLEN, STSB/STSBP,
+SVETP, TASB/TASBP, TGKBP, TORSP, TUZA, UNKL, URKZ, USBN, UTAR, VGSB/VGSBP,
+VJGZ/VJGZP, VLHZ, VRSB/VRSBP, VSEH, VSYD/VSYDP, WTCMP, YKEN/YKENP, YRSB/YRSBP.
+KRKOP — идентичность не подтверждена, требует отдельной проверки. GLRX пропущен.
+Продолжать батчами по 4.
