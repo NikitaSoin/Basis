@@ -264,6 +264,7 @@ def heatmap_bonds(db: Session) -> dict:
     (нейтральный цвет плитки, не выдумываем движение)."""
     from app.models.bond import Bond
     from app.models.company import Company
+    from app.api.bonds import _issuer_type_guess
     rows = (
         db.query(Bond, Company.sector)
         .outerjoin(Company, Company.ticker == Bond.issuer_ticker)
@@ -315,10 +316,21 @@ def heatmap_bonds(db: Session) -> dict:
             # облигация Газпрома — это «Нефть и газ», как и его рублёвые
             # выпуски; валютный риск виден отдельно в самой карточке облигации).
             sector = company_sector
-        elif is_fx:
-            sector = "Замещающие/валютные — прочие"
         else:
-            sector = "Корпораты — прочие"
+            # Непубличный эмитент — грубый тип по имени выпуска (та же эвристика,
+            # что уже используется в Скринере облигаций, screener_bonds._bond_sector
+            # — не новая разработка, подключение готового). Раньше весь этот хвост
+            # (эмитент не найден в companies) падал в один неструктурированный блоб
+            # («Корпораты — прочие» ~51% карты) — эвристика по названию выпуска
+            # (МФО/Лизинг/Девелопер/АПК и т.п.) достаёт из него реальную структуру,
+            # это ОЦЕНКА по тексту названия, не факт (в отличие от company_sector).
+            guess = _issuer_type_guess(b.issuer_name or b.short_name)
+            if not guess.startswith("Компания"):
+                sector = guess
+            elif is_fx:
+                sector = "Замещающие/валютные — прочие"
+            else:
+                sector = "Корпораты — прочие"
         by_sector.setdefault(sector, []).append({
             "ticker": b.secid, "name": b.short_name, "sector": sector,
             "market_cap": weight, "change_pct": change,

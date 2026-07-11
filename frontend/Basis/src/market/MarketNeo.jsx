@@ -341,10 +341,15 @@ function StockRows({ stocks, onOpen, Logo }) {
 }
 
 // ══════════════════ ОБЛИГАЦИИ ══════════════════
+// Реальный словарь risk_tier с бэка (RISK_LABEL, app/api/bonds.py) — gov/high/
+// medium/speculative. Прежний список ["high","low","reliable","investment"]
+// не содержал "gov" — ОФЗ проваливались в дефолтную amber-ветку («средний
+// риск») вместо зелёного «надёжно», хотя текстовая подпись («Госдолг») была
+// верной — расхождение цвета и текста на одном чипе.
 function reliOf(b) {
   const t = (b.risk_tier || "").toLowerCase();
-  if (["high", "low", "reliable", "investment"].includes(t)) return { k: "pos", label: b.risk_label || "Надёжный" };
-  if (["speculative", "vdo", "junk", "high_yield"].includes(t)) return { k: "neg", label: b.risk_label || "ВДО" };
+  if (["gov", "high"].includes(t)) return { k: "pos", label: b.risk_label || "Надёжный" };
+  if (t === "speculative") return { k: "neg", label: b.risk_label || "ВДО" };
   return { k: "amber", label: b.risk_label || "Средний" };
 }
 const RELI_COLOR = { pos: "var(--pos)", amber: "var(--amber)", neg: "var(--neg)" };
@@ -369,6 +374,10 @@ function ViewToggle({ view, setView }) {
     </div>
   );
 }
+// Плитка облигаций внутри группы — сколько показывать до честной строки
+// «+N ещё в категории» (не тащим все ~1000 «Корпораты — прочие» в DOM разом,
+// но и не обрезаем молча, как было раньше — slice(0,400) без индикации).
+const BOND_GROUP_CAP = 150;
 function BondsTab({ rows, query, onOpen }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
@@ -385,56 +394,75 @@ function BondsTab({ rows, query, onOpen }) {
   if (sort === "ytm") list = [...list].sort((a, b) => (b.ytm || 0) - (a.ytm || 0));
   else if (sort === "spread") list = [...list].sort((a, b) => (b.spread_bp || 0) - (a.spread_bp || 0));
   else if (sort === "dur") list = [...list].sort((a, b) => (a.duration_years || 99) - (b.duration_years || 99));
-  list = list.slice(0, 400);
+  // Группировка по сектору эмитента (публичные компании) / грубому типу по
+  // названию выпуска (непубличные) — без неё список из ~3000+ бумаг нечем
+  // осмысленно просматривать (у Акций/Фьючерсов/Фондов группировка уже есть,
+  // у Облигаций — самого крупного списка — раньше не было вообще).
+  const by = {};
+  list.forEach(b => { const s = b.sector || "Без категории"; (by[s] = by[s] || []).push(b); });
+  const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
+  const renderRow = b => {
+    const rel = reliOf(b);
+    return (
+      <tr key={b.secid} onClick={() => onOpen(b.secid)} style={{ cursor: "pointer" }}>
+        <td className="l"><div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div></td>
+        <td className="l mk-reli-c"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span></td>
+        <td className="l mk-reli-c">{b.agency_rating ? <span className="mk-ag">{b.agency_rating}</span> : <span className="dim">—</span>}</td>
+        <td className="num strong">{b.last_price != null ? num(b.last_price, 2) + NB + "%" : "—"}</td>
+        <td className="num"><span className="mk-spread">{b.spread_bp != null ? "+" + b.spread_bp + NB + "б.п." : "—"}</span></td>
+        <td className="num strong">{b.ytm != null ? num(b.ytm, 1) + NB + "%" : "—"}</td>
+        <td className="num">{b.duration_years != null ? num(b.duration_years, 1) + NB + "г" : "—"}</td>
+        <td className="num dim">{b.maturity_date || "—"}</td>
+      </tr>
+    );
+  };
+  const renderCard = b => {
+    const rel = reliOf(b), col = RELI_COLOR[rel.k];
+    return (
+      <button key={b.secid} className="mk-card mk-card-asset" onClick={() => onOpen(b.secid)}>
+        <div className="mk-card-top"><span className="mk-mono" style={{ background: col + "22", color: col }}>{(b.short_name || b.secid).slice(0, 2)}</span><div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div></div>
+        <div className="mk-asset-big"><span className="mk-asset-bigv">{num(b.ytm, 1)}<span className="mk-cur"> %</span></span><span className="mk-asset-biglbl">YTM</span></div>
+        <div className="mk-reli"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span>{b.agency_rating && <span className="mk-ag">{b.agency_rating}</span>}{b.basis_group && <span className="mk-basis">Basis {b.basis_group}</span>}</div>
+        <div className="mk-card-stats">
+          {b.spread_bp != null && <span><i>Спред ОФЗ</i>+{b.spread_bp} б.п.</span>}
+          {b.duration_years != null && <span><i>Дюрация</i>{num(b.duration_years, 1)} г</span>}
+          {b.last_price != null && <span><i>Цена</i>{num(b.last_price, 1)}%</span>}
+        </div>
+      </button>
+    );
+  };
   return (
     <div>
-      <div className="mk-filterbar">
+      <div className="mk-callout">
+        <b>Облигация — это долг компании или государства перед вами</b>: заранее известный доход и дата возврата. Два вопроса — вернут ли деньги (надёжность) и покрывает ли доходность риск. Спред к ОФЗ — сколько вам платят сверх госбумаги за риск эмитента; дюрация — насколько цена тела дёрнется от изменения ставки ЦБ.
+      </div>
+      <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Купон" value={coupon} onChange={setCoupon} options={["Любой купон", "Фикс", "Флоатеры"]} />
         <SegGroup label="Надёжность" value={reli} onChange={setReli} options={["Любая надёжность", "Надёжные", "Средний риск", "ВДО"]} />
         <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["spread", "Спред к ОФЗ"], ["ytm", "Доходность"], ["dur", "Дюрация"]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
-      <div className="mk-grp-head" style={{ marginTop: 20 }}>Выпуски<span className="mk-grp-n">{list.length}</span></div>
-      {view === "cards" ? (
-        <div className="mk-grid">{list.map(b => {
-          const rel = reliOf(b), col = RELI_COLOR[rel.k];
-          return (
-            <button key={b.secid} className="mk-card mk-card-asset" onClick={() => onOpen(b.secid)}>
-              <div className="mk-card-top"><span className="mk-mono" style={{ background: col + "22", color: col }}>{(b.short_name || b.secid).slice(0, 2)}</span><div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div></div>
-              <div className="mk-asset-big"><span className="mk-asset-bigv">{num(b.ytm, 1)}<span className="mk-cur"> %</span></span><span className="mk-asset-biglbl">YTM</span></div>
-              <div className="mk-reli"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span>{b.agency_rating && <span className="mk-ag">{b.agency_rating}</span>}{b.basis_group && <span className="mk-basis">Basis {b.basis_group}</span>}</div>
-              <div className="mk-card-stats">
-                {b.spread_bp != null && <span><i>Спред ОФЗ</i>+{b.spread_bp} б.п.</span>}
-                {b.duration_years != null && <span><i>Дюрация</i>{num(b.duration_years, 1)} г</span>}
-                {b.last_price != null && <span><i>Цена</i>{num(b.last_price, 1)}%</span>}
+      {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Нет выпусков под фильтры.</div></div>}
+      {order.map(g => {
+        const items = by[g];
+        const shown = items.slice(0, BOND_GROUP_CAP);
+        const hidden = items.length - shown.length;
+        return (
+          <div key={g}>
+            <div className="mk-grp-head" style={{ marginTop: 16 }}>{g}<span className="mk-grp-n">{items.length}</span></div>
+            {view === "cards" ? (
+              <div className="mk-grid">{shown.map(renderCard)}</div>
+            ) : (
+              <div className="mk-tablewrap">
+                <table className="mk-table"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Цена</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Погашение</th></tr></thead>
+                  <tbody>{shown.map(renderRow)}</tbody>
+                </table>
               </div>
-            </button>
-          );
-        })}</div>
-      ) : (
-        <div className="mk-tablewrap">
-          <table className="mk-table"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Цена</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Погашение</th></tr></thead>
-            <tbody>
-              {list.map(b => {
-                const rel = reliOf(b);
-                return (
-                  <tr key={b.secid} onClick={() => onOpen(b.secid)} style={{ cursor: "pointer" }}>
-                    <td className="l"><div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div></td>
-                    <td className="l mk-reli-c"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span></td>
-                    <td className="l mk-reli-c">{b.agency_rating ? <span className="mk-ag">{b.agency_rating}</span> : <span className="dim">—</span>}</td>
-                    <td className="num strong">{b.last_price != null ? num(b.last_price, 2) + NB + "%" : "—"}</td>
-                    <td className="num"><span className="mk-spread">{b.spread_bp != null ? "+" + b.spread_bp + NB + "б.п." : "—"}</span></td>
-                    <td className="num strong">{b.ytm != null ? num(b.ytm, 1) + NB + "%" : "—"}</td>
-                    <td className="num">{b.duration_years != null ? num(b.duration_years, 1) + NB + "г" : "—"}</td>
-                    <td className="num dim">{b.maturity_date || "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {!list.length && <div className="mk-empty">Нет выпусков под фильтры.</div>}
-        </div>
-      )}
+            )}
+            {hidden > 0 && <div className="mk-empty" style={{ marginTop: 6 }}>+{hidden} ещё в категории «{g}» — уточните поиск или сортировку, чтобы сузить список.</div>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -449,19 +477,23 @@ function LevBadge({ lev }) {
 }
 function FuturesTab({ rows, query, onOpen }) {
   const [grpf, setGrpf] = useState("Все");
+  const [sort, setSort] = useState("default");
   const [view, setView] = useState("rows");
   const groupLabel = f => f.kind_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || f.asset_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
   const by = {}; filt.forEach(f => { (by[groupLabel(f)] = by[groupLabel(f)] || []).push(f); });
+  if (sort === "lev") Object.values(by).forEach(a => a.sort((x, y) => (y.leverage || 0) - (x.leverage || 0)));
+  else if (sort === "exp") Object.values(by).forEach(a => a.sort((x, y) => (x.days_to_expiry ?? 9999) - (y.days_to_expiry ?? 9999)));
   const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
   return (
     <div>
       <div className="mk-callout amber">
-        <b>Высокорисковый инструмент.</b> Фьючерс — дериватив со встроенным <b>плечом</b> (усиливает и прибыль, и убыток) и <b>датой экспирации</b>; для хеджа и спекуляции, а не «вложение». Basis показывает анатомию риска — плечо, ГО, срок, — а не торговые сигналы.
+        <b>Дериватив с плечом и датой экспирации</b> — усиливает и прибыль, и убыток; позиция не вечна. Два разных применения: <b>хедж</b> (застраховать валютный/ценовой риск уже имеющейся позиции — снижает риск портфеля) и <b>спекуляция</b> (ставка с плечом — источник риска). Basis показывает анатомию — плечо, ГО, срок, — а не торговые сигналы.
       </div>
       <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Категория" value={grpf} onChange={setGrpf} options={["Все", ...allGroups]} />
+        <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["lev", "Плечо"], ["exp", "До экспирации"]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}
@@ -513,10 +545,13 @@ function FuturesTab({ rows, query, onOpen }) {
 function FundsTab({ rows, query, onOpen, sparks }) {
   const [grpf, setGrpf] = useState("Все");
   const [view, setView] = useState("rows");
+  const [sort, setSort] = useState("default");
   const groupLabel = f => f.type_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
   const by = {}; filt.forEach(f => { (by[groupLabel(f)] = by[groupLabel(f)] || []).push(f); });
+  if (sort === "ter") Object.values(by).forEach(a => a.sort((x, y) => (x.ter ?? 999) - (y.ter ?? 999)));
+  else if (sort === "liq") Object.values(by).forEach(a => a.sort((x, y) => (y.val_today || 0) - (x.val_today || 0)));
   const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
   const chgOf = f => (sparks[f.secid] || {}).change_pct;
   return (
@@ -526,6 +561,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
       </div>
       <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Категория" value={grpf} onChange={setGrpf} options={["Все", ...allGroups]} />
+        <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["ter", "Комиссия (TER)"], ["liq", "Ликвидность"]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}

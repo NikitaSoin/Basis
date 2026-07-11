@@ -354,22 +354,46 @@ def list_bonds(
     search: str | None = Query(None, description="поиск по SECID/названию/эмитенту (добавление в портфель)"),
     db: Session = Depends(get_db),
 ):
-    """Список облигаций для раздела «Рынок» (по образцу списка акций)."""
-    q = "SELECT * FROM bonds"
+    """Список облигаций для раздела «Рынок» (по образцу списка акций). Отдаёт
+    группирующий sector (тот же приоритет, что карта рынка/Скринер: ОФЗ/
+    Муниципальные → сектор эмитента, если публичная компания → эвристика по
+    названию выпуска для непубличных, оценка) — без этого поля список из
+    ~2800+ выпусков нечем осмысленно секционировать на фронте."""
+    q = "SELECT b.*, c.sector AS company_sector FROM bonds b LEFT JOIN companies c ON c.ticker = b.issuer_ticker"
     where = []
     params = {}
     if bond_type:
-        where.append("bond_type = :t")
+        where.append("b.bond_type = :t")
         params["t"] = bond_type
     if search:
-        where.append("(secid ILIKE :s OR short_name ILIKE :s OR issuer_name ILIKE :s)")
+        where.append("(b.secid ILIKE :s OR b.short_name ILIKE :s OR b.issuer_name ILIKE :s)")
         params["s"] = f"%{search}%"
     if where:
         q += " WHERE " + " AND ".join(where)
-    q += " ORDER BY bond_type, risk_tier, ytm DESC NULLS LAST"
+    q += " ORDER BY b.bond_type, b.risk_tier, b.ytm DESC NULLS LAST"
     if search:
         q += " LIMIT 8"
-    return [_row_to_dict(r) for r in db.execute(text(q), params)]
+    out = []
+    for r in db.execute(text(q), params):
+        d = _row_to_dict(r)
+        company_sector = d.pop("company_sector", None)
+        if d.get("bond_type") == "ofz":
+            d["sector"] = "Госдолг (ОФЗ)"
+        elif d.get("bond_type") == "muni":
+            d["sector"] = "Муниципальные"
+        elif company_sector:
+            d["sector"] = company_sector
+        else:
+            guess = _issuer_type_guess(d.get("issuer_name") or d.get("short_name"))
+            is_fx = d.get("currency") and d["currency"] not in ("RUB", "SUR")
+            if not guess.startswith("Компания"):
+                d["sector"] = guess
+            elif is_fx:
+                d["sector"] = "Замещающие/валютные — прочие"
+            else:
+                d["sector"] = "Корпораты — прочие"
+        out.append(d)
+    return out
 
 
 @router.get("/bonds/{secid}")
