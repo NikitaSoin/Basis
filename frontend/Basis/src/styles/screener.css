@@ -100,7 +100,11 @@
 .sc-add{margin-top:16px;position:relative;}
 .sc-add-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;border:1px dashed var(--line-2);background:transparent;border-radius:9px;padding:10px;font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;}
 .sc-add-btn:hover{border-color:var(--accent);color:var(--accent-2);}
-.sc-add-menu{position:absolute;left:0;right:0;bottom:calc(100% + 6px);background:var(--panel);border:1px solid var(--line-2);border-radius:11px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:12px;z-index:20;max-height:300px;overflow-y:auto;}
+/* Открывается ВНИЗ (top, не bottom): кнопка «Добавить критерий» — последний
+   элемент .sc-rail-scroll, при пустом/коротком списке фильтров она у самого
+   верха скролл-контейнера — раскрытие вверх упиралось в overflow-y:auto
+   .sc-rail-scroll / overflow:hidden .sc-rail и обрезало верхнюю часть меню. */
+.sc-add-menu{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--line-2);border-radius:11px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:12px;z-index:20;max-height:300px;overflow-y:auto;}
 .sc-add-grp{margin-bottom:10px;}
 .sc-add-item{display:block;width:100%;text-align:left;border:0;background:transparent;font:inherit;font-size:13px;color:var(--ink);padding:6px 8px;border-radius:7px;cursor:pointer;}
 .sc-add-item:hover{background:var(--accent-soft);color:var(--accent-2);}
