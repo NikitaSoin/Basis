@@ -1441,7 +1441,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [digestLoading, setDigestLoading] = useState({});
   const [baro, setBaro] = useState(null);
   const [baroLoading, setBaroLoading] = useState(true);
-  const [openG, setOpenG] = useState(null);
+  const [geoHorizon, setGeoHorizon] = useState("6m"); // 6m | 18m — переключатель горизонта сценариев
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -1640,94 +1640,138 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
               {!baroLoading && !baro && (
                 <div className="obs-art-empty">Барометр пока недоступен.</div>
               )}
-              {!baroLoading && baro && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div className="obs-deep-card">
-                    <div className="obs-deep-eyebrow">Геополитический барометр · оценка Basis · срез на {baro.as_of}</div>
-                    <h3>Итоговый балл: {baro.barometer?.overall} / 5</h3>
-                    {baro.barometer?.label && <p style={{ marginBottom: 0 }}>{baro.barometer.label}</p>}
-                  </div>
+              {!baroLoading && baro && (() => {
+                const subMap = {};
+                (baro.subindices || []).forEach((s) => { subMap[s.key] = s; });
+                const horizon = geoHorizon;
+                const probs = horizon === "18m" ? baro.scenario?.probabilities_18m : baro.scenario?.probabilities_6m;
+                const GEO_SCEN_LABELS = {
+                  S1_breakthrough: "S1 · Прорыв к миру",
+                  S2_ceasefire: "S2 · Перемирие",
+                  S3_attrition: "S3 · Затяжная война",
+                  S4_escalation: "S4 · Эскалация",
+                };
+                const ladderItems = Object.entries(probs || {}).map(([k, v]) => ({
+                  key: k,
+                  label: GEO_SCEN_LABELS[k] || k,
+                  pct: obsParsePct(v),
+                }));
+                const currentMatch = String(baro.scenario?.current_lean || "").match(/S[1-4]/);
+                const currentKey = currentMatch ? ladderItems.find((it) => it.key.startsWith(currentMatch[0]))?.key : null;
 
-                  {baro.scenario && (
-                    <div>
-                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>
-                        Сценарии (6 мес.) {baro.scenario.confidence ? `· confidence ${baro.scenario.confidence}` : ""}
-                      </div>
-                      <div className="obs-scenario-row">
-                        {Object.entries(baro.scenario.probabilities_6m || {}).map(([name, p]) => (
-                          <div key={name} className="obs-scenario-card">
-                            <div className="obs-scenario-title">{name}</div>
-                            <div className="obs-scenario-prob">вероятность: {Math.round(p * 100)}%</div>
-                          </div>
-                        ))}
-                      </div>
-                      {Array.isArray(baro.scenario.triggers) && baro.scenario.triggers.length > 0 && (
-                        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 10 }}>
-                          Триггеры пересмотра: {baro.scenario.triggers.join("; ")}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <ObsBaroCaveat flags={baro.data_flags} />
 
-                  {baro.implied_market && (
-                    <div className="obs-deep-card">
-                      <div className="obs-deep-eyebrow">Имплайд-рынок · оценка Basis</div>
-                      <h3>Расхождение с рынком</h3>
-                      <p style={{ marginBottom: 0 }}>{baro.implied_market.divergence || baro.implied_market.market_pricing_lean}</p>
-                    </div>
-                  )}
+                    <ObsBaroHero
+                      eyebrow="Геополитический барометр · оценка Basis"
+                      asOf={baro.as_of}
+                      score={baro.barometer?.overall}
+                      verdict={baro.barometer?.label}
+                      polarity="higherWorse"
+                      scaleLabels={["низкий риск", "высокий риск"]}
+                      subindices={baro.subindices}
+                    />
 
-                  {Array.isArray(baro.sector_flags) && baro.sector_flags.length > 0 && (
-                    <div>
-                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>Секторные последствия</div>
-                      <div className="obs-deep-chips">
-                        {baro.sector_flags.map((s, i) => (
-                          <span key={i} className="obs-deep-chip-sector" title={s.reasoning}>
-                            {s.sector} · {s.direction}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
-                    <div>
-                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>Субиндексы (G1–G13)</div>
-                      <div className="obs-art-list">
-                        {baro.subindices.map((s) => (
-                          <div key={s.key} className="obs-art-card">
-                            <div className="obs-art-head">
-                              <b>{s.key}</b>
-                              <span className="obs-art-date">балл {s.score}/5</span>
+                    {baro.scenario && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title">
+                          <Swords size={16} />
+                          Сценарий: {baro.scenario.current_lean ? baro.scenario.current_lean.split(",")[0].trim() : "—"}
+                          {baro.scenario.confidence && <span className="obs-inst-scenario-current">confidence {baro.scenario.confidence}</span>}
+                        </div>
+                        {baro.scenario.current_lean && (
+                          <p className="obs-inst-card-sub" style={{ maxWidth: "100%" }}>{baro.scenario.current_lean}</p>
+                        )}
+                        <div className="obs-seg" style={{ marginBottom: 14 }}>
+                          <button className={`obs-seg-opt${geoHorizon === "6m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("6m")}>6 мес.</button>
+                          <button className={`obs-seg-opt${geoHorizon === "18m" ? " obs-seg-opt--on" : ""}`} onClick={() => setGeoHorizon("18m")}>18 мес.</button>
+                        </div>
+                        <ObsBaroLadder items={ladderItems} currentKey={currentKey} />
+                        {Array.isArray(baro.scenario.triggers) && baro.scenario.triggers.length > 0 && (
+                          <>
+                            <div className="obs-inst-checkpoint">
+                              <div className="obs-inst-checkpoint-label"><Info size={12} />Ближайший триггер пересмотра</div>
+                              <div className="obs-inst-checkpoint-text">{baro.scenario.triggers[0]}</div>
                             </div>
-                            <div className="obs-art-title">{s.label}</div>
-                            <button
-                              className="obs-art-toggle"
-                              onClick={() => setOpenG((k) => (k === s.key ? null : s.key))}
-                              aria-expanded={openG === s.key}
-                            >
-                              {openG === s.key ? "Свернуть ▴" : "Обоснование ▾"}
-                            </button>
-                            {openG === s.key && (
-                              <div className="obs-art-full">
-                                <p style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>
-                                {s.anchor_note && <p style={{ whiteSpace: "pre-line", color: "var(--text-tertiary)", fontSize: 13 }}>{s.anchor_note}</p>}
-                              </div>
+                            {baro.scenario.triggers.length > 1 && (
+                              <details className="obs-inst-details">
+                                <summary>Другие триггеры ({baro.scenario.triggers.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
+                                <div className="obs-inst-details-body">
+                                  {baro.scenario.triggers.slice(1).map((t, i) => <p key={i}>{t}</p>)}
+                                </div>
+                              </details>
                             )}
-                          </div>
-                        ))}
+                          </>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {baro.summary && (
-                    <div className="obs-deep-card">
-                      <div className="obs-deep-eyebrow">Резюме · оценка Basis</div>
-                      <p style={{ whiteSpace: "pre-line", marginBottom: 0 }}>{baro.summary}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                    {baro.implied_market && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><BarChart2 size={16} />Расхождение с рынком</div>
+                        {baro.implied_market.market_pricing_lean && (
+                          <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", fontStyle: "italic", marginBottom: 10 }}>{baro.implied_market.market_pricing_lean}</p>
+                        )}
+                        <p style={{ margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.implied_market.divergence}</p>
+                      </div>
+                    )}
+
+                    {Array.isArray(baro.sector_flags) && baro.sector_flags.length > 0 && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><Briefcase size={16} />Секторные последствия</div>
+                        <div className="obs-inst-list">
+                          {baro.sector_flags.map((s, i) => {
+                            const neg = /негатив/i.test(s.direction || "");
+                            const pos = /позитив/i.test(s.direction || "");
+                            return (
+                              <div key={i} className="obs-inst-row">
+                                <div className="obs-inst-row-main">
+                                  <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                    {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
+                                    {s.sector}
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {s.direction}</span>
+                                  </div>
+                                  {s.reasoning && <div className="obs-inst-row-why">{s.reasoning}</div>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><Globe size={16} />Показатели (G1–G13)</div>
+                        <div className="obs-inst-card-sub">Сгруппированы по смыслу — балл 5/5 всегда означает наибольший риск для рынка, 1/5 — наименьший.</div>
+                        <ObsBaroClusters clusters={GEO_CLUSTERS} subindexMap={subMap} polarity="higherWorse" />
+                      </div>
+                    )}
+
+                    {Array.isArray(baro.watchlist_30d) && baro.watchlist_30d.length > 0 && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><Clock size={16} />За чем следить (30 дней)</div>
+                        <div className="obs-inst-watch-group">
+                          {baro.watchlist_30d.map((w, i) => (
+                            <div key={i} className="obs-inst-watch-row">
+                              <span className="obs-inst-watch-n">{i + 1}</span>
+                              <span><b>{w.signal}</b>{w.window ? ` — ${w.window}` : ""}{w.expected_effect ? `. ${w.expected_effect}` : ""}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {baro.summary && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><FileText size={16} />Резюме · оценка Basis</div>
+                        <p style={{ whiteSpace: "pre-line", margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.summary}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </>
           )}
         </>
@@ -1747,7 +1791,6 @@ function ObsInstitutions({ token }) {
   const [digestLoading, setDigestLoading] = useState(true);
   const [baro, setBaro] = useState(null);
   const [baroLoading, setBaroLoading] = useState(true);
-  const [openKey, setOpenKey] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -1763,12 +1806,6 @@ function ObsInstitutions({ token }) {
       .catch(() => setBaro(null))
       .finally(() => setBaroLoading(false));
   }, [apiUrl]);
-
-  const SCENARIO_LABELS = {
-    "Инерция": "obs-scenario-card",
-    "Замирение": "obs-scenario-card obs-scenario-card--bull",
-    "Эскалация": "obs-scenario-card obs-scenario-card--bear",
-  };
 
   return (
     <div>
@@ -1809,87 +1846,142 @@ function ObsInstitutions({ token }) {
             <div className="obs-art-empty">Барометр пока недоступен.</div>
           )}
 
-          {!baroLoading && baro && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div className="obs-deep-card">
-                <div className="obs-deep-eyebrow">Барометр · оценка Basis · срез на {baro.as_of}</div>
-                <h3>Итоговый балл: {baro.barometer?.overall} / 5</h3>
-                {baro.barometer?.label && <p style={{ marginBottom: 0 }}>{baro.barometer.label}</p>}
-              </div>
+          {!baroLoading && baro && (() => {
+            // M13 — интегральный вектор дрейфа, не отдельный «фактор» — выносим в hero,
+            // остальные 12 группируем в смысловые кластеры.
+            const drift = (baro.subindices || []).find((s) => s.key === "M13");
+            const restSub = (baro.subindices || []).filter((s) => s.key !== "M13");
+            const subMap = {};
+            restSub.forEach((s) => { subMap[s.key] = s; });
 
-              {baro.scenario && (
-                <div>
-                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>
-                    Сценарий: {baro.scenario.current}
-                  </div>
-                  <div className="obs-scenario-row">
-                    {Object.entries(baro.scenario.probabilities || {}).map(([name, p]) => (
-                      <div key={name} className={SCENARIO_LABELS[name] || "obs-scenario-card"}>
-                        <div className="obs-scenario-title">{name}</div>
-                        <div className="obs-scenario-prob">вероятность: {Math.round(p * 100)}%</div>
+            const scenarioEntries = Object.entries(baro.scenario?.probabilities || {});
+            const ladderItems = scenarioEntries.map(([name, p]) => ({ key: name, label: name, pct: obsParsePct(p) }));
+            const alertsSorted = Array.isArray(baro.alerts)
+              ? [...baro.alerts].sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+              : [];
+
+            return (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <ObsBaroCaveat flags={baro.data_flags} />
+
+                <ObsBaroHero
+                  eyebrow="Институциональный барометр · оценка Basis"
+                  asOf={baro.as_of}
+                  score={baro.barometer?.overall}
+                  verdict={baro.barometer?.label}
+                  polarity="higherBetter"
+                  scaleLabels={["слабые институты", "сильные институты"]}
+                  subindices={restSub}
+                  extra={drift && (
+                    <div className="obs-inst-hero-drift">
+                      <div className="obs-inst-hero-drift-label"><TrendingDown size={12} />{drift.key} · {drift.label}</div>
+                      <p>{drift.rationale}</p>
+                    </div>
+                  )}
+                />
+
+                {baro.crp_floor_rationale && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><Landmark size={16} />Институциональный «пол» CRP</div>
+                    <div className="obs-inst-crp-value">
+                      {baro.institutional_crp_floor_pp}<span className="obs-inst-crp-unit">п.п. к стоимости капитала</span>
+                    </div>
+                    <details className="obs-inst-details">
+                      <summary>Как посчитан пол и от чего зависит диапазон<ChevronDown size={15} className="obs-inst-chev" /></summary>
+                      <div className="obs-inst-details-body">
+                        <p style={{ whiteSpace: "pre-line" }}>{baro.crp_floor_rationale}</p>
                       </div>
-                    ))}
+                    </details>
                   </div>
-                </div>
-              )}
+                )}
 
-              {Array.isArray(baro.alerts) && baro.alerts.length > 0 && (
-                <div>
-                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>Активные алерты</div>
-                  <div className="obs-art-list">
-                    {baro.alerts.map((al, i) => (
-                      <div key={i} className="obs-art-card">
-                        <div className="obs-art-head">
-                          {al.type && <b>{al.type}</b>}
-                          <span className="obs-art-date">{al.date}</span>
+                {baro.scenario && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title">
+                      <Gavel size={16} />
+                      Сценарий: {baro.scenario.current}
+                      <span className="obs-inst-scenario-current">текущий</span>
+                    </div>
+                    <ObsBaroLadder items={ladderItems} currentKey={baro.scenario.current} />
+                    {Array.isArray(baro.scenario.triggers_for_revision) && baro.scenario.triggers_for_revision.length > 0 && (
+                      <>
+                        <div className="obs-inst-checkpoint">
+                          <div className="obs-inst-checkpoint-label"><Info size={12} />Ближайший триггер пересмотра</div>
+                          <div className="obs-inst-checkpoint-text">{baro.scenario.triggers_for_revision[0]}</div>
                         </div>
-                        <div className="obs-art-title">{al.title}</div>
-                        {al.why_it_matters && <div className="obs-art-takeaway">{al.why_it_matters}</div>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
-                <div>
-                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>Показатели (M1–M13)</div>
-                  <div className="obs-art-list">
-                    {baro.subindices.map((s) => (
-                      <div key={s.key} className="obs-art-card">
-                        <div className="obs-art-head">
-                          <b>{s.key}</b>
-                          <span>· {s.type} ·</span>
-                          <span className="obs-art-date">балл {s.score}/5</span>
-                        </div>
-                        <div className="obs-art-title">{s.label}</div>
-                        <button
-                          className="obs-art-toggle"
-                          onClick={() => setOpenKey((k) => (k === s.key ? null : s.key))}
-                          aria-expanded={openKey === s.key}
-                        >
-                          {openKey === s.key ? "Свернуть ▴" : "Обоснование ▾"}
-                        </button>
-                        {openKey === s.key && (
-                          <div className="obs-art-full">
-                            <p style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>
-                          </div>
+                        {baro.scenario.triggers_for_revision.length > 1 && (
+                          <details className="obs-inst-details">
+                            <summary>Другие триггеры ({baro.scenario.triggers_for_revision.length - 1})<ChevronDown size={15} className="obs-inst-chev" /></summary>
+                            <div className="obs-inst-details-body">
+                              {baro.scenario.triggers_for_revision.slice(1).map((t, i) => <p key={i}>{t}</p>)}
+                            </div>
+                          </details>
                         )}
-                      </div>
-                    ))}
+                      </>
+                    )}
                   </div>
-                </div>
-              )}
+                )}
 
-              {baro.crp_floor_rationale && (
-                <div className="obs-deep-card">
-                  <div className="obs-deep-eyebrow">Институциональный «пол» CRP · оценка Basis</div>
-                  <h3>{baro.institutional_crp_floor_pp} п.п.</h3>
-                  <p style={{ whiteSpace: "pre-line", marginBottom: 0 }}>{baro.crp_floor_rationale}</p>
-                </div>
-              )}
-            </div>
-          )}
+                {restSub.length > 0 && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><Building2 size={16} />Показатели (M1–M12)</div>
+                    <div className="obs-inst-card-sub">5/5 — сильный институт (низкий риск для держателя акций), 1/5 — слабый (высокий риск).</div>
+                    <ObsBaroClusters clusters={INSTITUTIONS_CLUSTERS} subindexMap={subMap} polarity="higherBetter" />
+                  </div>
+                )}
+
+                {alertsSorted.length > 0 && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><AlertTriangle size={16} />Что нового</div>
+                    <div className="obs-inst-list">
+                      {alertsSorted.map((al, i) => (
+                        <div key={i} className="obs-inst-row">
+                          <div className="obs-inst-row-main">
+                            <div className="obs-inst-row-title">{al.title}</div>
+                            {al.why_it_matters && <div className="obs-inst-row-why">{al.why_it_matters}</div>}
+                            {(al.date || al.source) && (
+                              <div className="obs-inst-row-meta">
+                                {al.date && <span className="obs-inst-row-date">{al.date}</span>}
+                                {al.date && al.source && " · "}
+                                {al.source && <span className="obs-inst-row-source">{al.source}</span>}
+                              </div>
+                            )}
+                          </div>
+                          {al.type && (al.type === "факт"
+                            ? <span className="obs-tag-fact">факт</span>
+                            : <span className="obs-inst-tag obs-inst-tag--est">{al.type}</span>)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {Array.isArray(baro.power_map_top_conflicts) && baro.power_map_top_conflicts.length > 0 && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><Swords size={16} />Карта конфликтов элит</div>
+                    <div className="obs-inst-card-sub">Реконструкция по открытым источникам — версии, не подтверждённые факты аппаратной борьбы.</div>
+                    <div className="obs-inst-list">
+                      {baro.power_map_top_conflicts.map((c, i) => (
+                        <div key={i} className="obs-inst-row">
+                          <div className="obs-inst-row-main">
+                            <div className="obs-inst-row-title">{c.title}</div>
+                            {Array.isArray(c.parties) && (
+                              <div className="obs-inst-row-status">{c.parties.join(" vs ")}</div>
+                            )}
+                            {c.status && <div className="obs-inst-row-why">{c.status}</div>}
+                            {c.source && <div className="obs-inst-row-meta"><span className="obs-inst-row-source">{c.source}</span></div>}
+                          </div>
+                          {c.type && (c.type === "факт"
+                            ? <span className="obs-tag-fact">факт</span>
+                            : <span className="obs-inst-tag obs-inst-tag--est">{c.type}</span>)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </>
       )}
     </div>
