@@ -567,6 +567,32 @@ def debug_reset_report_watch():
         db.close()
 
 
+@router.get("/debug/report-watch-diag")
+def debug_report_watch_diag(ticker: str, event_date: str):
+    """Диагностика report_watch: показывает source/status по тикеру + живой прогон
+    _from_market_updates на этот тикер/дату (не трогая БД) — понять, была ли найдена
+    Лента новостей или упало извлечение LLM."""
+    from datetime import date as date_cls
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport
+    from app.services.report_watch import _from_market_updates, _from_skrin
+    from app.services.calendar_events import _load_inn_ticker_map
+    db = SessionLocal()
+    try:
+        ed = date_cls.fromisoformat(event_date)
+        reports = [{"period": r.period, "standard": r.standard, "status": r.status,
+                    "source": r.source, "source_url": r.source_url, "created_at": r.created_at.isoformat()}
+                   for r in db.query(EarningsReport).filter_by(ticker=ticker.upper())
+                   .order_by(EarningsReport.created_at.desc()).limit(5).all()]
+        mu = _from_market_updates(db, ticker.upper(), ed)
+        inn = next((i for i, ts in _load_inn_ticker_map().items() if ticker.upper() in ts), None)
+        sk = _from_skrin(inn, ed) if inn else None
+        return {"stored_reports": reports, "live_market_updates_text": (mu or "")[:2000],
+                "live_skrin_text": (sk or "")[:500], "inn": inn}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-sync")
 def debug_trigger_macro_sync():
     """Ручной запуск sync_cb() (ставка/прогноз ЦБ/ОНДКП-сценарии/макроопрос/
