@@ -15,8 +15,16 @@ import {
   Globe,
   Scale,
   ShieldCheck,
+  ShieldAlert,
   Sparkles,
   TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Info,
+  Gavel,
+  Coins,
+  Building2,
+  Swords,
   X,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
@@ -123,7 +131,9 @@ function ObsNewsFeed({ token, portfolioOnly, onSelectCompany }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [importance, setImportance] = useState("all");
+  // По умолчанию — только важное (жалоба владельца: «новостей много, реально
+  // важных мало, клиенту нужно быстро увидеть ценное»). «Все» — по клику.
+  const [importance, setImportance] = useState("important");
   const [topic, setTopic] = useState("all");
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -307,9 +317,18 @@ function ObsNewsCardItem({ n, unread, onSeen, onSelectCompany }) {
       {/* Body summary */}
       {n.summary && <p className="obs-news-body">{n.summary}</p>}
 
-      {/* Impact callout (↳ …) */}
+      {/* Impact callout — для «важное» подчёркнуто явной подписью "Почему это
+          важно" (жалоба владельца: важность должна быть видна, не потеряна
+          среди общего текста), для остальных — компактный префикс как раньше */}
       {hasImpact && impactText && (
-        <div className="obs-news-impact">↳ {impactText}</div>
+        high ? (
+          <div className="obs-news-impact obs-news-impact--high">
+            <div className="obs-news-impact-label">Почему это важно</div>
+            {impactText}
+          </div>
+        ) : (
+          <div className="obs-news-impact">↳ {impactText}</div>
+        )
       )}
 
       {/* Clickable ticker chips (always show, even if already in impact text) */}
@@ -979,6 +998,205 @@ function ObsDigestList({ articles, loading, emptyHint }) {
 }
 
 // =========================
+// OBS BAROMETER — общий словарь для «Геополитика» и «Институты»:
+// оба раздела — 13 субиндексов 1-5 + сценарии-вероятности + общий балл.
+// Разница только в ПОЛЯРНОСТИ (для институтов выше=лучше, для гео выше=опаснее)
+// и в наборе смысловых кластеров. Классы obs-inst-* — общий визуальный
+// словарь обеих карт барометра (историческое имя от институционального
+// барометра, переиспользуется геополитикой намеренно, чтобы оба «барометра»
+// платформы читались как одно семейство).
+// =========================
+
+// Балл → цветовой уровень с учётом полярности шкалы
+function obsScoreTier(score, polarity /* 'higherBetter' | 'higherWorse' */) {
+  const s = Number(score);
+  const norm = polarity === "higherWorse" ? 6 - s : s; // выше norm = всегда лучше
+  if (norm >= 3.75) return { tier: "good", color: "var(--success)" };
+  if (norm <= 2.5) return { tier: "bad", color: "var(--danger)" };
+  return { tier: "mid", color: "var(--warning)" };
+}
+
+// Строку/число вероятности → целый процент
+function obsParsePct(v) {
+  if (v == null) return 0;
+  if (typeof v === "number") return Math.round(v <= 1 ? v * 100 : v);
+  const m = String(v).match(/(\d+(?:[.,]\d+)?)\s*%/);
+  return m ? Math.round(parseFloat(m[1].replace(",", "."))) : 0;
+}
+
+// Общий балл → две группы субиндексов «тянут вниз» / «относительно лучше»
+function obsBaroBalance(subindices, polarity) {
+  if (!Array.isArray(subindices) || subindices.length === 0) return null;
+  const scores = subindices.map((s) => Number(s.score));
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  if (min === max) return null;
+  const lowGroup = subindices.filter((s) => Number(s.score) === min);
+  const highGroup = subindices.filter((s) => Number(s.score) === max);
+  const bad = polarity === "higherWorse" ? highGroup : lowGroup;
+  const good = polarity === "higherWorse" ? lowGroup : highGroup;
+  const badScore = polarity === "higherWorse" ? max : min;
+  const goodScore = polarity === "higherWorse" ? min : max;
+  return { bad, good, badScore, goodScore };
+}
+
+// Гейдж-шкала 1-5 под общим баллом
+function ObsBaroScale({ score, max = 5, polarity, labels }) {
+  const pct = Math.max(0, Math.min(1, (Number(score) - 1) / (max - 1)));
+  const dirClass = polarity === "higherWorse" ? "obs-baro-scale--bad-high" : "obs-baro-scale--good-high";
+  return (
+    <div>
+      <div className={`obs-baro-scale ${dirClass}`}>
+        <div className="obs-baro-scale-track" />
+        <div className="obs-baro-scale-marker" style={{ left: `${pct * 100}%` }} />
+      </div>
+      {labels && (
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-tertiary)", marginBottom: 14 }}>
+          <span>{labels[0]}</span>
+          <span>{labels[1]}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Hero-вердикт барометра: балл + шкала + текстовый вывод Basis + явный баланс
+function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, subindices, extra }) {
+  const tier = obsScoreTier(score, polarity);
+  const balance = obsBaroBalance(subindices, polarity);
+  return (
+    <div className="obs-inst-hero">
+      <div className="obs-inst-hero-top">
+        <span className="obs-inst-hero-eyebrow"><Activity size={13} /> {eyebrow}</span>
+        {asOf && <span className="obs-inst-hero-asof">срез на {asOf}</span>}
+      </div>
+      <div className="obs-inst-hero-score-row">
+        <span className="obs-inst-hero-score" style={{ color: tier.color }}>
+          {Number(score).toFixed(1)}<span className="obs-inst-hero-score-max">/5</span>
+        </span>
+      </div>
+      <ObsBaroScale score={score} polarity={polarity} labels={scaleLabels} />
+      {verdict && <p className="obs-inst-hero-verdict">{verdict}</p>}
+      {balance && (
+        <div className="obs-inst-hero-balance">
+          <div className="obs-inst-hero-balance-row obs-inst-hero-balance-row--down">
+            <TrendingDown size={14} />
+            <span><b>Тянут вниз</b> ({balance.badScore}/5): {balance.bad.map((s) => s.label).join(", ")}</span>
+          </div>
+          <div className="obs-inst-hero-balance-row obs-inst-hero-balance-row--up">
+            <TrendingUp size={14} />
+            <span><b>Относительно лучше</b> ({balance.goodScore}/5): {balance.good.map((s) => s.label).join(", ")}</span>
+          </div>
+        </div>
+      )}
+      {extra}
+    </div>
+  );
+}
+
+// Вероятностная лесенка сценариев (сортировка по убыванию, текущий — подсвечен)
+function ObsBaroLadder({ items, currentKey }) {
+  const sorted = [...items].sort((a, b) => b.pct - a.pct);
+  return (
+    <div className="obs-inst-ladder">
+      {sorted.map((it) => (
+        <div key={it.key} className={`obs-inst-ladder-row${it.key === currentKey ? " obs-inst-ladder-row--current" : ""}`}>
+          <span className="obs-inst-ladder-name">{it.label}</span>
+          <span className="obs-inst-ladder-bar-track">
+            <span className="obs-inst-ladder-bar-fill" style={{ width: `${it.pct}%` }} />
+          </span>
+          <span className="obs-inst-ladder-pct">{it.pct}%</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// 13 субиндексов, сгруппированных в смысловые кластеры-аккордеоны (native <details>)
+function ObsBaroClusters({ clusters, subindexMap, polarity }) {
+  return (
+    <div className="obs-inst-clusters">
+      {clusters.map((cl) => {
+        const items = cl.keys.map((k) => subindexMap[k]).filter(Boolean);
+        if (items.length === 0) return null;
+        const avg = items.reduce((a, s) => a + Number(s.score || 0), 0) / items.length;
+        const avgTier = obsScoreTier(avg, polarity);
+        const Icon = cl.icon;
+        return (
+          <details key={cl.name} className="obs-inst-cluster">
+            <summary className="obs-inst-cluster-head">
+              <Icon size={15} className="obs-inst-cluster-icon" />
+              <span className="obs-inst-cluster-name">{cl.name}</span>
+              <span className="obs-inst-segbar">
+                {items.map((s) => (
+                  <i key={s.key} className="on" style={{ "--sc": obsScoreTier(s.score, polarity).color }} title={`${s.key}: ${s.score}/5`} />
+                ))}
+              </span>
+              <span className="obs-inst-cluster-avg" style={{ color: avgTier.color }}>
+                {avg.toFixed(1)}<span className="obs-inst-cluster-avg-max">/5</span>
+              </span>
+              <ChevronDown size={15} className="obs-inst-chev" />
+            </summary>
+            <div className="obs-inst-cluster-body">
+              {items.map((s) => {
+                const sTier = obsScoreTier(s.score, polarity);
+                return (
+                  <div key={s.key} className="obs-inst-sub">
+                    <div className="obs-inst-sub-head">
+                      <span className="obs-inst-sub-key">{s.key}</span>
+                      <span className="obs-inst-sub-label">{s.label}</span>
+                      {s.type === "факт"
+                        ? <span className="obs-tag-fact">факт</span>
+                        : <span className="obs-inst-tag obs-inst-tag--est">оценка</span>}
+                      <span className="obs-inst-sub-score" style={{ color: sTier.color }}>
+                        {s.score}<span className="obs-inst-sub-score-max">/5</span>
+                      </span>
+                    </div>
+                    {s.rationale && <p className="obs-inst-sub-rationale" style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>}
+                    {s.anchor_note && <p className="obs-inst-sub-rationale" style={{ color: "var(--text-tertiary)", fontStyle: "italic" }}>{s.anchor_note}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        );
+      })}
+    </div>
+  );
+}
+
+// Методологические оговорки — ПЕРЕД hero (снижают тревогу до пугающих цифр, не после)
+function ObsBaroCaveat({ flags }) {
+  if (!Array.isArray(flags) || flags.length === 0) return null;
+  return (
+    <details className="obs-inst-details" style={{ marginTop: 0 }}>
+      <summary>
+        <AlertTriangle size={14} style={{ color: "var(--warning)", flexShrink: 0 }} />
+        Методологические оговорки ({flags.length}) — экспертные оценки Basis, не официальная статистика
+        <ChevronDown size={15} className="obs-inst-chev" />
+      </summary>
+      <div className="obs-inst-details-body">
+        {flags.map((f, i) => <p key={i}>{f}</p>)}
+      </div>
+    </details>
+  );
+}
+
+const INSTITUTIONS_CLUSTERS = [
+  { name: "Власть и право", icon: Gavel, keys: ["M1", "M2", "M4"] },
+  { name: "Экономика и бюджет", icon: Coins, keys: ["M3", "M6", "M8", "M12"] },
+  { name: "Государство и рынок", icon: Building2, keys: ["M7", "M9", "M10"] },
+  { name: "Внешний контур и риски", icon: ShieldAlert, keys: ["M5", "M11"] },
+];
+
+const GEO_CLUSTERS = [
+  { name: "Конфликт и урегулирование", icon: Swords, keys: ["G1", "G2"] },
+  { name: "Санкции и контур капитала", icon: ShieldAlert, keys: ["G3", "G4", "G7", "G8"] },
+  { name: "Военная экономика и торговля", icon: Coins, keys: ["G5", "G6", "G12"] },
+  { name: "Геополитические оси", icon: Globe, keys: ["G9", "G10", "G11", "G13"] },
+];
+
+// =========================
 // OBS MACRO ARTICLES — Обозреватель · Разбор · Макроэкономика
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
 //              Оценка ситуации (deep-card из /macro/interpretation).
@@ -1033,12 +1251,13 @@ function ObsMacroArticles({ token }) {
     srcFilter === "all" || d.source === srcFilter
   );
 
-  // Секции интерпретации (порядок из прототипа)
+  // Секции интерпретации (порядок из прототипа). current_picture — «сигнал»
+  // (крупная serif-подача, читается первым), остальные — «доказательство»
+  // (структурированные карточки с иконкой раздела).
   const INTERP_SECTIONS = [
-    { key: "current_picture", label: "Текущая картина" },
-    { key: "rate_outlook", label: "Ставка: ближайшее решение и траектория" },
-    { key: "cb_forecast_view", label: "Прогноз ЦБ: оценка вероятности" },
-    { key: "market_sectors", label: "Рынок и сектора" },
+    { key: "rate_outlook", label: "Ставка: ближайшее решение и траектория", icon: Landmark },
+    { key: "cb_forecast_view", label: "Прогноз ЦБ: оценка вероятности", icon: Sparkles },
+    { key: "market_sectors", label: "Рынок и сектора", icon: BarChart2 },
   ];
 
   const interpSections = interp?.sections || null;
@@ -1134,82 +1353,66 @@ function ObsMacroArticles({ token }) {
           {!interpLoading && interpSections && (
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {interp.generated_at && (
-                <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
+                <div className="obs-inst-hero-eyebrow" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <Clock size={13} />
                   Срез на {new Date(interp.generated_at).toLocaleString("ru-RU")}
                   {interp.model_used ? ` · ${interp.model_used}` : ""}
-                  {" · Это оценка Basis, не факт и не рекомендация."}
+                  {" · оценка Basis, не факт и не рекомендация"}
                 </div>
               )}
 
-              {/* Текстовые секции (кроме scenarios) */}
-              {INTERP_SECTIONS.map(({ key, label }) =>
+              {/* СИГНАЛ: текущая картина — крупная serif-подача, читается первой */}
+              {interpSections.current_picture && (
+                <div className="obs-macro-card obs-macro-lede-card">
+                  <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Текущая картина · главный вывод Basis</div>
+                  <p className="obs-macro-lede">{interpSections.current_picture}</p>
+                </div>
+              )}
+
+              {/* ДОКАЗАТЕЛЬСТВО: разбор по темам */}
+              {INTERP_SECTIONS.map(({ key, label, icon: Icon }) =>
                 interpSections[key] ? (
-                  <div key={key} className="obs-deep-card">
-                    <div className="obs-deep-eyebrow">{label} · суждение Basis</div>
-                    <h3>{label}</h3>
-                    <p style={{ whiteSpace: "pre-line" }}>{interpSections[key]}</p>
+                  <div key={key} className="obs-macro-card">
+                    <div className="obs-macro-eyebrow"><Icon size={12} style={{ marginRight: 5, verticalAlign: -2 }} />{label} · суждение Basis</div>
+                    <p style={{ whiteSpace: "pre-line", color: "var(--text-secondary)", fontSize: 13.5, lineHeight: 1.7 }}>{interpSections[key]}</p>
                   </div>
                 ) : null
               )}
 
-              {/* Сценарии base/bull/bear */}
+              {/* ДЕЙСТВИЕ: сценарии base/bull/bear */}
               {scenarios && (
                 <div>
                   <div className="obs-synth-head" style={{ marginBottom: 14 }}>Сценарии</div>
                   <div className="obs-scenario-row">
-                    {/* Base */}
-                    {scenarios.base && (
-                      <div className="obs-scenario-card">
-                        <div className="obs-scenario-title">Базовый</div>
-                        {scenarios.base.probability && (
-                          <div className="obs-scenario-prob">вероятность: {scenarios.base.probability}</div>
-                        )}
-                        {scenarios.base.key_numbers && (
-                          <div className="obs-scenario-num">{scenarios.base.key_numbers}</div>
-                        )}
-                        {scenarios.base.triggers && (
-                          <div className="obs-scenario-trig">
-                            <b>Триггеры</b>
-                            {scenarios.base.triggers}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* Bull */}
-                    {scenarios.bull && (
-                      <div className="obs-scenario-card obs-scenario-card--bull">
-                        <div className="obs-scenario-title">Бычий</div>
-                        {scenarios.bull.probability && (
-                          <div className="obs-scenario-prob">вероятность: {scenarios.bull.probability}</div>
-                        )}
-                        {scenarios.bull.key_numbers && (
-                          <div className="obs-scenario-num">{scenarios.bull.key_numbers}</div>
-                        )}
-                        {scenarios.bull.triggers && (
-                          <div className="obs-scenario-trig">
-                            <b>Триггеры</b>
-                            {scenarios.bull.triggers}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* Bear */}
-                    {scenarios.bear && (
-                      <div className="obs-scenario-card obs-scenario-card--bear">
-                        <div className="obs-scenario-title">Медвежий</div>
-                        {scenarios.bear.probability && (
-                          <div className="obs-scenario-prob">вероятность: {scenarios.bear.probability}</div>
-                        )}
-                        {scenarios.bear.key_numbers && (
-                          <div className="obs-scenario-num">{scenarios.bear.key_numbers}</div>
-                        )}
-                        {scenarios.bear.triggers && (
-                          <div className="obs-scenario-trig">
-                            <b>Триггеры</b>
-                            {scenarios.bear.triggers}
-                          </div>
-                        )}
-                      </div>
+                    {[
+                      { key: "base", data: scenarios.base, title: "Базовый", cls: "" },
+                      { key: "bull", data: scenarios.bull, title: "Бычий", cls: " obs-scenario-card--bull" },
+                      { key: "bear", data: scenarios.bear, title: "Медвежий", cls: " obs-scenario-card--bear" },
+                    ].map(({ key, data, title, cls }) =>
+                      data ? (
+                        <div key={key} className={`obs-scenario-card${cls}`}>
+                          <div className="obs-scenario-title">{title}</div>
+                          {data.probability && (
+                            <>
+                              <div className="obs-scenario-prob">вероятность: {data.probability}</div>
+                              {obsParsePct(data.probability) > 0 && (
+                                <div className="obs-scenario-probbar">
+                                  <div className="obs-scenario-probbar-fill" style={{ width: `${obsParsePct(data.probability)}%` }} />
+                                </div>
+                              )}
+                            </>
+                          )}
+                          {data.key_numbers && (
+                            <div className="obs-scenario-num">{data.key_numbers}</div>
+                          )}
+                          {data.triggers && (
+                            <div className="obs-scenario-trig">
+                              <b>Триггеры</b>
+                              {data.triggers}
+                            </div>
+                          )}
+                        </div>
+                      ) : null
                     )}
                   </div>
                 </div>
@@ -1327,8 +1530,11 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
         и что это значит для российского рынка.
       </p>
 
-      {/* Фильтр регионов */}
-      {regions.length > 0 && (
+      {/* Фильтр регионов — относится ТОЛЬКО к «Обзору» (лента фактов по региону).
+          Барометр «Оценка ситуации» — единый показатель на весь рынок, регион-независимый;
+          поэтому чипы скрыты в этом режиме (см. пояснение ниже), чтобы не создавать
+          ложное впечатление, будто барометр можно фильтровать по региону. */}
+      {mode === "overview" && regions.length > 0 && (
         <div className="obs-filterbar">
           {regions.map((r) => {
             const b = regionMap.get(r);
@@ -1361,6 +1567,13 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
           Оценка ситуации
         </button>
       </div>
+
+      {mode === "assessment" && (
+        <div className="obs-baro-note">
+          <Info size={14} />
+          <span>Барометр ниже — <b>единый показатель для российского рынка в целом</b>, не разбит по регионам (СВО / Ближний Восток / АТР — это оси одного барометра, G9–G11). Фильтр по региону выше относится только к ленте фактов на вкладке «Обзор».</span>
+        </div>
+      )}
 
       {loading && (
         <div className="obs-news-loading">Загрузка геополитики…</div>
