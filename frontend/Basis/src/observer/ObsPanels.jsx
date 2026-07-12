@@ -1294,15 +1294,6 @@ function ObsMacroArticles({ token }) {
     srcFilter === "all" || d.source === srcFilter
   );
 
-  // Секции интерпретации (порядок из прототипа). current_picture — «сигнал»
-  // (крупная serif-подача, читается первым), остальные — «доказательство»
-  // (структурированные карточки с иконкой раздела).
-  const INTERP_SECTIONS = [
-    { key: "rate_outlook", label: "Ставка: ближайшее решение и траектория", icon: Landmark },
-    { key: "cb_forecast_view", label: "Прогноз ЦБ: оценка вероятности", icon: Sparkles },
-    { key: "market_sectors", label: "Рынок и сектора", icon: BarChart2 },
-  ];
-
   const interpSections = interp?.sections || null;
   const scenarios = interpSections?.scenarios;
 
@@ -1436,15 +1427,15 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
-              {/* СИГНАЛ, строка 2: текущая картина — крупная serif-подача, суждение Basis */}
-              {interpSections.current_picture && (
+              {/* СИГНАЛ, строка 2: headline — одно предложение-вердикт, не абзац */}
+              {interpSections.headline && (
                 <div className="obs-macro-card obs-macro-lede-card">
-                  <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Текущая картина · главный вывод Basis</div>
-                  <p className="obs-macro-lede">{interpSections.current_picture}</p>
+                  <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Главный вывод · суждение Basis</div>
+                  <p className="obs-macro-lede">{interpSections.headline}</p>
                 </div>
               )}
 
-              {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ, ДО текстовой интерпретации */}
+              {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ */}
               {macroTiles.length > 0 && (
                 <div className="obs-grid8" role="list" aria-label="Ключевые макропоказатели">
                   {macroTiles.map((t) => (
@@ -1457,24 +1448,62 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
-              {/* ДОКАЗАТЕЛЬСТВО, шаг 2: prose-разбор по темам — свёрнут по умолчанию, короче на первый взгляд */}
-              {INTERP_SECTIONS.some(({ key }) => interpSections[key]) && (
-                <details className="obs-macro-evidence">
-                  <summary>
-                    Подробный разбор: ставка, прогноз ЦБ, рынок и сектора
-                    <ChevronDown size={15} className="obs-inst-chev" />
-                  </summary>
-                  <div className="obs-macro-evidence-body">
-                    {INTERP_SECTIONS.map(({ key, label, icon: Icon }) =>
-                      interpSections[key] ? (
-                        <div key={key} className="obs-macro-card">
-                          <div className="obs-macro-eyebrow"><Icon size={12} style={{ marginRight: 5, verticalAlign: -2 }} />{label} · суждение Basis</div>
-                          <p style={{ whiteSpace: "pre-line", color: "var(--text-secondary)", fontSize: 13.5, lineHeight: 1.7 }}>{interpSections[key]}</p>
+              {/* ДОКАЗАТЕЛЬСТВО, шаг 2: тезисы — атомарные точки, ВИДИМЫ по умолчанию (не в details:
+                  простыня была не в упаковке, а в связной прозе; список даёт 4-6 точек приземления) */}
+              {Array.isArray(interpSections.theses) && interpSections.theses.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><Sparkles size={16} />По пунктам</div>
+                  <div className="obs-inst-list">
+                    {interpSections.theses.map((t, i) => (
+                      <div key={i} className="obs-inst-row">
+                        <div className="obs-inst-row-main">
+                          <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            {t.topic}
+                            <span className={t.tag === "факт" ? "obs-tag-fact" : "obs-tag-judgment"}>{t.tag || "оценка"}</span>
+                          </div>
+                          {t.claim && <div style={{ fontWeight: 600, fontSize: 13.5, marginTop: 2 }}>{t.claim}</div>}
+                          {t.detail && <div className="obs-inst-row-why">{t.detail}</div>}
                         </div>
-                      ) : null
-                    )}
+                      </div>
+                    ))}
                   </div>
-                </details>
+                </div>
+              )}
+
+              {/* ДОКАЗАТЕЛЬСТВО, шаг 3: сектора — попутный/встречный ветер, тот же визуальный
+                  словарь, что и sector_flags в геополитике (единое семейство барометров) */}
+              {Array.isArray(interpSections.sectors) && interpSections.sectors.length > 0 && (
+                <div className="obs-inst-card">
+                  <div className="obs-inst-card-title"><BarChart2 size={16} />Рынок и сектора</div>
+                  <div className="obs-inst-list">
+                    {interpSections.sectors.map((s, i) => {
+                      const neg = /встречный/i.test(s.wind || "");
+                      const pos = /попутный/i.test(s.wind || "");
+                      return (
+                        <div key={i} className="obs-inst-row">
+                          <div className="obs-inst-row-main">
+                            <div className="obs-inst-row-title" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              {neg ? <TrendingDown size={14} style={{ color: "var(--danger)" }} /> : pos ? <TrendingUp size={14} style={{ color: "var(--success)" }} /> : null}
+                              {s.sector}
+                              <span style={{ fontSize: 11, fontWeight: 700, color: neg ? "var(--danger)" : pos ? "var(--success)" : "var(--text-tertiary)", textTransform: "uppercase" }}>· {s.wind}</span>
+                            </div>
+                            {s.channel && <div className="obs-inst-row-why">{s.channel}</div>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ДЕЙСТВИЕ, шаг 0: на что смотреть дальше */}
+              {Array.isArray(interpSections.watch) && interpSections.watch.length > 0 && (
+                <div className="obs-inst-checkpoint">
+                  <div className="obs-inst-checkpoint-label"><Info size={12} />На что смотреть дальше</div>
+                  {interpSections.watch.map((w, i) => (
+                    <div key={i} className="obs-inst-checkpoint-text">{w}</div>
+                  ))}
+                </div>
               )}
 
               {/* ДЕЙСТВИЕ: сценарии base/bull/bear */}
