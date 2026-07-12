@@ -5,6 +5,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card } from "../design/primitives";
 import { CompanyLogo } from "../design/CompanyLogo";
+import { ObsLineChart } from "../observer/ObsPanels";
 import {
   METRICS as STOCK_METRICS,
   GROUPS as STOCK_METRIC_GROUPS,
@@ -12,6 +13,126 @@ import {
   fmtMetric as fmtStockMetric,
   FAIR_VALUE_HINT,
 } from "../screener/ScreenerNeo";
+
+// Период графика цены — тот же паттерн (id/label/days) и тот же визуальный
+// язык кнопок, что PRICE_CHART_PERIODS в company/CompanyCardView.jsx (карточка
+// компании), НЕ изобретён заново.
+const CMP_PRICE_PERIODS = [
+  { id: "1m", label: "1М", days: 30 },
+  { id: "3m", label: "3М", days: 90 },
+  { id: "6m", label: "6М", days: 180 },
+  { id: "1y", label: "1Г", days: 365 },
+  { id: "3y", label: "3Г", days: 1095 },
+  { id: "all", label: "Всё", days: 4000 },
+];
+
+// Переключатель период/режим — идентичные tw-классы кнопкам периода в
+// company/CompanyCardView.jsx:88-101 (единый визуальный язык фильтров сайта,
+// не Chip и не что-то новое).
+function CmpPillButton({ active, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`tw-px-2.5 tw-py-1 tw-rounded-sm tw-text-[12px] tw-font-medium tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
+        active
+          ? "tw-bg-accent tw-text-white tw-border-accent"
+          : "tw-bg-transparent tw-text-text-secondary tw-border-border-subtle hover:tw-border-border-strong"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Простой self-contained столбчатый график (группировка по годам, одна группа
+// столбцов на год, один столбец на компанию) — для годовой метрики иногда
+// читается яснее непрерывной линии между редкими точками (7-10 лет). Hover —
+// тот же визуальный язык тултипа, что ObsLineChart (.obs-chart-tooltip).
+function CompareBarChart({ series, viewW = 1000, viewH = 260, unit = "" }) {
+  const [hoverI, setHoverI] = useState(null);
+  const svgRef = useRef(null);
+  const pad = { top: 12, right: 12, bottom: 26, left: 48 };
+  const years = Array.from(new Set(series.flatMap((s) => s.points.map((p) => p.as_of)))).sort();
+  const n = years.length;
+  if (n < 1) return null;
+  const vals = series.flatMap((s) => s.points.map((p) => p.value)).filter((v) => v != null);
+  let vmin = Math.min(...vals, 0), vmax = Math.max(...vals, 0);
+  if (vmin === vmax) { vmin -= 1; vmax += 1; }
+  const rpad = (vmax - vmin) * 0.1 || 1; vmin -= rpad; vmax += rpad;
+  const plotW = viewW - pad.left - pad.right, plotH = viewH - pad.top - pad.bottom;
+  const groupW = plotW / n;
+  const barGap = 3;
+  const barW = Math.max(3, (groupW - barGap * (series.length + 1)) / series.length);
+  const y = (v) => pad.top + (1 - (v - vmin) / (vmax - vmin)) * plotH;
+  const zeroY = y(0);
+
+  const onMove = (e) => {
+    const el = svgRef.current; if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const px = ((cx - rect.left) / rect.width) * viewW;
+    let i = Math.floor((px - pad.left) / groupW);
+    setHoverI(Math.max(0, Math.min(n - 1, i)));
+  };
+
+  const hoverX = hoverI != null ? pad.left + hoverI * groupW + groupW / 2 : 0;
+  const tipPct = hoverI != null ? (hoverX / viewW) * 100 : 0;
+  const tipRight = tipPct > 55;
+
+  return (
+    <div style={{ position: "relative" }}>
+      {hoverI != null && (
+        <div className="obs-chart-tooltip" style={{ left: tipRight ? undefined : `${tipPct}%`, right: tipRight ? `${100 - tipPct}%` : undefined, top: "8px" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)", marginBottom: "6px" }}>{years[hoverI]}</div>
+          {series.map((s, k) => {
+            const v = s.points.find((p) => p.as_of === years[hoverI])?.value;
+            return (
+              <div key={k} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12.5px", marginTop: "3px" }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: s.color, display: "inline-block", flexShrink: 0 }} />
+                <span style={{ color: "var(--text-secondary)" }}>{s.name}</span>
+                <b style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>{v == null ? "—" : v.toFixed(1)}{unit}</b>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${viewW} ${viewH}`}
+        style={{ width: "100%", height: "auto", cursor: "crosshair", display: "block", touchAction: "none" }}
+        onPointerMove={onMove}
+        onPointerLeave={() => setHoverI(null)}
+        role="img"
+        aria-label="Метрика по годам"
+      >
+        {[vmin, vmin + (vmax - vmin) / 2, vmax].map((t, i) => (
+          <g key={i}>
+            <line x1={pad.left} x2={viewW - pad.right} y1={y(t)} y2={y(t)} stroke="var(--border-subtle)" strokeWidth="1" />
+            <text x={pad.left - 8} y={y(t) + 4} textAnchor="end" fontSize="10" fill="var(--text-tertiary)" fontFamily="var(--font-mono)">{t.toFixed(0)}{unit}</text>
+          </g>
+        ))}
+        {vmin < 0 && vmax > 0 && <line x1={pad.left} x2={viewW - pad.right} y1={zeroY} y2={zeroY} stroke="var(--text-tertiary)" strokeWidth="1" />}
+        {years.map((yr, i) => (
+          <text key={yr} x={pad.left + i * groupW + groupW / 2} y={viewH - 6} textAnchor="middle" fontSize="10" fill="var(--text-tertiary)" fontFamily="var(--font-mono)">{yr}</text>
+        ))}
+        {hoverI != null && (
+          <rect x={pad.left + hoverI * groupW} y={pad.top} width={groupW} height={plotH} fill="var(--bg-hover)" opacity="0.5" />
+        )}
+        {years.map((yr, gi) =>
+          series.map((s, si) => {
+            const v = s.points.find((p) => p.as_of === yr)?.value;
+            if (v == null) return null;
+            const bx = pad.left + gi * groupW + barGap + si * (barW + barGap);
+            const barY = Math.min(y(v), zeroY), barH = Math.abs(y(v) - zeroY);
+            return <rect key={`${gi}-${si}`} x={bx} y={barY} width={barW} height={Math.max(1, barH)} fill={s.color} rx="1.5" />;
+          })
+        )}
+      </svg>
+    </div>
+  );
+}
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -59,56 +180,6 @@ function CompareSearchAdd({ pool, selected, onAdd, disabled }) {
         </div>
       )}
     </div>
-  );
-}
-
-// Компактный self-contained мультисерийный линейный график (замена утраченного
-// ObsLineChart) — только то, что нужно для нормализованной динамики цены.
-function CompareLineChart({ series, viewW = 1000, viewH = 280, unit = "%", xLabel }) {
-  const pad = { top: 12, right: 12, bottom: 26, left: 44 };
-  const allPoints = series.flatMap((s) => s.points.filter((p) => p.value != null));
-  if (!allPoints.length) return null;
-  const dates = Array.from(new Set(series.flatMap((s) => s.points.map((p) => p.as_of)))).sort();
-  const vals = allPoints.map((p) => p.value);
-  let min = Math.min(...vals, 0), max = Math.max(...vals, 0);
-  if (min === max) { min -= 1; max += 1; }
-  const spanY = max - min;
-  const spanX = Math.max(1, dates.length - 1);
-  const xIdx = new Map(dates.map((d, i) => [d, i]));
-  const x = (i) => pad.left + (i / spanX) * (viewW - pad.left - pad.right);
-  const y = (v) => pad.top + (1 - (v - min) / spanY) * (viewH - pad.top - pad.bottom);
-  const zeroY = y(0);
-  const yTicks = [min, min + spanY / 2, max];
-  // Подписи по X — если точек мало (годовой график), показываем все; если
-  // много (дневная цена), берём ~6 равномерных, иначе подписи слипаются.
-  const xTickStep = Math.max(1, Math.ceil(dates.length / 6));
-  const xTicks = dates.filter((_, i) => i % xTickStep === 0 || i === dates.length - 1);
-  const fmtX = xLabel || ((d) => d);
-  return (
-    <svg width="100%" viewBox={`0 0 ${viewW} ${viewH}`} role="img" aria-label="Динамика">
-      {yTicks.map((t, i) => (
-        <g key={i}>
-          <line x1={pad.left} x2={viewW - pad.right} y1={y(t)} y2={y(t)} stroke="var(--border-subtle)" strokeWidth="1" />
-          <text x={pad.left - 8} y={y(t) + 4} textAnchor="end" fontSize="10" fill="var(--text-tertiary)" fontFamily="var(--font-mono)">
-            {t.toFixed(0)}{unit}
-          </text>
-        </g>
-      ))}
-      {xTicks.map((d, i) => (
-        <text key={i} x={x(xIdx.get(d))} y={viewH - 6} textAnchor="middle" fontSize="10" fill="var(--text-tertiary)" fontFamily="var(--font-mono)">
-          {fmtX(d)}
-        </text>
-      ))}
-      {min < 0 && max > 0 && (
-        <line x1={pad.left} x2={viewW - pad.right} y1={zeroY} y2={zeroY} stroke="var(--text-tertiary)" strokeWidth="1" strokeDasharray="3,3" />
-      )}
-      {series.map((s) => {
-        const pts = s.points.filter((p) => p.value != null && xIdx.has(p.as_of));
-        if (pts.length < 2) return null;
-        const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(xIdx.get(p.as_of)).toFixed(1)},${y(p.value).toFixed(1)}`).join(" ");
-        return <path key={s.name} d={d} fill="none" stroke={s.color} strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" />;
-      })}
-    </svg>
   );
 }
 
@@ -228,6 +299,9 @@ export default function CompareView({ onOpenCompany }) {
   const [finData, setFinData] = useState({});
   const [finLoading, setFinLoading] = useState(false);
   const [yearlyMetric, setYearlyMetric] = useState("revenue_growth");
+  const [yearlyChartType, setYearlyChartType] = useState("bar");
+  const [pricePeriod, setPricePeriod] = useState("1y");
+  const [priceMode, setPriceMode] = useState("rel"); // rel = %, abs = ₽
 
   useEffect(() => {
     fetch(`${apiUrl}/api/screener/scored?universe=all`)
@@ -258,9 +332,10 @@ export default function CompareView({ onOpenCompany }) {
     if (!items.length) { setPriceData({}); return; }
     setPriceLoading(true);
     let alive = true;
+    const days = (CMP_PRICE_PERIODS.find((p) => p.id === pricePeriod) || CMP_PRICE_PERIODS[3]).days;
     Promise.all(
       items.map((it) =>
-        fetch(`${apiUrl}/api/companies/by-ticker/${it.ticker}/quotes/history?days=365`)
+        fetch(`${apiUrl}/api/companies/by-ticker/${it.ticker}/quotes/history?days=${days}`)
           .then((r) => (r.ok ? r.json() : null))
           .catch(() => null)
       )
@@ -276,7 +351,7 @@ export default function CompareView({ onOpenCompany }) {
     // асинхронно ПОСЛЕ монтирования) — без этого эффект успевал отработать
     // и выйти по пустому items ДО того, как rows вообще подгрузился, и
     // повторно уже не срабатывал (график цены не подтягивался).
-  }, [tickersKey, apiUrl, rows]); // eslint-disable-line
+  }, [tickersKey, apiUrl, rows, pricePeriod]); // eslint-disable-line
 
   useEffect(() => {
     if (!items.length) { setFinData({}); return; }
@@ -329,10 +404,13 @@ export default function CompareView({ onOpenCompany }) {
           return {
             name: it.ticker,
             color: CMP_CAT_COLORS[i % CMP_CAT_COLORS.length],
-            points: pts.map((p) => ({ as_of: p.date, value: base ? (p.close / base - 1) * 100 : null })),
+            points: pts.map((p) => ({
+              as_of: p.date,
+              value: priceMode === "abs" ? p.close : base ? (p.close / base - 1) * 100 : null,
+            })),
           };
         }),
-    [items, priceData]
+    [items, priceData, priceMode]
   );
 
   if (loading) {
@@ -374,7 +452,18 @@ export default function CompareView({ onOpenCompany }) {
             })}
           </div>
 
-          <Card header="Динамика цены за год (нормализовано к 0%)" style={{ marginTop: 20 }}>
+          <Card header="Динамика цены" style={{ marginTop: 20 }}>
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
+              <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
+                {CMP_PRICE_PERIODS.map((p) => (
+                  <CmpPillButton key={p.id} active={pricePeriod === p.id} onClick={() => setPricePeriod(p.id)}>{p.label}</CmpPillButton>
+                ))}
+              </div>
+              <div className="tw-flex tw-gap-1" role="group" aria-label="В рублях или нормализовано">
+                <CmpPillButton active={priceMode === "rel"} onClick={() => setPriceMode("rel")}>% от начала периода</CmpPillButton>
+                <CmpPillButton active={priceMode === "abs"} onClick={() => setPriceMode("abs")}>В рублях</CmpPillButton>
+              </div>
+            </div>
             {priceLoading ? (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Загружаем историю цен...</div>
             ) : priceSeries.length ? (
@@ -387,13 +476,12 @@ export default function CompareView({ onOpenCompany }) {
                     </span>
                   ))}
                 </div>
-                <CompareLineChart
-                  series={priceSeries}
-                  viewW={1000}
-                  viewH={280}
-                  unit="%"
-                  xLabel={(d) => { const [, m, day] = d.split("-"); return `${day}.${m}`; }}
-                />
+                <ObsLineChart series={priceSeries} viewW={1000} viewH={280} unit={priceMode === "abs" ? "₽" : "%"} />
+                {priceMode === "abs" && (
+                  <p className="tw-text-[11px] tw-text-text-tertiary tw-mt-2">
+                    В рублях бумаги с сильно разной ценой акции визуально сжимаются к одной линии — для сравнения темпа роста удобнее «% от начала периода».
+                  </p>
+                )}
               </>
             ) : (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных истории цены.</div>
@@ -401,21 +489,27 @@ export default function CompareView({ onOpenCompany }) {
           </Card>
 
           <Card header="Метрика по годам (из отчётности)" style={{ marginTop: 20 }}>
-            <div className="tw-flex tw-flex-wrap tw-gap-1.5 tw-mb-3">
-              {CMP_YEARLY_METRICS.map((m) => (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => setYearlyMetric(m.key)}
-                  className={`tw-px-2.5 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${
-                    yearlyMetric === m.key
-                      ? "tw-border-accent tw-bg-accent-soft tw-text-accent"
-                      : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
+            <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
+              <div className="tw-flex tw-flex-wrap tw-gap-1.5">
+                {CMP_YEARLY_METRICS.map((m) => (
+                  <button
+                    key={m.key}
+                    type="button"
+                    onClick={() => setYearlyMetric(m.key)}
+                    className={`tw-px-2.5 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${
+                      yearlyMetric === m.key
+                        ? "tw-border-accent tw-bg-accent-soft tw-text-accent"
+                        : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <div className="tw-flex tw-gap-1" role="group" aria-label="Тип графика">
+                <CmpPillButton active={yearlyChartType === "bar"} onClick={() => setYearlyChartType("bar")}>Столбцы</CmpPillButton>
+                <CmpPillButton active={yearlyChartType === "line"} onClick={() => setYearlyChartType("line")}>Линия</CmpPillButton>
+              </div>
             </div>
             {finLoading ? (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Загружаем отчётность...</div>
@@ -429,7 +523,11 @@ export default function CompareView({ onOpenCompany }) {
                     </span>
                   ))}
                 </div>
-                <CompareLineChart series={yearlySeries} viewW={1000} viewH={260} unit={CMP_YEARLY_METRICS.find((m) => m.key === yearlyMetric)?.unit || ""} />
+                {yearlyChartType === "bar" ? (
+                  <CompareBarChart series={yearlySeries} viewW={1000} viewH={260} unit={CMP_YEARLY_METRICS.find((m) => m.key === yearlyMetric)?.unit || ""} />
+                ) : (
+                  <ObsLineChart series={yearlySeries} viewW={1000} viewH={260} unit={CMP_YEARLY_METRICS.find((m) => m.key === yearlyMetric)?.unit || ""} />
+                )}
               </>
             ) : (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных отчётности по выбранной метрике.</div>
