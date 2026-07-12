@@ -825,6 +825,198 @@ def build_prime_disclosure(db: Session) -> list[dict]:
     return out
 
 
+# ----------------------------- СКРИН (disclosure.skrin.ru) — кросс-компанийный дневной фид -----------------------------
+# Владелец справедливо указал (2026-07-12): смарт-лаб — конкурентная платформа, сама
+# агрегирующая данные откуда-то ещё, — источником ДИВИДЕНДНЫХ СУММ должен быть аккредитованный
+# ЦБ агрегатор раскрытия, а не конкурент. СКРИН (в отличие от ПРАЙМ) даёт ЕДИНЫЙ дневной фид
+# СРАЗУ по ВСЕМ эмитентам рынка (`EventList.asp?id=36&dt=`), а не только по вручную найденным
+# 14 (см. build_prime_disclosure) — сопоставляем ИНН строки фида с нашими компаниями через
+# rates.csv (колонка INN, проверено 2026-07-12: 260/261 тикеров заполнены, значения совпадают
+# со сверенными вручную SBER/ROSN; ИНН общей и привилегированной акции ОДНОГО эмитента
+# совпадает — 43 такие пары из 261 строки — решение СД относится к эмитенту целиком, событие
+# вешаем на ОБЕ бумаги).
+# ГЛАВНОЕ УЛУЧШЕНИЕ против smart-lab: решение/рекомендация СД о дивидендах публикуется ЗАДОЛГО
+# до отсечки (пример: Роснефть — рекомендация 15.05.2026, отсечка 09.07.2026, ~2 месяца
+# форварда, проверено вручную через ПРАЙМ) — smart-lab показывает ту же сумму только когда она
+# уже «устоялась» ближе к дате. dedup_key дивидендного события совпадает с build_corporate/
+# build_dividends (`dividend:{ticker}:{record_date}`) — последний прогон выигрывает, поэтому
+# более ранний и точный источник (СКРИН) в идеале должен идти ПОСЛЕ smart-lab в refresh_all.
+# 🔴 Кодировка: сервер заявляет charset=utf-8 в заголовке, но РЕАЛЬНЫЕ байты — cp1251
+# (проверено вручную: auto-detect даёт мусор) — декодируем r.content вручную везде.
+_SKRIN_BASE = "https://disclosure.skrin.ru"
+_SKRIN_BOARD_NOTICE = "проведение заседания совета директоров"
+_SKRIN_DECISION_TITLES = ("решения совета директоров", "решения общего собрания",
+                          "решения единственного акционера")
+
+
+def _load_inn_ticker_map() -> dict[str, list[str]]:
+    """ИНН -> тикеры из rates.csv (тот же файл/паттерн чтения, что и _rates_csv_dividends)."""
+    import csv, os
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "rates.csv")
+    out: dict[str, list[str]] = {}
+    if not os.path.exists(path):
+        return out
+    try:
+        with open(path, encoding="cp1251") as f:
+            f.readline(); f.readline()
+            for r in csv.DictReader(f, delimiter=";"):
+                inn = (r.get("INN") or "").strip()
+                secid = (r.get("SECID") or "").strip()
+                if inn and secid:
+                    out.setdefault(inn, []).append(secid)
+    except Exception:  # noqa: BLE001
+        return out
+    return out
+
+
+def _extract_dividend_recommendation(msg_text: str) -> tuple[float | None, date | None]:
+    """Сумма + дата отсечки из решения СД/ГОСА (формулировка Положения №714-П одинакова у
+    ПРАЙМ и СКРИН — проверено вручную на Роснефти 2026-07-11 через ПРАЙМ: «...в размере
+    2 руб. 27 коп. ... на одну размещенную акцию» + «...определяются лица, имеющие право на
+    получение дивидендов, – 09 июля 2026 года»)."""
+    import re
+    m = re.search(
+        r"в размере\s+([\d]+)\s*руб\.?(?:\s*(\d+)\s*коп\.?)?[^.]{0,60}на одну\s+"
+        r"(?:размещенную|обыкновенную|привилегированную)?\s*акци",
+        msg_text, re.IGNORECASE)
+    if not m:
+        return None, None
+    rub, kop = m.groups()
+    try:
+        amount = float(rub) + (float(kop) / 100 if kop else 0.0)
+    except ValueError:
+        return None, None
+    dm = re.search(
+        r"определяются лица,?\s*имеющие право на получение дивидендов[^\d]{0,10}"
+        r"(\d{1,2}\s+\S+\s+\d{4}\s+года)",
+        msg_text, re.IGNORECASE)
+    record_date = _parse_ru_date(dm.group(1)) if dm else None
+    return amount, record_date
+
+
+def build_skrin_disclosure(db: Session, days_back: int = 45) -> list[dict]:
+    """Кросс-компанийный дневной фид СКРИН (существенные факты, `id=36`) — единый форвард-
+    источник ДИВИДЕНДОВ и заседаний СД для ВСЕХ ~260 наших тикеров (не только 14 у
+    build_prime_disclosure), НЕ конкурент (аккредитованный ЦБ агрегатор, как и ПРАЙМ). Сканируем
+    `days_back` дней НАЗАД по дате ПУБЛИКАЦИИ (не дате события — событие само может быть на
+    месяцы вперёд), матчим ИНН строки с нашими тикерами (см. _load_inn_ticker_map), тянем полный
+    текст (`printMessage.asp`) только для совпадений (экономия — не гоняем текст всех строк
+    фида, порядка 25-30 в день по ВСЕМУ рынку).
+    Два типа событий:
+    1) Дивиденд (сумма+дата) — из «Решения совета директоров»/«Решения общего собрания»/
+       «Решения единственного акционера» (см. _extract_dividend_recommendation). Без суммы ИЛИ
+       без даты — не показываем (не факт, рано).
+    2) Заседание СД (форвард, БЕЗ суммы) — из «Проведение заседания совета директоров»,
+       фильтр материальности повестки (см. _agenda_is_material, та же логика что у ПРАЙМ) —
+       не показываем непубличную внутреннюю текучку.
+    🔴 Паузы между запросами ОБЯЗАТЕЛЬНЫ (см. build_prime_disclosure — тот же анти-скрейпинг по
+    частоте у ЦБ-аккредитованных агентств)."""
+    import httpx, re, time
+    out: list[dict] = []
+    inn_map = _load_inn_ticker_map()
+    if not inn_map:
+        logger.warning("Календарь skrin_disclosure: rates.csv недоступен/пуст — источник пропущен")
+        return out
+    companies = {c.ticker: c for c in db.query(Company).all()}
+    closes = _latest_closes(db)
+    today = date.today()
+    existing_board = {
+        (r.event_type, r.ticker, r.event_date)
+        for r in db.query(CalendarEvent.event_type, CalendarEvent.ticker, CalendarEvent.event_date)
+        .filter(CalendarEvent.event_type == "corporate",
+                CalendarEvent.source != "skrin_disclosure",
+                CalendarEvent.event_date >= today).all()
+    }
+    row_re = re.compile(
+        r"openFirmProf\('(\d+)'\);\">([^<]+)</a></span>&nbsp;&nbsp;"
+        r"<span class=\"SkrinHref\" ><a  href='javascript:ShowMessage\((\d+),(\d+)\)'>([^<]+)</a>"
+    )
+    seen_eids: set[str] = set()
+    for delta in range(days_back):
+        d = today - timedelta(days=delta)
+        dt_str = f"{d.year}-{d.month}-{d.day}"
+        try:
+            r = httpx.get(f"{_SKRIN_BASE}/EventList.asp", params={"id": 36, "dt": dt_str},
+                          timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+            r.raise_for_status()
+            html = r.content.decode("cp1251", errors="replace")
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Календарь skrin_disclosure: фид %s недоступен: %s", dt_str, type(e).__name__)
+            time.sleep(0.3)
+            continue
+        rows = row_re.findall(html)
+        time.sleep(0.3)
+        for inn, _name, eid, agency, title in rows:
+            tickers = inn_map.get(inn)
+            if not tickers or eid in seen_eids:
+                continue
+            title_l = title.strip().lower()
+            is_board_notice = _SKRIN_BOARD_NOTICE in title_l
+            is_decision = any(k in title_l for k in _SKRIN_DECISION_TITLES)
+            if not (is_board_notice or is_decision):
+                continue
+            seen_eids.add(eid)
+            time.sleep(0.3)
+            try:
+                mr = httpx.get(f"{_SKRIN_BASE}/printMessage.asp", params={"eid": eid, "Agency": agency},
+                               timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+                mr.raise_for_status()
+                msg_text = re.sub(r"<[^>]+>", " ", mr.content.decode("cp1251", errors="replace"))
+                msg_text = re.sub(r"\s+", " ", msg_text)
+            except Exception:  # noqa: BLE001
+                continue
+            if is_decision:
+                amount, record_date = _extract_dividend_recommendation(msg_text)
+                if not amount or not record_date or record_date < today:
+                    continue  # без суммы/даты — не факт, рано показывать (см. build_ir_calendar)
+                buy_by = prev_trading_day(record_date)
+                for ticker in tickers:
+                    c = companies.get(ticker)
+                    if not c:
+                        continue
+                    price = closes.get(ticker)
+                    dy = round(amount / price * 100, 2) if price else None
+                    out.append({
+                        "event_type": "dividend", "event_date": record_date, "event_time": None,
+                        "ticker": ticker, "sector": c.sector,
+                        "title": f"{c.name}: дивиденд {amount:g} ₽/акц.",
+                        "status": "рекомендован СД" if "совета директоров" in title_l else "утверждён ГОСА",
+                        "source": "skrin_disclosure",
+                        "source_url": f"{_SKRIN_BASE}/printMessage.asp?eid={eid}&Agency={agency}",
+                        "payload": {"amount": amount, "currency": "RUB",
+                                    "record_date": record_date.isoformat(), "buy_by_date": buy_by.isoformat(),
+                                    "dividend_yield": dy, "confidence": "issuer"},
+                        "dedup_key": f"dividend:{ticker}:{record_date.isoformat()}",
+                    })
+            else:  # заседание СД (форвард, без суммы) — тот же паттерн, что у ПРАЙМ
+                fm = re.search(r"Дата проведения заседания совета директоров[^:]*:\s*([^.]+)",
+                               msg_text, re.IGNORECASE)
+                am = re.search(r"Повестка дня заседания совета директоров[^:]*:(.*?)3\.\s*Подпись",
+                               msg_text, re.IGNORECASE | re.DOTALL)
+                agenda = re.sub(r"\s+", " ", am.group(1)).strip() if am else ""
+                if not agenda or not _agenda_is_material(agenda.lower()):
+                    continue
+                ev_date = _parse_ru_date(fm.group(1)) if fm else None
+                if not ev_date or ev_date < today:
+                    continue
+                for ticker in tickers:
+                    c = companies.get(ticker)
+                    if not c or ("corporate", ticker, ev_date) in existing_board:
+                        continue
+                    out.append({
+                        "event_type": "corporate", "event_date": ev_date, "event_time": None,
+                        "ticker": ticker, "sector": c.sector,
+                        "title": f"{c.name}: {agenda[:250]}", "status": "заседание совета директоров",
+                        "source": "skrin_disclosure",
+                        "source_url": f"{_SKRIN_BASE}/printMessage.asp?eid={eid}&Agency={agency}",
+                        "payload": {"subtype": "board", "confidence": "issuer"},
+                        "dedup_key": f"corporate:{ticker}:skrin:{eid}",
+                    })
+    logger.info("Календарь skrin_disclosure: %d событий, %d эмитентов",
+                len(out), len({e['ticker'] for e in out}))
+    return out
+
+
 # ----------------------------- ОРКЕСТРАЦИЯ -----------------------------
 def refresh_all(db: Session, with_dividends: bool = True) -> dict:
     """Полный пересбор календаря (идемпотентно). Вызывать раз в сутки."""
@@ -857,6 +1049,18 @@ def refresh_all(db: Session, with_dividends: bool = True) -> dict:
         res["corporate"] = _upsert(db, build_corporate(db))
     except Exception as e:  # noqa: BLE001
         res["corporate"] = f"err:{type(e).__name__}"
+    try:
+        # Полная пересборка форварда (как у prime_disclosure) — набор заседаний СД может
+        # СЖИМАТЬСЯ между прогонами (фильтр материальности), дивиденды НЕ трогаем: они
+        # схлопываются по общему dedup_key с build_corporate/build_dividends, отдельная
+        # очистка тут стёрла бы уже правильно объединённую запись.
+        db.query(CalendarEvent).filter(CalendarEvent.source == "skrin_disclosure",
+                                        CalendarEvent.event_type == "corporate",
+                                        CalendarEvent.event_date >= date.today()).delete()
+        db.commit()
+        res["skrin_disclosure"] = _upsert(db, build_skrin_disclosure(db))
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Календарь skrin_disclosure: %s", e); res["skrin_disclosure"] = f"err:{type(e).__name__}"
     try:
         res["ir_calendar"] = _upsert(db, build_ir_calendar(db))
     except Exception as e:  # noqa: BLE001

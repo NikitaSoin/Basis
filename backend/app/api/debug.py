@@ -198,6 +198,7 @@ async def debug_connectivity():
         "cbr (cbr.ru)": "https://www.cbr.ru/",
         "minfin (minfin.gov.ru)": "https://minfin.gov.ru/ru/press-center/",
         "prime_disclosure (1prime.ru)": "https://disclosure.1prime.ru/",
+        "skrin_disclosure (disclosure.skrin.ru)": "https://disclosure.skrin.ru/",
     }
 
     async def probe(name: str, url: str | None) -> dict:
