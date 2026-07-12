@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DesignSystem from "./design/DesignSystem";
 import { BasisLogomark } from "./design/logomarks";
 import ReactMarkdown from "react-markdown";
@@ -11956,6 +11956,51 @@ function ObsArticleCard({ doc }) {
 }
 
 // =========================
+// OBS DIGEST CARD/LIST — переиспользуемая карточка для geo_digest (Геополитика per-регион +
+// Институциональная среда «Обзор»). Формат как у ObsArticleCard (ЦБ/ЦМАКП), но источник —
+// внешний (Рыбарь/Carnegie/re:russia/Economist/ISW), поэтому есть source_label-бейдж и
+// отдельный investor_relevance callout.
+// =========================
+function ObsDigestCard({ a }) {
+  const dateStr = a.published_at ? String(a.published_at).slice(0, 10) : "";
+  return (
+    <div className="obs-art-card">
+      <div className="obs-art-head">
+        {a.source_label && <b>{a.source_label}</b>}
+        <span className="obs-art-date">{dateStr}</span>
+      </div>
+      <div className="obs-art-title">{a.title}</div>
+      {a.summary && <div className="obs-art-takeaway">{a.summary}</div>}
+      {Array.isArray(a.key_takeaways) && a.key_takeaways.length > 0 && (
+        <ul style={{ margin: "10px 0 0", paddingLeft: 18 }}>
+          {a.key_takeaways.map((t, i) => <li key={i} style={{ fontSize: 13, marginBottom: 4 }}>{t}</li>)}
+        </ul>
+      )}
+      {a.investor_relevance && (
+        <div className="obs-art-callout" style={{ marginTop: 12 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+          </svg>
+          <p><b>Почему это важно инвестору.</b> {a.investor_relevance}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ObsDigestList({ articles, loading, emptyHint }) {
+  if (loading) return <div className="obs-news-loading">Загрузка…</div>;
+  if (!articles || articles.length === 0) {
+    return <div className="obs-art-empty">{emptyHint || "Свежих материалов пока нет."}</div>;
+  }
+  return (
+    <div className="obs-art-list">
+      {articles.map((a) => <ObsDigestCard key={a.id} a={a} />)}
+    </div>
+  );
+}
+
+// =========================
 // OBS MACRO ARTICLES — Обозреватель · Разбор · Макроэкономика
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
 //              Оценка ситуации (deep-card из /macro/interpretation).
@@ -12189,8 +12234,22 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [error, setError] = useState(false);
   const [region, setRegion] = useState(null); // null = первый из списка
   const [mode, setMode] = useState("overview"); // overview | assessment
+  const [digestByRegion, setDigestByRegion] = useState({});
+  const [digestLoading, setDigestLoading] = useState({});
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  // Лента материалов (Рыбарь/Carnegie/re:russia/Economist/ISW) по региону — грузим лениво,
+  // при первом обращении к региону.
+  const loadDigest = useCallback((r) => {
+    if (!r || digestByRegion[r] !== undefined) return;
+    setDigestLoading((s) => ({ ...s, [r]: true }));
+    fetch(`${apiUrl}/api/market/geopolitics/${r}/digest`, { headers: authHeaders })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((d) => setDigestByRegion((s) => ({ ...s, [r]: d.articles || [] })))
+      .catch(() => setDigestByRegion((s) => ({ ...s, [r]: [] })))
+      .finally(() => setDigestLoading((s) => ({ ...s, [r]: false })));
+  }, [apiUrl]);
 
   useEffect(() => {
     setLoading(true);
@@ -12225,6 +12284,10 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const regions = Array.from(regionMap.keys());
   const activeRegion = region || regions[0] || null;
   const regionData = activeRegion ? regionMap.get(activeRegion) : null;
+
+  useEffect(() => {
+    if (activeRegion) loadDigest(activeRegion);
+  }, [activeRegion, loadDigest]);
 
   // Блок для текущего режима
   const overviewBlock = regionData?.overview;
@@ -12331,6 +12394,18 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ===== ОБЗОР: лента материалов по региону (Рыбарь/Carnegie/re:russia/Economist/ISW) ===== */}
+          {mode === "overview" && (
+            <div style={{ marginTop: 16 }}>
+              <div className="obs-synth-head" style={{ marginBottom: 14 }}>Материалы по региону</div>
+              <ObsDigestList
+                articles={digestByRegion[activeRegion]}
+                loading={digestLoading[activeRegion]}
+                emptyHint="Свежих материалов по региону пока нет — источники обновляются раз в час."
+              />
             </div>
           )}
 
@@ -12446,6 +12521,166 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   );
 }
 
+// =========================
+// OBS INSTITUTIONS — Обозреватель · Институциональная среда
+// «Обзор» — лента материалов (geo_digest, target=institutions). «Текущая ситуация» —
+// институциональный барометр (M1-M13, сценарии, алерты) из /api/market/institutions.
+// =========================
+function ObsInstitutions({ token }) {
+  const [mode, setMode] = useState("overview");
+  const [digest, setDigest] = useState(null);
+  const [digestLoading, setDigestLoading] = useState(true);
+  const [baro, setBaro] = useState(null);
+  const [baroLoading, setBaroLoading] = useState(true);
+  const [openKey, setOpenKey] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/institutions/digest`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setDigest(d.articles || []))
+      .catch(() => setDigest([]))
+      .finally(() => setDigestLoading(false));
+    fetch(`${apiUrl}/api/market/institutions`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setBaro(d))
+      .catch(() => setBaro(null))
+      .finally(() => setBaroLoading(false));
+  }, [apiUrl]);
+
+  const SCENARIO_LABELS = {
+    "Инерция": "obs-scenario-card",
+    "Замирение": "obs-scenario-card obs-scenario-card--bull",
+    "Эскалация": "obs-scenario-card obs-scenario-card--bear",
+  };
+
+  return (
+    <div>
+      <p className="obs-art-desc">
+        «Обзор» — материалы по институциональной среде (регулирование, собственность,
+        госсектор), пересказ близко к тексту, без указания источников. «Текущая ситуация» —
+        институциональный барометр Basis: 13 показателей, сценарии, активные алерты.
+      </p>
+
+      <div className="obs-seg">
+        <button
+          className={`obs-seg-opt${mode === "overview" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("overview")}
+        >
+          Обзор
+        </button>
+        <button
+          className={`obs-seg-opt${mode === "assessment" ? " obs-seg-opt--on" : ""}`}
+          onClick={() => setMode("assessment")}
+        >
+          Текущая ситуация
+        </button>
+      </div>
+
+      {mode === "overview" && (
+        <ObsDigestList
+          articles={digest}
+          loading={digestLoading}
+          emptyHint="Свежих материалов пока нет — источники обновляются раз в час."
+        />
+      )}
+
+      {mode === "assessment" && (
+        <>
+          {baroLoading && <div className="obs-news-loading">Загрузка барометра…</div>}
+
+          {!baroLoading && !baro && (
+            <div className="obs-art-empty">Барометр пока недоступен.</div>
+          )}
+
+          {!baroLoading && baro && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="obs-deep-card">
+                <div className="obs-deep-eyebrow">Барометр · оценка Basis · срез на {baro.as_of}</div>
+                <h3>Итоговый балл: {baro.barometer?.overall} / 5</h3>
+                {baro.barometer?.label && <p style={{ marginBottom: 0 }}>{baro.barometer.label}</p>}
+              </div>
+
+              {baro.scenario && (
+                <div>
+                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>
+                    Сценарий: {baro.scenario.current}
+                  </div>
+                  <div className="obs-scenario-row">
+                    {Object.entries(baro.scenario.probabilities || {}).map(([name, p]) => (
+                      <div key={name} className={SCENARIO_LABELS[name] || "obs-scenario-card"}>
+                        <div className="obs-scenario-title">{name}</div>
+                        <div className="obs-scenario-prob">вероятность: {Math.round(p * 100)}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(baro.alerts) && baro.alerts.length > 0 && (
+                <div>
+                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>Активные алерты</div>
+                  <div className="obs-art-list">
+                    {baro.alerts.map((al, i) => (
+                      <div key={i} className="obs-art-card">
+                        <div className="obs-art-head">
+                          {al.type && <b>{al.type}</b>}
+                          <span className="obs-art-date">{al.date}</span>
+                        </div>
+                        <div className="obs-art-title">{al.title}</div>
+                        {al.why_it_matters && <div className="obs-art-takeaway">{al.why_it_matters}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
+                <div>
+                  <div className="obs-synth-head" style={{ marginBottom: 14 }}>Показатели (M1–M13)</div>
+                  <div className="obs-art-list">
+                    {baro.subindices.map((s) => (
+                      <div key={s.key} className="obs-art-card">
+                        <div className="obs-art-head">
+                          <b>{s.key}</b>
+                          <span>· {s.type} ·</span>
+                          <span className="obs-art-date">балл {s.score}/5</span>
+                        </div>
+                        <div className="obs-art-title">{s.label}</div>
+                        <button
+                          className="obs-art-toggle"
+                          onClick={() => setOpenKey((k) => (k === s.key ? null : s.key))}
+                          aria-expanded={openKey === s.key}
+                        >
+                          {openKey === s.key ? "Свернуть ▴" : "Обоснование ▾"}
+                        </button>
+                        {openKey === s.key && (
+                          <div className="obs-art-full">
+                            <p style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {baro.crp_floor_rationale && (
+                <div className="obs-deep-card">
+                  <div className="obs-deep-eyebrow">Институциональный «пол» CRP · оценка Basis</div>
+                  <h3>{baro.institutional_crp_floor_pp} п.п.</h3>
+                  <p style={{ whiteSpace: "pre-line", marginBottom: 0 }}>{baro.crp_floor_rationale}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function ObserverV2({ token, onSelectCompany }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
@@ -12523,7 +12758,15 @@ function ObserverV2({ token, onSelectCompany }) {
           </div>
         );
       case "institutions":
-        return <ObsSectionPlaceholder sectionId="institutions" />;
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Разбор</span>
+              <h2 className="obs-sec-title">Институциональная среда</h2>
+            </div>
+            <ObsInstitutions token={token} />
+          </div>
+        );
       case "ai":
         return (
           <div className="obs-panel">
