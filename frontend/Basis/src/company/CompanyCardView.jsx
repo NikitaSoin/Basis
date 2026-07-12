@@ -3274,18 +3274,22 @@ const CompanyCard = ({ company, onBack }) => {
                 </Card>
               )}
             </div>
+            <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
           </div>
         );
       }
       return (
-        <Card className="tw-text-center">
-          <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
-          <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
-          <p className="tw-text-text-secondary tw-max-w-md tw-mx-auto">
-            Детальный анализ по компании <b className="tw-text-text-primary">{company.name}</b> ещё не добавлен.
-            Следите за обновлениями.
-          </p>
-        </Card>
+        <div className="tw-flex tw-flex-col tw-gap-4">
+          <Card className="tw-text-center">
+            <Info size={48} className="tw-mx-auto tw-text-text-tertiary tw-mb-4" />
+            <h3 className="tw-text-[20px] tw-text-text-primary tw-font-medium tw-mb-2">Анализ готовится</h3>
+            <p className="tw-text-text-secondary tw-max-w-md tw-mx-auto">
+              Детальный анализ по компании <b className="tw-text-text-primary">{company.name}</b> ещё не добавлен.
+              Следите за обновлениями.
+            </p>
+          </Card>
+          <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
+        </div>
       );
     }
 

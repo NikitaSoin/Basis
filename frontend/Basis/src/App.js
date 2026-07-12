@@ -405,7 +405,7 @@ const TOPNAV_ITEMS = [
   { id: "companies", label: "Рынок" },
   { id: "overview", label: "Обозреватель" },
   { id: "portfolio", label: "Портфель" },
-  { id: "screener", label: "Скрининг" },
+  { id: "screener", label: "Скринер" },
   { id: "compare", label: "Сравнение" },
   { id: "ai", label: "Ассистент" },
   { id: "pricing", label: "Тарифы" },
