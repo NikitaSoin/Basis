@@ -1044,11 +1044,19 @@ const makeAssetColumn = (onOpenCompany) => ({
 // Колонки групповых таблиц — общие для «Агрегирующей» и отдельных вкладок
 const RETURN_COLUMNS = [
                         {
-              key: "return3y", label: "Доходность",
+              key: "return3y", label: "Доходность рынка",
               render: (v, row) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность: цена + дивиденды (CAGR). Факт прошлого, не прогноз">
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность самого актива за 3 года: цена + дивиденды (CAGR), независимо от того, когда вы его купили. Факт прошлого, не прогноз">
                   {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
                   {row?.periodLabel && <span className="tw-text-text-tertiary tw-font-normal"> {row.periodLabel}</span>}
+                </span>
+              ),
+            },
+            {
+              key: "yourReturn", label: "Ваша доходность",
+              render: (v) => v == null ? "—" : (
+                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Доходность к ВАШЕЙ цене входа (без учёта дивидендов/купонов — только изменение цены с даты покупки)">
+                  {fmtPercent(v, { sign: true })}
                 </span>
               ),
             },
@@ -1339,6 +1347,7 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
         ...p,
         pe: m.pe_current, peHist: m.pe_historical, divYield: m.div_yield,
         return3y: m.return_total_3y ?? m.return_3y,
+        yourReturn: m.your_return_pct,
         capm: m.capm_expected, alpha: m.alpha_3y,
         sortino: m.sortino_3y, sharpe: m.sharpe_3y,
         volatility: m.volatility, downsideVol: m.downside_vol, beta: m.beta,
@@ -1346,11 +1355,12 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
         var95: m.var_95, earningsYield: m.earnings_yield,
         shortHistory: m.short_history,
         periodLabel: fmtHistoryPeriod(m.history_years),
-      } : { ...p, return3y: null, volatility: null, beta: p.beta ?? null };
+      } : { ...p, return3y: null, yourReturn: null, volatility: null, beta: p.beta ?? null };
     }),
     {
       ticker: "Портфель", _isTotal: true,
       return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
+      yourReturn: pfMetrics?.portfolio?.your_return_pct?.value ?? null,
       capm: pfMetrics?.portfolio?.capm ?? null,
       alpha: pfMetrics?.portfolio?.alpha ?? null,
       sortino: pfMetrics?.portfolio?.sortino ?? null,

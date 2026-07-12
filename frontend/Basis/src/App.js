@@ -76,6 +76,7 @@ import {
   ObsMacroArticles,
   ObsGeopolitics,
   ObsInstitutions,
+  ObsMarketPulse,
 } from "./observer/ObsPanels";
 import {
   NewsFeed,
@@ -89,6 +90,9 @@ import {
 import { PortfolioView } from "./portfolio/PortfolioViews";
 import { AuthModal, ProfileView, PricingView } from "./account/AccountPanels";
 import { CompanyCard, ScreenerView, CompaniesView } from "./company/CompanyCardView";
+import AssistantView from "./AssistantView";
+import CompareView from "./compare/CompareView";
+import "./styles/compare.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -116,6 +120,16 @@ function ObserverV2({ token, onSelectCompany }) {
               <h2 className="obs-sec-title">Экономическая статистика</h2>
             </div>
             <MacroView token={token} portfolioOnly={portfolioOnly} />
+          </div>
+        );
+      case "pulse":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Рынок</span>
+              <h2 className="obs-sec-title">Обзор рынка</h2>
+            </div>
+            <ObsMarketPulse onSelectCompany={onSelectCompany} />
           </div>
         );
       case "maps":
@@ -384,6 +398,8 @@ const TOPNAV_ITEMS = [
   { id: "overview", label: "Обозреватель" },
   { id: "portfolio", label: "Портфель" },
   { id: "screener", label: "Скрининг" },
+  { id: "compare", label: "Сравнение" },
+  { id: "ai", label: "Ассистент" },
   { id: "pricing", label: "Тарифы" },
   { id: "profile", label: "Профиль" },
 ];
@@ -605,9 +621,9 @@ export default function App() {
       case "stress":
         return <ComingSoonView icon={ShieldAlert} title="Стресс-тестирование" blurb="Проверка портфеля на просадку в кризисных сценариях. Раздел скоро появится." />;
       case "ai":
-        return <ComingSoonView icon={Sparkles} title="ИИ-помощник" blurb="Диалоговый помощник по вашему портфелю и рынку. Раздел скоро появится." />;
+        return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "compare":
-        return <ComingSoonView icon={Scale} title="Сравнение акций и облигаций" blurb="Сопоставление бумаг бок о бок по ключевым метрикам. Раздел скоро появится." />;
+        return <CompareView onOpenCompany={setSelectedCompany} />;
       case "pricing":
         return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
       case "profile":

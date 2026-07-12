@@ -6678,7 +6678,6 @@ const CompanyCard = ({ company, onBack }) => {
   _pushM("EV/EBITDA", _num1(_cur.ev_ebitda), "×", "estimate");
   _pushM("ROE", _num1(_lastNN(_ret.roe)), "%", "fact");
   _pushM("Потенциал к справ.", _upside != null ? (_upside > 0 ? "+" : "") + Math.round(_upside).toLocaleString("ru-RU") : null, "%", "judgment");
-  const _thesis = _fin.synthesis_verdict?.headline || _fin.synthesis_verdict?.text || null;
   const _fairBase = typeof _fvr.base === "number" ? formatMoney(_fvr.base) : null;
   const _sources = Array.isArray(_fin.sources) ? _fin.sources.length : null;
   const _conf = { high: "высокая", medium: "средняя", low: "низкая" }[finMeta.data_quality] || null;
@@ -6714,7 +6713,6 @@ const CompanyCard = ({ company, onBack }) => {
             <CompanyIdentityBlock logo={<CompanyLogo ticker={company.ticker} name={company.name} size={60} />} name={company.name} ticker={company.ticker} sector={company.sector} marketOpen />
             <PricePanel price={_price == null ? null : _price.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} changePct={_change} changeAbs={_changeAbs} marketCap={formatMarketCap(company.combined_market_cap ?? company.market_cap)} asOf={finMeta.price_date || "сейчас"} />
           </div>
-          {_thesis && <p className="cc-serif tw-text-[19px] tw-leading-[1.5] tw-mt-6 tw-mb-0" style={{ color: "var(--cc-ink)", maxWidth: "70ch" }}>{_thesis}</p>}
           <MetricStrip metrics={neoMetrics} />
         </div>
       ) : (

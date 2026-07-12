@@ -9,6 +9,7 @@ import {
   Globe,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { Disclosure } from "../design/textblocks";
 
@@ -32,6 +33,7 @@ const OBS_ZONES = [
     id: "market",
     label: "Рынок",
     items: [
+      { id: "pulse",    label: "Обзор рынка",        icon: TrendingUp },
       { id: "maps",     label: "Карта рынка",        icon: Layers   },
       { id: "calendar", label: "Календарь событий",  icon: Calendar },
       { id: "reports",  label: "Отчёты",             icon: FileText },
@@ -1634,6 +1636,210 @@ function ObsInstitutions({ token }) {
   );
 }
 
+// =========================
+// OBS MARKET PULSE — Обозреватель · Обзор рынка (2026-07-11, восстановлено
+// 2026-07-12). Бегущая лента + индекс страха и жадности Basis + индексы/
+// сектора/ставки/сырьё/металлы (/api/market/pulse) + лидеры дня (перенесены
+// сюда из «Рынок → Карта рынка»).
+// =========================
+function ObsSparkline({ points, color = "var(--accent)", w = 96, h = 28 }) {
+  if (!points || points.length < 2) return null;
+  const min = Math.min(...points), max = Math.max(...points);
+  const span = (max - min) || 1;
+  const step = w / (points.length - 1);
+  const d = points.map((p, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(h - ((p - min) / span) * h).toFixed(1)}`).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true" style={{ display: "block" }}>
+      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ObsPulseCard({ item }) {
+  if (!item) return null;
+  const chg = item.change_pct;
+  const dCls = chg == null ? "obs-d-neutral" : chg > 0 ? "obs-d-good" : chg < 0 ? "obs-d-bad" : "obs-d-neutral";
+  const color = chg == null ? "var(--text-tertiary)" : chg > 0 ? "var(--success)" : chg < 0 ? "var(--danger)" : "var(--text-tertiary)";
+  const lvl = item.level;
+  const dec = item.unit === "%" || item.unit === "₽/г" ? 2 : (lvl != null && lvl > 1000 ? 0 : 2);
+  return (
+    <div className="obs-tile" style={{ cursor: "default" }}>
+      <div className="obs-tile-lbl">{item.name}</div>
+      <div className="obs-tile-val">
+        {lvl != null ? lvl.toLocaleString("ru-RU", { maximumFractionDigits: dec }) : "—"}
+        {item.unit ? (item.unit === "%" ? "%" : " " + item.unit) : ""}
+      </div>
+      {chg != null && <div className={"obs-tile-delta " + dCls}>{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%</div>}
+      {item.spark && item.spark.length > 1 && <div style={{ marginTop: 8 }}><ObsSparkline points={item.spark} color={color} /></div>}
+      {item.note && <div className="obs-tile-date">{item.note}</div>}
+    </div>
+  );
+}
+
+const OBS_FG_COMP_LABELS = {
+  momentum: "Импульс рынка (IMOEX к MA125)",
+  volatility: "Волатильность (RVI)",
+  breadth: "Ширина рынка (доля бумаг в плюсе за 20 дн.)",
+  risk_appetite: "Спрос на риск (акции vs гособлигации, 20 дн.)",
+};
+
+function ObsFearGreedCard({ fg }) {
+  if (!fg || fg.score == null) {
+    return (
+      <div className="obs-hero-rate">
+        <div className="obs-hero-label">Индекс страха и жадности Basis</div>
+        <div className="obs-hero-meta">{fg?.note || "Недостаточно данных для расчёта."}</div>
+      </div>
+    );
+  }
+  const score = fg.score;
+  const color = score < 20 ? "var(--danger)"
+    : score < 40 ? "color-mix(in srgb, var(--danger) 55%, var(--text-tertiary))"
+    : score < 60 ? "var(--text-tertiary)"
+    : score < 80 ? "color-mix(in srgb, var(--success) 55%, var(--text-tertiary))"
+    : "var(--success)";
+  return (
+    <div className="obs-hero-rate">
+      <div className="obs-hero-topline">
+        <div>
+          <div className="obs-hero-label">Индекс страха и жадности Basis</div>
+          <div className="obs-hero-num" style={{ color }}>{Math.round(score)}</div>
+          <div className="obs-hero-meta">{fg.label} · охват {fg.coverage}</div>
+        </div>
+        <div className="obs-hero-note">
+          {fg.methodology_note}
+          <div className="obs-tag-judgment">оценка/модель Basis</div>
+        </div>
+      </div>
+      <div className="obs-fg-comps">
+        {Object.entries(fg.components || {}).map(([key, c]) => (
+          <div key={key} className="obs-fg-comp">
+            <span className="obs-fg-comp-lbl">{OBS_FG_COMP_LABELS[key] || key}</span>
+            <span className="obs-fg-comp-val">{c.score != null ? Math.round(c.score) : "—"}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function useObsStocksLive() {
+  const [stocks, setStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    let alive = true;
+    Promise.all([
+      fetch(`${apiUrl}/api/screener/scored?universe=all`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch(`${apiUrl}/api/quotes/realtime`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([sc, live]) => {
+      if (!alive) return;
+      const rows = (sc?.rows || []).map((r) => {
+        const q = live ? live[r.ticker] : null;
+        return { t: r.ticker, n: r.name, price: (q && q.price != null) ? q.price : r.price, chg: q ? q.change_pct : null };
+      });
+      setStocks(rows);
+      setLoading(false);
+    }).catch(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, []);
+  return { stocks, loading };
+}
+
+function ObsTickerMarquee({ stocks, onSelectCompany }) {
+  const items = stocks.filter((s) => s.chg != null && s.price != null).slice(0, 24);
+  if (!items.length) return null;
+  const dup = [...items, ...items];
+  return (
+    <div className="obs-ticker">
+      <div className="obs-ticker-row">
+        {dup.map((s, i) => (
+          <button key={s.t + "-" + i} className="obs-ticker-item" onClick={() => onSelectCompany && onSelectCompany(s.t)}>
+            <b>{s.t}</b>
+            <span className="obs-ticker-px">{s.price.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}</span>
+            <span className={"obs-ticker-chg " + (s.chg > 0 ? "obs-d-good" : s.chg < 0 ? "obs-d-bad" : "obs-d-neutral")}>
+              {s.chg > 0 ? "▲" : s.chg < 0 ? "▼" : "▬"} {Math.abs(s.chg).toFixed(2)}%
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ObsMoversRow({ s, onSelectCompany }) {
+  return (
+    <button className="obs-mover-row" onClick={() => onSelectCompany && onSelectCompany(s.t)}>
+      <span className="obs-mover-id"><b>{s.t}</b><span className="obs-mover-n">{s.n}</span></span>
+      <span className="obs-mover-px">{s.price != null ? s.price.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
+      <span className={"obs-mover-chg " + (s.chg > 0 ? "obs-d-good" : s.chg < 0 ? "obs-d-bad" : "obs-d-neutral")}>
+        {s.chg > 0 ? "▲" : s.chg < 0 ? "▼" : "▬"} {Math.abs(s.chg).toFixed(2)}%
+      </span>
+    </button>
+  );
+}
+
+function ObsMarketPulse({ onSelectCompany }) {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const [pulse, setPulse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { stocks, loading: stocksLoading } = useObsStocksLive();
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${apiUrl}/api/market/pulse`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!alive) return; setPulse(d); setLoading(false); })
+      .catch(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [apiUrl]);
+
+  if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-20 tw-text-text-tertiary tw-animate-pulse">Загружаем обзор рынка...</div>;
+  if (!pulse) return <div className="obs-news-empty">Не удалось загрузить обзор рынка. Попробуйте позже.</div>;
+
+  const withChg = stocks.filter((s) => s.chg != null);
+  const sorted = [...withChg].sort((a, b) => b.chg - a.chg);
+  const gain = sorted.slice(0, 5), lose = [...sorted].reverse().slice(0, 5);
+
+  return (
+    <div>
+      <ObsTickerMarquee stocks={stocks} onSelectCompany={onSelectCompany} />
+      <ObsFearGreedCard fg={pulse.fear_greed} />
+
+      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Индексы</div>
+      <div className="obs-grid8">{pulse.indices.map((idx) => <ObsPulseCard key={idx.ticker} item={idx} />)}</div>
+
+      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Лидеры дня</div>
+      {stocksLoading ? (
+        <div className="tw-py-6 tw-text-text-tertiary tw-text-[13px]">Загружаем лидеров дня...</div>
+      ) : gain.length || lose.length ? (
+        <div className="obs-movers-grid">
+          <div>
+            <div className="obs-movers-eyebrow obs-d-good">↑ Лидеры роста</div>
+            {gain.map((s) => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} />)}
+          </div>
+          <div>
+            <div className="obs-movers-eyebrow obs-d-bad">↓ Лидеры падения</div>
+            {lose.map((s) => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} />)}
+          </div>
+        </div>
+      ) : (
+        <div className="obs-news-empty">Нет данных о дневном изменении.</div>
+      )}
+
+      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Секторальные индексы MOEX</div>
+      <div className="obs-grid8">{pulse.sectors.map((s) => <ObsPulseCard key={s.ticker} item={s} />)}</div>
+
+      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Ставки денежного рынка · сырьё · металлы</div>
+      <div className="obs-grid8">
+        {pulse.rates.map((r) => <ObsPulseCard key={r.ticker} item={r} />)}
+        {pulse.oil && <ObsPulseCard item={pulse.oil} />}
+        {pulse.metals.map((m) => <ObsPulseCard key={m.ticker} item={m} />)}
+      </div>
+    </div>
+  );
+}
+
 export {
   OBS_ZONES,
   ObsSectionPlaceholder,
@@ -1643,4 +1849,5 @@ export {
   ObsMacroArticles,
   ObsGeopolitics,
   ObsInstitutions,
+  ObsMarketPulse,
 };
