@@ -257,8 +257,78 @@ function cmpFinBestTicker(finByTicker, items, key) {
   return withVal.reduce((b, c) => (c.v > b.v ? c : b)).it.ticker;
 }
 
-// Короткий синтез над таблицей — «вердикт поверх данных» по дизайн-конституции
-// Basis (голая таблица без интерпретации не считается готовым экраном).
+// Кураторский набор метрик — то, что реально нужно для решения (продуктовый
+// разбор 2026-07-12: полный дамп 26+ строк перегружает, а не помогает).
+// Остальное — за «Развернуть все метрики». trendKey — ключ в
+// metrics_timeseries для колонки «Тренд» (не у всех метрик есть годовой ряд —
+// тогда просто «—», честно, не подделываем).
+const CMP_CURATED = [
+  { key: "div_yield", label: "Дивдоходность", source: "raw", trendKey: null },
+  { key: "roe", label: "ROE", source: "raw", trendKey: "roe" },
+  { key: "pe", label: "P / E", source: "raw", trendKey: "pe" },
+  { key: "nd_ebitda", label: "Чист. долг / EBITDA", source: "raw", trendKey: "net_debt_ebitda" },
+  { key: "pb", label: "P / B", source: "fin", trendKey: "pb" },
+  { key: "mcap", label: "Капитализация", source: "raw", trendKey: null },
+];
+
+function _cmpRowValue(it, row, finData) {
+  if (row.key === "mcap") return it.market_cap;
+  if (row.source === "fin") return _lastNN(finData[it.ticker]?.metrics_timeseries?.[row.key]);
+  return it.raw?.[row.key];
+}
+function _cmpRowFmt(row, v) {
+  return row.source === "fin" ? fmtFinMetric(row.key, v) : fmtStockMetric(row.key, v);
+}
+// Приглушаем строку, если значения между бумагами почти не различаются
+// (< DIVERGE_THRESHOLD относительного разброса) — «на чём расходятся», а не
+// «вот все числа подряд» (тот же принцип, что в CompareVerdict).
+function cmpRowDiverges(items, row, finData) {
+  const vals = items.map((it) => _cmpRowValue(it, row, finData)).filter((v) => v != null);
+  if (vals.length < 2) return null;
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const scale = Math.max(Math.abs(lo), Math.abs(hi)) || 1;
+  return (hi - lo) / scale >= DIVERGE_THRESHOLD;
+}
+
+// Мини-спарклайн (одна линия на бумагу) для колонки «Тренд» — клик открывает
+// полный интерактивный график в карточке «Метрика по годам» выше.
+function CmpTrendSpark({ items, finData, trendKey, label, onOpen }) {
+  if (!trendKey) return <span className="cmp-trend-empty">—</span>;
+  const years = Array.from(new Set(items.flatMap((it) => finData[it.ticker]?.meta?.fiscal_years || []))).sort((a, b) => a - b);
+  const series = items
+    .map((it, i) => {
+      const fin = finData[it.ticker];
+      const arr = fin?.metrics_timeseries?.[trendKey];
+      const fy = fin?.meta?.fiscal_years;
+      if (!arr || !fy) return null;
+      const byYear = {}; fy.forEach((y, idx) => { byYear[y] = arr[idx]; });
+      return { color: CMP_CAT_COLORS[i % CMP_CAT_COLORS.length], vals: years.map((y) => byYear[y] ?? null) };
+    })
+    .filter((s) => s && s.vals.some((v) => v != null));
+  if (!series.length) return <span className="cmp-trend-empty">—</span>;
+  const all = series.flatMap((s) => s.vals).filter((v) => v != null);
+  let vmin = Math.min(...all), vmax = Math.max(...all);
+  if (vmin === vmax) { vmin -= 1; vmax += 1; }
+  const w = 52, h = 22, n = years.length;
+  const x = (i) => (n > 1 ? (i / (n - 1)) * w : w / 2);
+  const y = (v) => h - ((v - vmin) / (vmax - vmin)) * h;
+  return (
+    <button type="button" className="cmp-trend-btn" onClick={onOpen} title={`Открыть «${label}» по годам, ${years[0]}–${years[years.length - 1]}`}>
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
+        {series.map((s, si) => {
+          const pts = s.vals.map((v, i) => (v == null ? null : `${x(i).toFixed(1)},${y(v).toFixed(1)}`)).filter(Boolean);
+          if (pts.length < 2) return null;
+          return <polyline key={si} points={pts.join(" ")} fill="none" stroke={s.color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />;
+        })}
+      </svg>
+    </button>
+  );
+}
+
+// Короткий синтез над таблицей для 3+ бумаг (для ровно 2 — см. CompareVerdict
+// ниже, полноценная панель «Точки расхождения»). «Вердикт поверх данных» по
+// дизайн-конституции Basis — голая таблица без интерпретации не считается
+// готовым экраном.
 function CompareSynthesis({ items }) {
   if (items.length < 2) return null;
   const pickBasis = () => {
@@ -270,11 +340,11 @@ function CompareSynthesis({ items }) {
     const withVal = items.filter((it) => it.raw?.[key] != null);
     if (withVal.length < 2) return null;
     const best = withVal.reduce((a, b) => (b.raw[key] > a.raw[key] ? b : a));
-    return `выше ${label} — ${best.ticker} (${fmtStockMetric(key, best.raw[key])})`;
+    return `выше ${label} — ${best.name} (${fmtStockMetric(key, best.raw[key])})`;
   };
   const lines = [];
   const bestBasis = pickBasis();
-  if (bestBasis) lines.push(`выше BASIS-балл — ${bestBasis.ticker} (${bestBasis.basis})`);
+  if (bestBasis) lines.push(`выше BASIS-балл — ${bestBasis.name} (${bestBasis.basis})`);
   const y = pickMetric("div_yield", "дивдоходность"); if (y) lines.push(y);
   const r = pickMetric("roe", "ROE"); if (r) lines.push(r);
   if (!lines.length) return null;
@@ -284,6 +354,112 @@ function CompareSynthesis({ items }) {
         <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
       </svg>
       <p><span className="bs-tag-judgment" style={{ marginRight: 8 }}>суждение Basis</span>{lines.join(" · ")}.</p>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// ВЕРДИКТ «Точки расхождения» — хедлайн экрана для ровно 2 бумаг (самый
+// частый реальный сценарий — «дошёл до 2 похожих кандидатов, надо выбрать»,
+// по продуктовому разбору 2026-07-12). Дамбл-плот на каждую реально
+// расходящуюся ось (оси, где значения почти равны — не показываем вообще,
+// не только приглушаем, чтобы не плодить шум) + связный текст-размен вместо
+// перечисления «лучших по метрике» + предупреждение о сопоставимости секторов.
+// ═════════════════════════════════════════════════════════════════════════
+const CMP_AXES = [
+  { key: "pe", label: "Оценка (P / E)", dir: "low", unit: "×", dec: 1 },
+  { key: "roe", label: "Качество (ROE)", dir: "high", unit: "%", dec: 1 },
+  { key: "div_yield", label: "Дивдоходность", dir: "high", unit: "%", dec: 1 },
+  { key: "nd_ebitda", label: "Долговая нагрузка (чист. долг / EBITDA)", dir: "low", unit: "×", dec: 1 },
+];
+const DIVERGE_THRESHOLD = 0.08; // относительный разрыв меньше — считаем «примерно равны», ось не показываем
+
+function _cmpFmtAxis(v, unit, dec) {
+  return v.toLocaleString("ru-RU", { maximumFractionDigits: dec, minimumFractionDigits: 0 }) + unit;
+}
+
+const CMP_AXIS_PHRASE = {
+  pe: (leader, v1, v2) => `${leader} дешевле по мультипликатору (P/E ${v1} против ${v2})`,
+  roe: (leader, v1, v2) => `${leader} выше по рентабельности капитала (ROE ${v1} против ${v2})`,
+  div_yield: (leader, v1, v2) => `${leader} даёт выше дивдоходность (${v1} против ${v2})`,
+  nd_ebitda: (leader, v1, v2) => `${leader} несёт меньшую долговую нагрузку (чист. долг/EBITDA ${v1} против ${v2})`,
+};
+
+function CompareVerdict({ items }) {
+  if (items.length !== 2) return null;
+  const [a, b] = items;
+
+  const axes = CMP_AXES
+    .map((ax) => {
+      const va = a.raw?.[ax.key], vb = b.raw?.[ax.key];
+      if (va == null || vb == null) return null;
+      const scale = Math.max(Math.abs(va), Math.abs(vb)) || 1;
+      const relGap = Math.abs(va - vb) / scale;
+      if (relGap < DIVERGE_THRESHOLD) return null;
+      const lo = Math.min(va, vb), hi = Math.max(va, vb);
+      const span = hi - lo || 1;
+      const posFor = (v) => 18 + ((v - lo) / span) * 64; // 18%..82%
+      const leaderIsA = ax.dir === "high" ? va > vb : va < vb;
+      return { ...ax, va, vb, posA: posFor(va), posB: posFor(vb), leaderIsA, relGap };
+    })
+    .filter(Boolean)
+    .sort((x, y) => y.relGap - x.relGap)
+    .slice(0, 4);
+
+  if (!axes.length) return null;
+
+  const aLines = axes.filter((ax) => ax.leaderIsA).map((ax) => CMP_AXIS_PHRASE[ax.key](a.name, _cmpFmtAxis(ax.va, ax.unit, ax.dec), _cmpFmtAxis(ax.vb, ax.unit, ax.dec)));
+  const bLines = axes.filter((ax) => !ax.leaderIsA).map((ax) => CMP_AXIS_PHRASE[ax.key](b.name, _cmpFmtAxis(ax.vb, ax.unit, ax.dec), _cmpFmtAxis(ax.va, ax.unit, ax.dec)));
+  const sentences = [aLines.length ? aLines.join(", ") + "." : null, bLines.length ? bLines.join(", ") + "." : null].filter(Boolean);
+
+  const sameSector = a.sector && b.sector && a.sector === b.sector;
+
+  return (
+    <div className="cmp-verdict">
+      <div className="cmp-verdict-top">
+        <div>
+          <div className="cmp-verdict-eyebrow">{sameSector ? `Обе — ${a.sector.toLowerCase()}` : "Разные секторы"}</div>
+          <h2 className="cmp-verdict-title">Точки расхождения</h2>
+        </div>
+        <span className="bs-tag-judgment">суждение Basis</span>
+      </div>
+
+      <div className="cmp-verdict-legend">
+        <span className="cmp-verdict-legend-item"><span className="cmp-verdict-legend-dot" style={{ background: "var(--cat-1)" }} />{a.name}</span>
+        <span className="cmp-verdict-legend-item"><span className="cmp-verdict-legend-dot" style={{ background: "var(--cat-2)" }} />{b.name}</span>
+      </div>
+
+      <div className="cmp-axes">
+        {axes.map((ax) => (
+          <div key={ax.key}>
+            <div className="cmp-axis-label">{ax.label}</div>
+            <div className="cmp-axis-plot">
+              <div className="cmp-axis-track" />
+              <div className="cmp-axis-connector" style={{ left: `${Math.min(ax.posA, ax.posB)}%`, width: `${Math.abs(ax.posA - ax.posB)}%` }} />
+              <div className={"cmp-axis-val cmp-axis-val--a" + (ax.posA < ax.posB ? " cmp-axis-val--below" : "")} style={{ left: `${ax.posA}%` }}>{_cmpFmtAxis(ax.va, ax.unit, ax.dec)}</div>
+              <div className="cmp-axis-dot cmp-axis-dot--a" style={{ left: `${ax.posA}%` }} title={`${a.name}: ${_cmpFmtAxis(ax.va, ax.unit, ax.dec)}`} />
+              <div className={"cmp-axis-val cmp-axis-val--b" + (ax.posB < ax.posA ? " cmp-axis-val--below" : "")} style={{ left: `${ax.posB}%` }}>{_cmpFmtAxis(ax.vb, ax.unit, ax.dec)}</div>
+              <div className="cmp-axis-dot cmp-axis-dot--b" style={{ left: `${ax.posB}%` }} title={`${b.name}: ${_cmpFmtAxis(ax.vb, ax.unit, ax.dec)}`} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {sentences.length > 0 && (
+        <div className="cmp-verdict-text">
+          {sentences.map((s, i) => <p key={i} style={{ margin: i === 0 ? 0 : "8px 0 0" }}><b>{s}</b></p>)}
+          {" "}Не сигнал «купить дешевле/дороже» — структурный размен между показателями, решение остаётся за вами.
+        </div>
+      )}
+
+      <div className="cmp-comparability">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" /></svg>
+        {sameSector ? (
+          <span><b>Сопоставимо напрямую</b> — {a.name} и {b.name} из одного сектора ({a.sector}), мультипликаторы считаются по одной методике.</span>
+        ) : (
+          <span><b>Разные секторы</b> — {a.name} ({a.sector || "сектор не указан"}) и {b.name} ({b.sector || "сектор не указан"}). Мультипликаторы (P/E, EV/EBITDA и т.п.) между разными секторами напрямую не сопоставимы — разная структура бизнеса и капитала.</span>
+        )}
+      </div>
     </div>
   );
 }
@@ -302,6 +478,12 @@ export default function CompareView({ onOpenCompany }) {
   const [yearlyChartType, setYearlyChartType] = useState("bar");
   const [pricePeriod, setPricePeriod] = useState("1y");
   const [priceMode, setPriceMode] = useState("rel"); // rel = %, abs = ₽
+  const [expandMetrics, setExpandMetrics] = useState(false);
+  const yearlyCardRef = useRef(null);
+  const openYearly = (key) => {
+    setYearlyMetric(key);
+    yearlyCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   useEffect(() => {
     fetch(`${apiUrl}/api/screener/scored?universe=all`)
@@ -386,7 +568,7 @@ export default function CompareView({ onOpenCompany }) {
         const byYear = {};
         fy.forEach((y, idx) => { byYear[y] = arr[idx]; });
         return {
-          name: it.ticker,
+          name: it.name,
           color: CMP_CAT_COLORS[i % CMP_CAT_COLORS.length],
           points: years.map((y) => ({ as_of: String(y), value: byYear[y] ?? null })),
         };
@@ -402,7 +584,7 @@ export default function CompareView({ onOpenCompany }) {
           const pts = priceData[it.ticker].filter((p) => p.close != null);
           const base = pts[0]?.close;
           return {
-            name: it.ticker,
+            name: it.name,
             color: CMP_CAT_COLORS[i % CMP_CAT_COLORS.length],
             points: pts.map((p) => ({
               as_of: p.date,
@@ -488,6 +670,7 @@ export default function CompareView({ onOpenCompany }) {
             )}
           </Card>
 
+          <div ref={yearlyCardRef}>
           <Card header="Метрика по годам (из отчётности)" style={{ marginTop: 20 }}>
             <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
               <div className="tw-flex tw-flex-wrap tw-gap-1.5">
@@ -533,21 +716,31 @@ export default function CompareView({ onOpenCompany }) {
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных отчётности по выбранной метрике.</div>
             )}
           </Card>
+          </div>
 
-          <CompareSynthesis items={items} />
+          {items.length === 2 ? <CompareVerdict items={items} /> : <CompareSynthesis items={items} />}
 
           <div className="cmp-table-wrap" style={{ marginTop: 20 }}>
             <table className="cmp-table">
               <thead>
                 <tr>
                   <th className="cmp-th-metric">Метрика</th>
-                  {items.map((it) => <th key={it.ticker}>{it.ticker}</th>)}
+                  {items.map((it) => (
+                    <th key={it.ticker}>
+                      <div className="cmp-th-company">
+                        <CompanyLogo ticker={it.ticker} name={it.name} size={20} />
+                        {it.name}
+                      </div>
+                    </th>
+                  ))}
+                  <th className="cmp-th-trend">Тренд, годы</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>Справедливая цена<ScreenerInfoTip text={FAIR_VALUE_HINT} /></td>
                   {items.map((it) => <td key={it.ticker}>{fmtStockMetric("fair_value", it.fair_value)}</td>)}
+                  <td className="cmp-trend-cell"><span className="cmp-trend-empty">—</span></td>
                 </tr>
                 <tr>
                   <td>Потенциал (апсайд)</td>
@@ -559,6 +752,7 @@ export default function CompareView({ onOpenCompany }) {
                       </td>
                     );
                   })}
+                  <td className="cmp-trend-cell"><span className="cmp-trend-empty">—</span></td>
                 </tr>
                 <tr>
                   <td>BASIS-балл</td>
@@ -567,47 +761,65 @@ export default function CompareView({ onOpenCompany }) {
                       {it.basis != null ? <span className="cmp-score" style={{ background: cmpScoreColor(it.basis) }}>{it.basis}</span> : "—"}
                     </td>
                   ))}
+                  <td className="cmp-trend-cell"><span className="cmp-trend-empty">—</span></td>
                 </tr>
-                {STOCK_METRIC_GROUPS.map((g) => (
-                  <React.Fragment key={g}>
-                    <tr className="cmp-group-row"><td colSpan={items.length + 1}>{g}</td></tr>
-                    {Object.keys(STOCK_METRICS).filter((k) => STOCK_METRICS[k].group === g).map((k) => {
-                      const bestT = CMP_UNAMBIGUOUS.includes(k) ? cmpBestTicker(items, k, STOCK_METRICS[k].dir) : null;
-                      return (
-                        <tr key={k}>
-                          <td>{STOCK_METRICS[k].label}{STOCK_METRICS[k].hint && <ScreenerInfoTip text={STOCK_METRICS[k].hint} />}</td>
-                          {items.map((it) => {
-                            const v = k === "mcap" ? it.market_cap : it.raw?.[k];
-                            const pct = it.percentiles?.[k];
-                            return (
-                              <td key={it.ticker} className={bestT === it.ticker ? "cmp-best" : ""}>
-                                <span className="cmp-cellval">{fmtStockMetric(k, v)}</span>
-                                {pct != null && k !== "mcap" && (
-                                  <span className="cmp-cellbar"><i className={pct >= 80 ? "strong" : ""} style={{ width: Math.max(4, pct) + "%" }} /></span>
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      );
-                    })}
-                  </React.Fragment>
-                ))}
-                {CMP_FIN_GROUPS.map((g) => {
-                  const keys = Object.keys(CMP_FIN_METRICS).filter((k) => CMP_FIN_METRICS[k].group === g);
+                {CMP_CURATED.map((row) => {
+                  const diverges = cmpRowDiverges(items, row, finData);
                   return (
+                    <tr key={row.key} className={diverges === true ? "cmp-diverges" : diverges === false ? "cmp-equal" : ""}>
+                      <td>{row.label}</td>
+                      {items.map((it) => (
+                        <td key={it.ticker} className="cmp-cellval">{_cmpRowFmt(row, _cmpRowValue(it, row, finData))}</td>
+                      ))}
+                      <td className="cmp-trend-cell">
+                        <CmpTrendSpark items={items} finData={finData} trendKey={row.trendKey} label={row.label} onOpen={() => openYearly(row.trendKey)} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <button type="button" className="cmp-expand-toggle" onClick={() => setExpandMetrics((v) => !v)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ transform: expandMetrics ? "rotate(180deg)" : undefined, transition: "transform .15s" }}><path d="M6 9l6 6 6-6" /></svg>
+            {expandMetrics ? "Свернуть" : "Развернуть все метрики"}
+          </button>
+
+          {expandMetrics && (
+            <div className="cmp-table-wrap" style={{ marginTop: 12 }}>
+              <table className="cmp-table">
+                <thead>
+                  <tr>
+                    <th className="cmp-th-metric">Метрика</th>
+                    {items.map((it) => (
+                      <th key={it.ticker}>
+                        <div className="cmp-th-company">
+                          <CompanyLogo ticker={it.ticker} name={it.name} size={20} />
+                          {it.name}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {STOCK_METRIC_GROUPS.map((g) => (
                     <React.Fragment key={g}>
                       <tr className="cmp-group-row"><td colSpan={items.length + 1}>{g}</td></tr>
-                      {keys.map((k) => {
-                        const bestT = CMP_FIN_METRICS[k].high ? cmpFinBestTicker(finData, items, k) : null;
+                      {Object.keys(STOCK_METRICS).filter((k) => STOCK_METRICS[k].group === g && !CMP_CURATED.some((c) => c.key === k)).map((k) => {
+                        const bestT = CMP_UNAMBIGUOUS.includes(k) ? cmpBestTicker(items, k, STOCK_METRICS[k].dir) : null;
                         return (
                           <tr key={k}>
-                            <td>{CMP_FIN_METRICS[k].label}</td>
+                            <td>{STOCK_METRICS[k].label}{STOCK_METRICS[k].hint && <ScreenerInfoTip text={STOCK_METRICS[k].hint} />}</td>
                             {items.map((it) => {
-                              const v = _lastNN(finData[it.ticker]?.metrics_timeseries?.[k]);
+                              const v = k === "mcap" ? it.market_cap : it.raw?.[k];
+                              const pct = it.percentiles?.[k];
                               return (
                                 <td key={it.ticker} className={bestT === it.ticker ? "cmp-best" : ""}>
-                                  <span className="cmp-cellval">{finLoading && !finData[it.ticker] ? "…" : fmtFinMetric(k, v)}</span>
+                                  <span className="cmp-cellval">{fmtStockMetric(k, v)}</span>
+                                  {pct != null && k !== "mcap" && (
+                                    <span className="cmp-cellbar"><i className={pct >= 80 ? "strong" : ""} style={{ width: Math.max(4, pct) + "%" }} /></span>
+                                  )}
                                 </td>
                               );
                             })}
@@ -615,19 +827,44 @@ export default function CompareView({ onOpenCompany }) {
                         );
                       })}
                     </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                  {CMP_FIN_GROUPS.map((g) => {
+                    const keys = Object.keys(CMP_FIN_METRICS).filter((k) => CMP_FIN_METRICS[k].group === g && !CMP_CURATED.some((c) => c.key === k));
+                    if (!keys.length) return null;
+                    return (
+                      <React.Fragment key={g}>
+                        <tr className="cmp-group-row"><td colSpan={items.length + 1}>{g}</td></tr>
+                        {keys.map((k) => {
+                          const bestT = CMP_FIN_METRICS[k].high ? cmpFinBestTicker(finData, items, k) : null;
+                          return (
+                            <tr key={k}>
+                              <td>{CMP_FIN_METRICS[k].label}</td>
+                              {items.map((it) => {
+                                const v = _lastNN(finData[it.ticker]?.metrics_timeseries?.[k]);
+                                return (
+                                  <td key={it.ticker} className={bestT === it.ticker ? "cmp-best" : ""}>
+                                    <span className="cmp-cellval">{finLoading && !finData[it.ticker] ? "…" : fmtFinMetric(k, v)}</span>
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
           <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-max-w-[70ch]">
-            Зелёным — лучшее значение среди сравниваемых бумаг (дивдоходность, ROE, EBITDA-маржа,
-            FCF-доходность и метрики из группы «из отчётности»/«Рост»). Полоска под числом — позиция
-            относительно всего рынка (перцентиль Basis, только для верхнего блока метрик). Мультипликаторы
-            (P/E, EV/EBITDA, P/B, P/S и т.д.) — без подсветки «лучше/хуже»: низкое значение не всегда
-            означает недооценку. Метрики «из отчётности» — последнее известное годовое значение из
-            финансовой отчётности компании (не у всех профилей заполнены все поля — банки и обычные
-            компании считаются по разным метрикам маржи).
+            Приглушено — где значения между бумагами почти не различаются; полоской слева отмечены строки
+            с реальным расхождением. Зелёным — лучшее значение там, где оно однозначно (дивдоходность, ROE,
+            EBITDA-маржа, FCF-доходность и т.д.) — мультипликаторы (P/E, EV/EBITDA, P/B, P/S) без подсветки
+            «лучше/хуже»: низкое значение не всегда означает недооценку. Значок в колонке «Тренд» открывает
+            график метрики по годам выше. Метрики «из отчётности» — последнее известное годовое значение
+            (не у всех профилей заполнены все поля — банки и обычные компании считаются по разным метрикам маржи).
           </p>
         </>
       )}

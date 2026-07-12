@@ -161,3 +161,65 @@
   min-width: 30px;
   text-align: center;
 }
+
+/* Редизайн 2026-07-13 (продуктовый разбор — «на чём расходятся», не голая
+   таблица): шапка таблицы — лого+имя вместо тикера; колонка «Тренд» —
+   мини-спарклайн; приглушение почти равных строк / подсветка расходящихся. */
+.cmp-th-company { display: inline-flex; align-items: center; gap: 7px; justify-content: flex-end; text-transform: none; letter-spacing: normal; font-size: 12.5px; color: var(--text-primary); font-weight: 700; }
+.cmp-th-trend { text-align: center !important; }
+.cmp-trend-cell { text-align: center !important; }
+.cmp-trend-empty { color: var(--text-tertiary); }
+.cmp-trend-btn { border: none; background: transparent; padding: 2px; cursor: pointer; border-radius: 6px; transition: background .14s; display: inline-flex; }
+.cmp-trend-btn:hover { background: var(--bg-hover); }
+
+.cmp-diverges td:first-child { position: relative; }
+.cmp-diverges td:first-child::before { content: ''; position: absolute; left: -1px; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--accent); }
+.cmp-equal td { color: var(--text-tertiary); opacity: .65; }
+.cmp-equal td:first-child { color: var(--text-tertiary); }
+
+.cmp-expand-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 12px;
+  padding: 10px; border: 1px dashed var(--border-strong); border-radius: var(--radius-md); background: transparent;
+  color: var(--text-secondary); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+}
+.cmp-expand-toggle:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.cmp-expand-toggle svg { width: 13px; height: 13px; }
+
+/* ---- вердикт «Точки расхождения» (ровно 2 бумаги) — хедлайн экрана,
+   dumbbell-плот по каждой реально расходящейся оси, не голая таблица. ---- */
+.cmp-verdict { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 26px 28px; margin-top: 20px; box-shadow: var(--shadow-sm); }
+.cmp-verdict-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 6px; }
+.cmp-verdict-eyebrow { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px; }
+.cmp-verdict-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0; }
+
+.cmp-verdict-legend { display: flex; gap: 18px; margin: 16px 0 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); }
+.cmp-verdict-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.cmp-verdict-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+
+.cmp-axes { display: flex; flex-direction: column; gap: 26px; }
+.cmp-axis-label { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+.cmp-axis-plot { position: relative; height: 20px; }
+.cmp-axis-track { position: absolute; left: 0; right: 0; top: 9px; height: 2px; background: var(--border-subtle); border-radius: 1px; }
+.cmp-axis-connector { position: absolute; top: 9px; height: 2px; background: var(--border-strong); border-radius: 1px; }
+.cmp-axis-dot { position: absolute; top: 2px; width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid var(--bg-elevated); box-shadow: var(--shadow-sm); transform: translateX(-50%); }
+.cmp-axis-dot--a { background: var(--cat-1); }
+.cmp-axis-dot--b { background: var(--cat-2); }
+.cmp-axis-val { position: absolute; top: -18px; transform: translateX(-50%); font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.cmp-axis-val--below { top: auto; bottom: -22px; }
+.cmp-axis-val--a { color: var(--cat-1); }
+.cmp-axis-val--b { color: var(--cat-2); }
+
+.cmp-verdict-text { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-subtle); font-size: 14px; line-height: 1.65; color: var(--text-secondary); }
+.cmp-verdict-text b { color: var(--text-primary); font-weight: 600; }
+
+.cmp-comparability {
+  display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; padding: 11px 14px;
+  background: var(--info-soft); border-radius: 9px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;
+}
+.cmp-comparability svg { flex: none; width: 15px; height: 15px; color: var(--info); margin-top: 1px; }
+.cmp-comparability b { color: var(--text-primary); }
+
+@media (max-width: 640px) {
+  .cmp-axis-label { margin-bottom: 20px; }
+  .cmp-verdict { padding: 20px 18px; }
+}
