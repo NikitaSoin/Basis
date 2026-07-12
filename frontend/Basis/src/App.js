@@ -562,6 +562,16 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
+  // Deep-link по ?company=TICKER — вход из статических SEO-страниц
+  // (build/company/<TICKER>/, см. scripts/generate-seo-pages.js) в живое приложение.
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get("company");
+      if (t) setSelectedCompany(t.toUpperCase());
+    } catch {}
+  }, []);
+
   useEffect(() => {
     const el = document.documentElement;
     el.classList.toggle("dark", theme === "dark");

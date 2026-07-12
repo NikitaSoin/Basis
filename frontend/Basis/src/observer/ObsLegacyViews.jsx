@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ChevronUp,
   ExternalLink,
+  FileText,
   Info,
   Sparkles,
   X,

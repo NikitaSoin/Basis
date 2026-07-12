@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import {
   Activity,
   AlertTriangle,
+  ArrowRightLeft,
   Briefcase,
   ChevronDown,
   ChevronRight,
@@ -23,8 +24,9 @@ import {
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "../design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "../design/format";
 import { Prose, ANALYST_MD } from "../design/textblocks";
-import { AppearGroup } from "../design/motion";
+import { AppearGroup, Appear } from "../design/motion";
 import { CompanyLogo } from "../design/CompanyLogo";
+import { useCountUp } from "../design/PortfolioViz";
 import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResearchTabs, DecisionSupportRail } from "./neo";
 import ScreenerNeo from "../screener/ScreenerNeo";
 import BondScreenerNeo from "../screener/BondScreenerNeo";
