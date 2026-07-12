@@ -35,6 +35,7 @@ import BusinessModelTab from "./BusinessModelTab";
 import FinanceTab from "./FinanceTab";
 import GovernanceTab from "./GovernanceTab";
 import InstitutionsTab from "./InstitutionsTab";
+import GeoTab from "./GeoTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
 import { ObsLineChart } from "../observer/ObsPanels";
 
@@ -6291,6 +6292,22 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  // Маршрутизация схемы geo.json: geo-system v0.9 (пилот LKOH/ROSN/NVTK/GAZP,
+  // опознаётся по наличию gre_profile — 15-факторного E-профиля) идёт в новый
+  // GeoTab; компании, ещё не мигрированные с прежней схемы (meta/exposure_profile/
+  // factors/bottom_line) или только с markdown-фолбэком, остаются на renderGeo().
+  const renderGeoTab = () => {
+    if (geoLoading) return (
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем геополитический анализ...</div>
+      </div>
+    );
+    if (Array.isArray(geoJson?.gre_profile) && geoJson.gre_profile.length > 0) {
+      return <GeoTab geoJson={geoJson} geoMd={geoMd} onNavigateTab={setTab} />;
+    }
+    return renderGeo();
+  };
+
   const renderGeo = () => {
     if (geoLoading) return (
       <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
@@ -6828,7 +6845,7 @@ const CompanyCard = ({ company, onBack }) => {
       {tab === "governance" && renderGovernance()}
       {tab === "markets" && renderMarket()}
       {tab === "macro" && renderMacro()}
-      {tab === "geo" && renderGeo()}
+      {tab === "geo" && renderGeoTab()}
       {tab === "institutions" && renderInstitutions()}
       {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
       {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}

@@ -1,0 +1,204 @@
+/* Вкладка «Геополитика» — geo-system v0.9 (санкционная/экспортная/владельческая
+   экспозиция эмитента к войне, санкциям и госспросу), переведённая в поправку к
+   оценке (премия к WACC / вычет FCF / дисконт мультипликатора — три канала A/B/C,
+   ТА ЖЕ визуальная семья, что у .inst-hybrid, потому что оба блока читаются как
+   одна поправка и складываются в decision-rail). Переменные — тот же ремап
+   cc-токенов, что у .inst-hybrid (institutions.css:11-25) — намеренное дублирование,
+   файл самодостаточен, как и соседние *Tab.jsx/*.css.
+   Данные — geo.json (geo-company-analyst) + geo_summary.md (только для маркдаун-
+   фолбэка, когда geoJson ещё не мигрирован на новую схему — компонент решает
+   какую схему рендерить по наличию gre_profile, см. CompanyCardView). */
+.geo-hybrid{
+  --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
+  --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
+  --line:var(--cc-line); --line-2:var(--cc-line-2);
+  --accent:var(--cc-accent); --accent-soft:var(--cc-accent-soft);
+  --amber:var(--cc-amber); --amber-soft:color-mix(in srgb,var(--cc-amber) 12%,transparent);
+  --pos:var(--cc-success); --pos-soft:color-mix(in srgb,var(--cc-success) 13%,transparent);
+  --neg:var(--cc-danger); --neg-soft:color-mix(in srgb,var(--cc-danger) 12%,transparent);
+  --violet:var(--cc-violet);
+  --info:var(--cc-info);
+  --serif:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
+  --r-lg:16px; --r:11px;
+  display:flex; flex-direction:column; gap:16px;
+  color:var(--ink); font-family:var(--sans); font-variant-numeric:tabular-nums lining-nums;
+}
+
+/* ── frame (Слой 0) ─────────────────────────────────────────────────────── */
+.geo-hybrid .gfr-frame{font-size:12.5px;line-height:1.5;color:var(--ink-3);max-width:70ch;margin:0;}
+
+/* ── epistemic tags (общая схема с .inst-hybrid: факт=нейтраль, оценка=info, суждение=violet) ── */
+.geo-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;white-space:nowrap;}
+.geo-hybrid .tag-fact{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
+.geo-hybrid .tag-judg{background:color-mix(in srgb,var(--violet) 12%,transparent);color:var(--violet);}
+.geo-hybrid .tag-est{background:color-mix(in srgb,var(--info) 12%,transparent);color:var(--info);}
+
+/* ── generic card shell ───────────────────────────────────────────────── */
+.geo-hybrid .gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
+.geo-hybrid .gcard h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.geo-hybrid .gcard h3 svg{color:var(--ink-3);flex-shrink:0;}
+.geo-hybrid .gcard-sub{font-size:12.5px;color:var(--ink-3);margin:0 0 16px;line-height:1.5;}
+.geo-hybrid .ghmeta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400;}
+
+/* ── hero (Слой 1) ─────────────────────────────────────────────────────── */
+.geo-hybrid .ghero{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;}
+.geo-hybrid .ghero-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.geo-hybrid .ghero-meta-l{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;}
+.geo-hybrid .gexp-badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+.geo-hybrid .ghero-macro{font-size:12px;color:var(--ink-3);}
+.geo-hybrid .ghero-macro b{color:var(--ink-2);font-weight:600;}
+.geo-hybrid .ghero-asof{font-size:11px;color:var(--ink-3);font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+
+.geo-hybrid .grange{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:6px 0 4px;}
+.geo-hybrid .grange-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);}
+.geo-hybrid .grange-val{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--ink);}
+.geo-hybrid .grange-conf{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.03em;}
+.geo-hybrid .gassump{margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;}
+.geo-hybrid .gassump li{font-size:12.5px;line-height:1.5;color:var(--ink-2);}
+
+/* ── 3 канала A/B/C (Слой 1) — та же семья, что .ichannel(s), но с
+   несколькими пунктами внутри канала (у гео их несколько, не одно число) ── */
+.geo-hybrid .gchannels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;padding-top:18px;border-top:1px solid var(--line);}
+@media(max-width:860px){.geo-hybrid .gchannels{grid-template-columns:1fr;}}
+.geo-hybrid .gchannel{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;display:flex;flex-direction:column;gap:10px;}
+.geo-hybrid .gchannel-eyebrow{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);}
+.geo-hybrid .gchannel-def{font-size:10.5px;color:var(--ink-3);line-height:1.3;margin-top:2px;}
+.geo-hybrid .gchannel-items{display:flex;flex-direction:column;gap:9px;}
+.geo-hybrid .gcitem{border-top:1px solid var(--line);padding-top:9px;}
+.geo-hybrid .gcitem:first-child{border-top:0;padding-top:0;}
+.geo-hybrid .gcitem-effect{font-size:12px;color:var(--ink);font-weight:600;line-height:1.4;}
+.geo-hybrid .gcitem-mag{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--accent);margin-top:3px;}
+.geo-hybrid .gcitem-rationale{font-size:11.5px;line-height:1.5;color:var(--ink-2);margin-top:4px;}
+.geo-hybrid .gchannel-empty{font-size:11.5px;color:var(--ink-3);font-style:italic;}
+
+.geo-hybrid .gdet{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:16px;background:var(--panel-2);}
+.geo-hybrid .gdet>summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:11px 15px;font-size:12.5px;font-weight:600;color:var(--ink-2);}
+.geo-hybrid .gdet>summary::-webkit-details-marker{display:none;}
+.geo-hybrid .gdet-body{padding:2px 15px 15px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;}
+.geo-hybrid .gdet-body p{margin:0;font-size:12.5px;line-height:1.58;color:var(--ink-2);}
+.geo-hybrid .gdet-body p b{color:var(--ink);font-weight:600;}
+
+.geo-hybrid .chev{color:var(--ink-3);transition:transform .2s;flex-shrink:0;}
+.geo-hybrid details[open] .chev{transform:rotate(180deg);}
+.geo-hybrid .gdet>summary .chev{margin-left:auto;}
+.geo-hybrid summary{outline:none;}
+.geo-hybrid summary:focus-visible{box-shadow:0 0 0 3px var(--accent-soft);border-radius:8px;}
+
+/* ── причинная атрибуция 5 каналов (Слой 2) — горизонтальные бары ────────── */
+.geo-hybrid .gattr-bars{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.geo-hybrid .gattr-row{display:grid;grid-template-columns:150px 1fr 46px;align-items:center;gap:10px;}
+@media(max-width:640px){.geo-hybrid .gattr-row{grid-template-columns:110px 1fr 40px;}}
+.geo-hybrid .gattr-name{font-size:12px;color:var(--ink-2);}
+.geo-hybrid .gattr-name.acc{color:var(--ink);font-weight:700;}
+.geo-hybrid .gattr-track{position:relative;height:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;overflow:hidden;}
+.geo-hybrid .gattr-fill{position:absolute;top:0;left:0;bottom:0;border-radius:4px;background:var(--line-2);}
+.geo-hybrid .gattr-fill.acc{background:var(--accent);}
+.geo-hybrid .gattr-pct{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink);text-align:right;}
+.geo-hybrid .gattr-concl{font-size:12.5px;line-height:1.58;color:var(--ink-2);margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+
+/* ── 15 факторов — кластеры (Слой 3.1) — переиспользует словарь .icluster ── */
+.geo-hybrid .gclusters{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.geo-hybrid .gcluster{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
+.geo-hybrid .gcluster>summary{cursor:pointer;list-style:none;}
+.geo-hybrid .gcluster>summary::-webkit-details-marker{display:none;}
+.geo-hybrid .gcluster-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 15px;background:var(--panel-2);}
+.geo-hybrid .gcluster-ic{flex-shrink:0;}
+.geo-hybrid .gcluster-name{font-size:13.5px;font-weight:600;color:var(--ink);}
+.geo-hybrid .gsegbar{display:flex;gap:2px;flex-shrink:0;}
+.geo-hybrid .gsegbar i{width:12px;height:7px;border-radius:2px;background:var(--line-2);}
+.geo-hybrid .gsegbar i.on{background:var(--sc);}
+.geo-hybrid .gcluster-val{margin-left:auto;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--sc);text-align:right;white-space:nowrap;}
+.geo-hybrid .gcluster-val s{display:block;font-size:9px;color:var(--ink-3);text-decoration:none;font-weight:500;white-space:normal;text-align:right;}
+.geo-hybrid .gcluster-body{display:flex;flex-direction:column;gap:2px;padding:6px 15px 14px;border-top:1px solid var(--line);background:var(--panel);}
+.geo-hybrid .gsub{padding:10px 0;border-bottom:1px solid var(--line);}
+.geo-hybrid .gsub:last-child{border-bottom:0;}
+.geo-hybrid .gsub-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.geo-hybrid .gsub-key{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+.geo-hybrid .gsub-name{font-size:12.5px;font-weight:600;color:var(--ink);flex:1;min-width:120px;}
+.geo-hybrid .gsub-score{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--sc);margin-left:auto;}
+.geo-hybrid .gsub-score s{font-size:9px;color:var(--ink-3);text-decoration:none;font-weight:500;}
+.geo-hybrid .gsub-why{font-size:12.5px;line-height:1.58;color:var(--ink-2);margin-top:5px;}
+.geo-hybrid .gsub-trigger{font-size:11.5px;line-height:1.5;color:var(--ink-3);margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);}
+.geo-hybrid .gsub-trigger b{color:var(--ink-2);font-weight:600;}
+
+/* ── чувствительность к барометру (Слой 3.2) ─────────────────────────────── */
+.geo-hybrid .gsens{display:flex;flex-direction:column;gap:9px;}
+.geo-hybrid .gsens-row{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:11px 14px;}
+.geo-hybrid .gsens-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.geo-hybrid .gsens-g{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:99px;}
+.geo-hybrid .gsens-mech{font-size:12.5px;color:var(--ink);font-weight:600;flex:1;min-width:160px;}
+.geo-hybrid .gsens-elast{font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:7px;}
+.geo-hybrid .gsens-src{font-size:11px;color:var(--ink-3);margin-top:5px;font-style:italic;}
+
+/* ── сценарии (Слой 3.3) — сетка 2×2 карточек ────────────────────────────── */
+.geo-hybrid .gscen-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:720px){.geo-hybrid .gscen-grid{grid-template-columns:1fr;}}
+.geo-hybrid .gscen{border:1px solid var(--line);border-left:3px solid var(--sc);border-radius:0 var(--r) var(--r) 0;background:var(--panel-2);padding:14px 16px;}
+.geo-hybrid .gscen-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.geo-hybrid .gscen-name{font-size:13.5px;font-weight:700;color:var(--ink);}
+.geo-hybrid .gscen-pct{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--sc);font-weight:700;}
+.geo-hybrid .gscen-rows{display:flex;flex-direction:column;gap:6px;}
+.geo-hybrid .gscen-row{font-size:11.5px;line-height:1.5;color:var(--ink-2);}
+.geo-hybrid .gscen-row b{color:var(--ink-3);font-weight:700;text-transform:uppercase;font-size:9.5px;letter-spacing:.04em;display:block;margin-bottom:1px;}
+.geo-hybrid .gscen-fcf{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:5px;}
+
+/* ── асимметрия война/мир (Слой 3.4) — 2×2 квадрант ──────────────────────── */
+.geo-hybrid .gasym{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
+@media(max-width:640px){.geo-hybrid .gasym{grid-template-columns:1fr;}}
+.geo-hybrid .gasym-cell{background:var(--panel);padding:13px 15px;}
+.geo-hybrid .gasym-h{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.geo-hybrid .gasym-h.peace{color:var(--pos);}
+.geo-hybrid .gasym-h.esc{color:var(--neg);}
+.geo-hybrid .gasym-txt{font-size:12px;line-height:1.55;color:var(--ink-2);}
+
+/* ── карта экспозиции (Слой 3.5) ─────────────────────────────────────────── */
+.geo-hybrid .gexp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;}
+.geo-hybrid .gexp-cell{background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--line-2);border-radius:0 9px 9px 0;padding:11px 13px;min-width:0;}
+.geo-hybrid .gexp-cell-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);display:flex;align-items:center;gap:6px;}
+.geo-hybrid .gexp-cell-v{font-size:12px;color:var(--ink-2);margin-top:5px;line-height:1.5;}
+.geo-hybrid .gexp-sub{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);}
+.geo-hybrid .gexp-sub-l{font-size:9.5px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;}
+.geo-hybrid .gexp-sub-v{font-size:11.5px;color:var(--ink-2);margin-top:2px;line-height:1.5;}
+
+/* ── навес нерезидентов (Слой 3.6) ───────────────────────────────────────── */
+.geo-hybrid .gover-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+
+/* ── риски владения миноритария (Слой 3.7) ───────────────────────────────── */
+.geo-hybrid .grisks{display:flex;flex-direction:column;gap:10px;}
+.geo-hybrid .grisk{background:var(--panel-2);border:1px solid var(--line);border-left:2px solid var(--sev);border-radius:0 var(--r) var(--r) 0;padding:12px 14px;}
+.geo-hybrid .grisk-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.geo-hybrid .grisk-sev{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:99px;background:var(--panel);border:1px solid var(--line);color:var(--sev);white-space:nowrap;}
+.geo-hybrid .grisk-name{font-size:13px;font-weight:600;color:var(--ink);flex:1;min-width:160px;}
+.geo-hybrid .grisk-precedent{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);}
+.geo-hybrid .grisk-trigger{font-size:12px;line-height:1.5;color:var(--ink-2);margin-top:7px;}
+.geo-hybrid .grisk-trigger b{color:var(--ink-3);font-weight:700;text-transform:uppercase;font-size:9.5px;letter-spacing:.04em;}
+
+/* ── расхождения (Слой 3.8) ───────────────────────────────────────────────── */
+.geo-hybrid .gdisagree{display:flex;flex-direction:column;gap:12px;}
+.geo-hybrid .gdis-prose{font-size:12.5px;line-height:1.6;color:var(--ink-2);}
+.geo-hybrid .gdis-overlap{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;}
+.geo-hybrid .gdis-overlap-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
+.geo-hybrid .gdis-factor{font-size:12.5px;font-weight:600;color:var(--ink);flex:1;min-width:180px;}
+.geo-hybrid .gdis-chan{font-family:var(--mono);font-size:10.5px;color:var(--accent);background:var(--accent-soft);padding:2px 7px;border-radius:99px;}
+.geo-hybrid .gdis-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:8px 0;}
+@media(max-width:560px){.geo-hybrid .gdis-vs{grid-template-columns:1fr;}}
+.geo-hybrid .gdis-vs-cell{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;}
+.geo-hybrid .gdis-vs-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);margin-bottom:3px;}
+.geo-hybrid .gdis-vs-v{font-size:12px;color:var(--ink-2);line-height:1.45;}
+.geo-hybrid .gdis-vs-sep{font-size:11px;font-weight:700;color:var(--ink-3);text-align:center;}
+.geo-hybrid .gdis-resolution{font-size:12px;line-height:1.55;color:var(--ink-2);margin-top:4px;}
+.geo-hybrid .gdis-open{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);background:var(--amber-soft);padding:2px 8px;border-radius:99px;margin-top:8px;}
+
+/* ── «За чем следить» (Слой 4) ────────────────────────────────────────────  */
+.geo-hybrid .gtrig-list{display:flex;flex-direction:column;gap:12px;}
+.geo-hybrid .gtrigger{display:flex;gap:12px;align-items:baseline;}
+.geo-hybrid .gtrig-n{font-family:var(--mono);font-size:12px;color:var(--ink-3);flex-shrink:0;}
+.geo-hybrid .gtrig-t{font-size:13.5px;line-height:1.55;color:var(--ink);}
+
+/* ── сверка с институтами (переход к вкладке) ─────────────────────────────  */
+.geo-hybrid .gverka-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.geo-hybrid .gverka-link{background:none;border:0;padding:4px 2px;margin:-4px -2px;font:inherit;font-size:12px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;border-radius:4px;}
+.geo-hybrid .gverka-link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
+
+/* ── дисклеймер ────────────────────────────────────────────────────────────  */
+.geo-hybrid .gend-note{font-size:11px;line-height:1.5;color:var(--ink-3);padding:0 2px;margin:0;}
