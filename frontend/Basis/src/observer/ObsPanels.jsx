@@ -1212,16 +1212,25 @@ const GEO_CLUSTERS = [
   { name: "Геополитические оси", icon: Globe, keys: ["G9", "G10", "G11", "G13"] },
 ];
 
-// «Внешние оси» — ответ на «а Ближний Восток и АТР?»: барометр ЕДИНЫЙ для всего рынка
-// (не разбит по регионам), но G9/G10/G11/G13 — это именно те оси, которые покрывают
-// Китай+Индию (АТР/Global South), США, ЕС/UK и глобальный фон (Ормуз и др.). Вынесены
-// отдельным именованным блоком между сценариями и полным списком G1-G13 (следующий
-// уровень детализации ВНУТРИ уже существующего барометра, не новый отдельный барометр).
+// «Внешние оси» — вспомогательная детализация внутри G1-G13 (вклад конкретных внешних
+// игроков в общий балл). Владелец забраковал попытку решить региональность ТОЛЬКО через
+// эти оси («всё намешано, СВО/Ближний Восток/АТР было не различить») — основной ответ
+// теперь блок «regions» (см. GEO_REGION_META ниже), эти оси остаются как более
+// техническая детализация ниже по экрану, не как замена явной разбивки.
 const GEO_AXES = [
   { key: "G9", short: "Китай / Индия (АТР, Global South)" },
   { key: "G10", short: "США" },
   { key: "G11", short: "ЕС / Великобритания" },
   { key: "G13", short: "Глобальный фон (Ормуз, нефть, третьи страны)" },
+];
+
+// Явная разбивка по геополитическим очагам (backend/config/geo_barometer.json → regions),
+// по прямому требованию владельца: «раздели явно, так понятно откуда какая гадость
+// прилетит, на кого влияет и сколько продлится».
+const GEO_REGION_META = [
+  { key: "svo", label: "СВО", icon: Swords },
+  { key: "middle_east", label: "Ближний Восток", icon: AlertTriangle },
+  { key: "atr", label: "АТР", icon: Globe },
 ];
 
 // =========================
@@ -1799,6 +1808,48 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                       scaleLabels={["низкий риск", "высокий риск"]}
                       subindices={baro.subindices}
                     />
+
+                    {/* Явная разбивка по очагам — владелец прямо попросил разделить
+                        (единый барометр читался как «всё замешано», СВО/Ближний Восток/АТР
+                        было не различить). Три самостоятельные мини-оценки: откуда угроза,
+                        куда движется, кого касается, сколько продлится. Общий барометр выше
+                        остаётся агрегатом (SVO доминирует по весу), это — детализация. */}
+                    {baro.regions && (
+                      <div>
+                        <div className="obs-synth-head" style={{ marginBottom: 14 }}>По очагам: откуда, на кого и насколько долго</div>
+                        <div className="obs-region-grid">
+                          {GEO_REGION_META.map(({ key, label, icon: Icon }) => {
+                            const r = baro.regions[key];
+                            if (!r) return null;
+                            const esc = /эскалац/i.test(r.direction || "");
+                            const desc = /деэскалац/i.test(r.direction || "");
+                            const dirColor = esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
+                            return (
+                              <div key={key} className="obs-region-card">
+                                <div className="obs-region-card-head">
+                                  <Icon size={16} />
+                                  <span className="obs-region-card-name">{label}</span>
+                                  <span className="obs-region-card-dir" style={{ color: dirColor, borderColor: dirColor }}>{r.direction}</span>
+                                </div>
+                                {r.label && <div className="obs-region-card-label">{r.label}</div>}
+                                {r.duration_estimate && (
+                                  <div className="obs-region-card-duration"><Clock size={12} />{r.duration_estimate}</div>
+                                )}
+                                {r.summary && <p className="obs-region-card-summary">{r.summary}</p>}
+                                {Array.isArray(r.affected) && r.affected.length > 0 && (
+                                  <div className="obs-region-card-affected">
+                                    <div className="obs-region-card-affected-label">Кого касается</div>
+                                    <div className="obs-region-card-chips">
+                                      {r.affected.map((a, i) => <span key={i} className="obs-region-chip">{a}</span>)}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
                     {baro.scenario && (
                       <div className="obs-inst-card">
