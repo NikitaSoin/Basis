@@ -17,6 +17,19 @@ import {
 import { Button, Card, Badge, Chip } from "../design/primitives";
 import { Prose, Disclosure, ANALYST_MD } from "../design/textblocks";
 
+function _newsTime(iso) {
+  try {
+    const dt = new Date(iso);
+    if (isNaN(dt)) return "";
+    const msk = new Date(dt.getTime() + (dt.getTimezoneOffset() + 180) * 60000);
+    const hh = String(msk.getHours()).padStart(2, "0");
+    const mm = String(msk.getMinutes()).padStart(2, "0");
+    const nowMsk = new Date(Date.now() + (new Date().getTimezoneOffset() + 180) * 60000);
+    const sameDay = msk.getDate() === nowMsk.getDate() && msk.getMonth() === nowMsk.getMonth();
+    return sameDay ? `${hh}:${mm}` : `${String(msk.getDate()).padStart(2, "0")}.${String(msk.getMonth() + 1).padStart(2, "0")} ${hh}:${mm}`;
+  } catch { return ""; }
+}
+
 const _SOURCE_LABEL = { interfax: "Интерфакс", rbc: "РБК", kommersant: "Коммерсантъ" };
 
 // Категория по содержанию → спокойная цветовая точка (принцип «цвет в данных»,

@@ -25,6 +25,8 @@ import { AppearGroup } from "../design/motion";
 import { CompanyLogo } from "../design/CompanyLogo";
 import "../styles/portfolio-v2.css";
 
+const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : "—";
+
 // =========================
 // PORTFOLIO MOCK DATA
 // =========================
