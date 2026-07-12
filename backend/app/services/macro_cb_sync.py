@@ -409,42 +409,33 @@ def sync_expectations(db: Session) -> dict:
     return {"month": str(d), "expectation": exp}
 
 
-def _latest_credit_m2_pdf() -> tuple[str, str] | None:
-    """(url, 'YYYY-MM') последнего PDF «Денежные агрегаты и кредит экономике» —
-    имя файла публикуется предсказуемо (credit_m2x_YYYY-MM.pdf), но numeric ID в
-    пути /Collection/Collection/File/{id}/ меняется при публикации — берём с хаба."""
+def _all_credit_m2_pdfs() -> list[tuple[str, str]]:
+    """[(url, 'YYYY-MM'), ...] ВСЕХ PDF «Денежные агрегаты и кредит экономике» на хабе
+    (обычно последние ~8-12 месяцев), отсортировано по возрастанию месяца — имя файла
+    публикуется предсказуемо (credit_m2x_YYYY-MM.pdf), но numeric ID в пути
+    /Collection/Collection/File/{id}/ меняется при публикации — берём с хаба."""
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_CREDIT_M2_HUB)
         r.raise_for_status()
         html = r.text
     except Exception as e:  # noqa: BLE001
         logger.warning("CB-sync credit_m2: хаб недоступен: %s", type(e).__name__)
-        return None
+        return []
     links = re.findall(r'href="(/Collection/Collection/File/\d+/credit_m2x_(\d{4}-\d{2})\.pdf)"', html)
-    if not links:
-        return None
-    href, ym = sorted(links, key=lambda t: t[1])[-1]
-    return "https://www.cbr.ru" + href, ym
+    seen: dict[str, str] = {}
+    for href, ym in links:
+        seen[ym] = href  # на хабе может быть дубль ссылки на тот же месяц — берём любую
+    return [("https://www.cbr.ru" + href, ym) for ym, href in sorted(seen.items())]
 
 
-def sync_credit_m2(db: Session) -> dict:
-    """M2 + кредит экономике + требования к организациям/населению — ОДИН ежемесячный
-    PDF-бюллетень ЦБ («Денежные агрегаты и кредит экономике», Табл. 1, страница 2).
-    Чинит sync_m2 (старая страница cbr.ru/statistics/ms/ — статичная JS-заглушка с
-    2021 года; материал переехал/переименован в апреле 2026, до этого молча копил
-    ошибки "page"/"stale_or_parse" 105 дней подряд) + впервые даёт credit_economy/
-    claims_organizations/claims_households (раньше — только разовый бэкфилл
-    cb_model_big.csv БЕЗ крона, застрявший на 2026-03-28, см. work-journal)."""
-    found = _latest_credit_m2_pdf()
-    if not found:
-        return {"error": "hub"}
-    url, ym = found
+def _process_credit_m2_pdf(db: Session, url: str, ym: str) -> dict:
+    """Разбор ОДНОГО PDF-бюллетеня → 4 показателя за месяц ym."""
     try:
         r = httpx.Client(timeout=30, headers=_HTTP, follow_redirects=True).get(url)
         r.raise_for_status()
         pdf_bytes = r.content
     except Exception as e:  # noqa: BLE001
-        logger.warning("CB-sync credit_m2: PDF недоступен: %s", type(e).__name__)
+        logger.warning("CB-sync credit_m2 %s: PDF недоступен: %s", ym, type(e).__name__)
         return {"error": "pdf"}
     try:
         import io
@@ -452,15 +443,15 @@ def sync_credit_m2(db: Session) -> dict:
         reader = PdfReader(io.BytesIO(pdf_bytes))
         text = "\n".join((p.extract_text() or "") for p in reader.pages[:2])
     except Exception as e:  # noqa: BLE001
-        logger.warning("CB-sync credit_m2: парсинг PDF упал: %s", type(e).__name__)
+        logger.warning("CB-sync credit_m2 %s: парсинг PDF упал: %s", ym, type(e).__name__)
         return {"error": "parse_pdf"}
     try:
         out = llm.complete(_CREDIT_M2_SYS, text[:6000], json_mode=True, max_tokens=400)
     except llm.LLMError:
         return {"error": "llm"}
     d = _month_end(ym)
-    if d is None or d < (date.today() - timedelta(days=150)):
-        return {"error": "stale_or_parse"}
+    if d is None:
+        return {"error": "bad_date"}
     res = {}
     for code, metric, key in (("m2", "level", "m2_yoy"),
                                ("credit_economy", "yoy", "credit_economy_yoy"),
@@ -476,6 +467,26 @@ def sync_credit_m2(db: Session) -> dict:
                      source_url=url, ingested_via="cbr")
         res[code] = val
     return res or {"error": "parse"}
+
+
+def sync_credit_m2(db: Session, months_back: int = 1) -> dict:
+    """M2 + кредит экономике + требования к организациям/населению — ежемесячные
+    PDF-бюллетени ЦБ («Денежные агрегаты и кредит экономике», Табл. 1, страница 2).
+    Чинит sync_m2 (старая страница cbr.ru/statistics/ms/ — статичная JS-заглушка с
+    2021 года; материал переехал/переименован в апреле 2026, до этого молча копил
+    ошибки "page"/"stale_or_parse" 105 дней подряд) + впервые даёт credit_economy/
+    claims_organizations/claims_households (раньше — только разовый бэкфилл
+    cb_model_big.csv БЕЗ крона, застрявший на 2026-03-28, см. work-journal).
+    months_back=1 (суточный крон) — только последний месяц; >1 — бэкфилл истории
+    (хаб хранит обычно ~8-12 последних месяцев, дальше история не публикуется)."""
+    pdfs = _all_credit_m2_pdfs()
+    if not pdfs:
+        return {"error": "hub"}
+    todo = pdfs[-months_back:]
+    out = {}
+    for url, ym in todo:
+        out[ym] = _process_credit_m2_pdf(db, url, ym)
+    return out if months_back > 1 else next(iter(out.values()), {"error": "empty"})
 
 
 def sync_cb(db: Session) -> dict:

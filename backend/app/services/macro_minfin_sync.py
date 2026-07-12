@@ -19,6 +19,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+import urllib.parse
 from datetime import date, timedelta
 
 import httpx
@@ -38,7 +39,12 @@ _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 # паттерн, что DEEPSEEK_BASE_URL/FRED_BASE_URL в llm.py/macro_ingest.py) — если владелец
 # поднимет Worker, достаточно задать переменную окружения, код подхватит сам, без деплоя.
 _BASE = (os.environ.get("MINFIN_BASE_URL") or "https://minfin.gov.ru").rstrip("/")
-_PRESS_CENTER = _BASE + "/ru/press-center/"
+# Витрина /ru/press-center/ — общая лента ВСЕХ пресс-релизов Минфина (не только бюджетных),
+# хранит только ~15-20 последних — старше месяца-двух бюджетный релиз с неё уже пролистался
+# (проверено 2026-07-12: на витрине нашёлся только июнь, хотя март/апрель/май реально
+# существуют). Собственный поиск сайта находит их все — используем его для дискавери.
+_SEARCH_QUERY = "предварительная оценка исполнения федерального бюджета"
+_PRESS_CENTER = _BASE + "/ru/search/?q_4=" + urllib.parse.quote(_SEARCH_QUERY)
 _SLUG_RE = re.compile(
     r'href="(/ru/press-center/\?id_4=(\d+)-predvaritelnaya_otsenka_ispolneniya_federalnogo_byudzheta_za_'
     r'([a-z]+)-([a-z]+)_(\d{4})_goda)"'
@@ -63,9 +69,10 @@ def _month_end(year: int, month: int) -> date:
     return nxt - timedelta(days=1)
 
 
-def _latest_release() -> tuple[str, date] | str:
-    """(url, as_of=конец периода из URL-слага — надёжнее, чем просить LLM угадать дату)
-    ЛИБО строка с причиной сбоя (для диагностики через debug-эндпоинт)."""
+def _all_releases() -> list[tuple[str, date]] | str:
+    """[(url, as_of), ...] ВСЕХ релизов на странице пресс-центра (обычно несколько
+    последних месяцев — цикл кумулятивный "янв-фев", "янв-мар" и т.д. с начала года),
+    по возрастанию даты, ЛИБО строка с причиной сбоя (для диагностики)."""
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_PRESS_CENTER)
         r.raise_for_status()
@@ -76,18 +83,16 @@ def _latest_release() -> tuple[str, date] | str:
     matches = _SLUG_RE.findall(html)
     if not matches:
         return f"no_matches (html_len={len(html)})"
-    href, _id, _start_mon, end_mon, year = sorted(matches, key=lambda m: int(m[1]))[-1]
-    month_num = _TRANSLIT_MONTHS.get(end_mon)
-    if not month_num:
-        return f"bad_month:{end_mon}"
-    return _BASE + href, _month_end(int(year), month_num)
+    out = []
+    for href, _id, _start_mon, end_mon, year in matches:
+        month_num = _TRANSLIT_MONTHS.get(end_mon)
+        if not month_num:
+            continue
+        out.append((_BASE + href, _month_end(int(year), month_num)))
+    return sorted(set(out), key=lambda t: t[1])
 
 
-def sync_gov_spending(db: Session) -> dict:
-    found = _latest_release()
-    if isinstance(found, str):
-        return {"error": "index", "reason": found}
-    url, d = found
+def _process_release(db: Session, url: str, d: date) -> dict:
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(url)
         r.raise_for_status()
@@ -108,8 +113,27 @@ def sync_gov_spending(db: Session) -> dict:
         val = float(out.get("spending_growth_yoy"))
     except (TypeError, ValueError):
         val = None
-    if val is None or not (-30 <= val <= 60) or d < (date.today() - timedelta(days=60)):
+    if val is None or not (-30 <= val <= 60):
         return {"error": "stale_or_parse"}
     upsert_point(db, "gov_spending_growth", d, "level", val, unit="%", source="Минфин России",
                  source_url=url, ingested_via="minfin")
     return {"date": str(d), "spending_growth_yoy": val}
+
+
+def sync_gov_spending(db: Session, months_back: int = 1) -> dict:
+    """months_back=1 (суточный крон) — только последний релиз (с freshness-guard,
+    не пишем если он вдруг оказался старше 60 дней — вероятная страница-затычка);
+    >1 — бэкфилл (страница пресс-центра хранит обычно несколько последних релизов
+    этого типа, кумулятивных с начала года)."""
+    found = _all_releases()
+    if isinstance(found, str):
+        return {"error": "index", "reason": found}
+    if not found:
+        return {"error": "no_releases"}
+    if months_back == 1:
+        url, d = found[-1]
+        if d < (date.today() - timedelta(days=60)):
+            return {"error": "stale_or_parse"}
+        return _process_release(db, url, d)
+    todo = found[-months_back:]
+    return {str(d): _process_release(db, url, d) for url, d in todo}

@@ -278,37 +278,30 @@ def _month_end_str(ym: str) -> date | None:
         return None
 
 
-def _latest_ppi_release() -> str | None:
-    """URL последнего бюллетеня ИЦП — ищем по заголовку в общей ленте анонсов Росстата
-    (та же лента, что уже парсит build_rosstat_releases в calendar_events.py — но там
-    берутся только ДАТЫ, здесь идём по ссылке за реальным ТЕКСТОМ/цифрами)."""
+def _all_ppi_releases() -> list[tuple[str, str]]:
+    """[(дата_публикации 'YYYYMMDD', url), ...] ВСЕХ бюллетеней ИЦП в ленте анонсов
+    Росстата (обычно последние ~6 месяцев — лента ротируется), по возрастанию даты.
+    Та же лента, что уже парсит build_rosstat_releases в calendar_events.py — но там
+    берутся только ДАТЫ, здесь идём по ссылке за реальным ТЕКСТОМ/цифрами."""
     try:
         r = httpx.get(_ROSSTAT_ANNOUNCEMENTS, timeout=30, verify=False, headers=_ROSSTAT_HTTP)
         r.raise_for_status()
         html = r.text
     except Exception as e:  # noqa: BLE001
         logger.warning("Росстат-ИЦП: лента анонсов недоступна: %s", type(e).__name__)
-        return None
+        return []
     candidates = []
     for m in re.finditer(r'<a[^>]+href="([^"]+_(\d{2})-(\d{2})-(\d{4})\.html)"[^>]*>(.*?)</a>',
                          html, re.S):
         href, dd, mo, yyyy, title = m.groups()
         title_clean = re.sub(r"<[^>]+>", " ", title)
         if _PPI_TITLE_RE.search(title_clean):
-            candidates.append((f"{yyyy}{mo}{dd}", href))
-    if not candidates:
-        return None
-    _, href = sorted(candidates)[-1]
-    return "https://rosstat.gov.ru" + href
+            candidates.append((f"{yyyy}{mo}{dd}", "https://rosstat.gov.ru" + href))
+    return sorted(set(candidates))
 
 
-def sync_ppi(db: Session) -> dict:
-    """ИЦП г/г — реальный бюллетень Росстата (не CSV-выгрузка). Раньше застрял на
-    2026-03-31 (только ручной rosstat_manual.csv)."""
+def _process_ppi_release(db: Session, url: str) -> dict:
     from app.services import llm
-    url = _latest_ppi_release()
-    if not url:
-        return {"error": "index"}
     try:
         r = httpx.get(url, timeout=30, verify=False, headers=_ROSSTAT_HTTP)
         r.raise_for_status()
@@ -334,3 +327,17 @@ def sync_ppi(db: Session) -> dict:
     upsert_point(db, "ppi", d, "yoy", val, unit="%", source="Росстат",
                  source_url=url, ingested_via="rosstat")
     return {"month": str(d), "ppi_yoy": val}
+
+
+def sync_ppi(db: Session, months_back: int = 1) -> dict:
+    """ИЦП г/г — реальный бюллетень Росстата (не CSV-выгрузка). Раньше застрял на
+    2026-03-31 (только ручной rosstat_manual.csv). months_back=1 (суточный крон) —
+    только последний; >1 — бэкфилл (лента анонсов хранит обычно ~6 месяцев)."""
+    releases = _all_ppi_releases()
+    if not releases:
+        return {"error": "index"}
+    todo = releases[-months_back:]
+    out = {}
+    for pub_date, url in todo:
+        out[pub_date] = _process_ppi_release(db, url)
+    return out if months_back > 1 else next(iter(out.values()), {"error": "empty"})

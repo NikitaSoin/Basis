@@ -11,6 +11,7 @@ hhcdn.ru (статический CDN, без анти-бота) — «Обзор
 """
 from __future__ import annotations
 
+import html as html_module
 import logging
 import re
 from datetime import date, timedelta
@@ -25,8 +26,15 @@ logger = logging.getLogger(__name__)
 _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                        "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
 _HUB = "https://hh.ru/article/26641"
+# Свежий отчёт лежит в обычном (не экранированном) HTML; АРХИВ прошлых месяцев —
+# ВНУТРИ HTML-эскейпленного JSON-блока для гидратации React (доп. слой экранирования
+# кавычек через \") — оба формата встречаются на одной странице, оба надо парсить.
 _REPORT_RE = re.compile(
     r'Обзор за\s+([а-яё]+)\s+(\d{4})</b></td><td[^>]*><a[^>]+href="(https://hhcdn\.ru/[^"]+\.pdf)"',
+    re.IGNORECASE,
+)
+_ARCHIVE_RE = re.compile(
+    r'Обзор за\s+([а-яё]+)\s+(\d{4})</td><td[^>]*><noindex><a[^>]+href="(https://hhcdn\.ru/[^"]+\.pdf)"',
     re.IGNORECASE,
 )
 _RU_MONTHS = {"январь": 1, "февраль": 2, "март": 3, "апрель": 4, "май": 5, "июнь": 6,
@@ -45,29 +53,39 @@ def _month_end(year: int, month: int) -> date:
     return nxt - timedelta(days=1)
 
 
-def _latest_report() -> tuple[str, date] | None:
+def _all_reports() -> list[tuple[str, date]]:
+    """[(url, as_of), ...] по возрастанию даты: свежий отчёт (обычный HTML) + архив
+    прошлых месяцев (экранированный JSON-блок гидратации — см. докстринг файла)."""
     try:
         r = httpx.get(_HUB, timeout=25, headers=_HTTP, follow_redirects=True)
         r.raise_for_status()
-        html = r.text
+        raw = r.text
     except Exception as e:  # noqa: BLE001
         logger.warning("hh-sync: страница-хаб недоступна: %s", type(e).__name__)
-        return None
-    m = _REPORT_RE.search(html)
-    if not m:
-        return None
-    month_name, year, url = m.groups()
-    month_num = _RU_MONTHS.get(month_name.lower())
-    if not month_num:
-        return None
-    return url, _month_end(int(year), month_num)
+        return []
+    normalized = html_module.unescape(raw).replace('\\"', '"')
+    out: dict[date, str] = {}
+    for pattern in (_REPORT_RE, _ARCHIVE_RE):
+        for month_name, year, url in pattern.findall(normalized):
+            month_num = _RU_MONTHS.get(month_name.lower())
+            if not month_num:
+                continue
+            out[_month_end(int(year), month_num)] = url
+    return sorted(out.items())
 
 
-def sync_hh_index(db: Session) -> dict:
-    found = _latest_report()
-    if not found:
+def sync_hh_index(db: Session, months_back: int = 1) -> dict:
+    reports = _all_reports()
+    if not reports:
         return {"error": "index"}
-    url, d = found
+    todo = reports[-months_back:]
+    out = {}
+    for d, url in todo:
+        out[str(d)] = _process_report(db, url, d)
+    return out if months_back > 1 else next(iter(out.values()), {"error": "empty"})
+
+
+def _process_report(db: Session, url: str, d: date) -> dict:
     try:
         r = httpx.get(url, timeout=30, headers=_HTTP, follow_redirects=True)
         r.raise_for_status()
@@ -94,8 +112,8 @@ def sync_hh_index(db: Session) -> dict:
         val = float(str(out.get("hh_index")).replace(",", "."))
     except (TypeError, ValueError):
         return {"error": "parse"}
-    if not (0.1 <= val <= 20) or d < (date.today() - timedelta(days=90)):
-        return {"error": "stale_or_range"}
+    if not (0.1 <= val <= 20):
+        return {"error": "range"}
     upsert_point(db, "hh_index", d, "level", val, unit="ед", source="hh.ru",
                  source_url=url, ingested_via="hh")
     return {"date": str(d), "hh_index": val}
