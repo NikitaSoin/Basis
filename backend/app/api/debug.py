@@ -570,6 +570,25 @@ def debug_trigger_macro_sync():
         db.close()
 
 
+@router.post("/debug/trigger-macro-interpretation")
+def debug_trigger_macro_interpretation():
+    """Ручной запуск macro_interpreter.generate() (ИИ-«Оценка ситуации» в
+    Макроэкономике) синхронно, без ожидания суточного крона (07:15,
+    macro_interpretation) — для проверки/разовой перегенерации."""
+    from app.db.session import SessionLocal
+    from app.services.macro_interpreter import generate
+    db = SessionLocal()
+    try:
+        row = generate(db)
+        return {"generated_at": row.generated_at.isoformat() if row.generated_at else None,
+                "model_used": row.model_used}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-interpretation: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-analytics")
 def debug_trigger_macro_analytics():
     """Ручной запуск macro_analytics.process() (мониторинг PDF-обзоров ЦБ/ЦМАКП)

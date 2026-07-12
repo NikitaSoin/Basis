@@ -424,6 +424,26 @@ async def _seed_shares_startup():
         logger.exception("Ошибка стартового сида акций/капитализации: %s", e)
 
 
+async def _macro_interpretation_job():
+    """Макро «Оценка ситуации» (ИИ-интерпретация: текущая картина/ставка/прогноз ЦБ/
+    рынок-сектора/сценарии) — раньше генерировалась ТОЛЬКО вручную кнопкой «Обновить
+    анализ» на сайте, поэтому годами показывала один и тот же устаревший срез. Раз в
+    сутки, после _macro_job (данные должны успеть посвежеть)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_interpreter import generate
+        db = SessionLocal()
+        try:
+            return generate(db)
+        finally:
+            db.close()
+    try:
+        row = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Макро-интерпретация обновлена: as_of=%s", getattr(row, "generated_at", None))
+    except Exception as e:
+        logger.exception("Ошибка обновления макро-интерпретации: %s", e)
+
+
 async def _geo_job():
     """Геополитика: пересбор слитого синтеза по методичке (DeepSeek Pro, дорогой
     reasoning-вызов). Раз в сутки. Дайджест отдельных статей — отдельный, более
@@ -587,6 +607,7 @@ async def lifespan(app: FastAPI):
     else:
         scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
         scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
+        scheduler.add_job(_macro_interpretation_job, "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
         scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_geo_digest_job, "cron", minute=10, id="geo_digest")  # каждый час

@@ -515,12 +515,15 @@ def _digest_dict(a) -> dict:
 def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depends(get_db)):
     """Отдельные статьи-карточки по региону (не слитый синтез geo_blocks) — подробный
     пересказ + тезисы. source_label показывается (временно, обкатка пайплайна —
-    geo_digest.py)."""
+    geo_digest.py). Сортировка по created_at (когда МЫ сохранили), не published_at:
+    у re:russia (no_pubdate) published_at — синтетическая метка "сегодня" для всего
+    бэклога, будь сортировка по ней — свежие статьи других источников тонут за старым
+    бэклогом re:russia с той же датой."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
     if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro"):
         raise HTTPException(status_code=404, detail="Неизвестный регион")
     rows = (db.query(GeoDigestArticle).filter_by(target=region)
-           .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
     return {"region": region, "articles": [_digest_dict(a) for a in rows]}
 
 
@@ -530,7 +533,7 @@ def market_institutions_digest(limit: int = 15, db: Session = Depends(get_db)):
     дополняет статичный барометр (market_institutions) живой лентой."""
     from app.models.geo_digest import GeoDigestArticle
     rows = (db.query(GeoDigestArticle).filter_by(target="institutions")
-           .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
     return {"articles": [_digest_dict(a) for a in rows]}
 
 
@@ -541,7 +544,7 @@ def market_macro_digest(limit: int = 15, db: Session = Depends(get_db)):
     записки ЦБ/ЦМАКП (market_macro_analytics) живой лентой внешнего взгляда."""
     from app.models.geo_digest import GeoDigestArticle
     rows = (db.query(GeoDigestArticle).filter_by(target="macro")
-           .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
     return {"articles": [_digest_dict(a) for a in rows]}
 
 
