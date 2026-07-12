@@ -477,6 +477,21 @@ def market_institutions():
         return JSONResponse(content=_json.load(f))
 
 
+@router.get("/market/geo-barometer")
+def market_geo_barometer():
+    """Геополитический барометр (Обозреватель, «Оценка ситуации»): 13 субиндексов
+    G1-G13, сценарная рамка S1-S4, имплайд-рынок, секторные флаги. Методика —
+    docs/geo-system/; заполняет geo-macro-analyst, файл config/geo_barometer.json
+    (единый рыночный документ, не per-регион — заменяет geo_blocks tab=deep синтез)."""
+    import json as _json
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "config", "geo_barometer.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Барометр ещё не сформирован")
+    with open(path, encoding="utf-8") as f:
+        return JSONResponse(content=_json.load(f))
+
+
 @router.get("/market/geopolitics/{region}")
 def market_geopolitics_region(region: str, tab: str = "deep",
                               db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

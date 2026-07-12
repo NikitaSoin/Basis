@@ -1214,8 +1214,19 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [mode, setMode] = useState("overview"); // overview | assessment
   const [digestByRegion, setDigestByRegion] = useState({});
   const [digestLoading, setDigestLoading] = useState({});
+  const [baro, setBaro] = useState(null);
+  const [baroLoading, setBaroLoading] = useState(true);
+  const [openG, setOpenG] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/geo-barometer`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setBaro(d))
+      .catch(() => setBaro(null))
+      .finally(() => setBaroLoading(false));
+  }, [apiUrl]);
 
   // Лента материалов (Рыбарь/Carnegie/re:russia/Economist/ISW) по региону — грузим лениво,
   // при первом обращении к региону.
@@ -1387,111 +1398,102 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
             </div>
           )}
 
-          {/* ===== ОЦЕНКА СИТУАЦИИ: deep-card с суждением Basis ===== */}
+          {/* ===== ОЦЕНКА СИТУАЦИИ: единый геополитический барометр (G1-G13, сценарии S1-S4) ===== */}
           {mode === "assessment" && (
-            <div className="obs-deep-card">
-              <div className="obs-deep-eyebrow">Оценка ситуации · суждение Basis</div>
-              <h3>Куда идёт ситуация и что это значит для рынка</h3>
-
-              {deepBlock?.market_impact && (
-                <p style={{ marginBottom: 18 }}>{deepBlock.market_impact}</p>
+            <>
+              {baroLoading && <div className="obs-news-loading">Загрузка барометра…</div>}
+              {!baroLoading && !baro && (
+                <div className="obs-art-empty">Барометр пока недоступен.</div>
               )}
-              {!deepBlock?.market_impact && overviewBlock?.status_text && (
-                <p style={{ marginBottom: 18 }}>{overviewBlock.status_text}</p>
-              )}
+              {!baroLoading && baro && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div className="obs-deep-card">
+                    <div className="obs-deep-eyebrow">Геополитический барометр · оценка Basis · срез на {baro.as_of}</div>
+                    <h3>Итоговый балл: {baro.barometer?.overall} / 5</h3>
+                    {baro.barometer?.label && <p style={{ marginBottom: 0 }}>{baro.barometer.label}</p>}
+                  </div>
 
-              {/* Первыми затронуты — каналы влияния */}
-              {Array.isArray(deepBlock?.channels) && deepBlock.channels.length > 0 && (
-                <div className="obs-deep-divider">
-                  <div className="obs-deep-divider-title">Каналы влияния</div>
-                  {deepBlock.channels.map((c, i) => (
-                    <div key={i} style={{ marginBottom: 10 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: "var(--obs-dc-ink)", marginBottom: 3 }}>
-                        {c.channel}
+                  {baro.scenario && (
+                    <div>
+                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>
+                        Сценарии (6 мес.) {baro.scenario.confidence ? `· confidence ${baro.scenario.confidence}` : ""}
                       </div>
-                      {c.effect && (
-                        <p style={{ marginBottom: 0, fontSize: 13 }}>{c.effect}</p>
+                      <div className="obs-scenario-row">
+                        {Object.entries(baro.scenario.probabilities_6m || {}).map(([name, p]) => (
+                          <div key={name} className="obs-scenario-card">
+                            <div className="obs-scenario-title">{name}</div>
+                            <div className="obs-scenario-prob">вероятность: {Math.round(p * 100)}%</div>
+                          </div>
+                        ))}
+                      </div>
+                      {Array.isArray(baro.scenario.triggers) && baro.scenario.triggers.length > 0 && (
+                        <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 10 }}>
+                          Триггеры пересмотра: {baro.scenario.triggers.join("; ")}
+                        </p>
                       )}
                     </div>
-                  ))}
+                  )}
+
+                  {baro.implied_market && (
+                    <div className="obs-deep-card">
+                      <div className="obs-deep-eyebrow">Имплайд-рынок · оценка Basis</div>
+                      <h3>Расхождение с рынком</h3>
+                      <p style={{ marginBottom: 0 }}>{baro.implied_market.divergence || baro.implied_market.market_pricing_lean}</p>
+                    </div>
+                  )}
+
+                  {Array.isArray(baro.sector_flags) && baro.sector_flags.length > 0 && (
+                    <div>
+                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>Секторные последствия</div>
+                      <div className="obs-deep-chips">
+                        {baro.sector_flags.map((s, i) => (
+                          <span key={i} className="obs-deep-chip-sector" title={s.reasoning}>
+                            {s.sector} · {s.direction}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
+                    <div>
+                      <div className="obs-synth-head" style={{ marginBottom: 14 }}>Субиндексы (G1–G13)</div>
+                      <div className="obs-art-list">
+                        {baro.subindices.map((s) => (
+                          <div key={s.key} className="obs-art-card">
+                            <div className="obs-art-head">
+                              <b>{s.key}</b>
+                              <span className="obs-art-date">балл {s.score}/5</span>
+                            </div>
+                            <div className="obs-art-title">{s.label}</div>
+                            <button
+                              className="obs-art-toggle"
+                              onClick={() => setOpenG((k) => (k === s.key ? null : s.key))}
+                              aria-expanded={openG === s.key}
+                            >
+                              {openG === s.key ? "Свернуть ▴" : "Обоснование ▾"}
+                            </button>
+                            {openG === s.key && (
+                              <div className="obs-art-full">
+                                <p style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>
+                                {s.anchor_note && <p style={{ whiteSpace: "pre-line", color: "var(--text-tertiary)", fontSize: 13 }}>{s.anchor_note}</p>}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {baro.summary && (
+                    <div className="obs-deep-card">
+                      <div className="obs-deep-eyebrow">Резюме · оценка Basis</div>
+                      <p style={{ whiteSpace: "pre-line", marginBottom: 0 }}>{baro.summary}</p>
+                    </div>
+                  )}
                 </div>
               )}
-
-              {/* Сценарии */}
-              {deepBlock?.scenarios && (
-                <div className="obs-deep-divider">
-                  <div className="obs-deep-divider-title" style={{ marginBottom: 14 }}>
-                    Сценарии — оценка Basis
-                  </div>
-                  {/* Сценарии рендерим в светлой карточке, вне dark-card — для читаемости */}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Сценарии вне dark-card (светлый фон, tabular) */}
-          {mode === "assessment" && deepBlock?.scenarios && (
-            <div style={{ marginTop: 16 }}>
-              <div className="obs-scenario-row">
-                {deepBlock.scenarios.base && (
-                  <div className="obs-scenario-card">
-                    <div className="obs-scenario-title">Базовый</div>
-                    {deepBlock.scenarios.base.probability && (
-                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.base.probability}</div>
-                    )}
-                    {(deepBlock.scenarios.base.key_numbers || deepBlock.scenarios.base.description) && (
-                      <div className="obs-scenario-num">
-                        {deepBlock.scenarios.base.key_numbers || deepBlock.scenarios.base.description}
-                      </div>
-                    )}
-                    {deepBlock.scenarios.base.triggers && (
-                      <div className="obs-scenario-trig">
-                        <b>Триггеры</b>
-                        {deepBlock.scenarios.base.triggers}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {deepBlock.scenarios.bull && (
-                  <div className="obs-scenario-card obs-scenario-card--bull">
-                    <div className="obs-scenario-title">Оптимистичный</div>
-                    {deepBlock.scenarios.bull.probability && (
-                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.bull.probability}</div>
-                    )}
-                    {(deepBlock.scenarios.bull.key_numbers || deepBlock.scenarios.bull.description) && (
-                      <div className="obs-scenario-num">
-                        {deepBlock.scenarios.bull.key_numbers || deepBlock.scenarios.bull.description}
-                      </div>
-                    )}
-                    {deepBlock.scenarios.bull.triggers && (
-                      <div className="obs-scenario-trig">
-                        <b>Триггеры</b>
-                        {deepBlock.scenarios.bull.triggers}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {deepBlock.scenarios.bear && (
-                  <div className="obs-scenario-card obs-scenario-card--bear">
-                    <div className="obs-scenario-title">Негативный</div>
-                    {deepBlock.scenarios.bear.probability && (
-                      <div className="obs-scenario-prob">вероятность: {deepBlock.scenarios.bear.probability}</div>
-                    )}
-                    {(deepBlock.scenarios.bear.key_numbers || deepBlock.scenarios.bear.description) && (
-                      <div className="obs-scenario-num">
-                        {deepBlock.scenarios.bear.key_numbers || deepBlock.scenarios.bear.description}
-                      </div>
-                    )}
-                    {deepBlock.scenarios.bear.triggers && (
-                      <div className="obs-scenario-trig">
-                        <b>Триггеры</b>
-                        {deepBlock.scenarios.bear.triggers}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+            </>
           )}
         </>
       )}
