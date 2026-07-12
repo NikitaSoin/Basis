@@ -58,22 +58,34 @@ logger = logging.getLogger(__name__)
 
 _SKRIN_BASE = "https://disclosure.skrin.ru"
 _WINDOW_DAYS = 5   # окно вокруг event_date, где ищем текст (публикация может отставать)
+# 🔴 Найдено на бою 2026-07-12: тикер-тег (affected_tickers) СЛИШКОМ широкий фильтр —
+# крупный банк вроде SBER попадает почти в любую новость про банковское регулирование
+# (реформа банкротства, комиссии СБП и т.п.), а не только про свой отчёт. Без фильтра
+# по ключевым словам первые 3 статьи по дате оказались НЕ об отчёте (реформа банкротства
+# 07.07), хотя реальная «Сбер +20% по РСБУ» (09.07) в окне БЫЛА — просто позже по
+# сортировке. Фильтр по ключевым словам обязателен, не только дата+тикер.
+_REPORT_KEYWORDS_RE = re.compile(
+    r"отч[её]т|результат|прибыл|выручк|мсфо|рсбу|финанс|дивиденд|ebitda|пассажиропоток|"
+    r"добыч|производств|выпуск",
+    re.IGNORECASE)
 
 
 # ----------------------------- источник 1: Лента новостей -----------------------------
 def _from_market_updates(db: Session, ticker: str, event_date: date) -> str | None:
     from app.models.market import MarketUpdate
-    lo = event_date - timedelta(days=2)
+    lo = event_date - timedelta(days=1)
     hi = event_date + timedelta(days=_WINDOW_DAYS)
     rows = (db.query(MarketUpdate)
             .filter(MarketUpdate.affected_tickers.contains([ticker]),
                     MarketUpdate.published_at >= lo, MarketUpdate.published_at <= hi,
                     MarketUpdate.status == "published")
-            .order_by(MarketUpdate.published_at.asc()).limit(3).all())
+            .order_by(MarketUpdate.published_at.asc()).limit(20).all())
     if not rows:
         return None
+    relevant = [r for r in rows if _REPORT_KEYWORDS_RE.search(f"{r.title} {r.summary or ''}")]
+    picked = relevant[:3] if relevant else rows[:3]
     parts = []
-    for r in rows:
+    for r in picked:
         parts.append(f"{r.title}\n{r.summary or ''}\n{r.impact_comment or ''}".strip())
     return "\n\n---\n\n".join(parts)
 
