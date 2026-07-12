@@ -94,14 +94,14 @@ import { PortfolioV2 } from "./portfolio/PortfolioViews";
 import { AuthModal } from "./account/AccountPanels";
 import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
-import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD } from "./company/CompanyCardView";
+import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
 import CompareView from "./compare/CompareView";
 import "./styles/compare.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-function ObserverV2({ token, onSelectCompany }) {
+function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
 
@@ -144,7 +144,10 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Карта рынка</h2>
             </div>
-            <ObsMarketMap token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsMarketMap
+              token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany}
+              onOpenBond={onOpenBond} onOpenFuture={onOpenFuture} onOpenFund={onOpenFund} onOpenSpot={onOpenSpot}
+            />
           </div>
         );
       case "calendar":
@@ -554,6 +557,10 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState("landing");
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBond, setSelectedBond] = useState(null);
+  const [selectedFuture, setSelectedFuture] = useState(null);
+  const [selectedFund, setSelectedFund] = useState(null);
+  const [selectedSpot, setSelectedSpot] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -630,13 +637,22 @@ export default function App() {
       // приводит к объекту, который ждёт CompanyCard.
       return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} />;
     }
+    if (selectedBond) return <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={setSelectedCompany} />;
+    if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={setSelectedCompany} />;
+    if (selectedFund) return <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />;
+    if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
     switch (activeTab) {
       case "companies":
         return <CompaniesView onSelectCompany={setSelectedCompany} />;
       case "screener":
-        return <ScreenerView onSelectCompany={setSelectedCompany} />;
+        return <ScreenerView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
-        return <ObserverV2 token={token} onSelectCompany={setSelectedCompany} />;
+        return (
+          <ObserverV2
+            token={token} onSelectCompany={setSelectedCompany}
+            onOpenBond={setSelectedBond} onOpenFuture={setSelectedFuture} onOpenFund={setSelectedFund} onOpenSpot={setSelectedSpot}
+          />
+        );
       case "portfolio":
         return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "strategies":

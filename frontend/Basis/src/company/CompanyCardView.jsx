@@ -2792,7 +2792,7 @@ const OptionCard = ({ secid, onBack }) => {
 
 // ── Скрининг: единый экран-переключатель (акции/облигации); вся механика фильтров,
 //    таблиц и карт — в Neo-движках ScreenerNeo / BondScreenerNeo ──
-const ScreenerView = ({ onSelectCompany }) => {
+const ScreenerView = ({ onSelectCompany, token, onAuthRequired }) => {
   // Класс активов: акции и облигации — отдельные Neo-скрины на живых движках
   // (/screener/scored и /screener/bonds), каждый самозагружается и держит свои фильтры.
   const [cls, setCls] = usePersistedState("screener.cls", "stocks"); // stocks | bonds
@@ -2807,8 +2807,8 @@ const ScreenerView = ({ onSelectCompany }) => {
         <button className={cls === "bonds" ? "on" : ""} onClick={() => setCls("bonds")}>Облигации</button>
       </div>
       {cls === "bonds"
-        ? <BondScreenerNeo onOpenCompany={onSelectCompany} />
-        : <ScreenerNeo onOpenCompany={onSelectCompany} Logo={CompanyLogo} />}
+        ? <BondScreenerNeo onOpenCompany={onSelectCompany} token={token} onAuthRequired={onAuthRequired} />
+        : <ScreenerNeo onOpenCompany={onSelectCompany} Logo={CompanyLogo} token={token} onAuthRequired={onAuthRequired} />}
     </div>
   );
 };
@@ -6992,4 +6992,4 @@ const CompanyCard = ({ company, onBack }) => {
   );
 };
 
-export { CompanyCard, ScreenerView, CompaniesView };
+export { CompanyCard, ScreenerView, CompaniesView, BondCard, FuturesCard, FundCard, SpotCard };
