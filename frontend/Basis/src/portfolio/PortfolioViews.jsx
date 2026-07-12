@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   AlertTriangle,
+  ArrowRightLeft,
   Briefcase,
   Pencil,
+  PieChart,
   Plus,
+  Scale,
   ShieldAlert,
   Target,
   Trash2,
   TrendingDown,
+  TrendingUp,
   Upload,
   User,
   X,
