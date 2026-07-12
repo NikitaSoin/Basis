@@ -80,6 +80,7 @@ import {
   ObsMarketMap,
   ObsAiReview,
   ObsEconomy,
+  ObsHorizonChip,
 } from "./observer/ObsPanels";
 import {
   NewsFeed,
@@ -176,6 +177,7 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
             <div className="obs-sec-head">
               <span className="obs-sec-eyebrow">Разбор</span>
               <h2 className="obs-sec-title">Макроэкономика</h2>
+              <ObsHorizonChip>горизонт актуальности: дни-недели</ObsHorizonChip>
             </div>
             <ObsMacroArticles token={token} />
           </div>
@@ -185,7 +187,8 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
           <div className="obs-panel">
             <div className="obs-sec-head">
               <span className="obs-sec-eyebrow">Разбор</span>
-              <h2 className="obs-sec-title">Геополитика</h2>
+              <h2 className="obs-sec-title">Влияние геополитики на российский рынок</h2>
+              <ObsHorizonChip>горизонт актуальности: недели-месяцы</ObsHorizonChip>
             </div>
             <ObsGeopolitics token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
@@ -196,6 +199,7 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
             <div className="obs-sec-head">
               <span className="obs-sec-eyebrow">Разбор</span>
               <h2 className="obs-sec-title">Институциональная среда</h2>
+              <ObsHorizonChip>горизонт актуальности: месяцы-годы</ObsHorizonChip>
             </div>
             <ObsInstitutions token={token} />
           </div>

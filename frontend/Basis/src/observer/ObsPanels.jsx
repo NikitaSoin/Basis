@@ -1061,7 +1061,7 @@ function ObsBaroScale({ score, max = 5, polarity, labels }) {
 }
 
 // Hero-вердикт барометра: балл + шкала + текстовый вывод Basis + явный баланс
-function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, subindices, extra }) {
+function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, subindices, extra, coSignal }) {
   const tier = obsScoreTier(score, polarity);
   const balance = obsBaroBalance(subindices, polarity);
   return (
@@ -1074,6 +1074,7 @@ function ObsBaroHero({ eyebrow, asOf, score, verdict, polarity, scaleLabels, sub
         <span className="obs-inst-hero-score" style={{ color: tier.color }}>
           {Number(score).toFixed(1)}<span className="obs-inst-hero-score-max">/5</span>
         </span>
+        {coSignal}
       </div>
       <ObsBaroScale score={score} polarity={polarity} labels={scaleLabels} />
       {verdict && <p className="obs-inst-hero-verdict">{verdict}</p>}
@@ -1113,6 +1114,28 @@ function ObsBaroLadder({ items, currentKey }) {
 }
 
 // 13 субиндексов, сгруппированных в смысловые кластеры-аккордеоны (native <details>)
+// Одна строка субиндекса (ключ + метка + эпистемический тег + балл + rationale).
+// Вынесено из ObsBaroClusters, чтобы переиспользовать вне аккордеона (напр. «Внешние оси»).
+function ObsBaroSubRow({ s, polarity }) {
+  const sTier = obsScoreTier(s.score, polarity);
+  return (
+    <div className="obs-inst-sub">
+      <div className="obs-inst-sub-head">
+        <span className="obs-inst-sub-key">{s.key}</span>
+        <span className="obs-inst-sub-label">{s.label}</span>
+        {s.type === "факт"
+          ? <span className="obs-tag-fact">факт</span>
+          : <span className="obs-inst-tag obs-inst-tag--est">оценка</span>}
+        <span className="obs-inst-sub-score" style={{ color: sTier.color }}>
+          {s.score}<span className="obs-inst-sub-score-max">/5</span>
+        </span>
+      </div>
+      {s.rationale && <p className="obs-inst-sub-rationale" style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>}
+      {s.anchor_note && <p className="obs-inst-sub-rationale" style={{ color: "var(--text-tertiary)", fontStyle: "italic" }}>{s.anchor_note}</p>}
+    </div>
+  );
+}
+
 function ObsBaroClusters({ clusters, subindexMap, polarity }) {
   return (
     <div className="obs-inst-clusters">
@@ -1138,30 +1161,23 @@ function ObsBaroClusters({ clusters, subindexMap, polarity }) {
               <ChevronDown size={15} className="obs-inst-chev" />
             </summary>
             <div className="obs-inst-cluster-body">
-              {items.map((s) => {
-                const sTier = obsScoreTier(s.score, polarity);
-                return (
-                  <div key={s.key} className="obs-inst-sub">
-                    <div className="obs-inst-sub-head">
-                      <span className="obs-inst-sub-key">{s.key}</span>
-                      <span className="obs-inst-sub-label">{s.label}</span>
-                      {s.type === "факт"
-                        ? <span className="obs-tag-fact">факт</span>
-                        : <span className="obs-inst-tag obs-inst-tag--est">оценка</span>}
-                      <span className="obs-inst-sub-score" style={{ color: sTier.color }}>
-                        {s.score}<span className="obs-inst-sub-score-max">/5</span>
-                      </span>
-                    </div>
-                    {s.rationale && <p className="obs-inst-sub-rationale" style={{ whiteSpace: "pre-line" }}>{s.rationale}</p>}
-                    {s.anchor_note && <p className="obs-inst-sub-rationale" style={{ color: "var(--text-tertiary)", fontStyle: "italic" }}>{s.anchor_note}</p>}
-                  </div>
-                );
-              })}
+              {items.map((s) => <ObsBaroSubRow key={s.key} s={s} polarity={polarity} />)}
             </div>
           </details>
         );
       })}
     </div>
+  );
+}
+
+// Маленький информационный чип «горизонт актуальности» рядом с заголовком раздела —
+// поясняет, как часто барометр/раздел имеет смысл перепроверять.
+function ObsHorizonChip({ children }) {
+  return (
+    <span className="obs-horizon-chip">
+      <Clock size={11} aria-hidden="true" />
+      {children}
+    </span>
   );
 }
 
@@ -1196,6 +1212,18 @@ const GEO_CLUSTERS = [
   { name: "Геополитические оси", icon: Globe, keys: ["G9", "G10", "G11", "G13"] },
 ];
 
+// «Внешние оси» — ответ на «а Ближний Восток и АТР?»: барометр ЕДИНЫЙ для всего рынка
+// (не разбит по регионам), но G9/G10/G11/G13 — это именно те оси, которые покрывают
+// Китай+Индию (АТР/Global South), США, ЕС/UK и глобальный фон (Ормуз и др.). Вынесены
+// отдельным именованным блоком между сценариями и полным списком G1-G13 (следующий
+// уровень детализации ВНУТРИ уже существующего барометра, не новый отдельный барометр).
+const GEO_AXES = [
+  { key: "G9", short: "Китай / Индия (АТР, Global South)" },
+  { key: "G10", short: "США" },
+  { key: "G11", short: "ЕС / Великобритания" },
+  { key: "G13", short: "Глобальный фон (Ормуз, нефть, третьи страны)" },
+];
+
 // =========================
 // OBS MACRO ARTICLES — Обозреватель · Разбор · Макроэкономика
 // Две вкладки: Обзор (article-cards из /macro/analytics) +
@@ -1210,6 +1238,8 @@ function ObsMacroArticles({ token }) {
   const [loading, setLoading] = useState(true);
   const [digest, setDigest] = useState([]);
   const [digestLoading, setDigestLoading] = useState(true);
+  const [rate, setRate] = useState(null);        // /macro/rate — ставка + сигнал ЦБ (факт)
+  const [numbers, setNumbers] = useState([]);     // /macro — твёрдые числа для плитки (факт)
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   // Загружаем список аналитических записок один раз
@@ -1219,6 +1249,19 @@ function ObsMacroArticles({ token }) {
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setDocs(d || []); setLoading(false); })
       .catch(() => setLoading(false));
+  }, [apiUrl]);
+
+  // Твёрдые числа (не суждение LLM, а факт из БД): ставка + сигнал ЦБ на конкретную дату,
+  // и 3-4 ключевых индикатора для плитки перед prose-интерпретацией.
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/macro/rate`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setRate(d))
+      .catch(() => setRate(null));
+    fetch(`${apiUrl}/api/market/macro`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setNumbers(Array.isArray(d) ? d : []))
+      .catch(() => setNumbers([]));
   }, [apiUrl]);
 
   // Дайджест внешних источников с макро-уклоном (Economist Finance, ISW и др.)
@@ -1262,6 +1305,30 @@ function ObsMacroArticles({ token }) {
 
   const interpSections = interp?.sections || null;
   const scenarios = interpSections?.scenarios;
+
+  // Сигнал одной строкой: ставка сейчас + сигнал ЦБ — ФАКТ из БД (не суждение LLM).
+  const rateHeadline = rate?.key_rate?.value != null
+    ? `Ключевая ставка ${_fmtNum(rate.key_rate.value)}%${rate.key_rate.as_of ? ` (на ${rate.key_rate.as_of})` : ""}`
+      + (rate.meeting?.signal ? ` · сигнал ЦБ: ${rate.meeting.signal}` : "")
+    : null;
+
+  // Плитка твёрдых чисел перед prose-интерпретацией — ФАКТ, не суждение.
+  const MACRO_TILE_CODES = ["key_rate", "inflation", "gdp", "budget_balance"];
+  const macroTiles = MACRO_TILE_CODES
+    .map((code) => numbers.find((n) => n.code === code))
+    .filter((n) => n && n.has_data)
+    .map((ind) => {
+      const preferYoy = ind.metric_types?.includes("yoy") && ind.values?.yoy;
+      const metricKey = preferYoy ? "yoy" : (ind.metric_types || ["level"])[0];
+      const v = ind.values?.[metricKey] || Object.values(ind.values || {})[0];
+      return {
+        code: ind.code,
+        title: ind.title,
+        valStr: v ? `${_fmtNum(v.value)}${ind.unit === "%" ? "%" : ` ${ind.unit || ""}`}` : "—",
+        asOf: v?.as_of,
+        change: v?.change,
+      };
+    });
 
   return (
     <div>
@@ -1361,7 +1428,15 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
-              {/* СИГНАЛ: текущая картина — крупная serif-подача, читается первой */}
+              {/* СИГНАЛ, строка 1: ставка сейчас + сигнал ЦБ — ФАКТ из БД, не суждение LLM */}
+              {rateHeadline && (
+                <div className="obs-macro-headline">
+                  <span className="obs-tag-fact">факт</span>
+                  <span>{rateHeadline}</span>
+                </div>
+              )}
+
+              {/* СИГНАЛ, строка 2: текущая картина — крупная serif-подача, суждение Basis */}
               {interpSections.current_picture && (
                 <div className="obs-macro-card obs-macro-lede-card">
                   <div className="obs-macro-eyebrow"><Activity size={12} style={{ marginRight: 5, verticalAlign: -2 }} />Текущая картина · главный вывод Basis</div>
@@ -1369,14 +1444,37 @@ function ObsMacroArticles({ token }) {
                 </div>
               )}
 
-              {/* ДОКАЗАТЕЛЬСТВО: разбор по темам */}
-              {INTERP_SECTIONS.map(({ key, label, icon: Icon }) =>
-                interpSections[key] ? (
-                  <div key={key} className="obs-macro-card">
-                    <div className="obs-macro-eyebrow"><Icon size={12} style={{ marginRight: 5, verticalAlign: -2 }} />{label} · суждение Basis</div>
-                    <p style={{ whiteSpace: "pre-line", color: "var(--text-secondary)", fontSize: 13.5, lineHeight: 1.7 }}>{interpSections[key]}</p>
+              {/* ДОКАЗАТЕЛЬСТВО, шаг 1: плитка твёрдых чисел — ФАКТ, ДО текстовой интерпретации */}
+              {macroTiles.length > 0 && (
+                <div className="obs-grid8" role="list" aria-label="Ключевые макропоказатели">
+                  {macroTiles.map((t) => (
+                    <div key={t.code} role="listitem" className="obs-tile" style={{ cursor: "default" }}>
+                      <div className="obs-tile-lbl">{t.title}</div>
+                      <div className="obs-tile-val">{t.valStr}</div>
+                      {t.asOf && <div className="obs-tile-date">{t.asOf}</div>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* ДОКАЗАТЕЛЬСТВО, шаг 2: prose-разбор по темам — свёрнут по умолчанию, короче на первый взгляд */}
+              {INTERP_SECTIONS.some(({ key }) => interpSections[key]) && (
+                <details className="obs-macro-evidence">
+                  <summary>
+                    Подробный разбор: ставка, прогноз ЦБ, рынок и сектора
+                    <ChevronDown size={15} className="obs-inst-chev" />
+                  </summary>
+                  <div className="obs-macro-evidence-body">
+                    {INTERP_SECTIONS.map(({ key, label, icon: Icon }) =>
+                      interpSections[key] ? (
+                        <div key={key} className="obs-macro-card">
+                          <div className="obs-macro-eyebrow"><Icon size={12} style={{ marginRight: 5, verticalAlign: -2 }} />{label} · суждение Basis</div>
+                          <p style={{ whiteSpace: "pre-line", color: "var(--text-secondary)", fontSize: 13.5, lineHeight: 1.7 }}>{interpSections[key]}</p>
+                        </div>
+                      ) : null
+                    )}
                   </div>
-                ) : null
+                </details>
               )}
 
               {/* ДЕЙСТВИЕ: сценарии base/bull/bear */}
@@ -1707,16 +1805,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                       </div>
                     )}
 
-                    {baro.implied_market && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><BarChart2 size={16} />Расхождение с рынком</div>
-                        {baro.implied_market.market_pricing_lean && (
-                          <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", fontStyle: "italic", marginBottom: 10 }}>{baro.implied_market.market_pricing_lean}</p>
-                        )}
-                        <p style={{ margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.implied_market.divergence}</p>
-                      </div>
-                    )}
-
+                    {/* Секторные последствия — сразу под сценариями: «что это значит для моих бумаг» читается раньше, чем расхождение с рынком/детальные оси. */}
                     {Array.isArray(baro.sector_flags) && baro.sector_flags.length > 0 && (
                       <div className="obs-inst-card">
                         <div className="obs-inst-card-title"><Briefcase size={16} />Секторные последствия</div>
@@ -1741,6 +1830,43 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                       </div>
                     )}
 
+                    {baro.implied_market && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><BarChart2 size={16} />Расхождение с рынком</div>
+                        {baro.implied_market.market_pricing_lean && (
+                          <p style={{ fontSize: 12.5, color: "var(--text-tertiary)", fontStyle: "italic", marginBottom: 10 }}>{baro.implied_market.market_pricing_lean}</p>
+                        )}
+                        <p style={{ margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.implied_market.divergence}</p>
+                      </div>
+                    )}
+
+                    {/* «Внешние оси» — прямой ответ на «а Ближний Восток и АТР?»: явно
+                        именованные G9 (Китай/Индия), G10 (США), G11 (ЕС/UK), G13 (глобальный
+                        фон/Ормуз) с вкладом в общий балл. Следующий уровень детализации
+                        внутри ЕДИНОГО барометра — не отдельные региональные барометры. */}
+                    {(() => {
+                      const axisItems = GEO_AXES.map((a) => subMap[a.key]).filter(Boolean);
+                      if (axisItems.length === 0) return null;
+                      return (
+                        <div className="obs-inst-card">
+                          <div className="obs-inst-card-title"><Globe size={16} />Внешние оси: Китай/Индия, США, ЕС, глобальный фон</div>
+                          <div className="obs-inst-card-sub">Барометр — единый показатель для всего рынка; эти 4 оси из G1–G13 отвечают за вклад конкретных внешних игроков и регионов (АТР, Запад, Ормуз) в общий балл.</div>
+                          <div>
+                            {axisItems.map((s) => <ObsBaroSubRow key={s.key} s={s} polarity="higherWorse" />)}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Резюме оставлено: в отличие от короткого hero-вердикта, здесь конкретные
+                        даты/цифры/кросс-ссылки на макро — не пересказ, а более полная синтез-картина. */}
+                    {baro.summary && (
+                      <div className="obs-inst-card">
+                        <div className="obs-inst-card-title"><FileText size={16} />Резюме · развёрнутая оценка Basis</div>
+                        <p style={{ whiteSpace: "pre-line", margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.summary}</p>
+                      </div>
+                    )}
+
                     {Array.isArray(baro.subindices) && baro.subindices.length > 0 && (
                       <div className="obs-inst-card">
                         <div className="obs-inst-card-title"><Globe size={16} />Показатели (G1–G13)</div>
@@ -1760,13 +1886,6 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             </div>
                           ))}
                         </div>
-                      </div>
-                    )}
-
-                    {baro.summary && (
-                      <div className="obs-inst-card">
-                        <div className="obs-inst-card-title"><FileText size={16} />Резюме · оценка Basis</div>
-                        <p style={{ whiteSpace: "pre-line", margin: 0, fontSize: 13.5, color: "var(--text-secondary)", lineHeight: 1.7 }}>{baro.summary}</p>
                       </div>
                     )}
                   </div>
@@ -1872,6 +1991,14 @@ function ObsInstitutions({ token }) {
                   polarity="higherBetter"
                   scaleLabels={["слабые институты", "сильные институты"]}
                   subindices={restSub}
+                  coSignal={baro.institutional_crp_floor_pp != null && (
+                    <div className="obs-inst-hero-cosignal">
+                      <span className="obs-inst-hero-cosignal-label">CRP-«пол»</span>
+                      <span className="obs-inst-hero-cosignal-value">
+                        {baro.institutional_crp_floor_pp}<span className="obs-inst-hero-cosignal-unit">п.п.</span>
+                      </span>
+                    </div>
+                  )}
                   extra={drift && (
                     <div className="obs-inst-hero-drift">
                       <div className="obs-inst-hero-drift-label"><TrendingDown size={12} />{drift.key} · {drift.label}</div>
@@ -4062,4 +4189,5 @@ export {
   ObsAiReview,
   ObsEconomy,
   ObsLineChart,
+  ObsHorizonChip,
 };
