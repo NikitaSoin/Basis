@@ -553,10 +553,10 @@ def debug_trigger_macro_sync():
             ("forecast_annual", lambda: sync_forecast_annual(db, force=True)),
             ("expert_survey", lambda: sync_expert_survey(db, force=True)),
             ("inflation", lambda: sync_inflation(db)), ("expectations", lambda: sync_expectations(db)),
-            ("credit_m2", lambda: sync_credit_m2(db)),
-            ("gov_spending", lambda: sync_gov_spending(db)),
-            ("ppi", lambda: sync_ppi(db)),
-            ("hh_index", lambda: sync_hh_index(db)),
+            ("credit_m2", lambda: sync_credit_m2(db, months_back=12)),
+            ("gov_spending", lambda: sync_gov_spending(db, months_back=4)),
+            ("ppi", lambda: sync_ppi(db, months_back=6)),
+            ("hh_index", lambda: sync_hh_index(db, months_back=18)),
             ("urals", lambda: sync_urals(db, period="max")),
         ):
             try:
