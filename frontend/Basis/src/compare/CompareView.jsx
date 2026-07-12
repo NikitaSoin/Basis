@@ -3,7 +3,6 @@
 // разбор Инвестминт/ПроФинанс: сопоставление бумаг бок о бок по ключевым метрикам
 // + нормализованная динамика цены. Инструмент сопоставления, НЕ рекомендация.
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Card } from "../design/primitives";
 import { CompanyLogo } from "../design/CompanyLogo";
 import { ObsLineChart } from "../observer/ObsPanels";
 import {
@@ -26,23 +25,29 @@ const CMP_PRICE_PERIODS = [
   { id: "all", label: "Всё", days: 4000 },
 ];
 
-// Переключатель период/режим — идентичные tw-классы кнопкам периода в
-// company/CompanyCardView.jsx:88-101 (единый визуальный язык фильтров сайта,
-// не Chip и не что-то новое).
-function CmpPillButton({ active, onClick, children }) {
+// Период графика — pill-чипы (много опций, .cmp-seg не подходит — сегмент
+// читается только на 2-3 вариантах), тот же язык, что .pf-chip в Портфеле
+// (docs/portfolio-analytics.html .chip/.filterbar — не изобретено заново).
+function CmpChip({ active, onClick, children }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`tw-px-2.5 tw-py-1 tw-rounded-sm tw-text-[12px] tw-font-medium tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
-        active
-          ? "tw-bg-accent tw-text-white tw-border-accent"
-          : "tw-bg-transparent tw-text-text-secondary tw-border-border-subtle hover:tw-border-border-strong"
-      }`}
-    >
+    <button type="button" onClick={onClick} aria-pressed={active} className={"cmp-chip" + (active ? " cmp-chip--on" : "")}>
       {children}
     </button>
+  );
+}
+
+// Переключатель на 2-3 варианта (режим/тип графика) — .cmp-seg, литерально
+// тот же паттерн, что .pf-seg/.pf-seg-opt в Портфеле (docs/portfolio-analytics.html
+// .seg-toggle/.seg-opt) — не изобретено заново, портировано из уже реализованного.
+function CmpSeg({ options, active, onChange }) {
+  return (
+    <div className="cmp-seg" role="group">
+      {options.map((o) => (
+        <button key={o.id} type="button" onClick={() => onChange(o.id)} aria-pressed={active === o.id} className={"cmp-seg-opt" + (active === o.id ? " cmp-seg-opt--on" : "")}>
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -634,16 +639,20 @@ export default function CompareView({ onOpenCompany }) {
             })}
           </div>
 
-          <Card header="Динамика цены" style={{ marginTop: 20 }}>
-            <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
-              <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
-                {CMP_PRICE_PERIODS.map((p) => (
-                  <CmpPillButton key={p.id} active={pricePeriod === p.id} onClick={() => setPricePeriod(p.id)}>{p.label}</CmpPillButton>
-                ))}
-              </div>
-              <div className="tw-flex tw-gap-1" role="group" aria-label="В рублях или нормализовано">
-                <CmpPillButton active={priceMode === "rel"} onClick={() => setPriceMode("rel")}>% от начала периода</CmpPillButton>
-                <CmpPillButton active={priceMode === "abs"} onClick={() => setPriceMode("abs")}>В рублях</CmpPillButton>
+          <div className="cmp-panel">
+            <div className="cmp-panel-head">
+              <div className="cmp-panel-title">Динамика цены</div>
+              <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+                <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
+                  {CMP_PRICE_PERIODS.map((p) => (
+                    <CmpChip key={p.id} active={pricePeriod === p.id} onClick={() => setPricePeriod(p.id)}>{p.label}</CmpChip>
+                  ))}
+                </div>
+                <CmpSeg
+                  options={[{ id: "rel", label: "% от начала" }, { id: "abs", label: "В рублях" }]}
+                  active={priceMode}
+                  onChange={setPriceMode}
+                />
               </div>
             </div>
             {priceLoading ? (
@@ -668,31 +677,21 @@ export default function CompareView({ onOpenCompany }) {
             ) : (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных истории цены.</div>
             )}
-          </Card>
+          </div>
 
-          <div ref={yearlyCardRef}>
-          <Card header="Метрика по годам (из отчётности)" style={{ marginTop: 20 }}>
-            <div className="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-3 tw-mb-3">
-              <div className="tw-flex tw-flex-wrap tw-gap-1.5">
-                {CMP_YEARLY_METRICS.map((m) => (
-                  <button
-                    key={m.key}
-                    type="button"
-                    onClick={() => setYearlyMetric(m.key)}
-                    className={`tw-px-2.5 tw-py-1 tw-text-[12px] tw-rounded-pill tw-border tw-cursor-pointer tw-transition-colors ${
-                      yearlyMetric === m.key
-                        ? "tw-border-accent tw-bg-accent-soft tw-text-accent"
-                        : "tw-border-border-subtle tw-text-text-secondary hover:tw-border-accent"
-                    }`}
-                  >
-                    {m.label}
-                  </button>
-                ))}
-              </div>
-              <div className="tw-flex tw-gap-1" role="group" aria-label="Тип графика">
-                <CmpPillButton active={yearlyChartType === "bar"} onClick={() => setYearlyChartType("bar")}>Столбцы</CmpPillButton>
-                <CmpPillButton active={yearlyChartType === "line"} onClick={() => setYearlyChartType("line")}>Линия</CmpPillButton>
-              </div>
+          <div ref={yearlyCardRef} className="cmp-panel" style={{ marginTop: 20 }}>
+            <div className="cmp-panel-head">
+              <div className="cmp-panel-title">Метрика по годам (из отчётности)</div>
+              <CmpSeg
+                options={[{ id: "bar", label: "Столбцы" }, { id: "line", label: "Линия" }]}
+                active={yearlyChartType}
+                onChange={setYearlyChartType}
+              />
+            </div>
+            <div className="tw-flex tw-flex-wrap tw-gap-1.5 tw-mb-3">
+              {CMP_YEARLY_METRICS.map((m) => (
+                <CmpChip key={m.key} active={yearlyMetric === m.key} onClick={() => setYearlyMetric(m.key)}>{m.label}</CmpChip>
+              ))}
             </div>
             {finLoading ? (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Загружаем отчётность...</div>
@@ -715,12 +714,15 @@ export default function CompareView({ onOpenCompany }) {
             ) : (
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных отчётности по выбранной метрике.</div>
             )}
-          </Card>
           </div>
 
           {items.length === 2 ? <CompareVerdict items={items} /> : <CompareSynthesis items={items} />}
 
-          <div className="cmp-table-wrap" style={{ marginTop: 20 }}>
+          <div className="cmp-table-caption">
+            <div className="cmp-table-title">Ключевые метрики</div>
+            <div className="cmp-table-hint">приглушено — где значения почти равны</div>
+          </div>
+          <div className="cmp-table-wrap">
             <table className="cmp-table">
               <thead>
                 <tr>
