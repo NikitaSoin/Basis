@@ -88,7 +88,9 @@ import {
   CalendarView,
 } from "./observer/ObsLegacyViews";
 import { PortfolioV2 } from "./portfolio/PortfolioViews";
-import { AuthModal, ProfileView, PricingView } from "./account/AccountPanels";
+import { AuthModal } from "./account/AccountPanels";
+import PricingView from "./account/PricingView";
+import ProfileView from "./account/ProfileView";
 import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
 import CompareView from "./compare/CompareView";
@@ -605,6 +607,14 @@ export default function App() {
     setActiveTab("landing");
   };
 
+  // После смены тарифа (PricingView/ProfileView → POST /api/auth/me/subscription)
+  // бэкенд возвращает ПОЛНЫЙ UserResponse — кладём его в стейт напрямую (тот же
+  // паттерн, что уже есть в эффекте /api/auth/me выше), рефетч не нужен.
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("basis_user", JSON.stringify(updatedUser));
+  };
+
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
@@ -635,7 +645,14 @@ export default function App() {
       case "compare":
         return <CompareView onOpenCompany={setSelectedCompany} />;
       case "pricing":
-        return <PricingView user={user} onShowAuth={() => setShowAuthModal(true)} />;
+        return (
+          <PricingView
+            user={user}
+            token={token}
+            onShowAuth={() => setShowAuthModal(true)}
+            onUserUpdate={handleUserUpdate}
+          />
+        );
       case "profile":
         return (
           <ProfileView
@@ -644,6 +661,7 @@ export default function App() {
             onLogout={handleLogout}
             onNavigate={navigate}
             onShowAuth={() => setShowAuthModal(true)}
+            onUserUpdate={handleUserUpdate}
           />
         );
       default:
