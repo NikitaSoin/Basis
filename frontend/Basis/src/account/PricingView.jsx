@@ -13,10 +13,11 @@ import React, { useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { Button, Badge } from "../design/primitives";
 import { AppearGroup } from "../design/motion";
-import { StatInline } from "../design/textblocks";
 import { formatNumber } from "../design/format";
 import { TIERS, COMPARE_GROUPS, TIER_RANK } from "./tierCatalog";
 import "../styles/account.css";
+
+const cx = (...parts) => parts.filter(Boolean).join(" ");
 
 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -79,7 +80,7 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
             return (
               <div key={tier.id} className={`tar-card${isPlus ? " tar-card--plus" : ""}`}>
                 <div className="tar-eyebrow-slot">
-                  {tier.eyebrow && <span className="cc-eyebrow tar-eyebrow">{tier.eyebrow}</span>}
+                  {tier.eyebrow && <span className="tar-eyebrow">{tier.eyebrow}</span>}
                 </div>
                 <h3 className="tar-name">{tier.name}</h3>
                 <div className="tar-price">
@@ -90,7 +91,8 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                 </div>
                 {tier.id === "free" && (
                   <div className="tar-quota">
-                    <StatInline value="3" unit="в месяц" label="Глубоких разборов" />
+                    <span className="tar-quota-val">3</span>
+                    <span className="tar-quota-lbl">глубоких разбора в месяц</span>
                   </div>
                 )}
                 <p className="tar-desc">{tier.description}</p>
@@ -98,10 +100,12 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                   {tier.bullets.map((b, i) => (
                     <li key={i} className={`tar-bullet${b.accent ? " tar-bullet--accent" : ""}`}>
                       <Check size={15} aria-hidden="true" />
-                      <span>{b.text}</span>
-                      {b.soon && (
-                        <Badge tone="neutral" className="tar-bullet-badge">Скоро</Badge>
-                      )}
+                      <span>
+                        {b.text}
+                        {b.soon && (
+                          <Badge tone="neutral" className="tar-bullet-badge">Скоро</Badge>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -112,7 +116,9 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                       Войти / Регистрация
                     </Button>
                   ) : isCurrent ? (
-                    <Badge tone="neutral">Ваш текущий тариф</Badge>
+                    <button type="button" className="tar-cta tar-cta--current" disabled>
+                      Ваш текущий тариф
+                    </button>
                   ) : (
                     <Button
                       variant={rankDiff > 0 ? "primary" : "secondary"}
@@ -144,15 +150,26 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
               <div className="tar-compare-head-cell tar-compare-head-cell--label" role="columnheader">
                 Что отличается
               </div>
-              {TIERS.map((t) => (
-                <div
-                  key={t.id}
-                  role="columnheader"
-                  className={`tar-compare-head-cell${currentTierId === t.id ? " tar-compare-head-cell--current" : ""}`}
-                >
-                  {t.name}
-                </div>
-              ))}
+              {TIERS.map((t) => {
+                const isTierCol = t.id === "plus" || t.id === "premium";
+                // Plus/Max читаются медным ВСЕГДА (владелец, 2026-07-12) — «текущий
+                // тариф» подсвечивается тем же accent-soft только у Бесплатного,
+                // иначе на Plus/Max наложились бы два одинаковых фона без смысла.
+                const isCurrentCol = currentTierId === t.id && !isTierCol;
+                return (
+                  <div
+                    key={t.id}
+                    role="columnheader"
+                    className={cx(
+                      "tar-compare-head-cell",
+                      isTierCol && "tar-compare-head-cell--tier",
+                      isCurrentCol && "tar-compare-head-cell--current"
+                    )}
+                  >
+                    {t.name}
+                  </div>
+                );
+              })}
             </div>
             {COMPARE_GROUPS.map((group) => (
               <div className="tar-compare-group" key={group.title}>
@@ -162,19 +179,25 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
                     <div className="tar-compare-row-label" role="rowheader">{row.label}</div>
                     {TIERS.map((t) => {
                       const val = t.compareCells[row.key];
-                      const isCurrentCol = currentTierId === t.id;
+                      const isTierCol = t.id === "plus" || t.id === "premium";
+                      const isCurrentCol = currentTierId === t.id && !isTierCol;
                       return (
                         <div
                           key={t.id}
                           role="cell"
-                          className={`tar-compare-cell${isCurrentCol ? " tar-compare-cell--current" : ""}`}
+                          className={cx(
+                            "tar-compare-cell",
+                            isTierCol && "tar-compare-cell--tier",
+                            isCurrentCol && "tar-compare-cell--current",
+                            !val && "tar-compare-cell--dash"
+                          )}
                         >
                           {val === "Скоро" ? (
                             <Badge tone="neutral">Скоро</Badge>
                           ) : val ? (
                             <span>{val}</span>
                           ) : (
-                            <span className="tar-compare-cell--dash">—</span>
+                            <span>—</span>
                           )}
                         </div>
                       );

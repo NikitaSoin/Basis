@@ -105,7 +105,7 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
 
           <div className="acct-plan-card">
             <div className="acct-plan-left">
-              <span className="cc-eyebrow">Тариф</span>
+              <span className="acct-plan-eyebrow">Тариф</span>
               <h2 className="acct-plan-name">{tier.name}</h2>
               <p className="acct-plan-desc">{tier.description}</p>
               {isFree && <p className="acct-plan-status tw-mt-3">Квота — 3 глубоких разбора в месяц.</p>}
@@ -133,46 +133,52 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
             </div>
           </div>
 
-          <div className="acct-row-list">
-            <div className="acct-row">
-              <span className="acct-row-label">Email</span>
-              <span className="acct-row-value">{user.email}</span>
+          <div className="acct-grid2">
+            <div className="acct-row-list">
+              <div className="acct-row">
+                <span className="acct-row-label">Email</span>
+                <span className="acct-row-value">{user.email}</span>
+              </div>
+              <div className="acct-row">
+                <span className="acct-row-label">Дата регистрации</span>
+                <span className="acct-row-value">{fmtDate(user.created_at)}</span>
+              </div>
+              <div className="acct-row">
+                <span className="acct-row-label">Статус</span>
+                <span className="acct-row-value">{user.is_active ? "Активен" : "Заблокирован"}</span>
+              </div>
             </div>
-            <div className="acct-row">
-              <span className="acct-row-label">Дата регистрации</span>
-              <span className="acct-row-value">{fmtDate(user.created_at)}</span>
-            </div>
-            <div className="acct-row">
-              <span className="acct-row-label">Статус</span>
-              <span className="acct-row-value">{user.is_active ? "Активен" : "Заблокирован"}</span>
-            </div>
-          </div>
 
-          <div className="acct-cap-card">
-            <div className="acct-cap-title">Возможности тарифа «{tier.name}»</div>
-            <ul className="acct-cap-list">
-              {tier.bullets.map((b, i) => (
-                <li key={i} className="acct-cap-item">
-                  <Check size={15} aria-hidden="true" />
-                  <span>{b.text}</span>
-                </li>
-              ))}
-            </ul>
-            <button type="button" className="acct-cap-link" onClick={() => onNavigate("pricing")}>
-              Сравнить все тарифы →
-            </button>
+            <div className="acct-cap-card">
+              <div className="acct-cap-title">Возможности тарифа «{tier.name}»</div>
+              <ul className="acct-cap-list">
+                {tier.bullets.map((b, i) => (
+                  <li key={i} className="acct-cap-item">
+                    <Check size={15} aria-hidden="true" />
+                    <span>{b.text}</span>
+                  </li>
+                ))}
+              </ul>
+              <button type="button" className="acct-cap-link" onClick={() => onNavigate("pricing")}>
+                Сравнить все тарифы →
+              </button>
+            </div>
           </div>
 
           <div className="acct-billing-card">
             <span className="acct-billing-icon">
               <CreditCard size={20} aria-hidden="true" />
             </span>
-            <div className="acct-billing-title">Способ оплаты не подключён</div>
-            <Badge tone="neutral">Скоро</Badge>
-            <p className="acct-billing-note">
-              История платежей и привязка карты появятся с запуском оплаты. Сейчас тариф переключается
-              мгновенно и бесплатно.
-            </p>
+            <div className="acct-billing-body">
+              <div className="acct-billing-title">
+                Способ оплаты не подключён
+                <Badge tone="neutral">Скоро</Badge>
+              </div>
+              <p className="acct-billing-note">
+                История платежей и привязка карты появятся с запуском оплаты. Сейчас тариф переключается
+                мгновенно и бесплатно.
+              </p>
+            </div>
           </div>
 
           <div className="acct-logout">

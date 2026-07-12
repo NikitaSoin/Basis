@@ -1,9 +1,22 @@
 /* ============================================================================
-   Basis Account — Тарифы (.tar-*) и Профиль (.acct-*), NEO.
-   Локальные алиасы к каноническим cc-токенам (тот же приём, что screener.css /
-   portfolio-v2.css): экран живёт в одной системе с приложением и переключает
-   темы через .dark .cc-root — никакого hardcoded hex здесь. Скоуплено под
-   .tar-screen / .acct-screen, на остальное приложение не влияет.
+   Basis Account — Тарифы (.tar-*) и Профиль (.acct-*).
+   Точная раскатка 2026-07-12 по одобренному владельцем мокапу (Claude Artifact
+   assistant-pricing-profile.html, demo-tar/demo-acct — читается КАК HTML-
+   прототип 1:1, тот же режим, что observer-sidebar-v2.html/portfolio-analytics.html).
+   Layout-значения (padding/radius/gap/font-size/font-weight/font-family) взяты
+   буквально из мокапа; цвета — через local aliases к --cc-* (тот же приём, что
+   screener.css / portfolio-v2.css / compare.css): экран живёт в одной системе с
+   приложением и переключает темы через .dark .cc-root — никакого hardcoded hex
+   здесь. Скоуплено под .tar-screen / .acct-screen, на остальное приложение не влияет.
+
+   Осознанные отходы от буквальных значений мокапа (см. также cmp-id-x 32×32
+   touch-target прецедент в compare.css):
+   - Кнопки (.tar-cta CTA-кнопки Plus/Max, .acct-plan-actions) остаются на
+     компоненте Button (design/primitives) — свой radius/padding сайта, а не
+     буквальные 11px/9px мокапа — чтобы не разъезжаться с кнопками по всему
+     остальному сайту и не терять spinner/focus-ring/disabled из примитива.
+     Только «текущий тариф» (не интерактивная плашка) сделан буквальной
+     full-width полосой — там компонент Button не подходит по смыслу (не кнопка).
    ============================================================================ */
 
 .tar-screen, .acct-screen {
@@ -19,6 +32,10 @@
 /* ---- shared: error line under a CTA (both pages) ---- */
 .tar-error { color: var(--danger); font-size: 12.5px; line-height: 1.4; margin: 8px 0 0; }
 
+/* ---- shared: «плитка» card hover-lift — литерально .card:hover мокапа
+   (bg/border/radius уже заданы поштучно на каждом блоке ниже; здесь общая
+   тень+переход, применённая явно к каждому card-блоку через ту же формулу). ---- */
+
 /* ============================================================
    ТАРИФЫ — .tar-*
    ============================================================ */
@@ -26,160 +43,214 @@
 .tar-page { max-width: 1120px; margin: 0 auto; }
 
 .tar-status {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px;
-  font-size: 14px; line-height: 1.5; color: var(--ink-2);
-  background: var(--panel); border: 1px solid var(--line); border-left: 2px solid var(--accent);
-  border-radius: 0 9px 9px 0; padding: 12px 16px; margin-bottom: 24px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  font-size: 13.5px; line-height: 1.5; color: var(--ink-2);
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 0 11px 11px 0; padding: 13px 16px; margin-bottom: 24px;
 }
 .tar-status b { color: var(--ink); font-weight: 600; }
 
-.tar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.tar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 8px; }
 @media (max-width: 900px) { .tar-grid { grid-template-columns: 1fr; } }
 
 .tar-card {
   display: flex; flex-direction: column;
   background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
-  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+  padding: 26px 24px;
 }
-.tar-card--plus { border-left: 2px solid var(--accent); }
+.tar-card:hover { box-shadow: var(--shadow-md); }
+.tar-card--plus { border-color: var(--accent); border-width: 2px; box-shadow: var(--shadow-md); position: relative; }
 
-.tar-eyebrow-slot { min-height: 18px; margin-bottom: 8px; }
-.tar-eyebrow { color: var(--accent); }
+.tar-eyebrow-slot { min-height: 18px; margin-bottom: 4px; }
+/* Буквально .tag-judgment мокапа (тот же «эпистемический тег суждения», что
+   .bs-tag-judgment в basis-design-system.css — ромб-маркер + медная плашка),
+   НЕ обычный .cc-eyebrow (тот — просто мелкая подпись без фона/пилюли). */
+.tar-eyebrow {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 6px;
+  background: var(--accent-soft); color: var(--accent-2);
+}
+.tar-eyebrow::before { content: '◆'; font-size: 8px; }
 
-.tar-name { font-family: var(--cc-serif); font-size: 21px; font-weight: 600; letter-spacing: -0.005em; color: var(--ink); margin: 0 0 14px; }
+.tar-name { font-family: var(--cc-serif); font-size: 19px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
 
-.tar-price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 14px; }
+.tar-price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 4px; }
 .tar-price-num {
-  font-family: var(--cc-mono); font-size: 34px; font-weight: 500; letter-spacing: -0.01em;
+  font-family: var(--cc-mono); font-size: 32px; font-weight: 700; letter-spacing: -0.01em;
   color: var(--ink); font-variant-numeric: tabular-nums lining-nums;
 }
-.tar-price-period { font-size: 13px; color: var(--ink-3); }
+.tar-price-period { font-size: 12.5px; color: var(--ink-3); }
 
-.tar-quota { margin: 0 0 16px; }
+.tar-quota { margin: 10px 0; }
+.tar-quota-val { font-family: var(--cc-mono); font-size: 22px; font-weight: 700; color: var(--accent-2); }
+.tar-quota-lbl { font-size: 11.5px; color: var(--ink-3); margin-left: 6px; }
 
-.tar-desc { font-family: var(--cc-serif); font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin: 0 0 20px; }
+.tar-desc { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 4px 0 16px; }
 
-.tar-bullets { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.tar-bullet { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
-.tar-bullet svg { flex-shrink: 0; margin-top: 2px; color: var(--ink-2); }
-.tar-bullet--accent { font-weight: 500; color: var(--ink); }
-.tar-bullet--accent svg { color: var(--ink); }
-.tar-bullet-badge { flex-shrink: 0; margin-left: auto; }
+.tar-bullets { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-direction: column; gap: 11px; flex: 1; }
+.tar-bullet { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.tar-bullet svg { flex-shrink: 0; margin-top: 2px; color: var(--success); }
+.tar-bullet--accent { font-weight: 600; color: var(--ink); }
+.tar-bullet-badge { margin-left: 6px; }
 
 .tar-cta-slot { margin-top: auto; padding-top: 4px; min-height: 40px; display: flex; align-items: center; }
 
-.tar-note { font-size: 12.5px; color: var(--ink-3); text-align: center; margin: 16px 0 32px; }
+/* «Ваш текущий тариф» — не кнопка (не кликабельно), поэтому не Button-примитив:
+   буквально .tar-cta--current мокапа — полоса во всю ширину карточки, приглушённая. */
+.tar-cta { width: 100%; padding: 12px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 700; text-align: center; border: none; }
+.tar-cta--current { background: var(--panel-2); color: var(--ink-3); cursor: default; }
 
-.tar-compare-lead { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); margin: 0 0 16px; max-width: 78ch; }
+.tar-note { font-size: 12px; color: var(--ink-3); text-align: center; margin: 18px 0 34px; }
+
+.tar-compare-lead { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0 0 18px; max-width: 74ch; }
 
 .tar-compare-scroll { overflow-x: auto; }
 .tar-compare {
   min-width: 580px;
   border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); overflow: hidden; background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
 }
+.tar-compare:hover { box-shadow: var(--shadow-md); }
 
 .tar-compare-head {
   display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr);
   background: var(--panel-2); border-bottom: 1px solid var(--line-2);
 }
 .tar-compare-head-cell {
-  padding: 14px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
   color: var(--ink-3); text-align: center; display: flex; align-items: center; justify-content: center;
 }
-.tar-compare-head-cell--label {
-  text-align: left; justify-content: flex-start; text-transform: none; letter-spacing: 0;
-  font-size: 12.5px; font-weight: 500; color: var(--ink-2);
-}
+.tar-compare-head-cell--label { text-align: left; justify-content: flex-start; }
 .tar-compare-head-cell--current { background: var(--accent-soft); color: var(--accent-2); }
+.tar-compare-head-cell--tier { color: var(--accent-2); }
 
 .tar-compare-group-t {
-  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3);
-  background: var(--panel-2); padding: 9px 16px; border-top: 1px solid var(--line);
+  font-family: var(--cc-mono); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+  color: var(--ink-3); background: var(--bg); padding: 16px 16px 6px; border-top: 1px solid var(--line);
 }
 .tar-compare-group:first-child .tar-compare-group-t { border-top: 0; }
 
 .tar-compare-row { display: grid; grid-template-columns: minmax(220px, 1.6fr) repeat(3, 1fr); border-top: 1px solid var(--line); }
-.tar-compare-row-label { padding: 12px 16px; font-size: 13px; font-weight: 500; color: var(--ink); display: flex; align-items: center; }
-.tar-compare-cell { padding: 12px 14px; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); display: flex; align-items: center; justify-content: center; text-align: center; }
+.tar-compare-row-label { padding: 12px 10px; font-size: 13px; color: var(--ink); display: flex; align-items: center; }
+.tar-compare-cell { padding: 12px 10px; font-size: 12.5px; line-height: 1.4; color: var(--ink-2); display: flex; align-items: center; justify-content: center; text-align: center; }
 .tar-compare-cell--current { background: var(--accent-soft); }
-.tar-compare-cell--dash { color: var(--ink-3); }
+.tar-compare-cell--dash { color: var(--line-2); }
+/* Plus/Max — ВСЕГДА подсвечены медным (независимо от текущего тарифа
+   пользователя, владелец 2026-07-12): .tar-compare-cell--current намеренно
+   НЕ применяется к этим колонкам (см. changeTier-логика в PricingView.jsx) —
+   иначе тот же accent-soft фон дублировался бы поверх самого себя без смысла. */
+.tar-compare-cell--tier { background: var(--accent-soft); font-weight: 600; color: var(--accent-2); }
+.tar-compare-cell--tier.tar-compare-cell--dash { background: transparent; font-weight: 400; color: var(--line-2); }
 
 /* ============================================================
    ПРОФИЛЬ — .acct-*
    ============================================================ */
 
 .acct-page { max-width: 880px; margin: 0 auto; }
-.acct-stack { display: flex; flex-direction: column; gap: 20px; }
+.acct-stack { display: flex; flex-direction: column; gap: 18px; }
 
 .acct-identity {
   display: flex; align-items: center; gap: 16px;
   background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
   padding: 20px 24px;
 }
+.acct-identity:hover { box-shadow: var(--shadow-md); }
 .acct-avatar {
-  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
-  background: var(--accent-soft); color: var(--accent-2);
+  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+  background: var(--accent); color: var(--on-accent);
   display: flex; align-items: center; justify-content: center;
-  font-family: var(--cc-mono); font-size: 18px; font-weight: 600;
+  font-family: var(--cc-serif); font-size: 19px; font-weight: 600;
 }
 .acct-identity-main { flex: 1; min-width: 0; }
 .acct-identity-email { font-size: 15px; font-weight: 600; color: var(--ink); word-break: break-all; }
 .acct-identity-sub { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
-.acct-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); flex-shrink: 0; white-space: nowrap; }
-.acct-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.acct-status { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); flex-shrink: 0; white-space: nowrap; }
+.acct-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
 .acct-status-dot--off { background: var(--ink-3); }
 
+/* .acct-plan — плита с border-left 3px акцентом, тот же приём что .cmp-verdict/
+   .pf-ai-verdict (compare.css/portfolio-v2.css): крупнейший визуальный вес
+   после заголовка, физически отличается от рядовых карточек-доказательств
+   ниже. Раньше border-left был только у внутренней правой колонки — владелец
+   попросил буквально как в мокапе (акцент на всей плитке). */
 .acct-plan-card {
-  display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px;
-  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
-  padding: 28px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;
+  background: var(--panel); border: 1px solid var(--line-2); border-left: 3px solid var(--accent);
+  border-radius: var(--cc-r-lg); box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
+  padding: 24px;
 }
-@media (max-width: 720px) { .acct-plan-card { grid-template-columns: 1fr; } }
+.acct-plan-card:hover { box-shadow: var(--shadow-md); }
 
 .acct-plan-left { display: flex; flex-direction: column; }
-.acct-plan-name { font-family: var(--cc-serif); font-size: 24px; font-weight: 600; margin: 6px 0 10px; color: var(--ink); }
-.acct-plan-desc { font-family: var(--cc-serif); font-size: 15.5px; line-height: 1.5; color: var(--ink-2); margin: 0; max-width: 52ch; }
+/* Буквально .eyebrow мокапа (= .bs-sec-head .bs-eyebrow канона: mono, медная
+   пилюля) — не голый .cc-eyebrow (тот без фона/pill, другой сайтовый вариант). */
+.acct-plan-eyebrow {
+  display: inline-flex; align-items: center; align-self: flex-start;
+  font-family: var(--cc-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent-2); background: var(--accent-soft); padding: 4px 11px; border-radius: 6px;
+}
+.acct-plan-name { font-family: var(--cc-serif); font-size: 22px; font-weight: 600; margin: 6px 0 8px; color: var(--ink); }
+.acct-plan-desc { font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; max-width: 44ch; }
 
-.acct-plan-right {
-  display: flex; flex-direction: column; justify-content: center; gap: 10px;
-  border-left: 2px solid var(--accent); padding-left: 28px;
-}
-@media (max-width: 720px) {
-  .acct-plan-right { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 20px; }
-}
+.acct-plan-right { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .acct-plan-status { font-size: 13px; color: var(--ink-2); margin: 0; }
 .acct-plan-hint { font-size: 12px; color: var(--ink-3); margin: 0; }
 .acct-plan-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 
-.acct-row-list { background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); padding: 4px 24px; }
-.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-.acct-row:last-child { border-bottom: 0; }
-.acct-row-label { font-size: 13px; color: var(--ink-2); }
-.acct-row-value { font-size: 13px; font-weight: 500; color: var(--ink); text-align: right; }
+.acct-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .acct-grid2 { grid-template-columns: 1fr; } }
 
-.acct-cap-card { background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg); padding: 24px; }
-.acct-cap-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 14px; }
-.acct-cap-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
-.acct-cap-item { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
-.acct-cap-item svg { flex-shrink: 0; margin-top: 2px; color: var(--ink-2); }
+.acct-row-list {
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  box-shadow: var(--shadow-sm); transition: box-shadow 180ms ease;
+  padding: 6px 24px;
+}
+.acct-row-list:hover { box-shadow: var(--shadow-md); }
+.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.acct-row:last-child { border-bottom: 0; }
+.acct-row-label { font-size: 13px; color: var(--ink-3); }
+.acct-row-value { font-family: var(--cc-mono); font-size: 13px; color: var(--ink); text-align: right; }
+
+.acct-cap-card {
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  box-shadow: var(--shadow-sm); transition: box-shadow 180ms ease;
+  padding: 22px 24px;
+}
+.acct-cap-card:hover { box-shadow: var(--shadow-md); }
+.acct-cap-title { font-family: var(--cc-serif); font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 14px; }
+.acct-cap-list { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.acct-cap-item { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.45; color: var(--ink-2); }
+.acct-cap-item svg { flex-shrink: 0; margin-top: 2px; color: var(--success); }
 .acct-cap-link {
-  font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 0;
-  cursor: pointer; text-decoration: underline; text-underline-offset: 2px; border-radius: 4px;
+  font: inherit; font-size: 12.5px; font-weight: 700; color: var(--accent-2); background: none; border: 0; padding: 0;
+  cursor: pointer; border-radius: 4px;
 }
 .acct-cap-link:hover { opacity: 0.82; }
 .acct-cap-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
 
+/* .acct-billing — буквально горизонтальная карточка мокапа (иконка + текст в
+   ряд), не центрированный dashed-плейсхолдер, как было раньше. */
 .acct-billing-card {
-  border: 1px dashed var(--line-2); border-radius: var(--cc-r-lg); background: var(--panel-2);
-  padding: 32px 24px; text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 14px;
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--cc-r-lg);
+  box-shadow: var(--shadow-sm); transition: box-shadow 180ms ease;
+  padding: 18px 24px;
 }
+.acct-billing-card:hover { box-shadow: var(--shadow-md); }
 .acct-billing-icon {
-  width: 44px; height: 44px; border-radius: 50%; background: var(--bg);
-  display: flex; align-items: center; justify-content: center; color: var(--ink-3);
+  width: 38px; height: 38px; border-radius: 10px; background: var(--panel-2);
+  display: flex; align-items: center; justify-content: center; color: var(--ink-3); flex-shrink: 0;
 }
-.acct-billing-title { font-size: 14px; font-weight: 600; color: var(--ink); }
-.acct-billing-note { font-size: 12.5px; line-height: 1.5; color: var(--ink-3); max-width: 46ch; margin: 0; }
+.acct-billing-body { min-width: 0; }
+.acct-billing-title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.acct-billing-note { font-size: 12px; line-height: 1.5; color: var(--ink-3); max-width: 46ch; margin: 4px 0 0; }
 
 .acct-logout { display: flex; justify-content: center; padding-top: 4px; }
 /* Doubled class = specificity (0,3,0), beats the Button primitive's own
