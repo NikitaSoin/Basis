@@ -195,16 +195,24 @@ _DIGEST_SYS = (
 )
 
 
-def _digest_batch(articles: list[dict]) -> list[dict]:
+def _digest_batch(articles: list[dict], diag: list | None = None) -> list[dict]:
     from app.services.llm import complete, LLMError
     payload = {"articles": [{"i": i, "title": a["title"], "text": a["text"]}
                             for i, a in enumerate(articles)]}
     try:
         res = complete(_DIGEST_SYS, json.dumps(payload, ensure_ascii=False),
                        json_mode=True, max_tokens=16000, temperature=0.3)
-        return res.get("items", []) if isinstance(res, dict) else []
+        items = res.get("items", []) if isinstance(res, dict) else []
+        if diag is not None:
+            null_ct = sum(1 for it in items if not it.get("target"))
+            diag.append({"batch_size": len(articles), "items_returned": len(items),
+                        "null_targets": null_ct, "error": None})
+        return items
     except LLMError as e:
         logger.warning("GEO-дайджест: LLM недоступен (%s) — батч пропущен", e)
+        if diag is not None:
+            diag.append({"batch_size": len(articles), "items_returned": 0,
+                        "null_targets": None, "error": str(e)})
         return []
 
 
@@ -250,9 +258,10 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     fresh.sort(key=lambda a: a["_pub"], reverse=True)  # свежее — в приоритете за прогон
     fresh = fresh[:max_new]
     saved = 0
+    diag = []
     for i in range(0, len(fresh), _BATCH):
         chunk = fresh[i:i + _BATCH]
-        items = _digest_batch(chunk)
+        items = _digest_batch(chunk, diag=diag)
         for it in items:
             idx = it.get("i")
             if not isinstance(idx, int) or not (0 <= idx < len(chunk)):
@@ -285,6 +294,6 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
                 db.rollback()
                 logger.warning("GEO-дайджест: пропуск дубля/конфликта при сохранении %s: %s",
                                art["url"], type(e).__name__)
-    res = {"discovered": len(fresh), "saved": saved, "blind": blind}
+    res = {"discovered": len(fresh), "saved": saved, "blind": blind, "diag": diag}
     logger.info("GEO-дайджест: %s", res)
     return res
