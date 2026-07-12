@@ -77,6 +77,9 @@ import {
   ObsGeopolitics,
   ObsInstitutions,
   ObsMarketPulse,
+  ObsMarketMap,
+  ObsAiReview,
+  ObsEconomy,
 } from "./observer/ObsPanels";
 import {
   NewsFeed,
@@ -121,7 +124,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Данные</span>
               <h2 className="obs-sec-title">Экономическая статистика</h2>
             </div>
-            <MacroView token={token} portfolioOnly={portfolioOnly} />
+            <ObsEconomy token={token} />
           </div>
         );
       case "pulse":
@@ -141,7 +144,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Карта рынка</h2>
             </div>
-            <MarketMaps token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsMarketMap token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "calendar":
@@ -201,7 +204,7 @@ function ObserverV2({ token, onSelectCompany }) {
               <span className="obs-sec-eyebrow">Разбор</span>
               <h2 className="obs-sec-title">ИИ-обзор и анализ</h2>
             </div>
-            <ObserverReportView token={token} onSelectCompany={onSelectCompany} />
+            <ObsAiReview token={token} onSelectCompany={onSelectCompany} />
           </div>
         );
       default:
