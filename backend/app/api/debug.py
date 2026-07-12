@@ -548,6 +548,25 @@ def debug_trigger_report_watch(days_back: int = 5):
         db.close()
 
 
+@router.post("/debug/reset-report-watch")
+def debug_reset_report_watch():
+    """Удаляет needs_source-записи report_watch (source != 'report_watch' изначально
+    fallback 'calendar_title'/'skrin_disclosure', либо needs_source вообще) — для
+    чистого повторного прогона (напр. после правки фетч-каскада или подозрения на
+    запись, созданную ЕЩЁ старым кодом во время rolling-деплоя). processed НЕ трогает."""
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport
+    db = SessionLocal()
+    try:
+        n = (db.query(EarningsReport)
+             .filter(EarningsReport.calendar_event_id.isnot(None), EarningsReport.status == "needs_source")
+             .delete())
+        db.commit()
+        return {"deleted": n}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-sync")
 def debug_trigger_macro_sync():
     """Ручной запуск sync_cb() (ставка/прогноз ЦБ/ОНДКП-сценарии/макроопрос/
