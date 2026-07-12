@@ -614,6 +614,30 @@ def debug_purge_shallow_geo_digest():
         db.close()
 
 
+@router.post("/debug/fix-cmasf-source-typo")
+def debug_fix_cmasf_source_typo():
+    """Одноразовая чистка: source='cmasf' (опечатка) → 'cmakp' в существующих
+    записях macro_analytics_docs. Фронтенд (SOURCE_CHIPS/SOURCE_LABELS) ждёт
+    ключ 'cmakp' — из-за опечатки фильтр «ЦМАКП» не находил ни одной статьи и
+    ярлык показывал сырое 'cmasf'. Конфиг backend/config/macro_indicators.json
+    уже исправлен — эта чистка только для уже сохранённых строк."""
+    from app.db.session import SessionLocal
+    from app.models.macro import MacroAnalyticsDoc
+    db = SessionLocal()
+    try:
+        updated = (db.query(MacroAnalyticsDoc)
+                  .filter(MacroAnalyticsDoc.source == "cmasf")
+                  .update({"source": "cmakp"}, synchronize_session=False))
+        db.commit()
+        return {"updated": updated}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.exception("debug fix-cmasf-source-typo: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-geo-digest")
 def debug_trigger_geo_digest():
     """Ручной запуск geo_digest.refresh() (карточки-статьи Рыбарь/re:russia/Carnegie

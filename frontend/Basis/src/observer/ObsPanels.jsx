@@ -990,6 +990,8 @@ function ObsMacroArticles({ token }) {
   const [interpLoading, setInterpLoading] = useState(false);
   const [srcFilter, setSrcFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [digest, setDigest] = useState([]);
+  const [digestLoading, setDigestLoading] = useState(true);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   // Загружаем список аналитических записок один раз
@@ -999,6 +1001,15 @@ function ObsMacroArticles({ token }) {
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => { setDocs(d || []); setLoading(false); })
       .catch(() => setLoading(false));
+  }, [apiUrl]);
+
+  // Дайджест внешних источников с макро-уклоном (Economist Finance, ISW и др.)
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/macro/digest`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setDigest(d.articles || []))
+      .catch(() => setDigest([]))
+      .finally(() => setDigestLoading(false));
   }, [apiUrl]);
 
   // Загружаем интерпретацию при переключении на «Оценка ситуации»
@@ -1087,6 +1098,17 @@ function ObsMacroArticles({ token }) {
               <ObsArticleCard key={doc.id} doc={doc} />
             ))}
           </div>
+
+          {(digestLoading || digest.length > 0) && (
+            <div style={{ marginTop: 16 }}>
+              <div className="obs-synth-head" style={{ marginBottom: 14 }}>Внешний взгляд (Economist, ISW и др.)</div>
+              <ObsDigestList
+                articles={digest}
+                loading={digestLoading}
+                emptyHint="Свежих материалов пока нет."
+              />
+            </div>
+          )}
         </>
       )}
 

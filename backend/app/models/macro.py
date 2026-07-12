@@ -92,7 +92,7 @@ class MacroAnalyticsDoc(Base):
     __table_args__ = (UniqueConstraint("source_url", name="uq_macro_doc_url"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    source: Mapped[str] = mapped_column(String(24), nullable=False)  # cbr|cmasf
+    source: Mapped[str] = mapped_column(String(24), nullable=False)  # cbr|cmakp
     doc_type: Mapped[str | None] = mapped_column(String(64))  # прогноз/доклад ДКП/резюме ставки/...
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     summary: Mapped[str | None] = mapped_column(Text)

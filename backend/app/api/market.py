@@ -517,7 +517,7 @@ def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depend
     пересказ + тезисы. source_label показывается (временно, обкатка пайплайна —
     geo_digest.py)."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
-    if region not in GEO_DIGEST_TARGETS or region == "institutions":
+    if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro"):
         raise HTTPException(status_code=404, detail="Неизвестный регион")
     rows = (db.query(GeoDigestArticle).filter_by(target=region)
            .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
@@ -530,6 +530,17 @@ def market_institutions_digest(limit: int = 15, db: Session = Depends(get_db)):
     дополняет статичный барометр (market_institutions) живой лентой."""
     from app.models.geo_digest import GeoDigestArticle
     rows = (db.query(GeoDigestArticle).filter_by(target="institutions")
+           .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
+    return {"articles": [_digest_dict(a) for a in rows]}
+
+
+@router.get("/market/macro/digest")
+def market_macro_digest(limit: int = 15, db: Session = Depends(get_db)):
+    """Дайджест статей с макроэкономическим уклоном из внешних источников
+    (Economist Finance, ISW и др. — geo_digest.py, target=macro) — дополняет
+    записки ЦБ/ЦМАКП (market_macro_analytics) живой лентой внешнего взгляда."""
+    from app.models.geo_digest import GeoDigestArticle
+    rows = (db.query(GeoDigestArticle).filter_by(target="macro")
            .order_by(GeoDigestArticle.published_at.desc()).limit(limit).all())
     return {"articles": [_digest_dict(a) for a in rows]}
 
