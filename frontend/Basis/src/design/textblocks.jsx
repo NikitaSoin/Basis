@@ -265,3 +265,55 @@ export function PullQuote({ children, className = "" }) {
     </blockquote>
   );
 }
+
+/* =============================================================
+   ANALYST_MD — общий markdown-рендерер для разборов аналитика
+   (облигации/фьючерсы/фонды, Обозреватель). Перенесён из App.js —
+   используется и там, и в observer/ObsLegacyViews.jsx.
+   ============================================================= */
+// Общий markdown-рендерер для разборов аналитика (облигации/фьючерсы/фонды).
+// БЕЗ него сырой markdown (##, **, таблицы |) показывался плоской «простынёй».
+// Достаёт плоский текст из дерева React-children (для распознавания смысловых
+// абзацев-выводов вроде «Оценка Basis», «Что это значит»).
+const mdText = (node) => {
+  if (node == null) return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(mdText).join("");
+  if (node.props && node.props.children) return mdText(node.props.children);
+  return "";
+};
+// Абзацы-выводы: подсвечиваем как акцентный callout (читаемый primary-текст),
+// чтобы ключевой смысл не тонул в общем сером тексте.
+const LEAD_CALLOUT = /^\s*(оценк[аи] basis|наша оценка|что это значит|ключевой вывод|вывод|итог|главное|резюме|bottom\s*line)\b/i;
+
+export const ANALYST_MD = {
+  h1: () => null,
+  h2: ({ children }) => <h2 className="tw-text-[15.5px] tw-font-bold tw-text-text-primary tw-mt-6 tw-mb-2.5 tw-pt-3.5 tw-border-t tw-border-border-subtle first:tw-border-0 first:tw-pt-0 first:tw-mt-0">{children}</h2>,
+  // Подзаголовок-подпункт: акцентная вертикальная риска + жирный primary, с воздухом сверху.
+  h3: ({ children }) => <h3 className="tw-flex tw-items-center tw-gap-2 tw-text-[14.5px] tw-font-bold tw-text-text-primary tw-mt-5 tw-mb-2"><span className="tw-rounded-xs tw-bg-accent tw-shrink-0" style={{ width: 3, height: 13 }} aria-hidden="true" />{children}</h3>,
+  p: ({ children }) => {
+    const t = mdText(children);
+    if (LEAD_CALLOUT.test(t)) {
+      return <div className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-[14.5px] tw-leading-[1.65] tw-text-text-primary">{children}</div>;
+    }
+    return <p className="tw-text-[14.5px] tw-leading-[1.7] tw-text-text-secondary tw-my-3">{children}</p>;
+  },
+  ul: ({ children }) => <ul className="tw-list-none tw-pl-0 tw-my-3 tw-space-y-2">{children}</ul>,
+  ol: ({ children }) => <ol className="tw-list-decimal tw-pl-5 tw-my-3 tw-space-y-2 marker:tw-text-accent marker:tw-font-semibold">{children}</ol>,
+  // Пункт списка = строка со значком-маркером (акцентный ▸) — «подпункт» читается
+  // отдельно, а не сливается в абзац. Один акцентный цвет — без «радуги».
+  li: ({ children }) => (
+    <li className="tw-flex tw-gap-2 tw-items-start tw-text-[14.5px] tw-leading-[1.65] tw-text-text-secondary">
+      <span className="tw-text-accent tw-shrink-0 tw-mt-[3px] tw-text-[12px]" aria-hidden="true">▸</span>
+      <span className="tw-min-w-0">{children}</span>
+    </li>
+  ),
+  strong: ({ children }) => <strong className="tw-text-text-primary tw-font-semibold">{children}</strong>,
+  em: ({ children }) => <em className="tw-italic">{children}</em>,
+  blockquote: ({ children }) => <blockquote className="tw-border-l-[3px] tw-border-accent tw-bg-accent-soft tw-rounded-r-md tw-pl-3.5 tw-pr-3 tw-py-2.5 tw-my-3.5 tw-text-text-primary">{children}</blockquote>,
+  hr: () => <hr className="tw-my-5 tw-border-border-subtle" />,
+  table: ({ children }) => <div className="tw-overflow-x-auto tw-my-3.5 tw-rounded-md tw-border tw-border-border-subtle"><table className="tw-w-full tw-border-collapse tw-text-[13px]">{children}</table></div>,
+  th: ({ children }) => <th className="tw-text-left tw-px-2.5 tw-py-2 tw-bg-bg-base tw-border-b tw-border-border-strong tw-text-text-secondary tw-font-semibold">{children}</th>,
+  td: ({ children }) => <td className="tw-px-2.5 tw-py-2 tw-border-b tw-border-border-subtle tw-text-text-secondary tw-align-top tw-leading-[1.5]">{children}</td>,
+  code: ({ children }) => <code className="tw-bg-bg-base tw-px-1.5 tw-py-0.5 tw-rounded-xs tw-text-[12.5px] tw-font-mono">{children}</code>,
+};
