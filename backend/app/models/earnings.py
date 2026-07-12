@@ -29,7 +29,12 @@ class EarningsReport(Base):
     source: Mapped[str | None] = mapped_column(String(40))            # smartlab | ...
     source_url: Mapped[str | None] = mapped_column(String(1000))
     raw_file_ref: Mapped[str | None] = mapped_column(String(1000))
-    status: Mapped[str] = mapped_column(String(24), default="processed")  # processed | extracting | extract_failed
+    status: Mapped[str] = mapped_column(String(24), default="processed")  # processed | extracting | extract_failed | needs_source
+    # Дедуп-ключ автопайплайна report_watch.py (детект по calendar_events, не по
+    # financials.json) — period парсится эвристикой из заголовка, ненадёжен для
+    # дедупа сам по себе. NULL у записей, созданных старым (ручным) путём.
+    calendar_event_id: Mapped[int | None] = mapped_column(
+        ForeignKey("calendar_events.id", ondelete="SET NULL"), unique=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 

@@ -531,6 +531,23 @@ def debug_trigger_calendar():
         db.close()
 
 
+@router.post("/debug/trigger-report-watch")
+def debug_trigger_report_watch(days_back: int = 5):
+    """Ручной запуск report_watch.refresh() (автообнаружение вышедших отчётов через
+    MOEX ir-calendar + разбор по Ленте новостей/СКРИН), БЕЗ ожидания дневного крона
+    (20:45) — для диагностики. days_back — окно назад по уже прошедшим датам событий."""
+    from app.db.session import SessionLocal
+    from app.services.report_watch import refresh
+    db = SessionLocal()
+    try:
+        return refresh(db, days_back=days_back)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-report-watch: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-macro-sync")
 def debug_trigger_macro_sync():
     """Ручной запуск sync_cb() (ставка/прогноз ЦБ/ОНДКП-сценарии/макроопрос/

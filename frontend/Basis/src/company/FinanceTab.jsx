@@ -228,7 +228,7 @@ function parseSections(md) {
   }).filter((x) => x.body);
 }
 
-export default function FinanceTab({ fin, company, price, sectorMult, peersData, finMd }) {
+export default function FinanceTab({ fin, company, price, sectorMult, peersData, finMd, earnings }) {
   const [tab, setTab] = useState("pnl");
   const [detOpen, setDetOpen] = useState(false);
   const [peerYear, setPeerYear] = useState(null);
@@ -665,6 +665,30 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
     <div className="fin-hybrid">
       <div className="layout">
         <div className="dash">
+          {/* 0. Свежее событие: автоматический разбор только что вышедшего отчёта
+              (report_watch.py) — отдельно от «1. Разбор отчёта» ниже, который считается
+              ИЗ УЖЕ ВЫВЕРЕННОГО financials.json (аналитик). Этот блок закрывает разрыв
+              между «отчёт вышел» и «аналитик обновил цифры» — по свежим источникам
+              (Лента новостей / раскрытие информации), поэтому помечен «оценка», не «факт». */}
+          {earnings && (earnings.digest || earnings.status === "needs_source" || earnings.status === "extract_failed") && (
+            <div className="card">
+              <h3>Свежее событие: вышел отчёт <span className="tag tag-est">оценка</span><span className="hmeta">{earnings.period}{earnings.standard ? ` · ${earnings.standard}` : ""}</span></h3>
+              {earnings.digest ? (
+                <div className="verdict" style={{ marginTop: 14 }}>
+                  {earnings.digest.one_liner && <div className="vh">{earnings.digest.one_liner}</div>}
+                  {Array.isArray(earnings.digest.what_report_showed) && earnings.digest.what_report_showed.map((x, i) => (
+                    <div className="vrow" key={i}><span className={`ic ${x.startsWith("❌") ? "no" : x.startsWith("❗") ? "warn" : "ok"}`}>
+                      {x.startsWith("❌") ? "✕" : x.startsWith("❗") ? "!" : "✓"}</span><span>{x.replace(/^[✅❌❗️]+\s*/, "")}</span></div>
+                  ))}
+                  {earnings.digest.summary && <p className="sub" style={{ marginTop: 8 }}>{earnings.digest.summary}</p>}
+                  <p className="sub" style={{ marginTop: 8, fontSize: 11 }}>Ознакомительный разбор события «вышел отчёт» по свежим источникам — не заменяет выверенные цифры ниже. Не является ИИР.</p>
+                </div>
+              ) : (
+                <p className="sub" style={{ marginTop: 14 }}>Отчёт вышел {earnings.published_at || ""} — источник с цифрами ещё не найден, разбор появится по мере поступления данных.</p>
+              )}
+            </div>
+          )}
+
           {/* 1. Разбор отчёта */}
           {rows.length > 0 && (
             <div className="card">

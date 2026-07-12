@@ -316,6 +316,27 @@ async def _earnings_startup():
     await _earnings_job(seed_only=True)
 
 
+async def _report_watch_job():
+    """Автообнаружение вышедших отчётов (report_watch.py) — НЕЗАВИСИМО от _earnings_job:
+    тот видит новый период только после РУЧНОГО обновления financials.json, этот детектит
+    сам факт выхода отчёта по MOEX ir-calendar и разбирает по тексту из Ленты/СКРИН, без
+    ожидания аналитика. Раз в сутки, после Ленты новостей (19:30) и календаря (06:45) —
+    нужен свежий market_updates для фетча текста отчёта."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.report_watch import refresh
+        db = SessionLocal()
+        try:
+            return refresh(db, days_back=5)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("report_watch (автообнаружение отчётов): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка report_watch: %s", e)
+
+
 async def _risk_metrics_startup():
     """Разовый прогон при старте (в дополнение к ежедневному джобу в 19:30 МСК):
     бэкфилл истории под прежними тикерами + пересчёт company_metrics. Без
@@ -609,6 +630,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_macro_interpretation_job, "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
+        scheduler.add_job(_report_watch_job, "cron", hour=20, minute=45, id="report_watch")
         scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_geo_digest_job, "cron", minute=10, id="geo_digest")  # каждый час
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")

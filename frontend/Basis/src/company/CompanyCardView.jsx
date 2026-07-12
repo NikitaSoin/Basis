@@ -3757,7 +3757,7 @@ const CompanyCard = ({ company, onBack }) => {
     // Всё из структурированного financials.json; коридор/методы НЕ пересчитываются.
     if (finJson) {
       const liveCurp = livePrice ?? company?.price ?? null;
-      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} peersData={peersMultiples} finMd={finMd} />;
+      return <FinanceTab fin={finJson} company={company} price={liveCurp} sectorMult={sectorMult} peersData={peersMultiples} finMd={finMd} earnings={earnings} />;
     }
 
     const cx = (...p) => p.filter(Boolean).join(" ");
