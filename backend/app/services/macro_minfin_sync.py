@@ -94,7 +94,7 @@ def sync_gov_spending(db: Session) -> dict:
         html = r.text
     except Exception as e:  # noqa: BLE001
         logger.warning("Минфин-sync: релиз недоступен: %s", type(e).__name__)
-        return {"error": "page"}
+        return {"error": "page", "reason": f"{type(e).__name__}: {e}"[:200], "url": url}
     text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
     text = re.sub(r"<[^>]+>", " ", text)
     text = re.sub(r"\s+", " ", text).strip()

@@ -153,7 +153,7 @@ def debug_env():
     import re
     keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
             "ANTHROPIC_API_KEY", "ANTHROPIC_PROXY_URL", "DEEPSEEK_API_KEY", "FRED_API_KEY",
-            "LLM_PROVIDER", "RUN_STARTUP_JOBS"]
+            "LLM_PROVIDER", "RUN_STARTUP_JOBS", "MINFIN_BASE_URL"]
     out = {}
     for k in keys:
         v = os.environ.get(k)
