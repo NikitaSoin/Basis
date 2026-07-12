@@ -32,6 +32,7 @@ import MarketNeo from "../market/MarketNeo";
 import BusinessModelTab from "./BusinessModelTab";
 import FinanceTab from "./FinanceTab";
 import GovernanceTab from "./GovernanceTab";
+import InstitutionsTab from "./InstitutionsTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
 
 // =========================
@@ -2894,6 +2895,9 @@ const CompanyCard = ({ company, onBack }) => {
   const [geoMd, setGeoMd] = useState(null);
   const [geoJson, setGeoJson] = useState(null);
   const [geoLoading, setGeoLoading] = useState(true);
+  const [instMd, setInstMd] = useState(null);
+  const [instJson, setInstJson] = useState(null);
+  const [instLoading, setInstLoading] = useState(true);
   const [peersJson, setPeersJson] = useState(null);
   const [peersShowAll, setPeersShowAll] = useState(false);
   const [peersYear, setPeersYear] = useState(null);       // для таблицы конкурентов (C2)
@@ -3056,6 +3060,22 @@ const CompanyCard = ({ company, onBack }) => {
       setGeoMd(md);
       setGeoJson(js);
       setGeoLoading(false);
+    });
+  }, [company.ticker]);
+
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+    setInstLoading(true);
+    setInstMd(null);
+    setInstJson(null);
+    const base = `${apiUrl}/api/companies/by-ticker/${company.ticker}`;
+    Promise.all([
+      fetch(`${base}/institutions-summary`).then(r => r.ok ? r.text() : null).catch(() => null),
+      fetch(`${base}/institutions`).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([md, js]) => {
+      setInstMd(md);
+      setInstJson(js);
+      setInstLoading(false);
     });
   }, [company.ticker]);
 
@@ -6433,6 +6453,17 @@ const CompanyCard = ({ company, onBack }) => {
     );
   };
 
+  const renderInstitutions = () => {
+    if (instLoading) return (
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-16">
+        <div className="tw-text-text-tertiary tw-animate-pulse">Загружаем институциональный анализ...</div>
+      </div>
+    );
+    if (!instMd && !instJson) return renderComingSoon("Институты");
+
+    return <InstitutionsTab instJson={instJson} instMd={instMd} />;
+  };
+
   const renderBusinessProfile = () => {
     const isLoading = bmMdLoading && profileLoading;
     if (isLoading) return (
@@ -6688,6 +6719,7 @@ const CompanyCard = ({ company, onBack }) => {
     { id: "overview", label: "Обзор" }, { id: "business", label: "Бизнес-модель" },
     { id: "finance", label: "Финансы и оценка" }, { id: "governance", label: "Корп. управление" },
     { id: "markets", label: "Рынки" }, { id: "macro", label: "Макро" }, { id: "geo", label: "Геополитика" },
+    { id: "institutions", label: "Институты" },
   ];
   const tabBody = (
     <>
@@ -6698,6 +6730,7 @@ const CompanyCard = ({ company, onBack }) => {
       {tab === "markets" && renderMarket()}
       {tab === "macro" && renderMacro()}
       {tab === "geo" && renderGeo()}
+      {tab === "institutions" && renderInstitutions()}
       {tab === "deep" && (company.overview ? renderDeepDive() : renderComingSoon("Глубокий разбор"))}
       {tab === "consilium" && (company.overview ? renderConsilium() : renderComingSoon("Консилиум аналитиков"))}
       {tab === "stress" && (company.overview ? renderStressTest() : renderComingSoon("Стресс-тест"))}
@@ -6773,6 +6806,7 @@ const CompanyCard = ({ company, onBack }) => {
           { id: "markets", label: "Рынки" },
           { id: "macro", label: "Макро" },
           { id: "geo", label: "Геополитика" },
+          { id: "institutions", label: "Институты" },
         ];
         const SECONDARY = [
           { id: "deep", label: "Глубокий разбор" },
