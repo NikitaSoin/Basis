@@ -36,10 +36,101 @@ import FinanceTab from "./FinanceTab";
 import GovernanceTab from "./GovernanceTab";
 import InstitutionsTab from "./InstitutionsTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
+import { ObsLineChart } from "../observer/ObsPanels";
 
 // =========================
 // HELPERS
 // =========================
+
+const PRICE_CHART_PERIODS = [
+  { id: "5d", label: "5Д", days: 5 },
+  { id: "1m", label: "1М", days: 30 },
+  { id: "3m", label: "3М", days: 90 },
+  { id: "6m", label: "6М", days: 180 },
+  { id: "1y", label: "1Г", days: 365 },
+  { id: "3y", label: "3Г", days: 1095 },
+  { id: "all", label: "Всё", days: 4000 },
+];
+function PriceHistoryChart({ fetchUrl, unit = "₽", defaultPeriod = "6m" }) {
+  const [period, setPeriod] = useState(defaultPeriod);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  useEffect(() => {
+    const days = (PRICE_CHART_PERIODS.find((p) => p.id === period) || PRICE_CHART_PERIODS[2]).days;
+    setLoading(true); setError(false);
+    fetch(`${apiUrl}${fetchUrl}${fetchUrl.includes("?") ? "&" : "?"}days=${days}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [fetchUrl, period, apiUrl]);
+
+  const points = data?.points || [];
+  const series = points.length
+    ? [{
+        name: "Цена", color: "var(--accent)",
+        points: points
+          .filter((p) => (p.close ?? p.settle) != null)
+          .map((p) => ({ as_of: p.date, value: p.close ?? p.settle })),
+      }]
+    : [];
+  const empty = !loading && (error || series.length === 0 || series[0].points.length < 2);
+
+  return (
+    <Card>
+      <div className="tw-flex tw-items-center tw-justify-between tw-flex-wrap tw-gap-3 tw-mb-1">
+        <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
+          <Activity size={18} />
+          <span>История цены</span>
+        </div>
+        <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
+          {PRICE_CHART_PERIODS.map((p) => (
+            <button key={p.id} type="button"
+              onClick={() => setPeriod(p.id)}
+              aria-pressed={period === p.id}
+              className={`tw-px-2.5 tw-py-1 tw-rounded-sm tw-text-[12px] tw-font-medium tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
+                period === p.id
+                  ? "tw-bg-accent tw-text-white tw-border-accent"
+                  : "tw-bg-transparent tw-text-text-secondary tw-border-border-subtle hover:tw-border-border-strong"
+              }`}>
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {loading && (
+        <div className="tw-text-text-tertiary tw-text-[13px] tw-py-10 tw-text-center">Загружаем историю цен…</div>
+      )}
+      {empty && (
+        <div className="tw-text-text-tertiary tw-text-[13px] tw-py-10 tw-text-center">
+          История цены недоступна за этот период.
+        </div>
+      )}
+      {!loading && !empty && (
+        <>
+          <div className="tw-mt-3">
+            <ObsLineChart series={series} unit={unit} viewH={220} />
+          </div>
+          {data?.last != null && (
+            <div className="tw-flex tw-items-baseline tw-gap-2.5 tw-mt-1 tw-text-[12px] tw-text-text-tertiary">
+              <span>
+                Последняя цена:{" "}
+                <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">
+                  {data.last.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}{unit}
+                </b>
+              </span>
+              {data.change_pct != null && (
+                <Delta value={data.change_pct} suffix="%" decimals={2} className="tw-text-[12px]" />
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </Card>
+  );
+}
 
 const formatCurrency = (val) =>
   new Intl.NumberFormat("ru-RU", {
@@ -3359,6 +3450,8 @@ const CompanyCard = ({ company, onBack }) => {
           </ul>
         </Card>
       </div>
+
+      <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
 
       {/* RISKS — table via primitive, signed effect + sign badge */}
       <Card>

@@ -3732,4 +3732,5 @@ export {
   ObsMarketMap,
   ObsAiReview,
   ObsEconomy,
+  ObsLineChart,
 };
