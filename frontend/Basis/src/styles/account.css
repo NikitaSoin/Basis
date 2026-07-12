@@ -32,6 +32,19 @@
 /* ---- shared: error line under a CTA (both pages) ---- */
 .tar-error { color: var(--danger); font-size: 12.5px; line-height: 1.4; margin: 8px 0 0; }
 
+/* ---- shared page header (Тарифы + Профиль) — литерально .sec-head/.eyebrow/
+   .h1/.sub мокапа (тот же паттерн, что .cmp-sec-head/.cmp-eyebrow/.cmp-h1 в
+   compare.css) — заменяет общий .view-header/.view-title (styles.css),
+   у которого нет ни eyebrow-бейджа, ни Fraunces. Владелец явно указал на
+   расхождение по этим двум экранам — пропущено в первом проходе раскатки. ---- */
+.acct-sec-head { display: flex; align-items: baseline; gap: 13px; margin-bottom: 6px; flex-wrap: wrap; }
+.acct-page-eyebrow {
+  font-family: var(--cc-mono, "IBM Plex Mono", monospace); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent-hover, var(--accent)); background: var(--accent-soft); padding: 4px 11px; border-radius: 6px;
+}
+.acct-h1 { font-family: var(--cc-serif, "Fraunces", Georgia, serif); font-size: 28px; font-weight: 600; margin: 0; color: var(--ink); }
+.acct-sec-sub { color: var(--ink-3); font-size: 13.5px; max-width: 62ch; margin: 10px 0 26px; }
+
 /* ---- shared: «плитка» card hover-lift — литерально .card:hover мокапа
    (bg/border/radius уже заданы поштучно на каждом блоке ниже; здесь общая
    тень+переход, применённая явно к каждому card-блоку через ту же формулу). ---- */

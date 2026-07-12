@@ -82,10 +82,11 @@ export default function ProfileView({ user, token, onLogout, onNavigate, onShowA
   return (
     <div className="acct-screen">
       <div className="acct-page">
-        <div className="view-header">
-          <h1 className="view-title">Профиль</h1>
-          <p className="view-subtitle">Аккаунт и тарифный план</p>
+        <div className="acct-sec-head">
+          <span className="acct-page-eyebrow">Аккаунт</span>
+          <h1 className="acct-h1">Профиль</h1>
         </div>
+        <p className="acct-sec-sub">Аккаунт и тарифный план</p>
 
         <div className="acct-stack">
           <div className="acct-identity">

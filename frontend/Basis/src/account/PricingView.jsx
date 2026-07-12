@@ -55,12 +55,13 @@ export default function PricingView({ user, token, onShowAuth, onUserUpdate }) {
   return (
     <div className="tar-screen">
       <div className="tar-page">
-        <div className="view-header">
-          <h1 className="view-title">Тарифы</h1>
-          <p className="view-subtitle">
-            Вердикт и вся ширина продукта — бесплатно. Глубина разбора и живой ИИ-слой — платно.
-          </p>
+        <div className="acct-sec-head">
+          <span className="acct-page-eyebrow">Аккаунт</span>
+          <h1 className="acct-h1">Тарифы</h1>
         </div>
+        <p className="acct-sec-sub">
+          Вердикт и вся ширина продукта — бесплатно. Глубина разбора и живой ИИ-слой — платно.
+        </p>
 
         {user && (
           <div className="tar-status">
