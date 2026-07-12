@@ -2800,9 +2800,14 @@ const ScreenerView = ({ onSelectCompany, token, onAuthRequired }) => {
 
   // Заголовок «Скринер» (один на оба класса) и переключатель класса — общие, в стиле
   // экрана (sc-*), над фильтрами. Сами движки рендерят свой подзаголовок/фильтры ниже.
+  // Шапка — eyebrow-бейдж + Fraunces H1, тот же паттерн, что .cmp-sec-head/.cmp-eyebrow
+  // в CompareView (точная раскатка мокапа screener-only-v4.html: .sec-head/.eyebrow/.h1).
   return (
     <div className="sc-screen">
-      <h1 className="sc-page-title" style={{ marginBottom: 14 }}>Скринер</h1>
+      <div className="sc-sec-head">
+        <span className="sc-page-eyebrow">Рынок</span>
+        <h1 className="sc-page-title">{cls === "bonds" ? "Скринер облигаций" : "Скринер"}</h1>
+      </div>
       <div className="sc-seg" role="group" aria-label="Класс активов" style={{ marginBottom: 18 }}>
         <button className={cls === "stocks" ? "on" : ""} onClick={() => setCls("stocks")}>Акции</button>
         <button className={cls === "bonds" ? "on" : ""} onClick={() => setCls("bonds")}>Облигации</button>
