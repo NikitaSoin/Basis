@@ -103,6 +103,8 @@ function _newsTime(iso) {
   } catch { return ""; }
 }
 
+const _SOURCE_LABEL = { interfax: "Интерфакс", rbc: "РБК", kommersant: "Коммерсантъ" };
+
 const _NEWS_TOPIC_MAP = {
   business: ["Бизнес"],
   macro:    ["Экономика", "Рынки", "Макроэкономика"],
