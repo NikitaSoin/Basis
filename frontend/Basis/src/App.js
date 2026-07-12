@@ -87,7 +87,7 @@ import {
   EarningsFeed,
   CalendarView,
 } from "./observer/ObsLegacyViews";
-import { PortfolioView } from "./portfolio/PortfolioViews";
+import { PortfolioV2 } from "./portfolio/PortfolioViews";
 import { AuthModal, ProfileView, PricingView } from "./account/AccountPanels";
 import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
@@ -615,7 +615,7 @@ export default function App() {
       case "overview":
         return <ObserverV2 token={token} onSelectCompany={setSelectedCompany} />;
       case "portfolio":
-        return <PortfolioView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
+        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "strategies":
         return <ComingSoonView icon={Target} title="Портфельные стратегии" blurb="Подбор готовой стратегии под ваш профиль риска. Раздел скоро появится — мы его готовим." />;
       case "stress":

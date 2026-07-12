@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
+  AlertTriangle,
   Briefcase,
   Pencil,
   Plus,
   ShieldAlert,
+  Target,
   Trash2,
   TrendingDown,
   Upload,
@@ -17,6 +19,7 @@ import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
 import { CompanyLogo } from "../design/CompanyLogo";
+import "../styles/portfolio-v2.css";
 
 // =========================
 // PORTFOLIO MOCK DATA
@@ -326,16 +329,57 @@ const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
 const EditPositionModal = ({ portfolioId, position, token, onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const [mode, setMode] = useState("trade"); // "trade" | "fix" — как в прототипе
   const [quantity, setQuantity] = useState(String(position.shares ?? ""));
   const [avgPrice, setAvgPrice] = useState(String(position.avgPrice ?? ""));
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Совершить сделку (buy/sell) — заводит запись в истории, не трогает
+  // напрямую qty/среднюю (это делает бэкенд по средневзвешенной цене).
+  const [tradeSide, setTradeSide] = useState("buy");
+  const [tradeQty, setTradeQty] = useState("");
+  const [tradePrice, setTradePrice] = useState("");
+  const [tradeFee, setTradeFee] = useState("0");
+  const [tradeDate, setTradeDate] = useState(() => new Date().toISOString().slice(0, 10));
+
+  // Разбивка П/У по истории сделок (Реализовано/Не реализовано/Дивиденды/Комиссии)
+  const [pnl, setPnl] = useState(null);
+  useEffect(() => {
+    fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${position.id}/pnl?current_price=${position.currentPrice || ""}`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setPnl)
+      .catch(() => setPnl(null));
+  }, [position.id]); // apiUrl/authHeaders/position.currentPrice пересчитываются на каждый рендер — не нужны в deps
+
   const check = async (resp, action) => {
     if (resp.ok) return resp;
     const body = await resp.json().catch(() => ({}));
     throw new Error(body.detail || `Не удалось ${action} (HTTP ${resp.status})`);
+  };
+
+  const handleTrade = async () => {
+    setError(null);
+    const qty = parseFloat(tradeQty);
+    const price = parseFloat(tradePrice);
+    const fee = parseFloat(tradeFee) || 0;
+    if (!(qty > 0) || !(price > 0)) { setError("Количество и цена сделки должны быть больше нуля"); return; }
+    setLoading(true);
+    try {
+      await check(
+        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${position.id}/trades`, {
+          method: "POST", headers: authHeaders,
+          body: JSON.stringify({ side: tradeSide, quantity: qty, price, fee, trade_date: tradeDate }),
+        }),
+        tradeSide === "buy" ? "купить" : "продать"
+      );
+      onSuccess();
+    } catch (e) {
+      setError(e.message || "Ошибка");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -388,34 +432,115 @@ const EditPositionModal = ({ portfolioId, position, token, onClose, onSuccess })
         </div>
 
         <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
-          {[
-            { label: "Количество акций", value: quantity, onChange: (e) => setQuantity(e.target.value) },
-            { label: "Средняя цена покупки, ₽", value: avgPrice, onChange: (e) => setAvgPrice(e.target.value) },
-          ].map(({ label, value, onChange }) => (
-            <div key={label}>
-              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
-              <input
-                type="number"
-                value={value}
-                onChange={onChange}
-                style={{
-                  width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
-                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
-                  outline: "none", boxSizing: "border-box",
-                }}
-              />
-            </div>
-          ))}
+          <div className="pf-seg tw-self-start">
+            <button type="button" onClick={() => setMode("trade")}
+              className={`pf-seg-opt${mode === "trade" ? " pf-seg-opt--on" : ""}`}>
+              Совершить сделку
+            </button>
+            <button type="button" onClick={() => setMode("fix")}
+              className={`pf-seg-opt${mode === "fix" ? " pf-seg-opt--on" : ""}`}>
+              Исправить позицию
+            </button>
+          </div>
 
-          {error && (
-            <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
-              {error}
-            </p>
+          {mode === "trade" ? (
+            <>
+              <div className="pf-seg tw-self-start">
+                <button type="button" onClick={() => setTradeSide("buy")}
+                  className={`pf-seg-opt${tradeSide === "buy" ? " pf-seg-opt--buy-on" : ""}`}>
+                  Купить
+                </button>
+                <button type="button" onClick={() => setTradeSide("sell")}
+                  className={`pf-seg-opt${tradeSide === "sell" ? " pf-seg-opt--sell-on" : ""}`}>
+                  Продать
+                </button>
+              </div>
+              {[
+                { label: "Количество", value: tradeQty, onChange: (e) => setTradeQty(e.target.value), type: "number", placeholder: "напр. 100" },
+                { label: "Цена сделки, ₽", value: tradePrice, onChange: (e) => setTradePrice(e.target.value), type: "number", placeholder: `напр. ${position.currentPrice || ""}` },
+                { label: "Дата сделки", value: tradeDate, onChange: (e) => setTradeDate(e.target.value), type: "date" },
+                { label: "Комиссия, ₽", value: tradeFee, onChange: (e) => setTradeFee(e.target.value), type: "number" },
+              ].map(({ label, value, onChange, type, placeholder }) => (
+                <div key={label}>
+                  <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+                  <input
+                    type={type} value={value} onChange={onChange} placeholder={placeholder}
+                    style={{
+                      width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                      borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+                      outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              ))}
+              <p style={{ fontSize: 11.5, color: "var(--text-3)", margin: 0 }}>
+                Это новая сделка, а не редактирование позиции целиком — количество и средняя цена пересчитаются
+                автоматически (средневзвешенная цена на покупке; продажа не меняет среднюю, но фиксирует реализованный результат).
+              </p>
+              {error && (
+                <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
+                  {error}
+                </p>
+              )}
+              <Button onClick={handleTrade} disabled={loading} style={{ width: "100%", justifyContent: "center" }}>
+                {loading ? "Сохраняем…" : tradeSide === "buy" ? "Купить" : "Продать"}
+              </Button>
+            </>
+          ) : (
+            <>
+              {[
+                { label: "Количество (исправить)", value: quantity, onChange: (e) => setQuantity(e.target.value) },
+                { label: "Средняя цена, ₽ (исправить)", value: avgPrice, onChange: (e) => setAvgPrice(e.target.value) },
+              ].map(({ label, value, onChange }) => (
+                <div key={label}>
+                  <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+                  <input
+                    type="number"
+                    value={value}
+                    onChange={onChange}
+                    style={{
+                      width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                      borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+                      outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              ))}
+              <p style={{ fontSize: 11.5, color: "var(--text-3)", margin: 0 }}>
+                Это не сделка — прямая правка данных позиции (например, опечатка при вводе). Историю сделок и
+                реализованный результат не меняет.
+              </p>
+              {error && (
+                <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
+                  {error}
+                </p>
+              )}
+              <Button onClick={handleSave} disabled={loading} style={{ width: "100%", justifyContent: "center" }}>
+                {loading ? "Сохраняем…" : "Сохранить исправление"}
+              </Button>
+            </>
           )}
 
-          <Button onClick={handleSave} disabled={loading} style={{ width: "100%", justifyContent: "center" }}>
-            {loading ? "Сохраняем…" : "Сохранить"}
-          </Button>
+          {pnl && (
+            <div className="tw-flex tw-gap-3 tw-flex-wrap tw-pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+              <div className="pf-chip-stat">
+                <span className="pf-chip-stat__lbl">Реализовано</span>
+                <span className={`pf-chip-stat__val ${pnl.realized > 0 ? "tw-text-success" : pnl.realized < 0 ? "tw-text-danger" : "tw-text-text-secondary"}`}>{formatMoney(pnl.realized, { decimals: 0 })}</span>
+              </div>
+              <div className="pf-chip-stat">
+                <span className="pf-chip-stat__lbl">Не реализовано</span>
+                <span className={`pf-chip-stat__val ${pnl.unrealized > 0 ? "tw-text-success" : pnl.unrealized < 0 ? "tw-text-danger" : "tw-text-text-secondary"}`}>{pnl.unrealized != null ? formatMoney(pnl.unrealized, { decimals: 0 }) : "—"}</span>
+              </div>
+              <div className="pf-chip-stat">
+                <span className="pf-chip-stat__lbl">Дивиденды получено</span>
+                <span className="pf-chip-stat__val tw-text-success">+{formatMoney(pnl.dividends_received, { decimals: 0 })}</span>
+              </div>
+              <div className="pf-chip-stat">
+                <span className="pf-chip-stat__lbl">Комиссии уплачено</span>
+                <span className="pf-chip-stat__val tw-text-text-secondary">−{formatMoney(pnl.commissions_paid, { decimals: 0 })}</span>
+              </div>
+            </div>
+          )}
 
           {!confirmDelete ? (
             <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(true)} disabled={loading}
@@ -442,73 +567,193 @@ const EditPositionModal = ({ portfolioId, position, token, onClose, onSuccess })
 // ADD POSITION MODAL
 // =========================
 
+// Поиск non-equity инструмента (облигация/фьючерс/фонд) для добавления в
+// портфель — по образцу TickerInput, но бьёт в /api/bonds|futures|funds?search=
+// вместо /api/companies. onSelect получает выбранную запись целиком (нужны
+// secid + short_name + last_price для авто-подстановки).
+const INSTRUMENT_SEARCH_CONFIG = {
+  bond: { endpoint: "bonds", nameField: "short_name", priceField: null },
+  future: { endpoint: "futures", nameField: "short_name", priceField: "settle_price" },
+  fund: { endpoint: "funds", nameField: "short_name", priceField: "last_price" },
+};
+const InstrumentSearchInput = ({ instrumentType, value, onChange, onSelect, placeholder }) => {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const cfg = INSTRUMENT_SEARCH_CONFIG[instrumentType];
+  const [suggestions, setSuggestions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const ref = React.useRef(null);
+
+  useEffect(() => {
+    if (!cfg || value.length < 2) { setSuggestions([]); setOpen(false); return; }
+    const timer = setTimeout(() => {
+      fetch(`${apiUrl}/api/${cfg.endpoint}?search=${encodeURIComponent(value)}`)
+        .then(r => r.ok ? r.json() : [])
+        .then(data => { setSuggestions(data.slice(0, 8)); setOpen(data.length > 0); })
+        .catch(() => setSuggestions([]));
+    }, 220);
+    return () => clearTimeout(timer);
+  }, [value, instrumentType]);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  if (!cfg) return null;
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <input
+        type="text" value={value} onChange={e => onChange(e.target.value)}
+        placeholder={placeholder} autoComplete="off"
+        style={{
+          width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+          borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+          outline: "none", boxSizing: "border-box",
+        }}
+      />
+      {open && suggestions.length > 0 && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+          background: "var(--bg-card)", border: "1px solid var(--border-mid)",
+          borderRadius: 10, boxShadow: "0 8px 24px var(--shadow-xl, rgba(0,0,0,0.3))",
+          zIndex: 9999, overflow: "hidden", maxHeight: 260, overflowY: "auto",
+        }}>
+          {suggestions.map(item => (
+            <div
+              key={item.secid}
+              onMouseDown={() => { onSelect(item); setOpen(false); setSuggestions([]); }}
+              style={{ display: "flex", flexDirection: "column", gap: 2, padding: "9px 12px", cursor: "pointer" }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{item[cfg.nameField]}</span>
+              <span style={{ fontFamily: "monospace", fontSize: 11.5, color: "var(--text-3)" }}>{item.secid}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const INSTRUMENT_TYPE_LABELS = {
+  equity: "Акция", bond: "Облигация", future: "Фьючерс", fund: "Фонд", cash: "Кэш",
+};
 const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSuccess }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } : { "Content-Type": "application/json" };
+  const [instrumentType, setInstrumentType] = useState("equity");
   const [side, setSide] = useState("buy");
   const [ticker, setTicker] = useState("");
+  const [secid, setSecid] = useState("");       // non-equity: выбранный SECID
+  const [secName, setSecName] = useState("");    // non-equity: имя для подстановки цены
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
+  const [currency, setCurrency] = useState("RUB");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const check = async (resp, action) => {
+    if (resp.ok) return resp;
+    const body = await resp.json().catch(() => ({}));
+    throw new Error(body.detail || `Не удалось ${action} (HTTP ${resp.status})`);
+  };
+  const del = async (id) => check(
+    await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${id}`, { method: "DELETE", headers: authHeaders }),
+    "удалить позицию"
+  );
+  const post = async (body) => check(
+    await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) }),
+    "сохранить позицию"
+  );
+
+  const handleSubmitEquity = async () => {
+    const qty = parseFloat(quantity), prc = parseFloat(price);
+    const companies = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
+    const company = Array.isArray(companies)
+      ? companies.find(c => c.ticker.toUpperCase() === ticker.trim().toUpperCase())
+      : null;
+    if (!company) throw new Error(`Тикер «${ticker.trim().toUpperCase()}» не найден в базе`);
+
+    const existing = existingPositions.find(p => p.instrument_type === "equity" && p.company_id === company.id);
+    // Бэк отдаёт Decimal строками — приводим к числам ДО сравнений
+    const exQty = existing ? parseFloat(existing.quantity) : 0;
+    const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
+
+    if (side === "sell") {
+      if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
+      if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
+      const newQty = exQty - qty;
+      await del(existing.id);
+      if (newQty > 1e-9) await post({ company_id: company.id, instrument_type: "equity", quantity: newQty, avg_buy_price: exAvg });
+    } else if (existing) {
+      const newQty = exQty + qty;
+      const newAvg = (exQty * exAvg + qty * prc) / newQty;
+      await del(existing.id);
+      await post({ company_id: company.id, instrument_type: "equity", quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
+    } else {
+      await post({ company_id: company.id, instrument_type: "equity", quantity: qty, avg_buy_price: prc });
+    }
+  };
+
+  const handleSubmitInstrument = async () => {
+    // Облигация/фьючерс/фонд — та же логика усреднения, что у акций, но ключ
+    // «уже есть такая позиция» — instrument_type+secid, а не company_id.
+    const qty = parseFloat(quantity), prc = parseFloat(price);
+    if (!secid) throw new Error("Выберите бумагу из списка");
+    const existing = existingPositions.find(p => p.instrument_type === instrumentType && p.secid === secid);
+    const exQty = existing ? parseFloat(existing.quantity) : 0;
+    const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
+
+    if (side === "sell") {
+      if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
+      if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
+      const newQty = exQty - qty;
+      await del(existing.id);
+      if (newQty > 1e-9) await post({ instrument_type: instrumentType, secid, quantity: newQty, avg_buy_price: exAvg });
+    } else if (existing) {
+      const newQty = exQty + qty;
+      const newAvg = (exQty * exAvg + qty * prc) / newQty;
+      await del(existing.id);
+      await post({ instrument_type: instrumentType, secid, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
+    } else {
+      await post({ instrument_type: instrumentType, secid, quantity: qty, avg_buy_price: prc });
+    }
+  };
+
+  const handleSubmitCash = async () => {
+    // Денежные средства — без покупки/продажи усреднением: одна строка на
+    // валюту, редактируется прямым изменением суммы (не через buy/sell).
+    const amount = parseFloat(quantity);
+    const existing = existingPositions.find(p => p.instrument_type === "cash" && p.currency === currency);
+    if (existing) {
+      const newAmount = side === "sell" ? parseFloat(existing.quantity) - amount : parseFloat(existing.quantity) + amount;
+      if (newAmount < 0) throw new Error("Нельзя списать больше, чем есть на счёте");
+      await del(existing.id);
+      if (newAmount > 1e-9) await post({ instrument_type: "cash", currency, quantity: newAmount, avg_buy_price: 1 });
+    } else {
+      if (side === "sell") throw new Error("Такой валюты в портфеле нет — нечего списывать");
+      await post({ instrument_type: "cash", currency, quantity: amount, avg_buy_price: 1 });
+    }
+  };
+
   const handleSubmit = async () => {
     setError(null);
-    if (!ticker.trim() || !quantity || !price) { setError("Заполни все поля"); return; }
-    const qty = parseFloat(quantity);
-    const prc = parseFloat(price);
-    if (qty <= 0 || prc <= 0) { setError("Количество и цена должны быть больше нуля"); return; }
+    if (instrumentType === "cash") {
+      if (!quantity) { setError("Укажите сумму"); return; }
+      if (parseFloat(quantity) <= 0) { setError("Сумма должна быть больше нуля"); return; }
+    } else {
+      const needsTicker = instrumentType === "equity" ? ticker.trim() : secid;
+      if (!needsTicker || !quantity || !price) { setError("Заполни все поля"); return; }
+      if (parseFloat(quantity) <= 0 || parseFloat(price) <= 0) { setError("Количество и цена должны быть больше нуля"); return; }
+    }
 
     setLoading(true);
     try {
-      const companies = await fetch(`${apiUrl}/api/companies`).then(r => r.json());
-      const company = Array.isArray(companies)
-        ? companies.find(c => c.ticker.toUpperCase() === ticker.trim().toUpperCase())
-        : null;
-      if (!company) throw new Error(`Тикер «${ticker.trim().toUpperCase()}» не найден в базе`);
-
-      const existing = existingPositions.find(p => p.company_id === company.id);
-      // Бэк отдаёт Decimal строками — приводим к числам ДО сравнений
-      // (раньше qty === existing.quantity сравнивало число со строкой,
-      // «продажа всех» не распознавалась и в портфеле застревала позиция с 0 шт.)
-      const exQty = existing ? parseFloat(existing.quantity) : 0;
-      const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
-
-      // Любая ошибка запроса — наружу, не молча (раньше 403 лимита глотался)
-      const check = async (resp, action) => {
-        if (resp.ok) return resp;
-        const body = await resp.json().catch(() => ({}));
-        throw new Error(body.detail || `Не удалось ${action} (HTTP ${resp.status})`);
-      };
-      const del = async () => check(
-        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${existing.id}`, { method: "DELETE", headers: authHeaders }),
-        "удалить позицию"
-      );
-      const post = async (body) => check(
-        await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) }),
-        "сохранить позицию"
-      );
-
-      if (side === "sell") {
-        if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
-        if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
-        const newQty = exQty - qty;
-        await del();
-        // продажа в ноль (или из-за округления почти в ноль) = позиция удалена,
-        // нулевые строки в портфеле не появляются
-        if (newQty > 1e-9) {
-          await post({ company_id: company.id, quantity: newQty, avg_buy_price: exAvg });
-        }
-      } else {
-        if (existing) {
-          const newQty = exQty + qty;
-          const newAvg = (exQty * exAvg + qty * prc) / newQty;
-          await del();
-          await post({ company_id: company.id, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
-        } else {
-          await post({ company_id: company.id, quantity: qty, avg_buy_price: prc });
-        }
-      }
+      if (instrumentType === "equity") await handleSubmitEquity();
+      else if (instrumentType === "cash") await handleSubmitCash();
+      else await handleSubmitInstrument();
       onSuccess();
     } catch (e) {
       setError(e.message || "Ошибка");
@@ -526,9 +771,30 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
         </div>
 
         <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 14 }}>
-          {/* Buy / Sell toggle */}
+          {/* Класс актива */}
+          <div>
+            <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Класс актива</label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 4, background: "var(--bg-surface)", borderRadius: 10, padding: 4 }}>
+              {Object.entries(INSTRUMENT_TYPE_LABELS).map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => { setInstrumentType(id); setTicker(""); setSecid(""); setSecName(""); setPrice(""); setQuantity(""); setError(null); }}
+                  style={{
+                    padding: "7px 2px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 11.5, fontWeight: 600,
+                    background: instrumentType === id ? "var(--accent)" : "transparent",
+                    color: instrumentType === id ? "var(--on-accent)" : "var(--text-2)",
+                  }}
+                >{label}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Buy / Sell toggle — не для кэша (там прямое пополнение/списание той же кнопкой) */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, background: "var(--bg-surface)", borderRadius: 10, padding: 4 }}>
-            {[{ id: "buy", label: "🟢 Покупка" }, { id: "sell", label: "🔴 Продажа" }].map(s => (
+            {[
+              { id: "buy", label: instrumentType === "cash" ? "🟢 Пополнить" : "🟢 Покупка" },
+              { id: "sell", label: instrumentType === "cash" ? "🔴 Списать" : "🔴 Продажа" },
+            ].map(s => (
               <button
                 key={s.id}
                 onClick={() => setSide(s.id)}
@@ -542,21 +808,51 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
             ))}
           </div>
 
-          <div>
-            <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Тикер</label>
-            <TickerInput value={ticker} onChange={setTicker} placeholder="SBER" />
-          </div>
-          {[
-            { label: "Количество (акций)", value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100" },
-            { label: side === "buy" ? "Цена покупки ₽" : "Цена продажи ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50" },
-          ].map(({ label, value, onChange, placeholder }) => (
-            <div key={label}>
-              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+          {instrumentType === "equity" && (
+            <div>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Тикер</label>
+              <TickerInput value={ticker} onChange={setTicker} placeholder="SBER" />
+            </div>
+          )}
+
+          {(instrumentType === "bond" || instrumentType === "future" || instrumentType === "fund") && (
+            <div>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Бумага</label>
+              <InstrumentSearchInput
+                instrumentType={instrumentType}
+                value={secName}
+                onChange={setSecName}
+                onSelect={(item) => {
+                  setSecid(item.secid);
+                  setSecName(item.short_name);
+                  const cfg = INSTRUMENT_SEARCH_CONFIG[instrumentType];
+                  if (cfg.priceField && item[cfg.priceField]) setPrice(String(item[cfg.priceField]));
+                }}
+                placeholder={instrumentType === "bond" ? "напр. ОФЗ 26238" : instrumentType === "future" ? "напр. Si-6.26" : "напр. SBMX"}
+              />
+            </div>
+          )}
+
+          {instrumentType === "cash" && (
+            <div>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Валюта</label>
+              <select
+                value={currency} onChange={e => setCurrency(e.target.value)}
+                style={{
+                  width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                  borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16, boxSizing: "border-box",
+                }}
+              >
+                {["RUB", "USD", "EUR", "CNY"].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          )}
+
+          {instrumentType === "cash" ? (
+            <div>
+              <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>Сумма</label>
               <input
-                type="number"
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
+                type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="50000"
                 style={{
                   width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
                   borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
@@ -564,7 +860,27 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
                 }}
               />
             </div>
-          ))}
+          ) : (
+            [
+              { label: `Количество (${instrumentType === "equity" ? "акций" : instrumentType === "bond" ? "штук" : instrumentType === "future" ? "контрактов" : "паёв"})`, value: quantity, onChange: e => setQuantity(e.target.value), placeholder: "100" },
+              { label: side === "buy" ? "Цена покупки ₽" : "Цена продажи ₽", value: price, onChange: e => setPrice(e.target.value), placeholder: "280.50" },
+            ].map(({ label, value, onChange, placeholder }) => (
+              <div key={label}>
+                <label style={{ fontSize: 12, color: "var(--text-2)", display: "block", marginBottom: 6 }}>{label}</label>
+                <input
+                  type="number"
+                  value={value}
+                  onChange={onChange}
+                  placeholder={placeholder}
+                  style={{
+                    width: "100%", background: "var(--bg-surface)", border: "1px solid var(--border)",
+                    borderRadius: 10, padding: "9px 14px", color: "var(--text-1)", fontSize: 16,
+                    outline: "none", boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            ))
+          )}
 
           {error && (
             <p style={{ fontSize: 13, color: "var(--negative)", background: "var(--neg-fade)", border: "1px solid var(--negative)", borderRadius: 8, padding: "10px 14px", margin: 0 }}>
@@ -581,7 +897,7 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
               ...(side === "sell" ? { background: "var(--negative)", color: "var(--on-accent)", border: "none" } : {}),
             }}
           >
-            {loading ? "Сохраняем..." : side === "buy" ? <><Plus size={15} /> Купить</> : <><TrendingDown size={15} /> Продать</>}
+            {loading ? "Сохраняем..." : side === "buy" ? <><Plus size={15} /> {instrumentType === "cash" ? "Пополнить" : "Купить"}</> : <><TrendingDown size={15} /> {instrumentType === "cash" ? "Списать" : "Продать"}</>}
           </button>
         </div>
       </div>
@@ -593,6 +909,58 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
 // re-renders — tab switch, click, 5s price poll — do NOT remount them and the
 // first-load count-up isn't replayed. `gate` carries the once-per-page-visit
 // flag (a ref owned by PortfolioView).
+// Скролл-появление (IntersectionObserver) — как .reveal/.reveal.in в HTML-
+// прототипе: карточка проявляется (fade-in + сдвиг снизу) при входе в зону
+// видимости РЕАЛЬНЫМ скроллом страницы, не при монтировании вкладки (это
+// отдельно от AppearGroup — тот отыгрывает один раз при первом открытии
+// вкладки, а не при скролле; для длинных панелей нужны оба эффекта).
+const PfReveal = ({ children, className = "", as: Tag = "div", style: styleProp, ...rest }) => {
+  const ref = useRef(null);
+  const reduced = usePrefersReducedMotion();
+  const [inView, setInView] = useState(reduced);
+  useEffect(() => {
+    if (reduced || !ref.current) return;
+    // Портфель скроллится не в window, а во внутреннем .app-shell
+    // (overflow-y:auto). root:null (viewport) по спецификации должен
+    // работать и со вложенным скроллом, но на практике первая проверка
+    // сразу после монтирования — до того как реальные данные API
+    // дозагрузятся и разметка встанет на постоянные размеры — может
+    // застать элемент временно в зоне пересечения → сработает один раз
+    // и больше никогда не переоценится (unobserve). Явно указываем
+    // реальный скролл-контейнер как root и откладываем observe() на
+    // 2 кадра — даём разметке устояться перед первым замером.
+    let io;
+    let raf1;
+    const raf2 = requestAnimationFrame(() => {
+      raf1 = requestAnimationFrame(() => {
+        if (!ref.current) return;
+        const root = ref.current.closest(".app-shell") || null;
+        io = new IntersectionObserver(
+          ([entry]) => { if (entry.isIntersecting) { setInView(true); io.unobserve(entry.target); } },
+          { root, threshold: 0.08 }
+        );
+        io.observe(ref.current);
+      });
+    });
+    return () => { cancelAnimationFrame(raf2); if (raf1) cancelAnimationFrame(raf1); if (io) io.disconnect(); };
+  }, [reduced]);
+  return (
+    <Tag
+      ref={ref}
+      className={className}
+      style={{
+        ...styleProp,
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(16px)",
+        transition: reduced ? undefined : "opacity 550ms cubic-bezier(.25,.7,.4,1), transform 550ms cubic-bezier(.25,.7,.4,1)",
+      }}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+};
+
 const HeadlineNum = ({ value, gate }) => {
   const n = useCountUp(value, 320, gate);
   return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
@@ -703,27 +1071,50 @@ const DonutChart = ({ slices, size = 188, thickness = 30 }) => {
 };
 
 const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4)", "var(--cat-5)", "var(--cat-6)", "var(--cat-7)", "var(--cat-8)"];
+// Донаты Портфеля — буквальная палитра прототипа (copper/estimate/copper-deep/
+// up/down), а не наша 8-цветная категориальная (--cat-1..8).
+const PF_CAT_COLORS = ["var(--pf-copper)", "var(--pf-estimate)", "var(--pf-copper-deep)", "var(--pf-up)", "var(--pf-down)"];
 
 // Сравнение накопленной доходности портфеля с бенчмарком (Этап 3).
 // Мультилинейный SVG: портфель и MCFTR — основные, IMOEX — тонкая справочная.
-const BenchmarkChart = ({ series }) => {
+const BenchmarkChart = ({ series, extraSeries = [] }) => {
   const { dates = [], portfolio = [], mcftr = [], imoex = [] } = series || {};
   const svgRef = useRef(null);
   const [hover, setHover] = useState(null);   // индекс точки под курсором
   if (!dates.length) return null;
   const W = 640, H = 220, padL = 44, padR = 12, padT = 12, padB = 24;
-  const all = [...portfolio, ...mcftr, ...imoex].filter((v) => typeof v === "number");
+  // Доп. линии сравнения (произвольный актив/портфель) выровнены на дату по
+  // мастер-сетке `dates` вызывающей стороной — здесь только рисуем разрывы,
+  // если для какой-то даты значения нет (молодая бумага/несовпадающий календарь).
+  const all = [...portfolio, ...mcftr, ...imoex, ...(extraSeries || []).flatMap((s) => s.values)].filter((v) => typeof v === "number");
   const max = Math.max(...all, 0), min = Math.min(...all, 0), span = (max - min) || 1;
   const n = dates.length;
   const xAt = (i) => padL + (n <= 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
   const yAt = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
   const line = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+  const lineWithGaps = (arr) => {
+    let d = "";
+    arr.forEach((v, i) => {
+      if (typeof v !== "number") return;
+      d += `${d === "" ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)} `;
+    });
+    return d;
+  };
   const zeroY = yAt(0);
   const fmtD = (iso) => { const [y, m] = iso.split("-"); return `${m}.${y.slice(2)}`; };
+  // Равномерные X-подписи дат (как в ObsLineChart — было ТОЛЬКО первая/
+  // последняя точка без промежуточных меток, жалоба «ось X без пометок»)
+  const xTickEvery = Math.max(1, Math.ceil(n / 6));
+  const gridN = 4;
+  const EXTRA_COLORS = ["#1F5FC4", "#8A4A26", "var(--cat-4)", "var(--cat-6)"];
   const LINES = [
-    { d: line(portfolio), color: "var(--accent)", w: 2.25, label: "Портфель" },
-    { d: line(mcftr), color: "var(--cat-1)", w: 2, label: "MCFTR (с дивидендами)" },
-    { d: line(imoex), color: "var(--cat-8)", w: 1.25, label: "IMOEX (ценовой)" },
+    { key: "portfolio", d: line(portfolio), color: "var(--pf-copper)", w: 2.5, label: "Портфель", values: portfolio },
+    { key: "mcftr", d: line(mcftr), color: "var(--cat-1)", w: 1.75, label: "MCFTR (с дивидендами)", values: mcftr },
+    { key: "imoex", d: line(imoex), color: "var(--cat-8)", w: 1.5, label: "IMOEX (ценовой)", values: imoex },
+    ...(extraSeries || []).map((s, i) => ({
+      key: s.key || s.label, d: lineWithGaps(s.values), color: EXTRA_COLORS[i % EXTRA_COLORS.length], w: 1.75,
+      label: s.label, values: s.values, removable: true, onRemove: s.onRemove,
+    })),
   ];
   // Тултип: ближайшая точка по X под курсором
   const handleMove = (e) => {
@@ -740,44 +1131,92 @@ const BenchmarkChart = ({ series }) => {
     <div className="tw-relative">
       {hover != null && (
         <div
-          className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-md tw-shadow-lg tw-px-3 tw-py-2 tw-text-[12px]"
-          style={{ left: `${(xAt(hover) / W) * 100}%`, top: 0, transform: xAt(hover) > W * 0.6 ? "translateX(-105%)" : "translateX(8px)" }}
+          className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-lg tw-shadow-lg tw-px-3.5 tw-py-2.5 tw-text-[12px]"
+          style={{ left: `${(xAt(hover) / W) * 100}%`, top: 0, transform: xAt(hover) > W * 0.6 ? "translateX(-105%)" : "translateX(8px)", minWidth: 150 }}
         >
-          <div className="tw-text-text-tertiary tw-font-mono tw-mb-1">{fmtFullD(dates[hover])}</div>
-          <div className="tw-text-text-primary">Портфель <b className="tw-font-mono tw-tabular-nums">{fmtPercent(portfolio[hover], { sign: true })}</b></div>
-          <div className="tw-text-text-secondary">MCFTR <b className="tw-font-mono tw-tabular-nums">{fmtPercent(mcftr[hover], { sign: true })}</b></div>
-          {typeof imoex[hover] === "number" && (
-            <div className="tw-text-text-tertiary">IMOEX <span className="tw-font-mono tw-tabular-nums">{fmtPercent(imoex[hover], { sign: true })}</span></div>
-          )}
+          <div className="tw-text-text-tertiary tw-font-mono tw-mb-1.5 tw-pb-1.5" style={{ borderBottom: "1px solid var(--border-subtle)" }}>{fmtFullD(dates[hover])}</div>
+          <div className="tw-flex tw-flex-col tw-gap-1">
+            {LINES.map((l) => (
+              typeof l.values?.[hover] === "number" ? (
+                <div key={l.key} className="tw-flex tw-items-center tw-gap-1.5">
+                  <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full tw-shrink-0" style={{ background: l.color }} />
+                  <span className="tw-truncate tw-text-text-secondary" style={{ maxWidth: 150 }}>{l.label}</span>
+                  <b className="tw-font-mono tw-tabular-nums tw-shrink-0 tw-ml-auto tw-pl-2" style={{ color: l.values[hover] >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                    {fmtPercent(l.values[hover], { sign: true })}
+                  </b>
+                </div>
+              ) : null
+            ))}
+          </div>
         </div>
       )}
       <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Портфель против бенчмарка"
         onMouseMove={handleMove} onMouseLeave={() => setHover(null)}>
-        {[max, (max + min) / 2, min].map((v, k) => (
+        {Array.from({ length: gridN + 1 }, (_, g) => min + (span * g) / gridN).map((v, k) => (
           <g key={k}>
-            <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray={v === 0 ? "" : "3 4"} />
-            <text x={padL - 6} y={yAt(v) + 4} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{Math.round(v)}%</text>
+            <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray={Math.abs(v) < 0.01 ? undefined : "2 6"} />
+            <text x={padL - 8} y={yAt(v) + 3.5} textAnchor="end" fontSize="10" fill="var(--text-tertiary)" fontFamily="monospace">{v.toFixed(1)}%</text>
           </g>
         ))}
-        {min < 0 && max > 0 && <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-strong)" strokeWidth="1" />}
-        {LINES.map((l, k) => <path key={k} d={l.d} fill="none" stroke={l.color} strokeWidth={l.w} strokeLinejoin="round" />)}
+        {min < 0 && max > 0 && <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-strong)" strokeWidth="1.25" />}
+        {/* Градиентная заливка под линией портфеля — как в прототипе (медь, 0.26→0 прозрачности) */}
+        <defs>
+          <linearGradient id="pfBenchFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--pf-copper)" stopOpacity="0.26" />
+            <stop offset="100%" stopColor="var(--pf-copper)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {portfolio.length > 0 && (
+          <polygon
+            points={`${xAt(0)},${padT + (H - padT - padB)} ${portfolio.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ")} ${xAt(n - 1)},${padT + (H - padT - padB)}`}
+            fill="url(#pfBenchFill)"
+          />
+        )}
+        {LINES.map((l) => <path key={l.key} d={l.d} fill="none" stroke={l.color} strokeWidth={l.w} strokeLinejoin="round" strokeLinecap="round" />)}
+        {/* Точка-маркер + подпись «сейчас +X%» на конце линии портфеля */}
+        {portfolio.length > 0 && typeof portfolio[portfolio.length - 1] === "number" && (() => {
+          const lastV = portfolio[portfolio.length - 1];
+          const cx = xAt(n - 1), cy = yAt(lastV);
+          const sign = lastV >= 0 ? "+" : "";
+          const labelX = Math.max(cx - 120, padL);
+          return (
+            <g>
+              <circle cx={cx} cy={cy} r="4.5" fill="var(--pf-copper)" stroke="var(--bg-elevated)" strokeWidth="2.5" />
+              <text x={labelX} y={Math.max(cy - 12, 16)} fontFamily="Inter, system-ui, sans-serif" fontSize="12.5" fontWeight="700" fill="var(--pf-copper-deep)">
+                сейчас {sign}{lastV.toFixed(1)}%
+              </text>
+            </g>
+          );
+        })()}
         {hover != null && (
           <g>
             <line x1={xAt(hover)} x2={xAt(hover)} y1={padT} y2={H - padB} stroke="var(--border-strong)" strokeWidth="1" strokeDasharray="3 3" />
-            <circle cx={xAt(hover)} cy={yAt(portfolio[hover])} r="3.5" fill="var(--accent)" />
-            <circle cx={xAt(hover)} cy={yAt(mcftr[hover])} r="3" fill="var(--cat-1)" />
-            {typeof imoex[hover] === "number" && (
-              <circle cx={xAt(hover)} cy={yAt(imoex[hover])} r="2.5" fill="var(--cat-8)" />
-            )}
+            {LINES.map((l) => (
+              typeof l.values?.[hover] === "number" ? (
+                <circle key={l.key} cx={xAt(hover)} cy={yAt(l.values[hover])} r="3.5" fill={l.color} stroke="var(--bg-elevated)" strokeWidth="1.5" />
+              ) : null
+            ))}
           </g>
         )}
-        <text x={padL} y={H - 8} fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[0])}</text>
-        <text x={W - padR} y={H - 8} textAnchor="end" fontSize="10.5" fill="var(--text-tertiary)" fontFamily="monospace">{fmtD(dates[dates.length - 1])}</text>
+        {dates.map((d, i) => (
+          i % xTickEvery !== 0 && i !== n - 1 ? null : (
+            <text
+              key={i} x={xAt(i)} y={H - 8}
+              textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"}
+              fontSize="10" fill="var(--text-tertiary)" fontFamily="monospace"
+            >
+              {fmtD(d)}
+            </text>
+          )
+        ))}
       </svg>
       <div className="tw-flex tw-flex-wrap tw-gap-4 tw-mt-2 tw-text-[12px] tw-text-text-secondary">
         {LINES.map((l) => (
           <span key={l.label} className="tw-inline-flex tw-items-center tw-gap-1.5">
             <span className="tw-inline-block tw-w-4 tw-h-0.5 tw-rounded-pill" style={{ background: l.color, height: l.w }} />{l.label}
+            {l.removable && (
+              <button type="button" onClick={l.onRemove} className="tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-text-tertiary hover:tw-text-danger tw-font-bold" title="Убрать из сравнения">×</button>
+            )}
           </span>
         ))}
       </div>
@@ -802,6 +1241,7 @@ const _num1 = (v) => v == null ? "—" : formatNumber(v, { decimals: 2 });
 const METRIC_EXPLANATIONS = {
   return_total: {
     title: "Доходность (полная, за период)",
+    type: "fact", icon: "📈",
     what: "Сколько в среднем за год приносила бумага с учётом и роста цены, и дивидендов — за тот период, что она торгуется. Это факт прошлого, не обещание будущего.",
     tone: (v, ctx = {}) => v == null || ctx.shortHistory ? "info" : v >= 0 ? "positive" : "caution",
     reading: (v, ctx = {}) => v == null ? null
@@ -815,6 +1255,7 @@ const METRIC_EXPLANATIONS = {
   },
   capm: {
     title: "CAPM (модельная ожидаемая доходность)",
+    type: "judgment", icon: "🧮",
     what: "Оценка доходности, которую бумага «должна» приносить за свой уровень рыночного риска — по классической финансовой модели. Это не факт и не прогноз, а ориентир: сколько разумно ожидать с учётом того, насколько бумага чувствительна к рынку.",
     reading: (v, ctx = {}) => v == null ? null
       : (ctx.rf != null && v < ctx.rf)
@@ -825,6 +1266,7 @@ const METRIC_EXPLANATIONS = {
   },
   div_yield: {
     title: "Дивидендная доходность",
+    type: "fact", icon: "💵",
     what: "Сколько дивидендов компания выплачивает за год относительно текущей цены акции. Грубо — «процент кэшем», который приносит бумага помимо изменения цены.",
     reading: (v) => v == null ? null
       : v > 8 ? `${_pct(v)} — высокая дивидендная доходность. Заметная часть отдачи приходит деньгами, а не только ростом цены. Типично для зрелых прибыльных компаний (банки, нефтегаз).`
@@ -835,6 +1277,7 @@ const METRIC_EXPLANATIONS = {
   },
   pe: {
     title: "P/E текущий",
+    type: "fact", icon: "🏷️",
     what: "Сколько рублей инвесторы платят за каждый рубль годовой прибыли компании прямо сейчас. Чем выше — тем «дороже» оценена компания относительно её прибыли.",
     reading: (v) => v == null ? null
       : v < 5 ? `${_num1(v)}× — компания оценена дёшево относительно прибыли. Это бывает у недооценённых бумаг, но и у тех, от кого рынок ждёт падения прибыли. Дёшево ≠ автоматически хорошо.`
@@ -845,6 +1288,7 @@ const METRIC_EXPLANATIONS = {
   },
   pe_hist: {
     title: "P/E исторический",
+    type: "fact", icon: "🕰️",
     what: "Средний уровень P/E этой компании за прошлые годы — ориентир, дорого или дёшево она стоит относительно своей собственной нормы, а не рынка вообще.",
     reading: (v, ctx = {}) => {
       const cur = ctx.peCurrent;
@@ -859,6 +1303,7 @@ const METRIC_EXPLANATIONS = {
   },
   earnings_yield: {
     title: "Earnings yield (доходность прибыли)",
+    type: "fact", icon: "🔁",
     what: "Обратная сторона P/E: сколько прибыли компания генерирует на каждый вложенный в неё рубль. Удобно сравнивать напрямую с доходностью ОФЗ — «прибыльность» акции против безрисковой ставки.",
     reading: (v, ctx = {}) => {
       if (v == null) return "Нет данных о прибыли (компания убыточна или P/E не рассчитан).";
@@ -872,6 +1317,7 @@ const METRIC_EXPLANATIONS = {
   },
   volatility: {
     title: "Волатильность",
+    type: "fact", icon: "〰️",
     what: "Насколько сильно цена бумаги колеблется — вверх и вниз — в течение года. Чем выше, тем более «дёрганая» бумага и тем шире разброс возможных результатов.",
     tone: (v) => v == null ? "info" : v > 35 ? "caution" : "info",
     reading: (v) => v == null ? null
@@ -891,6 +1337,7 @@ const METRIC_EXPLANATIONS = {
   },
   downside_vol: {
     title: "Нисходящая волатильность",
+    type: "fact", icon: "⬇️",
     what: "Как обычная волатильность, но считает только колебания вниз — «плохой» риск. Рост в расчёт не идёт, потому что инвестора пугают просадки, а не подъёмы.",
     reading: (v, ctx = {}) => {
       if (v == null) return null;
@@ -903,6 +1350,7 @@ const METRIC_EXPLANATIONS = {
   },
   beta: {
     title: "Бета",
+    type: "fact", icon: "🎯",
     what: "Насколько бумага следует за рынком в целом. Бета 1 — движется заодно с рынком; больше 1 — усиливает движения рынка (растёт и падает сильнее); меньше 1 — спокойнее рынка.",
     tone: (v) => v == null ? "info" : v < 0 ? "caution" : "info",
     reading: (v) => v == null ? null
@@ -915,6 +1363,7 @@ const METRIC_EXPLANATIONS = {
   },
   r_squared: {
     title: "R² (надёжность беты)",
+    type: "fact", icon: "🔗",
     what: "Какая доля движений бумаги объясняется движением рынка. Идёт в паре с бетой и показывает, насколько ей можно доверять.",
     tone: (v) => v == null ? "info" : v < 0.3 ? "caution" : "info",
     reading: (v) => v == null ? null
@@ -926,6 +1375,7 @@ const METRIC_EXPLANATIONS = {
   },
   sharpe: {
     title: "Коэффициент Шарпа",
+    type: "estimate", icon: "🧭",
     what: "Главная мера «качества» доходности: сколько отдачи сверх безрисковой ставки вы получаете на каждую единицу риска. Отвечает на вопрос — оправдывает ли доходность тот риск, что вы на себя берёте.",
     tone: (v) => v == null ? "info" : v > 1 ? "positive" : v > 0 ? "info" : "caution",
     reading: (v) => v == null ? null
@@ -937,6 +1387,7 @@ const METRIC_EXPLANATIONS = {
   },
   alpha: {
     title: "Альфа (Jensen’s alpha)",
+    type: "judgment", icon: "🏆",
     what: "Показывает, обыграл ли актив рынок с поправкой на риск. Положительная альфа — бумага дала больше, чем «положено» за её уровень риска; отрицательная — меньше.",
     tone: (v) => v == null ? "info" : v > 1 ? "positive" : v >= -1 ? "info" : "caution",
     reading: (v) => v == null ? null
@@ -948,6 +1399,7 @@ const METRIC_EXPLANATIONS = {
   },
   sortino: {
     title: "Коэффициент Сортино",
+    type: "estimate", icon: "🌊",
     what: "Как Шарп, но наказывает только за «плохой» риск — просадки, а не за колебания вверх. Сколько отдачи сверх безриска вы получаете на единицу риска падения.",
     tone: (v) => v == null ? "info" : v > 1 ? "positive" : v > 0 ? "info" : "caution",
     reading: (v) => v == null ? null
@@ -972,48 +1424,52 @@ const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
     .map((k) => ({ key: k, def: METRIC_EXPLANATIONS[k] }))
     .filter((x) => x.def);
   if (!items.length) return null;
+  const TYPE_BAR = { fact: "var(--pf-ink-3)", estimate: "var(--pf-estimate)", judgment: "var(--pf-copper)" };
   return (
     <div className="tw-flex tw-flex-col tw-gap-3">
       {items.map(({ key, def }) => (
-        <Card key={key}>
-          {/* Крупный заголовок плиты: акцентная полоса + название 18px bold
-              на лёгкой акцентной подложке — метрика читается как раздел */}
-          <div className="tw-flex tw-items-center tw-gap-2.5 tw--mx-4 tw--mt-4 tw-mb-3 tw-px-4 tw-py-3 tw-bg-accent-soft tw-border-b tw-border-border-subtle">
-            <span className="tw-w-1 tw-h-5 tw-rounded-pill tw-bg-accent tw-shrink-0" aria-hidden="true" />
-            <h4 className="tw-m-0 tw-text-[18px] tw-font-bold tw-text-text-primary">{def.title}</h4>
+        <PfReveal key={key} id={`pf-metric-${key}`} style={{ scrollMarginTop: 24 }}>
+        {/* Литерально из прототипа: .card.metric-card + t-fact/t-estimate/t-judgment
+            (акцентная полоса 4px слева по типу «факт/оценка/суждение»),
+            padding:20px 22px 20px 26px. */}
+        <div className="pf-card" style={{ position: "relative", padding: "20px 22px 20px 26px", overflow: "hidden" }}>
+          <span style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "4px", background: TYPE_BAR[def.type] || "var(--pf-ink-3)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+            {def.icon && <span style={{ fontSize: "18px", lineHeight: 1 }} aria-hidden="true">{def.icon}</span>}
+            <span style={{ fontSize: "14.5px", fontWeight: 700, color: "var(--pf-ink)", flex: 1 }}>{def.title}</span>
+            {def.type && <span className={def.type === "fact" ? "pf-tag-fact" : def.type === "estimate" ? "pf-tag-estimate" : "pf-tag-judgment"}>{def.type === "fact" ? "факт" : def.type === "estimate" ? "оценка" : "суждение"}</span>}
           </div>
-          <div className="tw-flex tw-flex-col tw-gap-3">
-            <KeyTakeaway tone="neutral" title="Что это">{def.what}</KeyTakeaway>
-
-            {def.reading && def.reading(values[key], ctx) && (
-              <KeyTakeaway
-                tone={def.tone ? def.tone(values[key], ctx) : "info"}
-                title="Что значит ваше значение"
-              >
-                {def.reading(values[key], ctx)}
-              </KeyTakeaway>
-            )}
-
-            {def.soWhat && (
-              <KeyTakeaway tone="positive" title="Что с этим делать">{def.soWhat}</KeyTakeaway>
-            )}
-
-            {def.formula && (
-              <Disclosure summary="Формула — для любопытных">
-                <div className="tw-rounded-md tw-bg-bg-base tw-border tw-border-border-strong tw-p-3 tw-mt-1">
+          <p style={{ margin: 0, fontSize: "13px", color: "var(--pf-ink-2)" }}>
+            {(def.reading && def.reading(values[key], ctx)) || def.what}
+          </p>
+          <Disclosure summary="Подробнее">
+            <div className="tw-flex tw-flex-col tw-gap-2.5 tw-pt-1">
+              <div className="tw-flex tw-gap-2 tw-items-start">
+                <span className="tw-text-[13px] tw-shrink-0" aria-hidden="true">💡</span>
+                <p className="tw-m-0 tw-text-[13px] tw-leading-[1.6]" style={{ color: "var(--pf-ink-2)" }}><b style={{ color: "var(--pf-ink)" }}>Что это.</b> {def.what}</p>
+              </div>
+              {def.soWhat && (
+                <div className="tw-flex tw-gap-2 tw-items-start">
+                  <span className="tw-text-[13px] tw-shrink-0" aria-hidden="true">🎯</span>
+                  <p className="tw-m-0 tw-text-[13px] tw-leading-[1.6]" style={{ color: "var(--pf-ink-2)" }}><b style={{ color: "var(--pf-ink)" }}>Что с этим делать.</b> {def.soWhat}</p>
+                </div>
+              )}
+              {def.formula && (
+                <div style={{ background: "var(--pf-surface-3)", borderRadius: "9px", padding: "11px 15px" }}>
                   {def.formula.expr && (
-                    <code className="tw-block tw-font-mono tw-text-[13px] tw-leading-[1.6] tw-text-text-primary tw-whitespace-pre-wrap tw-mb-2">
+                    <code className="tw-block tw-font-mono tw-whitespace-pre-wrap" style={{ fontSize: "12px", lineHeight: 1.6, color: "var(--pf-ink)", marginBottom: "6px" }}>
                       {def.formula.expr}
                     </code>
                   )}
                   {def.formula.note && (
-                    <p className="tw-m-0 tw-text-[13px] tw-leading-[1.55] tw-text-text-secondary">{def.formula.note}</p>
+                    <p className="tw-m-0" style={{ fontSize: "11.5px", lineHeight: 1.5, color: "var(--pf-ink-3)" }}>{def.formula.note}</p>
                   )}
                 </div>
-              </Disclosure>
-            )}
-          </div>
-        </Card>
+              )}
+            </div>
+          </Disclosure>
+        </div>
+        </PfReveal>
       ))}
     </div>
   );
@@ -1042,9 +1498,61 @@ const makeAssetColumn = (onOpenCompany) => ({
 });
 
 // Колонки групповых таблиц — общие для «Агрегирующей» и отдельных вкладок
+// Клик по значку ⓘ над заголовком столбца — скролл к карточке-объяснению
+// метрики (Доходность и оценка / Риск) + кратковременная вспышка рамкой.
+function scrollToPfMetric(key) {
+  const el = document.getElementById(`pf-metric-${key}`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.remove("pf-flash");
+  // eslint-disable-next-line no-void
+  void el.offsetWidth;
+  el.classList.add("pf-flash");
+}
+const pfColLabel = (metricKey, text) => (
+  <span className="tw-inline-flex tw-flex-col tw-items-end tw-gap-1">
+    <button
+      type="button"
+      onClick={() => scrollToPfMetric(metricKey)}
+      className="pf-info-icon"
+      aria-label={`Подробнее про метрику «${text}»`}
+      title="Подробнее"
+    >
+      i
+    </button>
+    <span>{text}</span>
+  </span>
+);
+
+// Литеральная разметка групповой таблицы (докс: .pos-table) для «Доходность
+// и оценка» / «Риск» — та же структура, что у таблицы позиций в «Составе»,
+// просто с произвольным набором колонок. Не абстрагирует стиль — рендерит
+// ДОСЛОВНЫЙ <table className="pf-pos-table"> с теми же классами/тегами,
+// что и остальные таблицы вкладки.
+const PfMetricTable = ({ columns, rows }) => (
+  <div style={{ overflowX: "auto" }}>
+    <table className="pf-pos-table" style={{ minWidth: 720 }}>
+      <thead>
+        <tr>
+          {columns.map((c) => <th key={c.key}>{c.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, i) => (
+          <tr key={row.ticker || i} style={row._isTotal ? { fontWeight: 700 } : undefined}>
+            {columns.map((c) => (
+              <td key={c.key}>{c.render ? c.render(row[c.key], row) : (row[c.key] ?? "—")}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 const RETURN_COLUMNS = [
                         {
-              key: "return3y", label: "Доходность рынка",
+              key: "return3y", label: pfColLabel("return_total", "Доходность рынка"),
               render: (v, row) => v == null ? "—" : (
                 <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="ПОЛНАЯ доходность самого актива за 3 года: цена + дивиденды (CAGR), независимо от того, когда вы его купили. Факт прошлого, не прогноз">
                   {fmtPercent(v, { sign: true })}{row?.shortHistory ? "*" : ""}
@@ -1053,7 +1561,11 @@ const RETURN_COLUMNS = [
               ),
             },
             {
-              key: "yourReturn", label: "Ваша доходность",
+              // «Ваша доходность» — к ЛИЧНОЙ цене входа (avg_buy_price), в отличие
+              // от «Доходность рынка» (return3y — доходность самого актива по
+              // рынку, независимо от даты покупки). Конкурентный разбор Инвестминт/
+              // ПроФинанс 2026-07-11 — честное разделение «рынок vs ваш вход».
+              key: "yourReturn", label: pfColLabel("your_return", "Ваша доходность"),
               render: (v) => v == null ? "—" : (
                 <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Доходность к ВАШЕЙ цене входа (без учёта дивидендов/купонов — только изменение цены с даты покупки)">
                   {fmtPercent(v, { sign: true })}
@@ -1061,25 +1573,25 @@ const RETURN_COLUMNS = [
               ),
             },
             {
-              key: "capm", label: "CAPM (модель)",
+              key: "capm", label: pfColLabel("capm", "CAPM (модель)"),
               render: (v) => v == null ? "—" : (
                 <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf + β×(Rm − Rf). Оценка, не факт и не прогноз">
                   {fmtPercent(v, { sign: true })}
                 </span>
               ),
             },
-            { key: "divYield", label: "Див. дох.", render: (v) => v == null ? "—" : fmtPercent(v, { decimals: 1 }) },
-            { key: "pe", label: "P/E тек.", render: (v) => v == null ? "—" : <span title="Пересчитывается от текущей котировки">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
-            { key: "peHist", label: "P/E ист.", render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary" title="Медиана P/E за 5 лет">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
+            { key: "divYield", label: pfColLabel("div_yield", "Див. дох."), render: (v) => v == null ? "—" : fmtPercent(v, { decimals: 1 }) },
+            { key: "pe", label: pfColLabel("pe", "P/E тек."), render: (v) => v == null ? "—" : <span title="Пересчитывается от текущей котировки">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
+            { key: "peHist", label: pfColLabel("pe_hist", "P/E ист."), render: (v) => v == null ? "—" : <span className="tw-text-text-tertiary" title="Медиана P/E за 5 лет">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
             {
-              key: "earningsYield", label: "Дох. прибыли",
+              key: "earningsYield", label: pfColLabel("earnings_yield", "Дох. прибыли"),
               render: (v) => v == null ? "—" : <span title="Earnings yield = 1 / P/E">{fmtPercent(v, { decimals: 1 })}</span>,
             },
           ];
 
 const RISK_COLUMNS = [
                         {
-              key: "volatility", label: "Волатильность",
+              key: "volatility", label: pfColLabel("volatility", "Волатильность"),
               render: (v, row) => v == null ? "—" : (
                 <span title="СКО дневных доходностей × √252, годовая; у портфеля — через ковариационную матрицу">
                   {fmtPercent(v)}{row?.shortHistory ? "*" : ""}
@@ -1091,11 +1603,11 @@ const RISK_COLUMNS = [
               render: (v) => v == null ? "—" : <span title="Дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
             },
             {
-              key: "downsideVol", label: "Нисходящая волатильность",
+              key: "downsideVol", label: pfColLabel("downside_vol", "Нисходящая волатильность"),
               render: (v) => v == null ? "—" : <span title="Волатильность только по дням падения (порог 0), годовая">{fmtPercent(v)}</span>,
             },
             {
-              key: "beta", label: "Beta",
+              key: "beta", label: pfColLabel("beta", "Beta"),
               render: (v, row) => v == null ? "—" : (
                 <span title={row?.betaSource === "moex" ? "Данные Мосбиржи (файл коэффициентов срочного рынка)" : "Расчёт Basis (Диммсон, окно 3 года)"}>
                   {fmtNumber(v, { decimals: 2 })}{row?.shortHistory ? "*" : ""}
@@ -1104,7 +1616,7 @@ const RISK_COLUMNS = [
               ),
             },
             {
-              key: "rSquared", label: "R²",
+              key: "rSquared", label: pfColLabel("r_squared", "R²"),
               render: (v) => v == null ? "—" : (
                 <span title="Доля движения, объяснённая рынком: >0,6 — бета надёжна" className={v >= 0.6 ? "tw-text-text-secondary" : "tw-text-text-tertiary"}>
                   {fmtNumber(v, { decimals: 2 })}
@@ -1112,11 +1624,11 @@ const RISK_COLUMNS = [
               ),
             },
             {
-              key: "sharpe", label: "Шарп",
+              key: "sharpe", label: pfColLabel("sharpe", "Шарп"),
               render: (v) => v == null ? "—" : <span title="(Полная доходность − ставка ОФЗ) / волатильность. >1 — хорошо; ≤0 — риск не вознаграждается">{fmtNumber(v, { decimals: 2 })}</span>,
             },
             {
-              key: "alpha", label: "α",
+              key: "alpha", label: pfColLabel("alpha", "α"),
               render: (v) => v == null ? "—" : (
                 <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Альфа Дженсена: сверх «положенного» за риск по CAPM, % годовых">
                   {fmtPercent(v, { sign: true })}
@@ -1124,7 +1636,7 @@ const RISK_COLUMNS = [
               ),
             },
             {
-              key: "sortino", label: "Сортино",
+              key: "sortino", label: pfColLabel("sortino", "Сортино"),
               render: (v) => v == null ? "—" : <span title="(Полная доходность − ставка ОФЗ) / нисходящая волатильность">{fmtNumber(v, { decimals: 2 })}</span>,
             },
           ];
@@ -1138,10 +1650,47 @@ const fmtHistoryPeriod = (years) => {
   return `за ${months} мес.`;
 };
 
-const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
+// =========================
+// PORTFOLIO V2 — sidebar-shell layout (Обозреватель-style)
+// Same data/logic as PortfolioView below (legacy, kept for reference) —
+// this is a refactor of the LAYOUT, not the calculations.
+// =========================
+
+const PF_ZONES = [
+  {
+    id: "overview",
+    label: "Обзор",
+    items: [
+      { id: "composition", label: "Состав", icon: PieChart },
+    ],
+  },
+  {
+    id: "returns_risk",
+    label: "Доходность и риск",
+    items: [
+      { id: "compare",     label: "Сравнение",            icon: Scale },
+      { id: "returns",     label: "Доходность и оценка",  icon: TrendingUp },
+      { id: "risk",        label: "Риск",                 icon: ShieldAlert },
+      { id: "correlation", label: "Матрица корреляций",   icon: ArrowRightLeft },
+    ],
+  },
+  {
+    id: "breakdown",
+    label: "Разбор",
+    items: [
+      { id: "quality",      label: "Индекс качества", icon: Target },
+      { id: "ai-diagnosis", label: "ИИ-Диагноз",       icon: Zap },
+      { id: "stress",       label: "Стресс-тест",      icon: AlertTriangle },
+    ],
+  },
+];
+
+const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-  const [tab, setTab] = useState("holdings");
+
+  const [activeSection, setActiveSection] = useState("composition");
+  const [visitedSections, setVisitedSections] = useState(() => new Set(["composition"]));
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1154,11 +1703,29 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   const [quotes, setQuotes] = useState({});
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
-  // Этап 1 аналитики: метрики из company_metrics (P/E, дивдоходность,
-  // секторное распределение, концентрация) — GET /portfolios/{id}/metrics
   const [pfMetrics, setPfMetrics] = useState(null);
-  // Прямое редактирование позиции (строка таблицы «Состав»)
+  const [qualityVersion, setQualityVersion] = useState("v2"); // "v1" | "v2" — методика v2.1 Фаза 1 живёт рядом со старой до приёмки
+  const [factorProfile, setFactorProfile] = useState(null);
+  const [aiDiagnosis, setAiDiagnosis] = useState(null);
+  const [aiDiagnosisLoading, setAiDiagnosisLoading] = useState(false);
+  const [aiDiagnosisError, setAiDiagnosisError] = useState(null);
   const [editPosition, setEditPosition] = useState(null);
+
+  const handleSectionChange = (id) => {
+    setActiveSection(id);
+    setVisitedSections((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    // Панели переключаются через display:none/block (не размонтируются) —
+    // общий скролл-контейнер .app-shell сохраняет позицию между ними, и
+    // новая вкладка открывалась там же, где был проскроллен старый экран.
+    // Сбрасываем скролл на переключении секции.
+    const scroller = document.querySelector(".app-shell");
+    if (scroller) scroller.scrollTop = 0;
+  };
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
 
@@ -1200,7 +1767,13 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
             const companyMap = {};
             if (Array.isArray(companiesResp)) companiesResp.forEach(c => { companyMap[c.id] = c; });
 
-            const mapped = detail.positions.map(pos => {
+            // «Состав портфеля» (таблица позиций/пай-чарт по бумагам) пока
+            // равится ТОЛЬКО акции — non-equity (bond/future/fund/cash) не
+            // имеют company_id/ticker/логотипа, эта строковая модель на них
+            // не рассчитана. Они УЖЕ учтены в классах активов/секторах/весе
+            // портфеля через pfMetrics.positions (бэк) — просто не дублируются
+            // здесь отдельной строкой до отдельной доработки таблицы.
+            const mapped = detail.positions.filter(pos => (pos.instrument_type || "equity") === "equity").map(pos => {
               const c = companyMap[pos.company_id] || {};
               const currentPrice = latestQuotes[c.ticker] || parseFloat(pos.avg_buy_price) || 0;
               return {
@@ -1219,17 +1792,28 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
             setRawPositions([]);
           }
 
-          // Лёгкие метрики портфеля (Этап 1) — одним запросом из company_metrics
           fetch(`${apiUrl}/api/portfolios/${active.id}/metrics`, { headers: authHeaders })
             .then(r => r.ok ? r.json() : null)
             .then(m => setPfMetrics(m))
             .catch(() => setPfMetrics(null));
+
+          fetch(`${apiUrl}/api/portfolios/${active.id}/factor-profile`, { headers: authHeaders })
+            .then(r => r.ok ? r.json() : null)
+            .then(m => setFactorProfile(m))
+            .catch(() => setFactorProfile(null));
+
+          fetch(`${apiUrl}/api/portfolios/${active.id}/diagnosis`, { headers: authHeaders })
+            .then(r => r.ok ? r.json() : null)
+            .then(m => setAiDiagnosis(m))
+            .catch(() => setAiDiagnosis(null));
         } else {
           setPortfolioList([]);
           setPortfolio(null);
           setPositions([]);
           setRawPositions([]);
           setPfMetrics(null);
+          setFactorProfile(null);
+          setAiDiagnosis(null);
         }
       } finally {
         setPortfolioLoading(false);
@@ -1238,6 +1822,162 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
 
     loadData();
   }, [token, reloadKey, activePortfolioId]);
+
+  // Портфельный срез дивидендного календаря (Направление 4, /api/market/calendar) —
+  // фильтруем по тикерам ИМЕННО текущего портфеля (не всех портфелей пользователя,
+  // как это делает серверный portfolio_only, если у пользователя их несколько).
+  const [pfDividends, setPfDividends] = useState(null);
+  const positionTickersKey = positions.map((p) => p.ticker).sort().join(",");
+  useEffect(() => {
+    if (!positionTickersKey) { setPfDividends([]); return; }
+    fetch(`${apiUrl}/api/market/calendar?event_type=dividend&scope=upcoming&days=180`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const tickers = new Set(positionTickersKey.split(","));
+        const events = (data?.events || []).filter((e) => tickers.has(e.ticker));
+        setPfDividends(events);
+      })
+      .catch(() => setPfDividends([]));
+  }, [positionTickersKey, apiUrl]);
+
+  // «+ Добавить сравнение» (вкладка Сравнение) — произвольный тикер или другой
+  // портфель пользователя. Каждая линия выравнивается на дату по мастер-сетке
+  // pfMetrics.benchmark.dates (прямой lookup по ISO-дате из общего календаря
+  // котировок — обе стороны читают одну и ту же таблицу quotes).
+  const [compareLines, setCompareLines] = useState([]); // [{key, label, values}]
+  const [compareTickerInput, setCompareTickerInput] = useState("");
+  const [comparePortfolioId, setComparePortfolioId] = useState("");
+  const [compareError, setCompareError] = useState(null);
+  const [compareBuilderOpen, setCompareBuilderOpen] = useState(false);
+  const [compareMode, setCompareMode] = useState("asset"); // "asset" | "portfolio" | "custom"
+  const masterDates = pfMetrics?.benchmark?.dates || [];
+
+  // Добавленная линия сравнения нормализована к СВОЕЙ истории (её "+0%" —
+  // самая ранняя дата, которая у НЕЁ есть, а не первая дата мастер-сетки
+  // портфеля masterDates[0]) — если её история длиннее окна портфеля
+  // (портфель сужен молодой бумагой), к началу графика у линии уже
+  // накопилась ненулевая доходность, хотя на графике она должна стартовать
+  // с 0%, как остальные. Ребейзим: находим первую дату мастер-сетки, для
+  // которой есть значение, и пересчитываем весь ряд относительно НЕЁ через
+  // фактор роста (не вычитанием процентов — так неверно при сложном %).
+  const rebaseToMasterStart = (byDate) => {
+    const baseDate = masterDates.find((d) => d in byDate);
+    if (baseDate == null) return masterDates.map(() => null);
+    const baseFactor = 1 + byDate[baseDate] / 100;
+    return masterDates.map((d) => {
+      if (!(d in byDate)) return null;
+      const factor = 1 + byDate[d] / 100;
+      return Math.round((factor / baseFactor - 1) * 10000) / 100;
+    });
+  };
+
+  const addCompareAsset = async (ticker) => {
+    setCompareError(null);
+    const tk = ticker.trim().toUpperCase();
+    if (!tk || compareLines.some((l) => l.key === `asset:${tk}`)) return;
+    try {
+      const r = await fetch(`${apiUrl}/api/market/compare-asset?ticker=${encodeURIComponent(tk)}`);
+      if (!r.ok) { setCompareError(`Тикер «${tk}» не найден`); return; }
+      const data = await r.json();
+      const byDate = Object.fromEntries(data.dates.map((d, i) => [d, data.cum_pct[i]]));
+      const values = rebaseToMasterStart(byDate);
+      setCompareLines((prev) => [...prev, { key: `asset:${tk}`, label: `${data.name || tk} (полная доходность)`, values }]);
+      setCompareTickerInput("");
+    } catch {
+      setCompareError("Не удалось загрузить данные по тикеру");
+    }
+  };
+
+  const addComparePortfolio = async (otherId) => {
+    setCompareError(null);
+    const other = portfolioList.find((p) => String(p.id) === String(otherId));
+    if (!other || compareLines.some((l) => l.key === `portfolio:${otherId}`)) return;
+    try {
+      const r = await fetch(`${apiUrl}/api/portfolios/${otherId}/metrics`, { headers: authHeaders });
+      if (!r.ok) { setCompareError("Не удалось загрузить второй портфель"); return; }
+      const data = await r.json();
+      const b = data?.benchmark;
+      if (!b?.dates?.length) { setCompareError(`У портфеля «${other.name}» недостаточно истории котировок`); return; }
+      const byDate = Object.fromEntries(b.dates.map((d, i) => [d, b.portfolio[i]]));
+      const values = rebaseToMasterStart(byDate);
+      setCompareLines((prev) => [...prev, { key: `portfolio:${otherId}`, label: other.name, values }]);
+    } catch {
+      setCompareError("Не удалось загрузить второй портфель");
+    }
+  };
+
+  const removeCompareLine = (key) => setCompareLines((prev) => prev.filter((l) => l.key !== key));
+
+  // «Свой конструктор» — взвешенная корзина из 2+ бумаг, сравнивается как ещё
+  // одна линия. Упрощение: доходности взвешиваются линейно по датам (без
+  // ребалансировки/сложного процента комбинации) — честная оценка, не факт,
+  // помечено в подписи линии.
+  const [customRows, setCustomRows] = useState([{ ticker: "", weight: 50 }, { ticker: "", weight: 50 }]);
+  const [customMode, setCustomMode] = useState("basket"); // "basket" | "ratio"
+  const [ratioA, setRatioA] = useState("");
+  const [ratioB, setRatioB] = useState("");
+  const setCustomRow = (idx, patch) => setCustomRows((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  const addCustomRow = () => setCustomRows((prev) => [...prev, { ticker: "", weight: 0 }]);
+  const removeCustomRow = (idx) => setCustomRows((prev) => prev.filter((_, i) => i !== idx));
+
+  const fetchCompareSeries = (ticker) =>
+    fetch(`${apiUrl}/api/market/compare-asset?ticker=${encodeURIComponent(ticker.trim().toUpperCase())}`)
+      .then((res) => (res.ok ? res.json() : null));
+
+  const addCustomConstructor = async () => {
+    setCompareError(null);
+    if (customMode === "ratio") {
+      if (!ratioA.trim() || !ratioB.trim()) { setCompareError("Укажите обе бумаги для отношения"); return; }
+      try {
+        const [dataA, dataB] = await Promise.all([fetchCompareSeries(ratioA), fetchCompareSeries(ratioB)]);
+        if (!dataA || !dataA.dates?.length) { setCompareError(`Тикер «${ratioA.trim().toUpperCase()}» не найден`); return; }
+        if (!dataB || !dataB.dates?.length) { setCompareError(`Тикер «${ratioB.trim().toUpperCase()}» не найден`); return; }
+        const byDateA = Object.fromEntries(dataA.dates.map((d, j) => [d, dataA.cum_pct[j]]));
+        const byDateB = Object.fromEntries(dataB.dates.map((d, j) => [d, dataB.cum_pct[j]]));
+        // Отношение растущих факторов (1+cumA)/(1+cumB), ребейзнутое на начало
+        // мастер-сетки — «относительная сила» A против B, классический ratio-chart.
+        const rawRatio = {};
+        masterDates.forEach((d) => {
+          if (d in byDateA && d in byDateB) rawRatio[d] = (1 + byDateA[d] / 100) / (1 + byDateB[d] / 100) - 1 + 0; // growth-factor delta, rebase ниже переведёт в %
+        });
+        const byDateRatioPct = Object.fromEntries(Object.entries(rawRatio).map(([d, v]) => [d, v * 100]));
+        const values = rebaseToMasterStart(byDateRatioPct);
+        const label = `${ratioA.trim().toUpperCase()} ÷ ${ratioB.trim().toUpperCase()} · оценка`;
+        setCompareLines((prev) => [...prev, { key: `ratio:${Date.now()}`, label, values }]);
+        setRatioA(""); setRatioB("");
+      } catch {
+        setCompareError("Не удалось построить отношение");
+      }
+      return;
+    }
+
+    const rows = customRows.filter((r) => r.ticker.trim());
+    if (rows.length < 2) { setCompareError("Добавьте минимум 2 бумаги для конструктора"); return; }
+    const totalWeight = rows.reduce((s, r) => s + (Number(r.weight) || 0), 0);
+    if (totalWeight <= 0) { setCompareError("Укажите веса бумаг (сумма должна быть больше нуля)"); return; }
+    try {
+      const results = await Promise.all(rows.map((r) => fetchCompareSeries(r.ticker)));
+      const missing = rows.filter((_, i) => !results[i]);
+      if (missing.length) { setCompareError(`Тикер «${missing[0].ticker.trim().toUpperCase()}» не найден`); return; }
+      const seriesByRow = results.map((data, i) => {
+        const byDate = Object.fromEntries(data.dates.map((d, j) => [d, data.cum_pct[j]]));
+        const rebased = rebaseToMasterStart(byDate);
+        return { weight: (Number(rows[i].weight) || 0) / totalWeight, byDate: Object.fromEntries(masterDates.map((d, j) => [d, rebased[j]]).filter(([, v]) => v != null)) };
+      });
+      const values = masterDates.map((d) => {
+        let sum = 0, wSum = 0;
+        seriesByRow.forEach(({ weight, byDate }) => {
+          if (d in byDate) { sum += byDate[d] * weight; wSum += weight; }
+        });
+        return wSum > 0 ? sum / wSum : null;
+      });
+      const composition = rows.map((r) => `${Math.round(((Number(r.weight) || 0) / totalWeight) * 100)}% ${r.ticker.trim().toUpperCase()}`).join(" + ");
+      setCompareLines((prev) => [...prev, { key: `custom:${Date.now()}`, label: `Конструктор: ${composition} · оценка`, values }]);
+      setCustomRows([{ ticker: "", weight: 50 }, { ticker: "", weight: 50 }]);
+    } catch {
+      setCompareError("Не удалось построить конструктор");
+    }
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -1280,46 +2020,133 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     const totalCost  = src.reduce((a, p) => a + p.shares * p.avgPrice, 0);
     const totalProfit = totalValue - totalCost;
     const profitPct  = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-    return { totalValue, totalCost, totalProfit, profitPct, avgBeta: 0, avgYield: 0, portExp: 0, portStd: 0 };
+    return { totalValue, totalCost, totalProfit, profitPct };
   }, [displayPositions]);
+  // Грандтотал ПО ВСЕМ классам (акции+облигации+фьючерсы+фонды+кэш) — из
+  // pfMetrics (бэк уже считает верно); stats.totalValue — только акции,
+  // остаётся для P&L-виджетов, где денежные средства/бумаги без cost-basis
+  // исказили бы «прибыль за всё время владения».
+  const grandTotalValue = pfMetrics?.portfolio?.total_value ?? stats.totalValue;
 
+  // Non-equity строки для таблицы «Состав портфеля» — из pfMetrics.positions
+  // (бэк уже посчитал value/вес/цену по классу), не из live-тикающего
+  // equity-пайплайна (bonds/funds/cash не обновляются раз в 5с, это ОК).
+  const nonEquityRows = (pfMetrics?.positions || [])
+    .filter((p) => p.instrument_type !== "equity")
+    .map((p) => ({
+      id: p.id, ticker: p.ticker, name: p.name, company_id: null,
+      instrument_type: p.instrument_type, secid: p.secid,
+      shares: p.quantity ?? 0, avgPrice: p.avg_buy_price ?? 0, currentPrice: p.price ?? 0,
+      value: p.value ?? 0, weight: p.weight_pct ?? 0,
+      profitRub: p.value != null && p.avg_buy_price != null ? p.value - (p.quantity ?? 0) * p.avg_buy_price : 0,
+      profitPct: p.avg_buy_price ? ((p.price ?? p.avg_buy_price) / p.avg_buy_price - 1) * 100 : 0,
+    }));
 
-  // Count-up gates live at PAGE level (refs survive tab switches / re-renders),
-  // so the headline value and the index animate ONCE per page visit and snap
-  // (no replay) on tab switch, click or background price refresh. The animated
-  // components are hoisted to module scope (above) so re-renders of this page
-  // do not remount them.
   const valueGate = useRef({ played: false });
   const scoreGate = useRef({ played: false });
-  // Appear gate (Phase 4b): page-level Set keyed by tab, so each tab's cards
-  // stagger once on first open and never replay on tab switch / re-render /
-  // background price refresh.
   const appearGate = useRef(new Set());
+
+  // Бета портфеля — из реальных риск-метрик (pfMetrics); 1 (рыночная) —
+  // честный дефолт, только пока метрики ещё не загрузились/не посчитаны.
+  const portfolioBeta = pfMetrics?.portfolio?.beta?.value ?? 1;
 
   const stressMap = {
     black_swan: {
-      label: "Черный лебедь (-20%)",
-      drop: stats.avgBeta * 20,
-      valueLoss: stats.totalValue * (stats.avgBeta * 0.2),
-      text: "Сценарий широкой рыночной коррекции. Главный риск — концентрация в нескольких бумагах и высокий удельный вес финансового сектора.",
+      label: "Чёрный лебедь (−20%)",
+      mech: "Резкая просадка всего рынка на 20% без конкретной причины",
+      drop: portfolioBeta * 20,
+      valueLoss: stats.totalValue * (portfolioBeta * 0.2),
+      text: "При равномерном рыночном шоке разбивка по бумагам близка к их бете — более рискованные бумаги проседают пропорционально сильнее.",
     },
     rate_up: {
       label: "Ставка ЦБ +5%",
+      mech: "Ключевая ставка резко растёт — давит на оценку акций и стоимость долга",
       drop: 11.8,
       valueLoss: stats.totalValue * 0.118,
-      text: "Наиболее чувствителен банковский блок и бумаги с длинной дюрацией оценки.",
+      text: "Наиболее чувствителен банковский блок и бумаги с длинной дюрацией оценки. Резкий рост ставки одновременно бьёт по всему сектору с наибольшим весом в портфеле — та же концентрация, что видна в Индексе качества.",
     },
     oil_crash: {
       label: "Крах нефти ($40)",
+      mech: "Цена нефти падает до $40/барр — давление на экспортёров и бюджет",
       drop: 8.6,
       valueLoss: stats.totalValue * 0.086,
-      text: "Главный канал — ухудшение переоценки сырьевого сектора и давление на внешний баланс.",
+      text: "Главный канал — ухудшение переоценки сырьевого сектора и давление на внешний баланс; для портфелей без прямых нефтегазовых экспортёров эффект в основном вторичный, через общий рыночный настрой и курс рубля.",
     },
   };
+  const currentStress = stressMap[stressScenario] || null;
 
-  const currentStress = stressMap[stressScenario];
+  // «+ Свой сценарий» — реальный расчёт через /portfolios/{id}/stress-test
+  // (бета × индексный шок + ставочный канал из macro.json, где покрыто).
+  const [customStressRateBp, setCustomStressRateBp] = useState(200);
+  const [customStressIndexPct, setCustomStressIndexPct] = useState(-10);
+  const [customStressResult, setCustomStressResult] = useState(null);
+  const [customStressLoading, setCustomStressLoading] = useState(false);
+  const [customStressError, setCustomStressError] = useState(null);
+  const refreshAiDiagnosis = async () => {
+    if (!activePortfolioId) return;
+    setAiDiagnosisLoading(true);
+    setAiDiagnosisError(null);
+    try {
+      const r = await fetch(`${apiUrl}/api/portfolios/${activePortfolioId}/diagnosis/refresh`, {
+        method: "POST", headers: authHeaders,
+      });
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}));
+        setAiDiagnosisError(body.detail || "Не удалось сгенерировать диагноз");
+        return;
+      }
+      setAiDiagnosis(await r.json());
+    } catch {
+      setAiDiagnosisError("Не удалось сгенерировать диагноз");
+    } finally {
+      setAiDiagnosisLoading(false);
+    }
+  };
 
-  // Метрики по тикерам из company_metrics + примечание о покрытии («по n из m»)
+  const runCustomStress = async () => {
+    if (!activePortfolioId) return;
+    setCustomStressLoading(true);
+    setCustomStressError(null);
+    try {
+      const r = await fetch(
+        `${apiUrl}/api/portfolios/${activePortfolioId}/stress-test?rate_shock_bp=${customStressRateBp}&index_shock_pct=${customStressIndexPct}`,
+        { headers: authHeaders }
+      );
+      if (!r.ok) { setCustomStressError("Не удалось посчитать сценарий"); return; }
+      setCustomStressResult(await r.json());
+    } catch {
+      setCustomStressError("Не удалось посчитать сценарий");
+    } finally {
+      setCustomStressLoading(false);
+    }
+  };
+
+  // Разбивка по бумагам для готовых сценариев (не «Свой») — переиспользует
+  // ТОТ ЖЕ бэкенд-расчёт (β×индексный шок + ставочный канал), что и «Свой
+  // сценарий»: «Чёрный лебедь» = индексный шок −20%, «Ставка ЦБ +5%» =
+  // ставочный шок +500 б.п. «Крах нефти» — своего канала (цена нефти) в
+  // модели нет, разбивку для него честно не показываем (не выдумываем).
+  const PRESET_STRESS_PARAMS = {
+    black_swan: { rate_shock_bp: 0, index_shock_pct: -20 },
+    rate_up: { rate_shock_bp: 500, index_shock_pct: 0 },
+  };
+  const [presetStressResults, setPresetStressResults] = useState({});
+  useEffect(() => {
+    const params = PRESET_STRESS_PARAMS[stressScenario];
+    if (!params || !activePortfolioId || presetStressResults[stressScenario]) return;
+    (async () => {
+      try {
+        const r = await fetch(
+          `${apiUrl}/api/portfolios/${activePortfolioId}/stress-test?rate_shock_bp=${params.rate_shock_bp}&index_shock_pct=${params.index_shock_pct}`,
+          { headers: authHeaders }
+        );
+        if (!r.ok) return;
+        const data = await r.json();
+        setPresetStressResults((prev) => ({ ...prev, [stressScenario]: data }));
+      } catch { /* тихая деградация — просто нет разбивки для этого сценария */ }
+    })();
+  }, [stressScenario, activePortfolioId]);
+
   const metricByTicker = useMemo(() => {
     const map = {};
     (pfMetrics?.positions || []).forEach((p) => { map[p.ticker] = p; });
@@ -1338,13 +2165,13 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     return parts.length ? `Строка «Портфель» — средневзвешенное по долям; ${parts.join("; ")} (у остальных метрика не рассчитана).` : null;
   }, [pfMetrics]);
 
-  // Ряды аналитики (метрики из company_metrics поверх позиций) — общие для
-  // двух групповых таблиц «Доходность и оценка» и «Риск» (вкладка Агрегирующая)
   const analyticRows = useMemo(() => ([
     ...displayPositions.map((p) => {
+      const value = p.shares * p.currentPrice;
+      const weight = stats.totalValue > 0 ? (value / stats.totalValue) * 100 : 0;
       const m = metricByTicker[p.ticker];
       return m ? {
-        ...p,
+        ...p, weight,
         pe: m.pe_current, peHist: m.pe_historical, divYield: m.div_yield,
         return3y: m.return_total_3y ?? m.return_3y,
         yourReturn: m.your_return_pct,
@@ -1353,12 +2180,13 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
         volatility: m.volatility, downsideVol: m.downside_vol, beta: m.beta,
         betaSource: m.beta_source, rSquared: m.r_squared,
         var95: m.var_95, earningsYield: m.earnings_yield,
+        maxDrawdown: m.max_drawdown, riskContributionPct: m.risk_contribution_pct,
         shortHistory: m.short_history,
         periodLabel: fmtHistoryPeriod(m.history_years),
-      } : { ...p, return3y: null, yourReturn: null, volatility: null, beta: p.beta ?? null };
+      } : { ...p, weight, return3y: null, yourReturn: null, volatility: null, beta: p.beta ?? null };
     }),
     {
-      ticker: "Портфель", _isTotal: true,
+      ticker: "Портфель", _isTotal: true, weight: 100,
       return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
       yourReturn: pfMetrics?.portfolio?.your_return_pct?.value ?? null,
       capm: pfMetrics?.portfolio?.capm ?? null,
@@ -1366,7 +2194,6 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
       sortino: pfMetrics?.portfolio?.sortino ?? null,
       sharpe: pfMetrics?.portfolio?.sharpe ?? null,
       periodLabel: null,
-      // σ портфеля — через ковариационную матрицу (не среднее волатильностей)
       volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
       downsideVol: pfMetrics?.portfolio?.downside_vol ?? null,
       var95: pfMetrics?.portfolio?.var_95 ?? null,
@@ -1376,187 +2203,24 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
       peHist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
       divYield: pfMetrics?.portfolio?.div_yield?.value ?? null,
       earningsYield: pfMetrics?.portfolio?.earnings_yield ?? null,
+      maxDrawdown: pfMetrics?.portfolio?.max_drawdown ?? null,
+      riskContributionPct: 100,
     },
   ]), [displayPositions, metricByTicker, pfMetrics]);
 
-  // Holdings rows enriched with derived value / weight / P&L for the Table.
-  const holdingRows = displayPositions.map((p) => {
-    const value = p.shares * p.currentPrice;
-    const weight = stats.totalValue > 0 ? (value / stats.totalValue) * 100 : 0;
-    const profitRub = p.shares * (p.currentPrice - p.avgPrice);
-    const profitPct = p.avgPrice > 0 ? (p.currentPrice / p.avgPrice - 1) * 100 : 0;
-    return { ...p, value, weight, profitRub, profitPct };
-  });
+  const holdingRows = [
+    ...displayPositions.map((p) => {
+      const value = p.shares * p.currentPrice;
+      const weight = grandTotalValue > 0 ? (value / grandTotalValue) * 100 : 0;
+      const profitRub = p.shares * (p.currentPrice - p.avgPrice);
+      const profitPct = p.avgPrice > 0 ? (p.currentPrice / p.avgPrice - 1) * 100 : 0;
+      return { ...p, value, weight, profitRub, profitPct };
+    }),
+    ...nonEquityRows,
+  ];
 
-  const renderHoldings = () => (
-    <AppearGroup gate={appearGate.current} groupId="pf-holdings" className="tw-flex tw-flex-col tw-gap-3 tw-p-1">
-      {/* Portfolio switcher */}
-      <div className="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-        {portfolioList.map(p => (
-          <div key={p.id} className="tw-flex tw-items-center tw-gap-1">
-            <Chip
-              selected={activePortfolioId === p.id}
-              onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
-            >
-              {p.name}
-            </Chip>
-            <IconButton
-              size="sm"
-              aria-label="Удалить портфель"
-              onClick={() => setConfirmDeleteId(p.id)}
-            >
-              <Trash2 size={13} />
-            </IconButton>
-          </div>
-        ))}
-        <Button variant="ghost" size="sm" iconLeft={<Plus size={14} />} onClick={() => token ? setShowUploadModal(true) : onAuthRequired()}>
-          Новый портфель
-        </Button>
-        <Button variant="secondary" size="sm" iconLeft={<Plus size={14} />} className="tw-ml-auto" onClick={() => portfolio && token ? setShowAddModal(true) : onAuthRequired()}>
-          Добавить сделку
-        </Button>
-      </div>
-
-      {/* Positions table — собственная плитка на фоне.
-          Клик разведён: актив (первый столбец) — ссылка «вглубь» в карточку
-          компании; остальная строка — редактирование позиции. */}
-      <Card header="Состав портфеля">
-      <Table
-        onRowClick={(r) => { if (r.id != null) setEditPosition(r); }}
-        columns={[
-          {
-            key: "ticker", label: "Актив",
-            render: (_, r) => (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (r.company_id != null && onOpenCompany) {
-                    onOpenCompany({ id: r.company_id, ticker: r.ticker, name: r.name, sector: r.sector });
-                  }
-                }}
-                className="tw-flex tw-items-center tw-gap-2.5 tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-left tw-group"
-                title={`Открыть карточку ${r.ticker}`}
-              >
-                <CompanyLogo ticker={r.ticker} name={r.name} size={30} />
-                <div>
-                  <div className="tw-font-semibold tw-text-accent group-hover:tw-underline">{r.ticker}</div>
-                  <div className="tw-text-[11px] tw-text-text-tertiary">{r.name}</div>
-                </div>
-              </button>
-            ),
-          },
-          { key: "shares", label: "Кол-во", render: (v) => fmtNumber(v) },
-          { key: "avgPrice", label: "Средняя", render: (v) => formatMoney(v, { decimals: 1 }) },
-          { key: "currentPrice", label: "Текущая", render: (v) => <span className="tw-text-text-primary tw-font-medium">{formatMoney(v, { decimals: 1 })}</span> },
-          {
-            key: "value", label: "Стоимость",
-            render: (v) => <span className="tw-text-text-primary tw-font-medium">{formatMoney(v, { decimals: 0 })}</span>,
-          },
-          {
-            key: "weight", label: "Доля",
-            render: (v, r) => (
-              <div className="tw-flex tw-items-center tw-justify-end tw-gap-2">
-                <span>{fmtPercent(v, { decimals: 1 })}</span>
-                <WeightBar pct={v} n={catFor(r.ticker)} />
-              </div>
-            ),
-          },
-          {
-            key: "profitRub", label: "Результат ₽",
-            render: (v) => (
-              <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"}>
-                <span aria-hidden="true">{v >= 0 ? "▲ " : "▼ "}</span>{formatMoney(Math.abs(v), { decimals: 0 })}
-              </span>
-            ),
-          },
-          { key: "profitPct", label: "Результат %", render: (v) => <Delta value={v} /> },
-          {
-            key: "_edit", label: "",
-            render: (_, r) => r.id == null ? null : (
-              <IconButton
-                size="sm"
-                aria-label={`Изменить позицию ${r.ticker}`}
-                onClick={() => setEditPosition(r)}
-              >
-                <Pencil size={13} />
-              </IconButton>
-            ),
-          },
-        ]}
-        rows={holdingRows}
-      />
-
-      {/* Явный способ добавить бумагу — сразу в режиме покупки */}
-      <div className="tw-mt-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          iconLeft={<Plus size={14} />}
-          onClick={() => (portfolio && token ? setShowAddModal(true) : onAuthRequired())}
-        >
-          Добавить позицию
-        </Button>
-      </div>
-      </Card>
-
-      {/* Распределение и концентрация (Этап 1) — из /portfolios/{id}/metrics */}
-      {pfMetrics && pfMetrics.sector_allocation.length > 0 && (
-        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-3 tw-mt-1">
-          <Card header="Распределение по секторам" className="lg:tw-col-span-2">
-            <div className="tw-flex tw-items-center tw-gap-5 tw-flex-wrap">
-              <DonutChart
-                slices={pfMetrics.sector_allocation.map((s, i) => ({ pct: s.share_pct, color: CAT_COLORS[i % CAT_COLORS.length] }))}
-              />
-              <div className="tw-flex tw-flex-col tw-gap-2.5 tw-min-w-[220px] tw-flex-1">
-                {pfMetrics.sector_allocation.map((s, i) => (
-                  <div key={s.sector} className="tw-flex tw-items-center tw-gap-2.5 tw-text-[14px]">
-                    <span className="tw-inline-block tw-w-3 tw-h-3 tw-rounded-sm tw-shrink-0" style={{ background: CAT_COLORS[i % CAT_COLORS.length] }} />
-                    {/* название + процент вместе, читаемо */}
-                    <span className="tw-text-text-primary tw-font-medium">
-                      {s.sector} <span className="tw-font-mono tw-tabular-nums">{fmtPercent(s.share_pct, { decimals: s.share_pct < 10 ? 1 : 0 })}</span>
-                    </span>
-                    <span className="tw-text-[12px] tw-text-text-tertiary tw-ml-auto tw-font-mono tw-tabular-nums">{formatMoney(s.value, { decimals: 0 })}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          <div className="tw-flex tw-flex-col tw-gap-3">
-            <Card header="Классы активов">
-              {pfMetrics.asset_classes.map((a) => (
-                <div key={a.name} className="tw-flex tw-items-center tw-justify-between tw-text-[13px] tw-mb-1.5">
-                  <span className="tw-text-text-primary">{a.name}</span>
-                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(a.share_pct, { decimals: 0 })}</span>
-                </div>
-              ))}
-              <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">
-                Облигации и фонды появятся после расширения модели портфеля.
-              </div>
-            </Card>
-            {pfMetrics.concentration && (
-              <Card header="Концентрация">
-                <div className="tw-flex tw-items-center tw-justify-between tw-text-[13px] tw-mb-1.5">
-                  <span className="tw-text-text-primary">Крупнейшая позиция ({pfMetrics.concentration.largest_ticker})</span>
-                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(pfMetrics.concentration.largest_pct, { decimals: 1 })}</span>
-                </div>
-                <div className="tw-flex tw-items-center tw-justify-between tw-text-[13px]">
-                  <span className="tw-text-text-primary">Топ-3 позиции</span>
-                  <span className="tw-font-mono tw-tabular-nums tw-text-text-secondary">{fmtPercent(pfMetrics.concentration.top3_pct, { decimals: 1 })}</span>
-                </div>
-              </Card>
-            )}
-          </div>
-        </div>
-      )}
-    </AppearGroup>
-  );
-
-  // Колонка «Актив» с переходом в карточку — общая для групповых таблиц
   const assetColumn = useMemo(() => makeAssetColumn(onOpenCompany), [onOpenCompany]);
 
-  // Контекст пороговых текстов объяснений (значения портфеля + ставки)
   const explainCtx = {
     rf: pfMetrics?.rates?.risk_free_1y ?? null,
     period: pfMetrics?.benchmark?.period_years
@@ -1567,276 +2231,615 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
     shortHistory: false,
   };
 
-  // Вкладка «Доходность и оценка»: полная таблица группы + читаемые объяснения
-  const renderReturnsTab = () => (
-    <AppearGroup gate={appearGate.current} groupId="pf-returns" as="div" className="tw-p-1 tw-flex tw-flex-col tw-gap-3">
-      <Card header="Доходность и оценка">
-        <Table columns={[assetColumn, ...RETURN_COLUMNS]} rows={analyticRows} />
-        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
-          {pfMetrics?.positions?.some((p) => p.short_history) && (
-            <span>* рассчитано на истории менее года — значение неустойчиво; доходность короче года не приводится к годовой.</span>
-          )}
-          {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
-        </div>
-      </Card>
-      <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
-
-        <MetricExplainers
-          metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
-          values={{
-            return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-            capm: pfMetrics?.portfolio?.capm ?? null,
-            div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
-            pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
-            pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
-            earnings_yield: pfMetrics?.portfolio?.pe_current?.value > 0
-              ? Math.round(1000 / pfMetrics.portfolio.pe_current.value) / 10 : null,
-          }}
-          ctx={explainCtx}
-        />
-
-    </AppearGroup>
-  );
-
-  // Вкладка «Риск»: полная таблица группы + объяснения + сноска о режиме ставки
-  const renderRiskTab = () => (
-    <AppearGroup gate={appearGate.current} groupId="pf-risk" as="div" className="tw-p-1 tw-flex tw-flex-col tw-gap-3">
-      <Card header="Риск">
-        <Table columns={[assetColumn, ...RISK_COLUMNS]} rows={analyticRows} />
-        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
-          <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
-          {pfMetrics?.rates?.risk_free_1y != null && (
-            <span>
-              Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
-              Рынок (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)}; премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}.
-            </span>
-          )}
-        </div>
-      </Card>
-      <KeyTakeaway tone="info" title="Почему многие риск-метрики сейчас выглядят слабо">
-        {RISK_REGIME_NOTE}
-      </KeyTakeaway>
-      <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
-
-        <MetricExplainers
-          metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
-          values={{
-            volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-            var_95: pfMetrics?.portfolio?.var_95 ?? null,
-            downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
-            beta: pfMetrics?.portfolio?.beta?.value ?? null,
-            r_squared: pfMetrics?.portfolio?.r_squared ?? null,
-            sharpe: pfMetrics?.portfolio?.sharpe ?? null,
-            alpha: pfMetrics?.portfolio?.alpha ?? null,
-            sortino: pfMetrics?.portfolio?.sortino ?? null,
-          }}
-          ctx={explainCtx}
-        />
-
-    </AppearGroup>
-  );
-
-  const renderAggregate = () => (
-    <AppearGroup gate={appearGate.current} groupId="pf-metrics" as="div" className="tw-p-4">
-      <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0">
-        Агрегирующие метрики и Индекс портфеля
-      </h3>
-
-      {/* Этап 3: коэффициенты на базе безрисковой ставки */}
-      {pfMetrics?.portfolio?.sharpe != null && (
-        <div className="tw-grid tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3 tw-mb-4">
-          <KpiTile
-            caption="Шарп"
-            value={<span title="(Полная доходность − ставка ОФЗ) / волатильность. >1 — хорошо; около 0 и ниже — риск не вознаграждается">{fmtNumber(pfMetrics.portfolio.sharpe, { decimals: 2 })}</span>}
-          />
-          <KpiTile
-            caption="Сортино"
-            value={pfMetrics.portfolio.sortino == null ? "—" : <span title="Как Шарп, но штрафует только падения (нисходящая волатильность)">{fmtNumber(pfMetrics.portfolio.sortino, { decimals: 2 })}</span>}
-          />
-          <KpiTile
-            caption="Альфа (3г)"
-            value={pfMetrics.portfolio.alpha == null ? "—" : <span title="Сверх «положенного» за риск по CAPM, % годовых">{fmtPercent(pfMetrics.portfolio.alpha, { sign: true })}</span>}
-          />
-          <KpiTile
-            caption="Безрисковая ставка"
-            value={pfMetrics?.rates?.risk_free_1y == null ? "—" : <span title={`ОФЗ ~1 год, кривая ZCYC МосБиржи, на ${pfMetrics.rates.risk_free_as_of}`}>{fmtPercent(pfMetrics.rates.risk_free_1y)}</span>}
-          />
-        </div>
-      )}
-
-      {/* Этап 3: если бы держал портфель — против MCFTR (обе стороны с дивидендами) */}
-      {pfMetrics?.benchmark?.dates?.length > 1 && (
-        <Card
-          header={`Если бы держал этот портфель ${String(pfMetrics.benchmark.period_years).replace(".", ",")} г`}
-          className="tw-mb-4"
-        >
-          <BenchmarkChart series={pfMetrics.benchmark} />
-          <div className="tw-mt-3 tw-flex tw-flex-wrap tw-gap-x-6 tw-gap-y-1 tw-text-[13px]">
-            <span>Портфель: <b className={pfMetrics.benchmark.portfolio_total_pct >= 0 ? "tw-text-success" : "tw-text-danger"}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct, { sign: true })}</b></span>
-            <span>MCFTR: <b className="tw-text-text-primary">{fmtPercent(pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
-            <span>Разница: <b className={(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct) >= 0 ? "tw-text-success" : "tw-text-danger"}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
-          </div>
-          <div className="tw-mt-2 tw-text-[12px] tw-text-text-tertiary">
-            Обе кривые — полная доходность (портфель с дивидендами против индекса полной доходности MCFTR); IMOEX — ценовой, для справки.
-            {pfMetrics.benchmark.limited_by && ` Период ограничен историей ${pfMetrics.benchmark.limited_by}.`}
-            {" "}{pfMetrics.benchmark.note}.
-          </div>
-        </Card>
-      )}
-
-      {/* Метрики в двух смысловых группах (вместо одной широкой «каши») */}
-      <Card header="Доходность и оценка" className="tw-mb-4">
-        <Table
-          columns={[assetColumn, ...RETURN_COLUMNS]}
-          rows={analyticRows}
-        />
-        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
-          {pfMetrics?.positions?.some((p) => p.short_history) && (
-            <span>* рассчитано на истории менее года — значение неустойчиво; доходность короче года не приводится к годовой.</span>
-          )}
-          {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
-        </div>
-      </Card>
-      <div className="tw-mb-4">
-        <MetricExplainers
-          metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
-          values={{
-            return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-            capm: pfMetrics?.portfolio?.capm ?? null,
-            div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
-            pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
-            pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
-            earnings_yield: pfMetrics?.portfolio?.pe_current?.value > 0
-              ? Math.round(1000 / pfMetrics.portfolio.pe_current.value) / 10 : null,
-          }}
-          ctx={explainCtx}
-        />
+  // ---- Панель «Состав» (Обзор) ----
+  const pfComposition = () => (
+    <div className="pf-panel">
+      <div className="pf-sec-head">
+        <span className="pf-sec-eyebrow">Обзор</span>
+        <h2 className="pf-sec-title">Состав портфеля</h2>
       </div>
-
-
-      <Card header="Риск" className="tw-mb-4">
-        <Table
-          columns={[assetColumn, ...RISK_COLUMNS]}
-          rows={analyticRows}
-        />
-        <div className="tw-mt-2 tw-flex tw-flex-col tw-gap-1 tw-text-[12px] tw-text-text-tertiary">
-          <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
-          {pfMetrics?.rates?.risk_free_1y != null && (
-            <span>
-              Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
-              Рынок (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)}; премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}
-              {pfMetrics.rates.market_premium < 0 && " — за это окно рынок проиграл ОФЗ, поэтому CAPM-оценки ниже ставки"}.
-            </span>
-          )}
-        </div>
-      </Card>
-      <div className="tw-mb-4">
-        <MetricExplainers
-          metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
-          values={{
-            volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-            var_95: pfMetrics?.portfolio?.var_95 ?? null,
-            downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
-            beta: pfMetrics?.portfolio?.beta?.value ?? null,
-            r_squared: pfMetrics?.portfolio?.r_squared ?? null,
-            sharpe: pfMetrics?.portfolio?.sharpe ?? null,
-            alpha: pfMetrics?.portfolio?.alpha ?? null,
-            sortino: pfMetrics?.portfolio?.sortino ?? null,
-          }}
-          ctx={explainCtx}
-        />
-      </div>
-
-
-      {renderQuality()}
-    </AppearGroup>
-  );
-
-  // Индекс качества + субиндексы (реальный расчёт, методика — docs).
-  // Декомпозиция видна: общий балл, вклад каждого субиндекса, что внутри.
-  const renderQuality = () => {
-    const q = pfMetrics?.quality;
-    if (!q || q.overall == null) {
-      return (
-        <Card>
-          <div className="tw-text-[13px] tw-text-text-secondary">
-            Индекс качества появится, когда в портфеле будут позиции с историей котировок.
-          </div>
-        </Card>
-      );
-    }
-    const CONF_TONE = { "факт": "tw-text-success", "оценка": "tw-text-info", "суждение": "tw-text-text-tertiary" };
-    return (
-      <div className="tw-flex tw-flex-col tw-gap-4">
-        <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4">
-          <ScoreCard score={q.overall} label={q.label} gate={scoreGate.current} />
-
-          {/* Декомпозиция: субиндексы шкалами «от максимума» + что внутри */}
-          <Card className="lg:tw-col-span-2">
-            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-4" style={{ letterSpacing: "0.06em" }}>
-              Из чего сложился · субиндексы
+      <AppearGroup gate={appearGate.current} groupId="pf-holdings" className="tw-flex tw-flex-col tw-gap-3">
+        {/* Стоимость + быстрые показатели — разметка ДОСЛОВНО из прототипа (grid 1.15fr/1fr, медная полоса, clamp 38-62) */}
+        <div className="pf-card" style={{ padding: "32px 36px", display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: "44px", alignItems: "end" }}>
+          <div>
+            <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--pf-ink-3)", marginBottom: "10px" }}>Стоимость портфеля</div>
+            <div style={{ fontFamily: "var(--pf-serif)", fontVariantNumeric: "tabular-nums", fontSize: "clamp(38px,5.2vw,62px)", fontWeight: 600, lineHeight: 0.95, letterSpacing: "-0.01em" }}>
+              <HeadlineNum value={grandTotalValue} gate={valueGate.current} /><span style={{ fontSize: "0.4em", fontWeight: 500, color: "var(--pf-ink-3)" }}> ₽</span>
             </div>
-            <div className="tw-flex tw-flex-col tw-gap-5">
-              {q.subindices.map((s) => (
-                <div key={s.key} className="tw-flex tw-flex-col tw-gap-1.5">
-                  <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2">
-                    <span className="tw-text-[14px] tw-font-semibold tw-text-text-primary">{s.label}</span>
-                    <span className="tw-flex tw-items-baseline tw-gap-2">
-                      {s.confidence && <span className={`tw-text-[11px] ${CONF_TONE[s.confidence] || "tw-text-text-tertiary"}`}>{s.confidence}</span>}
-                      <span className="tw-text-[14px] tw-font-mono tw-tabular-nums tw-font-bold" style={{ color: `var(${QUALITY_BAR(s.score)})` }}>{s.score}</span>
-                    </span>
-                  </div>
-                  {/* шкала от максимума */}
-                  <div className="tw-h-2 tw-rounded-pill tw-bg-bg-base tw-overflow-hidden">
-                    <div className="tw-h-full tw-rounded-pill" style={{ width: `${s.score}%`, background: `var(${QUALITY_BAR(s.score)})` }} />
-                  </div>
-                  {/* компоненты — что внутри субиндекса (значения + мини-баллы) */}
-                  <div className="tw-flex tw-flex-wrap tw-gap-x-4 tw-gap-y-0.5 tw-mt-0.5">
-                    {s.components.map((c) => (
-                      <span key={c.name} className="tw-text-[12px] tw-text-text-tertiary">
-                        {c.name}: <span className="tw-text-text-secondary tw-font-mono">{c.value}</span>
-                        {c.score != null && <span className="tw-text-text-tertiary"> ({c.score})</span>}
-                      </span>
-                    ))}
-                  </div>
-                  <p className="tw-m-0 tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.verdict}</p>
-                  {s.limitation && (
-                    <div className="tw-flex tw-gap-1.5 tw-text-[12px] tw-text-text-tertiary tw-mt-0.5">
-                      <ShieldAlert size={13} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
-                      <span>{s.limitation}</span>
-                    </div>
-                  )}
+            <div style={{ display: "flex", gap: "14px", alignItems: "center", marginTop: "14px", fontSize: "13.5px", flexWrap: "wrap" }}>
+              <span style={{ color: stats.totalProfit >= 0 ? "var(--pf-up)" : "var(--pf-down)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                <span aria-hidden="true">{stats.totalProfit >= 0 ? "▲" : "▼"}</span> {formatMoney(Math.abs(stats.totalProfit), { decimals: 0 })} · {fmtPercent(stats.profitPct, { sign: true })}
+              </span>
+              <span style={{ color: "var(--pf-ink-3)" }}>за всё время владения, без учёта дивидендов</span>
+            </div>
+          </div>
+          <div style={{ borderLeft: "2px solid var(--pf-copper)", paddingLeft: "26px" }}>
+            <div style={{ display: "flex", gap: "28px", flexWrap: "wrap" }}>
+              <div>
+                <div style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--pf-ink-2)", marginBottom: "8px" }}>Див. доходность</div>
+                <div style={{ fontFamily: "'IBM Plex Mono',ui-monospace,monospace", fontVariantNumeric: "tabular-nums", fontSize: "24px", fontWeight: 700 }}>{pfMetrics?.portfolio?.div_yield?.value != null ? fmtPercent(pfMetrics.portfolio.div_yield.value, { decimals: 1 }) : "—"}</div>
+              </div>
+              {pfMetrics?.quality?.overall != null && (
+                <div style={{ cursor: "pointer" }} onClick={() => handleSectionChange("quality")}>
+                  <div style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--pf-ink-2)", marginBottom: "8px" }}>Индекс качества</div>
+                  <div style={{ fontFamily: "'IBM Plex Mono',ui-monospace,monospace", fontVariantNumeric: "tabular-nums", fontSize: "24px", fontWeight: 700, color: "var(--pf-copper)" }}>{pfMetrics.quality.overall}<span style={{ fontSize: "14px", color: "var(--pf-ink-3)" }}>/100</span></div>
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-        {/* как сложился общий балл + навигация к слабому звену */}
-        {(() => {
-          const weighted = q.subindices.map((s) => `${Math.round((q.weights[s.key] || 0) * 100)}% ${s.label}`).join(" + ");
-          const lowest = [...q.subindices].sort((a, b) => a.score - b.score)[0];
-          return (
-            <div className="tw-text-[13px] tw-text-text-secondary tw-px-1">
-              Общий балл — взвешенное среднее: {weighted}.{" "}
-              {lowest && (
-                <>Сильнее всего тянет вниз — <b className="tw-text-text-primary">«{lowest.label}»</b> ({lowest.score}/100): с него стоит начать, если хотите улучшить портфель.</>
               )}
             </div>
+            {pfMetrics?.quality?.overall != null && (
+              <p style={{ fontSize: "12.5px", color: "var(--pf-ink-3)", marginTop: "14px", lineHeight: 1.6 }}>
+                {pfMetrics.quality.label} — сильнее всего тянет вниз <b style={{ color: "var(--pf-ink-2)" }}>{[...pfMetrics.quality.subindices].sort((a, b) => a.score - b.score)[0]?.label}</b>. Разбор по компонентам → <b style={{ color: "var(--pf-copper-deep)", cursor: "pointer" }} onClick={() => handleSectionChange("quality")}>Индекс качества</b>.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Позиции — разметка ДОСЛОВНО из прототипа (.pos-table / .pos-asset / .pos-logo / .pos-name),
+            переключатель портфеля живёт в топ-баре — здесь только сами позиции */}
+        <div className="pf-card" style={{ padding: "24px 26px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "19px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>Состав портфеля</h3>
+            <div
+              className="pf-pill pf-pill--soft"
+              role="button"
+              tabIndex={0}
+              onClick={() => (portfolio && token ? setShowAddModal(true) : onAuthRequired())}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); (portfolio && token ? setShowAddModal(true) : onAuthRequired()); } }}
+            >
+              + Добавить позицию
+            </div>
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table className="pf-pos-table">
+              <thead>
+                <tr>
+                  <th>Актив</th><th>Кол-во</th><th>Средняя</th><th>Текущая</th>
+                  <th>Стоимость</th><th>Доля</th><th>Результат</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {holdingRows.map((r) => (
+                  <tr key={r.id ?? r.ticker} className="pf-pos-row" onClick={() => { if (r.id != null) setEditPosition(r); }}>
+                    <td>
+                      <div className="pf-pos-asset">
+                        <div
+                          className="pf-pos-logo"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (r.company_id != null && onOpenCompany) {
+                              onOpenCompany({ id: r.company_id, ticker: r.ticker, name: r.name, sector: r.sector });
+                            }
+                          }}
+                          title={`Открыть карточку ${r.ticker}`}
+                        >
+                          <CompanyLogo ticker={r.ticker} name={r.name} size={34} />
+                        </div>
+                        <div className="pf-pos-name">
+                          <b>{r.name || r.ticker}</b>
+                          <span>{r.ticker}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{fmtNumber(r.shares)}</td>
+                    <td>{formatMoney(r.avgPrice, { decimals: 1 })}</td>
+                    <td>{formatMoney(r.currentPrice, { decimals: 1 })}</td>
+                    <td>{formatMoney(r.value, { decimals: 0 })}</td>
+                    <td>
+                      <div className="pf-pos-weight">
+                        <span>{fmtPercent(r.weight, { decimals: 1 })}</span>
+                        <div className="pf-pos-weight-track">
+                          <div className="pf-pos-weight-fill" style={{ width: `${Math.min(100, r.weight)}%` }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="pf-pos-result">
+                        <span style={{ color: r.profitRub >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                          <span aria-hidden="true">{r.profitRub >= 0 ? "▲" : "▼"}</span> {formatMoney(Math.abs(r.profitRub), { decimals: 0 })}
+                        </span>
+                        <span style={{ color: r.profitRub >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}><Delta value={r.profitPct} /></span>
+                      </div>
+                    </td>
+                    <td>
+                      {r.id != null && (
+                        <button
+                          type="button"
+                          className="pf-pos-edit-btn"
+                          aria-label={`Изменить позицию ${r.ticker}`}
+                          title="Изменить позицию"
+                          onClick={(e) => { e.stopPropagation(); setEditPosition(r); }}
+                        >
+                          <Pencil size={14} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Секторы / классы активов — 2 карточки в ряд, донат+легенда, как в прототипе */}
+        {pfMetrics && pfMetrics.sector_allocation.length > 0 && (
+          <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+            <div className="pf-card" style={{ padding: "22px 24px" }}>
+              <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "16px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 16px" }}>Распределение по секторам</h3>
+              <div className="tw-flex tw-items-center tw-gap-6 tw-flex-wrap">
+                <DonutChart
+                  slices={pfMetrics.sector_allocation.map((s, i) => ({ pct: s.share_pct, color: PF_CAT_COLORS[i % PF_CAT_COLORS.length] }))}
+                />
+                <div className="tw-flex tw-flex-col tw-gap-2.5 tw-min-w-[180px] tw-flex-1">
+                  {pfMetrics.sector_allocation.map((s, i) => (
+                    <div key={s.sector} className="tw-flex tw-flex-col tw-gap-0.5">
+                      <div className="tw-flex tw-items-center tw-gap-2 tw-text-[14px]">
+                        <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill tw-shrink-0" style={{ background: PF_CAT_COLORS[i % PF_CAT_COLORS.length] }} />
+                        <span style={{ color: "var(--pf-ink)", fontWeight: 700 }}>{s.sector}</span>
+                        <span className="tw-font-mono tw-tabular-nums" style={{ fontWeight: 700 }}>{fmtPercent(s.share_pct, { decimals: 1 })}</span>
+                      </div>
+                      <span className="tw-font-mono" style={{ fontSize: "12px", color: "var(--pf-ink-3)", marginLeft: "18px" }}>{formatMoney(s.value, { decimals: 0 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pf-card" style={{ padding: "22px 24px" }}>
+              <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "16px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 16px" }}>Классы активов</h3>
+              <div className="tw-flex tw-items-center tw-gap-6 tw-flex-wrap">
+                <DonutChart
+                  slices={pfMetrics.asset_classes.map((a, i) => ({ pct: a.share_pct, color: PF_CAT_COLORS[i % PF_CAT_COLORS.length] }))}
+                />
+                <div className="tw-flex tw-flex-col tw-gap-2.5 tw-min-w-[180px] tw-flex-1">
+                  {pfMetrics.asset_classes.map((a, i) => (
+                    <div key={a.name} className="tw-flex tw-items-center tw-gap-2 tw-text-[14px]">
+                      <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill tw-shrink-0" style={{ background: PF_CAT_COLORS[i % PF_CAT_COLORS.length] }} />
+                      <span style={{ color: "var(--pf-ink)", fontWeight: 700 }}>{a.name}</span>
+                      {/* 1 знак ВСЕГДА (не только у мелких долей) — иначе 99,8%
+                          округляется в отображении до "100%" рядом с "0,2%"
+                          у другого класса, и доли визуально не сходятся в 100%
+                          (баг из жалобы владельца: "100% акции, 0,2% облигации"). */}
+                      <span className="tw-font-mono tw-tabular-nums" style={{ fontWeight: 700 }}>{fmtPercent(a.share_pct, { decimals: 1 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Концентрация — отдельная полная строка, 3 колонки внутри (донат+легенда / статы / предупреждение).
+            Цвет — ПО СЕКТОРУ позиции (та же карта, что у доната «Секторы»), не по индексу: SBER/T
+            (сектор «Финансы») и YDEX (IT) читаются одинаково между обоими донатами. */}
+        {pfMetrics?.concentration && (() => {
+          const sectorColors = {};
+          (pfMetrics.sector_allocation || []).forEach((s, i) => { sectorColors[s.sector] = PF_CAT_COLORS[i % PF_CAT_COLORS.length]; });
+          // Внутри одного сектора — родственные, но РАЗЛИЧИМЫЕ тона (не одинаковый
+          // цвет на 2+ позиции): 1-я позиция сектора — базовый тон, 2-я — темнее
+          // (color-mix + чёрный), 3-я — светлее (+ белый), и т.д. Считается ОДИН
+          // РАЗ в фиксированную карту (не при каждом вызове — иначе донат и
+          // легенда разъедутся, т.к. обходят holdingRows дважды).
+          const tickerColorMap = {};
+          const sectorSeen = {};
+          holdingRows.forEach((r) => {
+            const sector = metricByTicker[r.ticker]?.sector;
+            const base = sectorColors[sector] || PF_CAT_COLORS[0];
+            const n = sectorSeen[sector] || 0;
+            sectorSeen[sector] = n + 1;
+            tickerColorMap[r.ticker] = n === 0 ? base
+              : n % 2 === 1 ? `color-mix(in srgb, ${base} 65%, black)`
+              : `color-mix(in srgb, ${base} 65%, white)`;
+          });
+          const colorForTicker = (ticker) => tickerColorMap[ticker] || PF_CAT_COLORS[0];
+          return (
+          <div className="pf-card" style={{ padding: "22px 24px" }}>
+            <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "16px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 16px" }}>Концентрация</h3>
+            <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-[1.2fr_1fr_1.3fr] tw-gap-6 tw-items-center">
+              <div className="tw-flex tw-items-center tw-gap-5">
+                <DonutChart
+                  size={140}
+                  slices={holdingRows.map((r) => ({ pct: r.weight, color: colorForTicker(r.ticker) }))}
+                />
+                <div className="tw-flex tw-flex-col tw-gap-2">
+                  {holdingRows.map((r) => (
+                    <div key={r.ticker} className="tw-flex tw-items-center tw-gap-2 tw-text-[13px] tw-font-semibold">
+                      <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-pill tw-shrink-0" style={{ background: colorForTicker(r.ticker) }} />
+                      <span className="tw-text-text-primary">{r.ticker}</span>
+                      <span className="tw-font-mono tw-tabular-nums">{fmtPercent(r.weight, { decimals: 1 })}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="tw-flex tw-flex-col tw-gap-3 tw-items-start">
+                <div className="pf-chip-stat">
+                  <span className="pf-chip-stat__lbl">Крупнейшая позиция ({pfMetrics.concentration.largest_ticker})</span>
+                  <span className={`pf-chip-stat__val ${pfMetrics.concentration.largest_pct >= 30 ? "tw-text-[var(--pf-down)]" : "tw-text-text-primary"}`}>{fmtPercent(pfMetrics.concentration.largest_pct, { decimals: 1 })}</span>
+                </div>
+                <div className="pf-chip-stat">
+                  <span className="pf-chip-stat__lbl">Топ-3 позиции</span>
+                  <span className={`pf-chip-stat__val ${pfMetrics.concentration.top3_pct >= 60 ? "tw-text-[var(--pf-down)]" : "tw-text-text-primary"}`}>{fmtPercent(pfMetrics.concentration.top3_pct, { decimals: 1 })}</span>
+                </div>
+              </div>
+              <KeyTakeaway tone={pfMetrics.concentration.largest_pct >= 30 ? "caution" : "neutral"}>
+                {pfMetrics.concentration.top3_pct >= 99.5
+                  ? `Высокая концентрация: одна позиция держит ${fmtPercent(pfMetrics.concentration.largest_pct, { decimals: 0 })} портфеля, три позиции — весь портфель целиком.`
+                  : `Крупнейшая позиция (${pfMetrics.concentration.largest_ticker}) держит ${fmtPercent(pfMetrics.concentration.largest_pct, { decimals: 0 })} портфеля; топ-3 — ${fmtPercent(pfMetrics.concentration.top3_pct, { decimals: 0 })}.`}
+              </KeyTakeaway>
+            </div>
+          </div>
           );
         })()}
-        {/* честная подпись: не магическое число */}
-        <KeyTakeaway tone="neutral" title="Как читать индекс">{q.note}</KeyTakeaway>
+
+        {/* Ближайшие выплаты — портфельный срез дивидендного календаря
+            (/api/market/calendar), отфильтрованный по тикерам этого портфеля. */}
+        <div className="pf-card" style={{ padding: "24px 26px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>Ближайшие выплаты</h3>
+            <span className="pf-tag-fact">факт (объявленные)</span>
+          </div>
+          {pfDividends === null ? (
+            <div style={{ fontSize: "13px", color: "var(--pf-ink-3)" }}>Загрузка…</div>
+          ) : pfDividends.length === 0 ? (
+            <p style={{ fontSize: "13px", color: "var(--pf-ink-2)", margin: 0 }}>
+              Нет объявленных выплат по бумагам портфеля на ближайшие полгода — это факт календаря
+              (либо эмитенты не платят за этот период, либо ещё не объявили), а не пропуск данных.
+            </p>
+          ) : (
+            <>
+              {(() => {
+                const divRows = pfDividends
+                  .slice()
+                  .sort((a, b) => a.date.localeCompare(b.date))
+                  .map((e) => {
+                    const pos = positions.find((p) => p.ticker === e.ticker);
+                    const shares = pos?.shares || 0;
+                    const amount = e.payload?.amount ?? null;
+                    const expected = amount != null ? amount * shares : null;
+                    return {
+                      asset: <span><b>{pos?.name || e.ticker}</b> <span className="tw-font-mono tw-text-text-tertiary">{e.ticker}</span></span>,
+                      buyBy: _dmy(e.payload?.buy_by_date),
+                      record: _dmy(e.payload?.record_date),
+                      amount: amount != null ? `${fmtNumber(amount, { decimals: 2 })} ₽` : "—",
+                      expected: expected != null ? <span className="tw-text-[var(--pf-up)]">+{formatMoney(expected, { decimals: 0 })}</span> : "—",
+                      yieldPct: e.payload?.dividend_yield != null ? fmtPercent(e.payload.dividend_yield, { decimals: 1 }) : "—",
+                    };
+                  });
+                const totalExpected = pfDividends.reduce((sum, e) => {
+                  const pos = positions.find((p) => p.ticker === e.ticker);
+                  const amount = e.payload?.amount ?? 0;
+                  return sum + amount * (pos?.shares || 0);
+                }, 0);
+                return (
+                  <>
+                    <PfMetricTable
+                      columns={[
+                        { key: "asset", label: "Актив" },
+                        { key: "buyBy", label: "Купить до" },
+                        { key: "record", label: "Отсечка" },
+                        { key: "amount", label: "Див./акция" },
+                        { key: "expected", label: "Ожидаемая сумма" },
+                        { key: "yieldPct", label: "Доходность" },
+                      ]}
+                      rows={divRows}
+                    />
+                    <p style={{ fontSize: "13px", color: "var(--pf-ink)", marginTop: "12px", fontWeight: 700 }}>
+                      Итого ожидается: <span className="tw-font-mono" style={{ color: "var(--pf-up)" }}>+{formatMoney(totalExpected, { decimals: 0 })}</span>
+                    </p>
+                  </>
+                );
+              })()}
+              <p style={{ fontSize: "11.5px", color: "var(--pf-ink-3)", marginTop: "12px" }}>
+                Показаны только объявленные выплаты (с известной датой и суммой) — для необъявленных будущих
+                выплат подтверждённых данных пока не существует, это ограничение источника, а не недоработка расчёта.
+              </p>
+            </>
+          )}
+        </div>
+      </AppearGroup>
+    </div>
+  );
+
+  // ---- Панель «Сравнение» ----
+  const pfCompare = () => {
+    return (
+      <div className="pf-panel">
+        <div className="pf-sec-head">
+          <span className="pf-sec-eyebrow">Доходность и риск</span>
+          <h2 className="pf-sec-title">Сравнение</h2>
+        </div>
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-5 tw-max-w-2xl">
+          Как портфель вёл себя на фоне рынка — и любых ориентиров, которые вы захотите сравнить:
+          другая бумага или другой ваш портфель.
+        </p>
+        <AppearGroup gate={appearGate.current} groupId="pf-compare" className="tw-flex tw-flex-col tw-gap-3">
+          {pfMetrics?.benchmark?.dates?.length > 1 ? (
+            <div className="pf-card" style={{ padding: "24px 26px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "10px", marginBottom: "6px" }}>
+                <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>
+                  Если бы держали этот портфель {String(pfMetrics.benchmark.period_years).replace(".", ",")} г
+                </h3>
+                <div style={{ display: "flex", gap: "16px", fontSize: "13px" }}>
+                  <span>Портфель: <b className="tw-font-mono" style={{ color: pfMetrics.benchmark.portfolio_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct, { sign: true })}</b></span>
+                  <span>MCFTR: <b className="tw-font-mono" style={{ color: pfMetrics.benchmark.benchmark_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
+                  <span>Разница: <b className="tw-font-mono" style={{ color: (pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct) >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
+                </div>
+              </div>
+              <BenchmarkChart series={pfMetrics.benchmark} extraSeries={compareLines.map((l) => ({ ...l, onRemove: () => removeCompareLine(l.key) }))} />
+              <p style={{ fontSize: "12px", color: "var(--pf-ink-3)", marginTop: "8px" }}>
+                Базовые кривые — полная доходность (портфель с дивидендами против индекса полной доходности MCFTR); IMOEX — ценовой, для справки.
+                {pfMetrics.benchmark.limited_by && ` Период ограничен историей ${pfMetrics.benchmark.limited_by}.`}
+                {" "}{pfMetrics.benchmark.note}.
+              </p>
+
+              <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--pf-line)" }}>
+                <Button variant="secondary" onClick={() => setCompareBuilderOpen((v) => !v)}>
+                  {compareBuilderOpen ? "− Свернуть сравнение" : "+ Добавить сравнение"}
+                </Button>
+
+                {compareBuilderOpen && (
+                  <div className="tw-mt-4">
+                    <div className="pf-seg tw-mb-4">
+                      {[
+                        { id: "asset", label: "Актив" },
+                        { id: "portfolio", label: "Другой портфель" },
+                        { id: "custom", label: "Свой конструктор" },
+                      ].map((m) => (
+                        <button
+                          key={m.id} type="button" onClick={() => setCompareMode(m.id)}
+                          className={`pf-seg-opt${compareMode === m.id ? " pf-seg-opt--on" : ""}`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {compareMode === "asset" && (
+                      <div className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
+                        <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 220 }}>
+                          <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Тикер или название (любая бумага рынка)</label>
+                          <TickerInput value={compareTickerInput} onChange={setCompareTickerInput} placeholder="напр. LKOH или Лукойл" />
+                        </div>
+                        <Button variant="secondary" onClick={() => addCompareAsset(compareTickerInput)}>+ Добавить</Button>
+                      </div>
+                    )}
+
+                    {compareMode === "portfolio" && (
+                      portfolioList.length > 1 ? (
+                        <div className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
+                          <div className="tw-flex tw-flex-col tw-gap-1">
+                            <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Другой ваш портфель</label>
+                            <select
+                              value={comparePortfolioId}
+                              onChange={(e) => setComparePortfolioId(e.target.value)}
+                              className="tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated"
+                            >
+                              <option value="">Выбрать…</option>
+                              {portfolioList.filter((p) => p.id !== activePortfolioId).map((p) => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <Button variant="secondary" onClick={() => comparePortfolioId && addComparePortfolio(comparePortfolioId)}>+ Добавить портфель</Button>
+                        </div>
+                      ) : (
+                        <p className="tw-text-[12.5px] tw-text-text-tertiary tw-m-0">У вас пока только один портфель — сравнивать не с чем.</p>
+                      )
+                    )}
+
+                    {compareMode === "custom" && (
+                      <div className="tw-flex tw-flex-col tw-gap-3">
+                        <div className="pf-seg" style={{ width: "fit-content" }}>
+                          {[{ id: "basket", label: "Взвешенная корзина" }, { id: "ratio", label: "Отношение А ÷ Б" }].map((m) => (
+                            <button
+                              key={m.id} type="button" onClick={() => setCustomMode(m.id)}
+                              className={`pf-seg-opt${customMode === m.id ? " pf-seg-opt--on" : ""}`}
+                            >
+                              {m.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {customMode === "basket" ? (
+                          <>
+                            <p className="tw-text-[12.5px] tw-text-text-tertiary tw-m-0 tw-max-w-md">
+                              Взвешенная корзина из нескольких бумаг — например, «60% нефть + 40% банки» — сравнивается
+                              как единая линия на графике. Доходности бумаг взвешиваются по датам без ребалансировки —
+                              это оценка формы, а не точный расчёт составного портфеля.
+                            </p>
+                            {customRows.map((row, idx) => (
+                              <div key={idx} className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
+                                <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 200 }}>
+                                  <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Бумага {idx + 1}</label>
+                                  <TickerInput value={row.ticker} onChange={(v) => setCustomRow(idx, { ticker: v })} placeholder="напр. SBER" />
+                                </div>
+                                <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 90 }}>
+                                  <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Вес, %</label>
+                                  <input
+                                    type="number" min="0" max="100" value={row.weight}
+                                    onChange={(e) => setCustomRow(idx, { weight: e.target.value })}
+                                    className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated"
+                                  />
+                                </div>
+                                {customRows.length > 2 && (
+                                  <button type="button" onClick={() => removeCustomRow(idx)} className="tw-bg-transparent tw-border-0 tw-cursor-pointer tw-text-text-tertiary hover:tw-text-danger tw-font-bold tw-pb-2" title="Убрать бумагу">×</button>
+                                )}
+                              </div>
+                            ))}
+                            <div className="tw-flex tw-items-center tw-gap-2">
+                              <Button variant="ghost" onClick={addCustomRow}>+ Ещё бумага</Button>
+                              <Button variant="secondary" onClick={addCustomConstructor}>+ Добавить в сравнение</Button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p className="tw-text-[12.5px] tw-text-text-tertiary tw-m-0 tw-max-w-md">
+                              Относительная сила одного актива к другому (напр. MCFTR ÷ LQDT — обгоняет ли рынок
+                              акций денежный рынок). Можно вводить тикеры акций, фондов (SECID, напр. LQDT) или
+                              индексы (MCFTR/IMOEX/RTSI) — не только бумаги из вашего портфеля.
+                            </p>
+                            <div className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
+                              <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 180 }}>
+                                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">А</label>
+                                <TickerInput value={ratioA} onChange={setRatioA} placeholder="напр. MCFTR" />
+                              </div>
+                              <span className="tw-text-text-tertiary tw-pb-2" style={{ fontSize: 16 }}>÷</span>
+                              <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 180 }}>
+                                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Б</label>
+                                <TickerInput value={ratioB} onChange={setRatioB} placeholder="напр. LQDT" />
+                              </div>
+                              <Button variant="secondary" onClick={addCustomConstructor}>+ Добавить в сравнение</Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {compareError && <p className="tw-text-[12px] tw-text-[var(--pf-down)] tw-mt-2">{compareError}</p>}
+              </div>
+            </div>
+          ) : (
+            <div className="pf-card" style={{ padding: "24px 26px" }}>
+              <div style={{ fontSize: "13px", color: "var(--pf-ink-2)" }}>
+                Сравнение с бенчмарком появится, когда в портфеле будет достаточно истории котировок.
+              </div>
+            </div>
+          )}
+        </AppearGroup>
       </div>
     );
   };
 
-  const renderCorrelation = () => {
-    // Реальные попарные корреляции из /portfolios/{id}/metrics (Этап 2);
-    // мок остаётся только как демо без портфеля.
+  // ---- Панель «Доходность и оценка» ----
+  const pfReturns = () => (
+    <div className="pf-panel">
+      <div className="pf-sec-head">
+        <span className="pf-sec-eyebrow">Доходность и риск</span>
+        <h2 className="pf-sec-title">Доходность и оценка</h2>
+      </div>
+      <AppearGroup gate={appearGate.current} groupId="pf-returns" className="tw-flex tw-flex-col tw-gap-3">
+        <div className="pf-card" style={{ padding: "24px 26px" }}>
+          <PfMetricTable
+            columns={[
+              assetColumn,
+              RETURN_COLUMNS[0],
+              {
+                key: "contribution", label: "Вклад в доходность",
+                render: (_, row) => {
+                  if (row?.weight == null || row?.return3y == null) return "—";
+                  const contrib = row._isTotal ? row.return3y : (row.weight / 100) * row.return3y;
+                  return (
+                    <span style={{ color: contrib >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                      {row._isTotal ? "=" : contrib >= 0 ? "+" : ""}{fmtNumber(contrib, { decimals: 1 })} п.п.
+                    </span>
+                  );
+                },
+              },
+              ...RETURN_COLUMNS.slice(1),
+            ]}
+            rows={analyticRows}
+          />
+          <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "11.5px", color: "var(--pf-ink-3)" }}>
+            {pfMetrics?.positions?.some((p) => p.short_history) && (
+              <span>* рассчитано на истории менее года — значение неустойчиво; доходность короче года не приводится к годовой.</span>
+            )}
+            <span>«Вклад в доходность» = доля в портфеле × доходность бумаги — отвечает на вопрос «кто сделал результат портфеля».</span>
+            {metricsCoverageNote && <span>{metricsCoverageNote}</span>}
+          </div>
+        </div>
+        <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
+        <MetricExplainers
+          metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
+          values={{
+            return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
+            capm: pfMetrics?.portfolio?.capm ?? null,
+            div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
+            pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
+            pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
+            earnings_yield: pfMetrics?.portfolio?.pe_current?.value > 0
+              ? Math.round(1000 / pfMetrics.portfolio.pe_current.value) / 10 : null,
+          }}
+          ctx={explainCtx}
+        />
+      </AppearGroup>
+    </div>
+  );
+
+  // ---- Панель «Риск» ----
+  const pfRisk = () => (
+    <div className="pf-panel">
+      <div className="pf-sec-head">
+        <span className="pf-sec-eyebrow">Доходность и риск</span>
+        <h2 className="pf-sec-title">Риск</h2>
+      </div>
+      <AppearGroup gate={appearGate.current} groupId="pf-risk" className="tw-flex tw-flex-col tw-gap-3">
+        <div className="pf-card" style={{ padding: "24px 26px" }}>
+          <PfMetricTable
+            columns={[
+              assetColumn, RISK_COLUMNS[0], RISK_COLUMNS[1],
+              {
+                key: "maxDrawdown", label: "Макс. просадка",
+                render: (v) => v == null ? "—" : <span style={{ color: "var(--pf-down)" }} title="Самое глубокое падение от исторического максимума до последующего минимума">{fmtPercent(v)}</span>,
+              },
+              ...RISK_COLUMNS.slice(2),
+              {
+                key: "riskContributionPct", label: "Вклад в риск",
+                render: (v) => v == null ? "—" : <span title="Доля бумаги в ОБЩЕЙ волатильности портфеля (не в стоимости!) — сумма даёт 100%">{fmtPercent(v, { decimals: 0 })}</span>,
+              },
+            ]}
+            rows={analyticRows}
+          />
+          <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "11.5px", color: "var(--pf-ink-3)" }}>
+            <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
+            {pfMetrics?.rates?.risk_free_1y != null && (
+              <span>
+                Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
+                Рынок (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)}; премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}.
+              </span>
+            )}
+          </div>
+        </div>
+        <KeyTakeaway tone="info" title="Почему многие риск-метрики сейчас выглядят слабо">
+          {RISK_REGIME_NOTE}
+        </KeyTakeaway>
+        {(() => {
+          const withData = analyticRows.filter((r) => !r._isTotal && r.weight != null && r.riskContributionPct != null);
+          if (!withData.length) return null;
+          const top = [...withData].sort((a, b) => b.weight - a.weight)[0];
+          const gap = Math.abs(top.weight - top.riskContributionPct);
+          if (gap < 3) return null;
+          return (
+            <KeyTakeaway tone="neutral" title="Скрытая деталь">
+              {top.ticker} — {fmtPercent(top.weight, { decimals: 0 })} стоимости портфеля, но {fmtPercent(top.riskContributionPct, { decimals: 0 })} его риска:
+              {top.weight > top.riskContributionPct ? " спокойнее, чем в среднем по портфелю" : " рискованнее, чем следует из её доли"}.
+              Деньги и риск распределены не одинаково — это и есть разница между «долей» и «вкладом в риск».
+            </KeyTakeaway>
+          );
+        })()}
+        <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
+        <MetricExplainers
+          metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
+          values={{
+            volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
+            var_95: pfMetrics?.portfolio?.var_95 ?? null,
+            downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
+            beta: pfMetrics?.portfolio?.beta?.value ?? null,
+            r_squared: pfMetrics?.portfolio?.r_squared ?? null,
+            sharpe: pfMetrics?.portfolio?.sharpe ?? null,
+            alpha: pfMetrics?.portfolio?.alpha ?? null,
+            sortino: pfMetrics?.portfolio?.sortino ?? null,
+          }}
+          ctx={explainCtx}
+        />
+      </AppearGroup>
+    </div>
+  );
+
+  // ---- Панель «Матрица корреляций» ----
+  const pfCorrelation = () => {
     const corr = pfMetrics?.correlation;
     const labels = corr?.tickers?.length ? corr.tickers : ["SBER", "LKOH", "YDEX"];
     const matrix = corr?.tickers?.length ? corr.matrix : MOCK_CORRELATION;
-    // средняя внедиагональная корреляция — для вывода простым языком
     const offDiag = [];
     matrix.forEach((row, i) => row.forEach((v, j) => { if (i < j && typeof v === "number") offDiag.push(v); }));
     const avgCorr = offDiag.length ? offDiag.reduce((a, b) => a + b, 0) / offDiag.length : null;
@@ -1850,196 +2853,497 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
           : `Средняя корреляция низкая (${fmtNumber(avgCorr, { decimals: 2 })}): бумаги движутся независимо — хорошая диверсификация.`;
 
     return (
-      <AppearGroup gate={appearGate.current} groupId="pf-correlation" as="div" className="tw-p-4">
-        <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-2 tw-mt-0">
-          Оценка диверсификации и скрытой концентрации
-        </h3>
-        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-6 tw-mt-0">
-          Тепловая карта показывает, как активы движутся относительно друг друга
-          (1,0 = синхронно, 0 = независимо). Тёплые ячейки — высокая связь
-          (концентрация), холодные — диверсификация.
+      <div className="pf-panel">
+        <div className="pf-sec-head">
+          <span className="pf-sec-eyebrow">Доходность и риск</span>
+          <h2 className="pf-sec-title">Матрица корреляций</h2>
+        </div>
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-6 tw-max-w-2xl">
+          Как активы движутся относительно друг друга (1,0 = синхронно, 0 = независимо). Тёплые ячейки — высокая связь
+          (концентрация), холодные — реальная диверсификация. Рассчитано по дневным доходностям за 3 года.
         </p>
-
-        <Card className="tw-max-w-lg tw-mx-auto">
-          <CorrelationHeatmap labels={labels} matrix={matrix} />
-          <div className="tw-mt-4 tw-flex tw-items-center tw-gap-4 tw-text-[12px] tw-text-text-tertiary">
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
-              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--danger) 45%, var(--bg-elevated))" }} />
-              высокая
-            </span>
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
-              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--cat-8) 14%, var(--bg-elevated))" }} />
-              средняя
-            </span>
-            <span className="tw-inline-flex tw-items-center tw-gap-1.5">
-              <span className="tw-w-3 tw-h-3 tw-rounded-sm" style={{ background: "color-mix(in srgb, var(--success) 35%, var(--bg-elevated))" }} />
-              низкая
-            </span>
+        <AppearGroup gate={appearGate.current} groupId="pf-correlation" className="tw-flex tw-flex-col tw-gap-4">
+          <div className="pf-card" style={{ padding: "24px 26px", marginBottom: "4px" }}>
+            <CorrelationHeatmap labels={labels} matrix={matrix} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "14px", marginTop: "20px", flexWrap: "wrap" }}>
+              <span className="tw-font-mono" style={{ fontSize: "12px", color: "var(--pf-ink-2)" }}>−1 · разбавляет риск</span>
+              <span
+                style={{ width: 220, height: 10, borderRadius: 5, background: "linear-gradient(90deg, var(--pf-up), var(--pf-surface-3) 50%, var(--pf-down))" }}
+              />
+              <span className="tw-font-mono" style={{ fontSize: "12px", color: "var(--pf-ink-2)" }}>+1 · риск не разбавляет</span>
+            </div>
+            <div style={{ textAlign: "center", marginTop: "8px" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "var(--pf-ink-3)" }}>
+                <span style={{ display: "inline-block", width: 11, height: 11, background: "var(--pf-surface-3)", border: "1px dashed var(--pf-line-2)", borderRadius: 3 }} />
+                диагональ — бумага сама с собой, не данные
+              </span>
+            </div>
           </div>
-        </Card>
 
-        {/* Интерпретация человеческим языком: вывод + крайние пары + связь
-            с субиндексом диверсификации */}
-        <div className="tw-mt-6 tw-flex tw-flex-col tw-gap-3">
           <KeyTakeaway tone={avgCorr == null ? "neutral" : avgCorr >= 0.6 ? "caution" : avgCorr >= 0.3 ? "info" : "positive"} title="Что это значит для диверсификации">
             {verdict} Корреляции рассчитаны по дневным доходностям за 3 года.
             {corr?.low_overlap && " У части пар мало совпадающих торговых дат (молодые бумаги) — их значения менее надёжны."}
           </KeyTakeaway>
 
           {(corr?.strongest_pair || corr?.weakest_pair) && (
-            <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-3">
+            <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-4">
               {corr?.strongest_pair && (
-                <Card>
-                  <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Где диверсификации нет</div>
-                  <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary">
-                    {corr.strongest_pair.a} ↔ {corr.strongest_pair.b}
-                    <span className="tw-ml-2 tw-font-mono tw-text-danger">{fmtNumber(corr.strongest_pair.value, { decimals: 2 })}</span>
+                <div className="pf-card" style={{ padding: "18px 20px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "var(--pf-down)", marginBottom: "8px" }}>Где диверсификации нет</div>
+                  <div className="tw-font-mono" style={{ fontSize: "20px", fontWeight: 700, marginBottom: "4px", color: "var(--pf-ink)" }}>
+                    {corr.strongest_pair.a} ↔ {corr.strongest_pair.b} · {fmtNumber(corr.strongest_pair.value, { decimals: 2 })}
                   </div>
-                  <p className="tw-m-0 tw-mt-1 tw-text-[12.5px] tw-text-text-secondary">Самая связанная пара — эти бумаги ходят почти заодно, друг друга не подстраховывают.</p>
-                </Card>
+                  <p style={{ margin: 0, fontSize: "13px", color: "var(--pf-ink-2)" }}>Самая связанная пара — эти бумаги ходят почти заодно, друг друга не подстраховывают.</p>
+                </div>
               )}
               {corr?.weakest_pair && (
-                <Card>
-                  <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Что реально разбавляет риск</div>
-                  <div className="tw-text-[15px] tw-font-semibold tw-text-text-primary">
-                    {corr.weakest_pair.a} ↔ {corr.weakest_pair.b}
-                    <span className="tw-ml-2 tw-font-mono tw-text-success">{fmtNumber(corr.weakest_pair.value, { decimals: 2 })}</span>
+                <div className="pf-card" style={{ padding: "18px 20px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 700, textTransform: "uppercase", color: "var(--pf-up)", marginBottom: "8px" }}>Что реально разбавляет риск</div>
+                  <div className="tw-font-mono" style={{ fontSize: "20px", fontWeight: 700, marginBottom: "4px", color: "var(--pf-ink)" }}>
+                    {corr.weakest_pair.a} ↔ {corr.weakest_pair.b} · {fmtNumber(corr.weakest_pair.value, { decimals: 2 })}
                   </div>
-                  <p className="tw-m-0 tw-mt-1 tw-text-[12.5px] tw-text-text-secondary">Наименее связанная пара — именно она снижает общий риск портфеля.</p>
-                </Card>
+                  <p style={{ margin: 0, fontSize: "13px", color: "var(--pf-ink-2)" }}>Наименее связанная пара — именно она снижает общий риск портфеля.</p>
+                </div>
               )}
             </div>
           )}
 
           {divSub && (
             <div className="tw-text-[12.5px] tw-text-text-tertiary">
-              Эта картина учтена в субиндексе <b className="tw-text-text-secondary">«Диверсификация»</b> (вкладка «Агрегирующая таблица»): средняя корреляция — одна из его компонент, сейчас балл {divSub.score}/100.
+              Эта картина учтена в субиндексе <b className="tw-text-text-secondary">«Диверсификация»</b> (раздел «Индекс качества»): средняя корреляция — одна из его компонент, сейчас балл {divSub.score}/100.
             </div>
           )}
-        </div>
-      </AppearGroup>
+        </AppearGroup>
+      </div>
     );
   };
 
-  const renderAiDiagnosis = () => {
-    const pros = [
-      "Высокая ожидаемая див. доходность (около 11% годовых), создающая подушку безопасности.",
-      "Наличие Яндекса защищает портфель от стагнации, добавляя сильный фактор роста.",
-      "Устойчивость к девальвации рубля благодаря доле экспортёра (Лукойл).",
-    ];
-    const cons = [
-      "Жёсткая концентрация в 3 бумагах — риск отдельных корпоративных событий критичен.",
-      "Сильная зависимость финансового сектора от роста ключевой ставки.",
-      "Отсутствие защитных активов при высоких ставках на рынке.",
-    ];
+  // ---- Панель «Индекс качества» ----
+  const pfQuality = () => {
+    const q = qualityVersion === "v2" ? pfMetrics?.quality_v2 : pfMetrics?.quality;
+    const weightedFormula = q?.subindices
+      ? q.subindices.map((s) => `${Math.round((q.weights[s.key] || 0) * 100)}% ${s.label}`).join(" + ")
+      : null;
     return (
-      <AppearGroup gate={appearGate.current} groupId="pf-ai" as="div" className="tw-p-6">
-        <h3 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
-          <Zap size={20} className="tw-text-accent" />
-          Общий диагноз портфеля
-        </h3>
-
-        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-6 tw-mb-6">
-          <Card>
-            <h4 className="tw-text-[14px] tw-font-semibold tw-text-success tw-mt-0 tw-mb-3">
-              Щит портфеля (Аргументы ЗА)
-            </h4>
-            <ul className="tw-flex tw-flex-col tw-gap-2 tw-m-0 tw-p-0 tw-list-none">
-              {pros.map((t, i) => (
-                <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
-                  <span aria-hidden="true" className="tw-text-success tw-mt-px tw-shrink-0">▲</span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card>
-            <h4 className="tw-text-[14px] tw-font-semibold tw-text-danger tw-mt-0 tw-mb-3">
-              Уязвимости (Аргументы ПРОТИВ)
-            </h4>
-            <ul className="tw-flex tw-flex-col tw-gap-2 tw-m-0 tw-p-0 tw-list-none">
-              {cons.map((t, i) => (
-                <li key={i} className="tw-flex tw-items-start tw-gap-2 tw-text-[13px] tw-text-text-secondary">
-                  <span aria-hidden="true" className="tw-text-danger tw-mt-px tw-shrink-0">▼</span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </Card>
+      <div className="pf-panel">
+        <div className="pf-sec-head">
+          <span className="pf-sec-eyebrow">Разбор</span>
+          <h2 className="pf-sec-title">Индекс качества портфеля</h2>
         </div>
-
-        <Card>
-          <h4 className="tw-text-[13px] tw-font-medium tw-text-accent tw-mt-0 tw-mb-2">
-            Резюме платформы
-          </h4>
-          <p className="tw-text-[14px] tw-text-text-secondary tw-leading-relaxed tw-m-0">
-            Портфель представляет собой агрессивную ставку на российские голубые
-            фишки с перекосом в дивидендную историю Сбербанка. Он хорошо держит
-            инфляционный удар, но уязвим к сценарию жесткой ДКП и геополитическим
-            шокам. Базовая рекомендация — ребалансировка и добавление защитных
-            инструментов.
-          </p>
-        </Card>
-      </AppearGroup>
-    );
-  };
-
-  const renderStress = () => (
-    <AppearGroup gate={appearGate.current} groupId="pf-stress" as="div" className="tw-p-6 tw-flex tw-flex-col tw-gap-6">
-      <Card>
-        <h4 className="tw-text-[16px] tw-font-semibold tw-text-text-primary tw-mb-4 tw-mt-0 tw-flex tw-items-center tw-gap-2">
-          <ShieldAlert size={18} className="tw-text-accent" />
-          Стресс-тестирование портфеля
-        </h4>
-
-        <div className="tw-flex tw-flex-wrap tw-gap-2 tw-mb-6">
-          {[
-            { id: "black_swan", label: "Черный лебедь (-20%)" },
-            { id: "rate_up", label: "Ставка ЦБ +5%" },
-            { id: "oil_crash", label: "Крах нефти ($40)" },
-          ].map((s) => (
-            <Chip key={s.id} selected={stressScenario === s.id} onClick={() => setStressScenario(s.id)}>
-              {s.label}
-            </Chip>
+        <div className="pf-seg tw-mb-4" style={{ width: "fit-content" }}>
+          {[{ id: "v2", label: "Методика v2.1" }, { id: "v1", label: "Методика v1" }].map((m) => (
+            <button
+              key={m.id} type="button" onClick={() => setQualityVersion(m.id)}
+              className={`pf-seg-opt${qualityVersion === m.id ? " pf-seg-opt--on" : ""}`}
+            >
+              {m.label}
+            </button>
           ))}
         </div>
-
-        <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-          <div className="tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-p-4">
-            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
-              Ожидаемое падение
-            </div>
-            <div className="tw-text-[24px] tw-font-display tw-font-light tw-text-danger tw-tabular-nums tw-mb-2">
-              <span aria-hidden="true">▼ </span>{fmtPercent(currentStress.drop, { decimals: 1 })}
-            </div>
-            <ImpactBar value={-currentStress.drop} max={25} />
-            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">{currentStress.label}</div>
-          </div>
-
-          <div className="tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-p-4">
-            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
-              Потеря стоимости
-            </div>
-            <div className="tw-text-[24px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums tw-mb-2">
-              {formatMoney(currentStress.valueLoss, { decimals: 0 })}
-            </div>
-            <ImpactBar value={-currentStress.drop} max={25} />
-            <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-2">Оценка по текущей структуре портфеля</div>
-          </div>
-        </div>
-
-        <div className="tw-mt-4 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-danger-soft" style={{ borderLeft: "3px solid var(--danger)" }}>
-          <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
-            <span className="tw-font-semibold tw-text-danger">Интерпретация платформы: </span>
-            {currentStress.text}
+        {qualityVersion === "v2" && (
+          <p className="tw-text-[12.5px] tw-text-text-tertiary tw-mb-4 tw-max-w-2xl">
+            Новая методика (docs/Basis_методика_индекса_качества_портфеля_v2.1.md) считает все 7 модулей.
+            «Фундаментальное качество» пока частичное — только финансовая устойчивость и управление;
+            бизнес-модель, рыночная позиция и capital allocation требуют нового аналитического
+            субагента (см. пометку «Охват методики» ниже). Обе методики показаны рядом, пока v2.1 не
+            откалибрована и не принята.
           </p>
+        )}
+        {!q || q.overall == null ? (
+          <Card>
+            <div className="tw-text-[13px] tw-text-text-secondary">
+              {qualityVersion === "v2"
+                ? "Индекс v2.1 пока применим только к портфелям с акциями (MVP-охват методики Фазы 1 — раздел 12): облигации/фонды/фьючерсы ещё не участвуют."
+                : "Индекс качества появится, когда в портфеле будут позиции с историей котировок."}
+            </div>
+          </Card>
+        ) : (
+          <AppearGroup gate={appearGate.current} groupId={`pf-quality-${qualityVersion}`} className="tw-flex tw-flex-col tw-gap-4">
+            <Card>
+              <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-7 tw-mb-6">
+                <div className="tw-flex tw-items-baseline tw-gap-1">
+                  <span className="tw-font-display tw-font-light tw-text-accent tw-tabular-nums" style={{ fontSize: 56, lineHeight: 1, letterSpacing: "-1.5px" }}>
+                    {q.overall}
+                  </span>
+                  <span className="tw-text-[20px] tw-text-text-tertiary">/100</span>
+                </div>
+                <p className="tw-text-[13.5px] tw-text-text-secondary tw-m-0 tw-max-w-md">
+                  Общий балл — взвешенное среднее: {weightedFormula}.
+                  Сильнее всего тянет вниз — <b className="tw-text-text-primary">«{[...q.subindices].sort((a, b) => a.score - b.score)[0]?.label}»</b> ({[...q.subindices].sort((a, b) => a.score - b.score)[0]?.score}/100).
+                </p>
+              </div>
+              {/* Крупные полосы верхнего уровня — как в прототипе, сразу под баллом */}
+              <div className="tw-flex tw-flex-col tw-gap-3">
+                {q.subindices.map((s) => (
+                  <div key={s.key} className="tw-grid tw-grid-cols-[160px_1fr_70px] tw-items-center tw-gap-4">
+                    <div className="tw-text-[14px] tw-text-text-primary">{s.label}</div>
+                    <div className="tw-h-3 tw-rounded-pill tw-bg-bg-base tw-overflow-hidden">
+                      <div className="tw-h-full tw-rounded-pill" style={{ width: `${s.score}%`, background: `var(${QUALITY_BAR(s.score)})` }} />
+                    </div>
+                    <div className="tw-font-mono tw-text-[14px] tw-font-bold tw-text-right" style={{ color: `var(${QUALITY_BAR(s.score)})` }}>
+                      {s.score}<span className="tw-text-[11px] tw-text-text-tertiary tw-font-normal">/100</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary" style={{ letterSpacing: "0.06em" }}>
+              Из чего сложился · субиндексы
+            </div>
+            <div className="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4 lg:tw-items-start">
+              {q.subindices.map((s) => {
+                const CONF_TONE = { "факт": "pf-tag-fact", "оценка": "pf-tag-estimate", "суждение": "pf-tag-judgment" };
+                return (
+                  <Card key={s.key}>
+                    <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-flex-wrap tw-mb-1">
+                      <span className="tw-text-[14px] tw-font-semibold tw-text-text-primary">{s.label}</span>
+                      {s.confidence && <span className={CONF_TONE[s.confidence] || "pf-tag-fact"}>{s.confidence}</span>}
+                    </div>
+                    <div className="tw-font-mono tw-text-[26px] tw-font-bold tw-mb-2" style={{ color: `var(${QUALITY_BAR(s.score)})` }}>{s.score}</div>
+                    <div className="tw-h-1.5 tw-rounded-pill tw-bg-bg-base tw-overflow-hidden tw-mb-3">
+                      <div className="tw-h-full tw-rounded-pill" style={{ width: `${s.score}%`, background: `var(${QUALITY_BAR(s.score)})` }} />
+                    </div>
+                    <div className="tw-flex tw-flex-col tw-gap-1.5 tw-mb-2">
+                      {s.components.map((c) => (
+                        <div key={c.name}>
+                          <div className="tw-flex tw-items-center tw-justify-between tw-text-[12px] tw-text-text-tertiary">
+                            <span>{c.name}</span>
+                            <span className="tw-text-text-secondary tw-font-mono">{c.value}</span>
+                          </div>
+                          {c.score != null && (
+                            <div className="tw-h-1 tw-rounded-pill tw-bg-bg-base tw-overflow-hidden tw-mt-0.5">
+                              <div className="tw-h-full tw-rounded-pill" style={{ width: `${c.score}%`, background: `var(${QUALITY_BAR(c.score)})` }} />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="tw-m-0 tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.verdict}</p>
+                    {s.limitation && (
+                      <div className="tw-flex tw-gap-1.5 tw-text-[12px] tw-text-text-tertiary tw-mt-2">
+                        <ShieldAlert size={13} className="tw-shrink-0 tw-mt-0.5 tw-text-warning" />
+                        <span>{s.limitation}</span>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+            {(() => {
+              const weighted = q.subindices.map((s) => `${Math.round((q.weights[s.key] || 0) * 100)}% ${s.label}`).join(" + ");
+              const lowest = [...q.subindices].sort((a, b) => a.score - b.score)[0];
+              return (
+                <div className="tw-text-[13px] tw-text-text-secondary tw-px-1">
+                  Общий балл — взвешенное среднее: {weighted}.{" "}
+                  {lowest && (
+                    <>Сильнее всего тянет вниз — <b className="tw-text-text-primary">«{lowest.label}»</b> ({lowest.score}/100): с него стоит начать, если хотите улучшить портфель.</>
+                  )}
+                </div>
+              );
+            })()}
+            <KeyTakeaway tone="neutral" title="Как читать индекс">{q.note}</KeyTakeaway>
+            {qualityVersion === "v2" && q.phase_note && (
+              <KeyTakeaway tone="caution" title="Охват методики">{q.phase_note}</KeyTakeaway>
+            )}
+          </AppearGroup>
+        )}
+      </div>
+    );
+  };
+
+  // ---- Панель «ИИ-Диагноз» ----
+  const EPISTEMIC_TAG_CLASS = { "факт": "pf-tag-fact", "оценка": "pf-tag-estimate", "модель": "pf-tag-model", "суждение": "pf-tag-judgment" };
+  const pfAiDiagnosis = () => {
+    const shield = aiDiagnosis?.shield || [];
+    const vulnerabilities = aiDiagnosis?.vulnerabilities || [];
+    return (
+      <div className="pf-panel">
+        <div className="pf-sec-head">
+          <span className="pf-sec-eyebrow">Разбор</span>
+          <h2 className="pf-sec-title">ИИ-Диагноз</h2>
         </div>
-      </Card>
-    </AppearGroup>
+        <p className="tw-text-[13px] tw-text-text-secondary tw-mb-4 tw-max-w-2xl">
+          Не рекомендация «купить/продать» — синтез того, что уже видно в метриках, карточках компаний и новостном фоне.
+        </p>
+        <AppearGroup gate={appearGate.current} groupId="pf-ai" className="tw-flex tw-flex-col tw-gap-4">
+          {/* Служебная строка: дата + кнопка. Сигнал (вердикт) идёт СРАЗУ под
+              ней, без декоративных карточек-источников между заголовком и
+              содержательным выводом (см. рекомендацию product-analyst —
+              «сигнал прежде доказательства», источники методологии — вниз). */}
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+            <div className="tw-text-[12.5px] tw-text-text-tertiary">
+              {aiDiagnosis?.generated_at
+                ? `Диагноз от ${new Date(aiDiagnosis.generated_at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}`
+                : "Диагноз ещё не строился"}
+            </div>
+            <Button variant="secondary" onClick={refreshAiDiagnosis} disabled={aiDiagnosisLoading}>
+              {aiDiagnosisLoading ? "Строю диагноз…" : aiDiagnosis ? "Обновить диагноз" : "Построить диагноз"}
+            </Button>
+          </div>
+          {aiDiagnosisError && <p className="tw-text-[12.5px] tw-text-[var(--pf-down)] tw-m-0">{aiDiagnosisError}</p>}
+
+          {!aiDiagnosis && !aiDiagnosisLoading && !aiDiagnosisError && (
+            <Card>
+              <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+                Диагноз ещё не строился — нажмите «Построить диагноз», чтобы синтезировать метрики портфеля,
+                сигналы карточек компаний-держаний и рыночный контекст Обозревателя в итог, щит и уязвимости.
+              </p>
+            </Card>
+          )}
+
+          {/* Слой «сигнал» — главный вывод, крупнейший визуальный вес после
+              заголовка страницы. Тег «суждение» специально не мельче тегов
+              щита/уязвимостей ниже — это синтез LLM, не факт и не расчёт,
+              несмотря на визуальный вес. */}
+          {aiDiagnosis?.summary?.text && (
+            <Card className="pf-ai-verdict">
+              <div className="tw-flex tw-items-center tw-gap-2 tw-mb-2.5">
+                <span className="tw-text-[13px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-accent">Итог диагноза</span>
+                <span className={EPISTEMIC_TAG_CLASS[aiDiagnosis.summary.type] || "pf-tag-judgment"}>{aiDiagnosis.summary.type || "суждение"}</span>
+              </div>
+              <p className="tw-text-[17px] tw-text-text-primary tw-leading-relaxed tw-m-0 tw-font-medium">
+                {aiDiagnosis.summary.text}
+              </p>
+            </Card>
+          )}
+
+          {/* Слой «доказательство» — щит/уязвимости, сразу под вердиктом. */}
+          {(shield.length > 0 || vulnerabilities.length > 0) && (
+            <div className="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-5">
+              <div>
+                <h3 className="tw-text-[16px] tw-font-semibold tw-text-[var(--pf-up)] tw-mb-3 tw-mt-0">Щит портфеля</h3>
+                <div className="tw-flex tw-flex-col tw-gap-2.5">
+                  {shield.map((p, i) => (
+                    <Card key={i}>
+                      <p className="tw-text-[13.5px] tw-text-text-primary tw-m-0 tw-mb-2">{p.text}</p>
+                      <span className={EPISTEMIC_TAG_CLASS[p.type] || "pf-tag-fact"}>{p.type || "факт"}</span>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="tw-text-[16px] tw-font-semibold tw-text-[var(--pf-down)] tw-mb-3 tw-mt-0">Уязвимости</h3>
+                <div className="tw-flex tw-flex-col tw-gap-2.5">
+                  {vulnerabilities.map((c, i) => (
+                    <Card key={i}>
+                      <p className="tw-text-[13.5px] tw-text-text-primary tw-m-0 tw-mb-2">{c.text}</p>
+                      <span className={EPISTEMIC_TAG_CLASS[c.type] || "pf-tag-fact"}>{c.type || "факт"}</span>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Углубление в один конкретный разрез риска — после общего вердикта,
+              не перед ним (было наоборот). */}
+          <Card>
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-1">
+              <div className="tw-text-[14px] tw-font-semibold tw-text-text-primary">Факторный профиль портфеля</div>
+              <span className="pf-tag-judgment">суждение</span>
+            </div>
+            <p className="tw-text-[12.5px] tw-text-text-secondary tw-mb-4 tw-max-w-lg">
+              Чувствительность к ставке ЦБ, взвешенная по чистой прибыли покрытых бумаг — из карточек компаний.
+            </p>
+            {factorProfile ? (
+              <>
+                <div className="tw-grid tw-grid-cols-[150px_1fr_70px] tw-items-center tw-gap-3 tw-py-2">
+                  <div className="tw-text-[13px] tw-font-semibold tw-text-text-primary">Ключевая ставка ЦБ</div>
+                  <ImpactBar value={factorProfile.rate_pct_per_100bp} max={10} />
+                  <div className={`tw-font-mono tw-text-[12.5px] tw-font-bold tw-text-right ${factorProfile.rate_pct_per_100bp > 0 ? "tw-text-[var(--pf-up)]" : factorProfile.rate_pct_per_100bp < 0 ? "tw-text-[var(--pf-down)]" : "tw-text-text-secondary"}`}>
+                    {fmtPercent(factorProfile.rate_pct_per_100bp, { sign: true })}
+                  </div>
+                </div>
+                <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-mb-0">
+                  Оценка изменения чистой прибыли на +100 б.п. ключевой ставки, средневзвешенно по доле бумаг в портфеле
+                  (покрытие {fmtPercent(factorProfile.coverage_pct, { decimals: 0 })} стоимости портфеля: {factorProfile.covered_tickers.join(", ")}
+                  {factorProfile.uncovered_tickers.length > 0 && `; без макро-профиля: ${factorProfile.uncovered_tickers.join(", ")}`}).
+                  {" "}{factorProfile.note}
+                </p>
+              </>
+            ) : (
+              <p className="tw-text-[12.5px] tw-text-text-secondary tw-m-0">
+                Ни одна бумага портфеля пока не покрыта макро-профилем чувствительности — раскатка по компаниям продолжается.
+              </p>
+            )}
+          </Card>
+
+          <Card>
+            <div className="tw-font-semibold tw-text-[14px] tw-text-text-primary tw-mb-1">Проверить гипотезу: а если добавить бумагу?</div>
+            <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+              <p className="tw-text-[12.5px] tw-text-text-secondary tw-m-0">
+                Задать тикер и вес — увидеть, как изменятся Индекс качества, диверсификация и стресс-тест до фактической сделки.
+              </p>
+              <span className="pf-badge-soon">Скоро</span>
+            </div>
+          </Card>
+
+          {/* Методологическая прозрачность — откуда данные для диагноза;
+              важно для доверия, но это НЕ сигнал, поэтому внизу и компактно
+              (одна строка-плашка, не три полноразмерные карточки). */}
+          <div className="tw-flex tw-items-center tw-gap-4 tw-flex-wrap tw-text-[11.5px] tw-text-text-tertiary tw-pt-2" style={{ borderTop: "1px solid var(--pf-line)" }}>
+            <span>Источники диагноза:</span>
+            <span>📊 Метрики портфеля</span>
+            <span>🏢 Карточки компаний-держаний</span>
+            <span>📰 Новостной фон Обозревателя</span>
+          </div>
+        </AppearGroup>
+      </div>
+    );
+  };
+
+  // ---- Панель «Стресс-тест» ----
+  const pfStress = () => (
+    <div className="pf-panel">
+      <div className="pf-sec-head">
+        <span className="pf-sec-eyebrow">Разбор</span>
+        <h2 className="pf-sec-title">Стресс-тест</h2>
+      </div>
+      <p className="tw-text-[13px] tw-text-text-secondary tw-mb-5 tw-max-w-2xl">
+        Оценка по текущей структуре портфеля — гипотетический сценарий, не прогноз. Выберите сценарий, чтобы увидеть детали.
+      </p>
+      <AppearGroup gate={appearGate.current} groupId="pf-stress" className="tw-flex tw-flex-col tw-gap-4">
+        <div className="pf-stress-grid">
+          {Object.entries(stressMap).map(([id, s]) => (
+            <button
+              key={id}
+              type="button"
+              className={`pf-stress-card${stressScenario === id ? " pf-stress-card--on" : ""}`}
+              onClick={() => setStressScenario(id)}
+              aria-pressed={stressScenario === id}
+            >
+              <div className="pf-stress-name">{s.label}</div>
+              <div className="pf-stress-mech">{s.mech}</div>
+            </button>
+          ))}
+          <button
+            type="button"
+            className={`pf-stress-card pf-stress-card--custom${stressScenario === "custom" ? " pf-stress-card--on" : ""}`}
+            onClick={() => setStressScenario("custom")}
+            aria-pressed={stressScenario === "custom"}
+          >
+            <div className="pf-stress-name">+ Свой сценарий</div>
+            <div className="pf-stress-mech">Задать собственные параметры шока</div>
+          </button>
+        </div>
+        <p className="tw-text-[11.5px] tw-text-text-tertiary tw-m-0 tw-max-w-2xl">
+          Готовые сценарии соответствуют факторам из «Факторного профиля портфеля» (вкладка «ИИ-Диагноз»); разбивка
+          по бумагам ниже считается от беты и отраслевых коэффициентов, не от факторного профиля напрямую — прямая
+          связь расчётов (профиль → просадка сценария) следующий шаг.
+        </p>
+
+        {stressScenario === "custom" ? (
+          <Card>
+            <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-3" style={{ letterSpacing: "0.06em" }}>Параметры своего сценария</div>
+            <div className="tw-flex tw-gap-4 tw-flex-wrap tw-items-end tw-mb-4">
+              <div className="tw-flex tw-flex-col tw-gap-1">
+                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Ключевая ставка, б.п.</label>
+                <input type="number" value={customStressRateBp} onChange={(e) => setCustomStressRateBp(Number(e.target.value))}
+                  className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated tw-w-24" />
+              </div>
+              <div className="tw-flex tw-flex-col tw-gap-1">
+                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Индекс МосБиржи, %</label>
+                <input type="number" value={customStressIndexPct} onChange={(e) => setCustomStressIndexPct(Number(e.target.value))}
+                  className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated tw-w-24" />
+              </div>
+              <Button variant="primary" onClick={runCustomStress} disabled={customStressLoading}>
+                {customStressLoading ? "Считаю…" : "Пересчитать"}
+              </Button>
+            </div>
+            <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-4">
+              Курс USD/RUB в расчёт пока не входит — чувствительность к курсу ещё не приведена к общему знаменателю
+              по всем секторам портфеля (см. факторный профиль в «ИИ-Диагнозе»).
+            </p>
+            {customStressError && <p className="tw-text-[12px] tw-text-[var(--pf-down)] tw-mb-3">{customStressError}</p>}
+            {customStressResult && (
+              <>
+                <div className="tw-flex tw-gap-8 tw-flex-wrap tw-mb-4">
+                  <div>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Ожидаемое падение</div>
+                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-[var(--pf-down)] tw-tabular-nums">
+                      <span aria-hidden="true">▼ </span>{fmtPercent(Math.abs(customStressResult.drop_pct), { decimals: 1 })}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Потеря стоимости</div>
+                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums">
+                      {formatMoney(Math.abs(customStressResult.value_loss), { decimals: 0 })}
+                    </div>
+                  </div>
+                </div>
+                <ImpactBar value={customStressResult.drop_pct} max={25} />
+                <Table
+                  columns={[
+                    { key: "name", label: "Актив" },
+                    { key: "beta", label: "Бета" },
+                    { key: "drop_pct", label: "Просадка", render: (v) => <span className="tw-text-[var(--pf-down)]">{fmtPercent(v, { decimals: 1 })}</span> },
+                    { key: "value_loss", label: "Потеря, ₽", render: (v) => <span className="tw-text-[var(--pf-down)]">{formatMoney(Math.abs(v), { decimals: 0 })}</span> },
+                  ]}
+                  rows={customStressResult.positions}
+                />
+              </>
+            )}
+          </Card>
+        ) : (
+          <Card>
+            <div className="tw-flex tw-gap-8 tw-flex-wrap tw-mb-4">
+              <div>
+                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Ожидаемое падение</div>
+                <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-[var(--pf-down)] tw-tabular-nums">
+                  <span aria-hidden="true">▼ </span>{fmtPercent(currentStress.drop, { decimals: 1 })}
+                </div>
+              </div>
+              <div>
+                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Потеря стоимости</div>
+                <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums">
+                  {formatMoney(currentStress.valueLoss, { decimals: 0 })}
+                </div>
+              </div>
+            </div>
+            <ImpactBar value={-currentStress.drop} max={25} />
+            {presetStressResults[stressScenario]?.positions ? (
+              <>
+                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mt-5 tw-mb-2" style={{ letterSpacing: "0.06em" }}>Разбивка по бумагам</div>
+                <Table
+                  columns={[
+                    { key: "name", label: "Актив" },
+                    { key: "beta", label: "Бета" },
+                    { key: "drop_pct", label: "Просадка", render: (v) => <span className="tw-text-[var(--pf-down)]">{fmtPercent(v, { decimals: 1 })}</span> },
+                    { key: "value_loss", label: "Потеря, ₽", render: (v) => <span className="tw-text-[var(--pf-down)]">{formatMoney(Math.abs(v), { decimals: 0 })}</span> },
+                  ]}
+                  rows={presetStressResults[stressScenario].positions}
+                />
+              </>
+            ) : stressScenario === "oil_crash" ? (
+              <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-4 tw-mb-0">
+                Разбивка по бумагам для этого сценария не считается: канал «цена нефти» в модели пока не разложен на
+                коэффициенты по компаниям (честная деградация, не выдумываем числа).
+              </p>
+            ) : null}
+            <div className="tw-mt-4 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-[var(--pf-down-soft)]" style={{ borderLeft: "3px solid var(--danger)" }}>
+              <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
+                <span className="tw-font-semibold tw-text-[var(--pf-down)]">Интерпретация платформы: </span>
+                {currentStress.text}
+              </p>
+            </div>
+          </Card>
+        )}
+      </AppearGroup>
+    </div>
   );
 
-  // Empty states
+  const PF_RENDER = {
+    composition: pfComposition,
+    compare: pfCompare,
+    returns: pfReturns,
+    risk: pfRisk,
+    correlation: pfCorrelation,
+    quality: pfQuality,
+    "ai-diagnosis": pfAiDiagnosis,
+    stress: pfStress,
+  };
+
+  // ---- Empty states (без сайдбара — как раньше) ----
   if (!token) {
     return (
       <div>
@@ -2091,102 +3395,68 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="view-header">
-        <h1 className="view-title">Аналитика портфеля</h1>
-        <p className="view-subtitle">Управляйте позициями и отслеживайте результаты</p>
-      </div>
+    <div className="pf-shell" style={{ background: "var(--pf-tan)" }}>
+      {/* ---- Dark sidebar ---- */}
+      <nav className="pf-sidebar" aria-label="Разделы аналитики портфеля">
+        <div className="pf-depth-strip" aria-hidden="true" />
+        <div className="pf-eyebrow">Аналитика портфеля</div>
 
-      <div style={{
-        display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center",
-        gap: 16, background: "var(--accent-fade)", border: "1px solid var(--accent-border)",
-        padding: "20px 24px", borderRadius: 16,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{
-            padding: 10, background: "var(--accent)", color: "var(--on-accent)",
-            borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Upload size={22} />
+        {PF_ZONES.map((zone) => (
+          <div key={zone.id} className="pf-zone">
+            <div className="pf-zone-label">{zone.label}</div>
+            {zone.items.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className={`pf-item${activeSection === id ? " pf-item--active" : ""}`}
+                onClick={() => handleSectionChange(id)}
+                aria-current={activeSection === id ? "page" : undefined}
+              >
+                <span className="pf-item__icon"><Icon size={15} aria-hidden="true" /></span>
+                {label}
+              </button>
+            ))}
           </div>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "var(--text-1)" }}>Загрузить портфель</div>
-            <div style={{ fontSize: 13, color: "var(--text-2)", marginTop: 2 }}>
-              Импортируйте данные через текст или фото отчета брокера
-            </div>
+        ))}
+
+        <div className="pf-foot">Basis не брокер и не&nbsp;даёт рекомендаций «купить/продать».</div>
+      </nav>
+
+      {/* ---- Light main area ---- */}
+      <main className="pf-main" style={{ background: "var(--pf-tan)" }}>
+        <div className="pf-topbar">
+          <div className="pf-topbar__hint">Полная картина по портфелю — состав, риск, сравнение и разбор</div>
+          <div className="pf-topbar__actions">
+            {portfolioList.map(p => (
+              <div key={p.id} className="tw-flex tw-items-center tw-gap-1">
+                <Chip
+                  selected={activePortfolioId === p.id}
+                  onClick={() => { setActivePortfolioId(p.id); setReloadKey(k => k + 1); }}
+                >
+                  {p.name}
+                </Chip>
+                <IconButton
+                  size="sm"
+                  aria-label="Удалить портфель"
+                  onClick={() => setConfirmDeleteId(p.id)}
+                >
+                  <Trash2 size={13} />
+                </IconButton>
+              </div>
+            ))}
+            <Button variant="secondary" size="sm" iconLeft={<Plus size={14} />} onClick={() => token ? setShowUploadModal(true) : onAuthRequired()}>
+              Добавить портфель
+            </Button>
           </div>
         </div>
 
-        {token ? (
-          <button className="btn btn-primary" style={{ padding: "10px 20px" }} onClick={() => setShowUploadModal(true)}>
-            <Plus size={16} /> Начать импорт
-          </button>
-        ) : (
-          <button className="btn btn-ghost" style={{ padding: "10px 20px" }} onClick={onAuthRequired}>
-            <User size={16} /> Войти для импорта
-          </button>
-        )}
-      </div>
-
-      {/* Stats row */}
-      <div className="tw-grid tw-gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))" }}>
-        <KpiTile caption="Стоимость" value={<HeadlineNum value={stats.totalValue} gate={valueGate.current} />} />
-        <KpiTile
-          caption="Прибыль"
-          value={<span className="tw-tabular-nums">{(stats.totalProfit >= 0 ? "▲ " : "▼ ") + formatMoney(Math.abs(stats.totalProfit), { decimals: 0 })}</span>}
-          delta={stats.profitPct}
-        />
-        <KpiTile caption="Beta (Риск)" value={pfMetrics?.portfolio?.beta?.value != null ? fmtNumber(pfMetrics.portfolio.beta.value, { decimals: 2 }) : "—"} />
-        <KpiTile caption="Див. доходность" value={pfMetrics?.portfolio?.div_yield?.value != null ? fmtPercent(pfMetrics.portfolio.div_yield.value, { decimals: 1 }) : "—"} />
-      </div>
-
-      {/* Здоровье портфеля — реальный индекс качества (сводка; полная
-          декомпозиция и объяснения — во вкладке «Агрегирующая таблица») */}
-      {pfMetrics?.quality?.overall != null && (
-        <Card>
-          <div className="tw-flex tw-items-baseline tw-gap-2 tw-mb-4">
-            <span className="tw-text-[15px] tw-font-semibold tw-text-text-primary">Индекс качества</span>
-            <span className="tw-text-[13px] tw-font-mono tw-tabular-nums tw-text-text-tertiary">{pfMetrics.quality.overall}/100</span>
-            <Badge tone={QUALITY_TONE(pfMetrics.quality.overall)} className="tw-ml-auto">{pfMetrics.quality.label}</Badge>
+        {/* Keep-alive: посещённые разделы монтируются один раз, скрываются через display */}
+        {[...visitedSections].map((sectionId) => (
+          <div key={sectionId} style={{ display: activeSection === sectionId ? "block" : "none" }}>
+            {(PF_RENDER[sectionId] || pfComposition)()}
           </div>
-          <div className="tw-flex tw-flex-col tw-gap-3">
-            {pfMetrics.quality.subindices.map((s) => (
-              <MetricBar key={s.key} label={s.label} value={s.score} colorVar={QUALITY_BAR(s.score)} />
-            ))}
-          </div>
-          <div className="tw-mt-3 tw-text-[12px] tw-text-text-tertiary">
-            Из чего сложился и почему — во вкладке «Агрегирующая таблица».
-          </div>
-        </Card>
-      )}
-
-      {/* Tab bar — ARIA tablist with sliding accent underline (live language) */}
-      <PortfolioTabBar
-        value={tab}
-        onChange={setTab}
-        tabs={[
-          { id: "holdings", label: "Состав" },
-          { id: "metrics", label: "Агрегирующая таблица" },
-          { id: "returns", label: "Доходность и оценка" },
-          { id: "risk", label: "Риск" },
-          { id: "correlation", label: "Матрица корреляций" },
-          { id: "ai", label: "ИИ-Диагноз" },
-          { id: "stress", label: "Стресс-тест" },
-        ]}
-      />
-
-      {/* Без внешней белой обёртки: внутренние карточки (таблицы, диаграмма,
-          концентрация) лежат плитками прямо на фоне, как на других страницах —
-          двойной «коробки в коробке» нет */}
-      <div style={{ minHeight: 400 }}>
-        {tab === "holdings" && renderHoldings()}
-        {tab === "metrics" && renderAggregate()}
-        {tab === "returns" && renderReturnsTab()}
-        {tab === "risk" && renderRiskTab()}
-        {tab === "correlation" && renderCorrelation()}
-        {tab === "ai" && renderAiDiagnosis()}
-        {tab === "stress" && renderStress()}
-      </div>
+        ))}
+      </main>
 
       {showUploadModal && (
         <PortfolioImportModal
@@ -2254,13 +3524,4 @@ const PortfolioView = ({ token, onAuthRequired, onOpenCompany }) => {
   );
 };
 
-// =========================
-// PROFILE
-// =========================
-
-// =========================
-// AUTH MODAL
-// =========================
-
-
-export { PortfolioView };
+export { PortfolioV2 };
