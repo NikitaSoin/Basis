@@ -1695,7 +1695,7 @@ const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // Фиче-флаг новой карточки (Neo-Institutional). По умолчанию ВКЛ; вернуть классику —
 // ?classic=1 в URL или localStorage basis_neo=0. Полный откод — git tag pre-neo-card.
-const NEO_CARD = (() => {
+export const NEO_CARD = (() => {
   try {
     if (typeof window === "undefined") return true;
     if (/[?&]classic=1/.test(window.location.search)) return false;

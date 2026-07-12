@@ -332,6 +332,75 @@ function MacroLineChart({ series, height = 150 }) {
 const _MET_LABEL = { mom: "м/м", yoy: "г/г", level: "", wow: "нед." };
 const _fmtNum = (x) => (x == null ? "—" : Number(x).toLocaleString("ru-RU", { maximumFractionDigits: 2 }));
 
+// Кнопка-«i» с пояснением показателя по клику (не hover — доступнее и на
+// мобильных); тот же паттерн, что и в Скринере (InfoTip в ScreenerNeo.jsx),
+// но перенесён на токены/tw-классы этого файла. Поповер — position:"fixed" по
+// координатам из getBoundingClientRect, НЕ absolute: карточка лежит в
+// скролл-сетке с overflow, absolute обрезался бы родителем. stopPropagation
+// обязателен — кнопка внутри кликабельной <button> всей карточки (открывает
+// MacroDetailModal), клик по «i» не должен её триггерить.
+function MacroInfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const popRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("scroll", () => setOpen(false), { capture: true, once: true });
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+  if (!text) return null;
+  const toggle = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      const W = 260;
+      const left = Math.max(12, Math.min(r.left, window.innerWidth - W - 12));
+      setPos({ top: r.bottom + 6, left });
+    }
+    setOpen((o) => !o);
+  };
+  const onKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") toggle(e);
+  };
+  return (
+    <span className="tw-relative tw-inline-flex">
+      {/* span, не button — эта подсказка лежит ВНУТРИ кликабельной <button> всей
+          карточки (MacroIndicatorCard), а <button> внутри <button> — невалидная
+          HTML-вложенность (React иначе кидает validateDOMNesting-предупреждение). */}
+      <span
+        ref={btnRef}
+        role="button"
+        tabIndex={0}
+        aria-label="Пояснение"
+        onClick={toggle}
+        onKeyDown={onKeyDown}
+        className="tw-inline-flex tw-items-center tw-justify-center tw-w-[15px] tw-h-[15px] tw-rounded-full tw-border tw-border-border-subtle tw-bg-transparent tw-text-[9.5px] tw-font-semibold tw-font-mono tw-text-text-tertiary tw-cursor-pointer tw-flex-none hover:tw-border-accent hover:tw-text-accent focus-visible:tw-outline-none focus-visible:tw-shadow-focus"
+      >
+        i
+      </span>
+      {open && pos && (
+        <span
+          ref={popRef}
+          role="tooltip"
+          onClick={(e) => e.stopPropagation()}
+          style={{ position: "fixed", top: pos.top, left: pos.left }}
+          className="tw-w-[260px] tw-bg-bg-elevated tw-border tw-border-border-subtle tw-rounded-md tw-shadow-lg tw-p-3 tw-text-[12.5px] tw-text-text-secondary tw-leading-[1.45] tw-z-50"
+        >
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
+
 // Плитка-вход: число, изменение, дата, краткое «как влияет». Клик → окно (B).
 function MacroIndicatorCard({ ind, onOpen }) {
   const v = ind.values?.[(ind.metric_types || ["level"])[0]] || Object.values(ind.values || {})[0];
@@ -347,7 +416,10 @@ function MacroIndicatorCard({ ind, onOpen }) {
     <Card className={`tw-cursor-pointer hover:tw-border-accent tw-transition-colors ${ind.in_portfolio ? "tw-border-l-2 tw-border-l-accent" : ""}`}>
       <button onClick={() => onOpen(ind)} className="tw-block tw-w-full tw-text-left tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer focus-visible:tw-outline-none focus-visible:tw-shadow-focus tw-rounded-sm">
         <div className="tw-flex tw-items-baseline tw-justify-between tw-gap-2 tw-mb-0.5">
-          <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">{ind.title}</span>
+          <span className="tw-inline-flex tw-items-center tw-gap-1">
+            <span className="tw-text-[13px] tw-font-medium tw-text-text-primary">{ind.title}</span>
+            <MacroInfoTip text={ind.influence_short || ind.influence_full} />
+          </span>
           {v?.is_preliminary && <Badge tone="neutral">предв.</Badge>}
         </div>
         <div className="tw-flex tw-items-baseline tw-gap-2">

@@ -89,7 +89,7 @@ import {
 } from "./observer/ObsLegacyViews";
 import { PortfolioView } from "./portfolio/PortfolioViews";
 import { AuthModal, ProfileView, PricingView } from "./account/AccountPanels";
-import { CompanyCard, ScreenerView, CompaniesView } from "./company/CompanyCardView";
+import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
 import CompareView from "./compare/CompareView";
 import "./styles/compare.css";
