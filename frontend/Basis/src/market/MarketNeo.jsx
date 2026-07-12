@@ -800,6 +800,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     <div className="mk-screen">
       <div className="mk-page-head">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span className="mk-page-eyebrow">Рынок</span>
           <h1 className="mk-page-title">Рынок</h1>
           <span className="mk-quote-live" title="Источник котировок акций. Тинькофф — реал-тайм; MOEX — запасной (с задержкой). Время обновляется на каждом опросе (6с).">
             <span className={"mk-live-dot" + (quoteSrc === "tinkoff" ? " on" : quoteSrc ? " warn" : "")} />
@@ -814,6 +815,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
         {TABS.map(t => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} className={"mk-tab" + (tab === t.id ? " on" : "")} onClick={() => saveTab(t.id)}>
             {t.label}
+            {t.count != null && <span className="tcount">{t.count}</span>}
           </button>
         ))}
       </div>

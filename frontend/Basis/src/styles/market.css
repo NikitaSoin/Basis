@@ -7,7 +7,13 @@
   --bg:var(--cc-bg); --bg-2:var(--cc-bg-2); --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
   --line:var(--cc-line); --line-2:var(--cc-line-2);
   --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
-  --accent:var(--cc-accent); --accent-2:var(--cc-accent-2); --accent-soft:var(--cc-accent-soft);
+  /* accent-soft — из --cc-accent (color-mix), НЕ из --cc-accent-soft: в тёмной теме
+     .cc-root у --cc-accent-soft/--cc-accent-2 осталась добасисовская индиго-подсветка
+     (миграция на медь не докатилась туда, tokens.css вне периметра этой задачи) — из-за
+     этого активный таб/фокус-кольца/чипы фондов светились синим вместо меди в dark.
+     --cc-accent сам по себе корректно медный в обеих темах — берём от него напрямую. */
+  --accent:var(--cc-accent); --accent-2:var(--cc-accent-2);
+  --accent-soft:color-mix(in srgb, var(--cc-accent) 12%, transparent);
   --amber:var(--cc-amber); --amber-soft:var(--cc-amber-soft);
   --pos:var(--cc-success); --neg:var(--cc-danger); --violet:var(--cc-violet);
   --pos-soft:color-mix(in srgb,var(--cc-success) 12%,transparent);
@@ -15,10 +21,16 @@
   --track:var(--cc-line);
   color:var(--ink); font-family:"Inter",system-ui,sans-serif;
 }
+.dark .mk-screen{ --accent-2:var(--cc-accent); } /* та же причина — cc-accent-2 в dark синий */
 .mk-screen .mk-mono,.mk-screen .num,.mk-screen .mk-delta,.mk-screen .mk-card-price,.mk-screen .mk-spread{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums lining-nums;}
+/* фокус-кольцо на КАЖДОМ интерактивном элементе экрана (таб/сегмент/сектор-плитка/
+   карточка/heat-тайл — все реальные <button>), медное, по конституции ДС */
+.mk-screen button:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-soft);}
 
-/* page head */
+/* page head — литерально .eyebrow мокапа (market-only-v1.html): мелкий mono-бейдж
+   раздела перед Fraunces-заголовком, тот же язык, что .cmp-eyebrow (Сравнение). */
 .mk-screen .mk-page-head{padding:4px 0 16px;}
+.mk-screen .mk-page-eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);background:var(--accent-soft);padding:4px 11px;border-radius:6px;}
 .mk-screen .mk-page-title{font-family:"Fraunces",Georgia,serif;font-size:34px;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1.04;color:var(--ink);}
 .mk-screen .mk-page-sub{font-size:15px;color:var(--ink-2);margin:8px 0 0;max-width:74ch;}
 .mk-screen .mk-quote-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
@@ -99,9 +111,15 @@
 .mk-screen .mk-bond-id{display:flex;flex-direction:column;line-height:1.3;}
 .mk-screen .mk-sub{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);}
 .mk-screen .mk-reli{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.mk-screen .mk-badge{font-size:12px;font-weight:500;padding:3px 9px;border-radius:7px;}
+/* бейдж надёжности — литерально мокап (10px/700/6px), +1px размер шрифта против буквальных
+   10px мокапа: держит конвенцию уже раскатанных бейджей сайта (governance .gv-badge,
+   geo .gexp-badge — оба 11px/700) вместо мельче-читаемого демо-значения. */
+.mk-screen .mk-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
 .mk-screen .mk-badge-pos{background:var(--pos-soft);color:var(--pos);} .mk-screen .mk-badge-amber{background:var(--amber-soft);color:var(--amber);} .mk-screen .mk-badge-neg{background:var(--neg-soft);color:var(--neg);}
-.mk-screen .mk-ag{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:2px 8px;}
+/* рейтинг-чип (ruAAA и т.п.) — мокап держит --sans, здесь оставлен mono (было и до
+   правки): рейтинг — код/идентификатор, тот же язык, что тикеры/даты по конституции
+   («IBM Plex Mono — числа, тикеры, коды»), это уместнее демо-инконсистентности мокапа. */
+.mk-screen .mk-ag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--ink-2);background:var(--panel-2);border-radius:6px;padding:2px 7px;}
 .mk-screen .mk-basis{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--amber);background:var(--amber-soft);border-radius:6px;padding:2px 8px;}
 .mk-screen .mk-spread{color:var(--ink-2);}
 .mk-screen .mk-reli-c{white-space:nowrap;}
@@ -115,11 +133,15 @@
 .mk-screen .mk-filterbar{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-top:20px;}
 .mk-screen .mk-seg-group{display:flex;flex-direction:column;gap:7px;}
 .mk-screen .mk-seg-view{margin-left:auto;}
-.mk-screen .mk-seg-lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);}
-.mk-screen .mk-seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line-2);border-radius:11px;padding:3px;gap:2px;}
-.mk-screen .mk-seg button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);padding:7px 13px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+.mk-screen .mk-seg-lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);}
+/* .seg/.seg-opt — тот же пилюльный язык, что .pf-seg/.pf-seg-opt (Портфель,
+   docs/portfolio-analytics.html) и .cmp-seg-opt (Сравнение): полный radius 999px,
+   БЕЗ рамки вокруг трека (было border:1px solid — не в мокапе и не в остальном сайте),
+   активная опция — медная заливка. */
+.mk-screen .mk-seg{display:inline-flex;background:var(--panel-2);border-radius:999px;padding:3px;gap:2px;}
+.mk-screen .mk-seg button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-2);padding:7px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .16s,color .16s;}
 .mk-screen .mk-seg button:hover{color:var(--ink);}
-.mk-screen .mk-seg button.on{background:var(--accent);color:#fff;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12);}
+.mk-screen .mk-seg button.on{background:var(--accent);color:#fff;font-weight:700;box-shadow:0 3px 10px -2px var(--accent-soft);}
 .mk-screen .mk-seg button svg{opacity:.85;}
 
 /* bond risk-reward map */
@@ -149,27 +171,48 @@
 .mk-screen .mk-card-stats>span{display:block;white-space:nowrap;font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;}
 .mk-screen .mk-card-stats i{margin-right:8px;font-style:normal;font-family:"Inter",sans-serif;font-size:12px;font-weight:500;color:var(--ink-3);text-transform:none;letter-spacing:0;}
 
-/* callout */
-.mk-screen .mk-callout{background:var(--panel);border:1px solid var(--line-2);border-left:3px solid var(--accent);border-radius:0 11px 11px 0;padding:15px 18px;font-size:14px;line-height:1.6;color:var(--ink-2);margin-top:18px;}
-.mk-screen .mk-callout.amber{border-left-color:var(--amber);background:var(--amber-soft);}
+/* callout — литерально мокап: сплошная мягкая заливка на весь блок (не бордер-цитата),
+   скруглена со всех сторон. Синяя (--info-soft, «оценка» эпистемически — тот же токен,
+   что .cmp-comparability в Сравнении и .obs-ai-tag--est в Обозревателе) для нейтрального
+   объяснения инструмента (Облигации/Фонды/Валюта); янтарная для рискового контекста
+   (Фьючерсы/Опционы) — назначение классов в JSX уже было верным, менялся только вид. */
+/* НЕ display:flex — контент mk-callout это <b>фраза</b> + голый текстовый узел
+   (без иконки/<p>-обёртки, литерально как в мокапе); на flex-контейнере голый текст
+   после <b> стал бы отдельным анонимным flex-item'ом в той же строке (колонкой рядом
+   с жирной фразой) вместо продолжения абзаца — блочный контейнер не ломает перенос. */
+.mk-screen .mk-callout{background:var(--info-soft);border-radius:11px;padding:14px 17px;font-size:13.5px;line-height:1.6;color:var(--ink-2);margin-top:18px;}
+.mk-screen .mk-callout.amber{background:var(--amber-soft);}
 .mk-screen .mk-callout b{color:var(--ink);font-weight:600;}
 .mk-screen .mk-empty{padding:46px 20px;text-align:center;color:var(--ink-3);font-size:14px;}
 
-/* view toggle */
-.mk-screen .mk-viewtog{display:inline-flex;gap:3px;background:var(--panel-2);border:1px solid var(--line-2);border-radius:11px;padding:4px;margin:20px 0 6px;}
-.mk-screen .mk-viewtog button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;font:inherit;font-size:13.5px;font-weight:500;color:var(--ink-2);padding:8px 15px;border-radius:8px;cursor:pointer;}
-.mk-screen .mk-viewtog button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1);font-weight:600;}
-.mk-screen .mk-viewtog svg{opacity:.8;}
-.mk-screen .mk-eyebrow{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);}
+/* view toggle (Карточки/Лента/Карта рынка) — тот же .seg/.seg-opt пилюльный язык, что
+   SegGroup выше и мокап (мокап и там использует один общий .seg/.seg-opt, а не отдельный
+   «нейтральный» вариант) — было расхождение: активная опция здесь подсвечивалась нейтральной
+   светлой плашкой вместо меди, два разных языка «активного» на одном экране. */
+.mk-screen .mk-viewtog{display:inline-flex;gap:2px;background:var(--panel-2);border-radius:999px;padding:4px;margin:20px 0 6px;}
+.mk-screen .mk-viewtog button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--ink-2);padding:8px 16px;border-radius:999px;cursor:pointer;transition:background .16s,color .16s;}
+.mk-screen .mk-viewtog button:hover{color:var(--ink);}
+.mk-screen .mk-viewtog button.on{background:var(--accent);color:#fff;font-weight:700;box-shadow:0 3px 10px -2px var(--accent-soft);}
+.mk-screen .mk-viewtog svg{opacity:.85;}
+.mk-screen .mk-eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);}
 .mk-screen .mk-sec-title{font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:600;color:var(--ink);margin:26px 0 14px;}
 
-/* sector navigator */
-.mk-screen .mk-secnav{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:18px 0 14px;}
-.mk-screen .mk-secn{text-align:left;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:10px 13px;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;transition:border-color .14s,box-shadow .14s,transform .12s;position:relative;overflow:hidden;}
-.mk-screen .mk-secn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc,transparent);opacity:0;transition:opacity .14s;}
+/* sector navigator — литерально .mk-secnav/.mk-secnav-tile мокапа (market-only-v1.html):
+   display:flex + flex-wrap (ПЕРЕНОС СТРОКАМИ, владелец: «сектора я бы в 2 строки поместил
+   чтобы не пролистывать»), НЕ overflow-x и НЕ grid с растяжением 1fr (grid одинаково
+   растягивал короткие/длинные имена секторов на одну ширину колонки — вмещал меньше
+   пилюль в ряд, чем нужно). Плитки — естественной ширины (flex:0 1 auto + min-width),
+   как в мокапе, а не растянутые. */
+.mk-screen .mk-secnav{display:flex;flex-wrap:wrap;gap:9px;padding:18px 0 14px;}
+.mk-screen .mk-secn{flex:0 1 auto;min-width:150px;text-align:left;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:10px 13px;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;transition:border-color .14s,box-shadow .14s,transform .12s;position:relative;overflow:hidden;}
+/* цветной левый бордер по сектору — ВСЕГДА виден (мокап: border-left:3px solid var(--sc,
+   var(--copper)), постоянно, не только на выбранном) — раньше проявлялся только у .on
+   (opacity 0→1), из-за чего невыбранные пилюли не давали визуальной подсказки сектора
+   до клика. Фоллбэк var(--accent) — «Все секторы» без inline --sc получает медную полосу,
+   как в мокапе. */
+.mk-screen .mk-secn::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc, var(--accent));}
 .mk-screen .mk-secn:hover{border-color:var(--ink-3);transform:translateY(-1px);}
 .mk-screen .mk-secn.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--accent-soft);}
-.mk-screen .mk-secn.on::before{opacity:1;}
 .mk-screen .mk-secn-top{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.2;}
 .mk-screen .mk-secn-dot,.mk-screen .mk-secn-alldot{margin-top:3px;}
 .mk-screen .mk-secn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
@@ -200,8 +243,13 @@
 .mk-screen .mk-breadth-legend .up b{color:var(--pos);} .mk-screen .mk-breadth-legend .dn b{color:var(--neg);} .mk-screen .mk-breadth-legend .fl b{color:var(--ink-3);}
 .mk-screen .mk-tone-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);margin-top:11px;padding-top:11px;border-top:1px solid var(--line);}
 .mk-screen .mk-tone-row .mk-tone-dot{width:9px;height:9px;border-radius:50%;}
-.mk-screen .mk-drivers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px;}
-.mk-screen .mk-driver{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;}
+/* драйверы дня — литерально мокап: вертикальный список с пунктирным разделителем
+   между строками (border-top dashed, первая — без), НЕ 2-колоночная сетка боксов-карточек
+   (было раньше). Строка mk-driver-e («эффект» — суждение Basis почему это важно) — реальная
+   глубина сверх демо-мокапа (там только имя+значение), сохранена. */
+.mk-screen .mk-drivers{display:flex;flex-direction:column;margin-top:9px;}
+.mk-screen .mk-driver{padding:8px 0;border-top:1px dashed var(--line);}
+.mk-screen .mk-driver:first-child{border-top:none;padding-top:0;}
 .mk-screen .mk-driver-n{font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mk-screen .mk-d{font-size:11px;} .mk-screen .mk-d.up{color:var(--pos);} .mk-screen .mk-d.dn{color:var(--neg);} .mk-screen .mk-d.fl{color:var(--ink-3);}
 .mk-screen .mk-driver-v{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:4px 0 3px;white-space:nowrap;display:flex;align-items:center;gap:6px;}
