@@ -166,19 +166,19 @@ function CompareSearchAdd({ pool, selected, onAdd, disabled }) {
     ? pool.filter((c) => !selected.includes(c.ticker) && ((c.name || "").toLowerCase().includes(q.toLowerCase()) || c.ticker.toLowerCase().includes(q.toLowerCase()))).slice(0, 8)
     : [];
   return (
-    <div className="cmp-search" ref={ref}>
+    <div className="cmp-id-add" ref={ref}>
       <input
-        className="cmp-search-input"
-        placeholder={disabled ? `Максимум ${COMPARE_MAX} компаний` : "Добавить компанию — тикер или название"}
+        className="cmp-id-add-input"
+        placeholder={disabled ? `Максимум ${COMPARE_MAX} компаний` : "+ Добавить бумагу — тикер или название"}
         value={q}
         disabled={disabled}
         onChange={(e) => { setQ(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
       />
       {open && results.length > 0 && (
-        <div className="cmp-search-menu">
+        <div className="cmp-id-add-menu">
           {results.map((c) => (
-            <button key={c.ticker} className="cmp-search-item" onClick={() => { onAdd(c.ticker); setQ(""); setOpen(false); }}>
+            <button key={c.ticker} className="cmp-id-add-item" onClick={() => { onAdd(c.ticker); setQ(""); setOpen(false); }}>
               <b>{c.ticker}</b><span>{c.name}</span>
             </button>
           ))}
@@ -600,48 +600,93 @@ export default function CompareView({ onOpenCompany }) {
     [items, priceData, priceMode]
   );
 
+  // Строка-«считка» под заголовком графика (% за период на бумагу + разница
+  // для пары) — литерально .chart-readout мокапа. Независима от priceMode
+  // (переключатель «₽/%» влияет только на сам график, считка всегда в %,
+  // как в мокапе) — чистое производное значение из уже загруженного priceData,
+  // без новых запросов.
+  const priceReturns = useMemo(
+    () =>
+      items
+        .filter((it) => priceData[it.ticker]?.length)
+        .map((it, i) => {
+          const pts = priceData[it.ticker].filter((p) => p.close != null);
+          if (pts.length < 2) return null;
+          const base = pts[0].close, last = pts[pts.length - 1].close;
+          return { name: it.name, color: CMP_CAT_COLORS[i % CMP_CAT_COLORS.length], pct: base ? (last / base - 1) * 100 : null };
+        })
+        .filter((r) => r && r.pct != null),
+    [items, priceData]
+  );
+
   if (loading) {
     return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Загружаем данные для сравнения...</div>;
   }
 
   return (
     <div className="cmp-screen">
-      <h1 className="tw-text-[28px] tw-font-display tw-font-medium tw-text-text-primary tw-mb-1">Сравнение активов</h1>
-      <p className="tw-text-[13px] tw-text-text-tertiary tw-mb-4">
+      <div className="cmp-sec-head">
+        <span className="cmp-eyebrow">Рынок</span>
+        <h1 className="cmp-h1">Сравнение активов</h1>
+      </div>
+      <p className="cmp-sec-sub">
         До {COMPARE_MAX} акций рядом — метрики, оценка, динамика цены. Инструмент сопоставления, не рекомендация.
       </p>
-      <CompareSearchAdd pool={rows} selected={selected} onAdd={addTicker} disabled={selected.length >= COMPARE_MAX} />
+
+      {/* identity row — мини-карточки выбранных бумаг + плитка добавления в
+          конце ряда, литерально язык .id-row/.id-card/.id-add мокапа (точная
+          раскатка 2026-07-12, было — узкая колонка .cmp-card + отдельный
+          поисковый бар над рядом). */}
+      <div className="cmp-id-row">
+        {items.map((it) => {
+          const q = liveQuotes[it.ticker];
+          const chg = q ? q.change_pct : null;
+          const px = q?.price ?? it.price;
+          return (
+            <div key={it.ticker} className="cmp-id-card">
+              <button className="cmp-id-x" onClick={() => removeTicker(it.ticker)} aria-label={`Убрать ${it.ticker}`}>×</button>
+              <CompanyLogo ticker={it.ticker} name={it.name} size={38} />
+              <div className="cmp-id-body">
+                <button className="cmp-id-name" onClick={() => onOpenCompany && onOpenCompany(it.ticker)}>{it.name}</button>
+                <div className="cmp-id-meta">
+                  <span className="cmp-id-tk">{it.ticker}</span>
+                </div>
+                <div className="cmp-id-meta" style={{ marginTop: 4 }}>
+                  <span className="cmp-id-px">{px != null ? px.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " ₽" : "—"}</span>
+                  {chg != null && (
+                    <span className={"cmp-id-chg " + (chg > 0 ? "cmp-pos" : chg < 0 ? "cmp-neg" : "")}>
+                      {chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <CompareSearchAdd pool={rows} selected={selected} onAdd={addTicker} disabled={selected.length >= COMPARE_MAX} />
+      </div>
 
       {items.length === 0 ? (
         <div className="tw-py-16 tw-text-center tw-text-text-tertiary">Добавьте хотя бы одну компанию, чтобы начать сравнение.</div>
       ) : (
         <>
-          <div className="cmp-cards">
-            {items.map((it) => {
-              const q = liveQuotes[it.ticker];
-              const chg = q ? q.change_pct : null;
-              const px = q?.price ?? it.price;
-              return (
-                <div key={it.ticker} className="cmp-card">
-                  <button className="cmp-card-x" onClick={() => removeTicker(it.ticker)} aria-label={`Убрать ${it.ticker}`}>×</button>
-                  <CompanyLogo ticker={it.ticker} name={it.name} size={36} />
-                  <button className="cmp-card-name" onClick={() => onOpenCompany && onOpenCompany(it.ticker)}>{it.name}</button>
-                  <span className="cmp-card-tk">{it.ticker}</span>
-                  <span className="cmp-card-px">{px != null ? px.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
-                  {chg != null && (
-                    <span className={"cmp-card-chg " + (chg > 0 ? "cmp-pos" : chg < 0 ? "cmp-neg" : "")}>
-                      {chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%
-                    </span>
-                  )}
-                  <span className="cmp-card-cap">{it.market_cap != null ? fmtStockMetric("mcap", it.market_cap) : "—"}</span>
-                </div>
-              );
-            })}
-          </div>
-
           <div className="cmp-panel">
             <div className="cmp-panel-head">
-              <div className="cmp-panel-title">Динамика цены</div>
+              <div>
+                <div className="cmp-panel-title">Динамика цены</div>
+                {priceReturns.length > 0 && (
+                  <div className="cmp-chart-readout">
+                    {priceReturns.map((r) => (
+                      <span key={r.name}>{r.name}: <b className={r.pct >= 0 ? "cmp-pos" : "cmp-neg"}>{r.pct >= 0 ? "+" : ""}{r.pct.toFixed(1)}%</b></span>
+                    ))}
+                    {priceReturns.length === 2 && (
+                      <span>Разница: <b className={priceReturns[0].pct - priceReturns[1].pct >= 0 ? "cmp-pos" : "cmp-neg"}>
+                        {priceReturns[0].pct - priceReturns[1].pct >= 0 ? "+" : ""}{(priceReturns[0].pct - priceReturns[1].pct).toFixed(1)}%
+                      </b></span>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
                 <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
                   {CMP_PRICE_PERIODS.map((p) => (
@@ -659,10 +704,10 @@ export default function CompareView({ onOpenCompany }) {
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Загружаем историю цен...</div>
             ) : priceSeries.length ? (
               <>
-                <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mb-2 tw-text-[12px] tw-text-text-secondary">
+                <div className="cmp-legend">
                   {priceSeries.map((s) => (
-                    <span key={s.name} className="tw-inline-flex tw-items-center tw-gap-1.5">
-                      <i style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: s.color }} />
+                    <span key={s.name}>
+                      <i style={{ background: s.color }} />
                       {s.name}
                     </span>
                   ))}
@@ -697,10 +742,10 @@ export default function CompareView({ onOpenCompany }) {
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Загружаем отчётность...</div>
             ) : yearlySeries.length ? (
               <>
-                <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mb-2 tw-text-[12px] tw-text-text-secondary">
+                <div className="cmp-legend">
                   {yearlySeries.map((s) => (
-                    <span key={s.name} className="tw-inline-flex tw-items-center tw-gap-1.5">
-                      <i style={{ display: "inline-block", width: 9, height: 9, borderRadius: "50%", background: s.color }} />
+                    <span key={s.name}>
+                      <i style={{ background: s.color }} />
                       {s.name}
                     </span>
                   ))}

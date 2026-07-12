@@ -1,106 +1,90 @@
-/* CompareView — «Сравнение активов» (2026-07-11). Токены — те же канонические
-   --cc-* (через алиасинг в design/tokens), что и остальной NEO-интерфейс. */
+/* CompareView — «Сравнение активов». Точная раскатка 2026-07-12 по одобренному
+   владельцем мокапу (compare-redesign.html, читается как HTML-прототип 1:1 —
+   тот же режим, что observer-sidebar-v2.html/portfolio-analytics.html). Layout-
+   значения (padding/radius/gap/font-size) взяты буквально из мокапа; цвета —
+   через уже существующие --* токены (tokens.css), не выдуманы заново. */
 
-.cmp-search { position: relative; margin-bottom: 18px; max-width: 420px; }
-.cmp-search-input {
-  width: 100%;
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 14px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-}
-.cmp-search-input:disabled { opacity: .55; cursor: not-allowed; }
-.cmp-search-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  z-index: 30;
-  max-height: 280px;
-  overflow-y: auto;
-}
-.cmp-search-item {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 14px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  font: inherit;
-  font-size: 13px;
-  color: var(--text-primary);
-}
-.cmp-search-item:hover { background: var(--bg-base); }
-.cmp-search-item span { color: var(--text-tertiary); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ---- узкая редакционная колонка — литерально .wrap мокапа (max-width:900px;
+   margin:0 auto). Экран сидит внутри общего .app-main-top (уже центрирует на
+   1340px + свои отступы), поэтому здесь не дублируем padding — только сужение
+   и центрирование, как просил владелец («расположение не на весь экран»). ---- */
+.cmp-screen { max-width: 900px; margin: 0 auto; }
 
-.cmp-cards { display: flex; flex-wrap: wrap; gap: 12px; }
-.cmp-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: 150px;
-  padding: 14px;
-  /* border-strong (не border-subtle) — самостоятельная карточка-«плитка», не
-     внутренняя ячейка; border-subtle зарезервирован под внутренние разделители
-     (см. tokens.css). Дизайн-ревью 2026-07-12: карточка была визуально
-     «плоской» рядом с эталонным .mk-card на «Рынке» (та же тень+hover-lift). */
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 140ms ease, transform 140ms ease;
+/* ---- заголовок страницы — литерально .sec-head/.eyebrow/.sec-head h1/.sec-sub
+   мокапа. Было: <h1 tw-font-display> (Inter Display, НЕ Fraunces) без eyebrow-
+   бейджа — не тот шрифт и не та структура, отсюда жалоба «название другое
+   даже по шрифту». ---- */
+.cmp-sec-head { display: flex; align-items: baseline; gap: 13px; margin-bottom: 6px; flex-wrap: wrap; }
+.cmp-eyebrow {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent-hover); background: var(--accent-soft); padding: 4px 11px; border-radius: 6px;
 }
-.cmp-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-.cmp-card-x {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  /* было 20×20 — ниже минимума тач-зоны (32px desktop по дизайн-конституции).
-     Визуальный размер иконки не меняем (font-size 15px), только хит-зону. */
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--text-tertiary);
-  font-size: 15px;
-  line-height: 1;
-  cursor: pointer;
+.cmp-h1 { font-family: "Fraunces", Georgia, serif; font-size: 30px; font-weight: 600; margin: 0; color: var(--text-primary); }
+.cmp-sec-sub { color: var(--text-tertiary); font-size: 13.5px; max-width: 62ch; margin: 10px 0 26px; }
+
+/* ---- identity row — литерально .id-row/.id-card/.id-logo/.id-body/.id-name/
+   .id-meta/.id-tk/.id-px/.id-chg мокапа (переименовано из .cmp-cards/.cmp-card
+   при точной раскатке — старые классы были вертикальной колонкой со всем
+   подряд построчно, мокап — горизонтальная плитка лого+имя/цена). Капитализация
+   в мини-карточке мокапом не предусмотрена (она есть в таблице ниже) — убрана
+   отсюда для буквального соответствия. ---- */
+.cmp-id-row { display: flex; gap: 10px; align-items: stretch; margin-bottom: 24px; flex-wrap: wrap; }
+.cmp-id-card {
+  position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 16px 12px 12px;
+  background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 11px; box-shadow: var(--shadow-sm);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+  flex: 1 1 220px; max-width: 280px;
 }
-.cmp-card-x:hover { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
-.cmp-card-name {
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin-top: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  line-height: 1.3;
+.cmp-id-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); }
+.cmp-id-body { min-width: 0; }
+.cmp-id-name {
+  display: block; width: 100%; border: none; background: transparent; padding: 0; font-family: var(--font-sans);
+  font-size: 13.5px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; text-align: left; cursor: pointer;
 }
-.cmp-card-name:hover { color: var(--accent); }
-.cmp-card-tk { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
-.cmp-card-px { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 4px; }
-.cmp-card-chg { font-family: var(--font-mono); font-size: 12px; font-weight: 700; margin-top: 2px; }
-.cmp-card-cap { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+.cmp-id-name:hover { color: var(--accent); }
+.cmp-id-name:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); border-radius: 4px; }
+.cmp-id-meta { display: flex; align-items: baseline; gap: 8px; margin-top: 3px; }
+.cmp-id-tk { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+.cmp-id-px { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.cmp-id-chg { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; }
+/* Мокап: .id-x 20×20. Оставлено 32×32 (хит-зона, не визуальный размер) —
+   минимальный тач-таргет desktop по дизайн-конституции Basis; тот же
+   осознанный отход от буквального мокапа, что уже был сделан для бывшего
+   .cmp-card-x (дизайн-ревью 2026-07-12, см. историю файла). */
+.cmp-id-x {
+  position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: transparent; color: var(--text-tertiary); font-size: 13px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.cmp-id-x:hover { background: var(--danger-soft); color: var(--danger); }
+.cmp-id-x:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ---- «Добавить бумагу» — визуально dashed-плитка мокапа (.id-add), но с
+   рабочим автокомплитом по тикеру/названию (мокап статичен — просто кнопка;
+   у нас это реальный поиск, функциональность не убрана, изменён только чехол). ---- */
+.cmp-id-add { flex: 1 1 220px; max-width: 280px; position: relative; }
+.cmp-id-add-input {
+  width: 100%; height: 100%; min-height: 62px; box-sizing: border-box;
+  border: 1.5px dashed var(--border-hover); border-radius: 11px; background: transparent;
+  color: var(--text-tertiary); font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+  padding: 12px 16px; cursor: pointer; transition: border-color .16s, color .16s, background .16s;
+}
+.cmp-id-add-input::placeholder { color: var(--text-tertiary); font-weight: 600; }
+.cmp-id-add-input:hover, .cmp-id-add-input:focus { border-color: var(--accent); color: var(--accent-hover); background: var(--accent-soft); }
+.cmp-id-add-input:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.cmp-id-add-input:disabled { opacity: .55; cursor: not-allowed; }
+.cmp-id-add-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg-elevated);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  z-index: 30; max-height: 280px; overflow-y: auto;
+}
+.cmp-id-add-item {
+  display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 9px 14px; border: none;
+  background: transparent; cursor: pointer; text-align: left; font: inherit; font-size: 13px; color: var(--text-primary);
+}
+.cmp-id-add-item:hover { background: var(--bg-base); }
+.cmp-id-add-item span { color: var(--text-tertiary); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* border-strong + фон + тень — тот же язык, что .mk-tablewrap на «Рынке».
    Без фона таблица выглядела «инородной» рядом с остальными панелями сайта,
@@ -237,8 +221,22 @@
    Портфеля — здесь нужен именно второй язык, не третий свой). ---- */
 .cmp-panel { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 14px; padding: 22px 24px; box-shadow: var(--shadow-sm); transition: box-shadow .18s ease, border-color .18s ease; }
 .cmp-panel:hover { box-shadow: var(--shadow-md); border-color: var(--border-hover); }
-.cmp-panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.cmp-panel-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .cmp-panel-title { font-family: "Fraunces", Georgia, serif; font-size: 17px; font-weight: 600; color: var(--text-primary); }
+
+/* ---- «считка» под заголовком графика (% за период на бумагу + разница) —
+   литерально .chart-readout мокапа. Раньше отсутствовала целиком — заголовок
+   графика был «голым», без сигнала до самого SVG. ---- */
+.cmp-chart-readout { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; margin-top: 6px; }
+.cmp-chart-readout span { color: var(--text-tertiary); }
+.cmp-chart-readout b { font-family: var(--font-mono); font-weight: 700; }
+
+/* ---- легенда серий графика — литерально .legend мокапа (gap 16px между
+   бумагами, точка 9px, gap 6px точка↔имя). Было: ad-hoc tw-классы прямо в JSX
+   (gap-3=12px, mb-2=8px) — приблизительно, не буквально. ---- */
+.cmp-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 14px 0 4px; font-size: 12px; color: var(--text-secondary); }
+.cmp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
 
 /* ---- заголовок таблицы «Ключевые метрики» — тот же .sec-head-подобный
    каркас, что у панелей выше, таблица не должна начинаться «из ниоткуда». ---- */
@@ -255,7 +253,7 @@
 }
 .cmp-chip:hover { border-color: var(--border-hover); }
 .cmp-chip--on { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #fff); }
-.cmp-chip:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.cmp-chip:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
 
 /* ---- сегментированный переключатель (2-3 опции) — литерально язык .pf-seg/
    .pf-seg-opt в Портфеле (docs/portfolio-analytics.html .seg-toggle/.seg-opt),
@@ -268,4 +266,4 @@
 }
 .cmp-seg-opt:not(.cmp-seg-opt--on):hover { background: color-mix(in srgb, var(--text-primary) 5%, transparent); }
 .cmp-seg-opt--on { background: var(--accent); color: var(--on-accent, #fff); box-shadow: 0 3px 10px -2px var(--accent-soft); }
-.cmp-seg-opt:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.cmp-seg-opt:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
