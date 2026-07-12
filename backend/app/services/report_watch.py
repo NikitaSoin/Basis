@@ -19,8 +19,19 @@
                по ИНН эмитента (см. calendar_events._load_inn_ticker_map) —
                те же категории «Решения СД»/«Раскрытие... отчёта», что уже
                используются для дивидендного календаря;
-            3) заголовок/описание самого календарного события — последний
+            3) АЗИПИ (e-disclosure.azipi.ru) — тот же шаблон Положения №714-П,
+               доп. охват для эмитентов вне СКРИН/ПРАЙМ (см. _from_azipi);
+            4) заголовок/описание самого календарного события — последний
                резерв, слабый (часто без цифр).
+  🔴 Из 5 аккредитованных ЦБ агрегаторов (официальный список: cbr.ru/vfs/
+     finmarkets/files/supervision/list_information_agency.xlsx) интегрированы
+     СКРИН/ПРАЙМ/АЗИПИ — все три ДОСТУПНЫ без анти-бота (проверено вручную).
+     e-disclosure.ru (Интерфакс, вероятно САМЫЙ полный агрегатор) — за
+     полноценным JS-challenge (ServicePipe), это НЕ вопрос User-Agent —
+     обычный HTTP-клиент его не проходит принципиально, нужен headless-браузер
+     (доп. инфраструктура на проде) или платный обход — решение владельца, не
+     подключено. АК&М (disclosure.ru) — не проверен подробно (низкий приоритет,
+     старый сайт), точка расширения на будущее.
   ИЗВЛЕЧЕНИЕ → LLM (DeepSeek через app.services.llm), СТРОГО «null, если
             данных нет» — не выдумываем цифры. Финотчёт — headline-цифры +
             дайджест (переиспользует шаблон earnings.py._digest). Операционный
@@ -129,6 +140,72 @@ def _from_skrin(inn: str, event_date: date) -> str | None:
     return None
 
 
+# ----------------------------- источник 3: АЗИПИ (e-disclosure.azipi.ru) -----------------------------
+# 5-й аккредитованный ЦБ агрегатор (официальный список: cbr.ru/vfs/finmarkets/files/
+# supervision/list_information_agency.xlsx, сверено 2026-07-13 — код 2). Тот же типовой
+# шаблон Положения №714-П, что у СКРИН/ПРАЙМ (проверено вручную на Роснефти) — но НЕТ
+# кросс-компанийного дневного фида (в отличие от СКРИН `EventList.asp`), только поиск
+# по ИНН → персональная страница эмитента → список сообщений на ОДНОЙ странице.
+# Дороже по запросам (2 хода вместо 1), поэтому идёт ПОСЛЕ СКРИН в каскаде — доп. охват
+# для эмитентов, которые публикуются здесь, а не (или не только) на СКРИН/ПРАЙМ.
+_AZIPI_BASE = "https://e-disclosure.azipi.ru"
+_HTTP_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
+
+
+def _azipi_org_url(inn: str) -> str | None:
+    try:
+        r = httpx.get(f"{_AZIPI_BASE}/search/index.php",
+                      params={"orgs": "Y", "ORG_INN": inn, "search_organization": "Поиск"},
+                      timeout=15, headers=_HTTP_UA, follow_redirects=True)
+        r.raise_for_status()
+        m = re.search(r'href="(/organization/personal-pages/\d+/)"', r.text)
+        return f"{_AZIPI_BASE}{m.group(1)}" if m else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _from_azipi(inn: str, event_date: date) -> str | None:
+    if not inn:
+        return None
+    org_url = _azipi_org_url(inn)
+    if not org_url:
+        return None
+    try:
+        r = httpx.get(org_url, timeout=15, headers=_HTTP_UA, follow_redirects=True)
+        html = r.text
+    except Exception:  # noqa: BLE001
+        return None
+    lo, hi = event_date - timedelta(days=1), event_date + timedelta(days=_WINDOW_DAYS)
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        if "/messages/" not in row:
+            continue
+        cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
+        if len(cells) < 3:
+            continue
+        date_txt = re.sub(r"<[^>]+>", "", cells[0]).strip()
+        try:
+            d, mo, y = date_txt.split(".")
+            row_date = date(int(y), int(mo), int(d))
+        except ValueError:
+            continue
+        if not (lo <= row_date <= hi):
+            continue
+        title_l = re.sub(r"<[^>]+>", " ", cells[2]).strip().lower()
+        if not any(k in title_l for k in _SKRIN_RELEVANT):  # те же категории Положения №714-П
+            continue
+        m = re.search(r'href="(/messages/\d+/)"', cells[2])
+        if not m:
+            continue
+        try:
+            mr = httpx.get(f"{_AZIPI_BASE}{m.group(1)}", timeout=15, headers=_HTTP_UA, follow_redirects=True)
+            msg_html = re.sub(r"<script[^>]*>.*?</script>", " ", mr.text, flags=re.S)
+            return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", msg_html))
+        except Exception:  # noqa: BLE001
+            continue
+    return None
+
+
 def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[str, str] | None:
     mu = _from_market_updates(db, event.ticker, event.event_date)
     if mu:
@@ -136,6 +213,9 @@ def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[st
     sk = _from_skrin(inn, event.event_date)
     if sk:
         return sk, "skrin_disclosure"
+    az = _from_azipi(inn, event.event_date)
+    if az:
+        return az, "azipi_disclosure"
     desc = (event.payload or {}).get("description") or ""
     fallback = f"{event.title}\n{desc}".strip()
     # заголовок без описания — почти никогда не содержит цифр, не считаем источником
