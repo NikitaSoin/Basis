@@ -7,13 +7,7 @@
   --bg:var(--cc-bg); --bg-2:var(--cc-bg-2); --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
   --line:var(--cc-line); --line-2:var(--cc-line-2);
   --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
-  /* accent-soft — из --cc-accent (color-mix), НЕ из --cc-accent-soft: в тёмной теме
-     .cc-root у --cc-accent-soft/--cc-accent-2 осталась добасисовская индиго-подсветка
-     (миграция на медь не докатилась туда, tokens.css вне периметра этой задачи) — из-за
-     этого активный таб/фокус-кольца/чипы фондов светились синим вместо меди в dark.
-     --cc-accent сам по себе корректно медный в обеих темах — берём от него напрямую. */
-  --accent:var(--cc-accent); --accent-2:var(--cc-accent-2);
-  --accent-soft:color-mix(in srgb, var(--cc-accent) 12%, transparent);
+  --accent:var(--cc-accent); --accent-2:var(--cc-accent-2); --accent-soft:var(--cc-accent-soft);
   --amber:var(--cc-amber); --amber-soft:var(--cc-amber-soft);
   --pos:var(--cc-success); --neg:var(--cc-danger); --violet:var(--cc-violet);
   --pos-soft:color-mix(in srgb,var(--cc-success) 12%,transparent);
@@ -21,7 +15,6 @@
   --track:var(--cc-line);
   color:var(--ink); font-family:"Inter",system-ui,sans-serif;
 }
-.dark .mk-screen{ --accent-2:var(--cc-accent); } /* та же причина — cc-accent-2 в dark синий */
 .mk-screen .mk-mono,.mk-screen .num,.mk-screen .mk-delta,.mk-screen .mk-card-price,.mk-screen .mk-spread{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums lining-nums;}
 /* фокус-кольцо на КАЖДОМ интерактивном элементе экрана (таб/сегмент/сектор-плитка/
    карточка/heat-тайл — все реальные <button>), медное, по конституции ДС */
