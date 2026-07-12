@@ -68,10 +68,15 @@ def _api_key(provider: str) -> str:
 
 def _timeout() -> "httpx.Timeout":
     try:
-        total = float(os.environ.get("LLM_TIMEOUT", "60"))
+        total = float(os.environ.get("LLM_TIMEOUT", "180"))
     except ValueError:
-        total = 60.0
-    # connect_timeout короткий — если сервер недоступен, падаем быстро (не держим тред 3 мин)
+        total = 180.0
+    # connect_timeout короткий — если сервер недоступен, падаем быстро (не держим тред 3 мин).
+    # total было 60с — генерация подробных многостатейных батчей (geo_digest: 4-7 предложений
+    # + тезисы на 3-6 статей за один вызов) стабильно не укладывалась, весь батч терялся молча
+    # (LLMError → except → []). Поднято до 180с (найдено на бою 2026-07-12: прогоны
+    # trigger-geo-digest консистентно давали saved=0 при total=60, saved>0 изредка при
+    # уменьшении батча — сам таймаут был реальным потолком, не max_tokens и не размер батча).
     return httpx.Timeout(total, connect=8.0)
 
 
