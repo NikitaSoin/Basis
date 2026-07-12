@@ -99,6 +99,8 @@
 .cmp-card-name:hover { color: var(--accent); }
 .cmp-card-tk { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
 .cmp-card-px { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 4px; }
+.cmp-card-chg { font-family: var(--font-mono); font-size: 12px; font-weight: 700; margin-top: 2px; }
+.cmp-card-cap { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
 
 /* border-strong + фон + тень — тот же язык, что .mk-tablewrap на «Рынке».
    Без фона таблица выглядела «инородной» рядом с остальными панелями сайта,
@@ -114,12 +116,16 @@
 }
 .cmp-table th.cmp-th-metric, .cmp-table td:first-child { text-align: left; white-space: normal; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
 .cmp-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .03em;
   color: var(--text-tertiary);
   background: var(--bg-elevated);
+  box-shadow: 0 1px 0 var(--border-strong);
 }
 .cmp-table td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-primary); }
 .cmp-group-row td {
@@ -134,3 +140,24 @@
 }
 .cmp-pos { color: var(--success); }
 .cmp-neg { color: var(--danger); }
+
+/* Дизайн-ревью 2026-07-12 — «вердикт поверх данных»: подсветка лучшего
+   значения (только однозначные метрики) + перцентильная полоска (позиция
+   относительно всего рынка) + цветной BASIS-балл, по образцу sc-cellbar/
+   sc-score в ScreenerNeo — та же информация, тот же визуальный язык. */
+.cmp-best { background: color-mix(in srgb, var(--success) 10%, transparent); }
+.cmp-best .cmp-cellval { color: var(--success); font-weight: 600; }
+.cmp-cellbar { position: relative; display: block; height: 3px; border-radius: 2px; background: var(--border-subtle); margin-top: 5px; }
+.cmp-cellbar i { display: block; height: 100%; background: var(--text-tertiary); border-radius: 2px; opacity: .6; }
+.cmp-cellbar i.strong { background: var(--accent); opacity: 1; }
+.cmp-score {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  color: #fff;
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+}

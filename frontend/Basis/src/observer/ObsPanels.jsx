@@ -1779,10 +1779,83 @@ function ObsMoversRow({ s, onSelectCompany }) {
   );
 }
 
+// Главное число экрана — IMOEX выносится из общей сетки в hero-строку рядом с
+// индексом страха и жадности (дизайн-ревью 2026-07-12: раньше был плиткой среди
+// цены золота и ставки RUSFAR — терялся как «сигнал» первого слоя чтения).
+function ObsIndexHero({ item }) {
+  if (!item) return null;
+  const chg = item.change_pct;
+  const cls = chg > 0 ? "obs-d-good" : chg < 0 ? "obs-d-bad" : "obs-d-neutral";
+  return (
+    <div className="obs-hero-rate">
+      <div className="obs-hero-label">{item.name}</div>
+      <div className="obs-hero-num">{item.level != null ? item.level.toLocaleString("ru-RU", { maximumFractionDigits: 1 }) : "—"}</div>
+      {chg != null && (
+        <div className={cls} style={{ fontSize: 13, fontWeight: 700, marginTop: 6 }}>
+          {chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%
+        </div>
+      )}
+      {item.spark?.length > 1 && <div style={{ marginTop: 10 }}><ObsSparkline points={item.spark} w={220} h={40} color={chg > 0 ? "var(--success)" : chg < 0 ? "var(--danger)" : "var(--text-tertiary)"} /></div>}
+    </div>
+  );
+}
+
+// Ширина рынка (сколько бумаг растёт/падает) + драйверы дня — перенесено из
+// «Рынок» (тот же смысл — рыночный фон, здесь даже уместнее). Порт логики
+// ToneRow/Pulse из MarketNeo.jsx, под собственными obs-* классами (mk-* там
+// заскоуплены под .mk-screen).
+function _obsToneLabel(ratio) {
+  const toneVal = Math.round(ratio * 100);
+  if (toneVal >= 62) return { label: "Аппетит к риску", cls: "obs-d-good" };
+  if (toneVal >= 48) return { label: "Осторожный аппетит", cls: "obs-d-neutral" };
+  if (toneVal >= 32) return { label: "Осторожно", cls: "obs-d-neutral" };
+  return { label: "Уход от риска", cls: "obs-d-bad" };
+}
+function ObsMarketBreadth({ adv, dec, flat, drivers }) {
+  const total = adv + dec + flat;
+  const tone = _obsToneLabel(total ? adv / total : 0);
+  return (
+    <div className="obs-breadth-block">
+      <div>
+        <div className="obs-content-eyebrow" style={{ margin: "0 0 10px" }}>Ширина рынка</div>
+        <div className="obs-breadth-bar">
+          <span className="seg up" style={{ flexGrow: adv || 0.001 }} />
+          <span className="seg fl" style={{ flexGrow: flat || 0.2 }} />
+          <span className="seg dn" style={{ flexGrow: dec || 0.001 }} />
+        </div>
+        <div className="obs-breadth-legend">
+          <span className="obs-d-good"><b>{adv}</b> растут</span>
+          <span className="obs-d-neutral"><b>{flat}</b> ровно</span>
+          <span className="obs-d-bad"><b>{dec}</b> падают</span>
+        </div>
+        <div className="obs-tone-row">
+          Тон рынка: <b className={tone.cls}>{tone.label}</b> <span className="obs-tile-date">· оценка Basis</span>
+        </div>
+      </div>
+      <div>
+        <div className="obs-content-eyebrow" style={{ margin: "0 0 10px" }}>Что движет рынком сегодня <span className="obs-tile-date">· суждение Basis</span></div>
+        <div className="obs-drivers">
+          {(drivers || []).map((d) => (
+            <div key={d.name} className="obs-driver">
+              <div className="obs-driver-n">{d.name}</div>
+              <div className="obs-driver-v">
+                {d.value} <span className={d.dir > 0 ? "obs-d-good" : d.dir < 0 ? "obs-d-bad" : "obs-d-neutral"}>{d.dir > 0 ? "▲" : d.dir < 0 ? "▼" : "▬"}</span>
+              </div>
+              <div className="obs-driver-e">{d.effect}</div>
+            </div>
+          ))}
+          {(!drivers || !drivers.length) && <div className="obs-tile-date">нет данных по драйверам</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ObsMarketPulse({ onSelectCompany }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [pulse, setPulse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [drivers, setDrivers] = useState([]);
   const { stocks, loading: stocksLoading } = useObsStocksLive();
 
   useEffect(() => {
@@ -1794,20 +1867,38 @@ function ObsMarketPulse({ onSelectCompany }) {
     return () => { alive = false; };
   }, [apiUrl]);
 
+  useEffect(() => {
+    fetch(`${apiUrl}/api/market/drivers`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => Array.isArray(d) && setDrivers(d))
+      .catch(() => {});
+  }, [apiUrl]);
+
   if (loading) return <div className="tw-flex tw-items-center tw-justify-center tw-py-20 tw-text-text-tertiary tw-animate-pulse">Загружаем обзор рынка...</div>;
   if (!pulse) return <div className="obs-news-empty">Не удалось загрузить обзор рынка. Попробуйте позже.</div>;
 
   const withChg = stocks.filter((s) => s.chg != null);
   const sorted = [...withChg].sort((a, b) => b.chg - a.chg);
   const gain = sorted.slice(0, 5), lose = [...sorted].reverse().slice(0, 5);
+  const adv = withChg.filter((s) => s.chg > 0).length;
+  const dec = withChg.filter((s) => s.chg < 0).length;
+  const flat = withChg.length - adv - dec;
+  const imoex = pulse.indices.find((i) => i.ticker === "IMOEX");
+  const restIndices = pulse.indices.filter((i) => i.ticker !== "IMOEX");
 
   return (
     <div>
       <ObsTickerMarquee stocks={stocks} onSelectCompany={onSelectCompany} />
-      <ObsFearGreedCard fg={pulse.fear_greed} />
 
-      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Индексы</div>
-      <div className="obs-grid8">{pulse.indices.map((idx) => <ObsPulseCard key={idx.ticker} item={idx} />)}</div>
+      <div className="obs-pulse-hero-row">
+        <ObsIndexHero item={imoex} />
+        <ObsFearGreedCard fg={pulse.fear_greed} />
+      </div>
+
+      {!stocksLoading && withChg.length > 0 && <ObsMarketBreadth adv={adv} dec={dec} flat={flat} drivers={drivers} />}
+
+      <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Остальные индексы</div>
+      <div className="obs-grid8">{restIndices.map((idx) => <ObsPulseCard key={idx.ticker} item={idx} />)}</div>
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Лидеры дня</div>
       {stocksLoading ? (

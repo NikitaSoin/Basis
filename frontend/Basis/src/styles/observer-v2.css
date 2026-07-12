@@ -2664,6 +2664,49 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   font-variant-numeric: tabular-nums;
 }
 
+/* Дизайн-ревью 2026-07-12 — IMOEX (главное число экрана) выносится в
+   hero-строку рядом с индексом страха и жадности, вместо плитки среди
+   ставок/золота. Ширина рынка + драйверы — перенос смысла с «Рынка»
+   (mk-pulse/mk-breadth-bar/mk-drivers в market.css), свои obs-* классы. */
+.obs-pulse-hero-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .obs-pulse-hero-row { grid-template-columns: 1fr; } }
+
+.obs-breadth-block {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.obs-breadth-block > div { background: var(--bg-elevated); padding: 16px 18px; }
+@media (max-width: 760px) { .obs-breadth-block { grid-template-columns: 1fr; } }
+
+.obs-breadth-bar { display: flex; height: 9px; border-radius: 5px; overflow: hidden; gap: 1.5px; }
+.obs-breadth-bar .seg { display: block; }
+.obs-breadth-bar .seg.up { background: var(--success); }
+.obs-breadth-bar .seg.dn { background: var(--danger); }
+.obs-breadth-bar .seg.fl { background: var(--text-tertiary); opacity: .4; }
+.obs-breadth-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); margin-top: 9px; }
+.obs-breadth-legend b { font-family: var(--font-mono); font-weight: 600; }
+.obs-tone-row {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.obs-drivers { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 10px; }
+@media (max-width: 480px) { .obs-drivers { grid-template-columns: 1fr; } }
+.obs-driver { background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 9px; padding: 9px 11px; }
+.obs-driver-n { font-size: 11.5px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.obs-driver-v { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); margin: 4px 0 3px; display: flex; align-items: center; gap: 6px; }
+.obs-driver-e { font-size: 11px; color: var(--text-tertiary); line-height: 1.35; }
+
 /* Бегущая лента — тот же приём CSS-marquee, что на лендинге (дублированный
    список + translateX(-50%) для бесшовной петли), своя разметка под Обозреватель. */
 .obs-ticker {

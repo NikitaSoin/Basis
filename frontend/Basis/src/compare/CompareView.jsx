@@ -102,6 +102,54 @@ function CompareLineChart({ series, viewW = 1000, viewH = 280, unit = "%" }) {
   );
 }
 
+function cmpScoreColor(s) {
+  if (s == null) return "var(--text-tertiary)";
+  const t = Math.max(0, Math.min(1, (s - 45) / (82 - 45)));
+  const hue = t < 0.5 ? (t / 0.5) * 33 : 33 + ((t - 0.5) / 0.5) * 105;
+  return `hsl(${hue.toFixed(0)} 64% 42%)`;
+}
+
+// Метрики с однозначным «лучше/хуже» — только они получают зелёную подсветку.
+// Мультипликаторы (P/E, EV/EBITDA и т.п.) намеренно исключены: низкое значение
+// не всегда значит «дёшево» (см. hint-тексты в ScreenerNeo.METRICS).
+const CMP_UNAMBIGUOUS = ["div_yield", "roe", "ebitda_margin", "fcf_yield"];
+function cmpBestTicker(items, key, dir) {
+  const withVal = items.filter((it) => it.raw?.[key] != null);
+  if (withVal.length < 2) return null;
+  return withVal.reduce((b, c) => ((dir === "high" ? c.raw[key] > b.raw[key] : c.raw[key] < b.raw[key]) ? c : b)).ticker;
+}
+
+// Короткий синтез над таблицей — «вердикт поверх данных» по дизайн-конституции
+// Basis (голая таблица без интерпретации не считается готовым экраном).
+function CompareSynthesis({ items }) {
+  if (items.length < 2) return null;
+  const pickBasis = () => {
+    const withVal = items.filter((it) => it.basis != null);
+    if (withVal.length < 2) return null;
+    return withVal.reduce((a, b) => (b.basis > a.basis ? b : a));
+  };
+  const pickMetric = (key, label) => {
+    const withVal = items.filter((it) => it.raw?.[key] != null);
+    if (withVal.length < 2) return null;
+    const best = withVal.reduce((a, b) => (b.raw[key] > a.raw[key] ? b : a));
+    return `выше ${label} — ${best.ticker} (${fmtStockMetric(key, best.raw[key])})`;
+  };
+  const lines = [];
+  const bestBasis = pickBasis();
+  if (bestBasis) lines.push(`выше BASIS-балл — ${bestBasis.ticker} (${bestBasis.basis})`);
+  const y = pickMetric("div_yield", "дивдоходность"); if (y) lines.push(y);
+  const r = pickMetric("roe", "ROE"); if (r) lines.push(r);
+  if (!lines.length) return null;
+  return (
+    <div className="bs-callout" style={{ marginTop: 16 }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+        <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+      </svg>
+      <p><span className="bs-tag-judgment" style={{ marginRight: 8 }}>суждение Basis</span>{lines.join(" · ")}.</p>
+    </div>
+  );
+}
+
 export default function CompareView({ onOpenCompany }) {
   const apiUrl = apiBase();
   const [selected, setSelected] = usePersistedState("compare.tickers", ["SBER", "GAZP"]);
@@ -109,6 +157,7 @@ export default function CompareView({ onOpenCompany }) {
   const [loading, setLoading] = useState(true);
   const [priceData, setPriceData] = useState({});
   const [priceLoading, setPriceLoading] = useState(false);
+  const [liveQuotes, setLiveQuotes] = useState({});
 
   useEffect(() => {
     fetch(`${apiUrl}/api/screener/scored?universe=all`)
@@ -127,6 +176,13 @@ export default function CompareView({ onOpenCompany }) {
   const addTicker = (t) => setSelected((s) => (s.includes(t) || s.length >= COMPARE_MAX ? s : [...s, t]));
   const removeTicker = (t) => setSelected((s) => s.filter((x) => x !== t));
   const tickersKey = selected.join(",");
+
+  useEffect(() => {
+    fetch(`${apiUrl}/api/quotes/realtime`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setLiveQuotes(d))
+      .catch(() => {});
+  }, [apiUrl, tickersKey]);
 
   useEffect(() => {
     if (!items.length) { setPriceData({}); return; }
@@ -181,15 +237,26 @@ export default function CompareView({ onOpenCompany }) {
       ) : (
         <>
           <div className="cmp-cards">
-            {items.map((it) => (
-              <div key={it.ticker} className="cmp-card">
-                <button className="cmp-card-x" onClick={() => removeTicker(it.ticker)} aria-label={`Убрать ${it.ticker}`}>×</button>
-                <CompanyLogo ticker={it.ticker} name={it.name} size={36} />
-                <button className="cmp-card-name" onClick={() => onOpenCompany && onOpenCompany(it.ticker)}>{it.name}</button>
-                <span className="cmp-card-tk">{it.ticker}</span>
-                <span className="cmp-card-px">{it.price != null ? it.price.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
-              </div>
-            ))}
+            {items.map((it) => {
+              const q = liveQuotes[it.ticker];
+              const chg = q ? q.change_pct : null;
+              const px = q?.price ?? it.price;
+              return (
+                <div key={it.ticker} className="cmp-card">
+                  <button className="cmp-card-x" onClick={() => removeTicker(it.ticker)} aria-label={`Убрать ${it.ticker}`}>×</button>
+                  <CompanyLogo ticker={it.ticker} name={it.name} size={36} />
+                  <button className="cmp-card-name" onClick={() => onOpenCompany && onOpenCompany(it.ticker)}>{it.name}</button>
+                  <span className="cmp-card-tk">{it.ticker}</span>
+                  <span className="cmp-card-px">{px != null ? px.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
+                  {chg != null && (
+                    <span className={"cmp-card-chg " + (chg > 0 ? "cmp-pos" : chg < 0 ? "cmp-neg" : "")}>
+                      {chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%
+                    </span>
+                  )}
+                  <span className="cmp-card-cap">{it.market_cap != null ? fmtStockMetric("mcap", it.market_cap) : "—"}</span>
+                </div>
+              );
+            })}
           </div>
 
           <Card header="Динамика цены за год (нормализовано к 0%)" style={{ marginTop: 20 }}>
@@ -211,6 +278,8 @@ export default function CompareView({ onOpenCompany }) {
               <div className="tw-py-8 tw-text-text-tertiary tw-text-[13px]">Нет данных истории цены.</div>
             )}
           </Card>
+
+          <CompareSynthesis items={items} />
 
           <div className="cmp-table-wrap" style={{ marginTop: 20 }}>
             <table className="cmp-table">
@@ -238,22 +307,46 @@ export default function CompareView({ onOpenCompany }) {
                 </tr>
                 <tr>
                   <td>BASIS-балл</td>
-                  {items.map((it) => <td key={it.ticker}>{it.basis ?? "—"}</td>)}
+                  {items.map((it) => (
+                    <td key={it.ticker}>
+                      {it.basis != null ? <span className="cmp-score" style={{ background: cmpScoreColor(it.basis) }}>{it.basis}</span> : "—"}
+                    </td>
+                  ))}
                 </tr>
                 {STOCK_METRIC_GROUPS.map((g) => (
                   <React.Fragment key={g}>
                     <tr className="cmp-group-row"><td colSpan={items.length + 1}>{g}</td></tr>
-                    {Object.keys(STOCK_METRICS).filter((k) => STOCK_METRICS[k].group === g).map((k) => (
-                      <tr key={k}>
-                        <td>{STOCK_METRICS[k].label}{STOCK_METRICS[k].hint && <ScreenerInfoTip text={STOCK_METRICS[k].hint} />}</td>
-                        {items.map((it) => <td key={it.ticker}>{fmtStockMetric(k, k === "mcap" ? it.market_cap : it.raw?.[k])}</td>)}
-                      </tr>
-                    ))}
+                    {Object.keys(STOCK_METRICS).filter((k) => STOCK_METRICS[k].group === g).map((k) => {
+                      const bestT = CMP_UNAMBIGUOUS.includes(k) ? cmpBestTicker(items, k, STOCK_METRICS[k].dir) : null;
+                      return (
+                        <tr key={k}>
+                          <td>{STOCK_METRICS[k].label}{STOCK_METRICS[k].hint && <ScreenerInfoTip text={STOCK_METRICS[k].hint} />}</td>
+                          {items.map((it) => {
+                            const v = k === "mcap" ? it.market_cap : it.raw?.[k];
+                            const pct = it.percentiles?.[k];
+                            return (
+                              <td key={it.ticker} className={bestT === it.ticker ? "cmp-best" : ""}>
+                                <span className="cmp-cellval">{fmtStockMetric(k, v)}</span>
+                                {pct != null && k !== "mcap" && (
+                                  <span className="cmp-cellbar"><i className={pct >= 80 ? "strong" : ""} style={{ width: Math.max(4, pct) + "%" }} /></span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-2 tw-max-w-[70ch]">
+            Зелёным — лучшее значение среди сравниваемых бумаг (только дивдоходность, ROE, EBITDA-маржа,
+            FCF-доходность). Полоска под числом — позиция относительно всего рынка (перцентиль Basis).
+            Мультипликаторы (P/E, EV/EBITDA и т.д.) — без подсветки «лучше/хуже»: низкое значение не всегда
+            означает недооценку.
+          </p>
         </>
       )}
     </div>
