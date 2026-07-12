@@ -575,7 +575,7 @@ def debug_report_watch_diag(ticker: str, event_date: str):
     from datetime import date as date_cls
     from app.db.session import SessionLocal
     from app.models.earnings import EarningsReport
-    from app.services.report_watch import _from_market_updates, _from_skrin
+    from app.services.report_watch import _from_market_updates, _from_skrin, _from_azipi
     from app.services.calendar_events import _load_inn_ticker_map
     db = SessionLocal()
     try:
@@ -587,8 +587,9 @@ def debug_report_watch_diag(ticker: str, event_date: str):
         mu = _from_market_updates(db, ticker.upper(), ed)
         inn = next((i for i, ts in _load_inn_ticker_map().items() if ticker.upper() in ts), None)
         sk = _from_skrin(inn, ed) if inn else None
+        az = _from_azipi(inn, ed) if inn else None
         return {"stored_reports": reports, "live_market_updates_text": (mu or "")[:2000],
-                "live_skrin_text": (sk or "")[:500], "inn": inn}
+                "live_skrin_text": (sk or "")[:500], "live_azipi_text": (az or "")[:800], "inn": inn}
     finally:
         db.close()
 
