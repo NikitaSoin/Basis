@@ -7,7 +7,12 @@
 субагенты, оператор запускает вручную) — без этого шага новый отчёт молча
 не попадает в разбор, даже если событие есть в календаре.
 
-Здесь — независимый путь, без обращения к financials.json:
+Здесь — независимый путь, без обращения к financials.json. ТРИ источника
+детекта: MOEX ir-calendar (~76 тикеров, см. _due_ir_rows), Лента новостей
+(любой тикер с деловым освещением, см. _due_news_reports), ГИР БО bo.nalog.gov.ru
+(годовая РСБУ напрямую из госресурса — СТРУКТУРИРОВАННО, без LLM для цифр, см.
+_due_girbo_reports; честно: только годовая, РСБУ юрлица не консолидация, банки/
+МОЕХ отсутствуют — отчитываются перед ЦБ отдельно).
   ДЕТЕКТ  → calendar_events (event_type=earnings), не обработанные ранее
             (дедуп по calendar_event_id — см. миграцию d2b22f2662ba).
   ТЕКСТ   → каскад источников, по убыванию надёжности:
@@ -307,11 +312,15 @@ def _live_price(ticker: str, db: Session) -> tuple[float | None, float | None]:
 
 
 def _store_report(db: Session, report: EarningsReport, company: Company, text_blob: str | None,
-                  is_operational: bool, price_now: float | None, mcap: float | None) -> str:
-    """Общее ядро сохранения — используется и MOEX-путём (process_event), и
-    news-путём (process_news_item). `report` уже сконструирован (не добавлен в
-    сессию), text_blob=None означает «источник не нашёлся вовсе»."""
-    if not text_blob:
+                  is_operational: bool, price_now: float | None, mcap: float | None,
+                  fig_override: dict | None = None) -> str:
+    """Общее ядро сохранения — используется MOEX-путём (process_event), news-путём
+    (process_news_item) и ГИР БО-путём (process_girbo_report). `report` уже
+    сконструирован (не добавлен в сессию), text_blob=None означает «источник не
+    нашёлся вовсе». fig_override — готовые цифры (ГИР БО, структурированный источник,
+    без LLM-угадывания) в ТОМ ЖЕ формате, что возвращает _extract_financial — если
+    задан, LLM-экстракция чисел пропускается (цифры уже точные, из госресурса)."""
+    if fig_override is None and not text_blob:
         db.add(report); db.commit()
         return "needs_source"
     if is_operational:
@@ -328,7 +337,7 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         report.status = "processed"
         db.commit()
         return "created"
-    fig_raw = _extract_financial(text_blob)
+    fig_raw = fig_override if fig_override is not None else _extract_financial(text_blob)
     if not fig_raw:
         db.add(report); db.commit()
         return "needs_source"
@@ -448,6 +457,135 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         return "exists"
 
 
+# ----------------------------- ГИР БО (bo.nalog.gov.ru) — годовая РСБУ-отчётность -----------------------------
+# Государственный ресурс ФНС (обязательная сдача годовой бухотчётности по 402-ФЗ) — НЕ
+# один из 5 ЦБ-аккредитованных агрегаторов раскрытия, отдельная система. Проверено вручную
+# 2026-07-13: чистый JSON без анти-бота (`advanced-search/organizations/search` →
+# `nbo/organizations/{id}/bfo/`). ГЛАВНОЕ ПРЕИМУЩЕСТВО — цифры приходят СТРУКТУРИРОВАННО
+# (стандартные коды форм 0710001 баланс / 0710002 P&L), точность гарантирована
+# источником, LLM здесь НЕ извлекает числа (только пишет дайджест по готовым цифрам,
+# как и раньше через _digest).
+# 🔴 Честные ограничения: (1) ТОЛЬКО годовая отчётность, нет квартальной/промежуточной;
+# (2) РСБУ отдельного юрлица, НЕ консолидированная МСФО группы — для холдингов может
+# отличаться от группы; (3) банки/НФО и биржа (СБЕР/ВТБ/Т-Банк/MOEX — проверено)
+# ОТСУТСТВУЮТ — отчитываются перед ЦБ по другому регламенту, не через ФНС; (4) отдельные
+# компании (Роснефть — проверено вручную) отсутствуют по неясной причине (вероятно
+# освобождение от публичного раскрытия для части санкционных эмитентов) — не все 261
+# тикера будут найдены. Единицы измерения на сайте — ТЫСЯЧИ ₽, у нас конвенция млн ₽ —
+# делим на 1000.
+_GIRBO_BASE = "https://bo.nalog.gov.ru"
+
+
+def _girbo_org_id(inn: str) -> int | None:
+    try:
+        r = httpx.get(f"{_GIRBO_BASE}/advanced-search/organizations/search",
+                      params={"query": inn, "page": 0, "size": 5}, timeout=15, headers=_HTTP_UA)
+        r.raise_for_status()
+        content = r.json().get("content") or []
+        return content[0]["id"] if content else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _girbo_annual_reports(org_id: int) -> list[dict]:
+    try:
+        r = httpx.get(f"{_GIRBO_BASE}/nbo/organizations/{org_id}/bfo/", timeout=20, headers=_HTTP_UA)
+        r.raise_for_status()
+        return r.json() or []
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _girbo_figures(entry: dict) -> dict | None:
+    """Headline-цифры из структурированной формы — БЕЗ LLM. Та же форма (revenue/
+    revenue_yoy_pct/...), что возвращает _extract_financial, чтобы _store_report
+    работал одинаково для обоих путей."""
+    try:
+        corr = entry["typeCorrections"][0]["correction"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    bal, pnl = corr.get("balance") or {}, corr.get("financialResult") or {}
+
+    def cur(d, code):
+        v = d.get(f"current{code}")
+        return float(v) / 1000 if v is not None else None  # тыс. ₽ -> млн ₽
+
+    def prev(d, code):
+        v = d.get(f"previous{code}")
+        return float(v) / 1000 if v is not None else None
+
+    def yoy(c, p):
+        if c is None or not p:
+            return None
+        return round((c - p) / abs(p) * 100, 1)
+    revenue, revenue_prev = cur(pnl, 2110), prev(pnl, 2110)
+    net_profit, net_profit_prev = cur(pnl, 2400), prev(pnl, 2400)
+    if revenue is None and net_profit is None:
+        return None
+    ltl, stl, cash = cur(bal, 1410) or 0, cur(bal, 1510) or 0, cur(bal, 1250) or 0
+    return {
+        "has_figures": True,
+        "revenue": revenue, "revenue_yoy_pct": yoy(revenue, revenue_prev),
+        "net_profit": net_profit, "net_profit_yoy_pct": yoy(net_profit, net_profit_prev),
+        "ebitda": None, "ebitda_yoy_pct": None,  # ГИР БО не даёт EBITDA — не прикидываем
+        "net_debt": (ltl + stl - cash) if (ltl or stl or cash) else None,
+    }
+
+
+def process_girbo_report(db: Session, ticker: str, inn: str, company: Company,
+                         market_cap: float | None, org_id: int, entry: dict) -> str:
+    """Обработать один годовой отчёт ГИР БО. Дедуп — обычный (ticker, period,
+    standard) constraint earnings_reports (standard-метка уникальна для этого пути,
+    не пересекается с МСФО/обычной «РСБУ» из других источников)."""
+    period = str(entry.get("period") or "")
+    if not period:
+        return "needs_source"
+    if db.query(EarningsReport).filter_by(ticker=ticker, period=period, standard="РСБУ (ГИР БО)").first():
+        return "exists"
+    fig_raw = _girbo_figures(entry)
+    published_at = None
+    if entry.get("actualBfoDate"):
+        try:
+            published_at = date.fromisoformat(entry["actualBfoDate"][:10])
+        except ValueError:
+            pass
+    report = EarningsReport(
+        ticker=ticker, period=period, standard="РСБУ (ГИР БО)", report_type="annual",
+        published_at=published_at, source="girbo",
+        source_url=f"{_GIRBO_BASE}/organizations-card/{org_id}",
+        status="needs_source")
+    if not fig_raw:
+        db.add(report); db.commit()
+        return "needs_source"
+    live, close = _live_price(ticker, db)
+    price_now = live or close
+    mcap = market_cap
+    if market_cap and close and price_now:
+        mcap = market_cap * (price_now / close)
+    return _store_report(db, report, company, None, False, price_now, mcap, fig_override=fig_raw)
+
+
+def _due_girbo_reports(companies: dict, inn_by_ticker: dict[str, str]) -> list[dict]:
+    """Обходит компании с известным ИНН, ищет в ГИР БО. Не найден в ГИР БО (банк/МОЕХ/
+    санкционное освобождение и т.п.) — тихо пропускаем, это честное ограничение
+    источника, не ошибка."""
+    out = []
+    for ticker, inn in inn_by_ticker.items():
+        if ticker not in companies or not inn:
+            continue
+        org_id = _girbo_org_id(inn)
+        time.sleep(0.15)
+        if not org_id:
+            continue
+        reports = _girbo_annual_reports(org_id)
+        time.sleep(0.15)
+        if not reports:
+            continue
+        latest = max(reports, key=lambda r: r.get("period") or "")
+        out.append({"ticker": ticker, "inn": inn, "org_id": org_id, "entry": latest})
+    return out
+
+
 _MOEX_IR_CALENDAR = "https://iss.moex.com/iss/cci/calendars/ir-calendar.json"
 
 
@@ -544,15 +682,19 @@ def _due_news_reports(db: Session, companies: dict, days_back: int) -> list[dict
     return out
 
 
-def refresh(db: Session, days_back: int = 5) -> dict:
-    """Ежедневный обход, ДВА независимых пути обнаружения:
+def refresh(db: Session, days_back: int = 5, run_girbo: bool = True) -> dict:
+    """Ежедневный обход, ТРИ независимых пути обнаружения:
     1) MOEX ir-calendar «Публикация отчетности» (~76/261 эмитентов с публичным
        IR-календарём) — даёт точную ожидаемую дату вперёд, для остальных источник
        просто не покрывает (честное ограничение, см. _due_ir_rows).
     2) Прямой скан Ленты новостей по ключевым словам отчётности (см.
        _due_news_reports) — покрывает ЛЮБУЮ компанию с освещением в деловых СМИ,
        не привязан к тому, есть ли у эмитента публичный IR-календарь. Дедуп против
-       пути (1) — по близости published_at (см. process_news_item)."""
+       пути (1) — по близости published_at (см. process_news_item).
+    3) ГИР БО (bo.nalog.gov.ru) — годовая РСБУ-отчётность напрямую из госресурса,
+       СТРУКТУРИРОВАННО (без LLM-угадывания цифр). Полный обход ~261 тикеров
+       (2 запроса на тикер) — дороже путей 1-2, поэтому run_girbo=False для быстрых
+       интерактивных debug-триггеров (по умолчанию True для суточного крона)."""
     from app.services.calendar_events import _load_inn_ticker_map
     companies = {c.ticker: c for c in db.query(Company).all()}
     inn_map = _load_inn_ticker_map()
@@ -587,6 +729,31 @@ def refresh(db: Session, days_back: int = 5) -> dict:
             res["errors"] += 1
             db.rollback()
 
-    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d)",
-                res, len(due_rows), len(news_items))
+    girbo_items = []
+    if run_girbo:
+        inn_by_ticker = {}
+        for inn, tickers in inn_map.items():
+            for t in tickers:
+                inn_by_ticker.setdefault(t, inn)
+        girbo_items = _due_girbo_reports(companies, inn_by_ticker)
+        for item in girbo_items:
+            company = companies.get(item["ticker"])
+            if not company:
+                res["skipped_no_company"] += 1
+                continue
+            try:
+                r = process_girbo_report(db, item["ticker"], item["inn"], company,
+                                         float(company.market_cap) if company.market_cap else None,
+                                         item["org_id"], item["entry"])
+                res[r] = res.get(r, 0) + 1
+            except IntegrityError:
+                db.rollback()
+                res["exists"] += 1
+            except Exception as e:  # noqa: BLE001
+                logger.warning("report_watch: ошибка ГИР БО %s: %s", item["ticker"], type(e).__name__)
+                res["errors"] += 1
+                db.rollback()
+
+    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d, ГИР БО: %d)",
+                res, len(due_rows), len(news_items), len(girbo_items))
     return res

@@ -199,6 +199,8 @@ async def debug_connectivity():
         "minfin (minfin.gov.ru)": "https://minfin.gov.ru/ru/press-center/",
         "prime_disclosure (1prime.ru)": "https://disclosure.1prime.ru/",
         "skrin_disclosure (disclosure.skrin.ru)": "https://disclosure.skrin.ru/",
+        "azipi_disclosure (e-disclosure.azipi.ru)": "https://e-disclosure.azipi.ru/",
+        "girbo (bo.nalog.gov.ru)": "https://bo.nalog.gov.ru/",
     }
 
     async def probe(name: str, url: str | None) -> dict:
@@ -532,15 +534,17 @@ def debug_trigger_calendar():
 
 
 @router.post("/debug/trigger-report-watch")
-def debug_trigger_report_watch(days_back: int = 5):
+def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
     """Ручной запуск report_watch.refresh() (автообнаружение вышедших отчётов через
-    MOEX ir-calendar + разбор по Ленте новостей/СКРИН), БЕЗ ожидания дневного крона
-    (20:45) — для диагностики. days_back — окно назад по уже прошедшим датам событий."""
+    MOEX ir-calendar + Лента новостей + ГИР БО), БЕЗ ожидания дневного крона (20:45) —
+    для диагностики. days_back — окно назад по уже прошедшим датам событий.
+    run_girbo=False — пропустить полный обход ~261 тикеров ГИР БО (дороже путей 1-2,
+    для быстрой точечной проверки MOEX/новостного путей)."""
     from app.db.session import SessionLocal
     from app.services.report_watch import refresh
     db = SessionLocal()
     try:
-        return refresh(db, days_back=days_back)
+        return refresh(db, days_back=days_back, run_girbo=run_girbo)
     except Exception as e:  # noqa: BLE001
         logger.exception("debug trigger-report-watch: %s", e)
         return {"error": f"{type(e).__name__}: {e}"}
@@ -575,7 +579,8 @@ def debug_report_watch_diag(ticker: str, event_date: str):
     from datetime import date as date_cls
     from app.db.session import SessionLocal
     from app.models.earnings import EarningsReport
-    from app.services.report_watch import _from_market_updates, _from_skrin, _from_azipi
+    from app.services.report_watch import (_from_market_updates, _from_skrin, _from_azipi,
+                                           _girbo_org_id, _girbo_annual_reports, _girbo_figures)
     from app.services.calendar_events import _load_inn_ticker_map
     db = SessionLocal()
     try:
@@ -588,8 +593,18 @@ def debug_report_watch_diag(ticker: str, event_date: str):
         inn = next((i for i, ts in _load_inn_ticker_map().items() if ticker.upper() in ts), None)
         sk = _from_skrin(inn, ed) if inn else None
         az = _from_azipi(inn, ed) if inn else None
+        girbo = None
+        if inn:
+            org_id = _girbo_org_id(inn)
+            if org_id:
+                girbo_reports = _girbo_annual_reports(org_id)
+                if girbo_reports:
+                    latest = max(girbo_reports, key=lambda r: r.get("period") or "")
+                    girbo = {"org_id": org_id, "period": latest.get("period"),
+                             "actualBfoDate": latest.get("actualBfoDate"), "figures": _girbo_figures(latest)}
         return {"stored_reports": reports, "live_market_updates_text": (mu or "")[:2000],
-                "live_skrin_text": (sk or "")[:500], "live_azipi_text": (az or "")[:800], "inn": inn}
+                "live_skrin_text": (sk or "")[:500], "live_azipi_text": (az or "")[:800],
+                "live_girbo": girbo, "inn": inn}
     finally:
         db.close()
 
