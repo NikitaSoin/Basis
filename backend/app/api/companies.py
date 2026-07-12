@@ -266,7 +266,15 @@ def quotes_history_endpoint(ticker: str, days: int = Query(180, ge=5, le=4000),
     rows = db.execute(text(
         "SELECT date, close FROM quotes WHERE company_id=:cid AND date>=:d "
         "ORDER BY date ASC"), {"cid": company.id, "d": start}).all()
-    pts = [{"date": str(r.date), "close": float(r.close) if r.close is not None else None} for r in rows]
+    # Сплит/консолидация (кейс T, ~1:10, 2026-04-17) даёт разрыв цены в разы —
+    # без корректировки график читается как обвал, хотя де-факто акция не
+    # подешевела. normalize_splits — та же логика, что уже используется для
+    # доходности/риска (risk_metrics.py), здесь впервые применена к самому
+    # графику цены.
+    from app.services.risk_metrics import normalize_splits
+    raw_series = {r.date: float(r.close) for r in rows if r.close is not None and float(r.close) > 0}
+    adj_series = normalize_splits(raw_series)
+    pts = [{"date": str(r.date), "close": adj_series.get(r.date, float(r.close) if r.close is not None else None)} for r in rows]
     last = pts[-1]["close"] if pts else None
     prev = pts[-2]["close"] if len(pts) >= 2 else None
     change_pct = round((last / prev - 1) * 100, 2) if last and prev else None
