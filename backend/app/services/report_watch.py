@@ -38,7 +38,6 @@ calendar_event_id — повторно не трогаем (ручной ре-т
 """
 from __future__ import annotations
 
-import json
 import logging
 import re
 import time
@@ -46,6 +45,7 @@ from datetime import date, timedelta
 
 import httpx
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.calendar_event import CalendarEvent
@@ -226,34 +226,14 @@ def _live_price(ticker: str, db: Session) -> tuple[float | None, float | None]:
     return live, close
 
 
-def process_event(db: Session, event: CalendarEvent, company: Company, market_cap: float | None,
-                  inn_map: dict[str, list[str]]) -> str:
-    """Обработать одно календарное earnings-событие. Идемпотентно (см. дедуп по
-    calendar_event_id — уникальный индекс earnings_reports.calendar_event_id)."""
-    if db.query(EarningsReport).filter_by(calendar_event_id=event.id).first():
-        return "exists"
-    inn = next((i for i, tickers in inn_map.items() if event.ticker in tickers), None)
-    src = _source_text(db, event, inn)
-    standard = event.status  # уже нормализовано build_ir_calendar/_classify_report_kind
-    is_operational = bool(standard and "операцион" in standard.lower())
-    report_type = "operating" if is_operational else (
-        "annual" if re.search(r"\bгод(?:а)?\b", event.title, re.IGNORECASE)
-        and not re.search(r"\d+\s*(?:М|кв)", event.title, re.IGNORECASE) else "quarter")
-    report = EarningsReport(
-        ticker=event.ticker, period=_period_label(event), standard=standard,
-        report_type=report_type, published_at=event.event_date,
-        source="report_watch", source_url=event.source_url,
-        status="needs_source", calendar_event_id=event.id)
-    if not src:
+def _store_report(db: Session, report: EarningsReport, company: Company, text_blob: str | None,
+                  is_operational: bool, price_now: float | None, mcap: float | None) -> str:
+    """Общее ядро сохранения — используется и MOEX-путём (process_event), и
+    news-путём (process_news_item). `report` уже сконструирован (не добавлен в
+    сессию), text_blob=None означает «источник не нашёлся вовсе»."""
+    if not text_blob:
         db.add(report); db.commit()
         return "needs_source"
-    text_blob, src_label = src
-    live, close = _live_price(event.ticker, db)
-    price_now = live or close
-    mcap = market_cap
-    if market_cap and close and price_now:
-        mcap = market_cap * (price_now / close)
-    report.source = src_label
     if is_operational:
         opd = _extract_operational(text_blob)
         if not opd:
@@ -281,8 +261,8 @@ def process_event(db: Session, event: CalendarEvent, company: Company, market_ca
         except ZeroDivisionError:
             return None
     fig = {
-        "ticker": event.ticker, "name": company.name, "sector": company.sector,
-        "period": report.period, "standard": standard, "unit": "млн",
+        "ticker": report.ticker, "name": company.name, "sector": company.sector,
+        "period": report.period, "standard": report.standard, "unit": "млн",
         "revenue": fig_raw.get("revenue"), "revenue_prev": _prev(fig_raw.get("revenue"), fig_raw.get("revenue_yoy_pct")),
         "ebitda": fig_raw.get("ebitda"), "ebitda_prev": _prev(fig_raw.get("ebitda"), fig_raw.get("ebitda_yoy_pct")),
         "net_profit": fig_raw.get("net_profit"), "net_profit_prev": _prev(fig_raw.get("net_profit"), fig_raw.get("net_profit_yoy_pct")),
@@ -311,6 +291,81 @@ def process_event(db: Session, event: CalendarEvent, company: Company, market_ca
         report.status = "extract_failed"
     db.commit()
     return "created"
+
+
+def process_event(db: Session, event: CalendarEvent, company: Company, market_cap: float | None,
+                  inn_map: dict[str, list[str]]) -> str:
+    """Обработать одно календарное earnings-событие (MOEX ir-calendar-путь, ~76
+    тикеров). Идемпотентно — дедуп по calendar_event_id."""
+    if db.query(EarningsReport).filter_by(calendar_event_id=event.id).first():
+        return "exists"
+    inn = next((i for i, tickers in inn_map.items() if event.ticker in tickers), None)
+    src = _source_text(db, event, inn)
+    standard = event.status  # уже нормализовано build_ir_calendar/_classify_report_kind
+    is_operational = bool(standard and "операцион" in standard.lower())
+    report_type = "operating" if is_operational else (
+        "annual" if re.search(r"\bгод(?:а)?\b", event.title, re.IGNORECASE)
+        and not re.search(r"\d+\s*(?:М|кв)", event.title, re.IGNORECASE) else "quarter")
+    report = EarningsReport(
+        ticker=event.ticker, period=_period_label(event), standard=standard,
+        report_type=report_type, published_at=event.event_date,
+        source="report_watch", source_url=event.source_url,
+        status="needs_source", calendar_event_id=event.id)
+    if src:
+        report.source = src[1]
+    live, close = _live_price(event.ticker, db)
+    price_now = live or close
+    mcap = market_cap
+    if market_cap and close and price_now:
+        mcap = market_cap * (price_now / close)
+    return _store_report(db, report, company, src[0] if src else None, is_operational, price_now, mcap)
+
+
+def process_news_item(db: Session, item: dict, company: Company, market_cap: float | None) -> str:
+    """Обработать одну статью Ленты новостей, детектированную как отчёт/операционный
+    релиз (см. _due_news_reports) — покрывает ЛЮБУЮ компанию с новостным освещением,
+    не только ~76 тикеров MOEX ir-calendar. Идемпотентно — дедуп по market_update_id.
+    Доп. защита от дублей с MOEX-путём: если для этого тикера уже есть отчёт с
+    published_at в пределах недели — считаем то же самое событие, пропускаем."""
+    mu_id = item["market_update_id"]
+    if db.query(EarningsReport).filter_by(market_update_id=mu_id).first():
+        return "exists"
+    ticker = item["ticker"]
+    pub_date = item["published_at"]
+    nearby = (db.query(EarningsReport)
+              .filter(EarningsReport.ticker == ticker,
+                      EarningsReport.published_at.isnot(None),
+                      EarningsReport.published_at >= pub_date - timedelta(days=4),
+                      EarningsReport.published_at <= pub_date + timedelta(days=4))
+              .first())
+    if nearby:
+        return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
+    text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
+    blob_l = text_blob.lower()
+    is_operational = any(k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
+    standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
+        "операционные результаты" if is_operational else "отчётность")
+    m = re.search(r"за\s+(\d+М|\d+\s*кв(?:артал)?|\d{4}(?:\s*год)?|первое полугодие|полугодии)",
+                 text_blob, re.IGNORECASE)
+    period = m.group(1).strip() if m else pub_date.isoformat()
+    report_type = "operating" if is_operational else (
+        "annual" if re.search(r"\bгод(?:а)?\b", text_blob, re.IGNORECASE)
+        and not re.search(r"\d+\s*(?:М|кв)", text_blob, re.IGNORECASE) else "quarter")
+    report = EarningsReport(
+        ticker=ticker, period=period, standard=standard, report_type=report_type,
+        published_at=pub_date, source="market_updates", source_url=None,
+        status="needs_source", market_update_id=mu_id)
+    live, close = _live_price(ticker, db)
+    price_now = live or close
+    mcap = market_cap
+    if market_cap and close and price_now:
+        mcap = market_cap * (price_now / close)
+    try:
+        return _store_report(db, report, company, text_blob, is_operational, price_now, mcap)
+    except IntegrityError:
+        # (ticker, period, standard) уже занято другим путём — тот же реальный отчёт.
+        db.rollback()
+        return "exists"
 
 
 _MOEX_IR_CALENDAR = "https://iss.moex.com/iss/cci/calendars/ir-calendar.json"
@@ -386,17 +441,44 @@ def _get_or_create_calendar_event(db: Session, row: dict, company: Company) -> C
     return db.query(CalendarEvent).filter_by(dedup_key=dedup_key).first()
 
 
+def _due_news_reports(db: Session, companies: dict, days_back: int) -> list[dict]:
+    """Сканирует Ленту новостей ПРЯМО (в обход MOEX ir-calendar) на статьи о вышедшей
+    отчётности/операционке — покрывает ЛЮБУЮ компанию с новостным освещением (все
+    ~261, не только 76 из MOEX ir-calendar). Один market_updates.id может дать
+    несколько строк (статья упоминает несколько тикеров — напр. секторный обзор) —
+    это нормально, process_news_item дедупит по (ticker, published_at±4д)."""
+    from app.models.market import MarketUpdate
+    from datetime import datetime, timezone
+    lo = datetime.combine(date.today() - timedelta(days=days_back), datetime.min.time(), tzinfo=timezone.utc)
+    rows = (db.query(MarketUpdate)
+            .filter(MarketUpdate.status == "published", MarketUpdate.published_at >= lo).all())
+    out = []
+    for r in rows:
+        blob = f"{r.title} {r.summary or ''}"
+        if not _REPORT_KEYWORDS_RE.search(blob):
+            continue
+        for t in (r.affected_tickers or []):
+            if t in companies:
+                out.append({"market_update_id": r.id, "ticker": t, "published_at": r.published_at.date(),
+                            "title": r.title, "summary": r.summary, "impact_comment": r.impact_comment})
+    return out
+
+
 def refresh(db: Session, days_back: int = 5) -> dict:
-    """Ежедневный обход: MOEX ir-calendar события «Публикация отчетности» за days_back
-    дней назад (уже вышедшие), ещё не обработанные (нет earnings_reports с этим
-    calendar_event_id). Покрытие ограничено эмитентами MOEX ir-calendar (~76/261 —
-    см. build_ir_calendar) — честное ограничение источника, не притворяемся, что
-    покрываем весь рынок этим путём."""
+    """Ежедневный обход, ДВА независимых пути обнаружения:
+    1) MOEX ir-calendar «Публикация отчетности» (~76/261 эмитентов с публичным
+       IR-календарём) — даёт точную ожидаемую дату вперёд, для остальных источник
+       просто не покрывает (честное ограничение, см. _due_ir_rows).
+    2) Прямой скан Ленты новостей по ключевым словам отчётности (см.
+       _due_news_reports) — покрывает ЛЮБУЮ компанию с освещением в деловых СМИ,
+       не привязан к тому, есть ли у эмитента публичный IR-календарь. Дедуп против
+       пути (1) — по близости published_at (см. process_news_item)."""
     from app.services.calendar_events import _load_inn_ticker_map
     companies = {c.ticker: c for c in db.query(Company).all()}
-    due_rows = _due_ir_rows(companies, days_back)
     inn_map = _load_inn_ticker_map()
     res = {"created": 0, "needs_source": 0, "exists": 0, "errors": 0, "skipped_no_company": 0}
+
+    due_rows = _due_ir_rows(companies, days_back)
     for row in due_rows:
         company = companies.get(row["secid"])
         if not company:
@@ -407,8 +489,24 @@ def refresh(db: Session, days_back: int = 5) -> dict:
             r = process_event(db, event, company, float(company.market_cap) if company.market_cap else None, inn_map)
             res[r] = res.get(r, 0) + 1
         except Exception as e:  # noqa: BLE001
-            logger.warning("report_watch: ошибка по событию %s/%s: %s", row["secid"], row["event_id"], type(e).__name__)
+            logger.warning("report_watch: ошибка по событию (ir) %s/%s: %s", row["secid"], row["event_id"], type(e).__name__)
             res["errors"] += 1
             db.rollback()
-    logger.info("report_watch: %s (событий в окне: %d)", res, len(due_rows))
+
+    news_items = _due_news_reports(db, companies, days_back)
+    for item in news_items:
+        company = companies.get(item["ticker"])
+        if not company:
+            res["skipped_no_company"] += 1
+            continue
+        try:
+            r = process_news_item(db, item, company, float(company.market_cap) if company.market_cap else None)
+            res[r] = res.get(r, 0) + 1
+        except Exception as e:  # noqa: BLE001
+            logger.warning("report_watch: ошибка по новости %s/%s: %s", item["ticker"], item["market_update_id"], type(e).__name__)
+            res["errors"] += 1
+            db.rollback()
+
+    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d)",
+                res, len(due_rows), len(news_items))
     return res

@@ -23,7 +23,7 @@ class EarningsReport(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     ticker: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     period: Mapped[str] = mapped_column(String(24), nullable=False)   # "2025" | "1кв2026"
-    standard: Mapped[str | None] = mapped_column(String(16))          # МСФО | РСБУ | опер.
+    standard: Mapped[str | None] = mapped_column(String(40))          # МСФО | РСБУ | операционные результаты
     report_type: Mapped[str | None] = mapped_column(String(24))       # annual | quarter | operating
     published_at: Mapped[date_type | None] = mapped_column(Date)
     source: Mapped[str | None] = mapped_column(String(40))            # smartlab | ...
@@ -35,6 +35,11 @@ class EarningsReport(Base):
     # дедупа сам по себе. NULL у записей, созданных старым (ручным) путём.
     calendar_event_id: Mapped[int | None] = mapped_column(
         ForeignKey("calendar_events.id", ondelete="SET NULL"), unique=True)
+    # Дедуп-якорь для детекта ПРЯМО из Ленты новостей (охват НЕ ограничен ~76 тикерами
+    # MOEX ir-calendar, см. _due_news_reports) — событие найдено в самой новости,
+    # calendar_event_id в этом случае NULL (нет календарной даты-первоисточника).
+    market_update_id: Mapped[int | None] = mapped_column(
+        ForeignKey("market_updates.id", ondelete="SET NULL"), unique=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
