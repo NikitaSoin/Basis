@@ -61,6 +61,21 @@ def _as_float(v):
         return None
 
 
+def _pct(v):
+    """Нормализует ставку/темп роста к процентным пунктам (23.6, не 0.236).
+    Схема key_assumptions НЕСОГЛАСОВАНА между методами разных прогонов: у SBER
+    pbv_roe "ke"/"g" хранятся как проценты (23.6, 3.5), у LKOH DCF "r"/"g" —
+    как доли (0.241, 0.035). r/g/ke/roe в этой предметной области всегда в
+    диапазоне ~2-40%, поэтому |v|<1 однозначно означает долю (0.241 → 24.1),
+    иначе значение уже в процентах. Без этой нормализации формула молча
+    получает число в 100 раз меньше знаменателя и цену в разы завышает
+    (проверено на LKOH: DCF live улетал в 56 628 ₽ вместо ожидаемых ~5 264 ₽)."""
+    f = _as_float(v)
+    if f is None:
+        return None
+    return f * 100 if abs(f) < 1 else f
+
+
 def _load_config() -> dict:
     try:
         return json.loads(_CONFIG_PATH.read_text(encoding="utf-8"))
@@ -86,8 +101,8 @@ def _recompute_dcf_gordon(ka: dict, rf_live_pct: float, rf_frozen_pct: float, er
     if ka.get("method_form") != "Gordon_from_FCF1":
         return None
     fcf1 = _as_float(ka.get("fcf1_mln"))
-    g_pct = _as_float(ka.get("g"))
-    r_frozen_pct = _as_float(ka.get("r"))
+    g_pct = _pct(ka.get("g"))
+    r_frozen_pct = _pct(ka.get("r"))
     net_cash = _as_float(ka.get("net_cash_added_mln")) or 0.0
     beta = _as_float(ka.get("beta")) or 1.0
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
@@ -109,9 +124,9 @@ def _recompute_dcf_gordon(ka: dict, rf_live_pct: float, rf_frozen_pct: float, er
 
 
 def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
-    roe_pct = _as_float(ka.get("roe_sustainable"))
-    g_pct = _as_float(ka.get("g"))
-    ke_frozen_pct = _as_float(ka.get("ke"))
+    roe_pct = _pct(ka.get("roe_sustainable"))
+    g_pct = _pct(ka.get("g"))
+    ke_frozen_pct = _pct(ka.get("ke"))
     bvps = _as_float(ka.get("bvps_2025")) or _as_float(ka.get("bvps"))
     beta = _as_float(ka.get("beta")) or 1.0
     if roe_pct is None or g_pct is None or ke_frozen_pct is None or bvps is None:
