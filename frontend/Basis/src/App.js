@@ -103,9 +103,19 @@ import "./styles/compare.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onSelectIndex, onOpenFearGreed }) {
+function ObserverV2({
+  token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot,
+  onSelectIndex, onOpenFearGreed, onOpenIndexHub,
+  indexTicker, showIndexHub, onCloseIndexUI,
+}) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
+  // Страницы индексов (владелец: «нужно, чтобы сайдбар оставался виден и на
+  // самой странице индекса, а не только после возврата назад») рендерятся
+  // ВНУТРИ этого же .obs-shell — сайдбар остаётся, меняется только .obs-main.
+  // Клик по любому пункту сайдбара ниже явно закрывает режим индекса
+  // (onCloseIndexUI) — иначе пользователь «застревал» бы и там тоже.
+  const inIndexMode = Boolean(indexTicker || showIndexHub);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -234,9 +244,9 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
               <button
                 key={id}
                 type="button"
-                className={`obs-item${activeSection === id ? " obs-item--active" : ""}`}
-                onClick={() => setActiveSection(id)}
-                aria-current={activeSection === id ? "page" : undefined}
+                className={`obs-item${!inIndexMode && activeSection === id ? " obs-item--active" : ""}`}
+                onClick={() => { onCloseIndexUI(); setActiveSection(id); }}
+                aria-current={!inIndexMode && activeSection === id ? "page" : undefined}
               >
                 <span className="obs-item__icon"><Icon size={15} aria-hidden="true" /></span>
                 {label}
@@ -276,8 +286,20 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
       </nav>
 
       {/* ---- Light main area ---- */}
-      <main className="obs-main" key={activeSection}>
-        {renderSection()}
+      <main className="obs-main" key={inIndexMode ? `index:${indexTicker || "hub"}` : activeSection}>
+        {inIndexMode ? (
+          <div className="obs-panel">
+            {indexTicker === "FEARGREED" ? (
+              <FearGreedDetailView onOpenHub={onOpenIndexHub} />
+            ) : indexTicker ? (
+              <IndexDetailView ticker={indexTicker} onOpenHub={onOpenIndexHub} onSelectCompany={onSelectCompany} />
+            ) : (
+              <IndexHubView onBack={onCloseIndexUI} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} />
+            )}
+          </div>
+        ) : (
+          renderSection()
+        )}
       </main>
     </div>
   );
@@ -635,19 +657,32 @@ export default function App() {
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
-    // Экранные оверлеи (карточка облигации/фьючерса/фонда/спота, индекс, хаб
-    // индексов) рендерятся ПОВЕРХ activeTab в renderView() — раньше только
-    // selectedCompany сбрасывался тут, остальные оставались висеть, и клик по
-    // верхней навигации молча ничего не делал, пока такой оверлей открыт
-    // (владелец: «сайдбар слева пропал, верхний не работает» — это как раз
-    // застревание на IndexDetailView/IndexHubView).
+    // Экранные оверлеи (карточка облигации/фьючерса/фонда/спота) рендерятся
+    // ПОВЕРХ activeTab в renderView() — раньше только selectedCompany
+    // сбрасывался тут, остальные оставались висеть, и клик по верхней
+    // навигации молча ничего не делал, пока такой оверлей открыт.
     setSelectedBond(null);
     setSelectedFuture(null);
     setSelectedFund(null);
     setSelectedSpot(null);
+    // Индексы больше НЕ отдельный оверлей (владелец: «сайдбар должен
+    // оставаться виден и на самой странице индекса») — рендерятся внутри
+    // ObserverV2 при activeTab==="overview", поэтому здесь просто закрываем
+    // режим индекса, а не полагаемся на порядок веток в renderView().
     setSelectedIndex(null);
     setShowIndexHub(false);
   };
+
+  // Индекс/хаб индексов/индекс страха и жадности показываются ВНУТРИ
+  // ObserverV2 (сайдбар Обозревателя остаётся виден и там), независимо от
+  // того, откуда открыли — из «Обозревателя» (Обзор рынка) или из «Рынка»
+  // (Пульс). Поэтому все три открывашки переключают activeTab на "overview"
+  // синхронно с установкой индекса — ObserverV2 гарантированно окажется
+  // смонтирован к моменту, когда ему нужно отрендерить страницу индекса.
+  const openIndex = (ticker) => { setSelectedIndex(ticker); setShowIndexHub(false); setActiveTab("overview"); };
+  const openFearGreed = () => { setSelectedIndex("FEARGREED"); setShowIndexHub(false); setActiveTab("overview"); };
+  const openIndexHub = () => { setSelectedIndex(null); setShowIndexHub(true); setActiveTab("overview"); };
+  const closeIndexUI = () => { setSelectedIndex(null); setShowIndexHub(false); };
 
   const renderView = () => {
     if (selectedCompany) {
@@ -660,30 +695,9 @@ export default function App() {
     if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={setSelectedCompany} />;
     if (selectedFund) return <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />;
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
-    if (selectedIndex === "FEARGREED") {
-      return <FearGreedDetailView onOpenHub={() => { setSelectedIndex(null); setShowIndexHub(true); }} />;
-    }
-    if (selectedIndex) {
-      return (
-        <IndexDetailView
-          ticker={selectedIndex}
-          onOpenHub={() => { setSelectedIndex(null); setShowIndexHub(true); }}
-          onSelectCompany={setSelectedCompany}
-        />
-      );
-    }
-    if (showIndexHub) {
-      return (
-        <IndexHubView
-          onBack={() => setShowIndexHub(false)}
-          onSelectIndex={(t) => { setShowIndexHub(false); setSelectedIndex(t); }}
-          onOpenFearGreed={() => { setShowIndexHub(false); setSelectedIndex("FEARGREED"); }}
-        />
-      );
-    }
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={setSelectedIndex} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} />;
       case "screener":
         return <ScreenerView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
@@ -691,8 +705,12 @@ export default function App() {
           <ObserverV2
             token={token} onSelectCompany={setSelectedCompany}
             onOpenBond={setSelectedBond} onOpenFuture={setSelectedFuture} onOpenFund={setSelectedFund} onOpenSpot={setSelectedSpot}
-            onSelectIndex={setSelectedIndex}
-            onOpenFearGreed={() => setSelectedIndex("FEARGREED")}
+            onSelectIndex={openIndex}
+            onOpenFearGreed={openFearGreed}
+            onOpenIndexHub={openIndexHub}
+            indexTicker={selectedIndex}
+            showIndexHub={showIndexHub}
+            onCloseIndexUI={closeIndexUI}
           />
         );
       case "portfolio":
@@ -726,7 +744,7 @@ export default function App() {
           />
         );
       default:
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={setSelectedIndex} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} />;
     }
   };
 
