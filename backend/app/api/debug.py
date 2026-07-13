@@ -201,6 +201,10 @@ async def debug_connectivity():
         "skrin_disclosure (disclosure.skrin.ru)": "https://disclosure.skrin.ru/",
         "azipi_disclosure (e-disclosure.azipi.ru)": "https://e-disclosure.azipi.ru/",
         "girbo (bo.nalog.gov.ru)": "https://bo.nalog.gov.ru/",
+        "rosneft_rss (rosneft.ru)": "https://www.rosneft.ru/press/releases/rss/",
+        "gazpromneft_rss (ir.gazprom-neft.ru)": "https://ir.gazprom-neft.ru/rss-feeds/rss-ad-hoc.xml",
+        "tatneft_rss (tatneft.ru)": "https://www.tatneft.ru/rss/ru",
+        "mmk_rss (mmk.ru)": "https://mmk.ru/",
     }
 
     async def probe(name: str, url: str | None) -> dict:
