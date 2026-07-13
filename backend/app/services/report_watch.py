@@ -211,6 +211,80 @@ def _from_azipi(inn: str, event_date: date) -> str | None:
     return None
 
 
+# ----------------------------- источник 4: ПРАЙМ (disclosure.1prime.ru) -----------------------------
+# Был подключён ТОЛЬКО в дивидендный календарь (calendar_events.build_prime_disclosure,
+# 14 хардкод-тикеров) — упущение report_watch не переиспользовал. Тот же шаблон
+# Положения №714-П, тот же паттерн, что СКРИН/АЗИПИ (поиск по ИНН → таблица сообщений).
+_PRIME_BASE = "https://disclosure.1prime.ru"
+
+
+_PRIME_EVENT_DATE_RE = re.compile(
+    r"Дата наступления события[^:]*:\s*(\d{1,2}\.\d{1,2}\.\d{4}|\d{1,2}\s+\S+\s+\d{4})", re.IGNORECASE)
+
+
+def _from_prime(inn: str, event_date: date) -> str | None:
+    """🔴 Таблица ПРАЙМ: cells[0] — порядковый НОМЕР строки, НЕ дата (в отличие от
+    СКРИН/АЗИПИ) — дату можно узнать только из содержимого самого сообщения (поле
+    «Дата наступления события», тот же шаблон Положения №714-П). Фильтр по категории
+    сначала (дёшево), дату проверяем ПОСЛЕ фетча содержимого (дороже, но иначе никак)."""
+    if not inn:
+        return None
+    try:
+        r = httpx.get(f"{_PRIME_BASE}/portal/default.aspx", params={"emId": inn}, timeout=15, headers=_HTTP_UA)
+        r.raise_for_status()
+        html = r.text
+    except Exception:  # noqa: BLE001
+        return None
+    lo, hi = event_date - timedelta(days=1), event_date + timedelta(days=_WINDOW_DAYS)
+    checked = 0
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        if "GetMessage" not in row or checked >= 10:
+            continue
+        cells = re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)
+        if len(cells) < 2:
+            continue
+        title_l = re.sub(r"<[^>]+>", " ", cells[1]).strip().lower()
+        if not any(k in title_l for k in _SKRIN_RELEVANT):
+            continue
+        gm = re.search(r"guid=(\{[0-9A-Fa-f-]+\})", row)
+        if not gm:
+            continue
+        checked += 1
+        try:
+            mr = httpx.get(f"{_PRIME_BASE}/Portal/GetMessage.aspx", params={"emId": inn, "guid": gm.group(1)},
+                           timeout=15, headers=_HTTP_UA)
+            msg_text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", mr.text))
+        except Exception:  # noqa: BLE001
+            continue
+        dm = _PRIME_EVENT_DATE_RE.search(msg_text)
+        msg_date = _parse_ru_date_str(dm.group(1)) if dm else None
+        if msg_date and lo <= msg_date <= hi:
+            return msg_text
+    return None
+
+
+def _parse_ru_date_str(s: str) -> date | None:
+    m = re.match(r"(\d{1,2})\.(\d{1,2})\.(\d{4})", s)
+    if m:
+        d, mo, y = m.groups()
+        try:
+            return date(int(y), int(mo), int(d))
+        except ValueError:
+            return None
+    m = re.match(r"(\d{1,2})\s+(\S+)\s+(\d{4})", s)
+    if m:
+        d, mon_ru, y = m.groups()
+        months = {"января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
+                  "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12}
+        mo = months.get(mon_ru.lower())
+        if mo:
+            try:
+                return date(int(y), mo, int(d))
+            except ValueError:
+                return None
+    return None
+
+
 def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[str, str] | None:
     mu = _from_market_updates(db, event.ticker, event.event_date)
     if mu:
@@ -218,6 +292,9 @@ def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[st
     sk = _from_skrin(inn, event.event_date)
     if sk:
         return sk, "skrin_disclosure"
+    pr = _from_prime(inn, event.event_date)
+    if pr:
+        return pr, "prime_disclosure"
     az = _from_azipi(inn, event.event_date)
     if az:
         return az, "azipi_disclosure"
