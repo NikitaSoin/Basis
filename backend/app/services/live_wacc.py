@@ -26,18 +26,31 @@ P/BV=(ROE-g)/(Ke-g) — линейное масштабирование даст
 → update_risk_free_rate, ключ "risk_free_10y") — не HTTP-запрос к MOEX ISS на
 каждый рендер карточки (см. get_market_param).
 
-Поддержаны 2 метода (наиболее чувствительные к ставке и наиболее частые):
-- DCF (key_assumptions.method_form == "Gordon_from_FCF1"):
+Поддержаны 3 метода (имя метода нормализуется — "P/BV_ROE"/"PBV_ROE"/"pbv_roe"
+у разных прогонов аналитика считаются одним и тем же):
+- DCF (одностадийный Gordon от FCF1):
     EV = FCF1/(r−g); equity = EV + net_cash; price = equity/shares
 - pbv_roe:
     fair_P/BV = (ROE−g)/(Ke−g); price = fair_P/BV × BVPS
+- dividend / dividend_DDM (простой "дивиденд/доходность" ИЛИ Гордон-DDM):
+    price = numerator/(rate) либо numerator/(rate−g). "numerator" НЕ пересчитывается
+    из dps заново (конвенция "текущий/форвардный дивиденд" несогласована между
+    компаниями — где-то дивиденд домножается на (1+g), где-то уже форвардный) —
+    вместо этого он восстанавливается из УЖЕ ДОВЕРЕННОЙ frozen fair_value_per_share:
+    numerator = frozen_price × (rate_frozen [− g]); live_price = numerator/(rate_live [− g]).
+    Так пересчёт не зависит от того, как именно был получен numerator.
 
-Остальные методы (historical_pb/pe, dividend_yield, relative_peers, CAPM) либо не
-зависят от Rf по формуле, либо их структурированные key_assumptions не содержат
-всех нужных чисел (напр. CAPM.eps_forward живёт только текстом в explain.inputs) —
-оставлены статичными: лучше НЕ пересчитывать, чем выдумывать логику поверх
-неполных данных. Деградация graceful — при нехватке любого входа метод остаётся
-frozen без ошибки.
+НЕ пересчитываются: historical_pb/pe и relative_peers (цена строится от
+исторических/секторных МУЛЬТИПЛИКАТОРОВ, не от ставки дисконтирования — формулы
+для пересчёта попросту нет, а не "не реализовано"); SOTP (сумма частей с холдинг-
+дисконтами — слишком разнородная структура между компаниями); CAPM (проверено на
+4 компаниях: формула генуинно РАЗНАЯ и иногда НЕОДНОЗНАЧНАЯ даже в одной карточке
+— у VTBR key_assumptions одновременно содержит "обоснованный P/E" 208,9₽ и
+альтернативный total-return-таргет 84,9₽, и именно ПЕРВЫЙ, менее подходящий по
+мнению самого аналитика, оказывается тем fair_value_per_share, что записан —
+без ручной проверки по каждой компании легко получить тихо неверное число, тот
+же класс риска, что уже дважды ловился на этой фиче на DCF). Деградация graceful
+везде — при нехватке/неоднозначности входа метод остаётся frozen без ошибки.
 """
 from __future__ import annotations
 
@@ -86,6 +99,83 @@ def _pct(v):
     if f is None:
         return None
     return f * 100 if abs(f) < 1 else f
+
+
+def _normalize_method(name) -> str:
+    """"DCF"/"P/BV_ROE"/"PBV_ROE"/"pbv_roe"/"dividend_DDM" → канонический ключ.
+    Разные прогоны financial-analyst называли методы по-разному (регистр,
+    слэши, подчёркивания) — без нормализации часть методов молча выпадала из
+    пересчёта просто по имени, не по нехватке данных (найдено на бою: VTBR/MOEX
+    используют "P/BV_ROE"/"PBV_ROE", а не "pbv_roe")."""
+    n = "".join(ch for ch in str(name or "").lower() if ch.isalnum())
+    if n == "dcf":
+        return "dcf"
+    if n in ("pbvroe",):
+        return "pbvroe"
+    if "dividend" in n:
+        return "dividend"
+    return n
+
+
+def _live_rate_pct(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
+                    rate_fields: tuple[str, ...]) -> tuple[float | None, float | None]:
+    """Ищет ставку дисконтирования/требуемую доходность по списку возможных имён
+    полей (порядок = приоритет). Если рядом есть beta — восстанавливает остаточную
+    надбавку (governance и т.п.) через тот же приём, что DCF/pbv_roe: extra =
+    rate_frozen − (Rf_frozen + β×ERP), rate_live = Rf_live + β×ERP + extra. Если
+    beta не задана (напр. required_yield — рыночное суждение, не CAPM-формула) —
+    параллельный сдвиг на дельту живой ставки: rate_live = rate_frozen + (Rf_live
+    − Rf_frozen). Возвращает (rate_live_pct, rate_frozen_pct) либо (None, None)."""
+    for field in rate_fields:
+        if field not in ka:
+            continue
+        rate_frozen_pct = _pct(ka.get(field))
+        if rate_frozen_pct is None:
+            continue
+        beta = _as_float(ka.get("beta"))
+        if beta is not None:
+            extra_pct = rate_frozen_pct - (rf_frozen_pct + beta * erp_pct)
+            rate_live_pct = rf_live_pct + beta * erp_pct + extra_pct
+        else:
+            rate_live_pct = rate_frozen_pct + (rf_live_pct - rf_frozen_pct)
+        return rate_live_pct, rate_frozen_pct
+    return None, None
+
+
+def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
+    ka = m.get("key_assumptions") or {}
+    frozen_price = _as_float(m.get("fair_value_per_share"))
+    if frozen_price is None or frozen_price <= 0:
+        return None
+
+    # Неоднозначность IRAO-класса: если "ke"/"r" (Гордон) И "required_yield"
+    # (прямая доходность) присутствуют ОДНОВРЕМЕННО как отдельные числа — это
+    # два конкурирующих подхода в одном методе, и по какому из них на самом деле
+    # взят fair_value_per_share, надёжно не определить без ручной проверки
+    # (см. модуль docstring, VTBR-кейс в CAPM — тот же класс риска). Пропускаем.
+    has_gordon_rate = any(f in ka for f in ("ke", "r"))
+    has_required_yield = "required_yield" in ka
+    if has_gordon_rate and has_required_yield:
+        return None
+
+    g_pct = _pct(ka.get("g_div") if "g_div" in ka else ka.get("g"))
+
+    rate_live_pct, rate_frozen_pct = _live_rate_pct(
+        ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke", "r", "required_yield"))
+    if rate_live_pct is None or rate_frozen_pct is None:
+        return None
+
+    if g_pct is not None:
+        denom_frozen = rate_frozen_pct / 100 - g_pct / 100
+        denom_live = rate_live_pct / 100 - g_pct / 100
+    else:
+        denom_frozen = rate_frozen_pct / 100
+        denom_live = rate_live_pct / 100
+    if denom_frozen <= 0 or denom_live <= 0:
+        return None
+
+    numerator = frozen_price * denom_frozen
+    return round(numerator / denom_live, 2)
 
 
 def _load_config() -> dict:
@@ -204,10 +294,13 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
         # per_share=null именно потому, что формула даёт мусор (напр. GAZP DCF:
         # equity отрицателен при полной структуре капитала с долгом).
         if m.get("status") == "ok":
-            if m.get("method") == "DCF":
+            method_key = _normalize_method(m.get("method"))
+            if method_key == "dcf":
                 live_price = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
-            elif m.get("method") == "pbv_roe":
+            elif method_key == "pbvroe":
                 live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
+            elif method_key == "dividend":
+                live_price = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct)
 
         # Барьер здравого смысла: для сильно закредитованных компаний equity =
         # EV − net_debt ставит equity на "плечо" к ставке — малое движение Rf
