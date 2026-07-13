@@ -61,6 +61,18 @@ def _as_float(v):
         return None
 
 
+def _last_num(arr):
+    """Последнее числовое значение временного ряда balance_sheet.* (тот же
+    хелпер, что в live_multiples.py — там же и обоснование Decimal-NaN-guard)."""
+    if not isinstance(arr, list):
+        return None
+    for v in reversed(arr):
+        f = _as_float(v)
+        if f is not None:
+            return f
+    return None
+
+
 def _pct(v):
     """Нормализует ставку/темп роста к процентным пунктам (23.6, не 0.236).
     Схема key_assumptions НЕСОГЛАСОВАНА между методами разных прогонов: у SBER
@@ -96,7 +108,7 @@ def get_live_risk_free_10y_pct(db: Session) -> tuple[float | None, str | None]:
     return float(row.value), (row.as_of.isoformat() if row.as_of else None)
 
 
-def _recompute_dcf_gordon(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
+def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
                            shares_outstanding: float | None) -> float | None:
     # method_form — необязательная аннотация; часть прогонов её не проставляла
     # (напр. ROSN), хотя структура key_assumptions та же самая одностадийная
@@ -111,17 +123,22 @@ def _recompute_dcf_gordon(ka: dict, rf_live_pct: float, rf_frozen_pct: float, er
     beta = _as_float(ka.get("beta")) or 1.0
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
         return None
-    # net_cash_added_mln ОБЯЗАТЕЛЬНО присутствовать явно (не дефолт на 0!) — иначе
-    # для закредитованных компаний (см. GAZP: чистый долг ~6,1 трлн ₽, r=WACC с
-    # долгом, не Ke) equity_live = EV_live без вычета долга даёт кратно завышенную
-    # цену. Явный net_cash_added_mln в key_assumptions — сигнал, что аналитик уже
-    # свёл структуру капитала (чистая денежная позиция, как у LKOH); без него —
-    # не рискуем, оставляем метод frozen.
-    if "net_cash_added_mln" not in ka:
-        return None
-    net_cash = _as_float(ka.get("net_cash_added_mln"))
-    if net_cash is None:
-        return None
+    # net_cash: приоритет — точное число, которое использовал аналитик в
+    # key_assumptions (как у LKOH); если его нет (большинство компаний — поле
+    # необязательное), берём balance_sheet.net_debt (тот же общий источник,
+    # что live_multiples.py уже использует для EV/EBITDA) — последнее известное
+    # значение временного ряда, знак инвертирован (net_debt>0 вычитается из EV,
+    # net_debt<0 = чистая денежная позиция прибавляется). Если ни того, ни
+    # другого нет — НЕ рискуем игнорировать долг молча, метод остаётся frozen.
+    if "net_cash_added_mln" in ka:
+        net_cash = _as_float(ka.get("net_cash_added_mln"))
+        if net_cash is None:
+            return None
+    else:
+        net_debt = _last_num((fin.get("balance_sheet") or {}).get("net_debt"))
+        if net_debt is None:
+            return None
+        net_cash = -net_debt
     if not shares_outstanding or shares_outstanding <= 0:
         return None
 
@@ -188,7 +205,7 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
         # equity отрицателен при полной структуре капитала с долгом).
         if m.get("status") == "ok":
             if m.get("method") == "DCF":
-                live_price = _recompute_dcf_gordon(ka, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
+                live_price = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
             elif m.get("method") == "pbv_roe":
                 live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
 
