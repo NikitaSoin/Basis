@@ -626,7 +626,7 @@ async def lifespan(app: FastAPI):
     if os.environ.get("DISABLE_EXTERNAL_JOBS") == "1":
         logger.info("Внешние LLM/FRED-задачи (news/macro/earnings/geo) ОТКЛючены явно (DISABLE_EXTERNAL_JOBS=1)")
     else:
-        scheduler.add_job(_news_job, "cron", hour="7,13,19,1", minute=0, id="news_feed")
+        scheduler.add_job(_news_job, "cron", minute=5, id="news_feed")  # каждый час
         scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_macro_interpretation_job, "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
