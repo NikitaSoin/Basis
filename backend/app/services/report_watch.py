@@ -86,6 +86,61 @@ _REPORT_KEYWORDS_RE = re.compile(
     re.IGNORECASE)
 
 
+# ----------------------------- источник 0: собственный RSS компании (высший приоритет) -----------------------------
+# Официальный первоисточник — когда есть, качественнее новостного пересказа: у Роснефти
+# RSS пресс-релизов (rosneft.ru/press/releases/rss/) отдаёт ПОЛНУЮ таблицу цифр (выручка/
+# EBITDA/прибыль/CapEx поквартально по МСФО) прямо в поле <yandex:full-text> — проверено
+# вручную 2026-07-14. 🔴 НЕ универсально: параллельное агентское исследование 13 крупных
+# компаний вне MOEX ir-calendar нашло такую ленту ТОЛЬКО у Татнефти (tatneft.ru/rss/ru,
+# подтверждён живым HTTP 200 с прод-сервера — сам сайт недоступен из sandbox инструмента
+# исследования, аналогично известной блокировке DeepSeek/FRED egress, см. память проекта).
+# У остальных 11 — нет RSS/Atom/JSON API на предсказуемых путях (Лукойл/Новатэк/Сургут/
+# Русал/НЛМК/АЛРОСА/Транснефть/Башнефть/ПИК/ВСМПО — проверено вручную и агентами). URL
+# угадать нельзя (пробовали десяток типовых путей — не работает) — список пополняется
+# ТОЛЬКО подтверждённым ручным/агентским обнаружением per-компания, не догадками.
+_COMPANY_RSS = {
+    "ROSN": "https://www.rosneft.ru/press/releases/rss/",
+    "TATN": "https://www.tatneft.ru/rss/ru",
+}
+
+
+def _from_company_rss(ticker: str, event_date: date) -> str | None:
+    import html as _html
+    from email.utils import parsedate_to_datetime
+    url = _COMPANY_RSS.get(ticker)
+    if not url:
+        return None
+    try:
+        r = httpx.get(url, timeout=15, headers=_HTTP_UA, follow_redirects=True)
+        r.raise_for_status()
+        xml = r.text
+    except Exception:  # noqa: BLE001
+        return None
+    lo, hi = event_date - timedelta(days=2), event_date + timedelta(days=_WINDOW_DAYS)
+    for it in re.findall(r"<item>(.*?)</item>", xml, re.S):
+        title_m = re.search(r"<title>(.*?)</title>", it, re.S)
+        pub_m = re.search(r"<pubDate>(.*?)</pubDate>", it, re.S)
+        if not title_m or not pub_m:
+            continue
+        title = _html.unescape(_html.unescape(re.sub(r"<!\[CDATA\[|\]\]>", "", title_m.group(1)))).strip()
+        if not _REPORT_KEYWORDS_RE.search(title):
+            continue
+        try:
+            pub_date = parsedate_to_datetime(pub_m.group(1)).date()
+        except (TypeError, ValueError):
+            continue
+        if not (lo <= pub_date <= hi):
+            continue
+        ft_m = re.search(r"<yandex:full-text>(.*?)</yandex:full-text>", it, re.S)
+        desc_m = re.search(r"<description>(.*?)</description>", it, re.S)
+        raw = (ft_m or desc_m).group(1) if (ft_m or desc_m) else ""
+        # 🔴 двойное HTML-экранирование в этой ленте (&amp;laquo; вместо &laquo;) —
+        # тот же паттерн, что у hh.ru (см. macro_hh_sync.py) — unescape дважды.
+        raw = _html.unescape(_html.unescape(re.sub(r"<!\[CDATA\[|\]\]>", "", raw)))
+        return re.sub(r"\s+", " ", f"{title}\n{re.sub(r'<[^>]+>', ' ', raw)}")
+    return None
+
+
 # ----------------------------- источник 1: Лента новостей -----------------------------
 def _from_market_updates(db: Session, ticker: str, event_date: date) -> str | None:
     from app.models.market import MarketUpdate
@@ -286,6 +341,9 @@ def _parse_ru_date_str(s: str) -> date | None:
 
 
 def _source_text(db: Session, event: CalendarEvent, inn: str | None) -> tuple[str, str] | None:
+    cr = _from_company_rss(event.ticker, event.event_date)
+    if cr:
+        return cr, "company_rss"
     mu = _from_market_updates(db, event.ticker, event.event_date)
     if mu:
         return mu, "market_updates"
@@ -530,6 +588,53 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         return _store_report(db, report, company, text_blob, is_operational, price_now, mcap)
     except IntegrityError:
         # (ticker, period, standard) уже занято другим путём — тот же реальный отчёт.
+        db.rollback()
+        return "exists"
+
+
+def _due_company_rss_reports(days_back: int) -> list[dict]:
+    """Прямой обход _COMPANY_RSS (не через MOEX ir-calendar — ROSN/TATN в него НЕ входят,
+    calendar-путь их никогда не увидит). Дёшево: всего 2 тикера сейчас, по одному
+    HTTP-запросу на ленту."""
+    out = []
+    today = date.today()
+    for ticker in _COMPANY_RSS:
+        text_blob = _from_company_rss(ticker, today - timedelta(days=days_back // 2))
+        if text_blob:
+            out.append({"ticker": ticker, "text": text_blob})
+    return out
+
+
+def process_company_rss_item(db: Session, item: dict, company: Company, market_cap: float | None) -> str:
+    """Обработать одну статью из собственного RSS компании (см. _COMPANY_RSS) —
+    первоисточник, качественнее новостного пересказа. Дедуп — (ticker, period,
+    standard) constraint + защита от дублей с другими путями по близости даты
+    (та же логика, что process_news_item)."""
+    ticker = item["ticker"]
+    text_blob = item["text"]
+    blob_l = text_blob.lower()
+    is_operational = any(k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
+    standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
+        "операционные результаты" if is_operational else "отчётность")
+    m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|1 пол\.?|полугодие)",
+                 text_blob, re.IGNORECASE)
+    period = m.group(1).strip() if m else date.today().isoformat()
+    report_type = "operating" if is_operational else (
+        "annual" if re.search(r"\bгод", text_blob, re.IGNORECASE) and "кв" not in blob_l else "quarter")
+    if db.query(EarningsReport).filter_by(ticker=ticker, period=period, standard=standard).first():
+        return "exists"
+    report = EarningsReport(
+        ticker=ticker, period=period, standard=standard, report_type=report_type,
+        published_at=date.today(), source="company_rss", source_url=_COMPANY_RSS.get(ticker),
+        status="needs_source")
+    live, close = _live_price(ticker, db)
+    price_now = live or close
+    mcap = market_cap
+    if market_cap and close and price_now:
+        mcap = market_cap * (price_now / close)
+    try:
+        return _store_report(db, report, company, text_blob, is_operational, price_now, mcap)
+    except IntegrityError:
         db.rollback()
         return "exists"
 
@@ -831,6 +936,20 @@ def refresh(db: Session, days_back: int = 5, run_girbo: bool = True) -> dict:
                 res["errors"] += 1
                 db.rollback()
 
-    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d, ГИР БО: %d)",
-                res, len(due_rows), len(news_items), len(girbo_items))
+    rss_items = _due_company_rss_reports(days_back)
+    for item in rss_items:
+        company = companies.get(item["ticker"])
+        if not company:
+            res["skipped_no_company"] += 1
+            continue
+        try:
+            r = process_company_rss_item(db, item, company, float(company.market_cap) if company.market_cap else None)
+            res[r] = res.get(r, 0) + 1
+        except Exception as e:  # noqa: BLE001
+            logger.warning("report_watch: ошибка company_rss %s: %s", item["ticker"], type(e).__name__)
+            res["errors"] += 1
+            db.rollback()
+
+    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d, ГИР БО: %d, company_rss: %d)",
+                res, len(due_rows), len(news_items), len(girbo_items), len(rss_items))
     return res
