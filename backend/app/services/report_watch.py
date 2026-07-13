@@ -566,7 +566,14 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
     text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
     blob_l = text_blob.lower()
-    is_operational = any(k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
+    # 🔴 Найдено на бою 2026-07-14: явный финансовый стандарт (МСФО/РСБУ) должен
+    # ПЕРЕВЕШИВАТЬ операционные ключевые слова — релиз Роснефти «РЕЗУЛЬТАТЫ... ПО МСФО»
+    # содержит «ДОБЫЧА» как попутный контекст, но это финотчёт с выручкой/EBITDA/прибылью
+    # в тексте; без приоритета is_operational=True уводил его в operational-путь и терял
+    # реальные финансовые цифры, которые были прямо в тексте.
+    has_fin_standard = "мсфо" in blob_l or "рсбу" in blob_l
+    is_operational = not has_fin_standard and any(
+        k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
     standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
         "операционные результаты" if is_operational else "отчётность")
     m = re.search(r"за\s+(\d+М|\d+\s*кв(?:артал)?|\d{4}(?:\s*год)?|первое полугодие|полугодии)",
@@ -613,7 +620,14 @@ def process_company_rss_item(db: Session, item: dict, company: Company, market_c
     ticker = item["ticker"]
     text_blob = item["text"]
     blob_l = text_blob.lower()
-    is_operational = any(k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
+    # 🔴 Найдено на бою 2026-07-14: явный финансовый стандарт (МСФО/РСБУ) должен
+    # ПЕРЕВЕШИВАТЬ операционные ключевые слова — релиз Роснефти «РЕЗУЛЬТАТЫ... ПО МСФО»
+    # содержит «ДОБЫЧА» как попутный контекст, но это финотчёт с выручкой/EBITDA/прибылью
+    # в тексте; без приоритета is_operational=True уводил его в operational-путь и терял
+    # реальные финансовые цифры, которые были прямо в тексте.
+    has_fin_standard = "мсфо" in blob_l or "рсбу" in blob_l
+    is_operational = not has_fin_standard and any(
+        k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
     standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
         "операционные результаты" if is_operational else "отчётность")
     m = re.search(r"за\s+(\d+\s*кв(?:артал)?\.?|\d+\s*мес\.?|\d{4}(?:\s*г(?:од)?)?|1 пол\.?|полугодие)",
