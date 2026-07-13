@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
+import { CompanyLogo } from "../design/CompanyLogo";
 
 // =========================
 // OBSERVER V2 — sidebar layout (Этап 1 каркас)
@@ -650,7 +651,8 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
               <div className="obs-tl-date">
                 {_obsDateRu(e.date)}{e.time ? ` · ${e.time} МСК` : ""}
               </div>
-              <div className="obs-tl-title">
+              <div className="obs-tl-title" style={e.ticker ? { display: "flex", alignItems: "center", gap: 8 } : undefined}>
+                {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={22} />}
                 {e.ticker && onSelectCompany
                   ? (
                     <button
@@ -789,7 +791,10 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                     className="obs-cal-detail-type"
                     style={{ background: typeM(e.type).color }}
                   >{typeM(e.type).label}</div>
-                  <div className="obs-cal-detail-event-title">{e.title}</div>
+                  <div className="obs-cal-detail-event-title" style={e.ticker ? { display: "flex", alignItems: "center", gap: 8 } : undefined}>
+                    {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={22} />}
+                    {e.title}
+                  </div>
                   {e.status && <div className="obs-cal-detail-sub">{e.status}</div>}
                   {e.type === "dividend" && e.payload && e.payload.dividend_yield != null && (
                     <div className="obs-cal-detail-sub">
