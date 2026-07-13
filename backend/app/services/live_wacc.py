@@ -120,15 +120,18 @@ def _find_field(ka: dict, *names: str):
 
 
 def _normalize_method(name) -> str:
-    """"DCF"/"P/BV_ROE"/"PBV_ROE"/"pbv_roe"/"dividend_DDM" → канонический ключ.
-    Разные прогоны financial-analyst называли методы по-разному (регистр,
-    слэши, подчёркивания) — без нормализации часть методов молча выпадала из
-    пересчёта просто по имени, не по нехватке данных (найдено на бою: VTBR/MOEX
-    используют "P/BV_ROE"/"PBV_ROE", а не "pbv_roe")."""
+    """"DCF"/"P/BV_ROE"/"PBV_ROE"/"pbv_roe"/"pbv_roe_gordon"/"pb_roe_gordon"/
+    "dividend_DDM" → канонический ключ. Разные прогоны financial-analyst называли
+    методы по-разному (регистр, слэши, подчёркивания, суффиксы вроде "_gordon") —
+    без нормализации часть методов молча выпадала из пересчёта просто по имени, не
+    по нехватке данных (найдено на бою: VTBR/MOEX используют "P/BV_ROE"/"PBV_ROE",
+    не "pbv_roe"; полный скан всех 264 карточек нашёл ещё "pbv_roe_gordon",
+    "pb_roe_gordon", "fair_pb_roe" — используем подстроку "roe", т.к. другие методы
+    семейства P/BV×ROE в базе её тоже не содержат)."""
     n = "".join(ch for ch in str(name or "").lower() if ch.isalnum())
     if n == "dcf":
         return "dcf"
-    if n in ("pbvroe",):
+    if "roe" in n:
         return "pbvroe"
     if "dividend" in n:
         return "dividend"
@@ -179,7 +182,7 @@ def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
 
     g_raw = _find_field(ka, "g_div")
     if g_raw is None:
-        g_raw = _find_field(ka, "g")
+        g_raw = _find_field(ka, "g", "growth")
     g_pct = _pct(g_raw)
 
     rate_live_pct, rate_frozen_pct = _live_rate_pct(
@@ -233,7 +236,7 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     # "g"/"r" — стандартные имена; "terminal_growth"/"wacc" — вариант IRAO (та же
     # одностадийная Gordon-модель, другие подписи тех же величин).
     g_pct = _pct(_find_field(ka, "g", "terminal_growth"))
-    r_frozen_pct = _pct(_find_field(ka, "r", "wacc"))
+    r_frozen_pct = _pct(_find_field(ka, "r", "wacc", "r_base"))
     beta = _as_float(_find_field(ka, "beta")) or 1.0
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
         return None
@@ -272,10 +275,12 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
 
 
 def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
-    roe_pct = _pct(_find_field(ka, "roe_sustainable"))
+    roe_pct = _pct(_find_field(ka, "roe_sustainable", "roe_used", "roe_base", "roe_forward"))
     g_pct = _pct(_find_field(ka, "g"))
     ke_frozen_pct = _pct(_find_field(ka, "ke"))
-    bvps = _as_float(_find_field(ka, "bvps_2025", "bvps", "book_value_per_share_used", "book_value_per_share"))
+    bvps = _as_float(_find_field(
+        ka, "bvps_2025", "bvps", "book_value_per_share_used", "book_value_per_share",
+        "bvps_used", "bvps_forward_rub", "bvps_2024"))
     beta = _as_float(_find_field(ka, "beta")) or 1.0
     if roe_pct is None or g_pct is None or ke_frozen_pct is None or bvps is None:
         return None
