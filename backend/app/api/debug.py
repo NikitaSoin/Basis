@@ -602,6 +602,41 @@ def debug_reset_report_watch():
         db.close()
 
 
+@router.post("/debug/trigger-company-rss")
+def debug_trigger_company_rss(days_back: int = 90):
+    """Точечный запуск ТОЛЬКО company_rss-пути (см. _COMPANY_RSS) — в обход дорогого
+    полного refresh() (тот сканирует Ленту новостей за days_back дней целиком, минуты
+    на больших days_back). Быстрая проверка RSS первоисточников (ROSN/TATN)."""
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+    from app.services.report_watch import _due_company_rss_reports, process_company_rss_item
+    db = SessionLocal()
+    try:
+        companies = {c.ticker: c for c in db.query(Company).all()}
+        items = _due_company_rss_reports(days_back)
+        res = {"found": len(items), "created": 0, "needs_source": 0, "exists": 0, "errors": 0}
+        details = []
+        for item in items:
+            company = companies.get(item["ticker"])
+            if not company:
+                continue
+            try:
+                r = process_company_rss_item(db, item, company,
+                                             float(company.market_cap) if company.market_cap else None)
+                res[r] = res.get(r, 0) + 1
+                details.append({"ticker": item["ticker"], "result": r, "text_preview": item["text"][:150]})
+            except Exception as e:  # noqa: BLE001
+                res["errors"] += 1
+                db.rollback()
+                details.append({"ticker": item["ticker"], "result": f"error:{type(e).__name__}"})
+        return {"summary": res, "details": details}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-company-rss: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/report-watch-diag")
 def debug_report_watch_diag(ticker: str, event_date: str):
     """Диагностика report_watch: показывает source/status по тикеру + живой прогон
