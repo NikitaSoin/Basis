@@ -621,7 +621,7 @@ export default function App() {
     localStorage.removeItem("basis_user");
     setUser(null);
     setToken(null);
-    setActiveTab("landing");
+    navigate("landing");
   };
 
   // После смены тарифа (PricingView/ProfileView → POST /api/auth/me/subscription)
@@ -635,6 +635,18 @@ export default function App() {
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
+    // Экранные оверлеи (карточка облигации/фьючерса/фонда/спота, индекс, хаб
+    // индексов) рендерятся ПОВЕРХ activeTab в renderView() — раньше только
+    // selectedCompany сбрасывался тут, остальные оставались висеть, и клик по
+    // верхней навигации молча ничего не делал, пока такой оверлей открыт
+    // (владелец: «сайдбар слева пропал, верхний не работает» — это как раз
+    // застревание на IndexDetailView/IndexHubView).
+    setSelectedBond(null);
+    setSelectedFuture(null);
+    setSelectedFund(null);
+    setSelectedSpot(null);
+    setSelectedIndex(null);
+    setShowIndexHub(false);
   };
 
   const renderView = () => {
