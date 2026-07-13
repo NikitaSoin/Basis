@@ -519,6 +519,33 @@ def debug_purge_future_macro():
         db.close()
 
 
+@router.post("/debug/trigger-risk-free-rate")
+def debug_trigger_risk_free_rate():
+    """Ручной запуск update_risk_free_rate() (ОФЗ-1г + ОФЗ-10л → market_params)
+    синхронно, без ожидания недельного крона (пн 08:30, moex_coefficients) — для
+    первичного наполнения risk_free_10y (используется live_wacc.py для живого
+    пересчёта DCF/P-BV×ROE в /financials) сразу после деплоя фичи."""
+    from sqlalchemy import text as _text
+    from app.db.session import SessionLocal
+    from app.services.moex_dividends import update_risk_free_rate
+    db = SessionLocal()
+    try:
+        rate_1y = update_risk_free_rate(db)
+        row = db.execute(
+            _text("SELECT value, as_of FROM market_params WHERE key = 'risk_free_10y'")
+        ).first()
+        return {
+            "risk_free_1y_pct": rate_1y,
+            "risk_free_10y_pct": float(row.value) if row else None,
+            "risk_free_10y_as_of": row.as_of.isoformat() if row and row.as_of else None,
+        }
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-risk-free-rate: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-calendar")
 def debug_trigger_calendar():
     """Ручной запуск refresh_all() календаря событий (Обозреватель → Календарь),

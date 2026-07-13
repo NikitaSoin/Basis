@@ -30,6 +30,7 @@ from app.services.company import (
     create_company, get_analyses, add_analysis, get_quotes, add_quote,
 )
 from app.services.live_multiples import live_scale_multiples
+from app.services.live_wacc import live_recompute_valuation
 
 router = APIRouter()
 
@@ -349,6 +350,9 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
     if row is not None and fin.get("multiples", {}).get("current"):
         live_cur = live_scale_multiples(fin, row[0], row[1])
         fin.setdefault("multiples", {})["current"] = live_cur
+    if fin.get("valuation", {}).get("methods"):
+        shares_outstanding = row[1] if row is not None else None
+        fin["valuation"] = live_recompute_valuation(fin, db, shares_outstanding)
     return JSONResponse(content=fin)
 
 

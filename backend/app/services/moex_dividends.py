@@ -97,25 +97,51 @@ def load_dividends_map(db: Session, ticker: str) -> dict[date, float]:
 
 
 def update_risk_free_rate(db: Session) -> float | None:
-    """Точка «1 год» кривой бескупонной доходности ОФЗ → market_params.
+    """Точки «1 год» и «10 лет» кривой бескупонной доходности ОФЗ → market_params
+    (один и тот же ответ ISS, без лишнего запроса). 1г — для риск-метрик облигаций
+    (короткий конец, без процентного риска длинных бумаг). 10л — для DCF/CAPM акций
+    (см. live_wacc.py): именно этот тенор зашивает financial-analyst как Rf в
+    config/market_params.json ("Доходность 10-летних ОФЗ").
 
     При недоступности ISS остаётся последнее сохранённое значение (фолбэк)."""
     try:
         data = _get_json(ZCYC_URL)
         cols = data["yearyields"]["columns"]
         rows = [dict(zip(cols, r)) for r in data["yearyields"]["data"]]
-        point = next((r for r in rows if float(r["period"]) == 1.0), None)
-        if not point or point.get("value") is None:
+        point_1y = next((r for r in rows if float(r["period"]) == 1.0), None)
+        if not point_1y or point_1y.get("value") is None:
             raise ValueError("точка period=1.00 не найдена в yearyields")
-        rate = float(point["value"])
-        as_of = point.get("tradedate")
+        rate = float(point_1y["value"])
+        as_of = point_1y.get("tradedate")
         db.execute(_UPSERT_PARAM_SQL, {
             "key": "risk_free_1y", "value": rate, "as_of": as_of,
             "note": "Доходность ОФЗ ~1 год, точка G-curve (ZCYC) MOEX",
             "now": datetime.now(timezone.utc),
         })
+        # Точка 10 лет — линейная интерполяция по той же кривой (period может не
+        # быть ровно 10.0 в ответе ISS), тем же методом, что live_wacc.py/moex_bonds.py.
+        curve = sorted((float(r["period"]), float(r["value"])) for r in rows if r.get("value") is not None)
+        rate_10y = None
+        if curve:
+            years = 10.0
+            if years <= curve[0][0]:
+                rate_10y = curve[0][1]
+            elif years >= curve[-1][0]:
+                rate_10y = curve[-1][1]
+            else:
+                for (x0, y0), (x1, y1) in zip(curve, curve[1:]):
+                    if x0 <= years <= x1:
+                        rate_10y = y0 + (y1 - y0) * (years - x0) / (x1 - x0)
+                        break
+        if rate_10y is not None:
+            db.execute(_UPSERT_PARAM_SQL, {
+                "key": "risk_free_10y", "value": rate_10y, "as_of": as_of,
+                "note": "Доходность ОФЗ ~10 лет (интерполяция G-curve/ZCYC MOEX) — Rf для DCF/CAPM акций",
+                "now": datetime.now(timezone.utc),
+            })
         db.commit()
-        logger.info("Безрисковая ставка: ОФЗ-1г %.2f%% на %s (G-curve)", rate, as_of)
+        logger.info("Безрисковая ставка: ОФЗ-1г %.2f%%, ОФЗ-10л %s на %s (G-curve)",
+                    rate, f"{rate_10y:.2f}%" if rate_10y is not None else "н/д", as_of)
         return rate
     except Exception as e:
         prev = db.execute(
