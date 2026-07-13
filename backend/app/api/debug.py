@@ -799,6 +799,25 @@ def debug_trigger_refresh_funds():
         db.close()
 
 
+@router.post("/debug/trigger-news")
+def debug_trigger_news():
+    """Ручной запуск news_pipeline.run_pipeline() синхронно, БЕЗ ожидания
+    крона (7/13/19/1 МСК) — для диагностики зависшей ленты новостей.
+    Возвращает счётчики (kept/rejected/undecided) — если undecided > 0 и
+    kept == 0, это почти всегда сбой LLM-шага фильтрации (DeepSeek/прокси),
+    не отсутствие новых новостей в RSS."""
+    from app.db.session import SessionLocal
+    from app.services.news_pipeline import run_pipeline
+    db = SessionLocal()
+    try:
+        return run_pipeline(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-news: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-index-backfill")
 def debug_trigger_index_backfill(tickers: str = Query(..., description="через запятую, напр. RGBI,RVI,RUSFAR"),
                                   days_back: int = Query(365, ge=1, le=1500)):
