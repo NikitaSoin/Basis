@@ -603,14 +603,20 @@ def debug_reset_report_watch():
 
 
 @router.post("/debug/trigger-company-rss")
-def debug_trigger_company_rss(days_back: int = 90):
+def debug_trigger_company_rss(days_back: int = 90, force_reset: bool = False):
     """Точечный запуск ТОЛЬКО company_rss-пути (см. _COMPANY_RSS) — в обход дорогого
     полного refresh() (тот сканирует Ленту новостей за days_back дней целиком, минуты
-    на больших days_back). Быстрая проверка RSS первоисточников (ROSN/TATN)."""
+    на больших days_back). Быстрая проверка RSS первоисточников (ROSN/TATN).
+    force_reset=True — удалить существующие company_rss-записи перед прогоном (для
+    чистого повторного теста после правки классификации/экстракции)."""
     from app.db.session import SessionLocal
     from app.models.company import Company
+    from app.models.earnings import EarningsReport
     from app.services.report_watch import _due_company_rss_reports, process_company_rss_item
     db = SessionLocal()
+    if force_reset:
+        db.query(EarningsReport).filter_by(source="company_rss").delete()
+        db.commit()
     try:
         companies = {c.ticker: c for c in db.query(Company).all()}
         items = _due_company_rss_reports(days_back)
