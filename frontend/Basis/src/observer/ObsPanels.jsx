@@ -646,37 +646,39 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
         <div className="obs-tl-wrap">
           <div className="obs-tl-line" aria-hidden="true" />
           {sorted.map((e, i) => (
-            <div key={e.id || i} className="obs-tl-item">
+            <div key={e.id || i} className="obs-tl-item" style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <div className="obs-tl-dot" style={{ background: typeM(e.type).color }} />
-              <div className="obs-tl-date">
-                {_obsDateRu(e.date)}{e.time ? ` · ${e.time} МСК` : ""}
-              </div>
-              <div className="obs-tl-title" style={e.ticker ? { display: "flex", alignItems: "center", gap: 8 } : undefined}>
-                {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={22} />}
-                {e.ticker && onSelectCompany
-                  ? (
-                    <button
-                      type="button"
-                      className="obs-rep-toggle"
-                      style={{ fontSize: "14.5px", fontWeight: 600 }}
-                      onClick={() => onSelectCompany(e.ticker)}
-                    >{e.title}</button>
-                  )
-                  : e.title
-                }
-              </div>
-              {e.type === "dividend" && e.payload && (
-                <div className="obs-tl-sub">
-                  {e.payload.buy_by_date && `Купить до ${_obsDateRu(e.payload.buy_by_date)}`}
-                  {e.payload.record_date && ` · отсечка ${_obsDateRu(e.payload.record_date)}`}
-                  {e.payload.dividend_yield != null && ` · доходность ▲ ${e.payload.dividend_yield}%`}
+              {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={34} />}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="obs-tl-date">
+                  {_obsDateRu(e.date)}{e.time ? ` · ${e.time} МСК` : ""}
                 </div>
-              )}
-              {(e.status || (e.payload && e.payload.note)) && e.type !== "dividend" && (
-                <div className="obs-tl-sub">
-                  {[e.status, e.payload?.note].filter(Boolean).join(" · ")}
+                <div className="obs-tl-title">
+                  {e.ticker && onSelectCompany
+                    ? (
+                      <button
+                        type="button"
+                        className="obs-rep-toggle"
+                        style={{ fontSize: "14.5px", fontWeight: 600 }}
+                        onClick={() => onSelectCompany(e.ticker)}
+                      >{e.title}</button>
+                    )
+                    : e.title
+                  }
                 </div>
-              )}
+                {e.type === "dividend" && e.payload && (
+                  <div className="obs-tl-sub">
+                    {e.payload.buy_by_date && `Купить до ${_obsDateRu(e.payload.buy_by_date)}`}
+                    {e.payload.record_date && ` · отсечка ${_obsDateRu(e.payload.record_date)}`}
+                    {e.payload.dividend_yield != null && ` · доходность ▲ ${e.payload.dividend_yield}%`}
+                  </div>
+                )}
+                {(e.status || (e.payload && e.payload.note)) && e.type !== "dividend" && (
+                  <div className="obs-tl-sub">
+                    {[e.status, e.payload?.note].filter(Boolean).join(" · ")}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -786,21 +788,21 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
             {selEvents.length === 0
               ? <p style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>На этот день событий нет.</p>
               : selEvents.map((e, i) => (
-                <div key={i} className="obs-cal-detail-card">
-                  <div
-                    className="obs-cal-detail-type"
-                    style={{ background: typeM(e.type).color }}
-                  >{typeM(e.type).label}</div>
-                  <div className="obs-cal-detail-event-title" style={e.ticker ? { display: "flex", alignItems: "center", gap: 8 } : undefined}>
-                    {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={22} />}
-                    {e.title}
+                <div key={i} className="obs-cal-detail-card" style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                  {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={34} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      className="obs-cal-detail-type"
+                      style={{ background: typeM(e.type).color }}
+                    >{typeM(e.type).label}</div>
+                    <div className="obs-cal-detail-event-title">{e.title}</div>
+                    {e.status && <div className="obs-cal-detail-sub">{e.status}</div>}
+                    {e.type === "dividend" && e.payload && e.payload.dividend_yield != null && (
+                      <div className="obs-cal-detail-sub">
+                        Дивидендная доходность: ▲ {e.payload.dividend_yield}%
+                      </div>
+                    )}
                   </div>
-                  {e.status && <div className="obs-cal-detail-sub">{e.status}</div>}
-                  {e.type === "dividend" && e.payload && e.payload.dividend_yield != null && (
-                    <div className="obs-cal-detail-sub">
-                      Дивидендная доходность: ▲ {e.payload.dividend_yield}%
-                    </div>
-                  )}
                 </div>
               ))
             }
