@@ -209,6 +209,23 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
             elif m.get("method") == "pbv_roe":
                 live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
 
+        # Барьер здравого смысла: для сильно закредитованных компаний equity =
+        # EV − net_debt ставит equity на "плечо" к ставке — малое движение Rf
+        # даёт непропорциональный скачок (вплоть до отрицательной цены), формула
+        # технически верна, но результат бесполезен/пугающий для пользователя.
+        # Обнаружено на бою: MTSS/MGNT/OZON ушли в минус, MOEX — в 3,4× frozen.
+        # Не публикуем live вне разумного диапазона относительно frozen — лучше
+        # молча остаться на frozen, чем показать инвестору отрицательную "справедливую
+        # стоимость".
+        if live_price is not None:
+            frozen_price = _as_float(m.get("fair_value_per_share"))
+            if live_price <= 0 or not frozen_price or frozen_price <= 0:
+                live_price = None
+            else:
+                ratio = live_price / frozen_price
+                if ratio < 0.3 or ratio > 3.0:
+                    live_price = None
+
         if live_price is not None:
             m2 = dict(m)
             m2["fair_value_per_share_live"] = live_price
