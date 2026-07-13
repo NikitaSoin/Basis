@@ -26,8 +26,8 @@ P/BV=(ROE-g)/(Ke-g) — линейное масштабирование даст
 → update_risk_free_rate, ключ "risk_free_10y") — не HTTP-запрос к MOEX ISS на
 каждый рендер карточки (см. get_market_param).
 
-Поддержаны 3 метода (имя метода нормализуется — "P/BV_ROE"/"PBV_ROE"/"pbv_roe"
-у разных прогонов аналитика считаются одним и тем же):
+Поддержаны 4 метода (имя метода нормализуется — "P/BV_ROE"/"PBV_ROE"/"pbv_roe"/
+"pbv_roe_gordon" у разных прогонов аналитика считаются одним и тем же):
 - DCF (одностадийный Gordon от FCF1):
     EV = FCF1/(r−g); equity = EV + net_cash; price = equity/shares
 - pbv_roe:
@@ -39,17 +39,29 @@ P/BV=(ROE-g)/(Ke-g) — линейное масштабирование даст
     вместо этого он восстанавливается из УЖЕ ДОВЕРЕННОЙ frozen fair_value_per_share:
     numerator = frozen_price × (rate_frozen [− g]); live_price = numerator/(rate_live [− g]).
     Так пересчёт не зависит от того, как именно был получен numerator.
+- CAPM: на 232 карточках формула оказалась ДВУХ видов (не одна, но обе
+  детерминированные и по-своему live-зависимые):
+    (A) total-return target (доминирующая, ~90% случаев):
+        price_live = LIVE_price × (1 + Ke_live − div_yield). Тут live не только
+        ставка — САМА ЦЕНА тоже не застывшая (см. get_financials_json:
+        market_cap/shares_outstanding = live close из quotes), а не цена на дату
+        анализа. div_yield — фиксированное суждение аналитика (форвардный DPS/
+        цена на момент анализа), не пересчитывается.
+    (B) "обоснованный P/E" (EPS/Ke): price_live = EPS_forward / Ke_live —
+        EPS фиксирован (суждение аналитика), меняется только Ke.
+  Различаются по набору полей (div_yield-семейство → A, eps/justified_pe-семейство
+  → B). У VTBR встречаются ОБА семейства полей одновременно в одном key_assumptions
+  (обоснованный P/E 208,9₽ vs total-return-таргет 84,9₽, и именно менее подходящий
+  по мнению самого аналитика вариант оказывается записанным fair_value_per_share)
+  — тот же класс риска "тихо неверного числа", что уже дважды ловился на DCF,
+  поэтому при одновременном присутствии обоих семейств полей — пропуск.
 
 НЕ пересчитываются: historical_pb/pe и relative_peers (цена строится от
-исторических/секторных МУЛЬТИПЛИКАТОРОВ, не от ставки дисконтирования — формулы
-для пересчёта попросту нет, а не "не реализовано"); SOTP (сумма частей с холдинг-
-дисконтами — слишком разнородная структура между компаниями); CAPM (проверено на
-4 компаниях: формула генуинно РАЗНАЯ и иногда НЕОДНОЗНАЧНАЯ даже в одной карточке
-— у VTBR key_assumptions одновременно содержит "обоснованный P/E" 208,9₽ и
-альтернативный total-return-таргет 84,9₽, и именно ПЕРВЫЙ, менее подходящий по
-мнению самого аналитика, оказывается тем fair_value_per_share, что записан —
-без ручной проверки по каждой компании легко получить тихо неверное число, тот
-же класс риска, что уже дважды ловился на этой фиче на DCF). Деградация graceful
+исторических/секторных МУЛЬТИПЛИКАТОРОВ применённых к forward EPS/BVPS — сам
+множитель не зависит от ставки дисконтирования по формуле; проверено сканом всех
+264 карточек — ни Rf, ни Ke, ни ERP среди key_assumptions этих методов нет);
+SOTP/NAV (сумма частей с холдинг-дисконтами и стоимостью долей в USD — слишком
+разнородная структура между компаниями, не единая формула). Деградация graceful
 везде — при нехватке/неоднозначности входа метод остаётся frozen без ошибки.
 """
 from __future__ import annotations
@@ -101,6 +113,14 @@ def _pct(v):
     return f * 100 if abs(f) < 1 else f
 
 
+def _round_price(x: float) -> float:
+    """round(x, 2) режет значащие цифры у суб-рублёвых акций (найдено на бою:
+    TGKN/UNAC/MRKS — EPS/Ke даёт 0.0331, round(...,2) превращает в 0.03, мнимое
+    расхождение ~9% с исходной ценой при математически точной формуле). Для цен
+    дешевле 10 ₽ округляем до 4 знаков вместо 2."""
+    return round(x, 4) if abs(x) < 10 else round(x, 2)
+
+
 def _find_field(ka: dict, *names: str):
     """Регистронезависимый поиск значения по списку возможных имён поля (порядок =
     приоритет); для каждого имени пробует и вариант с суффиксом "_pct" — разные
@@ -135,6 +155,8 @@ def _normalize_method(name) -> str:
         return "pbvroe"
     if "dividend" in n:
         return "dividend"
+    if n == "capm":
+        return "capm"
     return n
 
 
@@ -200,7 +222,82 @@ def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
         return None
 
     numerator = frozen_price * denom_frozen
-    return round(numerator / denom_live, 2)
+    return _round_price(numerator / denom_live)
+
+
+_CAPM_YIELD_FIELDS = (
+    "div_yield_expected", "div_yield", "expected_div_yield", "div_yield_pct",
+    "expected_div_yield_pct", "div_yield_assumed", "div_yield_fwd_pct", "div_yield_fwd",
+    "div_yield_used", "div_yield_current", "div_yield_expected_pct", "dividend_yield",
+)
+_CAPM_EPS_FIELDS = (
+    "eps_forward", "eps_adj_2025", "eps_forward_2026", "eps_forward_usd", "justified_pe",
+    "eps_used", "eps_fwd", "eps_normalized", "eps_2025", "eps_base", "eps_adj_used",
+)
+
+
+def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
+                     market_price_live: float | None) -> float | None:
+    """Скан всех 264 карточек показал: CAPM здесь — НЕ единая формула, а два разных
+    семейства (см. модуль docstring): (A) total-return-таргет от ТЕКУЩЕЙ цены
+    (доминирует), (B) "обоснованный P/E" от EPS. Различаются набором полей —
+    вычисляем ту семью, чьи поля присутствуют; если присутствуют признаки ОБЕИХ
+    (или альтернативный total_return_target-выход рядом с eps-полем, как у VTBR) —
+    это тот же класс неоднозначности, что уже ловили на dividend (IRAO-кейс) —
+    пропускаем, не гадаем какая из двух формул реально стоит за fair_value_per_share."""
+    keys_l = [str(k).lower() for k in ka.keys()]
+    has_eps_family = any(any(f in k for f in ("eps", "justifiedpe")) for k in keys_l)
+    has_yield_family = any("yield" in k for k in keys_l)
+    has_dps_family = any("dps" in k for k in keys_l)  # напр. ABIO: div_yield=dps/price свёрнут в price×(1+Ke)−dps
+    has_alt_target = any("target" in k and "total" in k for k in keys_l)
+    if has_eps_family and (has_yield_family or has_dps_family or has_alt_target):
+        return None
+    # ke_base + governance-скорректированный ke ОДНОВРЕМЕННО как отдельные поля:
+    # скан 9 карточек (BRZL/KMEZ/RTSB/BANEP/ASSB/IGST/KGKC/YRSB/NKSH) показал, что
+    # какой из двух реально ушёл в price-таргет — НЕ единообразно (YRSB текстом
+    # подтверждает "Ke с governance-надбавкой", BRZL текстом — "по Ke_base"); без
+    # проверки по каждой компании легко взять не тот и получить тихо неверное
+    # число (проверено: BRZL даёт 1999 вместо 1937 при наивном выборе "ke"). Пропуск.
+    if "ke_base" in keys_l and ("ke" in keys_l or "ke_pct" in keys_l):
+        return None
+    # тот же случай в общем виде: любое ДОПОЛНИТЕЛЬНОЕ "ke_*"-поле рядом с основным
+    # "ke"/"ke_pct" (напр. GAZP: "ke" и "ke_with_gov_discount" — тоже расходятся,
+    # неясно, какое из двух ушло в price-таргет).
+    extra_ke_fields = [k for k in keys_l if k.startswith("ke_") and k not in ("ke_pct",)]
+    if extra_ke_fields and ("ke" in keys_l or "ke_pct" in keys_l):
+        return None
+
+    ke_live_pct, ke_frozen_pct = _live_rate_pct(ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke",))
+    if ke_live_pct is None:
+        return None
+    ke_live_frac = ke_live_pct / 100
+    if ke_live_frac <= -1:
+        return None
+
+    if has_eps_family:
+        eps = _as_float(_find_field(ka, *_CAPM_EPS_FIELDS))
+        if eps is None or eps <= 0 or ke_live_frac <= 0:
+            return None
+        return _round_price(eps / ke_live_frac)
+
+    if has_yield_family:
+        if market_price_live is None or market_price_live <= 0:
+            return None
+        dy_pct = _pct(_find_field(ka, *_CAPM_YIELD_FIELDS))
+        if dy_pct is None:
+            return None
+        return _round_price(market_price_live * (1 + ke_live_frac - dy_pct / 100))
+
+    if has_dps_family:
+        # div_yield = dps/price → price×(1+Ke−div_yield) = price×(1+Ke) − dps
+        if market_price_live is None or market_price_live <= 0:
+            return None
+        dps = _as_float(_find_field(ka, "dps_expected", "dps_forward", "dps"))
+        if dps is None:
+            return None
+        return _round_price(market_price_live * (1 + ke_live_frac) - dps)
+
+    return None
 
 
 def _load_config() -> dict:
@@ -271,7 +368,7 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     shares_mln = shares_outstanding / 1_000_000
     if shares_mln <= 0:
         return None
-    return round(equity_live_mln / shares_mln, 2)
+    return _round_price(equity_live_mln / shares_mln)
 
 
 def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
@@ -293,13 +390,16 @@ def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
     fair_pbv_live = (roe_pct / 100 - g_pct / 100) / denom
     if fair_pbv_live <= 0:
         return None
-    return round(fair_pbv_live * bvps, 2)
+    return _round_price(fair_pbv_live * bvps)
 
 
-def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float | None) -> dict:
+def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float | None,
+                              market_price_live: float | None = None) -> dict:
     """Возвращает live-пересчитанный fin["valuation"] (или исходный при нехватке
     данных для пересчёта хотя бы одного метода). Не мутирует fin — копирует только
-    затронутые методы. Добавляет valuation.live_rf_note с диагностикой для фронта."""
+    затронутые методы. Добавляет valuation.live_rf_note с диагностикой для фронта.
+    market_price_live — текущая живая цена (market_cap/shares_outstanding из БД,
+    см. get_financials_json), нужна только CAPM-семейству total-return-таргет."""
     val = fin.get("valuation") or {}
     methods = val.get("methods")
     if not isinstance(methods, list) or not methods:
@@ -332,6 +432,8 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
                 live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
             elif method_key == "dividend":
                 live_price = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct)
+            elif method_key == "capm":
+                live_price = _recompute_capm(ka, rf_live_pct, rf_frozen_pct, erp_pct, market_price_live)
 
         # Барьер здравого смысла: для сильно закредитованных компаний equity =
         # EV − net_debt ставит equity на "плечо" к ставке — малое движение Rf

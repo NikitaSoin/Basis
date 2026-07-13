@@ -352,7 +352,10 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
         fin.setdefault("multiples", {})["current"] = live_cur
     if fin.get("valuation", {}).get("methods"):
         shares_outstanding = row[1] if row is not None else None
-        fin["valuation"] = live_recompute_valuation(fin, db, shares_outstanding)
+        live_price = None
+        if row is not None and row[0] and row[1]:
+            live_price = float(row[0]) / float(row[1])
+        fin["valuation"] = live_recompute_valuation(fin, db, shares_outstanding, live_price)
     return JSONResponse(content=fin)
 
 
