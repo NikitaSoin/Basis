@@ -98,14 +98,29 @@ def get_live_risk_free_10y_pct(db: Session) -> tuple[float | None, str | None]:
 
 def _recompute_dcf_gordon(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
                            shares_outstanding: float | None) -> float | None:
-    if ka.get("method_form") != "Gordon_from_FCF1":
+    # method_form — необязательная аннотация; часть прогонов её не проставляла
+    # (напр. ROSN), хотя структура key_assumptions та же самая одностадийная
+    # Gordon-модель. Явно исключаем только СЛУЧАИ С ДРУГОЙ формой (если поле
+    # присутствует и говорит "не Gordon"), не требуем его наличия.
+    method_form = ka.get("method_form")
+    if method_form is not None and method_form != "Gordon_from_FCF1":
         return None
     fcf1 = _as_float(ka.get("fcf1_mln"))
     g_pct = _pct(ka.get("g"))
     r_frozen_pct = _pct(ka.get("r"))
-    net_cash = _as_float(ka.get("net_cash_added_mln")) or 0.0
     beta = _as_float(ka.get("beta")) or 1.0
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
+        return None
+    # net_cash_added_mln ОБЯЗАТЕЛЬНО присутствовать явно (не дефолт на 0!) — иначе
+    # для закредитованных компаний (см. GAZP: чистый долг ~6,1 трлн ₽, r=WACC с
+    # долгом, не Ke) equity_live = EV_live без вычета долга даёт кратно завышенную
+    # цену. Явный net_cash_added_mln в key_assumptions — сигнал, что аналитик уже
+    # свёл структуру капитала (чистая денежная позиция, как у LKOH); без него —
+    # не рискуем, оставляем метод frozen.
+    if "net_cash_added_mln" not in ka:
+        return None
+    net_cash = _as_float(ka.get("net_cash_added_mln"))
+    if net_cash is None:
         return None
     if not shares_outstanding or shares_outstanding <= 0:
         return None
@@ -167,10 +182,15 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
     for m in methods:
         ka = m.get("key_assumptions") or {}
         live_price = None
-        if m.get("method") == "DCF":
-            live_price = _recompute_dcf_gordon(ka, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
-        elif m.get("method") == "pbv_roe":
-            live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
+        # Никогда не пересчитываем метод, который сам аналитик пометил ненадёжным
+        # (insufficient_data/not_applicable) — у таких методов часто fair_value_
+        # per_share=null именно потому, что формула даёт мусор (напр. GAZP DCF:
+        # equity отрицателен при полной структуре капитала с долгом).
+        if m.get("status") == "ok":
+            if m.get("method") == "DCF":
+                live_price = _recompute_dcf_gordon(ka, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
+            elif m.get("method") == "pbv_roe":
+                live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
 
         if live_price is not None:
             m2 = dict(m)
