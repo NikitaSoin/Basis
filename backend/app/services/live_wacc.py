@@ -101,6 +101,24 @@ def _pct(v):
     return f * 100 if abs(f) < 1 else f
 
 
+def _find_field(ka: dict, *names: str):
+    """Регистронезависимый поиск значения по списку возможных имён поля (порядок =
+    приоритет); для каждого имени пробует и вариант с суффиксом "_pct" — разные
+    прогоны financial-analyst называют одно и то же поле по-разному (напр. MOEX:
+    "roe_sustainable_pct"/"ke_pct"/"g_pct" вместо "roe_sustainable"/"ke"/"g"; PHOR:
+    "Ke" с заглавной; CHMF: "required_yield_pct"). Без этого метод молча выпадает
+    из пересчёта по имени поля, а не по факту отсутствия данных."""
+    lower_map: dict[str, object] = {}
+    for k, v in ka.items():
+        lower_map.setdefault(str(k).lower(), v)
+    for name in names:
+        for cand in (name, f"{name}_pct"):
+            v = lower_map.get(cand)
+            if v is not None:
+                return v
+    return None
+
+
 def _normalize_method(name) -> str:
     """"DCF"/"P/BV_ROE"/"PBV_ROE"/"pbv_roe"/"dividend_DDM" → канонический ключ.
     Разные прогоны financial-analyst называли методы по-разному (регистр,
@@ -127,12 +145,13 @@ def _live_rate_pct(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: 
     параллельный сдвиг на дельту живой ставки: rate_live = rate_frozen + (Rf_live
     − Rf_frozen). Возвращает (rate_live_pct, rate_frozen_pct) либо (None, None)."""
     for field in rate_fields:
-        if field not in ka:
+        raw = _find_field(ka, field)
+        if raw is None:
             continue
-        rate_frozen_pct = _pct(ka.get(field))
+        rate_frozen_pct = _pct(raw)
         if rate_frozen_pct is None:
             continue
-        beta = _as_float(ka.get("beta"))
+        beta = _as_float(_find_field(ka, "beta"))
         if beta is not None:
             extra_pct = rate_frozen_pct - (rf_frozen_pct + beta * erp_pct)
             rate_live_pct = rf_live_pct + beta * erp_pct + extra_pct
@@ -153,12 +172,15 @@ def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
     # два конкурирующих подхода в одном методе, и по какому из них на самом деле
     # взят fair_value_per_share, надёжно не определить без ручной проверки
     # (см. модуль docstring, VTBR-кейс в CAPM — тот же класс риска). Пропускаем.
-    has_gordon_rate = any(f in ka for f in ("ke", "r"))
-    has_required_yield = "required_yield" in ka
+    has_gordon_rate = any(_find_field(ka, f) is not None for f in ("ke", "r"))
+    has_required_yield = _find_field(ka, "required_yield") is not None
     if has_gordon_rate and has_required_yield:
         return None
 
-    g_pct = _pct(ka.get("g_div") if "g_div" in ka else ka.get("g"))
+    g_raw = _find_field(ka, "g_div")
+    if g_raw is None:
+        g_raw = _find_field(ka, "g")
+    g_pct = _pct(g_raw)
 
     rate_live_pct, rate_frozen_pct = _live_rate_pct(
         ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke", "r", "required_yield"))
@@ -207,21 +229,25 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     method_form = ka.get("method_form")
     if method_form is not None and method_form != "Gordon_from_FCF1":
         return None
-    fcf1 = _as_float(ka.get("fcf1_mln"))
-    g_pct = _pct(ka.get("g"))
-    r_frozen_pct = _pct(ka.get("r"))
-    beta = _as_float(ka.get("beta")) or 1.0
+    fcf1 = _as_float(_find_field(ka, "fcf1_mln", "fcf_normalized_2025"))
+    # "g"/"r" — стандартные имена; "terminal_growth"/"wacc" — вариант IRAO (та же
+    # одностадийная Gordon-модель, другие подписи тех же величин).
+    g_pct = _pct(_find_field(ka, "g", "terminal_growth"))
+    r_frozen_pct = _pct(_find_field(ka, "r", "wacc"))
+    beta = _as_float(_find_field(ka, "beta")) or 1.0
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
         return None
     # net_cash: приоритет — точное число, которое использовал аналитик в
-    # key_assumptions (как у LKOH); если его нет (большинство компаний — поле
-    # необязательное), берём balance_sheet.net_debt (тот же общий источник,
-    # что live_multiples.py уже использует для EV/EBITDA) — последнее известное
-    # значение временного ряда, знак инвертирован (net_debt>0 вычитается из EV,
-    # net_debt<0 = чистая денежная позиция прибавляется). Если ни того, ни
-    # другого нет — НЕ рискуем игнорировать долг молча, метод остаётся frozen.
-    if "net_cash_added_mln" in ka:
-        net_cash = _as_float(ka.get("net_cash_added_mln"))
+    # key_assumptions (как у LKOH, либо "net_cash_kubyshka" у IRAO — тот же смысл,
+    # другая подпись); если его нет (большинство компаний — поле необязательное),
+    # берём balance_sheet.net_debt (тот же общий источник, что live_multiples.py
+    # уже использует для EV/EBITDA) — последнее известное значение временного
+    # ряда, знак инвертирован (net_debt>0 вычитается из EV, net_debt<0 = чистая
+    # денежная позиция прибавляется). Если ни того, ни другого нет — НЕ рискуем
+    # игнорировать долг молча, метод остаётся frozen.
+    net_cash_raw = _find_field(ka, "net_cash_added_mln", "net_cash_kubyshka")
+    if net_cash_raw is not None:
+        net_cash = _as_float(net_cash_raw)
         if net_cash is None:
             return None
     else:
@@ -246,11 +272,11 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
 
 
 def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
-    roe_pct = _pct(ka.get("roe_sustainable"))
-    g_pct = _pct(ka.get("g"))
-    ke_frozen_pct = _pct(ka.get("ke"))
-    bvps = _as_float(ka.get("bvps_2025")) or _as_float(ka.get("bvps"))
-    beta = _as_float(ka.get("beta")) or 1.0
+    roe_pct = _pct(_find_field(ka, "roe_sustainable"))
+    g_pct = _pct(_find_field(ka, "g"))
+    ke_frozen_pct = _pct(_find_field(ka, "ke"))
+    bvps = _as_float(_find_field(ka, "bvps_2025", "bvps", "book_value_per_share_used", "book_value_per_share"))
+    beta = _as_float(_find_field(ka, "beta")) or 1.0
     if roe_pct is None or g_pct is None or ke_frozen_pct is None or bvps is None:
         return None
 
