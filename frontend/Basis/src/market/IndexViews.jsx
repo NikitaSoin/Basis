@@ -252,7 +252,18 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany }) {
   const level = isMain ? detail.level : sectorEntry.level;
   const changePct = isMain ? detail.change_pct : sectorEntry.change_pct;
   const changeAbs = isMain ? detail.change_abs : sectorEntry.change_abs;
-  const explain = INDEX_EXPLAIN[ticker];
+  // Для основных индексов — авторский текст (INDEX_EXPLAIN). Для отраслевых
+  // индексов MOEX и RGBI (не в INDEX_EXPLAIN) — общий шаблон, параметризованный
+  // именем: 10 бумажных индивидуальных текстов не оправданы для v1, но
+  // объяснение всё равно должно быть — как и в мокапе.
+  const explain = INDEX_EXPLAIN[ticker] || (!isMain
+    ? {
+        title: `Что показывает индекс «${name}» простыми словами`,
+        body: ticker === "RGBI"
+          ? ["Индекс государственных облигаций (ОФЗ) Мосбиржи — отражает средние цены выпусков ОФЗ. Растёт, когда цены облигаций растут (обычно на ожиданиях снижения ставки ЦБ), падает — когда инвесторы требуют более высокую доходность (ставка растёт или растёт риск)."]
+          : [`Отраслевая часть индекса Мосбиржи: в неё входят только акции компаний сектора «${name}», взвешенные по их размеру на рынке. Одно число показывает, как в среднем движется весь сектор — без необходимости смотреть на каждую бумагу по отдельности.`],
+      }
+    : null);
 
   return (
     <div className="idx-screen">
