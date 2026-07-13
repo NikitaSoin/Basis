@@ -5,6 +5,7 @@ Live-значение — MOEX ISS (рынок index, без ключей; см.
 catch_up_history). Лёгкий TTL-кэш, чтобы не дёргать ISS на каждый рендер страницы.
 """
 import time
+from datetime import date, timedelta
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -84,3 +85,60 @@ def get_indices(db: Session) -> list[dict]:
             "updated": updated,
         })
     return result
+
+
+PERIOD_DAYS = {"1m": 30, "6m": 182, "1y": 365, "3y": 365 * 3}
+
+
+def get_index_detail(db: Session, ticker: str, period: str = "3y") -> dict | None:
+    """Детальная страница индекса: живая шапка (из get_indices) + историческая
+    серия close за период (для графика с табами) + смена за месяц/год + объём
+    сегодня. Только для бенчмарков с полной историей (IMOEX/MCFTR/RTSI) —
+    у отраслевых индексов MOEX история пока не копится, для них фронт
+    показывает деградированную страницу без графика (только live)."""
+    ticker = ticker.upper()
+    if ticker not in INDEX_ORDER:
+        return None
+
+    live_all = get_indices(db)
+    head = next((r for r in live_all if r["ticker"] == ticker), None)
+    if head is None:
+        return None
+
+    today = date.today()
+    if period == "ytd":
+        start = date(today.year, 1, 1)
+    else:
+        start = today - timedelta(days=PERIOD_DAYS.get(period, PERIOD_DAYS["3y"]))
+
+    rows = db.execute(text(
+        "SELECT date, close, value FROM index_history WHERE ticker=:t AND date >= :start "
+        "ORDER BY date ASC"), {"t": ticker, "start": start}).all()
+    points = [{"date": str(r[0]), "close": float(r[1])} for r in rows]
+    period_change_pct = (
+        round((points[-1]["close"] / points[0]["close"] - 1) * 100, 2)
+        if len(points) >= 2 else None
+    )
+
+    def _change_since(days: int) -> float | None:
+        cutoff = today - timedelta(days=days)
+        past = db.execute(text(
+            "SELECT close FROM index_history WHERE ticker=:t AND date <= :cutoff "
+            "ORDER BY date DESC LIMIT 1"), {"t": ticker, "cutoff": cutoff}).first()
+        if not past or not head.get("level"):
+            return None
+        return round((head["level"] / float(past[0]) - 1) * 100, 2)
+
+    last_volume = db.execute(text(
+        "SELECT value FROM index_history WHERE ticker=:t ORDER BY date DESC LIMIT 1"),
+        {"t": ticker}).first()
+
+    return {
+        **head,
+        "period": period,
+        "points": points,
+        "period_change_pct": period_change_pct,
+        "month_change_pct": _change_since(30),
+        "year_change_pct": _change_since(365),
+        "volume_today": float(last_volume[0]) if last_volume and last_volume[0] is not None else None,
+    }

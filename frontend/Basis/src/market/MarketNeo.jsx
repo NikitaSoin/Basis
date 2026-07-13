@@ -120,10 +120,15 @@ function ToneRow({ adv, dec, total }) {
     </div>
   );
 }
-function Pulse({ index, drivers, adv, dec, flat, total }) {
+function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex }) {
+  const IdxTag = onSelectIndex && index ? "button" : "div";
   return (
     <div className="mk-pulse">
-      <div>
+      <IdxTag
+        type={onSelectIndex && index ? "button" : undefined}
+        onClick={onSelectIndex && index ? () => onSelectIndex(index.ticker) : undefined}
+        style={onSelectIndex && index ? { textAlign: "left", cursor: "pointer" } : undefined}
+      >
         <div className="mk-eyebrow">{index ? index.name : "Индекс МосБиржи"}</div>
         {index ? (
           <>
@@ -136,7 +141,7 @@ function Pulse({ index, drivers, adv, dec, flat, total }) {
             <Spark data={index.spark} up={index.change_pct >= 0} w={150} h={36} />
           </>
         ) : <div className="mk-epi" style={{ marginTop: 8 }}>загрузка…</div>}
-      </div>
+      </IdxTag>
 
       <div>
         <div className="mk-eyebrow">Ширина рынка</div>
@@ -652,7 +657,7 @@ function inTradingHours() {
   return t >= 7 * 60 && t <= 23 * 60 + 50;
 }
 
-export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, Logo }) {
+export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, Logo }) {
   const persist = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
   const [query, setQuery] = useState("");
@@ -837,7 +842,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
         </div>
       )}
 
-      {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} />}
+      {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} onSelectIndex={onSelectIndex} />}
       {tab === "stocks" && !loading && <SectorNav stocks={stocks} sector={sector} onSelect={setSector} />}
 
       {loading && tab === "stocks" ? <div className="mk-loading">Загружаем рынок…</div> : (

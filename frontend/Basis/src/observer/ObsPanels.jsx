@@ -3588,21 +3588,22 @@ function ObsSparkline({ points, color = "var(--accent)", w = 96, h = 28 }) {
   );
 }
 
-function ObsPulseCard({ item }) {
+function ObsPulseCard({ item, onClick }) {
   if (!item) return null;
   const chg = item.change_pct;
   const dCls = chg == null ? "obs-d-neutral" : chg > 0 ? "obs-d-good" : chg < 0 ? "obs-d-bad" : "obs-d-neutral";
   const color = chg == null ? "var(--text-tertiary)" : chg > 0 ? "var(--success)" : chg < 0 ? "var(--danger)" : "var(--text-tertiary)";
   const lvl = item.level;
   const dec = item.unit === "%" || item.unit === "₽/г" ? 2 : (lvl != null && lvl > 1000 ? 0 : 2);
+  const Tag = onClick ? "button" : "div";
   return (
-    <div className="obs-tile" style={{ cursor: "default" }}>
+    <Tag className="obs-tile" style={onClick ? undefined : { cursor: "default" }} onClick={onClick} type={onClick ? "button" : undefined}>
       <div className="obs-tile-lbl">{item.name}</div>
       <div className="obs-tile-val">{lvl != null ? lvl.toLocaleString("ru-RU", { maximumFractionDigits: dec }) : "—"}{item.unit ? (item.unit === "%" ? "%" : " " + item.unit) : ""}</div>
       {chg != null && <div className={"obs-tile-delta " + dCls}>{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {Math.abs(chg).toFixed(2)}%</div>}
       {item.spark && item.spark.length > 1 && <div style={{ marginTop: 8 }}><ObsSparkline points={item.spark} color={color} /></div>}
       {item.note && <div className="obs-tile-date">{item.note}</div>}
-    </div>
+    </Tag>
   );
 }
 
@@ -3613,7 +3614,7 @@ const OBS_FG_COMP_LABELS = {
   risk_appetite: "Спрос на риск (акции vs гособлигации, 20 дн.)",
 };
 
-function ObsFearGreedCard({ fg }) {
+function ObsFearGreedCard({ fg, onOpenDetail }) {
   if (!fg || fg.score == null) {
     return (
       <div className="obs-hero-rate">
@@ -3635,6 +3636,11 @@ function ObsFearGreedCard({ fg }) {
           <div className="obs-hero-label">Индекс страха и жадности Basis</div>
           <div className="obs-hero-num" style={{ color }}>{Math.round(score)}</div>
           <div className="obs-hero-meta">{fg.label} · охват {fg.coverage}</div>
+          {onOpenDetail && (
+            <button type="button" className="obs-rep-toggle" style={{ fontSize: "12.5px", fontWeight: 600, marginTop: 8 }} onClick={onOpenDetail}>
+              Подробный разбор →
+            </button>
+          )}
         </div>
         <div className="obs-hero-note">
           {fg.methodology_note}
@@ -3712,7 +3718,7 @@ function ObsMoversRow({ s, onSelectCompany }) {
   );
 }
 
-function ObsMarketPulse({ onSelectCompany }) {
+function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [pulse, setPulse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -3743,11 +3749,13 @@ function ObsMarketPulse({ onSelectCompany }) {
     <div>
       <ObsTickerMarquee stocks={stocks} onSelectCompany={onSelectCompany} />
 
-      <ObsFearGreedCard fg={pulse.fear_greed} />
+      <ObsFearGreedCard fg={pulse.fear_greed} onOpenDetail={onOpenFearGreed} />
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Индексы</div>
       <div className="obs-grid8">
-        {pulse.indices.map(idx => <ObsPulseCard key={idx.ticker} item={idx} />)}
+        {pulse.indices.map(idx => (
+          <ObsPulseCard key={idx.ticker} item={idx} onClick={onSelectIndex ? () => onSelectIndex(idx.ticker) : undefined} />
+        ))}
       </div>
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Лидеры дня</div>
@@ -3770,7 +3778,9 @@ function ObsMarketPulse({ onSelectCompany }) {
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Секторальные индексы MOEX</div>
       <div className="obs-grid8">
-        {pulse.sectors.map(s => <ObsPulseCard key={s.ticker} item={s} />)}
+        {pulse.sectors.map(s => (
+          <ObsPulseCard key={s.ticker} item={s} onClick={onSelectIndex ? () => onSelectIndex(s.ticker) : undefined} />
+        ))}
       </div>
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Ставки денежного рынка · сырьё · металлы</div>

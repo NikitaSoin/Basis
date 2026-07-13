@@ -57,6 +57,7 @@ import { CompanyIdentityBlock, PricePanel, MetricStrip, ResearchTabs as NeoResea
 import ScreenerNeo from "./screener/ScreenerNeo";
 import BondScreenerNeo from "./screener/BondScreenerNeo";
 import MarketNeo from "./market/MarketNeo";
+import { IndexHubView, IndexDetailView, FearGreedDetailView } from "./market/IndexViews";
 import "./market/market-m5.css";
 import LandingNeo from "./market/LandingNeo";
 import BusinessModelTab from "./company/BusinessModelTab";
@@ -102,7 +103,7 @@ import "./styles/compare.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot }) {
+function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onSelectIndex, onOpenFearGreed }) {
   const [activeSection, setActiveSection] = useState("news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
 
@@ -135,7 +136,7 @@ function ObserverV2({ token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFu
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Обзор рынка</h2>
             </div>
-            <ObsMarketPulse onSelectCompany={onSelectCompany} />
+            <ObsMarketPulse onSelectCompany={onSelectCompany} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} />
           </div>
         );
       case "maps":
@@ -565,6 +566,8 @@ export default function App() {
   const [selectedFuture, setSelectedFuture] = useState(null);
   const [selectedFund, setSelectedFund] = useState(null);
   const [selectedSpot, setSelectedSpot] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);   // тикер индекса, или "FEARGREED"
+  const [showIndexHub, setShowIndexHub] = useState(false);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -645,9 +648,30 @@ export default function App() {
     if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={setSelectedCompany} />;
     if (selectedFund) return <FundCard secid={selectedFund} onBack={() => setSelectedFund(null)} />;
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
+    if (selectedIndex === "FEARGREED") {
+      return <FearGreedDetailView onOpenHub={() => { setSelectedIndex(null); setShowIndexHub(true); }} />;
+    }
+    if (selectedIndex) {
+      return (
+        <IndexDetailView
+          ticker={selectedIndex}
+          onOpenHub={() => { setSelectedIndex(null); setShowIndexHub(true); }}
+          onSelectCompany={setSelectedCompany}
+        />
+      );
+    }
+    if (showIndexHub) {
+      return (
+        <IndexHubView
+          onBack={() => setShowIndexHub(false)}
+          onSelectIndex={(t) => { setShowIndexHub(false); setSelectedIndex(t); }}
+          onOpenFearGreed={() => { setShowIndexHub(false); setSelectedIndex("FEARGREED"); }}
+        />
+      );
+    }
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={setSelectedCompany} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={setSelectedIndex} />;
       case "screener":
         return <ScreenerView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
@@ -655,6 +679,8 @@ export default function App() {
           <ObserverV2
             token={token} onSelectCompany={setSelectedCompany}
             onOpenBond={setSelectedBond} onOpenFuture={setSelectedFuture} onOpenFund={setSelectedFund} onOpenSpot={setSelectedSpot}
+            onSelectIndex={setSelectedIndex}
+            onOpenFearGreed={() => setSelectedIndex("FEARGREED")}
           />
         );
       case "portfolio":
@@ -688,7 +714,7 @@ export default function App() {
           />
         );
       default:
-        return <CompaniesView onSelectCompany={setSelectedCompany} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={setSelectedIndex} />;
     }
   };
 

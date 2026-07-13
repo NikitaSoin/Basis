@@ -1,0 +1,125 @@
+/* IndexHub / IndexDetail — «Индексы» (хаб + drill-down + индекс страха и
+   жадности). Точная раскатка 2026-07-14 по одобренному владельцем мокапу
+   (indices-fear-greed-v1.html, референс — конкурент Инвестминт, с намеренными
+   отклонениями: блок «Что тянуло индекс» вместо недоступных официальных весов
+   индекса, честная деградация для отраслевых индексов без истории). Токены —
+   тот же плоский top-level паттерн, что compare.css (--accent/--text-primary/
+   --border-strong и т.д., НЕ cc-root алиасинг) — эти токены уже корректно
+   медные в обеих темах (см. фикс tokens.css 2026-07-13). */
+
+.idx-screen { max-width: 1040px; margin: 0 auto; }
+
+.idx-crumb { font-size: 11.5px; color: var(--text-tertiary); margin-bottom: 10px; }
+.idx-crumb button { border: none; background: transparent; color: var(--text-tertiary); cursor: pointer; font: inherit; padding: 0; }
+.idx-crumb button:hover { color: var(--accent-hover); }
+
+.idx-sec-head { display: flex; align-items: baseline; gap: 13px; margin-bottom: 6px; flex-wrap: wrap; }
+.idx-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-hover); background: var(--accent-soft); padding: 4px 11px; border-radius: 6px; }
+.idx-h1 { font-family: "Fraunces", Georgia, serif; font-size: 28px; font-weight: 600; margin: 0; color: var(--text-primary); }
+.idx-sub { color: var(--text-tertiary); font-size: 13.5px; max-width: 78ch; margin: 10px 0 22px; }
+.idx-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-hover); }
+.idx-tag--est { background: var(--info-soft); color: var(--info); }
+.idx-tag--fact { background: var(--bg-hover); color: var(--text-secondary); }
+
+.idx-panel { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: var(--shadow-sm); }
+
+/* ---- hub: group headers + card grid ---- */
+.idx-grp-head { font-family: "Fraunces", Georgia, serif; font-size: 17px; font-weight: 600; margin: 28px 0 4px; color: var(--text-primary); }
+.idx-grp-sub { font-size: 12.5px; color: var(--text-tertiary); margin: 0 0 12px; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.idx-card { padding: 15px 16px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border-strong); border-radius: 14px; background: var(--bg-elevated); box-shadow: var(--shadow-sm); transition: border-color .14s, transform .14s; font: inherit; color: inherit; }
+.idx-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.idx-card:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.idx-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.idx-card-name { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+.idx-card-tk { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); background: var(--bg-hover); padding: 1px 6px; border-radius: 5px; }
+.idx-card-val { display: flex; align-items: baseline; gap: 8px; }
+.idx-card-val b { font-family: var(--font-mono); font-size: 17px; color: var(--text-primary); }
+.idx-card-delta { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; }
+.idx-card-foot { font-size: 10.5px; color: var(--text-tertiary); display: flex; align-items: center; gap: 5px; }
+.idx-card-badge { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em; background: var(--warning-soft); color: var(--warning); }
+.idx-pos { color: var(--success); } .idx-neg { color: var(--danger); }
+
+.idx-fg-teaser { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: center; padding: 22px 26px; cursor: pointer; margin-top: 12px; text-align: left; border: none; font: inherit; color: inherit; }
+.idx-fg-teaser:hover { border-color: var(--accent); }
+.idx-fg-teaser:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.idx-fg-teaser-name { font-family: "Fraunces", Georgia, serif; font-size: 19px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary); }
+.idx-fg-teaser-desc { font-size: 12.5px; color: var(--text-secondary); max-width: 44ch; }
+.idx-fg-teaser-num { display: flex; align-items: center; gap: 14px; justify-self: end; }
+.idx-fg-mini-num { font-family: var(--font-mono); font-size: 34px; font-weight: 700; }
+.idx-fg-mini-lbl { font-size: 11.5px; font-weight: 700; margin-top: 2px; text-align: center; }
+
+/* ---- detail: hero + stats ---- */
+.idx-hero { padding: 20px 22px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 1px; border-bottom: none; border-radius: 14px 14px 0 0; }
+.idx-hero-tk { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-tertiary); margin-bottom: 8px; }
+.idx-hero-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+.idx-hero-dot--down { background: var(--danger); }
+.idx-hero-val { font-family: var(--font-mono); font-size: 38px; font-weight: 700; line-height: 1; color: var(--text-primary); }
+.idx-hero-unit { font-size: 13px; color: var(--text-tertiary); margin-left: 6px; }
+.idx-hero-delta { font-family: var(--font-mono); font-size: 15px; font-weight: 700; margin-top: 8px; }
+.idx-stats-row { display: flex; gap: 30px; padding: 14px 22px; border-top: 1px solid var(--border-subtle); flex-wrap: wrap; border-radius: 0 0 14px 14px; }
+.idx-stat-l { font-size: 10.5px; color: var(--text-tertiary); margin-bottom: 3px; }
+.idx-stat-v { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-primary); }
+
+.idx-tf-row { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 10px; flex-wrap: wrap; gap: 8px; }
+.idx-tf-tabs { display: inline-flex; background: var(--bg-hover); border-radius: 999px; padding: 4px; gap: 2px; }
+.idx-tf-opt { padding: 6px 13px; font-size: 11.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; border-radius: 999px; border: none; background: transparent; font: inherit; }
+.idx-tf-opt:not(.idx-tf-opt--on):hover { background: color-mix(in srgb, var(--text-primary) 5%, transparent); }
+.idx-tf-opt--on { background: var(--accent); color: var(--on-accent, #fff); box-shadow: 0 3px 10px -2px var(--accent-soft); }
+.idx-tf-opt:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.idx-chart-wrap { padding: 18px 20px 8px; }
+
+.idx-drivers { padding: 18px 20px; margin: 18px 0; }
+.idx-driver-row { display: grid; grid-template-columns: 150px 1fr 64px; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px dashed var(--border-subtle); font-size: 12.5px; color: var(--text-primary); }
+.idx-driver-row:first-of-type { border-top: none; }
+.idx-driver-bar-track { height: 6px; background: var(--bg-hover); border-radius: 3px; position: relative; overflow: hidden; }
+.idx-driver-bar-fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.idx-driver-val { font-family: var(--font-mono); text-align: right; font-weight: 700; }
+
+.idx-explain { padding: 18px 20px; margin: 18px 0; }
+.idx-explain h3 { font-family: "Fraunces", Georgia, serif; font-size: 16px; margin: 0 0 8px; color: var(--text-primary); }
+.idx-explain p { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin: 0 0 10px; }
+
+.idx-degraded-note { display: flex; gap: 10px; padding: 13px 16px; background: var(--warning-soft); border-radius: 11px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 16px 0; }
+.idx-degraded-note b { color: var(--text-primary); }
+
+.idx-tbl-head { padding: 16px 20px 0; }
+table.idx-companies-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.idx-companies-tbl th { text-align: right; padding: 9px 10px; font-size: 9.5px; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); }
+.idx-companies-tbl th:first-child, .idx-companies-tbl td:first-child { text-align: left; }
+.idx-companies-tbl td { padding: 10px; text-align: right; border-bottom: 1px solid var(--border-subtle); font-family: var(--font-mono); color: var(--text-primary); }
+.idx-companies-tbl tr:last-child td { border-bottom: none; }
+.idx-companies-tbl tr { cursor: pointer; }
+.idx-companies-tbl tr:hover td { background: var(--bg-hover); }
+.idx-co-asset { display: flex; align-items: center; gap: 9px; font-family: var(--font-sans, "Inter", sans-serif); }
+.idx-tbl-foot { font-size: 11px; color: var(--text-tertiary); padding: 12px 20px; margin: 0; }
+
+.idx-loading, .idx-empty { padding: 60px 20px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+
+/* ---- fear & greed gauge ---- */
+.idx-fg-wrap { padding: 26px 26px 20px; text-align: center; margin-bottom: 18px; }
+.idx-fg-gauge-svg { width: 100%; max-width: 460px; height: auto; }
+.idx-fg-needle { transform-origin: 230px 230px; transition: transform .5s cubic-bezier(.25,.7,.4,1); }
+.idx-fg-center-num { font-family: var(--font-mono); font-size: 46px; font-weight: 700; }
+.idx-fg-center-lbl { font-size: 14px; font-weight: 700; margin-top: 2px; }
+.idx-fg-legend { display: flex; justify-content: center; gap: 16px; margin-top: 10px; flex-wrap: wrap; font-size: 11px; color: var(--text-tertiary); }
+.idx-fg-leg-i { display: inline-flex; align-items: center; gap: 5px; }
+.idx-fg-leg-i i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+.idx-fg-comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+.idx-fg-comp-card { padding: 15px 17px; }
+.idx-fg-comp-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.idx-fg-comp-name { font-size: 12.5px; font-weight: 700; color: var(--text-primary); }
+.idx-fg-comp-score { font-family: var(--font-mono); font-size: 17px; font-weight: 700; }
+.idx-fg-comp-bar { height: 5px; border-radius: 3px; background: var(--bg-hover); overflow: hidden; margin-bottom: 8px; }
+.idx-fg-comp-bar i { display: block; height: 100%; }
+.idx-fg-comp-desc { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.5; }
+
+.idx-fg-future { display: flex; gap: 10px; padding: 13px 16px; background: var(--bg-hover); border-radius: 11px; font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin: 18px 0; border: 1px dashed var(--border-strong); }
+.idx-fg-future b { color: var(--text-primary); }
+
+@media (max-width: 720px) {
+  .idx-fg-teaser { grid-template-columns: 1fr; }
+  .idx-fg-comp-grid { grid-template-columns: 1fr; }
+  .idx-driver-row { grid-template-columns: 100px 1fr 50px; }
+}

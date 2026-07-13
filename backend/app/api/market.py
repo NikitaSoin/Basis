@@ -47,6 +47,23 @@ def market_indices(db: Session = Depends(get_db)):
     return get_indices(db)
 
 
+@router.get("/market/indices/{ticker}/detail")
+def market_index_detail(
+    ticker: str,
+    period: str = Query("3y", pattern="^(1m|6m|ytd|1y|3y)$"),
+    db: Session = Depends(get_db),
+):
+    """Детальная страница индекса: живая шапка + историческая серия close за
+    период (график с табами 1мес/6мес/YTD/1год/3года) + смена за месяц/год +
+    объём. Только для бенчмарков с полной историей (IMOEX/MCFTR/RTSI) —
+    404 для остальных тикеров (напр. отраслевых индексов MOEX без истории)."""
+    from app.services.indices import get_index_detail
+    detail = get_index_detail(db, ticker, period)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Индекс не найден или история недоступна")
+    return detail
+
+
 @router.get("/market/pulse")
 def market_pulse(db: Session = Depends(get_db)):
     """Блок «Обзор рынка» Обозревателя: индексы (IMOEX/МПД/РТС/RGBI), секторальные
