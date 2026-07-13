@@ -127,7 +127,10 @@ function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex }) {
       <IdxTag
         type={onSelectIndex && index ? "button" : undefined}
         onClick={onSelectIndex && index ? () => onSelectIndex(index.ticker) : undefined}
-        style={onSelectIndex && index ? { textAlign: "left", cursor: "pointer" } : undefined}
+        style={onSelectIndex && index ? {
+          textAlign: "left", cursor: "pointer", display: "block", width: "100%",
+          background: "none", border: "none", padding: 0, margin: 0, font: "inherit", color: "inherit",
+        } : undefined}
       >
         <div className="mk-eyebrow">{index ? index.name : "Индекс МосБиржи"}</div>
         {index ? (
@@ -364,7 +367,7 @@ function ViewToggle({ view, setView }) {
 // «+N ещё в категории» (не тащим все ~1000 «Корпораты — прочие» в DOM разом,
 // но и не обрезаем молча, как было раньше — slice(0,400) без индикации).
 const BOND_GROUP_CAP = 150;
-function BondsTab({ rows, query, onOpen }) {
+function BondsTab({ rows, query, onOpen, Logo }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
   const [sort, setSort] = useState("default");
@@ -391,7 +394,14 @@ function BondsTab({ rows, query, onOpen }) {
     const rel = reliOf(b);
     return (
       <tr key={b.secid} onClick={() => onOpen(b.secid)} style={{ cursor: "pointer" }}>
-        <td className="l"><div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div></td>
+        <td className="l">
+          <div className="mk-row-id">
+            {Logo && b.issuer_ticker
+              ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={30} />
+              : <Mono t={b.short_name || b.secid} color="var(--accent-2)" sm />}
+            <div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div>
+          </div>
+        </td>
         <td className="l mk-reli-c"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span></td>
         <td className="l mk-reli-c">{b.agency_rating ? <span className="mk-ag">{b.agency_rating}</span> : <span className="dim">—</span>}</td>
         <td className="num strong">{b.last_price != null ? num(b.last_price, 2) + NB + "%" : "—"}</td>
@@ -406,7 +416,12 @@ function BondsTab({ rows, query, onOpen }) {
     const rel = reliOf(b), col = RELI_COLOR[rel.k];
     return (
       <button key={b.secid} className="mk-card mk-card-asset" onClick={() => onOpen(b.secid)}>
-        <div className="mk-card-top"><span className="mk-mono" style={{ background: col + "22", color: col }}>{(b.short_name || b.secid).slice(0, 2)}</span><div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div></div>
+        <div className="mk-card-top">
+          {Logo && b.issuer_ticker
+            ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={34} />
+            : <span className="mk-mono" style={{ background: col + "22", color: col }}>{(b.short_name || b.secid).slice(0, 2)}</span>}
+          <div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div>
+        </div>
         <div className="mk-asset-big"><span className="mk-asset-bigv">{num(b.ytm, 1)}<span className="mk-cur"> %</span></span><span className="mk-asset-biglbl">YTM</span></div>
         <div className="mk-reli"><span className={"mk-badge mk-badge-" + rel.k}>{rel.label}</span>{b.agency_rating && <span className="mk-ag">{b.agency_rating}</span>}{b.basis_group && <span className="mk-basis">Basis {b.basis_group}</span>}</div>
         <div className="mk-card-stats">
@@ -473,7 +488,7 @@ function ChgTd({ chg, known }) {
   }
   return <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>;
 }
-function FuturesTab({ rows, query, onOpen }) {
+function FuturesTab({ rows, query, onOpen, Logo }) {
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState("default");
   const [view, setView] = useState("rows");
@@ -501,7 +516,12 @@ function FuturesTab({ rows, query, onOpen }) {
           {view === "cards" ? (
             <div className="mk-grid">{by[g].map(f => { const chg = futChg(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
-                <div className="mk-card-top"><span className="mk-mono" style={{ background: "var(--accent-soft)", color: "var(--accent-2)" }}>{f.secid.slice(0, 2)}</span><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.asset_name || f.sec_name}</span></div></div>
+                <div className="mk-card-top">
+                  {Logo && f.asset_kind === "stock" && f.linked_ticker
+                    ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={34} />
+                    : <span className="mk-mono" style={{ background: "var(--accent-soft)", color: "var(--accent-2)" }}>{f.secid.slice(0, 2)}</span>}
+                  <div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.asset_name || f.sec_name}</span></div>
+                </div>
                 <div className="mk-asset-big">
                   <span className="mk-asset-bigv">{num(f.last_price, 2)}</span>
                   {chg != null && <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}%</span></span>}
@@ -520,7 +540,14 @@ function FuturesTab({ rows, query, onOpen }) {
                 <tbody>
                   {by[g].map(f => { const chg = futChg(f); return (
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
-                      <td className="l"><div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.asset_name || f.sec_name}</span></div></td>
+                      <td className="l">
+                        <div className="mk-row-id">
+                          {Logo && f.asset_kind === "stock" && f.linked_ticker
+                            ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={30} />
+                            : <Mono t={f.secid} color="var(--accent-2)" sm />}
+                          <div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.asset_name || f.sec_name}</span></div>
+                        </div>
+                      </td>
                       <td className="num strong">{f.last_price != null ? num(f.last_price, 2) : "—"}</td>
                       <td className="num"><ChgTd chg={chg} known={f.last_price != null} /></td>
                       <td className="num"><LevBadge lev={f.leverage} /></td>
@@ -850,8 +877,8 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
           {tab === "stocks" && stockView === "map" && <Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} />}
           {tab === "stocks" && stockView === "rows" && <StockRows stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
           {tab === "stocks" && stockView === "list" && <StockCards stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
-          {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} />}
-          {tab === "futures" && <FuturesTab rows={futures} query={query} onOpen={onOpenFuture} />}
+          {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} Logo={Logo} />}
+          {tab === "futures" && <FuturesTab rows={futures} query={query} onOpen={onOpenFuture} Logo={Logo} />}
           {tab === "funds" && <FundsTab rows={funds} query={query} onOpen={onOpenFund} sparks={fundSparks} />}
           {tab === "fx" && <FxMetalsTab rows={spot} onOpen={onOpenSpot} />}
           {tab === "options" && <OptionsTab onOpen={onOpenOption} />}

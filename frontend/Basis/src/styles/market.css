@@ -240,9 +240,8 @@
    между строками (border-top dashed, первая — без), НЕ 2-колоночная сетка боксов-карточек
    (было раньше). Строка mk-driver-e («эффект» — суждение Basis почему это важно) — реальная
    глубина сверх демо-мокапа (там только имя+значение), сохранена. */
-.mk-screen .mk-drivers{display:flex;flex-direction:column;margin-top:9px;}
-.mk-screen .mk-driver{padding:8px 0;border-top:1px dashed var(--line);}
-.mk-screen .mk-driver:first-child{border-top:none;padding-top:0;}
+.mk-screen .mk-drivers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px;}
+.mk-screen .mk-driver{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;}
 .mk-screen .mk-driver-n{font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mk-screen .mk-d{font-size:11px;} .mk-screen .mk-d.up{color:var(--pos);} .mk-screen .mk-d.dn{color:var(--neg);} .mk-screen .mk-d.fl{color:var(--ink-3);}
 .mk-screen .mk-driver-v{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:4px 0 3px;white-space:nowrap;display:flex;align-items:center;gap:6px;}
