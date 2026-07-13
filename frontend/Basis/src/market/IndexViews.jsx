@@ -102,7 +102,7 @@ function fgColorFor(score) {
 // =============================================================
 // ХАБ ИНДЕКСОВ
 // =============================================================
-export function IndexHubView({ onBack, onSelectIndex, onOpenFearGreed }) {
+export function IndexHubView({ onBack, onSelectIndex, onOpenFearGreed, onBackToOverview }) {
   const [pulse, setPulse] = useState(null);
   const [indices, setIndices] = useState(null);
 
@@ -118,6 +118,7 @@ export function IndexHubView({ onBack, onSelectIndex, onOpenFearGreed }) {
 
   return (
     <div className="idx-screen">
+      {onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>}
       {onBack && <div className="idx-crumb"><button onClick={onBack}>← Назад</button></div>}
       <div className="idx-sec-head"><span className="idx-eyebrow">Рынок</span><h1 className="idx-h1">Индексы</h1></div>
       <p className="idx-sub">
@@ -189,7 +190,7 @@ export function IndexHubView({ onBack, onSelectIndex, onOpenFearGreed }) {
 // =============================================================
 // ДЕТАЛЬНАЯ СТРАНИЦА ИНДЕКСА
 // =============================================================
-export function IndexDetailView({ ticker, onOpenHub, onSelectCompany }) {
+export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOverview }) {
   const isMain = MAIN_TICKERS.includes(ticker);
   const [period, setPeriod] = useState("3y");
   const [detail, setDetail] = useState(null);
@@ -244,9 +245,10 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany }) {
       .slice(0, 12);
   }, [scored, isMain, sectorInternalName]);
 
-  if (isMain && !detail) return <div className="idx-screen"><div className="idx-loading">Загрузка индекса…</div></div>;
-  if (!isMain && !pulse) return <div className="idx-screen"><div className="idx-loading">Загрузка индекса…</div></div>;
-  if (!isMain && !sectorEntry) return <div className="idx-screen"><div className="idx-empty">Индекс не найден.</div></div>;
+  const backBtn = onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>;
+  if (isMain && !detail) return <div className="idx-screen">{backBtn}<div className="idx-loading">Загрузка индекса…</div></div>;
+  if (!isMain && !pulse) return <div className="idx-screen">{backBtn}<div className="idx-loading">Загрузка индекса…</div></div>;
+  if (!isMain && !sectorEntry) return <div className="idx-screen">{backBtn}<div className="idx-empty">Индекс не найден.</div></div>;
 
   const name = isMain ? detail.name : sectorEntry.name;
   const level = isMain ? detail.level : sectorEntry.level;
@@ -267,6 +269,7 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany }) {
 
   return (
     <div className="idx-screen">
+      {onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>}
       <div className="idx-crumb"><button onClick={onOpenHub}>Индексы</button> · {name}</div>
       <div className="idx-sec-head"><span className="idx-eyebrow">Рынок</span><h1 className="idx-h1">{name}</h1></div>
       <p className="idx-sub">
@@ -404,7 +407,7 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany }) {
 // =============================================================
 // ИНДЕКС СТРАХА И ЖАДНОСТИ — гейдж
 // =============================================================
-export function FearGreedDetailView({ onOpenHub }) {
+export function FearGreedDetailView({ onOpenHub, onBackToOverview }) {
   const [pulse, setPulse] = useState(null);
 
   useEffect(() => {
@@ -414,8 +417,22 @@ export function FearGreedDetailView({ onOpenHub }) {
 
   const fg = pulse?.fear_greed;
 
-  if (!pulse) return <div className="idx-screen"><div className="idx-loading">Загрузка индекса страха и жадности…</div></div>;
-  if (!fg || fg.score == null) return <div className="idx-screen"><div className="idx-empty">{fg?.note || "Недостаточно данных для расчёта."}</div></div>;
+  if (!pulse) {
+    return (
+      <div className="idx-screen">
+        {onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>}
+        <div className="idx-loading">Загрузка индекса страха и жадности…</div>
+      </div>
+    );
+  }
+  if (!fg || fg.score == null) {
+    return (
+      <div className="idx-screen">
+        {onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>}
+        <div className="idx-empty">{fg?.note || "Недостаточно данных для расчёта."}</div>
+      </div>
+    );
+  }
 
   const score = fg.score;
   const angle = -90 + (score / 100) * 180;
@@ -424,6 +441,7 @@ export function FearGreedDetailView({ onOpenHub }) {
 
   return (
     <div className="idx-screen">
+      {onBackToOverview && <button className="idx-back-btn" onClick={onBackToOverview}>← Вернуться к обзору</button>}
       <div className="idx-crumb"><button onClick={onOpenHub}>Индексы</button> · Индекс страха и жадности</div>
       <div className="idx-sec-head"><span className="idx-eyebrow">Рынок</span><h1 className="idx-h1">Индекс страха и жадности Basis</h1></div>
       <p className="idx-sub">

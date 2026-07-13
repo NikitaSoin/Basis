@@ -13,6 +13,17 @@
 .idx-crumb button { border: none; background: transparent; color: var(--text-tertiary); cursor: pointer; font: inherit; padding: 0; }
 .idx-crumb button:hover { color: var(--accent-hover); }
 
+/* владелец: нужна явная кнопка сверху слева «вернуться к обзору», не просто
+   мелкая крошка — так со страницы индекса всегда виден понятный путь назад,
+   в дополнение к сайдбару Обозревателя. */
+.idx-back-btn {
+  display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent;
+  color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 6px 4px; margin: 0 0 14px -4px; border-radius: 8px;
+}
+.idx-back-btn:hover { color: var(--accent-hover); background: var(--bg-hover); }
+.idx-back-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
 .idx-sec-head { display: flex; align-items: baseline; gap: 13px; margin-bottom: 6px; flex-wrap: wrap; }
 .idx-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-hover); background: var(--accent-soft); padding: 4px 11px; border-radius: 6px; }
 .idx-h1 { font-family: "Fraunces", Georgia, serif; font-size: 28px; font-weight: 600; margin: 0; color: var(--text-primary); }

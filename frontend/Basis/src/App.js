@@ -116,6 +116,10 @@ function ObserverV2({
   // Клик по любому пункту сайдбара ниже явно закрывает режим индекса
   // (onCloseIndexUI) — иначе пользователь «застревал» бы и там тоже.
   const inIndexMode = Boolean(indexTicker || showIndexHub);
+  // Явная кнопка «← Вернуться к обзору» сверху слева на странице индекса
+  // (владелец) — ведёт конкретно в «Обзор рынка», откуда обычно и попадают
+  // на индексы (не просто «закрыть», а предсказуемо в конкретный раздел).
+  const backToOverview = () => { onCloseIndexUI(); setActiveSection("pulse"); };
 
   const renderSection = () => {
     switch (activeSection) {
@@ -290,11 +294,11 @@ function ObserverV2({
         {inIndexMode ? (
           <div className="obs-panel">
             {indexTicker === "FEARGREED" ? (
-              <FearGreedDetailView onOpenHub={onOpenIndexHub} />
+              <FearGreedDetailView onOpenHub={onOpenIndexHub} onBackToOverview={backToOverview} />
             ) : indexTicker ? (
-              <IndexDetailView ticker={indexTicker} onOpenHub={onOpenIndexHub} onSelectCompany={onSelectCompany} />
+              <IndexDetailView ticker={indexTicker} onOpenHub={onOpenIndexHub} onSelectCompany={onSelectCompany} onBackToOverview={backToOverview} />
             ) : (
-              <IndexHubView onBack={onCloseIndexUI} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} />
+              <IndexHubView onBack={onCloseIndexUI} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} onBackToOverview={backToOverview} />
             )}
           </div>
         ) : (
