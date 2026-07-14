@@ -833,13 +833,16 @@ def _due_ir_rows(companies: dict, days_back: int) -> list[dict]:
     return out
 
 
-def _get_or_create_calendar_event(db: Session, row: dict, company: Company) -> CalendarEvent:
-    """Служебная запись calendar_events под уже ПРОШЕДШЕЕ MOEX-событие (форвард-витрина
-    build_ir_calendar такие не хранит — см. _due_ir_rows) — нужна только как якорь
-    дедупа earnings_reports.calendar_event_id, на публичный /market/calendar не влияет
-    (event_type тот же 'earnings', но дата в прошлом — витрина и так их не показывает)."""
+def _get_or_create_calendar_event(db: Session, row: dict, company: Company,
+                                  source: str = "moex_ir_calendar", key_prefix: str = "ir_calendar_past",
+                                  confidence: str = "public_aggregated") -> CalendarEvent:
+    """Служебная запись calendar_events под уже ПРОШЕДШЕЕ событие (форвард-витрина
+    build_ir_calendar/build_corporate такие не хранит — см. _due_ir_rows/_due_smartlab_rows)
+    — нужна только как якорь дедупа earnings_reports.calendar_event_id, на публичный
+    /market/calendar не влияет (событие в прошлом — витрина и так их не показывает).
+    Параметризовано по источнику — переиспользуется и MOEX-, и smart-lab-путём."""
     from app.services.calendar_events import _upsert, _classify_report_kind
-    dedup_key = f"ir_calendar_past:{row['secid']}:{row['event_id']}"
+    dedup_key = f"{key_prefix}:{row['secid']}:{row['event_id']}"
     existing = db.query(CalendarEvent).filter_by(dedup_key=dedup_key).first()
     if existing:
         return existing
@@ -848,11 +851,68 @@ def _get_or_create_calendar_event(db: Session, row: dict, company: Company) -> C
         "event_type": "earnings", "event_date": row["event_date"], "event_time": None,
         "ticker": row["secid"], "sector": company.sector,
         "title": f"{company.name}: {row['description']}"[:300], "status": status,
-        "source": "moex_ir_calendar", "source_url": row["event_link"] or "",
-        "payload": {"subtype": "report", "confidence": "public_aggregated", "description": row["description"][:500]},
+        "source": source, "source_url": row["event_link"] or "",
+        "payload": {"subtype": "report", "confidence": confidence, "description": row["description"][:500]},
         "dedup_key": dedup_key,
     }])
     return db.query(CalendarEvent).filter_by(dedup_key=dedup_key).first()
+
+
+# ----------------------------- smart-lab (детект дат, НЕ данные) -----------------------------
+# Владелец одобрил 2026-07-14: разрешено ТОЛЬКО для дат/детекта («в этот день у компании X
+# вышел отчёт») + как крайний резерв текста, если свои методы (RSS компании/Лента новостей/
+# СКРИН/ПРАЙМ/АЗИПИ/ГИР БО) ничего не нашли — прежний запрет («не тянуть с конкурента»)
+# был конкретно про ДИВИДЕНДНЫЕ СУММЫ (см. чекпойнт дивидендного календаря 2026-07-12),
+# остаётся в силе для того сценария. Здесь используем ТОЛЬКО факт даты + расширяем детект
+# заметно за пределы 76 тикеров MOEX ir-calendar (smart-lab, в отличие от нашей витрины,
+# реально хранит историю — проверено вручную: `from_{прошлая дата}` отдаёт события, а не 404).
+_SMARTLAB_CAL = "https://smart-lab.ru/calendar/stocks/"
+
+
+def _due_smartlab_rows(companies: dict, days_back: int, max_pages: int = 3) -> list[dict]:
+    from app.services.calendar_events import _classify_corp
+    today = date.today()
+    start_str = (today - timedelta(days=days_back)).strftime("%d.%m.%Y")
+    html_pages = []
+    for page_n in range(1, max_pages + 1):
+        url = f"{_SMARTLAB_CAL}from_{start_str}/" + (f"page{page_n}/" if page_n > 1 else "")
+        try:
+            r = httpx.get(url, timeout=20, headers=_HTTP_UA, follow_redirects=True)
+            r.raise_for_status()
+            page_html = r.text
+        except Exception:  # noqa: BLE001
+            break
+        time.sleep(0.3)
+        n_rows = len(re.findall(r"<tr[^>]*>.*?\d{2}\.\d{2}\.\d{4}", page_html, re.S))
+        html_pages.append(page_html)
+        if n_rows < 25:
+            break
+    html = "".join(html_pages)
+    out = []
+    seen = set()
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S):
+        cells = [re.sub(r"<[^>]+>", "", c).strip() for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S)]
+        cells = [c for c in cells if c and c != "&nbsp;"]
+        if len(cells) < 2 or not re.match(r"\d{2}\.\d{2}\.\d{4}", cells[0]):
+            continue
+        try:
+            dd, mm, yy = cells[0].split(".")
+            ev_date = date(int(yy), int(mm), int(dd))
+        except ValueError:
+            continue
+        if ev_date > today:
+            continue  # будущее уже покрыто build_corporate/build_ir_calendar — тут только прошлое
+        desc = cells[1].replace("&gt;", "").strip()
+        if _classify_corp(desc) != "report":
+            continue
+        ticker = desc.split(":")[0].strip() if ":" in desc else None
+        if not ticker or ticker not in companies or (ticker, ev_date) in seen:
+            continue
+        seen.add((ticker, ev_date))
+        out.append({"secid": ticker, "event_date": ev_date,
+                    "event_id": f"sl{ev_date.isoformat()}_{abs(hash(desc)) % 1_000_000}",
+                    "description": desc, "event_link": None})
+    return out
 
 
 def _due_news_reports(db: Session, companies: dict, days_back: int) -> list[dict]:
@@ -911,6 +971,26 @@ def refresh(db: Session, days_back: int = 5, run_girbo: bool = True) -> dict:
             res["errors"] += 1
             db.rollback()
 
+    # smart-lab — ТОЛЬКО детект дат (владелец одобрил 2026-07-14, см. докстринг
+    # _due_smartlab_rows), расширяет охват заметно за пределы 76 тикеров MOEX.
+    # Пропускаем (тикер, дата), уже покрытые MOEX-путём выше — не задваиваем событие.
+    ir_covered = {(r["secid"], r["event_date"]) for r in due_rows}
+    smartlab_rows = [r for r in _due_smartlab_rows(companies, days_back) if (r["secid"], r["event_date"]) not in ir_covered]
+    for row in smartlab_rows:
+        company = companies.get(row["secid"])
+        if not company:
+            res["skipped_no_company"] += 1
+            continue
+        try:
+            event = _get_or_create_calendar_event(db, row, company, source="smartlab",
+                                                  key_prefix="smartlab_past", confidence="public_aggregated")
+            r = process_event(db, event, company, float(company.market_cap) if company.market_cap else None, inn_map)
+            res[r] = res.get(r, 0) + 1
+        except Exception as e:  # noqa: BLE001
+            logger.warning("report_watch: ошибка по событию (smartlab) %s/%s: %s", row["secid"], row["event_id"], type(e).__name__)
+            res["errors"] += 1
+            db.rollback()
+
     news_items = _due_news_reports(db, companies, days_back)
     for item in news_items:
         company = companies.get(item["ticker"])
@@ -964,6 +1044,6 @@ def refresh(db: Session, days_back: int = 5, run_girbo: bool = True) -> dict:
             res["errors"] += 1
             db.rollback()
 
-    logger.info("report_watch: %s (ir-событий: %d, новостных кандидатов: %d, ГИР БО: %d, company_rss: %d)",
-                res, len(due_rows), len(news_items), len(girbo_items), len(rss_items))
+    logger.info("report_watch: %s (ir-событий: %d, smart-lab: %d, новостных кандидатов: %d, ГИР БО: %d, company_rss: %d)",
+                res, len(due_rows), len(smartlab_rows), len(news_items), len(girbo_items), len(rss_items))
     return res
