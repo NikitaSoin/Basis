@@ -4359,6 +4359,11 @@ const CompanyCard = ({ company, onBack }) => {
               const name = METHOD_RU[mt.method] || mt.method;
               const horizon = HORIZON_RU[mt.horizon] || mt.horizon || "—";
               const hasPrice = typeof mt.fair_value_per_share === "number";
+              // fair_value_per_share_live — пересчёт формулы метода от ЖИВОЙ ставки
+              // ОФЗ-10л (см. backend/app/services/live_wacc.py), не застывшей на дату
+              // анализа; fair_value_per_share остаётся исходным для прозрачности.
+              const isLive = typeof mt.fair_value_per_share_live === "number";
+              const v = isLive ? mt.fair_value_per_share_live : mt.fair_value_per_share;
               const expl = mt.explain || null;
               const isNA = mt.status === "not_applicable";
 
@@ -4367,16 +4372,17 @@ const CompanyCard = ({ company, onBack }) => {
                 <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-3 tw-gap-y-1 tw-w-full">
                   <span className="tw-font-semibold tw-text-text-primary">{name}</span>
                   <span className="tw-text-text-tertiary tw-text-[12px]">{horizon}</span>
+                  {isLive && <Badge tone="info">живое</Badge>}
                   <span className="tw-flex-1" />
                   {hasPrice
-                    ? <span className="tw-font-mono tw-tabular-nums tw-font-bold tw-text-text-primary">{formatMoney(mt.fair_value_per_share, { currency: cySym })}</span>
+                    ? <span className="tw-font-mono tw-tabular-nums tw-font-bold tw-text-text-primary">{formatMoney(v, { currency: cySym })}</span>
                     : <span className="tw-text-text-tertiary tw-text-[12px]">—</span>
                   }
                   {(() => {
                     // Апсайд метода к ЖИВОЙ цене: >10% зелёный ↑, 0–10% оранжевый ↑, <0 красный ↓
                     const curp = liveCurp;
                     if (!hasPrice || typeof curp !== "number" || curp <= 0) return null;
-                    const up = (mt.fair_value_per_share - curp) / curp * 100;
+                    const up = (v - curp) / curp * 100;
                     const cls = up < 0 ? "tw-text-danger" : (up <= 10 ? "tw-text-warning" : "tw-text-success");
                     const arr = up < 0 ? "▼" : "▲";
                     return (
@@ -4434,6 +4440,12 @@ const CompanyCard = ({ company, onBack }) => {
                   </summary>
                   {hasContent && (
                     <div className="tw-border-t tw-border-border-subtle tw-px-3 tw-pb-4 tw-pt-3 tw-space-y-4">
+
+                      {isLive && (
+                        <div className="tw-p-2.5 tw-rounded-md tw-bg-info-soft tw-text-[12px] tw-text-text-primary tw-leading-snug">
+                          Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). Выкладка ниже — как считал аналитик на дату анализа, при цене {formatMoney(mt.fair_value_per_share, { currency: cySym })}.
+                        </div>
+                      )}
 
                       {/* ── Входные данные ── */}
                       {inputs && Object.keys(inputs).length > 0 && (
