@@ -148,6 +148,16 @@ def company_logos_endpoint():
     return tinkoff_quotes.get_logos()
 
 
+@router.get("/companies/instrument-logos")
+def instrument_logos_endpoint():
+    """{ISIN или secid: URL логотипа} для облигаций (по ISIN)/фондов/
+    фьючерсов/валюты (по тикеру Т-Инвестиций = наш secid) — логотип самого
+    инструмента у брокера, не обязательно компании-эмитента (владелец: «у
+    любой облигации/фьючерса/фонда есть своя картинка в Т-Инвестициях»)."""
+    from app.services import tinkoff_quotes
+    return tinkoff_quotes.get_instrument_logos()
+
+
 @router.get("/quotes/source")
 def quotes_source_endpoint():
     """Диагностика: какой источник котировок активен."""
@@ -355,7 +365,7 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
         live_price = None
         if row is not None and row[0] and row[1]:
             live_price = float(row[0]) / float(row[1])
-        fin["valuation"] = live_recompute_valuation(fin, db, shares_outstanding, live_price)
+        fin["valuation"] = live_recompute_valuation(fin, db, shares_outstanding, live_price, _safe(ticker).upper())
     return JSONResponse(content=fin)
 
 

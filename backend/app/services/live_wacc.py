@@ -26,6 +26,14 @@ P/BV=(ROE-g)/(Ke-g) — линейное масштабирование даст
 → update_risk_free_rate, ключ "risk_free_10y") — не HTTP-запрос к MOEX ISS на
 каждый рендер карточки (см. get_market_param).
 
+Живая β берётся из company_metrics.beta (обновляется отдельным еженедельным
+кроном moex_coefficients → sync_official_betas, MOEX fortscoefficients или
+наш расчёт по Диммсону из накапливаемой истории котировок) — тоже НЕ застывшая
+на дату анализа величина (владелец указал: β меняется со временем так же, как
+Rf, а в выкладке подтягивалась старая). extra по-прежнему считается через
+β_FROZEN (иначе неверно восстановится остаточная надбавка), а в r_live/ke_live
+подставляется β_LIVE — см. get_live_beta.
+
 Поддержаны 4 метода (имя метода нормализуется — "P/BV_ROE"/"PBV_ROE"/"pbv_roe"/
 "pbv_roe_gordon" у разных прогонов аналитика считаются одним и тем же):
 - DCF (одностадийный Gordon от FCF1):
@@ -161,13 +169,19 @@ def _normalize_method(name) -> str:
 
 
 def _live_rate_pct(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
-                    rate_fields: tuple[str, ...]) -> tuple[float | None, float | None]:
+                    rate_fields: tuple[str, ...], beta_live: float | None = None) -> tuple[float | None, float | None]:
     """Ищет ставку дисконтирования/требуемую доходность по списку возможных имён
     полей (порядок = приоритет). Если рядом есть beta — восстанавливает остаточную
     надбавку (governance и т.п.) через тот же приём, что DCF/pbv_roe: extra =
-    rate_frozen − (Rf_frozen + β×ERP), rate_live = Rf_live + β×ERP + extra. Если
-    beta не задана (напр. required_yield — рыночное суждение, не CAPM-формула) —
-    параллельный сдвиг на дельту живой ставки: rate_live = rate_frozen + (Rf_live
+    rate_frozen − (Rf_frozen + β_frozen×ERP). Живая ставка использует ЖИВУЮ бету
+    (company_metrics.beta — MOEX-официальная/по свежей истории котировок,
+    еженедельный крон moex_coefficients), если она доступна: rate_live =
+    Rf_live + β_live×ERP + extra — β тоже не застывшая на дату анализа величина
+    (найдено на бою: владелец справедливо указал, что бета в CAPM-выкладке ROSN
+    оставалась старой при живом пересчёте ставки). β_frozen used ТОЛЬКО для
+    декомпозиции extra (чтобы верно восстановить, что именно добавил аналитик
+    сверх чистой формулы) — не для итоговой живой ставки. Если β не задана нигде
+    (ни в ka, ни live) — параллельный сдвиг: rate_live = rate_frozen + (Rf_live
     − Rf_frozen). Возвращает (rate_live_pct, rate_frozen_pct) либо (None, None)."""
     for field in rate_fields:
         raw = _find_field(ka, field)
@@ -176,17 +190,19 @@ def _live_rate_pct(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: 
         rate_frozen_pct = _pct(raw)
         if rate_frozen_pct is None:
             continue
-        beta = _as_float(_find_field(ka, "beta"))
-        if beta is not None:
-            extra_pct = rate_frozen_pct - (rf_frozen_pct + beta * erp_pct)
-            rate_live_pct = rf_live_pct + beta * erp_pct + extra_pct
+        beta_frozen = _as_float(_find_field(ka, "beta"))
+        if beta_frozen is not None:
+            extra_pct = rate_frozen_pct - (rf_frozen_pct + beta_frozen * erp_pct)
+            beta_for_live = beta_live if beta_live is not None else beta_frozen
+            rate_live_pct = rf_live_pct + beta_for_live * erp_pct + extra_pct
         else:
             rate_live_pct = rate_frozen_pct + (rf_live_pct - rf_frozen_pct)
         return rate_live_pct, rate_frozen_pct
     return None, None
 
 
-def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> tuple[float, float] | None:
+def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
+                         beta_live: float | None = None) -> tuple[float, float] | None:
     ka = m.get("key_assumptions") or {}
     frozen_price = _as_float(m.get("fair_value_per_share"))
     if frozen_price is None or frozen_price <= 0:
@@ -208,7 +224,7 @@ def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
     g_pct = _pct(g_raw)
 
     rate_live_pct, rate_frozen_pct = _live_rate_pct(
-        ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke", "r", "required_yield"))
+        ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke", "r", "required_yield"), beta_live=beta_live)
     if rate_live_pct is None or rate_frozen_pct is None:
         return None
 
@@ -237,7 +253,7 @@ _CAPM_EPS_FIELDS = (
 
 
 def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
-                     market_price_live: float | None) -> tuple[float, float] | None:
+                     market_price_live: float | None, beta_live: float | None = None) -> tuple[float, float] | None:
     """Скан всех 264 карточек показал: CAPM здесь — НЕ единая формула, а два разных
     семейства (см. модуль docstring): (A) total-return-таргет от ТЕКУЩЕЙ цены
     (доминирует), (B) "обоснованный P/E" от EPS. Различаются набором полей —
@@ -267,7 +283,7 @@ def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct:
     if extra_ke_fields and ("ke" in keys_l or "ke_pct" in keys_l):
         return None
 
-    ke_live_pct, ke_frozen_pct = _live_rate_pct(ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke",))
+    ke_live_pct, ke_frozen_pct = _live_rate_pct(ka, rf_live_pct, rf_frozen_pct, erp_pct, rate_fields=("ke",), beta_live=beta_live)
     if ke_live_pct is None:
         return None
     ke_live_frac = ke_live_pct / 100
@@ -320,8 +336,26 @@ def get_live_risk_free_10y_pct(db: Session) -> tuple[float | None, str | None]:
     return float(row.value), (row.as_of.isoformat() if row.as_of else None)
 
 
+def get_live_beta(db: Session, ticker: str | None) -> tuple[float | None, str | None]:
+    """Живая бета из company_metrics.beta (= beta_moex, если есть — официальная
+    MOEX fortscoefficients, иначе наш расчёт по Диммсону из истории котировок;
+    обновляется еженедельным кроном moex_coefficients, см. main.py). Не застывшая
+    на дату анализа величина — та же логика, что risk_free_10y выше: β меняется
+    со временем вместе с накапливаемой историей котировок, а frozen-β в
+    key_assumptions зафиксирована на дату прогона financial-analyst. Возвращает
+    (значение, источник 'moex'|'calc') либо (None, None)."""
+    if not ticker:
+        return None, None
+    row = db.execute(
+        text("SELECT beta, beta_source FROM company_metrics WHERE ticker = :t"), {"t": ticker}
+    ).first()
+    if row is None or row.beta is None:
+        return None, None
+    return float(row.beta), row.beta_source
+
+
 def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
-                           shares_outstanding: float | None) -> float | None:
+                           shares_outstanding: float | None, beta_live: float | None = None) -> float | None:
     # method_form — необязательная аннотация; часть прогонов её не проставляла
     # (напр. ROSN), хотя структура key_assumptions та же самая одностадийная
     # Gordon-модель. Явно исключаем только СЛУЧАИ С ДРУГОЙ формой (если поле
@@ -334,7 +368,8 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     # одностадийная Gordon-модель, другие подписи тех же величин).
     g_pct = _pct(_find_field(ka, "g", "terminal_growth"))
     r_frozen_pct = _pct(_find_field(ka, "r", "wacc", "r_base"))
-    beta = _as_float(_find_field(ka, "beta")) or 1.0
+    beta_frozen = _as_float(_find_field(ka, "beta")) or 1.0
+    beta_for_live = beta_live if beta_live is not None else beta_frozen
     if fcf1 is None or g_pct is None or r_frozen_pct is None:
         return None
     # net_cash: приоритет — точное число, которое использовал аналитик в
@@ -358,8 +393,8 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     if not shares_outstanding or shares_outstanding <= 0:
         return None
 
-    extra_pct = r_frozen_pct - (rf_frozen_pct + beta * erp_pct)
-    r_live_pct = rf_live_pct + beta * erp_pct + extra_pct
+    extra_pct = r_frozen_pct - (rf_frozen_pct + beta_frozen * erp_pct)
+    r_live_pct = rf_live_pct + beta_for_live * erp_pct + extra_pct
     denom = r_live_pct / 100 - g_pct / 100
     if denom <= 0:
         return None  # ставка live упала ниже темпа роста — формула Гордона не определена
@@ -371,19 +406,21 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     return _round_price(equity_live_mln / shares_mln), round(r_live_pct, 2)
 
 
-def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> tuple[float, float] | None:
+def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
+                        beta_live: float | None = None) -> tuple[float, float] | None:
     roe_pct = _pct(_find_field(ka, "roe_sustainable", "roe_used", "roe_base", "roe_forward"))
     g_pct = _pct(_find_field(ka, "g"))
     ke_frozen_pct = _pct(_find_field(ka, "ke"))
     bvps = _as_float(_find_field(
         ka, "bvps_2025", "bvps", "book_value_per_share_used", "book_value_per_share",
         "bvps_used", "bvps_forward_rub", "bvps_2024"))
-    beta = _as_float(_find_field(ka, "beta")) or 1.0
+    beta_frozen = _as_float(_find_field(ka, "beta")) or 1.0
+    beta_for_live = beta_live if beta_live is not None else beta_frozen
     if roe_pct is None or g_pct is None or ke_frozen_pct is None or bvps is None:
         return None
 
-    extra_pct = ke_frozen_pct - (rf_frozen_pct + beta * erp_pct)
-    ke_live_pct = rf_live_pct + beta * erp_pct + extra_pct
+    extra_pct = ke_frozen_pct - (rf_frozen_pct + beta_frozen * erp_pct)
+    ke_live_pct = rf_live_pct + beta_for_live * erp_pct + extra_pct
     denom = ke_live_pct / 100 - g_pct / 100
     if denom <= 0:
         return None
@@ -394,12 +431,13 @@ def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
 
 
 def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float | None,
-                              market_price_live: float | None = None) -> dict:
+                              market_price_live: float | None = None, ticker: str | None = None) -> dict:
     """Возвращает live-пересчитанный fin["valuation"] (или исходный при нехватке
     данных для пересчёта хотя бы одного метода). Не мутирует fin — копирует только
     затронутые методы. Добавляет valuation.live_rf_note с диагностикой для фронта.
     market_price_live — текущая живая цена (market_cap/shares_outstanding из БД,
-    см. get_financials_json), нужна только CAPM-семейству total-return-таргет."""
+    см. get_financials_json), нужна только CAPM-семейству total-return-таргет.
+    ticker — для живой беты (company_metrics.beta, см. get_live_beta)."""
     val = fin.get("valuation") or {}
     methods = val.get("methods")
     if not isinstance(methods, list) or not methods:
@@ -415,6 +453,8 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
         # отдаём как есть, без пересчёта. Не ошибка, просто "пока нечем пересчитать".
         return val
 
+    beta_live, beta_source = get_live_beta(db, ticker)
+
     new_methods = []
     any_recomputed = False
     for m in methods:
@@ -427,13 +467,13 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
         if m.get("status") == "ok":
             method_key = _normalize_method(m.get("method"))
             if method_key == "dcf":
-                result = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
+                result = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding, beta_live)
             elif method_key == "pbvroe":
-                result = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
+                result = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct, beta_live)
             elif method_key == "dividend":
-                result = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct)
+                result = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct, beta_live)
             elif method_key == "capm":
-                result = _recompute_capm(ka, rf_live_pct, rf_frozen_pct, erp_pct, market_price_live)
+                result = _recompute_capm(ka, rf_live_pct, rf_frozen_pct, erp_pct, market_price_live, beta_live)
 
         live_price, live_rate_pct = result if result is not None else (None, None)
 
@@ -466,6 +506,9 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
             # она посчитана (не только Rf сам по себе).
             if live_rate_pct is not None:
                 m2["live_rate_pct"] = live_rate_pct
+            if beta_live is not None:
+                m2["live_beta"] = round(beta_live, 3)
+                m2["live_beta_source"] = beta_source
             new_methods.append(m2)
             any_recomputed = True
         else:
