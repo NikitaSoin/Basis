@@ -6,8 +6,10 @@
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
 import React, { useState, useEffect, useMemo } from "react";
+import { TrendingUp, FileText, ArrowRightLeft, Layers, Coins, Sigma } from "lucide-react";
 import { InstrumentLogo } from "../design/CompanyLogo";
 import "../styles/market.css";
+import "../styles/market-sidebar.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const NB = " ";
@@ -372,7 +374,7 @@ function BondsTab({ rows, query, onOpen, Logo }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
   const [sort, setSort] = useState("default");
-  const [view, setView] = useState("rows");
+  const [view, setView] = useState("cards");
   const reliMap = { "Надёжные": "pos", "Средний риск": "amber", "ВДО": "neg" };
   let list = rows.filter(b => {
     const q = !query || ((b.short_name || "") + " " + (b.secid || "") + " " + (b.isin || "")).toLowerCase().includes(query.toLowerCase());
@@ -492,7 +494,7 @@ function ChgTd({ chg, known }) {
 function FuturesTab({ rows, query, onOpen, Logo }) {
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState("default");
-  const [view, setView] = useState("rows");
+  const [view, setView] = useState("cards");
   const groupLabel = f => f.kind_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || f.asset_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
@@ -570,7 +572,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
 // ══════════════════ ФОНДЫ ══════════════════
 function FundsTab({ rows, query, onOpen, sparks }) {
   const [grpf, setGrpf] = useState("Все");
-  const [view, setView] = useState("rows");
+  const [view, setView] = useState("cards");
   const [sort, setSort] = useState("default");
   const groupLabel = f => f.type_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
@@ -637,6 +639,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
 
 // ══════════════════ ВАЛЮТА И МЕТАЛЛЫ ══════════════════
 function FxMetalsTab({ rows, onOpen }) {
+  const [view, setView] = useState("cards");
   const fx = rows.filter(r => r.kind === "currency");
   const metals = rows.filter(r => r.kind === "metal");
   const List = ({ items, dec }) => (
@@ -659,13 +662,32 @@ function FxMetalsTab({ rows, onOpen }) {
       </table>
     </div>
   );
+  const Cards = ({ items, dec }) => (
+    <div className="mk-grid">
+      {items.map(r => (
+        <button key={r.secid} className="mk-card" onClick={() => onOpen(r.secid)}>
+          <div className="mk-card-top">
+            <InstrumentLogo id={r.secid} name={r.name} size={36} />
+            <div className="mk-card-id"><b>{r.name}</b><span className="mk-card-tk">{r.secid}</span></div>
+          </div>
+          <div className="mk-card-px">
+            <span className="mk-card-price">{num(r.last_price, dec)}<span className="mk-cur"> ₽</span></span>
+            <ChgTd chg={r.change_pct} known={r.last_price != null} />
+          </div>
+        </button>
+      ))}
+    </div>
+  );
   return (
     <div>
       <div className="mk-callout">
         Валюта и металлы — это <b>не «актив со справедливой ценой»</b>, а макро-индикаторы. Курс рубля зависит от ставки ЦБ, нефти и платёжного баланса; золото — защитный актив. Basis объясняет роль в портфеле, а не «куда пойдёт цена». После санкций 2024 на бирже ликвидны в основном <b>доллар и юань</b>.
       </div>
-      {fx.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 18 }}>Валюты<span className="mk-grp-n">{fx.length}</span></div><List items={fx} dec={3} /></>}
-      {metals.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 20 }}>Драгметаллы<span className="mk-grp-n">{metals.length}</span></div><List items={metals} dec={2} /></>}
+      <div className="mk-filterbar" style={{ marginTop: 16 }}>
+        <ViewToggle view={view} setView={setView} />
+      </div>
+      {fx.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 18 }}>Валюты<span className="mk-grp-n">{fx.length}</span></div>{view === "cards" ? <Cards items={fx} dec={3} /> : <List items={fx} dec={3} />}</>}
+      {metals.length > 0 && <><div className="mk-grp-head" style={{ marginTop: 20 }}>Драгметаллы<span className="mk-grp-n">{metals.length}</span></div>{view === "cards" ? <Cards items={metals} dec={2} /> : <List items={metals} dec={2} />}</>}
     </div>
   );
 }
@@ -829,74 +851,95 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   }, [stocks]);
 
   const TABS = [
-    { id: "stocks", label: "Акции", count: scored.length || null },
-    { id: "bonds", label: "Облигации", count: bonds.length || null },
-    { id: "futures", label: "Фьючерсы", count: futures.length || null },
-    { id: "funds", label: "Фонды", count: funds.length || null },
-    { id: "fx", label: "Валюта и металлы", count: spot.length || null },
-    { id: "options", label: "Опционы", count: null },
+    { id: "stocks", label: "Акции", count: scored.length || null, icon: TrendingUp },
+    { id: "bonds", label: "Облигации", count: bonds.length || null, icon: FileText },
+    { id: "futures", label: "Фьючерсы", count: futures.length || null, icon: ArrowRightLeft },
+    { id: "funds", label: "Фонды", count: funds.length || null, icon: Layers },
+    { id: "fx", label: "Валюта и металлы", count: spot.length || null, icon: Coins },
+    { id: "options", label: "Опционы", count: null, icon: Sigma },
   ];
+  const activeTabMeta = TABS.find(t => t.id === tab) || TABS[0];
   const showSearch = tab !== "fx" && tab !== "options" && !(tab === "stocks" && stockView !== "list");
   const placeholder = tab === "bonds" ? "Поиск по выпуску / ISIN…" : tab === "futures" ? "Поиск по контракту / базовому активу…" : tab === "funds" ? "Поиск по фонду…" : "Поиск по тикеру или названию…";
 
   return (
-    <div className="mk-screen">
-      <div className="mk-page-head">
-        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <span className="mk-page-eyebrow">Рынок</span>
-          <h1 className="mk-page-title">Рынок</h1>
-          <span className="mk-quote-live" title="Источник котировок акций. Тинькофф — реал-тайм; MOEX — запасной (с задержкой). Время обновляется на каждом опросе (6с).">
-            <span className={"mk-live-dot" + (quoteSrc === "tinkoff" ? " on" : quoteSrc ? " warn" : "")} />
-            {quoteSrc === "tinkoff" ? "Тинькофф · реал-тайм" : quoteSrc === "moex_iss" ? "MOEX · запасной (задержка)" : "Котировки…"}
-            {quoteTime && <span className="mk-live-t">· {String(quoteTime).slice(11, 19)}</span>}
-          </span>
+    <div className="mkt-shell">
+      {/* ---- Тёмный сайдбар классов активов (тот же паттерн, что Портфель/Обозреватель/Скринер+Сравнение) ---- */}
+      <nav className="mkt-sidebar" aria-label="Классы активов">
+        <div className="mkt-depth-strip" aria-hidden="true" />
+        <div className="mkt-eyebrow">Рынок</div>
+        <div className="mkt-zone">
+          <div className="mkt-zone-label">Классы активов</div>
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              className={`mkt-item${tab === t.id ? " mkt-item--active" : ""}`}
+              onClick={() => saveTab(t.id)}
+              aria-current={tab === t.id ? "page" : undefined}
+            >
+              <span className="mkt-item__icon"><t.icon size={15} aria-hidden="true" /></span>
+              {t.label}
+              {t.count != null && <span className="mkt-item__count">{t.count}</span>}
+            </button>
+          ))}
         </div>
-        <p className="mk-page-sub">Котировки и аналитика российского рынка — со взглядом Basis на риск и справедливую цену, а не торговые сигналы.</p>
-      </div>
+        <div className="mkt-foot">Котировки — MOEX / Т-Инвестиции. Basis не брокер и не&nbsp;даёт торговых сигналов.</div>
+      </nav>
 
-      <div className="mk-tabbar" role="tablist">
-        {TABS.map(t => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={"mk-tab" + (tab === t.id ? " on" : "")} onClick={() => saveTab(t.id)}>
-            {t.label}
-            {t.count != null && <span className="tcount">{t.count}</span>}
-          </button>
-        ))}
-      </div>
+      <main className="mkt-main">
+        <div className="mkt-panel mk-screen">
+          <div className="mk-page-head">
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <span className="mk-page-eyebrow">Рынок</span>
+              <h1 className="mk-page-title">{activeTabMeta.label}</h1>
+              {tab === "stocks" && (
+                <span className="mk-quote-live" title="Источник котировок акций. Тинькофф — реал-тайм; MOEX — запасной (с задержкой). Время обновляется на каждом опросе (6с).">
+                  <span className={"mk-live-dot" + (quoteSrc === "tinkoff" ? " on" : quoteSrc ? " warn" : "")} />
+                  {quoteSrc === "tinkoff" ? "Тинькофф · реал-тайм" : quoteSrc === "moex_iss" ? "MOEX · запасной (задержка)" : "Котировки…"}
+                  {quoteTime && <span className="mk-live-t">· {String(quoteTime).slice(11, 19)}</span>}
+                </span>
+              )}
+            </div>
+            <p className="mk-page-sub">Котировки и аналитика российского рынка — со взглядом Basis на риск и справедливую цену, а не торговые сигналы.</p>
+          </div>
 
-      {showSearch && (
-        <div className="mk-toolbar">
-          <label className="mk-search">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder={placeholder} />
-          </label>
+          {showSearch && (
+            <div className="mk-toolbar">
+              <label className="mk-search">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+                <input value={query} onChange={e => setQuery(e.target.value)} placeholder={placeholder} />
+              </label>
+            </div>
+          )}
+
+          {tab === "stocks" && (
+            <div className="mk-viewtog">
+              <button className={stockView === "list" ? "on" : ""} onClick={() => saveSView("list")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="5" height="4" rx="1" /><rect x="9" y="3" width="5" height="4" rx="1" /><rect x="2" y="9" width="5" height="4" rx="1" /><rect x="9" y="9" width="5" height="4" rx="1" /></svg>Карточки</button>
+              <button className={stockView === "rows" ? "on" : ""} onClick={() => saveSView("rows")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 4h12M2 8h12M2 12h12" strokeLinecap="round" /></svg>Лента</button>
+              <button className={stockView === "map" ? "on" : ""} onClick={() => saveSView("map")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="7" height="7" rx="1" /><rect x="11" y="2" width="3" height="7" rx="1" /><rect x="2" y="11" width="5" height="3" rx="1" /><rect x="9" y="11" width="5" height="3" rx="1" /></svg>Карта рынка</button>
+            </div>
+          )}
+
+          {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} onSelectIndex={onSelectIndex} />}
+          {tab === "stocks" && !loading && <SectorNav stocks={stocks} sector={sector} onSelect={setSector} />}
+
+          {loading && tab === "stocks" ? <div className="mk-loading">Загружаем рынок…</div> : (
+            <>
+              {tab === "stocks" && stockView === "map" && <Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} />}
+              {tab === "stocks" && stockView === "rows" && <StockRows stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
+              {tab === "stocks" && stockView === "list" && <StockCards stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
+              {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} Logo={Logo} />}
+              {tab === "futures" && <FuturesTab rows={futures} query={query} onOpen={onOpenFuture} Logo={Logo} />}
+              {tab === "funds" && <FundsTab rows={funds} query={query} onOpen={onOpenFund} sparks={fundSparks} />}
+              {tab === "fx" && <FxMetalsTab rows={spot} onOpen={onOpenSpot} />}
+              {tab === "options" && <OptionsTab onOpen={onOpenOption} />}
+            </>
+          )}
+
+          <p className="mk-foot-note">Котировки — MOEX / Т-Инвестиции (могут отставать на несколько минут). Basis — независимый аналитический «второй взгляд»; не брокер и не источник торговых сигналов. Ничто здесь не является инвестиционной рекомендацией.</p>
         </div>
-      )}
-
-      {tab === "stocks" && (
-        <div className="mk-viewtog">
-          <button className={stockView === "list" ? "on" : ""} onClick={() => saveSView("list")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="5" height="4" rx="1" /><rect x="9" y="3" width="5" height="4" rx="1" /><rect x="2" y="9" width="5" height="4" rx="1" /><rect x="9" y="9" width="5" height="4" rx="1" /></svg>Карточки</button>
-          <button className={stockView === "rows" ? "on" : ""} onClick={() => saveSView("rows")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 4h12M2 8h12M2 12h12" strokeLinecap="round" /></svg>Лента</button>
-          <button className={stockView === "map" ? "on" : ""} onClick={() => saveSView("map")}><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="7" height="7" rx="1" /><rect x="11" y="2" width="3" height="7" rx="1" /><rect x="2" y="11" width="5" height="3" rx="1" /><rect x="9" y="11" width="5" height="3" rx="1" /></svg>Карта рынка</button>
-        </div>
-      )}
-
-      {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} onSelectIndex={onSelectIndex} />}
-      {tab === "stocks" && !loading && <SectorNav stocks={stocks} sector={sector} onSelect={setSector} />}
-
-      {loading && tab === "stocks" ? <div className="mk-loading">Загружаем рынок…</div> : (
-        <>
-          {tab === "stocks" && stockView === "map" && <Heatmap stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} />}
-          {tab === "stocks" && stockView === "rows" && <StockRows stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
-          {tab === "stocks" && stockView === "list" && <StockCards stocks={stocksFiltered} onOpen={s => onOpenCompany(s.t)} Logo={Logo} />}
-          {tab === "bonds" && <BondsTab rows={bonds} query={query} onOpen={onOpenBond} Logo={Logo} />}
-          {tab === "futures" && <FuturesTab rows={futures} query={query} onOpen={onOpenFuture} Logo={Logo} />}
-          {tab === "funds" && <FundsTab rows={funds} query={query} onOpen={onOpenFund} sparks={fundSparks} />}
-          {tab === "fx" && <FxMetalsTab rows={spot} onOpen={onOpenSpot} />}
-          {tab === "options" && <OptionsTab onOpen={onOpenOption} />}
-        </>
-      )}
-
-      <p className="mk-foot-note">Котировки — MOEX / Т-Инвестиции (могут отставать на несколько минут). Basis — независимый аналитический «второй взгляд»; не брокер и не источник торговых сигналов. Ничто здесь не является инвестиционной рекомендацией.</p>
+      </main>
     </div>
   );
 }
