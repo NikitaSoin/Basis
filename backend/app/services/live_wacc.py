@@ -186,7 +186,7 @@ def _live_rate_pct(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: 
     return None, None
 
 
-def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
+def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> tuple[float, float] | None:
     ka = m.get("key_assumptions") or {}
     frozen_price = _as_float(m.get("fair_value_per_share"))
     if frozen_price is None or frozen_price <= 0:
@@ -222,7 +222,7 @@ def _recompute_dividend(m: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
         return None
 
     numerator = frozen_price * denom_frozen
-    return _round_price(numerator / denom_live)
+    return _round_price(numerator / denom_live), round(rate_live_pct, 2)
 
 
 _CAPM_YIELD_FIELDS = (
@@ -237,7 +237,7 @@ _CAPM_EPS_FIELDS = (
 
 
 def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float,
-                     market_price_live: float | None) -> float | None:
+                     market_price_live: float | None) -> tuple[float, float] | None:
     """Скан всех 264 карточек показал: CAPM здесь — НЕ единая формула, а два разных
     семейства (см. модуль docstring): (A) total-return-таргет от ТЕКУЩЕЙ цены
     (доминирует), (B) "обоснованный P/E" от EPS. Различаются набором полей —
@@ -278,7 +278,7 @@ def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct:
         eps = _as_float(_find_field(ka, *_CAPM_EPS_FIELDS))
         if eps is None or eps <= 0 or ke_live_frac <= 0:
             return None
-        return _round_price(eps / ke_live_frac)
+        return _round_price(eps / ke_live_frac), round(ke_live_pct, 2)
 
     if has_yield_family:
         if market_price_live is None or market_price_live <= 0:
@@ -286,7 +286,7 @@ def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct:
         dy_pct = _pct(_find_field(ka, *_CAPM_YIELD_FIELDS))
         if dy_pct is None:
             return None
-        return _round_price(market_price_live * (1 + ke_live_frac - dy_pct / 100))
+        return _round_price(market_price_live * (1 + ke_live_frac - dy_pct / 100)), round(ke_live_pct, 2)
 
     if has_dps_family:
         # div_yield = dps/price → price×(1+Ke−div_yield) = price×(1+Ke) − dps
@@ -295,7 +295,7 @@ def _recompute_capm(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct:
         dps = _as_float(_find_field(ka, "dps_expected", "dps_forward", "dps"))
         if dps is None:
             return None
-        return _round_price(market_price_live * (1 + ke_live_frac) - dps)
+        return _round_price(market_price_live * (1 + ke_live_frac) - dps), round(ke_live_pct, 2)
 
     return None
 
@@ -368,10 +368,10 @@ def _recompute_dcf_gordon(ka: dict, fin: dict, rf_live_pct: float, rf_frozen_pct
     shares_mln = shares_outstanding / 1_000_000
     if shares_mln <= 0:
         return None
-    return _round_price(equity_live_mln / shares_mln)
+    return _round_price(equity_live_mln / shares_mln), round(r_live_pct, 2)
 
 
-def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> float | None:
+def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_pct: float) -> tuple[float, float] | None:
     roe_pct = _pct(_find_field(ka, "roe_sustainable", "roe_used", "roe_base", "roe_forward"))
     g_pct = _pct(_find_field(ka, "g"))
     ke_frozen_pct = _pct(_find_field(ka, "ke"))
@@ -390,7 +390,7 @@ def _recompute_pbv_roe(ka: dict, rf_live_pct: float, rf_frozen_pct: float, erp_p
     fair_pbv_live = (roe_pct / 100 - g_pct / 100) / denom
     if fair_pbv_live <= 0:
         return None
-    return _round_price(fair_pbv_live * bvps)
+    return _round_price(fair_pbv_live * bvps), round(ke_live_pct, 2)
 
 
 def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float | None,
@@ -419,7 +419,7 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
     any_recomputed = False
     for m in methods:
         ka = m.get("key_assumptions") or {}
-        live_price = None
+        result = None
         # Никогда не пересчитываем метод, который сам аналитик пометил ненадёжным
         # (insufficient_data/not_applicable) — у таких методов часто fair_value_
         # per_share=null именно потому, что формула даёт мусор (напр. GAZP DCF:
@@ -427,13 +427,15 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
         if m.get("status") == "ok":
             method_key = _normalize_method(m.get("method"))
             if method_key == "dcf":
-                live_price = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
+                result = _recompute_dcf_gordon(ka, fin, rf_live_pct, rf_frozen_pct, erp_pct, shares_outstanding)
             elif method_key == "pbvroe":
-                live_price = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
+                result = _recompute_pbv_roe(ka, rf_live_pct, rf_frozen_pct, erp_pct)
             elif method_key == "dividend":
-                live_price = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct)
+                result = _recompute_dividend(m, rf_live_pct, rf_frozen_pct, erp_pct)
             elif method_key == "capm":
-                live_price = _recompute_capm(ka, rf_live_pct, rf_frozen_pct, erp_pct, market_price_live)
+                result = _recompute_capm(ka, rf_live_pct, rf_frozen_pct, erp_pct, market_price_live)
+
+        live_price, live_rate_pct = result if result is not None else (None, None)
 
         # Барьер здравого смысла: для сильно закредитованных компаний equity =
         # EV − net_debt ставит equity на "плечо" к ставке — малое движение Rf
@@ -457,6 +459,13 @@ def live_recompute_valuation(fin: dict, db: Session, shares_outstanding: float |
             m2["fair_value_per_share_live"] = live_price
             m2["fair_value_per_share_frozen"] = m.get("fair_value_per_share")
             m2["live_rf_used_pct"] = round(rf_live_pct, 2)
+            # Ставка/требуемая доходность (Ke/r), которую формула метода реально
+            # использовала для live-пересчёта (Rf_live + β×ERP + остаточная
+            # надбавка) — нужна фронту, чтобы показать во «Входные данные» не
+            # только итоговую цену, но и обновлённый макропоказатель, от которого
+            # она посчитана (не только Rf сам по себе).
+            if live_rate_pct is not None:
+                m2["live_rate_pct"] = live_rate_pct
             new_methods.append(m2)
             any_recomputed = True
         else:
