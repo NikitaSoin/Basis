@@ -690,6 +690,18 @@ function _obsDateRu(iso) {
   return `${d}.${m}.${y}`;
 }
 
+// Дата — агрегированная оценка (не подтверждена эмитентом/биржей). ОПТ-ИН по явному
+// сигналу, а не "всё, что не issuer" — большинство событий (дивиденды с суммой из
+// листинга MOEX, оферты/погашения/экспирации, график ЦБ) вообще не заполняют
+// payload.confidence, но это подтверждённые факты, не оценки; бейдж «оценка» должен
+// стоять только там, где дата ДЕЙСТВИТЕЛЬНО не подтверждена (report_watch-детект
+// отчётности — confidence:"public_aggregated" всегда; оценочный релиз ИПЦ —
+// payload.estimated:true).
+function _obsIsDateEstimate(e) {
+  const p = e.payload || {};
+  return p.confidence === "public_aggregated" || p.estimated === true;
+}
+
 function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
   const [view, setView] = useState("list");        // "list" | "grid"
   const [typeFilter, setTypeFilter] = useState("all");
@@ -801,7 +813,7 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                     )
                     : e.title
                   }
-                  {e.payload && e.payload.confidence !== "issuer" && (
+                  {_obsIsDateEstimate(e) && (
                     <span className="obs-cal-conf obs-cal-conf--estimate" title="Дата — агрегированная оценка, не подтверждена эмитентом/биржей">оценка</span>
                   )}
                 </div>

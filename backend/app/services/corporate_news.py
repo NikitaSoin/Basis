@@ -89,25 +89,37 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
         .filter(EarningsReport.status == "processed",
                 EarningsReport.calendar_event_id.isnot(None)).all()
     }
+    # Разные источники детекта (MOEX ir-calendar / smart-lab) могут дать 2+ CalendarEvent
+    # на один и тот же (тикер, дата) — группируем ПЕРЕД оценкой "найден/не найден", иначе
+    # (а) один и тот же промах считается дважды в self-diagnostic, (б) карточка дублируется,
+    # (в) если совпадение нашлось у ОДНОЙ из дублирующихся записей, а не у другой, получим
+    # ложный "не вышел" при реально найденном отчёте.
     streak_lo = today - timedelta(days=_MISS_STREAK_LOOKBACK_DAYS)
-    streak_rows = (db.query(CalendarEvent.ticker, CalendarEvent.id)
+    streak_rows = (db.query(CalendarEvent.ticker, CalendarEvent.id, CalendarEvent.event_date)
                    .filter(CalendarEvent.event_type == "earnings",
                            CalendarEvent.event_date >= streak_lo,
                            CalendarEvent.event_date <= hi).all())
+    streak_groups: dict[tuple, set] = {}
+    for ticker, ev_id, ev_date in streak_rows:
+        streak_groups.setdefault((ticker, ev_date), set()).add(ev_id)
     miss_counts: dict[str, int] = {}
-    for ticker, ev_id in streak_rows:
-        if ev_id not in matched_event_ids:
+    for (ticker, _ev_date), ev_ids in streak_groups.items():
+        if not (ev_ids & matched_event_ids):
             miss_counts[ticker] = miss_counts.get(ticker, 0) + 1
 
-    missing_q = (db.query(CalendarEvent)
-                 .filter(CalendarEvent.event_type == "earnings",
-                         CalendarEvent.event_date >= lo, CalendarEvent.event_date <= hi))
-    for ev in missing_q.all():
-        if ev.id in matched_event_ids:
+    missing_rows = (db.query(CalendarEvent)
+                    .filter(CalendarEvent.event_type == "earnings",
+                            CalendarEvent.event_date >= lo, CalendarEvent.event_date <= hi).all())
+    missing_groups: dict[tuple, list] = {}
+    for ev in missing_rows:
+        missing_groups.setdefault((ev.ticker, ev.event_date), []).append(ev)
+    for (ticker, ev_date), evs in missing_groups.items():
+        if {e.id for e in evs} & matched_event_ids:
             continue
-        c = companies.get(ev.ticker)
-        if not c or not _allowed(ev.ticker):
+        c = companies.get(ticker)
+        if not c or not _allowed(ticker):
             continue
+        ev = evs[0]
         misses = miss_counts.get(ev.ticker, 0)
         likely_calendar_error = misses >= _MISS_STREAK_THRESHOLD
         detail = ("Этот тикер регулярно попадает в «не вышел» — вероятнее, мы неточно "
