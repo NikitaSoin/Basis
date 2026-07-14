@@ -661,6 +661,27 @@ def debug_reset_report_watch(ticker: str | None = None):
         db.close()
 
 
+@router.post("/debug/purge-girbo-backlog")
+def debug_purge_girbo_backlog(period: str | None = "2025"):
+    """Удаляет ГИР БО-записи (source='girbo') за указанный период (по умолчанию 2025) —
+    владелец 2026-07-14: разовый бэкфилл на ~165 компаний одним пакетом зашумил ленту
+    «Отчёты» вперемешку со свежими событиями. Механизм ГИР БО остаётся включённым — новые
+    годовые отчёты (2026 и далее) будут капать по одной записи, не пачкой. period=None —
+    удалить ВСЕ ГИР БО-записи независимо от периода (осторожно)."""
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport
+    db = SessionLocal()
+    try:
+        q = db.query(EarningsReport).filter(EarningsReport.source == "girbo")
+        if period:
+            q = q.filter(EarningsReport.period == period)
+        n = q.delete()
+        db.commit()
+        return {"deleted": n}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-company-rss")
 def debug_trigger_company_rss(days_back: int = 90, force_reset: bool = False):
     """Точечный запуск ТОЛЬКО company_rss-пути (см. _COMPANY_RSS) — в обход дорогого
