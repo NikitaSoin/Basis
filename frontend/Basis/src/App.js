@@ -96,10 +96,10 @@ import { PortfolioV2 } from "./portfolio/PortfolioViews";
 import { AuthModal } from "./account/AccountPanels";
 import PricingView from "./account/PricingView";
 import ProfileView from "./account/ProfileView";
-import { CompanyCard, ScreenerView, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
+import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, SpotCard } from "./company/CompanyCardView";
 import AssistantView from "./AssistantView";
-import CompareView from "./compare/CompareView";
 import "./styles/compare.css";
+import ScreenerCompareView from "./screener/ScreenerCompareShell";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -437,7 +437,6 @@ const TOPNAV_ITEMS = [
   { id: "overview", label: "Обозреватель" },
   { id: "portfolio", label: "Портфель" },
   { id: "screener", label: "Скринер" },
-  { id: "compare", label: "Сравнение" },
   { id: "ai", label: "Ассистент" },
   { id: "pricing", label: "Тарифы" },
   { id: "profile", label: "Профиль" },
@@ -703,7 +702,7 @@ export default function App() {
       case "companies":
         return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} />;
       case "screener":
-        return <ScreenerView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
+        return <ScreenerCompareView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
         return (
           <ObserverV2
@@ -725,8 +724,6 @@ export default function App() {
         return <ComingSoonView icon={ShieldAlert} title="Стресс-тестирование" blurb="Проверка портфеля на просадку в кризисных сценариях. Раздел скоро появится." />;
       case "ai":
         return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
-      case "compare":
-        return <CompareView onOpenCompany={setSelectedCompany} />;
       case "pricing":
         return (
           <PricingView

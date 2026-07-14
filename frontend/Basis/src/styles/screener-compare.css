@@ -1,0 +1,170 @@
+/* =============================================================
+   SCREENER + COMPARE — общий тёмный сайдбар (объединяет «Скринер» и
+   «Сравнение активов» в один раздел верхней навигации).
+   Prefix: .scmp-*
+   Структурно точная копия .obs-shell/.obs-sidebar (observer-v2.css) и
+   .pf-shell/.pf-sidebar (portfolio-v2.css) — владелец: «сделать такой же
+   сайдбар как в портфельной аналитике и обозревателе» (2026-07-14).
+   Сайдбар theme-invariant тёмный (свои --scmp-deep* переменные), контент —
+   ScreenerView/CompareView приносят собственные заголовки/токены.
+   ============================================================= */
+
+.scmp-sidebar {
+  --scmp-deep:       #12131A;
+  --scmp-deep-2:     #1B1C26;
+  --scmp-deep-3:     #24252F;
+  --scmp-deep-line:  rgba(255,255,255,0.10);
+  --scmp-deep-ink:   #EDEBE3;
+  --scmp-deep-ink2:  #9B9AA8;
+  --scmp-deep-ink3:  #6C6B78;
+}
+
+/* full-bleed breakout из .app-main-top (max-width:1340px + padding) — тот же
+   приём, что .pf-shell в portfolio-v2.css: иначе на широких экранах между
+   зафиксированным (position:fixed, left:0) сайдбаром и центрированным
+   контентом остаётся видимая кайма фона. */
+.scmp-shell {
+  display: flex;
+  min-height: calc(100vh - 56px);
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  margin-left: -50vw;
+  margin-top: -28px;
+  margin-bottom: -80px;
+}
+
+.scmp-sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  background: var(--scmp-deep);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  overflow-y: auto;
+  border-right: 1px solid var(--scmp-deep-line);
+  scrollbar-width: thin;
+  scrollbar-color: var(--scmp-deep-line) transparent;
+}
+
+.scmp-depth-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--accent) 40%,
+    var(--scmp-deep-2) 75%,
+    var(--scmp-deep) 100%
+  );
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.scmp-eyebrow {
+  padding: 20px 22px 12px 28px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--scmp-deep-ink3);
+  font-variant-numeric: tabular-nums;
+}
+
+.scmp-zone {
+  padding: 2px 12px 16px 16px;
+}
+
+.scmp-zone-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 6px 10px 6px;
+  color: var(--scmp-deep-ink3);
+}
+
+.scmp-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--scmp-deep-ink2);
+  transition: background 160ms ease, color 160ms ease;
+  position: relative;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.scmp-item:hover {
+  background: var(--scmp-deep-2);
+  color: var(--scmp-deep-ink);
+}
+
+.scmp-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.scmp-item.scmp-item--active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 12px -3px rgba(201, 122, 74, 0.40);
+}
+
+.scmp-item__icon {
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.scmp-item--active .scmp-item__icon {
+  opacity: 1;
+}
+
+.scmp-foot {
+  margin-top: auto;
+  padding: 18px 22px 22px 28px;
+  font-size: 11px;
+  color: var(--scmp-deep-ink3);
+  line-height: 1.55;
+  border-top: 1px solid var(--scmp-deep-line);
+}
+
+.scmp-main {
+  margin-left: 260px;
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-base);
+}
+
+.scmp-panel {
+  padding: 28px 32px 72px;
+  animation: scmpSlideIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scmpSlideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scmp-panel {
+    animation: none;
+  }
+}
