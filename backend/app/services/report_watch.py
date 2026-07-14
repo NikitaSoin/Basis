@@ -150,11 +150,22 @@ def _from_market_updates(db: Session, ticker: str, event_date: date) -> str | No
             .filter(MarketUpdate.affected_tickers.contains([ticker]),
                     MarketUpdate.published_at >= lo, MarketUpdate.published_at <= hi,
                     MarketUpdate.status == "published")
-            .order_by(MarketUpdate.published_at.asc()).limit(20).all())
+            .order_by(MarketUpdate.published_at.asc()).limit(30).all())
     if not rows:
         return None
-    relevant = [r for r in rows if _REPORT_KEYWORDS_RE.search(f"{r.title} {r.summary or ''}")]
-    picked = relevant[:3] if relevant else rows[:3]
+    # 🔴 Найдено на бою 2026-07-14: жёсткий keyword-фильтр ПОЛНОСТЬЮ вытеснял генуинно
+    # релевантные статьи без точного слова из списка — реальная новость «Мосбиржа
+    # зафиксировала рекорд... на денежном рынке» (без слов «отчёт»/«результат» и т.п.)
+    # была отброшена в пользу ложного срабатывания на «финанс» в НЕсвязанной новости про
+    # регулирование геймификации (тикер-тег MOEX тоже туда попал — банки/биржа широко
+    # упоминаются в регуляторных новостях). Теперь keyword — РАНЖИРОВАНИЕ (что ближе к
+    # началу текста), НЕ исключающий фильтр — берём более широкий пул, keyword-совпадения
+    # первыми, но НЕ выбрасываем остальное: пусть LLM-экстракция сама решит по has_figures.
+    def _relevance(r):
+        matched = bool(_REPORT_KEYWORDS_RE.search(f"{r.title} {r.summary or ''}"))
+        dist = abs((r.published_at.date() - event_date).days)
+        return (0 if matched else 1, dist)
+    picked = sorted(rows, key=_relevance)[:6]
     parts = []
     for r in picked:
         parts.append(f"{r.title}\n{r.summary or ''}\n{r.impact_comment or ''}".strip())
