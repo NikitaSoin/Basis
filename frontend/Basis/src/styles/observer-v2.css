@@ -805,6 +805,199 @@
 }
 
 /* =============================================================
+   CORPORATE NEWS SECTION — obs-cn-*
+   Единая лента корп. событий: отчёты (вышли/ожидались), дивиденды,
+   бизнес-новости (M&A / див.политика / менеджмент). Тот же визуальный
+   язык, что и REPORTS (карточки, чипы, отступы) — не изобретаем заново.
+   ============================================================= */
+
+.obs-cn-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 760px;
+  margin-bottom: 16px;
+  line-height: 1.55;
+}
+
+/* ---- Filter row (mirrors .obs-rep-chip) ---- */
+.obs-cn-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.obs-cn-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.obs-cn-chip:hover {
+  border-color: var(--border-hover);
+}
+
+.obs-cn-chip--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.obs-cn-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---- Cards list ---- */
+.obs-cn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 880px;
+}
+
+.obs-cn-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
+}
+
+.obs-cn-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Приглушённый вариант — «отчёт ожидался, не вышел». Это оценка,
+   не обвинение компании: НИКАКОГО danger/красного, только нейтральный
+   приглушённый тон (владелец, 2026-07-14). */
+.obs-cn-card--muted {
+  background: var(--bg-surface, var(--bg-base));
+  box-shadow: none;
+}
+
+.obs-cn-card--muted:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---- Card header: kind icon + logo + ticker/company + date ---- */
+.obs-cn-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.obs-cn-kind-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.obs-cn-kind-icon--reports  { background: var(--accent-soft); color: var(--accent-hover, var(--accent)); }
+.obs-cn-kind-icon--missing  { background: var(--bg-base); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+.obs-cn-kind-icon--dividend { background: var(--success-soft); color: var(--success); }
+.obs-cn-kind-icon--business { background: var(--info-soft); color: var(--info); }
+
+.obs-cn-head-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.obs-cn-ticker {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.obs-cn-company {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obs-cn-date {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ---- Title / detail body ---- */
+.obs-cn-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.obs-cn-detail {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+
+/* ---- Footer: epistemic tag + calendar-error note ---- */
+.obs-cn-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* «Оценка» — переиспользует цвет --info, как .obs-inst-tag--est (тот же
+   локальный канон), отдельно от «важное» (.obs-tag-judgment, медь/accent). */
+.obs-tag-estimate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--info-soft);
+  color: var(--info);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.obs-cn-cal-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* =============================================================
    CALENDAR SECTION — obs-cal-*
    Mirrors the observer-sidebar-v2.html prototype:
    list-view (timeline) + grid-view (month calendar).
@@ -971,6 +1164,29 @@
   font-size: 12.5px;
   color: var(--text-secondary);
   line-height: 1.45;
+}
+
+/* ---- Confidence badge: дата события подтверждена эмитентом/биржей
+   (payload.confidence === "issuer") vs агрегированная оценка. Компактный
+   вторичный бейдж — не конкурирует с типом события. Оценка переиспользует
+   тот же --info тон, что и .obs-tag-estimate/.obs-inst-tag--est. ---- */
+.obs-cal-conf {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.obs-cal-conf--estimate {
+  background: var(--info-soft);
+  color: var(--info);
 }
 
 /* ---- Month grid view: navigation ---- */

@@ -54,6 +54,7 @@ const OBS_ZONES = [
       { id: "maps",     label: "Карта рынка",        icon: Layers   },
       { id: "calendar", label: "Календарь событий",  icon: Calendar },
       { id: "reports",  label: "Отчёты",             icon: FileText },
+      { id: "corp-news", label: "Корп. события",     icon: Building2 },
     ],
   },
   {
@@ -514,6 +515,141 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =============================================================
+// ObsCorporateNews — «Корп. события»: единая лента по компаниям —
+// вышедшие/ожидавшиеся-но-не-найденные отчёты, объявленные дивиденды,
+// бизнес-новости (M&A / див.политика / менеджмент). По образцу ObsReports.
+// Данные: GET /api/market/corporate-news (поля: kind, ticker, company,
+// sector, date, title, detail, epistemic, link_to, likely_calendar_error).
+// =============================================================
+
+const CN_KIND_META = {
+  report_published:    { label: "Отчёт вышел",           icon: FileText,  group: "reports"  },
+  report_missing:       { label: "Ожидался, не вышел",    icon: Clock,     group: "missing"  },
+  dividend_announced:  { label: "Дивиденд объявлен",      icon: Coins,     group: "dividend" },
+  business_ma:         { label: "M&A",                    icon: Swords,    group: "business" },
+  business_div_policy: { label: "Дивидендная политика",   icon: Scale,     group: "business" },
+  business_management: { label: "Менеджмент",             icon: Briefcase, group: "business" },
+};
+
+const CN_FILTERS = [
+  { id: "all",      label: "Все"                 },
+  { id: "reports",  label: "Отчёты"               },
+  { id: "missing",  label: "Ожидались, не вышли"  },
+  { id: "dividend", label: "Дивиденды"            },
+  { id: "business", label: "Бизнес"               },
+];
+
+function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [kindFilter, setKindFilter] = useState("all");
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    setLoading(true); setError(false);
+    fetch(`${apiUrl}/api/market/corporate-news?portfolio_only=${portfolioOnly}`, { headers: authHeaders })
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((d) => { setData(d); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  }, [portfolioOnly, token]);
+
+  const items = data?.items || [];
+  const sorted = [...items].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  const filtered = kindFilter === "all"
+    ? sorted
+    : sorted.filter((it) => (CN_KIND_META[it.kind] || {}).group === kindFilter);
+
+  return (
+    <div>
+      <p className="obs-cn-desc">
+        Единая лента корпоративных событий по компаниям: вышедшие и ожидавшиеся отчётности,
+        объявленные дивиденды, значимые бизнес-новости. Ознакомительно, не индивидуальная
+        инвестиционная рекомендация.
+      </p>
+
+      <div className="obs-cn-filters" role="group" aria-label="Фильтр по виду события">
+        {CN_FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            className={`obs-cn-chip${kindFilter === f.id ? " obs-cn-chip--active" : ""}`}
+            onClick={() => setKindFilter(f.id)}
+          >{f.label}</button>
+        ))}
+      </div>
+
+      {loading && <div className="obs-news-loading">Загрузка событий…</div>}
+      {error && (
+        <div className="obs-news-loading" style={{ color: "var(--danger)" }}>
+          Не удалось загрузить корпоративные события.
+        </div>
+      )}
+      {!loading && !error && filtered.length === 0 && (
+        <div className="obs-news-empty">
+          {portfolioOnly ? "По бумагам портфеля событий нет." : "Событий по выбранному фильтру нет."}
+        </div>
+      )}
+
+      {!loading && !error && filtered.length > 0 && (
+        <div className="obs-cn-list">
+          {filtered.map((it, i) => {
+            const meta = CN_KIND_META[it.kind] || { label: it.kind, icon: Info, group: "business" };
+            const Icon = meta.icon;
+            const muted = it.kind === "report_missing";
+            const clickable = it.link_to === "reports" && it.ticker && onSelectCompany;
+            return (
+              <div key={i} className={`obs-cn-card${muted ? " obs-cn-card--muted" : ""}`}>
+                <div className="obs-cn-card-head">
+                  <span
+                    className={`obs-cn-kind-icon obs-cn-kind-icon--${meta.group}`}
+                    title={meta.label}
+                    aria-hidden="true"
+                  >
+                    <Icon size={13} />
+                  </span>
+                  {it.ticker && <CompanyLogo ticker={it.ticker} name={it.company} size={28} />}
+                  <div className="obs-cn-head-text">
+                    <span className="obs-cn-ticker">{it.ticker}</span>
+                    {it.company && <span className="obs-cn-company">{it.company}</span>}
+                  </div>
+                  <span className="obs-cn-date">{_obsDateRu(it.date)}</span>
+                </div>
+
+                <div className="obs-cn-title">
+                  {clickable ? (
+                    <button
+                      type="button"
+                      className="obs-rep-toggle"
+                      style={{ fontSize: "14.5px", fontWeight: 600, textAlign: "left" }}
+                      onClick={() => onSelectCompany(it.ticker)}
+                    >{it.title}</button>
+                  ) : it.title}
+                </div>
+
+                {it.detail && <p className="obs-cn-detail">{it.detail}</p>}
+
+                <div className="obs-cn-foot">
+                  <span className={it.epistemic === "оценка" ? "obs-tag-estimate" : "obs-tag-fact"}>
+                    {it.epistemic || "факт"}
+                  </span>
+                  {it.kind === "report_missing" && it.likely_calendar_error && (
+                    <span className="obs-cn-cal-note">
+                      <Info size={11} aria-hidden="true" /> вероятно, погрешность нашего календаря
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =============================================================
 // ObsCalendar — «Календарь событий» точно по прототипу observer-sidebar-v2.html
 // Два вида: список (timeline) и сетка месяца (7 колонок, навигация,
 // клик по дню → детали ниже). Фильтры по типу события.
@@ -653,7 +789,7 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                 <div className="obs-tl-date">
                   {_obsDateRu(e.date)}{e.time ? ` · ${e.time} МСК` : ""}
                 </div>
-                <div className="obs-tl-title">
+                <div className="obs-tl-title" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
                   {e.ticker && onSelectCompany
                     ? (
                       <button
@@ -665,6 +801,9 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                     )
                     : e.title
                   }
+                  {e.payload && e.payload.confidence !== "issuer" && (
+                    <span className="obs-cal-conf obs-cal-conf--estimate" title="Дата — агрегированная оценка, не подтверждена эмитентом/биржей">оценка</span>
+                  )}
                 </div>
                 {e.type === "dividend" && e.payload && (
                   <div className="obs-tl-sub">
@@ -791,10 +930,15 @@ function ObsCalendar({ token, portfolioOnly, onSelectCompany }) {
                 <div key={i} className="obs-cal-detail-card" style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                   {e.ticker && <CompanyLogo ticker={e.ticker} name={e.title} size={34} />}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      className="obs-cal-detail-type"
-                      style={{ background: typeM(e.type).color }}
-                    >{typeM(e.type).label}</div>
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+                      <div
+                        className="obs-cal-detail-type"
+                        style={{ background: typeM(e.type).color }}
+                      >{typeM(e.type).label}</div>
+                      {e.payload && e.payload.confidence !== "issuer" && (
+                        <span className="obs-cal-conf obs-cal-conf--estimate" title="Дата — агрегированная оценка, не подтверждена эмитентом/биржей">оценка</span>
+                      )}
+                    </div>
                     <div className="obs-cal-detail-event-title">{e.title}</div>
                     {e.status && <div className="obs-cal-detail-sub">{e.status}</div>}
                     {e.type === "dividend" && e.payload && e.payload.dividend_yield != null && (
@@ -4278,6 +4422,7 @@ export {
   ObsNewsFeed,
   ObsCalendar,
   ObsReports,
+  ObsCorporateNews,
   ObsMacroArticles,
   ObsGeopolitics,
   ObsInstitutions,

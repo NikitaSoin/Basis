@@ -74,6 +74,7 @@ import {
   ObsNewsFeed,
   ObsCalendar,
   ObsReports,
+  ObsCorporateNews,
   ObsMacroArticles,
   ObsGeopolitics,
   ObsInstitutions,
@@ -184,6 +185,16 @@ function ObserverV2({
               <h2 className="obs-sec-title">Отчёты</h2>
             </div>
             <ObsReports token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+          </div>
+        );
+      case "corp-news":
+        return (
+          <div className="obs-panel">
+            <div className="obs-sec-head">
+              <span className="obs-sec-eyebrow">Рынок</span>
+              <h2 className="obs-sec-title">Корп. события</h2>
+            </div>
+            <ObsCorporateNews token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
           </div>
         );
       case "macro":

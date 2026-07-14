@@ -585,12 +585,16 @@ def _split_markers(markers) -> tuple[list, list]:
 def market_earnings(portfolio_only: bool = False, limit: int = 60,
                     db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
     """Лента вышедших отчётов (Направление 3): тикер, период, одна строка сути, важность.
-    Тап → карточка. portfolio_only — только бумаги портфеля."""
+    Тап → карточка. portfolio_only — только бумаги портфеля.
+    🔴 Только status=="processed" — реально разобранные отчёты. Кейсы "не нашли источник"
+    (needs_source) сюда не попадают (раньше давали пустые карточки без цифр/анализа —
+    жалоба владельца 2026-07-14): они всплывают в /market/corporate-news как report_missing."""
     from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
     q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
          .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
          .outerjoin(Company, Company.ticker == EarningsReport.ticker)
+         .filter(EarningsReport.status == "processed")
          .order_by(EarningsReport.created_at.desc()))
     if portfolio_only:
         tickers, _ = _portfolio_filter(db, user)
@@ -621,6 +625,22 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "profit_pct": _yoy_pct(fig.net_profit_ttm if fig else None, prev.get("net_profit")),
         })
     return {"count": len(out), "reports": out}
+
+
+@router.get("/market/corporate-news")
+def market_corporate_news(portfolio_only: bool = False, days_back: int = 30, limit: int = 150,
+                          db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
+    """Корпоративные события (Обозреватель): вышедшие отчёты (со ссылкой на «Отчёты»),
+    ожидавшиеся-но-не-найденные отчёты (с self-diagnostic пометкой при повторяющихся
+    промахах по тикеру), объявленные дивиденды с суммой, бизнес-новости (M&A/див.
+    политика/менеджмент) — см. app/services/corporate_news.py."""
+    from app.services.corporate_news import build_corporate_news
+    tickers = None
+    if portfolio_only:
+        t, _ = _portfolio_filter(db, user)
+        tickers = list(t)
+    items = build_corporate_news(db, portfolio_tickers=tickers, days_back=days_back, limit=limit)
+    return {"count": len(items), "items": items}
 
 
 @router.get("/market/calendar/bonds")
