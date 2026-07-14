@@ -48,7 +48,7 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react";
-import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion } from "./design/primitives";
+import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion, ComingSoonView } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "./design/PortfolioViz";
 import { CompanyLogo } from "./design/CompanyLogo";
@@ -414,32 +414,6 @@ const CompanyCardResolver = ({ value, onBack }) => {
 };
 
 // Единый плейсхолдер «Раздел в разработке» — один на все будущие блоки.
-function ComingSoonView({ icon: Icon = Sparkles, title, blurb }) {
-  return (
-    <div>
-      <div className="view-header">
-        <h1 className="view-title">{title}</h1>
-      </div>
-      <div className="tw-flex tw-items-center tw-justify-center tw-py-20">
-        <Card className="tw-max-w-[460px] tw-w-full tw-text-center">
-          <div className="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-6">
-            <span className="tw-w-14 tw-h-14 tw-rounded-xl tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
-              <Icon size={26} className="tw-text-accent" aria-hidden="true" />
-            </span>
-            <div>
-              <h2 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mb-2">Раздел в разработке</h2>
-              <p className="tw-text-[14px] tw-text-text-secondary tw-leading-[1.6] tw-m-0">
-                {blurb || "Этот раздел скоро появится — мы его готовим. Загляните позже."}
-              </p>
-            </div>
-            <Badge tone="neutral">Скоро</Badge>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
 // =========================
 // ВЕРХНЯЯ НАВИГАЦИЯ (глобальный шелл вместо левого рейла) — единый компонент.
 // =========================
@@ -447,6 +421,7 @@ const TOPNAV_ITEMS = [
   { id: "companies", label: "Рынок" },
   { id: "overview", label: "Обозреватель" },
   { id: "portfolio", label: "Портфель" },
+  { id: "stress", label: "Стресс-тестирование" },
   { id: "screener", label: "Скринер" },
   { id: "ai", label: "Ассистент" },
   { id: "pricing", label: "Тарифы" },

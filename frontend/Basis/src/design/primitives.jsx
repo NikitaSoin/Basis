@@ -7,6 +7,7 @@
 // prefers-reduced-motion. No hard-coded hex.
 // =============================================================
 import React, { useEffect, useId, useRef, useState } from "react";
+import { Sparkles } from "lucide-react";
 import { formatNumber, formatPercent } from "./format";
 
 /* ---------- shared helpers ---------- */
@@ -744,6 +745,33 @@ export function KpiTile({ caption, value, unit, delta, deltaSuffix = "%", spark 
           <Sparkline data={spark} sign={delta} />
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- ComingSoonView — общая заглушка для разделов «в разработке» ---------- */
+export function ComingSoonView({ icon: Icon = Sparkles, title, blurb }) {
+  return (
+    <div>
+      <div className="view-header">
+        <h1 className="view-title">{title}</h1>
+      </div>
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-20">
+        <Card className="tw-max-w-[460px] tw-w-full tw-text-center">
+          <div className="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-6">
+            <span className="tw-w-14 tw-h-14 tw-rounded-xl tw-bg-accent-soft tw-flex tw-items-center tw-justify-center tw-shrink-0">
+              <Icon size={26} className="tw-text-accent" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="tw-text-[18px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mb-2">Раздел в разработке</h2>
+              <p className="tw-text-[14px] tw-text-text-secondary tw-leading-[1.6] tw-m-0">
+                {blurb || "Этот раздел скоро появится — мы его готовим. Загляните позже."}
+              </p>
+            </div>
+            <Badge tone="neutral">Скоро</Badge>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

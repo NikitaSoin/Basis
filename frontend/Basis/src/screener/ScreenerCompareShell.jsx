@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Filter, Scale } from "lucide-react";
+import { Filter, Scale, Wand2 } from "lucide-react";
 import { ScreenerView } from "../company/CompanyCardView";
 import CompareView from "../compare/CompareView";
+import { ComingSoonView } from "../design/primitives";
 import "../styles/screener-compare.css";
 
 // =========================
@@ -20,6 +21,7 @@ const SCMP_ZONES = [
     items: [
       { id: "screener", label: "Скринер", icon: Filter },
       { id: "compare", label: "Сравнение активов", icon: Scale },
+      { id: "portfolio_picks", label: "Подборка портфелей", icon: Wand2 },
     ],
   },
 ];
@@ -56,9 +58,17 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
 
       <main className="scmp-main">
         <div className="scmp-panel">
-          {activeSection === "compare"
-            ? <CompareView onOpenCompany={onSelectCompany} />
-            : <ScreenerView onSelectCompany={onSelectCompany} token={token} onAuthRequired={onAuthRequired} />}
+          {activeSection === "compare" ? (
+            <CompareView onOpenCompany={onSelectCompany} />
+          ) : activeSection === "portfolio_picks" ? (
+            <ComingSoonView
+              icon={Wand2}
+              title="Подборка портфелей"
+              blurb="Готовые подборки бумаг под разные цели и профиль риска. Раздел скоро появится."
+            />
+          ) : (
+            <ScreenerView onSelectCompany={onSelectCompany} token={token} onAuthRequired={onAuthRequired} />
+          )}
         </div>
       </main>
     </div>
