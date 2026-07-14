@@ -598,7 +598,7 @@ function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
             const meta = CN_KIND_META[it.kind] || { label: it.kind, icon: Info, group: "business" };
             const Icon = meta.icon;
             const muted = it.kind === "report_missing";
-            const clickable = it.link_to === "reports" && it.ticker && onSelectCompany;
+            const clickable = Boolean(it.link_to) && it.ticker && onSelectCompany;
             return (
               <div key={i} className={`obs-cn-card${muted ? " obs-cn-card--muted" : ""}`}>
                 <div className="obs-cn-card-head">

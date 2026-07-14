@@ -134,7 +134,7 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
             "title": f"{c.name}: отчёт ожидался {ev.event_date.strftime('%d.%m.%Y')} — публикация не найдена",
             "detail": detail,
             "epistemic": "оценка",
-            "link_to": None,
+            "link_to": "company",
             "likely_calendar_error": likely_calendar_error,
         })
 
@@ -154,14 +154,17 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
         if key in seen_div:
             continue
         seen_div.add(key)
+        dy = (ev.payload or {}).get("dividend_yield")
+        yield_part = f", доходность ≈{dy:g}%" if dy is not None else ""
         out.append({
             "kind": "dividend_announced",
             "ticker": ev.ticker, "company": c.name, "sector": c.sector,
             "date": ev.event_date.isoformat(),
-            "title": f"{c.name}: дивиденд {amount:g} ₽/акц., отсечка {ev.event_date.strftime('%d.%m.%Y')}",
+            "title": (f"{c.name}: дивиденд {amount:g} ₽/акц.{yield_part}, "
+                     f"отсечка {ev.event_date.strftime('%d.%m.%Y')}"),
             "detail": None,
             "epistemic": "факт",
-            "link_to": None,
+            "link_to": "company",
             "likely_calendar_error": False,
         })
 
@@ -186,7 +189,7 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
                 "title": mu.title,
                 "detail": mu.summary,
                 "epistemic": "факт",
-                "link_to": None,
+                "link_to": "company",
                 "likely_calendar_error": False,
             })
 
