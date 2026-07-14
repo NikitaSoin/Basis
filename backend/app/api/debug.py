@@ -564,6 +564,52 @@ def debug_trigger_calendar():
         db.close()
 
 
+@router.get("/debug/report-watch-trace")
+def debug_report_watch_trace(ticker: str, event_date: str):
+    """Пошаговая трассировка ТОЧНО того кода, что использует process_event: находит
+    calendar_event, зовёт _source_text, затем ОБА извлечения (financial/operational) —
+    чтобы увидеть, где именно рвётся цепочка на бою (не полагаясь на изолированные
+    юнит-проверки отдельных функций)."""
+    from datetime import date as date_cls
+    from app.db.session import SessionLocal
+    from app.models.calendar_event import CalendarEvent
+    from app.models.company import Company
+    from app.services.report_watch import (_source_text, _extract_financial, _extract_operational)
+    from app.services.calendar_events import _load_inn_ticker_map
+    db = SessionLocal()
+    try:
+        ed = date_cls.fromisoformat(event_date)
+        ticker_u = ticker.upper()
+        events = (db.query(CalendarEvent)
+                 .filter(CalendarEvent.ticker == ticker_u, CalendarEvent.event_type == "earnings",
+                         CalendarEvent.event_date == ed)
+                 .order_by(CalendarEvent.id.desc()).all())
+        company = db.query(Company).filter_by(ticker=ticker_u).first()
+        inn = next((i for i, ts in _load_inn_ticker_map().items() if ticker_u in ts), None)
+        out = []
+        for event in events:
+            is_operational = bool(event.status and "операцион" in event.status.lower())
+            src = _source_text(db, event, inn)
+            entry = {"calendar_event_id": event.id, "source_field_status": event.status,
+                     "is_operational_precheck": is_operational, "found_source": bool(src),
+                     "source_label": src[1] if src else None,
+                     "text_preview": (src[0][:300] if src else None)}
+            if src:
+                text_blob = src[0]
+                fin = _extract_financial(text_blob)
+                ops = _extract_operational(text_blob)
+                entry["extract_financial_result"] = fin
+                entry["extract_operational_result"] = ops
+            out.append(entry)
+        return {"ticker": ticker_u, "event_date": event_date, "events_found": len(events),
+                "inn": inn, "traces": out}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug report-watch-trace: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-report-watch")
 def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
     """Ручной запуск report_watch.refresh() (автообнаружение вышедших отчётов через
