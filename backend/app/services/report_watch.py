@@ -469,21 +469,33 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
     if fig_override is None and not text_blob:
         db.add(report); db.commit()
         return "needs_source"
-    if is_operational:
-        opd = _extract_operational(text_blob)
-        if not opd:
-            db.add(report); db.commit()
-            return "needs_source"
-        db.add(report); db.flush()
-        db.add(EarningsFigures(report_id=report.id, extracted_fields=opd))
-        db.add(EarningsDigest(
-            report_id=report.id, headline=f"{company.name}: {report.period}",
-            one_liner=opd.get("one_liner"), what_report_showed=opd.get("kpis"),
-            summary=opd.get("summary"), importance="medium", model_used="deepseek"))
-        report.status = "processed"
-        db.commit()
-        return "created"
-    fig_raw = fig_override if fig_override is not None else _extract_financial(text_blob)
+    # 🔴 Найдено на бою 2026-07-14: is_operational решается ДО того, как виден реальный
+    # текст (по общей метке календаря вроде «отчётность», не по содержимому) — событие
+    # MOEX классифицировалось как «финансовое», а реальный текст оказался про объём
+    # торгов/число клиентов (операционные метрики, не revenue/EBITDA/прибыль) —
+    # _extract_financial честно говорил has_figures=false, событие терялось. Теперь при
+    # неудаче ПЕРВОГО типа (по классификации) пробуем ВТОРОЙ — реальное содержимое решает,
+    # не предварительный ярлык. fig_override (ГИР БО, гарантированно финансовый
+    # структурированный источник) — без пробы, доверяем классификации как раньше.
+    if fig_override is None and text_blob:
+        opd = _extract_operational(text_blob) if is_operational else None
+        fig_raw = None if is_operational else _extract_financial(text_blob)
+        if is_operational and not opd:
+            fig_raw = _extract_financial(text_blob)
+        elif not is_operational and not fig_raw:
+            opd = _extract_operational(text_blob)
+        if opd:
+            db.add(report); db.flush()
+            db.add(EarningsFigures(report_id=report.id, extracted_fields=opd))
+            db.add(EarningsDigest(
+                report_id=report.id, headline=f"{company.name}: {report.period}",
+                one_liner=opd.get("one_liner"), what_report_showed=opd.get("kpis"),
+                summary=opd.get("summary"), importance="medium", model_used="deepseek"))
+            report.status = "processed"
+            db.commit()
+            return "created"
+    else:
+        fig_raw = fig_override
     if not fig_raw:
         db.add(report); db.commit()
         return "needs_source"
