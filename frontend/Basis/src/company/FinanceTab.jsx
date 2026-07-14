@@ -755,8 +755,17 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                             <span className="chev">▾</span>
                           </summary>
                           <div className="m-body">
-                            {isLive(m) && <div className="fc-note" style={{ marginBottom: 10 }}>Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). На дату анализа: {num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} {ccy}.</div>}
-                            {(inputs.length > 0 || ka.length > 0) && <><div className="subh">Входные данные</div><div className="fc-kv">{(inputs.length ? inputs : ka).map(([k, vv], j) => (<React.Fragment key={j}><span className="k">{k}</span><span className="v">{String(vv)}</span></React.Fragment>))}</div></>}
+                            {isLive(m) && (
+                              <>
+                                <div className="fc-note" style={{ marginBottom: 10 }}>Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). Выкладка ниже (входные данные/шаги) — как считал аналитик на дату анализа, при цене {num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} {ccy}.</div>
+                                <div className="subh">Живые входные данные</div>
+                                <div className="fc-kv">
+                                  <span className="k">Rf (ОФЗ-10л), живая</span><span className="v">{num(m.live_rf_used_pct, 2)} %</span>
+                                  {typeof m.live_rate_pct === "number" && <><span className="k">Ставка в формуле (Ke/r), живая</span><span className="v">{num(m.live_rate_pct, 2)} %</span></>}
+                                </div>
+                              </>
+                            )}
+                            {(inputs.length > 0 || ka.length > 0) && <><div className="subh">Входные данные на дату анализа</div><div className="fc-kv">{(inputs.length ? inputs : ka).map(([k, vv], j) => (<React.Fragment key={j}><span className="k">{k}</span><span className="v">{String(vv)}</span></React.Fragment>))}</div></>}
                             {steps.length > 0 && <><div className="subh">Решение по шагам</div><ol className="fc-steps">{steps.map((s, j) => <li key={j}>{s}</li>)}</ol></>}
                             {cav.length > 0 && <><div className="subh">Оговорки</div>{cav.map((c, j) => <div className="fc-warn" key={j}>{c}</div>)}</>}
                             {!inputs.length && !ka.length && !steps.length && !cav.length && <div className="fc-note">Выкладка метода не детализирована.</div>}

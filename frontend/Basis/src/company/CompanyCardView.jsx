@@ -4442,16 +4442,33 @@ const CompanyCard = ({ company, onBack }) => {
                     <div className="tw-border-t tw-border-border-subtle tw-px-3 tw-pb-4 tw-pt-3 tw-space-y-4">
 
                       {isLive && (
-                        <div className="tw-p-2.5 tw-rounded-md tw-bg-info-soft tw-text-[12px] tw-text-text-primary tw-leading-snug">
-                          Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). Выкладка ниже — как считал аналитик на дату анализа, при цене {formatMoney(mt.fair_value_per_share, { currency: cySym })}.
+                        <div>
+                          <div className="tw-p-2.5 tw-rounded-md tw-bg-info-soft tw-text-[12px] tw-text-text-primary tw-leading-snug tw-mb-2.5">
+                            Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). Выкладка ниже (входные данные/шаги) — как считал аналитик на дату анализа, при цене {formatMoney(mt.fair_value_per_share, { currency: cySym })}.
+                          </div>
+                          <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.07em" }}>
+                            Живые входные данные
+                          </div>
+                          <div className="tw-space-y-1.5">
+                            <div className="tw-flex tw-gap-2.5 tw-items-start tw-text-[13px]">
+                              <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">Rf (ОФЗ-10л)</code>
+                              <span className="tw-text-text-primary tw-font-semibold tw-font-mono tw-tabular-nums tw-whitespace-nowrap">{mt.live_rf_used_pct}%</span>
+                            </div>
+                            {typeof mt.live_rate_pct === "number" && (
+                              <div className="tw-flex tw-gap-2.5 tw-items-start tw-text-[13px]">
+                                <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">Ставка в формуле (Ke/r)</code>
+                                <span className="tw-text-text-primary tw-font-semibold tw-font-mono tw-tabular-nums tw-whitespace-nowrap">{mt.live_rate_pct}%</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
 
-                      {/* ── Входные данные ── */}
+                      {/* ── Входные данные на дату анализа ── */}
                       {inputs && Object.keys(inputs).length > 0 && (
                         <div>
                           <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-wider tw-text-text-tertiary tw-mb-2" style={{ letterSpacing: "0.07em" }}>
-                            Входные данные
+                            {isLive ? "Входные данные на дату анализа" : "Входные данные"}
                           </div>
                           <div className="tw-space-y-1.5">
                             {Object.entries(inputs).map(([key, raw]) => {
