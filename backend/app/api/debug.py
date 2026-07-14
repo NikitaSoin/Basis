@@ -643,6 +643,32 @@ def debug_trigger_company_rss(days_back: int = 90, force_reset: bool = False):
         db.close()
 
 
+@router.post("/debug/trigger-smartlab-detect")
+def debug_trigger_smartlab_detect(days_back: int = 60, max_pages: int = 5):
+    """Точечный запуск ТОЛЬКО smart-lab-детекта дат (см. _due_smartlab_rows) — в обход
+    дорогого полного refresh(). Показывает найденные строки БЕЗ записи в БД (dry-run) —
+    для быстрой проверки охвата/качества детекта."""
+    from app.db.session import SessionLocal
+    from app.models.company import Company
+    from app.services.report_watch import _due_smartlab_rows, _due_ir_rows
+    db = SessionLocal()
+    try:
+        companies = {c.ticker: c for c in db.query(Company).all()}
+        ir_covered = {(r["secid"], r["event_date"]) for r in _due_ir_rows(companies, days_back)}
+        rows = _due_smartlab_rows(companies, days_back, max_pages)
+        new_coverage = [r for r in rows if (r["secid"], r["event_date"]) not in ir_covered]
+        return {"found_total": len(rows), "outside_moex_ir_calendar": len(new_coverage),
+                "rows": [{"ticker": r["secid"], "date": r["event_date"].isoformat(),
+                         "description": r["description"],
+                         "already_in_moex_ir_calendar": (r["secid"], r["event_date"]) in ir_covered}
+                        for r in rows]}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-smartlab-detect: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/report-watch-diag")
 def debug_report_watch_diag(ticker: str, event_date: str):
     """Диагностика report_watch: показывает source/status по тикеру + живой прогон
