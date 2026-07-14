@@ -6,6 +6,7 @@
    /bonds, /futures, /funds, /spot, /market/instruments/sparklines (мини-графики).
    Эпистемика: котировки = факт; тон рынка и трактовка драйверов = оценка/суждение Basis. */
 import React, { useState, useEffect, useMemo } from "react";
+import { InstrumentLogo } from "../design/CompanyLogo";
 import "../styles/market.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -398,7 +399,7 @@ function BondsTab({ rows, query, onOpen, Logo }) {
           <div className="mk-row-id">
             {Logo && b.issuer_ticker
               ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={30} />
-              : <Mono t={b.short_name || b.secid} color="var(--accent-2)" sm />}
+              : <InstrumentLogo id={b.isin} name={b.issuer_name || b.short_name} size={30} />}
             <div className="mk-bond-id"><b>{b.short_name}</b><span className="mk-sub">{b.isin}{b.issuer_name ? " · " + b.issuer_name : ""}</span></div>
           </div>
         </td>
@@ -419,7 +420,7 @@ function BondsTab({ rows, query, onOpen, Logo }) {
         <div className="mk-card-top">
           {Logo && b.issuer_ticker
             ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={34} />
-            : <span className="mk-mono" style={{ background: col + "22", color: col }}>{(b.short_name || b.secid).slice(0, 2)}</span>}
+            : <InstrumentLogo id={b.isin} name={b.issuer_name || b.short_name} size={34} />}
           <div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div>
         </div>
         <div className="mk-asset-big"><span className="mk-asset-bigv">{num(b.ytm, 1)}<span className="mk-cur"> %</span></span><span className="mk-asset-biglbl">YTM</span></div>
@@ -519,7 +520,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
                 <div className="mk-card-top">
                   {Logo && f.asset_kind === "stock" && f.linked_ticker
                     ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={34} />
-                    : <span className="mk-mono" style={{ background: "var(--accent-soft)", color: "var(--accent-2)" }}>{f.secid.slice(0, 2)}</span>}
+                    : <InstrumentLogo id={f.secid} name={f.asset_name || f.sec_name} size={34} />}
                   <div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.asset_name || f.sec_name}</span></div>
                 </div>
                 <div className="mk-asset-big">
@@ -544,7 +545,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
                         <div className="mk-row-id">
                           {Logo && f.asset_kind === "stock" && f.linked_ticker
                             ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={30} />
-                            : <Mono t={f.secid} color="var(--accent-2)" sm />}
+                            : <InstrumentLogo id={f.secid} name={f.asset_name || f.sec_name} size={30} />}
                           <div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.asset_name || f.sec_name}</span></div>
                         </div>
                       </td>
@@ -596,7 +597,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
           {view === "cards" ? (
             <div className="mk-grid">{by[g].map(f => { const chg = chgOf(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
-                <div className="mk-card-top"><span className="mk-mono" style={{ background: "var(--accent-soft)", color: "var(--accent-2)" }}>{f.secid.slice(0, 2)}</span><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.sec_name}</span></div></div>
+                <div className="mk-card-top"><InstrumentLogo id={f.secid} name={f.sec_name} size={34} /><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.sec_name}</span></div></div>
                 <div className="mk-asset-big"><span className="mk-asset-bigv">{num(f.last_price, 2)}<span className="mk-cur"> ₽</span></span>{chg != null && <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}%</span></span>}</div>
                 <div className="mk-card-stats">
                   {f.benchmark && <span className="full"><i>Отслеживает</i>{f.benchmark}</span>}
@@ -611,7 +612,12 @@ function FundsTab({ rows, query, onOpen, sparks }) {
                 <tbody>
                   {by[g].map(f => { const chg = chgOf(f); return (
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
-                      <td className="l"><div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.sec_name}</span></div></td>
+                      <td className="l">
+                        <div className="mk-row-id">
+                          <InstrumentLogo id={f.secid} name={f.sec_name} size={30} />
+                          <div className="mk-bond-id"><b>{f.secid}</b><span className="mk-sub">{f.sec_name}</span></div>
+                        </div>
+                      </td>
                       <td className="l dim">{f.benchmark || "—"}</td>
                       <td className="num">{num(f.last_price, 2)}{NB}₽</td>
                       <td className="num"><ChgTd chg={chg} known={f.last_price != null} /></td>
@@ -639,7 +645,12 @@ function FxMetalsTab({ rows, onOpen }) {
         <tbody>
           {items.map(r => (
             <tr key={r.secid} onClick={() => onOpen(r.secid)} style={{ cursor: "pointer" }}>
-              <td className="l"><b className="mk-fx-n">{r.name}</b></td>
+              <td className="l">
+                <div className="mk-row-id">
+                  <InstrumentLogo id={r.secid} name={r.name} size={26} />
+                  <b className="mk-fx-n">{r.name}</b>
+                </div>
+              </td>
               <td className="num">{num(r.last_price, dec)}</td>
               <td className="num"><ChgTd chg={r.change_pct} known={r.last_price != null} /></td>
             </tr>

@@ -31,6 +31,14 @@ _uid_to_ticker: dict[str, str] = {}
 _ticker_to_uid: dict[str, str] = {}
 # ticker → URL логотипа бренда (CDN T-Инвестиций)
 _ticker_to_logo: dict[str, str] = {}
+# логотипы прочих классов активов — ISIN → URL (облигации), тикер Т-Инвестиций
+# (=наш secid) → URL (фонды/фьючерсы/валюта). Отдельно от _ticker_to_logo:
+# облигация — не компания-эмитент, это логотип самого ВЫПУСКА/инструмента у
+# Т-Инвестиций (владелец: «у любой облигации/фьючерса/фонда есть своя
+# картинка в Т-Инвестициях, раз мы это тянем оттуда — почему бы не подтянуть»).
+_isin_to_logo: dict[str, str] = {}
+_secid_to_logo: dict[str, str] = {}
+_other_instruments_ts: float = 0.0
 
 # Время последнего обновления инструментов (кэшируем на 24ч)
 _instruments_ts: float = 0
@@ -121,6 +129,66 @@ def get_logos() -> dict[str, str]:
     except Exception:  # noqa: BLE001
         pass
     return dict(_ticker_to_logo)
+
+
+def _load_other_instruments() -> bool:
+    """Логотипы облигаций/фондов/фьючерсов/валюты из брендов T-Инвестиций —
+    тот же принцип, что _load_instruments() для акций (InstrumentsService,
+    brand.logoName → CDN), но по ДРУГИМ пространствам идентификаторов:
+    - Bonds: у бумаги нет тикера в привычном смысле, надёжный ключ — ISIN
+      (его мы храним в своей модели Bond.isin).
+    - Etfs/Futures/Currencies: у Т-Инвестиций свой ticker, который на практике
+      совпадает с MOEX secid для биржевых инструментов (наши Fund.secid/
+      Future.secid/SpotAsset.secid) — используем как ключ.
+    Не у каждого инструмента есть brand — так же честно деградируем
+    (пропускаем), как для акций."""
+    global _other_instruments_ts
+    if (_isin_to_logo or _secid_to_logo) and (time.time() - _other_instruments_ts) < 86400:
+        return True
+    endpoints = [
+        ("Bonds", "isin", _isin_to_logo),
+        ("Etfs", "ticker", _secid_to_logo),
+        ("Futures", "ticker", _secid_to_logo),
+        ("Currencies", "ticker", _secid_to_logo),
+    ]
+    count = 0
+    ok = False
+    for method, key_field, target in endpoints:
+        try:
+            resp = _post(
+                f"tinkoff.public.invest.api.contract.v1.InstrumentsService/{method}",
+                {"instrumentStatus": "INSTRUMENT_STATUS_ALL"},
+            )
+            for item in resp.get("instruments", []):
+                key = item.get(key_field, "")
+                logo_name = (item.get("brand") or {}).get("logoName") or ""
+                if not key or not logo_name:
+                    continue
+                base = logo_name.rsplit(".", 1)[0]
+                target[key] = f"https://invest-brands.cdn-tinkoff.ru/{base}x160.png"
+                count += 1
+            ok = True
+        except Exception as e:  # noqa: BLE001
+            logger.error("Tinkoff: ошибка загрузки логотипов (%s): %s", method, e)
+    if ok:
+        _other_instruments_ts = time.time()
+        logger.info("Tinkoff: логотипов облигаций/фондов/фьючерсов/валюты загружено: %d", count)
+    return ok
+
+
+def get_instrument_logos() -> dict[str, str]:
+    """{ISIN или secid: URL логотипа} для облигаций/фондов/фьючерсов/валюты —
+    отдельно от get_logos() (акции, по тикеру компании), другое пространство
+    идентификаторов. Инструменты кэшируются 24ч."""
+    try:
+        if not TINKOFF_TOKEN:
+            return {}
+        _load_other_instruments()
+    except Exception:  # noqa: BLE001
+        pass
+    merged = dict(_isin_to_logo)
+    merged.update(_secid_to_logo)
+    return merged
 
 
 # ─── обновление цен ────────────────────────────────────────────────────────

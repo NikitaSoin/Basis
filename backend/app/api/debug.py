@@ -565,25 +565,36 @@ def debug_trigger_calendar():
 
 
 @router.get("/debug/report-watch-trace")
-def debug_report_watch_trace(ticker: str, event_date: str):
+def debug_report_watch_trace(ticker: str, event_date: str | None = None):
     """Пошаговая трассировка ТОЧНО того кода, что использует process_event: находит
-    calendar_event, зовёт _source_text, затем ОБА извлечения (financial/operational) —
-    чтобы увидеть, где именно рвётся цепочка на бою (не полагаясь на изолированные
-    юнит-проверки отдельных функций)."""
+    calendar_event (по event_date ИЛИ, если не задан/не найден, по calendar_event_id
+    существующих needs_source-записей — MOEX ir-calendar мог УЖЕ укатить дату вперёд,
+    та же история, что раньше была с AFLT), зовёт _source_text, затем ОБА извлечения
+    (financial/operational) — чтобы увидеть, где именно рвётся цепочка на бою."""
     from datetime import date as date_cls
     from app.db.session import SessionLocal
     from app.models.calendar_event import CalendarEvent
     from app.models.company import Company
+    from app.models.earnings import EarningsReport
     from app.services.report_watch import (_source_text, _extract_financial, _extract_operational)
     from app.services.calendar_events import _load_inn_ticker_map
     db = SessionLocal()
     try:
-        ed = date_cls.fromisoformat(event_date)
         ticker_u = ticker.upper()
-        events = (db.query(CalendarEvent)
-                 .filter(CalendarEvent.ticker == ticker_u, CalendarEvent.event_type == "earnings",
-                         CalendarEvent.event_date == ed)
-                 .order_by(CalendarEvent.id.desc()).all())
+        events = []
+        if event_date:
+            ed = date_cls.fromisoformat(event_date)
+            events = (db.query(CalendarEvent)
+                     .filter(CalendarEvent.ticker == ticker_u, CalendarEvent.event_type == "earnings",
+                             CalendarEvent.event_date == ed)
+                     .order_by(CalendarEvent.id.desc()).all())
+        if not events:
+            ce_ids = [r.calendar_event_id for r in
+                     db.query(EarningsReport.calendar_event_id)
+                     .filter(EarningsReport.ticker == ticker_u, EarningsReport.status == "needs_source",
+                             EarningsReport.calendar_event_id.isnot(None)).all()]
+            if ce_ids:
+                events = db.query(CalendarEvent).filter(CalendarEvent.id.in_(ce_ids)).all()
         company = db.query(Company).filter_by(ticker=ticker_u).first()
         inn = next((i for i, ts in _load_inn_ticker_map().items() if ticker_u in ts), None)
         out = []
