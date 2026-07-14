@@ -761,6 +761,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                                 <div className="subh">Живые входные данные</div>
                                 <div className="fc-kv">
                                   <span className="k">Rf (ОФЗ-10л), живая</span><span className="v">{num(m.live_rf_used_pct, 2)} %</span>
+                                  {typeof m.live_beta === "number" && <><span className="k">β, живая{m.live_beta_source === "moex" ? " (MOEX)" : m.live_beta_source === "calc" ? " (расчёт)" : ""}</span><span className="v">{num(m.live_beta, 2)}</span></>}
                                   {typeof m.live_rate_pct === "number" && <><span className="k">Ставка в формуле (Ke/r), живая</span><span className="v">{num(m.live_rate_pct, 2)} %</span></>}
                                 </div>
                               </>

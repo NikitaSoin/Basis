@@ -4454,6 +4454,12 @@ const CompanyCard = ({ company, onBack }) => {
                               <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">Rf (ОФЗ-10л)</code>
                               <span className="tw-text-text-primary tw-font-semibold tw-font-mono tw-tabular-nums tw-whitespace-nowrap">{mt.live_rf_used_pct}%</span>
                             </div>
+                            {typeof mt.live_beta === "number" && (
+                              <div className="tw-flex tw-gap-2.5 tw-items-start tw-text-[13px]">
+                                <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">β{mt.live_beta_source === "moex" ? " (MOEX)" : mt.live_beta_source === "calc" ? " (расчёт)" : ""}</code>
+                                <span className="tw-text-text-primary tw-font-semibold tw-font-mono tw-tabular-nums tw-whitespace-nowrap">{mt.live_beta}</span>
+                              </div>
+                            )}
                             {typeof mt.live_rate_pct === "number" && (
                               <div className="tw-flex tw-gap-2.5 tw-items-start tw-text-[13px]">
                                 <code className="tw-shrink-0 tw-bg-bg-base tw-border tw-border-border-subtle tw-px-1.5 tw-py-px tw-rounded-xs tw-text-[11px] tw-font-mono tw-text-accent tw-whitespace-nowrap">Ставка в формуле (Ke/r)</code>
