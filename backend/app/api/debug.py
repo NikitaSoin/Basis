@@ -584,18 +584,20 @@ def debug_trigger_report_watch(days_back: int = 5, run_girbo: bool = True):
 
 
 @router.post("/debug/reset-report-watch")
-def debug_reset_report_watch():
-    """Удаляет needs_source-записи report_watch (source != 'report_watch' изначально
-    fallback 'calendar_title'/'skrin_disclosure', либо needs_source вообще) — для
-    чистого повторного прогона (напр. после правки фетч-каскада или подозрения на
-    запись, созданную ЕЩЁ старым кодом во время rolling-деплоя). processed НЕ трогает."""
+def debug_reset_report_watch(ticker: str | None = None):
+    """Удаляет needs_source-записи report_watch — ЛЮБОГО пути (calendar_event_id ИЛИ
+    market_update_id ИЛИ ни того ни другого, напр. company_rss) — для чистого повторного
+    прогона (напр. после правки фетч-каскада/классификации). processed НЕ трогает.
+    ticker — сузить до одного тикера (напр. после точечного фикса вроде keyword-ранжирования
+    2026-07-14), иначе чистит needs_source по всем."""
     from app.db.session import SessionLocal
     from app.models.earnings import EarningsReport
     db = SessionLocal()
     try:
-        n = (db.query(EarningsReport)
-             .filter(EarningsReport.calendar_event_id.isnot(None), EarningsReport.status == "needs_source")
-             .delete())
+        q = db.query(EarningsReport).filter(EarningsReport.status == "needs_source")
+        if ticker:
+            q = q.filter(EarningsReport.ticker == ticker.upper())
+        n = q.delete()
         db.commit()
         return {"deleted": n}
     finally:
