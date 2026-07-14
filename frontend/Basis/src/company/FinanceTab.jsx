@@ -363,13 +363,18 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
   const cons = typeof fvr.conservative === "number" ? fvr.conservative : null;
   const upside = base && livePrice ? (base / livePrice - 1) * 100 : (typeof fvr.upside_downside_pct === "number" ? fvr.upside_downside_pct : null);
   const methods = (val.methods || []).filter((m) => typeof m.fair_value_per_share === "number" && m.fair_value_per_share > 0 && !["not_applicable", "insufficient_data"].includes(m.status));
-  const sortedM = [...methods].sort((a, b2) => a.fair_value_per_share - b2.fair_value_per_share);
-  const ffVals = [...methods.map((m) => m.fair_value_per_share), base].filter((x) => typeof x === "number" && x > 0);
+  /* fair_value_per_share_live — пересчёт формулы метода от ЖИВОЙ ставки ОФЗ-10л
+     (см. backend/app/services/live_wacc.py), а не застывшей на дату анализа;
+     fair_value_per_share остаётся исходным для прозрачности (показываем оба). */
+  const mv = (m) => (typeof m.fair_value_per_share_live === "number" ? m.fair_value_per_share_live : m.fair_value_per_share);
+  const isLive = (m) => typeof m.fair_value_per_share_live === "number";
+  const sortedM = [...methods].sort((a, b2) => mv(a) - mv(b2));
+  const ffVals = [...methods.map(mv), base].filter((x) => typeof x === "number" && x > 0);
   const lo = ffVals.length ? Math.min(...ffVals) * 0.9 : 0;
   const hi = ffVals.length ? Math.max(...ffVals) * 1.04 : 1;
   const ffspan = hi - lo || 1;
   const fpos = (v) => clamp(((v - lo) / ffspan) * 100, 0, 100);
-  const isAnchor = (m) => (m.horizon && m.horizon !== "intrinsic_now") ? true : (base ? (m.fair_value_per_share < base * 0.6 || m.fair_value_per_share > base * 1.5) : false);
+  const isAnchor = (m) => (m.horizon && m.horizon !== "intrinsic_now") ? true : (base ? (mv(m) < base * 0.6 || mv(m) > base * 1.5) : false);
   const toneVsPrice = (v) => (livePrice ? (v > livePrice * 1.05 ? "var(--pos)" : v < livePrice * 0.95 ? "var(--neg)" : "var(--ink-3)") : "var(--accent)");
   const divergenceNote = val.methods_divergence_note;
 
@@ -718,10 +723,10 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                 <div className="ff">
                   {base != null && <div className="ff-scale"><span className="ff-faircap" style={{ left: `${fpos(base)}%` }}>справ. {num(base, 0)} {ccy}</span></div>}
                   {sortedM.map((m, i) => {
-                    const v = m.fair_value_per_share, anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null;
+                    const v = mv(m), anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null;
                     return (
                       <div className="ff-row" key={i}>
-                        <span className="ff-nm"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}</span>
+                        <span className="ff-nm"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}{isLive(m) && <span className="tag tag-est" style={{ marginLeft: 6 }} title={`Живой пересчёт от текущей ставки ОФЗ-10л · на дату анализа: ${num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} ${ccy}`}>живое</span>}</span>
                         <span className="ff-track">{base != null && <span className="curl" style={{ left: `${fpos(base)}%` }} />}<span className="ff-dot" style={{ left: `${fpos(v)}%`, background: toneVsPrice(v) }} /></span>
                         <span className="ff-val"><span className="pv">{num(v, v >= 100 ? 1 : 1)}</span>{dv != null && <span className={`pd delta ${dv >= 0 ? "up" : "dn"}`}>{dv >= 0 ? "+" : "−"}{num(Math.abs(dv), 0)} %</span>}</span>
                       </div>
@@ -736,7 +741,7 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                   <div className="subh" style={{ marginTop: 20 }}>Выводы по методам · раскройте любой</div>
                   <div className="methods">
                     {sortedM.map((m, i) => {
-                      const v = m.fair_value_per_share, anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null, ex = m.explain || {};
+                      const v = mv(m), anchor = isAnchor(m), dv = livePrice ? (v / livePrice - 1) * 100 : null, ex = m.explain || {};
                       const inputs = ex.inputs && typeof ex.inputs === "object" ? Object.entries(ex.inputs) : [];
                       const ka = (!inputs.length && m.key_assumptions && typeof m.key_assumptions === "object") ? Object.entries(m.key_assumptions) : [];
                       const steps = Array.isArray(ex.steps) ? ex.steps : [];
@@ -744,12 +749,13 @@ export default function FinanceTab({ fin, company, price, sectorMult, peersData,
                       return (
                         <details className="m-acc" key={i}>
                           <summary>
-                            <span className="mn"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}{m.horizon && m.horizon !== "intrinsic_now" && <s>горизонт {m.horizon}</s>}</span>
+                            <span className="mn"><span className={anchor ? "anch" : "clust"} />{methodName(m.method)}{m.horizon && m.horizon !== "intrinsic_now" && <s>горизонт {m.horizon}</s>}{isLive(m) && <span className="tag tag-est" style={{ marginLeft: 6 }}>живое</span>}</span>
                             <span className="mv" style={{ color: toneVsPrice(v) }}>{num(v, v >= 100 ? 1 : 2)} {ccy}</span>
                             {dv != null ? <span className={`md delta ${dv >= 0 ? "up" : "dn"}`}>{dv >= 0 ? "+" : "−"}{num(Math.abs(dv), 0)} %</span> : <span className="md" />}
                             <span className="chev">▾</span>
                           </summary>
                           <div className="m-body">
+                            {isLive(m) && <div className="fc-note" style={{ marginBottom: 10 }}>Пересчитано от живой доходности ОФЗ-10л (текущая ставка вместо замороженной на дату анализа). На дату анализа: {num(m.fair_value_per_share, m.fair_value_per_share >= 100 ? 0 : 2)} {ccy}.</div>}
                             {(inputs.length > 0 || ka.length > 0) && <><div className="subh">Входные данные</div><div className="fc-kv">{(inputs.length ? inputs : ka).map(([k, vv], j) => (<React.Fragment key={j}><span className="k">{k}</span><span className="v">{String(vv)}</span></React.Fragment>))}</div></>}
                             {steps.length > 0 && <><div className="subh">Решение по шагам</div><ol className="fc-steps">{steps.map((s, j) => <li key={j}>{s}</li>)}</ol></>}
                             {cav.length > 0 && <><div className="subh">Оговорки</div>{cav.map((c, j) => <div className="fc-warn" key={j}>{c}</div>)}</>}
