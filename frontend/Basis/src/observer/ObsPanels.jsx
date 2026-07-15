@@ -532,9 +532,9 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
 const CN_KIND_META = {
   report_published:     { label: "Отчёт вышел",              icon: FileText,     group: "reports"   },
   report_missing:        { label: "Ожидался, не вышел",       icon: Clock,        group: "reports"   },
-  div_recommended:       { label: "Дивиденд объявлен",        icon: Coins,        group: "dividend"  },
-  div_approved:          { label: "Дивиденд утверждён",       icon: CheckCircle2, group: "dividend"  },
-  div_cutoff_soon:       { label: "Скоро отсечка",            icon: AlarmClock,   group: "dividend"  },
+  div_recommended:       { label: "Рекомендовано советом директоров", icon: Coins,        group: "dividend"  },
+  div_approved:          { label: "Одобрено собранием акционеров",   icon: CheckCircle2, group: "dividend"  },
+  div_cutoff_soon:       { label: "Последний день с дивидендом",     icon: AlarmClock,   group: "dividend"  },
   ipo_spo:               { label: "IPO / SPO",                icon: Rocket,       group: "placement" },
   share_issuance:        { label: "Допэмиссия",               icon: Layers,       group: "placement" },
   buyback:               { label: "Байбэк",                   icon: RotateCcw,    group: "placement" },
@@ -554,7 +554,7 @@ const CN_FILTERS = [
   { id: "business",   label: "Бизнес"     },
 ];
 
-function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
+function ObsCorporateNews({ token, portfolioOnly, onSelectCompany, onOpenReports }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -613,7 +613,11 @@ function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
             const meta = CN_KIND_META[it.kind] || { label: it.kind, icon: Info, group: "business" };
             const Icon = meta.icon;
             const muted = it.kind === "report_missing";
-            const clickable = Boolean(it.link_to) && it.ticker && onSelectCompany;
+            const onCardClick =
+              it.link_to === "reports" && onOpenReports ? onOpenReports :
+              it.link_to === "company" && it.ticker && onSelectCompany ? () => onSelectCompany(it.ticker) :
+              null;
+            const clickable = Boolean(onCardClick);
             return (
               <div key={i} className={`obs-cn-card${muted ? " obs-cn-card--muted" : ""}`}>
                 <div className="obs-cn-card-head">
@@ -638,7 +642,7 @@ function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
                       type="button"
                       className="obs-rep-toggle"
                       style={{ fontSize: "14.5px", fontWeight: 600, textAlign: "left" }}
-                      onClick={() => onSelectCompany(it.ticker)}
+                      onClick={onCardClick}
                     >{it.title}</button>
                   ) : it.title}
                 </div>

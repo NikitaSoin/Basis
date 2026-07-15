@@ -213,12 +213,11 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
             "kind": "div_recommended",
             "ticker": ev.ticker, "company": c.name, "sector": c.sector,
             "date": ev.created_at.date().isoformat(),
-            "title": (f"{c.name}: объявлен дивиденд {amount:g} ₽/акц.{yield_part} "
+            "title": (f"{c.name}: совет директоров рекомендовал дивиденд {amount:g} ₽/акц.{yield_part} "
                      f"(отсечка {ev.event_date.strftime('%d.%m.%Y')})"),
-            "detail": "Сумма объявлена — по методичке Basis это рекомендация, окончательное "
-                      "решение утверждает собрание акционеров.",
+            "detail": None,
             "epistemic": "факт",
-            "link_to": "company",
+            "link_to": None,
             "likely_calendar_error": False,
         })
 
@@ -252,11 +251,11 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
             "kind": "div_cutoff_soon",
             "ticker": ev.ticker, "company": c.name, "sector": c.sector,
             "date": buy_by_date.isoformat(),
-            "title": (f"{c.name}: {when} последний день купить под дивиденд {amount:g} ₽/акц. "
+            "title": (f"{c.name}: {when} последний день с дивидендом {amount:g} ₽/акц. "
                      f"(отсечка {ev.event_date.strftime('%d.%m.%Y')})"),
             "detail": None,
             "epistemic": "факт",
-            "link_to": "company",
+            "link_to": None,
             "likely_calendar_error": False,
         })
 
@@ -307,7 +306,7 @@ def build_corporate_news(db: Session, portfolio_tickers: list[str] | None = None
                 "title": mu.title,
                 "detail": mu.summary,
                 "epistemic": "факт",
-                "link_to": "company",
+                "link_to": None if subtype == "div_approved" else "company",
                 "likely_calendar_error": False,
             })
 

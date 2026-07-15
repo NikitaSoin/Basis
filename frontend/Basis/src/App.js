@@ -199,7 +199,7 @@ function ObserverV2({
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Корп. события</h2>
             </div>
-            <ObsCorporateNews token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} />
+            <ObsCorporateNews token={token} portfolioOnly={portfolioOnly} onSelectCompany={onSelectCompany} onOpenReports={() => setActiveSection("reports")} />
           </div>
         );
       case "macro":
