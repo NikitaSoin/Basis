@@ -907,10 +907,11 @@
   flex-shrink: 0;
 }
 
-.obs-cn-kind-icon--reports  { background: var(--accent-soft); color: var(--accent-hover, var(--accent)); }
-.obs-cn-kind-icon--missing  { background: var(--bg-base); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
-.obs-cn-kind-icon--dividend { background: var(--success-soft); color: var(--success); }
-.obs-cn-kind-icon--business { background: var(--info-soft); color: var(--info); }
+.obs-cn-kind-icon--reports   { background: var(--accent-soft); color: var(--accent-hover, var(--accent)); }
+.obs-cn-kind-icon--missing   { background: var(--bg-base); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+.obs-cn-kind-icon--dividend  { background: var(--success-soft); color: var(--success); }
+.obs-cn-kind-icon--placement { background: var(--warning-soft); color: var(--warning); }
+.obs-cn-kind-icon--business  { background: var(--info-soft); color: var(--info); }
 
 .obs-cn-head-text {
   display: flex;
