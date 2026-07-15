@@ -3955,6 +3955,18 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, drive
               ✕ Закрыть
             </button>
           </div>
+          {/* 🔴 2026-07-16: плитка каждый раз указывает на КОНКРЕТНЫЙ инструмент (ближайший
+              непогашенный фьючерс / ближайшая по дюрации ОФЗ), не на непрерывный ряд «цена
+              нефти»/«доходность 10Y» — разные контракты/выпуски расходятся в цене. Честная
+              подпись вместо голого названия драйвера, чтобы не выдавать один инструмент за
+              общий ряд (владелец: график «не та информация» — весенний пик был у другого,
+              уже погашенного контракта). Continuous-склейка — отдельная задача, не здесь. */}
+          {driverChart.instrument_label && (
+            <div className="obs-hero-sub" style={{ fontSize: "12.5px", color: "var(--text-tertiary)", marginTop: -4, marginBottom: 8 }}>
+              {driverChart.instrument_label}
+              {driverPts && driverPts.length > 0 && ` · история с ${_obsDateRu(driverPts[0].as_of)}`}
+            </div>
+          )}
           {driverPts === null ? (
             <div className="tw-py-6 tw-text-text-tertiary tw-text-[13px]">Загружаем график...</div>
           ) : driverPts.length < 2 ? (
@@ -4024,7 +4036,7 @@ const _INVERSE_SIGN = new Set([
   "cn_inflation",
 ]);
 
-function ObsEconomy({ token }) {
+function ObsEconomy({ token, forceIndicator }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   // ── data state ──
@@ -4069,8 +4081,10 @@ function ObsEconomy({ token }) {
       setForecast(fc);
       setSurvey(sv);
       setLoading(false);
-      // default detail: first RU indicator with data
-      const first = arr.find((x) => x.has_data && x.display_group === "ru");
+      // default detail: пришли с конкретного драйвера (напр. плитка «USD/RUB» из
+      // «Что движет рынком») — открываем именно его индикатор, иначе первый RU с данными.
+      const forced = forceIndicator && arr.find((x) => x.code === forceIndicator && x.has_data);
+      const first = forced || arr.find((x) => x.has_data && x.display_group === "ru");
       if (first) setDetailInd(first);
     });
   }, [token]);

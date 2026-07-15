@@ -108,7 +108,7 @@ function ObserverV2({
   token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot,
   onSelectIndex, onOpenFearGreed, onOpenIndexHub,
   indexTicker, showIndexHub, onCloseIndexUI,
-  forceSection, driverChart,
+  forceSection, driverChart, forceEconIndicator,
 }) {
   // forceSection — вход с Рынка (клик по драйверу «Нефть»/«USD·RUB»/«ОФЗ» → "pulse",
   // «Ставка ЦБ» → "economy"); ObserverV2 монтируется заново при каждом входе на
@@ -146,7 +146,7 @@ function ObserverV2({
               <span className="obs-sec-eyebrow">Данные</span>
               <h2 className="obs-sec-title">Экономическая статистика</h2>
             </div>
-            <ObsEconomy token={token} />
+            <ObsEconomy token={token} forceIndicator={forceEconIndicator} />
           </div>
         );
       case "pulse":
@@ -589,6 +589,7 @@ export default function App() {
   // просит показать график инструмента (driverChart). См. openDriverChart ниже.
   const [forceObsSection, setForceObsSection] = useState(null);
   const [driverChart, setDriverChart] = useState(null);
+  const [forceEconIndicator, setForceEconIndicator] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -672,6 +673,7 @@ export default function App() {
     setShowIndexHub(false);
     setForceObsSection(null);
     setDriverChart(null);
+    setForceEconIndicator(null);
   };
 
   // Индекс/хаб индексов/индекс страха и жадности показываются ВНУТРИ
@@ -693,6 +695,7 @@ export default function App() {
   const openDriverChart = (driver) => {
     if (driver.nav === "economy") {
       setDriverChart(null);
+      setForceEconIndicator(driver.nav_indicator || null);
       setForceObsSection("economy");
       setActiveTab("overview");
       return;
@@ -733,6 +736,7 @@ export default function App() {
             onCloseIndexUI={closeIndexUI}
             forceSection={forceObsSection}
             driverChart={driverChart}
+            forceEconIndicator={forceEconIndicator}
           />
         );
       case "portfolio":

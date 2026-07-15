@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import JSONResponse
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 from anthropic import Anthropic
 from app.db.session import get_db
@@ -87,21 +87,37 @@ def market_drivers(db: Session = Depends(get_db)):
     # Нефть Brent — ближайший фьючерс BR (FORTS), $/барр. chart: клик на плитке
     # («владелец: перекидывало в обзор рынка где есть графики») ведёт на
     # /market/instruments/future/{secid}/history — тот же движок, что у Рынок→Фьючерсы.
+    # 🔴 Найдено на бою 2026-07-16 (владелец: «нефть весной доходила до 120$, а тут не
+    # так»): этот график — история ЦЕНЫ ИМЕННО ЭТОГО КОНТРАКТА (плитка каждый раз берёт
+    # ближайший НЕ ЭКСПИРИРОВАВШИЙ фьючерс — сегодня это не тот контракт, что был «ближним»
+    # весной), не непрерывный ряд «цена нефти». Разные контракты одной нефти расходятся
+    # (контанго/бэквордация). Честная склейка в continuous series — отдельная задача
+    # (see docs/status.md): у истекших контрактов на бою вообще нет истории в
+    # instrument_history, нужен re-backfill с MOEX ISS, не просто склейка имеющегося.
+    # Пока — честная подпись: конкретный контракт + дата начала охвата (instrument_label),
+    # не выдаём его за общий график «нефть».
     try:
         r = db.execute(_t(
-            "SELECT secid, last_price, prev_settle FROM futures "
+            "SELECT secid, last_price, prev_settle, expiration_date FROM futures "
             "WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') AND last_price IS NOT NULL "
             "AND expiration_date >= now()::date ORDER BY expiration_date ASC LIMIT 1")).first()
         if r and r[1]:
             secid = r[0]; px = float(r[1]); prev = float(r[2]) if r[2] else None
+            exp = r[3]
             d = 0 if not prev else (1 if px > prev else -1 if px < prev else 0)
+            label = f"фьючерс {secid}" + (f" (эксп. {exp.strftime('%m.%Y')})" if exp else "")
             out.append({"name": "Нефть Brent", "value": f"{px:.1f} $".replace(".", ","),
                         "dir": d, "effect": "поддержка нефтегазу при росте", "level": "факт",
-                        "chart": {"asset_class": "future", "secid": secid, "field": "close", "unit": "$"}})
+                        "chart": {"asset_class": "future", "secid": secid, "field": "close", "unit": "$",
+                                  "instrument_label": label}})
     except Exception:
         pass
 
-    # Валюта — USD/RUB (спот)
+    # Валюта — USD/RUB (спот). 🔴 Найдено на бою 2026-07-16: график по спот-инструменту
+    # (instrument_history) короткий (~5 мес) — у графика курса уже есть более глубокий дом,
+    # официальный дневной фид ЦБ РФ (`usdrub` в /market/macro) на «Экономическая статистика»,
+    # той же плитки/паттерна, что уже сделан для «Ставка ЦБ». Владелец: «я бы вообще открывал
+    # не блок обзор рынка а экономическую статистику и там на графике сразу уже курс доллара».
     try:
         r = db.execute(_t("SELECT last_price, change_pct FROM spot_assets WHERE secid='USD000UTSTOM'")).first()
         if r and r[0]:
@@ -109,7 +125,7 @@ def market_drivers(db: Session = Depends(get_db)):
             d = 1 if chg > 0 else -1 if chg < 0 else 0
             out.append({"name": "USD / RUB", "value": f"{px:.2f}".replace(".", ","),
                         "dir": d, "effect": "слабее рубль — плюс экспортёрам", "level": "факт",
-                        "chart": {"asset_class": "spot", "secid": "USD000UTSTOM", "field": "close", "unit": "₽"}})
+                        "nav": "economy", "nav_indicator": "usdrub"})
     except Exception:
         pass
 
@@ -134,6 +150,13 @@ def market_drivers(db: Session = Depends(get_db)):
     # (самый длинный выпуск — ~7 лет), поэтому число — плоская экстраполяция последней
     # точки кривой; график по-честному строим по ДОХОДНОСТИ ЭТОГО САМОГО якорного
     # выпуска (ближайшего по дюрации к 10Y) — та же бумага, что формирует цифру.
+    # 🔴 Найдено на бою 2026-07-16 (владелец: «ОФЗ раньше имела более высокую доходность»):
+    # та же проблема, что у Brent — плитка каждый раз выбирает бумагу, чья ТЕКУЩАЯ дюрация
+    # ближе к 10 годам, график — история ИМЕННО ЭТОЙ бумаги, не непрерывный ряд «доходность
+    # 10-летней ОФЗ» (раньше «10-летней» была другая бумага). Плюс глубина истории в БД
+    # ограничена (~13 мес, разовый бэкафилл) — пик ставки 2023-2024 за пределами окна в
+    # любом случае. Честная склейка — отдельная задача (см. docs/status.md). Пока — честная
+    # подпись: конкретный выпуск + погашение, не выдаём за общий «ОФЗ 10 лет».
     try:
         from app.services.bond_risk import _ofz_curve_from_db, _ofz_at
         curve = _ofz_curve_from_db(db)
@@ -142,10 +165,13 @@ def market_drivers(db: Session = Depends(get_db)):
             entry = {"name": "ОФЗ 10 лет", "value": f"{float(y10):.1f} %".replace(".", ","),
                      "dir": 0, "effect": "конкурент акциям за деньги", "level": "факт"}
             anchor = db.execute(_t(
-                "SELECT secid FROM bonds WHERE bond_type='ofz' AND ytm IS NOT NULL "
+                "SELECT secid, short_name, maturity_date FROM bonds WHERE bond_type='ofz' AND ytm IS NOT NULL "
                 "AND duration_days IS NOT NULL ORDER BY ABS(duration_days - 3650) ASC LIMIT 1")).first()
             if anchor:
-                entry["chart"] = {"asset_class": "bond", "secid": anchor[0], "field": "yld", "unit": "%"}
+                mat = anchor[2]
+                label = f"выпуск {anchor[1] or anchor[0]}" + (f" (погашение {mat.strftime('%m.%Y')})" if mat else "")
+                entry["chart"] = {"asset_class": "bond", "secid": anchor[0], "field": "yld", "unit": "%",
+                                  "instrument_label": label}
             out.append(entry)
     except Exception:
         pass
@@ -605,14 +631,20 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
     Тап → карточка. portfolio_only — только бумаги портфеля.
     🔴 Только status=="processed" — реально разобранные отчёты. Кейсы "не нашли источник"
     (needs_source) сюда не попадают (раньше давали пустые карточки без цифр/анализа —
-    жалоба владельца 2026-07-14): они всплывают в /market/corporate-news как report_missing."""
+    жалоба владельца 2026-07-14): они всплывают в /market/corporate-news как report_missing.
+    🔴 Найдено на бою 2026-07-16: сортировка была по created_at (когда МЫ обнаружили отчёт),
+    не по published_at (когда отчёт реально вышел) — путь ГИР БО (годовая РСБУ) единоразово
+    прогнался по ~165 компаниям и создал записи с created_at="сейчас", но published_at
+    Feb-Apr 2026 (реальные даты сдачи годовой отчётности) — вся эта старая пачка легла
+    поверх ленты, вытеснив свежие отчёты. Сортировка по реальной дате события чинит это:
+    записи без published_at (часть ручного financials.json-пути) деградируют на created_at."""
     from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
     q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
          .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
          .outerjoin(Company, Company.ticker == EarningsReport.ticker)
          .filter(EarningsReport.status == "processed")
-         .order_by(EarningsReport.created_at.desc()))
+         .order_by(func.coalesce(EarningsReport.published_at, EarningsReport.created_at).desc()))
     if portfolio_only:
         tickers, _ = _portfolio_filter(db, user)
         q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)
