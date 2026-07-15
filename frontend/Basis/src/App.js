@@ -108,8 +108,13 @@ function ObserverV2({
   token, onSelectCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot,
   onSelectIndex, onOpenFearGreed, onOpenIndexHub,
   indexTicker, showIndexHub, onCloseIndexUI,
+  forceSection, driverChart,
 }) {
-  const [activeSection, setActiveSection] = useState("news");
+  // forceSection — вход с Рынка (клик по драйверу «Нефть»/«USD·RUB»/«ОФЗ» → "pulse",
+  // «Ставка ЦБ» → "economy"); ObserverV2 монтируется заново при каждом входе на
+  // activeTab==="overview" (см. App.js renderView), так что initial state достаточно —
+  // не нужен эффект-синхронизация.
+  const [activeSection, setActiveSection] = useState(forceSection || "news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
   // Страницы индексов (владелец: «нужно, чтобы сайдбар оставался виден и на
   // самой странице индекса, а не только после возврата назад») рендерятся
@@ -151,7 +156,7 @@ function ObserverV2({
               <span className="obs-sec-eyebrow">Рынок</span>
               <h2 className="obs-sec-title">Обзор рынка</h2>
             </div>
-            <ObsMarketPulse onSelectCompany={onSelectCompany} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} />
+            <ObsMarketPulse onSelectCompany={onSelectCompany} onSelectIndex={onSelectIndex} onOpenFearGreed={onOpenFearGreed} driverChart={driverChart} />
           </div>
         );
       case "maps":
@@ -579,6 +584,11 @@ export default function App() {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);   // тикер индекса, или "FEARGREED"
   const [showIndexHub, setShowIndexHub] = useState(false);
+  // Клик по плитке драйвера «Что движет рынком» (Рынок→Акции→Пульс) — форсирует
+  // конкретную секцию Обозревателя при переходе (forceObsSection) + опционально
+  // просит показать график инструмента (driverChart). См. openDriverChart ниже.
+  const [forceObsSection, setForceObsSection] = useState(null);
+  const [driverChart, setDriverChart] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -660,6 +670,8 @@ export default function App() {
     // режим индекса, а не полагаемся на порядок веток в renderView().
     setSelectedIndex(null);
     setShowIndexHub(false);
+    setForceObsSection(null);
+    setDriverChart(null);
   };
 
   // Индекс/хаб индексов/индекс страха и жадности показываются ВНУТРИ
@@ -672,6 +684,25 @@ export default function App() {
   const openFearGreed = () => { setSelectedIndex("FEARGREED"); setShowIndexHub(false); setActiveTab("overview"); };
   const openIndexHub = () => { setSelectedIndex(null); setShowIndexHub(true); setActiveTab("overview"); };
   const closeIndexUI = () => { setSelectedIndex(null); setShowIndexHub(false); };
+
+  // Клик по плитке драйвера в «Что движет рынком» (Рынок→Акции). Владелец: «при
+  // нажатии на нефть/курс рубля/доходность ОФЗ — перекидывало в обзор рынка где
+  // есть графики; ключевая ставка — не в обзор, а в экономическую статистику».
+  // «Ставка ЦБ» помечена бэкендом nav:"economy" (там уже есть график с историей),
+  // остальные — chart:{asset_class,secid,...} → рисуем график прямо в Обзоре рынка.
+  const openDriverChart = (driver) => {
+    if (driver.nav === "economy") {
+      setDriverChart(null);
+      setForceObsSection("economy");
+      setActiveTab("overview");
+      return;
+    }
+    if (driver.chart) {
+      setDriverChart({ ...driver.chart, name: driver.name });
+      setForceObsSection("pulse");
+      setActiveTab("overview");
+    }
+  };
 
   const renderView = () => {
     if (selectedCompany) {
@@ -686,7 +717,7 @@ export default function App() {
     if (selectedSpot) return <SpotCard secid={selectedSpot} onBack={() => setSelectedSpot(null)} />;
     switch (activeTab) {
       case "companies":
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
       case "screener":
         return <ScreenerCompareView onSelectCompany={setSelectedCompany} token={token} onAuthRequired={() => setShowAuthModal(true)} />;
       case "overview":
@@ -700,6 +731,8 @@ export default function App() {
             indexTicker={selectedIndex}
             showIndexHub={showIndexHub}
             onCloseIndexUI={closeIndexUI}
+            forceSection={forceObsSection}
+            driverChart={driverChart}
           />
         );
       case "portfolio":
@@ -731,7 +764,7 @@ export default function App() {
           />
         );
       default:
-        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} />;
+        return <CompaniesView onSelectCompany={setSelectedCompany} onSelectIndex={openIndex} onSelectDriver={openDriverChart} />;
     }
   };
 

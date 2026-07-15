@@ -123,7 +123,7 @@ function ToneRow({ adv, dec, total }) {
     </div>
   );
 }
-function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex }) {
+function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex, onSelectDriver }) {
   const IdxTag = onSelectIndex && index ? "button" : "div";
   return (
     <div className="mk-pulse">
@@ -131,8 +131,8 @@ function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex }) {
         type={onSelectIndex && index ? "button" : undefined}
         onClick={onSelectIndex && index ? () => onSelectIndex(index.ticker) : undefined}
         style={onSelectIndex && index ? {
-          textAlign: "left", cursor: "pointer", display: "block", width: "100%",
-          background: "none", border: "none", padding: 0, margin: 0, font: "inherit", color: "inherit",
+          cursor: "pointer", display: "block", width: "100%",
+          border: "none", margin: 0, font: "inherit", color: "inherit",
         } : undefined}
       >
         <div className="mk-eyebrow">{index ? index.name : "Индекс МосБиржи"}</div>
@@ -167,13 +167,17 @@ function Pulse({ index, drivers, adv, dec, flat, total, onSelectIndex }) {
       <div>
         <div className="mk-eyebrow">Что движет рынком сегодня <span className="mk-epi">· суждение Basis</span></div>
         <div className="mk-drivers">
-          {(drivers || []).map(d => (
-            <div key={d.name} className="mk-driver">
-              <div className="mk-driver-n">{d.name}</div>
-              <div className="mk-driver-v">{d.value} <span className={"mk-d " + (d.dir > 0 ? "up" : d.dir < 0 ? "dn" : "fl")}>{d.dir > 0 ? "▲" : d.dir < 0 ? "▼" : "▬"}</span></div>
-              <div className="mk-driver-e">{d.effect}</div>
-            </div>
-          ))}
+          {(drivers || []).map(d => {
+            const clickable = onSelectDriver && (d.chart || d.nav);
+            const Tag = clickable ? "button" : "div";
+            return (
+              <Tag key={d.name} className="mk-driver" onClick={clickable ? () => onSelectDriver(d) : undefined}>
+                <div className="mk-driver-n">{d.name}</div>
+                <div className="mk-driver-v">{d.value} <span className={"mk-d " + (d.dir > 0 ? "up" : d.dir < 0 ? "dn" : "fl")}>{d.dir > 0 ? "▲" : d.dir < 0 ? "▼" : "▬"}</span></div>
+                <div className="mk-driver-e">{d.effect}</div>
+              </Tag>
+            );
+          })}
           {(!drivers || !drivers.length) && <div className="mk-epi">нет данных по драйверам</div>}
         </div>
       </div>
@@ -355,6 +359,34 @@ function SegGroup({ label, options, value, onChange }) {
     </div>
   );
 }
+// Сортировка с переключением направления (владелец, 2026-07-15: «сейчас доступен
+// только один вид» — клик по уже активной кнопке разворачивает направление;
+// клик по новой метрике выбирает её со знаковым дефолтным направлением (dir).
+// value={key,dir}; options=[[key,label,defaultDir]] — "default"/"По умолчанию"
+// без стрелки (это не метрика, а «без сортировки»).
+function SortGroup({ label, options, value, onChange }) {
+  return (
+    <div className="mk-seg-group">
+      <span className="mk-seg-lbl">{label}</span>
+      <div className="mk-seg">
+        {options.map(([k, l, defDir]) => {
+          const active = value.key === k;
+          const dir = active ? value.dir : (defDir ?? -1);
+          return (
+            <button
+              key={k}
+              className={active ? "on" : ""}
+              onClick={() => onChange(active ? { key: k, dir: value.dir * -1 } : { key: k, dir: defDir ?? -1 })}
+            >
+              {l}
+              {active && k !== "default" && <span style={{ marginLeft: 5, opacity: 0.85 }}>{dir === -1 ? "↓" : "↑"}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 function ViewToggle({ view, setView }) {
   return (
     <div className="mk-seg-group mk-seg-view">
@@ -373,7 +405,7 @@ const BOND_GROUP_CAP = 150;
 function BondsTab({ rows, query, onOpen, Logo }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
-  const [sort, setSort] = useState("default");
+  const [sort, setSort] = useState({ key: "default", dir: -1 });
   const [view, setView] = useState("cards");
   const reliMap = { "Надёжные": "pos", "Средний риск": "amber", "ВДО": "neg" };
   let list = rows.filter(b => {
@@ -383,9 +415,9 @@ function BondsTab({ rows, query, onOpen, Logo }) {
     const rmatch = reli === "Любая надёжность" || reliOf(b).k === reliMap[reli];
     return q && cmatch && rmatch;
   });
-  if (sort === "ytm") list = [...list].sort((a, b) => (b.ytm || 0) - (a.ytm || 0));
-  else if (sort === "spread") list = [...list].sort((a, b) => (b.spread_bp || 0) - (a.spread_bp || 0));
-  else if (sort === "dur") list = [...list].sort((a, b) => (a.duration_years || 99) - (b.duration_years || 99));
+  if (sort.key === "ytm") list = [...list].sort((a, b) => sort.dir * ((a.ytm || 0) - (b.ytm || 0)));
+  else if (sort.key === "spread") list = [...list].sort((a, b) => sort.dir * ((a.spread_bp || 0) - (b.spread_bp || 0)));
+  else if (sort.key === "dur") list = [...list].sort((a, b) => sort.dir * ((a.duration_years || 99) - (b.duration_years || 99)));
   // Группировка по сектору эмитента (публичные компании) / грубому типу по
   // названию выпуска (непубличные) — без неё список из ~3000+ бумаг нечем
   // осмысленно просматривать (у Акций/Фьючерсов/Фондов группировка уже есть,
@@ -443,7 +475,7 @@ function BondsTab({ rows, query, onOpen, Logo }) {
       <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Купон" value={coupon} onChange={setCoupon} options={["Любой купон", "Фикс", "Флоатеры"]} />
         <SegGroup label="Надёжность" value={reli} onChange={setReli} options={["Любая надёжность", "Надёжные", "Средний риск", "ВДО"]} />
-        <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["spread", "Спред к ОФЗ"], ["ytm", "Доходность"], ["dur", "Дюрация"]]} />
+        <SortGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["spread", "Спред к ОФЗ", -1], ["ytm", "Доходность", -1], ["dur", "Дюрация", 1]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Нет выпусков под фильтры.</div></div>}
@@ -493,14 +525,14 @@ function ChgTd({ chg, known }) {
 }
 function FuturesTab({ rows, query, onOpen, Logo }) {
   const [grpf, setGrpf] = useState("Все");
-  const [sort, setSort] = useState("default");
+  const [sort, setSort] = useState({ key: "default", dir: -1 });
   const [view, setView] = useState("cards");
   const groupLabel = f => f.kind_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || f.asset_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
   const by = {}; filt.forEach(f => { (by[groupLabel(f)] = by[groupLabel(f)] || []).push(f); });
-  if (sort === "lev") Object.values(by).forEach(a => a.sort((x, y) => (y.leverage || 0) - (x.leverage || 0)));
-  else if (sort === "exp") Object.values(by).forEach(a => a.sort((x, y) => (x.days_to_expiry ?? 9999) - (y.days_to_expiry ?? 9999)));
+  if (sort.key === "lev") Object.values(by).forEach(a => a.sort((x, y) => sort.dir * ((x.leverage || 0) - (y.leverage || 0))));
+  else if (sort.key === "exp") Object.values(by).forEach(a => a.sort((x, y) => sort.dir * ((x.days_to_expiry ?? 9999) - (y.days_to_expiry ?? 9999))));
   const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
   return (
     <div>
@@ -509,7 +541,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
       </div>
       <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Категория" value={grpf} onChange={setGrpf} options={["Все", ...allGroups]} />
-        <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["lev", "Плечо"], ["exp", "До экспирации"]]} />
+        <SortGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["lev", "Плечо", -1], ["exp", "До экспирации", 1]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}
@@ -573,13 +605,13 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
 function FundsTab({ rows, query, onOpen, sparks }) {
   const [grpf, setGrpf] = useState("Все");
   const [view, setView] = useState("cards");
-  const [sort, setSort] = useState("default");
+  const [sort, setSort] = useState({ key: "default", dir: -1 });
   const groupLabel = f => f.type_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
   const by = {}; filt.forEach(f => { (by[groupLabel(f)] = by[groupLabel(f)] || []).push(f); });
-  if (sort === "ter") Object.values(by).forEach(a => a.sort((x, y) => (x.ter ?? 999) - (y.ter ?? 999)));
-  else if (sort === "liq") Object.values(by).forEach(a => a.sort((x, y) => (y.val_today || 0) - (x.val_today || 0)));
+  if (sort.key === "ter") Object.values(by).forEach(a => a.sort((x, y) => sort.dir * ((x.ter ?? 999) - (y.ter ?? 999))));
+  else if (sort.key === "liq") Object.values(by).forEach(a => a.sort((x, y) => sort.dir * ((x.val_today || 0) - (y.val_today || 0))));
   const order = Object.keys(by).sort((a, b) => by[b].length - by[a].length);
   const chgOf = f => (sparks[f.secid] || {}).change_pct;
   return (
@@ -589,7 +621,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
       </div>
       <div className="mk-filterbar" style={{ marginTop: 18 }}>
         <SegGroup label="Категория" value={grpf} onChange={setGrpf} options={["Все", ...allGroups]} />
-        <SegGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["ter", "Комиссия (TER)"], ["liq", "Ликвидность"]]} />
+        <SortGroup label="Сортировка" value={sort} onChange={setSort} options={[["default", "По умолчанию"], ["ter", "Комиссия (TER)", 1], ["liq", "Ликвидность", -1]]} />
         <ViewToggle view={view} setView={setView} />
       </div>
       {!order.length && <div className="mk-tablewrap" style={{ marginTop: 16 }}><div className="mk-empty">Ничего не найдено.</div></div>}
@@ -717,7 +749,7 @@ function inTradingHours() {
   return t >= 7 * 60 && t <= 23 * 60 + 50;
 }
 
-export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, Logo }) {
+export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo }) {
   const persist = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
   const [query, setQuery] = useState("");
@@ -921,7 +953,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
             </div>
           )}
 
-          {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} onSelectIndex={onSelectIndex} />}
+          {tab === "stocks" && <Pulse index={index} drivers={drivers} adv={breadth.adv} dec={breadth.dec} flat={breadth.flat} total={breadth.total} onSelectIndex={onSelectIndex} onSelectDriver={onSelectDriver} />}
           {tab === "stocks" && !loading && <SectorNav stocks={stocks} sector={sector} onSelect={setSector} />}
 
           {loading && tab === "stocks" ? <div className="mk-loading">Загружаем рынок…</div> : (

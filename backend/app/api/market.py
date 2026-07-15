@@ -84,17 +84,20 @@ def market_drivers(db: Session = Depends(get_db)):
     from sqlalchemy import text as _t
     out = []
 
-    # Нефть Brent — ближайший фьючерс BR (FORTS), $/барр
+    # Нефть Brent — ближайший фьючерс BR (FORTS), $/барр. chart: клик на плитке
+    # («владелец: перекидывало в обзор рынка где есть графики») ведёт на
+    # /market/instruments/future/{secid}/history — тот же движок, что у Рынок→Фьючерсы.
     try:
         r = db.execute(_t(
-            "SELECT last_price, prev_settle FROM futures "
+            "SELECT secid, last_price, prev_settle FROM futures "
             "WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') AND last_price IS NOT NULL "
             "AND expiration_date >= now()::date ORDER BY expiration_date ASC LIMIT 1")).first()
-        if r and r[0]:
-            px = float(r[0]); prev = float(r[1]) if r[1] else None
+        if r and r[1]:
+            secid = r[0]; px = float(r[1]); prev = float(r[2]) if r[2] else None
             d = 0 if not prev else (1 if px > prev else -1 if px < prev else 0)
             out.append({"name": "Нефть Brent", "value": f"{px:.1f} $".replace(".", ","),
-                        "dir": d, "effect": "поддержка нефтегазу при росте", "level": "факт"})
+                        "dir": d, "effect": "поддержка нефтегазу при росте", "level": "факт",
+                        "chart": {"asset_class": "future", "secid": secid, "field": "close", "unit": "$"}})
     except Exception:
         pass
 
@@ -105,11 +108,15 @@ def market_drivers(db: Session = Depends(get_db)):
             px = float(r[0]); chg = float(r[1]) if r[1] is not None else 0
             d = 1 if chg > 0 else -1 if chg < 0 else 0
             out.append({"name": "USD / RUB", "value": f"{px:.2f}".replace(".", ","),
-                        "dir": d, "effect": "слабее рубль — плюс экспортёрам", "level": "факт"})
+                        "dir": d, "effect": "слабее рубль — плюс экспортёрам", "level": "факт",
+                        "chart": {"asset_class": "spot", "secid": "USD000UTSTOM", "field": "close", "unit": "₽"}})
     except Exception:
         pass
 
-    # Ставка ЦБ (макро) — тот же источник, что и /market/macro/rate
+    # Ставка ЦБ (макро) — тот же источник, что и /market/macro/rate. У графика ставки
+    # уже есть дом — «Экономическая статистика» (hero-график с историей) — владелец:
+    # «ключевая ставка — не в обзор, а в экономическую статистику». nav вместо chart —
+    # фронт различает, куда вести клик.
     val = None
     try:
         from app.models.macro import MacroDataPoint
@@ -119,17 +126,27 @@ def market_drivers(db: Session = Depends(get_db)):
     except Exception:
         val = None
     if val is not None:
-        out.append({"name": "Ставка ЦБ", "value": f"{float(val):.1f} %".replace(".", ","),
-                    "dir": 0, "effect": "выше ставка — давит на оценки акций", "level": "факт"})
+        out.append({"name": "Ставка ЦБ", "value": f"{float(val):.2f} %".replace(".", ","),
+                    "dir": 0, "effect": "выше ставка — давит на оценки акций", "level": "факт",
+                    "nav": "economy"})
 
-    # ОФЗ 10 лет (кривая из нашей базы)
+    # ОФЗ 10 лет (кривая из нашей базы). Реальный рынок ОФЗ сейчас не доходит до 10 лет
+    # (самый длинный выпуск — ~7 лет), поэтому число — плоская экстраполяция последней
+    # точки кривой; график по-честному строим по ДОХОДНОСТИ ЭТОГО САМОГО якорного
+    # выпуска (ближайшего по дюрации к 10Y) — та же бумага, что формирует цифру.
     try:
         from app.services.bond_risk import _ofz_curve_from_db, _ofz_at
         curve = _ofz_curve_from_db(db)
         y10 = _ofz_at(curve, 10)
         if y10:
-            out.append({"name": "ОФЗ 10 лет", "value": f"{float(y10):.1f} %".replace(".", ","),
-                        "dir": 0, "effect": "конкурент акциям за деньги", "level": "факт"})
+            entry = {"name": "ОФЗ 10 лет", "value": f"{float(y10):.1f} %".replace(".", ","),
+                     "dir": 0, "effect": "конкурент акциям за деньги", "level": "факт"}
+            anchor = db.execute(_t(
+                "SELECT secid FROM bonds WHERE bond_type='ofz' AND ytm IS NOT NULL "
+                "AND duration_days IS NOT NULL ORDER BY ABS(duration_days - 3650) ASC LIMIT 1")).first()
+            if anchor:
+                entry["chart"] = {"asset_class": "bond", "secid": anchor[0], "field": "yld", "unit": "%"}
+            out.append(entry)
     except Exception:
         pass
 
@@ -630,10 +647,10 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
 @router.get("/market/corporate-news")
 def market_corporate_news(portfolio_only: bool = False, days_back: int = 30, limit: int = 150,
                           db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
-    """Корпоративные события (Обозреватель): вышедшие отчёты (со ссылкой на «Отчёты»),
-    ожидавшиеся-но-не-найденные отчёты (с self-diagnostic пометкой при повторяющихся
-    промахах по тикеру), объявленные дивиденды с суммой, бизнес-новости (M&A/див.
-    политика/менеджмент) — см. app/services/corporate_news.py."""
+    """Корпоративные события (Обозреватель) — лента НОВОСТЕЙ по компаниям, не календарь:
+    вышедшие/ожидавшиеся-но-не-найденные отчёты, дивиденд по стадиям (объявлен/T-1 до
+    отсечки), IPO/SPO, keyword-новости Ленты (M&A/менеджмент/див.решения/эмиссии/байбэк/
+    смена акционеров/делистинг/обещанная дата отчётности) — см. app/services/corporate_news.py."""
     from app.services.corporate_news import build_corporate_news
     tickers = None
     if portfolio_only:

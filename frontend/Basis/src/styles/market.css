@@ -190,14 +190,13 @@
 .mk-screen .mk-eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);}
 .mk-screen .mk-sec-title{font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:600;color:var(--ink);margin:26px 0 14px;}
 
-/* sector navigator — литерально .mk-secnav/.mk-secnav-tile мокапа (market-only-v1.html):
-   display:flex + flex-wrap (ПЕРЕНОС СТРОКАМИ, владелец: «сектора я бы в 2 строки поместил
-   чтобы не пролистывать»), НЕ overflow-x и НЕ grid с растяжением 1fr (grid одинаково
-   растягивал короткие/длинные имена секторов на одну ширину колонки — вмещал меньше
-   пилюль в ряд, чем нужно). Плитки — естественной ширины (flex:0 1 auto + min-width),
-   как в мокапе, а не растянутые. */
-.mk-screen .mk-secnav{display:flex;flex-wrap:wrap;gap:9px;padding:18px 0 14px;}
-.mk-screen .mk-secn{flex:0 1 auto;min-width:150px;text-align:left;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:10px 13px;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;transition:border-color .14s,box-shadow .14s,transform .12s;position:relative;overflow:hidden;}
+/* sector navigator — сетка с равными колонками (владелец, 2026-07-15: «размеры
+   кнопок секторов не симметричны, какие-то широкие, какие-то менее» — flex с
+   естественной шириной (min-width:150px) давал разнобой из-за разной длины имён
+   секторов). grid auto-fill/minmax(150px,1fr) — та же минимальная ширина и та же
+   плотность на строку, что раньше у flex, но теперь все плитки в ряду равны. */
+.mk-screen .mk-secnav{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;padding:18px 0 14px;}
+.mk-screen .mk-secn{text-align:left;background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:10px 13px;cursor:pointer;font:inherit;color:inherit;display:flex;flex-direction:column;gap:8px;transition:border-color .14s,box-shadow .14s,transform .12s;position:relative;overflow:hidden;}
 /* цветной левый бордер по сектору — ВСЕГДА виден (мокап: border-left:3px solid var(--sc,
    var(--copper)), постоянно, не только на выбранном) — раньше проявлялся только у .on
    (opacity 0→1), из-за чего невыбранные пилюли не давали визуальной подсказки сектора
@@ -223,7 +222,7 @@
 
 /* market pulse */
 .mk-screen .mk-pulse{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04);margin:18px 0 4px;}
-.mk-screen .mk-pulse>div{background:var(--panel);padding:16px 18px;}
+.mk-screen .mk-pulse>div,.mk-screen .mk-pulse>button{background:var(--panel);padding:16px 18px;text-align:left;}
 .mk-screen .mk-idx-row{display:flex;align-items:baseline;gap:11px;margin:7px 0 2px;}
 .mk-screen .mk-idx-level{font-family:"IBM Plex Mono",monospace;font-size:28px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .mk-screen .mk-delta-pct{font-family:"IBM Plex Mono",monospace;font-weight:600;}
@@ -242,6 +241,8 @@
    глубина сверх демо-мокапа (там только имя+значение), сохранена. */
 .mk-screen .mk-drivers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px;}
 .mk-screen .mk-driver{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;}
+.mk-screen button.mk-driver{text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;transition:border-color .14s;}
+.mk-screen button.mk-driver:hover{border-color:var(--accent);}
 .mk-screen .mk-driver-n{font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mk-screen .mk-d{font-size:11px;} .mk-screen .mk-d.up{color:var(--pos);} .mk-screen .mk-d.dn{color:var(--neg);} .mk-screen .mk-d.fl{color:var(--ink-3);}
 .mk-screen .mk-driver-v{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:4px 0 3px;white-space:nowrap;display:flex;align-items:center;gap:6px;}

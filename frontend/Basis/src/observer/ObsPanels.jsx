@@ -26,6 +26,12 @@ import {
   Building2,
   Swords,
   X,
+  CheckCircle2,
+  AlarmClock,
+  Rocket,
+  RotateCcw,
+  XCircle,
+  Users,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -515,28 +521,37 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
 }
 
 // =============================================================
-// ObsCorporateNews — «Корп. события»: единая лента по компаниям —
-// вышедшие/ожидавшиеся-но-не-найденные отчёты, объявленные дивиденды,
-// бизнес-новости (M&A / див.политика / менеджмент). По образцу ObsReports.
+// ObsCorporateNews — «Корп. события»: лента НОВОСТЕЙ по компаниям, не календарь
+// (владелец, 2026-07-15 — v1 сводилась к копии дивидендного календаря, переделано
+// на момент-модель: каждая карточка привязана к конкретному переходу и стареет,
+// не висит неделями одним и тем же фактом). По образцу ObsReports.
 // Данные: GET /api/market/corporate-news (поля: kind, ticker, company,
 // sector, date, title, detail, epistemic, link_to, likely_calendar_error).
 // =============================================================
 
 const CN_KIND_META = {
-  report_published:    { label: "Отчёт вышел",           icon: FileText,  group: "reports"  },
-  report_missing:       { label: "Ожидался, не вышел",    icon: Clock,     group: "missing"  },
-  dividend_announced:  { label: "Дивиденд объявлен",      icon: Coins,     group: "dividend" },
-  business_ma:         { label: "M&A",                    icon: Swords,    group: "business" },
-  business_div_policy: { label: "Дивидендная политика",   icon: Scale,     group: "business" },
-  business_management: { label: "Менеджмент",             icon: Briefcase, group: "business" },
+  report_published:     { label: "Отчёт вышел",              icon: FileText,     group: "reports"   },
+  report_missing:        { label: "Ожидался, не вышел",       icon: Clock,        group: "reports"   },
+  div_recommended:       { label: "Дивиденд объявлен",        icon: Coins,        group: "dividend"  },
+  div_approved:          { label: "Дивиденд утверждён",       icon: CheckCircle2, group: "dividend"  },
+  div_cutoff_soon:       { label: "Скоро отсечка",            icon: AlarmClock,   group: "dividend"  },
+  ipo_spo:               { label: "IPO / SPO",                icon: Rocket,       group: "placement" },
+  share_issuance:        { label: "Допэмиссия",               icon: Layers,       group: "placement" },
+  buyback:               { label: "Байбэк",                   icon: RotateCcw,    group: "placement" },
+  delisting:             { label: "Делистинг",                icon: XCircle,      group: "placement" },
+  ma:                    { label: "M&A",                      icon: Swords,       group: "business"  },
+  management:            { label: "Менеджмент",                icon: Briefcase,    group: "business"  },
+  ownership_change:      { label: "Смена акционеров",         icon: Users,        group: "business"  },
+  div_policy_negative:   { label: "Дивидендная политика",     icon: Scale,        group: "business"  },
+  promised_report_date:  { label: "Обещана дата отчёта",      icon: Calendar,     group: "business"  },
 };
 
 const CN_FILTERS = [
-  { id: "all",      label: "Все"                 },
-  { id: "reports",  label: "Отчёты"               },
-  { id: "missing",  label: "Ожидались, не вышли"  },
-  { id: "dividend", label: "Дивиденды"            },
-  { id: "business", label: "Бизнес"               },
+  { id: "all",        label: "Все"        },
+  { id: "reports",    label: "Отчёты"     },
+  { id: "dividend",   label: "Дивиденды"  },
+  { id: "placement",  label: "Размещения" },
+  { id: "business",   label: "Бизнес"     },
 ];
 
 function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
@@ -603,7 +618,7 @@ function ObsCorporateNews({ token, portfolioOnly, onSelectCompany }) {
               <div key={i} className={`obs-cn-card${muted ? " obs-cn-card--muted" : ""}`}>
                 <div className="obs-cn-card-head">
                   <span
-                    className={`obs-cn-kind-icon obs-cn-kind-icon--${meta.group}`}
+                    className={`obs-cn-kind-icon obs-cn-kind-icon--${muted ? "missing" : meta.group}`}
                     title={meta.label}
                     aria-hidden="true"
                   >
@@ -3874,11 +3889,15 @@ function ObsMoversRow({ s, onSelectCompany }) {
   );
 }
 
-function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed }) {
+function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, driverChart }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const [pulse, setPulse] = useState(null);
   const [loading, setLoading] = useState(true);
   const { stocks, loading: stocksLoading } = useObsStocksLive();
+  // График драйвера (клик по «Нефть Brent»/«USD·RUB»/«ОФЗ 10 лет» на Рынке) —
+  // null: нет запроса, []: загружено и пусто, [...]: точки {as_of, value}.
+  const [driverPts, setDriverPts] = useState(null);
+  const [driverDismissed, setDriverDismissed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -3889,6 +3908,26 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed }) {
     }).catch(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [apiUrl]);
+
+  useEffect(() => {
+    setDriverDismissed(false);
+    if (!driverChart) { setDriverPts(null); return; }
+    let alive = true;
+    setDriverPts(null);
+    fetch(`${apiUrl}/api/market/instruments/${driverChart.asset_class}/${driverChart.secid}/history?days=365`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!alive) return;
+        const field = driverChart.field || "close";
+        // фьючерсы часто торгуются по settle, а close пуст — тот же фоллбэк, что
+        // backend использует для last/prev в get_history() (services/instrument_history.py).
+        const pts = (d?.points || [])
+          .map(p => ({ as_of: p.date, value: p[field] != null ? p[field] : (p.close != null ? p.close : p.settle) }))
+          .filter(p => p.value != null);
+        setDriverPts(pts);
+      }).catch(() => { if (alive) setDriverPts([]); });
+    return () => { alive = false; };
+  }, [apiUrl, driverChart]);
 
   if (loading) {
     return <div className="tw-flex tw-items-center tw-justify-center tw-py-20 tw-text-text-tertiary tw-animate-pulse">Загружаем обзор рынка...</div>;
@@ -3903,6 +3942,25 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed }) {
 
   return (
     <div>
+      {driverChart && !driverDismissed && (
+        <div className="obs-hero-rate">
+          <div className="obs-hero-topline">
+            <div className="obs-hero-label">{driverChart.name} · история</div>
+            <button type="button" onClick={() => setDriverDismissed(true)}
+              style={{ background: "none", border: "none", color: "var(--text-tertiary)", cursor: "pointer", fontSize: "13px" }}>
+              ✕ Закрыть
+            </button>
+          </div>
+          {driverPts === null ? (
+            <div className="tw-py-6 tw-text-text-tertiary tw-text-[13px]">Загружаем график...</div>
+          ) : driverPts.length < 2 ? (
+            <div className="obs-news-empty">Недостаточно истории для графика.</div>
+          ) : (
+            <ObsLineChart series={[{ name: driverChart.name, color: "var(--accent)", points: driverPts }]} viewW={1000} viewH={260} unit={driverChart.unit || ""} />
+          )}
+        </div>
+      )}
+
       <ObsTickerMarquee stocks={stocks} onSelectCompany={onSelectCompany} />
 
       <ObsFearGreedCard fg={pulse.fear_greed} onOpenDetail={onOpenFearGreed} />
