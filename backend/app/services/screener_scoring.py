@@ -139,7 +139,13 @@ def _extract_raw(ticker, fin, cm, price, market_cap, shares_outstanding):
         "ev_ebitda": _num(cur.get("ev_ebitda")),
         "div_yield": _num(cm.get("div_yield")),
         "roe": roe,
-        "ebitda_margin": _num(_last(marg.get("ebitda"))),
+        # 🔴 2026-07-17: было marg.get("ebitda") — реальное поле в financials.json
+        # называется margins.ebitda_margin (проверено на LKOH/SBER), не margins.ebitda.
+        # Метрика молча была None у ВСЕХ 261 компаний — субиндекс «Качество» (roe+
+        # ebitda_margin+fcf_yield) считался только по 2 из 3 метрик с момента запуска
+        # скринера. Найдено при сборке «Подборки портфелей», не тронуто по касательной —
+        # это реальный баг в уже боевом BASIS-скоринге, не только в новой фиче.
+        "ebitda_margin": _num(_last(marg.get("ebitda_margin"))),
         "fcf_yield": fcf_yield,
         "nd_ebitda": _num(_last(rat.get("net_debt_ebitda"))),
         "beta": _num(cm.get("beta")),

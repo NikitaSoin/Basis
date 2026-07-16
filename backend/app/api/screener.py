@@ -102,6 +102,16 @@ def screener_bonds(db: Session = Depends(get_db)):
     return score_bonds(db)
 
 
+@router.get("/screener/portfolio-picks")
+def screener_portfolio_picks(db: Session = Depends(get_db)):
+    """Подборка портфелей: несколько тезисных модельных портфелей на профиль
+    риска (консервативный/сбалансированный/агрессивный), собранных живьём из
+    того же скринер-движка, что и «Скринер акций» — см. app/services/
+    portfolio_picks.py. Не индивидуальная инвестиционная рекомендация."""
+    from app.services.portfolio_picks import build_portfolio_picks
+    return build_portfolio_picks(db)
+
+
 @router.get("/screener/stocks")
 def screener_stocks(db: Session = Depends(get_db)):
     """Все акции с метриками + текущей ценой + апсайдом к справедливой цене.

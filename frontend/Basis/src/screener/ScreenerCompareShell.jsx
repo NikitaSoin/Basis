@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Filter, Scale, Wand2 } from "lucide-react";
 import { ScreenerView } from "../company/CompanyCardView";
 import CompareView from "../compare/CompareView";
-import { ComingSoonView } from "../design/primitives";
+import PortfolioPicksView from "./PortfolioPicksView";
 import "../styles/screener-compare.css";
 
 // =========================
@@ -61,11 +61,7 @@ export default function ScreenerCompareView({ token, onSelectCompany, onAuthRequ
           {activeSection === "compare" ? (
             <CompareView onOpenCompany={onSelectCompany} />
           ) : activeSection === "portfolio_picks" ? (
-            <ComingSoonView
-              icon={Wand2}
-              title="Подборка портфелей"
-              blurb="Готовые подборки бумаг под разные цели и профиль риска. Раздел скоро появится."
-            />
+            <PortfolioPicksView />
           ) : (
             <ScreenerView onSelectCompany={onSelectCompany} token={token} onAuthRequired={onAuthRequired} />
           )}
