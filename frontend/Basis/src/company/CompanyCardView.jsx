@@ -2952,8 +2952,11 @@ function FinAreaChart({ data = [], years = [], colorVar = "--cat-5", suffix = ""
 // COMPANY CARD
 // =========================
 
-const CompanyCard = ({ company, onBack }) => {
-  const [tab, setTab] = useState("overview");
+const CompanyCard = ({ company, onBack, initialTab }) => {
+  // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
+  // /?company=T&tab=finance): открыть карточку сразу на нужной вкладке.
+  // Валидация id — в App.js (whitelist), сюда приходит уже проверенное значение.
+  const [tab, setTab] = useState(initialTab || "overview");
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
   useEffect(() => {

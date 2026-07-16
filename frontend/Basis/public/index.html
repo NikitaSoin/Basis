@@ -4,11 +4,12 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
-	<meta name="theme-color" content="#4F5BD5">
+	<!-- theme-color = кремовая бумага bs-surface (медь-акцент в чипсах браузера
+	     выглядит грязно; кобальт — легаси, вычищен 2026-07-16) -->
+	<meta name="theme-color" content="#F7F5F0">
 	<meta name="yandex-verification" content="a6dad74657642c4b" />
 
-	<!-- SEO: базовые теги + Open Graph/Twitter-превью. og:image временно на favicon.svg
-	     (нет ещё раст-баннера 1200x630) — заменить, когда сделаем маркетинговый ассет. -->
+	<!-- SEO: базовые теги + Open Graph/Twitter-превью с раст-баннером 1200x630. -->
 	<meta name="description" content="Basis — независимый аналитический слой для частного инвестора на российском рынке: справедливая цена акций, разбор облигаций (доходность к риску), скринер, макро- и геополитический обзор, диагностика портфеля. Не брокер, без сигналов «купить/продать» — только факты, оценки и логика.">
 	<meta name="keywords" content="инвестиции, акции, облигации, ОФЗ, анализ акций, справедливая цена акции, дивиденды, индекс МосБиржи, IMOEX, скринер акций, скринер облигаций, аналитика рынка, доходность облигаций, фондовый рынок России">
 	<link rel="canonical" href="https://inbasis.ru/">
@@ -17,12 +18,23 @@
 	<meta property="og:title" content="Basis — независимая инвестиционная аналитика">
 	<meta property="og:description" content="Справедливая цена акций, разбор облигаций, скринер, макро- и геополитический обзор, диагностика портфеля. Не брокер — только факты, оценки и логика.">
 	<meta property="og:url" content="https://inbasis.ru/">
-	<meta property="og:image" content="https://inbasis.ru/favicon.svg">
+	<meta property="og:image" content="https://inbasis.ru/og-banner.png">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="630">
 	<meta property="og:locale" content="ru_RU">
-	<meta name="twitter:card" content="summary">
+	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="Basis — независимая инвестиционная аналитика">
 	<meta name="twitter:description" content="Справедливая цена акций, облигации, скринер, макро- и геополитический обзор, диагностика портфеля.">
-	<meta name="twitter:image" content="https://inbasis.ru/favicon.svg">
+	<meta name="twitter:image" content="https://inbasis.ru/og-banner.png">
+	<script type="application/ld+json">
+	{"@context":"https://schema.org","@graph":[
+	 {"@type":"Organization","@id":"https://inbasis.ru/#org","name":"Basis",
+	  "url":"https://inbasis.ru/","logo":"https://inbasis.ru/icon-512.png",
+	  "description":"Независимый аналитический слой и «второе мнение» для частного инвестора на российском рынке. Не брокер, без сигналов «купить/продать»."},
+	 {"@type":"WebSite","@id":"https://inbasis.ru/#site","name":"Basis",
+	  "url":"https://inbasis.ru/","publisher":{"@id":"https://inbasis.ru/#org"},"inLanguage":"ru-RU"}
+	]}
+	</script>
 
 	<!-- Fonts: Inter (UI/text), JetBrains Mono (numbers/tickers).
 	     Inter Display H1-H2 falls back to Inter (display optical size). -->
@@ -59,9 +71,12 @@
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
     -->
 	<link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-	<!-- Brand favicon: «Слои-фундамент» monogram B (cobalt app-icon). -->
+	<!-- Brand favicon: «Слои-фундамент» monogram B (copper app-icon).
+	     PNG 120x120 — требование Яндекс.Вебмастера (SVG им мало), SVG — для
+	     браузеров, apple-touch 180 — iOS. -->
 	<link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg">
-	<link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.svg">
+	<link rel="icon" type="image/png" sizes="120x120" href="%PUBLIC_URL%/favicon-120.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png">
 	<!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.

@@ -400,7 +400,7 @@ function OverviewView({ token, onSelectCompany }) {
 }
 
 // Резолвер карточки: значение может быть объектом компании или тикером-строкой.
-const CompanyCardResolver = ({ value, onBack }) => {
+const CompanyCardResolver = ({ value, onBack, initialTab }) => {
   const [obj, setObj] = useState(typeof value === "object" && value ? value : null);
   const [notFound, setNotFound] = useState(false);
   useEffect(() => {
@@ -413,7 +413,7 @@ const CompanyCardResolver = ({ value, onBack }) => {
       .catch(() => alive && setNotFound(true));
     return () => { alive = false; };
   }, [value]);
-  if (obj) return <CompanyCard company={obj} onBack={onBack} />;
+  if (obj) return <CompanyCard company={obj} onBack={onBack} initialTab={initialTab} />;
   if (notFound) return <div className="tw-py-12 tw-text-text-tertiary">Компания «{String(value)}» не найдена в базе. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
   return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Открываем карточку...</div>;
 };
@@ -590,6 +590,9 @@ export default function App() {
   const [forceObsSection, setForceObsSection] = useState(null);
   const [driverChart, setDriverChart] = useState(null);
   const [forceEconIndicator, setForceEconIndicator] = useState(null);
+  // Вкладка карточки из deep-link (?company=T&tab=finance) — применяется только
+  // при первом монтировании карточки, дальше пользователь управляет вкладками сам.
+  const [initialCardTab, setInitialCardTab] = useState(null);
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem("basis_theme");
     if (stored === "dark" || stored === "light") return stored;
@@ -603,13 +606,19 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Deep-link по ?company=TICKER — вход из статических SEO-страниц
-  // (build/company/<TICKER>/, см. scripts/generate-seo-pages.js) в живое приложение.
+  // Deep-link по ?company=TICKER[&tab=finance] — вход из статических SEO-страниц
+  // (build/company/<TICKER>/[<tab>/], см. scripts/generate-seo-pages.js) в живое
+  // приложение, сразу на нужную вкладку карточки.
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const t = params.get("company");
-      if (t) setSelectedCompany(t.toUpperCase());
+      if (t) {
+        setSelectedCompany(t.toUpperCase());
+        const CARD_TABS = ["overview", "business", "finance", "governance", "markets", "macro", "geo", "institutions"];
+        const tabP = (params.get("tab") || "").toLowerCase();
+        if (CARD_TABS.includes(tabP)) setInitialCardTab(tabP);
+      }
     } catch {}
   }, []);
 
@@ -712,7 +721,7 @@ export default function App() {
       // selectedCompany может быть ОБЪЕКТОМ (из грида) или ТИКЕРОМ-строкой (из
       // ссылок эмитент→компания в облигациях/фьючерсах и из скринера) — резолвер
       // приводит к объекту, который ждёт CompanyCard.
-      return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} />;
+      return <CompanyCardResolver value={selectedCompany} onBack={() => setSelectedCompany(null)} initialTab={initialCardTab} />;
     }
     if (selectedBond) return <BondCard secid={selectedBond} onBack={() => setSelectedBond(null)} onSelectCompany={setSelectedCompany} />;
     if (selectedFuture) return <FuturesCard secid={selectedFuture} onBack={() => setSelectedFuture(null)} onSelectCompany={setSelectedCompany} />;
