@@ -15,7 +15,6 @@ import {
   Briefcase,
   Target,
   PieChart,
-  ShieldAlert,
   Zap,
   ChevronRight,
   Globe,
@@ -753,7 +752,11 @@ export default function App() {
       case "strategies":
         return <ComingSoonView icon={Target} title="Портфельные стратегии" blurb="Подбор готовой стратегии под ваш профиль риска. Раздел скоро появится — мы его готовим." />;
       case "stress":
-        return <ComingSoonView icon={ShieldAlert} title="Стресс-тестирование" blurb="Проверка портфеля на просадку в кризисных сценариях. Раздел скоро появится." />;
+        // 🔴 2026-07-16: пункт верхней навигации раньше вёл на ComingSoonView-заглушку,
+        // хотя стресс-тест УЖЕ реально работает внутри Портфеля (3 сценария + свой
+        // сценарий, живой бэкенд /api/portfolios/{id}/stress-test) — просто не был
+        // никуда подключён с этого пункта меню. Ведём сразу в него, не дублируем.
+        return <PortfolioV2 token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} forceSection="stress" />;
       case "ai":
         return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "pricing":

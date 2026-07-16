@@ -1691,12 +1691,16 @@ const PF_ZONES = [
   },
 ];
 
-const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany }) => {
+const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-  const [activeSection, setActiveSection] = useState("composition");
-  const [visitedSections, setVisitedSections] = useState(() => new Set(["composition"]));
+  // forceSection — вход из верхней навигации «Стресс-тестирование» (App.js): та
+  // вкладка ведёт прямиком в РЕАЛЬНО работающий стресс-тест портфеля, а не в
+  // отдельную заглушку/дубль. PortfolioV2 монтируется заново при каждом входе,
+  // поэтому initial state достаточно (тот же паттерн, что forceSection в ObserverV2).
+  const [activeSection, setActiveSection] = useState(forceSection || "composition");
+  const [visitedSections, setVisitedSections] = useState(() => new Set([forceSection || "composition"]));
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
