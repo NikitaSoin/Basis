@@ -24,3 +24,28 @@ def stress_test_impact(
 ):
     from app.services.stress_scenarios import build_scenario_result
     return build_scenario_result(db, scenario, oil_usd, rub_usd)
+
+
+@router.get("/stress-test/numeric")
+def stress_test_numeric(
+    key_rate_pct: float | None = Query(None, ge=0, le=50, description="Целевая ключевая ставка, %"),
+    fx_usdrub: float | None = Query(None, ge=10, le=500, description="Целевой курс USD/RUB"),
+    oil_brent_usd: float | None = Query(None, ge=5, le=500, description="Целевая цена Brent, $/барр."),
+    db: Session = Depends(get_db),
+):
+    """Числовой контур v2: Δ выручки/EBITDA/чистой прибыли по каждой компании
+    (млрд ₽ и % от базы года) при целевых макро-условиях — детерминированно, по
+    коэффициентам чувствительности из макро-разбора карточки (macro_quant)."""
+    from app.services.stress_numeric import numeric_impact
+    if all(v is None for v in (key_rate_pct, fx_usdrub, oil_brent_usd)):
+        return {"error": "no_inputs", "note": "Задайте хотя бы один параметр: ставка, курс или нефть."}
+    return numeric_impact(db, key_rate_pct, fx_usdrub, oil_brent_usd)
+
+
+@router.post("/stress-test/ask")
+def stress_test_ask(payload: dict, db: Session = Depends(get_db)):
+    """Свободный сценарий текстом («что будет если ...») → LLM-парсер (DeepSeek)
+    переводит в вектор шоков → числа считает код (stress_numeric), направления —
+    факторный движок. ДЕМО — интерпретация сценария возвращается явно."""
+    from app.services.stress_ask import ask_scenario
+    return ask_scenario(db, str(payload.get("question", "")))
