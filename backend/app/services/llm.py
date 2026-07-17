@@ -224,6 +224,55 @@ def pro_model() -> str:
     return (os.environ.get("LLM_MODEL_PRO") or "deepseek-v4-pro").strip()
 
 
+def complete_messages(messages: list[dict], *, tools: list[dict] | None = None,
+                      max_tokens: int = 2048, temperature: float = 0.2) -> dict:
+    """Низкоуровневый вызов для АГЕНТСКОГО ЦИКЛА (function calling): принимает
+    ПОЛНУЮ историю messages (system/user/assistant/tool) и опционально tools
+    (OpenAI-формат), возвращает message-объект ответа как есть — с content
+    и/или tool_calls; решение «что дальше» принимает вызывающий runner
+    (app/services/agent_runner.py), не эта функция.
+
+    Только OpenAI-совместимые провайдеры (deepseek/openai) — claude-ветка
+    здесь не поддерживается (агентский пилот прод-контура работает на DeepSeek,
+    см. CLAUDE.md «LLM: dev-time vs production»). Ретраи как в complete()."""
+    provider = _provider()
+    if provider == "claude":
+        raise LLMError("complete_messages: claude-провайдер не поддержан (агентский контур — DeepSeek/OpenAI)")
+    base_url, _, _ = _PROVIDERS[provider]
+    if provider == "deepseek" and os.environ.get("DEEPSEEK_BASE_URL"):
+        base_url = os.environ["DEEPSEEK_BASE_URL"].rstrip("/")
+    payload: dict = {
+        "model": _model(provider),
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if tools:
+        payload["tools"] = tools
+    if provider == "deepseek":
+        payload["thinking"] = {"type": "disabled"}
+    headers = {"Authorization": f"Bearer {_api_key(provider)}", "Content-Type": "application/json"}
+    from app.services.http_util import make_client
+
+    last_err: Exception | None = None
+    for attempt in range(_retries() + 1):
+        try:
+            with make_client(timeout=_timeout()) as client:
+                resp = client.post(f"{base_url}/chat/completions", json=payload, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
+            msg = data["choices"][0]["message"]
+            usage = data.get("usage") or {}
+            return {"message": msg, "total_tokens": usage.get("total_tokens")}
+        except (httpx.HTTPError, KeyError, json.JSONDecodeError) as e:
+            last_err = e
+            logger.warning("LLM tools(%s) попытка %d/%d не удалась: %s",
+                           provider, attempt + 1, _retries() + 1, type(e).__name__)
+            if attempt < _retries():
+                time.sleep(1.5 * (attempt + 1))
+    raise LLMError(f"LLM tools({provider}) недоступен после повторов: {type(last_err).__name__}")
+
+
 def provider_info() -> dict:
     """Диагностика для health-эндпоинта (без секретов)."""
     p = _provider()

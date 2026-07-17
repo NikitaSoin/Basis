@@ -37,101 +37,30 @@ import GovernanceTab from "./GovernanceTab";
 import InstitutionsTab from "./InstitutionsTab";
 import GeoTab from "./GeoTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
-import { ObsLineChart } from "../observer/ObsPanels";
+import ChartPro from "../market/ChartPro";
 
 // =========================
 // HELPERS
 // =========================
-
-const PRICE_CHART_PERIODS = [
-  { id: "5d", label: "5Д", days: 5 },
-  { id: "1m", label: "1М", days: 30 },
-  { id: "3m", label: "3М", days: 90 },
-  { id: "6m", label: "6М", days: 180 },
-  { id: "1y", label: "1Г", days: 365 },
-  { id: "3y", label: "3Г", days: 1095 },
-  { id: "all", label: "Всё", days: 4000 },
-];
-function PriceHistoryChart({ fetchUrl, unit = "₽", defaultPeriod = "6m" }) {
-  const [period, setPeriod] = useState(defaultPeriod);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
-
-  useEffect(() => {
-    const days = (PRICE_CHART_PERIODS.find((p) => p.id === period) || PRICE_CHART_PERIODS[2]).days;
-    setLoading(true); setError(false);
-    fetch(`${apiUrl}${fetchUrl}${fetchUrl.includes("?") ? "&" : "?"}days=${days}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
-  }, [fetchUrl, period, apiUrl]);
-
-  const points = data?.points || [];
-  const series = points.length
-    ? [{
-        name: "Цена", color: "var(--accent)",
-        points: points
-          .filter((p) => (p.close ?? p.settle) != null)
-          .map((p) => ({ as_of: p.date, value: p.close ?? p.settle })),
-      }]
-    : [];
-  const empty = !loading && (error || series.length === 0 || series[0].points.length < 2);
-
+// График цены — ChartPro (свечи/таймфреймы/EMA/Боллинджер/RSI, «как у
+// TradingView», задание владельца 2026-07-17). Заменил самодельный линейный
+// PriceHistoryChart (ObsLineChart по дневным закрытиям): у ChartPro источник —
+// /api/market/candles (MOEX ISS), интрадей включительно, единый для всех
+// классов активов. Обёртка-карточка одна на карточку компании и карточки
+// облигаций/фьючерсов/фондов/валюты — только assetClass/secid меняются.
+function ProPriceCard({ assetClass, secid, title = "График цены", note = null }) {
   return (
     <Card>
-      <div className="tw-flex tw-items-center tw-justify-between tw-flex-wrap tw-gap-3 tw-mb-1">
-        <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold">
-          <Activity size={18} />
-          <span>История цены</span>
-        </div>
-        <div className="tw-flex tw-gap-1" role="group" aria-label="Период графика">
-          {PRICE_CHART_PERIODS.map((p) => (
-            <button key={p.id} type="button"
-              onClick={() => setPeriod(p.id)}
-              aria-pressed={period === p.id}
-              className={`tw-px-2.5 tw-py-1 tw-rounded-sm tw-text-[12px] tw-font-medium tw-border tw-cursor-pointer tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-shadow-focus ${
-                period === p.id
-                  ? "tw-bg-accent tw-text-white tw-border-accent"
-                  : "tw-bg-transparent tw-text-text-secondary tw-border-border-subtle hover:tw-border-border-strong"
-              }`}>
-              {p.label}
-            </button>
-          ))}
-        </div>
+      <div className="tw-flex tw-items-center tw-gap-2 tw-text-accent tw-font-semibold tw-mb-4">
+        <Activity size={18} />
+        <span>{title}</span>
+        {note && <span className="tw-text-[12px] tw-text-text-tertiary tw-font-normal">{note}</span>}
       </div>
-      {loading && (
-        <div className="tw-text-text-tertiary tw-text-[13px] tw-py-10 tw-text-center">Загружаем историю цен…</div>
-      )}
-      {empty && (
-        <div className="tw-text-text-tertiary tw-text-[13px] tw-py-10 tw-text-center">
-          История цены недоступна за этот период.
-        </div>
-      )}
-      {!loading && !empty && (
-        <>
-          <div className="tw-mt-3">
-            <ObsLineChart series={series} unit={unit} viewH={220} />
-          </div>
-          {data?.last != null && (
-            <div className="tw-flex tw-items-baseline tw-gap-2.5 tw-mt-1 tw-text-[12px] tw-text-text-tertiary">
-              <span>
-                Последняя цена:{" "}
-                <b className="tw-text-text-primary tw-font-mono tw-tabular-nums">
-                  {data.last.toLocaleString("ru-RU", { maximumFractionDigits: 2 })}{unit}
-                </b>
-              </span>
-              {data.change_pct != null && (
-                <Delta value={data.change_pct} suffix="%" decimals={2} className="tw-text-[12px]" />
-              )}
-            </div>
-          )}
-        </>
-      )}
+      <ChartPro assetClass={assetClass} secid={secid} height={340} />
     </Card>
   );
 }
+
 
 const formatCurrency = (val) =>
   new Intl.NumberFormat("ru-RU", {
@@ -1950,6 +1879,8 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         </Tile>
       </div>
 
+      <ProPriceCard assetClass="bond" secid={secid} note="цена в % номинала" />
+
       {/* Главный вывод для рискованной бумаги: кредитный риск важнее ставки.
           Выносим НАД вердиктом, чтобы инвестор читал доходность уже с этой рамкой. */}
       {creditRiskFirst && (
@@ -2440,6 +2371,8 @@ const FuturesCard = ({ secid, onBack, onSelectCompany }) => {
         </Tile>
       </div>
 
+      <ProPriceCard assetClass="future" secid={secid} note="цена контракта" />
+
       {/* Вкладки: Обзор / Анализ базового актива */}
       <div className="tw-flex tw-gap-1 tw-border-b tw-border-border-subtle" role="tablist">
         {[{ id: "overview", label: "Обзор" }, { id: "base", label: "Анализ базового актива" }].map((t) => (
@@ -2624,6 +2557,8 @@ const FundCard = ({ secid, onBack }) => {
         </Tile>
       </div>
 
+      <ProPriceCard assetClass="fund" secid={secid} />
+
       {/* TER в деньгах — перевод «невидимого 1%» в осязаемые потери (ценность Basis) */}
       {cost && (
         <Card header="Во что обходится комиссия (TER в деньгах)">
@@ -2699,6 +2634,8 @@ const SpotCard = ({ secid, onBack }) => {
           <span className="tw-text-[14px] tw-text-text-secondary tw-leading-snug">{a.kind === "currency" ? "Биржевой курс к рублю. Это макро-индикатор (зависит от ставки ЦБ, нефти, платёжного баланса), а не «актив со справедливой ценой»." : "Цена металла за грамм в рублях = мировая цена × курс рубля. Защитный актив: слабо коррелирует с акциями, хедж от инфляции и девальвации."}</span>
         </Card>
       </div>
+      <ProPriceCard assetClass="spot" secid={secid} />
+
       {summary ? (
         <Card header="Что дальше · роль в портфеле"><AnalystProse md={summary} /></Card>
       ) : (
@@ -2950,6 +2887,63 @@ function FinAreaChart({ data = [], years = [], colorVar = "--cat-5", suffix = ""
 // =========================
 // COMPANY CARD
 // =========================
+
+// Плашка автономных обновлений (пилот DeepSeek-агентов, 2026-07-18): агент
+// кроном сверяет макро-разбор карточки с текущими условиями и дописывает
+// «что изменилось» ПОВЕРХ анализа (не переписывая его). Показываем только
+// published (прошедшие автогейт), с явной пометкой «автономное обновление ИИ».
+// Тихо ничего не рендерит, если addenda нет (у 263 из 264 компаний их нет —
+// пилот на одном тикере).
+const AgentAddendaStrip = ({ ticker }) => {
+  const [items, setItems] = useState([]);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${apiBase()}/api/companies/by-ticker/${ticker}/agent-addenda`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive && d?.addenda?.length) setItems(d.addenda); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [ticker]);
+  if (!items.length) return null;
+  const latest = items[0];
+  const c = latest.content || {};
+  const dt = latest.created_at ? new Date(latest.created_at).toLocaleDateString("ru-RU") : "";
+  return (
+    <div className="tw-rounded-md tw-border tw-border-accent-border tw-bg-accent-soft tw-px-4 tw-py-3">
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+        <div className="tw-text-[13px] tw-text-text-primary">
+          <span className="tw-font-semibold">🤖 Автономное обновление ИИ ({dt}, демо):</span>{" "}
+          {c.headline || "обновление"}
+        </div>
+        {(c.changes?.length > 0 || c.unchanged_note) && (
+          <button type="button" onClick={() => setOpen(!open)}
+            className="tw-text-[12.5px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
+            {open ? "Свернуть ▴" : "Подробнее ▾"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2.5">
+          {(c.changes || []).map((ch, i) => (
+            <div key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+              <b className="tw-text-text-primary">{ch.what}</b>
+              {ch.was && <> — было: {ch.was};</>} сейчас: {ch.now}. {ch.so_what}
+              {ch.certainty && <span className="tw-ml-1.5 tw-text-[10.5px] tw-uppercase tw-text-text-tertiary">[{ch.certainty}]</span>}
+            </div>
+          ))}
+          {c.unchanged_note && (
+            <div className="tw-text-[12.5px] tw-text-text-tertiary tw-leading-snug">Остаётся в силе: {c.unchanged_note}</div>
+          )}
+          <div className="tw-text-[11px] tw-text-text-tertiary">
+            Сгенерировано автономным агентом по данным платформы (разбор от {c.card_as_of || "—"}, живое макро, новости),
+            прошло автоматическую проверку качества. Пилотный режим — не заменяет разбор аналитика.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const CompanyCard = ({ company, onBack, initialTab }) => {
   // initialTab — deep-link из статических SEO-страниц (/company/T/finance/ →
@@ -3284,7 +3278,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
                 </Card>
               )}
             </div>
-            <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
+            <ProPriceCard assetClass="share" secid={company.ticker} />
           </div>
         );
       }
@@ -3298,7 +3292,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
               Следите за обновлениями.
             </p>
           </Card>
-          <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
+          <ProPriceCard assetClass="share" secid={company.ticker} />
         </div>
       );
     }
@@ -3465,7 +3459,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
         </Card>
       </div>
 
-      <PriceHistoryChart fetchUrl={`/api/companies/by-ticker/${company.ticker}/quotes/history`} unit="₽" />
+      <ProPriceCard assetClass="share" secid={company.ticker} />
 
       {/* RISKS — table via primitive, signed effect + sign badge */}
       <Card>
@@ -6908,7 +6902,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           </div>
           <MetricStrip metrics={neoMetrics} />
         </div>
-      ) : (
+      ) : null}
+      {NEO && <AgentAddendaStrip ticker={company.ticker} />}
+      {!NEO ? (
       <Card>
         <div className="tw-flex tw-items-start tw-gap-4">
           <IconButton aria-label="Назад" variant="ghost" onClick={onBack} className="tw-shrink-0">
@@ -6953,7 +6949,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
           </div>
         </div>
       </Card>
-      )}
+      ) : null}
 
       {NEO ? (
         <NeoResearchTabs tabs={NEO_TABS} activeId={tab} onSelect={setTab} />

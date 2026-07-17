@@ -22,6 +22,7 @@ from app.api.macro import router as macro_router
 from app.api.observer import router as observer_router
 from app.api.assistant import router as assistant_router
 from app.api.stress import router as stress_router
+from app.api.agents import router as agents_router
 
 logger = logging.getLogger(__name__)
 
@@ -315,6 +316,33 @@ async def _earnings_startup():
     """Стартовый сид разборов отчётов курируемого набора — чтобы лента/карточки имели
     контент сразу после деплоя. Идемпотентно (существующие периоды не пересоздаются)."""
     await _earnings_job(seed_only=True)
+
+
+async def _agent_pilot_job():
+    """Пилот автономных агентов (фазы 2-4 «пути к автономной платформе»):
+    ежедневный макро-addendum для тикеров из AGENT_PILOT_TICKERS (по умолчанию
+    KLSB — малая капитализация, владелец 2026-07-18). Один прогон = один вызов
+    tool-loop с закодированными лимитами (max_steps/токен-бюджет) + автогейт
+    перед публикацией — см. app/services/macro_addendum_agent.py."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_addendum_agent import run_macro_addendum
+        tickers = [t.strip().upper() for t in
+                   os.environ.get("AGENT_PILOT_TICKERS", "KLSB").split(",") if t.strip()]
+        out = []
+        db = SessionLocal()
+        try:
+            for t in tickers[:5]:  # жёсткий потолок пилота
+                row = run_macro_addendum(db, t)
+                out.append(f"{t}:{row.status}")
+        finally:
+            db.close()
+        return out
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Агент-пилот (macro_addendum): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка агент-пилота: %s", e)
 
 
 async def _report_watch_job():
@@ -634,6 +662,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_report_watch_job, "cron", hour=20, minute=45, id="report_watch")
         scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_geo_digest_job, "cron", minute=10, id="geo_digest")  # каждый час
+        scheduler.add_job(_agent_pilot_job, "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
@@ -723,6 +752,7 @@ app.include_router(macro_router, prefix="/api")
 app.include_router(observer_router, prefix="/api")
 app.include_router(assistant_router, prefix="/api")
 app.include_router(stress_router, prefix="/api")
+app.include_router(agents_router, prefix="/api")
 
 
 @app.get("/")
