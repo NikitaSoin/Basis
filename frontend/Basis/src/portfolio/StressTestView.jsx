@@ -83,6 +83,57 @@ function NumericTable({ numeric }) {
   );
 }
 
+const STRENGTH = { 1: "слабо", 2: "заметно", 3: "сильно" };
+
+function ExpertBlock({ e }) {
+  const Side = ({ title, sectors, companies, positive }) => (
+    <div>
+      <div className={`tw-text-[12px] tw-font-bold tw-uppercase tw-tracking-wide tw-mb-2 ${positive ? "tw-text-success" : "tw-text-danger"}`}>{title}</div>
+      {sectors.map((s, i) => (
+        <div key={`s${i}`} className="tw-mb-2">
+          <div className="tw-text-[13.5px] tw-font-semibold tw-text-text-primary">
+            {s.sector} <span className="tw-text-[11px] tw-font-normal tw-text-text-tertiary">· {STRENGTH[s.strength] || ""}</span>
+          </div>
+          <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.why}</div>
+        </div>
+      ))}
+      {companies.length > 0 && (
+        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-1.5">
+          {companies.map((c, i) => (
+            <div key={`c${i}`} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+              <span className="tw-font-mono tw-font-semibold tw-text-text-primary">{c.ticker}</span> — {c.why}
+            </div>
+          ))}
+        </div>
+      )}
+      {!sectors.length && !companies.length && <div className="tw-text-[12.5px] tw-text-text-tertiary">—</div>}
+    </div>
+  );
+  return (
+    <Card header="Разбор эксперта (ИИ на базе знаний платформы)">
+      <div className="tw-text-[14px] tw-text-text-primary tw-leading-relaxed tw-mb-4">{e.summary}</div>
+      {e.channels?.length > 0 && (
+        <div className="tw-mb-4">
+          <div className="tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1.5">Каналы влияния</div>
+          <ul className="tw-m-0 tw-pl-5 tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
+            {e.channels.map((ch, i) => <li key={i}>{ch}</li>)}
+          </ul>
+        </div>
+      )}
+      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-6 tw-mb-4">
+        <Side title="Потенциальные бенефициары" sectors={e.sector_winners || []} companies={e.company_winners || []} positive />
+        <Side title="Потенциально под давлением" sectors={e.sector_losers || []} companies={e.company_losers || []} positive={false} />
+      </div>
+      {e.caveats?.length > 0 && (
+        <div className="tw-p-3 tw-rounded-md tw-bg-bg-surface tw-text-[12.5px] tw-text-text-secondary tw-leading-relaxed">
+          <b className="tw-text-text-primary">Оговорки:</b> {e.caveats.join(" · ")}
+        </div>
+      )}
+      <div className="tw-mt-3 tw-text-[11.5px] tw-text-text-tertiary">{e.kb_note}</div>
+    </Card>
+  );
+}
+
 function QualTable({ qual }) {
   const [showAll, setShowAll] = useState(false);
   const rows = [...(qual.winners || []), ...(qual.losers || [])]
@@ -260,6 +311,7 @@ export default function StressTestView() {
               )}
             </Card>
           )}
+          {askResult.expert && <ExpertBlock e={askResult.expert} />}
           {askResult.numeric && <NumericTable numeric={askResult.numeric} />}
           {askResult.qualitative && <QualTable qual={askResult.qualitative} />}
         </>
