@@ -6,6 +6,10 @@ from app.models.user import SubscriptionType
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    # Код подтверждения из письма. Обязателен, только когда на бэке настроен
+    # SMTP (см. services/email_codes.is_verification_enabled) — без SMTP
+    # регистрация работает по-старому, поле игнорируется.
+    code: str | None = None
 
 
 class UserLogin(BaseModel):

@@ -25,8 +25,21 @@ const AuthModal = ({ onClose, onSuccess }) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Двухшаговая регистрация с кодом на email: step "form" → "code".
+  // Шаг кода появляется, ТОЛЬКО если бэк ответил, что отправил письмо
+  // (SMTP настроен); иначе register/request-code вернёт "disabled" и
+  // регистрация проходит по-старому одним шагом.
+  const [regStep, setRegStep] = useState("form");
+  const [code, setCode] = useState("");
+  const [resendIn, setResendIn] = useState(0);
   const cardRef = useRef(null);
   const triggerRef = useRef(null);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const t = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendIn]);
 
   useEffect(() => {
     triggerRef.current = document.activeElement;
@@ -62,22 +75,42 @@ const AuthModal = ({ onClose, onSuccess }) => {
     };
   }, [onClose]);
 
+  const finishAuth = (data) => {
+    localStorage.setItem("basis_token", data.access_token);
+    localStorage.setItem("basis_user", JSON.stringify(data.user));
+    onSuccess(data.user, data.access_token);
+  };
+
+  const post = async (path, body) => {
+    const resp = await fetch(`${apiUrl}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.detail || "Ошибка авторизации");
+    return data;
+  };
+
+  const doRegister = (withCode) =>
+    post("/api/auth/register", withCode ? { email, password, code: code.trim() } : { email, password });
+
+  const requestCode = () => post("/api/auth/register/request-code", { email });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
-      const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
-      const resp = await fetch(`${apiUrl}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.detail || "Ошибка авторизации");
-      localStorage.setItem("basis_token", data.access_token);
-      localStorage.setItem("basis_user", JSON.stringify(data.user));
-      onSuccess(data.user, data.access_token);
+      if (mode === "login") {
+        finishAuth(await post("/api/auth/login", { email, password }));
+      } else if (regStep === "form") {
+        const r = await requestCode();
+        if (r.status === "sent") { setRegStep("code"); setCode(""); setResendIn(60); }
+        else finishAuth(await doRegister(false)); // подтверждение на бэке выключено
+      } else {
+        finishAuth(await doRegister(true));
+      }
     } catch (e) {
       setError(e.message);
     } finally {
@@ -85,7 +118,18 @@ const AuthModal = ({ onClose, onSuccess }) => {
     }
   };
 
-  const switchMode = (m) => { setMode(m); setError(null); };
+  const resend = async () => {
+    if (resendIn > 0 || loading) return;
+    setError(null);
+    try {
+      await requestCode();
+      setResendIn(60);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const switchMode = (m) => { setMode(m); setError(null); setRegStep("form"); setCode(""); };
 
   return (
     <div
@@ -118,43 +162,85 @@ const AuthModal = ({ onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="auth-email">Email</label>
-            <input
-              id="auth-email"
-              className="auth-input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-              autoComplete="email"
-              placeholder="anna@example.com"
-            />
-          </div>
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="auth-password">Пароль</label>
-            <input
-              id="auth-password"
-              className="auth-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={mode === "register" ? 8 : undefined}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              placeholder={mode === "login" ? "••••••••" : "Минимум 8 символов"}
-            />
-            {mode === "register" && <span className="auth-hint">Не короче 8 символов</span>}
-          </div>
+          {mode === "register" && regStep === "code" ? (
+            <>
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="auth-code">Код из письма</label>
+                <input
+                  id="auth-code"
+                  className="auth-input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                  required
+                  autoFocus
+                  autoComplete="one-time-code"
+                  placeholder="000000"
+                  style={{ fontFamily: "var(--cc-mono)", letterSpacing: "0.35em", textAlign: "center" }}
+                />
+                <span className="auth-hint">
+                  Мы отправили 6-значный код на {email}. Код действует 15 минут.
+                </span>
+              </div>
 
-          {error && <p className="auth-error" role="alert">{error}</p>}
+              {error && <p className="auth-error" role="alert">{error}</p>}
 
-          <Button type="submit" variant="primary" loading={loading} className="acct-pill tw-w-full">
-            {mode === "login" ? "Войти" : "Создать аккаунт"}
-          </Button>
-          {mode === "register" && (
-            <p className="auth-hint" style={{ textAlign: "center" }}>Бесплатно, банковская карта не нужна</p>
+              <Button type="submit" variant="primary" loading={loading} className="acct-pill tw-w-full">
+                Подтвердить и создать аккаунт
+              </Button>
+              <div className="auth-code-actions">
+                <button type="button" className="auth-linkbtn" disabled={resendIn > 0} onClick={resend}>
+                  {resendIn > 0 ? `Отправить ещё раз (${resendIn}с)` : "Отправить код ещё раз"}
+                </button>
+                <button type="button" className="auth-linkbtn" onClick={() => { setRegStep("form"); setError(null); }}>
+                  Изменить email
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="auth-email">Email</label>
+                <input
+                  id="auth-email"
+                  className="auth-input"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoFocus
+                  autoComplete="email"
+                  placeholder="anna@example.com"
+                />
+              </div>
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="auth-password">Пароль</label>
+                <input
+                  id="auth-password"
+                  className="auth-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={mode === "register" ? 8 : undefined}
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  placeholder={mode === "login" ? "••••••••" : "Минимум 8 символов"}
+                />
+                {mode === "register" && <span className="auth-hint">Не короче 8 символов</span>}
+              </div>
+
+              {error && <p className="auth-error" role="alert">{error}</p>}
+
+              <Button type="submit" variant="primary" loading={loading} className="acct-pill tw-w-full">
+                {mode === "login" ? "Войти" : "Создать аккаунт"}
+              </Button>
+              {mode === "register" && (
+                <p className="auth-hint" style={{ textAlign: "center" }}>Бесплатно, банковская карта не нужна</p>
+              )}
+            </>
           )}
         </form>
       </div>

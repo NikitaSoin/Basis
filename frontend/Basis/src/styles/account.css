@@ -347,6 +347,16 @@
 .auth-error { color: var(--danger); font-size: 12.5px; line-height: 1.45; margin: 0; }
 .auth-foot { font-family: var(--cc-mono); font-size: 11px; color: var(--bs-deep-ink2); }
 
+/* действия под шагом кода (повторная отправка / сменить email) */
+.auth-code-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.auth-linkbtn {
+  font: inherit; font-size: 12px; font-weight: 700; color: var(--accent-2);
+  background: none; border: 0; cursor: pointer; padding: 2px 0; border-radius: 4px;
+}
+.auth-linkbtn:hover { opacity: 0.8; }
+.auth-linkbtn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.auth-linkbtn:disabled { color: var(--ink-3); cursor: default; opacity: 1; }
+
 @media (prefers-reduced-motion: reduce) {
   .acct-hero, .acct-panel, .acct-tab, .auth-tab, .auth-input { transition: none; }
 }
