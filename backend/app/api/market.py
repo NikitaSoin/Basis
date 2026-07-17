@@ -190,6 +190,16 @@ def instrument_history_endpoint(asset_class: str, secid: str,
     return get_history(db, asset_class, secid, days)
 
 
+@router.get("/market/candles/{asset_class}/{secid}")
+def market_candles(asset_class: str, secid: str,
+                   tf: str = Query("1d", description="1m|5m|15m|1h|4h|1d|1w|1M")):
+    """Свечи OHLCV для графиков ChartPro (MOEX ISS, кэш с TTL).
+    Классы: share|index|bond|future|fund|spot. 5м/15м агрегируются из 1м,
+    4ч — из 60м (ISS этих интервалов не отдаёт нативно)."""
+    from app.services.candles import get_candles
+    return get_candles(asset_class, secid, tf)
+
+
 @router.get("/market/instruments/sparklines")
 def instrument_sparklines_endpoint(asset_class: str = Query(...),
                                    secids: str = Query(..., description="SECID через запятую"),

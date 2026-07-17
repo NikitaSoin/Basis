@@ -1,0 +1,141 @@
+/* ============================================================================
+   ChartPro — тулбар и рамка «полноценного» ценового графика (свечи, таймфреймы,
+   средние, Боллинджер, RSI). Классы .cpro-*, цвета через --cc-* алиасы
+   (тема-совместимые зеркала --bs-* канона — конвенция account.css/screener.css).
+   Сам график рисует lightweight-charts на canvas: его палитра задаётся из JS
+   чтением ТЕХ ЖЕ токенов (readColors в ChartPro.jsx) — источник один.
+   ============================================================================ */
+
+.cpro {
+  --panel: var(--cc-panel); --panel-2: var(--cc-panel-2);
+  --line: var(--cc-line); --line-2: var(--cc-line-2);
+  --ink: var(--cc-ink); --ink-2: var(--cc-ink-2); --ink-3: var(--cc-ink-3);
+  --accent: var(--cc-accent); --accent-2: var(--cc-accent-2); --accent-soft: var(--cc-accent-soft);
+  font-family: var(--cc-sans, "Inter", system-ui, sans-serif);
+}
+
+.cpro-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.cpro-bar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* --- таймфреймы: компактный сегментный ряд (паттерн .bs-seg-toggle) --- */
+.cpro-tfs {
+  display: inline-flex; background: var(--panel-2); border-radius: 99px;
+  padding: 3px; gap: 1px;
+}
+.cpro-tf {
+  font: inherit; font-size: 11.5px; font-weight: 700; font-family: var(--cc-mono);
+  color: var(--ink-2); background: transparent; border: 0; cursor: pointer;
+  padding: 5px 10px; border-radius: 99px; white-space: nowrap;
+  transition: background 150ms ease, color 150ms ease;
+}
+.cpro-tf:hover { color: var(--ink); }
+.cpro-tf:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.cpro-tf--on { background: var(--accent); color: var(--on-accent); }
+.cpro-tf--on:hover { color: var(--on-accent); }
+
+/* --- последняя цена + дельта --- */
+.cpro-last {
+  font-family: var(--cc-mono); font-size: 13px; font-weight: 700; color: var(--ink);
+  display: inline-flex; align-items: baseline; gap: 7px; font-variant-numeric: tabular-nums;
+}
+.cpro-delta { font-size: 11.5px; font-weight: 700; }
+.cpro-delta--up { color: var(--bs-up); }
+.cpro-delta--down { color: var(--bs-down); }
+
+/* --- свечи/линия --- */
+.cpro-kind {
+  display: inline-flex; background: var(--panel-2); border-radius: 99px; padding: 3px; gap: 1px;
+}
+.cpro-kbtn {
+  font: inherit; font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+  background: transparent; border: 0; cursor: pointer; padding: 5px 12px; border-radius: 99px;
+  transition: background 150ms ease, color 150ms ease;
+}
+.cpro-kbtn:hover { color: var(--ink); }
+.cpro-kbtn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.cpro-kbtn--on { background: var(--accent); color: var(--on-accent); }
+.cpro-kbtn--on:hover { color: var(--on-accent); }
+
+/* --- дропдаун индикаторов (паттерн .bs-custom-dd) --- */
+.cpro-dd { position: relative; }
+.cpro-ddbtn {
+  font: inherit; font-size: 12px; font-weight: 700; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px;
+  padding: 6px 12px; cursor: pointer; transition: border-color 150ms ease;
+}
+.cpro-ddbtn:hover { border-color: var(--line-2); }
+.cpro-ddbtn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.cpro-ddbtn--active { color: var(--accent-2); border-color: var(--accent); }
+
+.cpro-panel {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 60;
+  min-width: 250px; background: var(--panel); border: 1px solid var(--line-2);
+  border-radius: 11px; box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.22);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;
+}
+.cpro-panel-sec {
+  font-family: var(--cc-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+  margin-top: 4px;
+}
+.cpro-panel-sec:first-child { margin-top: 0; }
+.cpro-panel-emas { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+
+.cpro-check {
+  display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2);
+  cursor: pointer; padding: 2px 0;
+}
+.cpro-check input { accent-color: var(--accent); cursor: pointer; }
+.cpro-check:hover { color: var(--ink); }
+
+.cpro-custom-add { display: flex; gap: 6px; align-items: center; }
+.cpro-custom-add select, .cpro-custom-add input {
+  font: inherit; font-size: 12px; color: var(--ink);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px;
+  padding: 5px 8px;
+}
+.cpro-custom-add input { width: 74px; font-family: var(--cc-mono); }
+.cpro-custom-add input:focus, .cpro-custom-add select:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.cpro-custom-add button {
+  font: inherit; font-size: 12px; font-weight: 700; color: var(--accent-2);
+  background: none; border: 0; cursor: pointer; padding: 5px 4px; border-radius: 6px;
+}
+.cpro-custom-add button:hover { opacity: 0.8; }
+.cpro-custom-add button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.cpro-custom-list { display: flex; gap: 6px; flex-wrap: wrap; }
+.cpro-custom-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--cc-mono); font-size: 11px; font-weight: 600; color: var(--ink-2);
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 99px;
+  padding: 3px 6px 3px 10px;
+}
+.cpro-custom-chip button {
+  font: inherit; font-size: 13px; line-height: 1; color: var(--ink-3);
+  background: none; border: 0; cursor: pointer; padding: 0 3px; border-radius: 50%;
+}
+.cpro-custom-chip button:hover { color: var(--bs-down); }
+
+.cpro-clear {
+  font: inherit; font-size: 12px; font-weight: 700; color: var(--ink-3);
+  background: none; border: 0; cursor: pointer; padding: 4px 0 0; text-align: left;
+  border-radius: 4px;
+}
+.cpro-clear:hover { color: var(--bs-down); }
+
+/* --- полотно и сообщения --- */
+.cpro-canvas { width: 100%; }
+.cpro-msg {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--ink-3);
+  background: var(--panel-2); border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpro-tf, .cpro-kbtn, .cpro-ddbtn { transition: none; }
+}

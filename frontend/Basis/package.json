@@ -5,6 +5,7 @@
   "main": "src/index.tsx",
   "dependencies": {
     "@craco/craco": "^7.1.0",
+    "lightweight-charts": "^5.2.0",
     "lucide-react": "^0.518.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
