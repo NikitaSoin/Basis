@@ -223,6 +223,8 @@ async def _news_job():
         logger.info("Лента новостей: прогон завершён — %s", res)
     except Exception as e:
         logger.exception("Ошибка прогона ленты новостей: %s", e)
+        from app.services.job_heartbeat import hb_err
+        hb_err("news_feed", e)
 
 
 def _wait_for_db(max_attempts: int = 6, delay_seconds: float = 5.0) -> bool:
@@ -361,6 +363,8 @@ async def _agent_pilot_job():
         logger.info("Агент-пилот (macro_addendum): %s", res)
     except Exception as e:
         logger.exception("Ошибка агент-пилота: %s", e)
+        from app.services.job_heartbeat import hb_err
+        hb_err("agent_pilot", e)
 
 
 async def _report_watch_job():
