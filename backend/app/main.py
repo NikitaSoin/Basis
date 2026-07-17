@@ -188,6 +188,24 @@ async def _calendar_job():
         logger.exception("Ошибка обновления календаря событий: %s", e)
 
 
+def _with_heartbeat(job_id: str, fn):
+    """Обёртка кронов для мониторинга (фаза 6 плана автономности, job_heartbeat.py).
+    Джобы ловят свои исключения сами (logger.exception внутри) — поэтому обёртка
+    фиксирует факт «прогон-функция выполнилась до конца» (liveness): молчаливо
+    стоящий крон перестаёт тикать и всплывает в /api/debug/jobs-health как stale.
+    Точная фиксация ошибок — точечными hb_err() внутри джобов, добавляется
+    инкрементально."""
+    async def _wrapped():
+        from app.services.job_heartbeat import hb_ok, hb_err
+        try:
+            await fn()
+            hb_ok(job_id)
+        except Exception as e:  # джоб выбросил наружу (редкость) — тоже фиксируем
+            hb_err(job_id, e)
+            raise
+    return _wrapped
+
+
 async def _news_job():
     """Лента новостей Обозревателя: RSS → дедуп → фильтр важности → выжимка +
     «на что влияет» → маппинг тикеров → запись в БД. Сетевые и LLM-вызовы идут в
@@ -628,21 +646,21 @@ async def lifespan(app: FastAPI):
         yield
         return
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
-    scheduler.add_job(_quotes_job, "interval", minutes=5, id="quotes_update")
+    scheduler.add_job(_with_heartbeat("quotes_update", _quotes_job), "interval", minutes=5, id="quotes_update")
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
-    scheduler.add_job(_history_job, "cron", hour=19, minute=30, id="history_catchup")
+    scheduler.add_job(_with_heartbeat("history_catchup", _history_job), "cron", hour=19, minute=30, id="history_catchup")
     # Официальные беты MOEX — раз в неделю (файл обновляется нерегулярно)
-    scheduler.add_job(_coefficients_job, "cron", day_of_week="mon", hour=8, minute=30, id="moex_coefficients")
+    scheduler.add_job(_with_heartbeat("moex_coefficients", _coefficients_job), "cron", day_of_week="mon", hour=8, minute=30, id="moex_coefficients")
     # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
     # утром; плюс разовый прогон при старте (ниже) для авто-наполнения после деплоя.
-    scheduler.add_job(_asset_data_job, "cron", hour=6, minute=0, id="asset_data_refresh")
+    scheduler.add_job(_with_heartbeat("asset_data_refresh", _asset_data_job), "cron", hour=6, minute=0, id="asset_data_refresh")
     # Календарь событий — НАМЕРЕННО отдельный крон от asset_data_refresh (см.
     # docstring _calendar_job): раньше был хвостом asset_data_job и часто не
     # успевал выполниться при рестартах контейнера — дивиденды/отчётность/
     # корпсобытия месяцами не обновлялись. Отдельное время (после asset_data,
     # но не зависит от его завершения).
-    scheduler.add_job(_calendar_job, "cron", hour=6, minute=45, id="calendar_refresh")
+    scheduler.add_job(_with_heartbeat("calendar_refresh", _calendar_job), "cron", hour=6, minute=45, id="calendar_refresh")
 
     # LLM/FRED-задачи (новости, макро-мир, отчёты, геополитика) ходят в DeepSeek и FRED.
     # ИСТОРИЧЕСКИ были выключены по умолчанию — на момент внедрения DeepSeek/FRED были
@@ -655,14 +673,14 @@ async def lifespan(app: FastAPI):
     if os.environ.get("DISABLE_EXTERNAL_JOBS") == "1":
         logger.info("Внешние LLM/FRED-задачи (news/macro/earnings/geo) ОТКЛючены явно (DISABLE_EXTERNAL_JOBS=1)")
     else:
-        scheduler.add_job(_news_job, "cron", minute=5, id="news_feed")  # каждый час
-        scheduler.add_job(_macro_job, "cron", hour=6, minute=30, id="macro_ingest")
-        scheduler.add_job(_macro_interpretation_job, "cron", hour=7, minute=15, id="macro_interpretation")
-        scheduler.add_job(_earnings_job, "cron", hour=20, minute=30, id="earnings_digest")
-        scheduler.add_job(_report_watch_job, "cron", hour=20, minute=45, id="report_watch")
-        scheduler.add_job(_geo_job, "cron", hour=21, minute=0, id="geopolitics")
-        scheduler.add_job(_geo_digest_job, "cron", minute=10, id="geo_digest")  # каждый час
-        scheduler.add_job(_agent_pilot_job, "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
+        scheduler.add_job(_with_heartbeat("news_feed", _news_job), "cron", minute=5, id="news_feed")  # каждый час
+        scheduler.add_job(_with_heartbeat("macro_ingest", _macro_job), "cron", hour=6, minute=30, id="macro_ingest")
+        scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
+        scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")
+        scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour=20, minute=45, id="report_watch")
+        scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
+        scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
+        scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")

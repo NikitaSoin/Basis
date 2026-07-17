@@ -486,6 +486,18 @@ async def debug_selftest():
     return out
 
 
+@router.get("/debug/jobs-health")
+def debug_jobs_health():
+    """Здоровье кронов (фаза 6 плана автономности): вердикт ok/stale/failing/
+    never_ran по каждому джобу — сравнение возраста последнего успешного прогона
+    с ожидаемым интервалом. «Успех» = джоб-функция выполнилась до конца
+    (liveness); джобы глотают свои исключения сами, точные ошибки добавляются
+    точечными hb_err. Главный сценарий: крон молчит сутками (прецедент
+    2026-07-05, лента новостей) — тут это видно сразу как stale."""
+    from app.services.job_heartbeat import jobs_health
+    return jobs_health()
+
+
 @router.get("/debug/ping")
 async def debug_ping():
     """Чистый async-роут БЕЗ БД и сети — всегда должен отвечать, даже если пул
