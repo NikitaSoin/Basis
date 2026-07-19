@@ -31,12 +31,9 @@ const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : 
 // PORTFOLIO MOCK DATA
 // =========================
 
-const MOCK_PORTFOLIO = [
-  { ticker: "SBER", name: "Сбербанк", shares: 100, avgPrice: 280, currentPrice: 295, beta: 1.2, divYield: 11.0, expReturn: 18, stdDev: 22, pe: 5.1, pe_hist: 7.2 },
-  { ticker: "LKOH", name: "Лукойл", shares: 20, avgPrice: 6800, currentPrice: 7100, beta: 0.9, divYield: 9.5, expReturn: 14, stdDev: 18, pe: 5.8, pe_hist: 7.0 },
-  { ticker: "YDEX", name: "Яндекс", shares: 15, avgPrice: 3900, currentPrice: 4200, beta: 1.5, divYield: 0.0, expReturn: 25, stdDev: 30, pe: 22, pe_hist: 35 },
-];
-
+// MOCK_PORTFOLIO (демо СБЕР/Лукойл/Яндекс) удалён 2026-07-19: он подставлялся
+// в displayPositions на время загрузки реальных позиций и создавал «прыгающие
+// числа» (сначала стоимость мока, потом настоящая). Мокам в проде не место.
 const MOCK_CORRELATION = [
   [1.0, 0.45, 0.18],
   [0.45, 1.0, 0.22],
@@ -969,7 +966,9 @@ const PfReveal = ({ children, className = "", as: Tag = "div", style: styleProp,
 
 const HeadlineNum = ({ value, gate }) => {
   const n = useCountUp(value, 320, gate);
-  return <span className="tw-tabular-nums">{formatMoney(Math.round(n), { decimals: 0 })}</span>;
+  // Голое число без валюты: знак ₽ рисует вызывающая разметка отдельным
+  // мелким span'ом — formatMoney добавлял свой «₽», и в hero выходило «₽ ₽».
+  return <span className="tw-tabular-nums">{formatNumber(Math.round(n), { decimals: 0 })}</span>;
 };
 
 // ARIA tablist with a sliding accent underline (the "live language" tab motion).
@@ -2020,9 +2019,13 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     return () => clearTimeout(timer);
   }, [token, apiUrl]);
 
-  const displayPositions = positions.length > 0 ? positions : MOCK_PORTFOLIO.map(p => ({
-    ...p, currentPrice: quotes[p.ticker] || p.currentPrice,
-  }));
+  // 🔴 Раньше при пустом positions сюда подставлялся MOCK_PORTFOLIO (демо
+  // СБЕР/Лукойл/Яндекс из первой версии экрана): пока реальные позиции
+  // грузились, hero успевал показать стоимость МОК-портфеля, а потом
+  // «обновлялся до свежего» реального числа (жалоба владельца 2026-07-19).
+  // Мок-портфелю в проде места нет: рендерим только реальные позиции, на
+  // время загрузки — гейт portfolioLoading ниже (мигания нуля тоже нет).
+  const displayPositions = positions;
 
   const stats = useMemo(() => {
     const src = displayPositions;
@@ -2032,11 +2035,26 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     const profitPct  = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
     return { totalValue, totalCost, totalProfit, profitPct };
   }, [displayPositions]);
-  // Грандтотал ПО ВСЕМ классам (акции+облигации+фьючерсы+фонды+кэш) — из
-  // pfMetrics (бэк уже считает верно); stats.totalValue — только акции,
-  // остаётся для P&L-виджетов, где денежные средства/бумаги без cost-basis
-  // исказили бы «прибыль за всё время владения».
-  const grandTotalValue = pfMetrics?.portfolio?.total_value ?? stats.totalValue;
+  // Грандтотал ПО ВСЕМ классам (акции+облигации+фьючерсы+фонды+кэш).
+  // 🔴 Раньше: сначала рисовался stats.totalValue (только акции, живые
+  // котировки), а через секунду приезжал /metrics и ПОДМЕНЯЛ число на
+  // бэковый total_value (все классы, цены из таблицы quotes) — владелец
+  // видел «загрузилось одно число, потом обновилось до другого» (плюс
+  // count-up анимация докрутки делала подмену особенно заметной).
+  // Теперь источник ОДИН и не меняется: акции — живой клиентский расчёт
+  // (те же котировки, что тикают в таблице позиций раз в 5с), non-equity
+  // (облигации/фьючерсы/фонды/кэш) — стоимость с бэка (клиент её посчитать
+  // не может). Пока non-equity часть не приехала — hero показывает
+  // плейсхолдер (grandTotalReady), а не промежуточное «только акции».
+  const nonEquityValue = useMemo(
+    () => (pfMetrics?.positions || [])
+      .filter((p) => p.instrument_type !== "equity" && p.value != null)
+      .reduce((a, p) => a + p.value, 0),
+    [pfMetrics]
+  );
+  const hasNonEquity = rawPositions.some((p) => (p.instrument_type || "equity") !== "equity");
+  const grandTotalValue = stats.totalValue + nonEquityValue;
+  const grandTotalReady = !hasNonEquity || pfMetrics != null;
 
   // Non-equity строки для таблицы «Состав портфеля» — из pfMetrics.positions
   // (бэк уже посчитал value/вес/цену по классу), не из live-тикающего
@@ -2254,7 +2272,9 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           <div>
             <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--pf-ink-3)", marginBottom: "10px" }}>Стоимость портфеля</div>
             <div style={{ fontFamily: "var(--pf-serif)", fontVariantNumeric: "tabular-nums", fontSize: "clamp(38px,5.2vw,62px)", fontWeight: 600, lineHeight: 0.95, letterSpacing: "-0.01em" }}>
-              <HeadlineNum value={grandTotalValue} gate={valueGate.current} /><span style={{ fontSize: "0.4em", fontWeight: 500, color: "var(--pf-ink-3)" }}> ₽</span>
+              {grandTotalReady
+                ? <><HeadlineNum value={grandTotalValue} gate={valueGate.current} /><span style={{ fontSize: "0.4em", fontWeight: 500, color: "var(--pf-ink-3)" }}> ₽</span></>
+                : <span aria-label="Считаем стоимость портфеля" style={{ color: "var(--pf-ink-3)", opacity: 0.5 }}>···</span>}
             </div>
             <div style={{ display: "flex", gap: "14px", alignItems: "center", marginTop: "14px", fontSize: "13.5px", flexWrap: "wrap" }}>
               <span style={{ color: stats.totalProfit >= 0 ? "var(--pf-up)" : "var(--pf-down)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "5px" }}>
@@ -3374,6 +3394,16 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             <button className="btn btn-ghost" style={{ padding: "11px 24px" }} onClick={onAuthRequired}>Зарегистрироваться</button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Пока грузятся портфель и позиции — честный лоадер вместо рендера
+  // экрана с пустыми/промежуточными числами (см. displayPositions выше).
+  if (portfolioLoading) {
+    return (
+      <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">
+        Загружаем портфель...
       </div>
     );
   }
