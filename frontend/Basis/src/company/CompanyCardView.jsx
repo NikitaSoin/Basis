@@ -1759,6 +1759,73 @@ const AnalystProse = ({ md }) => (
 
 const DEBT_FLAG_BG = { green: "tw-bg-success-soft", amber: "tw-bg-warning-soft", red: "tw-bg-danger-soft" };
 const BOND_LIGHT = { green: { bg: "tw-bg-success-soft", dot: "🟢" }, amber: { bg: "tw-bg-warning-soft", dot: "🟡" }, orange: { bg: "tw-bg-warning-soft", dot: "🟠" }, red: { bg: "tw-bg-danger-soft", dot: "🔴" }, gray: { bg: "tw-bg-bg-base", dot: "⚪" } };
+
+// Ревизия актуальности разбора облигации (агент-ревизор). Аналог ReviewStrip
+// вкладок карточки, но для одной облигации (API /bonds/{secid}/review +
+// /agents/review-bond/{secid}). Определён здесь (BondCard выше по файлу, чем
+// компания-ReviewStrip).
+const BOND_VERDICT_STYLE = {
+  "актуально":        { dot: "🟢", bg: "tw-bg-success-soft" },
+  "требует внимания": { dot: "🟡", bg: "tw-bg-warning-soft" },
+  "устарело":         { dot: "🔴", bg: "tw-bg-danger-soft" },
+};
+const BondReviewStrip = ({ secid }) => {
+  const [review, setReview] = useState(null);
+  const [state, setState] = useState("idle");
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    let alive = true; setReview(null); setState("idle"); setOpen(false);
+    fetch(`${apiBase()}/api/bonds/${secid}/review`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive && d?.review) { setReview(d.review); setState("done"); } })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [secid]);
+  const run = () => {
+    setState("loading");
+    fetch(`${apiBase()}/api/agents/review-bond/${secid}`, { method: "POST" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (d.content) { setReview({ content: d.content, created_at: new Date().toISOString() }); setState("done"); setOpen(true); } else setState("error"); })
+      .catch(() => setState("error"));
+  };
+  const c = review?.content;
+  const v = c ? (BOND_VERDICT_STYLE[c.verdict] || BOND_VERDICT_STYLE["актуально"]) : null;
+  const dt = review?.created_at ? new Date(review.created_at).toLocaleDateString("ru-RU") : "";
+  const findings = c?.findings || [];
+  if (!review) {
+    return (
+      <button type="button" onClick={run} disabled={state === "loading"}
+        className="tw-self-start tw-inline-flex tw-items-center tw-gap-2 tw-text-[12.5px] tw-font-medium tw-text-accent tw-bg-accent-soft tw-border tw-border-accent-border tw-rounded-md tw-px-3 tw-py-1.5 tw-cursor-pointer disabled:tw-opacity-60">
+        {state === "loading" ? "🤖 Проверяем актуальность…" : "🤖 Проверить актуальность разбора (демо ИИ)"}
+      </button>
+    );
+  }
+  return (
+    <div className={`tw-rounded-md ${v.bg} tw-px-4 tw-py-3`}>
+      <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+        <div className="tw-text-[13px] tw-text-text-primary"><span className="tw-font-semibold">{v.dot} Ревизия ИИ ({dt}, демо):</span> {c.headline}</div>
+        {(findings.length > 0 || c.still_valid) && (
+          <button type="button" onClick={() => setOpen(!open)} className="tw-text-[12.5px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
+            {open ? "Свернуть ▴" : "Подробнее ▾"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2.5">
+          {findings.map((f, i) => (
+            <div key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+              <b className="tw-text-text-primary">{f.what}</b>{f.in_card && <> — в разборе: {f.in_card};</>} сейчас: {f.now}. {f.so_what}
+              {f.certainty && <span className="tw-ml-1.5 tw-text-[10.5px] tw-uppercase tw-text-text-tertiary">[{f.certainty}]</span>}
+            </div>
+          ))}
+          {c.still_valid && <div className="tw-text-[12.5px] tw-text-text-tertiary tw-leading-snug">Остаётся в силе: {c.still_valid}</div>}
+          <div className="tw-text-[11px] tw-text-text-tertiary">Ревизия актуальности по методике «доходность за риск» (не переписывание): ставка, новости эмитента, приближение оферты/погашения. Демо на DeepSeek.</div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BondCard = ({ secid, onBack, onSelectCompany }) => {
   const [data, setData] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -1836,6 +1903,9 @@ const BondCard = ({ secid, onBack, onSelectCompany }) => {
         {b.issuer_name && <span className="tw-text-[14px] tw-text-text-secondary">{b.issuer_name}</span>}
         <span className="tw-text-[12px] tw-text-text-tertiary tw-font-mono">{b.secid}{b.isin ? ` · ${b.isin}` : ""}</span>
       </div>
+
+      {/* Ревизия актуальности разбора облигации (агент-ревизор, 2026-07-21) */}
+      <BondReviewStrip secid={b.secid} />
 
       {/* Системный вывод «оплачен ли риск» — для не-рисковых (у ВДО/дефолта свой
           красный баннер ниже, не дублируем) */}
@@ -2939,6 +3009,92 @@ const AgentAddendaStrip = ({ ticker }) => {
             Сгенерировано автономным агентом по данным платформы (разбор от {c.card_as_of || "—"}, живое макро, новости),
             прошло автоматическую проверку качества. Пилотный режим — не заменяет разбор аналитика.
           </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Плашка ревизии актуальности вкладки (агент-ревизор, 2026-07-21): те же
+// методички аналитиков как линза, задача — проверить, всё ли ещё соответствует
+// текущему моменту (что изменилось за сутки/неделю), НЕ переписывая анализ.
+// По требованию: кэшированную ревизию показываем сразу, если нет — кнопка
+// «Проверить актуальность (демо)» запускает агента (по требованию + кэш, не
+// крон по всем 264×7). vtab — ключ вкладки для API (business/finance/...).
+const VERDICT_STYLE = {
+  "актуально":        { dot: "🟢", cls: "tw-border-success/40", bg: "tw-bg-success-soft" },
+  "требует внимания": { dot: "🟡", cls: "tw-border-warning/40", bg: "tw-bg-warning-soft" },
+  "устарело":         { dot: "🔴", cls: "tw-border-danger/40",  bg: "tw-bg-danger-soft" },
+};
+const ReviewStrip = ({ ticker, vtab }) => {
+  const [review, setReview] = useState(null);
+  const [state, setState] = useState("idle"); // idle | loading | done | error
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    setReview(null); setState("idle"); setOpen(false);
+    fetch(`${apiBase()}/api/companies/by-ticker/${ticker}/reviews`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (alive && d?.reviews?.[vtab]) { setReview(d.reviews[vtab]); setState("done"); } })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [ticker, vtab]);
+
+  const runReview = () => {
+    setState("loading");
+    fetch(`${apiBase()}/api/agents/review/${ticker}/${vtab}`, { method: "POST" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => {
+        if (d.content) { setReview({ content: d.content, created_at: new Date().toISOString() }); setState("done"); setOpen(true); }
+        else { setState("error"); }
+      })
+      .catch(() => setState("error"));
+  };
+
+  const c = review?.content;
+  const v = c ? (VERDICT_STYLE[c.verdict] || VERDICT_STYLE["актуально"]) : null;
+  const dt = review?.created_at ? new Date(review.created_at).toLocaleDateString("ru-RU") : "";
+  const findings = c?.findings || [];
+
+  return (
+    <div className="tw-mb-4">
+      {!review ? (
+        <button type="button" onClick={runReview} disabled={state === "loading"}
+          className="tw-inline-flex tw-items-center tw-gap-2 tw-text-[12.5px] tw-font-medium tw-text-accent tw-bg-accent-soft tw-border tw-border-accent-border tw-rounded-md tw-px-3 tw-py-1.5 tw-cursor-pointer disabled:tw-opacity-60">
+          {state === "loading" ? "🤖 Проверяем актуальность…" : "🤖 Проверить актуальность блока (демо ИИ)"}
+        </button>
+      ) : (
+        <div className={`tw-rounded-md tw-border ${v.cls} ${v.bg} tw-px-4 tw-py-3`}>
+          <div className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-flex-wrap">
+            <div className="tw-text-[13px] tw-text-text-primary">
+              <span className="tw-font-semibold">{v.dot} Ревизия ИИ ({dt}, демо):</span>{" "}
+              {c.headline}
+            </div>
+            {(findings.length > 0 || c.still_valid) && (
+              <button type="button" onClick={() => setOpen(!open)}
+                className="tw-text-[12.5px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer tw-whitespace-nowrap">
+                {open ? "Свернуть ▴" : "Подробнее ▾"}
+              </button>
+            )}
+          </div>
+          {open && (
+            <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-2.5">
+              {findings.map((f, i) => (
+                <div key={i} className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">
+                  <b className="tw-text-text-primary">{f.what}</b>
+                  {f.in_card && <> — в разборе: {f.in_card};</>} сейчас: {f.now}. {f.so_what}
+                  {f.certainty && <span className="tw-ml-1.5 tw-text-[10.5px] tw-uppercase tw-text-text-tertiary">[{f.certainty}]</span>}
+                </div>
+              ))}
+              {c.still_valid && (
+                <div className="tw-text-[12.5px] tw-text-text-tertiary tw-leading-snug">Остаётся в силе: {c.still_valid}</div>
+              )}
+              <div className="tw-text-[11px] tw-text-text-tertiary">
+                Ревизия актуальности по методике аналитика (не переписывание анализа): свежее макро, новости, отчёты,
+                календарь. Демо на DeepSeek — суждение, не расчёт; прошло автопроверку.
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -6878,8 +7034,10 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     { id: "markets", label: "Рынки" }, { id: "macro", label: "Макро" }, { id: "geo", label: "Геополитика" },
     { id: "institutions", label: "Институты" },
   ];
+  const REVIEWABLE_TABS = ["business", "finance", "governance", "markets", "macro", "geo", "institutions"];
   const tabBody = (
     <>
+      {NEO && REVIEWABLE_TABS.includes(tab) && <ReviewStrip ticker={company.ticker} vtab={tab} />}
       {tab === "overview" && renderOverview()}
       {tab === "business" && renderBusinessProfile()}
       {tab === "finance" && renderFinancials()}

@@ -118,6 +118,75 @@ def _get_recent_news(db: Session, ticker: str) -> dict:
     return {"news": [{"title": r[0], "date": r[1], "summary": (r[2] or "")[:300]} for r in rows]}
 
 
+def _get_recent_earnings(db: Session, ticker: str) -> dict:
+    """Разобранные отчёты по тикеру за 120 дней (что вышло из финансовых событий)."""
+    rows = db.execute(text("""
+        SELECT er.period, er.standard, er.published_at::date::text, ed.one_liner
+        FROM earnings_reports er
+        LEFT JOIN earnings_digests ed ON ed.report_id = er.id
+        WHERE er.ticker = :t AND er.status = 'processed'
+          AND er.published_at >= now() - interval '120 days'
+        ORDER BY er.published_at DESC LIMIT 5
+    """), {"t": ticker.upper()}).fetchall()
+    return {"earnings": [{"period": r[0], "standard": r[1], "date": r[2], "gist": r[3]} for r in rows]}
+
+
+def _get_calendar(db: Session, ticker: str) -> dict:
+    """Ближайшие корпсобытия тикера (дивиденды/отчётности/СД) — что уже случилось
+    или на подходе против того, что заложено в разборе."""
+    rows = db.execute(text("""
+        SELECT event_type, event_date::text, title, status FROM calendar_events
+        WHERE ticker = :t AND event_date >= now() - interval '30 days'
+          AND event_date <= now() + interval '60 days'
+        ORDER BY event_date ASC LIMIT 10
+    """), {"t": ticker.upper()}).fetchall()
+    return {"events": [{"type": r[0], "date": r[1], "title": r[2], "status": r[3]} for r in rows]}
+
+
+def _get_geo_barometer() -> dict:
+    """Свежий геополитический барометр (очаги СВО/Ближний Восток/АТР + сценарий) —
+    контекст для ревизии макро/гео-блоков."""
+    path = Path(__file__).parent.parent.parent / "config" / "geo_barometer.json"
+    if not path.exists():
+        return {"error": "no_barometer"}
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {"error": "unreadable"}
+    return {"as_of": d.get("as_of"), "scenario": d.get("scenario"),
+            "regions": d.get("regions"), "sector_flags": d.get("sector_flags")}
+
+
+# Расширенная схема — для агента-ревизора карточки (card_review_agent). Пилотный
+# macro_addendum использует урезанный TOOLS_SCHEMA выше (не ломаем его).
+REVIEW_TOOLS_SCHEMA = TOOLS_SCHEMA + [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_recent_earnings",
+            "description": "Разобранные отчёты компании за 120 дней: период, стандарт, суть — вышло ли что-то, чего не было в разборе.",
+            "parameters": {"type": "object", "properties": {"ticker": {"type": "string"}}, "required": ["ticker"]},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_calendar",
+            "description": "Корпоративные события компании (дивиденды/отчётности/СД) в окне −30..+60 дней.",
+            "parameters": {"type": "object", "properties": {"ticker": {"type": "string"}}, "required": ["ticker"]},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_geo_barometer",
+            "description": "Свежий геополитический барометр платформы: очаги (СВО/Ближний Восток/АТР), сценарий, секторные флаги. Для ревизии макро/гео-блоков.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+]
+
+
 def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dict:
     """Диспетчер. allowed_ticker — агенту разрешён ТОЛЬКО его тикер (не даём
     пилоту гулять по всей базе — бюджет и предсказуемость)."""
@@ -130,4 +199,10 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
         return _get_live_macro(db)
     if name == "get_recent_news":
         return _get_recent_news(db, t)
+    if name == "get_recent_earnings":
+        return _get_recent_earnings(db, t)
+    if name == "get_calendar":
+        return _get_calendar(db, t)
+    if name == "get_geo_barometer":
+        return _get_geo_barometer()
     return {"error": "unknown_tool"}

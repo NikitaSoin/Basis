@@ -67,10 +67,15 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
             return {"result": result, "trace": trace, "tokens_used": tokens_used,
                     "stopped_reason": "final" if result is not None else "unparseable_final"}
 
-        # исполняем вызовы инструментов и кладём результаты в диалог
+        # исполняем вызовы инструментов и кладём результаты в диалог.
+        # 🔴 Обрезаем СПИСОК ДО добавления в assistant-сообщение: API (DeepSeek/
+        # OpenAI) требует ответ на КАЖДЫЙ tool_call_id в assistant.tool_calls —
+        # если ответить не на все (было tool_calls[:4] при полном списке в
+        # сообщении), следующий запрос падает 400. Кап оставляем от runaway.
+        tool_calls = tool_calls[:4]
         messages.append({"role": "assistant", "content": msg.get("content") or "",
                          "tool_calls": tool_calls})
-        for tc in tool_calls[:4]:  # не даём модели фанат-аутить десятки вызовов за шаг
+        for tc in tool_calls:
             fn = (tc.get("function") or {})
             name = fn.get("name") or ""
             try:
