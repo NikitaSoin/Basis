@@ -202,3 +202,102 @@
 
 /* ── дисклеймер ────────────────────────────────────────────────────────────  */
 .geo-hybrid .gend-note{font-size:11px;line-height:1.5;color:var(--ink-3);padding:0 2px;margin:0;}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   РЕДИЗАЙН ВЫВОДА 2026-07-21 (запрос владельца: простыня/мелкий несимметричный
+   текст, сырые коды «c00», справедливая цена в рейле вместо гео). Гео-рейл +
+   hero-вердикт + единая типо-шкала + симметрия сеток. По docs/geo-design-spec.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 2-колоночный layout: тело + собственный sticky гео-рейл (как finance/gov/markets).
+   Токены дублируем на .geo-layout, чтобы .geo-rail (сиблинг тела) их наследовал. */
+.geo-layout{
+  --ink:var(--cc-ink); --ink-2:var(--cc-ink-2); --ink-3:var(--cc-ink-3);
+  --panel:var(--cc-panel); --panel-2:var(--cc-panel-2);
+  --line:var(--cc-line); --line-2:var(--cc-line-2);
+  --accent:var(--cc-accent); --accent-soft:var(--cc-accent-soft);
+  --amber:var(--cc-amber);
+  --pos:var(--cc-success); --neg:var(--cc-danger); --info:var(--cc-info); --violet:var(--cc-violet);
+  --serif:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
+  /* единая типографская шкала — 5 ступеней вместо россыпи ~12 кеглей */
+  --g-display:24px; --g-title:19px; --g-body:14px; --g-meta:11px; --g-tag:10.5px;
+  display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+@media(max-width:1040px){.geo-layout{grid-template-columns:1fr;}}
+.geo-layout .geo-body{min-width:0;}
+
+/* ── единая типо-шкала: тело прозы поднято до 14px (уходит «мелко») ────────── */
+.geo-hybrid .gcard h3{font-size:var(--g-title);}
+.geo-hybrid .gcard-sub{font-size:13px;}
+.geo-hybrid .gcitem-effect,.geo-hybrid .gcitem-rationale,.geo-hybrid .gsub-why,
+.geo-hybrid .gscen-row,.geo-hybrid .gexp-cell-v,.geo-hybrid .grisk-name,
+.geo-hybrid .gasym-txt,.geo-hybrid .gsens-mech,.geo-hybrid .gtrig-t{font-size:var(--g-body);line-height:1.55;}
+.geo-hybrid .gcitem-mag{color:var(--info);}  /* magnitude = модель-оценка, не CTA (медь только для ссылок) */
+/* каналы равной высоты, рационале в 3 строки → ровный низ карточек */
+.geo-hybrid .gchannels{align-items:stretch;}
+.geo-hybrid .gchannel{display:flex;flex-direction:column;}
+.geo-hybrid .gcitem-rationale{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ── симметрия карты экспозиции: фикс 2 колонки вместо auto-fit (рваный край) ── */
+.geo-hybrid .gexp-grid{grid-template-columns:1fr 1fr;align-items:start;}
+.geo-hybrid .gexp-grid>.gexp-cell:first-child{grid-column:1 / -1;}
+@media(max-width:720px){.geo-hybrid .gexp-grid{grid-template-columns:1fr;}}
+.geo-hybrid .gover-facts{grid-template-columns:repeat(2,1fr);}
+
+/* ── HERO-вердикт ──────────────────────────────────────────────────────────── */
+.geo-hybrid .ghero-verdict{font-family:var(--serif);font-size:var(--g-display);line-height:1.2;font-weight:600;color:var(--ink);margin:6px 0 16px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.geo-hybrid .ghero-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
+@media(max-width:640px){.geo-hybrid .ghero-cols{grid-template-columns:1fr 1fr;}}
+.geo-hybrid .ghero-col{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:3px;}
+.geo-hybrid .ghero-col-l{font-family:var(--mono);font-size:var(--g-meta);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);}
+.geo-hybrid .ghero-col-v{font-family:var(--mono);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.geo-hybrid .ghero-col-v.up{color:var(--pos);} .geo-hybrid .ghero-col-v.down{color:var(--neg);}
+.geo-hybrid .ghero-col-v.muted{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);}
+.geo-hybrid .ghero-col-sub{font-size:11.5px;line-height:1.4;color:var(--ink-3);}
+.geo-hybrid .ghero-proof{font-size:13px;line-height:1.5;color:var(--ink-2);margin-top:12px;}
+.geo-hybrid .gdcc{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:7px;}
+.geo-hybrid .gdcc p{font-size:12.5px;line-height:1.5;color:var(--ink-2);margin:0;}
+.geo-hybrid .gdcc b{color:var(--ink);}
+
+/* ── пара война/мир (переиспользуется в рейле) ────────────────────────────── */
+.gwp{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.gwp-cell{display:flex;flex-direction:column;gap:2px;}
+.gwp-val{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:600;white-space:nowrap;}
+.gwp-val.up{color:var(--pos);} .gwp-val.down{color:var(--neg);}
+.gwp-lbl{font-family:var(--mono);font-size:var(--g-meta);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);}
+
+/* ── ГЕО-РЕЙЛ (sticky) ─────────────────────────────────────────────────────── */
+.geo-rail{position:sticky;top:80px;align-self:start;}
+@media(max-width:1040px){.geo-rail{position:static;}}
+.geo-rail-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg,16px);padding:20px 20px 18px;display:flex;flex-direction:column;gap:0;font-family:var(--sans);color:var(--ink);}
+.geo-rail-card .grl-eyebrow{font-family:var(--mono);font-size:var(--g-meta);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px;}
+.geo-rail-card .grl-verdict{font-family:var(--serif);font-size:var(--g-title);line-height:1.25;font-weight:600;color:var(--ink);display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
+.geo-rail-card .grl-gloss{flex-basis:100%;font-family:var(--sans);font-size:13px;line-height:1.5;font-weight:400;color:var(--ink-2);margin-top:5px;}
+.geo-rail-card .grl-sec{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
+.geo-rail-card .grl-label{font-family:var(--mono);font-size:var(--g-meta);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:7px;}
+.geo-rail-card .grl-exp-val{font-size:14px;font-weight:600;margin-bottom:7px;text-transform:capitalize;}
+.geo-rail-card .grl-lean{font-size:14px;font-weight:600;color:var(--ink);}
+.geo-rail-card .grl-lean-p{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin:2px 0 7px;}
+.geo-rail-card .grl-proof{font-size:13px;line-height:1.5;color:var(--ink-2);margin-top:12px;}
+.geo-rail-card .grl-range .grl-range-v{font-family:var(--mono);font-size:13px;color:var(--ink-3);}
+.geo-rail-card .grl-range-note{font-size:11px;line-height:1.4;color:var(--ink-3);margin-top:3px;}
+.geo-rail-card .grl-trust{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;}
+.geo-rail-card .grl-trust-src{font-family:var(--mono);font-size:var(--g-meta);color:var(--ink-3);}
+.geo-rail-card .grl-trust-trig{display:flex;align-items:flex-start;gap:6px;font-size:12px;line-height:1.45;color:var(--ink-2);margin-top:7px;}
+.geo-rail-card .grl-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;}
+.geo-rail-card .grl-link{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;font-size:12.5px;color:var(--accent);text-align:left;cursor:pointer;line-height:1.45;}
+.geo-rail-card .grl-link:hover{color:var(--cc-accent-hover,var(--accent));}
+.geo-rail-card .grl-link:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-soft);border-radius:4px;}
+
+/* меметр экспозиции (3 сегм.) и бар вероятностей (4 сегм.) */
+.gmeme{display:flex;gap:3px;}
+.gmeme i{height:6px;flex:1;border-radius:3px;}
+.gprob{display:flex;gap:3px;margin-top:6px;}
+.gprob i{height:6px;flex:1;border-radius:3px;}
+
+/* глосса-тултип для кодов (задел под интерактивные подписи) */
+.geo-hybrid .gloss{text-decoration:underline dotted;text-underline-offset:2px;cursor:help;color:var(--ink-2);}
+
+/* методические секции — визуальная граница «глубже по желанию» */
+.geo-hybrid .gmethod-divider{font-family:var(--mono);font-size:var(--g-meta);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);border-top:1px solid var(--line);padding-top:14px;margin-top:2px;}

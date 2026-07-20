@@ -23,17 +23,72 @@ import {
 import { KeyTakeaway } from "../design/textblocks";
 import "../styles/geo.css";
 
-/* ── текст: очистка markdown-эмфазы/ссылок + безопасная обрезка (тот же приём,
-   что у InstitutionsTab.cleanText/shortText/shortProse — файл самодостаточен) ── */
+/* ── чистка внутренней нотации методики, протекающей в прозу (жалоба владельца
+   «c00, экспозиция вчитываешься»): URL-фрагменты источников + debug-коды
+   C0x/A0x/§/K-без-словаря/G/имена-файлов. K-коды с известным смыслом заменяем
+   человеческим событием (событие несёт достоверность, код — нет). Данные
+   geo.json НЕ трогаем — чистим на выводе. См. docs/geo-design-spec §5. ─────── */
+const K_EVENTS = {
+  K08: "фискальное изъятие вместо дивиденда (прецедент)",
+  K09: "принудительная расконвертация расписок (2022)",
+  K12: "делистинг / принудительная конвертация",
+  K19: "SDN на «Газпром нефть» (01.2025)",
+  K22: "политическое обнуление трубопровода (прецедент 2022)",
+  K23: "принудительная смена собственника (кейс NIS)",
+  K26: "кампания ударов по НПЗ",
+  K27: "долговой кризис девелопера при высокой ставке",
+  K30: "целевое windfall-изъятие",
+};
+function stripUrls(s) {
+  return s
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\bwww\.\S+/gi, "")
+    .replace(/\b[\w-]+\.(?:ru|com|org|net)\/\S*/gi, "")
+    .replace(/\b[a-z0-9]{12,}\.html?\b/gi, "")
+    .replace(/\bc0\d\b/gi, "");
+}
+function stripJargon(s) {
+  let out = s;
+  out = out.replace(/\bK\d{2}\b/g, (m) => K_EVENTS[m] || "");
+  out = out.replace(/\bC\d{2}(?:\s*§\s*\d+[а-яёa-z]?)?/gi, "");
+  out = out.replace(/\bA\d{2}(?:\s*§\s*\d+)?/gi, "");
+  out = out.replace(/§\s*\d+[а-яёa-z]?/gi, "");
+  out = out.replace(/\bsrc_[\w-]+/gi, "");
+  out = out.replace(/\b\w+\.json\b/gi, "");
+  // E-код в прозе (E14, E14/C03) — внутренний индекс, инвестору не нужен; в
+  // 15-факторной сетке E-ключ рендерится напрямую (it.key), не через cleanText.
+  out = out.replace(/\bE1[0-5]\b|\bE[1-9]\b/g, "");
+  return out;
+}
+
+/* ── текст: очистка markdown-эмфазы/ссылок + жаргона + безопасная обрезка (тот
+   же приём, что у InstitutionsTab.cleanText/shortText/shortProse) ─────────── */
 function cleanText(t) {
   if (!t) return "";
   let s = String(t);
   s = s.replace(/\*\*/g, "").replace(/\*/g, "");
   s = s.replace(/\[[^\]]*\]/g, "");
+  s = stripUrls(s);
+  s = stripJargon(s);
   s = s.replace(/\s+([,.;:»])/g, "$1").replace(/([«(])\s+/g, "$1");
-  s = s.replace(/\(\s*\)/g, "");
-  s = s.replace(/\s{2,}/g, " ").replace(/^[\s—–\-,;:.]+/, "").trim();
+  s = s.replace(/\(\s*[,;/·]?\s*\)/g, "");
+  s = s.replace(/\s{2,}/g, " ").replace(/\s+\/\s+(?=[,.;)])/g, "").replace(/^[\s—–\-,;:./]+/, "").trim();
   return s;
+}
+
+/* ── парсинг пары ±% из war_peace_asymmetry для ведущего геочисла рейла/hero
+   («Δстоимость S1 ≈ +40…+70%» → «+40…+70%»); фолбэк — одиночное число. ───── */
+function extractDelta(text) {
+  if (!text) return null;
+  const s = String(text);
+  const range = s.match(/[+−–-]\s?\d{1,3}\s?[…\-–]{1,3}\s?[+−–-]?\s?\d{1,3}\s?%/);
+  if (range) return range[0].replace(/\s/g, "");
+  const one = s.match(/[+−–-]?\s?\d{1,3}\s?%/);
+  return one ? one[0].replace(/\s/g, "") : null;
+}
+function maxNum(text) {
+  const nums = (String(text || "").match(/\d{1,3}/g) || []).map(Number);
+  return nums.length ? Math.max(...nums) : null;
 }
 function shortText(t, max = 180) {
   const s = cleanText(t);
@@ -311,7 +366,116 @@ function OverlapCard({ d }) {
   );
 }
 
-export default function GeoTab({ geoJson, geoMd, onNavigateTab }) {
+/* ── меметр экспозиции: 3 сегмента низк/умер/выс, подсвечен активный ──────── */
+function Memeter({ level }) {
+  const order = ["low", "moderate", "high"];
+  const col = { low: "var(--pos)", moderate: "var(--amber)", high: "var(--neg)" };
+  return (
+    <span className="gmeme">
+      {order.map((k) => (
+        <i key={k} style={{ background: level === k ? col[k] : "var(--line-2)" }} />
+      ))}
+    </span>
+  );
+}
+
+/* ── 4-сегментный бар вероятностей сценариев S1·S2·S3·S4, лидер заполнен ──── */
+function ProbBar({ leaderIdx }) {
+  return (
+    <span className="gprob">
+      {[0, 1, 2, 3].map((i) => (
+        <i key={i} style={{ background: i === leaderIdx ? "var(--ink-2)" : "var(--line-2)" }} />
+      ))}
+    </span>
+  );
+}
+
+/* ── ведущее геочисло: пара ±% война/мир (зелёный ▲ мир / красный ▼ эскалация) ── */
+function WarPeacePair({ peace, esc, compact }) {
+  if (!peace && !esc) return null;
+  return (
+    <div className={`gwp${compact ? " gwp--compact" : ""}`}>
+      <div className="gwp-cell">
+        <span className="gwp-val up">{peace ? <>▲ {peace}</> : "—"}</span>
+        <span className="gwp-lbl">к миру</span>
+      </div>
+      <div className="gwp-cell">
+        <span className="gwp-val down">{esc ? <>▼ {esc}</> : "—"}</span>
+        <span className="gwp-lbl">к эскалации</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── ГЕО-РЕЙЛ (sticky) — заменяет общую «справедливую цену» на вкладке гео.
+   Сквозной якорь смысла при любом скролле (запрос владельца). Ведущее число —
+   пара ±% война/мир, НЕ ₽-коридор (решение гендира). См. geo-design-spec §1. ── */
+function GeoRail({ verdict, gloss, peace, esc, expInfo, expLevel, leanLabel, leaderIdx,
+                   leanProb, directGeo, range, conf, macroDate, sourcesCount, topTrigger,
+                   fairBase, onNavigateTab }) {
+  return (
+    <aside className="geo-rail">
+      <div className="geo-rail-card">
+        <div className="grl-eyebrow">Гео-оверлей</div>
+        {verdict && (
+          <div className="grl-verdict">
+            {verdict} <Tag type="judg" />
+            {gloss && <div className="grl-gloss">{gloss}</div>}
+          </div>
+        )}
+
+        {(peace || esc) && (
+          <div className="grl-sec">
+            <div className="grl-label">Куда скосит</div>
+            <WarPeacePair peace={peace} esc={esc} />
+          </div>
+        )}
+
+        {expInfo && (
+          <div className="grl-sec">
+            <div className="grl-label">Гео-экспозиция</div>
+            <div className="grl-exp-val" style={{ color: expInfo.c }}>{expInfo.t.replace(" гео-экспозиция", "")}</div>
+            <Memeter level={expLevel} />
+          </div>
+        )}
+
+        {leanLabel && (
+          <div className="grl-sec">
+            <div className="grl-label">Крен сценария</div>
+            <div className="grl-lean">{leanLabel}</div>
+            {leanProb && <div className="grl-lean-p">{leanProb}</div>}
+            <ProbBar leaderIdx={leaderIdx} />
+          </div>
+        )}
+
+        {directGeo != null && (
+          <div className="grl-proof">≈{directGeo}% недавних движений — прямой гео-канал</div>
+        )}
+
+        {range && (
+          <div className="grl-sec grl-range">
+            <div className="grl-label">Сценарный разброс (оверлей)</div>
+            <div className="grl-range-v">{range}{conf ? ` · уверенность ${conf}` : ""}</div>
+            <div className="grl-range-note">разброс-оверлей на оценку, не отдельная цель</div>
+          </div>
+        )}
+
+        <div className="grl-trust">
+          <div className="grl-trust-src">Барометр {macroDate || "—"} · {sourcesCount || "публичные"} {sourcesCount ? "источн." : "источники"}</div>
+          {topTrigger && <div className="grl-trust-trig"><span className="grl-dot" aria-hidden="true" />Следим: {topTrigger}</div>}
+        </div>
+
+        {fairBase && (
+          <button type="button" className="grl-link" onClick={() => onNavigateTab && onNavigateTab("finance")}>
+            Модельная цена {fairBase} · гео — поправка к ней →
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+export default function GeoTab({ geoJson, geoMd, onNavigateTab, fairBase, upside }) {
   if (!geoJson) return null;
 
   const macro = geoJson.macro_handoff_cited || {};
@@ -363,69 +527,98 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab }) {
     return s + (m ? parseFloat(m[0].replace(",", ".")) : 0);
   }, 0);
 
+  // ── производные для гео-рейла и hero-вердикта (данные не трогаем, только вывод) ──
+  const peaceDelta = extractDelta(asym.peace_gains);
+  const escDelta = extractDelta(asym.escalation_losses);
+  const pMax = maxNum(asym.peace_gains);
+  const eMax = maxNum(asym.escalation_losses);
+  const convex = (pMax != null && eMax != null) ? (pMax >= eMax ? "к миру" : "к эскалации") : null;
+  const directGeoRaw = attrChannels.direct_geo;
+  const directGeo = directGeoRaw != null ? (String(directGeoRaw).match(/\d+/) || [null])[0] : null;
+  const leaderIdx = leanKey ? SCEN_DEFS.findIndex((s) => leanKey.toUpperCase().startsWith(s.key.split("_")[0])) : -1;
+  const leanKeyFull = leaderIdx >= 0 ? SCEN_DEFS[leaderIdx].key : null;
+  const leanProbRaw = leanKeyFull ? scenarioProbText(macro, leanKeyFull) : null;
+  // ОТК-персона: «64% / 6 мес» непонятно (вероятность? вес?) → явная подпись
+  const leanProbPct = leanProbRaw ? (leanProbRaw.match(/(\d+%)\s*6м/)?.[1] || leanProbRaw.match(/\d+%/)?.[0] || null) : null;
+  const leanProb = leanProbPct ? `вероятность ${leanProbPct} · 6 мес` : null;
+  const rangeStr = hasRange ? `${fmtInt(conclusion.range_low)}–${fmtInt(conclusion.range_high)} ₽` : null;
+  const topTrigger = triggers.length ? shortText(triggers[0], 64) : null;
+  const maynik = directGeo != null && +directGeo >= 40
+    ? "Геополитика — главный маятник стоимости"
+    : "Гео — вторичный фактор для этой бумаги";
+  const verdict = `${maynik}${convex ? `. Бумага выпукла ${convex}` : ""}.`;
+  // короткая выжимка базового сценария для колонки «БАЗА» в hero
+  const baseScen = leanKeyFull ? scenarios.find((x) => x.scenario === leanKeyFull) : null;
+  const baseShort = baseScen ? shortText(baseScen.dividend_capacity || baseScen.fcf_direction || "", 64) : null;
+
   return (
-    <div className="geo-hybrid">
-      {/* Слой 0 — рамка */}
-      <p className="gfr-frame">
-        Поправка на геополитическую экспозицию — перевод санкционно-экспортных и владельческих факторов
-        в требуемую доходность и денежный поток. Диапазон ниже — сценарно-условный оверлей на финансовую
-        оценку, а не отдельная справедливая цена. Не прогноз войны/мира и не рекомендация.
-      </p>
-
-      {/* Слой 1 — hero: экспозиция + диапазон корректировки + 3 канала */}
-      <div className="ghero">
-        <div className="ghero-meta">
-          <div className="ghero-meta-l">
-            {expInfo && <span className="gexp-badge" style={{ color: expInfo.c, background: expInfo.bg }}>{expInfo.t}</span>}
-            {(macro.date || leanLabel) && (
-              <span className="ghero-macro">
-                барометр geo-macro-analyst{macro.date ? ` · ${macro.date}` : ""}
-                {leanLabel ? <> · крен <b>{leanLabel}</b></> : ""}
-              </span>
-            )}
+    <div className="geo-layout">
+      <div className="geo-body geo-hybrid">
+        {/* Слой 1 — HERO-вердикт: сигнал поверх данных (4 слоя чтения) */}
+        <div className="ghero">
+          <div className="ghero-meta">
+            <div className="ghero-meta-l">
+              {expInfo && <span className="gexp-badge" style={{ color: expInfo.c, background: expInfo.bg }}>{expInfo.t}</span>}
+              {(macro.date || leanLabel) && (
+                <span className="ghero-macro">
+                  барометр{macro.date ? ` ${macro.date}` : ""}
+                  {leanLabel ? <> · крен <b>{leanLabel}</b></> : ""}
+                </span>
+              )}
+            </div>
+            {asOf && <span className="ghero-asof">на {asOf}</span>}
           </div>
-          {asOf && <span className="ghero-asof">на {asOf}</span>}
-        </div>
 
-        {hasRange && (
-          <div className="grange">
-            <span className="grange-label">Гео-корректировка к оценке</span>
-            <span className="grange-val">{fmtInt(conclusion.range_low)}–{fmtInt(conclusion.range_high)} ₽</span>
-            {confInfo && <span className="grange-conf" style={{ color: confInfo.c, background: confInfo.bg }}>уверенность {confInfo.t}</span>}
+          <div className="ghero-verdict">{verdict} <Tag type="judg" /></div>
+
+          <div className="ghero-cols">
+            <div className="ghero-col">
+              <div className="ghero-col-l">К миру</div>
+              <div className="ghero-col-v up">{peaceDelta ? <>▲ {peaceDelta}</> : "—"}</div>
+            </div>
+            <div className="ghero-col">
+              <div className="ghero-col-l">К эскалации</div>
+              <div className="ghero-col-v down">{escDelta ? <>▼ {escDelta}</> : "—"}</div>
+            </div>
+            <div className="ghero-col">
+              <div className="ghero-col-l">База{leanProbPct ? ` · ${leanProbPct}` : ""}</div>
+              <div className="ghero-col-v muted">{leanLabel ? leanLabel.replace(/^S\d\s·\s/, "") : "—"}</div>
+              {baseShort && <div className="ghero-col-sub">{baseShort}</div>}
+            </div>
+            <div className="ghero-col">
+              <div className="ghero-col-l">Уверенность</div>
+              <div className="ghero-col-v muted" style={confInfo ? { color: confInfo.c } : undefined}>{confInfo ? confInfo.t : "—"}</div>
+              <div className="ghero-col-sub">по ₽-коридору</div>
+            </div>
           </div>
-        )}
-        <div className="gfr-frame" style={{ marginTop: 0 }}>
-          Сценарно-условный коридор поверх финансовой оценки (не сама целевая цена) — складывается с поправкой институтов.
-        </div>
 
-        {Array.isArray(conclusion.key_assumptions) && conclusion.key_assumptions.length > 0 && (
-          <ul className="gassump">
-            {conclusion.key_assumptions.slice(0, 3).map((a, i) => <li key={i}>{shortProse(a, 220)}</li>)}
-          </ul>
-        )}
+          {directGeo != null && (
+            <div className="ghero-proof">≈{directGeo}% недавних движений — прямой гео-канал (не переоценка рынком).</div>
+          )}
 
-        <div className="gchannels">
-          {channels.map((c) => <Channel key={c.key} {...c} />)}
-        </div>
-
-        {(dcc.within_channels || dcc.vs_macro_rate || dcc.vs_inst || dcc.vs_market_price || instOwned.length > 0) && (
           <details className="gdet">
             <summary>
-              Как считали три канала и проверка на двойной счёт
+              Как гео переводится в оценку: 3 канала A/B/C{(dcc.within_channels || dcc.vs_macro_rate || dcc.vs_inst || dcc.vs_market_price) ? " + проверка двойного счёта" : ""}
               <svg className="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
             </summary>
             <div className="gdet-body">
-              {dcc.within_channels && <p><b>Между каналами A/B/C:</b> {shortProse(dcc.within_channels, 260)}</p>}
-              {dcc.vs_macro_rate && <p><b>Против общей ставки/курса:</b> {shortProse(dcc.vs_macro_rate, 260)}</p>}
-              {dcc.vs_inst && <p><b>Против вкладки «Институты»:</b> {shortProse(dcc.vs_inst, 300)}</p>}
-              {dcc.vs_market_price && <p><b>Против рыночной цены:</b> {shortProse(dcc.vs_market_price, 260)}</p>}
-              {instOwned.length > 0 && (
-                <p><b>Не в этих каналах (владение «Институты»):</b> {instOwned.map((v) => shortText(v.effect, 90)).join("; ")}</p>
+              <div className="gchannels">
+                {channels.map((c) => <Channel key={c.key} {...c} />)}
+              </div>
+              {(dcc.within_channels || dcc.vs_macro_rate || dcc.vs_inst || dcc.vs_market_price || instOwned.length > 0) && (
+                <div className="gdcc">
+                  {dcc.within_channels && <p><b>Между каналами A/B/C:</b> {shortProse(dcc.within_channels, 260)}</p>}
+                  {dcc.vs_macro_rate && <p><b>Против общей ставки/курса:</b> {shortProse(dcc.vs_macro_rate, 260)}</p>}
+                  {dcc.vs_inst && <p><b>Против вкладки «Институты»:</b> {shortProse(dcc.vs_inst, 300)}</p>}
+                  {dcc.vs_market_price && <p><b>Против рыночной цены:</b> {shortProse(dcc.vs_market_price, 260)}</p>}
+                  {instOwned.length > 0 && (
+                    <p><b>Не в этих каналах (владение «Институты»):</b> {instOwned.map((v) => shortText(v.effect, 90)).join("; ")}</p>
+                  )}
+                </div>
               )}
             </div>
           </details>
-        )}
-      </div>
+        </div>
 
       {/* Слой 2 — анти-сверхатрибуция: что от геополитики, а что от рынка/цикла */}
       {Object.keys(attrChannels).length > 0 && (
@@ -649,6 +842,26 @@ export default function GeoTab({ geoJson, geoMd, onNavigateTab }) {
         конфигурация геополитического барометра и сверка с институциональным анализом. Сценарии — суждение,
         не прогноз исхода войны; коридор — сценарно-условный оверлей, не рекомендация.
       </p>
+      </div>
+
+      <GeoRail
+        verdict={verdict}
+        peace={peaceDelta}
+        esc={escDelta}
+        expInfo={expInfo}
+        expLevel={expLevel}
+        leanLabel={leanLabel}
+        leaderIdx={leaderIdx}
+        leanProb={leanProb}
+        directGeo={directGeo}
+        range={rangeStr}
+        conf={confInfo ? confInfo.t : null}
+        macroDate={macro.date || asOf}
+        sourcesCount={sources.length}
+        topTrigger={topTrigger}
+        fairBase={fairBase}
+        onNavigateTab={onNavigateTab}
+      />
     </div>
   );
 }

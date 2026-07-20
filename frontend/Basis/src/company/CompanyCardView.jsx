@@ -6341,7 +6341,10 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       </div>
     );
     if (Array.isArray(geoJson?.gre_profile) && geoJson.gre_profile.length > 0) {
-      return <GeoTab geoJson={geoJson} geoMd={geoMd} onNavigateTab={setTab} />;
+      // fairBase/_upside доступны через замыкание (объявлены ниже, но renderGeoTab
+      // вызывается в JSX уже после их инициализации) — GeoTab рисует свой гео-рейл,
+      // строка «модельная цена» связывает гео-оверлей с финансовой оценкой.
+      return <GeoTab geoJson={geoJson} geoMd={geoMd} onNavigateTab={setTab} fairBase={_fairBase} upside={_upside} />;
     }
     return renderGeo();
   };
@@ -7034,11 +7037,13 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
       })()}
 
       {NEO ? (
-        // Вкладки «Финансы», «Корп. управление» и «Рынки» — на всю ширину: у них свой правый рейл
-        // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл» / Markets — m5 mrail
-        // «Позиция/Что отслеживать/Конкуренты»). Глобальный Decision-rail (справедливая цена) тут НЕ
-        // показываем — в макете m5 его нет.
-        (tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro") ? (
+        // Вкладки «Финансы», «Корп. управление», «Рынки», «Макро» — на всю ширину: у них свой правый рейл
+        // (FinanceTab «Заметка аналитика» / GovernanceTab «как считается балл» / Markets — m5 mrail).
+        // «Геополитика» (богатая схема v0.9) тоже рисует СВОЙ гео-рейл внутри GeoTab (2026-07-21) —
+        // общий Decision-rail (справедливая цена) на ней не показываем, иначе дублируется. Старая схема
+        // гео своего рейла не имеет → остаётся на общем Decision-rail до миграции.
+        (tab === "finance" || tab === "governance" || tab === "markets" || tab === "macro" ||
+         (tab === "geo" && Array.isArray(geoJson?.gre_profile) && geoJson.gre_profile.length > 0)) ? (
           <div className="tw-min-w-0">{tabBody}</div>
         ) : (
           <div className="tw-grid tw-gap-[26px] tw-items-start tw-grid-cols-1 lg:tw-grid-cols-[minmax(0,1fr)_332px]">

@@ -292,6 +292,19 @@ function mdFirstSentence(md, cap) {
 function readJson(p) { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } }
 function readText(p) { try { return fs.readFileSync(p, "utf8"); } catch { return null; } }
 
+// Пути реального бандла приложения (для progressive takeover, см. pageShell) —
+// craco build уже отработал (см. package.json: build = craco build && this script),
+// asset-manifest.json существует. files["main.js"/"main.css"] уже с ведущим "/"
+// (в отличие от entrypoints[] — там пути без слэша, легко словить 404 на вложенных
+// /company/T/finance/ путях, если взять оттуда).
+function loadAppAssets() {
+  const manifest = readJson(path.join(_BUILD_DIR, "asset-manifest.json"));
+  const js = manifest && manifest.files && manifest.files["main.js"];
+  if (!js) return null;
+  const css = manifest.files["main.css"] || null;
+  return { js, css };
+}
+
 function loadCompany(ticker, namesFallback) {
   const dir = path.join(_COMPANIES_DIR, ticker);
   const fin = readJson(path.join(dir, "financials.json"));
@@ -378,7 +391,31 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 ul{padding-left:22px}
 `.trim();
 
-function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd }) {
+// Progressive takeover: статика остаётся ПЕРВЫМ и единственным контентом, пока
+// живое приложение реально не отрисовало карточку с данными — НЕ прячем её сразу
+// синхронным скриптом (в отличие от anti-FOUC темы в public/index.html), потому
+// что там cost=0 при отказе, а здесь отказ (бандл не догрузился/не смонтировался)
+// без этой страховки означал бы пустой экран — регресс хуже текущей заглушки.
+// Слушатель регистрируется СИНХРОННО (без defer) до того, как бандл вообще начнёт
+// качаться, поэтому гонка «событие прилетело раньше подписки» невозможна.
+// Бот без JS: див #seo-static просто остаётся видимым как обычный HTML — контент
+// для такого бота не меняется НИ БАЙТОМ относительно прежней чистой статики.
+function appMountHtml(assets) {
+  if (!assets || !assets.js) return "";
+  const css = assets.css ? `<link rel="stylesheet" href="${assets.css}">` : "";
+  return `
+<div id="root"></div>
+<script>
+window.addEventListener("basis:company-ready", function () {
+  var el = document.getElementById("seo-static");
+  if (el) el.style.display = "none";
+});
+</script>
+${css}
+<script defer src="${assets.js}"></script>`;
+}
+
+function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets }) {
   const url = _SITE + canonicalPath;
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
@@ -421,12 +458,14 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd }
 <style>${CSS}</style>
 </head>
 <body>
+<div id="seo-static">
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
 <p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
 «купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
 обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
 считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
+</div>${appMountHtml(assets)}
 </body>
 </html>`;
 }
@@ -573,7 +612,7 @@ function hubDescription(c) {
   );
 }
 
-function hubPage(c, tabsWritten, sectorPeers) {
+function hubPage(c, tabsWritten, sectorPeers, assets) {
   const title = `${titleName(c)} (${c.ticker}) — аналитика: финансы, дивиденды, оценка | Basis`;
   const desc = hubDescription(c);
   const parts = [];
@@ -632,10 +671,11 @@ function hubPage(c, tabsWritten, sectorPeers) {
     ],
     bodyHtml: parts.join("\n"),
     jsonLd: corpLd(c),
+    assets,
   });
 }
 
-function tabPage(c, spec, contentHtml, tabsWritten) {
+function tabPage(c, spec, contentHtml, tabsWritten, assets) {
   const others = tabsWritten.filter((t) => t.slug !== spec.slug);
   const othersHtml = others.length
     ? `<h2>Другие разделы разбора</h2><div class="grid">${others.map((t) =>
@@ -659,6 +699,7 @@ ${othersHtml}`;
     ],
     bodyHtml: body,
     jsonLd: corpLd(c),
+    assets,
   });
 }
 
@@ -685,6 +726,35 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
   });
 }
 
+// Короткий URL /TICKER/ → канонический /company/TICKER/. Мягкий редирект (нет
+// доступа к серверу раздачи статики на Timeweb, см. work-journal — прод отдаёт
+// Caddy, наш nginx.conf там не участвует, кастомных 301 мы настроить не можем):
+// meta-refresh (сработает без JS) + JS location.replace (мгновенно с JS) +
+// canonical на целевой URL + noindex (сама эта страница — не результат, не должна
+// попасть в выдачу отдельно от /company/T/) чтобы не плодить дубли в индексе.
+// НЕ в sitemap — она промежуточная прокладка, п.9 требования: sitemap только
+// «реальные» URL.
+const RESERVED_ROOT_PATHS = new Set(["COMPANY", "STATIC", "API"]);
+function shortRedirectPage(c) {
+  const target = `/company/${c.ticker}/`;
+  const url = _SITE + target;
+  return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(c.short)} (${c.ticker}) — Basis</title>
+<link rel="canonical" href="${url}">
+<meta name="robots" content="noindex, follow">
+<meta http-equiv="refresh" content="0; url=${target}">
+<script>location.replace(${JSON.stringify(target)});</script>
+</head>
+<body>
+<p><a href="${target}">${escapeHtml(c.short)} (${c.ticker}) — открыть на Basis</a></p>
+</body>
+</html>`;
+}
+
 /* --------------------------- sitemap --------------------------- */
 
 function writeSitemap(urls) {
@@ -704,6 +774,8 @@ function main() {
     return;
   }
   const names = loadNames();
+  const assets = loadAppAssets();
+  if (!assets) console.log("⚠️  asset-manifest.json/main.js не найден — страницы без live-приложения (только статика)");
   const companies = [];
   const skipped = [];
   for (const ticker of fs.readdirSync(_COMPANIES_DIR).sort()) {
@@ -739,21 +811,34 @@ function main() {
 
     const hubDir = path.join(_BUILD_DIR, "company", c.ticker);
     fs.mkdirSync(hubDir, { recursive: true });
-    fs.writeFileSync(path.join(hubDir, "index.html"), hubPage(c, tabsWritten, peers), "utf8");
+    fs.writeFileSync(path.join(hubDir, "index.html"), hubPage(c, tabsWritten, peers, assets), "utf8");
     urls.push({ loc: `${_SITE}/company/${c.ticker}/`, freq: "weekly", pri: "0.8" });
 
     for (const [spec, content] of rendered) {
       const dir = path.join(hubDir, spec.slug);
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(path.join(dir, "index.html"), tabPage(c, spec, content, tabsWritten), "utf8");
+      fs.writeFileSync(path.join(dir, "index.html"), tabPage(c, spec, content, tabsWritten, assets), "utf8");
       urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6" });
       tabPagesCount++;
     }
   }
 
   fs.writeFileSync(path.join(_BUILD_DIR, "company", "index.html"), indexPage(companies), "utf8");
+
+  // Короткие URL /TICKER/ — редирект на канонический /company/TICKER/ (п.7 задачи).
+  let shortUrlCount = 0;
+  const shortUrlSkipped = [];
+  for (const c of companies) {
+    if (RESERVED_ROOT_PATHS.has(c.ticker.toUpperCase())) { shortUrlSkipped.push(c.ticker); continue; }
+    const dir = path.join(_BUILD_DIR, c.ticker);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), shortRedirectPage(c), "utf8");
+    shortUrlCount++;
+  }
+
   writeSitemap(urls);
   console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} страниц разделов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
 

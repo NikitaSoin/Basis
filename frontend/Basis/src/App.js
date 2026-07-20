@@ -399,6 +399,18 @@ function OverviewView({ token, onSelectCompany }) {
   );
 }
 
+// slug URL-раздела (/company/T/<slug>/) → вкладка карточки (initialTab). Держать
+// в синхроне с TAB_PAGES в scripts/generate-seo-pages.js — там же генератор SEO-
+// страниц с теми же адресами. slug "dividends" сознательно ведёт на вкладку
+// "governance" (дивиденды — часть блока управления в самой карточке).
+const SEO_SLUG_TO_TAB = {
+  business: "business",
+  finance: "finance",
+  dividends: "governance",
+  macro: "macro",
+  geo: "geo",
+};
+
 // Резолвер карточки: значение может быть объектом компании или тикером-строкой.
 const CompanyCardResolver = ({ value, onBack, initialTab }) => {
   const [obj, setObj] = useState(typeof value === "object" && value ? value : null);
@@ -413,6 +425,14 @@ const CompanyCardResolver = ({ value, onBack, initialTab }) => {
       .catch(() => alive && setNotFound(true));
     return () => { alive = false; };
   }, [value]);
+  // Данные реально пришли (карточка есть ИЛИ точно не найдена) — сигнал статическим
+  // SEO-страницам (build/company/<T>/..., см. scripts/generate-seo-pages.js), что
+  // пора спрятать текстовую заглушку и показать живую карточку. Событие, а не проп —
+  // страница-обёртка не часть React-дерева, слушает window напрямую.
+  useEffect(() => {
+    if (!obj && !notFound) return;
+    try { window.dispatchEvent(new Event("basis:company-ready")); } catch {}
+  }, [obj, notFound]);
   if (obj) return <CompanyCard company={obj} onBack={onBack} initialTab={initialTab} />;
   if (notFound) return <div className="tw-py-12 tw-text-text-tertiary">Компания «{String(value)}» не найдена в базе. <button onClick={onBack} className="tw-text-accent tw-underline tw-bg-transparent tw-border-0 tw-cursor-pointer">Назад</button></div>;
   return <div className="tw-flex tw-items-center tw-justify-center tw-py-24 tw-text-text-tertiary tw-text-[18px] tw-animate-pulse">Открываем карточку...</div>;
@@ -606,11 +626,23 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // Deep-link по ?company=TICKER[&tab=finance] — вход из статических SEO-страниц
-  // (build/company/<TICKER>/[<tab>/], см. scripts/generate-seo-pages.js) в живое
-  // приложение, сразу на нужную вкладку карточки.
+  // Deep-link в карточку компании — два входа:
+  // 1) /company/TICKER/[slug/] — основной URL страницы (см. scripts/generate-
+  //    seo-pages.js): та же статическая SEO-страница, что раньше только звала в
+  //    приложение кнопкой, теперь САМА содержит бандл и открывает карточку у себя
+  //    (progressive takeover, #seo-static прячется по событию basis:company-ready
+  //    из CompanyCardResolver). Короткие /TICKER/ редиректят сюда же build-time.
+  // 2) ?company=TICKER[&tab=finance] — старый query-формат, оставлен как фолбэк
+  //    (используется CTA-ссылками внутри самих SEO-страниц: /?company=T&tab=X).
   useEffect(() => {
     try {
+      const pathMatch = window.location.pathname.match(/^\/company\/([A-Za-z0-9]+)\/?([a-z]+)?\/?$/);
+      if (pathMatch) {
+        setSelectedCompany(pathMatch[1].toUpperCase());
+        const mappedTab = SEO_SLUG_TO_TAB[(pathMatch[2] || "").toLowerCase()];
+        if (mappedTab) setInitialCardTab(mappedTab);
+        return;
+      }
       const params = new URLSearchParams(window.location.search);
       const t = params.get("company");
       if (t) {
