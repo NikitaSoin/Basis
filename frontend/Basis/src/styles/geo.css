@@ -28,10 +28,10 @@
 .geo-hybrid .gfr-frame{font-size:12.5px;line-height:1.5;color:var(--ink-3);max-width:70ch;margin:0;}
 
 /* ── epistemic tags (общая схема с .inst-hybrid: факт=нейтраль, оценка=info, суждение=violet) ── */
-.geo-hybrid .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;white-space:nowrap;}
-.geo-hybrid .tag-fact{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
-.geo-hybrid .tag-judg{background:color-mix(in srgb,var(--violet) 12%,transparent);color:var(--violet);}
-.geo-hybrid .tag-est{background:color-mix(in srgb,var(--info) 12%,transparent);color:var(--info);}
+.geo-hybrid .tag,.geo-rail-card .tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:5px;vertical-align:middle;white-space:nowrap;}
+.geo-hybrid .tag-fact,.geo-rail-card .tag-fact{background:color-mix(in srgb,var(--ink-3) 14%,transparent);color:var(--ink-2);}
+.geo-hybrid .tag-judg,.geo-rail-card .tag-judg{background:color-mix(in srgb,var(--violet) 12%,transparent);color:var(--violet);}
+.geo-hybrid .tag-est,.geo-rail-card .tag-est{background:color-mix(in srgb,var(--info) 12%,transparent);color:var(--info);}
 
 /* ── generic card shell ───────────────────────────────────────────────── */
 .geo-hybrid .gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px;}
@@ -219,7 +219,7 @@
   --amber:var(--cc-amber);
   --pos:var(--cc-success); --neg:var(--cc-danger); --info:var(--cc-info); --violet:var(--cc-violet);
   --serif:"Fraunces",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --sans:"Inter",system-ui,sans-serif;
-  /* единая типографская шкала — 5 ступеней вместо россыпи ~12 кеглей */
+  --r:11px; --r-lg:16px;
   --g-display:24px; --g-title:19px; --g-body:14px; --g-meta:11px; --g-tag:10.5px;
   display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start;
   font-variant-numeric:tabular-nums lining-nums;
