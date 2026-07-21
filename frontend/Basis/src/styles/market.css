@@ -366,47 +366,55 @@
   .mk-screen .mk-ag { font-size: 10px; padding: 1px 6px; }
   .mk-screen .mk-basis { font-size: 10.5px; padding: 1px 7px; }
 
-  /* ── Акции: мини-карточки «4 в ряд» ──
-     Владелец, 2026-07-21 (второй заход после 2-колоночной версии выше):
-     «сделай больше в один ряд, штуки 4». Матрасчёт: экран 375px, паддинги
-     .mkt-panel 32px×2 → контент ~311px; 4 колонки при gap 6px → карточка
-     ~73px. В такую ширину физически НЕ влезает читаемо .mk-card выше (лого+
-     полное имя+сектор+цена+валюта+дельта+капитализация+бейдж апсайда+
-     confidence-точки) — это требует не сжатия, а другого набора полей.
-     Решение — StockCard.jsx рендерит для compact=true ОТДЕЛЬНУЮ мини-разметку
-     (.mk-card-mini, свои .mk-mini-tk/.mk-mini-px), не переиспользует DOM
-     богатой карточки: тикер + цена + дельта текстом (факт), апсайд к
-     справедливой цене (оценка Basis) свёрнут в ОДИН визуальный сигнал —
-     цветную полосу слева карточки (тот же язык, что .mk-tonebar в «Ленте»),
-     вместо отдельного текста+числа+точек уверенности. Полное имя, лого,
-     капитализация — убраны: секция уже сгруппирована по сектору
-     (.mk-grp-head), тикер даёт однозначную идентификацию, полное досье — в
-     одном тапе (открывает карточку компании). aria-label/title на кнопке
-     несут словесное описание для скринридеров/десктоп-hover, раз апсайд
-     стал цветом без текста — цвет не единственный канал информации.
+  /* ── Акции: мини-карточки «3 в ряд», с лого+именем ──
+     Владелец, 2026-07-21 (третий заход): «нужны иконки/логотипы компаний,
+     и названия, а не тикеры (тикер мельче под названием, как было раньше).
+     Если не влезает 4 — сделай 3, тогда должно влезть». Второй заход (только
+     тикер+цена+дельта, 4 в ряд, ~73px карточка) оказался СЛИШКОМ урезанным —
+     вернул лого+имя+тикер(мельче) в духе богатой .mk-card ниже, просто
+     пропорционально ужатые. Матрасчёт под 3 колонки: экран 375px, паддинги
+     .mkt-panel 32px×2 → контент ~311px; 3 колонки при gap 6px → карточка
+     ~99px — заметно просторнее прежних ~73px, помещает лого 22px + имя в
+     1 строку с ellipsis + тикер мельче под ним.
+     Апсайд к справедливой цене (оценка Basis) — по-прежнему цветная полоса
+     слева (язык .mk-tonebar из «Ленты») + короткая цифра тем же цветом
+     (эпистемика — title/aria-label не всплывают по тапу на телефоне, см.
+     ОТК-вывод у .mk-mini-fv ниже, актуален и для этой версии).
+     Явный repeat(3,1fr), не auto-fill — тот же вывод ОТК из прошлого захода
+     (auto-fill считает n=floor(...), не фиксирует «ровно 3» на широких
+     телефонах).
+     ОТК (CRITICAL, было исправлено): первая версия отката на 2 колонки при
+     ≤380px ловила САМЫЕ частые ширины реальных телефонов — 360px и 375px
+     (iPhone SE/6/7/8/12-13 mini, база многих Android) — не «самые узкие», как
+     предполагал комментарий-обоснование, а основную массу аудитории; та
+     математика (3 колонки «сжались бы ниже ~75px» на 320-360px) не сходилась
+     — на 320px реально ≈81px, на 360px ≈95px. Убран отказ вовсе: repeat(3,1fr)
+     держится по всему диапазону ≤640px, даже на редком сегодня 320px-полу
+     (старый iPhone SE 1-го поколения) карточка не уходит ниже ~81px.
      Только Акции (.mk-grid-stocks) — у Облигаций/Фьючерсов/Фондов/Валюты
-     свои поля (рейтинг, доходность, дюрация), которые НЕ обсуждались в
-     задаче и не сжимаются тем же приёмом без отдельного разбора; они
-     остаются на 2-колоночной сетке (.mk-grid без -stocks) из прошлого
-     захода выше.
-     ОТК (WARNING, было исправлено): auto-fill minmax(68px,1fr) на широких
-     телефонах (428-430px — iPhone Pro Max) давал 5+ колонок, не «ровно 4»,
-     как просил владелец — auto-fill считает n=floor((доступно+gap)/(min+gap)),
-     а не фиксирует счётчик. Заменено на явный repeat(4,1fr) — ровно 4 на
-     всём диапазоне 361-640px; на самых узких (≤360px) отдельное правило
-     ниже откатывает на 3, чтобы карточка не сжималась ниже ~75px. */
-  .mk-screen .mk-grid-stocks { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  @media (max-width: 360px) {
-    .mk-screen .mk-grid-stocks { grid-template-columns: repeat(3, 1fr); }
-  }
-  .mk-screen .mk-card-mini { padding: 7px 8px 6px; gap: 3px; border-radius: 9px; border-left-width: 3px; min-width: 0; }
-  .mk-screen .mk-card-mini .mk-mini-tk { font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .mk-screen .mk-card-mini .mk-mini-px { font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+     свои поля, не сжимаются тем же приёмом без отдельного разбора; остаются
+     на 2-колоночной сетке (.mk-grid без -stocks) из более раннего захода. */
+  .mk-screen .mk-grid-stocks { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .mk-screen .mk-card-mini { padding: 8px 9px 7px; gap: 4px; border-radius: 10px; border-left-width: 3px; min-width: 0; }
+  .mk-screen .mk-card-mini .mk-mini-top { display: flex; }
+  .mk-screen .mk-card-mini .mk-mono { width: 22px; height: 22px; border-radius: 6px; font-size: 9px; }
+  .mk-screen .mk-card-mini .mk-mini-id { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+  .mk-screen .mk-card-mini .mk-mini-name { font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; line-height: 1.25; }
+  .mk-screen .mk-card-mini .mk-mini-tk { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .mk-screen .mk-card-mini .mk-mini-px { font-family: "IBM Plex Mono", monospace; font-size: 13px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin-top: 1px; }
+  .mk-screen .mk-card-mini .mk-mini-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
   .mk-screen .mk-card-mini .mk-delta { font-size: 10px; gap: 3px; }
-  /* ОТК (CRITICAL, было исправлено): апсайд к справедливой цене — суждение
-     Basis, кодировалось ТОЛЬКО цветом левой полосы без единого текстового
-     намёка (title/aria-label не всплывают по тапу на телефоне — тот же вывод,
-     что уже зафиксирован для .mk-tone-cap выше в этом файле). Короткая цифра
-     тем же цветом возвращает эпистемику без отдельной строки-подписи. */
-  .mk-screen .mk-card-mini .mk-mini-fv { font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 600; }
+  /* ОТК (CRITICAL, найдено во втором заходе, актуально и здесь): апсайд к
+     справедливой цене — суждение Basis, ТОЛЬКО цвет левой полосы без текста
+     терял эпистемику (title/aria-label не всплывают по тапу на телефоне,
+     тот же вывод, что и для .mk-tone-cap выше в этом файле). Короткая цифра
+     тем же цветом возвращает контекст без отдельной строки-подписи. */
+  .mk-screen .mk-card-mini .mk-mini-fv { font-family: "IBM Plex Mono", monospace; font-size: 9.5px; font-weight: 600; flex-shrink: 0; }
+}
+/* ОТК (WARNING): на 320px (доступно под текст ~63px) 4-5-значные цены с
+   копейками (Фосагро/Лукойл/Яндекс ~4-7 тыс. ₽) могли обрезаться ellipsis'ом
+   — обрезание ЦЕНЫ хуже, чем имени (финансовые данные, не просто узнаваемость).
+   Чуть мельче шрифт цены только на самых узких экранах. */
+@media (max-width: 340px) {
+  .mk-screen .mk-card-mini .mk-mini-px { font-size: 11.5px; }
 }

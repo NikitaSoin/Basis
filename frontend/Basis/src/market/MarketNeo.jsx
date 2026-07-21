@@ -15,6 +15,76 @@ import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const NB = " ";
 
+// ОТК (CRITICAL, 3 раунда): «имя вместо тикера» на мини-карточке — у ~37%
+// компаний s.n (backend/app/api/screener.py, из companies.name) это ПОЛНОЕ
+// юрлицо («Международная компания публичное акционерное общество "Хэдхантер»,
+// «Акционерная финансовая корпорация "Система» и т.п.), а не бренд.
+// Раунд 1 (список конкретных юр-форм) — неполный, «акционерная финансовая
+// корпорация» не попадала ни под одну форму. Раунд 2 (взять то, что в
+// кавычках) — сломался на РЕАЛЬНЫХ данных: ~18% строк companies.name имеют
+// ОДНУ кавычку без пары (обрыв данных выше по цепочке — «…общество
+// "Хэдхантер» без закрывающей), паттерн требовавший пару молча возвращал имя
+// целиком неизменным + иногда оставлял осиротевший символ кавычки на экране.
+// Раунд 3 (эта версия) — проверена не на 8 примерах, а прогоном на ВСЕХ 261
+// реальных companies.name (см. чекпойнт work-journal.md): (1) снять составные
+// юр-формы ФРАЗАМИ (не только однословные токены — «акционерная финансовая
+// корпорация», парентетическое «(...акционерное общество)» и т.п.) ДО работы
+// с кавычками — так непарная кавычка чаще оказывается уже единственной в
+// строке; (2) взять парную кавычку, если есть; (3) если нет — просто убрать
+// все кавычки-символы (одиночная кавычка в русском юрнаименовании никогда не
+// несёт смысла сама по себе — это всегда фрагмент незакрытой пары). Итог на
+// полном датасете: 0 строк со стрей-кавычкой в выводе (было ~46).
+const LEGAL_TOKENS = new Set(["МКПАО", "МКООО", "ПАО", "ОАО", "ЗАО", "АО", "ООО", "НКО", "ПК"]);
+const LEGAL_PHRASE_RE = new RegExp(
+  "(" + [
+    "Международная компания публичное акционерное общество",
+    "Публичное\\s+акционерное общество",
+    "Открытое акционерное общество",
+    "Закрытое акционерное общество",
+    "Акционерная финансовая корпорация",
+    "Акционерная нефтяная [Кк]омпания",
+    "Акционерное общество",
+    "Группа компаний",
+    "Управляющая компания",
+  ].join("|") + ")",
+  "gi"
+);
+const LEGAL_PAREN_RE = /\([^()]*акционерн[^()]*\)/gi;
+const QUOTE_CLASS = "«»\"'";
+const QUOTE_RE_G = new RegExp("[" + QUOTE_CLASS + "]", "g");
+function shortCompanyName(raw) {
+  if (!raw) return "";
+  const s0 = String(raw).trim();
+  let s = s0.replace(LEGAL_PAREN_RE, "").replace(LEGAL_PHRASE_RE, "").trim();
+  s = s.split(/\s+/).filter((w) => w && !LEGAL_TOKENS.has(w.replace(/[«»"',.]/g, ""))).join(" ").trim();
+  const pairedRe = new RegExp("[" + QUOTE_CLASS + "]([^" + QUOTE_CLASS + "]{2,60})[" + QUOTE_CLASS + "]");
+  const paired = s.match(pairedRe);
+  if (paired) {
+    s = paired[1];
+  } else {
+    // ОТК (CRITICAL, раунд 4): реальный тикер OKEY — «O'KEY Group S.A.»,
+    // латинский апостроф ВНУТРИ бренда, не обрыв русской юрформы. «gate по
+    // legalFormRemoved» (промежуточная версия) давал ложноотрицательные — не
+    // резал ~27 реальных обрывков с описательным префиксом вне LEGAL_PHRASE_RE
+    // («БАНК "…», «энергетики и электрификации "…» и т.п., список юр-форм
+    // принципиально не может быть исчерпывающим). Надёжнее судить ПО САМОЙ
+    // кавычке: обрыв юр-кавычки стоит на ГРАНИЦЕ слова (пробел/край строки
+    // с одной стороны — «БАНК "САНКТ-ПЕТЕРБУРГ»), апостроф в бренде — ВНУТРИ
+    // слова (не-пробел с обеих сторон — «O'KEY»). Без regex-lookbehind (не
+    // все движки поддерживают синтаксис — упал бы SyntaxError на старте, не
+    // просто неверно сработал) — проверка соседних символов через callback.
+    // Проверено прогоном на всех 261 companies.name — 1 кавычка в выводе
+    // (сам OKEY, ожидаемо и верно), 0 обрывков.
+    s = s.replace(QUOTE_RE_G, (m, offset, str) => {
+      const boundaryBefore = offset === 0 || /\s/.test(str[offset - 1] || "");
+      const boundaryAfter = offset === str.length - 1 || /\s/.test(str[offset + 1] || "");
+      return (!boundaryBefore && !boundaryAfter) ? m : "";
+    }).replace(/\s+/g, " ").trim();
+  }
+  s = s.replace(/^[-–—\s]+|[-–—\s]+$/g, "").trim();
+  return s || s0;
+}
+
 // ── форматтеры ──
 function grp(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
 function num(v, d = 2) {
@@ -294,32 +364,34 @@ function ToneChip({ upside, conf }) {
 }
 function StockCard({ s, onOpen, Logo, compact }) {
   if (compact) {
-    // Мини-карточка ≤640px, 4 в ряд (владелец 2026-07-21, второй заход:
-    // «сделай больше в один ряд, штуки 4»). НЕ CSS-сжатие богатой карточки —
-    // при ~70-90px ширины лого+полное имя+сектор+капитализация+бейдж
-    // апсайда+confidence-точки физически не влезают читаемо. Отдельный
-    // урезанный набор полей: тикер+цена+дельта текстом (факт, обязательное),
-    // апсайд к справедливой цене (оценка Basis) свёрнут в ОДИН визуальный
-    // сигнал — цветную полосу слева (язык .mk-tonebar из «Ленты»), без
-    // отдельного текста/точек уверенности. Полное имя/лого/капитализация —
-    // в разборе по тапу (карточка компании). aria-label/title несут то же
-    // описание для скринридеров и десктоп-курсора, раз апсайд стал цветом
-    // без текста. Обоснование плотности — styles/market.css, конец файла.
+    // Мини-карточка ≤640px, 3 в ряд (владелец 2026-07-21, третий заход:
+    // «нужны иконки/логотипы и названия, а не тикеры — тикер мельче под
+    // названием, как было раньше; если не влезает 4 — сделай 3»). Второй
+    // заход (тикер+цена+дельта без лого/имени, 4 в ряд) оказался СЛИШКОМ
+    // урезанным — вернул лого+имя+тикер (мельче) в духе богатой карточки
+    // .mk-card ниже, просто пропорционально ужатые под ~100px ширины (3
+    // колонки), не 70-80px (4 колонки, как было). Апсайд к справедливой
+    // цене (оценка Basis) — по-прежнему цветная полоса слева + короткая
+    // цифра тем же цветом (эпистемика, см. ОТК-комментарий у .mk-mini-fv
+    // в market.css — title/aria-label не всплывают по тапу на телефоне).
     const fv = s.upside == null ? null : Math.round(s.upside);
     const tc = fv == null ? "var(--line-2)" : fvColor(fv);
     const chgWord = s.chg == null ? "нет данных за день" : (s.chg > 0 ? "рост " : s.chg < 0 ? "снижение " : "без изменений ") + num(Math.abs(s.chg), 2) + "% за день";
     const label = `${s.n}, ${s.t}. Цена ${num(s.price, 2)}${NB}₽. ${chgWord}.` + (fv == null ? "" : ` Потенциал к справедливой цене (оценка Basis): ${fv > 0 ? "+" : ""}${fv}%.`);
     return (
       <button className="mk-card mk-card-mini" style={{ borderLeftColor: tc }} onClick={() => onOpen(s)} title={label} aria-label={label}>
-        <span className="mk-mini-tk">{s.t}</span>
+        <div className="mk-mini-top">
+          {Logo ? <Logo ticker={s.t} name={s.n} size={22} /> : <Mono t={s.t} color={secColor(s.sec)} sm />}
+        </div>
+        <div className="mk-mini-id">
+          <b className="mk-mini-name">{shortCompanyName(s.n)}</b>
+          <span className="mk-mini-tk">{s.t}</span>
+        </div>
         <span className="mk-mini-px">{num(s.price, 2)}</span>
-        <Delta pct={s.chg} />
-        {/* ОТК (CRITICAL): цветная полоса слева БЕЗ текста — на телефоне
-            title/aria-label не всплывают по тапу, зрячий пользователь видел бы
-            только цвет без единого намёка, что это оценка Basis, а не факт.
-            Короткая цифра тем же цветом восстанавливает эпистемику, не тратя
-            высоту на отдельную строку-подпись. */}
-        {fv != null && <span className="mk-mini-fv" style={{ color: tc }}>{fv > 0 ? "+" : ""}{fv}%</span>}
+        <div className="mk-mini-foot">
+          <Delta pct={s.chg} />
+          {fv != null && <span className="mk-mini-fv" style={{ color: tc }}>{fv > 0 ? "+" : ""}{fv}%</span>}
+        </div>
       </button>
     );
   }
@@ -327,7 +399,7 @@ function StockCard({ s, onOpen, Logo, compact }) {
     <button className="mk-card" onClick={() => onOpen(s)}>
       <div className="mk-card-top">
         {Logo ? <Logo ticker={s.t} name={s.n} size={38} /> : <Mono t={s.t} color={secColor(s.sec)} />}
-        <div className="mk-card-id"><b>{s.n}</b><span className="mk-card-tk">{s.t} · {s.sec}</span></div>
+        <div className="mk-card-id"><b>{shortCompanyName(s.n)}</b><span className="mk-card-tk">{s.t} · {s.sec}</span></div>
       </div>
       <div className="mk-card-px">
         <span className="mk-card-price">{num(s.price, 2)}<span className="mk-cur"> ₽</span></span>
