@@ -406,7 +406,8 @@ function BondsTab({ rows, query, onOpen, Logo }) {
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
-  const [view, setView] = useState("cards");
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.bonds") || "rows"; } catch { return "rows"; } });
+  const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.bonds", v); } catch {} };
   const reliMap = { "Надёжные": "pos", "Средний риск": "amber", "ВДО": "neg" };
   let list = rows.filter(b => {
     const q = !query || ((b.short_name || "") + " " + (b.secid || "") + " " + (b.isin || "")).toLowerCase().includes(query.toLowerCase());
@@ -490,7 +491,7 @@ function BondsTab({ rows, query, onOpen, Logo }) {
               <div className="mk-grid">{shown.map(renderCard)}</div>
             ) : (
               <div className="mk-tablewrap">
-                <table className="mk-table"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Цена</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Погашение</th></tr></thead>
+                <table className="mk-table mk-rows"><thead><tr><th className="l">Выпуск</th><th className="l mk-reli-c">Рынок</th><th className="l mk-reli-c">Агентство</th><th>Цена</th><th>Спред к ОФЗ</th><th>YTM</th><th>Дюрация</th><th>Погашение</th></tr></thead>
                   <tbody>{shown.map(renderRow)}</tbody>
                 </table>
               </div>
@@ -526,7 +527,8 @@ function ChgTd({ chg, known }) {
 function FuturesTab({ rows, query, onOpen, Logo }) {
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
-  const [view, setView] = useState("cards");
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.futures") || "rows"; } catch { return "rows"; } });
+  const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.futures", v); } catch {} };
   const groupLabel = f => f.kind_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
   const filt = rows.filter(f => (grpf === "Все" || groupLabel(f) === grpf) && (!query || ((f.sec_name || f.asset_name || "") + " " + f.secid).toLowerCase().includes(query.toLowerCase())));
@@ -571,7 +573,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
             ); })}</div>
           ) : (
             <div className="mk-tablewrap">
-              <table className="mk-table"><thead><tr><th className="l">Контракт</th><th>Цена</th><th>За день</th><th>Плечо</th><th>До эксп.</th><th>ГО</th><th>Откр. позиции</th></tr></thead>
+              <table className="mk-table mk-rows"><thead><tr><th className="l">Контракт</th><th>Цена</th><th>За день</th><th>Плечо</th><th>До эксп.</th><th>ГО</th><th>Откр. позиции</th></tr></thead>
                 <tbody>
                   {by[g].map(f => { const chg = futChg(f); return (
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
@@ -604,7 +606,8 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
 // ══════════════════ ФОНДЫ ══════════════════
 function FundsTab({ rows, query, onOpen, sparks }) {
   const [grpf, setGrpf] = useState("Все");
-  const [view, setView] = useState("cards");
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.funds") || "rows"; } catch { return "rows"; } });
+  const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.funds", v); } catch {} };
   const [sort, setSort] = useState({ key: "default", dir: -1 });
   const groupLabel = f => f.type_label || "Прочее";
   const allGroups = useMemo(() => [...new Set(rows.map(groupLabel))], [rows]);
@@ -642,7 +645,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
             ); })}</div>
           ) : (
             <div className="mk-tablewrap">
-              <table className="mk-table"><thead><tr><th className="l">Фонд</th><th className="l">Отслеживает</th><th>Цена пая</th><th>За день</th><th>Комиссия (TER)</th><th>Оборот</th></tr></thead>
+              <table className="mk-table mk-rows"><thead><tr><th className="l">Фонд</th><th className="l">Отслеживает</th><th>Цена пая</th><th>За день</th><th>Комиссия (TER)</th><th>Оборот</th></tr></thead>
                 <tbody>
                   {by[g].map(f => { const chg = chgOf(f); return (
                     <tr key={f.secid} onClick={() => onOpen(f.secid)} style={{ cursor: "pointer" }}>
@@ -671,12 +674,13 @@ function FundsTab({ rows, query, onOpen, sparks }) {
 
 // ══════════════════ ВАЛЮТА И МЕТАЛЛЫ ══════════════════
 function FxMetalsTab({ rows, onOpen }) {
-  const [view, setView] = useState("cards");
+  const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.fx") || "rows"; } catch { return "rows"; } });
+  const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.fx", v); } catch {} };
   const fx = rows.filter(r => r.kind === "currency");
   const metals = rows.filter(r => r.kind === "metal");
   const List = ({ items, dec }) => (
     <div className="mk-tablewrap">
-      <table className="mk-table"><thead><tr><th className="l">Инструмент</th><th>Цена (₽)</th><th>За день</th></tr></thead>
+      <table className="mk-table mk-rows"><thead><tr><th className="l">Инструмент</th><th>Цена (₽)</th><th>За день</th></tr></thead>
         <tbody>
           {items.map(r => (
             <tr key={r.secid} onClick={() => onOpen(r.secid)} style={{ cursor: "pointer" }}>
@@ -754,7 +758,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("Все");
-  const [stockView, setStockView] = useState(() => persist("mk.sview2", "list"));
+  const [stockView, setStockView] = useState(() => persist("mk.sview2", "rows"));
 
   const [scored, setScored] = useState([]);
   const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
@@ -891,7 +895,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
     { id: "options", label: "Опционы", count: null, icon: Sigma },
   ];
   const activeTabMeta = TABS.find(t => t.id === tab) || TABS[0];
-  const showSearch = tab !== "fx" && tab !== "options" && !(tab === "stocks" && stockView !== "list");
+  const showSearch = tab !== "fx" && tab !== "options";
   const placeholder = tab === "bonds" ? "Поиск по выпуску / ISIN…" : tab === "futures" ? "Поиск по контракту / базовому активу…" : tab === "funds" ? "Поиск по фонду…" : "Поиск по тикеру или названию…";
 
   return (
@@ -921,6 +925,19 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
       <main className="mkt-main">
         <div className="mkt-panel mk-screen">
+          <nav className="mk-tabbar mk-tabbar-mobile" aria-label="Классы активов">
+            {TABS.map(t => (
+              <button
+                key={t.id} type="button"
+                className={"mk-tab" + (tab === t.id ? " on" : "")}
+                onClick={() => saveTab(t.id)}
+                aria-current={tab === t.id ? "page" : undefined}
+              >
+                <t.icon size={15} aria-hidden="true" />{t.label}
+                {t.count != null && <span className="tcount">{t.count}</span>}
+              </button>
+            ))}
+          </nav>
           <div className="mk-page-head">
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <span className="mk-page-eyebrow">Рынок</span>

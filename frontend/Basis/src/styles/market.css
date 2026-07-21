@@ -40,6 +40,17 @@
 .mk-screen .mk-tab .tcount{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:1px 7px;}
 .mk-screen .mk-tab.on .tcount{color:var(--accent-2);background:var(--accent-soft);border-color:transparent;}
 
+/* мобильный tabbar классов активов (≤760px) — замена скрытого .mkt-sidebar,
+   см. market-sidebar.css. На десктопе/планшете нав уже есть в сайдбаре. */
+.mk-screen .mk-tabbar-mobile{display:none;position:relative;}
+@media(max-width:760px){
+  .mk-screen .mk-tabbar-mobile{
+    display:flex; margin:-4px 0 8px;
+    mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+}
+
 /* toolbar / search */
 .mk-screen .mk-toolbar{display:flex;gap:12px;align-items:center;margin:20px 0 4px;flex-wrap:wrap;}
 .mk-screen .mk-search{flex:1;min-width:240px;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;background:var(--panel);border:1px solid var(--line-2);border-radius:11px;color:var(--ink-3);}
@@ -215,7 +226,9 @@
 .mk-screen .mk-secn-chg.up{color:var(--pos);} .mk-screen .mk-secn-chg.dn{color:var(--neg);} .mk-screen .mk-secn-chg.fl{color:var(--ink-3);}
 
 /* dense rows */
-.mk-screen .mk-rows td{padding:11px 16px;}
+.mk-screen .mk-rows td{padding:9px 16px;}
+.mk-screen .mk-rows tbody tr:nth-child(even) td{background:var(--panel-2);}
+.mk-screen .mk-rows tbody tr:hover td{background:color-mix(in srgb, var(--accent) 6%, var(--panel-2));}
 .mk-screen .mk-row-id{display:flex;align-items:center;gap:11px;}
 .mk-screen .mk-tonebar{width:4px;height:30px;border-radius:3px;flex-shrink:0;}
 .mk-screen .mk-row-tone{display:inline-flex;align-items:center;gap:8px;}

@@ -161,3 +161,12 @@
 .mkt-panel {
   padding: 28px 32px 72px;
 }
+
+/* ≤760px — сайдбар классов активов уступает место мобильному tabbar
+   (.mk-tabbar-mobile, market.css) внутри .mkt-panel. Планшет (760-899px)
+   не трогаем — владелец подтвердил, что сайдбар там уже ок. */
+@media (max-width: 760px) {
+  .mkt-sidebar { display: none; }
+  .mkt-main { margin-left: 0; }
+  .mkt-shell { margin-top: -16px; }
+}
