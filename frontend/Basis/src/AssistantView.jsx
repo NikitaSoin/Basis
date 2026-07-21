@@ -13,6 +13,7 @@ import {
   FileSearch,
 } from "lucide-react";
 import "./styles/assistant.css";
+import { useMobileSidebarDrawer, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -118,6 +119,27 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
   // Сворачивает историю диалогов на всю ширину чата (мокап: кнопка в шапке
   // переключает .asst-shell.collapsed, grid-template-columns 280px 1fr → 0px 1fr).
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // ≤760px: .asst-side был просто display:none без замены (владелец, 2026-07-21
+  // «в ассистенте тоже фигня» — история диалогов была недостижима на телефоне).
+  // Тот же переиспользуемый паттерн, что у Портфеля/Обозревателя/Скринера/Рынка
+  // (design/MobileSidebarDrawer.jsx) — тот же хедер-тоггл (asst-sidebar-toggle)
+  // на мобильном открывает overlay-drawer вместо grid-column-collapse.
+  const [mobileDrawerOpen, setMobileDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const toggleSidebar = () => {
+    if (drawerNarrow) setMobileDrawerOpen((v) => !v);
+    else setSidebarCollapsed((v) => !v);
+  };
+  // ОТК (CRITICAL): .asst-side на мобильном — msd-drawer (position:fixed,
+  // transform управляет видимостью), но desktop-правило .collapsed гасит его
+  // opacity:0/pointer-events:none — та же специфичность и более позднее
+  // положение в assistant.css побеждало мою CSS-починку по каскаду. Чище —
+  // не переживать desktop-collapsed через смену брейкпоинта вообще: если
+  // пользователь свернул сайдбар на десктопе, потом сузил окно до ≤760px,
+  // sidebarCollapsed сбрасывается — drawer открывается с чистого состояния,
+  // а не унаследованным opacity:0 без transform-компенсации.
+  useEffect(() => {
+    if (drawerNarrow) setSidebarCollapsed(false);
+  }, [drawerNarrow]);
 
   const feedRef = useRef(null);
   const textareaRef = useRef(null);
@@ -162,6 +184,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     if (id === activeId) return;
     setError(null);
     setLoadingConv(true);
+    setMobileDrawerOpen(false);
     try {
       const r = await fetch(`${API}/api/assistant/conversations/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -181,6 +204,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     setMessages([]);
     setError(null);
     setInput("");
+    setMobileDrawerOpen(false);
     if (textareaRef.current) textareaRef.current.focus();
   };
 
@@ -277,9 +301,14 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
 
   return (
     <div className="asst-wrap-outer">
+      {mobileDrawerOpen && <MobileDrawerBackdrop onClose={() => setMobileDrawerOpen(false)} />}
       <div className={`asst-shell${sidebarCollapsed ? " collapsed" : ""}`}>
-        {/* История диалогов */}
-        <aside className="asst-side" inert={sidebarCollapsed || undefined}>
+        {/* История диалогов — на ≤760px это msd-drawer (overlay), на десктопе
+            обычная колонка, которую сворачивает .collapsed (grid-column). */}
+        <aside
+          className={`asst-side msd-drawer${mobileDrawerOpen ? " msd-drawer--open" : ""}`}
+          inert={(drawerNarrow ? !mobileDrawerOpen : sidebarCollapsed) || undefined}
+        >
           <button type="button" className="asst-new" onClick={startNew}>
             <Plus size={15} /> Новый диалог
           </button>
@@ -319,10 +348,10 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
             <button
               type="button"
               className="asst-sidebar-toggle"
-              onClick={() => setSidebarCollapsed((v) => !v)}
+              onClick={toggleSidebar}
               title="Скрыть/показать историю диалогов"
               aria-label="Скрыть/показать историю диалогов"
-              aria-expanded={!sidebarCollapsed}
+              aria-expanded={drawerNarrow ? mobileDrawerOpen : !sidebarCollapsed}
             >
               <PanelLeft size={16} />
             </button>
