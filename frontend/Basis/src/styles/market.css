@@ -308,3 +308,65 @@
 
 @media(max-width:880px){ .mk-screen .mk-pulse{grid-template-columns:1fr;} .mk-screen .mk-movers{grid-template-columns:1fr;} }
 @media(max-width:680px){ .mk-screen .mk-page-title{font-size:28px;} }
+
+/* ============================================================
+   MOBILE ≤640px — карточки классов активов (вкладка «Карточки»).
+   Владелец, 2026-07-21: «одна карточка — треть экрана на телефоне,
+   надо как на компьютере — несколько в строку, просто ужать по
+   диагонали». НЕ трогаем ≥641px (там владелец подтвердил, что всё
+   устраивает) и группировку по секторам (.mk-grp-head/.mk-secnav) —
+   только сама сетка карточек и их внутренности.
+   minmax(140px,1fr) держит 2 колонки от ~352px контентной ширины
+   (экран ~360px+ при нынешних 32px паддингах .mkt-panel) — это почти
+   все живые телефоны (360/375/390/412/414/430). На самых узких
+   (320-351px, iPhone SE и т.п.) auto-fill честно схлопывает в 1
+   колонку, а не сжимает карточку ниже читаемого предела. */
+@media (max-width: 640px) {
+  .mk-screen .mk-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+
+  .mk-screen .mk-card { padding: 12px 13px; gap: 9px; border-radius: 12px; }
+  .mk-screen .mk-card-top { gap: 8px; }
+  .mk-screen .mk-mono { width: 28px; height: 28px; border-radius: 7px; font-size: 10.5px; }
+  .mk-screen .mk-card-id b { font-size: 13px; }
+  .mk-screen .mk-card-tk { font-size: 10px; }
+
+  /* Цена + дельта бок о бок не влезают на ~150px карточке при
+     4-5-значных ценах (Лукойл/Норникель): ставим цену (главное число
+     карточки) сверху, дельту — компактной строкой под ней, вместо
+     сжатия обеих до нечитаемого в одну линию. */
+  .mk-screen .mk-card-px { flex-direction: column; align-items: flex-start; gap: 3px; }
+  .mk-screen .mk-card-price { font-size: 16px; }
+  .mk-screen .mk-cur { font-size: 11px; }
+  /* .mk-delta заскоуплен под .mk-card — ОТК: голый .mk-delta задевал бы
+     виджет индекса Мосбиржи и дефолтный вид «Лента» (таблица), этот блок
+     только про карточки (см. заголовок файла выше). */
+  .mk-screen .mk-card .mk-delta { flex-direction: row; align-items: baseline; gap: 5px; font-size: 11px; }
+  .mk-screen .mk-card .mk-delta-abs { font-size: 10px; }
+
+  /* ОТК (CRITICAL): капитализация + бейдж апсайда в один ряд с
+     justify-content:space-between не помещались у крупных тикеров
+     (трлн-капитализация + процент + confidence-точки) — переполняли/
+     наезжали на нижний край карточки. flex-wrap пускает бейдж на вторую
+     строку вместо наложения; .mk-cap получает усечение на крайний случай. */
+  .mk-screen .mk-card-foot { padding-top: 9px; flex-wrap: wrap; row-gap: 5px; }
+  .mk-screen .mk-cap { font-size: 10.5px; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .mk-screen .mk-tone-l { font-size: 10.5px; }
+  /* ОТК (WARNING): было display:none — «к справедл.» единственный визуальный
+     контекст, что процент ниже — суждение Basis, не факт (title-тултип на
+     родителе .mk-tone не всплывает по тапу на телефоне). Оставляем видимым,
+     мельче шрифтом; flex-wrap выше не даёт ему обрезать соседей. */
+  .mk-screen .mk-tone-cap { font-size: 9px; }
+
+  /* asset-cards (Облигации/Фьючерсы/Фонды/Валюта) — тот же .mk-card,
+     плюс их собственные блоки big-value/stats. */
+  .mk-screen .mk-asset-big { flex-wrap: wrap; row-gap: 2px; }
+  .mk-screen .mk-asset-bigv { font-size: 20px; }
+  .mk-screen .mk-asset-biglbl { font-size: 9.5px; }
+  .mk-screen .mk-card-stats { column-gap: 10px; row-gap: 5px; padding-top: 9px; }
+  .mk-screen .mk-card-stats > span { font-size: 11px; }
+  .mk-screen .mk-card-stats i { font-size: 10.5px; margin-right: 6px; }
+  .mk-screen .mk-reli { gap: 6px; }
+  .mk-screen .mk-badge { font-size: 10px; padding: 2px 7px; }
+  .mk-screen .mk-ag { font-size: 10px; padding: 1px 6px; }
+  .mk-screen .mk-basis { font-size: 10.5px; padding: 1px 7px; }
+}

@@ -269,13 +269,20 @@
   border-radius: 999px;
 }
 
-/* ---- Responsive: on narrow screens collapse sidebar to 0 (future: toggle) ---- */
-@media (max-width: 768px) {
-  .obs-sidebar {
-    display: none;
-  }
+/* ---- Мобильный (≤760px) выезжающий сайдбар — реализовано 2026-07-21
+   (design/MobileSidebarDrawer.jsx, styles/mobile-sidebar-drawer.css, тот же
+   рецепт, что у .pf-sidebar/.scmp-sidebar): display:none заменён на transform
+   через класс .msd-drawer (App.js навешивает его на .obs-sidebar), поэтому
+   здесь просто margin-left:0 — саму видимость/анимацию делает msd-drawer.
+   Брейкпоинт выровнен с 768 на 760px (единый по сайту). */
+@media (max-width: 760px) {
   .obs-main {
     margin-left: 0;
+  }
+  /* Запас снизу под нижний mnav-tabbar (mobile-nav.css, z-index:100) — тот же
+     расчёт, что у market-sidebar.css/portfolio-v2.css/screener-compare.css. */
+  .obs-panel {
+    padding-bottom: calc(72px + 68px + env(safe-area-inset-bottom, 0px));
   }
 }
 

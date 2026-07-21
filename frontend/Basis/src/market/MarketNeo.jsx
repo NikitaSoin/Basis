@@ -105,6 +105,26 @@ function Spark({ data, up, w = 116, h = 30 }) {
   );
 }
 
+// Логотипы (CompanyLogo/InstrumentLogo) получают размер PIXEL-числом
+// через JS-пропс size — CSS-медиазапрос его не тронет (инлайн-стиль).
+// Владелец, 2026-07-21: карточки на мобильном ужимаются — логотип внутри
+// карточки должен ужиматься вместе с остальным (иначе один крупный
+// квадрат перекашивает уменьшенную карточку). Тот же matchMedia-рецепт,
+// что useMobileSidebarDrawer (design/MobileSidebarDrawer.jsx) — вызывается
+// ОДИН раз на уровне таба (не на каждую карточку в цикле).
+function useNarrowCards() {
+  const q = "(max-width: 640px)";
+  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && window.matchMedia(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(q);
+    const onChange = () => setNarrow(mq.matches);
+    onChange();
+    (mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange));
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange));
+  }, []);
+  return narrow;
+}
+
 function ConfFromRow(row) {
   if (row.low_confidence) return "low";
   return row.data_quality === "high" ? "high" : row.data_quality === "low" ? "low" : "medium";
@@ -271,11 +291,11 @@ function ToneChip({ upside, conf }) {
     </span>
   );
 }
-function StockCard({ s, onOpen, Logo }) {
+function StockCard({ s, onOpen, Logo, compact }) {
   return (
     <button className="mk-card" onClick={() => onOpen(s)}>
       <div className="mk-card-top">
-        {Logo ? <Logo ticker={s.t} name={s.n} size={38} /> : <Mono t={s.t} color={secColor(s.sec)} />}
+        {Logo ? <Logo ticker={s.t} name={s.n} size={compact ? 28 : 38} /> : <Mono t={s.t} color={secColor(s.sec)} />}
         <div className="mk-card-id"><b>{s.n}</b><span className="mk-card-tk">{s.t} · {s.sec}</span></div>
       </div>
       <div className="mk-card-px">
@@ -287,6 +307,7 @@ function StockCard({ s, onOpen, Logo }) {
   );
 }
 function StockCards({ stocks, onOpen, Logo }) {
+  const compact = useNarrowCards();
   const by = {};
   stocks.forEach(s => { (by[s.sec] = by[s.sec] || []).push(s); });
   Object.keys(by).forEach(g => by[g].sort((a, b) => (b.mcap || 0) - (a.mcap || 0))); // внутри сектора — по капитализации
@@ -297,7 +318,7 @@ function StockCards({ stocks, onOpen, Logo }) {
       {order.map(g => (
         <section key={g}>
           <div className="mk-grp-head"><span className="mk-grp-dot" style={{ background: secColor(g) }} />{g}<span className="mk-grp-n">{by[g].length}</span></div>
-          <div className="mk-grid">{by[g].map(s => <StockCard key={s.t} s={s} onOpen={onOpen} Logo={Logo} />)}</div>
+          <div className="mk-grid">{by[g].map(s => <StockCard key={s.t} s={s} onOpen={onOpen} Logo={Logo} compact={compact} />)}</div>
         </section>
       ))}
     </div>
@@ -403,6 +424,7 @@ function ViewToggle({ view, setView }) {
 // но и не обрезаем молча, как было раньше — slice(0,400) без индикации).
 const BOND_GROUP_CAP = 150;
 function BondsTab({ rows, query, onOpen, Logo }) {
+  const compact = useNarrowCards();
   const [coupon, setCoupon] = useState("Любой купон");
   const [reli, setReli] = useState("Любая надёжность");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
@@ -454,8 +476,8 @@ function BondsTab({ rows, query, onOpen, Logo }) {
       <button key={b.secid} className="mk-card mk-card-asset" onClick={() => onOpen(b.secid)}>
         <div className="mk-card-top">
           {Logo && b.issuer_ticker
-            ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={34} />
-            : <InstrumentLogo id={b.isin} name={b.issuer_name || b.short_name} size={34} />}
+            ? <Logo ticker={b.issuer_ticker} name={b.issuer_name} size={compact ? 28 : 34} />
+            : <InstrumentLogo id={b.isin} name={b.issuer_name || b.short_name} size={compact ? 28 : 34} />}
           <div className="mk-card-id"><b>{b.short_name}</b><span className="mk-card-tk">{b.isin}</span></div>
         </div>
         <div className="mk-asset-big"><span className="mk-asset-bigv">{num(b.ytm, 1)}<span className="mk-cur"> %</span></span><span className="mk-asset-biglbl">YTM</span></div>
@@ -525,6 +547,7 @@ function ChgTd({ chg, known }) {
   return <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}{NB}%</span></span>;
 }
 function FuturesTab({ rows, query, onOpen, Logo }) {
+  const compact = useNarrowCards();
   const [grpf, setGrpf] = useState("Все");
   const [sort, setSort] = useState({ key: "default", dir: -1 });
   const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.futures") || "rows"; } catch { return "rows"; } });
@@ -555,8 +578,8 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
                 <div className="mk-card-top">
                   {Logo && f.asset_kind === "stock" && f.linked_ticker
-                    ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={34} />
-                    : <InstrumentLogo id={f.secid} name={f.asset_name || f.sec_name} size={34} />}
+                    ? <Logo ticker={f.linked_ticker} name={f.asset_name || f.sec_name} size={compact ? 28 : 34} />
+                    : <InstrumentLogo id={f.secid} name={f.asset_name || f.sec_name} size={compact ? 28 : 34} />}
                   <div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.asset_name || f.sec_name}</span></div>
                 </div>
                 <div className="mk-asset-big">
@@ -605,6 +628,7 @@ function FuturesTab({ rows, query, onOpen, Logo }) {
 
 // ══════════════════ ФОНДЫ ══════════════════
 function FundsTab({ rows, query, onOpen, sparks }) {
+  const compact = useNarrowCards();
   const [grpf, setGrpf] = useState("Все");
   const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.funds") || "rows"; } catch { return "rows"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.funds", v); } catch {} };
@@ -634,7 +658,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
           {view === "cards" ? (
             <div className="mk-grid">{by[g].map(f => { const chg = chgOf(f); return (
               <button key={f.secid} className="mk-card mk-card-asset" onClick={() => onOpen(f.secid)}>
-                <div className="mk-card-top"><InstrumentLogo id={f.secid} name={f.sec_name} size={34} /><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.sec_name}</span></div></div>
+                <div className="mk-card-top"><InstrumentLogo id={f.secid} name={f.sec_name} size={compact ? 28 : 34} /><div className="mk-card-id"><b>{f.secid}</b><span className="mk-card-tk">{f.sec_name}</span></div></div>
                 <div className="mk-asset-big"><span className="mk-asset-bigv">{num(f.last_price, 2)}<span className="mk-cur"> ₽</span></span>{chg != null && <span className={"mk-delta " + (chg > 0 ? "up" : chg < 0 ? "dn" : "fl")}><span className="mk-delta-pct">{chg > 0 ? "▲" : chg < 0 ? "▼" : "▬"} {num(Math.abs(chg), 2)}%</span></span>}</div>
                 <div className="mk-card-stats">
                   {f.benchmark && <span className="full"><i>Отслеживает</i>{f.benchmark}</span>}
@@ -674,6 +698,7 @@ function FundsTab({ rows, query, onOpen, sparks }) {
 
 // ══════════════════ ВАЛЮТА И МЕТАЛЛЫ ══════════════════
 function FxMetalsTab({ rows, onOpen }) {
+  const compact = useNarrowCards();
   const [view, setViewRaw] = useState(() => { try { return localStorage.getItem("mk.view.fx") || "rows"; } catch { return "rows"; } });
   const setView = (v) => { setViewRaw(v); try { localStorage.setItem("mk.view.fx", v); } catch {} };
   const fx = rows.filter(r => r.kind === "currency");
@@ -703,7 +728,7 @@ function FxMetalsTab({ rows, onOpen }) {
       {items.map(r => (
         <button key={r.secid} className="mk-card" onClick={() => onOpen(r.secid)}>
           <div className="mk-card-top">
-            <InstrumentLogo id={r.secid} name={r.name} size={36} />
+            <InstrumentLogo id={r.secid} name={r.name} size={compact ? 28 : 36} />
             <div className="mk-card-id"><b>{r.name}</b><span className="mk-card-tk">{r.secid}</span></div>
           </div>
           <div className="mk-card-px">

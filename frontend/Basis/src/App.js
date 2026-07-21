@@ -103,6 +103,7 @@ import AssistantView from "./AssistantView";
 import "./styles/compare.css";
 import ScreenerCompareView from "./screener/ScreenerCompareShell";
 import "./styles/mobile-nav.css";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -118,6 +119,13 @@ function ObserverV2({
   // не нужен эффект-синхронизация.
   const [activeSection, setActiveSection] = useState(forceSection || "news");
   const [portfolioOnly, setPortfolioOnly] = useState(false);
+  // Мобильный (≤760px) выезжающий сайдбар — тот же переиспользуемый паттерн,
+  // что у Портфеля/Скринера (design/MobileSidebarDrawer.jsx). Обозреватель —
+  // самый крупный из четырёх экранов с докованным .obs-sidebar, владелец
+  // (2026-07-21, третий заход): «не сделал возможность убрать сайдбар и
+  // добавить — как в портфельной аналитике и скринере».
+  const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
+  const activeSectionLabel = OBS_ZONES.flatMap((z) => z.items).find((it) => it.id === activeSection)?.label;
   // Страницы индексов (владелец: «нужно, чтобы сайдбар оставался виден и на
   // самой странице индекса, а не только после возврата назад») рендерятся
   // ВНУТРИ этого же .obs-shell — сайдбар остаётся, меняется только .obs-main.
@@ -254,8 +262,13 @@ function ObserverV2({
 
   return (
     <div className="obs-shell">
+      {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
       {/* ---- Dark sidebar ---- */}
-      <nav className="obs-sidebar" aria-label="Разделы Обозревателя">
+      <nav
+        className={`obs-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
+        aria-label="Разделы Обозревателя"
+        inert={drawerNarrow && !drawerOpen}
+      >
         <div className="obs-depth-strip" aria-hidden="true" />
         <div className="obs-eyebrow">Обозреватель</div>
 
@@ -267,7 +280,7 @@ function ObserverV2({
                 key={id}
                 type="button"
                 className={`obs-item${!inIndexMode && activeSection === id ? " obs-item--active" : ""}`}
-                onClick={() => { onCloseIndexUI(); setActiveSection(id); }}
+                onClick={() => { onCloseIndexUI(); setActiveSection(id); setDrawerOpen(false); }}
                 aria-current={!inIndexMode && activeSection === id ? "page" : undefined}
               >
                 <span className="obs-item__icon"><Icon size={15} aria-hidden="true" /></span>
@@ -309,6 +322,11 @@ function ObserverV2({
 
       {/* ---- Light main area ---- */}
       <main className="obs-main" key={inIndexMode ? `index:${indexTicker || "hub"}` : activeSection}>
+        <MobileSectionBar
+          title={inIndexMode ? "Индексы" : activeSectionLabel}
+          open={drawerOpen}
+          onOpenMenu={() => setDrawerOpen(true)}
+        />
         {inIndexMode ? (
           <div className="obs-panel">
             {indexTicker === "FEARGREED" ? (
@@ -1003,19 +1021,22 @@ export default function App() {
       </div>
 
       {/* Нижний фикс-таббар мобильной навигации (≤760px, display:none выше —
-          styles/mobile-nav.css) — не рендерим на посадочной странице, у неё
-          свой мобильный хром (LandingNeo). */}
-      {!isLanding && (
-        <MobileTabBar
-          activeTab={selectedCompany ? null : activeTab}
-          onNav={navigate}
-          moreOpen={mobileMoreOpen}
-          onToggleMore={() => setMobileMoreOpen((v) => !v)}
-        />
-      )}
-      {!isLanding && mobileMoreOpen && (
+          styles/mobile-nav.css). Раньше не рендерился на посадочной странице
+          («у неё свой мобильный хром») — владелец, 2026-07-21 (третий заход):
+          с телефона на лендинге нет способа сразу попасть в Рынок/Обзор/
+          Портфель без прохождения landing-CTA. У LandingNeo свой мобильный
+          хром — это ВЕРХНИЙ маркетинговый nav (Features/Pricing), не имеет
+          отношения к навигации по разделам приложения — конфликта с нижним
+          таббаром нет (фиксированных элементов снизу в landing.css нет). */}
+      <MobileTabBar
+        activeTab={selectedCompany || isLanding ? null : activeTab}
+        onNav={navigate}
+        moreOpen={mobileMoreOpen}
+        onToggleMore={() => setMobileMoreOpen((v) => !v)}
+      />
+      {mobileMoreOpen && (
         <MobileMoreSheet
-          activeTab={selectedCompany ? null : activeTab}
+          activeTab={selectedCompany || isLanding ? null : activeTab}
           onNav={navigate}
           onClose={() => setMobileMoreOpen(false)}
         />
