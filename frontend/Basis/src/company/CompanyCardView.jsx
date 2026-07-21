@@ -5,13 +5,17 @@ import {
   Activity,
   AlertTriangle,
   ArrowRightLeft,
+  ArrowUpDown,
   Briefcase,
   ChevronDown,
   ChevronRight,
+  Flag,
+  Gauge,
   Globe,
   Info,
   Layers,
   PieChart,
+  RefreshCw,
   Scale,
   ShieldAlert,
   ShieldCheck,
@@ -37,6 +41,7 @@ import GovernanceTab from "./GovernanceTab";
 import InstitutionsTab from "./InstitutionsTab";
 import GeoTab from "./GeoTab";
 import { BondRiskAnalysis } from "../design/bondrisk";
+import { ObsLineChart } from "../observer/ObsPanels";
 import ChartPro from "../market/ChartPro";
 
 // =========================
@@ -5537,6 +5542,157 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
     const splitH2 = (md) => { const out = []; let h = null, ls = []; for (const ln of String(md || "").split("\n")) { if (/^## /.test(ln)) { if (h !== null) out.push({ heading: h, body: ls.join("\n") }); h = ln.replace(/^## /, "").trim(); ls = []; } else if (h !== null) ls.push(ln); } if (h !== null) out.push({ heading: h, body: ls.join("\n") }); return out; };
     const mdSections = splitH2(marketMd);
 
+    // ── «Товар компании» (commodity_exposure) — цена главного сырья + фаза цикла ──
+    // Самый решение-релевантный сигнал для сырьевой карточки: не купить вершину цикла,
+    // приняв её за старт роста. Живёт вверху вкладки, до долей рынка (product-brief).
+    const renderCommodityExposure = () => {
+      const ce = marketJson?.commodity_exposure;
+      if (!ce || ce.applicable === false) return null;
+      const revItems = Array.isArray(ce.revenue_commodities) ? ce.revenue_commodities : [];
+      const costItems = Array.isArray(ce.cost_commodities) ? ce.cost_commodities : [];
+      if (!revItems.length && !costItems.length && !ce.revenue_commodities_note && !ce.cost_commodities_note) return null;
+
+      const POS_IDX = { trough: 0, below_mid: 1, mid: 2, above_mid: 3, peak: 4 };
+      const POS_LABEL = { trough: "Дно диапазона", below_mid: "Ниже середины", mid: "Середина диапазона", above_mid: "Выше середины", peak: "Пик диапазона" };
+      const LABEL_META = {
+        cyclical_dip: { text: "Циклическая просадка", cls: "cyc", Icon: RefreshCw },
+        cyclical_peak: { text: "Циклический пик", cls: "cyc", Icon: RefreshCw },
+        structural_decline: { text: "Структурный спад", cls: "struct", Icon: Flag },
+        structural_growth: { text: "Структурный рост", cls: "struct", Icon: Flag },
+      };
+      const PMARKET = { domestic_parity: "внутр. рынок · экспортный паритет", regulated_tariff: "регулируемый тариф" };
+      const BENCH_NOTE = { planned: "разовый снимок · история скоро", none: "нет биржевого ряда" };
+      const fmtDate = (d) => { if (!d) return ""; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString("ru-RU"); };
+      const shareOf = (it) => {
+        if (typeof it.revenue_share_pct === "number") return `≈${it.revenue_share_pct}%`;
+        if (typeof it.revenue_share_low_pct === "number" && typeof it.revenue_share_high_pct === "number") return `≈${it.revenue_share_low_pct}–${it.revenue_share_high_pct}%`;
+        return null;
+      };
+
+      const CycleGauge = ({ position }) => {
+        const idx = POS_IDX[position];
+        if (idx == null) return null;
+        return (
+          <div className="m5-cmx-gauge" role="img" aria-label={`Позиция в ценовом цикле: ${POS_LABEL[position]}`}>
+            <div className="m5-cmx-glabel">{POS_LABEL[position]}</div>
+            <div className="m5-cmx-gtrack">{[0, 1, 2, 3, 4].map((i) => <span key={i} className={`m5-cmx-gseg${i === idx ? " on" : ""}`} />)}</div>
+            <div className="m5-cmx-gends"><span>Дно 5-летнего диапазона</span><span>Пик</span></div>
+          </div>
+        );
+      };
+
+      const CommodityItem = ({ it, side }) => {
+        const lm = LABEL_META[it.cycle_label];
+        const share = shareOf(it);
+        const hasBenchmark = it.benchmark_key && it.benchmark_key !== "none";
+        const [hist, setHist] = useState(null); // null=не загружен, []=загружен и пуст, [...]=точки {as_of,value}
+        useEffect(() => {
+          if (!hasBenchmark) { setHist(null); return; }
+          let alive = true;
+          setHist(null);
+          fetch(`${apiBase()}/api/market/commodity-price-history?benchmark_key=${encodeURIComponent(it.benchmark_key)}&years=5`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => { if (alive) setHist(d?.points || []); })
+            .catch(() => { if (alive) setHist([]); });
+          return () => { alive = false; };
+        }, [hasBenchmark, it.benchmark_key]);
+        return (
+          <div className="m5-cmx-item">
+            <div className="m5-cmx-ihead">
+              <span className="m5-cmx-iname">{it.name}</span>
+              {share && <span className="m5-cmx-ishare">{share} {side === "revenue" ? "выручки" : "себестоимости"}{it.revenue_share_certainty ? cert(it.revenue_share_certainty) : null}</span>}
+              {it.pricing_market && PMARKET[it.pricing_market] && <span className="m5-cmx-igeo">{PMARKET[it.pricing_market]}</span>}
+            </div>
+            {it.current_price ? (
+              <div className="m5-cmx-pricerow">
+                <span className="m5-cmx-pv">{typeof it.current_price.value === "number" ? it.current_price.value.toLocaleString("ru-RU") : it.current_price.value}</span>
+                {/* строковое value (напр. «~$4 060–4 100/унц») уже несёт единицу измерения — не дублируем */}
+                {typeof it.current_price.value === "number" && it.current_price.unit && <span className="m5-cmx-pu">{it.current_price.unit}</span>}
+                {it.current_price.certainty ? cert(it.current_price.certainty) : null}
+                <span className="m5-cmx-pas">{[it.current_price.as_of ? `на ${fmtDate(it.current_price.as_of)}` : null, BENCH_NOTE[it.benchmark_status] || null].filter(Boolean).join(" · ")}</span>
+              </div>
+            ) : it.benchmark_key === "none" ? (
+              <div className="m5-cmx-noprice"><Info size={12} />Нет публичного биржевого ряда — цена не котируется. Честная деградация методики: подбирать выдуманный прокси не стали.</div>
+            ) : null}
+            {hasBenchmark && hist && hist.length >= 2 && (
+              <div className="m5-cmx-chart">
+                <ObsLineChart series={[{ name: it.name, color: "var(--accent)", points: hist }]} viewW={560} viewH={140} unit={it.current_price?.unit || ""} />
+                <div className="m5-cmx-chartnote">
+                  История с {fmtDate(hist[0].as_of)}
+                  {it.benchmark_key.startsWith("forts:") && " · ближайший непогашенный фьючерс — история короче, чем у месячных сырьевых бенчмарков (известное ограничение платформы, не баг этой карточки)"}
+                </div>
+              </div>
+            )}
+            {hasBenchmark && hist && hist.length < 2 && (
+              <div className="m5-cmx-noprice"><Info size={12} />История цены пока недоступна для этого ряда.</div>
+            )}
+            <CycleGauge position={it.cycle_position} />
+            {lm && (
+              <div className="m5-cmx-labs">
+                <span className={`m5-cmx-lab ${lm.cls}`}><lm.Icon size={11} />{lm.text}</span>
+                {it.cycle_certainty ? cert(it.cycle_certainty) : cert("estimate")}
+              </div>
+            )}
+            {it.reasoning && <p className="m5-cmx-reasoning">{it.reasoning}</p>}
+            {it.note && <p className="m5-cmx-note"><Info size={12} />{it.note}</p>}
+          </div>
+        );
+      };
+
+      return (
+        <div className="m5-card m5-cmx">
+          <h3>
+            <Gauge size={18} style={{ color: "var(--accent)" }} />
+            Товар компании
+            <span className="m5-mtag">
+              {ce.basket_type === "multi_commodity" && <span className="m5-mt m5-mt-main">корзина товаров</span>}
+              {ce.as_of && <span className="m5-mt-geo">на {fmtDate(ce.as_of)}</span>}
+            </span>
+          </h3>
+          {ce.summary && <p className="m5-cmx-summary">{ce.summary}</p>}
+
+          {(revItems.length > 0 || ce.revenue_commodities_note) && (
+            <div className="m5-cmx-group">
+              <div className="m5-cmx-role rev"><TrendingUp size={13} /><span className="m5-cmx-rolepill">Продаёт</span><span className="m5-cmx-rolehint">цена выше → выручка выше</span></div>
+              {revItems.length > 0
+                ? revItems.map((it, i) => <CommodityItem key={i} it={it} side="revenue" />)
+                : <p className="m5-cmx-reasoning" style={{ marginTop: 0 }}>{ce.revenue_commodities_note}</p>}
+            </div>
+          )}
+
+          {(costItems.length > 0 || ce.cost_commodities_note) && (
+            <div className="m5-cmx-group">
+              <div className="m5-cmx-role cost"><ArrowUpDown size={13} /><span className="m5-cmx-rolepill">Закупает</span><span className="m5-cmx-rolehint">цена выше → издержки выше, маржа ниже</span></div>
+              {costItems.length > 0 ? (
+                <>
+                  <div className="m5-cmx-sidecap">Обратная логика: это сырьевой вход в себестоимость, а не то, что компания продаёт — дешёвый товар здесь хорошо для маржи, дорогой — плохо.</div>
+                  {costItems.map((it, i) => <CommodityItem key={i} it={it} side="cost" />)}
+                </>
+              ) : (
+                <p className="m5-cmx-reasoning" style={{ marginTop: 0 }}>{ce.cost_commodities_note}</p>
+              )}
+            </div>
+          )}
+
+          {(ce.volume_note || ce.excluded_inputs_note) && (
+            <div className="m5-cmx-foot">
+              {ce.volume_note && (
+                <details className="m5-valassum">
+                  <summary>Объём и доля производства</summary>
+                  <p style={{ margin: "8px 0 0", lineHeight: 1.55, fontSize: 12 }}>{ce.volume_note}</p>
+                </details>
+              )}
+              {ce.excluded_inputs_note && <p className="m5-fnote" style={{ marginTop: 10 }}>{ce.excluded_inputs_note}</p>}
+            </div>
+          )}
+
+          <button type="button" className="m5-cmx-macrolink" onClick={() => setTab("macro")}>
+            Как цена товара скажется на прибыли — во вкладке «Макро»<ChevronRight size={14} />
+          </button>
+        </div>
+      );
+    };
+
     // мини-график динамики (accent-линия)
     const M5Chart = ({ points }) => {
       const pts = (points || []).filter((p) => typeof p.value === "number");
@@ -5939,6 +6095,9 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-[11px] tw-text-text-tertiary tw-px-1">
               <span className="tw-font-semibold">Достоверность:</span>{cert("fact")}<span>— факт</span>{cert("estimate")}<span>— оценка</span>{cert("model")}<span>— модель</span>
             </div>
+
+            {/* Товар компании — цена сырья + фаза цикла, до долей рынка (решение-релевантнее) */}
+            {renderCommodityExposure()}
 
             {/* Главный рынок — сегмент-контрол ракурсов */}
             {active && (

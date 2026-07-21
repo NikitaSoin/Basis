@@ -575,8 +575,17 @@ Backtesting/Brier-калибровка (нет истории прогнозов
      `source:slug`. Ровно ДВА источника, больше не изобретай:
      - `forts:<TICKER>` — живые ДНЕВНЫЕ ряды из `instrument_history` (MOEX
        FORTS): `forts:BR` (нефть Brent), `forts:NG` (газ), `forts:GOLD`,
-       `forts:SILV`, `forts:PLT`, `forts:PLD`, `forts:CU` (медь), `forts:WHEAT`
-       (пшеница).
+       `forts:SILV`, `forts:PLT`, `forts:PLD`, `forts:WHEAT` (пшеница). 🔴
+       `forts:CU` (медь) числился здесь как живой, но проверка 2026-07-22
+       (прямой запрос к MOEX ISS, найдено при разборе GMKN) показала: MOEX
+       СЕЙЧАС не листингует ни одного медного фьючерса вообще — ряда нет,
+       ставь `benchmark_status: "none"` для меди, даже если тегируешь ключ
+       `forts:CU` (endpoint честно вернёт пустой ряд, если контракт
+       появится — начнёт работать само). Перед тем как пометить ЛЮБОЙ
+       `forts:*` ключ как `benchmark_status: "live"`, имеет смысл сверяться —
+       список ASSET_MAP (`app/services/moex_futures.py`) — это список
+       ОЖИДАЕМЫХ активов, не гарантия того, что MOEX прямо сейчас его
+       листингует.
      - `macro:<indicator_code>` — живые ряды из таблицы `macro_data_points`,
        slug = ТОЧНЫЙ `indicator_code` как он лежит в БД (НЕ придумывай
        сокращённый slug — например для алюминия indicator_code в БД

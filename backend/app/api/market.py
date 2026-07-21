@@ -190,6 +190,61 @@ def instrument_history_endpoint(asset_class: str, secid: str,
     return get_history(db, asset_class, secid, days)
 
 
+@router.get("/market/commodity-price-history")
+def commodity_price_history(benchmark_key: str = Query(..., description="forts:<CODE> | macro:<indicator_code>"),
+                            years: int = Query(5, ge=1, le=10),
+                            db: Session = Depends(get_db)):
+    """Историческая цена для commodity_exposure.benchmark_key компаний
+    (market.json, методичка market-analyst v6) — график «Товар компании» на
+    вкладке «Рынки». Два источника, тот же формат benchmark_key, что в данных:
+    - `forts:<CODE>` (BR/NG/GOLD/SILV/PLT/PLD/CU/WHEAT) — резолвит БЛИЖАЙШИЙ
+      неэкспирировавший фьючерс по asset_code (та же логика, что
+      market_pulse._oil_snapshot — «цена нефти» = цена ближнего фьючерса),
+      затем отдаёт instrument_history для конкретного secid.
+    - `macro:<indicator_code>` — срез macro_data_points (Urals/World Bank Pink
+      Sheet и т.п.), metric="level".
+    `benchmark_key: "none"` сюда не приходит — фронт для него график не рисует
+    (честная деградация метрики, не баг)."""
+    from datetime import date, timedelta
+    if ":" not in benchmark_key:
+        raise HTTPException(status_code=400, detail="benchmark_key должен быть в формате source:slug")
+    source, slug = benchmark_key.split(":", 1)
+    days = min(years * 365, 1500)  # см. instrument_history_endpoint — те же границы
+
+    if source == "forts":
+        from app.models.future import Future
+        from app.services.instrument_history import get_history
+        today = date.today()
+        f = (db.query(Future)
+             .filter(Future.asset_code == slug,
+                     (Future.expiration_date.is_(None)) | (Future.expiration_date >= today))
+             .order_by(Future.expiration_date.asc().nullslast())
+             .first())
+        if not f:
+            return {"benchmark_key": benchmark_key, "points": [], "note": "контракт не найден"}
+        hist = get_history(db, "future", f.secid, days)
+        pts = [{"as_of": p["date"], "value": p["close"] if p["close"] is not None else p.get("settle")}
+               for p in hist.get("points", [])]
+        pts = [p for p in pts if p["value"] is not None]
+        return {"benchmark_key": benchmark_key, "secid": f.secid,
+                "note": f"ближайший фьючерс {f.secid}, эксп. {f.expiration_date}", "points": pts}
+
+    if source == "macro":
+        from app.models.macro import MacroDataPoint, MacroIndicator
+        ind = db.get(MacroIndicator, slug)
+        if not ind:
+            return {"benchmark_key": benchmark_key, "points": [], "note": "индикатор не найден"}
+        start = date.today() - timedelta(days=days)
+        rows = (db.query(MacroDataPoint)
+                .filter_by(indicator_code=slug, metric="level")
+                .filter(MacroDataPoint.as_of >= start)
+                .order_by(MacroDataPoint.as_of).all())
+        pts = [{"as_of": p.as_of.isoformat(), "value": float(p.value)} for p in rows]
+        return {"benchmark_key": benchmark_key, "unit": ind.unit, "points": pts}
+
+    raise HTTPException(status_code=400, detail=f"неизвестный источник benchmark_key: {source}")
+
+
 @router.get("/market/candles/{asset_class}/{secid}")
 def market_candles(asset_class: str, secid: str,
                    tf: str = Query("1d", description="1m|5m|15m|1h|4h|1d|1w|1M")):
