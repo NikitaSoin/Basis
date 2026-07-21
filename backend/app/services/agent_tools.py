@@ -157,6 +157,53 @@ def _get_geo_barometer() -> dict:
             "regions": d.get("regions"), "sector_flags": d.get("sector_flags")}
 
 
+def _query_chronicle(db: Session, ticker: str, sectors: list | None,
+                     themes: list | None, days: int, limit: int) -> dict:
+    """Аналитическая летопись (постоянная память): компактные однострочники по
+    тикеру ИЛИ заданным секторам/темам за окно. Сорт: важное → свежее. За полной
+    записью — get_chronicle_entry(id)."""
+    days = max(7, min(int(days or 365), 1825))
+    limit = max(1, min(int(limit or 10), 20))
+    conds = ["tickers ? :tk"]
+    params: dict = {"tk": ticker.upper()}
+    for i, s in enumerate(sectors or []):
+        if isinstance(s, str):
+            conds.append(f"sectors ? :sec{i}"); params[f"sec{i}"] = s
+    for i, t in enumerate(themes or []):
+        if isinstance(t, str):
+            conds.append(f"themes ? :thm{i}"); params[f"thm{i}"] = t
+    params["lim"] = limit
+    sql = text(f"""
+        SELECT id, published_at::date::text, kind, importance, title, interpretation
+        FROM chronicle_entries
+        WHERE ({' OR '.join(conds)}) AND published_at >= now() - make_interval(days => {days})
+        ORDER BY (importance='high') DESC, published_at DESC
+        LIMIT :lim
+    """)
+    rows = db.execute(sql, params).fetchall()
+    return {
+        "_note": "Интерпретация — как виделось НА ДАТУ записи, не сегодняшняя истина. "
+                 "За полным пересказом и тезисами вызови get_chronicle_entry(id).",
+        "entries": [{"id": r[0], "date": r[1], "kind": r[2], "importance": r[3],
+                     "title": r[4], "interpretation": (r[5] or "")[:200]} for r in rows],
+    }
+
+
+def _get_chronicle_entry(db: Session, entry_id: int) -> dict:
+    """Полная запись летописи по id (пересказ + тезисы + теги + источник)."""
+    r = db.execute(text("""
+        SELECT id, published_at::date::text, kind, importance, title, summary,
+               interpretation, key_takeaways, tickers, sectors, themes, source_key
+        FROM chronicle_entries WHERE id = :id
+    """), {"id": int(entry_id)}).fetchone()
+    if not r:
+        return {"error": "not_found"}
+    return {"id": r[0], "date": r[1], "kind": r[2], "importance": r[3], "title": r[4],
+            "summary": r[5], "interpretation": r[6], "key_takeaways": r[7],
+            "tickers": r[8], "sectors": r[9], "themes": r[10], "source": r[11],
+            "_note": "Интерпретация — как виделось на дату записи, не сегодняшняя истина."}
+
+
 # Расширенная схема — для агента-ревизора карточки (card_review_agent). Пилотный
 # macro_addendum использует урезанный TOOLS_SCHEMA выше (не ломаем его).
 REVIEW_TOOLS_SCHEMA = TOOLS_SCHEMA + [
@@ -182,6 +229,34 @@ REVIEW_TOOLS_SCHEMA = TOOLS_SCHEMA + [
             "name": "get_geo_barometer",
             "description": "Свежий геополитический барометр платформы: очаги (СВО/Ближний Восток/АТР), сценарий, секторные флаги. Для ревизии макро/гео-блоков.",
             "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "query_chronicle",
+            "description": ("Аналитическая ЛЕТОПИСЬ платформы — постоянная память важных событий и статей "
+                            "с готовой интерпретацией. Компактные однострочники по ЭТОЙ компании и/или "
+                            "заданным секторам/темам за окно. Чтобы понять, что происходило с фоном раньше "
+                            "и как это трактовали. Интерпретация — как виделось НА ДАТУ, не сегодняшняя истина. "
+                            "За полной записью — get_chronicle_entry(id)."),
+            "parameters": {"type": "object", "properties": {
+                "ticker": {"type": "string", "description": "Тикер компании (по умолчанию — разбираемая)"},
+                "sectors": {"type": "array", "items": {"type": "string"},
+                            "description": "Секторы (напр. oil_gas, finance, utilities) — расширить контекст"},
+                "themes": {"type": "array", "items": {"type": "string"},
+                           "description": "Темы (напр. key_rate, sanctions, oil_prices, dividends, taxes)"},
+                "days": {"type": "integer", "description": "Окно в днях, по умолч. 365 (память долгая)"},
+                "limit": {"type": "integer", "description": "1-20, по умолч. 10"},
+            }},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_chronicle_entry",
+            "description": "Полная запись летописи по id (из query_chronicle): пересказ, тезисы, теги, источник.",
+            "parameters": {"type": "object", "properties": {"id": {"type": "integer"}}, "required": ["id"]},
         },
     },
 ]
@@ -250,6 +325,11 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
         return _get_calendar(db, t)
     if name == "get_geo_barometer":
         return _get_geo_barometer()
+    if name == "query_chronicle":
+        return _query_chronicle(db, t, args.get("sectors"), args.get("themes"),
+                                args.get("days", 365), args.get("limit", 10))
+    if name == "get_chronicle_entry":
+        return _get_chronicle_entry(db, int(args.get("id", 0) or 0))
     return {"error": "unknown_tool"}
 
 

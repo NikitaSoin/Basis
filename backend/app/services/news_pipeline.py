@@ -495,6 +495,7 @@ def run_pipeline(db: Session) -> dict:
     model_used = f"{llm.provider_info().get('provider')}:{llm.provider_info().get('model')}"
     now = datetime.now(timezone.utc)
     published = 0
+    published_rows: list[MarketUpdate] = []
     for r in kept:
         km = keep_map.get(r["id"], {})
         mm = map_map.get(r["id"], {})
@@ -520,6 +521,7 @@ def run_pipeline(db: Session) -> dict:
             status="published",
         )
         db.add(row)
+        published_rows.append(row)
         published += 1
 
     # отфильтрованные (ЯВНО keep=false) сохраняем «лёгкими» строками: чтобы их
@@ -536,9 +538,24 @@ def run_pipeline(db: Session) -> dict:
         ))
 
     db.commit()
+
+    # Промоут важных новостей в аналитическую летопись (постоянная память агентов).
+    # ОТДЕЛЬНЫЙ commit после основного: баг летописи не должен ронять новостной крон;
+    # пропущенное подхватит идемпотентный catch-up бэкфилла (chronicle_backfill).
+    chronicled = 0
+    try:
+        from app.services.chronicle import ingest_market_update
+        for row in published_rows:
+            if ingest_market_update(db, row) is not None:
+                chronicled += 1
+        db.commit()
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.warning("News→chronicle: пропущено из-за %s (подхватит бэкфилл)", type(e).__name__)
+
     summary = {"fetched": len(items), "clusters": len(reps),
                "published": published, "filtered_out": len(rejected),
                "undecided": undecided, "macro_points": macro_extract.get("saved", 0),
-               "model": model_used}
+               "chronicled": chronicled, "model": model_used}
     logger.info("News pipeline: %s", summary)
     return summary

@@ -290,6 +290,7 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     fresh.sort(key=lambda a: a["_pub"], reverse=True)  # свежее — в приоритете за прогон
     fresh = fresh[:max_new]
     saved = 0
+    saved_rows: list = []  # для промоута в летопись
     for i in range(0, len(fresh), _BATCH):
         chunk = fresh[i:i + _BATCH]
         items = _digest_batch(chunk)
@@ -311,20 +312,32 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
             takeaways = it.get("key_takeaways")
             if not isinstance(takeaways, list):
                 takeaways = None
-            db.add(GeoDigestArticle(
+            row = GeoDigestArticle(
                 target=target, title=(it.get("title") or art["title"])[:300],
                 summary=summary, key_takeaways=takeaways,
                 investor_relevance=(it.get("investor_relevance") or "").strip() or None,
                 published_at=pub, source_url=art["url"], source_key=art["src"],
                 model_used="deepseek",
-            ))
+            )
+            db.add(row)
             try:
                 db.commit()
                 saved += 1
+                saved_rows.append(row)
             except Exception as e:  # noqa: BLE001
                 db.rollback()
                 logger.warning("GEO-дайджест: пропуск дубля/конфликта при сохранении %s: %s",
                                art["url"], type(e).__name__)
-    res = {"discovered": len(fresh), "saved": saved, "blind": blind}
+
+    # Промоут свежих статей в аналитическую летопись (постоянная память агентов) —
+    # теги одним батч-вызовом. Отдельно от сохранения дайджеста, не роняет его.
+    chronicled = 0
+    if saved_rows:
+        try:
+            from app.services.chronicle import ingest_geo_articles
+            chronicled = ingest_geo_articles(db, saved_rows)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("GEO-дайджест→chronicle: %s", type(e).__name__)
+    res = {"discovered": len(fresh), "saved": saved, "chronicled": chronicled, "blind": blind}
     logger.info("GEO-дайджест: %s", res)
     return res

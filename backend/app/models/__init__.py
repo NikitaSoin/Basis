@@ -13,6 +13,7 @@ from app.models.instrument import InstrumentHistory
 from app.models.assistant import Conversation, Message
 from app.models.screener_filter import SavedScreenerFilter
 from app.models.agent_addendum import AgentAddendum
+from app.models.chronicle import ChronicleEntry
 
 __all__ = [
     "GeoBlock", "ObserverReport",
@@ -28,4 +29,5 @@ __all__ = [
     "InstrumentHistory",
     "SavedScreenerFilter",
     "AgentAddendum",
+    "ChronicleEntry",
 ]

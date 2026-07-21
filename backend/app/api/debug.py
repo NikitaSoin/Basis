@@ -945,6 +945,44 @@ def debug_trigger_geo_digest():
         db.close()
 
 
+@router.post("/debug/trigger-chronicle-backfill")
+def debug_trigger_chronicle_backfill():
+    """Разовый/периодический бэкфилл аналитической летописи из обоих источников
+    (важные новости market_updates + статьи geo_digest_articles). Идемпотентно."""
+    from app.db.session import SessionLocal
+    from app.services.chronicle import backfill
+    db = SessionLocal()
+    try:
+        return backfill(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug chronicle-backfill: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
+@router.get("/debug/chronicle-stats")
+def debug_chronicle_stats():
+    """Сводка по летописи: сколько записей, разбивка по жанру/важности, топ-темы."""
+    from app.db.session import SessionLocal
+    from sqlalchemy import text as _t
+    db = SessionLocal()
+    try:
+        total = db.execute(_t("SELECT count(*) FROM chronicle_entries")).scalar()
+        by_kind = dict(db.execute(_t("SELECT kind, count(*) FROM chronicle_entries GROUP BY kind")).fetchall())
+        by_imp = dict(db.execute(_t("SELECT coalesce(importance,'—'), count(*) FROM chronicle_entries GROUP BY 1")).fetchall())
+        themes = db.execute(_t("""
+            SELECT t, count(*) FROM chronicle_entries, jsonb_array_elements_text(coalesce(themes,'[]'::jsonb)) AS t
+            GROUP BY t ORDER BY 2 DESC LIMIT 12""")).fetchall()
+        tagged = db.execute(_t("SELECT count(*) FROM chronicle_entries WHERE tickers IS NOT NULL AND tickers <> '[]'::jsonb")).scalar()
+        return {"total": total, "by_kind": by_kind, "by_importance": by_imp,
+                "with_tickers": tagged, "top_themes": [{"theme": r[0], "n": r[1]} for r in themes]}
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-instrument-history")
 def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400),
                                       date_from: str | None = Query(None, description="ISO-дата — точный левый край окна (переопределяет days_back), для чанкованного бэкафилла без повторной прокачки уже загруженных дней"),
