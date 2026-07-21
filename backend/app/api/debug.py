@@ -984,6 +984,22 @@ def debug_chronicle_stats():
         db.close()
 
 
+@router.get("/debug/chronicle-preview")
+def debug_chronicle_preview(ticker: str, sectors: str = "", themes: str = "",
+                            days: int = 365, limit: int = 12):
+    """Что видит агент через query_chronicle по тикеру (+ опц. секторы/темы через
+    запятую). Read-only превью летописи для проверки/прозрачности."""
+    from app.db.session import SessionLocal
+    from app.services.agent_tools import _query_chronicle
+    db = SessionLocal()
+    try:
+        sec = [s.strip() for s in sectors.split(",") if s.strip()]
+        thm = [t.strip() for t in themes.split(",") if t.strip()]
+        return _query_chronicle(db, ticker.upper(), sec or None, thm or None, days, limit)
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-instrument-history")
 def debug_trigger_instrument_history(asset_class: str = Query("fund"), days_back: int = Query(25, ge=1, le=400),
                                       date_from: str | None = Query(None, description="ISO-дата — точный левый край окна (переопределяет days_back), для чанкованного бэкафилла без повторной прокачки уже загруженных дней"),
