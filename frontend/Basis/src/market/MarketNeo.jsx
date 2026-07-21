@@ -10,6 +10,7 @@ import { TrendingUp, FileText, ArrowRightLeft, Layers, Coins, Sigma } from "luci
 import { InstrumentLogo } from "../design/CompanyLogo";
 import "../styles/market.css";
 import "../styles/market-sidebar.css";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const NB = " ";
@@ -292,10 +293,40 @@ function ToneChip({ upside, conf }) {
   );
 }
 function StockCard({ s, onOpen, Logo, compact }) {
+  if (compact) {
+    // Мини-карточка ≤640px, 4 в ряд (владелец 2026-07-21, второй заход:
+    // «сделай больше в один ряд, штуки 4»). НЕ CSS-сжатие богатой карточки —
+    // при ~70-90px ширины лого+полное имя+сектор+капитализация+бейдж
+    // апсайда+confidence-точки физически не влезают читаемо. Отдельный
+    // урезанный набор полей: тикер+цена+дельта текстом (факт, обязательное),
+    // апсайд к справедливой цене (оценка Basis) свёрнут в ОДИН визуальный
+    // сигнал — цветную полосу слева (язык .mk-tonebar из «Ленты»), без
+    // отдельного текста/точек уверенности. Полное имя/лого/капитализация —
+    // в разборе по тапу (карточка компании). aria-label/title несут то же
+    // описание для скринридеров и десктоп-курсора, раз апсайд стал цветом
+    // без текста. Обоснование плотности — styles/market.css, конец файла.
+    const fv = s.upside == null ? null : Math.round(s.upside);
+    const tc = fv == null ? "var(--line-2)" : fvColor(fv);
+    const chgWord = s.chg == null ? "нет данных за день" : (s.chg > 0 ? "рост " : s.chg < 0 ? "снижение " : "без изменений ") + num(Math.abs(s.chg), 2) + "% за день";
+    const label = `${s.n}, ${s.t}. Цена ${num(s.price, 2)}${NB}₽. ${chgWord}.` + (fv == null ? "" : ` Потенциал к справедливой цене (оценка Basis): ${fv > 0 ? "+" : ""}${fv}%.`);
+    return (
+      <button className="mk-card mk-card-mini" style={{ borderLeftColor: tc }} onClick={() => onOpen(s)} title={label} aria-label={label}>
+        <span className="mk-mini-tk">{s.t}</span>
+        <span className="mk-mini-px">{num(s.price, 2)}</span>
+        <Delta pct={s.chg} />
+        {/* ОТК (CRITICAL): цветная полоса слева БЕЗ текста — на телефоне
+            title/aria-label не всплывают по тапу, зрячий пользователь видел бы
+            только цвет без единого намёка, что это оценка Basis, а не факт.
+            Короткая цифра тем же цветом восстанавливает эпистемику, не тратя
+            высоту на отдельную строку-подпись. */}
+        {fv != null && <span className="mk-mini-fv" style={{ color: tc }}>{fv > 0 ? "+" : ""}{fv}%</span>}
+      </button>
+    );
+  }
   return (
     <button className="mk-card" onClick={() => onOpen(s)}>
       <div className="mk-card-top">
-        {Logo ? <Logo ticker={s.t} name={s.n} size={compact ? 28 : 38} /> : <Mono t={s.t} color={secColor(s.sec)} />}
+        {Logo ? <Logo ticker={s.t} name={s.n} size={38} /> : <Mono t={s.t} color={secColor(s.sec)} />}
         <div className="mk-card-id"><b>{s.n}</b><span className="mk-card-tk">{s.t} · {s.sec}</span></div>
       </div>
       <div className="mk-card-px">
@@ -318,7 +349,7 @@ function StockCards({ stocks, onOpen, Logo }) {
       {order.map(g => (
         <section key={g}>
           <div className="mk-grp-head"><span className="mk-grp-dot" style={{ background: secColor(g) }} />{g}<span className="mk-grp-n">{by[g].length}</span></div>
-          <div className="mk-grid">{by[g].map(s => <StockCard key={s.t} s={s} onOpen={onOpen} Logo={Logo} compact={compact} />)}</div>
+          <div className="mk-grid mk-grid-stocks">{by[g].map(s => <StockCard key={s.t} s={s} onOpen={onOpen} Logo={Logo} compact={compact} />)}</div>
         </section>
       ))}
     </div>
@@ -781,6 +812,12 @@ function inTradingHours() {
 export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onOpenFund, onOpenSpot, onOpenOption, onSelectIndex, onSelectDriver, Logo }) {
   const persist = (k, d) => { try { return localStorage.getItem(k) || d; } catch { return d; } };
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
+  // Мобильный (≤760px) выезжающий сайдбар — тот же переиспользуемый паттерн,
+  // что у Портфеля/Обозревателя/Скринера (design/MobileSidebarDrawer.jsx).
+  // Заменяет собой горизонтальную полосу mk-tabbar-mobile (Фаза 1) — владелец,
+  // 2026-07-21 (четвёртый заход): «верхнее акции/облигации — не должно быть,
+  // должен быть сайдбар» (единообразие с остальными тремя экранами).
+  const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("Все");
   const [stockView, setStockView] = useState(() => persist("mk.sview3", "rows"));
@@ -925,8 +962,13 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
   return (
     <div className="mkt-shell">
+      {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
       {/* ---- Тёмный сайдбар классов активов (тот же паттерн, что Портфель/Обозреватель/Скринер+Сравнение) ---- */}
-      <nav className="mkt-sidebar" aria-label="Классы активов">
+      <nav
+        className={`mkt-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
+        aria-label="Классы активов"
+        inert={drawerNarrow && !drawerOpen}
+      >
         <div className="mkt-depth-strip" aria-hidden="true" />
         <div className="mkt-eyebrow">Рынок</div>
         <div className="mkt-zone">
@@ -936,7 +978,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
               key={t.id}
               type="button"
               className={`mkt-item${tab === t.id ? " mkt-item--active" : ""}`}
-              onClick={() => saveTab(t.id)}
+              onClick={() => { saveTab(t.id); setDrawerOpen(false); }}
               aria-current={tab === t.id ? "page" : undefined}
             >
               <span className="mkt-item__icon"><t.icon size={15} aria-hidden="true" /></span>
@@ -950,19 +992,11 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
 
       <main className="mkt-main">
         <div className="mkt-panel mk-screen">
-          <nav className="mk-tabbar mk-tabbar-mobile" aria-label="Классы активов">
-            {TABS.map(t => (
-              <button
-                key={t.id} type="button"
-                className={"mk-tab" + (tab === t.id ? " on" : "")}
-                onClick={() => saveTab(t.id)}
-                aria-current={tab === t.id ? "page" : undefined}
-              >
-                <t.icon size={15} aria-hidden="true" />{t.label}
-                {t.count != null && <span className="tcount">{t.count}</span>}
-              </button>
-            ))}
-          </nav>
+          <MobileSectionBar
+            title={activeTabMeta.label}
+            open={drawerOpen}
+            onOpenMenu={() => setDrawerOpen(true)}
+          />
           <div className="mk-page-head">
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
               <span className="mk-page-eyebrow">Рынок</span>
