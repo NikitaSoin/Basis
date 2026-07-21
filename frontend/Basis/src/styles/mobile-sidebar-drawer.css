@@ -1,0 +1,134 @@
+/* =============================================================
+   MOBILE SIDEBAR DRAWER — переиспользуемый рецепт (≤760px) для тёмных
+   фикс-сайдбаров вида .pf-sidebar/.scmp-sidebar (тот же структурный
+   CSS-блок, что и .mkt-sidebar/.obs-sidebar — общая находка design-
+   review). Владелец, 2026-07-21 (второй заход по мобильным багам после
+   нижнего таббара): «сайдбара слева нет — надо сделать чтобы была
+   возможность открыть и закрыть его» — toggle-able drawer, НЕ докован
+   навсегда и НЕ скрыт навсегда: гамбургер открывает сайдбар оверлеем
+   (slide-in слева + затемнение фона), закрывается по клику вне/Escape/
+   выбору пункта.
+
+   Использование на странице (см. Портфель/Скринер):
+   1) существующий сайдбар получает ДОПОЛНИТЕЛЬНЫЙ класс "msd-drawer"
+      (+ "msd-drawer--open" когда открыт) РЯДОМ со своим .pf-sidebar/
+      .scmp-sidebar — ничего не убирая, тёмная палитра и структура те же;
+   2) в разметке — <MobileSectionBar>/<MobileDrawerBackdrop> из
+      design/MobileSidebarDrawer.jsx;
+   3) состояние — хук useMobileSidebarDrawer() оттуда же (открыт/закрыт,
+      Escape, лочит скролл body, пока открыт).
+   4) каждый пункт сайдбара при выборе тоже закрывает drawer (onClick
+      вызывает setDrawerOpen(false) вместе со сменой раздела).
+
+   >760px эти правила не действуют — сайдбар остаётся докованным как
+   раньше (см. margin-left у .pf-main/.scmp-main в их собственных файлах).
+   ============================================================= */
+
+.msd-toggle,
+.msd-section-bar,
+.msd-backdrop {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  /* Сайдбар вне видимости, но остаётся в DOM/layout (position:fixed уже
+     задан своим .pf-sidebar/.scmp-sidebar) — просто выезжает transform'ом,
+     не display:none, чтобы анимация slide-in/out была плавной. */
+  .msd-drawer {
+    transform: translateX(-100%);
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: none;
+    /* ОТК (basis-design-reviewer): .pf-sidebar/.scmp-sidebar несут свой
+       z-index:40 (в portfolio-v2.css/screener-compare.css) — ниже нижнего
+       mnav-tabbar (z-index:100, mobile-nav.css), таббар протыкал открытый
+       drawer насквозь. !important — та же селекторная специфичность
+       (один класс), порядок импорта между файлами не гарантирован;
+       выше .mnav-more-sheet (150) НЕ поднимаем — drawer не должен
+       перекрывать модалку «Ещё», если та вдруг открыта поверх. */
+    z-index: 110 !important;
+  }
+  .msd-drawer.msd-drawer--open {
+    transform: translateX(0);
+    box-shadow: 16px 0 40px -10px rgba(0, 0, 0, 0.45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .msd-drawer {
+      transition: none;
+    }
+  }
+
+  /* Затемнение фона за выехавшим сайдбаром — ниже сайдбара (z-index 40
+     у .pf-sidebar/.scmp-sidebar), выше основного контента. Начинается
+     под шапкой (56px, как и сам сайдбар), чтобы верхняя навигация
+     оставалась кликабельной поверх скрима. */
+  .msd-backdrop {
+    display: block;
+    position: fixed;
+    top: 56px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    /* Между .msd-drawer (110) и mnav-tabbar (100) — см. комментарий у
+       .msd-drawer выше про тот же ОТК-фикс. */
+    z-index: 109;
+    background: color-mix(in srgb, var(--bs-deep, #12131a) 55%, transparent);
+    animation: msdBackdropIn 180ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .msd-backdrop {
+      animation: none;
+    }
+  }
+
+  /* Мобильная подшапка над контентом: кнопка-гамбургер + название
+     текущего раздела (чтобы после закрытия сайдбара было видно, где
+     находишься). Токены с фолбэком var(--pf-*, var(--глобальный)) —
+     тот же приём, что .pf-pill--soft: внутри .pf-shell подхватывает
+     кремовую палитру Портфеля, внутри .scmp-shell (своих --pf-* нет) —
+     обычные светлые токены сайта. */
+  .msd-section-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--pf-line, var(--border-subtle));
+    background: var(--pf-tan-surface, var(--bg-elevated));
+  }
+
+  .msd-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: var(--radius-sm, 6px);
+    border: 1px solid var(--pf-line, var(--border-strong));
+    background: var(--pf-surface-2, var(--bg-elevated));
+    color: var(--pf-ink, var(--text-primary));
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .msd-toggle:hover {
+    border-color: var(--accent);
+  }
+  .msd-toggle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .msd-section-title {
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--pf-ink, var(--text-primary));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@keyframes msdBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

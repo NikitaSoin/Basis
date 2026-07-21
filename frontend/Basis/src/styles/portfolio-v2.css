@@ -377,21 +377,38 @@
   font-size: 7px;
 }
 
-/* ---- KPI hero (headline value + accent-divided right column) ---- */
-.pf-kpi-hero {
+/* ---- Hero KPI card (Состав портфеля — pfComposition): «Стоимость портфеля»
+   слева + «Див. доходность / Индекс качества» справа за медной вертикальной
+   чертой. Было инлайн-style в JSX (display:grid/gridTemplateColumns прямо на
+   элементе) — инлайн-стиль ВСЕГДА побеждает любое внешнее CSS-правило по
+   специфичности, поэтому на телефоне 2 колонки было НИКАК не переопределить.
+   Фикс 2026-07-21: вынесено в класс, на ≤640px складывается в 1 колонку,
+   медная черта уходит с левого края наверх. */
+.pf-hero-grid {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
-  gap: 40px;
+  gap: 44px;
   align-items: end;
 }
 
-@media (max-width: 900px) {
-  .pf-kpi-hero { grid-template-columns: 1fr; }
+.pf-hero-grid__right {
+  border-left: 2px solid var(--pf-copper);
+  padding-left: 26px;
 }
 
-.pf-kpi-hero__right {
-  border-left: 2px solid var(--accent);
-  padding-left: 24px;
+@media (max-width: 640px) {
+  .pf-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .pf-hero-grid__right {
+    /* ОТК: акцент — медь везде по конституции, не гасить на мобильном —
+       черта просто меняет ориентацию с левой на верхнюю, толщина та же (2px). */
+    border-left: 0;
+    border-top: 2px solid var(--pf-copper);
+    padding-left: 0;
+    padding-top: 18px;
+  }
 }
 
 /* ---- Stress-test scenario picker ---- */
@@ -475,9 +492,13 @@
 }
 
 
-/* ---- Responsive: collapse sidebar on narrow screens ---- */
-@media (max-width: 768px) {
-  .pf-sidebar { display: none; }
+/* ---- Responsive: сайдбар на узких экранах (≤760px) — выезжающий drawer,
+   не постоянно скрыт. .pf-sidebar получает общий рецепт .msd-drawer/
+   .msd-drawer--open из styles/mobile-sidebar-drawer.css (класс добавлен
+   в JSX), здесь — только своя половина: контент занимает всю ширину,
+   сайдбар больше не докован постоянно. Брейкпоинт выровнен с 760px —
+   единая мобильная точка перелома по сайту (раньше был 768, отдельный). */
+@media (max-width: 760px) {
   .pf-main { margin-left: 0; }
 }
 

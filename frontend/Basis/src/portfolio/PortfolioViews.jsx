@@ -23,6 +23,7 @@ import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
 import { CompanyLogo } from "../design/CompanyLogo";
+import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
 import "../styles/portfolio-v2.css";
 
 const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : "—";
@@ -1700,6 +1701,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   // поэтому initial state достаточно (тот же паттерн, что forceSection в ObserverV2).
   const [activeSection, setActiveSection] = useState(forceSection || "composition");
   const [visitedSections, setVisitedSections] = useState(() => new Set([forceSection || "composition"]));
+  // Мобильный (≤760px) выезжающий сайдбар — design/MobileSidebarDrawer.jsx.
+  const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
   const [stressScenario, setStressScenario] = useState("black_swan");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1734,6 +1737,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     // Сбрасываем скролл на переключении секции.
     const scroller = document.querySelector(".app-shell");
     if (scroller) scroller.scrollTop = 0;
+    // Выбор раздела (в т.ч. из выехавшего мобильного сайдбара) закрывает drawer.
+    setDrawerOpen(false);
   };
 
   const reloadPortfolio = () => { setShowAddModal(false); setReloadKey(k => k + 1); };
@@ -2267,8 +2272,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         <h2 className="pf-sec-title">Состав портфеля</h2>
       </div>
       <AppearGroup gate={appearGate.current} groupId="pf-holdings" className="tw-flex tw-flex-col tw-gap-3">
-        {/* Стоимость + быстрые показатели — разметка ДОСЛОВНО из прототипа (grid 1.15fr/1fr, медная полоса, clamp 38-62) */}
-        <div className="pf-card" style={{ padding: "32px 36px", display: "grid", gridTemplateColumns: "1.15fr 1fr", gap: "44px", alignItems: "end" }}>
+        {/* Стоимость + быстрые показатели — разметка ДОСЛОВНО из прототипа (grid 1.15fr/1fr, медная полоса, clamp 38-62).
+            Layout — класс .pf-hero-grid (portfolio-v2.css), НЕ инлайн: на телефоне складывается в 1 колонку, медная
+            черта-разделитель уходит с левого края наверх (см. @media(≤640px) в файле). */}
+        <div className="pf-card pf-hero-grid" style={{ padding: "32px 36px" }}>
           <div>
             <div style={{ fontSize: "12.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--pf-ink-3)", marginBottom: "10px" }}>Стоимость портфеля</div>
             <div style={{ fontFamily: "var(--pf-serif)", fontVariantNumeric: "tabular-nums", fontSize: "clamp(38px,5.2vw,62px)", fontWeight: 600, lineHeight: 0.95, letterSpacing: "-0.01em" }}>
@@ -2283,7 +2290,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
               <span style={{ color: "var(--pf-ink-3)" }}>за всё время владения, без учёта дивидендов</span>
             </div>
           </div>
-          <div style={{ borderLeft: "2px solid var(--pf-copper)", paddingLeft: "26px" }}>
+          <div className="pf-hero-grid__right">
             <div style={{ display: "flex", gap: "28px", flexWrap: "wrap" }}>
               <div>
                 <div style={{ fontSize: "11.5px", fontWeight: 600, color: "var(--pf-ink-2)", marginBottom: "8px" }}>Див. доходность</div>
@@ -3434,10 +3441,18 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     );
   }
 
+  const activeZoneLabel = PF_ZONES.flatMap((z) => z.items).find((it) => it.id === activeSection)?.label;
+
   return (
     <div className="pf-shell" style={{ background: "var(--pf-tan)" }}>
+      {/* ---- Мобильный (≤760px) выезжающий сайдбар — backdrop + drawer-класс на .pf-sidebar ---- */}
+      {drawerOpen && <MobileDrawerBackdrop onClose={() => setDrawerOpen(false)} />}
       {/* ---- Dark sidebar ---- */}
-      <nav className="pf-sidebar" aria-label="Разделы аналитики портфеля">
+      <nav
+        className={`pf-sidebar msd-drawer${drawerOpen ? " msd-drawer--open" : ""}`}
+        aria-label="Разделы аналитики портфеля"
+        inert={drawerNarrow && !drawerOpen}
+      >
         <div className="pf-depth-strip" aria-hidden="true" />
         <div className="pf-eyebrow">Аналитика портфеля</div>
 
@@ -3464,6 +3479,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
       {/* ---- Light main area ---- */}
       <main className="pf-main" style={{ background: "var(--pf-tan)" }}>
+        <MobileSectionBar title={activeZoneLabel} open={drawerOpen} onOpenMenu={() => setDrawerOpen(true)} />
         <div className="pf-topbar">
           <div className="pf-topbar__hint">Полная картина по портфелю — состав, риск, сравнение и разбор</div>
           <div className="pf-topbar__actions">
