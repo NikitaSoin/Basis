@@ -10,6 +10,25 @@ effect_sign существующих карточек (macro.json/geo.json) — 
 все три через один и тот же движок (app/services/factor_engine.py), чтобы не
 плодить расходящиеся суждения об одних и тех же экспозициях (принцип №2
 методики).
+
+🔴 Найдено 2026-07-17 (docs/status.md): effect_sign в commodity-факторе
+macro.json кодирует «эффект ПРИ ТЕКУЩЕЙ цене относительно нейтрали, которую
+аналитик выбрал на момент написания карточки» (Лукойл: Urals $60 ниже
+нейтрали $70 → effect_sign=strong_negative), а не структурную чувствительность
+«выигрывает ли компания от РОСТА цены товара» — это фиксированное свойство
+бизнес-модели (производитель vs потребитель сырья), не зависящее от текущего
+уровня цены. Итог без фикса: сценарий «нефть дорожает» показывал нефтяников
+проигравшими. stress_scenarios.py уже точечно обходил это для нефтегазового
+сектора (exp["commodity"]=2.0 напрямую, не из тега) — здесь тот же приём
+обобщён на ВСЕХ commodity-производителей и перенесён в ИСТОЧНИК
+(get_company_exposures), чтобы почистить не только стресс-тест, но и MGI/
+FactorD/forward-ERR, которые читают эту функцию напрямую.
+Осознанно НЕ трогаем потребителей сырья (авиаперевозки/транспорт — топливо
+как расход, обратный знак) — это другой, менее изученный случай; честная
+деградация (оставить как есть) безопаснее угадывания. Полная точность по
+producer/consumer — задача методики market-analyst (см. work-journal.md,
+блок «Товар компании»), это временный код-фикс на грубой секторной эвристике
+для явных производителей до полной раскатки.
 """
 from __future__ import annotations
 
@@ -35,6 +54,25 @@ _GEO_TYPE_MAP = {"sanctions": "sanctions", "conflict": "conflict"}
 
 _SIGN_MAP = {"strong_negative": -2, "negative": -1, "mixed": 0, "neutral": 0,
              "positive": 1, "strong_positive": 2}
+
+# Секторы, где компания С ВЫСОКОЙ УВЕРЕННОСТЬЮ — чистый ПРОИЗВОДИТЕЛЬ своего
+# ключевого сырья (выигрывает от роста его цены) — извлечение/переработка,
+# не переработка чужого сырья в конечный продукт с тонкой маржой. Подстроки,
+# регистронезависимо, матчатся против company.sector (зоопарк рус/eng слагов,
+# см. generate-seo-pages.js normalizeSector() — тот же приём). Осознанно НЕ
+# включены: transport/авиаперевозки (топливо — расход, обратный знак),
+# consumer/finance_retail/building_materials (неоднозначно без разбора
+# конкретной компании — честная деградация лучше угадывания).
+_COMMODITY_PRODUCER_SECTOR_TOKENS = (
+    "нефт", "газ", "oil_gas", "metals", "металл", "chemicals", "химия",
+    "удобрен", "нефтехим", "coal_mining", "уголь", "metals_mining", "добыча",
+    "драгоценн", "лесопромышленн", "уран",
+)
+
+
+def _is_commodity_producer_sector(sector: str | None) -> bool:
+    s = (sector or "").lower()
+    return any(tok in s for tok in _COMMODITY_PRODUCER_SECTOR_TOKENS)
 
 
 def _load_json(ticker: str, filename: str) -> dict | None:
@@ -96,6 +134,7 @@ def get_company_exposures(ticker: str) -> dict:
 
     fin = _load_json(ticker, "financials.json")
     refinancing = _refinancing_exposure(fin) if fin else None
+    sector = ((fin or {}).get("meta") or {}).get("sector") if fin else None
 
     out: dict[str, float | None] = {}
     for k in FACTOR_KEYS:
@@ -104,6 +143,13 @@ def get_company_exposures(ticker: str) -> dict:
             continue
         vals = exposures[k]
         out[k] = round(sum(vals) / len(vals), 2) if vals else None
+
+    # см. докстринг файла (2026-07-17): effect_sign — состояние сейчас, не
+    # структура. Для явных производителей (карточка вообще тегировала
+    # commodity-фактор — есть о чём говорить) берём структурный знак напрямую,
+    # тот же приём, что stress_scenarios.py уже применял точечно к нефтянке.
+    if exposures["commodity"] and _is_commodity_producer_sector(sector):
+        out["commodity"] = 2.0
     return out
 
 
