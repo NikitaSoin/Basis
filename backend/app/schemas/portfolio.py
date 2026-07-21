@@ -103,6 +103,8 @@ class PositionMetrics(BaseModel):
     company_id: int | None = None   # для перехода в карточку компании из портфеля
     instrument_type: str = "equity"  # equity|bond|future|fund|cash
     secid: str | None = None
+    isin: str | None = None             # bond: для логотипа инструмента (ключ карты instrument-logos)
+    issuer_ticker: str | None = None    # bond: тикер эмитента-акции в нашей базе, если публичная компания
     quantity: float | None = None       # non-equity: штук/паёв/контрактов/сумма
     avg_buy_price: float | None = None  # non-equity: средняя цена покупки
     price: float | None = None          # non-equity: текущая рыночная цена/оценка

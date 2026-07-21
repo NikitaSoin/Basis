@@ -109,6 +109,7 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
             out.append({
                 "id": p.id, "ticker": p.secid, "name": b.short_name if b else p.secid,
                 "company_id": None, "secid": p.secid, "sector": ASSET_CLASS_LABEL["bond"], "instrument_type": "bond",
+                "isin": b.isin if b else None, "issuer_ticker": b.issuer_ticker if b else None,
                 "value": round(qty * price, 2) if price is not None else None,
                 "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
                 "data_flag": None if price is not None else "нет актуальной цены облигации",

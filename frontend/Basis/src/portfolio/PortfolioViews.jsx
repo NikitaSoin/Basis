@@ -22,7 +22,7 @@ import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as
 import { WeightBar, MetricBar, CorrelationHeatmap, ImpactBar, useCountUp, catFor } from "../design/PortfolioViz";
 import { KeyTakeaway, Disclosure } from "../design/textblocks";
 import { AppearGroup } from "../design/motion";
-import { CompanyLogo } from "../design/CompanyLogo";
+import { CompanyLogo, InstrumentLogo } from "../design/CompanyLogo";
 import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "../design/MobileSidebarDrawer";
 import "../styles/portfolio-v2.css";
 
@@ -260,7 +260,7 @@ const TickerInput = ({ value, onChange, placeholder = "SBER" }) => {
   const tcolor = (t) => TICKER_COLORS_AC[(t.charCodeAt(0) + (t.charCodeAt(1) || 0)) % TICKER_COLORS_AC.length];
 
   useEffect(() => {
-    if (value.length < 2) { setSuggestions([]); setOpen(false); return; }
+    if (!value) { setSuggestions([]); setOpen(false); return; }
     const timer = setTimeout(() => {
       fetch(`${apiUrl}/api/companies?search=${encodeURIComponent(value)}`)
         .then(r => r.ok ? r.json() : [])
@@ -580,6 +580,17 @@ const INSTRUMENT_SEARCH_CONFIG = {
   future: { endpoint: "futures", nameField: "short_name", priceField: "settle_price" },
   fund: { endpoint: "funds", nameField: "short_name", priceField: "last_price" },
 };
+// Логотип строки поиска: облигация с известным эмитентом-акцией — логотип
+// компании (CompanyLogo), иначе логотип самого инструмента у брокера
+// (InstrumentLogo, ISIN для облигаций / secid для фьючерсов и фондов) —
+// тот же принцип, что HoldingLogo в таблице «Состав портфеля».
+const InstrumentSearchLogo = ({ instrumentType, item, size = 26 }) => {
+  if (instrumentType === "bond" && item.issuer_ticker) {
+    return <CompanyLogo ticker={item.issuer_ticker} name={item.issuer_name || item.short_name} size={size} />;
+  }
+  const id = instrumentType === "bond" ? item.isin : item.secid;
+  return <InstrumentLogo id={id} name={item.short_name} size={size} />;
+};
 const InstrumentSearchInput = ({ instrumentType, value, onChange, onSelect, placeholder }) => {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const cfg = INSTRUMENT_SEARCH_CONFIG[instrumentType];
@@ -588,7 +599,7 @@ const InstrumentSearchInput = ({ instrumentType, value, onChange, onSelect, plac
   const ref = React.useRef(null);
 
   useEffect(() => {
-    if (!cfg || value.length < 2) { setSuggestions([]); setOpen(false); return; }
+    if (!cfg || !value) { setSuggestions([]); setOpen(false); return; }
     const timer = setTimeout(() => {
       fetch(`${apiUrl}/api/${cfg.endpoint}?search=${encodeURIComponent(value)}`)
         .then(r => r.ok ? r.json() : [])
@@ -627,12 +638,15 @@ const InstrumentSearchInput = ({ instrumentType, value, onChange, onSelect, plac
             <div
               key={item.secid}
               onMouseDown={() => { onSelect(item); setOpen(false); setSuggestions([]); }}
-              style={{ display: "flex", flexDirection: "column", gap: 2, padding: "9px 12px", cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", cursor: "pointer" }}
               onMouseEnter={e => e.currentTarget.style.background = "var(--bg-hover)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
-              <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{item[cfg.nameField]}</span>
-              <span style={{ fontFamily: "monospace", fontSize: 11.5, color: "var(--text-3)" }}>{item.secid}</span>
+              <InstrumentSearchLogo instrumentType={instrumentType} item={item} size={26} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text-1)" }}>{item[cfg.nameField]}</span>
+                <span style={{ fontFamily: "monospace", fontSize: 11.5, color: "var(--text-3)" }}>{item.secid}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -1481,6 +1495,23 @@ const MetricExplainers = ({ metricKeys, values = {}, ctx = {} }) => {
   );
 };
 
+// Логотип строки «Состав портфеля»: акция — компания по тикеру (CompanyLogo,
+// карта /api/companies/logos). Non-equity — как в «Рынке» (MarketNeo): если у
+// облигации известен эмитент-акция (issuer_ticker) — тоже логотип компании,
+// иначе логотип самого инструмента у брокера (InstrumentLogo, карта
+// /api/companies/instrument-logos, ключ ISIN для облигаций / secid для
+// фондов, фьючерсов, валюты — r.ticker для non-equity это secid, НЕ тот ключ).
+const HoldingLogo = ({ r, size }) => {
+  if (!r.instrument_type || r.instrument_type === "equity") {
+    return <CompanyLogo ticker={r.ticker} name={r.name} size={size} />;
+  }
+  if (r.instrument_type === "bond" && r.issuer_ticker) {
+    return <CompanyLogo ticker={r.issuer_ticker} name={r.name} size={size} />;
+  }
+  const id = r.instrument_type === "bond" ? r.isin : r.secid;
+  return <InstrumentLogo id={id} name={r.name} size={size} />;
+};
+
 // Колонка «Актив» как в «Составе»: иконка + тикер + название, клик —
 // переход в карточку компании. Строка «Портфель» — просто жирный итог.
 const makeAssetColumn = (onOpenCompany) => ({
@@ -2069,6 +2100,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     .map((p) => ({
       id: p.id, ticker: p.ticker, name: p.name, company_id: null,
       instrument_type: p.instrument_type, secid: p.secid,
+      isin: p.isin, issuer_ticker: p.issuer_ticker,
       shares: p.quantity ?? 0, avgPrice: p.avg_buy_price ?? 0, currentPrice: p.price ?? 0,
       value: p.value ?? 0, weight: p.weight_pct ?? 0,
       profitRub: p.value != null && p.avg_buy_price != null ? p.value - (p.quantity ?? 0) * p.avg_buy_price : 0,
@@ -2349,7 +2381,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                           }}
                           title={`Открыть карточку ${r.ticker}`}
                         >
-                          <CompanyLogo ticker={r.ticker} name={r.name} size={34} />
+                          <HoldingLogo r={r} size={34} />
                         </div>
                         <div className="pf-pos-name">
                           <b>{r.name || r.ticker}</b>
