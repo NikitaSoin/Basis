@@ -55,7 +55,7 @@ SOURCE_LABELS = {
     "economist_europe": "The Economist", "economist_mea": "The Economist",
     "economist_china": "The Economist", "economist_finance": "The Economist",
     "isw": "ISW",
-    "tg_baunov": "Баунов (Carnegie)", "tg_agabuev": "Габуев (Carnegie)",
+    "tg_carnegie": "Carnegie Politika", "tg_baunov": "Баунов (Carnegie)", "tg_agabuev": "Габуев (Carnegie)",
     "tg_markettwits": "MarketTwits",
 }
 

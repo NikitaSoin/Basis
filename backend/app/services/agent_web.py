@@ -39,6 +39,19 @@ def _client() -> httpx.Client:
     return make_client(timeout=_FETCH_TIMEOUT)
 
 
+def via_proxy(target: str) -> str:
+    """Если задан WEB_FETCH_PROXY_URL (Cloudflare Worker-форвардер, как
+    DEEPSEEK_BASE_URL/FRED_BASE_URL) — заворачиваем внешний GET через него.
+    Нужно для хостов, которые egress инстанса Timeweb режет (t.me — Telegram,
+    и т.п.); хосты, что и так открыты (DuckDuckGo/Tavily/investmint), тоже
+    пройдут через воркер без вреда. Без переменной — прямой запрос."""
+    from urllib.parse import quote
+    proxy = os.environ.get("WEB_FETCH_PROXY_URL")
+    if proxy and target.startswith(("http://", "https://")):
+        return f"{proxy.rstrip('/')}/?url={quote(target, safe='')}"
+    return target
+
+
 # ─────────────────────────── веб-поиск ───────────────────────────
 
 def _search_tavily(query: str, max_results: int) -> dict | None:
@@ -149,7 +162,7 @@ def fetch_document(url: str, max_chars: int = 12000) -> dict:
         return {"error": "bad_url"}
     try:
         with _client() as c:
-            r = c.get(url, headers=_UA, follow_redirects=True)
+            r = c.get(via_proxy(url), headers=_UA, follow_redirects=True)
             r.raise_for_status()
             ctype = (r.headers.get("content-type") or "").lower()
             content = r.content

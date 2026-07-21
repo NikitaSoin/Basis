@@ -11,7 +11,6 @@
       "model": "Модель/гипотеза — прогноз построен по факторам, помечен «наша оценка», не факт"
     }
   },
-
   "markets": [
     {
       "name": "Мировой рынок палладия",
@@ -19,12 +18,44 @@
       "geography": "global",
       "role_for_company": "Крупнейший источник выручки (~35–39% реализации металлов); Норникель — мировой лидер №1.",
       "current": {
-        "size": { "value": "≈15–25 млрд долл. (оценки разнятся); физически ~9,5–10 млн унций спроса в год", "certainty": "estimate", "source_ref": "src_pd_size", "note": "Оценки размера в деньгах сильно расходятся между research-домами; физический спрос надёжнее" },
+        "size": {
+          "value": "≈15–25 млрд долл. (оценки разнятся); физически ~9,5–10 млн унций спроса в год",
+          "certainty": "estimate",
+          "source_ref": "src_pd_size",
+          "note": "Оценки размера в деньгах сильно расходятся между research-домами; физический спрос надёжнее"
+        },
         "size_metric": "стоимость мирового рынка / физический объём спроса (унции)",
         "players": [
-          { "name": "Норникель", "share_pct": 40, "share_low": 38, "share_high": 41, "certainty": "fact", "source_ref": "src_pd_size", "is_company": true, "note": "≈40% мировой добычи палладия в 2024 (крупнейший в мире)" },
-          { "name": "ЮАР (Amplats, Implats, Sibanye-Stillwater)", "share_pct": null, "share_low": 35, "share_high": 40, "certainty": "estimate", "source_ref": "src_pt_wpic", "is_company": false, "note": "ЮАР — второй регион-производитель, палладий как попутный к платине" },
-          { "name": "Канада, США, Зимбабве", "share_pct": null, "share_low": 15, "share_high": 25, "certainty": "estimate", "source_ref": "src_pd_size", "is_company": false, "note": "Прочие добывающие регионы" }
+          {
+            "name": "Норникель",
+            "share_pct": 40,
+            "share_low": 38,
+            "share_high": 41,
+            "certainty": "fact",
+            "source_ref": "src_pd_size",
+            "is_company": true,
+            "note": "≈40% мировой добычи палладия в 2024 (крупнейший в мире)"
+          },
+          {
+            "name": "ЮАР (Amplats, Implats, Sibanye-Stillwater)",
+            "share_pct": null,
+            "share_low": 35,
+            "share_high": 40,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "is_company": false,
+            "note": "ЮАР — второй регион-производитель, палладий как попутный к платине"
+          },
+          {
+            "name": "Канада, США, Зимбабве",
+            "share_pct": null,
+            "share_low": 15,
+            "share_high": 25,
+            "certainty": "estimate",
+            "source_ref": "src_pd_size",
+            "is_company": false,
+            "note": "Прочие добывающие регионы"
+          }
         ],
         "players_note": "Россия (Норникель) — крупнейший единичный производитель; ЮАР — крупнейший регион в сумме. Спрос: автопром >80%, концентрация в Азии (Китай ~28% потребления продукции Норникеля).",
         "company_position": "leader",
@@ -34,11 +65,41 @@
         "trend": "volatile",
         "metric": "спотовая цена палладия, долл./унц. (прокси состояния рынка)",
         "points": [
-          { "period": "2021", "value": 2400, "certainty": "estimate", "source_ref": "src_pd_fc", "note": "Пик на дефиците автокатализаторов" },
-          { "period": "2022", "value": 2100, "certainty": "estimate", "source_ref": "src_pd_fc", "note": "Высокий уровень, начало снижения" },
-          { "period": "2023", "value": 1300, "certainty": "estimate", "source_ref": "src_pd_fc", "note": "Падение на ожиданиях вытеснения ДВС" },
-          { "period": "2024", "value": 1000, "certainty": "estimate", "source_ref": "src_pd_fc", "note": "Минимумы цикла" },
-          { "period": "2025", "value": 1500, "certainty": "fact", "source_ref": "src_pd_fc", "note": "Рост +83% за 2025 после трёх лет снижения" }
+          {
+            "period": "2021",
+            "value": 2400,
+            "certainty": "estimate",
+            "source_ref": "src_pd_fc",
+            "note": "Пик на дефиците автокатализаторов"
+          },
+          {
+            "period": "2022",
+            "value": 2100,
+            "certainty": "estimate",
+            "source_ref": "src_pd_fc",
+            "note": "Высокий уровень, начало снижения"
+          },
+          {
+            "period": "2023",
+            "value": 1300,
+            "certainty": "estimate",
+            "source_ref": "src_pd_fc",
+            "note": "Падение на ожиданиях вытеснения ДВС"
+          },
+          {
+            "period": "2024",
+            "value": 1000,
+            "certainty": "estimate",
+            "source_ref": "src_pd_fc",
+            "note": "Минимумы цикла"
+          },
+          {
+            "period": "2025",
+            "value": 1500,
+            "certainty": "fact",
+            "source_ref": "src_pd_fc",
+            "note": "Рост +83% за 2025 после трёх лет снижения"
+          }
         ],
         "key_shifts": [
           "2021–2024: затяжное снижение цен на ожиданиях электрификации автопарка и вытеснения бензиновых катализаторов",
@@ -48,11 +109,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Автокатализаторы бензиновых/гибридных ДВС — >80% спроса; восстановление автопроизводства", "direction": "support", "type": "demography", "note": "Производство авто восстанавливается быстрее, чем падает парк ДВС" },
-        { "factor": "Замедление роста продаж электромобилей (рост BEV ~4–6% г/г) снижает скорость вытеснения палладия", "direction": "support", "type": "tech", "note": "Структурный риск ослаб в краткосроке" },
-        { "factor": "Долгосрочное вытеснение ДВС электромобилями сокращает базовый спрос на автокатализаторы", "direction": "constrain", "type": "tech", "note": "Главный структурный риск крупнейшего рынка компании" },
-        { "factor": "Санкции/логистика: экспорт российского палладия в США пытались обложить пошлинами (отклонено USITC в мае 2026)", "direction": "constrain", "type": "regulation", "note": "Палладий пока вне финальных запретов ЕС, но давление сохраняется" },
-        { "factor": "Обратное замещение платиной (Pt→Pd) при дорогой платине поддерживает спрос", "direction": "support", "type": "competition", "note": "WPIC: до ~250 тыс. унций к 2029" }
+        {
+          "factor": "Автокатализаторы бензиновых/гибридных ДВС — >80% спроса; восстановление автопроизводства",
+          "direction": "support",
+          "type": "demography",
+          "note": "Производство авто восстанавливается быстрее, чем падает парк ДВС"
+        },
+        {
+          "factor": "Замедление роста продаж электромобилей (рост BEV ~4–6% г/г) снижает скорость вытеснения палладия",
+          "direction": "support",
+          "type": "tech",
+          "note": "Структурный риск ослаб в краткосроке"
+        },
+        {
+          "factor": "Долгосрочное вытеснение ДВС электромобилями сокращает базовый спрос на автокатализаторы",
+          "direction": "constrain",
+          "type": "tech",
+          "note": "Главный структурный риск крупнейшего рынка компании"
+        },
+        {
+          "factor": "Санкции/логистика: экспорт российского палладия в США пытались обложить пошлинами (отклонено USITC в мае 2026)",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "Палладий пока вне финальных запретов ЕС, но давление сохраняется"
+        },
+        {
+          "factor": "Обратное замещение платиной (Pt→Pd) при дорогой платине поддерживает спрос",
+          "direction": "support",
+          "type": "competition",
+          "note": "WPIC: до ~250 тыс. унций к 2029"
+        }
       ],
       "forecast": {
         "direction": "разнонаправленно",
@@ -71,7 +157,9 @@
             "Переход рынка в профицит с 2027 по WPIC"
           ]
         },
-        "source_refs": ["src_pd_fc"],
+        "source_refs": [
+          "src_pd_fc"
+        ],
         "note": "Дефицит 2025–2026 — факт из обзоров WPIC; направление цены — наша оценка по факторам ввиду расхождения прогнозов."
       },
       "company_outlook": {
@@ -83,24 +171,60 @@
         "applicable": true,
         "status": "работает за рубежом (экспортёр), активная переориентация сбыта на Азию",
         "external_markets": [
-          { "market": "Азиатско-Тихоокеанский регион (Китай, Япония, Корея) — ключевой рынок сбыта палладия", "note": "Китай ~28% потребления продукции Норникеля; автопром и электроника АТР — основной платёжеспособный спрос после ухода с части западных рынков", "certainty": "estimate", "source_ref": "src_pd_size" }
+          {
+            "market": "Азиатско-Тихоокеанский регион (Китай, Япония, Корея) — ключевой рынок сбыта палладия",
+            "note": "Китай ~28% потребления продукции Норникеля; автопром и электроника АТР — основной платёжеспособный спрос после ухода с части западных рынков",
+            "certainty": "estimate",
+            "source_ref": "src_pd_size"
+          }
         ],
         "note": "Палладий формально не под финальными запретами ЕС/США, но сбыт смещён в Азию вслед за общей санкционной логикой."
       }
     },
-
     {
       "name": "Мировой рынок никеля (рафинированный, класс 1)",
       "tier": "primary",
       "geography": "global",
       "role_for_company": "Второй по значимости металл (~21–25% реализации); Норникель — мировой лидер по рафинированному никелю первого класса.",
       "current": {
-        "size": { "value": "≈3,5–3,7 млн т годового потребления; рынок в профиците ~240 тыс. т (2025)", "certainty": "fact", "source_ref": "src_ni_surplus", "note": "Норникель удвоил прогноз профицита 2025 до 240 тыс. т; для 2026 позднее снизил прогноз профицита до ~20 тыс. т (Коммерсантъ)" },
+        "size": {
+          "value": "≈3,5–3,7 млн т годового потребления; рынок в профиците ~240 тыс. т (2025)",
+          "certainty": "fact",
+          "source_ref": "src_ni_surplus",
+          "note": "Норникель удвоил прогноз профицита 2025 до 240 тыс. т; для 2026 позднее снизил прогноз профицита до ~20 тыс. т (Коммерсантъ)"
+        },
         "size_metric": "объём мирового потребления никеля, тыс. т",
         "players": [
-          { "name": "Индонезия (NPI/HPAL, China-backed мощности)", "share_pct": null, "share_low": 60, "share_high": 64, "certainty": "fact", "source_ref": "src_ni_surplus", "is_company": false, "note": "~61,6% мировой добычи в 2024, ~63% в 2025 — доминирующий драйвер предложения" },
-          { "name": "Норникель", "share_pct": 14, "share_low": 14, "share_high": 17, "certainty": "estimate", "source_ref": "src_ni_share", "is_company": true, "note": "~14% мирового рафинированного никеля / лидер по классу 1; доля во всём никеле ниже из-за индонезийского NPI" },
-          { "name": "Vale, Glencore, BHP, Jinchuan и др.", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_ni_share", "is_company": false, "note": "Прочие крупные производители класса 1/сульфидного никеля" }
+          {
+            "name": "Индонезия (NPI/HPAL, China-backed мощности)",
+            "share_pct": null,
+            "share_low": 60,
+            "share_high": 64,
+            "certainty": "fact",
+            "source_ref": "src_ni_surplus",
+            "is_company": false,
+            "note": "~61,6% мировой добычи в 2024, ~63% в 2025 — доминирующий драйвер предложения"
+          },
+          {
+            "name": "Норникель",
+            "share_pct": 14,
+            "share_low": 14,
+            "share_high": 17,
+            "certainty": "estimate",
+            "source_ref": "src_ni_share",
+            "is_company": true,
+            "note": "~14% мирового рафинированного никеля / лидер по классу 1; доля во всём никеле ниже из-за индонезийского NPI"
+          },
+          {
+            "name": "Vale, Glencore, BHP, Jinchuan и др.",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_ni_share",
+            "is_company": false,
+            "note": "Прочие крупные производители класса 1/сульфидного никеля"
+          }
         ],
         "players_note": "Ключевое различие: Индонезия доминирует в общем объёме (дешёвый NPI/MHP для нержавейки и батарей), Норникель — лидер именно в высокосортном рафинированном никеле класса 1 (LME-deliverable).",
         "company_position": "leader",
@@ -110,11 +234,41 @@
         "trend": "declining",
         "metric": "баланс рынка (профицит, тыс. т) и ценовое давление",
         "points": [
-          { "period": "2022", "value": 0, "certainty": "estimate", "source_ref": "src_ni_surplus", "note": "Дефицит/баланс, высокие цены, эпизод LME squeeze" },
-          { "period": "2023", "value": 100, "certainty": "estimate", "source_ref": "src_ni_surplus", "note": "Переход в профицит на росте Индонезии" },
-          { "period": "2024", "value": 170, "certainty": "estimate", "source_ref": "src_ni_surplus", "note": "Расширение профицита, цены под давлением" },
-          { "period": "2025", "value": 240, "certainty": "fact", "source_ref": "src_ni_surplus", "note": "Профицит 240 тыс. т (прогноз Норникеля); запасы LME >250 тыс. т" },
-          { "period": "2026", "value": 20, "certainty": "estimate", "source_ref": "src_ni_2026", "note": "Норникель ПОНИЗИЛ прогноз профицита 2026 до ~20 тыс. т (Коммерсантъ) — потенциальный разворот к балансу" }
+          {
+            "period": "2022",
+            "value": 0,
+            "certainty": "estimate",
+            "source_ref": "src_ni_surplus",
+            "note": "Дефицит/баланс, высокие цены, эпизод LME squeeze"
+          },
+          {
+            "period": "2023",
+            "value": 100,
+            "certainty": "estimate",
+            "source_ref": "src_ni_surplus",
+            "note": "Переход в профицит на росте Индонезии"
+          },
+          {
+            "period": "2024",
+            "value": 170,
+            "certainty": "estimate",
+            "source_ref": "src_ni_surplus",
+            "note": "Расширение профицита, цены под давлением"
+          },
+          {
+            "period": "2025",
+            "value": 240,
+            "certainty": "fact",
+            "source_ref": "src_ni_surplus",
+            "note": "Профицит 240 тыс. т (прогноз Норникеля); запасы LME >250 тыс. т"
+          },
+          {
+            "period": "2026",
+            "value": 20,
+            "certainty": "estimate",
+            "source_ref": "src_ni_2026",
+            "note": "Норникель ПОНИЗИЛ прогноз профицита 2026 до ~20 тыс. т (Коммерсантъ) — потенциальный разворот к балансу"
+          }
         ],
         "key_shifts": [
           "2022→2025: переход от баланса/дефицита к устойчивому профициту из-за взрывного роста индонезийского NPI/HPAL",
@@ -124,11 +278,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Индонезийский избыток предложения (NPI/HPAL) давит на цены", "direction": "constrain", "type": "competition", "note": "Главный сдерживающий фактор всего рынка" },
-        { "factor": "Спрос со стороны нержавеющей стали и аккумуляторов EV", "direction": "support", "type": "demography", "note": "Долгосрочный драйвер; в краткосроке перекрыт профицитом" },
-        { "factor": "Сокращение прогноза профицита 2026 до ~20 тыс. т и возможное сокращение добычи в Индонезии (−40% план)", "direction": "support", "type": "regulation", "note": "Политика ресурсного национализма Индонезии; разворот к балансу" },
-        { "factor": "Санкции: LME с апреля 2024 не принимает российский никель новой выработки; запрет ЕС в 20-м пакете", "direction": "constrain", "type": "regulation", "note": "Сужает западный сбыт, вынуждает переориентацию в Китай с дисконтом" },
-        { "factor": "Низкая себестоимость Норникеля поддерживает маржу даже при слабых ценах", "direction": "support", "type": "other", "note": "Конкурентное преимущество компании" }
+        {
+          "factor": "Индонезийский избыток предложения (NPI/HPAL) давит на цены",
+          "direction": "constrain",
+          "type": "competition",
+          "note": "Главный сдерживающий фактор всего рынка"
+        },
+        {
+          "factor": "Спрос со стороны нержавеющей стали и аккумуляторов EV",
+          "direction": "support",
+          "type": "demography",
+          "note": "Долгосрочный драйвер; в краткосроке перекрыт профицитом"
+        },
+        {
+          "factor": "Сокращение прогноза профицита 2026 до ~20 тыс. т и возможное сокращение добычи в Индонезии (−40% план)",
+          "direction": "support",
+          "type": "regulation",
+          "note": "Политика ресурсного национализма Индонезии; разворот к балансу"
+        },
+        {
+          "factor": "Санкции: LME с апреля 2024 не принимает российский никель новой выработки; запрет ЕС в 20-м пакете",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "Сужает западный сбыт, вынуждает переориентацию в Китай с дисконтом"
+        },
+        {
+          "factor": "Низкая себестоимость Норникеля поддерживает маржу даже при слабых ценах",
+          "direction": "support",
+          "type": "other",
+          "note": "Конкурентное преимущество компании"
+        }
       ],
       "forecast": {
         "direction": "стагнация",
@@ -147,7 +326,11 @@
             "Замедление роста продаж EV"
           ]
         },
-        "source_refs": ["src_ni_surplus", "src_ni_2026", "src_gpb"],
+        "source_refs": [
+          "src_ni_surplus",
+          "src_ni_2026",
+          "src_gpb"
+        ],
         "note": "Балансы рынка — факт из прогнозов Норникеля; ценовое направление — оценка-ориентир."
       },
       "company_outlook": {
@@ -159,24 +342,60 @@
         "applicable": true,
         "status": "работает за рубежом; обсуждает перенос плавильных мощностей и поставки матте в Китай",
         "external_markets": [
-          { "market": "Китай — батарейный и нержавеющий сектор", "note": "Переориентация экспорта класса 1 в Китай (с 2023 крупнейшее направление); обсуждались поставки ~50 тыс. т никелевого матте/год на новый завод в КНР", "certainty": "estimate", "source_ref": "src_sanctions" }
+          {
+            "market": "Китай — батарейный и нержавеющий сектор",
+            "note": "Переориентация экспорта класса 1 в Китай (с 2023 крупнейшее направление); обсуждались поставки ~50 тыс. т никелевого матте/год на новый завод в КНР",
+            "certainty": "estimate",
+            "source_ref": "src_sanctions"
+          }
         ],
         "note": "Финский завод Норникеля — отдельный санкционно-чувствительный актив (бренд приостановлен на LME по политике ответственного снабжения)."
       }
     },
-
     {
       "name": "Мировой рынок платины",
       "tier": "primary",
       "geography": "global",
       "role_for_company": "Третий драгметалл (~4–7% реализации); Норникель — №3–4 в мире (~10%).",
       "current": {
-        "size": { "value": "≈7,4–7,6 млн унций спроса в год; рынок в глубоком дефиците ~1,08 млн унций (2025)", "certainty": "fact", "source_ref": "src_pt_wpic", "note": "WPIC: крупнейший дефицит в истории ряда с 2014" },
+        "size": {
+          "value": "≈7,4–7,6 млн унций спроса в год; рынок в глубоком дефиците ~1,08 млн унций (2025)",
+          "certainty": "fact",
+          "source_ref": "src_pt_wpic",
+          "note": "WPIC: крупнейший дефицит в истории ряда с 2014"
+        },
         "size_metric": "годовой спрос на платину, млн унций",
         "players": [
-          { "name": "ЮАР (Amplats, Implats, Sibanye-Stillwater, Northam)", "share_pct": null, "share_low": 65, "share_high": 75, "certainty": "fact", "source_ref": "src_pt_wpic", "is_company": false, "note": "ЮАР — доминирующий регион добычи платины" },
-          { "name": "Норникель", "share_pct": 10, "share_low": 10, "share_high": 11, "certainty": "estimate", "source_ref": "src_ni_share", "is_company": true, "note": "№3–4 в мире (~10%), платина как попутный металл" },
-          { "name": "Зимбабве, Канада", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_pt_wpic", "is_company": false, "note": "Прочие производители" }
+          {
+            "name": "ЮАР (Amplats, Implats, Sibanye-Stillwater, Northam)",
+            "share_pct": null,
+            "share_low": 65,
+            "share_high": 75,
+            "certainty": "fact",
+            "source_ref": "src_pt_wpic",
+            "is_company": false,
+            "note": "ЮАР — доминирующий регион добычи платины"
+          },
+          {
+            "name": "Норникель",
+            "share_pct": 10,
+            "share_low": 10,
+            "share_high": 11,
+            "certainty": "estimate",
+            "source_ref": "src_ni_share",
+            "is_company": true,
+            "note": "№3–4 в мире (~10%), платина как попутный металл"
+          },
+          {
+            "name": "Зимбабве, Канада",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "is_company": false,
+            "note": "Прочие производители"
+          }
         ],
         "players_note": "Структура зеркальна палладию, но регионально доминирует ЮАР; Норникель — значимый, но не определяющий игрок.",
         "company_position": "challenger",
@@ -186,11 +405,41 @@
         "trend": "growing",
         "metric": "баланс рынка (дефицит, тыс. унций) — прокси силы рынка",
         "points": [
-          { "period": "2022", "value": -1000, "certainty": "estimate", "source_ref": "src_pt_wpic", "note": "Близко к балансу/малый профицит" },
-          { "period": "2023", "value": 850, "certainty": "estimate", "source_ref": "src_pt_wpic", "note": "Переход в дефицит" },
-          { "period": "2024", "value": 1000, "certainty": "estimate", "source_ref": "src_pt_wpic", "note": "Углубление дефицита" },
-          { "period": "2025", "value": 1082, "certainty": "fact", "source_ref": "src_pt_wpic", "note": "Рекордный дефицит 1,082 млн унций" },
-          { "period": "2026", "value": 240, "certainty": "estimate", "source_ref": "src_pt_wpic", "note": "Прогноз дефицита ~240–331 тыс. унций (4-й год подряд); WPIC: дефицит ~331 тыс. унц. в среднем 2026–2030" }
+          {
+            "period": "2022",
+            "value": -1000,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "note": "Близко к балансу/малый профицит"
+          },
+          {
+            "period": "2023",
+            "value": 850,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "note": "Переход в дефицит"
+          },
+          {
+            "period": "2024",
+            "value": 1000,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "note": "Углубление дефицита"
+          },
+          {
+            "period": "2025",
+            "value": 1082,
+            "certainty": "fact",
+            "source_ref": "src_pt_wpic",
+            "note": "Рекордный дефицит 1,082 млн унций"
+          },
+          {
+            "period": "2026",
+            "value": 240,
+            "certainty": "estimate",
+            "source_ref": "src_pt_wpic",
+            "note": "Прогноз дефицита ~240–331 тыс. унций (4-й год подряд); WPIC: дефицит ~331 тыс. унц. в среднем 2026–2030"
+          }
         ],
         "key_shifts": [
           "2023–2025: рынок ушёл в устойчивый и углубляющийся дефицит, надземные запасы — чуть более 4 месяцев спроса",
@@ -200,11 +449,36 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Рекордный физический дефицит и сокращение надземных запасов", "direction": "support", "type": "other", "note": "Главный ценовой драйвер 2025" },
-        { "factor": "Инвестиционный спрос (слитки, монеты +35% в 2026)", "direction": "support", "type": "other", "note": "Рекорд по ряду WPIC" },
-        { "factor": "Спрос автокатализаторов дизелей и водородных топливных элементов", "direction": "support", "type": "tech", "note": "Долгосрочный драйвер (водород)" },
-        { "factor": "Прогноз падения общего спроса ~8% в 2026 (демандовая сторона ослабевает)", "direction": "constrain", "type": "demography", "note": "WPIC: спрос ~7,6 млн унций в 2026" },
-        { "factor": "Рост переработки (recycling) увеличивает вторичное предложение", "direction": "constrain", "type": "tech", "note": "Сужает дефицит к концу десятилетия" }
+        {
+          "factor": "Рекордный физический дефицит и сокращение надземных запасов",
+          "direction": "support",
+          "type": "other",
+          "note": "Главный ценовой драйвер 2025"
+        },
+        {
+          "factor": "Инвестиционный спрос (слитки, монеты +35% в 2026)",
+          "direction": "support",
+          "type": "other",
+          "note": "Рекорд по ряду WPIC"
+        },
+        {
+          "factor": "Спрос автокатализаторов дизелей и водородных топливных элементов",
+          "direction": "support",
+          "type": "tech",
+          "note": "Долгосрочный драйвер (водород)"
+        },
+        {
+          "factor": "Прогноз падения общего спроса ~8% в 2026 (демандовая сторона ослабевает)",
+          "direction": "constrain",
+          "type": "demography",
+          "note": "WPIC: спрос ~7,6 млн унций в 2026"
+        },
+        {
+          "factor": "Рост переработки (recycling) увеличивает вторичное предложение",
+          "direction": "constrain",
+          "type": "tech",
+          "note": "Сужает дефицит к концу десятилетия"
+        }
       ],
       "forecast": {
         "direction": "рост",
@@ -223,7 +497,10 @@
             "Зависимость баланса 2026 от торговых трений"
           ]
         },
-        "source_refs": ["src_pt_wpic", "src_gpb"],
+        "source_refs": [
+          "src_pt_wpic",
+          "src_gpb"
+        ],
         "note": "Дефицит и его динамика — факт из WPIC; ценовое направление — оценка-ориентир."
       },
       "company_outlook": {
@@ -235,23 +512,50 @@
         "applicable": true,
         "status": "экспортёр; платина под прямым запретом импорта в ЕС (20-й пакет)",
         "external_markets": [
-          { "market": "Азия и прочие неподсанкционные рынки", "note": "После запрета ЕС на ввоз платины и платинового порошка (20-й пакет, май 2026) сбыт смещается на Восток с возможными дисконтами", "certainty": "estimate", "source_ref": "src_sanctions" }
+          {
+            "market": "Азия и прочие неподсанкционные рынки",
+            "note": "После запрета ЕС на ввоз платины и платинового порошка (20-й пакет, май 2026) сбыт смещается на Восток с возможными дисконтами",
+            "certainty": "estimate",
+            "source_ref": "src_sanctions"
+          }
         ],
         "note": "Платина прямо попала под запрет ЕС в отличие от палладия — фактор сужения западного сбыта."
       }
     },
-
     {
       "name": "Мировой рынок меди",
       "tier": "primary",
       "geography": "global",
       "role_for_company": "~22% реализации металлов; Норникель — средний игрок (~топ-13), но медь важна как растущий рынок электрификации.",
       "current": {
-        "size": { "value": "≈27,6–27,7 млн т рафинированной меди в год; рынок около баланса в 2025 (малый дефицит/профицит, оценки расходятся)", "certainty": "estimate", "source_ref": "src_cu_market", "note": "ICSG/прочие: от баланса до дефицита ~300–500 тыс. т" },
+        "size": {
+          "value": "≈27,6–27,7 млн т рафинированной меди в год; рынок около баланса в 2025 (малый дефицит/профицит, оценки расходятся)",
+          "certainty": "estimate",
+          "source_ref": "src_cu_market",
+          "note": "ICSG/прочие: от баланса до дефицита ~300–500 тыс. т"
+        },
         "size_metric": "объём рынка рафинированной меди, млн т",
         "players": [
-          { "name": "Codelco, Freeport, BHP, Glencore, Antofagasta и др.", "share_pct": null, "share_low": null, "share_high": null, "certainty": "estimate", "source_ref": "src_cu_market", "is_company": false, "note": "Крупнейшие — чилийские/глобальные мейджоры; рынок фрагментирован" },
-          { "name": "Норникель", "share_pct": null, "share_low": 1, "share_high": 2, "certainty": "estimate", "source_ref": "src_cu_rank", "is_company": true, "note": "№13 в мире по добыче меди (2024); доля ориентировочно 1–2%" }
+          {
+            "name": "Codelco, Freeport, BHP, Glencore, Antofagasta и др.",
+            "share_pct": null,
+            "share_low": null,
+            "share_high": null,
+            "certainty": "estimate",
+            "source_ref": "src_cu_market",
+            "is_company": false,
+            "note": "Крупнейшие — чилийские/глобальные мейджоры; рынок фрагментирован"
+          },
+          {
+            "name": "Норникель",
+            "share_pct": null,
+            "share_low": 1,
+            "share_high": 2,
+            "certainty": "estimate",
+            "source_ref": "src_cu_rank",
+            "is_company": true,
+            "note": "№13 в мире по добыче меди (2024); доля ориентировочно 1–2%"
+          }
         ],
         "players_note": "Медь — самый фрагментированный из рынков компании; Норникель здесь не имеет рыночной власти, это price-taker.",
         "company_position": "niche",
@@ -261,10 +565,34 @@
         "trend": "growing",
         "metric": "спотовая цена меди (прокси) и баланс рынка",
         "points": [
-          { "period": "2022", "value": 8800, "certainty": "estimate", "source_ref": "src_cu_market", "note": "Высокие цены, баланс" },
-          { "period": "2023", "value": 8500, "certainty": "estimate", "source_ref": "src_cu_market", "note": "Боковик" },
-          { "period": "2024", "value": 9200, "certainty": "estimate", "source_ref": "src_cu_market", "note": "Рост на ожиданиях дефицита" },
-          { "period": "2025", "value": 12000, "certainty": "fact", "source_ref": "src_cu_market", "note": "Цена меди +35% за 2025 — крупнейший годовой прирост с 2009" }
+          {
+            "period": "2022",
+            "value": 8800,
+            "certainty": "estimate",
+            "source_ref": "src_cu_market",
+            "note": "Высокие цены, баланс"
+          },
+          {
+            "period": "2023",
+            "value": 8500,
+            "certainty": "estimate",
+            "source_ref": "src_cu_market",
+            "note": "Боковик"
+          },
+          {
+            "period": "2024",
+            "value": 9200,
+            "certainty": "estimate",
+            "source_ref": "src_cu_market",
+            "note": "Рост на ожиданиях дефицита"
+          },
+          {
+            "period": "2025",
+            "value": 12000,
+            "certainty": "fact",
+            "source_ref": "src_cu_market",
+            "note": "Цена меди +35% за 2025 — крупнейший годовой прирост с 2009"
+          }
         ],
         "key_shifts": [
           "2025: ралли цен (+35%) на ожиданиях структурного дефицита и спроса ИИ/электрификации",
@@ -274,10 +602,30 @@
         "history_certainty": "estimate"
       },
       "drivers": [
-        { "factor": "Электрификация, ВИЭ, ЦОД/ИИ и оборона разгоняют спрос", "direction": "support", "type": "tech", "note": "Спрос до ~42 млн т к 2040 (+50%)" },
-        { "factor": "Структурный дефицит предложения с 2026; пик добычи ~2030", "direction": "support", "type": "other", "note": "Нехватка новых проектов" },
-        { "factor": "Санкции LME/ЕС на российскую медь (20-й пакет) сужают западный сбыт Норникеля", "direction": "constrain", "type": "regulation", "note": "Перенаправление в Азию с дисконтом; обсуждался перенос плавки в Китай" },
-        { "factor": "Замедление мировой экономики/Китая — циклический риск спроса", "direction": "constrain", "type": "macro", "note": "Краткосрочная волатильность" }
+        {
+          "factor": "Электрификация, ВИЭ, ЦОД/ИИ и оборона разгоняют спрос",
+          "direction": "support",
+          "type": "tech",
+          "note": "Спрос до ~42 млн т к 2040 (+50%)"
+        },
+        {
+          "factor": "Структурный дефицит предложения с 2026; пик добычи ~2030",
+          "direction": "support",
+          "type": "other",
+          "note": "Нехватка новых проектов"
+        },
+        {
+          "factor": "Санкции LME/ЕС на российскую медь (20-й пакет) сужают западный сбыт Норникеля",
+          "direction": "constrain",
+          "type": "regulation",
+          "note": "Перенаправление в Азию с дисконтом; обсуждался перенос плавки в Китай"
+        },
+        {
+          "factor": "Замедление мировой экономики/Китая — циклический риск спроса",
+          "direction": "constrain",
+          "type": "macro",
+          "note": "Краткосрочная волатильность"
+        }
       ],
       "forecast": {
         "direction": "рост",
@@ -296,7 +644,10 @@
             "Возможный краткосрочный профицит при замедлении спроса"
           ]
         },
-        "source_refs": ["src_cu_market", "src_gpb"],
+        "source_refs": [
+          "src_cu_market",
+          "src_gpb"
+        ],
         "note": "Дефицит и долгосрочный рост спроса — из отраслевых обзоров (S&P, ICSG); ценовое направление — оценка-ориентир."
       },
       "company_outlook": {
@@ -308,112 +659,169 @@
         "applicable": true,
         "status": "экспортёр под санкциями; обсуждается перенос медеплавильного передела в Китай",
         "external_markets": [
-          { "market": "Китай и Азия — основной рынок сбыта меди после запретов ЕС/LME", "note": "Медь Норникеля под прямым запретом ввоза в ЕС (20-й пакет) и не принимается на склады LME с 2024; сбыт смещён в Азию", "certainty": "fact", "source_ref": "src_sanctions" }
+          {
+            "market": "Китай и Азия — основной рынок сбыта меди после запретов ЕС/LME",
+            "note": "Медь Норникеля под прямым запретом ввоза в ЕС (20-й пакет) и не принимается на склады LME с 2024; сбыт смещён в Азию",
+            "certainty": "fact",
+            "source_ref": "src_sanctions"
+          }
         ],
         "note": "Медь — наиболее санкционно-ограниченный из металлов компании на западных рынках."
       }
     },
-
     {
       "name": "Прочие металлы и попутная продукция (родий, кобальт, золото, серебро, иридий, рутений)",
       "tier": "secondary",
       "geography": "global",
       "role_for_company": "~11% реализации; попутные продукты полиметаллической руды, повышают совокупную маржу.",
       "brief": [
-        { "point": "Родий и иридий — узкие, очень волатильные рынки МПГ; малые объёмы дают непропорциональный вклад в выручку при ценовых пиках (родий ~6% реализации в 2024)", "certainty": "fact", "source_ref": "src_ni_share" },
-        { "point": "Кобальт — попутный продукт; спрос связан с аккумуляторами EV, цены под давлением профицита (как и никель)", "certainty": "estimate", "source_ref": "src_cu_market" },
-        { "point": "Иридий, родий, платина прямо попали под запрет импорта в ЕС (20-й пакет, май 2026) — сужение западного сбыта части корзины", "certainty": "fact", "source_ref": "src_sanctions" },
-        { "point": "Прогноз: попутные МПГ остаются поддерживающим фактором маржи при дефиците платиновой группы, но точные объёмы и цены крайне волатильны (наша оценка по факторам)", "certainty": "model", "source_ref": null }
+        {
+          "point": "Родий и иридий — узкие, очень волатильные рынки МПГ; малые объёмы дают непропорциональный вклад в выручку при ценовых пиках (родий ~6% реализации в 2024)",
+          "certainty": "fact",
+          "source_ref": "src_ni_share"
+        },
+        {
+          "point": "Кобальт — попутный продукт; спрос связан с аккумуляторами EV, цены под давлением профицита (как и никель)",
+          "certainty": "estimate",
+          "source_ref": "src_cu_market"
+        },
+        {
+          "point": "Иридий, родий, платина прямо попали под запрет импорта в ЕС (20-й пакет, май 2026) — сужение западного сбыта части корзины",
+          "certainty": "fact",
+          "source_ref": "src_sanctions"
+        },
+        {
+          "point": "Прогноз: попутные МПГ остаются поддерживающим фактором маржи при дефиците платиновой группы, но точные объёмы и цены крайне волатильны (наша оценка по факторам)",
+          "certainty": "model",
+          "source_ref": null
+        }
       ]
     }
   ],
-
   "commodity_exposure": {
-    "is_commodity_producer": true,
-    "basket_type": "multi_commodity",
+    "applicable": true,
+    "not_applicable_reason": null,
     "as_of": "2026-07-21",
+    "basket_type": "multi_commodity",
     "summary": "Норникель — МНОГОТОВАРНАЯ корзина, а не однотоварный производитель: выручка формируется четырьмя значимыми металлами (палладий, никель, медь, платина) плюс попутные металлы платиновой группы (МПГ). Прибыль привязана к ценам этих металлов в долларах и к курсу рубля; количественный эффект цен на прибыль разбирается во вкладке «Макро». Ниже каждый значимый товар привязан к живому биржевому бенчмарку (три из четырёх уже торгуются на срочном рынке MOEX FORTS) и снабжён фазой ценового цикла на 21.07.2026. Важно: фазы РАЗНЫЕ — медь на циклическом пике, никель на дне, платина повышена на дефиците, а палладий в структурном (не циклическом) спаде.",
     "revenue_commodities": [
       {
-        "commodity": "Палладий",
+        "name": "Палладий",
+        "pricing_market": "global",
         "benchmark_key": "forts:PLD",
         "benchmark_status": "live",
-        "benchmark_note": "Фьючерс на палладий срочного рынка MOEX FORTS (базовый актив PLD) — живые данные платформы.",
         "revenue_share_pct": null,
         "revenue_share_low_pct": 35,
         "revenue_share_high_pct": 39,
         "revenue_share_certainty": "estimate",
         "revenue_share_source_ref": "src_ni_share",
-        "current_price": { "value": 1279, "unit": "USD/унц", "as_of": "2026-07-20", "certainty": "fact", "source_ref": "src_spot" },
-        "cycle_position": "structural_decline",
-        "cycle_label": "Структурный спад с краткосрочной циклической стабилизацией",
-        "structural_flag": true,
+        "current_price": {
+          "value": 1279,
+          "unit": "USD/унц",
+          "as_of": "2026-07-20",
+          "certainty": "fact",
+          "source_ref": "src_spot"
+        },
+        "cycle_position": "trough",
+        "cycle_label": "structural_decline",
         "cycle_certainty": "estimate",
-        "cycle_source_refs": ["src_pd_structural", "src_nn_pd26", "src_spot", "src_pd_fc"],
-        "note": "Крупнейший товар корзины (~35–39% реализации), но именно у него самый тяжёлый долгосрочный риск. Цена ~$1 279/унц (20.07.2026) — глубоко ниже пика 2021 (~$2 900) и ниже отскока конца 2025 (~$1 500). Ключевой нюанс, подтверждённый источниками: снижение спроса на палладий — СТРУКТУРНОЕ, а не циклическое. Автокатализаторы бензиновых двигателей внутреннего сгорания (ДВС) дают >80% спроса, а вытеснение ДВС электромобилями сокращает базовый автоспрос на десятилетия (прогноз: около −20% автоспроса к 2030 от пика 2019). Поэтому это не циклическая просадка с гарантированным возвратом к прежним уровням, а секулярный слом главного рынка. Краткосрочно спад тормозят замедление продаж электромобилей и рост гибридов (поддержка спроса ДВС) плюс ужесточение эконорм — отсюда отскок +83% в 2025; но Норникель сам прогнозирует профицит рынка ~0,3 млн унций в 2026, то есть фаза не восстановления цикла, а стабилизации внутри структурного нисходящего тренда."
+        "cycle_source_refs": [
+          "src_pd_structural",
+          "src_nn_pd26",
+          "src_spot",
+          "src_pd_fc"
+        ],
+        "reasoning": "Крупнейший товар корзины (~35–39% реализации), но именно у него самый тяжёлый долгосрочный риск. Цена ~$1 279/унц (20.07.2026) — глубоко ниже пика 2021 (~$2 900) и ниже отскока конца 2025 (~$1 500). Ключевой нюанс, подтверждённый источниками: снижение спроса на палладий — СТРУКТУРНОЕ, а не циклическое. Автокатализаторы бензиновых двигателей внутреннего сгорания (ДВС) дают >80% спроса, а вытеснение ДВС электромобилями сокращает базовый автоспрос на десятилетия (прогноз: около −20% автоспроса к 2030 от пика 2019). Поэтому это не циклическая просадка с гарантированным возвратом к прежним уровням, а секулярный слом главного рынка. Краткосрочно спад тормозят замедление продаж электромобилей и рост гибридов (поддержка спроса ДВС) плюс ужесточение эконорм — отсюда отскок +83% в 2025; но Норникель сам прогнозирует профицит рынка ~0,3 млн унций в 2026, то есть фаза не восстановления цикла, а стабилизации внутри структурного нисходящего тренда.",
+        "note": "Фьючерс на палладий срочного рынка MOEX FORTS (базовый актив PLD) — живые данные платформы."
       },
       {
-        "commodity": "Никель (рафинированный, класс 1)",
-        "benchmark_key": "wb:nickel",
+        "name": "Никель (рафинированный, класс 1)",
+        "pricing_market": "global",
+        "benchmark_key": "macro:wb_nickel",
         "benchmark_status": "planned",
-        "benchmark_note": "Прямого фьючерса на никель на MOEX FORTS НЕТ. В качестве ориентира используется месячная цена никеля Всемирного банка (World Bank Commodity Price Data, «Pink Sheet»); интеграция этого фида планируется. До неё цена никеля — внешний месячный ориентир, не живая котировка платформы.",
         "revenue_share_pct": null,
         "revenue_share_low_pct": 21,
         "revenue_share_high_pct": 25,
         "revenue_share_certainty": "estimate",
         "revenue_share_source_ref": "src_ni_share",
-        "current_price": { "value": 16500, "unit": "USD/т", "as_of": "2026-07-14", "certainty": "fact", "source_ref": "src_spot" },
+        "current_price": {
+          "value": 16500,
+          "unit": "USD/т",
+          "as_of": "2026-07-14",
+          "certainty": "fact",
+          "source_ref": "src_spot"
+        },
         "cycle_position": "trough",
-        "cycle_label": "Дно цикла (профицит из-за индонезийского предложения)",
-        "structural_flag": false,
+        "cycle_label": "cyclical_dip",
         "cycle_certainty": "estimate",
-        "cycle_source_refs": ["src_ni_surplus", "src_ni_2026", "src_spot"],
-        "note": "Второй по значимости товар (~21–25% реализации). Цена ~$16 500/т (14.07.2026) — вблизи многолетних минимумов, далеко от пиков 2022 (~$30 тыс. и эпизодического squeeze до ~$48 тыс.). Причина — структурный избыток предложения дешёвого индонезийского никеля (NPI/HPAL, ~61–63% мировой добычи), который держал рынок в широком профиците (240 тыс. т в 2025). В отличие от палладия, это ЦИКЛИЧЕСКОЕ/предложенческое дно, а не слом спроса: сам спрос (нержавейка, аккумуляторы) растёт долгосрочно. Норникель снизил прогноз профицита 2026 до ~20 тыс. т (близко к балансу), а Индонезия обсуждает административное сокращение добычи — потенциальные факторы разворота вверх с текущего дна."
+        "cycle_source_refs": [
+          "src_ni_surplus",
+          "src_ni_2026",
+          "src_spot"
+        ],
+        "reasoning": "Второй по значимости товар (~21–25% реализации). Цена ~$16 500/т (14.07.2026) — вблизи многолетних минимумов, далеко от пиков 2022 (~$30 тыс. и эпизодического squeeze до ~$48 тыс.). Причина — структурный избыток предложения дешёвого индонезийского никеля (NPI/HPAL, ~61–63% мировой добычи), который держал рынок в широком профиците (240 тыс. т в 2025). В отличие от палладия, это ЦИКЛИЧЕСКОЕ/предложенческое дно, а не слом спроса: сам спрос (нержавейка, аккумуляторы) растёт долгосрочно. Норникель снизил прогноз профицита 2026 до ~20 тыс. т (близко к балансу), а Индонезия обсуждает административное сокращение добычи — потенциальные факторы разворота вверх с текущего дна.",
+        "note": "Прямого фьючерса на никель на MOEX FORTS НЕТ. В качестве ориентира используется месячная цена никеля Всемирного банка (World Bank Commodity Price Data, «Pink Sheet»); интеграция этого фида планируется. До неё цена никеля — внешний месячный ориентир, не живая котировка платформы."
       },
       {
-        "commodity": "Медь",
+        "name": "Медь",
+        "pricing_market": "global",
         "benchmark_key": "forts:CU",
         "benchmark_status": "live",
-        "benchmark_note": "Фьючерс на медь срочного рынка MOEX FORTS (базовый актив CU) — живые данные платформы.",
         "revenue_share_pct": 22,
         "revenue_share_low_pct": 20,
         "revenue_share_high_pct": 24,
         "revenue_share_certainty": "estimate",
         "revenue_share_source_ref": "src_ni_share",
-        "current_price": { "value": 13300, "unit": "USD/т", "as_of": "2026-07-06", "certainty": "fact", "source_ref": "src_spot" },
-        "cycle_position": "peak_structural_bull",
-        "cycle_label": "Циклический пик на структурном бычьем тренде",
-        "structural_flag": false,
+        "current_price": {
+          "value": 13300,
+          "unit": "USD/т",
+          "as_of": "2026-07-06",
+          "certainty": "fact",
+          "source_ref": "src_spot"
+        },
+        "cycle_position": "peak",
+        "cycle_label": "structural_growth",
         "cycle_certainty": "estimate",
-        "cycle_source_refs": ["src_cu_market", "src_spot"],
-        "note": "~22% реализации, и структурно самый привлекательный рынок корзины. Цена ~$13 300/т (начало июля 2026) — вблизи исторических максимумов, после ралли +35% в 2025 (крупнейший годовой прирост с 2009). Это циклический пик, но подпёртый секулярным бычьим фактором: структурный дефицит с 2026, пик добычи ~2030 и рост спроса от электрификации, возобновляемой энергетики, центров обработки данных (ЦОД)/искусственного интеллекта и обороны (спрос до ~42 млн т к 2040). То есть в отличие от палладия структурный вектор здесь ВВЕРХ. Оговорка: сам Норникель — нишевый игрок (№13, ~1–2% рынка), price-taker, поэтому ценит конъюнктуру цены, а не долю; санкции именно на российскую медь (запрет ЕС, отказ LME с 2024) снижают эффективную цену реализации дисконтом в Азию."
+        "cycle_source_refs": [
+          "src_cu_market",
+          "src_spot"
+        ],
+        "reasoning": "~22% реализации, и структурно самый привлекательный рынок корзины. Цена ~$13 300/т (начало июля 2026) — вблизи исторических максимумов, после ралли +35% в 2025 (крупнейший годовой прирост с 2009). Это циклический пик, но подпёртый секулярным бычьим фактором: структурный дефицит с 2026, пик добычи ~2030 и рост спроса от электрификации, возобновляемой энергетики, центров обработки данных (ЦОД)/искусственного интеллекта и обороны (спрос до ~42 млн т к 2040). То есть в отличие от палладия структурный вектор здесь ВВЕРХ. Оговорка: сам Норникель — нишевый игрок (№13, ~1–2% рынка), price-taker, поэтому ценит конъюнктуру цены, а не долю; санкции именно на российскую медь (запрет ЕС, отказ LME с 2024) снижают эффективную цену реализации дисконтом в Азию.",
+        "note": "Фьючерс на медь срочного рынка MOEX FORTS (базовый актив CU) — живые данные платформы."
       },
       {
-        "commodity": "Платина",
+        "name": "Платина",
+        "pricing_market": "global",
         "benchmark_key": "forts:PLT",
         "benchmark_status": "live",
-        "benchmark_note": "Фьючерс на платину срочного рынка MOEX FORTS (базовый актив PLT) — живые данные платформы.",
         "revenue_share_pct": null,
         "revenue_share_low_pct": 4,
         "revenue_share_high_pct": 7,
         "revenue_share_certainty": "estimate",
         "revenue_share_source_ref": "src_ni_share",
-        "current_price": { "value": 1624, "unit": "USD/унц", "as_of": "2026-07-21", "certainty": "fact", "source_ref": "src_spot" },
-        "cycle_position": "elevated_late_cycle",
-        "cycle_label": "Повышенный уровень на рекордном дефиците (поздняя фаза)",
-        "structural_flag": false,
+        "current_price": {
+          "value": 1624,
+          "unit": "USD/унц",
+          "as_of": "2026-07-21",
+          "certainty": "fact",
+          "source_ref": "src_spot"
+        },
+        "cycle_position": "above_mid",
+        "cycle_label": "cyclical_peak",
         "cycle_certainty": "estimate",
-        "cycle_source_refs": ["src_pt_wpic", "src_spot"],
-        "note": "Меньший по весу драгметалл (~4–7% реализации, попутный к никелю), но с сильной ценовой конъюнктурой. Цена ~$1 624/унц (21.07.2026) — повышенный уровень после роста ~+130% в 2025; платина снова дороже палладия, развернув историческую скидку. Причина — рекордный физический дефицит (1,082 млн унций в 2025, крупнейший в ряду WPIC), который, по прогнозам, сохранится до 2029–2030 (~331 тыс. унц. в среднем). Это поздняя фаза сильного рынка: цены повышены и подпёрты дефицитом, но потенциал ограничен ожидаемым снижением спроса (~−8% в 2026) и ростом переработки (вторичное предложение). Для Норникеля платина — попутный металл, доля ~10% (№3–4), цену задаёт глобальный баланс, а не компания."
+        "cycle_source_refs": [
+          "src_pt_wpic",
+          "src_spot"
+        ],
+        "reasoning": "Меньший по весу драгметалл (~4–7% реализации, попутный к никелю), но с сильной ценовой конъюнктурой. Цена ~$1 624/унц (21.07.2026) — повышенный уровень после роста ~+130% в 2025; платина снова дороже палладия, развернув историческую скидку. Причина — рекордный физический дефицит (1,082 млн унций в 2025, крупнейший в ряду WPIC), который, по прогнозам, сохранится до 2029–2030 (~331 тыс. унц. в среднем). Это поздняя фаза сильного рынка: цены повышены и подпёрты дефицитом, но потенциал ограничен ожидаемым снижением спроса (~−8% в 2026) и ростом переработки (вторичное предложение). Для Норникеля платина — попутный металл, доля ~10% (№3–4), цену задаёт глобальный баланс, а не компания.",
+        "note": "Фьючерс на платину срочного рынка MOEX FORTS (базовый актив PLT) — живые данные платформы."
       }
     ],
-    "cost_commodity": null,
-    "cost_commodity_note": "Материального котируемого сырьевого входа на стороне себестоимости у Норникеля нет, поэтому поле — null. Компания вертикально интегрирована и перерабатывает СОБСТВЕННУЮ полиметаллическую сульфидную руду (никель-медь-МПГ), а не закупает котируемое сырьё — в отличие, например, от металлурга, который покупает железную руду и коксующийся уголь, или от НПЗ, покупающего нефть. Основные денежные расходы — оплата труда, электроэнергия и газ (преимущественно собственная генерация и регулируемые внутренние тарифы), реагенты, логистика, а также налог на добычу полезных ископаемых (НДПИ) и экспортные пошлины; они рублёвые и не привязаны к отдельному биржевому бенчмарку. Следовательно, чувствительность прибыли идёт через ЦЕНЫ реализации корзины (revenue_commodities) и курс рубля, а не через котируемый вход себестоимости.",
+    "cost_commodities": null,
+    "cost_commodities_note": "Материального котируемого сырьевого входа на стороне себестоимости у Норникеля нет, поэтому поле — null. Компания вертикально интегрирована и перерабатывает СОБСТВЕННУЮ полиметаллическую сульфидную руду (никель-медь-МПГ), а не закупает котируемое сырьё — в отличие, например, от металлурга, который покупает железную руду и коксующийся уголь, или от НПЗ, покупающего нефть. Основные денежные расходы — оплата труда, электроэнергия и газ (преимущественно собственная генерация и регулируемые внутренние тарифы), реагенты, логистика, а также налог на добычу полезных ископаемых (НДПИ) и экспортные пошлины; они рублёвые и не привязаны к отдельному биржевому бенчмарку. Следовательно, чувствительность прибыли идёт через ЦЕНЫ реализации корзины (revenue_commodities) и курс рубля, а не через котируемый вход себестоимости.",
     "volume_note": "Объёмы производства и рыночные доли по каждому металлу подробно раскрыты в блоке markets, поле current.players: палладий ~40% мировой добычи (лидер №1), рафинированный никель класса 1 ~14% (лидер ниши при доминировании Индонезии ~61–63%), платина ~10% (№3–4, попутный металл), медь ~1–2% (№13, нишевый игрок). Гайденс объёмов на 2026 (прогноз компании): палладий −11%, платина −6%, медь −2%, никель на уровне 2025 — структурное снижение производства из-за истощения богатых руд и перехода на бедные. Разложение объёма и цены по сценариям для прогноза выручки — в valuation_inputs (архетип commodity_cyclical)."
   },
-
   "competitors": null,
-
   "valuation_inputs": {
     "archetype": "commodity_cyclical",
     "currency_frame": {
@@ -424,64 +832,174 @@
       "applicable": true,
       "pair": "USD/RUB",
       "path": [
-        { "year": "2026", "rate": 85, "low": 81, "high": 95 },
-        { "year": "2027", "rate": 90, "low": 86, "high": 95 },
-        { "year": "2028-2030", "rate": 95, "low": 88, "high": 105 }
+        {
+          "year": "2026",
+          "rate": 85,
+          "low": 81,
+          "high": 95
+        },
+        {
+          "year": "2027",
+          "rate": 90,
+          "low": 86,
+          "high": 95
+        },
+        {
+          "year": "2028-2030",
+          "rate": 95,
+          "low": 88,
+          "high": 105
+        }
       ],
       "source_ref": "src_fx",
       "note": "Named driver: RUB-выручка = USD-цена × объём × путь USD/RUB. Прогноз ЦБ 78–86 (2026–27), Минэк 81,5–87,4, рыночный консенсус конец-2026 88–95. Берём срединный сценарий с постепенным ослаблением; чувствительность очень высокая — каждый 1% ослабления рубля даёт ~+4,9 млрд ₽ EBITDA и ~+7,1 млрд ₽ FCF (Т-Инвестиции). Сильный рубль 2025 — главная причина слабых RUB-результатов; FX — крупнейший источник разброса прогноза выручки."
     },
-
     "explicit_horizon": {
       "years": 5,
       "scenarios": {
         "base": {
           "probability_pct": 50,
           "revenue_growth": [
-            { "period": "2026", "low_pct": 8, "high_pct": 20, "real_low_pct": 3, "real_high_pct": 15,
+            {
+              "period": "2026",
+              "low_pct": 8,
+              "high_pct": 20,
+              "real_low_pct": 3,
+              "real_high_pct": 15,
               "drivers": "Восстановление цен корзины (Pd +40–50%, Cu +20–25%, Pt +60%, Ni +6–10% — оценки Газпромбанк; гайденс компании ~+20% выручки) перекрывает падение объёмов (Pd −11%, Pt −6%, Cu −2%, Ni ~flat — гайденс 2026). Нижняя граница диапазона — если рубль остаётся крепким (как в 2025): тогда RUB-выручка растёт скромнее USD-выручки. Гайденс ~+20% предполагает умеренное ослабление рубля.",
-              "certainty": "medium", "type": "estimate", "source_refs": ["src_gpb", "src_prod26", "src_guide26"] },
-            { "period": "2027", "low_pct": 2, "high_pct": 10, "real_low_pct": -2, "real_high_pct": 6,
+              "certainty": "medium",
+              "type": "estimate",
+              "source_refs": [
+                "src_gpb",
+                "src_prod26",
+                "src_guide26"
+              ]
+            },
+            {
+              "period": "2027",
+              "low_pct": 2,
+              "high_pct": 10,
+              "real_low_pct": -2,
+              "real_high_pct": 6,
               "drivers": "Цены платины/меди удерживаются дефицитом (WPIC: дефицит Pt до 2029–30; Cu структурный дефицит с 2026), палладий слабее (профицит с 2027 по WPIC), объёмы продолжают плавно снижаться (истощение богатых руд). Поддержка от дальнейшего ослабления рубля (~90).",
-              "certainty": "limited", "type": "estimate", "source_refs": ["src_pt_wpic", "src_cu_market", "src_pd_fc"] },
-            { "period": "2028-2030", "low_pct": 1, "high_pct": 6, "real_low_pct": -3, "real_high_pct": 2,
+              "certainty": "limited",
+              "type": "estimate",
+              "source_refs": [
+                "src_pt_wpic",
+                "src_cu_market",
+                "src_pd_fc"
+              ]
+            },
+            {
+              "period": "2028-2030",
+              "low_pct": 1,
+              "high_pct": 6,
+              "real_low_pct": -3,
+              "real_high_pct": 2,
               "drivers": "Нормализация к mid-cycle: рост меди (электрификация/ЦОД) частично компенсирует структурное давление на палладий (вытеснение ДВС) и снижение объёмов. Заявленный рост выпуска МПГ/меди к 2030 — потенциальный апсайд объёма, но санкционные дисконты держат эффективную цену корзины ниже спота.",
-              "certainty": "limited", "type": "model", "source_refs": ["src_cu_market"] }
+              "certainty": "limited",
+              "type": "model",
+              "source_refs": [
+                "src_cu_market"
+              ]
+            }
           ]
         },
         "bear": {
           "probability_pct": 30,
           "revenue_growth": [
-            { "period": "2026", "low_pct": -8, "high_pct": 2, "real_low_pct": -13, "real_high_pct": -3,
+            {
+              "period": "2026",
+              "low_pct": -8,
+              "high_pct": 2,
+              "real_low_pct": -13,
+              "real_high_pct": -3,
               "drivers": "Рубль остаётся крепким (как 1П2025, ~78–80) ИЛИ цены металлов разочаровывают (палладий ближе к нижним прогнозам ~1 000–1 260, low Heraeus), плюс падение объёмов Pd −11% / Pt −6%. RUB-выручка стагнирует или падает несмотря на USD-восстановление — повтор сценария 2025.",
-              "certainty": "limited", "type": "estimate", "source_refs": ["src_pd_fc", "src_prod26"] },
-            { "period": "2027", "low_pct": -5, "high_pct": 3, "real_low_pct": -9, "real_high_pct": -1,
+              "certainty": "limited",
+              "type": "estimate",
+              "source_refs": [
+                "src_pd_fc",
+                "src_prod26"
+              ]
+            },
+            {
+              "period": "2027",
+              "low_pct": -5,
+              "high_pct": 3,
+              "real_low_pct": -9,
+              "real_high_pct": -1,
               "drivers": "Палладий уходит в профицит (WPIC), никель остаётся в профиците (индонезийский NPI), усиление санкционных дисконтов в Азию, дальнейшее снижение объёмов. Слабый ценовой цикл.",
-              "certainty": "limited", "type": "estimate", "source_refs": ["src_ni_surplus", "src_pd_fc"] },
-            { "period": "2028-2030", "low_pct": -3, "high_pct": 3, "real_low_pct": -7, "real_high_pct": -1,
+              "certainty": "limited",
+              "type": "estimate",
+              "source_refs": [
+                "src_ni_surplus",
+                "src_pd_fc"
+              ]
+            },
+            {
+              "period": "2028-2030",
+              "low_pct": -3,
+              "high_pct": 3,
+              "real_low_pct": -7,
+              "real_high_pct": -1,
               "drivers": "Затяжное дно цикла: структурное вытеснение палладия + профицит никеля + санкционная эрозия эффективной цены корзины не компенсируются ростом меди.",
-              "certainty": "limited", "type": "model", "source_refs": [] }
+              "certainty": "limited",
+              "type": "model",
+              "source_refs": []
+            }
           ]
         },
         "bull": {
           "probability_pct": 20,
           "revenue_growth": [
-            { "period": "2026", "low_pct": 20, "high_pct": 32, "real_low_pct": 14, "real_high_pct": 26,
+            {
+              "period": "2026",
+              "low_pct": 20,
+              "high_pct": 32,
+              "real_low_pct": 14,
+              "real_high_pct": 26,
               "drivers": "Сильное ралли корзины (палладий к верхним прогнозам TD Securities ~1 819 и выше, платина продолжает рост, медь к новым максимумам на дефиците) + заметное ослабление рубля к ~90–95. USD-восстановление и FX-попутка складываются.",
-              "certainty": "limited", "type": "estimate", "source_refs": ["src_pd_fc", "src_cu_market", "src_fx"] },
-            { "period": "2027", "low_pct": 6, "high_pct": 14, "real_low_pct": 2, "real_high_pct": 10,
+              "certainty": "limited",
+              "type": "estimate",
+              "source_refs": [
+                "src_pd_fc",
+                "src_cu_market",
+                "src_fx"
+              ]
+            },
+            {
+              "period": "2027",
+              "low_pct": 6,
+              "high_pct": 14,
+              "real_low_pct": 2,
+              "real_high_pct": 10,
               "drivers": "Сокращение добычи в Индонезии разворачивает никель; медь в устойчивом дефиците; рубль слабее. Цены и FX поддерживают рост.",
-              "certainty": "limited", "type": "estimate", "source_refs": ["src_ni_surplus", "src_cu_market"] },
-            { "period": "2028-2030", "low_pct": 3, "high_pct": 8, "real_low_pct": -1, "real_high_pct": 4,
+              "certainty": "limited",
+              "type": "estimate",
+              "source_refs": [
+                "src_ni_surplus",
+                "src_cu_market"
+              ]
+            },
+            {
+              "period": "2028-2030",
+              "low_pct": 3,
+              "high_pct": 8,
+              "real_low_pct": -1,
+              "real_high_pct": 4,
               "drivers": "Медный суперцикл (электрификация/ЦОД/оборона) + реализация роста выпуска МПГ/меди к 2030 + структурно слабый рубль удерживают повышенный темп выше mid-cycle.",
-              "certainty": "limited", "type": "model", "source_refs": ["src_cu_market"] }
+              "certainty": "limited",
+              "type": "model",
+              "source_refs": [
+                "src_cu_market"
+              ]
+            }
           ]
         }
       },
       "probability_weighted_note": "Взвешенный ожидаемый темп RUB-выручки: 2026 ~ +6–16% (центр ~+10%), 2027 ~ +1–8%, 2028–30 ~ 0–5% ном. Диапазоны широки намеренно — главная неопределённость не в металлах, а в курсе рубля (повтор 2025, когда крепкий рубль превратил +10% USD-выручки в −1,6% RUB) и в палладии (профицит с 2027). Гайденс компании ~+20% на 2026 — ближе к верхней части базы / нижней части булла и предполагает ослабление рубля.",
       "risk_skew": "Вниз. Нижний хвост толще: (1) санкционная эрозия эффективной цены корзины (дисконты в Азию, прямые запреты ЕС на медь/никель/платину/иридий/родий); (2) структурное вытеснение палладия (>35% выручки) электромобилями; (3) риск крепкого рубля, бьющего по RUB-выручке; (4) структурное снижение объёмов из-за истощения богатых руд. Вверх — преимущественно медь и резкое ослабление рубля."
     },
-
     "terminal_growth": {
       "nominal_low_pct": 4.0,
       "nominal_high_pct": 5.5,
@@ -499,7 +1017,6 @@
       "certainty": "limited",
       "type": "model"
     },
-
     "margin_trajectory": {
       "metric": "EBITDA margin",
       "from_pct": 39,
@@ -507,18 +1024,17 @@
       "rationale": "Операционный рычаг: денежные операционные расходы ~41% выручки и часть логистики/НДПИ относительно фиксированы в краткосроке, цены корзины восстанавливаются → маржа расширяется от дна цикла (37,9% в 2024, 39,1% в 2025) к mid-cycle ~46–47% при восстановлении цен. Ограничители вверх: санкционные дисконты к эффективной цене, рублёвая инфляция опрасходов, экспортные пошлины, высокий capex «Серной программы». Не закладываем возврат к пику 2021 (58,6%).",
       "certainty": "medium",
       "type": "estimate",
-      "source_refs": ["src_gpb"]
+      "source_refs": [
+        "src_gpb"
+      ]
     },
-
     "bank_specifics": null,
-
     "fcf_direction": {
       "direction": "восстанавливается",
       "rationale": "FCF 2025 утроился (скорр. FCF $0,335→$1,48 млрд) на восстановлении цен и контроле опрасходов. При восстановлении корзины и стабилизации capex на устойчивом уровне (~18–19% выручки, гайденс ~240 млрд ₽/год) направление — восстановление, но «Серная программа» и пик погашения долга 2026–2027 ограничивают высвобождение. Число FCF не прогнозируем (территория финансов).",
       "certainty": "limited",
       "type": "judgment"
     },
-
     "analyst_consensus": {
       "available": true,
       "revenue_2026_pct": "~20 (гайденс компании); цены 2026: Pd +40–50%, Cu +20–25%, Pt +60%, Ni +6–10% (Газпромбанк)",
@@ -526,16 +1042,13 @@
       "bias_note": "Sell-side по GMKN склонен к оптимизму (консенсус-таргет ~188 ₽ при цене 129,5 ₽, рекомендация «покупать»). Гайденс компании ~+20% выручки на 2026 предполагает ослабление рубля и сильное ценовое ралли — реализуется в полном объёме скорее в bull-сценарии. Наш базовый ориентир (RUB ~+8–20%, центр ~+10%) осознанно консервативнее: учитывает риск крепкого рубля (как в 2025) и санкционные дисконты.",
       "note": "Консенсус ближе к верхней границе нашей базы; различие — в допущении по курсу рубля."
     },
-
     "country_risk_footnote": {
       "crp_pct": 3.9,
       "erp_pct": 8.13,
       "source": "Damodaran, январь 2026",
       "caveat": "Assigned-tier: РФ без суверенного рейтинга Moody's (NR), нет живого CDS после 2022 → CRP/ERP назначены по тиру риска и ВЕРОЯТНО ЗАНИЖАЮТ хвостовой (санкционный) риск. Ставка дисконтирования (другой слой) должна это отражать; g и ставку нельзя ставить независимо. Сам CRP/ставку здесь не вычисляем — только сноска."
     },
-
     "disclosure_quality": "high",
-
     "key_assumptions": [
       "Цены корзины 2026 (оценки Газпромбанк): палладий +40–50%, медь +20–25%, платина +60%, никель +6–10% к 2025",
       "Объёмы 2026 (гайденс компании): палладий −11%, платина −6%, медь −2%, никель ~на уровне 2025; структурное снижение из-за истощения богатых руд",
@@ -545,34 +1058,165 @@
       "Терминал от mid-cycle EBITDA-маржи 2020–2025 (~46–47%), не от пика 2021",
       "Санкционная эрозия эффективной цены корзины (дисконты в Азию) сохраняется во всех сценариях"
     ],
-
     "signal_revenue_outlook": {
       "direction": "растёт-волатильно",
       "driver": "Восстановление цен корзины (медь и платина структурно сильны, палладий слабее с 2027) перекрывает структурное снижение объёмов; ключевая развилка — курс рубля (крепкий рубль может обнулить рост RUB-выручки, как в 2025)",
       "horizon": "2026 отскок (RUB ~+8–20% на ценах, при ослаблении рубля до +20%) → 2027 умеренно (~+1–10%) → 2028–30 нормализация к mid-cycle (~+1–6% ном, около нуля в реале)"
     }
   },
-
   "sources": [
-    { "id": "src_pd_size", "type": "aggregator", "title": "Global palladium industry — statistics & facts; market size & Nornickel 40% share 2024", "period": "2025", "url": "https://www.statista.com/topics/10377/palladium-mining-industry-worldwide/", "reliability": "medium" },
-    { "id": "src_pd_fc", "type": "industry_report", "title": "Palladium Price Forecast: Top Trends for Palladium in 2026 (WPIC deficit 2025–2026 → surplus 2027; TD $1819, Heraeus $950–1500)", "period": "2025-12", "url": "https://investingnews.com/palladium-forecast/", "reliability": "medium" },
-    { "id": "src_ni_surplus", "type": "industry_report", "title": "Nornickel Doubles 2025 Nickel Surplus Forecast to 240k Tons (Indonesia dominance, LME stocks)", "period": "2025", "url": "https://discoveryalert.com.au/nickel-surplus-forecast-2025-indonesian-production/", "reliability": "medium" },
-    { "id": "src_ni_2026", "type": "media", "title": "Норникель снизил прогноз профицита никеля в 2026 году до ~20 тыс. тонн", "period": "2026", "url": "https://www.kommersant.ru/doc/8763248", "reliability": "medium" },
-    { "id": "src_ni_share", "type": "official", "title": "Nornickel 2024 Annual Report — Commodity markets (sales mix; nickel/PGM positions)", "period": "2024", "url": "https://ar2024.nornickel.com/en/strategic-report/commodity-markets.html", "reliability": "high" },
-    { "id": "src_pt_wpic", "type": "regulator", "title": "WPIC — record platinum deficit 1.082 Moz in 2025; deficits avg ~331 koz 2026–2030", "period": "2025-2026", "url": "https://platinuminvestment.com/supply-and-demand/2-to-5-year-view", "reliability": "high" },
-    { "id": "src_cu_market", "type": "industry_report", "title": "S&P Global / ICSG — copper market 2025 balance, +35% price, structural deficit to 2040", "period": "2025", "url": "https://www.spglobal.com/en/research-insights/special-reports/copper-in-the-age-of-ai", "reliability": "high" },
-    { "id": "src_cu_rank", "type": "official", "title": "Nornickel Annual Report — copper market position (No.13 in copper mine production)", "period": "2024", "url": "https://ar2024.nornickel.com/strategic-report/commodity-markets", "reliability": "high" },
-    { "id": "src_sanctions", "type": "media", "title": "20th EU sanctions package closes EU market to Russian copper/nickel/PGMs; LME ban; Asia pivot", "period": "2026", "url": "https://eurometal.net/20th-sanctions-package-to-close-eu-market-to-more-russian-metals/", "reliability": "medium" },
-    { "id": "src_prod26", "type": "media", "title": "«Норникель» в 2026 г.: палладий −11%, платина −6%, медь −2%, никель на уровне 2025 (Интерфакс/ProFinansy)", "period": "2026-04", "url": "https://www.interfax.ru/business/1069876", "reliability": "high" },
-    { "id": "src_guide26", "type": "media", "title": "Норникель: гайденс 2026 — рост выручки ~20%; цены металлов (Газпромбанк Инвестиции / fundamentalka)", "period": "2026-02", "url": "https://gazprombank.investments/ideas/nornikel-pokupka-pered-potentsialnym-rostom-tsen-na-metally/", "reliability": "medium" },
-    { "id": "src_gpb", "type": "media", "title": "Газпромбанк Инвестиции — прогноз цен металлов 2026 (Pd +40–50%, Cu +20–25%, Pt +60%, Ni +6–10%); EV/EBITDA ниже 5л среднего", "period": "2026", "url": "https://gazprombank.investments/ideas/nornikel-pokupka-pered-potentsialnym-rostom-tsen-na-metally/", "reliability": "medium" },
-    { "id": "src_cbr", "type": "regulator", "title": "Среднесрочный прогноз Банка России (апрель 2026): инфляция 4,5–5,5% 2026 → 4% 2027; ВВП 0,5–1,5% 2026; ключевая ставка 14–14,5% 2026, 8–10% 2027", "period": "2026-04", "url": "https://www.cbr.ru/dkp/mp_dec/decision_key_rate/comment_07052026/", "reliability": "high" },
-    { "id": "src_ofz", "type": "regulator", "title": "Кривая бескупонной доходности ОФЗ; ОФЗ-10л ~14,6–15,4% (июнь 2026)", "period": "2026-06", "url": "https://www.cbr.ru/hd_base/zcyc_params/zcyc/", "reliability": "high" },
-    { "id": "src_fx", "type": "media", "title": "Прогноз USD/RUB 2026–2027: ЦБ 78–86, Минэк 81,5–87,4, рынок 88–95 (РБК/Финам/SberCIB)", "period": "2026", "url": "https://www.rbc.ru/quote/news/article/694e75e89a7947673616bd56", "reliability": "medium" },
-    { "id": "src_damodaran", "type": "industry_report", "title": "Damodaran — Country Default Spreads and Risk Premiums (Russia CRP 3,9%, ERP 8,13%, NR-tier), январь 2026", "period": "2026-01", "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html", "reliability": "high" },
-    { "id": "src_spot", "type": "aggregator", "title": "Спот-цены металлов (20–21.07.2026): палладий ~$1 279/унц и платина ~$1 624/унц (Kitco/JM Bullion); медь ~$13 300/т и никель ~$16 500/т (TradingEconomics/LME)", "period": "2026-07", "url": "https://www.kitco.com/price/precious-metals", "reliability": "medium" },
-    { "id": "src_pd_structural", "type": "industry_report", "title": "Палладий 2025–2030: структурный спад автоспроса от вытеснения ДВС электромобилями (~−20% автоспроса к 2030 от пика 2019); смягчается гибридами и ужесточением эконорм (Research and Markets / SFA Oxford / The Oregon Group)", "period": "2025-2026", "url": "https://www.researchandmarkets.com/reports/6218764/palladium-market-forecasts", "reliability": "medium" },
-    { "id": "src_nn_pd26", "type": "media", "title": "Норильский никель: прогноз профицита палладия ~0,3 млн унц. в 2026 и ~0,2 млн унц. в 2027 (Reuters/Mining.com, декабрь 2025)", "period": "2025-12", "url": "https://www.mining.com/web/norilsk-nickel-sees-2026-global-palladium-surplus-of-300000-oz/", "reliability": "medium" }
+    {
+      "id": "src_pd_size",
+      "type": "aggregator",
+      "title": "Global palladium industry — statistics & facts; market size & Nornickel 40% share 2024",
+      "period": "2025",
+      "url": "https://www.statista.com/topics/10377/palladium-mining-industry-worldwide/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_pd_fc",
+      "type": "industry_report",
+      "title": "Palladium Price Forecast: Top Trends for Palladium in 2026 (WPIC deficit 2025–2026 → surplus 2027; TD $1819, Heraeus $950–1500)",
+      "period": "2025-12",
+      "url": "https://investingnews.com/palladium-forecast/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_ni_surplus",
+      "type": "industry_report",
+      "title": "Nornickel Doubles 2025 Nickel Surplus Forecast to 240k Tons (Indonesia dominance, LME stocks)",
+      "period": "2025",
+      "url": "https://discoveryalert.com.au/nickel-surplus-forecast-2025-indonesian-production/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_ni_2026",
+      "type": "media",
+      "title": "Норникель снизил прогноз профицита никеля в 2026 году до ~20 тыс. тонн",
+      "period": "2026",
+      "url": "https://www.kommersant.ru/doc/8763248",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_ni_share",
+      "type": "official",
+      "title": "Nornickel 2024 Annual Report — Commodity markets (sales mix; nickel/PGM positions)",
+      "period": "2024",
+      "url": "https://ar2024.nornickel.com/en/strategic-report/commodity-markets.html",
+      "reliability": "high"
+    },
+    {
+      "id": "src_pt_wpic",
+      "type": "regulator",
+      "title": "WPIC — record platinum deficit 1.082 Moz in 2025; deficits avg ~331 koz 2026–2030",
+      "period": "2025-2026",
+      "url": "https://platinuminvestment.com/supply-and-demand/2-to-5-year-view",
+      "reliability": "high"
+    },
+    {
+      "id": "src_cu_market",
+      "type": "industry_report",
+      "title": "S&P Global / ICSG — copper market 2025 balance, +35% price, structural deficit to 2040",
+      "period": "2025",
+      "url": "https://www.spglobal.com/en/research-insights/special-reports/copper-in-the-age-of-ai",
+      "reliability": "high"
+    },
+    {
+      "id": "src_cu_rank",
+      "type": "official",
+      "title": "Nornickel Annual Report — copper market position (No.13 in copper mine production)",
+      "period": "2024",
+      "url": "https://ar2024.nornickel.com/strategic-report/commodity-markets",
+      "reliability": "high"
+    },
+    {
+      "id": "src_sanctions",
+      "type": "media",
+      "title": "20th EU sanctions package closes EU market to Russian copper/nickel/PGMs; LME ban; Asia pivot",
+      "period": "2026",
+      "url": "https://eurometal.net/20th-sanctions-package-to-close-eu-market-to-more-russian-metals/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_prod26",
+      "type": "media",
+      "title": "«Норникель» в 2026 г.: палладий −11%, платина −6%, медь −2%, никель на уровне 2025 (Интерфакс/ProFinansy)",
+      "period": "2026-04",
+      "url": "https://www.interfax.ru/business/1069876",
+      "reliability": "high"
+    },
+    {
+      "id": "src_guide26",
+      "type": "media",
+      "title": "Норникель: гайденс 2026 — рост выручки ~20%; цены металлов (Газпромбанк Инвестиции / fundamentalka)",
+      "period": "2026-02",
+      "url": "https://gazprombank.investments/ideas/nornikel-pokupka-pered-potentsialnym-rostom-tsen-na-metally/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_gpb",
+      "type": "media",
+      "title": "Газпромбанк Инвестиции — прогноз цен металлов 2026 (Pd +40–50%, Cu +20–25%, Pt +60%, Ni +6–10%); EV/EBITDA ниже 5л среднего",
+      "period": "2026",
+      "url": "https://gazprombank.investments/ideas/nornikel-pokupka-pered-potentsialnym-rostom-tsen-na-metally/",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_cbr",
+      "type": "regulator",
+      "title": "Среднесрочный прогноз Банка России (апрель 2026): инфляция 4,5–5,5% 2026 → 4% 2027; ВВП 0,5–1,5% 2026; ключевая ставка 14–14,5% 2026, 8–10% 2027",
+      "period": "2026-04",
+      "url": "https://www.cbr.ru/dkp/mp_dec/decision_key_rate/comment_07052026/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_ofz",
+      "type": "regulator",
+      "title": "Кривая бескупонной доходности ОФЗ; ОФЗ-10л ~14,6–15,4% (июнь 2026)",
+      "period": "2026-06",
+      "url": "https://www.cbr.ru/hd_base/zcyc_params/zcyc/",
+      "reliability": "high"
+    },
+    {
+      "id": "src_fx",
+      "type": "media",
+      "title": "Прогноз USD/RUB 2026–2027: ЦБ 78–86, Минэк 81,5–87,4, рынок 88–95 (РБК/Финам/SberCIB)",
+      "period": "2026",
+      "url": "https://www.rbc.ru/quote/news/article/694e75e89a7947673616bd56",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_damodaran",
+      "type": "industry_report",
+      "title": "Damodaran — Country Default Spreads and Risk Premiums (Russia CRP 3,9%, ERP 8,13%, NR-tier), январь 2026",
+      "period": "2026-01",
+      "url": "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ctryprem.html",
+      "reliability": "high"
+    },
+    {
+      "id": "src_spot",
+      "type": "aggregator",
+      "title": "Спот-цены металлов (20–21.07.2026): палладий ~$1 279/унц и платина ~$1 624/унц (Kitco/JM Bullion); медь ~$13 300/т и никель ~$16 500/т (TradingEconomics/LME)",
+      "period": "2026-07",
+      "url": "https://www.kitco.com/price/precious-metals",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_pd_structural",
+      "type": "industry_report",
+      "title": "Палладий 2025–2030: структурный спад автоспроса от вытеснения ДВС электромобилями (~−20% автоспроса к 2030 от пика 2019); смягчается гибридами и ужесточением эконорм (Research and Markets / SFA Oxford / The Oregon Group)",
+      "period": "2025-2026",
+      "url": "https://www.researchandmarkets.com/reports/6218764/palladium-market-forecasts",
+      "reliability": "medium"
+    },
+    {
+      "id": "src_nn_pd26",
+      "type": "media",
+      "title": "Норильский никель: прогноз профицита палладия ~0,3 млн унц. в 2026 и ~0,2 млн унц. в 2027 (Reuters/Mining.com, декабрь 2025)",
+      "period": "2025-12",
+      "url": "https://www.mining.com/web/norilsk-nickel-sees-2026-global-palladium-surplus-of-300000-oz/",
+      "reliability": "medium"
+    }
   ],
   "data_flags": [
     "Размер рынка палладия в деньгах сильно расходится между research-домами (от ~15 до ~25 млрд долл.) — взят как estimate; физический объём надёжнее.",

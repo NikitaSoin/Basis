@@ -37,9 +37,10 @@ def fetch_telegram_posts(channel: str, limit: int = 15) -> dict:
     if not re.match(r"^[A-Za-z0-9_]{3,64}$", name):
         return {"error": "bad_channel", "note": "Ожидается @username или t.me/username публичного канала."}
     from app.services.http_util import make_client
+    from app.services.agent_web import via_proxy  # egress: t.me режется — через воркер
     try:
         with make_client(timeout=httpx.Timeout(20.0, connect=8.0)) as c:
-            r = c.get(f"https://t.me/s/{name}", headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+            r = c.get(via_proxy(f"https://t.me/s/{name}"), headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
             r.raise_for_status()
             html = r.text
     except Exception as e:  # noqa: BLE001

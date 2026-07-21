@@ -143,6 +143,13 @@
       "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."
     },
     {
+      "key": "tg_carnegie",
+      "method": "telegram",
+      "channel": "carnegiepolitika",
+      "limit": 12,
+      "_about": "Carnegie Politika — официальный канал издания Carnegie про Россию"
+    },
+    {
       "key": "tg_baunov",
       "method": "telegram",
       "channel": "baunovhaus",
