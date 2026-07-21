@@ -23,6 +23,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.chronicle import CHRONICLE_IMPORTANCE, ChronicleEntry
@@ -81,7 +82,7 @@ def record(db: Session, *, kind: str, title: str, summary: str, source_url: str,
     Возвращает объект или None (если дубль/пусто)."""
     if not source_url or not summary or not title:
         return None
-    if _exists(db, source_url, kind):
+    if _exists(db, source_url, kind):  # быстрый путь для уже закоммиченных дублей
         return None
     tk, sc, th = _clean_tags(tickers, sectors, themes, _valid_tickers(db))
     imp = importance if importance in CHRONICLE_IMPORTANCE else None
@@ -93,7 +94,15 @@ def record(db: Session, *, kind: str, title: str, summary: str, source_url: str,
         source_key=source_key, source_url=source_url[:1000],
         source_table=source_table, source_id=source_id, model_used=model_used,
     )
-    db.add(entry)
+    # SAVEPOINT: дубль (source_url,kind) в НЕ-закоммиченном батче / гонка с другим
+    # процессом иначе роняет весь батч на commit. Nested rollback гасит только эту
+    # вставку, внешняя транзакция цела.
+    try:
+        with db.begin_nested():
+            db.add(entry)
+            db.flush()
+    except IntegrityError:
+        return None
     return entry
 
 
