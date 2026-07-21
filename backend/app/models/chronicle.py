@@ -47,12 +47,14 @@ class ChronicleEntry(Base):
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)  # пересказ с ключевой инфой
     interpretation: Mapped[str | None] = mapped_column(Text)  # «что это значило/значит» (point-in-time)
-    key_takeaways: Mapped[list | None] = mapped_column(JSONB)
+    # none_as_null=True: Python None → SQL NULL, а не JSONB-скаляр null (иначе
+    # jsonb_array_elements по тегам падает «cannot extract elements from a scalar»).
+    key_takeaways: Mapped[list | None] = mapped_column(JSONB(none_as_null=True))
 
     # теги для ретрива (контролируемые словари)
-    tickers: Mapped[list | None] = mapped_column(JSONB)   # ["SBER", ...] валид. по companies
-    sectors: Mapped[list | None] = mapped_column(JSONB)   # ["oil_gas", ...] canonical
-    themes: Mapped[list | None] = mapped_column(JSONB)    # ["key_rate", ...] controlled vocab
+    tickers: Mapped[list | None] = mapped_column(JSONB(none_as_null=True))   # ["SBER", ...] валид. по companies
+    sectors: Mapped[list | None] = mapped_column(JSONB(none_as_null=True))   # ["oil_gas", ...] canonical
+    themes: Mapped[list | None] = mapped_column(JSONB(none_as_null=True))    # ["key_rate", ...] controlled vocab
 
     importance: Mapped[str | None] = mapped_column(String(16))  # high|medium
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

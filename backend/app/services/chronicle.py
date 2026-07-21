@@ -238,9 +238,22 @@ def backfill_articles(db: Session, max_rows: int = 400, batch: int = 15) -> dict
     return {"candidates_articles": len(rows), "chronicled_articles": made}
 
 
+def _normalize_json_null(db: Session) -> int:
+    """Разовая нормализация: JSONB-скаляр null → SQL NULL в тег-колонках (наследие
+    записей до none_as_null=True). Идемпотентно."""
+    from sqlalchemy import text as _t
+    total = 0
+    for col in ("tickers", "sectors", "themes", "key_takeaways"):
+        r = db.execute(_t(f"UPDATE chronicle_entries SET {col}=NULL "
+                          f"WHERE jsonb_typeof({col})='null'"))
+        total += r.rowcount or 0
+    db.commit()
+    return total
+
+
 def backfill(db: Session) -> dict:
     """Разовый/периодический полный бэкфилл летописи из обоих источников."""
-    res = {}
+    res = {"normalized_null": _normalize_json_null(db)}
     res.update(backfill_news(db))
     res.update(backfill_articles(db))
     logger.info("chronicle backfill: %s", res)

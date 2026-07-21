@@ -972,9 +972,10 @@ def debug_chronicle_stats():
         by_kind = dict(db.execute(_t("SELECT kind, count(*) FROM chronicle_entries GROUP BY kind")).fetchall())
         by_imp = dict(db.execute(_t("SELECT coalesce(importance,'—'), count(*) FROM chronicle_entries GROUP BY 1")).fetchall())
         themes = db.execute(_t("""
-            SELECT t, count(*) FROM chronicle_entries, jsonb_array_elements_text(coalesce(themes,'[]'::jsonb)) AS t
+            SELECT t, count(*) FROM chronicle_entries,
+              jsonb_array_elements_text(CASE WHEN jsonb_typeof(themes)='array' THEN themes ELSE '[]'::jsonb END) AS t
             GROUP BY t ORDER BY 2 DESC LIMIT 12""")).fetchall()
-        tagged = db.execute(_t("SELECT count(*) FROM chronicle_entries WHERE tickers IS NOT NULL AND tickers <> '[]'::jsonb")).scalar()
+        tagged = db.execute(_t("SELECT count(*) FROM chronicle_entries WHERE jsonb_typeof(tickers)='array'")).scalar()
         return {"total": total, "by_kind": by_kind, "by_importance": by_imp,
                 "with_tickers": tagged, "top_themes": [{"theme": r[0], "n": r[1]} for r in themes]}
     except Exception as e:  # noqa: BLE001
