@@ -16,7 +16,7 @@ import json
 import logging
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from email.utils import parsedate_to_datetime
 from xml.etree import ElementTree as ET
@@ -36,6 +36,11 @@ _CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 
 _HTTP_TIMEOUT = 25.0
 _UA = {"User-Agent": "BasisNewsBot/1.0 (+https://inbasis.ru)"}
+
+# Ретеншен Ленты: держим окно просмотра, старое чистим (таблица росла без предела,
+# ~10.8к строк). 90 дней > всех окон чтения (агент 30д, корп-новости 21-30д). Важное
+# НЕ теряется — high/medium-с-тикерами уже осели в постоянной летописи (chronicle).
+_LENTA_KEEP_DAYS = 90
 
 
 # ----------------------------- конфиг -----------------------------
@@ -438,6 +443,38 @@ def extract_macro_points(reps: list[dict], db: Session, batch: int = 12) -> dict
 
 
 # ----------------------------- Шаг 6: оркестрация + запись -----------------------------
+def cleanup_market_updates(db: Session, keep_days: int = _LENTA_KEEP_DAYS) -> dict:
+    """Ретеншен Ленты: удаляет строки старше keep_days. ЗАЩИТА: перед удалением
+    гарантирует, что важные новости (high / medium-с-тикерами) из удаляемого окна
+    осели в постоянной летописи (chronicle) — не теряем аналитическую память.
+    Идемпотентно (ingest_market_update дедупит)."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=keep_days)
+    saved = 0
+    try:
+        from app.services.chronicle import ingest_market_update
+        doomed = (db.query(MarketUpdate)
+                  .filter(MarketUpdate.published_at < cutoff,
+                          MarketUpdate.status == "published",
+                          MarketUpdate.importance.in_(("high", "medium")))
+                  .all())
+        for mu in doomed:
+            if ingest_market_update(db, mu) is not None:
+                saved += 1
+        db.commit()
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.warning("Лента-чистка: страховочный промоут в летопись не удался (%s) — "
+                       "УДАЛЕНИЕ ОТМЕНЕНО во избежание потери", type(e).__name__)
+        return {"kept_days": keep_days, "error": type(e).__name__, "removed": 0}
+    removed = (db.query(MarketUpdate)
+               .filter(MarketUpdate.published_at < cutoff)
+               .delete(synchronize_session=False))
+    db.commit()
+    res = {"kept_days": keep_days, "chronicled_before_delete": saved, "removed": removed}
+    logger.info("Лента-чистка: %s", res)
+    return res
+
+
 def run_pipeline(db: Session) -> dict:
     """Полный прогон. Возвращает сводку для лога/диагностики."""
     cfg = load_config()

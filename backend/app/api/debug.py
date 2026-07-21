@@ -984,6 +984,22 @@ def debug_chronicle_stats():
         db.close()
 
 
+@router.post("/debug/trigger-lenta-cleanup")
+def debug_trigger_lenta_cleanup(keep_days: int = 90):
+    """Ретеншен Ленты: удалить строки market_updates старше keep_days (важное сперва
+    страхуется в летопись). Разовый/ручной запуск дневной чистки."""
+    from app.db.session import SessionLocal
+    from app.services.news_pipeline import cleanup_market_updates
+    db = SessionLocal()
+    try:
+        return cleanup_market_updates(db, keep_days=keep_days)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug lenta-cleanup: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.get("/debug/chronicle-preview")
 def debug_chronicle_preview(ticker: str, sectors: str = "", themes: str = "",
                             days: int = 365, limit: int = 12):

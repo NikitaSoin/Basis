@@ -374,6 +374,30 @@ async def _agent_pilot_job():
         hb_err("agent_pilot", e)
 
 
+async def _chronicle_maintenance_job():
+    """Дневное обслуживание аналитической летописи: (1) ретеншен Ленты (удалить
+    market_updates старше окна, важное сперва страхуется в летопись), (2) идемпотентный
+    catch-up бэкфилл (подобрать то, что могло не долететь в летопись из живых кронов)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.news_pipeline import cleanup_market_updates
+        from app.services.chronicle import backfill
+        db = SessionLocal()
+        try:
+            bf = backfill(db)          # сначала гарантируем полноту летописи
+            cl = cleanup_market_updates(db)  # затем безопасно чистим Ленту
+            return {"backfill": bf, "cleanup": cl}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Летопись/обслуживание: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка обслуживания летописи: %s", e)
+        from app.services.job_heartbeat import hb_err
+        hb_err("chronicle_maintenance", e)
+
+
 async def _report_watch_job():
     """Автообнаружение вышедших отчётов (report_watch.py) — НЕЗАВИСИМО от _earnings_job:
     тот видит новый период только после РУЧНОГО обновления financials.json, этот детектит
@@ -692,6 +716,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("geopolitics", _geo_job), "cron", hour=21, minute=0, id="geopolitics")
         scheduler.add_job(_with_heartbeat("geo_digest", _geo_digest_job), "cron", minute=10, id="geo_digest")  # каждый час
         scheduler.add_job(_with_heartbeat("agent_pilot", _agent_pilot_job), "cron", hour=7, minute=40, id="agent_pilot")  # автономный агент-пилот (macro addendum)
+        scheduler.add_job(_with_heartbeat("chronicle_maintenance", _chronicle_maintenance_job), "cron", hour=5, minute=20, id="chronicle_maintenance")  # летопись: бэкфилл + ретеншен Ленты
         logger.info("Внешние LLM/FRED-задачи планировщика включены (news/macro/earnings/geo/geo_digest)")
     scheduler.start()
     logger.info("Планировщик котировок запущен (каждые 5 мин, умный интервал; история — 19:30 МСК)")
