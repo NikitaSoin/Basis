@@ -4395,15 +4395,32 @@ details[open] > summary .obs-inst-chev,
   padding: 7px 12px;
   font-size: 11px;
 }
+/* Переключатель «карта России целиком» — визуально та же пилюля, но с иконкой +
+   margin-left:auto, чтобы отделиться от группы фильтров по типу события. */
+.obs-geomap-russia-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
 
 .obs-geomap-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 1000 / 700;
+  /* aspect-ratio задаётся инлайном из vbW/vbH данных (theater-агностично — разные
+     очаги/карты имеют разный viewBox, не только 1000x700 карты СВО). */
   background: var(--bg-base);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
+  touch-action: pan-y;
+}
+.obs-geomap-frame--zoomed {
+  cursor: grab;
+  touch-action: none;
+}
+.obs-geomap-frame--zoomed:active {
+  cursor: grabbing;
 }
 
 .obs-geomap-svg {
@@ -4468,6 +4485,53 @@ details[open] > summary .obs-inst-chev,
   stroke: var(--accent);
   stroke-opacity: 1;
   stroke-width: 1.8;
+}
+
+/* Кластер зум-кнопок — правый нижний угол рамки, поверх карты (z-index выше и
+   svg, и HTML-маркеров). Приблизить/отдалить/сбросить — колёсико и перетаскивание
+   дублируют то же самое, кнопки нужны для тач/доступности без жестов. */
+.obs-geomap-zoomctl {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.obs-geomap-zoomctl button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+.obs-geomap-zoomctl button:not(:last-child) {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.obs-geomap-zoomctl button:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.obs-geomap-zoomctl button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.obs-geomap-zoomctl button:disabled {
+  color: var(--text-tertiary);
+  opacity: 0.4;
+  cursor: default;
 }
 
 .obs-geomap-method-note {

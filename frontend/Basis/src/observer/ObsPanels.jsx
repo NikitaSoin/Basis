@@ -36,6 +36,9 @@ import {
   Factory,
   Anchor,
   ArrowRight,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1789,6 +1792,17 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // Если открыты оба одновременно, приоритет у маркера (он визуально поверх области,
   // клик по нему просто не долетает до <path> под ним).
   const [selected, setSelected] = useState(null);
+  // "theater" — основная карта очага (СВО и т.п.); "russia" — доп. карта всей России
+  // целиком для ударов вглубь (за пределами приграничья основной карты) — переключатель
+  // рядом с фильтрами, независим от фильтра по типу события.
+  const [activeMap, setActiveMap] = useState("theater");
+  // Зум/пан — карта остаётся статичным SVG viewBox по умолчанию (zoom=1), приблизить
+  // можно колёсиком/кнопками, подвинуть — перетаскиванием (только когда приближено,
+  // иначе конфликтует с обычным кликом по маркеру/области на базовом масштабе).
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const frameRef = useRef(null);
+  const dragRef = useRef(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -1797,6 +1811,9 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     setStatus("loading");
     setSelected(null);
     setActiveType("all");
+    setActiveMap("theater");
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
     fetch(`${apiUrl}/api/market/geo-map/${theaterKey}`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => { if (!cancelled) { setData(d); setStatus("ready"); } })
@@ -1808,14 +1825,62 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // молча ничего не рендерим, никакого «ошибка загрузки».
   if (status !== "ready" || !data || !data.base_map) return null;
 
-  const waypoints = data.base_map.waypoints || {};
+  const russiaMap = data.russia_wide_map || null;
+  const onRussiaMap = activeMap === "russia" && russiaMap;
+  const activeBaseMap = onRussiaMap ? russiaMap.base_map : data.base_map;
+
+  const waypoints = activeBaseMap.waypoints || {};
   const wpEntries = Object.entries(waypoints);
-  const regions = data.base_map.regions || {};
+  const regions = activeBaseMap.regions || {};
   const regionEntries = Object.entries(regions);
   const controlLegend = data.base_map.control_legend || {};
-  const [, , vbW, vbH] = String(data.base_map.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
+  const [vbX, vbY, vbW, vbH] = String(activeBaseMap.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
 
-  const events = Array.isArray(data.events) ? data.events : [];
+  // Эффективный viewBox с учётом зума/пана — маркеры (HTML-оверлей поверх svg)
+  // считают свой % от НЕГО, а не от исходного vbW/vbH; сама SVG-разметка (области,
+  // точки-ориентиры) зумится/двигается «бесплатно» через атрибут viewBox браузером.
+  const effW = vbW / zoom, effH = vbH / zoom;
+  const clampPan = (p, z) => {
+    const w = vbW / z, h = vbH / z;
+    const maxX = Math.max(0, vbW - w), maxY = Math.max(0, vbH - h);
+    return { x: Math.min(Math.max(p.x, 0), maxX), y: Math.min(Math.max(p.y, 0), maxY) };
+  };
+  const effVB = { x: vbX + pan.x, y: vbY + pan.y, w: effW, h: effH };
+
+  const zoomBy = (factor, clientX, clientY) => {
+    const rect = frameRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const fx = clientX != null ? (clientX - rect.left) / rect.width : 0.5;
+    const fy = clientY != null ? (clientY - rect.top) / rect.height : 0.5;
+    const pointX = effVB.x + fx * effVB.w;
+    const pointY = effVB.y + fy * effVB.h;
+    const newZoom = Math.min(8, Math.max(1, zoom * factor));
+    const newW = vbW / newZoom, newH = vbH / newZoom;
+    setZoom(newZoom);
+    setPan(clampPan({ x: pointX - fx * newW - vbX, y: pointY - fy * newH - vbY }, newZoom));
+  };
+  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+  const onWheel = (e) => {
+    if (zoom === 1 && e.deltaY > 0) return; // не глотать обычный скролл страницы, если уже в базовом масштабе
+    e.preventDefault();
+    zoomBy(e.deltaY < 0 ? 1.25 : 0.8, e.clientX, e.clientY);
+  };
+  const onPointerDown = (e) => {
+    if (zoom <= 1) return;
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPan: pan };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e) => {
+    if (!dragRef.current) return;
+    const rect = frameRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const dxVb = -((e.clientX - dragRef.current.startX) / rect.width) * effVB.w;
+    const dyVb = -((e.clientY - dragRef.current.startY) / rect.height) * effVB.h;
+    setPan(clampPan({ x: dragRef.current.startPan.x + dxVb, y: dragRef.current.startPan.y + dyVb }, zoom));
+  };
+  const onPointerUp = () => { dragRef.current = null; };
+
+  const events = Array.isArray(onRussiaMap ? russiaMap.events : data.events) ? (onRussiaMap ? russiaMap.events : data.events) : [];
   const onMapEvents = events.filter((e) => e.waypoint && waypoints[e.waypoint]);
   const offMapEvents = events.filter((e) => e.off_map);
 
@@ -1838,14 +1903,19 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   return (
     <div className="obs-inst-card obs-geomap">
       <div className="obs-geomap-head">
-        <div className="obs-geomap-title"><Layers size={14} aria-hidden="true" /> Карта{regionLabel ? `: ${regionLabel}` : " очага"} — контроль территории, удары, инфраструктура</div>
-        {direction && (
+        <div className="obs-geomap-title">
+          <Layers size={14} aria-hidden="true" />
+          {onRussiaMap
+            ? "Удары вглубь России — вся территория"
+            : `Карта${regionLabel ? `: ${regionLabel}` : " очага"} — контроль территории, удары, инфраструктура`}
+        </div>
+        {!onRussiaMap && direction && (
           <span className="obs-region-card-dir" style={{ color: directionColor, borderColor: directionColor }}>{direction}</span>
         )}
         {data.as_of && <span className="obs-geomap-asof">срез на {data.as_of}</span>}
       </div>
 
-      {data.front_line_summary && <p className="obs-geomap-prose">{data.front_line_summary}</p>}
+      {!onRussiaMap && data.front_line_summary && <p className="obs-geomap-prose">{data.front_line_summary}</p>}
 
       <div className="obs-geomap-filterbar">
         <button
@@ -1861,9 +1931,30 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             onClick={() => setActiveType(type)}
           >{meta.label}</button>
         ))}
+        {russiaMap && (
+          <button
+            type="button"
+            className={`obs-chip obs-geomap-russia-toggle${onRussiaMap ? " obs-chip--active" : ""}`}
+            onClick={() => {
+              setActiveMap((m) => (m === "russia" ? "theater" : "russia"));
+              setSelected(null); setZoom(1); setPan({ x: 0, y: 0 });
+            }}
+          >
+            <Globe size={12} aria-hidden="true" /> {onRussiaMap ? "← Вернуться к очагу" : "Карта России целиком"}
+          </button>
+        )}
       </div>
 
-      <div className="obs-geomap-frame">
+      <div
+        className={`obs-geomap-frame${zoom > 1 ? " obs-geomap-frame--zoomed" : ""}`}
+        style={{ aspectRatio: `${vbW} / ${vbH}` }}
+        ref={frameRef}
+        onWheel={onWheel}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
         {/* Маркеры событий и off-map чипы — РАНЬШЕ svg в DOM (а не только визуально
             выше через z-index), специально ради порядка табуляции: клавиатурный
             пользователь должен сначала дойти до содержательных маркеров (описание/
@@ -1874,8 +1965,8 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             const w = waypoints[wpKey];
             const visible = evs.filter((e) => typeOk(e.type));
             if (!visible.length || !w) return null;
-            const leftPct = (w.x / vbW) * 100;
-            const topPct = (w.y / vbH) * 100;
+            const leftPct = ((w.x - effVB.x) / effVB.w) * 100;
+            const topPct = ((w.y - effVB.y) / effVB.h) * 100;
             return visible.map((ev, i) => {
               const offset = (i - (visible.length - 1) / 2) * 20;
               const meta = GEOMAP_TYPE_META[ev.type];
@@ -1923,7 +2014,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
 
         <svg
           className="obs-geomap-svg"
-          viewBox={data.base_map.viewbox}
+          viewBox={`${effVB.x} ${effVB.y} ${effVB.w} ${effVB.h}`}
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Раскраска областей — choropleth статуса контроля. Это НЕ рыночный
@@ -1934,7 +2025,9 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             {regionEntries.map(([slug, r]) => {
               const active = selected?.kind === "region" && selected.key === slug;
               const control = r.control === "ru" || r.control === "contested" ? r.control : "ua";
-              const label = `${r.name_ru}: ${controlLegend[control] || control}`;
+              // На карте России целиком нет понятия «статус контроля» — только название
+              // области для ориентации, без псевдо-статуса «под контролем Украины».
+              const label = onRussiaMap ? r.name_ru : `${r.name_ru}: ${controlLegend[control] || control}`;
               return (
                 <g
                   key={slug}
@@ -1992,21 +2085,29 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             })}
           </g>
         </svg>
+
+        <div className="obs-geomap-zoomctl">
+          <button type="button" onClick={() => zoomBy(1.25)} aria-label="Приблизить"><ZoomIn size={14} /></button>
+          <button type="button" onClick={() => zoomBy(0.8)} aria-label="Отдалить" disabled={zoom <= 1}><ZoomOut size={14} /></button>
+          <button type="button" onClick={resetView} aria-label="Сбросить масштаб" disabled={zoom === 1 && pan.x === 0 && pan.y === 0}><Maximize2 size={13} /></button>
+        </div>
       </div>
 
-      {data.base_map.note && (
-        <p className="obs-geomap-method-note"><Info size={11} aria-hidden="true" />{data.base_map.note}</p>
+      {activeBaseMap.note && (
+        <p className="obs-geomap-method-note"><Info size={11} aria-hidden="true" />{activeBaseMap.note}</p>
       )}
 
       <div className="obs-geomap-legend">
-        <div className="obs-geomap-legend-group">
-          {["ru", "contested", "ua"].map((c) => (
-            <span key={c} className="obs-geomap-legend-item">
-              <span className={`obs-geomap-legend-swatch obs-geomap-legend-swatch--${c}`} aria-hidden="true" />
-              {controlLegend[c] || c}
-            </span>
-          ))}
-        </div>
+        {!onRussiaMap && (
+          <div className="obs-geomap-legend-group">
+            {["ru", "contested", "ua"].map((c) => (
+              <span key={c} className="obs-geomap-legend-item">
+                <span className={`obs-geomap-legend-swatch obs-geomap-legend-swatch--${c}`} aria-hidden="true" />
+                {controlLegend[c] || c}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="obs-geomap-legend-group">
           {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
             <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
@@ -2017,7 +2118,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         </div>
       </div>
 
-      {data.black_sea_fleet_summary && <p className="obs-geomap-prose">{data.black_sea_fleet_summary}</p>}
+      {!onRussiaMap && data.black_sea_fleet_summary && <p className="obs-geomap-prose">{data.black_sea_fleet_summary}</p>}
 
       {selectedEvent && (
         <div className="obs-geomap-detail" role="region" aria-label="Детали события на карте">
@@ -2061,19 +2162,23 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           </button>
           <div className="obs-geomap-detail-head">
             <Layers size={15} aria-hidden="true" />
-            <span className={`obs-geomap-region-tag obs-geomap-region-tag--${["ru", "contested"].includes(selectedRegion.control) ? selectedRegion.control : "ua"}`}>
-              {controlLegend[selectedRegion.control] || selectedRegion.control}
-            </span>
-            {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
-                data_flags: Луганск и др. — предмет спора сторон) — эпистемический тег
-                обязателен на каждом аналитическом утверждении, как у событий выше. */}
-            <span className="obs-tag-estimate">оценка</span>
-            {selectedRegion.control_confidence && (
-              <span className="obs-geomap-confidence">confidence {selectedRegion.control_confidence}</span>
+            {!onRussiaMap && (
+              <>
+                <span className={`obs-geomap-region-tag obs-geomap-region-tag--${["ru", "contested"].includes(selectedRegion.control) ? selectedRegion.control : "ua"}`}>
+                  {controlLegend[selectedRegion.control] || selectedRegion.control}
+                </span>
+                {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
+                    data_flags: Луганск и др. — предмет спора сторон) — эпистемический тег
+                    обязателен на каждом аналитическом утверждении, как у событий выше. */}
+                <span className="obs-tag-estimate">оценка</span>
+                {selectedRegion.control_confidence && (
+                  <span className="obs-geomap-confidence">confidence {selectedRegion.control_confidence}</span>
+                )}
+              </>
             )}
           </div>
           <h4 className="obs-geomap-detail-title">{selectedRegion.name_ru}</h4>
-          {selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
+          {!onRussiaMap && selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
         </div>
       )}
 
