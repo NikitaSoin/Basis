@@ -168,3 +168,14 @@
     animation: none;
   }
 }
+
+/* Нижний фикс-таббар мобильной навигации (styles/mobile-nav.css, ≤760px)
+   перекрывал бы последние строки — .scmp-shell гасит padding-bottom
+   родителя (.app-main-top) отрицательным margin, клиренс добавляем панели
+   напрямую. 🔴 Известный отдельный дефект (не в скоупе этой правки):
+   .scmp-sidebar НЕ прячется на мобильном (нет медиа-запроса, в отличие от
+   .mkt-sidebar/.pf-sidebar) — фикс-сайдбар 260px давит контент на узких
+   экранах. Отдельная задача. */
+@media (max-width: 760px) {
+  .scmp-panel { padding-bottom: calc(72px + 68px + env(safe-area-inset-bottom, 0px)); }
+}

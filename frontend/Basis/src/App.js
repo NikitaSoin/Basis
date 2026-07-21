@@ -46,6 +46,7 @@ import {
   Newspaper,
   ExternalLink,
   Clock,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button, Card, Badge, Chip, Input, IconButton, Tooltip, Table, Delta, KpiTile, usePrefersReducedMotion, ComingSoonView } from "./design/primitives";
 import { formatMoney, formatPercent as fmtPercent, formatNumber, formatNumber as fmtNumber, formatMultiple } from "./design/format";
@@ -101,6 +102,7 @@ import { CompanyCard, CompaniesView, NEO_CARD, BondCard, FuturesCard, FundCard, 
 import AssistantView from "./AssistantView";
 import "./styles/compare.css";
 import ScreenerCompareView from "./screener/ScreenerCompareShell";
+import "./styles/mobile-nav.css";
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -453,6 +455,135 @@ const TOPNAV_ITEMS = [
   { id: "profile", label: "Профиль" },
 ];
 
+// =========================
+// МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ (≤760px, см. styles/mobile-nav.css)
+// =========================
+// Критичный баг (владелец, 2026-07-21, скриншоты с телефона): на портрете
+// шапка — одна строка (лого + 8 текстовых пунктов TOPNAV_ITEMS + поле поиска
+// шириной 200px) без переноса — поиск съедал половину ширины, 8 пунктов
+// сжимались в нечитаемую непрокручиваемую полоску; попасть в другой раздел
+// можно было только повернув телефон в альбомную ориентацию. Решение —
+// постоянный нижний таббар (паттерн Т-Инвестиций): 4 самых частых раздела
+// прямыми кнопками + «Ещё» открывает шторку с остальными. Тот же список
+// разделов, что TOPNAV_ITEMS, просто перегруппирован под маленький экран
+// (подписи короче — под иконкой в 75px ширины «Обозреватель» не влезает).
+const MOBILE_TAB_ITEMS = [
+  { id: "companies", label: "Рынок", icon: BarChart2 },
+  { id: "overview", label: "Обзор", icon: Newspaper },
+  { id: "portfolio", label: "Портфель", icon: Wallet },
+  { id: "screener", label: "Скринер", icon: SlidersHorizontal },
+];
+const MOBILE_MORE_ITEMS = [
+  { id: "stress", label: "Стресс-тест", icon: Zap },
+  { id: "ai", label: "Ассистент", icon: Sparkles },
+  { id: "pricing", label: "Тарифы", icon: CreditCard },
+  { id: "profile", label: "Профиль", icon: User },
+];
+
+function MobileTabBar({ activeTab, onNav, moreOpen, onToggleMore }) {
+  const moreActive = moreOpen || MOBILE_MORE_ITEMS.some((it) => it.id === activeTab);
+  return (
+    <nav className="mnav-tabbar" aria-label="Основная навигация">
+      {MOBILE_TAB_ITEMS.map((it) => {
+        const active = activeTab === it.id;
+        const Icon = it.icon;
+        return (
+          <button
+            key={it.id}
+            type="button"
+            onClick={() => onNav(it.id)}
+            aria-current={active || undefined}
+            className={`mnav-item${active ? " mnav-item--active" : ""}`}
+          >
+            <span className="mnav-item__icon" aria-hidden="true">
+              <Icon size={20} strokeWidth={active ? 2.25 : 1.85} />
+            </span>
+            <span>{it.label}</span>
+          </button>
+        );
+      })}
+      <button
+        type="button"
+        onClick={onToggleMore}
+        aria-haspopup="true"
+        aria-expanded={moreOpen}
+        className={`mnav-item${moreActive ? " mnav-item--active" : ""}`}
+      >
+        <span className="mnav-item__icon" aria-hidden="true">
+          <MoreHorizontal size={20} strokeWidth={moreActive ? 2.25 : 1.85} />
+        </span>
+        <span>Ещё</span>
+      </button>
+    </nav>
+  );
+}
+
+// Простая bottom-sheet шторка с оставшимися разделами. Escape/клик по скриму
+// закрывают; базовый focus-trap + возврат фокуса на триггер — тот же паттерн,
+// что AuthModal (account/AccountPanels.jsx). prefers-reduced-motion гасит
+// анимацию появления (CSS, mobile-nav.css) — здесь только логика/доступность.
+function MobileMoreSheet({ activeTab, onNav, onClose }) {
+  const sheetRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    triggerRef.current = document.activeElement;
+    const firstBtn = sheetRef.current?.querySelector("button");
+    firstBtn?.focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !sheetRef.current) return;
+      const focusable = Array.from(sheetRef.current.querySelectorAll("button:not([disabled])"));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey) {
+        if (active === first || !sheetRef.current.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !sheetRef.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (triggerRef.current && document.body.contains(triggerRef.current)) triggerRef.current.focus();
+    };
+  }, [onClose]);
+
+  return (
+    <div className="mnav-more-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div ref={sheetRef} className="mnav-more-sheet" role="dialog" aria-modal="true" aria-label="Остальные разделы">
+        <div className="mnav-more-handle" aria-hidden="true" />
+        <div className="mnav-more-title">Остальные разделы</div>
+        {MOBILE_MORE_ITEMS.map((it) => {
+          const active = activeTab === it.id;
+          const Icon = it.icon;
+          return (
+            <button
+              key={it.id}
+              type="button"
+              onClick={() => { onNav(it.id); onClose(); }}
+              aria-current={active || undefined}
+              className={`mnav-more-item${active ? " mnav-more-item--active" : ""}`}
+            >
+              <span className="mnav-more-item__icon" aria-hidden="true"><Icon size={17} /></span>
+              {it.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Поиск компании/тикера в шапке — подключён к /api/companies (не заглушка).
 function TopNavSearch({ onOpenCompany }) {
   const [items, setItems] = useState([]);
@@ -485,8 +616,8 @@ function TopNavSearch({ onOpenCompany }) {
     else if (e.key === "Escape") setOpen(false);
   };
   return (
-    <div ref={boxRef} className="tw-relative tw-flex-shrink-0">
-      <div className="tw-flex tw-items-center tw-gap-2 tw-h-9 tw-px-3 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-tertiary focus-within:tw-border-accent" style={{ minWidth: 200 }}>
+    <div ref={boxRef} className="tw-relative tw-flex-shrink-0 topnav-search-wrap">
+      <div className="tw-flex tw-items-center tw-gap-2 tw-h-9 tw-px-3 tw-rounded-md tw-border tw-border-border-subtle tw-bg-bg-elevated tw-text-text-tertiary focus-within:tw-border-accent topnav-search-box" style={{ minWidth: 200 }}>
         <Search size={15} />
         <input
           value={q}
@@ -525,18 +656,20 @@ function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany }) {
       className="tw-sticky tw-top-0 tw-z-40 tw-border-b tw-border-border-subtle"
       style={{ background: "color-mix(in srgb, var(--cc-bg, var(--bg-base)) 85%, transparent)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}
     >
-      <div className="tw-mx-auto tw-flex tw-h-[60px] tw-items-center tw-gap-6 tw-px-5 sm:tw-px-7" style={{ maxWidth: 1340 }}>
+      <div className="tw-mx-auto tw-flex tw-h-[60px] tw-items-center tw-gap-6 tw-px-5 sm:tw-px-7 topnav-row" style={{ maxWidth: 1340 }}>
         <button
           type="button"
           aria-label="Basis — на главную"
           onClick={() => onNav("landing")}
-          className="tw-appearance-none tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0"
+          className="tw-appearance-none tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 topnav-logo"
         >
           <BasisLogomark size={26} slit="var(--bg-base)" crisp />
           <span className="tw-font-display tw-text-[17px] tw-font-semibold tw-text-text-primary">Basis</span>
         </button>
 
-        <nav aria-label="Основная навигация" className="tw-flex tw-items-center tw-gap-0.5 tw-flex-1 tw-overflow-x-auto">
+        {/* >760px: полный список пунктов. ≤760px: скрыт (topnav-links, см.
+            mobile-nav.css) — переезжает в нижний фикс-таббар (MobileTabBar). */}
+        <nav aria-label="Основная навигация" className="tw-flex tw-items-center tw-gap-0.5 tw-flex-1 tw-overflow-x-auto topnav-links">
           {TOPNAV_ITEMS.map((it) => {
             const active = activeTab === it.id;
             return (
@@ -553,8 +686,12 @@ function TopNav({ activeTab, onNav, theme, toggleTheme, onOpenCompany }) {
           })}
         </nav>
 
-        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0">
-          <TopNavSearch onOpenCompany={onOpenCompany} />
+        {/* Отдельный флекс-элемент строки шапки (НЕ вложен в topnav-actions):
+            на ≤760px переезжает на вторую строку на всю ширину (order + flex-
+            basis:100% в mobile-nav.css), тема остаётся в первой строке. */}
+        <TopNavSearch onOpenCompany={onOpenCompany} />
+
+        <div className="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 topnav-actions">
           <IconButton
             aria-label={theme === "dark" ? "Светлая тема" : "Тёмная тема"}
             onClick={toggleTheme}
@@ -625,6 +762,9 @@ export default function App() {
   });
   const [token, setToken] = useState(() => localStorage.getItem("basis_token") || null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  // Шторка «Ещё» нижнего мобильного таббара (≤760px) — см. MobileTabBar/
+  // MobileMoreSheet выше и app-shell ниже.
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
 
   // Deep-link в карточку компании — два входа:
   // 1) /company/TICKER/[slug/] — основной URL страницы (см. scripts/generate-
@@ -698,6 +838,10 @@ export default function App() {
   const navigate = (tab) => {
     setActiveTab(tab);
     setSelectedCompany(null);
+    // Любая навигация закрывает мобильную шторку «Ещё», если была открыта —
+    // единая точка, покрывает и её собственные пункты, и обычные клики по
+    // TopNav/MobileTabBar.
+    setMobileMoreOpen(false);
     // Экранные оверлеи (карточка облигации/фьючерса/фонда/спота) рендерятся
     // ПОВЕРХ activeTab в renderView() — раньше только selectedCompany
     // сбрасывался тут, остальные оставались висеть, и клик по верхней
@@ -857,6 +1001,25 @@ export default function App() {
           </main>
         )}
       </div>
+
+      {/* Нижний фикс-таббар мобильной навигации (≤760px, display:none выше —
+          styles/mobile-nav.css) — не рендерим на посадочной странице, у неё
+          свой мобильный хром (LandingNeo). */}
+      {!isLanding && (
+        <MobileTabBar
+          activeTab={selectedCompany ? null : activeTab}
+          onNav={navigate}
+          moreOpen={mobileMoreOpen}
+          onToggleMore={() => setMobileMoreOpen((v) => !v)}
+        />
+      )}
+      {!isLanding && mobileMoreOpen && (
+        <MobileMoreSheet
+          activeTab={selectedCompany ? null : activeTab}
+          onNav={navigate}
+          onClose={() => setMobileMoreOpen(false)}
+        />
+      )}
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={handleLogin} />

@@ -169,4 +169,8 @@
   .mkt-sidebar { display: none; }
   .mkt-main { margin-left: 0; }
   .mkt-shell { margin-top: -16px; }
+  /* Нижний фикс-таббар (styles/mobile-nav.css) перекрывал бы последние
+     строки — .mkt-shell гасит padding-bottom родителя (.app-main-top)
+     отрицательным margin, поэтому клиренс добавляем панели напрямую. */
+  .mkt-panel { padding-bottom: calc(72px + 68px + env(safe-area-inset-bottom, 0px)); }
 }

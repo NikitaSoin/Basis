@@ -27,6 +27,15 @@
   .asst-wrap-outer { margin-top: -16px; margin-bottom: -64px; height: auto; }
 }
 
+/* Нижний фикс-таббар мобильной навигации (styles/mobile-nav.css, ≤760px)
+   перекрывал бы композер чата — на мобильном .asst-shell/.asst-wrap-outer
+   становятся height:auto (обычный поток страницы, не фикс-высота с
+   внутренним скроллом), поэтому клиренс добавляем через padding-bottom
+   самой обёртки. */
+@media (max-width: 760px) {
+  .asst-wrap-outer { padding-bottom: calc(24px + 68px + env(safe-area-inset-bottom, 0px)); }
+}
+
 /* Единая «плита» (сайдбар + чат внутри одной рамки) — буквально .card мокапа,
    применённый к .asst-shell целиком (не двум отдельным карточкам, как было
    раньше): 16px grid-gap — единственный визуальный шов между колонками. */

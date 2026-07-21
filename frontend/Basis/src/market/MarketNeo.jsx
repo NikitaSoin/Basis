@@ -758,7 +758,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [tab, setTab] = useState(() => persist("mk.tab", "stocks"));
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("Все");
-  const [stockView, setStockView] = useState(() => persist("mk.sview2", "rows"));
+  const [stockView, setStockView] = useState(() => persist("mk.sview3", "rows"));
 
   const [scored, setScored] = useState([]);
   const [capByTicker, setCapByTicker] = useState({}); // combined_market_cap (обычка+преф)
@@ -775,7 +775,7 @@ export default function MarketNeo({ onOpenCompany, onOpenBond, onOpenFuture, onO
   const [loading, setLoading] = useState(true);
 
   const saveTab = (t) => { setTab(t); setQuery(""); setSector("Все"); try { localStorage.setItem("mk.tab", t); } catch {} };
-  const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview2", v); } catch {} };
+  const saveSView = (v) => { setStockView(v); try { localStorage.setItem("mk.sview3", v); } catch {} };
 
   // акции (scored) + пульс + капитализации: загрузка при монтировании И периодическое
   // освежение, пока экран открыт (цены/капы идут из quotes, бэк обновляет ~раз в 5 мин —

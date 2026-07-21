@@ -1,0 +1,231 @@
+/* =============================================================
+   МОБИЛЬНАЯ НАВИГАЦИЯ (≤760px) — фикс критичного бага: верхняя шапка
+   (лого + 8 текстовых пунктов TOPNAV_ITEMS + поле поиска шириной 200px)
+   была ОДНОЙ строкой без переноса — на телефоне-портрете (375-430px) поле
+   поиска съедало половину ширины, восемь пунктов сжимались в нечитаемую
+   непрокручиваемую полоску; попасть в другой раздел можно было только
+   повернув телефон в альбомную ориентацию (владелец, 2026-07-21, скриншоты
+   с телефона). Брейкпоинт 760px — тот же, что уже использует market-
+   sidebar.css / market-m5.css для мобильного вида «Рынка» (единый брейк-
+   поинт по сайту).
+
+   Паттерн (владелец прислал скриншоты Т-Инвестиций как ориентир): TOPNAV_
+   ITEMS прячется и переезжает в постоянный нижний фикс-таббар (App.js,
+   MobileTabBar) — 4 частых раздела + «Ещё» (шторка с остальными). Шапка на
+   мобильном схлопывается в 2 строки: строка 1 — лого + переключатель темы,
+   строка 2 — поиск на всю ширину (см. .topnav-row ниже).
+
+   Десктоп/планшет (>760px) не тронуты: классы .topnav-row/.topnav-* добав-
+   лены НА ТЕ ЖЕ элементы TopNav, что и были, но каждое правило этого файла
+   живёт ВНУТРИ медиа-запроса ≤760px — вне него ничего не меняется.
+   ============================================================= */
+
+/* ---- Шапка: 1 строка → 2 строки на мобильном ---- */
+@media (max-width: 760px) {
+  .topnav-row {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 8px 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .topnav-row .topnav-links {
+    display: none;
+  }
+  .topnav-row .topnav-logo {
+    order: 1;
+  }
+  .topnav-row .topnav-actions {
+    order: 2;
+    margin-left: auto;
+  }
+  .topnav-row .topnav-search-wrap {
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  /* !important — точечно гасит инлайн style={{ minWidth: 200 }} у
+     TopNavSearch: на десктопе поле поиска — узкий флекс-айтем рядом с
+     навигацией (не трогаем), на мобильном ему нужна вся ширина 2-й строки. */
+  .topnav-row .topnav-search-box {
+    min-width: 0 !important;
+    width: 100%;
+  }
+}
+
+/* ---- Нижний фикс-таббар ---- */
+.mnav-tabbar {
+  display: none;
+}
+@media (max-width: 760px) {
+  .mnav-tabbar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-lg);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    gap: 2px;
+  }
+}
+
+.mnav-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 48px;
+  min-width: 44px;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--text-tertiary);
+  transition: color 150ms ease;
+}
+.mnav-item:hover {
+  color: var(--text-secondary);
+}
+.mnav-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.mnav-item.mnav-item--active {
+  color: var(--accent);
+}
+.mnav-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  transition: background 150ms ease;
+}
+.mnav-item.mnav-item--active .mnav-item__icon {
+  background: var(--accent-soft);
+}
+
+/* ---- Шторка «Ещё» (bottom sheet) ---- */
+.mnav-more-backdrop {
+  display: none;
+}
+@media (max-width: 760px) {
+  .mnav-more-backdrop {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    align-items: flex-end;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bs-deep) 55%, transparent);
+  }
+}
+.mnav-more-sheet {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-lg);
+  padding: 8px 10px calc(14px + env(safe-area-inset-bottom, 0px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mnav-more-sheet {
+    animation: mnavSheetIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@keyframes mnavSheetIn {
+  from {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.mnav-more-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  margin: 8px auto 12px;
+}
+.mnav-more-title {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  padding: 0 10px 8px;
+}
+.mnav-more-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 10px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+.mnav-more-item:hover {
+  background: var(--accent-soft);
+}
+.mnav-more-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.mnav-more-item.mnav-more-item--active {
+  color: var(--accent);
+}
+.mnav-more-item__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.mnav-more-item.mnav-more-item--active .mnav-more-item__icon {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---- Отступ снизу под фикс-таббар для основного контента ----
+   .app-main-top — общий контейнер renderView() (App.js). Этот файл
+   импортируется ПОСЛЕ styles.css (styles.css — из index.js до App.js,
+   этот — внутри App.js), поэтому здесь можно безопасно переопределить
+   его padding-bottom для ≤760px, не трогая styles.css. Полноширинные
+   full-bleed экраны (Рынок/Портфель/Скринер/Ассистент — .mkt-shell/
+   .pf-shell/.scmp-shell/.asst-wrap-outer гасят этот padding отрицательным
+   margin) получают свой собственный отступ в соответствующих *.css файлах. */
+@media (max-width: 760px) {
+  .app-main-top {
+    padding-bottom: calc(64px + 68px + env(safe-area-inset-bottom, 0px));
+  }
+}

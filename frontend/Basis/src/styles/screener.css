@@ -225,6 +225,11 @@
 /* drawer */
 .sc-scrim{position:fixed;inset:0;background:rgba(8,8,12,.42);z-index:80;}
 .sc-drawer{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;background:var(--bg);border-left:1px solid var(--line-2);z-index:81;padding:22px 24px;overflow-y:auto;box-shadow:-20px 0 50px rgba(0,0,0,.2);}
+/* На ≤760px нижний мобильный таббар (mobile-nav.css, z-index:100) перекрывает CTA
+   в подвале шторки — резервируем его высоту, тем же расчётом, что market-sidebar.css. */
+@media(max-width:760px){
+  .sc-drawer{ padding-bottom: calc(22px + 68px + env(safe-area-inset-bottom, 0px)); }
+}
 .sc-dr-head{display:flex;align-items:center;gap:13px;}
 .sc-dr-name{font-family:var(--cc-serif, "Fraunces", Georgia, serif);font-size:22px;font-weight:600;}
 .sc-dr-sub{font-family:var(--cc-mono, "IBM Plex Mono", monospace);font-size:12px;color:var(--ink-3);margin-top:2px;}
