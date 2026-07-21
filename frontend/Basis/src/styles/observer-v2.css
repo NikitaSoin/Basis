@@ -4412,12 +4412,81 @@ details[open] > summary .obs-inst-chev,
   width: 100%;
   height: 100%;
   display: block;
+  /* Маркеры/off-чипы идут РАНЬШЕ svg в DOM (порядок табуляции — см. JSX), поэтому
+     визуальный слой держим явным z-index, а не порядком отрисовки по умолчанию. */
+  z-index: 0;
 }
+
+/* ---- Choropleth: раскраска областей по статусу контроля ----
+   Это факт «чья территория» (как политическая карта ISW/Рыбарь), НЕ рыночный
+   сигнал good/bad — легитимное применение --danger/--warning к данным, цвет
+   в хроме карты по-прежнему не используется. ua — нейтральная база
+   (--bg-surface), почти не выделяется: это фон, а не акцент. Тонкая граница
+   --border-subtle держит контур каждой области видимым, как на настоящей карте;
+   у ru/contested граница окрашена в цвет статуса (чуть более насыщенно, чем
+   заливка) — усиливает читаемость линии соприкосновения между блоками. */
+.obs-geomap-region-group {
+  cursor: pointer;
+}
+.obs-geomap-region {
+  transition: fill-opacity 150ms ease, stroke 150ms ease, stroke-opacity 150ms ease, stroke-width 150ms ease;
+}
+.obs-geomap-region--ru {
+  fill: var(--danger);
+  fill-opacity: 0.16;
+  stroke: var(--danger);
+  stroke-opacity: 0.5;
+  stroke-width: 0.8;
+}
+.obs-geomap-region--contested {
+  fill: var(--warning);
+  fill-opacity: 0.2;
+  stroke: var(--warning);
+  stroke-opacity: 0.5;
+  stroke-width: 0.8;
+}
+.obs-geomap-region--ua {
+  fill: var(--bg-surface);
+  fill-opacity: 1;
+  stroke: var(--border-subtle);
+  stroke-opacity: 1;
+  stroke-width: 0.7;
+}
+/* Affordance при наведении/фокусе/выборе — общий приём поверх любого статуса
+   контроля (не переопределяет заливку-факт, только контур), тот же язык, что
+   у маркеров событий ниже (граница/цвет --accent на hover/focus-visible). */
+.obs-geomap-region-group:hover .obs-geomap-region,
+.obs-geomap-region-group:focus-visible .obs-geomap-region {
+  stroke: var(--accent);
+  stroke-opacity: 1;
+  stroke-width: 1.4;
+}
+.obs-geomap-region-group:focus-visible {
+  outline: none;
+}
+.obs-geomap-region-group--active .obs-geomap-region {
+  stroke: var(--accent);
+  stroke-opacity: 1;
+  stroke-width: 1.8;
+}
+
+.obs-geomap-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-tertiary);
+}
+.obs-geomap-method-note svg { flex-shrink: 0; margin-top: 2px; }
 
 .obs-geomap-markers {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 1;
 }
 
 .obs-geomap-marker {
@@ -4459,6 +4528,7 @@ details[open] > summary .obs-inst-chev,
 
 .obs-geomap-offchip {
   position: absolute;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -4505,12 +4575,24 @@ details[open] > summary .obs-inst-chev,
   .obs-geomap-marker:hover { transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%); }
   .obs-geomap-offchip { transition: none; }
   .obs-geomap-detail-close { transition: none; }
+  .obs-geomap-region { transition: none; }
 }
 
 .obs-geomap-legend {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obs-geomap-legend-group {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px 14px;
+}
+.obs-geomap-legend-group + .obs-geomap-legend-group {
+  padding-top: 6px;
+  border-top: 1px dashed var(--border-subtle);
 }
 
 .obs-geomap-legend-item {
@@ -4530,6 +4612,30 @@ details[open] > summary .obs-inst-chev,
   background: var(--text-tertiary);
   opacity: 0.6;
   display: inline-block;
+}
+
+/* Образцы choropleth-легенды — та же пара fill/stroke, что и у самих
+   областей на карте (см. .obs-geomap-region--*), только в масштабе иконки. */
+.obs-geomap-legend-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.obs-geomap-legend-swatch--ru {
+  background: var(--danger);
+  opacity: 0.55;
+  border: 1px solid var(--danger);
+}
+.obs-geomap-legend-swatch--contested {
+  background: var(--warning);
+  opacity: 0.6;
+  border: 1px solid var(--warning);
+}
+.obs-geomap-legend-swatch--ua {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
 }
 
 .obs-geomap-detail {
@@ -4601,6 +4707,36 @@ details[open] > summary .obs-inst-chev,
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+/* Тег статуса контроля в панели деталей региона — та же цветовая геометрия,
+   что заливка/легенда области (модификаторы --ru/--contested/--ua у
+   .obs-geomap-region и .obs-geomap-legend-swatch), в формате пилюли, как
+   соседние .obs-tag-fact/.obs-tag-estimate. */
+.obs-geomap-region-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.obs-geomap-region-tag--ru {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.obs-geomap-region-tag--contested {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.obs-geomap-region-tag--ua {
+  background: var(--bg-base);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
 }
 
 .obs-geomap-detail-title {

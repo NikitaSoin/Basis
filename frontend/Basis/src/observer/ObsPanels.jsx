@@ -1781,18 +1781,21 @@ const OBS_GEOMAP_EDGE_ROTATION = {
   left: 180, "bottom-left": 135, bottom: 90, "bottom-right": 45,
 };
 
-function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
+function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, directionColor }) {
   const [status, setStatus] = useState("loading"); // loading | ready | empty
   const [data, setData] = useState(null);
   const [activeType, setActiveType] = useState("all");
-  const [selectedId, setSelectedId] = useState(null);
+  // Единый выбор: либо маркер события, либо область карты — { kind: "event"|"region", key }.
+  // Если открыты оба одновременно, приоритет у маркера (он визуально поверх области,
+  // клик по нему просто не долетает до <path> под ним).
+  const [selected, setSelected] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   useEffect(() => {
     let cancelled = false;
     setStatus("loading");
-    setSelectedId(null);
+    setSelected(null);
     setActiveType("all");
     fetch(`${apiUrl}/api/market/geo-map/${theaterKey}`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
@@ -1807,6 +1810,9 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
 
   const waypoints = data.base_map.waypoints || {};
   const wpEntries = Object.entries(waypoints);
+  const regions = data.base_map.regions || {};
+  const regionEntries = Object.entries(regions);
+  const controlLegend = data.base_map.control_legend || {};
   const [, , vbW, vbH] = String(data.base_map.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
 
   const events = Array.isArray(data.events) ? data.events : [];
@@ -1819,29 +1825,23 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
     eventsByWaypoint.get(e.waypoint).push(e);
   });
 
-  // Линия соприкосновения — узлы kind:"front" в порядке, в котором они уже
-  // расставлены в данных (смысловой порядок с севера на юг через Донбасс).
-  const frontOrder = wpEntries.filter(([, w]) => w.kind === "front").map(([k]) => k);
-
-  // Мягкая область-подложка — по фактическому охвату координат (не привязана
-  // к конкретному очагу, подстроится под любой theater автоматически).
-  const xs = wpEntries.map(([, w]) => w.x);
-  const ys = wpEntries.map(([, w]) => w.y);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
-  const pad = Math.max(vbW, vbH) * 0.09;
-  const sheetX = Math.max(0, minX - pad), sheetY = Math.max(0, minY - pad);
-  const sheetW = Math.min(vbW, maxX + pad) - sheetX;
-  const sheetH = Math.min(vbH, maxY + pad) - sheetY;
-
   const anchorFor = (x) => (x < vbW * 0.14 ? "start" : x > vbW * 0.86 ? "end" : "middle");
   const typeOk = (t) => activeType === "all" || activeType === t;
-  const selectedEvent = selectedId ? events.find((e) => e.id === selectedId) : null;
+
+  const selectEvent = (id) => setSelected((prev) => (prev?.kind === "event" && prev.key === id ? null : { kind: "event", key: id }));
+  const selectRegion = (slug) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug }));
+  const closeDetail = () => setSelected(null);
+
+  const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
+  const selectedRegion = selected?.kind === "region" ? regions[selected.key] : null;
 
   return (
     <div className="obs-inst-card obs-geomap">
       <div className="obs-geomap-head">
-        <div className="obs-geomap-title"><Layers size={14} aria-hidden="true" /> Карта{regionLabel ? `: ${regionLabel}` : " очага"} — линия фронта, удары, инфраструктура</div>
+        <div className="obs-geomap-title"><Layers size={14} aria-hidden="true" /> Карта{regionLabel ? `: ${regionLabel}` : " очага"} — контроль территории, удары, инфраструктура</div>
+        {direction && (
+          <span className="obs-region-card-dir" style={{ color: directionColor, borderColor: directionColor }}>{direction}</span>
+        )}
         {data.as_of && <span className="obs-geomap-asof">срез на {data.as_of}</span>}
       </div>
 
@@ -1864,62 +1864,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
       </div>
 
       <div className="obs-geomap-frame">
-        <svg
-          className="obs-geomap-svg"
-          viewBox={data.base_map.viewbox}
-          preserveAspectRatio="xMidYMid meet"
-          aria-hidden="true"
-          focusable="false"
-        >
-          {sheetW > 0 && sheetH > 0 && (
-            <rect
-              x={sheetX} y={sheetY} width={sheetW} height={sheetH}
-              rx={Math.min(sheetW, sheetH) * 0.06}
-              fill="var(--bg-surface)" stroke="var(--border-subtle)" strokeWidth="1.5"
-            />
-          )}
-
-          {frontOrder.length > 1 && (
-            <polyline
-              points={frontOrder.map((k) => `${waypoints[k].x},${waypoints[k].y}`).join(" ")}
-              fill="none" stroke="var(--text-tertiary)" strokeWidth="2.25"
-              strokeDasharray="7 6" strokeLinecap="round" opacity="0.85"
-            />
-          )}
-
-          {wpEntries.map(([k, w]) => {
-            const hasMarker = eventsByWaypoint.has(k) && eventsByWaypoint.get(k).some((e) => typeOk(e.type));
-            // "landmark" (напр. Новороссийск) — важная точка вне линии соприкосновения:
-            // рисуется полноразмерной, как "front", но НЕ входит в пунктир линии фронта
-            // (frontOrder ниже фильтрует строго kind==="front"). Приглушены только "context".
-            const muted = w.kind === "context";
-            const anchor = anchorFor(w.x);
-            const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
-            return (
-              <g key={k}>
-                {!hasMarker && (
-                  <circle
-                    cx={w.x} cy={w.y} r={muted ? 3 : 4.5}
-                    fill={muted ? "var(--text-tertiary)" : "var(--text-secondary)"}
-                    opacity={muted ? 0.55 : 1}
-                    stroke={muted ? "none" : "var(--bg-elevated)"}
-                    strokeWidth={muted ? 0 : 1.5}
-                  />
-                )}
-                <text
-                  x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
-                  textAnchor={anchor}
-                  fontFamily="Inter, system-ui, sans-serif"
-                  fontSize={muted ? 9.5 : 10.5}
-                  fontWeight={muted ? 400 : 600}
-                  fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
-                  opacity={muted ? 0.8 : 1}
-                >{w.label}</text>
-              </g>
-            );
-          })}
-        </svg>
-
+        {/* Маркеры событий и off-map чипы — РАНЬШЕ svg в DOM (а не только визуально
+            выше через z-index), специально ради порядка табуляции: клавиатурный
+            пользователь должен сначала дойти до содержательных маркеров (описание/
+            источник), а не протабать все 31 почти неразличимую область. Визуальный
+            порядок (области фон, маркеры поверх) держит z-index в CSS, не DOM-порядок. */}
         <div className="obs-geomap-markers">
           {[...eventsByWaypoint.entries()].map(([wpKey, evs]) => {
             const w = waypoints[wpKey];
@@ -1931,14 +1880,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
               const offset = (i - (visible.length - 1) / 2) * 20;
               const meta = GEOMAP_TYPE_META[ev.type];
               const Icon = meta?.icon || AlertTriangle;
-              const active = selectedId === ev.id;
+              const active = selected?.kind === "event" && selected.key === ev.id;
               return (
                 <button
                   key={ev.id}
                   type="button"
                   className={`obs-geomap-marker${ev.stale ? " obs-geomap-marker--stale" : ""}${active ? " obs-geomap-marker--active" : ""}`}
                   style={{ left: `${leftPct}%`, top: `${topPct}%`, "--geomap-offset": `${offset}px` }}
-                  onClick={() => setSelectedId(active ? null : ev.id)}
+                  onClick={() => selectEvent(ev.id)}
                   aria-label={`${meta?.label || ev.type}: ${ev.label}`}
                   aria-pressed={active}
                 >
@@ -1954,14 +1903,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
           const Icon = meta?.icon || AlertTriangle;
           const edge = ev.off_map?.edge || "right";
           const rot = OBS_GEOMAP_EDGE_ROTATION[edge] ?? 0;
-          const active = selectedId === ev.id;
+          const active = selected?.kind === "event" && selected.key === ev.id;
           return (
             <button
               key={ev.id}
               type="button"
               className={`obs-geomap-offchip${ev.stale ? " obs-geomap-offchip--stale" : ""}${active ? " obs-geomap-offchip--active" : ""}`}
               style={OBS_GEOMAP_EDGE_STYLE[edge] || OBS_GEOMAP_EDGE_STYLE.right}
-              onClick={() => setSelectedId(active ? null : ev.id)}
+              onClick={() => selectEvent(ev.id)}
               aria-label={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
               aria-pressed={active}
             >
@@ -1971,22 +1920,108 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
             </button>
           );
         })}
+
+        <svg
+          className="obs-geomap-svg"
+          viewBox={data.base_map.viewbox}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Раскраска областей — choropleth статуса контроля. Это НЕ рыночный
+              сигнал good/bad, а факт «чья территория» (см. конституцию: легитимное
+              применение --danger/--warning к данным, не к хрому). ua — нейтральная
+              база на --bg-surface, почти не выделяется, это фон, а не акцент. */}
+          <g className="obs-geomap-regions">
+            {regionEntries.map(([slug, r]) => {
+              const active = selected?.kind === "region" && selected.key === slug;
+              const control = r.control === "ru" || r.control === "contested" ? r.control : "ua";
+              const label = `${r.name_ru}: ${controlLegend[control] || control}`;
+              return (
+                <g
+                  key={slug}
+                  className={`obs-geomap-region-group${active ? " obs-geomap-region-group--active" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={label}
+                  aria-pressed={active}
+                  onClick={() => selectRegion(slug)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectRegion(slug); }
+                  }}
+                >
+                  <title>{label}</title>
+                  <path d={r.path_d} className={`obs-geomap-region obs-geomap-region--${control}`} />
+                  {/* Мелкие области (Севастополь, Киев-город) физически меньше тач-таргета —
+                      невидимый круг побольше поверх центроида ловит клик/тап рядом,
+                      не расширяя саму видимую заливку. */}
+                  {r.hit_radius && (
+                    <circle cx={r.centroid.x} cy={r.centroid.y} r={r.hit_radius} fill="transparent" />
+                  )}
+                </g>
+              );
+            })}
+          </g>
+
+          <g aria-hidden="true">
+            {wpEntries.map(([k, w]) => {
+              const hasMarker = eventsByWaypoint.has(k) && eventsByWaypoint.get(k).some((e) => typeOk(e.type));
+              const muted = !!w.muted;
+              const anchor = anchorFor(w.x);
+              const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
+              return (
+                <g key={k}>
+                  {!hasMarker && (
+                    <circle
+                      cx={w.x} cy={w.y} r={muted ? 3 : 4.5}
+                      fill={muted ? "var(--text-tertiary)" : "var(--text-secondary)"}
+                      opacity={muted ? 0.55 : 1}
+                      stroke={muted ? "none" : "var(--bg-elevated)"}
+                      strokeWidth={muted ? 0 : 1.5}
+                    />
+                  )}
+                  <text
+                    x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
+                    textAnchor={anchor}
+                    fontFamily="Inter, system-ui, sans-serif"
+                    fontSize={muted ? 9.5 : 10.5}
+                    fontWeight={muted ? 400 : 600}
+                    fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
+                    opacity={muted ? 0.8 : 1}
+                  >{w.label}</text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
       </div>
 
+      {data.base_map.note && (
+        <p className="obs-geomap-method-note"><Info size={11} aria-hidden="true" />{data.base_map.note}</p>
+      )}
+
       <div className="obs-geomap-legend">
-        {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
-          <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
-        ))}
-        <span className="obs-geomap-legend-item obs-geomap-legend-item--muted">
-          <span className="obs-geomap-legend-dot" aria-hidden="true" />Ориентир на карте
-        </span>
+        <div className="obs-geomap-legend-group">
+          {["ru", "contested", "ua"].map((c) => (
+            <span key={c} className="obs-geomap-legend-item">
+              <span className={`obs-geomap-legend-swatch obs-geomap-legend-swatch--${c}`} aria-hidden="true" />
+              {controlLegend[c] || c}
+            </span>
+          ))}
+        </div>
+        <div className="obs-geomap-legend-group">
+          {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
+            <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
+          ))}
+          <span className="obs-geomap-legend-item obs-geomap-legend-item--muted">
+            <span className="obs-geomap-legend-dot" aria-hidden="true" />Ориентир на карте
+          </span>
+        </div>
       </div>
 
       {data.black_sea_fleet_summary && <p className="obs-geomap-prose">{data.black_sea_fleet_summary}</p>}
 
       {selectedEvent && (
         <div className="obs-geomap-detail" role="region" aria-label="Детали события на карте">
-          <button type="button" className="obs-geomap-detail-close" onClick={() => setSelectedId(null)} aria-label="Закрыть детали">
+          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
             <X size={14} />
           </button>
           <div className="obs-geomap-detail-head">
@@ -2016,6 +2051,29 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
                 : <span>{selectedEvent.source}</span>
             )}
           </div>
+        </div>
+      )}
+
+      {selectedRegion && (
+        <div className="obs-geomap-detail" role="region" aria-label="Детали региона на карте">
+          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
+            <X size={14} />
+          </button>
+          <div className="obs-geomap-detail-head">
+            <Layers size={15} aria-hidden="true" />
+            <span className={`obs-geomap-region-tag obs-geomap-region-tag--${["ru", "contested"].includes(selectedRegion.control) ? selectedRegion.control : "ua"}`}>
+              {controlLegend[selectedRegion.control] || selectedRegion.control}
+            </span>
+            {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
+                data_flags: Луганск и др. — предмет спора сторон) — эпистемический тег
+                обязателен на каждом аналитическом утверждении, как у событий выше. */}
+            <span className="obs-tag-estimate">оценка</span>
+            {selectedRegion.control_confidence && (
+              <span className="obs-geomap-confidence">confidence {selectedRegion.control_confidence}</span>
+            )}
+          </div>
+          <h4 className="obs-geomap-detail-title">{selectedRegion.name_ru}</h4>
+          {selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
         </div>
       )}
 
@@ -2318,9 +2376,18 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             полноширинный obs-inst-card, компонент сам вернёт null, если для
                             очага ещё нет geo_map_<theater>.json — Ближний Восток/АТР появятся
                             автоматически, без правки кода, когда появятся их файлы. */}
-                        {GEO_REGION_META.map(({ key, label }) => (
-                          <ObsGeoTheaterMap key={key} theaterKey={key} regionLabel={label} token={token} />
-                        ))}
+                        {GEO_REGION_META.map(({ key, label }) => {
+                          const r = baro.regions[key];
+                          const esc = /эскалац/i.test(r?.direction || "");
+                          const desc = /деэскалац/i.test(r?.direction || "");
+                          const dirColor = esc ? "var(--danger)" : desc ? "var(--success)" : "var(--text-tertiary)";
+                          return (
+                            <ObsGeoTheaterMap
+                              key={key} theaterKey={key} regionLabel={label} token={token}
+                              direction={r?.direction} directionColor={dirColor}
+                            />
+                          );
+                        })}
                       </div>
                     )}
 
