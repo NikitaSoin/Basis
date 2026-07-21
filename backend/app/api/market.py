@@ -562,6 +562,25 @@ def market_geo_barometer():
         return JSONResponse(content=_json.load(f))
 
 
+@router.get("/market/geo-map/{theater}")
+def market_geo_map(theater: str):
+    """Интерактивная карта очага (Обозреватель, «Оценка ситуации» → карта): линия
+    фронта, удары, критическая инфраструктура, военные базы, флот — координатный
+    слой поверх барометра (geo_barometer.json.regions остаётся текстовым описанием).
+    Файл config/geo_map_<theater>.json, theater из фиксированного списка очагов.
+    Источники — ISW (карты CC BY, можно переиспользовать с атрибуцией) + Рыбарь
+    (пересказ фактов, не копирование картинок)."""
+    import json as _json
+    if theater not in ("svo", "middle_east", "atr"):
+        raise HTTPException(status_code=404, detail="Неизвестный очаг")
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "config", f"geo_map_{theater}.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Карта очага ещё не сформирована")
+    with open(path, encoding="utf-8") as f:
+        return JSONResponse(content=_json.load(f))
+
+
 @router.get("/market/geopolitics/{region}")
 def market_geopolitics_region(region: str, tab: str = "deep",
                               db: Session = Depends(get_db), user=Depends(get_current_user_optional)):

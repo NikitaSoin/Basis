@@ -32,6 +32,10 @@ import {
   RotateCcw,
   XCircle,
   Users,
+  Zap,
+  Factory,
+  Anchor,
+  ArrowRight,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1744,6 +1748,283 @@ function ObsMacroArticles({ token }) {
 }
 
 // =========================
+// OBS GEO THEATER MAP — интерактивная карта очага («Оценка ситуации» →
+// GEO_REGION_META карточка): линия фронта, удары, критическая инфраструктура,
+// базы и войска, флот. Данные: GET /api/market/geo-map/{theater} →
+// backend/config/geo_map_<theater>.json. Компонент театр-агностичен: если
+// файла для очага ещё нет (404), рендерит null — новые очаги (Ближний
+// Восток, АТР) появятся сами, без правки кода, когда появятся их файлы.
+// =========================
+
+const GEOMAP_TYPE_META = {
+  front_shift:    { label: "Линия фронта",   icon: Swords    },
+  strike:         { label: "Удары",          icon: Zap       },
+  critical_infra: { label: "Инфраструктура", icon: Factory   },
+  military_base:  { label: "Базы и войска",  icon: Building2 },
+  fleet:          { label: "Флот",           icon: Anchor    },
+};
+
+// Позиционирование чипов «за кадром» (удары далеко за пределами viewBox) —
+// прижаты к соответствующему краю рамки карты; стрелка повёрнута «наружу».
+const OBS_GEOMAP_EDGE_STYLE = {
+  right:          { top: "50%",    right: "8px",  transform: "translateY(-50%)" },
+  left:           { top: "50%",    left: "8px",   transform: "translateY(-50%)" },
+  top:            { top: "8px",    left: "50%",   transform: "translateX(-50%)" },
+  bottom:         { bottom: "8px", left: "50%",   transform: "translateX(-50%)" },
+  "top-right":    { top: "8px",    right: "8px" },
+  "top-left":     { top: "8px",    left: "8px" },
+  "bottom-right": { bottom: "8px", right: "8px" },
+  "bottom-left":  { bottom: "8px", left: "8px" },
+};
+const OBS_GEOMAP_EDGE_ROTATION = {
+  right: 0, "top-right": -45, top: -90, "top-left": -135,
+  left: 180, "bottom-left": 135, bottom: 90, "bottom-right": 45,
+};
+
+function ObsGeoTheaterMap({ theaterKey, regionLabel, token }) {
+  const [status, setStatus] = useState("loading"); // loading | ready | empty
+  const [data, setData] = useState(null);
+  const [activeType, setActiveType] = useState("all");
+  const [selectedId, setSelectedId] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  useEffect(() => {
+    let cancelled = false;
+    setStatus("loading");
+    setSelectedId(null);
+    setActiveType("all");
+    fetch(`${apiUrl}/api/market/geo-map/${theaterKey}`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (!cancelled) { setData(d); setStatus("ready"); } })
+      .catch(() => { if (!cancelled) setStatus("empty"); });
+    return () => { cancelled = true; };
+  }, [theaterKey, apiUrl]);
+
+  // Осознанное отсутствие данных (карта для этого очага ещё не собрана) —
+  // молча ничего не рендерим, никакого «ошибка загрузки».
+  if (status !== "ready" || !data || !data.base_map) return null;
+
+  const waypoints = data.base_map.waypoints || {};
+  const wpEntries = Object.entries(waypoints);
+  const [, , vbW, vbH] = String(data.base_map.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
+
+  const events = Array.isArray(data.events) ? data.events : [];
+  const onMapEvents = events.filter((e) => e.waypoint && waypoints[e.waypoint]);
+  const offMapEvents = events.filter((e) => e.off_map);
+
+  const eventsByWaypoint = new Map();
+  onMapEvents.forEach((e) => {
+    if (!eventsByWaypoint.has(e.waypoint)) eventsByWaypoint.set(e.waypoint, []);
+    eventsByWaypoint.get(e.waypoint).push(e);
+  });
+
+  // Линия соприкосновения — узлы kind:"front" в порядке, в котором они уже
+  // расставлены в данных (смысловой порядок с севера на юг через Донбасс).
+  const frontOrder = wpEntries.filter(([, w]) => w.kind === "front").map(([k]) => k);
+
+  // Мягкая область-подложка — по фактическому охвату координат (не привязана
+  // к конкретному очагу, подстроится под любой theater автоматически).
+  const xs = wpEntries.map(([, w]) => w.x);
+  const ys = wpEntries.map(([, w]) => w.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const pad = Math.max(vbW, vbH) * 0.09;
+  const sheetX = Math.max(0, minX - pad), sheetY = Math.max(0, minY - pad);
+  const sheetW = Math.min(vbW, maxX + pad) - sheetX;
+  const sheetH = Math.min(vbH, maxY + pad) - sheetY;
+
+  const anchorFor = (x) => (x < vbW * 0.14 ? "start" : x > vbW * 0.86 ? "end" : "middle");
+  const typeOk = (t) => activeType === "all" || activeType === t;
+  const selectedEvent = selectedId ? events.find((e) => e.id === selectedId) : null;
+
+  return (
+    <div className="obs-inst-card obs-geomap">
+      <div className="obs-geomap-head">
+        <div className="obs-geomap-title"><Layers size={14} aria-hidden="true" /> Карта{regionLabel ? `: ${regionLabel}` : " очага"} — линия фронта, удары, инфраструктура</div>
+        {data.as_of && <span className="obs-geomap-asof">срез на {data.as_of}</span>}
+      </div>
+
+      {data.front_line_summary && <p className="obs-geomap-prose">{data.front_line_summary}</p>}
+
+      <div className="obs-geomap-filterbar">
+        <button
+          type="button"
+          className={`obs-chip${activeType === "all" ? " obs-chip--active" : ""}`}
+          onClick={() => setActiveType("all")}
+        >Все</button>
+        {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
+          <button
+            key={type}
+            type="button"
+            className={`obs-chip${activeType === type ? " obs-chip--active" : ""}`}
+            onClick={() => setActiveType(type)}
+          >{meta.label}</button>
+        ))}
+      </div>
+
+      <div className="obs-geomap-frame">
+        <svg
+          className="obs-geomap-svg"
+          viewBox={data.base_map.viewbox}
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+          focusable="false"
+        >
+          {sheetW > 0 && sheetH > 0 && (
+            <rect
+              x={sheetX} y={sheetY} width={sheetW} height={sheetH}
+              rx={Math.min(sheetW, sheetH) * 0.06}
+              fill="var(--bg-surface)" stroke="var(--border-subtle)" strokeWidth="1.5"
+            />
+          )}
+
+          {frontOrder.length > 1 && (
+            <polyline
+              points={frontOrder.map((k) => `${waypoints[k].x},${waypoints[k].y}`).join(" ")}
+              fill="none" stroke="var(--text-tertiary)" strokeWidth="2.25"
+              strokeDasharray="7 6" strokeLinecap="round" opacity="0.85"
+            />
+          )}
+
+          {wpEntries.map(([k, w]) => {
+            const hasMarker = eventsByWaypoint.has(k) && eventsByWaypoint.get(k).some((e) => typeOk(e.type));
+            // "landmark" (напр. Новороссийск) — важная точка вне линии соприкосновения:
+            // рисуется полноразмерной, как "front", но НЕ входит в пунктир линии фронта
+            // (frontOrder ниже фильтрует строго kind==="front"). Приглушены только "context".
+            const muted = w.kind === "context";
+            const anchor = anchorFor(w.x);
+            const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
+            return (
+              <g key={k}>
+                {!hasMarker && (
+                  <circle
+                    cx={w.x} cy={w.y} r={muted ? 3 : 4.5}
+                    fill={muted ? "var(--text-tertiary)" : "var(--text-secondary)"}
+                    opacity={muted ? 0.55 : 1}
+                    stroke={muted ? "none" : "var(--bg-elevated)"}
+                    strokeWidth={muted ? 0 : 1.5}
+                  />
+                )}
+                <text
+                  x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
+                  textAnchor={anchor}
+                  fontFamily="Inter, system-ui, sans-serif"
+                  fontSize={muted ? 9.5 : 10.5}
+                  fontWeight={muted ? 400 : 600}
+                  fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
+                  opacity={muted ? 0.8 : 1}
+                >{w.label}</text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <div className="obs-geomap-markers">
+          {[...eventsByWaypoint.entries()].map(([wpKey, evs]) => {
+            const w = waypoints[wpKey];
+            const visible = evs.filter((e) => typeOk(e.type));
+            if (!visible.length || !w) return null;
+            const leftPct = (w.x / vbW) * 100;
+            const topPct = (w.y / vbH) * 100;
+            return visible.map((ev, i) => {
+              const offset = (i - (visible.length - 1) / 2) * 20;
+              const meta = GEOMAP_TYPE_META[ev.type];
+              const Icon = meta?.icon || AlertTriangle;
+              const active = selectedId === ev.id;
+              return (
+                <button
+                  key={ev.id}
+                  type="button"
+                  className={`obs-geomap-marker${ev.stale ? " obs-geomap-marker--stale" : ""}${active ? " obs-geomap-marker--active" : ""}`}
+                  style={{ left: `${leftPct}%`, top: `${topPct}%`, "--geomap-offset": `${offset}px` }}
+                  onClick={() => setSelectedId(active ? null : ev.id)}
+                  aria-label={`${meta?.label || ev.type}: ${ev.label}`}
+                  aria-pressed={active}
+                >
+                  <Icon size={13} aria-hidden="true" />
+                </button>
+              );
+            });
+          })}
+        </div>
+
+        {offMapEvents.filter((e) => typeOk(e.type)).map((ev) => {
+          const meta = GEOMAP_TYPE_META[ev.type];
+          const Icon = meta?.icon || AlertTriangle;
+          const edge = ev.off_map?.edge || "right";
+          const rot = OBS_GEOMAP_EDGE_ROTATION[edge] ?? 0;
+          const active = selectedId === ev.id;
+          return (
+            <button
+              key={ev.id}
+              type="button"
+              className={`obs-geomap-offchip${ev.stale ? " obs-geomap-offchip--stale" : ""}${active ? " obs-geomap-offchip--active" : ""}`}
+              style={OBS_GEOMAP_EDGE_STYLE[edge] || OBS_GEOMAP_EDGE_STYLE.right}
+              onClick={() => setSelectedId(active ? null : ev.id)}
+              aria-label={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
+              aria-pressed={active}
+            >
+              <ArrowRight size={11} style={{ transform: `rotate(${rot}deg)` }} aria-hidden="true" />
+              <Icon size={12} aria-hidden="true" />
+              <span>{ev.off_map?.distance_label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="obs-geomap-legend">
+        {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
+          <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
+        ))}
+        <span className="obs-geomap-legend-item obs-geomap-legend-item--muted">
+          <span className="obs-geomap-legend-dot" aria-hidden="true" />Ориентир на карте
+        </span>
+      </div>
+
+      {data.black_sea_fleet_summary && <p className="obs-geomap-prose">{data.black_sea_fleet_summary}</p>}
+
+      {selectedEvent && (
+        <div className="obs-geomap-detail" role="region" aria-label="Детали события на карте">
+          <button type="button" className="obs-geomap-detail-close" onClick={() => setSelectedId(null)} aria-label="Закрыть детали">
+            <X size={14} />
+          </button>
+          <div className="obs-geomap-detail-head">
+            {(() => {
+              const M = GEOMAP_TYPE_META[selectedEvent.type]?.icon || AlertTriangle;
+              return <M size={15} aria-hidden="true" />;
+            })()}
+            <span className="obs-geomap-detail-type">{GEOMAP_TYPE_META[selectedEvent.type]?.label || selectedEvent.type}</span>
+            <span className={selectedEvent.epistemic === "оценка" ? "obs-tag-estimate" : "obs-tag-fact"}>
+              {selectedEvent.epistemic || "факт"}
+            </span>
+            {selectedEvent.confidence && (
+              <span className="obs-geomap-confidence">confidence {selectedEvent.confidence}</span>
+            )}
+            {selectedEvent.stale && (
+              <span className="obs-geomap-stale-badge"><AlertTriangle size={11} aria-hidden="true" />нет свежих данных</span>
+            )}
+          </div>
+          <h4 className="obs-geomap-detail-title">{selectedEvent.label}</h4>
+          {selectedEvent.description && <p className="obs-geomap-detail-desc">{selectedEvent.description}</p>}
+          {selectedEvent.note && <p className="obs-geomap-detail-note">{selectedEvent.note}</p>}
+          <div className="obs-geomap-detail-foot">
+            {selectedEvent.date && <span>{selectedEvent.date}</span>}
+            {selectedEvent.source && (
+              selectedEvent.source_url
+                ? <a href={selectedEvent.source_url} target="_blank" rel="noreferrer">{selectedEvent.source} ↗</a>
+                : <span>{selectedEvent.source}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      <ObsBaroCaveat flags={data.data_flags} />
+    </div>
+  );
+}
+
+// =========================
 // OBS GEOPOLITICS — Обозреватель · Разбор · Геополитика
 // Регион-фильтр (чипы) + сег-переключатель Обзор/Оценка ситуации +
 // deep-card по прототипу (тёмная карточка с суждением Basis).
@@ -2030,6 +2311,16 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                             );
                           })}
                         </div>
+
+                        {/* Карты очагов — ВНЕ узкой 3-колоночной сетки (obs-region-grid,
+                            minmax(260px,1fr) слишком тесно для читаемой интерактивной карты
+                            с подписями — ОТК персоны это подтвердил). Каждая карта — свой
+                            полноширинный obs-inst-card, компонент сам вернёт null, если для
+                            очага ещё нет geo_map_<theater>.json — Ближний Восток/АТР появятся
+                            автоматически, без правки кода, когда появятся их файлы. */}
+                        {GEO_REGION_META.map(({ key, label }) => (
+                          <ObsGeoTheaterMap key={key} theaterKey={key} regionLabel={label} token={token} />
+                        ))}
                       </div>
                     )}
 

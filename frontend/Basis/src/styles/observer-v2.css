@@ -4333,3 +4333,317 @@ details[open] > summary .obs-inst-chev,
   font-size: 12px;
   color: var(--text-tertiary);
 }
+
+/* =============================================================
+   GEO THEATER MAP — obs-geomap-*
+   Интерактивная карта очага внутри .obs-region-card («Оценка ситуации»,
+   Геополитика). Схематичная SVG-подложка (линия фронта, точки-ориентиры) +
+   HTML-оверлей кликабельных маркеров событий (доступность/тач проще на
+   реальных <button>, чем на SVG <g role="button">). Цвет — только для
+   интерактивности (медь --accent), сами события монохромны — это не
+   рыночный сигнал good/bad, а военные факты.
+   ============================================================= */
+/* .obs-geomap применяется ВМЕСТЕ с .obs-inst-card (полноширинная карточка,
+   фон/бордер/паддинг оттуда) — сама по себе задаёт только внутреннюю раскладку. */
+.obs-geomap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.obs-geomap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.obs-geomap-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.obs-geomap-title svg { color: var(--text-tertiary); flex-shrink: 0; }
+
+.obs-geomap-asof {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.obs-geomap-prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.obs-geomap-filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+/* Компактнее базового .obs-chip — переиспользуем ту же визуальную грамматику
+   (пилюля/бордер/hover/active/focus-visible из .obs-chip), только меньше
+   шрифт под плотный ряд фильтров; padding подобран так, чтобы тач-таргет
+   оставался ≥24px (WCAG 2.5.8) даже при уменьшенном шрифте. */
+.obs-geomap-filterbar .obs-chip {
+  padding: 7px 12px;
+  font-size: 11px;
+}
+
+.obs-geomap-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 700;
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.obs-geomap-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.obs-geomap-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.obs-geomap-marker {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border-strong);
+  color: var(--text-secondary);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: var(--shadow-sm);
+  transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%);
+  transition: transform 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+.obs-geomap-marker:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%) scale(1.12);
+}
+.obs-geomap-marker:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.obs-geomap-marker--active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-hover, var(--accent));
+}
+.obs-geomap-marker--stale {
+  opacity: 0.5;
+}
+
+.obs-geomap-offchip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 48%;
+  min-height: 24px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+.obs-geomap-offchip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.obs-geomap-offchip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.obs-geomap-offchip:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.obs-geomap-offchip--active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-hover, var(--accent));
+}
+.obs-geomap-offchip--stale {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obs-geomap-marker { transition: none; }
+  .obs-geomap-marker:hover { transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%); }
+  .obs-geomap-offchip { transition: none; }
+  .obs-geomap-detail-close { transition: none; }
+}
+
+.obs-geomap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.obs-geomap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+.obs-geomap-legend-item svg { color: var(--text-tertiary); flex-shrink: 0; }
+.obs-geomap-legend-item--muted { color: var(--text-tertiary); }
+
+.obs-geomap-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  opacity: 0.6;
+  display: inline-block;
+}
+
+.obs-geomap-detail {
+  position: relative;
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 14px 34px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obs-geomap-detail-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+.obs-geomap-detail-close:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.obs-geomap-detail-close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.obs-geomap-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.obs-geomap-detail-head > svg { color: var(--text-tertiary); flex-shrink: 0; }
+
+.obs-geomap-detail-type {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+}
+
+.obs-geomap-stale-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+/* Надёжность источника отдельно от эпистемики факт/оценка — H/M/L, тот же
+   паттерн, что "confidence {baro.scenario.confidence}" у сценария выше. */
+.obs-geomap-confidence {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.obs-geomap-detail-title {
+  margin: 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.obs-geomap-detail-desc {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.obs-geomap-detail-note {
+  margin: 0;
+  font-size: 11.5px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+
+.obs-geomap-detail-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.obs-geomap-detail-foot a {
+  color: var(--accent-hover, var(--accent));
+  text-decoration: none;
+}
+.obs-geomap-detail-foot a:hover { text-decoration: underline; }
+.obs-geomap-detail-foot a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-radius: 2px;
+}
