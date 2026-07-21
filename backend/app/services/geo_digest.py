@@ -54,6 +54,9 @@ SOURCE_LABELS = {
     "rerussia": "re: Russia",
     "economist_europe": "The Economist", "economist_mea": "The Economist",
     "economist_china": "The Economist", "economist_finance": "The Economist",
+    "isw": "ISW",
+    "tg_baunov": "Баунов (Carnegie)", "tg_agabuev": "Габуев (Carnegie)",
+    "tg_markettwits": "MarketTwits",
 }
 
 
@@ -119,13 +122,37 @@ def _fetch_rss(src: dict) -> list[dict]:
     return out
 
 
+def _fetch_telegram(src: dict) -> list[dict]:
+    """Публичный Телеграм-канал через веб-превью t.me/s/ (владелец, 2026-07-21).
+    Только публичные каналы; закрытые/инвайт-only — нужен Client API (не здесь).
+    src['channel'] — @username / username."""
+    from app.services.agent_telegram import fetch_telegram_posts
+    res = fetch_telegram_posts(src.get("channel") or src["key"], limit=src.get("limit", 15))
+    if res.get("error"):
+        raise RuntimeError(f"telegram {src.get('channel')}: {res['error']}")
+    out = []
+    for p in res.get("posts", []):
+        text = (p.get("text") or "").strip()
+        if len(text) < 30 or not p.get("url"):  # служебные/пустые посты пропускаем
+            continue
+        # заголовок — первая строка/предложение поста (для карточки дайджеста)
+        first = re.split(r"[\n.!?]", text, 1)[0].strip()
+        title = (first[:90] + "…") if len(first) > 90 else (first or res.get("title") or src["key"])
+        out.append({"title": title, "text": text[:_TEXT_CHARS],
+                    "url": p["url"], "date_raw": p.get("date") or "", "src": src["key"]})
+    return out
+
+
 def fetch_all(cfg: dict) -> tuple[list[dict], list[str]]:
     arts, blind = [], []
     for src in cfg.get("sources", []):
         if not src.get("enabled", True):
             continue
         try:
-            got = _fetch_wp_json(src) if src["method"] == "wp_json" else _fetch_rss(src)
+            method = src["method"]
+            got = (_fetch_wp_json(src) if method == "wp_json"
+                   else _fetch_telegram(src) if method == "telegram"
+                   else _fetch_rss(src))
             if src.get("no_pubdate"):
                 # источник не публикует дату нигде (проверено вручную) — раз статья в
                 # текущей ротации фида, она свежая; день неизвестен, ставим дату

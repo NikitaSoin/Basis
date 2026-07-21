@@ -136,3 +136,12 @@ def web_search_endpoint(q: str):
     if not q or len(q) < 3:
         return {"error": "query_too_short"}
     return web_search(q, 5)
+
+
+@router.get("/agents/telegram/{channel}")
+def telegram_channel_endpoint(channel: str, limit: int = 12):
+    """Последние посты ПУБЛИЧНОГО Телеграм-канала через веб-превью t.me/s/.
+    Закрытые/инвайт-only каналы так не читаются (нужен Client API). Egress-нюанс
+    прода — как у остального внешнего (agent_web.py)."""
+    from app.services.agent_telegram import fetch_telegram_posts
+    return fetch_telegram_posts(channel, max(1, min(int(limit or 12), 30)))

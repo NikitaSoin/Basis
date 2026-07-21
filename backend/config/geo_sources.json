@@ -1,50 +1,214 @@
 {
   "_comment": "Источники Направления 7 (Геополитика). РОЛИ: event — событийный слой (вкладка Обзор); analysis — аналитический слой (вкладка Глубокая аналитика). Источники в выдаче НЕ показываются (geo_methodology.md, раздел 7). Состав/юридическую сторону определяет ВЛАДЕЛЕЦ. method: wp_json | rss | html. Парсер устойчив к смене вёрстки: пустой результат → алерт.",
   "sources": [
-    {"key": "rybar", "role": "event", "method": "wp_json",
-     "url": "https://rybar.ru/wp-json/wp/v2/posts", "params": {"per_page": 30},
-     "regions": ["svo", "middle_east", "atr"], "enabled": true},
-    {"key": "rybar_middle_east", "role": "event", "method": "wp_json",
-     "url": "https://rybar.ru/wp-json/wp/v2/posts", "params": {"per_page": 20, "tags": "367"},
-     "regions": ["middle_east"], "enabled": true,
-     "_note": "Тег «Ближний Восток» (id 367) у Рыбаря напрямую — общая свежая лента (per_page=20) почти всегда занята СВО и вытесняет ближневосточные посты, хотя Рыбарь публикует их постоянно. Проверено 2026-07-11."},
-    {"key": "rybar_atr", "role": "event", "method": "wp_json",
-     "url": "https://rybar.ru/wp-json/wp/v2/posts",
-     "params": {"per_page": 20, "tags": "28,155,106,92,99,85"},
-     "regions": ["atr"], "enabled": true,
-     "_note": "Теги Китай(28)+Тайвань(155)+Юж.Корея(106)+Япония(92)+Индия(99)+АТР(85) у Рыбаря — та же проблема вытеснения общей лентой, что и Ближний Восток."},
-    {"key": "globalaffairs", "role": "both", "method": "rss",
-     "url": "https://globalaffairs.ru/feed/",
-     "regions": ["svo", "middle_east", "atr"], "enabled": true},
-    {"key": "carnegie", "role": "analysis", "method": "rss",
-     "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
-     "regions": ["svo", "middle_east"], "enabled": false,
-     "_disabled_reason": "Сайт carnegieendowment.org перешёл на Next.js SPA — RSS удалён отовсюду (проверено 2026-07-11: /posts/feed, /rss/all, /russia-eurasia/rss, /politika/rss, /feed, /ru/rss — все отдают HTML-заглушку 200 вместо XML). Рабочего адреса не нашлось; включить обратно, если Carnegie восстановит фид."},
-    {"key": "rerussia", "role": "analysis", "method": "rss",
-     "url": "https://re-russia.net/feed-ru.xml",
-     "regions": ["svo"], "enabled": true, "no_pubdate": true,
-     "_note": "RSS-фид и страницы статей не публикуют дату (ни <pubDate>, ни og:article:published_time, ни JSON-LD) — проверено 2026-07-11. Раз статья в текущей ротации фида — она свежая, день неизвестен; geo_digest.py честно ставит дату обнаружения (не выдуманную задним числом), см. no_pubdate."},
-    {"key": "economist_europe", "role": "both", "method": "rss",
-     "url": "https://www.economist.com/europe/rss.xml",
-     "regions": ["svo"], "enabled": true},
-    {"key": "economist_mea", "role": "both", "method": "rss",
-     "url": "https://www.economist.com/middle-east-and-africa/rss.xml",
-     "regions": ["middle_east"], "enabled": true},
-    {"key": "economist_china", "role": "both", "method": "rss",
-     "url": "https://www.economist.com/china/rss.xml",
-     "regions": ["atr"], "enabled": true},
-    {"key": "economist_finance", "role": "analysis", "method": "rss",
-     "url": "https://www.economist.com/finance-and-economics/rss.xml",
-     "regions": ["svo", "middle_east", "atr"], "enabled": true,
-     "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."},
-    {"key": "isw", "role": "analysis", "method": "wp_json",
-     "url": "https://www.understandingwar.org/wp-json/wp/v2/posts", "params": {"per_page": 15},
-     "regions": ["svo", "middle_east", "atr"], "enabled": true,
-     "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."}
+    {
+      "key": "rybar",
+      "role": "event",
+      "method": "wp_json",
+      "url": "https://rybar.ru/wp-json/wp/v2/posts",
+      "params": {
+        "per_page": 30
+      },
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "rybar_middle_east",
+      "role": "event",
+      "method": "wp_json",
+      "url": "https://rybar.ru/wp-json/wp/v2/posts",
+      "params": {
+        "per_page": 20,
+        "tags": "367"
+      },
+      "regions": [
+        "middle_east"
+      ],
+      "enabled": true,
+      "_note": "Тег «Ближний Восток» (id 367) у Рыбаря напрямую — общая свежая лента (per_page=20) почти всегда занята СВО и вытесняет ближневосточные посты, хотя Рыбарь публикует их постоянно. Проверено 2026-07-11."
+    },
+    {
+      "key": "rybar_atr",
+      "role": "event",
+      "method": "wp_json",
+      "url": "https://rybar.ru/wp-json/wp/v2/posts",
+      "params": {
+        "per_page": 20,
+        "tags": "28,155,106,92,99,85"
+      },
+      "regions": [
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "Теги Китай(28)+Тайвань(155)+Юж.Корея(106)+Япония(92)+Индия(99)+АТР(85) у Рыбаря — та же проблема вытеснения общей лентой, что и Ближний Восток."
+    },
+    {
+      "key": "globalaffairs",
+      "role": "both",
+      "method": "rss",
+      "url": "https://globalaffairs.ru/feed/",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "carnegie",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://carnegieendowment.org/posts/feed/?lang=ru",
+      "regions": [
+        "svo",
+        "middle_east"
+      ],
+      "enabled": false,
+      "_disabled_reason": "Сайт carnegieendowment.org перешёл на Next.js SPA — RSS удалён отовсюду (проверено 2026-07-11: /posts/feed, /rss/all, /russia-eurasia/rss, /politika/rss, /feed, /ru/rss — все отдают HTML-заглушку 200 вместо XML). Рабочего адреса не нашлось; включить обратно, если Carnegie восстановит фид.",
+      "_note": "RSS Carnegie мёртв (0 статей, сайт перешёл на SPA без RSS) — отключён 2026-07-21; аналитика Карнеги идёт через телеграм-каналы экспертов ниже"
+    },
+    {
+      "key": "rerussia",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://re-russia.net/feed-ru.xml",
+      "regions": [
+        "svo"
+      ],
+      "enabled": true,
+      "no_pubdate": true,
+      "_note": "RSS-фид и страницы статей не публикуют дату (ни <pubDate>, ни og:article:published_time, ни JSON-LD) — проверено 2026-07-11. Раз статья в текущей ротации фида — она свежая, день неизвестен; geo_digest.py честно ставит дату обнаружения (не выдуманную задним числом), см. no_pubdate."
+    },
+    {
+      "key": "economist_europe",
+      "role": "both",
+      "method": "rss",
+      "url": "https://www.economist.com/europe/rss.xml",
+      "regions": [
+        "svo"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "economist_mea",
+      "role": "both",
+      "method": "rss",
+      "url": "https://www.economist.com/middle-east-and-africa/rss.xml",
+      "regions": [
+        "middle_east"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "economist_china",
+      "role": "both",
+      "method": "rss",
+      "url": "https://www.economist.com/china/rss.xml",
+      "regions": [
+        "atr"
+      ],
+      "enabled": true
+    },
+    {
+      "key": "economist_finance",
+      "role": "analysis",
+      "method": "rss",
+      "url": "https://www.economist.com/finance-and-economics/rss.xml",
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "Западный взгляд на институциональную/макро-ситуацию — замена FT/Bloomberg: у обоих ToS прямо запрещает редистрибуцию без лицензии, у FT ещё и paywall без публичного RSS (проверено 2026-07-11). The Economist отдаёт заголовок+тизер по открытому RSS — этого достаточно для классификации+пересказа."
+    },
+    {
+      "key": "isw",
+      "role": "analysis",
+      "method": "wp_json",
+      "url": "https://www.understandingwar.org/wp-json/wp/v2/posts",
+      "params": {
+        "per_page": 15
+      },
+      "regions": [
+        "svo",
+        "middle_east",
+        "atr"
+      ],
+      "enabled": true,
+      "_note": "Institute for the Study of War — ежедневные Russian Offensive Campaign Assessment / Iran Update / China & Taiwan Update, покрывают все три региона напрямую. Полный текст через wp_json content.rendered (проверено 2026-07-11, отчёты 20-60 тыс. симв.) — пересказ ограничен _TEXT_CHARS как у остальных источников. Карты фронта у ISW лицензированы CC BY (в отличие от Рыбаря) — кандидат для будущей задачи по картинкам."
+    },
+    {
+      "key": "tg_baunov",
+      "method": "telegram",
+      "channel": "baunovhaus",
+      "limit": 12,
+      "no_pubdate": false,
+      "_about": "Александр Баунов (Carnegie) — геополитика/Россия"
+    },
+    {
+      "key": "tg_agabuev",
+      "method": "telegram",
+      "channel": "agabuev",
+      "limit": 12,
+      "_about": "Александр Габуев (Carnegie) — внешняя политика/АТР"
+    },
+    {
+      "key": "tg_markettwits",
+      "method": "telegram",
+      "channel": "markettwits",
+      "limit": 15,
+      "_about": "MarketTwits — оперативка по рынку/геополитике"
+    }
   ],
   "region_keywords": {
-    "svo": ["украин", "сво", "донба", "фронт", "запорож", "херсон", "купянск", "санкци", "офз", "москв", "киев", "нато", "переговор", "обстрел", "удар по"],
-    "middle_east": ["израил", "иран", "газ", "ближн", "сири", "ливан", "хути", "красное море", "ормуз", "саудов", "нефт", "опек", "хамас", "хезболл"],
-    "atr": ["китай", "тайван", "корея", "япони", "южно-китайск", "индия", "атр", "тихоокеан", "юань"]
+    "svo": [
+      "украин",
+      "сво",
+      "донба",
+      "фронт",
+      "запорож",
+      "херсон",
+      "купянск",
+      "санкци",
+      "офз",
+      "москв",
+      "киев",
+      "нато",
+      "переговор",
+      "обстрел",
+      "удар по"
+    ],
+    "middle_east": [
+      "израил",
+      "иран",
+      "газ",
+      "ближн",
+      "сири",
+      "ливан",
+      "хути",
+      "красное море",
+      "ормуз",
+      "саудов",
+      "нефт",
+      "опек",
+      "хамас",
+      "хезболл"
+    ],
+    "atr": [
+      "китай",
+      "тайван",
+      "корея",
+      "япони",
+      "южно-китайск",
+      "индия",
+      "атр",
+      "тихоокеан",
+      "юань"
+    ]
   }
 }
