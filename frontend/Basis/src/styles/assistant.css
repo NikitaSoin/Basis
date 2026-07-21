@@ -520,3 +520,29 @@ button.asst-ref:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accen
   .asst-typing span { animation: none; opacity: 0.6; }
   .asst-suggest:active { transform: none; }
 }
+
+/* Демо-панель разбора документа по ссылке (2026-07-21) */
+.asst-docpanel { margin-top: 22px; text-align: left; max-width: 620px; width: 100%;
+  background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 12px; padding: 16px 18px; }
+.asst-docpanel-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14.5px; color: var(--text-primary); }
+.asst-docpanel-demo { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--warning);
+  background: var(--warning-soft); padding: 2px 7px; border-radius: 999px; font-weight: 700; }
+.asst-docpanel-sub { font-size: 12.5px; color: var(--text-tertiary); margin: 6px 0 12px; line-height: 1.5; }
+.asst-docpanel-row { display: flex; gap: 8px; }
+.asst-docpanel-input { flex: 1; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 8px;
+  background: var(--bg-base); color: var(--text-primary); font-size: 13.5px; font-family: var(--font-mono, monospace); }
+.asst-docpanel-btn { padding: 9px 16px; border: 0; border-radius: 8px; background: var(--accent); color: #fff;
+  font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.asst-docpanel-btn:disabled { opacity: .6; cursor: default; }
+.asst-docpanel-err { margin-top: 12px; font-size: 13px; color: var(--danger); background: var(--danger-soft);
+  padding: 10px 12px; border-radius: 8px; line-height: 1.5; }
+.asst-docpanel-res { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.asst-docpanel-type { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-tertiary); font-weight: 600; }
+.asst-docpanel-summary { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin: 0; }
+.asst-docpanel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.asst-docpanel-table td { padding: 6px 6px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+.asst-docpanel-table td.num { text-align: right; font-family: var(--font-mono, monospace); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-primary); }
+.asst-docpanel-table td.note { color: var(--text-tertiary); font-size: 12px; }
+.asst-docpanel-list { margin: 4px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+.asst-docpanel-risks { font-size: 12.5px; color: var(--text-secondary); background: var(--bg-surface); padding: 10px 12px; border-radius: 8px; line-height: 1.55; }
+.asst-docpanel-foot { font-size: 11px; color: var(--text-tertiary); }

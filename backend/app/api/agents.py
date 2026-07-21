@@ -111,3 +111,28 @@ def trigger_bond_review(secid: str, force: bool = False, db: Session = Depends(g
     row = run_bond_review(db, secid)
     return {"id": row.id, "status": row.status, "gate_notes": row.gate_notes,
             "tokens_used": row.tokens_used, "content": row.content, "from_cache": False}
+
+
+# ─────────── Разбор документа по ссылке (PDF/HTML) + веб-поиск ───────────
+
+@router.post("/agents/analyze-document")
+def analyze_document_endpoint(payload: dict):
+    """Открыть документ по URL (PDF-отчётность МСФО/РСБУ или веб-страница) и
+    вернуть структурный разбор — демонстрация «файл приходит агенту, он его
+    анализирует». Egress-нюанс: на проде внешний хост может быть недоступен без
+    релея (см. agent_web.py) — тогда честная ошибка, не падение."""
+    from app.services.document_analyst import analyze_document
+    url = str(payload.get("url", "")).strip()
+    if not url:
+        return {"error": "no_url"}
+    return analyze_document(url, question=(payload.get("question") or None))
+
+
+@router.get("/agents/web-search")
+def web_search_endpoint(q: str):
+    """Демо веб-поиска (для отладки/проверки, что поиск с сервера вообще
+    проходит). Возвращает провайдера и результаты либо ошибку egress."""
+    from app.services.agent_web import web_search
+    if not q or len(q) < 3:
+        return {"error": "query_too_short"}
+    return web_search(q, 5)

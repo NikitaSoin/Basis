@@ -29,20 +29,34 @@ class AgentRunError(RuntimeError):
     pass
 
 
+# инструменты с внешним доступом — их вызовы дороги/медленны, ограничиваем счётчиком
+_WEB_TOOLS = {"web_search", "fetch_document"}
+
+
 def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[dict],
-              allowed_ticker: str, max_steps: int = 8, max_tokens_total: int = 40_000) -> dict:
+              allowed_ticker: str, max_steps: int = 8, max_tokens_total: int = 40_000,
+              web_call_cap: int = 2) -> dict:
     """Возвращает {"result": dict|None, "trace": list, "tokens_used": int,
-    "stopped_reason": str}. result=None — агент не дал валидного JSON-финала."""
+    "stopped_reason": str}. result=None — агент не дал валидного JSON-финала.
+    web_call_cap — сколько раз всего разрешён веб-поиск/открытие документа: после
+    исчерпания веб-инструменты убираются из схемы (не даём агенту зациклиться на
+    поиске — реальная проблема без кэпа: 7 web_search → max_steps без ответа)."""
     messages: list[dict] = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": task},
     ]
     trace: list[dict] = []
     tokens_used = 0
+    web_calls = 0
 
     for step in range(1, max_steps + 1):
+        # когда веб-бюджет исчерпан — не предлагаем веб-инструменты дальше
+        step_tools = tools_schema
+        if web_calls >= web_call_cap:
+            step_tools = [t for t in tools_schema
+                          if (t.get("function") or {}).get("name") not in _WEB_TOOLS]
         try:
-            resp = complete_messages(messages, tools=tools_schema, max_tokens=1600, temperature=0.2)
+            resp = complete_messages(messages, tools=step_tools, max_tokens=1600, temperature=0.2)
         except LLMError as e:
             trace.append({"step": step, "event": "llm_error", "detail": str(e)})
             return {"result": None, "trace": trace, "tokens_used": tokens_used,
@@ -82,6 +96,8 @@ def run_agent(db: Session, *, system_prompt: str, task: str, tools_schema: list[
                 args = json.loads(fn.get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}
+            if name in _WEB_TOOLS:
+                web_calls += 1
             out = execute_tool(db, name, args, allowed_ticker)
             payload = json.dumps(out, ensure_ascii=False)
             trace.append({"step": step, "event": "tool", "name": name,

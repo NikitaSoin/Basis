@@ -10,10 +10,78 @@ import {
   User,
   AlertTriangle,
   PanelLeft,
+  FileSearch,
 } from "lucide-react";
 import "./styles/assistant.css";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+// DocAnalyzePanel — демо «файл приходит агенту, он его анализирует» (владелец,
+// 2026-07-21): вставь ссылку на PDF-отчётность МСФО/РСБУ или веб-страницу —
+// агент открывает документ (pypdf для PDF), DeepSeek структурирует разбор.
+// Бэк: POST /api/agents/analyze-document {url}. Egress-нюанс: на проде внешний
+// хост может быть недоступен без релея — тогда честная ошибка, не падение.
+function DocAnalyzePanel() {
+  const [url, setUrl] = useState("");
+  const [res, setRes] = useState(null);
+  const [state, setState] = useState("idle"); // idle | loading | error
+  const run = () => {
+    if (!/^https?:\/\//.test(url.trim())) { setState("error"); setRes({ error: "bad_url" }); return; }
+    setState("loading"); setRes(null);
+    fetch(`${API}/api/agents/analyze-document`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: url.trim() }),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setRes(d); setState(d.error ? "error" : "done"); })
+      .catch(() => { setRes({ error: "network" }); setState("error"); });
+  };
+  return (
+    <div className="asst-docpanel">
+      <div className="asst-docpanel-head"><FileSearch size={16} /> Разбор документа по ссылке <span className="asst-docpanel-demo">демо</span></div>
+      <p className="asst-docpanel-sub">Вставьте ссылку на PDF-отчётность (МСФО/РСБУ) или страницу — агент откроет и структурирует разбор.</p>
+      <div className="asst-docpanel-row">
+        <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") run(); }}
+          placeholder="https://…/report.pdf" className="asst-docpanel-input" />
+        <button type="button" onClick={run} disabled={state === "loading"} className="asst-docpanel-btn">
+          {state === "loading" ? "Читаю документ…" : "Разобрать"}
+        </button>
+      </div>
+      {res?.error && (
+        <div className="asst-docpanel-err">
+          {res.error === "bad_url" ? "Нужна прямая ссылка http(s)://"
+            : res.error === "fetch_failed" ? (res.note || "Документ не открылся (возможно, egress-ограничение сервера).")
+            : res.error === "empty_text" ? (res.note || "Текст не извлёкся (вероятно скан-PDF без текстового слоя).")
+            : res.error === "llm_unavailable" ? "Интерпретатор временно недоступен."
+            : "Не удалось разобрать документ."}
+        </div>
+      )}
+      {res && !res.error && (
+        <div className="asst-docpanel-res">
+          <div className="asst-docpanel-type">{res.doc_type}</div>
+          <p className="asst-docpanel-summary">{res.summary}</p>
+          {res.key_figures?.length > 0 && (
+            <table className="asst-docpanel-table"><tbody>
+              {res.key_figures.map((k, i) => (
+                <tr key={i}><td>{k.metric}</td><td className="num">{k.value}</td><td className="note">{k.note}</td></tr>
+              ))}
+            </tbody></table>
+          )}
+          {res.highlights?.length > 0 && (
+            <ul className="asst-docpanel-list">{res.highlights.map((h, i) => <li key={i}>{h}</li>)}</ul>
+          )}
+          {res.risks_or_caveats?.length > 0 && (
+            <div className="asst-docpanel-risks"><b>На что обратить внимание:</b> {res.risks_or_caveats.join(" · ")}</div>
+          )}
+          <div className="asst-docpanel-foot">
+            Источник: {res.source?.kind?.toUpperCase()} · {res.source?.chars} симв. · разбор ИИ (демо), не аудит.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Ассистент Basis — глобальный ИИ-чат. НЕ брокер, НЕ рекомендации «купить/продать».
 // Контракт бэка: POST /api/assistant/ask, GET/DELETE /api/assistant/conversations.
@@ -276,6 +344,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                     <button key={s} type="button" className="asst-suggest" onClick={() => doSend(s)}>{s}</button>
                   ))}
                 </div>
+                <DocAnalyzePanel />
               </div>
             ) : (
               <>

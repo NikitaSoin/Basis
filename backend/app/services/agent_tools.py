@@ -186,10 +186,55 @@ REVIEW_TOOLS_SCHEMA = TOOLS_SCHEMA + [
     },
 ]
 
+# Полная схема для ревизора: внутренние инструменты + веб-поиск/документы.
+# Определена после WEB_TOOLS_SCHEMA (ниже) — присваивается в конце модуля.
+
+
+# Веб-инструменты (владелец, 2026-07-21): поиск в сети + открытие/разбор
+# документов (PDF-отчётность). Тикер-агностичны — обрабатываются в диспетчере
+# ДО проверки allowed_ticker. Прод-нюанс egress — см. agent_web.py.
+WEB_TOOLS_SCHEMA = [
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Поиск в интернете: свежие новости/факты, которых нет во внутренней базе платформы. Возвращает заголовки, ссылки, сниппеты.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Поисковый запрос по-русски"},
+                    "max_results": {"type": "integer", "description": "1-8, по умолчанию 5"},
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "fetch_document",
+            "description": "Открыть документ по URL и вернуть его ТЕКСТ (PDF-отчётность МСФО/РСБУ → извлечение текста; веб-страница → очищенный текст). Для анализа первоисточника.",
+            "parameters": {
+                "type": "object",
+                "properties": {"url": {"type": "string", "description": "Прямая ссылка (http/https), в т.ч. на .pdf"}},
+                "required": ["url"],
+            },
+        },
+    },
+]
+
 
 def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dict:
     """Диспетчер. allowed_ticker — агенту разрешён ТОЛЬКО его тикер (не даём
-    пилоту гулять по всей базе — бюджет и предсказуемость)."""
+    пилоту гулять по всей базе — бюджет и предсказуемость). Веб-инструменты
+    тикеро-агностичны."""
+    # веб-инструменты — до проверки тикера
+    if name == "web_search":
+        from app.services.agent_web import web_search
+        return web_search(str(args.get("query", "")), int(args.get("max_results", 5) or 5))
+    if name == "fetch_document":
+        from app.services.agent_web import fetch_document
+        return fetch_document(str(args.get("url", "")))
     t = str(args.get("ticker", allowed_ticker)).upper()
     if t != allowed_ticker.upper():
         return {"error": "ticker_not_allowed", "note": f"Доступен только {allowed_ticker}"}
@@ -206,3 +251,8 @@ def execute_tool(db: Session, name: str, args: dict, allowed_ticker: str) -> dic
     if name == "get_geo_barometer":
         return _get_geo_barometer()
     return {"error": "unknown_tool"}
+
+
+# Ревизор с веб-доступом (поиск + документы) — предпочтительная схема для
+# card_review_agent, когда внутренних данных может не хватить.
+REVIEW_TOOLS_WEB_SCHEMA = REVIEW_TOOLS_SCHEMA + WEB_TOOLS_SCHEMA
