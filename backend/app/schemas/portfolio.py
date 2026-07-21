@@ -255,3 +255,24 @@ class PortfolioMetricsResponse(BaseModel):
     # v2 несут доп. поля (coverage_note), которых нет в жёсткой QualityIndex.
     quality_v2: dict | None = None
     risk_metrics_scope: str | None = None  # "equity_only" | "all" — честная граница риск-метрик
+
+
+class DividendEvent(BaseModel):
+    position_id: int
+    ticker: str
+    name: str
+    amount: float                          # на акцию
+    shares: float
+    total: float                           # amount * shares
+    record_date: str                       # дата отсечки
+    buy_by_date: str | None = None
+    dividend_yield: float | None = None
+    estimated_payment_by: str | None = None  # только pending — оценка, не факт
+
+
+class PortfolioDividendsResponse(BaseModel):
+    as_of: str
+    upcoming: list[DividendEvent]
+    pending: list[DividendEvent]
+    history: list[DividendEvent]
+    pending_window_days: int

@@ -1576,7 +1576,7 @@ const PfMetricTable = ({ columns, rows }) => (
       </thead>
       <tbody>
         {rows.map((row, i) => (
-          <tr key={row.ticker || i} style={row._isTotal ? { fontWeight: 700 } : undefined}>
+          <tr key={row.key ?? row.ticker ?? i} style={row._isTotal ? { fontWeight: 700 } : undefined}>
             {columns.map((c) => (
               <td key={c.key}>{c.render ? c.render(row[c.key], row) : (row[c.key] ?? "—")}</td>
             ))}
@@ -1868,22 +1868,17 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     loadData();
   }, [token, reloadKey, activePortfolioId]);
 
-  // Портфельный срез дивидендного календаря (Направление 4, /api/market/calendar) —
-  // фильтруем по тикерам ИМЕННО текущего портфеля (не всех портфелей пользователя,
-  // как это делает серверный portfolio_only, если у пользователя их несколько).
+  // Дивиденды по позициям портфеля — /api/portfolios/{id}/dividends, три
+  // сегмента по датам (upcoming/pending/history), уже посчитанные на бэке
+  // (доля владения на отсечку — из реплея сделок, не из текущего кол-ва).
   const [pfDividends, setPfDividends] = useState(null);
-  const positionTickersKey = positions.map((p) => p.ticker).sort().join(",");
   useEffect(() => {
-    if (!positionTickersKey) { setPfDividends([]); return; }
-    fetch(`${apiUrl}/api/market/calendar?event_type=dividend&scope=upcoming&days=180`)
+    if (!activePortfolioId || !token) { setPfDividends(null); return; }
+    fetch(`${apiUrl}/api/portfolios/${activePortfolioId}/dividends`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        const tickers = new Set(positionTickersKey.split(","));
-        const events = (data?.events || []).filter((e) => tickers.has(e.ticker));
-        setPfDividends(events);
-      })
-      .catch(() => setPfDividends([]));
-  }, [positionTickersKey, apiUrl]);
+      .then((data) => setPfDividends(data))
+      .catch(() => setPfDividends(null));
+  }, [activePortfolioId, token, reloadKey, apiUrl]);
 
   // «+ Добавить сравнение» (вкладка Сравнение) — произвольный тикер или другой
   // портфель пользователя. Каждая линия выравнивается на дату по мастер-сетке
@@ -2539,8 +2534,11 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           );
         })()}
 
-        {/* Ближайшие выплаты — портфельный срез дивидендного календаря
-            (/api/market/calendar), отфильтрованный по тикерам этого портфеля. */}
+        {/* Ближайшие выплаты — /api/portfolios/{id}/dividends. Три сегмента по
+            датам (без persisted-статуса, derived от отсечки): upcoming (до
+            отсечки, факт объявленного) / pending (отсечка прошла — оценка окна
+            зачисления, Basis не брокер и не видит реальных зачислений) /
+            history (окно прошло — плитка ниже). */}
         <div className="pf-card" style={{ padding: "24px 26px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
             <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>Ближайшие выплаты</h3>
@@ -2548,36 +2546,24 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           </div>
           {pfDividends === null ? (
             <div style={{ fontSize: "13px", color: "var(--pf-ink-3)" }}>Загрузка…</div>
-          ) : pfDividends.length === 0 ? (
+          ) : pfDividends.upcoming.length === 0 && pfDividends.pending.length === 0 ? (
             <p style={{ fontSize: "13px", color: "var(--pf-ink-2)", margin: 0 }}>
               Нет объявленных выплат по бумагам портфеля на ближайшие полгода — это факт календаря
               (либо эмитенты не платят за этот период, либо ещё не объявили), а не пропуск данных.
             </p>
           ) : (
             <>
-              {(() => {
-                const divRows = pfDividends
-                  .slice()
-                  .sort((a, b) => a.date.localeCompare(b.date))
-                  .map((e) => {
-                    const pos = positions.find((p) => p.ticker === e.ticker);
-                    const shares = pos?.shares || 0;
-                    const amount = e.payload?.amount ?? null;
-                    const expected = amount != null ? amount * shares : null;
-                    return {
-                      asset: <span><b>{pos?.name || e.ticker}</b> <span className="tw-font-mono tw-text-text-tertiary">{e.ticker}</span></span>,
-                      buyBy: _dmy(e.payload?.buy_by_date),
-                      record: _dmy(e.payload?.record_date),
-                      amount: amount != null ? `${fmtNumber(amount, { decimals: 2 })} ₽` : "—",
-                      expected: expected != null ? <span className="tw-text-[var(--pf-up)]">+{formatMoney(expected, { decimals: 0 })}</span> : "—",
-                      yieldPct: e.payload?.dividend_yield != null ? fmtPercent(e.payload.dividend_yield, { decimals: 1 }) : "—",
-                    };
-                  });
-                const totalExpected = pfDividends.reduce((sum, e) => {
-                  const pos = positions.find((p) => p.ticker === e.ticker);
-                  const amount = e.payload?.amount ?? 0;
-                  return sum + amount * (pos?.shares || 0);
-                }, 0);
+              {pfDividends.upcoming.length > 0 && (() => {
+                const divRows = pfDividends.upcoming.map((e) => ({
+                  key: `${e.position_id}-${e.record_date}`,
+                  asset: <span><b>{e.name}</b> <span className="tw-font-mono tw-text-text-tertiary">{e.ticker}</span></span>,
+                  buyBy: _dmy(e.buy_by_date),
+                  record: _dmy(e.record_date),
+                  amount: `${fmtNumber(e.amount, { decimals: 2 })} ₽`,
+                  expected: <span className="tw-text-[var(--pf-up)]">+{formatMoney(e.total, { decimals: 0 })}</span>,
+                  yieldPct: e.dividend_yield != null ? fmtPercent(e.dividend_yield, { decimals: 1 }) : "—",
+                }));
+                const totalExpected = pfDividends.upcoming.reduce((sum, e) => sum + e.total, 0);
                 return (
                   <>
                     <PfMetricTable
@@ -2597,6 +2583,41 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                   </>
                 );
               })()}
+
+              {pfDividends.pending.length > 0 && (() => {
+                const pendingRows = pfDividends.pending.map((e) => ({
+                  key: `${e.position_id}-${e.record_date}`,
+                  asset: <span><b>{e.name}</b> <span className="tw-font-mono tw-text-text-tertiary">{e.ticker}</span></span>,
+                  record: _dmy(e.record_date),
+                  amount: `${fmtNumber(e.amount, { decimals: 2 })} ₽`,
+                  expected: <span className="tw-text-[var(--pf-up)]">+{formatMoney(e.total, { decimals: 0 })}</span>,
+                  until: _dmy(e.estimated_payment_by),
+                }));
+                return (
+                  <div style={{ marginTop: pfDividends.upcoming.length > 0 ? "20px" : 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                      <span style={{ fontSize: "13.5px", fontWeight: 700, color: "var(--pf-ink)" }}>Ожидается зачисление</span>
+                      <span className="pf-tag-estimate">оценка</span>
+                    </div>
+                    <PfMetricTable
+                      columns={[
+                        { key: "asset", label: "Актив" },
+                        { key: "record", label: "Отсечка прошла" },
+                        { key: "amount", label: "Див./акция" },
+                        { key: "expected", label: "Ожидаемая сумма" },
+                        { key: "until", label: "Обычно зачисляют до" },
+                      ]}
+                      rows={pendingRows}
+                    />
+                    <p style={{ fontSize: "11.5px", color: "var(--pf-ink-3)", marginTop: "8px" }}>
+                      Отсечка уже прошла — по обычным срокам депозитарной цепочки деньги приходят в течение
+                      {" "}{pfDividends.pending_window_days} дней. Это модельная оценка окна, не подтверждение
+                      зачисления: Basis не брокер и не видит движений по вашему счёту.
+                    </p>
+                  </div>
+                );
+              })()}
+
               <p style={{ fontSize: "11.5px", color: "var(--pf-ink-3)", marginTop: "12px" }}>
                 Показаны только объявленные выплаты (с известной датой и суммой) — для необъявленных будущих
                 выплат подтверждённых данных пока не существует, это ограничение источника, а не недоработка расчёта.
@@ -2604,6 +2625,30 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             </>
           )}
         </div>
+
+        {/* История выплат — отсечки старше окна зачисления, из того же
+            /dividends. Свёрнуто по умолчанию, чтобы не захламлять «Состав». */}
+        {pfDividends?.history?.length > 0 && (
+          <div className="pf-card" style={{ padding: "24px 26px" }}>
+            <Disclosure summary={`История выплат (${pfDividends.history.length})`}>
+              <PfMetricTable
+                columns={[
+                  { key: "asset", label: "Актив" },
+                  { key: "record", label: "Отсечка" },
+                  { key: "amount", label: "Див./акция" },
+                  { key: "total", label: "Получено" },
+                ]}
+                rows={pfDividends.history.map((e) => ({
+                  key: `${e.position_id}-${e.record_date}`,
+                  asset: <span><b>{e.name}</b> <span className="tw-font-mono tw-text-text-tertiary">{e.ticker}</span></span>,
+                  record: _dmy(e.record_date),
+                  amount: `${fmtNumber(e.amount, { decimals: 2 })} ₽`,
+                  total: <span className="tw-text-[var(--pf-up)]">+{formatMoney(e.total, { decimals: 0 })}</span>,
+                }))}
+              />
+            </Disclosure>
+          </div>
+        )}
       </AppearGroup>
     </div>
   );

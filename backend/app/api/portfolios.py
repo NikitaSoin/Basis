@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.schemas.portfolio import (
-    PortfolioCreate, PortfolioMetricsResponse, PortfolioResponse,
+    PortfolioCreate, PortfolioDividendsResponse, PortfolioMetricsResponse, PortfolioResponse,
     PositionCreate, PositionResponse, PositionUpdate, TradeCreate, TradeResponse,
 )
 from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
     create_portfolio, add_position, delete_position, update_position,
     compute_portfolio_metrics, compute_factor_profile, compute_custom_stress,
-    record_trade, compute_position_pnl,
+    record_trade, compute_position_pnl, compute_portfolio_dividends,
 )
 from app.services.portfolio_diagnosis import generate_diagnosis
 from app.auth import get_current_user, get_current_user_optional
@@ -155,6 +155,23 @@ def portfolio_metrics_endpoint(
     if portfolio.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Нет доступа")
     return compute_portfolio_metrics(db, portfolio_id)
+
+
+@router.get("/portfolios/{portfolio_id}/dividends", response_model=PortfolioDividendsResponse)
+def portfolio_dividends_endpoint(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Дивиденды по позициям портфеля — три сегмента по датам: upcoming
+    (отсечка впереди) / pending (отсечка прошла, оценка окна зачисления) /
+    history (окно прошло). См. compute_portfolio_dividends."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    return compute_portfolio_dividends(db, portfolio_id)
 
 
 @router.get("/portfolios/{portfolio_id}/factor-profile")

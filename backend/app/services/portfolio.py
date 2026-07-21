@@ -180,6 +180,116 @@ def compute_position_pnl(db: Session, portfolio_id: int, position_id: int, curre
     }
 
 
+# Модельная оценка окна «отсечка → обычно приходят деньги» (депозитарная
+# цепочка РФ: НРД → номинальный держатель → брокер, ориентир ~2-4 недели).
+# Это ОЦЕНКА, не факт — Basis не брокер и не видит реальных зачислений на
+# счёт; после этого окна событие просто уходит в историю выплат (без
+# подтверждения «пришло», честно as-if-paid по модели).
+DIVIDEND_PENDING_WINDOW_DAYS = 25
+
+
+def compute_portfolio_dividends(db: Session, portfolio_id: int) -> dict:
+    """Дивиденды по позициям портфеля — три сегмента ПО ДАТАМ (без нового
+    persisted-статуса, целиком derived от record_date из CalendarEvent):
+    upcoming (отсечка ещё впереди) / pending (отсечка прошла, но в пределах
+    типового окна зачисления — оценка) / history (окно прошло, показываем
+    как уже выплаченное). Держим на позицию (лот), как остальной портфель,
+    а не на тикер — у одной компании может быть несколько лотов с разной
+    историей сделок."""
+    from datetime import timedelta
+    from app.models.calendar_event import CalendarEvent
+
+    today = date_cls.today()
+    empty = {"as_of": today.isoformat(), "upcoming": [], "pending": [], "history": [],
+              "pending_window_days": DIVIDEND_PENDING_WINDOW_DAYS}
+
+    positions = (
+        db.query(PortfolioPosition)
+        .filter(PortfolioPosition.portfolio_id == portfolio_id, PortfolioPosition.instrument_type == "equity")
+        .all()
+    )
+    if not positions:
+        return empty
+
+    company_ids = {p.company_id for p in positions if p.company_id}
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+
+    by_ticker: dict[str, list[PortfolioPosition]] = {}
+    for p in positions:
+        company = companies.get(p.company_id)
+        if company:
+            by_ticker.setdefault(company.ticker, []).append(p)
+    if not by_ticker:
+        return empty
+
+    # Реплей сделок ОДИН РАЗ на позицию (не на событие) — держим (дата
+    # сделки → кол-во ПОСЛЕ неё), тот же принцип, что compute_position_pnl.
+    position_holdings: dict[int, list[tuple[date_cls, Decimal]]] = {}
+    for p in positions:
+        trades = (
+            db.query(PortfolioTransaction)
+            .filter(PortfolioTransaction.position_id == p.id)
+            .order_by(PortfolioTransaction.trade_date, PortfolioTransaction.id)
+            .all()
+        )
+        qty = Decimal("0")
+        rows: list[tuple[date_cls, Decimal]] = []
+        for t in trades:
+            qty = qty + t.quantity if t.side == "buy" else qty - t.quantity
+            rows.append((t.trade_date, qty))
+        position_holdings[p.id] = rows
+
+    def qty_held_on(position_id: int, d: date_cls) -> Decimal:
+        held = Decimal("0")
+        for td, q in position_holdings.get(position_id, []):
+            if td <= d:
+                held = q
+            else:
+                break
+        return held
+
+    events = (
+        db.query(CalendarEvent)
+        .filter(CalendarEvent.event_type == "dividend", CalendarEvent.ticker.in_(list(by_ticker.keys())))
+        .all()
+    )
+
+    upcoming, pending, history = [], [], []
+    for e in events:
+        payload = e.payload or {}
+        amount = payload.get("amount")
+        record_date_str = payload.get("record_date")
+        if amount is None or not record_date_str:
+            continue
+        record_date = date_cls.fromisoformat(record_date_str)
+        days_since = (today - record_date).days
+
+        for p in by_ticker.get(e.ticker, []):
+            company = companies.get(p.company_id)
+            shares = float(p.quantity) if days_since < 0 else float(qty_held_on(p.id, record_date))
+            if shares <= 0:
+                continue
+            item = {
+                "position_id": p.id, "ticker": e.ticker, "name": company.name if company else e.ticker,
+                "amount": float(amount), "shares": shares, "total": round(shares * float(amount), 2),
+                "record_date": record_date.isoformat(), "buy_by_date": payload.get("buy_by_date"),
+                "dividend_yield": payload.get("dividend_yield"),
+            }
+            if days_since < 0:
+                upcoming.append(item)
+            elif days_since <= DIVIDEND_PENDING_WINDOW_DAYS:
+                item["estimated_payment_by"] = (record_date + timedelta(days=DIVIDEND_PENDING_WINDOW_DAYS)).isoformat()
+                pending.append(item)
+            else:
+                history.append(item)
+
+    upcoming.sort(key=lambda x: x["record_date"])
+    pending.sort(key=lambda x: x["record_date"])
+    history.sort(key=lambda x: x["record_date"], reverse=True)
+    return {"as_of": today.isoformat(), "upcoming": upcoming, "pending": pending, "history": history,
+            "pending_window_days": DIVIDEND_PENDING_WINDOW_DAYS}
+
+
 def _clamp01(x: float) -> float:
     return max(0.0, min(1.0, x))
 
