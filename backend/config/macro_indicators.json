@@ -77,7 +77,24 @@
     {"code": "cn_unemployment", "title": "Безработица КНР", "unit": "%", "country": "cn", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 53, "source_type": "fred",
      "influence_short": "Индикатор состояния китайской экономики."},
     {"code": "world_gdp", "title": "Мировой ВВП", "unit": "%", "country": "world", "frequency": "yearly", "metric_types": ["yoy"], "display_group": "world", "sort_order": 60, "source_type": "fred",
-     "influence_short": "Глобальный экономический рост — общий фон спроса на сырьё и риск-аппетита."}
+     "influence_short": "Глобальный экономический рост — общий фон спроса на сырьё и риск-аппетита."},
+
+    {"code": "wb_aluminum", "title": "Алюминий (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 70, "source_type": "wb",
+     "influence_short": "Мировая цена алюминия — выручка и рентабельность производителей (Русал); также сырьевой вход для потребителей проката."},
+    {"code": "wb_nickel", "title": "Никель (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 71, "source_type": "wb",
+     "influence_short": "Мировая цена никеля — ключевой драйвер выручки диверсифицированных металлургов (Норникель)."},
+    {"code": "wb_coal", "title": "Уголь (мировая цена, австралийский бенчмарк)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 72, "source_type": "wb",
+     "influence_short": "Мировая цена энергетического угля — выручка угольных экспортёров; ориентир для экспортных контрактов при дисконте к российским сортам."},
+    {"code": "wb_iron_ore", "title": "Железная руда (мировая цена)", "unit": "usd/dmtu", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 73, "source_type": "wb",
+     "influence_short": "Мировая цена железной руды — сырьевой вход для чёрной металлургии (себестоимость стали) и выручка добывающих сегментов."},
+    {"code": "wb_phosphate_rock", "title": "Фосфатная руда (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 74, "source_type": "wb",
+     "influence_short": "Мировая цена фосфатного сырья — сырьевой вход для производителей фосфорных удобрений."},
+    {"code": "wb_dap", "title": "Диаммонийфосфат DAP (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 75, "source_type": "wb",
+     "influence_short": "Мировая цена фосфорных удобрений (DAP) — выручка производителей удобрений (ФосАгро)."},
+    {"code": "wb_potash", "title": "Хлористый калий (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 76, "source_type": "wb",
+     "influence_short": "Мировая цена калийных удобрений — выручка калийных производителей (Уралкалий)."},
+    {"code": "wb_urea", "title": "Карбамид (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 77, "source_type": "wb",
+     "influence_short": "Мировая цена азотных удобрений (карбамид) — выручка азотных производителей (Акрон, ФосАгро)."}
   ],
   "csv_mapping": {
     "Key_rate": {"code": "key_rate", "metric": "level"},

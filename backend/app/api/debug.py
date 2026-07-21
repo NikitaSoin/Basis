@@ -814,6 +814,7 @@ def debug_trigger_macro_sync():
     from app.services.macro_rosstat import sync_ppi
     from app.services.macro_hh_sync import sync_hh_index
     from app.services.macro_tankermap_sync import sync_urals
+    from app.services.macro_wb_commodities_sync import sync_wb_commodities
     db = SessionLocal()
     out = {}
     try:
@@ -827,6 +828,7 @@ def debug_trigger_macro_sync():
             ("ppi", lambda: sync_ppi(db, months_back=6)),
             ("hh_index", lambda: sync_hh_index(db, months_back=18)),
             ("urals", lambda: sync_urals(db, period="max")),
+            ("wb_commodities", lambda: sync_wb_commodities(db, months_back=120)),
         ):
             try:
                 out[key] = fn()
