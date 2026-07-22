@@ -807,6 +807,7 @@ def debug_trigger_macro_sync():
     минуты). force=True на дорогих (staleness-gated) шагах, чтобы точно
     прогнать сейчас, а не пропустить по "not_stale"."""
     from app.db.session import SessionLocal
+    from app.services.macro_ingest import seed_indicators
     from app.services.macro_cb_sync import (sync_rate_meeting, sync_forecast, sync_forecast_annual,
                                              sync_expert_survey, sync_inflation, sync_expectations,
                                              sync_credit_m2)
@@ -818,6 +819,17 @@ def debug_trigger_macro_sync():
     db = SessionLocal()
     out = {}
     try:
+        # seed_indicators() штатно живёт внутри дневного _macro_job() (06:30) —
+        # здесь дублируем явно, иначе новые indicator_code из macro_indicators.json
+        # не попадут в справочник до завтрашнего утра, а ряды из sync_wb_commodities
+        # ниже будут писаться в data-таблицу без соответствующей строки-справочника
+        # (commodity-price-history отдаёт "индикатор не найден", несмотря на данные).
+        try:
+            out["seed_indicators"] = {"new": seed_indicators(db)}
+        except Exception as e:  # noqa: BLE001
+            logger.exception("debug trigger-macro-sync: seed_indicators упал: %s", e)
+            db.rollback()
+            out["seed_indicators"] = {"error": f"{type(e).__name__}: {e}"}
         for key, fn in (
             ("rate", lambda: sync_rate_meeting(db)), ("forecast", lambda: sync_forecast(db)),
             ("forecast_annual", lambda: sync_forecast_annual(db, force=True)),
