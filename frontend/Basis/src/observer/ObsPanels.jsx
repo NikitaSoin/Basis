@@ -4,6 +4,15 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+// MapLibre грузит воркер (парсинг тайлов) через import.meta.url относительно
+// СВОЕГО модуля — CRA/webpack бандлит всё в один main.<hash>.js, там нет
+// отдельного maplibre-gl-worker.mjs рядом, поэтому дефолтный путь резолвится
+// в "" и воркер тихо не создаётся (карта грузит стиль, но тайлы никогда не
+// рендерятся — пустой белый холст, без явной ошибки в консоли). Явно
+// указываем URL воркера на статическую копию в public/ (см. её же
+// maplibre-gl-shared.js рядом — воркер импортирует его относительным путём).
+maplibregl.setWorkerUrl(`${process.env.PUBLIC_URL}/maplibre-gl-worker.js`);
 import {
   Newspaper,
   Activity,
