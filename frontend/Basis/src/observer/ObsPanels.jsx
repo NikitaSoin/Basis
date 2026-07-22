@@ -1834,6 +1834,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   const regions = activeBaseMap.regions || {};
   const regionEntries = Object.entries(regions);
   const controlLegend = data.base_map.control_legend || {};
+  // Не у каждого очага есть смысл «статус контроля территории» (СВО — да; Ближний
+  // Восток/АТР — нет единого понятия «чья территория», там страны/акватории со своим
+  // суверенитетом) — choropleth-легенду и тег контроля показываем только если сами
+  // данные очага реально несут control_legend, не по умолчанию для любого театра.
+  const hasControlLegend = Object.keys(controlLegend).length > 0;
   const [vbX, vbY, vbW, vbH] = String(activeBaseMap.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
 
   // Эффективный viewBox с учётом зума/пана — маркеры (HTML-оверлей поверх svg)
@@ -1847,23 +1852,38 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   };
   const effVB = { x: vbX + pan.x, y: vbY + pan.y, w: effW, h: effH };
 
+  // Функциональные setState (не значения из замыкания рендера) — иначе быстрые
+  // повторные вызовы (колесо шлёт десятки событий за один жест, частые клики по
+  // кнопке) считают от одного и того же «устаревшего» zoom/pan и работают
+  // рывками/непредсказуемо вместо плавного накопления.
   const zoomBy = (factor, clientX, clientY) => {
     const rect = frameRef.current?.getBoundingClientRect();
     if (!rect) return;
     const fx = clientX != null ? (clientX - rect.left) / rect.width : 0.5;
     const fy = clientY != null ? (clientY - rect.top) / rect.height : 0.5;
-    const pointX = effVB.x + fx * effVB.w;
-    const pointY = effVB.y + fy * effVB.h;
-    const newZoom = Math.min(8, Math.max(1, zoom * factor));
-    const newW = vbW / newZoom, newH = vbH / newZoom;
-    setZoom(newZoom);
-    setPan(clampPan({ x: pointX - fx * newW - vbX, y: pointY - fy * newH - vbY }, newZoom));
+    setZoom((prevZoom) => {
+      const newZoom = Math.min(8, Math.max(1, prevZoom * factor));
+      setPan((prevPan) => {
+        const prevW = vbW / prevZoom, prevH = vbH / prevZoom;
+        const pointX = vbX + prevPan.x + fx * prevW;
+        const pointY = vbY + prevPan.y + fy * prevH;
+        const newW = vbW / newZoom, newH = vbH / newZoom;
+        return clampPan({ x: pointX - fx * newW - vbX, y: pointY - fy * newH - vbY }, newZoom);
+      });
+      return newZoom;
+    });
   };
   const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
   const onWheel = (e) => {
     if (zoom === 1 && e.deltaY > 0) return; // не глотать обычный скролл страницы, если уже в базовом масштабе
     e.preventDefault();
-    zoomBy(e.deltaY < 0 ? 1.25 : 0.8, e.clientX, e.clientY);
+    // Шаг пропорционален реальной величине deltaY (трекпад шлёт мелкие значения
+    // непрерывным потоком — десятки событий на один жест; мышиное колесо шлёт
+    // редкие крупные скачки ±100) — плоский множитель на КАЖДОЕ событие означал
+    // резкий/неконтролируемый зум на трекпаде (перемножение 1.25^N). Клампим
+    // за одно событие, чтобы даже аномально большой deltaY не давал скачок.
+    const factor = Math.min(1.15, Math.max(0.87, Math.exp(-e.deltaY * 0.0018)));
+    zoomBy(factor, e.clientX, e.clientY);
   };
   const onPointerDown = (e) => {
     if (zoom <= 1) return;
@@ -1980,6 +2000,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
                   style={{ left: `${leftPct}%`, top: `${topPct}%`, "--geomap-offset": `${offset}px` }}
                   onClick={() => selectEvent(ev.id)}
                   aria-label={`${meta?.label || ev.type}: ${ev.label}`}
+                  title={`${meta?.label || ev.type}: ${ev.label}`}
                   aria-pressed={active}
                 >
                   <Icon size={13} aria-hidden="true" />
@@ -2003,6 +2024,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
               style={OBS_GEOMAP_EDGE_STYLE[edge] || OBS_GEOMAP_EDGE_STYLE.right}
               onClick={() => selectEvent(ev.id)}
               aria-label={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
+              title={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
               aria-pressed={active}
             >
               <ArrowRight size={11} style={{ transform: `rotate(${rot}deg)` }} aria-hidden="true" />
@@ -2025,9 +2047,10 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             {regionEntries.map(([slug, r]) => {
               const active = selected?.kind === "region" && selected.key === slug;
               const control = r.control === "ru" || r.control === "contested" ? r.control : "ua";
-              // На карте России целиком нет понятия «статус контроля» — только название
-              // области для ориентации, без псевдо-статуса «под контролем Украины».
-              const label = onRussiaMap ? r.name_ru : `${r.name_ru}: ${controlLegend[control] || control}`;
+              // Без реального control_legend (карта России целиком, Ближний Восток, АТР)
+              // нет понятия «статус контроля» — только название для ориентации, без
+              // псевдо-статуса «под контролем Украины» на территории, где это бессмысленно.
+              const label = (onRussiaMap || !hasControlLegend) ? r.name_ru : `${r.name_ru}: ${controlLegend[control] || control}`;
               return (
                 <g
                   key={slug}
@@ -2087,8 +2110,8 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         </svg>
 
         <div className="obs-geomap-zoomctl">
-          <button type="button" onClick={() => zoomBy(1.25)} aria-label="Приблизить"><ZoomIn size={14} /></button>
-          <button type="button" onClick={() => zoomBy(0.8)} aria-label="Отдалить" disabled={zoom <= 1}><ZoomOut size={14} /></button>
+          <button type="button" onClick={() => zoomBy(1.6)} aria-label="Приблизить"><ZoomIn size={14} /></button>
+          <button type="button" onClick={() => zoomBy(0.625)} aria-label="Отдалить" disabled={zoom <= 1}><ZoomOut size={14} /></button>
           <button type="button" onClick={resetView} aria-label="Сбросить масштаб" disabled={zoom === 1 && pan.x === 0 && pan.y === 0}><Maximize2 size={13} /></button>
         </div>
       </div>
@@ -2098,7 +2121,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       )}
 
       <div className="obs-geomap-legend">
-        {!onRussiaMap && (
+        {!onRussiaMap && hasControlLegend && (
           <div className="obs-geomap-legend-group">
             {["ru", "contested", "ua"].map((c) => (
               <span key={c} className="obs-geomap-legend-item">
@@ -2162,7 +2185,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           </button>
           <div className="obs-geomap-detail-head">
             <Layers size={15} aria-hidden="true" />
-            {!onRussiaMap && (
+            {!onRussiaMap && hasControlLegend && (
               <>
                 <span className={`obs-geomap-region-tag obs-geomap-region-tag--${["ru", "contested"].includes(selectedRegion.control) ? selectedRegion.control : "ua"}`}>
                   {controlLegend[selectedRegion.control] || selectedRegion.control}
