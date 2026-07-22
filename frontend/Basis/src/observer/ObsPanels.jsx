@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import {
   Newspaper,
   Activity,
@@ -35,7 +38,6 @@ import {
   Zap,
   Factory,
   Anchor,
-  ArrowRight,
   ZoomIn,
   ZoomOut,
   Maximize2,
@@ -1767,22 +1769,60 @@ const GEOMAP_TYPE_META = {
   fleet:          { label: "Флот",           icon: Anchor    },
 };
 
-// Позиционирование чипов «за кадром» (удары далеко за пределами viewBox) —
-// прижаты к соответствующему краю рамки карты; стрелка повёрнута «наружу».
-const OBS_GEOMAP_EDGE_STYLE = {
-  right:          { top: "50%",    right: "8px",  transform: "translateY(-50%)" },
-  left:           { top: "50%",    left: "8px",   transform: "translateY(-50%)" },
-  top:            { top: "8px",    left: "50%",   transform: "translateX(-50%)" },
-  bottom:         { bottom: "8px", left: "50%",   transform: "translateX(-50%)" },
-  "top-right":    { top: "8px",    right: "8px" },
-  "top-left":     { top: "8px",    left: "8px" },
-  "bottom-right": { bottom: "8px", right: "8px" },
-  "bottom-left":  { bottom: "8px", left: "8px" },
-};
-const OBS_GEOMAP_EDGE_ROTATION = {
-  right: 0, "top-right": -45, top: -90, "top-left": -135,
-  left: 180, "bottom-left": 135, bottom: 90, "bottom-right": 45,
-};
+// Театры, для которых базовый стиль тайлов ПРИНУДИТЕЛЬНО глушится по слоям
+// подписей (source-layer "place") — открытые тайлы (OpenStreetMap/OpenMapTiles)
+// подписывают украинские города на украинском (name:nonlatin), это НАПРЯМУЮ
+// нарушает требование юрComplaince (см. память feedback_ru_market_legal_framing):
+// названия городов на платформе — только на русском. Вместо подписей тайлов
+// показываем ИСКЛЮЧИТЕЛЬНО свои waypoints (уже на русском). Ближний Восток/АТР —
+// такого риска нет, подписи тайлов там остаются (богаче из коробки).
+const GEOMAP_SUPPRESS_TILE_LABELS = new Set(["svo"]);
+
+const GEOMAP_TILE_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+
+function readBasisMapColors() {
+  const fallback = {
+    ru: "#BE123C", contested: "#B45309", accent: "#C97A4A",
+    textPrimary: "#1a1a1a", textSecondary: "#4a4a4a", bgElevated: "#ffffff",
+  };
+  if (typeof window === "undefined") return fallback;
+  const cs = getComputedStyle(document.documentElement);
+  const pick = (name, fb) => { const v = cs.getPropertyValue(name); return v && v.trim() ? v.trim() : fb; };
+  return {
+    ru: pick("--danger", fallback.ru),
+    contested: pick("--warning", fallback.contested),
+    accent: pick("--accent", fallback.accent),
+    textPrimary: pick("--text-primary", fallback.textPrimary),
+    textSecondary: pick("--text-secondary", fallback.textSecondary),
+    bgElevated: pick("--bg-elevated", fallback.bgElevated),
+  };
+}
+
+// Токены дизайн-системы — реальные hex по текущей теме (MapLibre paint не умеет
+// читать var(--...) напрямую). Пересчитываем при смене темы (MutationObserver
+// на data-theme/class <html>), а НЕ хардкодим — единый источник по-прежнему
+// styles/tokens.css.
+function useBasisMapColors() {
+  const [colors, setColors] = useState(readBasisMapColors);
+  useEffect(() => {
+    const obs = new MutationObserver(() => setColors(readBasisMapColors()));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+    return () => obs.disconnect();
+  }, []);
+  return colors;
+}
+
+function geomapAspect(bounds) {
+  if (!bounds) return 1.5;
+  const [[minLon, minLat], [maxLon, maxLat]] = bounds;
+  const midLat = (minLat + maxLat) / 2;
+  const dLon = (maxLon - minLon) * Math.cos((midLat * Math.PI) / 180);
+  const dLat = maxLat - minLat;
+  const raw = dLat > 0 ? dLon / dLat : 1.5;
+  return Math.min(2.3, Math.max(1.05, raw));
+}
+
+const GEOMAP_EMPTY_FC = { type: "FeatureCollection", features: [] };
 
 function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, directionColor }) {
   const [status, setStatus] = useState("loading"); // loading | ready | empty
@@ -1790,19 +1830,26 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   const [activeType, setActiveType] = useState("all");
   // Единый выбор: либо маркер события, либо область карты — { kind: "event"|"region", key }.
   // Если открыты оба одновременно, приоритет у маркера (он визуально поверх области,
-  // клик по нему просто не долетает до <path> под ним).
+  // клик по нему просто не долетает до заливки региона под ним).
   const [selected, setSelected] = useState(null);
   // "theater" — основная карта очага (СВО и т.п.); "russia" — доп. карта всей России
-  // целиком для ударов вглубь (за пределами приграничья основной карты) — переключатель
-  // рядом с фильтрами, независим от фильтра по типу события.
+  // целиком для ударов вглубь — переключатель рядом с фильтрами, независим от
+  // фильтра по типу события. Один и тот же экземпляр MapLibre живёт между
+  // переключениями — просто подменяем данные источников и перелетаем к новым bounds.
   const [activeMap, setActiveMap] = useState("theater");
-  // Зум/пан — карта остаётся статичным SVG viewBox по умолчанию (zoom=1), приблизить
-  // можно колёсиком/кнопками, подвинуть — перетаскиванием (только когда приближено,
-  // иначе конфликтует с обычным кликом по маркеру/области на базовом масштабе).
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const frameRef = useRef(null);
-  const dragRef = useRef(null);
+  const [styleLoaded, setStyleLoaded] = useState(false);
+  const containerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markersRef = useRef([]); // [{ id, marker, root, el }]
+  // MapLibre-квирк: маркер-кнопка лежит поверх канваса, но у САМОГО ПЕРВОГО клика
+  // после загрузки карты браузер иногда резолвит mousedown на канвас, а mouseup —
+  // уже на кнопку; итоговый синтетический "click" достаётся их общему предку
+  // (canvasContainer), и клик по маркеру ошибочно долетает до клика по региону под
+  // ним (проверено: воспроизводится стабильно на первом клике, ловится флагом —
+  // маркер сам обрабатывает через надёжный pointerup, а не через "click").
+  const suppressNextRegionClickRef = useRef(false);
+  const prevActiveMapRef = useRef(activeMap);
+  const colors = useBasisMapColors();
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -1812,8 +1859,6 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     setSelected(null);
     setActiveType("all");
     setActiveMap("theater");
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
     fetch(`${apiUrl}/api/market/geo-map/${theaterKey}`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => { if (!cancelled) { setData(d); setStatus("ready"); } })
@@ -1821,108 +1866,249 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     return () => { cancelled = true; };
   }, [theaterKey, apiUrl]);
 
-  // Осознанное отсутствие данных (карта для этого очага ещё не собрана) —
-  // молча ничего не рендерим, никакого «ошибка загрузки».
-  if (status !== "ready" || !data || !data.base_map) return null;
-
-  const russiaMap = data.russia_wide_map || null;
-  const onRussiaMap = activeMap === "russia" && russiaMap;
-  const activeBaseMap = onRussiaMap ? russiaMap.base_map : data.base_map;
-
-  const waypoints = activeBaseMap.waypoints || {};
-  const wpEntries = Object.entries(waypoints);
-  const regions = activeBaseMap.regions || {};
-  const regionEntries = Object.entries(regions);
-  const controlLegend = data.base_map.control_legend || {};
+  const russiaMap = data?.russia_wide_map || null;
+  const onRussiaMap = activeMap === "russia" && !!russiaMap;
+  const activeBaseMap = data ? (onRussiaMap ? russiaMap.base_map : data.base_map) : null;
+  const controlLegend = data?.base_map?.control_legend || {};
   // Не у каждого очага есть смысл «статус контроля территории» (СВО — да; Ближний
   // Восток/АТР — нет единого понятия «чья территория», там страны/акватории со своим
   // суверенитетом) — choropleth-легенду и тег контроля показываем только если сами
   // данные очага реально несут control_legend, не по умолчанию для любого театра.
   const hasControlLegend = Object.keys(controlLegend).length > 0;
-  const [vbX, vbY, vbW, vbH] = String(activeBaseMap.viewbox || "0 0 1000 700").split(/\s+/).map(Number);
+  const activeHasControl = !onRussiaMap && hasControlLegend;
 
-  // Эффективный viewBox с учётом зума/пана — маркеры (HTML-оверлей поверх svg)
-  // считают свой % от НЕГО, а не от исходного vbW/vbH; сама SVG-разметка (области,
-  // точки-ориентиры) зумится/двигается «бесплатно» через атрибут viewBox браузером.
-  const effW = vbW / zoom, effH = vbH / zoom;
-  const clampPan = (p, z) => {
-    const w = vbW / z, h = vbH / z;
-    const maxX = Math.max(0, vbW - w), maxY = Math.max(0, vbH - h);
-    return { x: Math.min(Math.max(p.x, 0), maxX), y: Math.min(Math.max(p.y, 0), maxY) };
-  };
-  const effVB = { x: vbX + pan.x, y: vbY + pan.y, w: effW, h: effH };
+  const regionsFC = activeBaseMap?.regions_geojson || GEOMAP_EMPTY_FC;
+  const waypointsFC = activeBaseMap?.waypoints_geojson || GEOMAP_EMPTY_FC;
 
-  // Функциональные setState (не значения из замыкания рендера) — иначе быстрые
-  // повторные вызовы (колесо шлёт десятки событий за один жест, частые клики по
-  // кнопке) считают от одного и того же «устаревшего» zoom/pan и работают
-  // рывками/непредсказуемо вместо плавного накопления.
-  const zoomBy = (factor, clientX, clientY) => {
-    const rect = frameRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const fx = clientX != null ? (clientX - rect.left) / rect.width : 0.5;
-    const fy = clientY != null ? (clientY - rect.top) / rect.height : 0.5;
-    setZoom((prevZoom) => {
-      const newZoom = Math.min(8, Math.max(1, prevZoom * factor));
-      setPan((prevPan) => {
-        const prevW = vbW / prevZoom, prevH = vbH / prevZoom;
-        const pointX = vbX + prevPan.x + fx * prevW;
-        const pointY = vbY + prevPan.y + fy * prevH;
-        const newW = vbW / newZoom, newH = vbH / newZoom;
-        return clampPan({ x: pointX - fx * newW - vbX, y: pointY - fy * newH - vbY }, newZoom);
-      });
-      return newZoom;
-    });
-  };
-  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
-  const onWheel = (e) => {
-    if (zoom === 1 && e.deltaY > 0) return; // не глотать обычный скролл страницы, если уже в базовом масштабе
-    e.preventDefault();
-    // Шаг пропорционален реальной величине deltaY (трекпад шлёт мелкие значения
-    // непрерывным потоком — десятки событий на один жест; мышиное колесо шлёт
-    // редкие крупные скачки ±100) — плоский множитель на КАЖДОЕ событие означал
-    // резкий/неконтролируемый зум на трекпаде (перемножение 1.25^N). Клампим
-    // за одно событие, чтобы даже аномально большой deltaY не давал скачок.
-    const factor = Math.min(1.15, Math.max(0.87, Math.exp(-e.deltaY * 0.0018)));
-    zoomBy(factor, e.clientX, e.clientY);
-  };
-  const onPointerDown = (e) => {
-    // Клик по кнопкам зума (или любому другому интерактиву в рамке — офф-чипам)
-    // НЕ должен вооружать перетаскивание: иначе setPointerCapture на самой рамке
-    // перехватывает указатель у кнопки и следующий клик по ней перестаёт срабатывать
-    // (именно так «кнопки лупы не работают» после первого же приближения).
-    if (zoom <= 1 || e.target.closest("button")) return;
-    dragRef.current = { startX: e.clientX, startY: e.clientY, startPan: pan };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onPointerMove = (e) => {
-    if (!dragRef.current) return;
-    const rect = frameRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const dxVb = -((e.clientX - dragRef.current.startX) / rect.width) * effVB.w;
-    const dyVb = -((e.clientY - dragRef.current.startY) / rect.height) * effVB.h;
-    setPan(clampPan({ x: dragRef.current.startPan.x + dxVb, y: dragRef.current.startPan.y + dyVb }, zoom));
-  };
-  const onPointerUp = () => { dragRef.current = null; };
+  const regionsBySlug = useMemo(() => {
+    const m = {};
+    regionsFC.features.forEach((f) => { m[f.properties.slug] = f.properties; });
+    return m;
+  }, [regionsFC]);
+  const waypointsBySlug = useMemo(() => {
+    const m = {};
+    waypointsFC.features.forEach((f) => { m[f.properties.slug] = { ...f.properties, coords: f.geometry.coordinates }; });
+    return m;
+  }, [waypointsFC]);
 
-  const events = Array.isArray(onRussiaMap ? russiaMap.events : data.events) ? (onRussiaMap ? russiaMap.events : data.events) : [];
-  const onMapEvents = events.filter((e) => e.waypoint && waypoints[e.waypoint]);
-  const offMapEvents = events.filter((e) => e.off_map);
-
-  const eventsByWaypoint = new Map();
-  onMapEvents.forEach((e) => {
-    if (!eventsByWaypoint.has(e.waypoint)) eventsByWaypoint.set(e.waypoint, []);
-    eventsByWaypoint.get(e.waypoint).push(e);
-  });
-
-  const anchorFor = (x) => (x < vbW * 0.14 ? "start" : x > vbW * 0.86 ? "end" : "middle");
+  const events = Array.isArray(onRussiaMap ? russiaMap?.events : data?.events) ? (onRussiaMap ? russiaMap.events : data.events) : [];
+  const onMapEvents = useMemo(
+    () => events.filter((e) => e.waypoint && waypointsBySlug[e.waypoint]),
+    [events, waypointsBySlug]
+  );
   const typeOk = (t) => activeType === "all" || activeType === t;
 
-  const selectEvent = (id) => setSelected((prev) => (prev?.kind === "event" && prev.key === id ? null : { kind: "event", key: id }));
-  const selectRegion = (slug) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug }));
+  const selectEvent = useCallback(
+    (id) => setSelected((prev) => (prev?.kind === "event" && prev.key === id ? null : { kind: "event", key: id })),
+    []
+  );
+  const selectRegion = useCallback(
+    (slug) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug })),
+    []
+  );
   const closeDetail = () => setSelected(null);
 
   const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
-  const selectedRegion = selected?.kind === "region" ? regions[selected.key] : null;
+  const selectedRegion = selected?.kind === "region" ? regionsBySlug[selected.key] : null;
+
+  // --- Инициализация MapLibre: один раз, когда данные готовы и контейнер смонтирован.
+  useEffect(() => {
+    if (status !== "ready" || !data?.base_map?.bounds || !containerRef.current || mapRef.current) return;
+    const map = new maplibregl.Map({
+      container: containerRef.current,
+      style: GEOMAP_TILE_STYLE_URL,
+      bounds: data.base_map.bounds,
+      fitBoundsOptions: { padding: 16 },
+      attributionControl: false,
+      dragRotate: false,
+      touchPitch: false,
+    });
+    map.touchZoomRotate.disableRotation();
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
+    mapRef.current = map;
+
+    map.on("load", () => {
+      // Тайлы (OpenStreetMap/OpenMapTiles) подписывают населённые пункты в т.ч.
+      // на украинском (name:nonlatin) — юридический риск для платформы, работающей
+      // в РФ (см. память feedback_ru_market_legal_framing). Для СВО глушим ВСЕ
+      // подписи слоя "place" из тайлов и полагаемся только на свои waypoints
+      // (уже на русском) — для Ближнего Востока/АТР такого риска нет, оставляем.
+      if (GEOMAP_SUPPRESS_TILE_LABELS.has(theaterKey)) {
+        map.getStyle().layers.forEach((l) => {
+          if (l["source-layer"] === "place") map.setLayoutProperty(l.id, "visibility", "none");
+        });
+      }
+
+      map.addSource("regions", { type: "geojson", data: GEOMAP_EMPTY_FC });
+      map.addSource("regions-active", { type: "geojson", data: GEOMAP_EMPTY_FC });
+      map.addSource("waypoints", { type: "geojson", data: GEOMAP_EMPTY_FC });
+
+      // Choropleth статуса контроля — факт «чья территория», не рыночный сигнал
+      // good/bad (легитимное применение --danger/--warning к данным, см. конституцию).
+      // Заливка полупрозрачная и только там, где есть control_legend — иначе (карта
+      // России целиком, где такого понятия нет) слой невидим, служит только
+      // кликабельной областью для подписи региона в детали-панели.
+      map.addLayer({ id: "regions-fill", type: "fill", source: "regions", paint: { "fill-color": "#888", "fill-opacity": 0 } });
+      map.addLayer({ id: "regions-line", type: "line", source: "regions", paint: { "line-color": "#888", "line-opacity": 0, "line-width": 1.1 } });
+      map.addLayer({ id: "regions-active-line", type: "line", source: "regions-active", paint: { "line-color": colors.accent, "line-width": 2.4 } });
+      map.addLayer({
+        id: "waypoints-dot", type: "circle", source: "waypoints",
+        paint: {
+          "circle-radius": ["case", ["boolean", ["get", "muted"], false], 3, 4.5],
+          "circle-color": ["case", ["boolean", ["get", "muted"], false], "#9a9a9a", colors.textSecondary],
+          "circle-stroke-color": colors.bgElevated,
+          "circle-stroke-width": ["case", ["boolean", ["get", "muted"], false], 0, 1.4],
+        },
+      });
+      map.addLayer({
+        id: "waypoints-label", type: "symbol", source: "waypoints",
+        layout: {
+          "text-field": ["get", "label"],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": ["case", ["boolean", ["get", "muted"], false], 10.5, 12],
+          "text-offset": [0, 1],
+          "text-anchor": "top",
+          "text-allow-overlap": false,
+          "text-optional": true,
+          "symbol-sort-key": ["case", ["boolean", ["get", "muted"], false], 2, 1],
+        },
+        paint: { "text-color": colors.textPrimary, "text-halo-color": colors.bgElevated, "text-halo-width": 1.3 },
+      });
+
+      map.on("mouseenter", "regions-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "regions-fill", () => { map.getCanvas().style.cursor = ""; });
+      map.on("click", "regions-fill", (e) => {
+        if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
+        const slug = e.features?.[0]?.properties?.slug;
+        if (slug) selectRegion(slug);
+      });
+
+      setStyleLoaded(true);
+    });
+
+    return () => { markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); }); markersRef.current = []; map.remove(); mapRef.current = null; };
+  }, [status, theaterKey]);
+
+  // --- Синхронизация данных источников + раскраски при смене очага/России/фильтра/темы.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    map.getSource("regions")?.setData(regionsFC);
+    map.getSource("waypoints")?.setData(waypointsFC);
+    const fillColor = activeHasControl
+      ? ["match", ["get", "control"], "ru", colors.ru, "contested", colors.contested, "#888"]
+      : "#888";
+    const fillOpacity = activeHasControl
+      ? ["match", ["get", "control"], "ru", 0.22, "contested", 0.26, 0]
+      : 0;
+    const lineOpacity = activeHasControl
+      ? ["match", ["get", "control"], "ru", 0.7, "contested", 0.7, 0]
+      : 0;
+    map.setPaintProperty("regions-fill", "fill-color", fillColor);
+    map.setPaintProperty("regions-fill", "fill-opacity", fillOpacity);
+    map.setPaintProperty("regions-line", "line-color", fillColor);
+    map.setPaintProperty("regions-line", "line-opacity", lineOpacity);
+    map.setPaintProperty("regions-active-line", "line-color", colors.accent);
+    map.setPaintProperty("waypoints-dot", "circle-color", ["case", ["boolean", ["get", "muted"], false], "#9a9a9a", colors.textSecondary]);
+    map.setPaintProperty("waypoints-dot", "circle-stroke-color", colors.bgElevated);
+    map.setPaintProperty("waypoints-label", "text-color", colors.textPrimary);
+    map.setPaintProperty("waypoints-label", "text-halo-color", colors.bgElevated);
+  }, [styleLoaded, regionsFC, waypointsFC, activeHasControl, colors]);
+
+  // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
+  // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    if (prevActiveMapRef.current !== activeMap) {
+      prevActiveMapRef.current = activeMap;
+      if (activeBaseMap?.bounds) map.fitBounds(activeBaseMap.bounds, { padding: 24, duration: 600 });
+    }
+  }, [styleLoaded, activeMap]);
+
+  // --- Маркеры событий (HTML/React-иконки поверх канваса через maplibregl.Marker —
+  // сама библиотека держит их позицию в px синхронно с пан/зумом карты, ручной
+  // пересчёт процентов больше не нужен). Пересобираем при смене набора видимых
+  // событий (очаг/Россия, фильтр по типу) — состояние «выбрано» красим отдельно.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    markersRef.current = [];
+
+    const grouped = new Map();
+    onMapEvents.filter((e) => typeOk(e.type)).forEach((e) => {
+      if (!grouped.has(e.waypoint)) grouped.set(e.waypoint, []);
+      grouped.get(e.waypoint).push(e);
+    });
+
+    grouped.forEach((evs, wpKey) => {
+      const wp = waypointsBySlug[wpKey];
+      if (!wp) return;
+      evs.forEach((ev, i) => {
+        const offsetX = (i - (evs.length - 1) / 2) * 22;
+        const meta = GEOMAP_TYPE_META[ev.type];
+        const Icon = meta?.icon || AlertTriangle;
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = `obs-geomap-marker${ev.stale ? " obs-geomap-marker--stale" : ""}`;
+        el.setAttribute("aria-label", `${meta?.label || ev.type}: ${ev.label}`);
+        el.setAttribute("aria-pressed", "false");
+        el.title = `${meta?.label || ev.type}: ${ev.label}`;
+        // pointerup — надёжный сигнал и для мыши, и для тача (см. комментарий у
+        // suppressNextRegionClickRef); "click" оставлен только для клавиатурной
+        // активации (Enter/Space на сфокусированной кнопке — evt.detail === 0 у
+        // синтетического клика без реального указателя, у мыши/тача всегда >= 1).
+        el.addEventListener("pointerup", (evt) => {
+          suppressNextRegionClickRef.current = true;
+          evt.stopPropagation();
+          selectEvent(ev.id);
+        });
+        el.addEventListener("click", (evt) => {
+          evt.stopPropagation();
+          if (evt.detail === 0) selectEvent(ev.id);
+        });
+        const root = createRoot(el);
+        root.render(<Icon size={13} aria-hidden="true" />);
+        const marker = new maplibregl.Marker({ element: el, offset: [offsetX, 0] }).setLngLat(wp.coords).addTo(map);
+        markersRef.current.push({ id: ev.id, marker, root, el });
+      });
+    });
+  }, [styleLoaded, onMapEvents, activeType, waypointsBySlug]);
+
+  // --- Визуальное состояние «выбрано» — маркер события (класс на элементе,
+  // без пересборки) и контур области (отдельный источник regions-active).
+  useEffect(() => {
+    markersRef.current.forEach(({ id, el }) => {
+      const active = selected?.kind === "event" && selected.key === id;
+      el.classList.toggle("obs-geomap-marker--active", active);
+      el.setAttribute("aria-pressed", String(active));
+    });
+  }, [selected]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    const src = map.getSource("regions-active");
+    if (!src) return;
+    if (selected?.kind === "region") {
+      const feat = regionsFC.features.find((f) => f.properties.slug === selected.key);
+      src.setData(feat ? { type: "FeatureCollection", features: [feat] } : GEOMAP_EMPTY_FC);
+    } else {
+      src.setData(GEOMAP_EMPTY_FC);
+    }
+  }, [styleLoaded, selected, regionsFC]);
+
+  const zoomIn = () => mapRef.current?.zoomIn({ duration: 200 });
+  const zoomOut = () => mapRef.current?.zoomOut({ duration: 200 });
+  const resetView = () => { if (activeBaseMap?.bounds) mapRef.current?.fitBounds(activeBaseMap.bounds, { padding: 24, duration: 400 }); };
+
+  // Осознанное отсутствие данных (карта для этого очага ещё не собрана) —
+  // молча ничего не рендерим, никакого «ошибка загрузки». Хуки выше должны
+  // отработать безусловно на каждый рендер (Rules of Hooks) — сам bail-out
+  // строго после них.
+  if (status !== "ready" || !data || !data.base_map) return null;
+
+  const aspect = geomapAspect(activeBaseMap?.bounds);
 
   return (
     <div className="obs-inst-card obs-geomap">
@@ -1972,171 +2158,19 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           <button
             type="button"
             className={`obs-chip obs-geomap-russia-toggle${onRussiaMap ? " obs-chip--active" : ""}`}
-            onClick={() => {
-              setActiveMap((m) => (m === "russia" ? "theater" : "russia"));
-              setSelected(null); setZoom(1); setPan({ x: 0, y: 0 });
-            }}
+            onClick={() => { setActiveMap((m) => (m === "russia" ? "theater" : "russia")); setSelected(null); }}
           >
             <Globe size={12} aria-hidden="true" /> {onRussiaMap ? "← Вернуться к очагу" : "Карта России целиком"}
           </button>
         )}
       </div>
 
-      <div
-        className={`obs-geomap-frame${zoom > 1 ? " obs-geomap-frame--zoomed" : ""}`}
-        style={{ aspectRatio: `${vbW} / ${vbH}` }}
-        ref={frameRef}
-        onWheel={onWheel}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-      >
-        {/* Маркеры событий и off-map чипы — РАНЬШЕ svg в DOM (а не только визуально
-            выше через z-index), специально ради порядка табуляции: клавиатурный
-            пользователь должен сначала дойти до содержательных маркеров (описание/
-            источник), а не протабать все 31 почти неразличимую область. Визуальный
-            порядок (области фон, маркеры поверх) держит z-index в CSS, не DOM-порядок. */}
-        <div className="obs-geomap-markers">
-          {[...eventsByWaypoint.entries()].map(([wpKey, evs]) => {
-            const w = waypoints[wpKey];
-            const visible = evs.filter((e) => typeOk(e.type));
-            if (!visible.length || !w) return null;
-            const leftPct = ((w.x - effVB.x) / effVB.w) * 100;
-            const topPct = ((w.y - effVB.y) / effVB.h) * 100;
-            return visible.map((ev, i) => {
-              const offset = (i - (visible.length - 1) / 2) * 20;
-              const meta = GEOMAP_TYPE_META[ev.type];
-              const Icon = meta?.icon || AlertTriangle;
-              const active = selected?.kind === "event" && selected.key === ev.id;
-              return (
-                <button
-                  key={ev.id}
-                  type="button"
-                  className={`obs-geomap-marker${ev.stale ? " obs-geomap-marker--stale" : ""}${active ? " obs-geomap-marker--active" : ""}`}
-                  style={{ left: `${leftPct}%`, top: `${topPct}%`, "--geomap-offset": `${offset}px` }}
-                  onClick={() => selectEvent(ev.id)}
-                  aria-label={`${meta?.label || ev.type}: ${ev.label}`}
-                  title={`${meta?.label || ev.type}: ${ev.label}`}
-                  aria-pressed={active}
-                >
-                  <Icon size={13} aria-hidden="true" />
-                </button>
-              );
-            });
-          })}
-        </div>
-
-        {offMapEvents.filter((e) => typeOk(e.type)).map((ev) => {
-          const meta = GEOMAP_TYPE_META[ev.type];
-          const Icon = meta?.icon || AlertTriangle;
-          const edge = ev.off_map?.edge || "right";
-          const rot = OBS_GEOMAP_EDGE_ROTATION[edge] ?? 0;
-          const active = selected?.kind === "event" && selected.key === ev.id;
-          return (
-            <button
-              key={ev.id}
-              type="button"
-              className={`obs-geomap-offchip${ev.stale ? " obs-geomap-offchip--stale" : ""}${active ? " obs-geomap-offchip--active" : ""}`}
-              style={OBS_GEOMAP_EDGE_STYLE[edge] || OBS_GEOMAP_EDGE_STYLE.right}
-              onClick={() => selectEvent(ev.id)}
-              aria-label={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
-              title={`${meta?.label || ev.type}: ${ev.label} (${ev.off_map?.distance_label || "за кадром"})`}
-              aria-pressed={active}
-            >
-              <ArrowRight size={11} style={{ transform: `rotate(${rot}deg)` }} aria-hidden="true" />
-              <Icon size={12} aria-hidden="true" />
-              <span>{ev.off_map?.distance_label}</span>
-            </button>
-          );
-        })}
-
-        <svg
-          className="obs-geomap-svg"
-          viewBox={`${effVB.x} ${effVB.y} ${effVB.w} ${effVB.h}`}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Раскраска областей — choropleth статуса контроля. Это НЕ рыночный
-              сигнал good/bad, а факт «чья территория» (см. конституцию: легитимное
-              применение --danger/--warning к данным, не к хрому). ua — нейтральная
-              база на --bg-surface, почти не выделяется, это фон, а не акцент. */}
-          <g className="obs-geomap-regions">
-            {regionEntries.map(([slug, r]) => {
-              const active = selected?.kind === "region" && selected.key === slug;
-              const control = r.control === "ru" || r.control === "contested" ? r.control : "ua";
-              // Без реального control_legend (карта России целиком, Ближний Восток, АТР)
-              // нет понятия «статус контроля» — только название для ориентации, без
-              // псевдо-статуса «под контролем Украины» на территории, где это бессмысленно.
-              const label = (onRussiaMap || !hasControlLegend) ? r.name_ru : `${r.name_ru}: ${controlLegend[control] || control}`;
-              return (
-                <g
-                  key={slug}
-                  className={`obs-geomap-region-group${active ? " obs-geomap-region-group--active" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={label}
-                  aria-pressed={active}
-                  onClick={() => selectRegion(slug)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectRegion(slug); }
-                  }}
-                >
-                  <title>{label}</title>
-                  <path d={r.path_d} className={`obs-geomap-region obs-geomap-region--${control}`} />
-                  {/* Мелкие области (Севастополь, Киев-город) физически меньше тач-таргета —
-                      невидимый круг побольше поверх центроида ловит клик/тап рядом,
-                      не расширяя саму видимую заливку. */}
-                  {r.hit_radius && (
-                    <circle cx={r.centroid.x} cy={r.centroid.y} r={r.hit_radius} fill="transparent" />
-                  )}
-                </g>
-              );
-            })}
-          </g>
-
-          <g aria-hidden="true">
-            {wpEntries.map(([k, w]) => {
-              const hasMarker = eventsByWaypoint.has(k) && eventsByWaypoint.get(k).some((e) => typeOk(e.type));
-              const muted = !!w.muted;
-              const anchor = anchorFor(w.x);
-              const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
-              // Приглушённые (city-ориентиры без событий) подписи — только начиная с
-              // определённого приближения: на базовом масштабе они скучиваются друг с
-              // другом и с маркерами событий («местами очень много мест занимается»).
-              // Подписи самих событий (не muted) оставляем всегда — это содержательный слой.
-              const showLabel = !muted || zoom > 1.4;
-              return (
-                <g key={k}>
-                  {!hasMarker && (
-                    <circle
-                      cx={w.x} cy={w.y} r={muted ? 3 : 4.5}
-                      fill={muted ? "var(--text-tertiary)" : "var(--text-secondary)"}
-                      opacity={muted ? 0.55 : 1}
-                      stroke={muted ? "none" : "var(--bg-elevated)"}
-                      strokeWidth={muted ? 0 : 1.5}
-                    />
-                  )}
-                  {showLabel && (
-                    <text
-                      x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
-                      textAnchor={anchor}
-                      fontFamily="Inter, system-ui, sans-serif"
-                      fontSize={(muted ? 9.5 : 10.5) / zoom}
-                      fontWeight={muted ? 400 : 600}
-                      fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
-                      opacity={muted ? 0.8 : 1}
-                    >{w.label}</text>
-                  )}
-                </g>
-              );
-            })}
-          </g>
-        </svg>
-
+      <div className="obs-geomap-frame" style={{ aspectRatio: aspect }}>
+        <div className="obs-geomap-maplibre" ref={containerRef} />
         <div className="obs-geomap-zoomctl">
-          <button type="button" onClick={() => zoomBy(1.6)} aria-label="Приблизить"><ZoomIn size={14} /></button>
-          <button type="button" onClick={() => zoomBy(0.625)} aria-label="Отдалить" disabled={zoom <= 1}><ZoomOut size={14} /></button>
-          <button type="button" onClick={resetView} aria-label="Сбросить масштаб" disabled={zoom === 1 && pan.x === 0 && pan.y === 0}><Maximize2 size={13} /></button>
+          <button type="button" onClick={zoomIn} aria-label="Приблизить"><ZoomIn size={14} /></button>
+          <button type="button" onClick={zoomOut} aria-label="Отдалить"><ZoomOut size={14} /></button>
+          <button type="button" onClick={resetView} aria-label="Сбросить масштаб"><Maximize2 size={13} /></button>
         </div>
       </div>
 

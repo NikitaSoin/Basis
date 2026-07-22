@@ -4431,88 +4431,34 @@ details[open] > summary .obs-inst-chev,
   margin-left: auto;
 }
 
+/* Настоящая картографическая подложка (MapLibre GL + открытые тайлы OpenFreeMap,
+   стиль "positron" — светлый/приглушённый, не спорит с нашей раскраской статуса
+   контроля поверх) вместо прежней рукописной SVG-проекции: реальные города/дороги/
+   реки видны из коробки, зум/пан — нативные жесты библиотеки, не ручная математика.
+   aspect-ratio — инлайном (theater-агностично: разные очаги/карты имеют разный охват). */
 .obs-geomap-frame {
   position: relative;
   width: 100%;
-  /* aspect-ratio задаётся инлайном из vbW/vbH данных (theater-агностично — разные
-     очаги/карты имеют разный viewBox, не только 1000x700 карты СВО). */
   background: var(--bg-base);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
-  touch-action: pan-y;
 }
-.obs-geomap-frame--zoomed {
-  cursor: grab;
-  touch-action: none;
-}
-.obs-geomap-frame--zoomed:active {
-  cursor: grabbing;
-}
-
-.obs-geomap-svg {
+.obs-geomap-maplibre {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  display: block;
-  /* Маркеры/off-чипы идут РАНЬШЕ svg в DOM (порядок табуляции — см. JSX), поэтому
-     визуальный слой держим явным z-index, а не порядком отрисовки по умолчанию. */
-  z-index: 0;
 }
-
-/* ---- Choropleth: раскраска областей по статусу контроля ----
-   Это факт «чья территория» (как политическая карта ISW/Рыбарь), НЕ рыночный
-   сигнал good/bad — легитимное применение --danger/--warning к данным, цвет
-   в хроме карты по-прежнему не используется. ua — нейтральная база
-   (--bg-surface), почти не выделяется: это фон, а не акцент. Тонкая граница
-   --border-subtle держит контур каждой области видимым, как на настоящей карте;
-   у ru/contested граница окрашена в цвет статуса (чуть более насыщенно, чем
-   заливка) — усиливает читаемость линии соприкосновения между блоками. */
-.obs-geomap-region-group {
-  cursor: pointer;
+/* Атрибуция тайлов (OpenStreetMap/OpenMapTiles) — обязательна по лицензии,
+   держим компактной и монохромной, не спорит с хромом карты. */
+.obs-geomap-maplibre .maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
+  color: var(--text-tertiary);
+  font-size: 9.5px;
+  border-radius: var(--radius-sm);
 }
-.obs-geomap-region {
-  transition: fill-opacity 150ms ease, stroke 150ms ease, stroke-opacity 150ms ease, stroke-width 150ms ease;
-}
-.obs-geomap-region--ru {
-  fill: var(--danger);
-  fill-opacity: 0.16;
-  stroke: var(--danger);
-  stroke-opacity: 0.5;
-  stroke-width: 0.8;
-}
-.obs-geomap-region--contested {
-  fill: var(--warning);
-  fill-opacity: 0.2;
-  stroke: var(--warning);
-  stroke-opacity: 0.5;
-  stroke-width: 0.8;
-}
-.obs-geomap-region--ua {
-  fill: var(--bg-surface);
-  fill-opacity: 1;
-  stroke: var(--border-subtle);
-  stroke-opacity: 1;
-  stroke-width: 0.7;
-}
-/* Affordance при наведении/фокусе/выборе — общий приём поверх любого статуса
-   контроля (не переопределяет заливку-факт, только контур), тот же язык, что
-   у маркеров событий ниже (граница/цвет --accent на hover/focus-visible). */
-.obs-geomap-region-group:hover .obs-geomap-region,
-.obs-geomap-region-group:focus-visible .obs-geomap-region {
-  stroke: var(--accent);
-  stroke-opacity: 1;
-  stroke-width: 1.4;
-}
-.obs-geomap-region-group:focus-visible {
-  outline: none;
-}
-.obs-geomap-region-group--active .obs-geomap-region {
-  stroke: var(--accent);
-  stroke-opacity: 1;
-  stroke-width: 1.8;
-}
+.obs-geomap-maplibre .maplibregl-ctrl-attrib a { color: var(--text-tertiary); }
 
 /* Кластер зум-кнопок — правый нижний угол рамки, поверх карты (z-index выше и
    svg, и HTML-маркеров). Приблизить/отдалить/сбросить — колёсико и перетаскивание
@@ -4573,15 +4519,10 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-method-note svg { flex-shrink: 0; margin-top: 2px; }
 
-.obs-geomap-markers {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
+/* Маркеры событий — DOM-элемент внутри обёртки maplibregl.Marker (сама
+   библиотека держит позицию/офсет в px синхронно с паном/зумом, здесь только
+   визуальный хром, без position/transform — тот занят обёрткой библиотеки). */
 .obs-geomap-marker {
-  position: absolute;
   width: 26px;
   height: 26px;
   padding: 0;
@@ -4593,15 +4534,13 @@ details[open] > summary .obs-inst-chev,
   border: 1.5px solid var(--border-strong);
   color: var(--text-secondary);
   cursor: pointer;
-  pointer-events: auto;
   box-shadow: var(--shadow-sm);
-  transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%);
-  transition: transform 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease, scale 150ms ease;
 }
 .obs-geomap-marker:hover {
   border-color: var(--accent);
   color: var(--accent);
-  transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%) scale(1.12);
+  scale: 1.12;
 }
 .obs-geomap-marker:focus-visible {
   outline: none;
@@ -4617,56 +4556,10 @@ details[open] > summary .obs-inst-chev,
   opacity: 0.5;
 }
 
-.obs-geomap-offchip {
-  position: absolute;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  max-width: 48%;
-  min-height: 24px;
-  padding: 6px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.3;
-  cursor: pointer;
-  pointer-events: auto;
-  box-shadow: var(--shadow-sm);
-  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
-}
-.obs-geomap-offchip span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.obs-geomap-offchip:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.obs-geomap-offchip:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-.obs-geomap-offchip--active {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent-hover, var(--accent));
-}
-.obs-geomap-offchip--stale {
-  opacity: 0.55;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .obs-geomap-marker { transition: none; }
-  .obs-geomap-marker:hover { transform: translate(calc(-50% + var(--geomap-offset, 0px)), -50%); }
-  .obs-geomap-offchip { transition: none; }
+  .obs-geomap-marker:hover { scale: 1; }
   .obs-geomap-detail-close { transition: none; }
-  .obs-geomap-region { transition: none; }
 }
 
 .obs-geomap-legend {
