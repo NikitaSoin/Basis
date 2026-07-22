@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlaskConical, Send, RotateCcw } from "lucide-react";
 import { Card, Badge, Delta } from "../design/primitives";
-import { ImpactBar, Treemap } from "../design/PortfolioViz";
+import { ImpactBar } from "../design/PortfolioViz";
 import "../styles/stress-test.css";
 
 // StressTestView v3 — «Стресс-тестирование» как инструмент, не анкета (владелец,
@@ -88,21 +88,59 @@ function ImpactSignal({ numeric }) {
   );
 }
 
-// Карта рынка (Treemap) — то же «смотреть, как всё перекрашивается» одним
-// взглядом, что и лидерборд, но по всей вселенной задетых компаний разом.
+// Карта рынка — порт интерактивного прототипа (владелец, 2026-07-23: «не
+// совсем как в демо — цвета плит не те, расположение»): секторные строки,
+// плитки flex-grow по весу внутри строки, цвет — плавный color-mix от
+// нейтрального к --success/--danger, а не мозаичный грид общего Treemap.
 // Веса — грубая эвристика (голубые фишки крупнее): числового market_cap в
 // ответе /numeric нет, это визуальная пропорция, не точный вес индекса.
+const MAP_MAX_PCT = 40; // насыщенность цвета: |pct| ≥ этого — уже максимум
+function mapColorFor(pct) {
+  const m = Math.max(-MAP_MAX_PCT, Math.min(MAP_MAX_PCT, pct)) / MAP_MAX_PCT;
+  const tone = m >= 0 ? "var(--success)" : "var(--danger)";
+  return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--bg-hover))`;
+}
+function mapTextColorFor(pct) {
+  if (Math.abs(pct) < 3) return "var(--text-secondary)";
+  return pct >= 0 ? "var(--success)" : "var(--danger)";
+}
+
 function StressMap({ numeric }) {
-  const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 24);
+  const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 30);
   if (!ranked.length) return null;
-  const cells = ranked.map((c) => ({
-    label: c.ticker,
-    weight: c.is_blue_chip ? 3 : 1,
-    pct: c.metrics.net_profit.pct_of_base ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15),
-  }));
+  const bySector = new Map();
+  for (const c of ranked) {
+    const sector = c.sector || "Другое";
+    if (!bySector.has(sector)) bySector.set(sector, []);
+    bySector.get(sector).push(c);
+  }
   return (
     <Card header={<span className="tw-flex tw-items-center tw-gap-2">Карта рынка <span className="bs-tag-estimate">оценка</span></span>}>
-      <Treemap cells={cells} maxPct={30} />
+      <div className="st-map">
+        {[...bySector.entries()].map(([sector, companies]) => (
+          <React.Fragment key={sector}>
+            <div className="st-sector-lbl">{sector}</div>
+            <div className="st-map-row">
+              {companies.map((c) => {
+                const pct = c.metrics.net_profit.pct_of_base
+                  ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15);
+                const weight = c.is_blue_chip ? 3 : 1;
+                return (
+                  <div
+                    key={c.ticker}
+                    className={`st-tile${weight <= 1 ? " st-tile-small" : ""}`}
+                    style={{ flexGrow: weight, background: mapColorFor(pct), color: mapTextColorFor(pct) }}
+                    title={`${c.name} · ${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`}
+                  >
+                    <span className="st-tile-tk">{c.ticker}</span>
+                    <span className="st-tile-pc">{pct >= 0 ? "▲" : "▼"} {Math.abs(pct).toFixed(1)}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
       <div className="tw-mt-3 tw-text-[11px] tw-text-text-tertiary">
         Размер плитки — грубо, голубые фишки крупнее (веса капитализации в этом контуре нет). Цвет — Δ чистой прибыли, % от базы года.
       </div>
