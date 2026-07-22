@@ -33,9 +33,14 @@ _HTTP = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
                        "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
 
 # Yahoo-тикер → наш indicator_code. Курируемый список — см. докстринг файла.
-_SYMBOLS = {"PA=F": "yahoo_palladium"}
-_UNITS = {"yahoo_palladium": "usd/oz"}
-_SOURCE_URL = {"PA=F": "https://finance.yahoo.com/quote/PA=F/history"}
+# LBR=F ("Lumber Futures", физически поставляемый контракт CME) заменил старый
+# LBS=F ("Random Length Lumber") в 2022 — LBS=F перестал обновляться (мёртвый
+# тикер), поэтому история короче остальных (с сентября 2022, не с 2016) —
+# ограничение самого контракта, не платформы.
+_SYMBOLS = {"PA=F": "yahoo_palladium", "LBR=F": "yahoo_lumber"}
+_UNITS = {"yahoo_palladium": "usd/oz", "yahoo_lumber": "usd/mbf"}
+_SOURCE_URL = {"PA=F": "https://finance.yahoo.com/quote/PA=F/history",
+               "LBR=F": "https://finance.yahoo.com/quote/LBR=F/history"}
 
 
 def _month_end_of(ts: int) -> date:

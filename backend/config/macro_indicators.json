@@ -130,7 +130,9 @@
     {"code": "wb_soybean_meal", "title": "Соевый шрот (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 94, "source_type": "wb",
      "influence_short": "Мировая цена соевого шрота — белковый компонент животноводческих кормов."},
     {"code": "yahoo_palladium", "title": "Палладий (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 95, "source_type": "yahoo",
-     "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."}
+     "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."},
+    {"code": "yahoo_lumber", "title": "Пиломатериалы (мировая цена)", "unit": "usd/mbf", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 96, "source_type": "yahoo",
+     "influence_short": "Североамериканская цена пиломатериалов (CME) — ориентир для выручки лесопромышленников (Сегежа). 🔴 Источник неофициальный (Yahoo Finance); история короче остальных — старый контракт CME остановлен в 2022, преемник моложе."}
   ],
   "csv_mapping": {
     "Key_rate": {"code": "key_rate", "metric": "level"},
