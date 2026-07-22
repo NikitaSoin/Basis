@@ -2083,6 +2083,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
               const muted = !!w.muted;
               const anchor = anchorFor(w.x);
               const dx = anchor === "start" ? 6 : anchor === "end" ? -6 : 0;
+              // Приглушённые (city-ориентиры без событий) подписи — только начиная с
+              // определённого приближения: на базовом масштабе они скучиваются друг с
+              // другом и с маркерами событий («местами очень много мест занимается»).
+              // Подписи самих событий (не muted) оставляем всегда — это содержательный слой.
+              const showLabel = !muted || zoom > 1.4;
               return (
                 <g key={k}>
                   {!hasMarker && (
@@ -2094,15 +2099,17 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
                       strokeWidth={muted ? 0 : 1.5}
                     />
                   )}
-                  <text
-                    x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
-                    textAnchor={anchor}
-                    fontFamily="Inter, system-ui, sans-serif"
-                    fontSize={muted ? 9.5 : 10.5}
-                    fontWeight={muted ? 400 : 600}
-                    fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
-                    opacity={muted ? 0.8 : 1}
-                  >{w.label}</text>
+                  {showLabel && (
+                    <text
+                      x={w.x + dx} y={w.y - (hasMarker ? 20 : muted ? 9 : 12)}
+                      textAnchor={anchor}
+                      fontFamily="Inter, system-ui, sans-serif"
+                      fontSize={(muted ? 9.5 : 10.5) / zoom}
+                      fontWeight={muted ? 400 : 600}
+                      fill={muted ? "var(--text-tertiary)" : "var(--text-primary)"}
+                      opacity={muted ? 0.8 : 1}
+                    >{w.label}</text>
+                  )}
                 </g>
               );
             })}
