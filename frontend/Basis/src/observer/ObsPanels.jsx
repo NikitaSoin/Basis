@@ -440,7 +440,7 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
           {filtered.map((r, i) => {
             const hasDetail = (r.positives && r.positives.length > 0)
               || (r.risks && r.risks.length > 0)
-              || r.conclusion;
+              || r.conclusion || r.data_gaps;
             const isOpen = !!openCards[i];
             const period = [r.period, r.standard || r.report_type, r.sector].filter(Boolean).join(" · ");
             return (
@@ -515,6 +515,11 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                       {r.conclusion && (
                         <div className="obs-rep-conclusion">
                           <b>Вывод.</b> {r.conclusion}
+                        </div>
+                      )}
+                      {r.data_gaps && (
+                        <div className="obs-rep-gaps">
+                          <b>Не хватает в источнике.</b> {r.data_gaps}
                         </div>
                       )}
                     </div>

@@ -54,6 +54,7 @@ calendar_event_id — повторно не трогаем (ручной ре-т
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import time
@@ -432,6 +433,65 @@ def _extract_operational(text_blob: str) -> dict | None:
     return res
 
 
+# ----------------------------- богатый разбор (когда есть реальный текст) -----------------------------
+# Владелец, 2026-07-23: «Отчёты» в Обозревателе ощущались беднее «Разбора документа по
+# ссылке» у ассистента — хотя это ОДНА И ТА ЖЕ модель (app.services.llm). Разница была не
+# в модели, а в том, что видит модель: _digest() всегда получает 4 сжатых числа
+# (_extract_financial), даже когда text_blob здесь на руках содержит куда больше (полный
+# RSS-текст пресс-релиза, текст раскрытия СКРИН/ПРАЙМ/АЗИПИ) — richness текста терялась
+# до того, как модель его видела. _digest_rich — тот же принцип, что
+# document_analyst.analyze_document (см. этот файл): модель получает ВЕСЬ текст источника
+# + уже проверенные цифры как опору, не только числа.
+_RICH_SYS = (
+    "Ты — финансовый аналитик Basis (не брокер, без «купить/продать»). Тебе дан ТЕКСТ "
+    "источника о вышедшей отчётности компании (пресс-релиз/раскрытие информации/новость) "
+    "и уже точные извлечённые headline-цифры (используй как проверенную основу, НЕ выдумывай "
+    "новые числа сверх текста). Разбери СОДЕРЖАТЕЛЬНО — не только динамику выручки/EBITDA/"
+    "прибыли, а что ещё есть в тексте: комментарии менеджмента, сегменты, разовые факторы, "
+    "гайденс, дивиденды, долговая нагрузка. Тон фактический, нейтральный, независимый. "
+    "Верни JSON."
+)
+_RICH_SPEC = (
+    'Формат JSON: {"headline": "шапка: Компания (ТИКЕР) · период, стандарт", '
+    '"one_liner": "одна строка сути (<=120 симв)", '
+    '"highlights": ["конкретный факт/тезис ИЗ ТЕКСТА, не только цифра — до 5 пунктов"], '
+    '"risks_or_caveats": ["на что обратить внимание / оговорки — до 5 пунктов"], '
+    '"data_gaps": "чего в тексте не хватает для полной картины, коротко (или null)", '
+    '"what_changed": "что изменилось vs прошлый период — по тексту и цифрам (1-3 фразы)", '
+    '"summary": "2-3 фразы фактического резюме без советов", '
+    '"importance": "high|medium|low"}'
+)
+
+
+def _digest_rich(text_blob: str, fig: dict, mult: dict) -> dict | None:
+    """Как _digest(), но модель видит РЕАЛЬНЫЙ ТЕКСТ источника целиком (до 8000 симв.),
+    не только 4 сжатых числа — вызывается вместо _digest() всюду, где text_blob достаточно
+    содержателен (см. _store_report). Возвращает None при сбое LLM — вызывающий код
+    деградирует на узкий _digest()."""
+    from app.services.llm import complete, LLMError
+    def chg(cur, prev):
+        if cur is None or prev in (None, 0):
+            return None
+        return round((cur - prev) / abs(prev) * 100, 1)
+    figures_ctx = {
+        "company": fig.get("name"), "ticker": fig["ticker"], "period": fig["period"],
+        "standard": fig.get("standard"),
+        "revenue": fig.get("revenue"), "revenue_yoy_pct": chg(fig.get("revenue"), fig.get("revenue_prev")),
+        "ebitda": fig.get("ebitda"), "ebitda_yoy_pct": chg(fig.get("ebitda"), fig.get("ebitda_prev")),
+        "net_profit": fig.get("net_profit"), "net_profit_yoy_pct": chg(fig.get("net_profit"), fig.get("net_profit_prev")),
+        "net_debt": fig.get("net_debt"), "nd_ebitda": mult.get("nd_ebitda"),
+        "pe_ttm": mult.get("pe_ttm"), "pb": mult.get("pb"), "ev_ebitda": mult.get("ev_ebitda"),
+    }
+    user = (f"ИЗВЛЕЧЁННЫЕ ЦИФРЫ (проверенные, используй как основу):\n"
+            f"{json.dumps(figures_ctx, ensure_ascii=False)}\n\n=== ТЕКСТ ИСТОЧНИКА ===\n{text_blob[:8000]}")
+    try:
+        res = complete(_RICH_SYS + "\n" + _RICH_SPEC, user, json_mode=True, max_tokens=1500, temperature=0.2)
+        return res if isinstance(res, dict) else None
+    except LLMError as e:
+        logger.warning("Богатый разбор отчёта %s: LLM недоступен: %s", fig["ticker"], e)
+        return None
+
+
 # ----------------------------- вспомогательное -----------------------------
 def _period_label(event: CalendarEvent) -> str:
     m = re.search(r"за\s+(\d+М|\d+\s*кв(?:артал)?|\d{4}(?:\s*год)?)", event.title, re.IGNORECASE)
@@ -516,7 +576,13 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         "net_debt": fig_raw.get("net_debt"), "adjusted_profit": None, "is_company_adjusted": False,
     }
     mult = _multiples(fig, price_now, mcap)
-    digest = _digest(fig, mult)
+    # Богатый разбор, когда на руках реальный текст источника (не просто заголовок
+    # календаря) — модель видит текст целиком, не только 4 сжатых числа. Порог 150
+    # символов отсекает тривиальные обрывки (типовой calendar_title-фолбэк без
+    # description); при неудаче LLM/пустом ответе — честная деградация на _digest().
+    digest = _digest_rich(text_blob, fig, mult) if text_blob and len(text_blob) >= 150 else None
+    if not digest:
+        digest = _digest(fig, mult)
     db.add(report); db.flush()
     db.add(EarningsFigures(
         report_id=report.id, revenue_ttm=fig.get("revenue"), ebitda=fig.get("ebitda"),
@@ -531,6 +597,8 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
         db.add(EarningsDigest(
             report_id=report.id, headline=digest.get("headline"), one_liner=digest.get("one_liner"),
             metrics_snapshot=mult, what_report_showed=digest.get("what_report_showed"),
+            highlights=digest.get("highlights"), risks_or_caveats=digest.get("risks_or_caveats"),
+            data_gaps=digest.get("data_gaps"),
             what_changed=digest.get("what_changed"), summary=digest.get("summary"),
             importance=digest.get("importance"), model_used="deepseek"))
         report.status = "processed"

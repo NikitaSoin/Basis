@@ -811,6 +811,16 @@
   border: 1px solid var(--border-subtle);
 }
 
+/* Честная оговорка «чего не хватает в источнике» (data_gaps) — приглушённее
+   вывода, это методологическая прозрачность, не содержательный итог. */
+.obs-rep-gaps {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.obs-rep-gaps b { color: var(--text-secondary); font-weight: 600; }
+
 /* =============================================================
    CORPORATE NEWS SECTION — obs-cn-*
    Единая лента корп. событий: отчёты (вышли/ожидались), дивиденды,

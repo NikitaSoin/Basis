@@ -741,7 +741,13 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
 
     out = []
     for r, dg, fig, sector in rows:
-        positives, risks = _split_markers(dg.what_report_showed if dg else None)
+        # Богатый разбор (report_watch._digest_rich, реальный текст источника) —
+        # предпочитаем, если есть; иначе деградируем на узкий путь (маркеры ✅/❌/❗️
+        # только по 3 цифрам — Path A из financials.json, или LLM-сбой богатого пути).
+        if dg and dg.highlights is not None:
+            positives, risks = dg.highlights, (dg.risks_or_caveats or [])
+        else:
+            positives, risks = _split_markers(dg.what_report_showed if dg else None)
         prev = (fig.prev or {}) if fig else {}
         out.append({
             "ticker": r.ticker, "period": r.period, "standard": r.standard,
@@ -753,6 +759,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "positives": positives,
             "risks": risks,
             "conclusion": (dg.summary if dg else None),
+            "data_gaps": (dg.data_gaps if dg else None),
             "revenue_pct": _yoy_pct(fig.revenue_ttm if fig else None, prev.get("revenue")),
             "ebitda_pct": _yoy_pct(fig.ebitda if fig else None, prev.get("ebitda")),
             "profit_pct": _yoy_pct(fig.net_profit_ttm if fig else None, prev.get("net_profit")),

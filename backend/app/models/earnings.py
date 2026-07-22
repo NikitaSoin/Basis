@@ -89,7 +89,15 @@ class EarningsDigest(Base):
     headline: Mapped[str | None] = mapped_column(String(400))
     one_liner: Mapped[str | None] = mapped_column(String(400))  # одна строка сути для ленты
     metrics_snapshot: Mapped[dict | None] = mapped_column(JSONB)
-    what_report_showed: Mapped[list | None] = mapped_column(JSONB)  # маркеры ✅/❌/❗️
+    what_report_showed: Mapped[list | None] = mapped_column(JSONB)  # маркеры ✅/❌/❗️ (узкий путь, только цифры)
+    # Богатый путь (report_watch.py, когда есть реальный текст источника, не только
+    # цифры) — highlights/risks_or_caveats заменяют what_report_showed по содержанию
+    # (не только динамика 3 метрик — комментарии менеджмента, сегменты, разовые факторы),
+    # what_report_showed остаётся NULL в этом случае. API предпочитает highlights, если
+    # заполнено, иначе деградирует на _split_markers(what_report_showed) — см. market.py.
+    highlights: Mapped[list | None] = mapped_column(JSONB)
+    risks_or_caveats: Mapped[list | None] = mapped_column(JSONB)
+    data_gaps: Mapped[str | None] = mapped_column(Text)  # чего не хватает в источнике для полной картины
     what_changed: Mapped[str | None] = mapped_column(Text)
     summary: Mapped[str | None] = mapped_column(Text)
     importance: Mapped[str | None] = mapped_column(String(16))  # high|medium|low
