@@ -1927,7 +1927,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           <Layers size={14} aria-hidden="true" />
           {onRussiaMap
             ? "Удары вглубь России — вся территория"
-            : `Карта${regionLabel ? `: ${regionLabel}` : " очага"} — контроль территории, удары, инфраструктура`}
+            : `Карта${regionLabel ? `: ${regionLabel}` : " очага"} — ${hasControlLegend ? "контроль территории, удары, инфраструктура" : "обстановка, манёвры, инфраструктура"}`}
         </div>
         {!onRussiaMap && direction && (
           <span className="obs-region-card-dir" style={{ color: directionColor, borderColor: directionColor }}>{direction}</span>
