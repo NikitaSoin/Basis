@@ -77,6 +77,8 @@ _COLUMNS = {
     "Cocoa": "wb_cocoa",
     "Sugar, world": "wb_sugar_world",
     "Wheat, US HRW": "wb_wheat",
+    "Fish meal": "wb_fish_meal",
+    "Soybean meal": "wb_soybean_meal",
 }
 _UNITS = {
     "wb_aluminum": "usd/mt", "wb_nickel": "usd/mt", "wb_coal": "usd/mt",
@@ -87,6 +89,7 @@ _UNITS = {
     "wb_copper": "usd/mt", "wb_lead": "usd/mt", "wb_tin": "usd/mt", "wb_zinc": "usd/mt",
     "wb_gold": "usd/oz", "wb_platinum": "usd/oz", "wb_silver": "usd/oz",
     "wb_cocoa": "usd/kg", "wb_sugar_world": "usd/kg", "wb_wheat": "usd/mt",
+    "wb_fish_meal": "usd/mt", "wb_soybean_meal": "usd/mt",
 }
 _PERIOD_RE = re.compile(r"^(\d{4})M(\d{1,2})$")
 

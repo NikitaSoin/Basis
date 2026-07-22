@@ -124,7 +124,13 @@
     {"code": "wb_sugar_world", "title": "Сахар (мировая цена)", "unit": "usd/kg", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 91, "source_type": "wb",
      "influence_short": "Мировая биржевая цена сахара — ориентир для внутреннего российского рынка (декоррелирован при самообеспеченности из свёклы)."},
     {"code": "wb_wheat", "title": "Пшеница (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 92, "source_type": "wb",
-     "influence_short": "Мировая цена пшеницы (US HRW) — ориентир для кормового зерна и себестоимости животноводства/птицеводства."}
+     "influence_short": "Мировая цена пшеницы (US HRW) — ориентир для кормового зерна и себестоимости животноводства/птицеводства."},
+    {"code": "wb_fish_meal", "title": "Рыбная мука (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 93, "source_type": "wb",
+     "influence_short": "Мировая цена рыбной муки — компонент кормов для аквакультуры (Инарктика)."},
+    {"code": "wb_soybean_meal", "title": "Соевый шрот (мировая цена)", "unit": "usd/mt", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 94, "source_type": "wb",
+     "influence_short": "Мировая цена соевого шрота — белковый компонент животноводческих кормов."},
+    {"code": "yahoo_palladium", "title": "Палладий (мировая цена)", "unit": "usd/oz", "country": "world", "frequency": "monthly", "metric_types": ["level"], "display_group": "world", "sort_order": 95, "source_type": "yahoo",
+     "influence_short": "Мировая цена палладия — выручка производителей металлов платиновой группы (Норникель). 🔴 Источник неофициальный (Yahoo Finance, без ключа/соглашения) — World Bank/FRED палладий не покрывают."}
   ],
   "csv_mapping": {
     "Key_rate": {"code": "key_rate", "metric": "level"},

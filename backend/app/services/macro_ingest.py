@@ -73,7 +73,7 @@ def seed_indicators(db: Session) -> int:
 # Приоритет каналов: официальный первоисточник важнее Ленты. Лента (news) — ранний
 # сигнал/резерв и НЕ перезаписывает официальную точку; официальный канал перезаписывает
 # ленточную, когда выходит. file — исторический бэкфилл.
-_VIA_PRIORITY = {"news": 0, "file": 1, "fred": 2, "wb": 2, "tankermap": 2,
+_VIA_PRIORITY = {"news": 0, "file": 1, "fred": 2, "wb": 2, "tankermap": 2, "yahoo": 2,
                  "cbr": 3, "rosstat": 3, "minfin": 3, "hh": 3}
 
 

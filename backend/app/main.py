@@ -268,6 +268,7 @@ async def _macro_job():
             from app.services.macro_hh_sync import sync_hh_index
             from app.services.macro_tankermap_sync import sync_urals
             from app.services.macro_wb_commodities_sync import sync_wb_commodities
+            from app.services.macro_yahoo_commodities_sync import sync_yahoo_commodities
             seed_indicators(db)
             world = ingest_all_world(db)
             cb = sync_cb(db)  # ЦБ: ставка/прогноз/инфляция/ожидания/M2+кредит экономике (машинный первоисточник)
@@ -302,10 +303,17 @@ async def _macro_job():
                 logger.exception("WB Pink Sheet-sync упал: %s", e)
                 db.rollback()
                 wb_comm = {"error": f"unhandled:{type(e).__name__}"}
+            try:
+                yahoo_comm = sync_yahoo_commodities(db)  # палладий — см. докстринг, источник неофициальный
+            except Exception as e:  # noqa: BLE001
+                logger.exception("Yahoo Finance-sync упал: %s", e)
+                db.rollback()
+                yahoo_comm = {"error": f"unhandled:{type(e).__name__}"}
             analytics = analytics_process(db)
             stale = check_staleness(db)  # алерт по рядам, которые перестали обновляться
             return {"world": world, "cb": cb, "rosstat": ros, "ppi": ppi, "minfin": minfin,
-                    "hh": hh, "urals": urals, "wb_commodities": wb_comm, "analytics": analytics, "stale": len(stale)}
+                    "hh": hh, "urals": urals, "wb_commodities": wb_comm, "yahoo_commodities": yahoo_comm,
+                    "analytics": analytics, "stale": len(stale)}
         finally:
             db.close()
     try:
