@@ -298,22 +298,38 @@
 .m5-cmx-noprice{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:var(--m5-ink-3);background:var(--m5-panel-2);border:1px solid var(--m5-line);border-radius:8px;padding:9px 12px;margin-bottom:13px;}
 .m5-cmx-noprice svg{flex-shrink:0;margin-top:2px;}
 
-.m5-cmx-chart{margin-bottom:13px;}
+/* график — главный визуальный якорь: больше высоты, больше воздуха вокруг,
+   чем у второстепенных элементов ниже (принцип «график первым, текст —
+   свёрнутое пояснение под ним») */
+.m5-cmx-chart{margin-bottom:16px;}
 .m5-cmx-chart svg{width:100%;height:auto;display:block;}
 .m5-cmx-chartnote{font-size:10.5px;line-height:1.5;color:var(--m5-ink-3);margin-top:4px;}
 
-.m5-cmx-gauge{margin-bottom:12px;}
+.m5-cmx-signals{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:4px;}
+
+.m5-cmx-gauge{flex:1 1 220px;margin-bottom:0;}
 .m5-cmx-glabel{font-family:var(--m5-mono);font-size:12.5px;font-weight:600;color:var(--m5-ink);margin-bottom:7px;}
 .m5-cmx-gtrack{display:flex;gap:4px;margin-bottom:5px;}
 .m5-cmx-gseg{flex:1;height:5px;border-radius:3px;background:var(--m5-line-2);}
 .m5-cmx-gseg.on{background:var(--m5-accent);}
 .m5-cmx-gends{display:flex;justify-content:space-between;font-size:10px;color:var(--m5-ink-3);}
 
-.m5-cmx-labs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.m5-cmx-labs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:0 0 auto;margin-bottom:0;padding-top:2px;}
 .m5-cmx-lab{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;}
 .m5-cmx-lab svg{flex-shrink:0;}
 .m5-cmx-lab.cyc{background:var(--m5-accent-soft);color:var(--m5-accent-2);}
 .m5-cmx-lab.struct{background:var(--m5-amber-soft);color:var(--m5-amber);}
+
+/* пояснение — вторично, свёрнуто по умолчанию; график и графические сигналы
+   (gauge/лейбл) выше остаются видны сразу */
+.m5-cmx-details{margin-top:13px;padding-top:12px;border-top:1px solid var(--m5-line);}
+.m5-cmx-dtog{cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--m5-ink-3);}
+.m5-cmx-dtog::-webkit-details-marker{display:none;}
+.m5-cmx-dtog>svg:first-child{flex-shrink:0;}
+.m5-cmx-dtog .m5-chev{transition:transform .2s;color:var(--m5-ink-3);margin-left:auto;}
+.m5-cmx-details[open] .m5-cmx-dtog .m5-chev{transform:rotate(180deg);}
+@media(prefers-reduced-motion:reduce){.m5-cmx-dtog .m5-chev{transition:none;}}
+.m5-cmx-dbody{padding-top:11px;}
 
 .m5-cmx-reasoning{font-size:13.5px;line-height:1.6;color:var(--m5-ink-2);max-width:74ch;margin:0 0 9px;}
 .m5-cmx-note{display:flex;gap:7px;font-size:11.5px;line-height:1.5;color:var(--m5-ink-3);max-width:74ch;margin:0;}

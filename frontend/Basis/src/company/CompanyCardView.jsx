@@ -5596,6 +5596,7 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             .catch(() => { if (alive) setHist([]); });
           return () => { alive = false; };
         }, [hasBenchmark, it.benchmark_key]);
+        const hasDetails = Boolean(it.reasoning || it.note);
         return (
           <div className="m5-cmx-item">
             <div className="m5-cmx-ihead">
@@ -5614,9 +5615,10 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             ) : it.benchmark_key === "none" ? (
               <div className="m5-cmx-noprice"><Info size={12} />Нет публичного биржевого ряда — цена не котируется. Честная деградация методики: подбирать выдуманный прокси не стали.</div>
             ) : null}
+            {/* график — главный визуальный якорь блока, текст ниже вторичен и свёрнут по умолчанию */}
             {hasBenchmark && hist && hist.length >= 2 && (
               <div className="m5-cmx-chart">
-                <ObsLineChart series={[{ name: it.name, color: "var(--accent)", points: hist }]} viewW={560} viewH={140} unit={it.current_price?.unit || ""} />
+                <ObsLineChart series={[{ name: it.name, color: "var(--accent)", points: hist }]} viewW={560} viewH={200} unit={it.current_price?.unit || ""} />
                 <div className="m5-cmx-chartnote">
                   История с {fmtDate(hist[0].as_of)}
                   {it.benchmark_key.startsWith("forts:") && " · ближайший непогашенный фьючерс — история короче, чем у месячных сырьевых бенчмарков (известное ограничение платформы, не баг этой карточки)"}
@@ -5626,15 +5628,24 @@ const CompanyCard = ({ company, onBack, initialTab }) => {
             {hasBenchmark && hist && hist.length < 2 && (
               <div className="m5-cmx-noprice"><Info size={12} />История цены пока недоступна для этого ряда.</div>
             )}
-            <CycleGauge position={it.cycle_position} />
-            {lm && (
-              <div className="m5-cmx-labs">
-                <span className={`m5-cmx-lab ${lm.cls}`}><lm.Icon size={11} />{lm.text}</span>
-                {it.cycle_certainty ? cert(it.cycle_certainty) : cert("estimate")}
-              </div>
+            <div className="m5-cmx-signals">
+              <CycleGauge position={it.cycle_position} />
+              {lm && (
+                <div className="m5-cmx-labs">
+                  <span className={`m5-cmx-lab ${lm.cls}`}><lm.Icon size={11} />{lm.text}</span>
+                  {it.cycle_certainty ? cert(it.cycle_certainty) : cert("estimate")}
+                </div>
+              )}
+            </div>
+            {hasDetails && (
+              <details className="m5-cmx-details">
+                <summary className="m5-cmx-dtog"><Info size={13} />Почему так — пояснение<ChevronDown size={14} className="m5-chev" /></summary>
+                <div className="m5-cmx-dbody">
+                  {it.reasoning && <p className="m5-cmx-reasoning">{it.reasoning}</p>}
+                  {it.note && <p className="m5-cmx-note"><Info size={12} />{it.note}</p>}
+                </div>
+              </details>
             )}
-            {it.reasoning && <p className="m5-cmx-reasoning">{it.reasoning}</p>}
-            {it.note && <p className="m5-cmx-note"><Info size={12} />{it.note}</p>}
           </div>
         );
       };
