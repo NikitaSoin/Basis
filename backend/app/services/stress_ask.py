@@ -155,6 +155,10 @@ def ask_scenario(db: Session, question: str) -> dict:
 
     if any(v is not None for v in (key_rate, fx, oil)):
         result["numeric"] = numeric_impact(db, key_rate, fx, oil)
+        # Целевые уровни, которые парсер извлёк из текста — фронт двигает по ним
+        # слайдеры визуально (не выдумывает уровни сам), только для полей, которые
+        # сценарий реально называл (null остаётся null, не 0).
+        result["numeric_targets"] = {"key_rate_pct": key_rate, "fx_usdrub": fx, "oil_brent_usd": oil}
 
     intensities = _qualitative_intensities(parsed.get("qualitative") or {})
     if intensities:

@@ -255,7 +255,7 @@ export function CorrelationHeatmap({ labels = [], matrix = [] }) {
 // cells: [{ label, weight (0..1), pct (signed %) }]. Greedy row layout into a
 // fixed 6-col grid; cell colour ramps green↔red by daily/total % (PortfolioPilot
 // style). Pure layout maths, token colours, dosed appear-stagger.
-export function Treemap({ cells = [] }) {
+export function Treemap({ cells = [], maxPct = 3 }) {
   const reduced = usePrefersReducedMotion();
   const [appeared, setAppeared] = useState(reduced);
   useEffect(() => {
@@ -276,7 +276,7 @@ export function Treemap({ cells = [] }) {
     <div className="tw-grid tw-gap-1" style={{ gridTemplateColumns: "repeat(6, 1fr)", gridAutoRows: "44px" }}>
       {laid.map((c, i) => {
         const pct = c.pct || 0;
-        const mag = Math.min(1, Math.abs(pct) / 3);
+        const mag = Math.min(1, Math.abs(pct) / maxPct);
         const colorVar = pct >= 0 ? "--success" : "--danger";
         return (
           <div

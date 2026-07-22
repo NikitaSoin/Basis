@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { FlaskConical, Send } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { FlaskConical, Send, RotateCcw } from "lucide-react";
 import { Card, Badge, Delta } from "../design/primitives";
-import { ImpactBar } from "../design/PortfolioViz";
+import { ImpactBar, Treemap } from "../design/PortfolioViz";
 import "../styles/stress-test.css";
 
-// StressTestView v2 — «Стресс-тестирование» (владелец, 2026-07-17, вторая
-// итерация): (1) формат «я спрашиваю ЛЮБОЙ сценарий — получаю ответ» (LLM-парсер
-// DeepSeek → детерминированный расчёт); (2) числовые поля (ставка/курс/нефть) →
-// Δ выручки/EBITDA/чистой прибыли в млрд ₽ и % от базы года (не «+2% у акции
-// непонятно чего»); (3) голубые фишки первыми; (4) качественные факторы — только
-// НАПРАВЛЕНИЕ (бакеты ▲▲/▲/▼/▼▼), без псевдоточных процентов. ДЕМО — дисклеймер.
+// StressTestView v3 — «Стресс-тестирование» как инструмент, не анкета (владелец,
+// 2026-07-23: «хочется, чтобы хотелось пробовать новые сценарии и смотреть что
+// будет» — редизайн по интерактивному прототипу). Ставка/курс/нефть теперь
+// слайдеры с живым (debounce) пересчётом через уже быстрый /stress-test/numeric
+// (без LLM) — карта рынка и лидерборд перекрашиваются на лету. Свободный текст
+// («что если...») остаётся отдельным путём через LLM-парсер: КОГДА он извлекает
+// явные числовые уровни — слайдеры визуально едут в интерпретированную позицию
+// (честно — только когда backend реально это прислал, не выдумываем координаты
+// на фронте). Пресеты — качественная факторная модель (санкции/конфликт/спрос),
+// у нее нет числовых ставка/курс/нефть эквивалентов в движке — не пытаемся
+// натянуть их на слайдеры, остаются отдельным результатом (QualTable), как раньше.
 
 const BUCKETS = [
   { min: 8, label: "▲▲", cls: "bs-wind-up", title: "сильно позитивно" },
@@ -78,6 +83,28 @@ function ImpactSignal({ numeric }) {
       <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-x-8">
         <div>{worst.map((c) => <Row key={c.ticker} c={c} />)}</div>
         <div>{best.map((c) => <Row key={c.ticker} c={c} />)}</div>
+      </div>
+    </Card>
+  );
+}
+
+// Карта рынка (Treemap) — то же «смотреть, как всё перекрашивается» одним
+// взглядом, что и лидерборд, но по всей вселенной задетых компаний разом.
+// Веса — грубая эвристика (голубые фишки крупнее): числового market_cap в
+// ответе /numeric нет, это визуальная пропорция, не точный вес индекса.
+function StressMap({ numeric }) {
+  const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 24);
+  if (!ranked.length) return null;
+  const cells = ranked.map((c) => ({
+    label: c.ticker,
+    weight: c.is_blue_chip ? 3 : 1,
+    pct: c.metrics.net_profit.pct_of_base ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15),
+  }));
+  return (
+    <Card header={<span className="tw-flex tw-items-center tw-gap-2">Карта рынка <span className="bs-tag-estimate">оценка</span></span>}>
+      <Treemap cells={cells} maxPct={30} />
+      <div className="tw-mt-3 tw-text-[11px] tw-text-text-tertiary">
+        Размер плитки — грубо, голубые фишки крупнее (веса капитализации в этом контуре нет). Цвет — Δ чистой прибыли, % от базы года.
       </div>
     </Card>
   );
@@ -254,61 +281,134 @@ function QualTable({ qual }) {
   );
 }
 
+// Дефолты на случай, если /current-levels временно недоступен (честная
+// деградация — приблизительные ориентиры, не боевые данные, помечено ниже).
+const FALLBACK_LEVELS = { key_rate_pct: 20, fx_usdrub: 80, oil_brent_usd: 70 };
+const SLIDER_RANGE = {
+  key_rate_pct: { min: 5, max: 30, step: 0.5, label: "Ключевая ставка", unit: "%" },
+  fx_usdrub: { min: 50, max: 150, step: 1, label: "Курс ₽/$", unit: "₽" },
+  oil_brent_usd: { min: 20, max: 120, step: 1, label: "Нефть Brent", unit: "$" },
+};
+
+function Slider({ field, value, onChange, pulsing }) {
+  const cfg = SLIDER_RANGE[field];
+  return (
+    <div className={`st-sl${pulsing ? " st-sl-pulse" : ""}`}>
+      <div className="st-sl-label">
+        <span className="st-sl-name">{cfg.label}</span>
+        <span className="st-sl-val">
+          {cfg.unit === "%" ? value.toFixed(1).replace(/\.0$/, "") : Math.round(value)}
+          <span className="st-sl-unit">{cfg.unit}</span>
+        </span>
+      </div>
+      <input type="range" min={cfg.min} max={cfg.max} step={cfg.step} value={value}
+        onChange={(e) => onChange(field, parseFloat(e.target.value))} />
+    </div>
+  );
+}
+
 export default function StressTestView() {
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+  // Слайдеры — null, пока не подтянули реальные текущие уровни (не рисуем
+  // произвольные числа как «сейчас», пока не знаем, что это правда).
+  const [levels, setLevels] = useState(null);
+  const [levelsIsFallback, setLevelsIsFallback] = useState(false);
+  const [pulsingFields, setPulsingFields] = useState(new Set());
+  const skipRecomputeRef = useRef(false);
+
+  const [numResult, setNumResult] = useState(null);
+  const [numRecomputing, setNumRecomputing] = useState(false);
+
   const [question, setQuestion] = useState("");
   const [askResult, setAskResult] = useState(null);
   const [askLoading, setAskLoading] = useState(false);
-  const [rate, setRate] = useState("");
-  const [rub, setRub] = useState("");
-  const [oil, setOil] = useState("");
-  const [numResult, setNumResult] = useState(null);
-  const [numLoading, setNumLoading] = useState(false);
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-  // Готовые сценарии (детерминированный расчёт, без LLM-интерпретации) —
-  // заполняют пустое состояние реальной функциональностью вместо декора.
   const [presets, setPresets] = useState([]);
   const [presetResult, setPresetResult] = useState(null);
-  const [presetKey, setPresetKey] = useState(null); // какой пресет сейчас грузится
+  const [presetKey, setPresetKey] = useState(null);
 
+  // Реальные текущие ориентиры — стартовая позиция слайдеров.
   useEffect(() => {
+    fetch(`${apiUrl}/api/stress-test/current-levels`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => {
+        const merged = {
+          key_rate_pct: d.key_rate_pct ?? FALLBACK_LEVELS.key_rate_pct,
+          fx_usdrub: d.fx_usdrub ?? FALLBACK_LEVELS.fx_usdrub,
+          oil_brent_usd: d.oil_brent_usd ?? FALLBACK_LEVELS.oil_brent_usd,
+        };
+        setLevelsIsFallback(d.key_rate_pct == null || d.fx_usdrub == null || d.oil_brent_usd == null);
+        skipRecomputeRef.current = true; // начальная позиция — не пересчитывать лишний раз
+        setLevels(merged);
+      })
+      .catch(() => { setLevels(FALLBACK_LEVELS); setLevelsIsFallback(true); });
+
     fetch(`${apiUrl}/api/stress-test/scenarios`)
       .then((r) => (r.ok ? r.json() : { scenarios: [] }))
       .then((d) => setPresets(d.scenarios || []))
       .catch(() => {});
   }, [apiUrl]);
 
-  const runPreset = (key) => {
-    setPresetKey(key); setPresetResult(null); setAskResult(null); setNumResult(null);
-    fetch(`${apiUrl}/api/stress-test/impact?scenario=${key}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setPresetResult(d); setPresetKey(null); })
-      .catch(() => setPresetKey(null));
+  // Живой пересчёт на слайдерах — debounce, БЕЗ полноэкранного лоадера (карта
+  // и таблица остаются на месте, пока новые данные не придут — не мигаем пустотой).
+  useEffect(() => {
+    if (!levels) return;
+    if (skipRecomputeRef.current) { skipRecomputeRef.current = false; return; }
+    setAskResult(null); setPresetResult(null);
+    const t = setTimeout(() => {
+      setNumRecomputing(true);
+      const params = new URLSearchParams({
+        key_rate_pct: levels.key_rate_pct, fx_usdrub: levels.fx_usdrub, oil_brent_usd: levels.oil_brent_usd,
+      });
+      fetch(`${apiUrl}/api/stress-test/numeric?${params}`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((d) => { setNumResult(d); setNumRecomputing(false); })
+        .catch(() => setNumRecomputing(false));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [apiUrl, levels?.key_rate_pct, levels?.fx_usdrub, levels?.oil_brent_usd]);
+
+  const setField = (field, value) => setLevels((prev) => ({ ...prev, [field]: value }));
+
+  const resetLevels = () => {
+    if (!levels) return;
+    setLevels({ ...FALLBACK_LEVELS });
   };
 
   const ask = () => {
-    if (!question.trim() || askLoading) return;
-    setAskLoading(true); setAskResult(null); setNumResult(null); setPresetResult(null);
+    if (!question.trim() || askLoading || !levels) return;
+    setAskLoading(true); setAskResult(null); setPresetResult(null);
     fetch(`${apiUrl}/api/stress-test/ask`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setAskResult(d); setAskLoading(false); })
+      .then((d) => {
+        setAskResult(d); setAskLoading(false);
+        if (d.numeric) setNumResult(d.numeric);
+        const t = d.numeric_targets;
+        if (t && (t.key_rate_pct != null || t.fx_usdrub != null || t.oil_brent_usd != null)) {
+          skipRecomputeRef.current = true; // уже посчитано в этом же ответе — не дублируем запрос
+          setLevels((prev) => ({
+            key_rate_pct: t.key_rate_pct ?? prev.key_rate_pct,
+            fx_usdrub: t.fx_usdrub ?? prev.fx_usdrub,
+            oil_brent_usd: t.oil_brent_usd ?? prev.oil_brent_usd,
+          }));
+          const pulsed = new Set(Object.entries(t).filter(([, v]) => v != null).map(([k]) => k));
+          setPulsingFields(pulsed);
+          setTimeout(() => setPulsingFields(new Set()), 900);
+        }
+      })
       .catch(() => { setAskResult({ error: "network" }); setAskLoading(false); });
   };
 
-  const runNumeric = () => {
-    const params = new URLSearchParams();
-    if (rate !== "") params.set("key_rate_pct", rate);
-    if (rub !== "") params.set("fx_usdrub", rub);
-    if (oil !== "") params.set("oil_brent_usd", oil);
-    if (![...params].length || numLoading) return;
-    setNumLoading(true); setNumResult(null); setAskResult(null); setPresetResult(null);
-    fetch(`${apiUrl}/api/stress-test/numeric?${params}`)
+  const runPreset = (key) => {
+    setPresetKey(key); setPresetResult(null); setAskResult(null);
+    fetch(`${apiUrl}/api/stress-test/impact?scenario=${key}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setNumResult(d); setNumLoading(false); })
-      .catch(() => { setNumResult({ error: "network" }); setNumLoading(false); });
+      .then((d) => { setPresetResult(d); setPresetKey(null); })
+      .catch(() => setPresetKey(null));
   };
 
   const EXAMPLES = [
@@ -334,120 +434,100 @@ export default function StressTestView() {
       <div>
         <h2 className="tw-font-display tw-text-[22px] tw-font-semibold tw-text-text-primary tw-m-0">Стресс-тестирование</h2>
         <p className="tw-text-[13px] tw-text-text-secondary tw-mt-1 tw-max-w-[68ch]">
-          Опишите любой сценарий своими словами — или задайте точные уровни ставки/курса/нефти. Покажем,
-          как это ориентировочно транслируется в выручку и прибыль компаний (голубые фишки первыми).
+          Подвигайте ползунки — карта рынка и таблица пересчитываются на лету, без ожидания. Или опишите
+          сценарий своими словами: если он называет конкретные уровни, ползунки встанут в них сами.
         </p>
       </div>
 
-      <Card header="Спросите сценарий">
-        <div className="tw-flex tw-gap-2">
-          <input
-            type="text" value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") ask(); }}
-            placeholder="Что будет, если ...?"
-            className="tw-flex-1 tw-px-3 tw-py-2.5 tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-text-text-primary tw-text-[14px]"
-          />
-          <button type="button" onClick={ask} disabled={askLoading}
-            className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-accent tw-text-white tw-text-[13.5px] tw-font-semibold tw-cursor-pointer tw-border-0 tw-inline-flex tw-items-center tw-gap-1.5 disabled:tw-opacity-60">
-            <Send size={14} /> Спросить
-          </button>
-        </div>
-        <div className="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
-          {EXAMPLES.map((ex) => (
-            <button key={ex} type="button" onClick={() => setQuestion(ex)}
-              className="tw-px-3 tw-py-1.5 tw-rounded-full tw-border tw-border-border-subtle tw-bg-bg-base tw-text-[12px] tw-text-text-secondary tw-cursor-pointer hover:tw-border-border-hover">
-              {ex}
+      <div className="st-console">
+        <div className="st-ask">
+          <div className="st-ask-row">
+            <input
+              type="text" value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") ask(); }}
+              placeholder="Опишите сценарий своими словами — «нефть падает до $45 и держится там»"
+            />
+            <button type="button" onClick={ask} disabled={askLoading}>
+              <Send size={14} /> Спросить
             </button>
-          ))}
-        </div>
-      </Card>
-
-      <Card header="Или задайте уровни точно">
-        <div className="tw-flex tw-flex-wrap tw-items-end tw-gap-5">
-          <label className="tw-flex tw-flex-col tw-gap-1.5">
-            <span className="tw-text-[12px] tw-text-text-tertiary">Ключевая ставка, %</span>
-            <input type="number" value={rate} onChange={(e) => setRate(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") runNumeric(); }} placeholder="напр. 20"
-              className="tw-w-28 tw-px-2.5 tw-py-1.5 tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-text-text-primary tw-font-mono" />
-          </label>
-          <label className="tw-flex tw-flex-col tw-gap-1.5">
-            <span className="tw-text-[12px] tw-text-text-tertiary">Курс, ₽/$</span>
-            <input type="number" value={rub} onChange={(e) => setRub(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") runNumeric(); }} placeholder="напр. 100"
-              className="tw-w-28 tw-px-2.5 tw-py-1.5 tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-text-text-primary tw-font-mono" />
-          </label>
-          <label className="tw-flex tw-flex-col tw-gap-1.5">
-            <span className="tw-text-[12px] tw-text-text-tertiary">Нефть Brent, $/барр.</span>
-            <input type="number" value={oil} onChange={(e) => setOil(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") runNumeric(); }} placeholder="напр. 50"
-              className="tw-w-28 tw-px-2.5 tw-py-1.5 tw-rounded-md tw-border tw-border-border-strong tw-bg-bg-base tw-text-text-primary tw-font-mono" />
-          </label>
-          <button type="button" onClick={runNumeric} disabled={numLoading}
-            className="tw-px-4 tw-py-2 tw-rounded-md tw-bg-accent tw-text-white tw-text-[13.5px] tw-font-semibold tw-cursor-pointer tw-border-0 disabled:tw-opacity-60">
-            Посчитать
-          </button>
-          <span className="tw-text-[11.5px] tw-text-text-tertiary tw-max-w-[38ch]">
-            Заполните любые из трёх — Δ считается от текущих уровней (у каждой компании свой спот-ориентир из её карточки).
-          </span>
-        </div>
-      </Card>
-
-      {presets.length > 0 && (
-        <Card header="Готовые сценарии (детерминированный расчёт, без ИИ-интерпретации — быстрее и без риска неверно понять вопрос)">
-          <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
-            {presets.map((p) => (
-              <button key={p.key} type="button" onClick={() => runPreset(p.key)}
-                disabled={presetKey === p.key}
-                className="bs-ai-plan tw-text-left tw-bg-transparent tw-w-full tw-cursor-pointer disabled:tw-opacity-60">
-                <div className="tw-text-[13.5px] tw-font-semibold tw-text-text-primary tw-mb-1">{p.label}</div>
-                <div className="tw-text-[12px] tw-text-text-secondary tw-leading-snug">{p.description}</div>
-              </button>
+          </div>
+          <div className="st-ask-chips">
+            {EXAMPLES.map((ex) => (
+              <button key={ex} type="button" onClick={() => setQuestion(ex)} className="st-chip">{ex}</button>
             ))}
           </div>
-        </Card>
-      )}
-
-      {(askLoading || numLoading || presetKey) && (
-        <div className="tw-py-8 tw-text-text-tertiary tw-text-center tw-animate-pulse">
-          {askLoading ? "Интерпретируем сценарий и считаем..." : presetKey ? "Считаем сценарий..." : "Считаем по вселенной..."}
         </div>
+
+        {askResult?.understood && (
+          <div className="st-interp">
+            <span className="st-interp-tag">интерпретация ИИ</span>
+            <p>{askResult.understood}</p>
+            {askResult.horizon && <div className="st-interp-horizon">Горизонт: {askResult.horizon}</div>}
+          </div>
+        )}
+        {askResult?.error === "llm_unavailable" && (
+          <div className="st-interp"><p>{askResult.note}</p></div>
+        )}
+        {askResult?.out_of_scope && (
+          <div className="st-interp"><p>{askResult.out_of_scope_note}</p></div>
+        )}
+
+        {!levels ? (
+          <div className="st-sliders-loading">Загружаем текущие уровни ставки/курса/нефти…</div>
+        ) : (
+          <>
+            <div className="st-sliders-head">
+              <span>Или задайте уровни точно {numRecomputing && <span className="st-recompute-dot" aria-label="пересчитываем" />}</span>
+              <button type="button" className="st-reset" onClick={resetLevels}>
+                <RotateCcw size={12} /> К текущим уровням
+              </button>
+            </div>
+            <div className="st-sliders">
+              <Slider field="key_rate_pct" value={levels.key_rate_pct} onChange={setField} pulsing={pulsingFields.has("key_rate_pct")} />
+              <Slider field="fx_usdrub" value={levels.fx_usdrub} onChange={setField} pulsing={pulsingFields.has("fx_usdrub")} />
+              <Slider field="oil_brent_usd" value={levels.oil_brent_usd} onChange={setField} pulsing={pulsingFields.has("oil_brent_usd")} />
+            </div>
+            {levelsIsFallback && (
+              <div className="st-levels-note">Текущие уровни временно недоступны — старт от приблизительных ориентиров (ставка ~20%, курс ~80 ₽/$, Brent ~$70), не боевые данные.</div>
+            )}
+          </>
+        )}
+
+        {presets.length > 0 && (
+          <div className="st-presets">
+            <div className="st-presets-head">Готовые сценарии (детерминированный расчёт качественных факторов — санкции/конфликт/спрос, без ИИ-интерпретации)</div>
+            <div className="st-presets-grid">
+              {presets.map((p) => (
+                <button key={p.key} type="button" onClick={() => runPreset(p.key)}
+                  disabled={presetKey === p.key} className="bs-ai-plan st-preset">
+                  <div className="st-preset-label">{p.label}</div>
+                  <div className="st-preset-desc">{p.description}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {askLoading && (
+        <div className="tw-py-6 tw-text-text-tertiary tw-text-center tw-animate-pulse">Интерпретируем сценарий…</div>
+      )}
+      {presetKey && (
+        <div className="tw-py-6 tw-text-text-tertiary tw-text-center tw-animate-pulse">Считаем сценарий...</div>
       )}
 
-      {askResult && !askLoading && (
-        <>
-          {askResult.error === "llm_unavailable" && (
-            <Card><div className="tw-text-[13.5px] tw-text-text-secondary">{askResult.note}</div></Card>
-          )}
-          {askResult.error === "network" && (
-            <Card><div className="tw-text-[13.5px] tw-text-danger">Не удалось получить ответ — попробуйте ещё раз.</div></Card>
-          )}
-          {askResult.understood && (
-            <Card header={<span className="tw-flex tw-items-center tw-gap-2">
-              Как мы поняли ваш сценарий
-              <span className="bs-tag-judgment">интерпретация ИИ</span>
-            </span>}>
-              <div className="tw-text-[14px] tw-text-text-primary tw-leading-relaxed">{askResult.understood}</div>
-              {askResult.horizon && <div className="tw-text-[12px] tw-text-text-tertiary tw-mt-1.5">Горизонт: {askResult.horizon}</div>}
-              {askResult.out_of_scope && (
-                <div className="tw-mt-3 tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">{askResult.out_of_scope_note}</div>
-              )}
-              {askResult.no_signal && (
-                <div className="tw-mt-3 tw-p-3 tw-rounded-md tw-bg-warning-soft tw-text-[13px] tw-text-text-primary">{askResult.note}</div>
-              )}
-            </Card>
-          )}
-          {askResult.expert && <ExpertBlock e={askResult.expert} />}
-          {askResult.numeric && <ImpactSignal numeric={askResult.numeric} />}
-          {askResult.numeric && <NumericTable numeric={askResult.numeric} />}
-          {askResult.qualitative && <QualTable qual={askResult.qualitative} />}
-        </>
-      )}
+      {numResult && !numResult.error && <StressMap numeric={numResult} />}
+      {numResult && !numResult.error && <ImpactSignal numeric={numResult} />}
+      {numResult && !numResult.error && <NumericTable numeric={numResult} />}
 
-      {numResult && !numLoading && !numResult.error && <ImpactSignal numeric={numResult} />}
-      {numResult && !numLoading && !numResult.error && <NumericTable numeric={numResult} />}
-      {numResult && numResult.error === "no_inputs" && (
-        <Card><div className="tw-text-[13.5px] tw-text-text-secondary">{numResult.note}</div></Card>
+      {askResult?.expert && <ExpertBlock e={askResult.expert} />}
+      {askResult?.qualitative && <QualTable qual={askResult.qualitative} />}
+      {askResult?.no_signal && (
+        <Card><div className="tw-text-[13.5px] tw-text-text-secondary">{askResult.note}</div></Card>
+      )}
+      {askResult?.error === "network" && (
+        <Card><div className="tw-text-[13.5px] tw-text-danger">Не удалось получить ответ — попробуйте ещё раз.</div></Card>
       )}
 
       {presetResult && !presetResult.error && (

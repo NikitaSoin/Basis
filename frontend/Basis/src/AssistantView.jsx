@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   PanelLeft,
   FileSearch,
+  X as CloseIcon,
 } from "lucide-react";
 import "./styles/assistant.css";
 import { useMobileSidebarDrawer, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
@@ -17,26 +18,88 @@ import { BasisLogomark } from "./design/logomarks";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+// Результат разбора документа — вынесен отдельно, чтобы рендериться И в
+// композере (inline-режим), И как обычная карточка в ленте (см. AssistantView).
+function DocAnalyzeResult({ res }) {
+  if (res?.error) {
+    return (
+      <div className="asst-docpanel-err">
+        {res.error === "bad_url" ? "Нужна прямая ссылка http(s)://"
+          : res.error === "fetch_failed" ? (res.note || "Документ не открылся (возможно, egress-ограничение сервера).")
+          : res.error === "empty_text" ? (res.note || "Текст не извлёкся (вероятно скан-PDF без текстового слоя).")
+          : res.error === "llm_unavailable" ? "Интерпретатор временно недоступен."
+          : "Не удалось разобрать документ."}
+      </div>
+    );
+  }
+  if (!res) return null;
+  return (
+    <div className="asst-docpanel-res">
+      <div className="asst-docpanel-type">{res.doc_type}</div>
+      <p className="asst-docpanel-summary">{res.summary}</p>
+      {res.key_figures?.length > 0 && (
+        <table className="asst-docpanel-table"><tbody>
+          {res.key_figures.map((k, i) => (
+            <tr key={i}><td>{k.metric}</td><td className="num">{k.value}</td><td className="note">{k.note}</td></tr>
+          ))}
+        </tbody></table>
+      )}
+      {res.highlights?.length > 0 && (
+        <ul className="asst-docpanel-list">{res.highlights.map((h, i) => <li key={i}>{h}</li>)}</ul>
+      )}
+      {res.risks_or_caveats?.length > 0 && (
+        <div className="asst-docpanel-risks"><b>На что обратить внимание:</b> {res.risks_or_caveats.join(" · ")}</div>
+      )}
+      <div className="asst-docpanel-foot">
+        Источник: {res.source?.kind?.toUpperCase()} · {res.source?.chars} симв. · разбор ИИ (демо), не аудит.
+      </div>
+    </div>
+  );
+}
+
 // DocAnalyzePanel — демо «файл приходит агенту, он его анализирует» (владелец,
 // 2026-07-21): вставь ссылку на PDF-отчётность МСФО/РСБУ или веб-страницу —
 // агент открывает документ (pypdf для PDF), DeepSeek структурирует разбор.
 // Бэк: POST /api/agents/analyze-document {url}. Egress-нюанс: на проде внешний
 // хост может быть недоступен без релея — тогда честная ошибка, не падение.
-function DocAnalyzePanel() {
+// inline — компактная строка ввода для композера режима «Агент» (владелец,
+// 2026-07-23): результат уходит наверх через onResult и рендерится в ленте
+// как обычная карточка ответа, а не внутри самой панели.
+function DocAnalyzePanel({ inline = false, onResult }) {
   const [url, setUrl] = useState("");
   const [res, setRes] = useState(null);
   const [state, setState] = useState("idle"); // idle | loading | error
   const run = () => {
-    if (!/^https?:\/\//.test(url.trim())) { setState("error"); setRes({ error: "bad_url" }); return; }
+    if (!/^https?:\/\//.test(url.trim())) {
+      const errRes = { error: "bad_url" };
+      setState("error"); setRes(errRes); onResult?.(errRes);
+      return;
+    }
     setState("loading"); setRes(null);
+    onResult?.(null, "loading");
     fetch(`${API}/api/agents/analyze-document`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url: url.trim() }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setRes(d); setState(d.error ? "error" : "done"); })
-      .catch(() => { setRes({ error: "network" }); setState("error"); });
+      .then((d) => { setRes(d); setState(d.error ? "error" : "done"); onResult?.(d); })
+      .catch(() => { const errRes = { error: "network" }; setRes(errRes); setState("error"); onResult?.(errRes); });
   };
+
+  if (inline) {
+    return (
+      <>
+        <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") run(); }}
+          placeholder="https://…/report.pdf или ссылка на страницу с отчётностью"
+          className="asst-textarea" aria-label="Ссылка на документ" />
+        <button type="button" onClick={run} disabled={state === "loading" || !url.trim()} className="asst-send" aria-label="Разобрать">
+          {state === "loading" ? <span className="asst-docpanel-spinner" /> : <FileSearch size={16} />}
+        </button>
+      </>
+    );
+  }
+
   return (
     <div className="asst-docpanel">
       <div className="asst-docpanel-head"><FileSearch size={16} /> Разбор документа по ссылке <span className="asst-docpanel-demo">демо</span></div>
@@ -49,37 +112,7 @@ function DocAnalyzePanel() {
           {state === "loading" ? "Читаю документ…" : "Разобрать"}
         </button>
       </div>
-      {res?.error && (
-        <div className="asst-docpanel-err">
-          {res.error === "bad_url" ? "Нужна прямая ссылка http(s)://"
-            : res.error === "fetch_failed" ? (res.note || "Документ не открылся (возможно, egress-ограничение сервера).")
-            : res.error === "empty_text" ? (res.note || "Текст не извлёкся (вероятно скан-PDF без текстового слоя).")
-            : res.error === "llm_unavailable" ? "Интерпретатор временно недоступен."
-            : "Не удалось разобрать документ."}
-        </div>
-      )}
-      {res && !res.error && (
-        <div className="asst-docpanel-res">
-          <div className="asst-docpanel-type">{res.doc_type}</div>
-          <p className="asst-docpanel-summary">{res.summary}</p>
-          {res.key_figures?.length > 0 && (
-            <table className="asst-docpanel-table"><tbody>
-              {res.key_figures.map((k, i) => (
-                <tr key={i}><td>{k.metric}</td><td className="num">{k.value}</td><td className="note">{k.note}</td></tr>
-              ))}
-            </tbody></table>
-          )}
-          {res.highlights?.length > 0 && (
-            <ul className="asst-docpanel-list">{res.highlights.map((h, i) => <li key={i}>{h}</li>)}</ul>
-          )}
-          {res.risks_or_caveats?.length > 0 && (
-            <div className="asst-docpanel-risks"><b>На что обратить внимание:</b> {res.risks_or_caveats.join(" · ")}</div>
-          )}
-          <div className="asst-docpanel-foot">
-            Источник: {res.source?.kind?.toUpperCase()} · {res.source?.chars} симв. · разбор ИИ (демо), не аудит.
-          </div>
-        </div>
-      )}
+      <DocAnalyzeResult res={res} />
     </div>
   );
 }
@@ -196,6 +229,23 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
   const textareaRef = useRef(null);
   const lastSentRef = useRef(null); // последнее сообщение — для повтора при ошибке
 
+  // Режим «Агент» (разбор отчёта по ссылке) — владелец, 2026-07-23: было плохо
+  // видно (мелкая ссылка только в пустом состоянии), нужно как «+» у Клода/
+  // ChatGPT: явный переключатель режима, при включении композер меняет смысл
+  // (текст поля + текст-подсказка), не отдельная скрытая панель. Функция пока
+  // одна — сразу кнопка-тумблер, без меню на одну позицию.
+  const [agentMode, setAgentMode] = useState(false);
+  const [docResult, setDocResult] = useState(null);
+  const [docLoading, setDocLoading] = useState(false);
+  const handleDocResult = (res, state) => {
+    setDocLoading(state === "loading");
+    if (state !== "loading") setDocResult(res);
+  };
+  const toggleAgentMode = () => {
+    setAgentMode((v) => !v);
+    setDocResult(null); setDocLoading(false);
+  };
+
   const authHeaders = useCallback(
     () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token}` }),
     [token]
@@ -236,6 +286,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     setError(null);
     setLoadingConv(true);
     setMobileDrawerOpen(false);
+    setAgentMode(false); setDocResult(null); setDocLoading(false);
     try {
       const r = await fetch(`${API}/api/assistant/conversations/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -256,6 +307,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     setError(null);
     setInput("");
     setMobileDrawerOpen(false);
+    setAgentMode(false); setDocResult(null); setDocLoading(false);
     if (textareaRef.current) textareaRef.current.focus();
   };
 
@@ -425,7 +477,6 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                     <button key={s} type="button" className="asst-suggest" onClick={() => doSend(s)}>{s}</button>
                   ))}
                 </div>
-                <DocAnalyzePanel />
               </div>
             ) : (
               <>
@@ -482,6 +533,18 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                 )}
               </>
             )}
+            {agentMode && (docLoading || docResult) && (
+              <div className="asst-row assistant">
+                <span className="asst-avatar"><FileSearch size={15} /></span>
+                <div className="asst-bubble-asst">
+                  {docLoading ? (
+                    <div className="asst-typing"><span /><span /><span /></div>
+                  ) : (
+                    <DocAnalyzeResult res={docResult} />
+                  )}
+                </div>
+              </div>
+            )}
             {!empty && <div className="asst-feed-watermark"><BasisLogomark size={200} /></div>}
           </div>
 
@@ -496,31 +559,58 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
           )}
 
           <div className="asst-composer">
+            {agentMode && (
+              <div className="asst-mode-line">
+                <span className="asst-mode-dot" />
+                <span>
+                  <b>Агентский режим</b> — в нём вы разбираете отчёты: пришлите ссылку на PDF (МСФО/РСБУ)
+                  или страницу с отчётностью, агент скачает и структурирует разбор.
+                </span>
+              </div>
+            )}
             <div className="asst-inputrow">
-              <textarea
-                ref={textareaRef}
-                className="asst-textarea"
-                rows={1}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={onKeyDown}
-                placeholder="Спросите о компании, метрике или рынке…"
-                aria-label="Сообщение ассистенту"
-                disabled={sending}
-              />
               <button
                 type="button"
-                className="asst-send"
-                onClick={() => doSend()}
-                disabled={sending || !input.trim()}
-                aria-label="Отправить"
+                className={`asst-mode-toggle${agentMode ? " on" : ""}`}
+                onClick={toggleAgentMode}
+                title="Агентский режим — разбор отчёта по ссылке"
+                aria-pressed={agentMode}
               >
-                <Send size={17} />
+                {agentMode ? <CloseIcon size={14} /> : <Plus size={15} />}
+                <span>Агент</span>
               </button>
+              {agentMode ? (
+                <DocAnalyzePanel inline onResult={handleDocResult} />
+              ) : (
+                <>
+                  <textarea
+                    ref={textareaRef}
+                    className="asst-textarea"
+                    rows={1}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    placeholder="Спросите о компании, метрике или рынке…"
+                    aria-label="Сообщение ассистенту"
+                    disabled={sending}
+                  />
+                  <button
+                    type="button"
+                    className="asst-send"
+                    onClick={() => doSend()}
+                    disabled={sending || !input.trim()}
+                    aria-label="Отправить"
+                  >
+                    <Send size={17} />
+                  </button>
+                </>
+              )}
             </div>
             <p className="asst-disclaimer">
-              Ассистент не даёт индивидуальных инвестиционных рекомендаций и не советует покупать
-              или продавать — только помогает ориентироваться в данных платформы. Enter — отправить, Shift+Enter — перенос строки.
+              {agentMode
+                ? "Разбор документа — демо, не аудит: числа берутся только из текста, без выдумывания."
+                : (<>Ассистент не даёт индивидуальных инвестиционных рекомендаций и не советует покупать
+                  или продавать — только помогает ориентироваться в данных платформы. Enter — отправить, Shift+Enter — перенос строки.</>)}
             </p>
           </div>
         </section>
