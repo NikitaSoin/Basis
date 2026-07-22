@@ -985,7 +985,7 @@ def debug_chronicle_stats():
 
 
 @router.post("/debug/trigger-lenta-cleanup")
-def debug_trigger_lenta_cleanup(keep_days: int = 90):
+def debug_trigger_lenta_cleanup(keep_days: int = 30):
     """Ретеншен Ленты: удалить строки market_updates старше keep_days (важное сперва
     страхуется в летопись). Разовый/ручной запуск дневной чистки."""
     from app.db.session import SessionLocal
