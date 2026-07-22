@@ -1,0 +1,9 @@
+/* Точечный оверрайд шрифтов для «Стресс-тестирования» — экран собран на
+   design/primitives.jsx (Tailwind tw-font-mono/tw-font-display), которые
+   указывают на легаси-шрифты (JetBrains Mono / Inter Display, запрещены
+   дизайн-конституцией). Канон — Fraunces / IBM Plex Mono, оба уже подключены
+   в public/index.html. Системный проход по tailwind.config.js — отдельная
+   задача (primitives.jsx переиспользуется другими незамигрированными
+   экранами); здесь — локальный скоуп по классу обёртки. */
+.stress-test-view, .stress-test-view .tw-font-mono { font-family: var(--bs-mono) !important; }
+.stress-test-view h2.tw-font-display { font-family: var(--bs-serif) !important; }

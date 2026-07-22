@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
-  Sparkles,
   Plus,
   Trash2,
   Send,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import "./styles/assistant.css";
 import { useMobileSidebarDrawer, MobileDrawerBackdrop } from "./design/MobileSidebarDrawer";
+import { BasisLogomark } from "./design/logomarks";
 
 const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -94,6 +94,39 @@ const SUGGESTIONS = [
   "Сравни Лукойл и Роснефть по мультипликаторам",
 ];
 
+// Бэкенд-промпт (app/services/assistant.py) СТРОГО требует пометку в скобках
+// после каждого численного утверждения — «(факт ... / оценка Basis ... /
+// суждение ...)» — гарантированный формат, не хрупкий edge-case. Перехватываем
+// и рендерим тегом канона (.bs-tag-fact/estimate/judgment) вместо голого текста.
+// (?![а-яё]) вместо \b — в JS \w/\b по умолчанию ASCII-only, границу слова
+// после кириллицы НЕ видит (проверено: \b молча не матчил вообще ничего),
+// поэтому «не продолжение слова» проверяем явно (не пускаем «оценкам»/«фактически»).
+const EPISTEMIC_RE = /\((факт|оценка|суждение|модель)(?![а-яё])([^)]*)\)/gi;
+const EPISTEMIC_LABEL = { факт: "ФАКТ", оценка: "ОЦЕНКА", суждение: "СУЖДЕНИЕ", модель: "МОДЕЛЬ" };
+const EPISTEMIC_CLASS = {
+  факт: "bs-tag-fact", оценка: "bs-tag-estimate",
+  суждение: "bs-tag-judgment", модель: "bs-tag-estimate",
+};
+
+function withEpistemicTags(text) {
+  if (typeof text !== "string") return text;
+  const out = [];
+  let last = 0, m;
+  EPISTEMIC_RE.lastIndex = 0;
+  while ((m = EPISTEMIC_RE.exec(text))) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const kind = m[1].toLowerCase();
+    out.push(
+      <span key={m.index} className={EPISTEMIC_CLASS[kind]} style={{ marginLeft: 4 }}>
+        {EPISTEMIC_LABEL[kind]}
+      </span>
+    );
+    last = m.index + m[0].length;
+  }
+  out.push(text.slice(last));
+  return out;
+}
+
 // markdown-компоненты ответа ассистента (проза + таблицы из данных платформы)
 const ASSISTANT_MD = {
   h1: ({ children }) => <h3>{children}</h3>,
@@ -101,7 +134,25 @@ const ASSISTANT_MD = {
   a: ({ href, children }) => (
     <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>
   ),
+  p: ({ children }) => (
+    <p>{React.Children.map(children, (c) => (typeof c === "string" ? withEpistemicTags(c) : c))}</p>
+  ),
+  li: ({ children }) => (
+    <li>{React.Children.map(children, (c) => (typeof c === "string" ? withEpistemicTags(c) : c))}</li>
+  ),
 };
+
+// «вчера» / «3 дн назад» / «22 июл» — под заголовком диалога в истории, чтобы
+// одинаковые по названию диалоги (частый повтор одного вопроса) различались.
+function formatRelative(iso) {
+  if (!iso) return "";
+  const d = new Date(iso), now = new Date();
+  const days = Math.floor((now - d) / 86400000);
+  if (days === 0) return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  if (days === 1) return "вчера";
+  if (days < 7) return `${days} дн назад`;
+  return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" });
+}
 
 function refIcon(kind) {
   if (kind === "company") return <MessageSquare size={12} aria-hidden="true" />;
@@ -278,7 +329,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     return (
       <div>
         <div className="asst-invite">
-          <div className="asst-invite-icon"><Sparkles size={32} /></div>
+          <div className="asst-invite-icon"><BasisLogomark size={36} /></div>
           <h2>Ассистент Basis</h2>
           <p>
             Задавайте вопросы о компаниях, мультипликаторах, макроэкономике и данных
@@ -326,8 +377,9 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                   onClick={() => openConversation(c.id)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openConversation(c.id); } }}
                 >
-                  <MessageSquare size={14} style={{ flexShrink: 0, color: "var(--text-3)" }} />
+                  <MessageSquare size={14} style={{ flexShrink: 0 }} />
                   <span className="asst-conv-title">{c.title || "Без названия"}</span>
+                  <span className="asst-conv-time">{formatRelative(c.updated_at)}</span>
                   <button
                     type="button"
                     className="asst-conv-del"
@@ -355,7 +407,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
             >
               <PanelLeft size={16} />
             </button>
-            <span className="asst-head-icon"><Sparkles size={18} /></span>
+            <span className="asst-head-icon"><BasisLogomark size={20} /></span>
             <div>
               <div className="asst-head-title">Ассистент Basis</div>
               <div className="asst-head-sub">Помогает ориентироваться в данных платформы · не даёт рекомендаций «купить/продать»</div>
@@ -365,7 +417,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
           <div className="asst-feed" ref={feedRef}>
             {empty ? (
               <div className="asst-empty">
-                <div className="asst-empty-icon"><Sparkles size={26} /></div>
+                <div className="asst-empty-icon"><BasisLogomark size={28} /></div>
                 <h2>Чем помочь?</h2>
                 <p>Спросите о компании, метрике или рыночном фоне обычным языком — я отвечу на основе данных Basis.</p>
                 <div className="asst-suggests">
@@ -379,7 +431,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
               <>
                 {loadingConv && (
                   <div className="asst-row assistant">
-                    <span className="asst-avatar"><Sparkles size={15} /></span>
+                    <span className="asst-avatar"><BasisLogomark size={17} /></span>
                     <div className="asst-bubble-asst"><div className="asst-typing"><span /><span /><span /></div></div>
                   </div>
                 )}
@@ -390,7 +442,7 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                     </div>
                   ) : (
                     <div key={m.id} className="asst-row assistant">
-                      <span className="asst-avatar"><Sparkles size={15} /></span>
+                      <span className="asst-avatar"><BasisLogomark size={17} /></span>
                       <div className="asst-bubble-asst">
                         <div className="asst-md">
                           <ReactMarkdown remarkPlugins={[remarkGfm]} components={ASSISTANT_MD}>
@@ -424,12 +476,13 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                 ))}
                 {sending && (
                   <div className="asst-row assistant">
-                    <span className="asst-avatar"><Sparkles size={15} /></span>
+                    <span className="asst-avatar"><BasisLogomark size={17} /></span>
                     <div className="asst-bubble-asst"><div className="asst-typing"><span /><span /><span /></div></div>
                   </div>
                 )}
               </>
             )}
+            {!empty && <div className="asst-feed-watermark"><BasisLogomark size={200} /></div>}
           </div>
 
           {error && (

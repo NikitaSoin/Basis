@@ -167,12 +167,24 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
         impact = _company_numeric_impact(qi, sector, key_rate_pct, fx_usdrub, oil_brent_usd, brent_spot)
         if not impact:
             continue
-        np_pct = (impact["metrics"].get("net_profit") or {}).get("pct_of_base")
+        np_metric = impact["metrics"].get("net_profit") or {}
+        np_pct, np_bn = np_metric.get("pct_of_base"), np_metric.get("delta_bn")
+        if np_pct is not None:
+            sort_key = abs(np_pct)
+        elif np_bn is not None:
+            # % подавлен НЕ потому что эффекта нет, а потому что эффект БОЛЬШЕ базы —
+            # экстремальный случай, ранжируем его высоко, а не последним (было -1, из-за
+            # чего компания с крупнейшим |Δ млрд ₽| (напр. Роснефть в сценарии «нефть $45»)
+            # уходила в конец списка голубых фишек — прямая причина «непонятно кто
+            # пострадал больше»).
+            sort_key = 999 + abs(np_bn)
+        else:
+            sort_key = -1
         companies.append({
             "ticker": ticker, "name": name, "sector": sector,
             "is_blue_chip": ticker in BLUE_CHIPS,
             **impact,
-            "_sort": abs(np_pct) if np_pct is not None else -1,
+            "_sort": sort_key,
         })
 
     companies.sort(key=lambda c: (not c["is_blue_chip"], -c["_sort"]))
