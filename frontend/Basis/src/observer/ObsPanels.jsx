@@ -1886,7 +1886,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     zoomBy(factor, e.clientX, e.clientY);
   };
   const onPointerDown = (e) => {
-    if (zoom <= 1) return;
+    // Клик по кнопкам зума (или любому другому интерактиву в рамке — офф-чипам)
+    // НЕ должен вооружать перетаскивание: иначе setPointerCapture на самой рамке
+    // перехватывает указатель у кнопки и следующий клик по ней перестаёт срабатывать
+    // (именно так «кнопки лупы не работают» после первого же приближения).
+    if (zoom <= 1 || e.target.closest("button")) return;
     dragRef.current = { startX: e.clientX, startY: e.clientY, startPan: pan };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
