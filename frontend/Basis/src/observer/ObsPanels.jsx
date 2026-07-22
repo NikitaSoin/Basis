@@ -1939,6 +1939,19 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         {data.as_of && <span className="obs-geomap-asof">срез на {data.as_of}</span>}
       </div>
 
+      {!onRussiaMap && data.territorial_change && (() => {
+        const tc = data.territorial_change;
+        const valueLabel = tc.km2_range ? `${tc.km2_range[0]}–${tc.km2_range[1]}` : tc.km2_value;
+        return (
+          <div className="obs-geomap-territorial-stat" title={tc.note}>
+            <TrendingDown size={13} aria-hidden="true" />
+            <span className="obs-geomap-territorial-value">{valueLabel} км²/мес</span>
+            <span className="obs-tag-estimate">оценка</span>
+            {tc.trend && <span className="obs-geomap-territorial-trend">{tc.trend}</span>}
+          </div>
+        );
+      })()}
+
       {!onRussiaMap && data.front_line_summary && <p className="obs-geomap-prose">{data.front_line_summary}</p>}
 
       <div className="obs-geomap-filterbar">
