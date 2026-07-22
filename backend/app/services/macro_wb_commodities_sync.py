@@ -1,14 +1,19 @@
-"""Синхронизация МЕСЯЧНЫХ мировых цен сырья без живого биржевого ряда на
-платформе (Направление: «Товар компании», commodity_exposure в market.json
-компаний, см. .claude/agents/market-analyst.md ОБНОВЛЕНИЕ v6).
+"""Синхронизация МЕСЯЧНЫХ мировых цен сырья на платформе (Направление:
+«Товар компании», commodity_exposure в market.json компаний, см.
+.claude/agents/market-analyst.md ОБНОВЛЕНИЕ v6).
 
-Нефть/газ/золото/серебро/платина/палладий/медь/пшеница/Urals — уже покрыты
-живыми рядами (FORTS через instrument_history + Urals через
-macro_tankermap_sync.py, ДНЕВНЫЕ). Алюминий/никель/уголь/руда/удобрения на
-MOEX не торгуются и не имеют бесплатного дневного фида — здесь берём
-официальный МЕСЯЧНЫЙ бенчмарк Всемирного банка (World Bank Commodity Price
-Data, «Pink Sheet»), обновляется раз в месяц, публикуется с 1960 года,
-свободный доступ без ключа/авторизации.
+🔴 2026-07-22: FORTS-ряды (золото/серебро/платина/медь/газ/нефть как
+российские деривативы через instrument_history) НЕ дают многолетней
+глубины на практике — контракт живёт ~3 месяца, история истёкших
+контрактов не бэкафиллится (см. docs/status.md, «непрерывные ряды»).
+Поэтому здесь дублируем WB Pink Sheet и по этим товарам тоже — как честную
+альтернативу с реальной глубиной (2016+, помесячно), а не полагаемся на
+теоретически «живой», но фактически короткий FORTS-канал. Urals — отдельно,
+через macro_tankermap_sync.py (ДНЕВНОЙ, реально глубокий с 2024).
+Алюминий/никель/уголь/руда/удобрения на MOEX вообще не торгуются — только
+WB. Здесь берём официальный МЕСЯЧНЫЙ бенчмарк Всемирного банка (World Bank
+Commodity Price Data, «Pink Sheet»), обновляется раз в месяц, публикуется
+с 1960 года, свободный доступ без ключа/авторизации.
 
 Источник — НЕ прямая CSV-ссылка (адрес XLSX-файла меняется, судя по всему,
 ежегодно —ハッシュ-префикс в URL другой у 2025 и 2026 годовых серий
@@ -45,9 +50,9 @@ _XLSX_RE = re.compile(
     r'https://thedocs\.worldbank\.org/en/doc/[a-z0-9]+-\d+/related/CMO-Historical-Data-Monthly\.xlsx')
 
 # Название колонки в файле (строка 5 листа "Monthly Prices") → наш indicator_code.
-# Курируем ТОЛЬКО сырьё без живого биржевого ряда на платформе — остальное (нефть/
-# газ/золото/серебро/платина/медь/пшеница) уже идёт через FORTS, дублировать WB-
-# месячный ряд поверх дневного биржевого смысла нет.
+# Курируемый список — не берём все 71+ колонку файла, только сырьё, реально
+# нужное для commodity_exposure карточек компаний платформы (плюс какао/сахар —
+# закрывает пробел benchmark_status:"none" у кондитерских разборов).
 _COLUMNS = {
     "Aluminum": "wb_aluminum",
     "Nickel": "wb_nickel",
@@ -57,11 +62,31 @@ _COLUMNS = {
     "DAP": "wb_dap",
     "Potassium chloride **": "wb_potash",
     "Urea ": "wb_urea",  # в файле с хвостовым пробелом, см. заголовок
+    "Crude oil, Brent": "wb_oil_brent",
+    "Crude oil, WTI": "wb_oil_wti",
+    "Natural gas, US": "wb_gas_us",
+    "Natural gas, Europe": "wb_gas_europe",
+    "Liquefied natural gas, Japan": "wb_gas_lng_japan",
+    "Copper": "wb_copper",
+    "Lead": "wb_lead",
+    "Tin": "wb_tin",
+    "Zinc": "wb_zinc",
+    "Gold": "wb_gold",
+    "Platinum": "wb_platinum",
+    "Silver": "wb_silver",
+    "Cocoa": "wb_cocoa",
+    "Sugar, world": "wb_sugar_world",
+    "Wheat, US HRW": "wb_wheat",
 }
 _UNITS = {
     "wb_aluminum": "usd/mt", "wb_nickel": "usd/mt", "wb_coal": "usd/mt",
     "wb_iron_ore": "usd/dmtu", "wb_phosphate_rock": "usd/mt", "wb_dap": "usd/mt",
     "wb_potash": "usd/mt", "wb_urea": "usd/mt",
+    "wb_oil_brent": "usd/bbl", "wb_oil_wti": "usd/bbl",
+    "wb_gas_us": "usd/mmbtu", "wb_gas_europe": "usd/mmbtu", "wb_gas_lng_japan": "usd/mmbtu",
+    "wb_copper": "usd/mt", "wb_lead": "usd/mt", "wb_tin": "usd/mt", "wb_zinc": "usd/mt",
+    "wb_gold": "usd/oz", "wb_platinum": "usd/oz", "wb_silver": "usd/oz",
+    "wb_cocoa": "usd/kg", "wb_sugar_world": "usd/kg", "wb_wheat": "usd/mt",
 }
 _PERIOD_RE = re.compile(r"^(\d{4})M(\d{1,2})$")
 
