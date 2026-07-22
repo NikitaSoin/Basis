@@ -4517,9 +4517,8 @@
           "type": "Feature",
           "properties": {
             "name_ru": "Краснодарский край",
-            "control": "ru",
-            "control_note": "Территория России (приграничье) — не часть вопроса контроля СВО.",
-            "control_confidence": "H",
+            "control": "context",
+            "control_note": "Территория России, не относится к линии фронта СВО — регион даёт географический контекст (Новороссийск, Чёрное море).",
             "slug": "krasnodar_ru"
           },
           "geometry": {

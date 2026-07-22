@@ -1951,6 +1951,16 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         map.getStyle().layers.forEach((l) => {
           if (l["source-layer"] === "place") map.setLayoutProperty(l.id, "visibility", "none");
         });
+        // OSM/OpenMapTiles рисуют границу Крыма и новых территорий отдельным
+        // пунктирным слоем boundary_disputed (свойство disputed=1 в исходных
+        // данных) — визуально это читается как «спорная территория», что
+        // противоречит нашей же закраске этих регионов как российских (см.
+        // feedback_ru_market_legal_framing). Глушим сам пунктир — наш выбор
+        // здесь однозначен (регионы закрашены statusом "ru"), лишняя
+        // пунктирная линия только подрывает эту однозначность.
+        map.getStyle().layers.forEach((l) => {
+          if (l.id === "boundary_disputed") map.setLayoutProperty(l.id, "visibility", "none");
+        });
       }
 
       map.addSource("regions", { type: "geojson", data: GEOMAP_EMPTY_FC });
@@ -1996,9 +2006,17 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         const slug = e.features?.[0]?.properties?.slug;
         if (slug) selectRegion(slug);
       });
-
-      setStyleLoaded(true);
     });
+
+    // "load" стреляет сразу после разбора стиля/источников — камера (bounds→fitBounds
+    // конструктора) в этот момент ещё может быть не устаканена, и maplibregl.Marker,
+    // созданный ДО этого, считает свою экранную позицию по незавершённому transform —
+    // маркеры событий физически создаются, но невидимы (нулевые/случайные координаты)
+    // до следующего пересоздания. Воспроизводилось стабильно на свежем монтировании
+    // карты (первый заход на «Оценка ситуации»): фильтр «Все» — 0 маркеров, любой
+    // клик по чипу-фильтру (пересоздаёт маркеры) — маркеры появляются корректно.
+    // "idle" — гарантированно после того, как рендер и начальная камера устаканились.
+    map.once("idle", () => setStyleLoaded(true));
 
     return () => { markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); }); markersRef.current = []; map.remove(); mapRef.current = null; };
   }, [status, theaterKey]);
@@ -2257,9 +2275,12 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           </button>
           <div className="obs-geomap-detail-head">
             <Layers size={15} aria-hidden="true" />
-            {!onRussiaMap && hasControlLegend && (
+            {/* "context" — регионы вроде Краснодарского края (даёт географический контекст
+                событию рядом, но сам не часть вопроса контроля территории СВО) — тег статуса
+                для них не показываем вовсе, а не подсовываем ложное "под контролем Украины". */}
+            {!onRussiaMap && hasControlLegend && ["ru", "contested", "ua"].includes(selectedRegion.control) && (
               <>
-                <span className={`obs-geomap-region-tag obs-geomap-region-tag--${["ru", "contested"].includes(selectedRegion.control) ? selectedRegion.control : "ua"}`}>
+                <span className={`obs-geomap-region-tag obs-geomap-region-tag--${selectedRegion.control}`}>
                   {controlLegend[selectedRegion.control] || selectedRegion.control}
                 </span>
                 {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
