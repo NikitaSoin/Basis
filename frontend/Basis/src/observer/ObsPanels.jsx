@@ -1504,7 +1504,7 @@ function ObsMacroArticles({ token }) {
     { id: "all", label: "Все" },
     { id: "cmakp", label: "ЦМАКП" },
     { id: "cbr", label: "Банк России" },
-    { id: "other", label: "Другие" },
+    { id: "other", label: "Внешние источники" },
   ];
 
   // Единый список: записки ЦБ/ЦМАКП (macro/analytics) + статьи внешних источников
