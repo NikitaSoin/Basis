@@ -1815,7 +1815,7 @@ function readBasisMapColors() {
     ru: "#BE123C", contested: "#B45309", accent: "#C97A4A",
     textPrimary: "#1a1a1a", textSecondary: "#4a4a4a", bgElevated: "#ffffff",
   };
-  if (typeof window === "undefined") return fallback;
+  if (typeof window === "undefined") return { ...fallback, token: (name, fb) => fb || "#888" };
   const cs = getComputedStyle(document.documentElement);
   const pick = (name, fb) => { const v = cs.getPropertyValue(name); return v && v.trim() ? v.trim() : fb; };
   return {
@@ -1825,7 +1825,94 @@ function readBasisMapColors() {
     textPrimary: pick("--text-primary", fallback.textPrimary),
     textSecondary: pick("--text-secondary", fallback.textSecondary),
     bgElevated: pick("--bg-elevated", fallback.bgElevated),
+    // Универсальный доступ к ЛЮБОМУ токену (--danger/--warning/--cat-1..8 и т.п.) —
+    // нужен для choropleth-раскраски статуса контроля территории, где заранее
+    // неизвестно, сколько control-ключей понадобится (СВО — 3, Ближний Восток —
+    // уже 5, следующий очаг — своё число); см. controlColorToken() ниже.
+    token: (name, fb) => pick(`--${name}`, fb || "#888"),
   };
+}
+
+// --- Choropleth-раскраска статуса control региона: раньше жёстко на 3 значения
+// ("ru"/"contested"/"ua"), теперь по РЕАЛЬНОМУ набору ключей в
+// base_map.control_legend конкретного очага — компонент остаётся
+// театр-агностичным (СВО — 3 ключа, Ближний Восток — 5 после добавления
+// "primary_adversary"/"us_base_host", следующий очаг — сколько угодно, без
+// правки кода).
+//
+// Базовая тройка (ru/contested/ua) держит курируемые токены — ru/contested это
+// уже устоявшееся легитимное применение семантики --danger/--warning к ФАКТУ на
+// карте (не рыночному сигналу, см. комментарий у paint-эффекта ниже); ua —
+// нейтральный --text-secondary (та же «приглушённая» роль, что уже была у ua
+// исторически — bg-base+text-secondary+border), сознательно НЕ цветной: (1) не
+// синий — --info в этом файле уже занят под эпистемический тег «оценка»
+// (.obs-tag-estimate), в панели деталей региона тег контроля и тег «оценка»
+// стоят РЯДОМ, одинаковый синий стёр бы разницу; (2) не --cat-8 (серый) — на
+// белом фоне светлой темы контраст текста серый-на-белом ниже AA (~2.8:1),
+// --text-secondary тут ощутимо контрастнее (>7:1) и это уже основной «нейтральный
+// текст» токен продукта. Доп. ключи БВ курированы отдельно (пурпурный/бирюзовый —
+// заведомо разные и от красно-жёлтой пары, и от серого/синего). Любой
+// НЕИЗВЕСТНЫЙ ключ будущего очага детерминированно получает следующий свободный
+// слот categorical Okabe-Ito палитры (--cat-*, colorblind-safe) — легитимное
+// применение категориальной палитры: control региона — данные (категория), не хром.
+const CONTROL_COLOR_CURATED = {
+  ru: "danger",
+  contested: "warning",
+  ua: "text-secondary",
+  primary_adversary: "cat-7",
+  us_base_host: "cat-3",
+};
+const CONTROL_CAT_FALLBACK_SLOTS = [1, 2, 4, 5, 6]; // без 3/7/8 — уже раздано выше
+
+function controlColorToken(key, allKeys) {
+  if (CONTROL_COLOR_CURATED[key]) return CONTROL_COLOR_CURATED[key];
+  const others = (allKeys || []).filter((k) => !CONTROL_COLOR_CURATED[k]).sort();
+  const idx = Math.max(0, others.indexOf(key));
+  return `cat-${CONTROL_CAT_FALLBACK_SLOTS[idx % CONTROL_CAT_FALLBACK_SLOTS.length]}`;
+}
+
+function controlColorHex(colors, key, allKeys) {
+  return colors.token ? colors.token(controlColorToken(key, allKeys), "#888") : "#888";
+}
+
+function controlSoftColorHex(colors, key, allKeys) {
+  const base = controlColorToken(key, allKeys);
+  return colors.token ? colors.token(`${base}-soft`, "rgba(136,136,136,0.14)") : "rgba(136,136,136,0.14)";
+}
+
+// --- Fill/line-opacity по ключу control: дефолт красит ЛЮБОЙ ключ (~0.3 заливка
+// /~0.85 линия — как раньше у "ru"), кроме явно обнулённых в
+// base_map.control_paint_opacity очага (сейчас — только "ua" в СВО: регионы «под
+// контролем Украины» сознательно не красим, юр./редакционное решение владельца,
+// см. комментарий у paint-эффекта). ru/contested держат исторические точные числа
+// (0.3/0.26 заливка, 0.85/0.7 линия), чтобы не менять уже принятый вид карты СВО.
+const CONTROL_FILL_OPACITY_DEFAULTS = { ru: 0.3, contested: 0.26 };
+const CONTROL_LINE_OPACITY_DEFAULTS = { ru: 0.85, contested: 0.7 };
+const CONTROL_FILL_OPACITY_FALLBACK = 0.3;
+const CONTROL_LINE_OPACITY_FALLBACK = 0.85;
+
+function controlFillOpacity(key, overrides) {
+  if (overrides && Object.prototype.hasOwnProperty.call(overrides, key)) return overrides[key];
+  if (Object.prototype.hasOwnProperty.call(CONTROL_FILL_OPACITY_DEFAULTS, key)) return CONTROL_FILL_OPACITY_DEFAULTS[key];
+  return CONTROL_FILL_OPACITY_FALLBACK;
+}
+
+function controlLineOpacity(key, overrides) {
+  if (overrides && Object.prototype.hasOwnProperty.call(overrides, key)) return overrides[key];
+  if (Object.prototype.hasOwnProperty.call(CONTROL_LINE_OPACITY_DEFAULTS, key)) return CONTROL_LINE_OPACITY_DEFAULTS[key];
+  return CONTROL_LINE_OPACITY_FALLBACK;
+}
+
+// Пилюля-тег статуса контроля в панели деталей региона — та же логика «честно
+// показываем, как оно красится на карте», что и у образца легенды: если ключ у
+// этого очага обнулён (сейчас только "ua" в СВО), тег выглядит «пустым»
+// (обводка, без заливки), не изображает цвет, которого на карте нет.
+function controlTagStyle(colors, key, allKeys, paintOverrides) {
+  const painted = controlFillOpacity(key, paintOverrides) > 0;
+  if (!painted) {
+    return { background: "var(--bg-base)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" };
+  }
+  return { background: controlSoftColorHex(colors, key, allKeys), color: controlColorHex(colors, key, allKeys) };
 }
 
 // Токены дизайн-системы — реальные hex по текущей теме (MapLibre paint не умеет
@@ -1853,6 +1940,11 @@ function geomapAspect(bounds) {
 }
 
 const GEOMAP_EMPTY_FC = { type: "FeatureCollection", features: [] };
+// Общий стабильный fallback для control_legend/control_paint_opacity, когда их
+// нет в данных очага — ОДИН и тот же объект-ссылка на каждом рендере (не новый
+// {} каждый раз), иначе useMemo/useEffect ниже, завязанные на его identity,
+// пересчитывались бы на КАЖДЫЙ рендер компонента, а не только при смене данных.
+const GEOMAP_EMPTY_OBJ = {};
 
 function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, directionColor }) {
   const [status, setStatus] = useState("loading"); // loading | ready | empty
@@ -1899,12 +1991,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   const russiaMap = data?.russia_wide_map || null;
   const onRussiaMap = activeMap === "russia" && !!russiaMap;
   const activeBaseMap = data ? (onRussiaMap ? russiaMap.base_map : data.base_map) : null;
-  const controlLegend = data?.base_map?.control_legend || {};
+  const controlLegend = data?.base_map?.control_legend || GEOMAP_EMPTY_OBJ;
   // Не у каждого очага есть смысл «статус контроля территории» (СВО — да; Ближний
   // Восток/АТР — нет единого понятия «чья территория», там страны/акватории со своим
   // суверенитетом) — choropleth-легенду и тег контроля показываем только если сами
   // данные очага реально несут control_legend, не по умолчанию для любого театра.
-  const hasControlLegend = Object.keys(controlLegend).length > 0;
+  const controlLegendKeys = useMemo(() => Object.keys(controlLegend), [controlLegend]);
+  const hasControlLegend = controlLegendKeys.length > 0;
+  const controlPaintOverrides = data?.base_map?.control_paint_opacity || GEOMAP_EMPTY_OBJ;
 
   const regionsFC = activeBaseMap?.regions_geojson || GEOMAP_EMPTY_FC;
   // Линия фронта — отдельная явная линия (не только заливка регионов статусом
@@ -2056,15 +2150,33 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     if (!map || !styleLoaded) return;
     map.getSource("regions")?.setData(regionsFC);
     map.getSource("frontline")?.setData(frontlineFC);
-    // Красим ПО ФИЧЕ (control: ru/contested), не блоком «весь набор регионов
-    // либо красим, либо нет» — на карте «Россия целиком» у большинства регионов
+    // Красим ПО ФИЧЕ (control: <ключ>), не блоком «весь набор регионов либо
+    // красим, либо нет» — на карте «Россия целиком» у большинства регионов
     // control нет вовсе (нейтральны), но у Крыма/ДНР/ЛНР/новых областей он ЕСТЬ
     // ("ru") — владелец: «границы проведены как будто эти регионы украинские,
     // надо чтобы было видно, что российские» — сплошная закраска снимает
     // двусмысленность независимо от того, как тайл рисует границу под низом.
-    const fillColor = ["match", ["get", "control"], "ru", colors.ru, "contested", colors.contested, "#888"];
-    const fillOpacity = ["match", ["get", "control"], "ru", 0.3, "contested", 0.26, 0];
-    const lineOpacity = ["match", ["get", "control"], "ru", 0.85, "contested", 0.7, 0];
+    // Набор ключей — ЛЮБОЕ число, реально присутствующее в control_legend очага
+    // (СВО — 3, Ближний Восток — 5 после primary_adversary/us_base_host, следующий
+    // очаг — сколько угодно, без правки кода); opacity по ключу можно явно
+    // обнулить через base_map.control_paint_opacity (сейчас только "ua" в СВО —
+    // регионы «под контролем Украины» сознательно не красим, это НЕ трогать).
+    let fillColor = "#888";
+    let fillOpacity = 0;
+    let lineOpacity = 0;
+    if (controlLegendKeys.length) {
+      const colorArgs = [];
+      const fillOpArgs = [];
+      const lineOpArgs = [];
+      controlLegendKeys.forEach((key) => {
+        colorArgs.push(key, controlColorHex(colors, key, controlLegendKeys));
+        fillOpArgs.push(key, controlFillOpacity(key, controlPaintOverrides));
+        lineOpArgs.push(key, controlLineOpacity(key, controlPaintOverrides));
+      });
+      fillColor = ["match", ["get", "control"], ...colorArgs, "#888"];
+      fillOpacity = ["match", ["get", "control"], ...fillOpArgs, 0];
+      lineOpacity = ["match", ["get", "control"], ...lineOpArgs, 0];
+    }
     map.setPaintProperty("regions-fill", "fill-color", fillColor);
     map.setPaintProperty("regions-fill", "fill-opacity", fillOpacity);
     map.setPaintProperty("regions-line", "line-color", fillColor);
@@ -2072,7 +2184,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setPaintProperty("regions-active-line", "line-color", colors.accent);
     map.setPaintProperty("frontline-casing", "line-color", colors.ru);
     map.setPaintProperty("frontline-line", "line-color", colors.ru);
-  }, [styleLoaded, regionsFC, frontlineFC, colors]);
+  }, [styleLoaded, regionsFC, frontlineFC, colors, controlLegendKeys, controlPaintOverrides]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
   // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
@@ -2240,12 +2352,23 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       <div className="obs-geomap-legend">
         {!onRussiaMap && hasControlLegend && (
           <div className="obs-geomap-legend-group">
-            {["ru", "contested", "ua"].map((c) => (
-              <span key={c} className="obs-geomap-legend-item">
-                <span className={`obs-geomap-legend-swatch obs-geomap-legend-swatch--${c}`} aria-hidden="true" />
-                {controlLegend[c] || c}
-              </span>
-            ))}
+            {controlLegendKeys.map((c) => {
+              // Образец легенды честно повторяет то, КАК ключ реально красится на
+              // карте (см. paint-эффект выше): если для очага/ключа fill-opacity
+              // обнулена (сейчас только "ua" в СВО) — образец тоже «пустой»
+              // (обводка без заливки), а не врёт цветом, которого на карте нет.
+              const painted = controlFillOpacity(c, controlPaintOverrides) > 0;
+              const hex = controlColorHex(colors, c, controlLegendKeys);
+              const swatchStyle = painted
+                ? { background: hex, opacity: 0.6, border: `1px solid ${hex}` }
+                : { background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" };
+              return (
+                <span key={c} className="obs-geomap-legend-item">
+                  <span className="obs-geomap-legend-swatch" style={swatchStyle} aria-hidden="true" />
+                  {controlLegend[c] || c}
+                </span>
+              );
+            })}
           </div>
         )}
         <div className="obs-geomap-legend-group">
@@ -2304,10 +2427,16 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             <Layers size={15} aria-hidden="true" />
             {/* "context" — регионы вроде Краснодарского края (даёт географический контекст
                 событию рядом, но сам не часть вопроса контроля территории СВО) — тег статуса
-                для них не показываем вовсе, а не подсовываем ложное "под контролем Украины". */}
-            {hasControlLegend && ["ru", "contested", "ua"].includes(selectedRegion.control) && (
+                для них не показываем вовсе, а не подсовываем ложное "под контролем Украины".
+                Условие теперь смотрит на РЕАЛЬНЫЙ набор ключей control_legend очага (не на
+                зашитую тройку "ru"/"contested"/"ua") — Ближний Восток отдаёт тег и для
+                "primary_adversary"/"us_base_host" тоже. */}
+            {hasControlLegend && Object.prototype.hasOwnProperty.call(controlLegend, selectedRegion.control) && (
               <>
-                <span className={`obs-geomap-region-tag obs-geomap-region-tag--${selectedRegion.control}`}>
+                <span
+                  className="obs-geomap-region-tag"
+                  style={controlTagStyle(colors, selectedRegion.control, controlLegendKeys, controlPaintOverrides)}
+                >
                   {controlLegend[selectedRegion.control] || selectedRegion.control}
                 </span>
                 {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.

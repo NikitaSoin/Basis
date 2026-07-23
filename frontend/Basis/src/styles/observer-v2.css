@@ -4608,28 +4608,18 @@ details[open] > summary .obs-inst-chev,
   display: inline-block;
 }
 
-/* Образцы choropleth-легенды — та же пара fill/stroke, что и у самих
-   областей на карте (см. .obs-geomap-region--*), только в масштабе иконки. */
+/* Образцы choropleth-легенды — тот же цвет, что заливка региона на карте, только
+   в масштабе иконки. Раньше — фиксированные модификаторы --ru/--contested/--ua
+   (ровно 3 значения control); теперь очаг несёт ЛЮБОЕ число ключей
+   control_legend (Ближний Восток — уже 5), поэтому цвет/opacity задаются
+   инлайн-style в JS (см. controlColorHex/controlTagStyle в ObsPanels.jsx) —
+   базовый класс здесь держит только геометрию. */
 .obs-geomap-legend-swatch {
   width: 11px;
   height: 11px;
   border-radius: 3px;
   display: inline-block;
   flex-shrink: 0;
-}
-.obs-geomap-legend-swatch--ru {
-  background: var(--danger);
-  opacity: 0.55;
-  border: 1px solid var(--danger);
-}
-.obs-geomap-legend-swatch--contested {
-  background: var(--warning);
-  opacity: 0.6;
-  border: 1px solid var(--warning);
-}
-.obs-geomap-legend-swatch--ua {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
 }
 
 .obs-geomap-detail {
@@ -4703,10 +4693,12 @@ details[open] > summary .obs-inst-chev,
   letter-spacing: 0.02em;
 }
 
-/* Тег статуса контроля в панели деталей региона — та же цветовая геометрия,
-   что заливка/легенда области (модификаторы --ru/--contested/--ua у
-   .obs-geomap-region и .obs-geomap-legend-swatch), в формате пилюли, как
-   соседние .obs-tag-fact/.obs-tag-estimate. */
+/* Тег статуса контроля в панели деталей региона, в формате пилюли, как соседние
+   .obs-tag-fact/.obs-tag-estimate. Раньше — фиксированные модификаторы
+   --ru/--contested/--ua (ровно 3 значения control); теперь очаг несёт ЛЮБОЕ
+   число ключей control_legend (Ближний Восток — уже 5), поэтому цвет задаётся
+   инлайн-style в JS (см. controlTagStyle в ObsPanels.jsx) — базовый класс здесь
+   держит только форму пилюли. */
 .obs-geomap-region-tag {
   display: inline-flex;
   align-items: center;
@@ -4718,19 +4710,6 @@ details[open] > summary .obs-inst-chev,
   border-radius: var(--radius-pill);
   white-space: nowrap;
   flex-shrink: 0;
-}
-.obs-geomap-region-tag--ru {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-.obs-geomap-region-tag--contested {
-  background: var(--warning-soft);
-  color: var(--warning);
-}
-.obs-geomap-region-tag--ua {
-  background: var(--bg-base);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
 }
 
 .obs-geomap-detail-title {
