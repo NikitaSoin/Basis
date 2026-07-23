@@ -959,6 +959,25 @@ def debug_trigger_geo_digest():
         db.close()
 
 
+@router.post("/debug/trigger-geo-frontline-sync")
+def debug_trigger_geo_frontline_sync():
+    """Ручной запуск geo_isw_frontline_sync.sync_isw_frontline() синхронно, без
+    ожидания крона (8:15/20:15 МСК). Для разовой проверки после деплоя новых
+    полей (напр. control_fill_geojson) — старт-задача сама пересинкует ТОЛЬКО
+    если строки ещё нет вовсе, новое поле на уже существующей строке само не
+    подхватится до следующего кронового тика без этого ручного триггера."""
+    from app.db.session import SessionLocal
+    from app.services.geo_isw_frontline_sync import sync_isw_frontline
+    db = SessionLocal()
+    try:
+        return sync_isw_frontline(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-geo-frontline-sync: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-chronicle-backfill")
 def debug_trigger_chronicle_backfill():
     """Разовый/периодический бэкфилл аналитической летописи из обоих источников
