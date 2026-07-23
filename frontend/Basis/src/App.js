@@ -956,7 +956,7 @@ export default function App() {
         // числовые шоки по нефти/курсу) — StressTestView, живой факторный движок
         // (backend/app/services/stress_scenarios.py), явно помечен как демо-версия.
         // Портфельный стресс-тест остаётся отдельно доступен внутри самого Портфеля.
-        return <StressTestView />;
+        return <StressTestView onOpenCompany={setSelectedCompany} />;
       case "ai":
         return <AssistantView token={token} onAuthRequired={() => setShowAuthModal(true)} onOpenCompany={setSelectedCompany} />;
       case "pricing":

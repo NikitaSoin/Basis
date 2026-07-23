@@ -1,12 +1,86 @@
 /* Точечный оверрайд шрифтов для «Стресс-тестирования» — экран собран на
-   design/primitives.jsx (Tailwind tw-font-mono/tw-font-display), которые
-   указывают на легаси-шрифты (JetBrains Mono / Inter Display, запрещены
-   дизайн-конституцией). Канон — Fraunces / IBM Plex Mono, оба уже подключены
-   в public/index.html. Системный проход по tailwind.config.js — отдельная
-   задача (primitives.jsx переиспользуется другими незамигрированными
-   экранами); здесь — локальный скоуп по классу обёртки. */
+   design/primitives.jsx (Tailwind tw-font-mono), который указывает на
+   легаси-шрифт (JetBrains Mono, запрещён дизайн-конституцией). Канон — IBM
+   Plex Mono, уже подключён в public/index.html. Системный проход по
+   tailwind.config.js — отдельная задача (primitives.jsx переиспользуется
+   другими незамигрированными экранами); здесь — локальный скоуп по классу
+   обёртки. Заголовок секции больше не строится на tw-font-display — см.
+   .pf-sec-title ниже (канонический паттерн шапки, portfolio-v2.css). */
 .stress-test-view, .stress-test-view .tw-font-mono { font-family: var(--bs-mono) !important; }
-.stress-test-view h2.tw-font-display { font-family: var(--bs-serif) !important; }
+
+/* ---------- шапка секции (владелец, 2026-07-24: «шапка бедновата по
+   сравнению с остальной платформой» — другой шрифт/размер заголовка, не было
+   eyebrow, вступление — один слой механики без смысла). Заголовок и eyebrow
+   теперь берут канонический .pf-sec-head/.pf-sec-eyebrow/.pf-sec-title
+   (portfolio-v2.css) — тот же паттерн, что у соседних разделов Портфеля,
+   здесь стилизуем только то, что специфично для ЭТОГО экрана: мета-строку
+   базовых уровней и вступление в 2 слоя (смысл/JTBD, затем механика). ---------- */
+.st-head-meta {
+  font-family: var(--bs-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.st-head-lead {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 12px 0 0;
+  max-width: 68ch;
+}
+.st-head-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 5px 0 0;
+  max-width: 68ch;
+}
+
+/* ---------- баннер-предупреждение — свёрнут в одну строку + <details>
+   «методика» (владелец: раньше занимал треть экрана визуально; полный текст
+   оговорок остаётся доступным, просто не всегда развёрнутым). Нативный
+   details/summary — фокусируемо и озвучивается читалками экрана без доп. JS,
+   тот же принцип, что у design/textblocks.jsx Disclosure. ---------- */
+.st-disclaimer {
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+  border: 1px solid var(--border-subtle);
+}
+.st-disclaimer-summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  border-radius: var(--radius-md);
+}
+.st-disclaimer-summary::marker,
+.st-disclaimer-summary::-webkit-details-marker { display: none; content: ""; }
+.st-disclaimer-summary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.st-disclaimer-icon { color: var(--warning); flex-shrink: 0; }
+.st-disclaimer-lead { font-size: 12.5px; color: var(--text-primary); line-height: 1.4; flex: 1; }
+.st-disclaimer-lead b { font-weight: 700; }
+.st-disclaimer-toggle {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 600; color: var(--text-tertiary); flex-shrink: 0;
+}
+.st-disclaimer:hover .st-disclaimer-toggle { color: var(--bs-copper, var(--accent)); }
+.st-disclaimer-chevron { display: inline-block; transition: transform .15s ease; }
+.st-disclaimer[open] .st-disclaimer-chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .st-disclaimer-chevron { transition: none; } }
+.st-disclaimer-body {
+  margin: 0 14px 12px 37px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  max-width: 72ch;
+}
 
 /* ============================================================
    Консоль стресс-теста (владелец, 2026-07-23: «перекопируй расположение
@@ -118,16 +192,15 @@
   color: var(--text-tertiary); font-size: 11.5px; cursor: pointer; padding: 0;
 }
 .st-reset:hover { color: var(--bs-copper, var(--accent)); }
-.st-recompute-dot {
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); margin-left: 6px; animation: st-pulse-dot 1s infinite ease-in-out;
-}
-@keyframes st-pulse-dot { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .st-recompute-dot { animation: none; opacity: .8; } }
 
 /* ---------- headline index + карта (main, справа от рельса) ---------- */
 .st-main { display: flex; flex-direction: column; min-width: 0; }
 .st-main-loading { padding: 40px 24px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+
+/* эшелон-фильтр — владелец, 2026-07-24: «2-й/3-й эшелон большинству клиентов
+   не интересен», дефолт режет на ≤2, переключатель открывает все компании. */
+.st-echelon-row { display: flex; align-items: center; gap: 12px; padding: 18px 28px 0; flex-wrap: wrap; }
+.st-echelon-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-tertiary); }
 
 .st-headline { padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 .st-headline-num { display: flex; flex-direction: column; gap: 4px; }
@@ -155,12 +228,16 @@
   flex: 1 1 0; min-width: 0; border-radius: 7px; padding: 9px 10px;
   display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
   transition: background .22s ease, transform .18s ease;
-  cursor: default; position: relative; overflow: hidden;
+  cursor: pointer; position: relative; overflow: hidden;
 }
 .st-tile:hover { transform: scale(1.035); z-index: 2; box-shadow: var(--shadow-md); }
-.st-tile-tk { font-family: var(--bs-mono); font-weight: 700; font-size: 12.5px; letter-spacing: .01em; }
+.st-tile:focus-visible { outline: 2px solid var(--bs-copper, var(--accent)); outline-offset: 1px; }
+.st-tile-nm {
+  font-weight: 700; font-size: 12px; letter-spacing: -.005em; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .st-tile-pc { font-family: var(--bs-mono); font-weight: 600; font-size: 11px; font-variant-numeric: tabular-nums; opacity: .92; }
-.st-tile-small .st-tile-tk { font-size: 10.5px; }
+.st-tile-small .st-tile-nm { font-size: 10.5px; }
 .st-tile-small .st-tile-pc { font-size: 9.5px; }
 @media (prefers-reduced-motion: reduce) { .st-tile { transition: none; } .st-tile:hover { transform: none; } }
 .st-map-note { margin-top: 12px; font-size: 11px; color: var(--text-tertiary); line-height: 1.5; }
@@ -176,8 +253,14 @@
 .st-board-worse h3 { color: var(--bs-down); }
 .st-board-better h3 { color: var(--bs-up); }
 .st-board-empty { font-size: 12.5px; color: var(--text-tertiary); }
-.st-brow { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
-.st-brow-tk { font-family: var(--bs-mono); font-size: 12px; font-weight: 700; width: 54px; flex-shrink: 0; }
+.st-brow { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-radius: 6px; }
+.st-brow-clickable { cursor: pointer; }
+.st-brow-clickable:hover { background: var(--bg-hover); }
+.st-brow-clickable:focus-visible { outline: 2px solid var(--bs-copper, var(--accent)); outline-offset: 1px; }
+.st-brow-nm {
+  font-size: 12.5px; font-weight: 600; width: 40%; flex-shrink: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .st-brow-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--bg-hover); position: relative; overflow: hidden; }
 .st-brow-bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; transition: width .25s ease; }
 .st-board-worse .st-brow-bar i { right: 0; background: var(--bs-down); }

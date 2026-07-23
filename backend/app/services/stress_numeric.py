@@ -39,9 +39,10 @@ from sqlalchemy.orm import Session
 
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
-# Голубые фишки — тот же список, что в скринере (single source, копия осознанно:
-# screener_scoring тянет тяжёлые зависимости, а нам нужен только set тикеров).
-from app.services.screener_scoring import BLUE_CHIPS  # noqa: E402
+# Голубые фишки/размер 2-го эшелона — тот же список/порог, что в скринере (single
+# source, копия осознанно: screener_scoring тянет тяжёлые зависимости, а нам нужен
+# только набор тикеров + константа).
+from app.services.screener_scoring import BLUE_CHIPS, ECHELON2_SIZE  # noqa: E402
 
 _OIL_SECTOR_TOKENS = ("нефт", "газ", "oil", "gas")
 _METRICS = ("revenue", "ebitda", "net_profit")
@@ -54,6 +55,25 @@ def _num(v):
     if isinstance(v, (int, float)):
         return float(v)
     return None
+
+
+def _echelon_map(rows: list) -> dict[str, int]:
+    """Тикер → эшелон (1 голубые фишки / 2 следующие ECHELON2_SIZE по капитализации
+    / 3 остальные) — та же таксономия, что в скринере (screener_scoring.py), нужна
+    здесь отдельно: карта рынка «Стресс-тестирования» по умолчанию показывает
+    только 1-2 эшелон (владелец, 2026-07-24: «второй и третий эшелон большинству
+    клиентов не интересен» — длинный хвост мелких бумаг с экстремальным % иначе
+    вытесняет узнаваемые голубые фишки из топ-N по силе эффекта)."""
+    ranked = sorted(
+        (r for r in rows if r[3] is not None and r[0] not in BLUE_CHIPS),
+        key=lambda r: -float(r[3]),
+    )
+    echelon2 = {r[0] for r in ranked[:ECHELON2_SIZE]}
+    out: dict[str, int] = {}
+    for r in rows:
+        ticker = r[0]
+        out[ticker] = 1 if ticker in BLUE_CHIPS else (2 if ticker in echelon2 else 3)
+    return out
 
 
 def _load_quant(ticker: str) -> dict | None:
@@ -154,9 +174,10 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
         brent_spot = float(row[0])
 
     rows = db.execute(text("""
-        SELECT c.ticker, c.name, c.sector FROM companies c
+        SELECT c.ticker, c.name, c.sector, c.market_cap FROM companies c
         JOIN company_metrics m ON m.ticker = c.ticker
     """)).fetchall()
+    echelon_by_ticker = _echelon_map(rows)
 
     companies = []
     for r in rows:
@@ -182,7 +203,7 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
             sort_key = -1
         companies.append({
             "ticker": ticker, "name": name, "sector": sector,
-            "is_blue_chip": ticker in BLUE_CHIPS,
+            "is_blue_chip": ticker in BLUE_CHIPS, "echelon": echelon_by_ticker.get(ticker, 3),
             **impact,
             "_sort": sort_key,
         })
@@ -204,3 +225,40 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
         ),
         "is_demo": True,
     }
+
+
+def coefficients_payload(db: Session) -> dict:
+    """Сырые входные данные (коэффициенты чувствительности + spot + база года +
+    эшелон) по всем компаниям с quant_inputs — владелец, 2026-07-24: «в демо
+    (Клод-дизайн) слайдеры пересчитывают/перекрашивают карту мгновенно, у нас
+    задержка» — было 350ms debounce + round-trip на /numeric при КАЖДОМ движении
+    ползунка. Формула у _company_numeric_impact() чисто арифметическая (без
+    похода в БД внутри цикла) — портируема 1:1 в JS. Отдаём сырые данные ОДИН
+    раз при загрузке экрана, дальше фронт считает сам на каждый кадр слайдера.
+
+    ВАЖНО: если меняешь арифметику в _company_numeric_impact() — синхронно
+    поправь JS-двойник (companyImpact() в StressTestView.jsx), иначе слайдерный
+    путь и путь через /ask (сервер) начнут расходиться в цифрах."""
+    rows = db.execute(text("""
+        SELECT c.ticker, c.name, c.sector, c.market_cap FROM companies c
+        JOIN company_metrics m ON m.ticker = c.ticker
+    """)).fetchall()
+    echelon_by_ticker = _echelon_map(rows)
+
+    companies = []
+    for r in rows:
+        ticker, name, sector = r[0], r[1], r[2]
+        qi = _load_quant(ticker)
+        if not qi:
+            continue
+        coefs = qi.get("coefficients") or {}
+        if not coefs:
+            continue
+        companies.append({
+            "ticker": ticker, "name": name, "sector": sector,
+            "is_blue_chip": ticker in BLUE_CHIPS, "echelon": echelon_by_ticker.get(ticker, 3),
+            "coefficients": coefs,
+            "macro_spot": qi.get("macro_spot") or qi.get("macro_current") or {},
+            "financials": qi.get("financials") or {},
+        })
+    return {"companies": companies}

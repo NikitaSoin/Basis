@@ -55,6 +55,16 @@ def stress_test_impact(
     return build_scenario_result(db, scenario, oil_usd, rub_usd)
 
 
+@router.get("/stress-test/coefficients")
+def stress_test_coefficients(db: Session = Depends(get_db)):
+    """Сырые коэффициенты чувствительности по всем компаниям — фронт грузит ОДИН
+    раз при заходе на экран и дальше считает слайдерный путь сам, локально (см.
+    docstring coefficients_payload) — устраняет debounce+round-trip задержку на
+    каждое движение ползунка."""
+    from app.services.stress_numeric import coefficients_payload
+    return coefficients_payload(db)
+
+
 @router.get("/stress-test/numeric")
 def stress_test_numeric(
     key_rate_pct: float | None = Query(None, ge=0, le=50, description="Целевая ключевая ставка, %"),

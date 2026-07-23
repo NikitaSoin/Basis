@@ -11,15 +11,30 @@ import "../styles/stress-test.css";
 // --danger вместо канонiчных --bs-up/--bs-down). v4 — консоль как в
 // прототипе: рельс слева (пресеты + слайдеры), справа — крупный
 // взвешенный индекс + карта рынка, ниже — full-bleed лидерборд «хуже/лучше».
-// Ставка/курс/нефть — слайдеры с живым (debounce) пересчётом через быстрый
-// /stress-test/numeric (без LLM). Свободный текст («что если...») остаётся
-// отдельным путём через LLM-парсер: КОГДА он извлекает явные числовые
-// уровни — слайдеры визуально едут в интерпретированную позицию (честно —
-// только когда backend реально это прислал, не выдумываем координаты на
-// фронте). Пресеты — качественная факторная модель (санкции/конфликт/
-// спрос), у неё нет числовых ставка/курс/нефть эквивалентов в движке — не
-// пытаемся натянуть их на слайдеры, остаются отдельным результатом
-// (QualTable), как раньше.
+// Свободный текст («что если...») остаётся отдельным путём через LLM-парсер:
+// КОГДА он извлекает явные числовые уровни — слайдеры визуально едут в
+// интерпретированную позицию (честно — только когда backend реально это
+// прислал, не выдумываем координаты на фронте). Пресеты — качественная
+// факторная модель (санкции/конфликт/спрос), у неё нет числовых
+// ставка/курс/нефть эквивалентов в движке — не пытаемся натянуть их на
+// слайдеры, остаются отдельным результатом (QualTable), как раньше.
+//
+// v4.1 (владелец, 2026-07-24, по живому демо в Клод-дизайне):
+// — Слайдеры считают МГНОВЕННО локально в JS (companyImpact/computeAllImpacts
+//   ниже — точный порт _company_numeric_impact()/numeric_impact() из
+//   backend/app/services/stress_numeric.py), а не через debounce+round-trip на
+//   /numeric — «в демо пересчитывается мгновенно, у нас задержка». Сырые
+//   коэффициенты грузятся ОДИН раз при заходе на экран (/stress-test/coefficients).
+//   Правишь арифметику — правь СИНХРОННО в обоих местах, иначе слайдерный путь
+//   (клиент) и путь через «Спросить»/пресеты (сервер) разойдутся в цифрах.
+// — Эшелоны: по умолчанию карта/таблица показывают голубые фишки + 2-й эшелон
+//   (echelon ≤ 2, backend уже размечает поле) — «второй и третий эшелон
+//   большинству клиентов не интересен», длинный хвост мелких бумаг с
+//   экстремальным % иначе вытеснял узнаваемые компании из топ-N по силе эффекта.
+//   Переключатель показывает все компании по запросу.
+// — Плитки/строки — имя компании первично, тикер вторично (мельче/mono), клик
+//   открывает карточку компании (onOpenCompany, тот же паттерн, что у
+//   PortfolioV2/AssistantView в App.js).
 
 const BUCKETS = [
   { min: 8, label: "▲▲", cls: "bs-wind-up", title: "сильно позитивно" },
@@ -31,6 +46,92 @@ const BUCKETS = [
 function bucketOf(pct) {
   for (const b of BUCKETS) if (pct >= b.min) return b;
   return BUCKETS[BUCKETS.length - 1];
+}
+
+// ---- JS-двойник числового движка backend'а (stress_numeric.py) — см. пояснение
+// в шапке файла (v4.1). Держать в точности синхронно с
+// _company_numeric_impact()/numeric_impact() — источник истины там, это порт.
+const OIL_SECTOR_TOKENS = ["нефт", "газ", "oil", "gas"];
+const IMPACT_METRICS = ["revenue", "ebitda", "net_profit"];
+
+function round1(v) {
+  return Math.round(v * 10) / 10;
+}
+
+function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot) {
+  const sectorL = (sector || "").toLowerCase();
+  const factorDeltas = {};
+
+  if (keyRatePct != null && spot.key_rate_pct != null && coefs.rate) {
+    const d = keyRatePct - spot.key_rate_pct;
+    if (Math.abs(d) > 1e-9) factorDeltas.rate = d;
+  }
+  if (fxUsdrub != null && spot.fx_usdrub != null && coefs.fx) {
+    const d = fxUsdrub - spot.fx_usdrub;
+    if (Math.abs(d) > 1e-9) factorDeltas.fx = d;
+  }
+  if (oilBrentUsd != null && brentSpot && OIL_SECTOR_TOKENS.some((t) => sectorL.includes(t)) &&
+      spot.commodity_usd != null && coefs.commodity) {
+    const rel = oilBrentUsd / brentSpot - 1;
+    const d = spot.commodity_usd * rel;
+    if (Math.abs(d) > 1e-9) factorDeltas.commodity = d;
+  }
+
+  if (!Object.keys(factorDeltas).length) return null;
+
+  const metrics = {};
+  for (const m of IMPACT_METRICS) {
+    let total = 0, covered = false;
+    for (const f in factorDeltas) {
+      const c = coefs[f] ? coefs[f][m] : null;
+      if (c == null) continue;
+      covered = true;
+      total += c * factorDeltas[f];
+    }
+    const base = fin[m] != null ? fin[m] : null;
+    if (!covered) { metrics[m] = { delta_bn: null, pct_of_base: null, base_bn: base }; continue; }
+    // % от базы вырожден при крошечной базе — показываем % только когда
+    // |Δ| ≤ 2×|базы|, иначе только млрд ₽ (см. stress_numeric.py).
+    let pct = null;
+    if (base && Math.abs(total) <= 2 * Math.abs(base)) pct = round1((total / Math.abs(base)) * 100);
+    metrics[m] = { delta_bn: round1(total), pct_of_base: pct, base_bn: base };
+  }
+  return { metrics };
+}
+
+// Вся вселенная → результат в ТОЙ ЖЕ форме, что /numeric (companies[] с metrics),
+// поэтому ConsoleHeadline/MarketMap/Boards/NumericTable принимают его без
+// изменений — независимо от того, посчитан он сервером (ask/preset) или
+// локально (слайдеры).
+function computeAllImpacts(coefficients, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot) {
+  const companies = [];
+  for (const c of coefficients) {
+    const impact = companyImpact(c.coefficients || {}, c.macro_spot || {}, c.financials || {},
+      c.sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot);
+    if (!impact) continue;
+    companies.push({
+      ticker: c.ticker, name: c.name, sector: c.sector,
+      is_blue_chip: c.is_blue_chip, echelon: c.echelon, metrics: impact.metrics,
+    });
+  }
+  const sortKey = (c) => {
+    const np = c.metrics.net_profit;
+    if (np.pct_of_base != null) return Math.abs(np.pct_of_base);
+    if (np.delta_bn != null) return 999 + Math.abs(np.delta_bn);
+    return -1;
+  };
+  companies.sort((a, b) => {
+    if (a.is_blue_chip !== b.is_blue_chip) return a.is_blue_chip ? -1 : 1;
+    return sortKey(b) - sortKey(a);
+  });
+  return { companies };
+}
+
+// Эшелоны (backend: BLUE_CHIPS=1, следующие ECHELON2_SIZE по капитализации=2,
+// остальное=3) — владелец, 2026-07-24: «второй и третий эшелон большинству
+// клиентов не интересен», по умолчанию режем на ≤2, есть переключатель на «все».
+function filterByEchelon(companies, maxEchelon) {
+  return companies.filter((c) => (c.echelon ?? 3) <= maxEchelon);
 }
 
 function DeltaCell({ m }) {
@@ -94,13 +195,13 @@ function ConsoleHeadline({ numeric }) {
         <div className="st-hm">
           <span className="st-hm-l">Хуже всего</span>
           <span className="st-hm-v" style={{ color: "var(--bs-down)" }}>
-            {worst ? `${worst.ticker} · ${tilePct(worst).toFixed(1)}%` : "—"}
+            {worst ? `${worst.name} · ${tilePct(worst).toFixed(1)}%` : "—"}
           </span>
         </div>
         <div className="st-hm">
           <span className="st-hm-l">Лучше всего</span>
           <span className="st-hm-v" style={{ color: "var(--bs-up)" }}>
-            {best ? `${best.ticker} · +${tilePct(best).toFixed(1)}%` : "—"}
+            {best ? `${best.name} · +${tilePct(best).toFixed(1)}%` : "—"}
           </span>
         </div>
       </div>
@@ -132,7 +233,7 @@ function mapTextColorFor(pct) {
   return "#fff"; // сильно закрашенная плитка — текст того же тона на ней сливается, нужен контраст
 }
 
-function MarketMap({ numeric }) {
+function MarketMap({ numeric, onOpenCompany }) {
   const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 30);
   if (!ranked.length) return null;
   const bySector = new Map();
@@ -154,11 +255,15 @@ function MarketMap({ numeric }) {
                 return (
                   <div
                     key={c.ticker}
+                    role={onOpenCompany ? "button" : undefined}
+                    tabIndex={onOpenCompany ? 0 : undefined}
                     className={`st-tile${weight <= 1 ? " st-tile-small" : ""}`}
                     style={{ flexGrow: weight, background: mapColorFor(pct), color: mapTextColorFor(pct) }}
-                    title={`${c.name} · ${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`}
+                    title={`${c.name} (${c.ticker}) · ${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`}
+                    onClick={() => onOpenCompany?.(c.ticker)}
+                    onKeyDown={(e) => { if (onOpenCompany && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onOpenCompany(c.ticker); } }}
                   >
-                    <span className="st-tile-tk">{c.ticker}</span>
+                    <span className="st-tile-nm">{c.name}</span>
                     <span className="st-tile-pc">{pct >= 0 ? "▲" : "▼"} {Math.abs(pct).toFixed(1)}%</span>
                   </div>
                 );
@@ -168,25 +273,28 @@ function MarketMap({ numeric }) {
         ))}
       </div>
       <div className="st-map-note">
-        Топ-30 по силе эффекта · размер плитки — грубый вес (голубые фишки крупнее, реальной капитализации в контуре нет).
+        Топ-30 по силе эффекта · размер плитки — грубый вес (голубые фишки крупнее, реальной капитализации в контуре нет). Клик по плитке открывает карточку компании.
       </div>
     </div>
   );
 }
 
-function BoardRow({ c, maxAbs }) {
+function BoardRow({ c, maxAbs, onOpenCompany }) {
   const pct = tilePct(c);
   const width = Math.max(4, Math.round((Math.abs(pct) / maxAbs) * 100));
   return (
-    <div className="st-brow">
-      <span className="st-brow-tk">{c.ticker}</span>
+    <div className={`st-brow${onOpenCompany ? " st-brow-clickable" : ""}`}
+      role={onOpenCompany ? "button" : undefined} tabIndex={onOpenCompany ? 0 : undefined}
+      onClick={() => onOpenCompany?.(c.ticker)}
+      onKeyDown={(e) => { if (onOpenCompany && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onOpenCompany(c.ticker); } }}>
+      <span className="st-brow-nm">{c.name}</span>
       <div className="st-brow-bar"><i style={{ width: `${width}%` }} /></div>
       <span className="st-brow-pc">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</span>
     </div>
   );
 }
 
-function Boards({ numeric }) {
+function Boards({ numeric, onOpenCompany }) {
   const ranked = rankByImpact(numeric.companies, "net_profit");
   const worst = ranked.filter((c) => c.metrics.net_profit.delta_bn < 0).slice(0, 6);
   const best = ranked.filter((c) => c.metrics.net_profit.delta_bn > 0).slice(0, 6);
@@ -196,11 +304,11 @@ function Boards({ numeric }) {
     <div className="st-boards">
       <div className="st-board st-board-worse">
         <h3>▾ Под давлением</h3>
-        {worst.length ? worst.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} />) : <div className="st-board-empty">—</div>}
+        {worst.length ? worst.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} onOpenCompany={onOpenCompany} />) : <div className="st-board-empty">—</div>}
       </div>
       <div className="st-board st-board-better">
         <h3>▴ Выигрывают</h3>
-        {best.length ? best.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} />) : <div className="st-board-empty">—</div>}
+        {best.length ? best.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} onOpenCompany={onOpenCompany} />) : <div className="st-board-empty">—</div>}
       </div>
     </div>
   );
@@ -219,7 +327,7 @@ function dedupeByIssuer(companies) {
   return [...seen.values()];
 }
 
-function NumericTable({ numeric }) {
+function NumericTable({ numeric, onOpenCompany }) {
   const [showAll, setShowAll] = useState(false);
   const deduped = dedupeByIssuer(numeric.companies);
   const list = showAll ? deduped : deduped.slice(0, 20);
@@ -240,13 +348,14 @@ function NumericTable({ numeric }) {
           </thead>
           <tbody>
             {list.map((c) => (
-              <tr key={c.ticker} className="tw-border-t tw-border-border-subtle">
+              <tr key={c.ticker} className={`tw-border-t tw-border-border-subtle${onOpenCompany ? " tw-cursor-pointer hover:tw-bg-bg-hover" : ""}`}
+                onClick={() => onOpenCompany?.(c.ticker)}>
                 <td className="tw-py-2">
                   {c.is_blue_chip && <Badge tone="neutral" className="tw-mr-1.5 tw-text-[10px]">ГФ</Badge>}
-                  <span className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mr-2">
+                  <span className="tw-text-text-primary tw-font-medium">{c.name}</span>
+                  <span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-ml-2">
                     {c.ticker}{c._also?.length > 0 && <span className="tw-text-[10px] tw-ml-1">= {c._also.join(", ")}</span>}
                   </span>
-                  <span className="tw-text-text-primary">{c.name}</span>
                   <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-2">{c.sector}</span>
                 </td>
                 <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.revenue} /></td>
@@ -417,7 +526,7 @@ function Slider({ field, value, onChange, pulsing, base }) {
   );
 }
 
-export default function StressTestView() {
+export default function StressTestView({ onOpenCompany }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
   // Слайдеры — null, пока не подтянули реальные текущие уровни (не рисуем
@@ -431,8 +540,15 @@ export default function StressTestView() {
   const [pulsingFields, setPulsingFields] = useState(new Set());
   const skipRecomputeRef = useRef(false);
 
+  // Сырые коэффициенты чувствительности по всей вселенной — грузятся ОДИН раз,
+  // дальше слайдеры считают локально (см. companyImpact/computeAllImpacts
+  // выше) — без debounce и без round-trip на сервер на каждое движение.
+  const [coefficients, setCoefficients] = useState(null);
   const [numResult, setNumResult] = useState(null);
-  const [numRecomputing, setNumRecomputing] = useState(false);
+
+  // Эшелоны — по умолчанию голубые фишки + 2-й эшелон (echelon ≤ 2); владелец,
+  // 2026-07-24: «второй и третий эшелон большинству клиентов не интересен».
+  const [echelonFilter, setEchelonFilter] = useState(2);
 
   const [question, setQuestion] = useState("");
   const [askResult, setAskResult] = useState(null);
@@ -465,26 +581,26 @@ export default function StressTestView() {
       .then((r) => (r.ok ? r.json() : { scenarios: [] }))
       .then((d) => setPresets(d.scenarios || []))
       .catch(() => {});
+
+    fetch(`${apiUrl}/api/stress-test/coefficients`)
+      .then((r) => (r.ok ? r.json() : { companies: [] }))
+      .then((d) => setCoefficients(d.companies || []))
+      .catch(() => setCoefficients([]));
   }, [apiUrl]);
 
-  // Живой пересчёт на слайдерах — debounce, БЕЗ полноэкранного лоадера (карта
-  // и таблица остаются на месте, пока новые данные не придут — не мигаем пустотой).
+  // Живой пересчёт на слайдерах — МГНОВЕННО локально в JS (владелец, 2026-07-24:
+  // «в демо пересчитывается мгновенно, у нас задержка» — было 350ms debounce +
+  // round-trip на /numeric на КАЖДОЕ движение ползунка). baseLevels.oil_brent_usd —
+  // тот же застывший «спот»-ориентир, что показывает подпись «сейчас ≈ $X» под
+  // слайдером нефти (см. компонент Slider) — не едет при движении ползунка,
+  // иначе «Δ от спота» потеряло бы смысл.
   useEffect(() => {
-    if (!levels) return;
+    if (!levels || !coefficients) return;
     if (skipRecomputeRef.current) { skipRecomputeRef.current = false; return; }
     setAskResult(null); setPresetResult(null);
-    const t = setTimeout(() => {
-      setNumRecomputing(true);
-      const params = new URLSearchParams({
-        key_rate_pct: levels.key_rate_pct, fx_usdrub: levels.fx_usdrub, oil_brent_usd: levels.oil_brent_usd,
-      });
-      fetch(`${apiUrl}/api/stress-test/numeric?${params}`)
-        .then((r) => (r.ok ? r.json() : Promise.reject()))
-        .then((d) => { setNumResult(d); setNumRecomputing(false); })
-        .catch(() => setNumRecomputing(false));
-    }, 350);
-    return () => clearTimeout(t);
-  }, [apiUrl, levels?.key_rate_pct, levels?.fx_usdrub, levels?.oil_brent_usd]);
+    setNumResult(computeAllImpacts(coefficients, levels.key_rate_pct, levels.fx_usdrub,
+      levels.oil_brent_usd, baseLevels?.oil_brent_usd));
+  }, [coefficients, levels?.key_rate_pct, levels?.fx_usdrub, levels?.oil_brent_usd, baseLevels?.oil_brent_usd]);
 
   const setField = (field, value) => setLevels((prev) => ({ ...prev, [field]: value }));
 
@@ -535,22 +651,71 @@ export default function StressTestView() {
     "Государство поднимает налоги на бизнес",
   ];
 
+  // Эшелон-фильтр применяется к тому, что реально рендерят карта/лидерборд/
+  // таблица (echelon приходит и от клиентского расчёта, и от серверного —
+  // numeric_impact() на бэке размечает его тем же _echelon_map()).
+  const displayNumeric = numResult && !numResult.error
+    ? { ...numResult, companies: filterByEchelon(numResult.companies, echelonFilter) }
+    : numResult;
+
+  // Мета-строка под заголовком — какие уровни считаются «базовыми» для этого
+  // прогона (владелец, 2026-07-24: шапка «бедновата» — не хватало опоры на
+  // реальные цифры рядом с заголовком). Дата — просто сегодняшняя (день.месяц),
+  // НЕ выдаём её за таймстамп котировки: /current-levels такого таймстампа не
+  // отдаёт, честно берём то, что реально знаем — момент просмотра.
+  const metaParts = [];
+  if (baseLevels) {
+    if (baseLevels.key_rate_pct != null) metaParts.push(`ставка ${Number(baseLevels.key_rate_pct).toFixed(1).replace(/\.0$/, "")}%`);
+    if (baseLevels.fx_usdrub != null) metaParts.push(`$/₽ ${Math.round(baseLevels.fx_usdrub)}`);
+    if (baseLevels.oil_brent_usd != null) metaParts.push(`Brent $${Math.round(baseLevels.oil_brent_usd)}`);
+  }
+  const todayLabel = new Date().toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
+
   return (
     <div className="stress-test-view tw-flex tw-flex-col tw-gap-5">
-      <div className="tw-flex tw-items-start tw-gap-3 tw-p-4 tw-rounded-md tw-bg-warning-soft">
-        <FlaskConical size={18} className="tw-text-warning tw-flex-shrink-0 tw-mt-0.5" />
-        <div className="tw-text-[13px] tw-text-text-primary tw-leading-relaxed">
-          <b>Демо-версия, супер-тестовая — не воспринимайте её всерьёз как прогноз.</b> Числа считаются по
-          линейным коэффициентам чувствительности из макро-разборов карточек (реальность нелинейна: демпферы,
-          прогрессивные налоги, хеджи). Интерпретация свободного сценария — ИИ, может понять вас неточно
-          (мы показываем «как мы поняли» — проверяйте). Точечные события одной компании (адресный налог,
-          смена собственника) модель не считает. Не инвестиционная рекомендация.
+      {/* Баннер-предупреждение — свёрнут в одну строку (был блок на треть экрана,
+          владелец: «баннер бедноват… точнее, слишком тяжёлый»). Полный текст
+          методики никуда не делся — он за раскрывающимся <details>, доступен в
+          один клик/Enter (нативный элемент — работает с клавиатуры и читалками
+          экрана без доп. JS, тот же принцип, что у design/textblocks.jsx Disclosure). */}
+      <details className="st-disclaimer">
+        <summary className="st-disclaimer-summary">
+          <FlaskConical size={14} className="st-disclaimer-icon" aria-hidden="true" />
+          <span className="st-disclaimer-lead">
+            <b>Демо-версия</b> — линейные коэффициенты чувствительности, не прогноз и не инвестрекомендация.
+          </span>
+          <span className="st-disclaimer-toggle">методика <span className="st-disclaimer-chevron" aria-hidden="true">▾</span></span>
+        </summary>
+        <div className="st-disclaimer-body">
+          Числа считаются по линейным коэффициентам чувствительности из макро-разборов карточек (реальность
+          нелинейна: демпферы, прогрессивные налоги, хеджи). Интерпретация свободного сценария — ИИ, может
+          понять вас неточно (мы показываем «как мы поняли» — проверяйте). Точечные события одной компании
+          (адресный налог, смена собственника) модель не считает.
         </div>
-      </div>
+      </details>
 
+      {/* Шапка секции — канонический паттерн pf-sec-head/eyebrow/title (portfolio-v2.css),
+          тот же, что у соседних разделов Портфеля, а не голые tw-классы «по мотивам»
+          (владелец: шапка была другого шрифта/размера). Eyebrow отделяет этот инструмент
+          (весь рынок, гипотетическая симуляция) от узкого внутрипортфельного стресс-теста
+          в разделе «Портфель» (тот считает конкретно позиции пользователя). Тег «демо» у
+          заголовка — тот же честный сигнал, что раньше нёс только громоздкий баннер выше,
+          теперь виден на уровне идентичности экрана. */}
       <div>
-        <h2 className="tw-font-display tw-text-[22px] tw-font-semibold tw-text-text-primary tw-m-0">Стресс-тестирование</h2>
-        <p className="tw-text-[13px] tw-text-text-secondary tw-mt-1 tw-max-w-[68ch]">
+        <div className="pf-sec-head">
+          <span className="pf-sec-eyebrow">Симуляция · весь рынок</span>
+          <h2 className="pf-sec-title">Стресс-тестирование</h2>
+          <span className="bs-tag-estimate">демо</span>
+        </div>
+        {metaParts.length > 0 && (
+          <div className="st-head-meta">
+            Базовые уровни: {metaParts.join(" · ")} · на {todayLabel}{levelsIsFallback ? " (ориентир)" : ""}
+          </div>
+        )}
+        <p className="st-head-lead">
+          Что будет с российскими компаниями, если сдвинуть ставку, курс или нефть — и кто пострадает, а кто выиграет.
+        </p>
+        <p className="st-head-sub">
           Подвигайте ползунки — индекс, карта и таблица пересчитываются на лету, без ожидания. Или опишите
           сценарий своими словами: если он называет конкретные уровни, ползунки встанут в них сами.
         </p>
@@ -606,7 +771,6 @@ export default function StressTestView() {
 
             <div className="st-rail-label">
               <span>Или задайте уровни точно</span>
-              {numRecomputing && <span className="st-recompute-dot" aria-label="пересчитываем" />}
             </div>
 
             {!levels ? (
@@ -637,8 +801,23 @@ export default function StressTestView() {
           <div className="st-main">
             {numResult && !numResult.error ? (
               <>
-                <ConsoleHeadline numeric={numResult} />
-                <MarketMap numeric={numResult} />
+                <div className="st-echelon-row">
+                  <span className="st-echelon-lbl">Компании</span>
+                  <div className="bs-seg-toggle">
+                    <span className={`bs-seg-opt${echelonFilter === 2 ? " bs-on" : ""}`} role="button" tabIndex={0}
+                      onClick={() => setEchelonFilter(2)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEchelonFilter(2); } }}>
+                      Голубые фишки + 2-й эшелон
+                    </span>
+                    <span className={`bs-seg-opt${echelonFilter === 3 ? " bs-on" : ""}`} role="button" tabIndex={0}
+                      onClick={() => setEchelonFilter(3)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEchelonFilter(3); } }}>
+                      Все компании
+                    </span>
+                  </div>
+                </div>
+                <ConsoleHeadline numeric={displayNumeric} />
+                <MarketMap numeric={displayNumeric} onOpenCompany={onOpenCompany} />
               </>
             ) : (
               <div className="st-main-loading">
@@ -648,10 +827,10 @@ export default function StressTestView() {
           </div>
         </div>
 
-        {numResult && !numResult.error && <Boards numeric={numResult} />}
+        {numResult && !numResult.error && <Boards numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
       </div>
 
-      {numResult && !numResult.error && <NumericTable numeric={numResult} />}
+      {numResult && !numResult.error && <NumericTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
 
       {askResult?.expert && <ExpertBlock e={askResult.expert} />}
       {askResult?.qualitative && <QualTable qual={askResult.qualitative} />}
