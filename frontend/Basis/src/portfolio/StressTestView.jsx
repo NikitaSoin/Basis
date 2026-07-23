@@ -1,20 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlaskConical, Send, RotateCcw } from "lucide-react";
 import { Card, Badge, Delta } from "../design/primitives";
-import { ImpactBar } from "../design/PortfolioViz";
 import "../styles/stress-test.css";
 
-// StressTestView v3 — «Стресс-тестирование» как инструмент, не анкета (владелец,
-// 2026-07-23: «хочется, чтобы хотелось пробовать новые сценарии и смотреть что
-// будет» — редизайн по интерактивному прототипу). Ставка/курс/нефть теперь
-// слайдеры с живым (debounce) пересчётом через уже быстрый /stress-test/numeric
-// (без LLM) — карта рынка и лидерборд перекрашиваются на лету. Свободный текст
-// («что если...») остаётся отдельным путём через LLM-парсер: КОГДА он извлекает
-// явные числовые уровни — слайдеры визуально едут в интерпретированную позицию
-// (честно — только когда backend реально это прислал, не выдумываем координаты
-// на фронте). Пресеты — качественная факторная модель (санкции/конфликт/спрос),
-// у нее нет числовых ставка/курс/нефть эквивалентов в движке — не пытаемся
-// натянуть их на слайдеры, остаются отдельным результатом (QualTable), как раньше.
+// StressTestView v4 — «Стресс-тестирование» как инструмент, не анкета (владелец,
+// 2026-07-23: «перекопируй расположение и цвета из Клод-дизайна» — предыдущая
+// версия (v3) была лишь ВДОХНОВЛЕНА прототипом, а не его копией: разная
+// структура страницы (линейный стек секций вместо рельс+основная область),
+// не было агрегированного «индекса рынка», не те цветовые токены (--success/
+// --danger вместо канонiчных --bs-up/--bs-down). v4 — консоль как в
+// прототипе: рельс слева (пресеты + слайдеры), справа — крупный
+// взвешенный индекс + карта рынка, ниже — full-bleed лидерборд «хуже/лучше».
+// Ставка/курс/нефть — слайдеры с живым (debounce) пересчётом через быстрый
+// /stress-test/numeric (без LLM). Свободный текст («что если...») остаётся
+// отдельным путём через LLM-парсер: КОГДА он извлекает явные числовые
+// уровни — слайдеры визуально едут в интерпретированную позицию (честно —
+// только когда backend реально это прислал, не выдумываем координаты на
+// фронте). Пресеты — качественная факторная модель (санкции/конфликт/
+// спрос), у неё нет числовых ставка/курс/нефть эквивалентов в движке — не
+// пытаемся натянуть их на слайдеры, остаются отдельным результатом
+// (QualTable), как раньше.
 
 const BUCKETS = [
   { min: 8, label: "▲▲", cls: "bs-wind-up", title: "сильно позитивно" },
@@ -51,61 +56,76 @@ function rankByImpact(companies, metric = "net_profit") {
     .sort((a, b) => Math.abs(b.metrics[metric].delta_bn) - Math.abs(a.metrics[metric].delta_bn));
 }
 
-function ImpactSignal({ numeric }) {
+function tilePct(c) {
+  return c.metrics.net_profit.pct_of_base ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15);
+}
+
+// Взвешенный агрегатный индекс — headline-число консоли (порт прототипа: та
+// же грубая эвристика веса, что и у плиток карты — голубые фишки втрое
+// тяжелее; настоящих весов по капитализации в контуре /numeric нет).
+function computeHeadlineIndex(companies) {
+  let sumW = 0, sumWV = 0;
+  for (const c of companies) {
+    if (c.metrics?.net_profit?.delta_bn == null) continue;
+    const w = c.is_blue_chip ? 3 : 1;
+    sumW += w; sumWV += w * tilePct(c);
+  }
+  return sumW > 0 ? sumWV / sumW : 0;
+}
+
+function ConsoleHeadline({ numeric }) {
   const ranked = rankByImpact(numeric.companies, "net_profit");
-  if (!ranked.length) return null;
-  const worst = ranked.filter((c) => c.metrics.net_profit.delta_bn < 0).slice(0, 5);
-  const best = ranked.filter((c) => c.metrics.net_profit.delta_bn > 0).slice(0, 5);
-  const maxAbs = Math.max(1, ...ranked.slice(0, 8).map((c) => Math.abs(c.metrics.net_profit.delta_bn)));
-  const Row = ({ c }) => (
-    <div className="tw-flex tw-items-center tw-gap-3 tw-py-1">
-      <span className="tw-font-mono tw-text-[12px] tw-text-text-secondary tw-w-16 tw-shrink-0">{c.ticker}</span>
-      <div className="tw-flex-1"><ImpactBar value={c.metrics.net_profit.delta_bn} max={maxAbs} /></div>
-      <Delta value={c.metrics.net_profit.delta_bn} suffix="млрд ₽" className="tw-w-28 tw-justify-end" />
-    </div>
-  );
+  const worst = ranked.filter((c) => c.metrics.net_profit.delta_bn < 0)[0];
+  const best = ranked.filter((c) => c.metrics.net_profit.delta_bn > 0)[0];
+  const headline = computeHeadlineIndex(numeric.companies);
   return (
-    <Card header={<span className="tw-flex tw-items-center tw-gap-2">Кто пострадает сильнее всего <span className="bs-tag-estimate">оценка</span></span>}>
-      <div className="tw-flex tw-flex-wrap tw-gap-3 tw-mb-4">
-        <div className="bs-chip-stat">
-          <span className="bs-cs-lbl">Задет фактором</span>
-          <span className="bs-cs-val">{ranked.length} из {numeric.companies.length}</span>
+    <div className="st-headline">
+      <div className="st-headline-num">
+        <span className="st-hl-lbl">Индекс рынка (взвеш. по весу компаний) <span className="bs-tag-estimate">оценка</span></span>
+        <span className="st-hl-val" style={{ color: headline >= 0 ? "var(--bs-up)" : "var(--bs-down)" }}>
+          {headline >= 0 ? "+" : ""}{headline.toFixed(1)}%
+        </span>
+      </div>
+      <div className="st-headline-meta">
+        <div className="st-hm">
+          <span className="st-hm-l">Задето</span>
+          <span className="st-hm-v">{ranked.length} из {numeric.companies.length}</span>
         </div>
-        {worst[0] && (
-          <div className="bs-chip-stat">
-            <span className="bs-cs-lbl">Хуже всего</span>
-            <span className="bs-cs-val" style={{ color: "var(--bs-down)" }}>
-              {worst[0].ticker} · {worst[0].metrics.net_profit.pct_of_base != null ? `${worst[0].metrics.net_profit.pct_of_base}%` : `${worst[0].metrics.net_profit.delta_bn} млрд ₽`}
-            </span>
-          </div>
-        )}
+        <div className="st-hm">
+          <span className="st-hm-l">Хуже всего</span>
+          <span className="st-hm-v" style={{ color: "var(--bs-down)" }}>
+            {worst ? `${worst.ticker} · ${tilePct(worst).toFixed(1)}%` : "—"}
+          </span>
+        </div>
+        <div className="st-hm">
+          <span className="st-hm-l">Лучше всего</span>
+          <span className="st-hm-v" style={{ color: "var(--bs-up)" }}>
+            {best ? `${best.ticker} · +${tilePct(best).toFixed(1)}%` : "—"}
+          </span>
+        </div>
       </div>
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-x-8">
-        <div>{worst.map((c) => <Row key={c.ticker} c={c} />)}</div>
-        <div>{best.map((c) => <Row key={c.ticker} c={c} />)}</div>
-      </div>
-    </Card>
+    </div>
   );
 }
 
-// Карта рынка — порт интерактивного прототипа (владелец, 2026-07-23: «не
-// совсем как в демо — цвета плит не те, расположение»): секторные строки,
-// плитки flex-grow по весу внутри строки, цвет — плавный color-mix от
-// нейтрального к --success/--danger, а не мозаичный грид общего Treemap.
-// Веса — грубая эвристика (голубые фишки крупнее): числового market_cap в
-// ответе /numeric нет, это визуальная пропорция, не точный вес индекса.
+// Карта рынка — секторные строки, плитки flex-grow по весу внутри строки,
+// цвет — плавный color-mix от нейтрального к --bs-up/--bs-down (канон
+// Basis; НЕ --success/--danger — те дают другой оттенок и не совпадают с
+// прототипом, ровно то, на что указал владелец).
 const MAP_MAX_PCT = 40; // насыщенность цвета: |pct| ≥ этого — уже максимум
 function mapColorFor(pct) {
   const m = Math.max(-MAP_MAX_PCT, Math.min(MAP_MAX_PCT, pct)) / MAP_MAX_PCT;
-  const tone = m >= 0 ? "var(--success)" : "var(--danger)";
+  const tone = m >= 0 ? "var(--bs-up)" : "var(--bs-down)";
   return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--bg-hover))`;
 }
 function mapTextColorFor(pct) {
-  if (Math.abs(pct) < 3) return "var(--text-secondary)";
-  return pct >= 0 ? "var(--success)" : "var(--danger)";
+  const strength = Math.min(1, Math.abs(pct) / MAP_MAX_PCT);
+  if (strength < 0.08) return "var(--text-secondary)"; // почти нейтральная плитка — серый текст
+  if (strength < 0.35) return pct >= 0 ? "var(--bs-up)" : "var(--bs-down)"; // бледная плитка — цветной текст читается
+  return "#fff"; // сильно закрашенная плитка — текст того же тона на ней сливается, нужен контраст
 }
 
-function StressMap({ numeric }) {
+function MarketMap({ numeric }) {
   const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 30);
   if (!ranked.length) return null;
   const bySector = new Map();
@@ -115,15 +135,14 @@ function StressMap({ numeric }) {
     bySector.get(sector).push(c);
   }
   return (
-    <Card header={<span className="tw-flex tw-items-center tw-gap-2">Карта рынка <span className="bs-tag-estimate">оценка</span></span>}>
+    <div className="st-mapwrap">
       <div className="st-map">
         {[...bySector.entries()].map(([sector, companies]) => (
           <React.Fragment key={sector}>
             <div className="st-sector-lbl">{sector}</div>
             <div className="st-map-row">
               {companies.map((c) => {
-                const pct = c.metrics.net_profit.pct_of_base
-                  ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15);
+                const pct = tilePct(c);
                 const weight = c.is_blue_chip ? 3 : 1;
                 return (
                   <div
@@ -141,10 +160,42 @@ function StressMap({ numeric }) {
           </React.Fragment>
         ))}
       </div>
-      <div className="tw-mt-3 tw-text-[11px] tw-text-text-tertiary">
-        Размер плитки — грубо, голубые фишки крупнее (веса капитализации в этом контуре нет). Цвет — Δ чистой прибыли, % от базы года.
+      <div className="st-map-note">
+        Топ-30 по силе эффекта · размер плитки — грубый вес (голубые фишки крупнее, реальной капитализации в контуре нет).
       </div>
-    </Card>
+    </div>
+  );
+}
+
+function BoardRow({ c, maxAbs }) {
+  const pct = tilePct(c);
+  const width = Math.max(4, Math.round((Math.abs(pct) / maxAbs) * 100));
+  return (
+    <div className="st-brow">
+      <span className="st-brow-tk">{c.ticker}</span>
+      <div className="st-brow-bar"><i style={{ width: `${width}%` }} /></div>
+      <span className="st-brow-pc">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</span>
+    </div>
+  );
+}
+
+function Boards({ numeric }) {
+  const ranked = rankByImpact(numeric.companies, "net_profit");
+  const worst = ranked.filter((c) => c.metrics.net_profit.delta_bn < 0).slice(0, 6);
+  const best = ranked.filter((c) => c.metrics.net_profit.delta_bn > 0).slice(0, 6);
+  if (!worst.length && !best.length) return null;
+  const maxAbs = Math.max(1, ...[...worst, ...best].map((c) => Math.abs(tilePct(c))));
+  return (
+    <div className="st-boards">
+      <div className="st-board st-board-worse">
+        <h3>▾ Под давлением</h3>
+        {worst.length ? worst.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} />) : <div className="st-board-empty">—</div>}
+      </div>
+      <div className="st-board st-board-better">
+        <h3>▴ Выигрывают</h3>
+        {best.length ? best.map((c) => <BoardRow key={c.ticker} c={c} maxAbs={maxAbs} />) : <div className="st-board-empty">—</div>}
+      </div>
+    </div>
   );
 }
 
@@ -323,24 +374,38 @@ function QualTable({ qual }) {
 // деградация — приблизительные ориентиры, не боевые данные, помечено ниже).
 const FALLBACK_LEVELS = { key_rate_pct: 20, fx_usdrub: 80, oil_brent_usd: 70 };
 const SLIDER_RANGE = {
-  key_rate_pct: { min: 5, max: 30, step: 0.5, label: "Ключевая ставка", unit: "%" },
-  fx_usdrub: { min: 50, max: 150, step: 1, label: "Курс ₽/$", unit: "₽" },
-  oil_brent_usd: { min: 20, max: 120, step: 1, label: "Нефть Brent", unit: "$" },
+  key_rate_pct: { min: 5, max: 30, step: 0.5, label: "Ключевая ставка", unit: "%", fmtBase: (v) => `сейчас ≈ ${v.toFixed(1).replace(/\.0$/, "")}%` },
+  fx_usdrub: { min: 50, max: 150, step: 1, label: "Курс ₽/$", unit: "₽", fmtBase: (v) => `сейчас ≈ ${Math.round(v)} ₽/$` },
+  oil_brent_usd: { min: 20, max: 120, step: 1, label: "Нефть Brent", unit: "$", fmtBase: (v) => `сейчас ≈ $${Math.round(v)}/барр.` },
 };
 
-function Slider({ field, value, onChange, pulsing }) {
+// Пресеты — качественная факторная модель backend'а (stress_scenarios.py),
+// без эмодзи в данных; глиф — чисто визуальный, подобран по смыслу сценария
+// (порт прототипа, где у каждого пресета был свой значок).
+const PRESET_GLYPHS = {
+  war_prolonged: "⏳",
+  oil_crash: "📉",
+  middle_east_spike: "🛢",
+  fiscal_pressure: "🏛",
+  sticky_inflation: "🌡",
+  cbr_optimistic: "☀",
+};
+
+function Slider({ field, value, onChange, pulsing, base }) {
   const cfg = SLIDER_RANGE[field];
+  const fmt = (v) => (cfg.unit === "%" ? v.toFixed(1).replace(/\.0$/, "") : Math.round(v));
   return (
     <div className={`st-sl${pulsing ? " st-sl-pulse" : ""}`}>
       <div className="st-sl-label">
         <span className="st-sl-name">{cfg.label}</span>
         <span className="st-sl-val">
-          {cfg.unit === "%" ? value.toFixed(1).replace(/\.0$/, "") : Math.round(value)}
+          {fmt(value)}
           <span className="st-sl-unit">{cfg.unit}</span>
         </span>
       </div>
       <input type="range" min={cfg.min} max={cfg.max} step={cfg.step} value={value}
         onChange={(e) => onChange(field, parseFloat(e.target.value))} />
+      {base != null && <div className="st-sl-base">{cfg.fmtBase(base)}</div>}
     </div>
   );
 }
@@ -350,7 +415,11 @@ export default function StressTestView() {
 
   // Слайдеры — null, пока не подтянули реальные текущие уровни (не рисуем
   // произвольные числа как «сейчас», пока не знаем, что это правда).
+  // baseLevels — снимок ИСХОДНОГО значения при загрузке (для подписи «сейчас
+  // ≈ X» под слайдером и для честного «К текущим уровням»): levels меняется
+  // по мере того как пользователь двигает ползунки, baseLevels — нет.
   const [levels, setLevels] = useState(null);
+  const [baseLevels, setBaseLevels] = useState(null);
   const [levelsIsFallback, setLevelsIsFallback] = useState(false);
   const [pulsingFields, setPulsingFields] = useState(new Set());
   const skipRecomputeRef = useRef(false);
@@ -366,7 +435,10 @@ export default function StressTestView() {
   const [presetResult, setPresetResult] = useState(null);
   const [presetKey, setPresetKey] = useState(null);
 
-  // Реальные текущие ориентиры — стартовая позиция слайдеров.
+  // Реальные текущие ориентиры — стартовая позиция слайдеров. Сохранение в
+  // levels само запускает первый /numeric-пересчёт (эффект ниже) — карта и
+  // индекс должны появиться сразу при открытии экрана, как в демо, а не
+  // только после того как пользователь тронет ползунок.
   useEffect(() => {
     fetch(`${apiUrl}/api/stress-test/current-levels`)
       .then((r) => (r.ok ? r.json() : {}))
@@ -377,10 +449,10 @@ export default function StressTestView() {
           oil_brent_usd: d.oil_brent_usd ?? FALLBACK_LEVELS.oil_brent_usd,
         };
         setLevelsIsFallback(d.key_rate_pct == null || d.fx_usdrub == null || d.oil_brent_usd == null);
-        skipRecomputeRef.current = true; // начальная позиция — не пересчитывать лишний раз
         setLevels(merged);
+        setBaseLevels(merged);
       })
-      .catch(() => { setLevels(FALLBACK_LEVELS); setLevelsIsFallback(true); });
+      .catch(() => { setLevels(FALLBACK_LEVELS); setBaseLevels(FALLBACK_LEVELS); setLevelsIsFallback(true); });
 
     fetch(`${apiUrl}/api/stress-test/scenarios`)
       .then((r) => (r.ok ? r.json() : { scenarios: [] }))
@@ -410,8 +482,8 @@ export default function StressTestView() {
   const setField = (field, value) => setLevels((prev) => ({ ...prev, [field]: value }));
 
   const resetLevels = () => {
-    if (!levels) return;
-    setLevels({ ...FALLBACK_LEVELS });
+    if (!baseLevels) return;
+    setLevels({ ...baseLevels });
   };
 
   const ask = () => {
@@ -472,7 +544,7 @@ export default function StressTestView() {
       <div>
         <h2 className="tw-font-display tw-text-[22px] tw-font-semibold tw-text-text-primary tw-m-0">Стресс-тестирование</h2>
         <p className="tw-text-[13px] tw-text-text-secondary tw-mt-1 tw-max-w-[68ch]">
-          Подвигайте ползунки — карта рынка и таблица пересчитываются на лету, без ожидания. Или опишите
+          Подвигайте ползунки — индекс, карта и таблица пересчитываются на лету, без ожидания. Или опишите
           сценарий своими словами: если он называет конкретные уровни, ползунки встанут в них сами.
         </p>
       </div>
@@ -495,68 +567,83 @@ export default function StressTestView() {
               <button key={ex} type="button" onClick={() => setQuestion(ex)} className="st-chip">{ex}</button>
             ))}
           </div>
+
+          {askResult?.understood && (
+            <div className="st-interp">
+              <span className="st-interp-tag">интерпретация ИИ</span>
+              <p>{askResult.understood}</p>
+              {askResult.horizon && <div className="st-interp-horizon">Горизонт: {askResult.horizon}</div>}
+            </div>
+          )}
+          {askResult?.error === "llm_unavailable" && (
+            <div className="st-interp"><p>{askResult.note}</p></div>
+          )}
+          {askResult?.out_of_scope && (
+            <div className="st-interp"><p>{askResult.out_of_scope_note}</p></div>
+          )}
         </div>
 
-        {askResult?.understood && (
-          <div className="st-interp">
-            <span className="st-interp-tag">интерпретация ИИ</span>
-            <p>{askResult.understood}</p>
-            {askResult.horizon && <div className="st-interp-horizon">Горизонт: {askResult.horizon}</div>}
-          </div>
-        )}
-        {askResult?.error === "llm_unavailable" && (
-          <div className="st-interp"><p>{askResult.note}</p></div>
-        )}
-        {askResult?.out_of_scope && (
-          <div className="st-interp"><p>{askResult.out_of_scope_note}</p></div>
-        )}
-
-        {!levels ? (
-          <div className="st-sliders-loading">Загружаем текущие уровни ставки/курса/нефти…</div>
-        ) : (
-          <>
-            <div className="st-sliders-head">
-              <span>Или задайте уровни точно {numRecomputing && <span className="st-recompute-dot" aria-label="пересчитываем" />}</span>
-              <button type="button" className="st-reset" onClick={resetLevels}>
-                <RotateCcw size={12} /> К текущим уровням
-              </button>
-            </div>
-            <div className="st-sliders">
-              <Slider field="key_rate_pct" value={levels.key_rate_pct} onChange={setField} pulsing={pulsingFields.has("key_rate_pct")} />
-              <Slider field="fx_usdrub" value={levels.fx_usdrub} onChange={setField} pulsing={pulsingFields.has("fx_usdrub")} />
-              <Slider field="oil_brent_usd" value={levels.oil_brent_usd} onChange={setField} pulsing={pulsingFields.has("oil_brent_usd")} />
-            </div>
-            {levelsIsFallback && (
-              <div className="st-levels-note">Текущие уровни временно недоступны — старт от приблизительных ориентиров (ставка ~20%, курс ~80 ₽/$, Brent ~$70), не боевые данные.</div>
+        <div className="st-console-top">
+          <div className="st-rail">
+            {presets.length > 0 && (
+              <div className="st-presets-compact">
+                {presets.map((p) => (
+                  <button key={p.key} type="button" onClick={() => runPreset(p.key)}
+                    disabled={presetKey === p.key} className="st-preset-compact" title={p.description}>
+                    <span className="st-preset-g">{PRESET_GLYPHS[p.key] || "◆"}</span>
+                    {p.label}
+                  </button>
+                ))}
+              </div>
             )}
-          </>
-        )}
 
-        {presets.length > 0 && (
-          <div className="st-presets">
-            <div className="st-presets-head">Готовые сценарии (детерминированный расчёт качественных факторов — санкции/конфликт/спрос, без ИИ-интерпретации)</div>
-            <div className="st-presets-grid">
-              {presets.map((p) => (
-                <button key={p.key} type="button" onClick={() => runPreset(p.key)}
-                  disabled={presetKey === p.key} className="bs-ai-plan st-preset">
-                  <div className="st-preset-label">{p.label}</div>
-                  <div className="st-preset-desc">{p.description}</div>
-                </button>
-              ))}
+            <div className="st-rail-label">
+              <span>Или задайте уровни точно</span>
+              {numRecomputing && <span className="st-recompute-dot" aria-label="пересчитываем" />}
             </div>
+
+            {!levels ? (
+              <div className="st-sliders-loading">Загружаем текущие уровни ставки/курса/нефти…</div>
+            ) : (
+              <div className="st-slider-group">
+                <Slider field="key_rate_pct" value={levels.key_rate_pct} onChange={setField}
+                  pulsing={pulsingFields.has("key_rate_pct")} base={baseLevels?.key_rate_pct} />
+                <Slider field="fx_usdrub" value={levels.fx_usdrub} onChange={setField}
+                  pulsing={pulsingFields.has("fx_usdrub")} base={baseLevels?.fx_usdrub} />
+                <Slider field="oil_brent_usd" value={levels.oil_brent_usd} onChange={setField}
+                  pulsing={pulsingFields.has("oil_brent_usd")} base={baseLevels?.oil_brent_usd} />
+              </div>
+            )}
+
+            {levels && (
+              <div className="st-reset-row">
+                <button type="button" className="st-reset" onClick={resetLevels}>
+                  <RotateCcw size={12} /> К текущим уровням
+                </button>
+                {levelsIsFallback && (
+                  <div className="st-levels-note">Текущие уровни временно недоступны — старт от приблизительных ориентиров, не боевые данные.</div>
+                )}
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="st-main">
+            {numResult && !numResult.error ? (
+              <>
+                <ConsoleHeadline numeric={numResult} />
+                <MarketMap numeric={numResult} />
+              </>
+            ) : (
+              <div className="st-main-loading">
+                {askLoading || presetKey ? "Считаем сценарий…" : "Считаем базовый сценарий…"}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {numResult && !numResult.error && <Boards numeric={numResult} />}
       </div>
 
-      {askLoading && (
-        <div className="tw-py-6 tw-text-text-tertiary tw-text-center tw-animate-pulse">Интерпретируем сценарий…</div>
-      )}
-      {presetKey && (
-        <div className="tw-py-6 tw-text-text-tertiary tw-text-center tw-animate-pulse">Считаем сценарий...</div>
-      )}
-
-      {numResult && !numResult.error && <StressMap numeric={numResult} />}
-      {numResult && !numResult.error && <ImpactSignal numeric={numResult} />}
       {numResult && !numResult.error && <NumericTable numeric={numResult} />}
 
       {askResult?.expert && <ExpertBlock e={askResult.expert} />}
