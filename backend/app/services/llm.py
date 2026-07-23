@@ -66,7 +66,9 @@ def _api_key(provider: str) -> str:
     return key
 
 
-def _timeout() -> "httpx.Timeout":
+def _timeout(override: float | None = None) -> "httpx.Timeout":
+    if override is not None:
+        return httpx.Timeout(override, connect=8.0)
     try:
         total = float(os.environ.get("LLM_TIMEOUT", "180"))
     except ValueError:
@@ -77,10 +79,16 @@ def _timeout() -> "httpx.Timeout":
     # (LLMError → except → []). Поднято до 180с (найдено на бою 2026-07-12: прогоны
     # trigger-geo-digest консистентно давали saved=0 при total=60, saved>0 изредка при
     # уменьшении батча — сам таймаут был реальным потолком, не max_tokens и не размер батча).
+    # 180с — правильный дефолт для ФОНОВЫХ батчей (кроны), но интерактивные пути с
+    # пользователем на экране (стресс-тест «Спросить») должны падать быстро, а не
+    # висеть до ~9 минут на один вызов (180×3 попытки) — для них вызывающий код
+    # передаёт override короче через complete(..., timeout=...).
     return httpx.Timeout(total, connect=8.0)
 
 
-def _retries() -> int:
+def _retries(override: int | None = None) -> int:
+    if override is not None:
+        return override
     try:
         return int(os.environ.get("LLM_RETRIES", "2"))
     except ValueError:
@@ -101,7 +109,8 @@ def _strip_json_fence(text: str) -> str:
 
 def _call_openai_compatible(provider: str, system_prompt: str, user_content: str,
                             json_mode: bool, max_tokens: int, temperature: float,
-                            thinking: bool, model_override: str | None = None) -> str:
+                            thinking: bool, model_override: str | None = None,
+                            timeout_override: float | None = None) -> str:
     base_url, _, _ = _PROVIDERS[provider]
     # Релей через Cloudflare Worker (как ANTHROPIC_PROXY_URL): на этом инстансе egress
     # к api.deepseek.com режется на TLS (TCP проходит, TLS молча в таймаут — подтверждено
@@ -131,7 +140,7 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
                "Content-Type": "application/json"}
     from app.services.http_util import make_client
     # make_client — клампинг TCP MSS (обход MTU black hole к api.deepseek.com).
-    with make_client(timeout=_timeout()) as client:
+    with make_client(timeout=_timeout(timeout_override)) as client:
         resp = client.post(f"{base_url}/chat/completions", json=payload, headers=headers)
         resp.raise_for_status()
         data = resp.json()
@@ -153,12 +162,12 @@ def _call_openai_compatible(provider: str, system_prompt: str, user_content: str
 
 
 def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
-                 max_tokens: int, temperature: float) -> str:
+                 max_tokens: int, temperature: float, timeout_override: float | None = None) -> str:
     from anthropic import Anthropic
     proxy = os.environ.get("ANTHROPIC_PROXY_URL") or None
     client = Anthropic(api_key=_api_key("claude"),
                        base_url=proxy if proxy else None,
-                       timeout=_timeout(), max_retries=0)
+                       timeout=_timeout(timeout_override), max_retries=0)
     # Просьба строгого JSON для Claude идёт текстом в system (нет response_format).
     sys = system_prompt
     if json_mode and "JSON" not in sys.upper():
@@ -175,7 +184,7 @@ def _call_claude(system_prompt: str, user_content: str, json_mode: bool,
 
 def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
              max_tokens: int = 4096, temperature: float = 0.2, thinking: bool = False,
-             model: str | None = None):
+             model: str | None = None, timeout: float | None = None, retries: int | None = None):
     """Единая точка вызова LLM.
 
     system_prompt — СТАБИЛЬНЫЙ префикс (для кэша провайдера); user_content —
@@ -183,19 +192,23 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
     thinking — режим рассуждения (только DeepSeek): по умолчанию ВЫКЛ, т.к. наши
     пайплайны решают механические задачи по чёткому промпту; включай (thinking=True)
     только там, где реально нужно рассуждение. При сбое повторяет _retries() раз.
+    timeout/retries — оверрайд дефолтов (LLM_TIMEOUT=180с/LLM_RETRIES=2) ДЛЯ ЭТОГО
+    вызова: дефолты рассчитаны на фоновые батчи (кроны), где долгое ожидание не
+    видно пользователю. Интерактивные пути (пользователь смотрит на спиннер на
+    экране) должны падать быстро — передавай короче (напр. timeout=25, retries=1).
     """
     provider = _provider()
     if provider not in _PROVIDERS:
         raise LLMError(f"Неизвестный LLM_PROVIDER={provider}")
 
     last_err: Exception | None = None
-    for attempt in range(_retries() + 1):
+    for attempt in range(_retries(retries) + 1):
         try:
             if provider == "claude":
-                raw = _call_claude(system_prompt, user_content, json_mode, max_tokens, temperature)
+                raw = _call_claude(system_prompt, user_content, json_mode, max_tokens, temperature, timeout)
             else:
                 raw = _call_openai_compatible(provider, system_prompt, user_content,
-                                              json_mode, max_tokens, temperature, thinking, model)
+                                              json_mode, max_tokens, temperature, thinking, model, timeout)
             if not json_mode:
                 return raw
             cleaned = _strip_json_fence(raw)
@@ -212,8 +225,8 @@ def complete(system_prompt: str, user_content: str, *, json_mode: bool = True,
             last_err = e
             # Логируем БЕЗ утечки ключа (httpx не печатает заголовки в str(e)).
             logger.warning("LLM(%s) попытка %d/%d не удалась: %s",
-                           provider, attempt + 1, _retries() + 1, type(e).__name__)
-            if attempt < _retries():
+                           provider, attempt + 1, _retries(retries) + 1, type(e).__name__)
+            if attempt < _retries(retries):
                 time.sleep(1.5 * (attempt + 1))
     raise LLMError(f"LLM({provider}) недоступен после повторов: {type(last_err).__name__}")
 

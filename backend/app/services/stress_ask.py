@@ -90,7 +90,13 @@ def parse_scenario(question: str) -> dict:
         hit = _CACHE.get(key)
         if hit and now - hit[0] < _CACHE_TTL:
             return hit[1]
-    parsed = complete(_PARSER_SYSTEM, question, json_mode=True, max_tokens=800, temperature=0.1)
+    # Интерактивный путь (пользователь смотрит на спиннер в UI) — короткий таймаут/
+    # ретраи вместо дефолтных 180с×3 (рассчитаны на фоновые кроны, где никто не
+    # ждёт): без этого /ask мог висеть до ~9 минут на один зависший вызов, а весь
+    # сценарий делает ДВА таких вызова подряд (парсер + эксперт ниже) — отсюда
+    # жалоба владельца «интерпретация идёт бесконечно долго».
+    parsed = complete(_PARSER_SYSTEM, question, json_mode=True, max_tokens=800, temperature=0.1,
+                      timeout=25, retries=1)
     if not isinstance(parsed, dict):
         raise LLMError("Парсер вернул не-объект")
     with _cache_lock:

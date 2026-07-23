@@ -284,6 +284,13 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
   const openConversation = async (id) => {
     if (id === activeId) return;
     setError(null);
+    // Оптимистично — сайдбар подсвечивает клик и лента чистится СРАЗУ, не после
+    // ответа сервера (владелец, 2026-07-23: «клик на любой другой чат не сразу
+    // срабатывает» — activeId раньше менялся только post-fetch, поэтому клик
+    // визуально «не срабатывал» на весь round-trip, а старые сообщения оставались
+    // на экране вперемешку с индикатором «печатает» нового диалога).
+    setActiveId(id);
+    setMessages([]);
     setLoadingConv(true);
     setMobileDrawerOpen(false);
     setAgentMode(false); setDocResult(null); setDocLoading(false);
@@ -296,8 +303,12 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
         const data = await r.json();
         setActiveId(data.id);
         setMessages(Array.isArray(data.messages) ? data.messages : []);
+      } else {
+        setError({ text: "Не удалось загрузить диалог. Попробуйте ещё раз.", canRetry: false });
       }
-    } catch { /* оставляем как есть */ }
+    } catch {
+      setError({ text: "Нет связи с сервером. Проверьте соединение и повторите.", canRetry: false });
+    }
     finally { setLoadingConv(false); }
   };
 
@@ -400,7 +411,10 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     );
   }
 
-  const empty = messages.length === 0 && !sending;
+  // !loadingConv — иначе на время загрузки другого диалога (messages уже очищен
+  // оптимистично в openConversation, см. комментарий там) на миг мелькает
+  // приглашение «Чем помочь?» вместо индикатора «печатает».
+  const empty = messages.length === 0 && !sending && !loadingConv;
 
   return (
     <div className="asst-wrap-outer">

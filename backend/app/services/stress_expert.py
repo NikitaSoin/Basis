@@ -148,7 +148,10 @@ def expert_answer(db: Session, question: str, understood: str | None = None) -> 
         + "\n\n=== ФАКТОРНЫЕ ЭКСПОЗИЦИИ СЕКТОРОВ ===\n" + _sector_exposures(db)
     )
     try:
-        raw = complete(_SYSTEM, user_content, json_mode=True, max_tokens=2200, temperature=0.3)
+        # Короткий таймаут/ретраи — путь интерактивный (см. пояснение в stress_ask.py:
+        # parse_scenario), это ВТОРОЙ LLM-вызов в цепочке одного запроса /ask.
+        raw = complete(_SYSTEM, user_content, json_mode=True, max_tokens=2200, temperature=0.3,
+                       timeout=25, retries=1)
     except LLMError as e:
         logger.warning("stress_expert: LLM недоступен: %s", e)
         return None
