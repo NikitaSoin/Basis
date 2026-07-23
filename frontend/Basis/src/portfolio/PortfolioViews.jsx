@@ -2363,12 +2363,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   useEffect(() => {
     if (!macroLevels || !activePortfolioId || stressV2Results.rate_up) return;
     fetchStressV2("rate_up", { key_rate_pct: (macroLevels.key_rate_pct ?? 14.25) + 5 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [macroLevels, activePortfolioId]);
   useEffect(() => {
     if (!activePortfolioId || stressV2Results.oil_crash) return;
     fetchStressV2("oil_crash", { oil_brent_usd: 40 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePortfolioId]);
 
   // «+ Свой сценарий» — абсолютные целевые уровни (ставка/курс/нефть), ТЕ ЖЕ
@@ -2384,7 +2382,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     setCustomKeyRate(macroLevels.key_rate_pct ?? 14.25);
     setCustomFx(macroLevels.fx_usdrub ?? 78);
     setCustomOil(macroLevels.oil_brent_usd ?? 70);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [macroLevels]);
   const [customStressResult, setCustomStressResult] = useState(null);
   const [customStressLoading, setCustomStressLoading] = useState(false);
