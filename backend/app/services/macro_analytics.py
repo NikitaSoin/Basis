@@ -43,27 +43,36 @@ def doc_date(url: str) -> date | None:
 
     Поддержанные форматы: YYYYMMDD (comment_20210422), DDMMYYYY (29052026),
     MMYYYY (Mon042026), YY-MM (Infl_exp_21-08), месяц-имя_YYYY (SOI_may_2026),
-    голый год (shlyk2026 / VIRUS2019). None — если дату определить нельзя."""
+    голый год (shlyk2026 / VIRUS2019). None — если дату определить нельзя.
+
+    Форматы без явного дня (MMYYYY / месяц-имя_YYYY / YY-MM) угадывают день=28 —
+    ПРИБЛИЖЕНИЕ, не факт публикации. Угадка зажимается сверху сегодняшней датой
+    (min(guess, today)): документ уже обнаружен на сайте источника → он ТОЧНО
+    опубликован не позже сегодня, а «день=28» иногда попадал в будущее (баг:
+    inFOM_26-07.pdf для отчёта за июль отдавал 28 июля, хотя ЦБ мог опубликовать
+    его раньше — например 23-го, и сайт уже отдавал PDF). Без зажима фронт
+    показывал бы дату публикации «из будущего», которая ещё не наступила."""
     s = url.lower()
+    today = date.today()
     for m in re.finditer(r"(\d{8})", s):  # YYYYMMDD | DDMMYYYY
         for fmt in ("%Y%m%d", "%d%m%Y"):
             try:
                 d = datetime.strptime(m.group(1), fmt).date()
                 if 2008 <= d.year <= 2030:
-                    return d
+                    return min(d, today)
             except ValueError:
                 continue
     m = re.search(r"(\d{2})(20\d{2})(?!\d)", s)  # MMYYYY: 042026
     if m and 1 <= int(m.group(1)) <= 12:
-        return date(int(m.group(2)), int(m.group(1)), 28)
+        return min(date(int(m.group(2)), int(m.group(1)), 28), today)
     m = re.search(r"(" + "|".join(_MONTHS) + r")[_\-]?(20\d{2})", s)  # may_2026
     if m:
-        return date(int(m.group(2)), _MONTHS[m.group(1)], 28)
+        return min(date(int(m.group(2)), _MONTHS[m.group(1)], 28), today)
     m = re.search(r"(?<!\d)(\d{2})-(\d{2})(?!\d)", s)  # YY-MM: 21-08 (вкл. старые 14-02)
     if m:
         yy, mm = 2000 + int(m.group(1)), int(m.group(2))
         if 1 <= mm <= 12 and 2008 <= yy <= 2030:
-            return date(yy, mm, 28)
+            return min(date(yy, mm, 28), today)
     # УДАЛЁН fallback «голый год → 30 июня»: он подставлял вымышленную дату
     # (не факт публикации) для любого URL без месяца/дня — типично для ЦМАКП
     # (forecast.ru). При «голом годе» вызывающий код обязан обратиться к
@@ -116,9 +125,14 @@ def _excluded(url: str) -> bool:
 
 def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
     """Удалить из БД обзоры старше `days` ИЛИ с НЕопределяемой датой (при сомнении —
-    убираем: лучше пробел, чем архив). Дату берём из URL, иначе со страницы."""
+    убираем: лучше пробел, чем архив). Дату берём из URL, иначе со страницы.
+    Заодно ПЕРЕСЧИТЫВАЕТ published_at для оставшихся строк — если логика доопределения
+    даты поменялась (напр. фикс бага с угадкой дня=28, уходившей в будущее), старые
+    строки, сохранённые до фикса, сами не исправятся: published_at пишется один раз при
+    создании и не переоценивается, кроме как здесь."""
     cutoff = date.today() - timedelta(days=days)
     removed = 0
+    fixed = 0
     for d in db.query(MacroAnalyticsDoc).all():
         url = d.source_url or ""
         if _excluded(url):  # тангенциальные записки — убираем из обзоров
@@ -131,9 +145,14 @@ def cleanup_old(db: Session, days: int = _FRESH_DAYS) -> int:
         if dd is None or dd < cutoff:
             db.delete(d)
             removed += 1
+            continue
+        if dd != d.published_at:
+            d.published_at = dd
+            fixed += 1
     db.commit()
-    if removed:
-        logger.info("Аналитика: удалено %d обзоров (старше %d дн. или без надёжной даты)", removed, days)
+    if removed or fixed:
+        logger.info("Аналитика: удалено %d обзоров, исправлено дат %d (старше %d дн. или без надёжной даты)",
+                    removed, fixed, days)
     return removed
 
 _DOC_SYS = (

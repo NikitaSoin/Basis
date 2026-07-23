@@ -1478,9 +1478,11 @@ function ObsMacroArticles({ token }) {
       .catch(() => setNumbers([]));
   }, [apiUrl]);
 
-  // Дайджест внешних источников с макро-уклоном (Economist Finance, ISW и др.)
+  // Дайджест внешних источников с макро-уклоном (Economist Finance, ISW, Carnegie
+  // (телеграм-каналы, только макро-тезисы — не геополитика/институты, см. geo_digest.py),
+  // MarketTwits и др.)
   useEffect(() => {
-    fetch(`${apiUrl}/api/market/macro/digest`)
+    fetch(`${apiUrl}/api/market/macro/digest?limit=30`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setDigest(d.articles || []))
       .catch(() => setDigest([]))
@@ -1502,11 +1504,32 @@ function ObsMacroArticles({ token }) {
     { id: "all", label: "Все" },
     { id: "cmakp", label: "ЦМАКП" },
     { id: "cbr", label: "Банк России" },
+    { id: "other", label: "Другие" },
   ];
 
-  const filteredDocs = docs.filter((d) =>
-    srcFilter === "all" || d.source === srcFilter
-  );
+  // Единый список: записки ЦБ/ЦМАКП (macro/analytics) + статьи внешних источников
+  // (macro/digest: Economist, ISW, Carnegie, MarketTwits и др.) — раньше внешние
+  // источники всегда рисовались отдельным блоком под записками ЦБ/ЦМАКП, без
+  // сортировки по дате и без фильтра. Теперь один список, отсортированный по дате
+  // публикации, с отдельным чипом «Другие» для внешних источников.
+  const filteredItems = (() => {
+    let items;
+    if (srcFilter === "other") {
+      items = digest.map((d) => ({ ...d, _kind: "digest" }));
+    } else if (srcFilter === "all") {
+      items = [
+        ...docs.map((d) => ({ ...d, _kind: "doc" })),
+        ...digest.map((d) => ({ ...d, _kind: "digest" })),
+      ];
+    } else {
+      items = docs.filter((d) => d.source === srcFilter).map((d) => ({ ...d, _kind: "doc" }));
+    }
+    return items.sort((a, b) => (b.published_at || "").localeCompare(a.published_at || ""));
+  })();
+
+  const itemsLoading = srcFilter === "other" ? digestLoading
+    : srcFilter === "all" ? (loading || digestLoading)
+    : loading;
 
   const interpSections = interp?.sections || null;
   const scenarios = interpSections?.scenarios;
@@ -1538,7 +1561,8 @@ function ObsMacroArticles({ token }) {
   return (
     <div>
       <p className="obs-art-desc">
-        «Обзор» — записки ЦБ и ЦМАКП как есть. «Оценка ситуации» — что из этого следует, по мнению Basis.
+        «Обзор» — записки ЦБ, ЦМАКП и внешние источники (Economist, ISW, Carnegie и др.) как есть.
+        «Оценка ситуации» — что из этого следует, по мнению Basis.
       </p>
 
       {/* Сег-переключатель */}
@@ -1573,33 +1597,25 @@ function ObsMacroArticles({ token }) {
             ))}
           </div>
 
-          {loading && (
+          {itemsLoading && (
             <div className="obs-news-loading">Загружаем аналитику…</div>
           )}
 
-          {!loading && filteredDocs.length === 0 && (
+          {!itemsLoading && filteredItems.length === 0 && (
             <div className="obs-art-empty">
-              Нет документов для выбранного источника. Аналитические записки ЦБ и ЦМАКП
-              появятся здесь после публикации.
+              {srcFilter === "other"
+                ? "Свежих материалов из внешних источников пока нет."
+                : "Нет документов для выбранного источника. Аналитические записки появятся здесь после публикации."}
             </div>
           )}
 
           <div className="obs-art-list">
-            {filteredDocs.map((doc) => (
-              <ObsArticleCard key={doc.id} doc={doc} />
+            {filteredItems.map((item) => (
+              item._kind === "digest"
+                ? <ObsDigestCard key={`d-${item.id}`} a={item} />
+                : <ObsArticleCard key={`a-${item.id}`} doc={item} />
             ))}
           </div>
-
-          {(digestLoading || digest.length > 0) && (
-            <div style={{ marginTop: 16 }}>
-              <div className="obs-synth-head" style={{ marginBottom: 14 }}>Внешний взгляд (Economist, ISW и др.)</div>
-              <ObsDigestList
-                articles={digest}
-                loading={digestLoading}
-                emptyHint="Свежих материалов пока нет."
-              />
-            </div>
-          )}
         </>
       )}
 
