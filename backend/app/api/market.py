@@ -650,6 +650,8 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             payload["base_map"]["frontline_source"] = row.source
             payload["base_map"]["frontline_as_of"] = row.as_of
             payload["base_map"]["frontline_synced_at"] = row.synced_at.isoformat() if row.synced_at else None
+            if row.control_fill_geojson:
+                payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
 
     return JSONResponse(content=payload)
 

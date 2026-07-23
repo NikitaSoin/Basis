@@ -135,7 +135,33 @@ def _ukraine_boundary_from_static_map():
     return unary_union(polys), static_map
 
 
-def _compute_frontline(control_fc: dict, ukraine_boundary) -> dict:
+def _control_fill_geojson(ru_control) -> dict:
+    """Сам полигон РФ-контроля (не только его граница-линия) — для точной
+    закраски карты, которая идёт ВНУТРИ «спорных» областей (владелец,
+    2026-07-24: «Часов Яр/Константиновка/Гуляйполе/Волчанск/Мирноград/
+    Покровск/Родинское/Лиман фактически уже под РФ, а на карте область
+    целиком помечена «contested» — не видно, что конкретно взято»).
+    Область/район как объекты выбора региона (клик → подпись) остаются
+    прежними (regions_geojson, ручная классификация по областям) — этот
+    полигон рисуется ПОВЕРХ них отдельным слоем, тем же цветом, что
+    коренные регионы РФ, показывая фактические контуры внутри области."""
+    from shapely.geometry import mapping
+    from shapely.geometry.polygon import orient
+
+    simplified = ru_control.simplify(0.0015, preserve_topology=True)
+    geoms = list(simplified.geoms) if hasattr(simplified, "geoms") else [simplified]
+    # orient() — консистентная обмотка колец (GeoJSON RFC 7946: внешнее
+    # кольцо против часовой) — simplify() иногда её нарушает, MapLibre не
+    # всегда прощает "дырки", натянутые как основной контур.
+    geoms = [orient(g, sign=1.0) for g in geoms if not g.is_empty and g.area > 0]
+    return {
+        "type": "FeatureCollection",
+        "features": [{"type": "Feature", "properties": {}, "geometry": mapping(g)} for g in geoms],
+    }
+
+
+def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
+    """Возвращает (frontline_geojson, control_fill_geojson)."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
     from shapely.ops import unary_union, linemerge
 
@@ -145,6 +171,8 @@ def _compute_frontline(control_fc: dict, ukraine_boundary) -> dict:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
     ru_control = unary_union(ru_polys).buffer(0)
     ukraine_boundary = ukraine_boundary.buffer(0)
+
+    control_fill = _control_fill_geojson(ru_control)
 
     rest_of_ukraine = ukraine_boundary.difference(ru_control)
     raw = ru_control.boundary.intersection(rest_of_ukraine.boundary)
@@ -187,10 +215,11 @@ def _compute_frontline(control_fc: dict, ukraine_boundary) -> dict:
     # ≈ 80-90 м на широте Украины — ниже разрешения тайла на масштабе карты).
     simplified = [ln.simplify(0.0008, preserve_topology=True) for ln in kept]
 
-    return {
+    frontline_fc = {
         "type": "FeatureCollection",
         "features": [{"type": "Feature", "properties": {}, "geometry": mapping(ln)} for ln in simplified],
     }
+    return frontline_fc, control_fill
 
 
 def sync_isw_frontline(db: Session) -> dict:
@@ -208,18 +237,21 @@ def sync_isw_frontline(db: Session) -> dict:
     try:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
-        frontline_fc = _compute_frontline(control_fc, ukraine_boundary)
+        frontline_fc, control_fill_fc = _compute_frontline(control_fc, ukraine_boundary)
         if not frontline_fc["features"]:
             raise ValueError("Пересчитанная линия фронта пуста")
 
         row.frontline_geojson = frontline_fc
+        row.control_fill_geojson = control_fill_fc
         row.as_of = as_of
         row.source = "ISW Assessed Control of Terrain in Ukraine (CC BY)"
         row.status = "ok"
         row.error_note = None
         db.commit()
-        logger.info("ISW-синк линии фронта: %d сегментов, as_of=%s", len(frontline_fc["features"]), as_of)
-        return {"status": "ok", "segments": len(frontline_fc["features"]), "as_of": as_of}
+        logger.info("ISW-синк линии фронта: %d сегментов линии, %d полигонов заливки, as_of=%s",
+                     len(frontline_fc["features"]), len(control_fill_fc["features"]), as_of)
+        return {"status": "ok", "segments": len(frontline_fc["features"]),
+                "fill_polygons": len(control_fill_fc["features"]), "as_of": as_of}
     except Exception as e:  # noqa: BLE001
         db.rollback()
         row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()

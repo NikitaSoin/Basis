@@ -51,6 +51,7 @@ class GeoFrontlineSync(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     theater: Mapped[str] = mapped_column(String(16), unique=True)  # пока только "svo"
     frontline_geojson: Mapped[dict | None] = mapped_column(JSONB)
+    control_fill_geojson: Mapped[dict | None] = mapped_column(JSONB)  # сам полигон РФ-контроля (не только граница)
     as_of: Mapped[str | None] = mapped_column(String(32))          # дата данных ISW (lastEditDate)
     source: Mapped[str | None] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(16), default="ok")  # ok | stale | error
