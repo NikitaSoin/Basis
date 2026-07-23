@@ -223,11 +223,14 @@ def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
 
 
 def sync_isw_frontline(db: Session) -> dict:
-    """Один прогон: тянет ISW, пересчитывает линию, апсертит geo_frontline_sync.
-    Честная деградация — при любой ошибке пишет status=error с причиной,
-    НЕ трогает ранее сохранённую рабочую линию (эндпоинт продолжит отдавать
-    последнюю успешную)."""
-    from app.models.geo import GeoFrontlineSync
+    """Один прогон: тянет ISW, пересчитывает линию, апсертит geo_frontline_sync
+    (последнее успешное состояние — быстрая отдача текущей карты) И
+    geo_frontline_snapshot (одна запись на сегодняшний день — накопление
+    истории для будущего временного ползунка, см. модель). Честная
+    деградация — при любой ошибке пишет status=error с причиной, НЕ трогает
+    ранее сохранённую рабочую линию (эндпоинт продолжит отдавать последнюю
+    успешную)."""
+    from app.models.geo import GeoFrontlineSync, GeoFrontlineSnapshot
 
     row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()
     if row is None:
@@ -247,11 +250,21 @@ def sync_isw_frontline(db: Session) -> dict:
         row.source = "ISW Assessed Control of Terrain in Ukraine (CC BY)"
         row.status = "ok"
         row.error_note = None
+
+        today = datetime.now(timezone.utc).date().isoformat()
+        snap = db.query(GeoFrontlineSnapshot).filter_by(theater="svo", snapshot_date=today).first()
+        if snap is None:
+            snap = GeoFrontlineSnapshot(theater="svo", snapshot_date=today)
+            db.add(snap)
+        snap.frontline_geojson = frontline_fc
+        snap.control_fill_geojson = control_fill_fc
+        snap.as_of = as_of
+
         db.commit()
-        logger.info("ISW-синк линии фронта: %d сегментов линии, %d полигонов заливки, as_of=%s",
-                     len(frontline_fc["features"]), len(control_fill_fc["features"]), as_of)
+        logger.info("ISW-синк линии фронта: %d сегментов линии, %d полигонов заливки, as_of=%s, снапшот=%s",
+                     len(frontline_fc["features"]), len(control_fill_fc["features"]), as_of, today)
         return {"status": "ok", "segments": len(frontline_fc["features"]),
-                "fill_polygons": len(control_fill_fc["features"]), "as_of": as_of}
+                "fill_polygons": len(control_fill_fc["features"]), "as_of": as_of, "snapshot_date": today}
     except Exception as e:  # noqa: BLE001
         db.rollback()
         row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()

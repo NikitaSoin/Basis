@@ -656,6 +656,32 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
     return JSONResponse(content=payload)
 
 
+@router.get("/market/geo-map/svo/history")
+def market_geo_map_svo_history(db: Session = Depends(get_db)):
+    """Список дат, на которые есть накопленный снапшот линии фронта СВО —
+    для временного ползунка (Обозреватель, карта СВО). Снапшоты копятся
+    ВПЕРЁД с 2026-07-24 (у ISW нет штатного API истории по датам назад —
+    см. докстринг geo_isw_frontline_sync.GeoFrontlineSnapshot), глубина
+    растёт естественно. Пусто до накопления первых записей — фронт должен
+    прятать ползунок при пустом/однодневном списке."""
+    from app.models.geo import GeoFrontlineSnapshot
+    rows = (db.query(GeoFrontlineSnapshot.snapshot_date, GeoFrontlineSnapshot.as_of)
+            .filter_by(theater="svo").order_by(GeoFrontlineSnapshot.snapshot_date.asc()).all())
+    return {"dates": [{"date": d, "as_of": a} for d, a in rows]}
+
+
+@router.get("/market/geo-map/svo/history/{date}")
+def market_geo_map_svo_history_date(date: str, db: Session = Depends(get_db)):
+    """Снапшот линии фронта СВО на конкретную накопленную дату (YYYY-MM-DD,
+    из /market/geo-map/svo/history)."""
+    from app.models.geo import GeoFrontlineSnapshot
+    row = db.query(GeoFrontlineSnapshot).filter_by(theater="svo", snapshot_date=date).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Снапшот на эту дату не найден")
+    return {"date": row.snapshot_date, "as_of": row.as_of,
+            "frontline_geojson": row.frontline_geojson, "control_fill_geojson": row.control_fill_geojson}
+
+
 @router.get("/market/geopolitics/{region}")
 def market_geopolitics_region(region: str, tab: str = "deep",
                               db: Session = Depends(get_db), user=Depends(get_current_user_optional)):
