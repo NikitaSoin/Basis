@@ -92,8 +92,17 @@ def _company_numeric_impact(qi: dict, sector: str | None,
                             fx_usdrub: float | None,
                             oil_brent_usd: float | None,
                             brent_spot: float | None) -> dict | None:
-    """Δ метрик компании (млрд ₽ и % от базы) при целевых условиях. None — нет
-    quant_inputs вовсе. Внутри метрик None — фактор/база не покрыты."""
+    """Δ метрик компании (млрд ₽ и % от базы) при целевых условиях. Внутри метрик:
+    0 — честный ноль (ни один текущий фактор компанию не касается, но у нас ЕСТЬ
+    её коэффициенты); None — фактор задействован, но коэффициент именно на эту
+    метрику не задан (реально не знаем).
+
+    Владелец, 2026-07-24: «когда двигаешь ползунки — какие-то компании вылетают,
+    какие-то появляются, это не норма» — раньше при factor_deltas={} (ни один
+    слайдер не сдвинут от спота ЭТОЙ компании) функция возвращала None и компания
+    целиком исчезала из вселенной/карты до следующего движения слайдера. Компания
+    с ХОТЯ БЫ одним коэффициентом теперь остаётся в списке ВСЕГДА — состав карты
+    стабилен, меняются только числа."""
     coefs = qi.get("coefficients") or {}
     spot = qi.get("macro_spot") or qi.get("macro_current") or {}
     fin = qi.get("financials") or {}
@@ -131,8 +140,7 @@ def _company_numeric_impact(qi: dict, sector: str | None,
                             "to": round(float(spot["commodity_usd"]) * (1 + rel), 1),
                             "assumption": (coefs["commodity"] or {}).get("assumption")})
 
-    if not factor_deltas:
-        return None
+    has_any_factor = bool(factor_deltas)
 
     out_metrics: dict[str, dict] = {}
     for m in _METRICS:
@@ -146,7 +154,12 @@ def _company_numeric_impact(qi: dict, sector: str | None,
             total += c * d
         base = _num(fin.get(m))
         if not covered:
-            out_metrics[m] = {"delta_bn": None, "pct_of_base": None, "base_bn": base}
+            if has_any_factor:
+                # фактор сдвинут, но коэффициент именно на эту метрику не задан
+                out_metrics[m] = {"delta_bn": None, "pct_of_base": None, "base_bn": base}
+            else:
+                # ни один текущий фактор компанию не касается — честный ноль
+                out_metrics[m] = {"delta_bn": 0.0, "pct_of_base": 0.0, "base_bn": base}
             continue
         # % от базы вырожден при крошечной базе (у OZON прибыль ~1 млрд → «+543%»
         # ничего не говорит) — показываем % только когда |Δ| ≤ 2×|базы|, иначе
@@ -183,7 +196,7 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
     for r in rows:
         ticker, name, sector = r[0], r[1], r[2]
         qi = _load_quant(ticker)
-        if not qi:
+        if not qi or not (qi.get("coefficients") or {}):
             continue
         impact = _company_numeric_impact(qi, sector, key_rate_pct, fx_usdrub, oil_brent_usd, brent_spot)
         if not impact:

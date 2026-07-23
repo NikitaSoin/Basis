@@ -27,11 +27,10 @@ import "../styles/stress-test.css";
 //   коэффициенты грузятся ОДИН раз при заходе на экран (/stress-test/coefficients).
 //   Правишь арифметику — правь СИНХРОННО в обоих местах, иначе слайдерный путь
 //   (клиент) и путь через «Спросить»/пресеты (сервер) разойдутся в цифрах.
-// — Эшелоны: по умолчанию карта/таблица показывают голубые фишки + 2-й эшелон
-//   (echelon ≤ 2, backend уже размечает поле) — «второй и третий эшелон
-//   большинству клиентов не интересен», длинный хвост мелких бумаг с
-//   экстремальным % иначе вытеснял узнаваемые компании из топ-N по силе эффекта.
-//   Переключатель показывает все компании по запросу.
+// — Эшелоны: взаимоисключающие срезы 1/2/3/все (echelon===n, backend уже
+//   размечает поле) — та же таксономия и ярлыки, что в Скринере. Дефолт —
+//   1-й эшелон (голубые фишки, самый узнаваемый вход); длинный хвост мелких
+//   бумаг с экстремальным % иначе забивал бы карту, если бы дефолтом было «все».
 // — Плитки/строки — имя компании первично, тикер вторично (мельче/mono), клик
 //   открывает карточку компании (onOpenCompany, тот же паттерн, что у
 //   PortfolioV2/AssistantView в App.js).
@@ -77,7 +76,12 @@ function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentU
     if (Math.abs(d) > 1e-9) factorDeltas.commodity = d;
   }
 
-  if (!Object.keys(factorDeltas).length) return null;
+  // Компания с ХОТЯ БЫ одним коэффициентом остаётся во вселенной ВСЕГДА (не
+  // return null при пустых factorDeltas) — владелец, 2026-07-24: «компании
+  // вылетают/появляются при движении слайдера, это не норма». 0 — честный ноль
+  // (ни один текущий фактор её не касается), не «нет данных» — держать
+  // синхронно с _company_numeric_impact() в stress_numeric.py.
+  const hasAnyFactor = Object.keys(factorDeltas).length > 0;
 
   const metrics = {};
   for (const m of IMPACT_METRICS) {
@@ -89,7 +93,12 @@ function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentU
       total += c * factorDeltas[f];
     }
     const base = fin[m] != null ? fin[m] : null;
-    if (!covered) { metrics[m] = { delta_bn: null, pct_of_base: null, base_bn: base }; continue; }
+    if (!covered) {
+      metrics[m] = hasAnyFactor
+        ? { delta_bn: null, pct_of_base: null, base_bn: base } // фактор сдвинут, но коэффициент на эту метрику не задан — реально не знаем
+        : { delta_bn: 0, pct_of_base: 0, base_bn: base }; // ни один текущий фактор её не касается — честный ноль
+      continue;
+    }
     // % от базы вырожден при крошечной базе — показываем % только когда
     // |Δ| ≤ 2×|базы|, иначе только млрд ₽ (см. stress_numeric.py).
     let pct = null;
@@ -128,10 +137,20 @@ function computeAllImpacts(coefficients, keyRatePct, fxUsdrub, oilBrentUsd, bren
 }
 
 // Эшелоны (backend: BLUE_CHIPS=1, следующие ECHELON2_SIZE по капитализации=2,
-// остальное=3) — владелец, 2026-07-24: «второй и третий эшелон большинству
-// клиентов не интересен», по умолчанию режем на ≤2, есть переключатель на «все».
-function filterByEchelon(companies, maxEchelon) {
-  return companies.filter((c) => (c.echelon ?? 3) <= maxEchelon);
+// остальное=3) — та же таксономия и те же ярлыки, что в Скринере (UNIVERSES,
+// screener/ScreenerNeo.jsx), по рекомендации product-analyst-biz (2026-07-24):
+// взаимоисключающие СРЕЗЫ (echelon===n), не накопительный ≤n — «2-й эшелон»
+// значит ТОЛЬКО 2-й, без голубых фишек, ровно как уже устроено в Скринере
+// (владелец: «фильтр не то ... как в скринере есть»). "all" — без фильтра.
+const ECHELON_OPTIONS = [
+  { id: 1, label: "Голубые фишки · 1-й эшелон", short: "1-й эшелон" },
+  { id: 2, label: "2-й эшелон", short: "2-й эшелон" },
+  { id: 3, label: "3-й эшелон", short: "3-й эшелон" },
+  { id: "all", label: "Все компании", short: "Все" },
+];
+function filterByEchelon(companies, echelonFilter) {
+  if (echelonFilter === "all") return companies;
+  return companies.filter((c) => (c.echelon ?? 3) === echelonFilter);
 }
 
 function DeltaCell({ m }) {
@@ -157,8 +176,19 @@ function rankByImpact(companies, metric = "net_profit") {
     .sort((a, b) => Math.abs(b.metrics[metric].delta_bn) - Math.abs(a.metrics[metric].delta_bn));
 }
 
+// Владелец, 2026-07-24: «у Роснефти доросло до +200%, а дальше +15 и всё» —
+// backend честно подавляет pct_of_base при |Δ| > 2×|база| (степень доверия к
+// проценту падает при крошечной базе), но ПЛОСКИЕ ±15 вместо реального числа
+// выглядели как обрезание/баг ровно в момент пересечения порога. Раз base_bn
+// всегда приходит рядом (даже когда pct подавлен) — считаем честный % сами,
+// не выдумываем плоскую константу. ±15 — только последний фолбэк, когда даже
+// base_bn нет вовсе.
 function tilePct(c) {
-  return c.metrics.net_profit.pct_of_base ?? (c.metrics.net_profit.delta_bn > 0 ? 15 : -15);
+  const np = c.metrics.net_profit;
+  if (np.pct_of_base != null) return np.pct_of_base;
+  if (np.delta_bn == null) return 0; // нет сигнала для текущих факторов — нейтрально, не мнимые ±15
+  if (np.base_bn) return (np.delta_bn / Math.abs(np.base_bn)) * 100;
+  return np.delta_bn > 0 ? 15 : -15;
 }
 
 // Взвешенный агрегатный индекс — headline-число консоли (порт прототипа: та
@@ -176,6 +206,10 @@ function computeHeadlineIndex(companies) {
 
 function ConsoleHeadline({ numeric }) {
   const ranked = rankByImpact(numeric.companies, "net_profit");
+  // «Задето» — компании, которых сценарий РЕАЛЬНО коснулся (Δ≠0), не просто
+  // те, у кого вообще есть число (после фикса «честный ноль» ranked включает
+  // и незатронутые компании тоже — иначе счётчик вводил бы в заблуждение).
+  const affected = ranked.filter((c) => c.metrics.net_profit.delta_bn !== 0).length;
   const worst = ranked.filter((c) => c.metrics.net_profit.delta_bn < 0)[0];
   const best = ranked.filter((c) => c.metrics.net_profit.delta_bn > 0)[0];
   const headline = computeHeadlineIndex(numeric.companies);
@@ -186,11 +220,16 @@ function ConsoleHeadline({ numeric }) {
         <span className="st-hl-val" style={{ color: headline >= 0 ? "var(--bs-up)" : "var(--bs-down)" }}>
           {headline >= 0 ? "+" : ""}{headline.toFixed(1)}%
         </span>
+        {/* Владелец, 2026-07-24: «плюс/минус проценты — это что, цена акции?» —
+            эти % НИКОГДА не про котировку, только про прогнозную чистую прибыль.
+            Раньше это было видно только в hover-title тайла — делаем постоянно
+            видимым рядом с главным числом. */}
+        <span className="st-hl-clarify">% — изменение прогнозной чистой прибыли за год, НЕ цена акции</span>
       </div>
       <div className="st-headline-meta">
         <div className="st-hm">
           <span className="st-hm-l">Задето</span>
-          <span className="st-hm-v">{ranked.length} из {numeric.companies.length}</span>
+          <span className="st-hm-v">{affected} из {numeric.companies.length}</span>
         </div>
         <div className="st-hm">
           <span className="st-hm-l">Хуже всего</span>
@@ -221,35 +260,51 @@ function ConsoleHeadline({ numeric }) {
 // другой») — половина насыщенности на тех же данных. 18 — точное значение
 // макета, тоже единственное, что владелец просил «перекопировать» дословно.
 const MAP_MAX_PCT = 18;
+// Нейтральная база тайла — var(--st-deep-surface), НЕ светлый --bg-hover:
+// владелец, 2026-07-24, указал точно на цвет фона секции «03/04 · Погружение
+// второе» в docs/design_baza.html (--l3-bg/--l3-surface) как искомый тон —
+// карта рынка теперь тёмная «deep»-зона (см. .st-main в stress-test.css),
+// тайлы должны сидеть на ЕЁ фоне, не на светлом.
 function mapColorFor(pct) {
   const m = Math.max(-MAP_MAX_PCT, Math.min(MAP_MAX_PCT, pct)) / MAP_MAX_PCT;
   const tone = m >= 0 ? "var(--bs-up)" : "var(--bs-down)";
-  return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--bg-hover))`;
+  return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--st-deep-surface))`;
 }
 function mapTextColorFor(pct) {
   const strength = Math.min(1, Math.abs(pct) / MAP_MAX_PCT);
-  if (strength < 0.08) return "var(--text-secondary)"; // почти нейтральная плитка — серый текст
+  if (strength < 0.08) return "var(--st-deep-ink-2)"; // почти нейтральная плитка на тёмном фоне
   if (strength < 0.35) return pct >= 0 ? "var(--bs-up)" : "var(--bs-down)"; // бледная плитка — цветной текст читается
   return "#fff"; // сильно закрашенная плитка — текст того же тона на ней сливается, нужен контраст
 }
 
+// Владелец, 2026-07-24: «когда двигаешь ползунки — компании вылетают/появляются,
+// это не норма, нужно чтобы были одни и те же». Раньше состав тайлов брался как
+// top-30 ПО ТЕКУЩЕМУ impact (rankByImpact().slice(0,30)) — при движении одного
+// слайдера компании без релевантного коэффициента теряли сигнал и выпадали.
+// Теперь (см. companyImpact() — честный ноль вместо null/исключения) состав
+// СТАБИЛЕН: показываем ВСЕХ из текущего эшелон-фильтра, сектора и порядок внутри
+// сектора зафиксированы (не по impact) — меняется только цвет/число на тайле.
 function MarketMap({ numeric, onOpenCompany }) {
-  const ranked = rankByImpact(numeric.companies, "net_profit").slice(0, 30);
-  if (!ranked.length) return null;
+  const companies = numeric.companies;
+  if (!companies.length) return null;
   const bySector = new Map();
-  for (const c of ranked) {
+  for (const c of companies) {
     const sector = c.sector || "Другое";
     if (!bySector.has(sector)) bySector.set(sector, []);
     bySector.get(sector).push(c);
   }
+  for (const arr of bySector.values()) {
+    arr.sort((a, b) => (a.is_blue_chip !== b.is_blue_chip ? (a.is_blue_chip ? -1 : 1) : a.name.localeCompare(b.name, "ru")));
+  }
+  const sectorNames = [...bySector.keys()].sort((a, b) => a.localeCompare(b, "ru"));
   return (
     <div className="st-mapwrap">
       <div className="st-map">
-        {[...bySector.entries()].map(([sector, companies]) => (
+        {sectorNames.map((sector) => (
           <React.Fragment key={sector}>
             <div className="st-sector-lbl">{sector}</div>
             <div className="st-map-row">
-              {companies.map((c) => {
+              {bySector.get(sector).map((c) => {
                 const pct = tilePct(c);
                 const weight = c.is_blue_chip ? 3 : 1;
                 return (
@@ -273,7 +328,7 @@ function MarketMap({ numeric, onOpenCompany }) {
         ))}
       </div>
       <div className="st-map-note">
-        Топ-30 по силе эффекта · размер плитки — грубый вес (голубые фишки крупнее, реальной капитализации в контуре нет). Клик по плитке открывает карточку компании.
+        {companies.length} компаний в текущем фильтре · размер плитки — грубый вес (голубые фишки крупнее, реальной капитализации в контуре нет). Клик по плитке открывает карточку компании.
       </div>
     </div>
   );
@@ -546,9 +601,9 @@ export default function StressTestView({ onOpenCompany }) {
   const [coefficients, setCoefficients] = useState(null);
   const [numResult, setNumResult] = useState(null);
 
-  // Эшелоны — по умолчанию голубые фишки + 2-й эшелон (echelon ≤ 2); владелец,
-  // 2026-07-24: «второй и третий эшелон большинству клиентов не интересен».
-  const [echelonFilter, setEchelonFilter] = useState(2);
+  // Эшелоны — дефолт «1-й эшелон» (голубые фишки, самый узнаваемый и чистый
+  // вход на карту) по рекомендации product-analyst-biz, 2026-07-24.
+  const [echelonFilter, setEchelonFilter] = useState(1);
 
   const [question, setQuestion] = useState("");
   const [askResult, setAskResult] = useState(null);
@@ -657,6 +712,13 @@ export default function StressTestView({ onOpenCompany }) {
   const displayNumeric = numResult && !numResult.error
     ? { ...numResult, companies: filterByEchelon(numResult.companies, echelonFilter) }
     : numResult;
+
+  // Счётчики по эшелону — для подписи на переключателе (сколько компаний в
+  // каждом срезе), как badge-счётчик у UniversePicker в Скринере.
+  const echelonCounts = { 1: 0, 2: 0, 3: 0 };
+  if (numResult && !numResult.error) {
+    for (const c of numResult.companies) echelonCounts[c.echelon ?? 3] += 1;
+  }
 
   // Мета-строка под заголовком — какие уровни считаются «базовыми» для этого
   // прогона (владелец, 2026-07-24: шапка «бедновата» — не хватало опоры на
@@ -799,38 +861,59 @@ export default function StressTestView({ onOpenCompany }) {
           </div>
 
           <div className="st-main">
-            {numResult && !numResult.error ? (
+            {presetKey ? (
+              <div className="st-main-loading">Считаем сценарий…</div>
+            ) : presetResult && !presetResult.error ? (
+              // Владелец, 2026-07-24: «кнопки сценариев когда нажимаешь ничего не
+              // происходит» — пресет реально считался (winners/losers), но
+              // headline/карта (числовой контур) вообще не реагируют — у пресетов
+              // нет числового эквивалента (см. шапку файла), а результат
+              // (QualTable) рендерится далеко внизу страницы. Явно показываем
+              // здесь, ГДЕ смотрит пользователь, что клик подействовал.
+              <div className="st-preset-active">
+                <div className="st-preset-active-lbl">Показан сценарий «{presetResult.scenario?.label}»</div>
+                <p className="st-preset-active-desc">{presetResult.scenario?.description}</p>
+                <div className="st-preset-active-hint">
+                  У этого сценария нет точных числовых уровней ставки/курса/нефти — количественная карта
+                  здесь недоступна. Направление эффекта по компаниям — в таблице ниже ↓
+                </div>
+              </div>
+            ) : numResult && !numResult.error ? (
               <>
                 <div className="st-echelon-row">
                   <span className="st-echelon-lbl">Компании</span>
                   <div className="bs-seg-toggle">
-                    <span className={`bs-seg-opt${echelonFilter === 2 ? " bs-on" : ""}`} role="button" tabIndex={0}
-                      onClick={() => setEchelonFilter(2)}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEchelonFilter(2); } }}>
-                      Голубые фишки + 2-й эшелон
-                    </span>
-                    <span className={`bs-seg-opt${echelonFilter === 3 ? " bs-on" : ""}`} role="button" tabIndex={0}
-                      onClick={() => setEchelonFilter(3)}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEchelonFilter(3); } }}>
-                      Все компании
-                    </span>
+                    {ECHELON_OPTIONS.map((opt) => (
+                      <span key={opt.id} className={`bs-seg-opt${echelonFilter === opt.id ? " bs-on" : ""}`} role="button" tabIndex={0}
+                        onClick={() => setEchelonFilter(opt.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEchelonFilter(opt.id); } }}>
+                        {opt.short}{opt.id !== "all" && <span className="st-seg-count">{echelonCounts[opt.id]}</span>}
+                      </span>
+                    ))}
                   </div>
                 </div>
+                {echelonFilter !== 1 && (
+                  <div className="st-echelon-note">
+                    {echelonFilter === "all"
+                      ? "Показаны все компании, включая 2-й/3-й эшелон — у мелких и средних бумаг реакция обычно резче, а данных по ним меньше."
+                      : "Средние и малые компании — реакция обычно резче, чем у голубых фишек, и данных по ним меньше."}
+                  </div>
+                )}
                 <ConsoleHeadline numeric={displayNumeric} />
                 <MarketMap numeric={displayNumeric} onOpenCompany={onOpenCompany} />
               </>
             ) : (
               <div className="st-main-loading">
-                {askLoading || presetKey ? "Считаем сценарий…" : "Считаем базовый сценарий…"}
+                {askLoading ? "Считаем сценарий…" : "Считаем базовый сценарий…"}
               </div>
             )}
           </div>
         </div>
 
-        {numResult && !numResult.error && <Boards numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
+        {numResult && !numResult.error && !presetResult && <Boards numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
       </div>
 
-      {numResult && !numResult.error && <NumericTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
+      {numResult && !numResult.error && !presetResult && <NumericTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
 
       {askResult?.expert && <ExpertBlock e={askResult.expert} />}
       {askResult?.qualitative && <QualTable qual={askResult.qualitative} />}
