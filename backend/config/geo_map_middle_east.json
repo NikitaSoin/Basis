@@ -7,7 +7,9 @@
     "control_legend": {
       "ru": "ось Ирана",
       "contested": "неприсоединившиеся / сложная позиция",
-      "ua": "США, Израиль и союзники"
+      "ua": "США и союзники",
+      "primary_adversary": "Израиль — главный противник Ирана",
+      "us_base_host": "базы США — цель ответных ударов Ирана"
     },
     "bounds": [
       [
@@ -951,9 +953,9 @@
           "type": "Feature",
           "properties": {
             "name_ru": "ОАЭ",
-            "control": "ua",
+            "control": "us_base_host",
             "control_confidence": "M",
-            "control_note": "Принимает авиабазу США Аль-Дафра.",
+            "control_note": "Авиабаза Аль-Дафра — цель ответного удара Ирана (июль 2026).",
             "slug": "uae"
           },
           "geometry": {
@@ -4887,9 +4889,9 @@
           "type": "Feature",
           "properties": {
             "name_ru": "Катар",
-            "control": "ua",
+            "control": "us_base_host",
             "control_confidence": "M",
-            "control_note": "Принимает крупнейшую базу США на Ближнем Востоке — Аль-Удейд.",
+            "control_note": "Авиабаза Аль-Удейд — крупнейшая база США на Ближнем Востоке, цель ответных ракетных ударов Ирана (июль 2026).",
             "slug": "qatar"
           },
           "geometry": {
@@ -6297,9 +6299,9 @@
           "type": "Feature",
           "properties": {
             "name_ru": "Кувейт",
-            "control": "ua",
+            "control": "us_base_host",
             "control_confidence": "M",
-            "control_note": "Принимает авиабазу США Али Аль-Салем.",
+            "control_note": "Авиабаза Али Аль-Салем — цель ответного удара Ирана (июль 2026).",
             "slug": "kuwait"
           },
           "geometry": {
@@ -6985,9 +6987,9 @@
           "type": "Feature",
           "properties": {
             "name_ru": "Израиль",
-            "control": "ua",
+            "control": "primary_adversary",
             "control_confidence": "M",
-            "control_note": "Союзник США вне формальных договоров, ключевая сторона конфликта с Ираном.",
+            "control_note": "Ключевая противостоящая Ирану сторона конфликта — прямые удары по иранским военным/ядерным целям (апрель-июль 2026), не формальный союзник США по договору, но фактический военный партнёр вне блоковых структур.",
             "slug": "israel"
           },
           "geometry": {
@@ -10096,9 +10098,9 @@
           "type": "Feature",
           "properties": {
             "name_ru": "Бахрейн",
-            "control": "ua",
+            "control": "us_base_host",
             "control_confidence": "M",
-            "control_note": "Штаб-квартира 5-го флота США.",
+            "control_note": "Штаб-квартира 5-го флота США — цель ответного удара Ирана (июль 2026).",
             "slug": "bahrain"
           },
           "geometry": {

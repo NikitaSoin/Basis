@@ -618,13 +618,20 @@ def market_geo_barometer():
 
 
 @router.get("/market/geo-map/{theater}")
-def market_geo_map(theater: str):
+def market_geo_map(theater: str, db: Session = Depends(get_db)):
     """Интерактивная карта очага (Обозреватель, «Оценка ситуации» → карта): линия
     фронта, удары, критическая инфраструктура, военные базы, флот — координатный
     слой поверх барометра (geo_barometer.json.regions остаётся текстовым описанием).
     Файл config/geo_map_<theater>.json, theater из фиксированного списка очагов.
     Источники — ISW (карты CC BY, можно переиспользовать с атрибуцией) + Рыбарь
-    (пересказ фактов, не копирование картинок)."""
+    (пересказ фактов, не копирование картинок).
+
+    Для СВО линия фронта (base_map.frontline_geojson) накладывается живой из
+    geo_frontline_sync (см. app/services/geo_isw_frontline_sync.py) поверх
+    статического файла, если синк когда-либо успешно отработал — статический
+    файл при этом остаётся источником правды для событий/классификации
+    областей и фолбэком, если синк ещё не запускался или последний прогон
+    упал (status="error" в БД не подменяет ранее сохранённую рабочую линию)."""
     import json as _json
     if theater not in ("svo", "middle_east", "atr"):
         raise HTTPException(status_code=404, detail="Неизвестный очаг")
@@ -633,7 +640,18 @@ def market_geo_map(theater: str):
     if not os.path.exists(path):
         raise HTTPException(status_code=404, detail="Карта очага ещё не сформирована")
     with open(path, encoding="utf-8") as f:
-        return JSONResponse(content=_json.load(f))
+        payload = _json.load(f)
+
+    if theater == "svo":
+        from app.models.geo import GeoFrontlineSync
+        row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()
+        if row is not None and row.frontline_geojson:
+            payload["base_map"]["frontline_geojson"] = row.frontline_geojson
+            payload["base_map"]["frontline_source"] = row.source
+            payload["base_map"]["frontline_as_of"] = row.as_of
+            payload["base_map"]["frontline_synced_at"] = row.synced_at.isoformat() if row.synced_at else None
+
+    return JSONResponse(content=payload)
 
 
 @router.get("/market/geopolitics/{region}")
@@ -682,13 +700,20 @@ def market_institutions_digest(limit: int = 15, db: Session = Depends(get_db)):
 
 
 @router.get("/market/macro/digest")
-def market_macro_digest(limit: int = 15, db: Session = Depends(get_db)):
+def market_macro_digest(limit: int = Query(30, ge=1, le=100), db: Session = Depends(get_db)):
     """Дайджест статей с макроэкономическим уклоном из внешних источников
-    (Economist Finance, ISW и др. — geo_digest.py, target=macro) — дополняет
-    записки ЦБ/ЦМАКП (market_macro_analytics) живой лентой внешнего взгляда."""
+    (Economist Finance, ISW, Carnegie (телеграм-каналы — geo_digest.py уже
+    классифицирует их посты по target, сюда попадают только макро-тезисы, не
+    геополитика/институты), MarketTwits и др. — geo_digest.py, target=macro) —
+    дополняет записки ЦБ/ЦМАКП (market_macro_analytics) живой лентой внешнего
+    взгляда. Сортировка по published_at (дата публикации), не created_at (когда
+    МЫ сохранили) — фронт показывает статьи вперемешку с записками ЦБ/ЦМАКП в
+    одной ленте, отсортированной по дате, и created_at ломал бы порядок."""
     from app.models.geo_digest import GeoDigestArticle
     rows = (db.query(GeoDigestArticle).filter_by(target="macro")
-           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
+           .order_by(GeoDigestArticle.published_at.desc().nullslast(),
+                     GeoDigestArticle.created_at.desc())
+           .limit(limit).all())
     return {"articles": [_digest_dict(a) for a in rows]}
 
 

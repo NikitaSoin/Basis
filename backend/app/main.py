@@ -594,6 +594,48 @@ async def _geo_digest_job():
         logger.exception("Ошибка обновления гео-дайджеста: %s", e)
 
 
+async def _geo_frontline_sync_job():
+    """Линия фронта СВО — живой пересчёт из ArcGIS-фида ISW (не LLM, чистая
+    геометрия: shapely, без стоимости токенов). См. geo_isw_frontline_sync.py
+    докстринг — почему ISW, а не DeepState/lostarmour/Рыбарь. Дважды в сутки:
+    ISW публикует свою дневную оценку ~раз в сутки, запас на случай, если
+    первый прогон дня попадёт до их публикации."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.geo_isw_frontline_sync import sync_isw_frontline
+        db = SessionLocal()
+        try:
+            return sync_isw_frontline(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Линия фронта СВО (ISW-синк): %s", res)
+    except Exception as e:
+        logger.exception("Ошибка синка линии фронта СВО: %s", e)
+
+
+async def _geo_frontline_sync_startup():
+    """Разовый прогон при старте, только если ещё нет ни одной успешной
+    записи — чтобы линия фронта была живой сразу после этого деплоя, не
+    дожидаясь первого кронового окна (до 12 часов). НЕ гоняем при каждом
+    рестарте контейнера (лишняя нагрузка на публичный эндпоинт ISW)."""
+    def _has_data() -> bool:
+        from app.db.session import SessionLocal
+        from app.models.geo import GeoFrontlineSync
+        db = SessionLocal()
+        try:
+            row = db.query(GeoFrontlineSync).filter_by(theater="svo").first()
+            return bool(row and row.frontline_geojson)
+        finally:
+            db.close()
+    try:
+        if not await asyncio.get_event_loop().run_in_executor(None, _has_data):
+            await _geo_frontline_sync_job()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Старт-проверка линии фронта СВО не выполнена: %s", e)
+
+
 async def _geo_startup():
     """Стартовый прогон геополитики (синтез + дайджест) — чтобы вкладки имели
     контент после деплоя. Только если данных ещё нет (не гоняем Pro на рестарте)."""
@@ -704,6 +746,10 @@ async def lifespan(app: FastAPI):
     # корпсобытия месяцами не обновлялись. Отдельное время (после asset_data,
     # но не зависит от его завершения).
     scheduler.add_job(_with_heartbeat("calendar_refresh", _calendar_job), "cron", hour=6, minute=45, id="calendar_refresh")
+    # Линия фронта СВО из живого фида ISW — чистая геометрия (httpx+shapely),
+    # НЕ LLM/DeepSeek, поэтому вне блока DISABLE_EXTERNAL_JOBS ниже. Дважды в
+    # сутки — см. докстринг _geo_frontline_sync_job.
+    scheduler.add_job(_with_heartbeat("geo_frontline_sync", _geo_frontline_sync_job), "cron", hour="8,20", minute=15, id="geo_frontline_sync")
 
     # LLM/FRED-задачи (новости, макро-мир, отчёты, геополитика) ходят в DeepSeek и FRED.
     # ИСТОРИЧЕСКИ были выключены по умолчанию — на момент внедрения DeepSeek/FRED были
@@ -735,6 +781,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_instrument_history_startup())
     asyncio.create_task(_risk_metrics_startup())
     asyncio.create_task(_selftest_startup())
+    asyncio.create_task(_geo_frontline_sync_startup())
     # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
     # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
     # health-check Timeweb не отвечает → перезапуск → снова warm → петля, при которой

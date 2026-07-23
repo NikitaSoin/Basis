@@ -18,3 +18,4 @@ python-multipart==0.0.28
 numpy==2.4.6
 pypdf==6.13.2
 openpyxl==3.1.5
+shapely==2.1.2
