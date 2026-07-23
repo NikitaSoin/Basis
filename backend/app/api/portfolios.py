@@ -140,21 +140,32 @@ def position_pnl_endpoint(
     return result
 
 
+_COMPARE_PERIODS = ("1m", "3m", "6m", "1y", "3y", "max")
+
+
 @router.get("/portfolios/{portfolio_id}/metrics", response_model=PortfolioMetricsResponse)
 def portfolio_metrics_endpoint(
     portfolio_id: int,
+    period: str = "3y",
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Лёгкие аналитические метрики портфеля (Этап 1): P/E и дивдоходность
     позиций из company_metrics, средневзвешенные по портфелю, распределение
-    по секторам/классам активов, концентрация."""
+    по секторам/классам активов, концентрация.
+
+    period — окно ТОЛЬКО для графика «Сравнение» (1m/3m/6m/1y/3y/max — max=3y,
+    данные глубже 3 лет не хранятся в этом расчёте); волатильность/бета/VaR и
+    прочие риск-метрики считаются на фиксированном 3-летнем окне независимо от
+    выбора, см. compute_portfolio_metrics."""
+    if period not in _COMPARE_PERIODS:
+        raise HTTPException(status_code=422, detail=f"period должен быть одним из {_COMPARE_PERIODS}")
     portfolio = get_portfolio_by_id(db, portfolio_id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Портфель не найден")
     if portfolio.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Нет доступа")
-    return compute_portfolio_metrics(db, portfolio_id)
+    return compute_portfolio_metrics(db, portfolio_id, compare_period=period)
 
 
 @router.get("/portfolios/{portfolio_id}/dividends", response_model=PortfolioDividendsResponse)

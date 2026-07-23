@@ -19,9 +19,11 @@
 
 Минимум 30 совпадающих торговых дней для беты/корреляции — иначе NULL.
 """
+import json
 import logging
 import math
 from datetime import date, timedelta
+from pathlib import Path
 
 import numpy as np
 from sqlalchemy import func
@@ -35,7 +37,24 @@ logger = logging.getLogger(__name__)
 WINDOW_YEARS = 3
 TRADING_DAYS = 252
 MIN_OVERLAP = 30          # минимум совпадающих дней для беты/корреляции
+MIN_ANNUAL_WINDOWS = 10   # минимум перекрывающихся годовых окон для годового VaR/CVaR
 SPLIT_THRESHOLD = 0.50    # |дневная доходность| выше — разрыв (сплит), не рынок
+
+_CONFIG_PATH = Path(__file__).resolve().parents[3] / "config" / "market_params.json"
+
+
+def load_erp_pct() -> float | None:
+    """ERP рынка акций РФ (Дамодаран: mature market ERP + country risk premium) из
+    config/market_params.json — ТОТ ЖЕ вход, что использует live_wacc.py для живого
+    пересчёта справедливой стоимости на карточке компании. Единый источник — чтобы
+    CAPM портфеля и CAPM карточки не расходились по разным допущениям."""
+    try:
+        cfg = json.loads(_CONFIG_PATH.read_text(encoding="utf-8"))
+        v = cfg.get("equity_risk_premium_pct")
+        return float(v) if v is not None else None
+    except Exception as e:  # noqa: BLE001
+        logger.warning("load_erp_pct: config/market_params.json недоступен: %s", e)
+        return None
 
 
 def window_start(today: date | None = None) -> date:
@@ -183,6 +202,41 @@ def var_95_daily(returns: dict[date, float]) -> float | None:
         return None
     p5 = float(np.percentile(vals, 5))
     return round(-p5 * 100, 2)
+
+
+def var_cvar_pct(samples: list[float], confidence: float = 95.0) -> tuple[float | None, float | None]:
+    """VaR (перцентиль) и CVaR/Expected Shortfall (среднее ЗА порогом VaR, не сам
+    порог) на одной выборке доходностей — знак перевёрнут (положительное число =
+    величина потери, %). Работает и на дневных, и на годовых (перекрывающихся)
+    доходностях — выборка передаётся уже готовой. CVaR отвечает на вопрос «а если
+    попал в те самые (100-confidence)% — насколько плохо внутри этого хвоста»,
+    в отличие от VaR, который называет только границу хвоста."""
+    if len(samples) < MIN_OVERLAP:
+        return None, None
+    p = float(np.percentile(samples, 100 - confidence))
+    tail = [s for s in samples if s <= p]
+    cvar = float(np.mean(tail)) if tail else p
+    return round(-p * 100, 2), round(-cvar * 100, 2)
+
+
+def daily_returns_ordered(returns: dict[date, float]) -> list[float]:
+    """Дневные лог-доходности → упорядоченный по датам список ПРОСТЫХ доходностей
+    (для накопленного произведения при построении перекрывающихся годовых окон)."""
+    return [math.exp(r) - 1 for _, r in sorted(returns.items())]
+
+
+def rolling_window_returns(simple_returns: list[float], window: int = TRADING_DAYS) -> list[float]:
+    """Накопленные доходности по ВСЕМ перекрывающимся окнам длиной window дней —
+    стандартный приём исторической симуляции, когда независимых окон физически мало
+    (при WINDOW_YEARS=3 непересекающихся годовых периода — статистически бесполезно
+    для перцентиля). Перекрытие даёт больше точек ценой автокорреляции соседних
+    окон — известное ограничение метода, честно отражено в UI-пояснении, не скрыто."""
+    if len(simple_returns) < window + MIN_ANNUAL_WINDOWS:
+        return []
+    cum = [1.0]
+    for r in simple_returns:
+        cum.append(cum[-1] * (1 + r))
+    return [cum[i] / cum[i - window] - 1 for i in range(window, len(cum))]
 
 
 def cagr_pct(series: dict[date, float]) -> float | None:
@@ -483,30 +537,40 @@ def recalc_all_company_metrics() -> dict:
         if failed:
             logger.warning("Пересчёт company_metrics: %d тикеров пропущено: %s", len(failed), ", ".join(failed))
 
-        # Rf/Rm → альфа/Сортино/CAPM (те же формулы, что и раньше в скрипте)
-        from app.services.moex_dividends import update_risk_free_rate
-        rf = update_risk_free_rate(db)
+        # CAPM/альфа/Сортино — Rf(ОФЗ 10л) + β×ERP(Дамодаран, config/market_params.json),
+        # ЕДИНЫЙ источник с картой компании (live_wacc.py). market_return_3y (CAGR MCFTR)
+        # больше НЕ вход в формулу — историческая доходность индекса шумный
+        # backward-looking прокси для ожидаемой доходности; храним её отдельно как
+        # ФАКТ-контекст ("рынок реально заработал X% за 3 года"), не как модельный ERP.
+        from app.services.moex_dividends import update_risk_free_rate, get_market_param
+        rf_1y = update_risk_free_rate(db)   # тем же вызовом апсертит и risk_free_10y
+        rf_10y_row = get_market_param(db, "risk_free_10y")
+        rf_10y = rf_10y_row[0] if rf_10y_row else None
         rm = market_return_3y(db, "MCFTR")
-        if rf is not None and rm is not None:
+        erp = load_erp_pct()
+        if rf_1y is not None and rm is not None:
             db.execute(_text("""
                 INSERT INTO market_params (key, value, as_of, note, updated_at)
                 VALUES ('market_return_3y', :rm, CURRENT_DATE,
-                        'CAGR MCFTR (полная доходность) за окно 3 года', :now)
+                        'CAGR MCFTR (полная доходность) за окно 3 года — ФАКТ-контекст, не вход в CAPM', :now)
                 ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value,
                     as_of=EXCLUDED.as_of, updated_at=EXCLUDED.updated_at
             """), {"rm": rm, "now": now})
+            db.commit()
+        if rf_10y is not None and erp is not None:
             db.execute(_text("""
                 UPDATE company_metrics SET
-                    capm_expected = ROUND((:rf + beta * (:rm - :rf))::numeric, 2),
+                    capm_expected = ROUND((:rf + beta * :erp)::numeric, 2),
                     alpha_3y = CASE WHEN return_total_3y IS NOT NULL AND beta IS NOT NULL
-                        THEN ROUND((return_total_3y - (:rf + beta * (:rm - :rf)))::numeric, 2) END,
+                        THEN ROUND((return_total_3y - (:rf + beta * :erp))::numeric, 2) END,
                     sortino_3y = CASE WHEN return_total_3y IS NOT NULL
                                        AND downside_vol IS NOT NULL AND downside_vol > 0
                         THEN ROUND(((return_total_3y - :rf) / downside_vol)::numeric, 2) END
                 WHERE beta IS NOT NULL
-            """), {"rf": rf, "rm": rm})
+            """), {"rf": rf_10y, "erp": erp})
             db.commit()
-        logger.info("Пересчёт company_metrics: %d компаний, Rf=%s Rm=%s", len(companies), rf, rm)
-        return {"companies": len(companies), "rf": rf, "rm": rm, "failed": failed}
+        logger.info("Пересчёт company_metrics: %d компаний, Rf(10л)=%s ERP=%s Rm(факт,MCFTR 3г)=%s",
+                    len(companies), rf_10y, erp, rm)
+        return {"companies": len(companies), "rf_10y": rf_10y, "erp": erp, "rm_historical": rm, "failed": failed}
     finally:
         db.close()

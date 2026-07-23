@@ -475,7 +475,8 @@ def compare_asset_series(ticker: str, db: Session = Depends(get_db)):
 
     company = db.query(Company).filter(Company.ticker == ticker.upper()).first()
     if not company:
-        if ticker.upper() in ("IMOEX", "RTSI", "MCFTR"):
+        from app.services.moex_history import SECTOR_TR_TICKER_LIST
+        if ticker.upper() in ("IMOEX", "RTSI", "MCFTR", *SECTOR_TR_TICKER_LIST):
             return _compare_index_series(ticker, db)
         return _compare_fund_series(ticker, db)
 

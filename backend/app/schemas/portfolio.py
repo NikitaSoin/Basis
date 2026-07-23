@@ -109,6 +109,7 @@ class PositionMetrics(BaseModel):
     avg_buy_price: float | None = None  # non-equity: средняя цена покупки
     price: float | None = None          # non-equity: текущая рыночная цена/оценка
     data_flag: str | None = None     # non-equity: почему value=None, если не удалось оценить
+    price_as_of: str | None = None   # non-equity (bond/fund): дата цены — T+1 лаг честно виден в UI
     sector: str
     value: float | None          # текущая стоимость позиции, ₽
     weight_pct: float | None     # доля в портфеле, %
@@ -135,6 +136,18 @@ class PositionMetrics(BaseModel):
     capm_expected: float | None = None    # CAPM-ожидание (модель), % годовых
     max_drawdown: float | None = None         # макс. просадка за окно, % (отрицательное)
     risk_contribution_pct: float | None = None  # доля в ОБЩЕМ РИСКЕ портфеля, % (сумма=100)
+    # Хвостовой риск — дневной (ист. симуляция) и годовой (перекрывающиеся 252-дн. окна)
+    var_99: float | None = None           # ист. VaR 99%, дневной, % потери
+    cvar_95: float | None = None          # CVaR/Expected Shortfall 95%, дневной, % потери
+    cvar_99: float | None = None          # CVaR/Expected Shortfall 99%, дневной, % потери
+    var_95_annual: float | None = None    # ист. VaR 95%, годовой (перекрыв. окна), % потери
+    cvar_95_annual: float | None = None
+    var_99_annual: float | None = None
+    cvar_99_annual: float | None = None
+    # Апсайд к справедливой цене — только акции (см. compute_portfolio_metrics)
+    upside_to_fair_pct: float | None = None    # (fair_base − цена) / цена, % — тег "суждение"
+    valuation_flag: str | None = None          # undervalued | fair | overvalued
+    fair_value_as_of: str | None = None        # дата анализа справедливой цены (meta.price_date)
 
 
 class WeightedMetric(BaseModel):
@@ -160,16 +173,26 @@ class PortfolioWeighted(BaseModel):
     capm: float | None = None                   # CAPM-ожидание портфеля (модель)
     earnings_yield: float | None = None         # 1 / P/E портфеля, %
     var_95: float | None = None                 # дневной VaR 95% портфеля, % потери
+    cvar_95: float | None = None                # дневной CVaR 95% портфеля, % потери
+    var_99: float | None = None                 # дневной VaR 99% портфеля, % потери
+    cvar_99: float | None = None                 # дневной CVaR 99% портфеля, % потери
+    var_95_annual: float | None = None          # годовой VaR 95% (перекрыв. окна), % потери
+    cvar_95_annual: float | None = None
+    var_99_annual: float | None = None
+    cvar_99_annual: float | None = None
     downside_vol: float | None = None           # нисходящая σ портфеля, годовая %
     r_squared: float | None = None              # R² портфеля против IMOEX
     max_drawdown: float | None = None           # макс. просадка накопленной кривой портфеля, %
+    upside_to_fair_pct: WeightedMetric | None = None  # средневзвешенный апсайд к справедливой цене
 
 
 class MarketRates(BaseModel):
-    risk_free_1y: float | None = None           # ОФЗ ~1г, точка G-curve, %
+    risk_free_1y: float | None = None           # ОФЗ ~1г, точка G-curve, % (контекст/облигации)
+    risk_free_10y: float | None = None          # ОФЗ ~10л — Rf, реальный вход в CAPM (= карточка компании)
     risk_free_as_of: str | None = None
-    market_return_3y: float | None = None       # CAGR MCFTR за окно, %
-    market_premium: float | None = None         # Rm − Rf, %
+    erp_pct: float | None = None                # ERP Дамодарана (mature ERP + CRP РФ) — вход в CAPM
+    market_return_3y: float | None = None       # CAGR MCFTR за окно, % — ФАКТ-контекст, не вход в CAPM
+    market_premium: float | None = None         # факт: Rm(MCFTR,3г) − Rf(1г), контекст
 
 
 class BenchmarkSeries(BaseModel):
@@ -177,10 +200,16 @@ class BenchmarkSeries(BaseModel):
     portfolio: list[float]                      # накопленная total-доходность, %
     mcftr: list[float]                          # бенчмарк полной доходности, %
     imoex: list[float]                          # ценовой индекс, для справки
+    sector_blend: list[float | None] | None = None  # смешанный бенчмарк по весам секторов портфеля
+    sector_blend_coverage_pct: float | None = None  # % equity-стоимости, покрытой секторными индексами
+    sector_blend_covered_sectors: list[str] = []
+    sector_blend_excluded_sectors: list[str] = []
+    period: str | None = None                   # выбранный интервал (1m/3m/6m/1y/3y/max)
     period_years: float
     limited_by: str | None = None               # тикер самой молодой бумаги
     portfolio_total_pct: float | None = None
     benchmark_total_pct: float | None = None
+    sector_blend_total_pct: float | None = None
     note: str | None = None
 
 

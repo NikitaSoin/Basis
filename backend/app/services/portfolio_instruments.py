@@ -80,14 +80,22 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
         hist = _latest_instrument_history(db, "fund", secids)
         for p in fund_positions:
             f = funds.get(p.secid)
-            price = float(f.last_price) if f and f.last_price is not None else (
-                float(hist[p.secid].close) if p.secid in hist and hist[p.secid].close is not None else None)
+            price_as_of = None
+            if f and f.last_price is not None:
+                price = float(f.last_price)
+                price_as_of = f.updated_at.date().isoformat() if f.updated_at else None
+            elif p.secid in hist and hist[p.secid].close is not None:
+                price = float(hist[p.secid].close)
+                price_as_of = hist[p.secid].date.isoformat()
+            else:
+                price = None
             qty = float(p.quantity)
             out.append({
                 "id": p.id, "ticker": p.secid, "name": f.short_name if f else p.secid,
                 "company_id": None, "secid": p.secid, "sector": ASSET_CLASS_LABEL["fund"], "instrument_type": "fund",
                 "value": round(qty * price, 2) if price is not None else None,
                 "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
+                "price_as_of": price_as_of,
                 "data_flag": None if price is not None else "нет актуальной цены фонда",
             })
 
@@ -112,6 +120,7 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
                 "isin": b.isin if b else None, "issuer_ticker": b.issuer_ticker if b else None,
                 "value": round(qty * price, 2) if price is not None else None,
                 "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
+                "price_as_of": h.date.isoformat() if h else None,
                 "data_flag": None if price is not None else "нет актуальной цены облигации",
             })
 

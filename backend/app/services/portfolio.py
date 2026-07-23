@@ -1,5 +1,5 @@
 import math
-from datetime import date as date_cls
+from datetime import date as date_cls, timedelta
 from decimal import Decimal
 
 from sqlalchemy import func
@@ -448,13 +448,22 @@ def _weighted_avg(items: list[tuple[float, float | None]]) -> dict:
     return {"value": round(sum(v * x for v, x in known) / total, 2), "n": n, "m": m}
 
 
-def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
+_PERIOD_DAYS = {"1m": 30, "3m": 91, "6m": 182, "1y": 365, "3y": None, "max": None}
+
+
+def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: str = "3y") -> dict | None:
     """Аналитика портфеля из company_metrics одним запросом (Этап 1).
 
     Лёгкие метрики: P/E тек./ист. и дивдоходность по позициям, средневзвешенные
     по портфелю, распределение по секторам и классам активов, концентрация.
     Стоимость позиции = количество × последняя цена закрытия из quotes.
     Риск-метрики (beta/volatility) — Этап 2, здесь не считаются.
+
+    compare_period — окно ТОЛЬКО для графика «Сравнение» (см. benchmark ниже);
+    волатильность/бета/VaR/корреляции всегда считаются на фиксированном 3-летнем
+    окне (since = window_start()) независимо от выбора пользователя — иначе
+    короткий интервал (1М) тихо занизил бы риск-метрики, которые должны отражать
+    устойчивую историю, а не текущий вид графика.
     """
     portfolio = get_portfolio_by_id(db, portfolio_id)
     if not portfolio:
@@ -566,14 +575,37 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     total_value = sum(p["value"] for p in positions if p["value"] is not None)
     for p in positions:
         p["weight_pct"] = round(p["value"] / total_value * 100, 2) if p["value"] and total_value > 0 else None
-        # «Ваша доходность» — к ЛИЧНОЙ цене входа (avg_buy_price), в отличие от
-        # return_total_3y (доходность самого актива по рынку за 3 года,
-        # независимо от того, когда куплен). Конкурентный разбор Инвестминт/
-        # ПроФинанс 2026-07-11 — честное разделение «рынок» vs «ваш вход»,
-        # работает единообразно для всех классов (price/avg_buy_price уже есть
-        # и у equity, и у bond/future/fund/cash — value_non_equity_positions).
-        price, avg = p.get("price"), p.get("avg_buy_price")
-        p["your_return_pct"] = round((price / avg - 1) * 100, 2) if price and avg else None
+
+    # Апсайд к справедливой цене — ТОЛЬКО акции («справедливая цена» не применяется
+    # к облигациям/фондам/фьючерсам, см. bond-analyst/fund-analyst). base — синтез
+    # методов оценки из financials.json (валидированное суждение аналитика, тег
+    # "суждение" — тот же, что на карточке компании во вкладке «Финансы», см.
+    # FinanceTab.jsx "Справедливая стоимость — как сходятся методы"); цена — ЖИВАЯ
+    # (quotes), а не замороженная на дату анализа meta.price_date — апсайд отражает
+    # СЕГОДНЯШНЕЕ соотношение, дата анализа справедливой цены раскрыта отдельно
+    # (fair_value_as_of), чтобы честно показать, насколько давно считался base.
+    # Светофор недооценена/справедливо/переоценена — НАШ порог (не поле из файла:
+    # verdict_word/confidence заполнены менее чем в 1% карточек), поэтому тоже
+    # помечен "суждение".
+    for p in positions:
+        if p["instrument_type"] != "equity" or not p.get("price"):
+            p["upside_to_fair_pct"] = None
+            p["valuation_flag"] = None
+            p["fair_value_as_of"] = None
+            continue
+        fin = _load_financials_json(p["ticker"])
+        base = ((fin or {}).get("valuation") or {}).get("fair_value_range", {}).get("base") if fin else None
+        if base is None:
+            p["upside_to_fair_pct"] = None
+            p["valuation_flag"] = None
+            p["fair_value_as_of"] = None
+            continue
+        upside = round((base - p["price"]) / p["price"] * 100, 1)
+        p["upside_to_fair_pct"] = upside
+        p["valuation_flag"] = (
+            "undervalued" if upside > 15 else "overvalued" if upside < -15 else "fair"
+        )
+        p["fair_value_as_of"] = (fin.get("meta") or {}).get("price_date")
 
     # Средневзвешенные по портфелю (нормировка только на позиции с метрикой).
     # Вырожденные случаи не валят расчёт: позиции с нулевой стоимостью
@@ -591,7 +623,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         # бета и доходность портфеля линейны по весам → честное средневзвешенное
         "beta": _weighted_avg([(p["value"], p["beta"]) for p in valued]),
         "return_3y": _weighted_avg([(p["value"], p["return_3y"]) for p in valued]),
-        "your_return_pct": _weighted_avg([(p["value"], p["your_return_pct"]) for p in valued]),
+        "upside_to_fair_pct": _weighted_avg([(p["value"], p["upside_to_fair_pct"]) for p in valued]),
     }
 
     # Этап 2: корреляции и волатильность портфеля — НА ЛЕТУ (зависят от состава).
@@ -600,10 +632,12 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     from app.services.risk_metrics import (
         load_price_series, log_returns, pairwise_correlation,
         portfolio_volatility, risk_contributions, max_drawdown_pct, window_start,
+        var_cvar_pct, daily_returns_ordered, rolling_window_returns, TRADING_DAYS,
     )
     since = window_start()
     returns_by_ticker = {}
     max_dd_by_ticker = {}
+    tail_risk_by_ticker = {}   # VaR99/CVaR95/CVaR99 дневные + годовые (перекрывающиеся окна)
     for p in valued:
         cid = next((i for i, c in companies.items() if c.ticker == p["ticker"]), None)
         if cid is None:
@@ -613,9 +647,25 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
         rets = log_returns(series)
         if rets:
             returns_by_ticker[p["ticker"]] = rets
+            daily_vals = list(rets.values())
+            _, cvar95 = var_cvar_pct(daily_vals, 95.0)
+            var99, cvar99 = var_cvar_pct(daily_vals, 99.0)
+            annual_samples = rolling_window_returns(daily_returns_ordered(rets), TRADING_DAYS)
+            var95_a, cvar95_a = var_cvar_pct(annual_samples, 95.0)
+            var99_a, cvar99_a = var_cvar_pct(annual_samples, 99.0)
+            tail_risk_by_ticker[p["ticker"]] = {
+                "var_99": var99, "cvar_95": cvar95, "cvar_99": cvar99,
+                "var_95_annual": var95_a, "cvar_95_annual": cvar95_a,
+                "var_99_annual": var99_a, "cvar_99_annual": cvar99_a,
+            }
 
+    _TAIL_RISK_KEYS = ("var_99", "cvar_95", "cvar_99", "var_95_annual", "cvar_95_annual",
+                       "var_99_annual", "cvar_99_annual")
     for p in positions:
         p["max_drawdown"] = max_dd_by_ticker.get(p["ticker"])
+        tail = tail_risk_by_ticker.get(p["ticker"], {})
+        for k in _TAIL_RISK_KEYS:
+            p[k] = tail.get(k)
 
     correlation = None
     if len(returns_by_ticker) >= 2:
@@ -650,19 +700,31 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
     portfolio_row["return_total_3y"] = _weighted_avg([(p["value"], p["return_total_3y"]) for p in valued])
 
     # ── Этап 3: Шарп/Сортино/альфа портфеля + сравнение с бенчмарком ──
+    # Rf/ERP — ЕДИНЫЙ источник с картой компании (live_wacc.py): ОФЗ-10л (тенор,
+    # согласованный с длинным горизонтом акции) + ERP Дамодарана (mature market ERP
+    # + country risk premium РФ) из config/market_params.json, а не историческая
+    # доходность MCFTR за 3 года (шумный backward-looking прокси — храним отдельно
+    # как факт-контекст, см. market_return_3y ниже, но CAPM/альфа/Шарп её больше
+    # не используют).
     from app.services.moex_dividends import get_market_param, load_dividends_map
-    from app.services.risk_metrics import load_index_series
-    rf_row = get_market_param(db, "risk_free_1y")
+    from app.services.risk_metrics import load_index_series, load_erp_pct
+    rf_1y_row = get_market_param(db, "risk_free_1y")
+    rf_10y_row = get_market_param(db, "risk_free_10y")
     rm_row = get_market_param(db, "market_return_3y")
+    erp = load_erp_pct()
     rates = {
-        "risk_free_1y": rf_row[0] if rf_row else None,
-        "risk_free_as_of": rf_row[1].isoformat() if rf_row and rf_row[1] else None,
-        "market_return_3y": rm_row[0] if rm_row else None,
-        "market_premium": round(rm_row[0] - rf_row[0], 2) if rf_row and rm_row else None,
+        "risk_free_1y": rf_1y_row[0] if rf_1y_row else None,
+        "risk_free_10y": rf_10y_row[0] if rf_10y_row else None,
+        "risk_free_as_of": rf_10y_row[1].isoformat() if rf_10y_row and rf_10y_row[1] else None,
+        "erp_pct": erp,   # ERP Дамодарана — реальный вход в CAPM ниже
+        "market_return_3y": rm_row[0] if rm_row else None,   # факт-контекст, НЕ вход в CAPM
+        "market_premium": (
+            round(rm_row[0] - rf_1y_row[0], 2) if rf_1y_row and rm_row else None
+        ),   # факт-контекст: фактическая премия рынка за 3 года минус Rf(1г)
     }
 
     # Шарп на бумагу (для группы «Риск»): (полная доходность − Rf) / её волатильность
-    _rf = rates["risk_free_1y"]
+    _rf = rates["risk_free_10y"]
     for p in positions:
         p["sharpe_3y"] = (
             round((p["return_total_3y"] - _rf) / p["volatility"], 2)
@@ -672,15 +734,14 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
 
     r_total_p = portfolio_row["return_total_3y"]["value"]
     beta_p = portfolio_row["beta"]["value"]
-    rf = rates["risk_free_1y"]
-    rm = rates["market_return_3y"]
+    rf = rates["risk_free_10y"]
     portfolio_row["sharpe"] = (
         round((r_total_p - rf) / pf_volatility, 2)
         if None not in (r_total_p, rf) and pf_volatility else None
     )
     portfolio_row["alpha"] = (
-        round(r_total_p - (rf + beta_p * (rm - rf)), 2)
-        if None not in (r_total_p, rf, rm, beta_p) else None
+        round(r_total_p - (rf + beta_p * erp), 2)
+        if None not in (r_total_p, rf, erp, beta_p) else None
     )
 
     # портфельная downside-σ и кривая «если бы держал» — из взвешенного
@@ -726,9 +787,27 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                 if r_total_p is not None and rf is not None and dvol > 0:
                     sortino_p = round((r_total_p - rf) / dvol, 2)
 
-            # портфельный VaR 95% (дневной): −5-й перцентиль дневных доходностей
+            # портфельный VaR/CVaR 95%/99% — дневной (историческая симуляция) и
+            # годовой (перекрывающиеся 252-дневные окна того же дневного ряда,
+            # УЖЕ с дивидендами через div_addon — см. rolling_window_returns).
+            # CVaR (Expected Shortfall) — среднее ЗА порогом VaR: отвечает на
+            # «а если попал в тот самый хвост — насколько плохо внутри», а не
+            # только где проходит граница.
+            from app.services.risk_metrics import var_cvar_pct, rolling_window_returns, TRADING_DAYS
             if len(pf_daily) >= 30:
-                portfolio_row["var_95"] = round(-float(np.percentile(pf_daily, 5)) * 100, 2)
+                v95, c95 = var_cvar_pct(pf_daily, 95.0)
+                v99, c99 = var_cvar_pct(pf_daily, 99.0)
+                portfolio_row["var_95"] = v95
+                portfolio_row["cvar_95"] = c95
+                portfolio_row["var_99"] = v99
+                portfolio_row["cvar_99"] = c99
+                annual_samples = rolling_window_returns(pf_daily, TRADING_DAYS)
+                v95a, c95a = var_cvar_pct(annual_samples, 95.0)
+                v99a, c99a = var_cvar_pct(annual_samples, 99.0)
+                portfolio_row["var_95_annual"] = v95a
+                portfolio_row["cvar_95_annual"] = c95a
+                portfolio_row["var_99_annual"] = v99a
+                portfolio_row["cvar_99_annual"] = c99a
 
             # портфельный R²: corr² дневного ряда портфеля с рынком (IMOEX)
             imoex_s = load_index_series(db, "IMOEX", since)
@@ -745,14 +824,18 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                     if not math.isnan(corr):
                         portfolio_row["r_squared"] = round(corr * corr, 4)
 
-            # накопленные кривые: портфель vs MCFTR (обе с дивидендами) + IMOEX
+            # накопленные кривые (ПОЛНАЯ история, since=3г): портфель vs MCFTR
+            # (обе с дивидендами) + IMOEX. max_drawdown — риск-метрика, всегда на
+            # полном окне; для графика «Сравнение» ниже НАРЕЗАЕМ хвост по
+            # compare_period и ПЕРЕБАЗИРУЕМ на 0% от начала выбранного окна —
+            # так интервал-селектор не искажает волатильность/VaR/просадку выше
+            # (те считаются один раз, на полном 3-летнем ряду).
             mcftr = load_index_series(db, "MCFTR", since)
             imoex = load_index_series(db, "IMOEX", since)
-            chart_dates, pf_curve, mc_curve, im_curve = [], [], [], []
+            full_dates, full_acc, full_mc, full_im = [], [], [], []
             acc = 1.0
             peak = 1.0
             max_dd = 0.0
-            mc0 = im0 = None
             for d, r in zip(common_dates, pf_daily):
                 acc *= (1 + r)
                 if acc > peak:
@@ -761,32 +844,100 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int) -> dict | None:
                 if dd < max_dd:
                     max_dd = dd
                 if d in mcftr and d in imoex:
-                    if mc0 is None:
-                        mc0, im0 = mcftr[d], imoex[d]
-                    chart_dates.append(d.isoformat())
-                    pf_curve.append(round((acc - 1) * 100, 2))
-                    mc_curve.append(round((mcftr[d] / mc0 - 1) * 100, 2))
-                    im_curve.append(round((imoex[d] / im0 - 1) * 100, 2))
-            step = max(1, len(chart_dates) // 260)   # прореживание для фронта
-            youngest = min(valued, key=lambda p: p["history_years"] or 99)
-            benchmark = {
-                "dates": chart_dates[::step],
-                "portfolio": pf_curve[::step],
-                "mcftr": mc_curve[::step],
-                "imoex": im_curve[::step],
-                "period_years": round(len(common_dates) / 252, 2),
-                "limited_by": youngest["ticker"] if (youngest.get("history_years") or 9) < 2.9 else None,
-                "portfolio_total_pct": pf_curve[-1] if pf_curve else None,
-                "benchmark_total_pct": mc_curve[-1] if mc_curve else None,
-                "note": "веса позиций зафиксированы текущими долями (приближение)",
-            }
+                    full_dates.append(d)
+                    full_acc.append(acc)
+                    full_mc.append(mcftr[d])
+                    full_im.append(imoex[d])
             portfolio_row["max_drawdown"] = round(max_dd * 100, 2)
+
+            # ── Смешанный бенчмарк «по весам портфеля» (секторный, Brinson-style) ──
+            # Изолирует эффект выбора БУМАГ от эффекта выбора СЕКТОРОВ: "портфель
+            # vs MCFTR" не отвечает, обогнал ли портфель рынок из-за удачных бумаг
+            # или просто из-за перевеса в растущем секторе. Строим как средневзвешенную
+            # (по текущим долям equity-стоимости) кривую отраслевых TR-индексов MOEX
+            # (SECTOR_TR_TICKERS), каждый rebased к 0% от НАЧАЛА full_dates. Секторы
+            # без индекса (Машиностроение/Здравоохранение/Прочее) или с покрытием дат
+            # <90% (обнаружено на METLTR/Телеком — MOEX перестал публиковать с марта
+            # 2026) честно исключаются, веса перенормированы на покрытые, доля
+            # покрытия раскрыта в ответе, не скрыта.
+            from app.services.moex_history import SECTOR_TR_TICKERS
+            sector_equity_value: dict[str, float] = {}
+            for p in valued:
+                if p["instrument_type"] == "equity":
+                    sector_equity_value[p["sector"]] = sector_equity_value.get(p["sector"], 0.0) + p["value"]
+            total_equity_value = sum(sector_equity_value.values())
+            usable_sectors: dict[str, tuple[float, dict]] = {}
+            if total_equity_value > 0 and full_dates:
+                for s, v in sector_equity_value.items():
+                    ticker = SECTOR_TR_TICKERS.get(s)
+                    if not ticker:
+                        continue
+                    series = load_index_series(db, ticker, since)
+                    coverage = len(set(series) & set(full_dates)) / len(full_dates)
+                    if coverage >= 0.9:
+                        usable_sectors[s] = (v, series)
+            usable_value = sum(v for v, _ in usable_sectors.values())
+            full_sb: list[float | None] = []
+            if usable_value > 0:
+                w_sector = {s: v / usable_value for s, (v, _) in usable_sectors.items()}
+                last_known: dict[str, float] = {}
+                for d in full_dates:
+                    level = 0.0
+                    wsum = 0.0
+                    for s, (_, series) in usable_sectors.items():
+                        if d in series:
+                            last_known[s] = series[d]
+                        if s in last_known:
+                            level += w_sector[s] * last_known[s]
+                            wsum += w_sector[s]
+                    full_sb.append(level / wsum if wsum > 0 else None)
+
+            if full_dates:
+                cutoff_days = _PERIOD_DAYS.get(compare_period)
+                if cutoff_days:
+                    cutoff = date_cls.today() - timedelta(days=cutoff_days)
+                    start_idx = next((i for i, d in enumerate(full_dates) if d >= cutoff), len(full_dates) - 1)
+                else:
+                    start_idx = 0
+                sl_dates = full_dates[start_idx:]
+                a0, m0, i0 = full_acc[start_idx], full_mc[start_idx], full_im[start_idx]
+                pf_curve = [round((full_acc[k] / a0 - 1) * 100, 2) for k in range(start_idx, len(full_dates))]
+                mc_curve = [round((full_mc[k] / m0 - 1) * 100, 2) for k in range(start_idx, len(full_dates))]
+                im_curve = [round((full_im[k] / i0 - 1) * 100, 2) for k in range(start_idx, len(full_dates))]
+                sb_curve = None
+                if full_sb and full_sb[start_idx] is not None:
+                    sb0 = full_sb[start_idx]
+                    sb_curve = [
+                        round((full_sb[k] / sb0 - 1) * 100, 2) if full_sb[k] is not None else None
+                        for k in range(start_idx, len(full_dates))
+                    ]
+                step = max(1, len(sl_dates) // 260)   # прореживание для фронта
+                youngest = min(valued, key=lambda p: p["history_years"] or 99)
+                benchmark = {
+                    "dates": [d.isoformat() for d in sl_dates[::step]],
+                    "portfolio": pf_curve[::step],
+                    "mcftr": mc_curve[::step],
+                    "imoex": im_curve[::step],
+                    "sector_blend": sb_curve[::step] if sb_curve else None,
+                    "sector_blend_coverage_pct": (
+                        round(usable_value / total_equity_value * 100, 1) if total_equity_value > 0 else None
+                    ),
+                    "sector_blend_covered_sectors": sorted(usable_sectors) if usable_sectors else [],
+                    "sector_blend_excluded_sectors": sorted(set(sector_equity_value) - set(usable_sectors)),
+                    "period": compare_period,
+                    "period_years": round(len(sl_dates) / 252, 2),
+                    "limited_by": youngest["ticker"] if (youngest.get("history_years") or 9) < 2.9 else None,
+                    "portfolio_total_pct": pf_curve[-1] if pf_curve else None,
+                    "benchmark_total_pct": mc_curve[-1] if mc_curve else None,
+                    "sector_blend_total_pct": sb_curve[-1] if sb_curve else None,
+                    "note": "веса позиций зафиксированы текущими долями (приближение)",
+                }
     portfolio_row["sortino"] = sortino_p
 
     # CAPM-ожидание портфеля (модель) и earnings yield от портфельного P/E
     portfolio_row["capm"] = (
-        round(rf + beta_p * (rm - rf), 2)
-        if None not in (rf, rm, beta_p) else None
+        round(rf + beta_p * erp, 2)
+        if None not in (rf, erp, beta_p) else None
     )
     pe_p = portfolio_row["pe_current"]["value"]
     portfolio_row["earnings_yield"] = round(100 / pe_p, 1) if pe_p and pe_p > 0 else None
@@ -927,6 +1078,16 @@ _COMPANIES_DIR = _Path(__file__).parent.parent.parent / "companies"
 
 def _load_macro_json(ticker: str) -> dict | None:
     path = _COMPANIES_DIR / ticker.upper() / "macro.json"
+    if not path.exists():
+        return None
+    try:
+        return _json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def _load_financials_json(ticker: str) -> dict | None:
+    path = _COMPANIES_DIR / ticker.upper() / "financials.json"
     if not path.exists():
         return None
     try:

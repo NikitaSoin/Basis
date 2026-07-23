@@ -57,6 +57,28 @@ MARKET_PULSE_TICKERS = [
     "MOEXOG", "MOEXEU", "MOEXTL", "MOEXCH", "MOEXMM", "MOEXFN", "MOEXCN", "MOEXIT", "MOEXTN", "MOEXRE",
 ]
 
+# Отраслевые индексы МосБиржи ПОЛНОЙ ДОХОДНОСТИ («брутто», с учётом дивидендов) —
+# для сравнения портфеля с бенчмарком «по весам своих секторов» (не путать с
+# MARKET_PULSE_TICKERS выше — те ЦЕНОВЫЕ, без дивидендов, для блока «Обзор рынка»).
+# Ключ — ЗНАЧЕНИЕ Company.sector (проверено по фактическому распределению в БД,
+# см. docs/work-journal.md); все 10 тикеров проверены напрямую в ISS перед
+# добавлением (история отдаётся с 2013-12-30, у IT/Девелопмента — с 2020, моложе).
+# Машиностроение/Здравоохранение/Прочее — своего отраслевого TR-индекса на MOEX
+# нет, честно исключаются из смешанного бенчмарка (см. portfolio.py).
+SECTOR_TR_TICKERS: dict[str, str] = {
+    "Нефть и газ": "MEOGTR",
+    "Металлургия": "MEMMTR",
+    "Финансы": "MEFNTR",
+    "Потребительский сектор": "MECNTR",
+    "Транспорт и логистика": "METNTR",
+    "Электроэнергетика": "MEEUTR",
+    "Химия": "MECHTR",
+    "Телеком": "METLTR",
+    "IT-сектор": "MEITTR",
+    "Девелопмент": "MERETR",
+}
+SECTOR_TR_TICKER_LIST = list(SECTOR_TR_TICKERS.values())
+
 REQUEST_PAUSE = 0.25       # сек между запросами — не долбим MOEX
 RETRIES = 4                # попыток на один URL
 BACKOFF_BASE = 2.0         # 2с → 4с → 8с между ретраями
@@ -314,6 +336,40 @@ def _apply_split_ratio(rows: list[dict], ratio: float) -> list[dict]:
     return out
 
 
+def backfill_sector_tr_indices(years_back: int = 3) -> None:
+    """Первичный бэкфилл отраслевых TR-индексов (SECTOR_TR_TICKERS) — идемпотентно,
+    ТОЛЬКО для тикеров, которых ещё НЕТ в index_history (проверка по count(*), не
+    по свежести — дальше их докачивает catch_up_history ежедневно). Тот же паттерн,
+    что _instrument_history_startup в main.py: безопасно вызывать на каждом старте,
+    реальную сетевую работу делает только один раз после деплоя, добавившего эти
+    тикеры (~10 запросов к ISS, секунды-десятки секунд — не сравнимо с обликациями)."""
+    from app.db.session import SessionLocal
+
+    db = SessionLocal()
+    try:
+        since = date.today() - timedelta(days=int(years_back * 365.25))
+        today = date.today()
+        written_total = 0
+        for t in SECTOR_TR_TICKER_LIST:
+            cnt = db.execute(text("SELECT count(*) FROM index_history WHERE ticker = :t"), {"t": t}).scalar()
+            if cnt:
+                continue
+            try:
+                rows = fetch_index_history(t, since, today)
+                written = upsert_index_rows(db, t, rows)
+                db.commit()
+                written_total += written
+                logger.info("Отраслевой TR-индекс %s: бэкфилл %d строк", t, written)
+            except Exception as e:
+                db.rollback()
+                logger.warning("Отраслевой TR-индекс %s: бэкфилл не удался: %s", t, e)
+            time.sleep(REQUEST_PAUSE)
+        if written_total:
+            logger.info("Отраслевые TR-индексы: бэкфилл завершён, всего %d строк", written_total)
+    finally:
+        db.close()
+
+
 def backfill_historical_tickers(tickers: list[str] | None = None) -> None:
     """Докачивает историю котировок под ПРЕЖНИМИ тикерами компании (поле
     Company.historical_tickers) в ТУ ЖЕ company_id — чтобы редомициляция/
@@ -407,7 +463,7 @@ def catch_up_history(days_back_max: int = 30) -> None:
         db.commit()
 
         idx_rows = 0
-        for t in BENCHMARK_TICKERS + MARKET_PULSE_TICKERS:
+        for t in BENCHMARK_TICKERS + MARKET_PULSE_TICKERS + SECTOR_TR_TICKER_LIST:
             last = db.execute(
                 text("SELECT max(date) FROM index_history WHERE ticker = :t"), {"t": t}
             ).scalar()

@@ -485,6 +485,20 @@ async def _instrument_history_startup():
         logger.exception("Ошибка стартового бэкафилла instrument_history: %s", e)
 
 
+async def _sector_tr_backfill_startup():
+    """Первичный бэкфилл отраслевых TR-индексов (см. moex_history.SECTOR_TR_TICKERS,
+    смешанный бенчмарк «по весам портфеля» в portfolio.py) — идемпотентно, только
+    для тикеров, которых ещё нет в index_history. Тот же паттерн безопасности, что
+    _instrument_history_startup: дальше докачивает ежедневный _history_job."""
+    def _run():
+        from app.services.moex_history import backfill_sector_tr_indices
+        backfill_sector_tr_indices(years_back=3)
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
+    except Exception as e:
+        logger.exception("Ошибка бэкфилла отраслевых TR-индексов: %s", e)
+
+
 async def _seed_shares_startup():
     """После деплоя: проставить companies.shares_outstanding из data/rates.csv
     (ISSUESIZE — НЕценовое справочное поле) тем компаниям, у кого пусто, и сразу
@@ -779,9 +793,24 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_tinkoff_warmup())
     asyncio.create_task(_seed_shares_startup())
     asyncio.create_task(_instrument_history_startup())
+    asyncio.create_task(_sector_tr_backfill_startup())
     asyncio.create_task(_risk_metrics_startup())
     asyncio.create_task(_selftest_startup())
     asyncio.create_task(_geo_frontline_sync_startup())
+
+    # Облигации/фьючерсы/фонды — БЕЗ страховки на рестарт (в отличие от акций
+    # выше) молча отставали на T+1..T+N: их крон (asset_data_refresh, 06:00 МСК)
+    # раньше запускался ТОЛЬКО по расписанию, а сам _asset_data_job был ошибочно
+    # сгруппирован с ДЕЙСТВИТЕЛЬНО рискованными задачами под RUN_STARTUP_JOBS
+    # (news/macro/earnings/geo — те реально виснут на таймаутах внешних LLM/FRED
+    # без egress, см. DEEPSEEK_BASE_URL-релей). _asset_data_job ходит ТОЛЬКО в
+    # MOEX ISS (тот же источник, что _tinkoff_warmup уже дёргает выше безусловно)
+    # и внутри сам себя ограничивает — refresh_all_if_stale() docstring прямо
+    # заявляет «безопасно вызывать на каждом старте»: фьючерсы/фонды дёшевы и
+    # обновляются всегда, облигации (~15-20 мин) — только если старше 22ч.
+    # Каждый пропущенный рестартом день пусть теперь ловится здесь, а не ждёт
+    # следующего попадания в окно 06:00 МСК.
+    asyncio.create_task(_asset_data_job())
     # _screener_warm НЕ запускаем при старте: расчёт скоринга 262 компаний на 1-CPU
     # инстансе захватывает ядро (GIL) и морозит весь процесс на десятки секунд →
     # health-check Timeweb не отвечает → перезапуск → снова warm → петля, при которой
@@ -795,8 +824,8 @@ async def lifespan(app: FastAPI):
     # исчерпывается → ВСЕ вкладки виснут на «загружаем». Данные уже в БД; их
     # обновление идёт по КРОНУ (scheduler выше), поэтому при старте их НЕ дёргаем.
     # Включить разовый прогон при старте можно флагом RUN_STARTUP_JOBS=1.
+    # (_asset_data_job вынесен выше в безусловный блок — см. пояснение там.)
     if os.environ.get("RUN_STARTUP_JOBS") == "1":
-        asyncio.create_task(_asset_data_job())
         asyncio.create_task(_news_job())
         asyncio.create_task(_macro_startup())
         asyncio.create_task(_earnings_startup())
