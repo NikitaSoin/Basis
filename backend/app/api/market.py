@@ -654,6 +654,29 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             if row.control_fill_geojson:
                 payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
 
+        # Заявленные (Минобороны РФ/Рыбарь), но ЕЩЁ не подтверждённые ISW захваты —
+        # отдельный эпистемический ярус поверх зазора, пока живой фид ISW отстаёт
+        # (см. config/geo_svo_claimed_captures.json, докстринг там же). НЕ мешаем с
+        # control_fill_geojson (тот — только ISW-подтверждённое).
+        claims_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))), "config", "geo_svo_claimed_captures.json")
+        if os.path.exists(claims_path):
+            with open(claims_path, encoding="utf-8") as f:
+                claims = _json.load(f)
+            payload["base_map"]["claimed_captures_geojson"] = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": {k: v for k, v in p.items() if k not in ("lat", "lon")},
+                        "geometry": {"type": "Point", "coordinates": [p["lon"], p["lat"]]},
+                    }
+                    for p in claims.get("points", []) if p.get("lat") is not None and p.get("lon") is not None
+                ],
+            }
+            payload["base_map"]["claimed_captures_covers_since"] = claims.get("covers_since")
+            payload["base_map"]["claimed_captures_generated_at"] = claims.get("generated_at")
+
     return JSONResponse(content=payload)
 
 
