@@ -110,6 +110,8 @@ class PositionMetrics(BaseModel):
     price: float | None = None          # non-equity: текущая рыночная цена/оценка
     data_flag: str | None = None     # non-equity: почему value=None, если не удалось оценить
     price_as_of: str | None = None   # non-equity (bond/fund): дата цены — T+1 лаг честно виден в UI
+    price_clean: float | None = None      # bond: ЧИСТАЯ цена (% номинала → ₽) — то, что показывают брокеры/MOEX
+    accrued_interest: float | None = None  # bond: НКД, ₽ — отдельно от чистой цены (price = clean + accrued)
     sector: str
     value: float | None          # текущая стоимость позиции, ₽
     weight_pct: float | None     # доля в портфеле, %

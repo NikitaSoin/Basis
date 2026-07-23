@@ -108,10 +108,10 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
         for p in bond_positions:
             b = bonds.get(p.secid)
             h = hist.get(p.secid)
-            price = None
+            price = clean = accrued = None
             if b and b.face_value and h and h.close is not None:
-                clean = float(h.close) / 100 * float(b.face_value)
-                accrued = float(h.accrued_int) if h.accrued_int is not None else 0.0
+                clean = round(float(h.close) / 100 * float(b.face_value), 2)
+                accrued = round(float(h.accrued_int), 2) if h.accrued_int is not None else 0.0
                 price = clean + accrued
             qty = float(p.quantity)
             out.append({
@@ -120,6 +120,16 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
                 "isin": b.isin if b else None, "issuer_ticker": b.issuer_ticker if b else None,
                 "value": round(qty * price, 2) if price is not None else None,
                 "quantity": qty, "avg_buy_price": float(p.avg_buy_price), "price": price,
+                # "price" остаётся ГРЯЗНОЙ ценой (для value/P&L — реальная сумма расчётов
+                # при покупке/продаже сегодня). Но брокеры/MOEX ПОВСЕМЕСТНО показывают
+                # ЧИСТУЮ цену как "цену облигации", а НКД — отдельной строкой; наш "price"
+                # молча совмещал оба числа, из-за чего цена на сайте казалась владельцу
+                # "не той" при сверке с реальной котировкой (нашли 2026-07-24: ОФЗ 26247
+                # чистая ~818₽, у нас показывалась грязная ~836₽ без разбивки — не баг
+                # свежести данных, а конвенция отображения). price_clean/accrued_interest —
+                # для честного разбора на фронте, price_clean не заменяет price.
+                "price_clean": clean,
+                "accrued_interest": accrued,
                 "price_as_of": h.date.isoformat() if h else None,
                 "data_flag": None if price is not None else "нет актуальной цены облигации",
             })
