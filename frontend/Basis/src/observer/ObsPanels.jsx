@@ -4720,43 +4720,44 @@ function ObsAiReview({ token, onSelectCompany }) {
         </button>
       </div>
 
-      {/* Глубина + Тема в один ряд; «Сгенерировать отчёт» — свой ряд снизу,
-         прижат вправо (см. observer-v2.css: раньше три блока пытались влезть
-         в один flex-ряд, из-за чего кнопка «прыгала» по ширине в зависимости
-         от суммарной ширины пилюль «Темы»). */}
+      {/* Глубина, Тема, «Сгенерировать отчёт» — каждый в своём полноширинном
+         ряду (НЕ side-by-side): «Тема» — 5 вариантов, при совместном ряду с
+         «Глубиной» ей оставалось слишком мало ширины и однословные подписи
+         («Макроэкономика») наезжали друг на друга — своя строка снимает
+         конкуренцию за ширину независимо от вьюпорта/сайдбара. Кнопки «Тема»
+         теперь визуально того же семейства (карточка .obs-ai-plan), что и
+         «Глубина» — не мельче/крупнее. */}
       <div className="obs-ai-controls-row">
 
-        <div className="obs-ai-controls-main">
-          {/* Глубина */}
-          <div>
-            <div className="obs-ai-section-label">Глубина</div>
-            <div className="obs-ai-plan-grid" role="group" aria-label="Глубина анализа">
-              {Object.entries(_OBS_DEPTH_META).map(([id, m]) => (
-                <button key={id}
-                  className={`obs-ai-plan${depth === id ? " obs-ai-plan--on" : ""}`}
-                  onClick={() => setDepth(id)}
-                  aria-pressed={depth === id}>
-                  <span className="obs-ai-plan-label">{m.label}</span>
-                  <span className="obs-ai-plan-horizon">{m.horizon}</span>
-                </button>
-              ))}
-            </div>
+        {/* Глубина */}
+        <div>
+          <div className="obs-ai-section-label">Глубина</div>
+          <div className="obs-ai-plan-grid" role="group" aria-label="Глубина анализа">
+            {Object.entries(_OBS_DEPTH_META).map(([id, m]) => (
+              <button key={id}
+                className={`obs-ai-plan${depth === id ? " obs-ai-plan--on" : ""}`}
+                onClick={() => setDepth(id)}
+                aria-pressed={depth === id}>
+                <span className="obs-ai-plan-label">{m.label}</span>
+                <span className="obs-ai-plan-horizon">{m.horizon}</span>
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Тема */}
-          <div className="obs-ai-topic-block">
-            <div className="obs-ai-section-label">Тема</div>
-            <div className="obs-ai-topic-seg" role="group" aria-label="Тема анализа">
-              {Object.entries(_OBS_TOPIC_META).map(([id, m]) => (
-                <button key={id}
-                  className={`obs-cal-seg-opt${topic === id ? " obs-cal-seg-opt--on" : ""}`}
-                  onClick={() => setTopic(id)}
-                  aria-pressed={topic === id}>
-                  <m.icon size={14} aria-hidden="true" />
-                  {m.label}
-                </button>
-              ))}
-            </div>
+        {/* Тема */}
+        <div>
+          <div className="obs-ai-section-label">Тема</div>
+          <div className="obs-ai-topic-seg" role="group" aria-label="Тема анализа">
+            {Object.entries(_OBS_TOPIC_META).map(([id, m]) => (
+              <button key={id}
+                className={`obs-ai-plan obs-ai-topic-opt${topic === id ? " obs-ai-plan--on" : ""}`}
+                onClick={() => setTopic(id)}
+                aria-pressed={topic === id}>
+                <m.icon size={16} aria-hidden="true" />
+                <span className="obs-ai-plan-label">{m.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 

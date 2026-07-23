@@ -9,6 +9,7 @@ from app.services.portfolio import (
     get_portfolios_by_user, get_portfolio_by_id,
     create_portfolio, add_position, delete_position, update_position,
     compute_portfolio_metrics, compute_factor_profile, compute_custom_stress,
+    compute_portfolio_stress_v2,
     record_trade, compute_position_pnl, compute_portfolio_dividends,
 )
 from app.services.portfolio_diagnosis import generate_diagnosis
@@ -220,6 +221,32 @@ def portfolio_custom_stress_endpoint(
     if portfolio.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Нет доступа")
     result = compute_custom_stress(db, portfolio_id, rate_shock_bp, index_shock_pct, fx_shock_pct)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Недостаточно данных для расчёта")
+    return result
+
+
+@router.get("/portfolios/{portfolio_id}/stress-test-v2")
+def portfolio_stress_v2_endpoint(
+    portfolio_id: int,
+    key_rate_pct: float | None = None,
+    fx_usdrub: float | None = None,
+    oil_brent_usd: float | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Стресс-тест портфеля — единый движок с общерыночным «Стресс-тестированием»
+    (см. compute_portfolio_stress_v2): те же коэффициенты чувствительности, что
+    в /api/stress-test/*, взвешено по РЕАЛЬНЫМ позициям портфеля. Параметры —
+    АБСОЛЮТНЫЕ целевые уровни (не сдвиг/шок), те же имена, что у
+    /api/stress-test/numeric и /current-levels — единообразие с общерыночным
+    блоком."""
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Портфель не найден")
+    if portfolio.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Нет доступа")
+    result = compute_portfolio_stress_v2(db, portfolio_id, key_rate_pct, fx_usdrub, oil_brent_usd)
     if result is None:
         raise HTTPException(status_code=404, detail="Недостаточно данных для расчёта")
     return result

@@ -2283,6 +2283,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       instrument_type: p.instrument_type, secid: p.secid,
       isin: p.isin, issuer_ticker: p.issuer_ticker,
       shares: p.quantity ?? 0, avgPrice: p.avg_buy_price ?? 0, currentPrice: p.price ?? 0,
+      priceClean: p.price_clean ?? null, accruedInterest: p.accrued_interest ?? null,
       priceAsOf: p.price_as_of ?? null,
       value: p.value ?? 0, weight: p.weight_pct ?? 0,
       profitRub: p.value != null && p.avg_buy_price != null ? p.value - (p.quantity ?? 0) * p.avg_buy_price : 0,
@@ -2297,35 +2298,94 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   // честный дефолт, только пока метрики ещё не загрузились/не посчитаны.
   const portfolioBeta = pfMetrics?.portfolio?.beta?.value ?? 1;
 
+  // Владелец, 2026-07-17 и повторно 2026-07-24: пресеты «Ставка ЦБ +5%» и
+  // «Крах нефти» ниже раньше были ЗАХАРДКОЖЕНЫ константами (drop: 11.8/8.6) —
+  // НЕ считались от реальных позиций портфеля вовсе (только value_loss = const%
+  // × реальная totalValue, сам процент был одинаков для любого портфеля).
+  // Теперь оба считаются через compute_portfolio_stress_v2 — ЕДИНЫЙ движок с
+  // общерыночным «Стресс-тестированием» (те же коэффициенты чувствительности
+  // из macro.json, что использует /api/stress-test/*), взвешенный по РЕАЛЬНЫМ
+  // позициям (см. stressV2Results/fetchStressV2 ниже). «Чёрный лебедь» —
+  // единственный, у кого нет рыночного/факторного аналога в новом движке
+  // (общий бета-шок, не привязан к ставке/курсу/нефти) — остаётся как есть,
+  // это честный CAPM-расчёт от РЕАЛЬНОЙ беты портфеля, не выдумка.
   const stressMap = {
     black_swan: {
       label: "Чёрный лебедь (−20%)",
       mech: "Резкая просадка всего рынка на 20% без конкретной причины",
-      drop: portfolioBeta * 20,
-      valueLoss: stats.totalValue * (portfolioBeta * 0.2),
+      // Знак — как у stressV2Results (отрицательное = потеря), не голая
+      // величина: рендер ниже (Ожидаемое падение/изменение, ▼/▲, ImpactBar)
+      // единый для всех сценариев и завязан на знак.
+      drop: -(portfolioBeta * 20),
+      valueLoss: -(stats.totalValue * (portfolioBeta * 0.2)),
       text: "При равномерном рыночном шоке разбивка по бумагам близка к их бете — более рискованные бумаги проседают пропорционально сильнее.",
     },
     rate_up: {
       label: "Ставка ЦБ +5%",
       mech: "Ключевая ставка резко растёт — давит на оценку акций и стоимость долга",
-      drop: 11.8,
-      valueLoss: stats.totalValue * 0.118,
+      drop: stressV2Results.rate_up?.drop_pct ?? null,
+      valueLoss: stressV2Results.rate_up?.value_loss ?? null,
       text: "Наиболее чувствителен банковский блок и бумаги с длинной дюрацией оценки. Резкий рост ставки одновременно бьёт по всему сектору с наибольшим весом в портфеле — та же концентрация, что видна в Индексе качества.",
     },
     oil_crash: {
       label: "Крах нефти ($40)",
       mech: "Цена нефти падает до $40/барр — давление на экспортёров и бюджет",
-      drop: 8.6,
-      valueLoss: stats.totalValue * 0.086,
+      drop: stressV2Results.oil_crash?.drop_pct ?? null,
+      valueLoss: stressV2Results.oil_crash?.value_loss ?? null,
       text: "Главный канал — ухудшение переоценки сырьевого сектора и давление на внешний баланс; для портфелей без прямых нефтегазовых экспортёров эффект в основном вторичный, через общий рыночный настрой и курс рубля.",
     },
   };
   const currentStress = stressMap[stressScenario] || null;
 
-  // «+ Свой сценарий» — реальный расчёт через /portfolios/{id}/stress-test
-  // (бета × индексный шок + ставочный канал из macro.json, где покрыто).
-  const [customStressRateBp, setCustomStressRateBp] = useState(200);
-  const [customStressIndexPct, setCustomStressIndexPct] = useState(-10);
+  // Текущие ставка/курс/нефть — та же основа, что у общерыночного блока
+  // (/api/stress-test/current-levels), нужна чтобы (а) превратить «+5%» в
+  // абсолютный таргет для нового движка, (б) дать стартовые значения полям
+  // «Своего сценария».
+  const [macroLevels, setMacroLevels] = useState(null);
+  useEffect(() => {
+    fetch(`${apiUrl}/api/stress-test/current-levels`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => setMacroLevels(d))
+      .catch(() => {});
+  }, [apiUrl]);
+
+  const [stressV2Results, setStressV2Results] = useState({});
+  const fetchStressV2 = (key, params) => {
+    if (!activePortfolioId) return;
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null))
+    );
+    fetch(`${apiUrl}/api/portfolios/${activePortfolioId}/stress-test-v2?${qs}`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => setStressV2Results((prev) => ({ ...prev, [key]: data })))
+      .catch(() => setStressV2Results((prev) => ({ ...prev, [key]: { error: true } })));
+  };
+  useEffect(() => {
+    if (!macroLevels || !activePortfolioId || stressV2Results.rate_up) return;
+    fetchStressV2("rate_up", { key_rate_pct: (macroLevels.key_rate_pct ?? 14.25) + 5 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [macroLevels, activePortfolioId]);
+  useEffect(() => {
+    if (!activePortfolioId || stressV2Results.oil_crash) return;
+    fetchStressV2("oil_crash", { oil_brent_usd: 40 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePortfolioId]);
+
+  // «+ Свой сценарий» — абсолютные целевые уровни (ставка/курс/нефть), ТЕ ЖЕ
+  // по смыслу поля, что в общерыночном «Стресс-тестировании» (владелец,
+  // 2026-07-24: «поменять старое стресс-тестирование на новое, которое
+  // соответствует нынешнему блоку») — раньше здесь были «сдвиг ставки, б.п.» +
+  // «сдвиг индекса, %» (свой, несовместимый набор параметров).
+  const [customKeyRate, setCustomKeyRate] = useState(null);
+  const [customFx, setCustomFx] = useState(null);
+  const [customOil, setCustomOil] = useState(null);
+  useEffect(() => {
+    if (!macroLevels || customKeyRate != null) return;
+    setCustomKeyRate(macroLevels.key_rate_pct ?? 14.25);
+    setCustomFx(macroLevels.fx_usdrub ?? 78);
+    setCustomOil(macroLevels.oil_brent_usd ?? 70);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [macroLevels]);
   const [customStressResult, setCustomStressResult] = useState(null);
   const [customStressLoading, setCustomStressLoading] = useState(false);
   const [customStressError, setCustomStressError] = useState(null);
@@ -2355,8 +2415,11 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
     setCustomStressLoading(true);
     setCustomStressError(null);
     try {
+      const qs = new URLSearchParams({
+        key_rate_pct: customKeyRate, fx_usdrub: customFx, oil_brent_usd: customOil,
+      });
       const r = await fetch(
-        `${apiUrl}/api/portfolios/${activePortfolioId}/stress-test?rate_shock_bp=${customStressRateBp}&index_shock_pct=${customStressIndexPct}`,
+        `${apiUrl}/api/portfolios/${activePortfolioId}/stress-test-v2?${qs}`,
         { headers: authHeaders }
       );
       if (!r.ok) { setCustomStressError("Не удалось посчитать сценарий"); return; }
@@ -2367,32 +2430,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       setCustomStressLoading(false);
     }
   };
-
-  // Разбивка по бумагам для готовых сценариев (не «Свой») — переиспользует
-  // ТОТ ЖЕ бэкенд-расчёт (β×индексный шок + ставочный канал), что и «Свой
-  // сценарий»: «Чёрный лебедь» = индексный шок −20%, «Ставка ЦБ +5%» =
-  // ставочный шок +500 б.п. «Крах нефти» — своего канала (цена нефти) в
-  // модели нет, разбивку для него честно не показываем (не выдумываем).
-  const PRESET_STRESS_PARAMS = {
-    black_swan: { rate_shock_bp: 0, index_shock_pct: -20 },
-    rate_up: { rate_shock_bp: 500, index_shock_pct: 0 },
-  };
-  const [presetStressResults, setPresetStressResults] = useState({});
-  useEffect(() => {
-    const params = PRESET_STRESS_PARAMS[stressScenario];
-    if (!params || !activePortfolioId || presetStressResults[stressScenario]) return;
-    (async () => {
-      try {
-        const r = await fetch(
-          `${apiUrl}/api/portfolios/${activePortfolioId}/stress-test?rate_shock_bp=${params.rate_shock_bp}&index_shock_pct=${params.index_shock_pct}`,
-          { headers: authHeaders }
-        );
-        if (!r.ok) return;
-        const data = await r.json();
-        setPresetStressResults((prev) => ({ ...prev, [stressScenario]: data }));
-      } catch { /* тихая деградация — просто нет разбивки для этого сценария */ }
-    })();
-  }, [stressScenario, activePortfolioId]);
 
   const metricByTicker = useMemo(() => {
     const map = {};
@@ -2599,7 +2636,19 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                     <td>{fmtNumber(r.shares)}</td>
                     <td>{formatMoney(r.avgPrice, { decimals: 1 })}</td>
                     <td>
-                      {formatMoney(r.currentPrice, { decimals: 1 })}
+                      {r.instrument_type === "bond" && r.priceClean != null ? (
+                        <>
+                          {formatMoney(r.priceClean, { decimals: 1 })}
+                          <div
+                            style={{ fontSize: "10.5px", marginTop: "2px", color: "var(--pf-ink-3)" }}
+                            title="НКД (накопленный купонный доход) начисляется каждый день между купонами и прибавляется к цене только при расчётах покупки/продажи — это не часть «цены облигации» как таковой, брокеры и MOEX показывают их отдельно."
+                          >
+                            + НКД {formatMoney(r.accruedInterest ?? 0, { decimals: 1 })} = {formatMoney(r.currentPrice, { decimals: 1 })} к оплате
+                          </div>
+                        </>
+                      ) : (
+                        formatMoney(r.currentPrice, { decimals: 1 })
+                      )}
                       {r.instrument_type && r.instrument_type !== "equity" && r.priceAsOf && (() => {
                         const stale = _daysSince(r.priceAsOf) > 5;
                         return (
@@ -3716,9 +3765,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           </button>
         </div>
         <p className="tw-text-[11.5px] tw-text-text-tertiary tw-m-0 tw-max-w-2xl">
-          Готовые сценарии соответствуют факторам из «Факторного профиля портфеля» (вкладка «ИИ-Диагноз»); разбивка
-          по бумагам ниже считается от беты и отраслевых коэффициентов, не от факторного профиля напрямую — прямая
-          связь расчётов (профиль → просадка сценария) следующий шаг.
+          «Ставка ЦБ +5%», «Крах нефти» и «Свой сценарий» считаются ТЕМ ЖЕ движком, что и общерыночное
+          «Стресс-тестирование» (те же коэффициенты чувствительности по компаниям), взвешенным по вашим реальным
+          позициям. «Чёрный лебедь» — исключение: общий рыночный шок без привязки к конкретному фактору, считается
+          от беты позиций (у него нет аналога в факторном движке).
         </p>
 
         {stressScenario === "custom" ? (
@@ -3726,47 +3776,57 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-3" style={{ letterSpacing: "0.06em" }}>Параметры своего сценария</div>
             <div className="tw-flex tw-gap-4 tw-flex-wrap tw-items-end tw-mb-4">
               <div className="tw-flex tw-flex-col tw-gap-1">
-                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Ключевая ставка, б.п.</label>
-                <input type="number" value={customStressRateBp} onChange={(e) => setCustomStressRateBp(Number(e.target.value))}
+                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Ключевая ставка, %</label>
+                <input type="number" step="0.5" value={customKeyRate ?? ""} onChange={(e) => setCustomKeyRate(Number(e.target.value))}
                   className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated tw-w-24" />
               </div>
               <div className="tw-flex tw-flex-col tw-gap-1">
-                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Индекс МосБиржи, %</label>
-                <input type="number" value={customStressIndexPct} onChange={(e) => setCustomStressIndexPct(Number(e.target.value))}
+                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Курс ₽/$</label>
+                <input type="number" value={customFx ?? ""} onChange={(e) => setCustomFx(Number(e.target.value))}
                   className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated tw-w-24" />
               </div>
-              <Button variant="primary" onClick={runCustomStress} disabled={customStressLoading}>
+              <div className="tw-flex tw-flex-col tw-gap-1">
+                <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Нефть Brent, $</label>
+                <input type="number" value={customOil ?? ""} onChange={(e) => setCustomOil(Number(e.target.value))}
+                  className="tw-font-mono tw-text-[13px] tw-px-3 tw-py-2 tw-border tw-border-border-strong tw-rounded-md tw-bg-bg-elevated tw-w-24" />
+              </div>
+              <Button variant="primary" onClick={runCustomStress} disabled={customStressLoading || customKeyRate == null}>
                 {customStressLoading ? "Считаю…" : "Пересчитать"}
               </Button>
             </div>
-            <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-4">
-              Курс USD/RUB в расчёт пока не входит — чувствительность к курсу ещё не приведена к общему знаменателю
-              по всем секторам портфеля (см. факторный профиль в «ИИ-Диагнозе»).
-            </p>
             {customStressError && <p className="tw-text-[12px] tw-text-[var(--pf-down)] tw-mb-3">{customStressError}</p>}
             {customStressResult && (
               <>
                 <div className="tw-flex tw-gap-8 tw-flex-wrap tw-mb-4">
                   <div>
-                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Ожидаемое падение</div>
-                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-[var(--pf-down)] tw-tabular-nums">
-                      <span aria-hidden="true">▼ </span>{fmtPercent(Math.abs(customStressResult.drop_pct), { decimals: 1 })}
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
+                      {customStressResult.drop_pct < 0 ? "Ожидаемое падение" : "Ожидаемое изменение"}
+                    </div>
+                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-tabular-nums"
+                      style={{ color: customStressResult.drop_pct < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>
+                      <span aria-hidden="true">{customStressResult.drop_pct < 0 ? "▼ " : "▲ "}</span>{fmtPercent(Math.abs(customStressResult.drop_pct), { decimals: 1 })}
                     </div>
                   </div>
                   <div>
-                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Потеря стоимости</div>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
+                      {customStressResult.value_loss < 0 ? "Потеря стоимости" : "Прирост стоимости"}
+                    </div>
                     <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums">
                       {formatMoney(Math.abs(customStressResult.value_loss), { decimals: 0 })}
                     </div>
                   </div>
                 </div>
                 <ImpactBar value={customStressResult.drop_pct} max={25} />
+                {customStressResult.uncovered_tickers?.length > 0 && (
+                  <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-3 tw-mb-0">
+                    Без сигнала (нет коэффициентов чувствительности): {customStressResult.uncovered_tickers.join(", ")}.
+                  </p>
+                )}
                 <Table
                   columns={[
                     { key: "name", label: "Актив" },
-                    { key: "beta", label: "Бета" },
-                    { key: "drop_pct", label: "Просадка", render: (v) => <span className="tw-text-[var(--pf-down)]">{fmtPercent(v, { decimals: 1 })}</span> },
-                    { key: "value_loss", label: "Потеря, ₽", render: (v) => <span className="tw-text-[var(--pf-down)]">{formatMoney(Math.abs(v), { decimals: 0 })}</span> },
+                    { key: "drop_pct", label: "Δ", render: (v) => <span style={{ color: v < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>{fmtPercent(v, { sign: true, decimals: 1 })}</span> },
+                    { key: "value_loss", label: "Δ, ₽", render: (v) => <span style={{ color: v < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>{v > 0 ? "+" : ""}{formatMoney(v, { decimals: 0 })}</span> },
                   ]}
                   rows={customStressResult.positions}
                 />
@@ -3775,40 +3835,50 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
           </Card>
         ) : (
           <Card>
-            <div className="tw-flex tw-gap-8 tw-flex-wrap tw-mb-4">
-              <div>
-                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Ожидаемое падение</div>
-                <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-[var(--pf-down)] tw-tabular-nums">
-                  <span aria-hidden="true">▼ </span>{fmtPercent(currentStress.drop, { decimals: 1 })}
-                </div>
-              </div>
-              <div>
-                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>Потеря стоимости</div>
-                <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums">
-                  {formatMoney(currentStress.valueLoss, { decimals: 0 })}
-                </div>
-              </div>
-            </div>
-            <ImpactBar value={-currentStress.drop} max={25} />
-            {presetStressResults[stressScenario]?.positions ? (
+            {currentStress.drop == null ? (
+              <p className="tw-text-[13px] tw-text-text-tertiary tw-m-0">Считаем сценарий по вашим позициям…</p>
+            ) : (
               <>
-                <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mt-5 tw-mb-2" style={{ letterSpacing: "0.06em" }}>Разбивка по бумагам</div>
-                <Table
-                  columns={[
-                    { key: "name", label: "Актив" },
-                    { key: "beta", label: "Бета" },
-                    { key: "drop_pct", label: "Просадка", render: (v) => <span className="tw-text-[var(--pf-down)]">{fmtPercent(v, { decimals: 1 })}</span> },
-                    { key: "value_loss", label: "Потеря, ₽", render: (v) => <span className="tw-text-[var(--pf-down)]">{formatMoney(Math.abs(v), { decimals: 0 })}</span> },
-                  ]}
-                  rows={presetStressResults[stressScenario].positions}
-                />
+                <div className="tw-flex tw-gap-8 tw-flex-wrap tw-mb-4">
+                  <div>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
+                      {currentStress.drop < 0 ? "Ожидаемое падение" : "Ожидаемое изменение"}
+                    </div>
+                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-tabular-nums"
+                      style={{ color: currentStress.drop < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>
+                      <span aria-hidden="true">{currentStress.drop < 0 ? "▼ " : "▲ "}</span>{fmtPercent(Math.abs(currentStress.drop), { decimals: 1 })}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mb-1" style={{ letterSpacing: "0.06em" }}>
+                      {currentStress.valueLoss < 0 ? "Потеря стоимости" : "Прирост стоимости"}
+                    </div>
+                    <div className="tw-text-[28px] tw-font-display tw-font-light tw-text-text-primary tw-tabular-nums">
+                      {formatMoney(Math.abs(currentStress.valueLoss), { decimals: 0 })}
+                    </div>
+                  </div>
+                </div>
+                <ImpactBar value={currentStress.drop} max={25} />
+                {stressV2Results[stressScenario]?.positions ? (
+                  <>
+                    <div className="tw-text-[12px] tw-uppercase tw-text-text-tertiary tw-mt-5 tw-mb-2" style={{ letterSpacing: "0.06em" }}>Разбивка по бумагам</div>
+                    {stressV2Results[stressScenario].uncovered_tickers?.length > 0 && (
+                      <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mb-2">
+                        Без сигнала (нет коэффициентов чувствительности): {stressV2Results[stressScenario].uncovered_tickers.join(", ")}.
+                      </p>
+                    )}
+                    <Table
+                      columns={[
+                        { key: "name", label: "Актив" },
+                        { key: "drop_pct", label: "Δ", render: (v) => <span style={{ color: v < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>{fmtPercent(v, { sign: true, decimals: 1 })}</span> },
+                        { key: "value_loss", label: "Δ, ₽", render: (v) => <span style={{ color: v < 0 ? "var(--pf-down)" : "var(--pf-up)" }}>{v > 0 ? "+" : ""}{formatMoney(v, { decimals: 0 })}</span> },
+                      ]}
+                      rows={stressV2Results[stressScenario].positions}
+                    />
+                  </>
+                ) : null}
               </>
-            ) : stressScenario === "oil_crash" ? (
-              <p className="tw-text-[11.5px] tw-text-text-tertiary tw-mt-4 tw-mb-0">
-                Разбивка по бумагам для этого сценария не считается: канал «цена нефти» в модели пока не разложен на
-                коэффициенты по компаниям (честная деградация, не выдумываем числа).
-              </p>
-            ) : null}
+            )}
             <div className="tw-mt-4 tw-flex tw-gap-3 tw-rounded-md tw-p-4 tw-bg-[var(--pf-down-soft)]" style={{ borderLeft: "3px solid var(--danger)" }}>
               <p className="tw-text-[13px] tw-text-text-secondary tw-m-0">
                 <span className="tw-font-semibold tw-text-[var(--pf-down)]">Интерпретация платформы: </span>

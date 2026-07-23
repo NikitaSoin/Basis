@@ -1230,3 +1230,103 @@ def compute_custom_stress(db: Session, portfolio_id: int, rate_shock_bp: float =
         "positions": rows,
         "note": ("Ставочный канал учтён только для покрытых macro.json бумаг" if rate_shock_bp else None),
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Стресс-тест портфеля v2 — ЕДИНЫЙ движок с общерыночным «Стресс-тестированием»
+# (app/services/stress_numeric.py: _load_quant/_company_numeric_impact — те же
+# коэффициенты чувствительности, тот же расчёт), взвешенный по РЕАЛЬНЫМ
+# позициям пользователя (не по капитализации/весу голубых фишек, как на карте
+# рынка). Владелец, 2026-07-24, дважды прямо попросил заменить старый расчёт
+# (compute_custom_stress выше — beta×индекс + узкий rate-канал) на движок,
+# СООТВЕТСТВУЮЩИЙ текущему блоку Стресс-тестирование: та же арифметика, те же
+# числа по той же компании в обоих местах платформы (иначе «стык», CLAUDE.md).
+#
+# Побочная находка при разборе (не выдумано, видно в старом коде выше): пресеты
+# «Ставка ЦБ +5%» (drop=11.8) и «Крах нефти» (drop=8.6) во фронте были
+# ЗАХАРДКОЖЕНЫ константами, НЕ считались от реальных позиций портфеля вовсе —
+# эта функция даёт им реальный расчёт.
+#
+# Допущение (то же, что было в compute_factor_profile/compute_custom_stress
+# для ставочного канала): при неизменном P/E % изменения чистой прибыли ≈ %
+# изменения цены акции — упрощение, явно раскрыто в ответе.
+# ─────────────────────────────────────────────────────────────────────────
+def compute_portfolio_stress_v2(db: Session, portfolio_id: int,
+                                key_rate_pct: float | None = None,
+                                fx_usdrub: float | None = None,
+                                oil_brent_usd: float | None = None) -> dict | None:
+    from sqlalchemy import text
+    from app.services.stress_numeric import _load_quant, _company_numeric_impact
+
+    portfolio = get_portfolio_by_id(db, portfolio_id)
+    if not portfolio or not portfolio.positions:
+        return None
+
+    company_ids = [p.company_id for p in portfolio.positions]
+    companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(company_ids)).all()}
+    latest_by_company = {
+        c.id: db.query(Quote.close).filter(Quote.company_id == c.id).order_by(Quote.date.desc()).first()
+        for c in companies.values()
+    }
+
+    brent_spot = None
+    row = db.execute(text(
+        "SELECT last_price FROM futures WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') "
+        "AND last_price IS NOT NULL AND expiration_date >= now()::date "
+        "ORDER BY expiration_date ASC LIMIT 1")).first()
+    if row and row[0]:
+        brent_spot = float(row[0])
+
+    rows = []
+    total_value = 0.0
+    covered_value = 0.0
+    for pos in portfolio.positions:
+        company = companies.get(pos.company_id)
+        if not company:
+            continue
+        price_row = latest_by_company.get(company.id)
+        price = float(price_row[0]) if price_row and price_row[0] else float(pos.avg_buy_price)
+        value = float(pos.quantity) * price
+        total_value += value
+
+        qi = _load_quant(company.ticker)
+        if not qi or not (qi.get("coefficients") or {}):
+            rows.append({"ticker": company.ticker, "name": company.name, "value": value, "covered": False})
+            continue
+        impact = _company_numeric_impact(qi, company.sector, key_rate_pct, fx_usdrub, oil_brent_usd, brent_spot)
+        np_metric = impact["metrics"].get("net_profit") or {}
+        pct, delta_bn, base_bn = np_metric.get("pct_of_base"), np_metric.get("delta_bn"), np_metric.get("base_bn")
+        if pct is None and delta_bn is not None and base_bn:
+            # backend честно подавляет % при |Δ|>2×база (вырожденный случай) —
+            # для стресс-теста портфеля (не таблица точных чисел) считаем сами,
+            # не подставляем плоскую константу (та же логика, что в
+            # StressTestView.jsx: tilePct()).
+            pct = round(delta_bn / abs(base_bn) * 100, 1)
+        if pct is None:
+            rows.append({"ticker": company.ticker, "name": company.name, "value": value, "covered": False})
+            continue
+        rows.append({
+            "ticker": company.ticker, "name": company.name, "value": value, "covered": True,
+            "drop_pct": round(pct, 1), "value_loss": round(value * pct / 100, 0),
+        })
+        covered_value += value
+
+    if total_value <= 0:
+        return None
+    covered_rows = [r for r in rows if r["covered"]]
+    if not covered_rows:
+        return None
+
+    covered_rows.sort(key=lambda r: -abs(r["drop_pct"]))
+    portfolio_drop = sum(r["drop_pct"] * r["value"] for r in covered_rows) / covered_value
+    portfolio_loss = total_value * portfolio_drop / 100
+    return {
+        "drop_pct": round(portfolio_drop, 1),
+        "value_loss": round(portfolio_loss, 0),
+        "coverage_pct": round(covered_value / total_value * 100, 1),
+        "positions": covered_rows,
+        "uncovered_tickers": [r["ticker"] for r in rows if not r["covered"]],
+        "inputs": {"key_rate_pct": key_rate_pct, "fx_usdrub": fx_usdrub, "oil_brent_usd": oil_brent_usd},
+        "assumption": "При неизменном P/E % изменения чистой прибыли ≈ % изменения цены акции.",
+        "is_demo": True,
+    }
