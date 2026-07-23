@@ -9,20 +9,20 @@
 .stress-test-view h2.tw-font-display { font-family: var(--bs-serif) !important; }
 
 /* ============================================================
-   Консоль стресс-теста — слайдеры с живым пересчётом (владелец,
-   2026-07-23: «инструмент, не анкета» — редизайн по прототипу).
+   Консоль стресс-теста (владелец, 2026-07-23: «перекопируй расположение
+   и цвета из Клод-дизайна» — v4). Оболочка без своих отступов: каждая
+   секция (ask / rail+main / boards) красит и отбивает себя сама, как в
+   прототипе — это даёт full-bleed лидерборд с 1px «линией»-разделителем.
    ============================================================ */
 .st-console {
   background: var(--bg-elevated);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  padding: 22px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  overflow: hidden;
 }
 
+.st-ask { padding: 20px 26px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface); }
 .st-ask-row { display: flex; gap: 8px; }
 .st-ask-row input {
   flex: 1; padding: 10px 14px; border-radius: var(--radius-md);
@@ -47,7 +47,7 @@
 .st-chip:hover { border-color: var(--border-hover, var(--accent)); }
 
 .st-interp {
-  background: var(--bs-copper-soft, var(--bg-hover)); border-radius: var(--radius-md);
+  margin: 18px 26px 0; background: var(--bs-copper-soft, var(--bg-hover)); border-radius: var(--radius-md);
   padding: 12px 16px; border: 1px solid var(--border-subtle);
 }
 .st-interp-tag {
@@ -57,34 +57,36 @@
 .st-interp p { margin: 0; font-size: 13.5px; color: var(--text-primary); line-height: 1.55; }
 .st-interp-horizon { font-size: 11.5px; color: var(--text-tertiary); margin-top: 6px; }
 
-.st-sliders-loading { padding: 18px 0; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+/* ---------- rail (пресеты + слайдеры) | main (индекс + карта) ---------- */
+.st-console-top { display: grid; grid-template-columns: 340px 1fr; border-bottom: 1px solid var(--border-subtle); }
+@media (max-width: 860px) { .st-console-top { grid-template-columns: 1fr; } }
 
-.st-sliders-head {
+.st-rail { padding: 26px 24px; border-right: 1px solid var(--border-subtle); background: var(--bg-surface); }
+@media (max-width: 860px) { .st-rail { border-right: none; border-bottom: 1px solid var(--border-subtle); } }
+
+.st-presets-compact { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
+.st-preset-compact {
+  font-family: var(--bs-sans, inherit); font-size: 12px; font-weight: 600; text-align: left; line-height: 1.3;
+  padding: 10px 11px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); background: var(--bg-base);
+  color: var(--text-secondary); cursor: pointer; transition: transform .12s ease, border-color .15s, background .15s, color .15s;
+}
+.st-preset-compact:hover { border-color: var(--bs-copper, var(--accent)); color: var(--text-primary); }
+.st-preset-compact:active { transform: scale(.96); }
+.st-preset-compact:disabled { opacity: .6; cursor: default; transform: none; }
+.st-preset-g { display: block; font-size: 15px; margin-bottom: 2px; }
+
+.st-rail-label {
   display: flex; align-items: center; justify-content: space-between;
-  font-size: 12.5px; font-weight: 600; color: var(--text-secondary);
+  font-size: 11.5px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 14px;
 }
-.st-recompute-dot {
-  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent); margin-left: 6px; animation: st-pulse-dot 1s infinite ease-in-out;
-}
-@keyframes st-pulse-dot { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .st-recompute-dot { animation: none; opacity: .8; } }
 
-.st-reset {
-  display: inline-flex; align-items: center; gap: 5px; background: none; border: none;
-  color: var(--text-tertiary); font-size: 11.5px; cursor: pointer; padding: 0;
-}
-.st-reset:hover { color: var(--accent); }
-
-.st-sliders {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px;
-}
-@media (max-width: 760px) { .st-sliders { grid-template-columns: 1fr; } }
+.st-slider-group { display: flex; flex-direction: column; gap: 20px; }
+.st-sliders-loading { padding: 10px 0; color: var(--text-tertiary); font-size: 13px; }
 
 .st-sl { display: flex; flex-direction: column; gap: 7px; border-radius: var(--radius-md); transition: background .3s; }
 .st-sl-pulse { background: var(--bs-copper-soft, var(--bg-hover)); }
 .st-sl-label { display: flex; justify-content: space-between; align-items: baseline; }
-.st-sl-name { font-size: 12px; color: var(--text-tertiary); }
+.st-sl-name { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
 .st-sl-val {
   font-family: var(--bs-mono); font-size: 15px; font-weight: 600; color: var(--text-primary);
   font-variant-numeric: tabular-nums;
@@ -93,7 +95,7 @@
 
 .st-sl input[type="range"] {
   -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px;
-  background: linear-gradient(90deg, var(--danger) 0%, var(--border-strong) 50%, var(--success) 100%);
+  background: linear-gradient(90deg, var(--bs-down) 0%, var(--border-strong) 50%, var(--bs-up) 100%);
   outline: none; cursor: pointer;
 }
 .st-sl input[type="range"]::-webkit-slider-thumb {
@@ -107,10 +109,42 @@
   border: 3px solid var(--bg-elevated); box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: grab;
 }
 .st-sl input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--bs-copper-soft, var(--bg-hover)); }
+.st-sl-base { font-size: 10.5px; color: var(--text-tertiary); font-family: var(--bs-mono); }
 
-.st-levels-note { font-size: 11.5px; color: var(--text-tertiary); }
+.st-reset-row { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-subtle); }
+.st-levels-note { font-size: 11.5px; color: var(--text-tertiary); margin-top: 14px; line-height: 1.5; }
+.st-reset {
+  display: inline-flex; align-items: center; gap: 5px; background: none; border: none;
+  color: var(--text-tertiary); font-size: 11.5px; cursor: pointer; padding: 0;
+}
+.st-reset:hover { color: var(--bs-copper, var(--accent)); }
+.st-recompute-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); margin-left: 6px; animation: st-pulse-dot 1s infinite ease-in-out;
+}
+@keyframes st-pulse-dot { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .st-recompute-dot { animation: none; opacity: .8; } }
 
-/* Карта рынка — секторные строки, плитки flex-grow по весу (порт прототипа) */
+/* ---------- headline index + карта (main, справа от рельса) ---------- */
+.st-main { display: flex; flex-direction: column; min-width: 0; }
+.st-main-loading { padding: 40px 24px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+
+.st-headline { padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.st-headline-num { display: flex; flex-direction: column; gap: 4px; }
+.st-hl-lbl {
+  font-family: var(--bs-mono); font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--text-tertiary); display: flex; align-items: center; gap: 8px;
+}
+.st-hl-val {
+  font-family: var(--bs-serif); font-weight: 600; font-size: clamp(34px, 4.5vw, 50px); line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+}
+.st-headline-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+.st-hm { display: flex; flex-direction: column; gap: 3px; }
+.st-hm-l { font-size: 11px; color: var(--text-tertiary); }
+.st-hm-v { font-family: var(--bs-mono); font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+.st-mapwrap { padding: 2px 22px 22px; }
 .st-map { display: flex; flex-direction: column; gap: 3px; }
 .st-sector-lbl {
   font-family: var(--bs-mono); font-size: 9.5px; font-weight: 600; letter-spacing: .05em;
@@ -129,11 +163,25 @@
 .st-tile-small .st-tile-tk { font-size: 10.5px; }
 .st-tile-small .st-tile-pc { font-size: 9.5px; }
 @media (prefers-reduced-motion: reduce) { .st-tile { transition: none; } .st-tile:hover { transform: none; } }
+.st-map-note { margin-top: 12px; font-size: 11px; color: var(--text-tertiary); line-height: 1.5; }
 
-.st-presets { border-top: 1px dashed var(--border-subtle); padding-top: 16px; }
-.st-presets-head { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
-.st-presets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.st-preset { text-align: left; background: var(--bg-base); width: 100%; cursor: pointer; }
-.st-preset:disabled { opacity: .6; cursor: default; }
-.st-preset-label { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
-.st-preset-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+/* ---------- лидерборд (full-bleed, 1px «линия»-разделитель) ---------- */
+.st-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-subtle); }
+@media (max-width: 700px) { .st-boards { grid-template-columns: 1fr; } }
+.st-board { background: var(--bg-elevated); padding: 20px 24px 24px; }
+.st-board h3 {
+  font-family: var(--bs-mono); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  margin: 0 0 14px; display: flex; align-items: center; gap: 7px;
+}
+.st-board-worse h3 { color: var(--bs-down); }
+.st-board-better h3 { color: var(--bs-up); }
+.st-board-empty { font-size: 12.5px; color: var(--text-tertiary); }
+.st-brow { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.st-brow-tk { font-family: var(--bs-mono); font-size: 12px; font-weight: 700; width: 54px; flex-shrink: 0; }
+.st-brow-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--bg-hover); position: relative; overflow: hidden; }
+.st-brow-bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; transition: width .25s ease; }
+.st-board-worse .st-brow-bar i { right: 0; background: var(--bs-down); }
+.st-board-better .st-brow-bar i { left: 0; background: var(--bs-up); }
+.st-brow-pc { font-family: var(--bs-mono); font-size: 12px; font-weight: 600; width: 56px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.st-board-worse .st-brow-pc { color: var(--bs-down); }
+.st-board-better .st-brow-pc { color: var(--bs-up); }
