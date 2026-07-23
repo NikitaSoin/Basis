@@ -277,9 +277,16 @@ def generate(db: Session, user_id: int, rtype: str, topic: str = "mixed") -> Obs
     # Запас увеличен, и (см. llm.py) для json_mode=False такой фолбэк убран —
     # теперь при нехватке бюджета придёт честно пустая строка, а не мусор.
     max_tokens = {"express": 1500, "detailed": 6000, "deep": 12000}[rtype]
+    # Интерактивный путь (пользователь смотрит на спиннер) — без override здесь
+    # complete() падает на дефолт LLM_TIMEOUT=180с×3 попытки (до ~9 минут висения,
+    # см. llm.py:82-86), пока фронт не покажет "failed" и не залипнет кнопка
+    # «Сгенерировать» (нет client-side AbortController). Короче таймаут по глубине
+    # (те же 30-40с/попытку, что и в stress_ask.py/stress_expert.py, но с запасом
+    # под detailed/deep — там thinking=True и бюджет токенов на порядок больше).
+    timeout = {"express": 40, "detailed": 75, "deep": 120}[rtype]
     content = complete(system, json.dumps(ctx, ensure_ascii=False), json_mode=False,
                        thinking=thinking, model=pro_model(), max_tokens=max_tokens,
-                       temperature=0.3)
+                       temperature=0.3, timeout=timeout, retries=1)
     if not isinstance(content, str):
         content = str(content)
     content = content.strip()

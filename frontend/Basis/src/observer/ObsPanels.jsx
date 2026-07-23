@@ -1946,6 +1946,174 @@ const GEOMAP_EMPTY_FC = { type: "FeatureCollection", features: [] };
 // пересчитывались бы на КАЖДЫЙ рендер компонента, а не только при смене данных.
 const GEOMAP_EMPTY_OBJ = {};
 
+// --- Темп территориальных изменений (territorial_change.history) — реальные
+// точки разной грануричности (месяц/полугодие/год) с честными пропусками
+// (см. data_gaps в geo_map_svo.json). Переводим период в диапазон глобальных
+// "месячных индексов" (year*12+monthIdx0), чтобы месячные и агрегированные
+// точки жили на ОДНОЙ календарной шкале — пропуск месяца это просто пустое
+// место на оси, не интерполяция (владелец: линия здесь визуально врала бы).
+function parseTerritorialPeriod(period) {
+  let m = /^(\d{4})-(\d{2})$/.exec(period); // "2025-03"
+  if (m) {
+    const idx = +m[1] * 12 + (+m[2] - 1);
+    return { start: idx, end: idx, span: 1, kind: "month" };
+  }
+  m = /^(\d{4})\s*H([12])/.exec(period); // "2025 H1 (янв-июнь)"
+  if (m) {
+    const start = +m[1] * 12 + (m[2] === "1" ? 0 : 6);
+    return { start, end: start + 5, span: 6, kind: "aggregate" };
+  }
+  m = /^(\d{4})\s*Q([1-4])/.exec(period); // "2025 Q1" — на случай будущей гранулярности
+  if (m) {
+    const start = +m[1] * 12 + (+m[2] - 1) * 3;
+    return { start, end: start + 2, span: 3, kind: "aggregate" };
+  }
+  m = /^(\d{4})$/.exec(period); // "2024"
+  if (m) {
+    const start = +m[1] * 12;
+    return { start, end: start + 11, span: 12, kind: "aggregate" };
+  }
+  return null;
+}
+const TERR_MONTH_ABBR = ["янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+function fmtTerritorialMonthIdx(idx) {
+  const y = Math.floor(idx / 12), mo = ((idx % 12) + 12) % 12;
+  return `${TERR_MONTH_ABBR[mo]} ${String(y).slice(2)}`;
+}
+
+// Столбчатый график (не линия — см. комментарий выше про честность пропусков).
+// Один показатель, одна последовательная заливка (--accent, медь — уже акцент
+// платформы/карты, никакой новой палитры): месячные точки — сплошной
+// столбец = km2 как есть (span=1, это буквально км²/мес); годовые/полугодовые
+// агрегаты — широкий бледный столбец на весь охваченный период, высота =
+// расчётный среднемесячный темп (km2/span) — эти цифры в данных ИМЕННО
+// суммарные за период, не готовое км²/мес (см. владелец, 2026-07-24). Оба
+// слоя на одной календарной оси — там, где известен точный месяц (напр.
+// ноябрь-декабрь 2024 внутри агрегата «2024»), сплошной столбец рисуется
+// ПОВЕРХ бледного, честно показывая, что месячная цифра выше/ниже среднего.
+function ObsGeoTerritorialChart({ history }) {
+  const [hoverIdx, setHoverIdx] = useState(null);
+  const svgRef = useRef(null);
+
+  const entries = useMemo(() => (
+    (history || [])
+      .map((h) => { const r = parseTerritorialPeriod(h.period); return r ? { ...h, ...r, avg: h.km2 / r.span } : null; })
+      .filter(Boolean)
+      .sort((a, b) => a.start - b.start)
+  ), [history]);
+
+  if (!entries.length) return null;
+
+  const months = entries.filter((e) => e.kind === "month");
+  const aggregates = entries.filter((e) => e.kind === "aggregate");
+  const minIdx = Math.min(...entries.map((e) => e.start));
+  const maxIdx = Math.max(...entries.map((e) => e.end));
+  const n = maxIdx - minIdx + 1;
+
+  const viewW = 640, viewH = 156;
+  const padL = 30, padR = 8, padT = 10, padB = 20;
+  const plotW = viewW - padL - padR, plotH = viewH - padT - padB;
+  const slot = plotW / n;
+  const vmax = Math.max(1, ...entries.map((e) => (e.kind === "month" ? e.km2 : e.avg))) * 1.18;
+  const xAt = (idx) => padL + (idx - minIdx) * slot;
+  const yAt = (v) => padT + plotH - (Math.max(0, v) / vmax) * plotH;
+
+  const onMove = (e) => {
+    const el = svgRef.current; if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const px = ((cx - rect.left) / rect.width) * viewW;
+    const idx = Math.floor((px - padL) / slot) + minIdx;
+    setHoverIdx(Math.max(minIdx, Math.min(maxIdx, idx)));
+  };
+
+  const hoverMonth = hoverIdx != null ? months.find((mo) => mo.start === hoverIdx) : null;
+  const hoverAgg = hoverIdx != null && !hoverMonth ? aggregates.find((a) => hoverIdx >= a.start && hoverIdx <= a.end) : null;
+  const hoverEntry = hoverMonth || hoverAgg;
+
+  const tickEvery = Math.max(1, Math.ceil(n / 7));
+  const ticks = [];
+  for (let i = 0; i < n; i += tickEvery) ticks.push(minIdx + i);
+  if (ticks[ticks.length - 1] !== maxIdx) ticks.push(maxIdx);
+
+  const hoverCx = hoverIdx != null ? xAt(hoverIdx) + slot / 2 : 0;
+  const tipPct = hoverIdx != null ? (hoverCx / viewW) * 100 : 0;
+  const tipRight = tipPct > 55;
+
+  return (
+    <div className="obs-geomap-terr-chart">
+      {hoverEntry && (
+        <div className="obs-chart-tooltip" style={{ left: tipRight ? undefined : `${tipPct}%`, right: tipRight ? `${100 - tipPct}%` : undefined, top: "0px" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)", marginBottom: "4px" }}>{hoverEntry.period}</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>
+            {hoverEntry.kind === "month"
+              ? `${hoverEntry.km2.toLocaleString("ru-RU")} км²/мес`
+              : `~${Math.round(hoverEntry.avg).toLocaleString("ru-RU")} км²/мес в среднем`}
+          </div>
+          {hoverEntry.kind !== "month" && (
+            <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>
+              всего {hoverEntry.km2.toLocaleString("ru-RU")} км² за период
+            </div>
+          )}
+          {hoverEntry.source && (
+            <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "4px" }}>{hoverEntry.source}</div>
+          )}
+          <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "2px" }}>
+            надёжность оценки: {hoverEntry.confidence === "L" ? "низкая" : hoverEntry.confidence === "M" ? "средняя" : hoverEntry.confidence === "H" ? "высокая" : "—"}
+          </div>
+        </div>
+      )}
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${viewW} ${viewH}`}
+        style={{ width: "100%", height: "auto", cursor: "crosshair", display: "block", touchAction: "none" }}
+        onPointerMove={onMove}
+        onPointerLeave={() => setHoverIdx(null)}
+        role="img"
+        aria-label="Темп продвижения линии фронта по периодам, км² в месяц"
+      >
+        {[0, vmax].map((v, i) => (
+          <g key={i}>
+            <line x1={padL} x2={viewW - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" />
+            {i === 1 && (
+              <text x={padL - 6} y={yAt(v) + 4} textAnchor="end" fontSize="9.5" fontFamily="var(--font-mono)" fill="var(--text-tertiary)">{Math.round(v)}</text>
+            )}
+          </g>
+        ))}
+        {ticks.map((idx) => (
+          <text key={idx} x={Math.min(viewW - padR - 14, Math.max(padL + 14, xAt(idx) + slot / 2))} y={viewH - 5} textAnchor="middle" fontSize="9.5" fontFamily="var(--font-mono)" fill="var(--text-tertiary)">
+            {fmtTerritorialMonthIdx(idx)}
+          </text>
+        ))}
+        {hoverIdx != null && (
+          <rect x={xAt(hoverIdx)} y={padT} width={slot} height={plotH} fill="var(--bg-hover)" opacity="0.5" />
+        )}
+        {aggregates.map((a) => {
+          const x = xAt(a.start) + 1;
+          const w = Math.max(2, slot * a.span - 2);
+          const y = yAt(a.avg);
+          return (
+            <g key={a.period}>
+              <rect x={x} y={y} width={w} height={Math.max(1, padT + plotH - y)} fill="var(--accent-soft)" stroke="var(--accent)" strokeOpacity="0.25" strokeWidth="1" rx="2" />
+              {w > 46 && (
+                <text x={x + w / 2} y={y - 4 > padT ? y - 4 : y + 12} textAnchor="middle" fontSize="8.5" fontFamily="var(--font-mono)" fill="var(--text-tertiary)">
+                  {a.period.replace(/\s*\(.*\)/, "")}
+                </text>
+              )}
+            </g>
+          );
+        })}
+        {months.map((mo) => {
+          const x = xAt(mo.start) + Math.max(1, slot * 0.16);
+          const w = Math.max(2, slot * 0.68);
+          const y = yAt(mo.km2);
+          return <rect key={mo.period} x={x} y={y} width={w} height={Math.max(1, padT + plotH - y)} fill="var(--accent)" rx="1.5" />;
+        })}
+      </svg>
+    </div>
+  );
+}
+
 function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, directionColor }) {
   const [status, setStatus] = useState("loading"); // loading | ready | empty
   const [data, setData] = useState(null);
@@ -2006,6 +2174,13 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // и зоной ua (см. backend, shapely boundary intersection по районам до слияния в
   // области) — «где именно проходит» видно отдельно от «чей регион в целом».
   const frontlineFC = (!onRussiaMap && activeBaseMap?.frontline_geojson) || GEOMAP_EMPTY_FC;
+  // Точная закраска РФ-контроля — сам полигон (не только его граница), поверх
+  // oblast-choropleth: область целиком может быть "contested"/нейтральной, но
+  // внутри неё конкретные н.п. (Часов Яр, Покровск и т.п.) уже фактически под
+  // контролем России по ISW — без этого слоя это не видно (владелец: «карта
+  // ощущается устаревшей»). Только СВО (для БВ/АТР бэкенд это поле не отдаёт),
+  // только очаг (не карта «Россия целиком» — там понятие неприменимо).
+  const controlFillFC = (!onRussiaMap && activeBaseMap?.control_fill_geojson) || GEOMAP_EMPTY_FC;
 
   const regionsBySlug = useMemo(() => {
     const m = {};
@@ -2101,6 +2276,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       map.addSource("regions", { type: "geojson", data: GEOMAP_EMPTY_FC });
       map.addSource("regions-active", { type: "geojson", data: GEOMAP_EMPTY_FC });
       map.addSource("frontline", { type: "geojson", data: GEOMAP_EMPTY_FC });
+      map.addSource("control-fill", { type: "geojson", data: GEOMAP_EMPTY_FC });
 
       // Choropleth статуса контроля — факт «чья территория», не рыночный сигнал
       // good/bad (легитимное применение --danger/--warning к данным, см. конституцию).
@@ -2109,6 +2285,16 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // кликабельной областью для подписи региона в детали-панели.
       map.addLayer({ id: "regions-fill", type: "fill", source: "regions", paint: { "fill-color": "#888", "fill-opacity": 0 } });
       map.addLayer({ id: "regions-line", type: "line", source: "regions", paint: { "line-color": "#888", "line-opacity": 0, "line-width": 1.1 } });
+      // Точная закраска РФ-контроля (control-fill) — сам полигон ISW, не только
+      // граница области: рендерится ПОСЛЕ regions-fill/regions-line (в MapLibre
+      // позже добавленный слой = выше), поэтому «перебивает» нейтральную/оранжевую
+      // заливку области под собой заметно более плотной заливкой + тонким контуром
+      // — видно, что конкретно занято ВНУТРИ спорной/нейтральной области, а не
+      // просто «вся область такого-то цвета». Никакого отдельного обработчика
+      // клика — клики по-прежнему ловит нижний regions-fill (MapLibre матчит
+      // события по слою через queryRenderedFeatures, не по видимому z-order).
+      map.addLayer({ id: "control-fill", type: "fill", source: "control-fill", paint: { "fill-color": colors.ru, "fill-opacity": 0.6 } });
+      map.addLayer({ id: "control-fill-line", type: "line", source: "control-fill", paint: { "line-color": colors.ru, "line-opacity": 0.9, "line-width": 0.8 } });
       // Линия фронта — САМА линия боевого соприкосновения, отдельно от заливки
       // регионов (владелец: «где линия фронта? сейчас просто регионы закрашены»).
       // Двухслойная линия (подложка толще+бледнее, поверх тоньше+ярче) — читаемый
@@ -2150,6 +2336,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     if (!map || !styleLoaded) return;
     map.getSource("regions")?.setData(regionsFC);
     map.getSource("frontline")?.setData(frontlineFC);
+    map.getSource("control-fill")?.setData(controlFillFC);
     // Красим ПО ФИЧЕ (control: <ключ>), не блоком «весь набор регионов либо
     // красим, либо нет» — на карте «Россия целиком» у большинства регионов
     // control нет вовсе (нейтральны), но у Крыма/ДНР/ЛНР/новых областей он ЕСТЬ
@@ -2182,9 +2369,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setPaintProperty("regions-line", "line-color", fillColor);
     map.setPaintProperty("regions-line", "line-opacity", lineOpacity);
     map.setPaintProperty("regions-active-line", "line-color", colors.accent);
+    map.setPaintProperty("control-fill", "fill-color", colors.ru);
+    map.setPaintProperty("control-fill-line", "line-color", colors.ru);
     map.setPaintProperty("frontline-casing", "line-color", colors.ru);
     map.setPaintProperty("frontline-line", "line-color", colors.ru);
-  }, [styleLoaded, regionsFC, frontlineFC, colors, controlLegendKeys, controlPaintOverrides]);
+  }, [styleLoaded, regionsFC, frontlineFC, controlFillFC, colors, controlLegendKeys, controlPaintOverrides]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
   // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
@@ -2300,11 +2489,26 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         const tc = data.territorial_change;
         const valueLabel = tc.km2_range ? `${tc.km2_range[0]}–${tc.km2_range[1]}` : tc.km2_value;
         return (
-          <div className="obs-geomap-territorial-stat" title={tc.note}>
-            <TrendingDown size={13} aria-hidden="true" />
-            <span className="obs-geomap-territorial-value">{valueLabel} км²/мес</span>
-            <span className="obs-tag-estimate">оценка</span>
-            {tc.trend && <span className="obs-geomap-territorial-trend">{tc.trend}</span>}
+          <div className="obs-geomap-territorial-block">
+            <div className="obs-geomap-territorial-stat" title={tc.note}>
+              <TrendingDown size={13} aria-hidden="true" />
+              <span className="obs-geomap-territorial-value">{valueLabel} км²/мес</span>
+              <span className="obs-tag-estimate">оценка</span>
+              {tc.trend && <span className="obs-geomap-territorial-trend">{tc.trend}</span>}
+            </div>
+            {Array.isArray(tc.history) && tc.history.length > 0 && (
+              <div className="obs-geomap-terr-chart-wrap">
+                <div className="obs-geomap-terr-chart-head">
+                  <span className="obs-geomap-terr-chart-title">Темп продвижения по периодам, км²/мес</span>
+                  {tc.data_gaps && (
+                    <span className="obs-geomap-terr-gaps-note" title={tc.data_gaps}>
+                      <Info size={11} aria-hidden="true" />есть пропуски в данных
+                    </span>
+                  )}
+                </div>
+                <ObsGeoTerritorialChart history={tc.history} />
+              </div>
+            )}
           </div>
         );
       })()}
@@ -4237,16 +4441,26 @@ function ObsAiReview({ token, onSelectCompany }) {
 
   const generate = () => {
     setGenerating(true); setError(null); setReport(null);
+    // Клиентский предохранитель: бэкенд теперь всегда отвечает в разумный срок
+    // (см. observer_report.py — timeout/retries по глубине), но без этого
+    // AbortController зависшее сетевое соединение (напр. TLS-«чёрная дыра» до
+    // провайдера) вешало generating=true НАВСЕГДА — единственным выходом была
+    // перезагрузка страницы, потому что .finally() ждёт promise, который никогда
+    // не решался.
+    const controller = new AbortController();
+    const guard = setTimeout(() => controller.abort(), 5 * 60 * 1000);
     fetch(`${apiUrl}/api/observer/reports?type=${depth}&topic=${topic}`, {
-      method: "POST", headers: authHeaders,
+      method: "POST", headers: authHeaders, signal: controller.signal,
     })
       .then(r => r.json().then(d => ({ ok: r.ok, d })))
       .then(({ ok, d }) => {
         if (ok) { setReport(d); loadHistory(); }
         else setError(d.detail || "Ошибка генерации");
       })
-      .catch(e => setError(e.message || "Сетевая ошибка"))
-      .finally(() => setGenerating(false));
+      .catch(e => setError(e.name === "AbortError"
+        ? "Не удалось получить ответ от сервера — попробуйте ещё раз"
+        : (e.message || "Сетевая ошибка")))
+      .finally(() => { clearTimeout(guard); setGenerating(false); });
   };
 
   const openReport = (id) => {
@@ -4339,63 +4553,67 @@ function ObsAiReview({ token, onSelectCompany }) {
   }
 
   /* ─────────────── MAIN (GENERATE) VIEW ─────────────── */
+  // NB: заголовок "ИИ-обзор и анализ" рендерит ТОЛЬКО родитель (App.js,
+  // case "ai" в renderSection) — как и во всех остальных вкладках
+  // Обозревателя. Раньше этот компонент дублировал свой obs-sec-head с тем
+  // же <h2> под кнопку "История отчётов →" — убрали дубль, кнопка теперь
+  // живёт в одном ряду с описанием (obs-ai-desc-row). HISTORY VIEW выше
+  // сохраняет свой обычный obs-sec-head — там другой текст ("История
+  // отчётов"), это не дублирование, а заголовок дочернего под-экрана.
   return (
     <div className="obs-ai-wrap">
-      {/* ---- Sec-head with "История" link right-aligned ---- */}
-      <div className="obs-sec-head" style={{ justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: "13px" }}>
-          <span className="obs-sec-eyebrow">Разбор</span>
-          <h2 className="obs-sec-title">ИИ-обзор и анализ</h2>
-        </div>
+      <div className="obs-ai-desc-row" style={{ marginTop: "-14px" }}>
+        <p className="obs-map-desc">
+          Настройте глубину и тему — от короткой сводки по портфелю до макроэкономического разбора со
+          сценариями. Строго по данным платформы, без рекомендаций. Не является ИИР.
+        </p>
         <button className="obs-ai-hist-link" onClick={() => setShowHistory(true)}>
           <Clock size={14} aria-hidden="true" /> История отчётов →
         </button>
       </div>
 
-      <p className="obs-map-desc" style={{ marginTop: "-14px" }}>
-        Настройте глубину и тему — от короткой сводки по портфелю до макроэкономического разбора со
-        сценариями. Строго по данным платформы, без рекомендаций. Не является ИИР.
-      </p>
-
-      {/* ── Single flex row: [Глубина] [Тема] [Кнопка → right] ── */}
+      {/* Глубина + Тема в один ряд; «Сгенерировать отчёт» — свой ряд снизу,
+         прижат вправо (см. observer-v2.css: раньше три блока пытались влезть
+         в один flex-ряд, из-за чего кнопка «прыгала» по ширине в зависимости
+         от суммарной ширины пилюль «Темы»). */}
       <div className="obs-ai-controls-row">
 
-        {/* Глубина */}
-        <div>
-          <div className="obs-ai-section-label">Глубина</div>
-          <div className="obs-ai-plan-grid" role="group" aria-label="Глубина анализа">
-            {Object.entries(_OBS_DEPTH_META).map(([id, m]) => (
-              <button key={id}
-                className={`obs-ai-plan${depth === id ? " obs-ai-plan--on" : ""}`}
-                onClick={() => setDepth(id)}
-                aria-pressed={depth === id}>
-                <span className="obs-ai-plan-label">{m.label}</span>
-                <span className="obs-ai-plan-horizon">{m.horizon}</span>
-              </button>
-            ))}
+        <div className="obs-ai-controls-main">
+          {/* Глубина */}
+          <div>
+            <div className="obs-ai-section-label">Глубина</div>
+            <div className="obs-ai-plan-grid" role="group" aria-label="Глубина анализа">
+              {Object.entries(_OBS_DEPTH_META).map(([id, m]) => (
+                <button key={id}
+                  className={`obs-ai-plan${depth === id ? " obs-ai-plan--on" : ""}`}
+                  onClick={() => setDepth(id)}
+                  aria-pressed={depth === id}>
+                  <span className="obs-ai-plan-label">{m.label}</span>
+                  <span className="obs-ai-plan-horizon">{m.horizon}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Тема */}
+          <div className="obs-ai-topic-block">
+            <div className="obs-ai-section-label">Тема</div>
+            <div className="obs-ai-topic-seg" role="group" aria-label="Тема анализа">
+              {Object.entries(_OBS_TOPIC_META).map(([id, m]) => (
+                <button key={id}
+                  className={`obs-cal-seg-opt${topic === id ? " obs-cal-seg-opt--on" : ""}`}
+                  onClick={() => setTopic(id)}
+                  aria-pressed={topic === id}>
+                  <m.icon size={14} aria-hidden="true" />
+                  {m.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Тема */}
-        <div>
-          <div className="obs-ai-section-label">Тема</div>
-          <div className="obs-ai-topic-seg" role="group" aria-label="Тема анализа">
-            {Object.entries(_OBS_TOPIC_META).map(([id, m]) => (
-              <button key={id}
-                className={`obs-cal-seg-opt${topic === id ? " obs-cal-seg-opt--on" : ""}`}
-                onClick={() => setTopic(id)}
-                aria-pressed={topic === id}>
-                <m.icon size={14} aria-hidden="true" />
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Кнопка — прижата вправо через margin-left:auto */}
-        <div style={{ marginLeft: "auto" }}>
-          {/* Invisible spacer so the button bottom-aligns with the plan cards */}
-          <div style={{ fontSize: "11px", marginBottom: "8px", visibility: "hidden" }} aria-hidden="true">·</div>
+        {/* Кнопка — свой ряд, прижата вправо */}
+        <div className="obs-ai-controls-action">
           <button className="obs-ai-generate-btn" onClick={generate} disabled={generating}
             aria-busy={generating}>
             {generating ? "Генерируем отчёт…" : (<><Sparkles size={15} aria-hidden="true" /> Сгенерировать отчёт</>)}

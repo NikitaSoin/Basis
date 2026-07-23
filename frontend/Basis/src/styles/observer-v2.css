@@ -2216,6 +2216,26 @@
   max-width: 860px;
 }
 
+/* MAIN VIEW: описание + «История отчётов →» в одном ряду. Заголовок
+   "ИИ-обзор и анализ" рендерит ТОЛЬКО родитель (App.js, obs-sec-head) —
+   этот компонент своего <h2> больше не рендерит (был дубль). */
+.obs-ai-desc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+}
+
+.obs-ai-desc-row .obs-map-desc {
+  flex: 1 1 420px;
+  margin: 0;
+}
+
+.obs-ai-desc-row .obs-ai-hist-link {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .obs-ai-section-label {
   font-size: 11px;
   font-weight: 700;
@@ -2226,19 +2246,44 @@
   margin-top: 20px;
 }
 
-/* Topic segmented toggle — wider than calendar seg, wraps on mobile */
-.obs-ai-topic-seg {
-  display: flex;
-  flex-wrap: wrap;
-  background: var(--bg-surface, var(--bg-base));
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-pill);
-  padding: 3px;
-  gap: 2px;
-  margin-bottom: 4px;
+/* Тема — обёртка растёт (flex-grow), занимая весь остаток ширины ряда
+   рядом с «Глубиной» — так колонки внутри .obs-ai-topic-seg всегда получают
+   равную, предсказуемую ширину независимо от вьюпорта (раньше 5 пилюль
+   переменной ширины «рвали» ряд и двигали кнопку «Сгенерировать»). */
+.obs-ai-topic-block {
+  flex: 1 1 320px;
+  min-width: 240px;
 }
 
-/* Reuse obs-cal-seg-opt for individual buttons — no extra class needed */
+/* Topic toggle — сетка с равными колонками (не flex intrinsic-width),
+   тот же приём, что .obs-ai-plan-grid у «Глубины». Подпись может перенестись
+   на 2 строки на узких колонках — как у карточек глубины (label + horizon). */
+.obs-ai-topic-seg {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  background: var(--bg-surface, var(--bg-base));
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 4px;
+}
+/* На узком блоке 5 колонок сдавливают длинные метки ("Макроэкономика") —
+   переходим на 2-3-2 до восстановления читаемого паддинга. */
+@media (max-width: 640px) {
+  .obs-ai-topic-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Точечное переопределение общей пилюли .obs-cal-seg-opt только внутри
+   сетки «Темы» — центрирование + перенос текста. Саму .obs-cal-seg-opt не
+   трогаем, её же использует переключатель Список/Календарь и другие места. */
+.obs-ai-topic-seg .obs-cal-seg-opt {
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+  padding: 10px 8px;
+}
 
 /* Depth plan cards grid */
 .obs-ai-plan-grid {
@@ -2533,16 +2578,35 @@
 }
 
 /* =============================================================
-   OBS-AI CONTROLS ROW — prototype flex layout (Глубина + Тема + Кнопка-right)
+   OBS-AI CONTROLS ROW — Глубина+Тема в одном ряду, «Сгенерировать отчёт» —
+   отдельным рядом снизу, прижат вправо. Раньше все три блока пытались
+   влезть в один flex-ряд; ширина «Темы» была непредсказуемой (5 пилюль
+   переменной ширины) — из-за этого кнопка «прыгала» по горизонтали в
+   зависимости от вьюпорта. Два детерминированных ряда убирают это.
    ============================================================= */
 
-/* Single horizontal row: Глубина block | Тема block | Кнопка (margin-left:auto) */
 .obs-ai-controls-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 26px;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 22px;
+}
+
+/* Глубина + Тема — верх выровнен по началу (не по низу), чтобы подписи
+   «Глубина»/«Тема» стояли на одной высоте, даже если пилюли «Темы»
+   перенеслись на 2 строки, а карточки «Глубины» — нет. */
+.obs-ai-controls-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 26px;
+}
+
+/* Кнопка «Сгенерировать отчёт» — свой ряд, прижата вправо. Не зависит от
+   ширины «Темы» — больше не «прыгает». */
+.obs-ai-controls-action {
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* Remove inherited top-margin from section labels when inside the controls row */
@@ -2555,7 +2619,8 @@
   margin-top: 0;
 }
 
-/* "История отчётов →" link in sec-head right slot */
+/* "История отчётов →" link — теперь в одном ряду с описанием
+   (.obs-ai-desc-row), не в sec-head (заголовок рендерит только App.js). */
 .obs-ai-hist-link {
   font-size: 13px;
   font-weight: 600;
@@ -4417,6 +4482,47 @@ details[open] > summary .obs-inst-chev,
 .obs-geomap-territorial-trend {
   font-size: 11.5px;
   color: var(--text-secondary);
+}
+
+/* Связка «текущее число + история»: плашка выше остаётся как есть, график
+   темпа продвижения (км²/мес по периодам) — прямо под ней, без отдельной
+   рамки/фона (не дублируем .obs-geomap-territorial-stat, читается одним
+   блоком). См. ObsGeoTerritorialChart. */
+.obs-geomap-territorial-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.obs-geomap-terr-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.obs-geomap-terr-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.obs-geomap-terr-chart-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.obs-geomap-terr-gaps-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  cursor: help;
+  flex-shrink: 0;
+}
+.obs-geomap-terr-gaps-note svg { flex-shrink: 0; }
+.obs-geomap-terr-chart {
+  position: relative;
 }
 
 .obs-geomap-filterbar {
