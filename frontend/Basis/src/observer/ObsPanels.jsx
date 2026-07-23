@@ -32,6 +32,7 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
+  CircleHelp,
   Info,
   Gavel,
   Coins,
@@ -1939,6 +1940,25 @@ function geomapAspect(bounds) {
   return Math.min(2.3, Math.max(1.05, raw));
 }
 
+// Короткая дата ДД.ММ (без года) для плашки-сводки «N пунктов заявлено... с
+// ДД.ММ» — полная дата с годом уже есть отдельно как _obsDateRu (используется
+// в детали-панели, где контекст года важнее компактности).
+function geomapShortDateRu(iso) {
+  if (!iso) return "";
+  const [, m, d] = iso.split("-");
+  return `${d}.${m}`;
+}
+
+// Русское склонение «пункт/пункта/пунктов» для счётчика заявленных, не
+// подтверждённых ISW населённых пунктов (число будет расти по мере обновлений).
+function ruPluralPunkt(n) {
+  const n10 = n % 10;
+  const n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return "пункт";
+  if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return "пункта";
+  return "пунктов";
+}
+
 const GEOMAP_EMPTY_FC = { type: "FeatureCollection", features: [] };
 // Общий стабильный fallback для control_legend/control_paint_opacity, когда их
 // нет в данных очага — ОДИН и тот же объект-ссылка на каждом рендере (не новый
@@ -2131,6 +2151,10 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]); // [{ id, marker, root, el }]
+  // Отдельный ref-массив маркеров «заявлено, не подтверждено ISW» — независимый
+  // источник данных (не events), свой эффект создания/очистки ниже, см.
+  // claimedCapturesFC/claimedCapturesList.
+  const claimedMarkersRef = useRef([]); // [{ id, marker, root, el }]
   // MapLibre-квирк: маркер-кнопка лежит поверх канваса, но у САМОГО ПЕРВОГО клика
   // после загрузки карты браузер иногда резолвит mousedown на канвас, а mouseup —
   // уже на кнопку; итоговый синтетический "click" достаётся их общему предку
@@ -2181,6 +2205,16 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // ощущается устаревшей»). Только СВО (для БВ/АТР бэкенд это поле не отдаёт),
   // только очаг (не карта «Россия целиком» — там понятие неприменимо).
   const controlFillFC = (!onRussiaMap && activeBaseMap?.control_fill_geojson) || GEOMAP_EMPTY_FC;
+  // «Заявлено, не подтверждено ISW» — точки конкретных населённых пунктов из сводок
+  // Минобороны РФ/Рыбаря, для которых живой геослой ISW (на котором строится
+  // control_fill_geojson выше) ЕЩЁ не подтвердил взятие — проверено: ISW реально
+  // отстаёт (срез многодневной давности), военкоры/Минобороны заявляют быстрее
+  // геолокационного подтверждения. ПРИНЦИПИАЛЬНО другой уровень достоверности, чем
+  // control-fill (там — подтверждённый ISW факт) — рисуем ОТДЕЛЬНЫМИ точками (не
+  // заливкой), явно другим стилем «под вопросом» (см. .obs-geomap-marker--claimed),
+  // никогда визуально не путать с закрашенным control-fill. Только СВО, только очаг.
+  const claimedCapturesFC = (!onRussiaMap && activeBaseMap?.claimed_captures_geojson) || GEOMAP_EMPTY_FC;
+  const claimedCapturesCoversSince = (!onRussiaMap && activeBaseMap?.claimed_captures_covers_since) || null;
 
   const regionsBySlug = useMemo(() => {
     const m = {};
@@ -2209,6 +2243,17 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     () => events.filter((e) => e.waypoint && waypointsBySlug[e.waypoint]),
     [events, waypointsBySlug]
   );
+  // Точки «заявлено, не подтверждено ISW» — координаты идут прямо в фиче (Point),
+  // не через waypoints-справочник (это не наш куратор точек, а сырой список от
+  // бэкенда, id для React/выбора строим по индексу — у фич нет собственного id).
+  const claimedCapturesList = useMemo(
+    () => (claimedCapturesFC.features || []).map((f, i) => ({
+      id: `claimed-${i}`,
+      coords: f.geometry.coordinates,
+      ...f.properties,
+    })),
+    [claimedCapturesFC]
+  );
   const typeOk = (t) => activeType === "all" || activeType === t;
 
   const selectEvent = useCallback(
@@ -2219,10 +2264,15 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     (slug) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug })),
     []
   );
+  const selectClaimed = useCallback(
+    (id) => setSelected((prev) => (prev?.kind === "claimed" && prev.key === id ? null : { kind: "claimed", key: id })),
+    []
+  );
   const closeDetail = () => setSelected(null);
 
   const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
   const selectedRegion = selected?.kind === "region" ? regionsBySlug[selected.key] : null;
+  const selectedClaimed = selected?.kind === "claimed" ? claimedCapturesList.find((c) => c.id === selected.key) : null;
 
   // --- Инициализация MapLibre: один раз, когда данные готовы и контейнер смонтирован.
   useEffect(() => {
@@ -2327,7 +2377,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     // "idle" — гарантированно после того, как рендер и начальная камера устаканились.
     map.once("idle", () => setStyleLoaded(true));
 
-    return () => { markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); }); markersRef.current = []; map.remove(); mapRef.current = null; };
+    return () => {
+      markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      markersRef.current = [];
+      claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      claimedMarkersRef.current = [];
+      map.remove();
+      mapRef.current = null;
+    };
   }, [status, theaterKey]);
 
   // --- Синхронизация данных источников + раскраски при смене очага/России/фильтра/темы.
@@ -2436,11 +2493,57 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     });
   }, [styleLoaded, onMapEvents, activeType, waypointsBySlug]);
 
+  // --- Маркеры «заявлено, не подтверждено ISW» — отдельный слой от маркеров
+  // событий выше (независимый источник данных claimed_captures_geojson, не
+  // events), поэтому свой ref-массив и свой эффект, тот же паттерн HTML/React-
+  // иконки через maplibregl.Marker. НЕ подчиняется фильтру типов события
+  // (activeType) — это не категория "удар"/"инфраструктура" и т.п., а отдельный
+  // эпистемический уровень (заявлено vs подтверждено), показываем независимо
+  // от выбранного фильтра, как и control-fill/frontline.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    claimedMarkersRef.current = [];
+
+    claimedCapturesList.forEach((c) => {
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "obs-geomap-marker obs-geomap-marker--claimed";
+      const label = `Заявлено, не подтверждено ISW: ${c.name}${c.oblast ? `, ${c.oblast}` : ""}`;
+      el.setAttribute("aria-label", label);
+      el.setAttribute("aria-pressed", "false");
+      el.title = label;
+      // pointerup/click — тот же надёжный паттерн, что у маркеров событий выше
+      // (см. комментарий у suppressNextRegionClickRef).
+      el.addEventListener("pointerup", (evt) => {
+        suppressNextRegionClickRef.current = true;
+        evt.stopPropagation();
+        selectClaimed(c.id);
+      });
+      el.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        if (evt.detail === 0) selectClaimed(c.id);
+      });
+      const root = createRoot(el);
+      root.render(<CircleHelp size={13} aria-hidden="true" />);
+      const marker = new maplibregl.Marker({ element: el }).setLngLat(c.coords).addTo(map);
+      claimedMarkersRef.current.push({ id: c.id, marker, root, el });
+    });
+  }, [styleLoaded, claimedCapturesList, selectClaimed]);
+
   // --- Визуальное состояние «выбрано» — маркер события (класс на элементе,
   // без пересборки) и контур области (отдельный источник regions-active).
   useEffect(() => {
     markersRef.current.forEach(({ id, el }) => {
       const active = selected?.kind === "event" && selected.key === id;
+      el.classList.toggle("obs-geomap-marker--active", active);
+      el.setAttribute("aria-pressed", String(active));
+    });
+  }, [selected]);
+  useEffect(() => {
+    claimedMarkersRef.current.forEach(({ id, el }) => {
+      const active = selected?.kind === "claimed" && selected.key === id;
       el.classList.toggle("obs-geomap-marker--active", active);
       el.setAttribute("aria-pressed", String(active));
     });
@@ -2515,6 +2618,16 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
 
       {!onRussiaMap && data.front_line_summary && <p className="obs-geomap-prose">{data.front_line_summary}</p>}
 
+      {claimedCapturesList.length > 0 && (
+        <div className="obs-geomap-claimed-banner">
+          <CircleHelp size={13} aria-hidden="true" />
+          <span>
+            <strong>{claimedCapturesList.length}</strong> {ruPluralPunkt(claimedCapturesList.length)} заявлено,
+            не подтверждено ISW{claimedCapturesCoversSince ? ` с ${geomapShortDateRu(claimedCapturesCoversSince)}` : ""}
+          </span>
+        </div>
+      )}
+
       <div className="obs-geomap-filterbar">
         <button
           type="button"
@@ -2579,6 +2692,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           {Object.entries(GEOMAP_TYPE_META).map(([type, meta]) => (
             <span key={type} className="obs-geomap-legend-item"><meta.icon size={12} aria-hidden="true" />{meta.label}</span>
           ))}
+          {/* Отдельный пункт легенды, ТОЛЬКО если для этого очага реально есть такие
+              точки в данных (СВО — да; Ближний Восток/АТР — бэкенд не отдаёт это поле,
+              claimedCapturesList пустой, пункт легенды сам не появляется). */}
+          {claimedCapturesList.length > 0 && (
+            <span className="obs-geomap-legend-item obs-geomap-legend-item--claimed">
+              <CircleHelp size={12} aria-hidden="true" />Заявлено, не подтверждено
+            </span>
+          )}
           <span className="obs-geomap-legend-item obs-geomap-legend-item--muted">
             <span className="obs-geomap-legend-dot" aria-hidden="true" />Ориентир на карте
           </span>
@@ -2655,6 +2776,33 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           </div>
           <h4 className="obs-geomap-detail-title">{selectedRegion.name_ru}</h4>
           {selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
+        </div>
+      )}
+
+      {selectedClaimed && (
+        <div className="obs-geomap-detail obs-geomap-detail--claimed" role="region" aria-label="Детали заявленного, не подтверждённого взятия пункта">
+          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
+            <X size={14} />
+          </button>
+          <div className="obs-geomap-detail-head">
+            <CircleHelp size={15} aria-hidden="true" />
+            <span className="obs-geomap-detail-type">Заявлено, не подтверждено</span>
+            {/* Ключевая информация, не сноска — эпистемический тег ровно из данных
+                (claimed.epistemic), не хардкод, но с заведомо тем же смыслом. */}
+            <span className="obs-tag-claimed">{selectedClaimed.epistemic || "заявлено, не подтверждено ISW"}</span>
+          </div>
+          <h4 className="obs-geomap-detail-title">
+            {selectedClaimed.name}{selectedClaimed.oblast ? `, ${selectedClaimed.oblast}` : ""}
+          </h4>
+          {selectedClaimed.source_note && <p className="obs-geomap-detail-desc">{selectedClaimed.source_note}</p>}
+          <div className="obs-geomap-detail-foot">
+            {selectedClaimed.claimed_date && <span>{_obsDateRu(selectedClaimed.claimed_date)}</span>}
+            {selectedClaimed.source && (
+              selectedClaimed.source_url
+                ? <a href={selectedClaimed.source_url} target="_blank" rel="noreferrer">{selectedClaimed.source} ↗</a>
+                : <span>{selectedClaimed.source}</span>
+            )}
+          </div>
         </div>
       )}
 

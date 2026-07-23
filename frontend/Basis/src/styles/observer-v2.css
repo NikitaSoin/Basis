@@ -1006,6 +1006,28 @@
   flex-shrink: 0;
 }
 
+/* «Заявлено, не подтверждено ISW» — та же пилюльная форма, что .obs-tag-estimate,
+   НО другой цвет (--warning, не --info): это не «оценка Basis» (методологическая
+   классификация), а буквально «одна сторона заявляет, независимый источник ещё не
+   подтвердил» — принципиально иной эпистемический уровень, см. карта СВО
+   claimed_captures_geojson в ObsPanels.jsx. Ключевая информация, поэтому пилюля,
+   не мелкий серый текст сноской. */
+.obs-tag-claimed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--warning);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .obs-cn-cal-note {
   display: inline-flex;
   align-items: center;
@@ -4525,6 +4547,23 @@ details[open] > summary .obs-inst-chev,
   position: relative;
 }
 
+/* Плашка-сводка «N пунктов заявлено, не подтверждено ISW с ДД.ММ» — тёплый
+   warning-тон (та же смысловая связь «неопределённость», что и у маркеров/тега
+   ниже), НЕ спутать с обычным .obs-geomap-method-note (нейтральная методология). */
+.obs-geomap-claimed-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--warning-soft);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.obs-geomap-claimed-banner svg { color: var(--warning); flex-shrink: 0; }
+.obs-geomap-claimed-banner strong { color: var(--warning); font-weight: 700; }
+
 .obs-geomap-filterbar {
   display: flex;
   flex-wrap: wrap;
@@ -4672,6 +4711,33 @@ details[open] > summary .obs-inst-chev,
   opacity: 0.5;
 }
 
+/* Маркеры «заявлено, не подтверждено ISW» — намеренно ДРУГОЙ визуальный язык,
+   чем у обычных маркеров событий/подтверждённой заливки control-fill (сплошная
+   --danger заливка полигона): пунктирная обводка + полый (без плотной заливки)
+   фон + предупреждающий --warning — та же смысловая связь «неопределённость/
+   спор», что уже красит "contested"/линию боевого соприкосновения в легенде
+   региона (см. CONTROL_COLOR_CURATED в ObsPanels.jsx), НЕ спутать с --danger
+   (подтверждённый факт) и НЕ с --accent (обычный выбор/hover маркера события).
+   Иконка-вопрос (CircleHelp) — дополнительный, не только цветовой, сигнал
+   «под вопросом» (не полагаемся на один цвет, см. конституцию доступности). */
+.obs-geomap-marker--claimed {
+  background: var(--bg-elevated);
+  border-style: dashed;
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.obs-geomap-marker--claimed:hover {
+  border-color: var(--warning);
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+.obs-geomap-marker--claimed.obs-geomap-marker--active {
+  background: var(--warning-soft);
+  border-style: dashed;
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .obs-geomap-marker { transition: none; }
   .obs-geomap-marker:hover { scale: 1; }
@@ -4704,6 +4770,9 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-legend-item svg { color: var(--text-tertiary); flex-shrink: 0; }
 .obs-geomap-legend-item--muted { color: var(--text-tertiary); }
+/* Иконка легенды в тон маркеру --warning (см. .obs-geomap-marker--claimed) —
+   визуально связывает образец в легенде с реальным стилем маркера на карте. */
+.obs-geomap-legend-item--claimed svg { color: var(--warning); }
 
 .obs-geomap-legend-dot {
   width: 6px;
@@ -4737,6 +4806,13 @@ details[open] > summary .obs-inst-chev,
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* Деталь-панель заявленного, не подтверждённого пункта — тонкий warning-акцент
+   слева, тот же сигнал «под вопросом», что у маркера/тега/легенды, без смены
+   формы всей карточки (не конкурирует с деталью события/региона рядом). */
+.obs-geomap-detail--claimed {
+  border-left: 3px solid var(--warning);
 }
 
 .obs-geomap-detail-close {
