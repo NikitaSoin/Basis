@@ -27,6 +27,9 @@ import { useMobileSidebarDrawer, MobileSectionBar, MobileDrawerBackdrop } from "
 import "../styles/portfolio-v2.css";
 
 const _dmy = (s) => s ? `${s.slice(8, 10)}.${s.slice(5, 7)}.${s.slice(0, 4)}` : "—";
+// Дней с даты цены (ISO) до сегодня — для честного «на 20.07» под ценой
+// облигаций/фондов в «Составе» (они обновляются T+1, не раз в 5с, как акции).
+const _daysSince = (iso) => iso ? Math.round((Date.now() - new Date(iso).getTime()) / 86400000) : null;
 
 // =========================
 // PORTFOLIO MOCK DATA
@@ -1095,10 +1098,41 @@ const CAT_COLORS = ["var(--cat-1)", "var(--cat-2)", "var(--cat-3)", "var(--cat-4
 // up/down), а не наша 8-цветная категориальная (--cat-1..8).
 const PF_CAT_COLORS = ["var(--pf-copper)", "var(--pf-estimate)", "var(--pf-copper-deep)", "var(--pf-up)", "var(--pf-down)"];
 
+// Отраслевые TR-индексы MOEX (зеркало SECTOR_TR_TICKERS бэка,
+// app/services/moex_history.py) — пресеты быстрого добавления в «+Добавить
+// сравнение» (панель «Сравнение»).
+const SECTOR_TR_PRESETS = [
+  { sector: "Нефть и газ", ticker: "MEOGTR" },
+  { sector: "Металлургия", ticker: "MEMMTR" },
+  { sector: "Финансы", ticker: "MEFNTR" },
+  { sector: "Потребительский сектор", ticker: "MECNTR" },
+  { sector: "Транспорт и логистика", ticker: "METNTR" },
+  { sector: "Электроэнергетика", ticker: "MEEUTR" },
+  { sector: "Химия", ticker: "MECHTR" },
+  { sector: "Телеком", ticker: "METLTR" },
+  { sector: "IT-сектор", ticker: "MEITTR" },
+  { sector: "Девелопмент", ticker: "MERETR" },
+];
+
+// Кнопки периода над графиком «Сравнение» — зеркало _PERIOD_DAYS бэка
+// (app/services/portfolio.py). Порядок и подписи — как в задаче владельца.
+const PERIOD_BUTTONS = [
+  { id: "1m", label: "1М" },
+  { id: "3m", label: "3М" },
+  { id: "6m", label: "6М" },
+  { id: "1y", label: "1Г" },
+  { id: "3y", label: "3Г" },
+  { id: "max", label: "Весь период" },
+];
+const PERIOD_LABEL_TEXT = {
+  "1m": "1 месяц", "3m": "3 месяца", "6m": "полгода",
+  "1y": "1 год", "3y": "3 года", max: "весь доступный период",
+};
+
 // Сравнение накопленной доходности портфеля с бенчмарком (Этап 3).
 // Мультилинейный SVG: портфель и MCFTR — основные, IMOEX — тонкая справочная.
 const BenchmarkChart = ({ series, extraSeries = [] }) => {
-  const { dates = [], portfolio = [], mcftr = [], imoex = [] } = series || {};
+  const { dates = [], portfolio = [], mcftr = [], imoex = [], sector_blend: sectorBlend = null } = series || {};
   const svgRef = useRef(null);
   const [hover, setHover] = useState(null);   // индекс точки под курсором
   if (!dates.length) return null;
@@ -1106,7 +1140,7 @@ const BenchmarkChart = ({ series, extraSeries = [] }) => {
   // Доп. линии сравнения (произвольный актив/портфель) выровнены на дату по
   // мастер-сетке `dates` вызывающей стороной — здесь только рисуем разрывы,
   // если для какой-то даты значения нет (молодая бумага/несовпадающий календарь).
-  const all = [...portfolio, ...mcftr, ...imoex, ...(extraSeries || []).flatMap((s) => s.values)].filter((v) => typeof v === "number");
+  const all = [...portfolio, ...mcftr, ...imoex, ...(sectorBlend || []), ...(extraSeries || []).flatMap((s) => s.values)].filter((v) => typeof v === "number");
   const max = Math.max(...all, 0), min = Math.min(...all, 0), span = (max - min) || 1;
   const n = dates.length;
   const xAt = (i) => padL + (n <= 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
@@ -1129,8 +1163,12 @@ const BenchmarkChart = ({ series, extraSeries = [] }) => {
   const EXTRA_COLORS = ["#1F5FC4", "#8A4A26", "var(--cat-4)", "var(--cat-6)"];
   const LINES = [
     { key: "portfolio", d: line(portfolio), color: "var(--pf-copper)", w: 2.5, label: "Портфель", values: portfolio },
-    { key: "mcftr", d: line(mcftr), color: "var(--cat-1)", w: 1.75, label: "MCFTR (с дивидендами)", values: mcftr },
-    { key: "imoex", d: line(imoex), color: "var(--cat-8)", w: 1.5, label: "IMOEX (ценовой)", values: imoex },
+    { key: "mcftr", d: line(mcftr), color: "var(--cat-1)", w: 1.75, label: "Индекс МосБиржи, полная доходность", values: mcftr },
+    { key: "imoex", d: line(imoex), color: "var(--cat-8)", w: 1.5, label: "Индекс МосБиржи (без дивидендов, справочно)", values: imoex },
+    ...(sectorBlend ? [{
+      key: "sector_blend", d: lineWithGaps(sectorBlend), color: "var(--cat-3)", w: 1.75,
+      label: "Ваши секторы (в рыночных пропорциях)", values: sectorBlend,
+    }] : []),
     ...(extraSeries || []).map((s, i) => ({
       key: s.key || s.label, d: lineWithGaps(s.values), color: EXTRA_COLORS[i % EXTRA_COLORS.length], w: 1.75,
       label: s.label, values: s.values, removable: true, onRemove: s.onRemove,
@@ -1279,10 +1317,10 @@ const METRIC_EXPLANATIONS = {
     what: "Оценка доходности, которую бумага «должна» приносить за свой уровень рыночного риска — по классической финансовой модели. Это не факт и не прогноз, а ориентир: сколько разумно ожидать с учётом того, насколько бумага чувствительна к рынку.",
     reading: (v, ctx = {}) => v == null ? null
       : (ctx.rf != null && v < ctx.rf)
-        ? `Сейчас модель даёт ${_sgn(v)} — ниже доходности ОФЗ. Так выходит потому, что в текущем периоде сам рынок акций отставал от безрисковой ставки (премия за риск отрицательная). Это особенность периода высокой ставки, а не свойство конкретно этой бумаги.`
+        ? `Сейчас модель даёт ${_sgn(v)} — ниже доходности ОФЗ. При структурной премии ERP это обычно означает отрицательную бету (бумага в среднем двигалась против рынка) — редкий случай, не общая особенность периода.`
         : `Модель оценивает «справедливую» ожидаемую доходность в ${_sgn(v)} в год — исходя из безрисковой ставки и того, насколько бумага следует за рынком.`,
-    soWhat: "CAPM — модельная, а не фактическая величина, и она чувствительна к допущению о доходности рынка. Используйте её как один из ориентиров рядом с фактической доходностью, а не как точный прогноз. Когда фактическая доходность сильно выше CAPM-оценки — бумага дала больше «положенного» за свой риск (см. Альфа).",
-    formula: { expr: "Ожидаемая доходность = Rf + β × (Rm − Rf)", note: "Rf — безрисковая ставка (ОФЗ ~1 год), Rm — доходность рынка (индекс полной доходности Мосбиржи), β — чувствительность бумаги к рынку, (Rm − Rf) — премия за рыночный риск. В текущем периоде премия отрицательна, поэтому модельные оценки занижены." },
+    soWhat: "CAPM — модельная, а не фактическая величина, и она чувствительна к допущению о премии за риск рынка. Используйте её как один из ориентиров рядом с фактической доходностью, а не как точный прогноз. Когда фактическая доходность сильно выше CAPM-оценки — бумага дала больше «положенного» за свой риск (см. Альфа).",
+    formula: { expr: "Ожидаемая доходность = Rf + β × ERP", note: "Rf — безрисковая ставка (ОФЗ ~10 лет — тот же вход, что и в оценке справедливой стоимости на карточке компании). ERP — премия за риск рынка акций РФ по Дамодарану (mature market ERP + страновая премия), структурная оценка, а не историческая доходность индекса. β — чувствительность бумаги к рынку." },
   },
   div_yield: {
     title: "Дивидендная доходность",
@@ -1349,11 +1387,46 @@ const METRIC_EXPLANATIONS = {
   },
   var_95: {
     title: "VaR 95% (стоимость под риском)",
-    what: "Оценка «плохого, но не катастрофического дня»: с вероятностью 95% дневной убыток не превысит этой величины. В 1 дне из 20 (худшие 5%) потери могут быть и больше.",
-    reading: (v) => v == null ? null
-      : `В обычный день (19 случаев из 20) потери не превышают ${_pct(v)}. Но в 1 дне из 20 — в худшие 5% дней — убыток может оказаться глубже, и насколько, VaR не говорит.`,
-    soWhat: "VaR помогает почувствовать масштаб обычной дневной просадки, чтобы она не застала врасплох. Главное ограничение: VaR молчит про «хвост» — самые редкие, но самые болезненные обвалы (кризисы, чёрные лебеди) выходят за рамки 95%. Не воспринимайте VaR как максимально возможный убыток.",
+    what: "Оценка «плохого, но не катастрофического» периода: с вероятностью 95% убыток не превысит этой величины. В худших 5% случаев потери могут быть и больше.",
+    reading: (v, ctx = {}) => v == null ? null
+      : `${ctx.horizonLabel || "В обычный день"} (19 случаев из 20) потери не превышают ${_pct(v)}. Но в худшие 5% случаев убыток может оказаться глубже, и насколько, VaR не говорит.`,
+    soWhat: "VaR помогает почувствовать масштаб обычной просадки, чтобы она не застала врасплох. Главное ограничение: VaR молчит про «хвост» — самые редкие, но самые болезненные обвалы (кризисы, чёрные лебеди) выходят за рамки 95%. Не воспринимайте VaR как максимально возможный убыток.",
     formula: { expr: "VaR 95% = −(5-й перцентиль дневных доходностей)", note: "Исторический метод: берётся распределение дневных доходностей за период, VaR 95% — граница худших 5% дней. На другой горизонт масштабируется через корень из времени." },
+  },
+  var_99: {
+    title: "VaR 99% (редкий плохой день)",
+    what: "Оценка настоящего плохого дня (1 к 100), а не рядового: с вероятностью 99% потери не превышают эту величину.",
+    reading: (v, ctx = {}) => v == null ? null
+      : `${ctx.horizonLabel || "В этом горизонте"} с вероятностью 99% потери не превышают ${_pct(v)} — это более редкий и глубокий хвост, чем VaR 95%. Смотрите оба вместе, чтобы увидеть, как быстро растёт потенциальная потеря при переходе от «плохого» к «очень плохому».`,
+    soWhat: "VaR 99% реже «срабатывает», чем VaR 95%, но когда срабатывает — потери обычно заметно глубже. Большой разрыв между VaR 95% и VaR 99% — признак «толстого хвоста»: у бумаги/портфеля редкие, но резкие провалы, а не плавное нарастание риска.",
+    formula: { expr: "VaR 99% = −(1-й перцентиль дневных доходностей)", note: "Тот же исторический метод, что и VaR 95%, но граница — худший 1% дней вместо 5%. Годовой горизонт — через перекрывающиеся 252-дневные окна, не через корень времени (честнее для нелинейных хвостов)." },
+  },
+  cvar_95: {
+    title: "CVaR 95% (глубина потерь внутри хвоста)",
+    what: "Не просто ГРАНИЦА плохого хвоста (это VaR) — а средняя потеря ВНУТРИ него. Отвечает на вопрос «а если я всё-таки попал в те самые 5%, насколько плохо там внутри».",
+    reading: (v, ctx = {}) => v == null ? null
+      : `${ctx.horizonLabel || "В этом горизонте"}, если случился один из худших 5% дней, средняя глубина потери внутри этого хвоста — ${_pct(v)}. Это глубже самого VaR 95% — VaR называет только границу, а CVaR усредняет всё, что за ней.`,
+    soWhat: "CVaR честнее VaR в оценке плохого сценария: VaR отвечает «где граница плохого», CVaR — «насколько плохо, если я всё же в этом хвосте». Для риск-менеджмента CVaR предпочтительнее — он не игнорирует то, что происходит за порогом.",
+    formula: { expr: "CVaR 95% = среднее из потерь хуже VaR 95%", note: "Иногда называется Expected Shortfall. Считается как средняя доходность по дням хуже 5-го перцентиля — то есть внутри того самого «плохого хвоста», который VaR только очерчивает." },
+  },
+  cvar_99: {
+    title: "CVaR 99% (глубина потерь в редком хвосте)",
+    what: "Средняя потеря внутри самого редкого и глубокого хвоста (худший 1% дней) — самая консервативная из риск-метрик на этой странице.",
+    reading: (v, ctx = {}) => v == null ? null
+      : `${ctx.horizonLabel || "В этом горизонте"} средняя глубина потери внутри худшего 1% дней — ${_pct(v)}. Это самый мрачный, но и самый редкий ориентир из всех риск-метрик здесь.`,
+    soWhat: "Используйте CVaR 99% как «на что рассчитывать, если случится по-настоящему редкое и плохое событие» — не как повседневный ориентир (для этого — VaR 95% или волатильность). Разница между CVaR 95% и CVaR 99% показывает, насколько тяжелее становится сценарий по мере углубления в хвост.",
+    formula: { expr: "CVaR 99% = среднее из потерь хуже VaR 99%", note: "Тот же принцип, что CVaR 95%, но усредняет только худший 1% дней — самый глубокий и самый редкий срез распределения." },
+  },
+  upside_to_fair_pct: {
+    title: "Апсайд к справедливой цене",
+    type: "judgment", icon: "🎯",
+    what: "Разница между текущей рыночной ценой и справедливой ценой Basis (синтез методов оценки с карточки компании, вкладка «Финансы» → «Справедливая стоимость») — то же суждение, перенесённое в портфель. Не факт и не прогноз, а оценочное мнение модели.",
+    reading: (v, ctx = {}) => v == null ? null
+      : v > 15 ? `Рынок оценивает бумагу на ${_pct(v)} ниже нашей справедливой цены — модель считает её недооценённой. Дата анализа может быть многомесячной давности — не переоценивайте точность до знака после запятой.`
+      : v < -15 ? `Рынок оценивает бумагу на ${_pct(v)} выше нашей справедливой цены — модель считает её переоценённой.`
+      : `Апсайд ${_sgn(v)} — рыночная цена примерно соответствует нашей справедливой оценке, без явного перекоса.`,
+    soWhat: "Апсайд к цели — суждение модели, а не факт и не прогноз движения цены. Справедливая цена считается по отчётности и может отставать от рынка на месяцы — сверяйтесь с датой анализа в тултипе значения. Используйте как один из ориентиров, не единственный: рынок может годами не «сходиться» к модели.",
+    formula: { expr: "Апсайд = (Справедливая цена − Текущая цена) / Текущая цена", note: "Справедливая цена — синтез методов оценки (DCF/мультипликаторы/дивидендная модель и т.п.) с карточки компании. Считается только для акций и только там, где есть законченный анализ справедливой стоимости." },
   },
   downside_vol: {
     title: "Нисходящая волатильность",
@@ -1403,7 +1476,7 @@ const METRIC_EXPLANATIONS = {
       : v > 0 ? `${_num1(v)} — портфель приносит сверх безриска, но немного относительно риска. Риск вознаграждается слабо.`
       : `${_num1(v)} — портфель пока приносит не больше (или меньше), чем безрисковая ОФЗ. Важный контекст: сейчас ставка ОФЗ высокая (около 12–13%), и в этом периоде сам рынок акций отставал от неё — поэтому отрицательный Шарп сейчас типичен не только для вашего портфеля, но и для рынка в целом. Это характеристика момента (высокая ставка), а не обязательно слабость вашего набора бумаг.`,
     soWhat: "Шарп лучше всего работает для сравнения: один портфель против другого, ваш портфель против рынка. Само по себе отрицательное значение в период высокой ставки не означает «плохой портфель» — оно означает, что риск акций сейчас вознаграждается слабо по всему рынку. Если Шарп низкий устойчиво и в нормальные периоды — это повод пересмотреть, оправдан ли риск. Подробный разбор даст ИИ-диагноз.",
-    formula: { expr: "Шарп = (Доходность портфеля − Безрисковая ставка) / Волатильность портфеля", note: "Числитель и знаменатель — годовые. Безрисковая ставка — ОФЗ ~1 год. Волатильность портфеля считается через ковариационную матрицу (с учётом корреляций), поэтому ниже простого среднего волатильностей бумаг." },
+    formula: { expr: "Шарп = (Доходность портфеля − Безрисковая ставка) / Волатильность портфеля", note: "Числитель и знаменатель — годовые. Безрисковая ставка — ОФЗ ~10 лет (тот же вход, что и в CAPM и в оценке справедливой стоимости на карточке компании). Волатильность портфеля считается через ковариационную матрицу (с учётом корреляций), поэтому ниже простого среднего волатильностей бумаг." },
   },
   alpha: {
     title: "Альфа (Jensen’s alpha)",
@@ -1415,7 +1488,7 @@ const METRIC_EXPLANATIONS = {
       : v >= -1 ? `${_sgn(v)} — результат примерно такой, какой и ожидался за этот риск. Ни обгона, ни отставания от модели.`
       : `${_sgn(v)} — за свой риск получено МЕНЬШЕ ожидаемого. Риск не окупился относительно того, что давал рынок.`,
     soWhat: "Альфа — попытка отделить «мастерство/везение» от простого следования за рынком. Но она зависит от модели и от выбранного периода: положительная альфа за три года не гарантирует её в будущем. Читайте альфу как «как бумага показала себя относительно своего риска в этом окне», а не как прогноз.",
-    formula: { expr: "Альфа = Фактическая доходность − [Rf + β × (Rm − Rf)]", note: "Разница между тем, что бумага реально дала, и тем, что предсказывает CAPM за её бету. Все величины годовые." },
+    formula: { expr: "Альфа = Фактическая доходность − [Rf + β × ERP]", note: "Разница между тем, что бумага реально дала, и тем, что предсказывает CAPM за её бету (Rf — ОФЗ ~10 лет, ERP — премия Дамодарана). Все величины годовые." },
   },
   sortino: {
     title: "Коэффициент Сортино",
@@ -1587,6 +1660,15 @@ const PfMetricTable = ({ columns, rows }) => (
   </div>
 );
 
+// Флаг оценки Basis (см. valuation_flag в positions[]) — порог ±15% апсайда.
+// Монохромная иконка-точка везде одинаковая; цвет несёт только подпись
+// (конституция: «цвет — только в данных», иконка-глиф не дублирует цвет).
+const VALUATION_FLAG_META = {
+  undervalued: { label: "Недооценена", color: "var(--pf-up)" },
+  fair: { label: "Справедливо", color: "var(--pf-ink-3)" },
+  overvalued: { label: "Переоценена", color: "var(--warning)" },
+};
+
 const RETURN_COLUMNS = [
                         {
               key: "return3y", label: pfColLabel("return_total", "Доходность рынка"),
@@ -1598,24 +1680,60 @@ const RETURN_COLUMNS = [
               ),
             },
             {
-              // «Ваша доходность» — к ЛИЧНОЙ цене входа (avg_buy_price), в отличие
-              // от «Доходность рынка» (return3y — доходность самого актива по
-              // рынку, независимо от даты покупки). Конкурентный разбор Инвестминт/
-              // ПроФинанс 2026-07-11 — честное разделение «рынок vs ваш вход».
-              key: "yourReturn", label: pfColLabel("your_return", "Ваша доходность"),
+              key: "capm", label: pfColLabel("capm", "CAPM (модель)"),
               render: (v) => v == null ? "—" : (
-                <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Доходность к ВАШЕЙ цене входа (без учёта дивидендов/купонов — только изменение цены с даты покупки)">
+                <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf(ОФЗ ~10 лет) + β×ERP(Дамодаран). Оценка, не факт и не прогноз">
                   {fmtPercent(v, { sign: true })}
                 </span>
               ),
             },
             {
-              key: "capm", label: pfColLabel("capm", "CAPM (модель)"),
-              render: (v) => v == null ? "—" : (
-                <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf + β×(Rm − Rf). Оценка, не факт и не прогноз">
-                  {fmtPercent(v, { sign: true })}
+              // Апсайд к справедливой цене Basis — ТОЛЬКО акции, тег «суждение»
+              // (та же семья оценки, что вкладка «Финансы» → «Справедливая
+              // стоимость» на карточке компании). Дата анализа может быть
+              // многомесячной давности — раскрываем честно в тултипе, не
+              // выдаём за свежий факт. Владелец 2026-07-23: заменяет мёртвую
+              // «Ваша доходность» (см. правку выше).
+              key: "upsideToFair",
+              label: (
+                <span className="tw-inline-flex tw-flex-col tw-items-end tw-gap-1">
+                  <button
+                    type="button"
+                    onClick={() => scrollToPfMetric("upside_to_fair_pct")}
+                    className="pf-info-icon"
+                    aria-label="Подробнее про метрику «Апсайд к справедливой цене»"
+                    title="Подробнее"
+                  >
+                    i
+                  </button>
+                  <span>Апсайд к цели</span>
+                  <span className="pf-tag-judgment" style={{ fontSize: "9px", padding: "2px 6px" }}>суждение</span>
                 </span>
               ),
+              render: (v, row) => {
+                if (row?._isTotal) {
+                  return v == null ? "—" : (
+                    <span className={v >= 0 ? "tw-text-success" : "tw-text-danger"} title="Средневзвешенный апсайд к справедливой цене Basis по акциям портфеля">
+                      {fmtPercent(v, { sign: true })}
+                      {row?.upsideToFairCoverage && <span className="tw-text-text-tertiary tw-font-normal"> ({row.upsideToFairCoverage})</span>}
+                    </span>
+                  );
+                }
+                if (row?.instrument_type && row.instrument_type !== "equity") return "—";
+                if (v == null) return "—";
+                const flag = VALUATION_FLAG_META[row?.valuationFlag];
+                const asOf = row?.fairValueAsOf ? _dmy(row.fairValueAsOf) : "—";
+                return (
+                  <span title={`Апсайд к справедливой цене (аналитика от ${asOf}): рынок vs наша модель. Дата анализа может быть многомесячной давности — не переоценивайте точность.`}>
+                    <span style={{ color: flag ? flag.color : "var(--pf-ink-2)" }}>{fmtPercent(v, { sign: true })}</span>
+                    {flag && (
+                      <span className="tw-inline-flex tw-items-center tw-gap-1 tw-ml-1.5 tw-text-[10.5px] tw-font-semibold tw-whitespace-nowrap" style={{ color: flag.color }}>
+                        <span aria-hidden="true" style={{ color: "var(--pf-ink-3)" }}>●</span>{flag.label}
+                      </span>
+                    )}
+                  </span>
+                );
+              },
             },
             { key: "divYield", label: pfColLabel("div_yield", "Див. дох."), render: (v) => v == null ? "—" : fmtPercent(v, { decimals: 1 }) },
             { key: "pe", label: pfColLabel("pe", "P/E тек."), render: (v) => v == null ? "—" : <span title="Пересчитывается от текущей котировки">{`${fmtNumber(v, { decimals: 1 })}×`}</span> },
@@ -1634,10 +1752,6 @@ const RISK_COLUMNS = [
                   {fmtPercent(v)}{row?.shortHistory ? "*" : ""}
                 </span>
               ),
-            },
-            {
-              key: "var95", label: "VaR 95%",
-              render: (v) => v == null ? "—" : <span title="Дневная потеря, которую превышали лишь 5% дней окна">−{fmtPercent(v)}</span>,
             },
             {
               key: "downsideVol", label: pfColLabel("downside_vol", "Нисходящая волатильность"),
@@ -1677,6 +1791,28 @@ const RISK_COLUMNS = [
               render: (v) => v == null ? "—" : <span title="(Полная доходность − ставка ОФЗ) / нисходящая волатильность">{fmtNumber(v, { decimals: 2 })}</span>,
             },
           ];
+
+// VaR/CVaR — 2 столбца, значение зависит от переключателей над таблицей
+// «Риск» (95%/99% × дневной/годовой). Ключи строк — var95/var99/var95Annual/
+// var99Annual/cvar95/cvar99/cvar95Annual/cvar99Annual (см. analyticRows).
+const makeRiskVarCvarColumns = (confidence, horizon) => {
+  const suffix = horizon === "annual" ? "Annual" : "";
+  const varKey = `var${confidence}${suffix}`;
+  const cvarKey = `cvar${confidence}${suffix}`;
+  const horizonLabel = horizon === "annual" ? "годовой (перекрыв. 252-дн. окна)" : "дневной";
+  const explainerKey = confidence === 99 ? "var_99" : "var_95";
+  const cvarExplainerKey = confidence === 99 ? "cvar_99" : "cvar_95";
+  return [
+    {
+      key: varKey, label: pfColLabel(explainerKey, `VaR ${confidence}%`),
+      render: (v) => v == null ? "—" : <span title={`VaR ${confidence}% (${horizonLabel}): граница «плохого» хвоста — где начинаются худшие ${100 - confidence}% дней`}>−{fmtPercent(v)}</span>,
+    },
+    {
+      key: cvarKey, label: pfColLabel(cvarExplainerKey, `CVaR ${confidence}%`),
+      render: (v) => v == null ? "—" : <span title={`CVaR ${confidence}% (${horizonLabel}): средняя потеря ВНУТРИ худших ${100 - confidence}% дней, а не только граница (это VaR)`}>−{fmtPercent(v)}</span>,
+    },
+  ];
+};
 
 // Честная подпись фактического периода метрики: «за 2 мес.», «за 1,9 г», «за 3 г»
 const fmtHistoryPeriod = (years) => {
@@ -1735,6 +1871,16 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   // Мобильный (≤760px) выезжающий сайдбар — design/MobileSidebarDrawer.jsx.
   const [drawerOpen, setDrawerOpen, drawerNarrow] = useMobileSidebarDrawer();
   const [stressScenario, setStressScenario] = useState("black_swan");
+  // Доверительный уровень / горизонт для таблицы «Риск» (VaR/CVaR) — владелец
+  // 2026-07-23: 95%/99% × дневной/годовой, 4 комбинации без перегрузки экрана
+  // (2 независимых сегмент-тумблера вместо 4 кнопок).
+  const [riskConfidence, setRiskConfidence] = useState(95); // 95 | 99
+  const [riskHorizon, setRiskHorizon] = useState("daily"); // "daily" | "annual"
+  // Период сравнения («Сравнение») — влияет ТОЛЬКО на benchmark-график, не на
+  // риск-метрики (те всегда на фиксированном 3-летнем окне, см. design-task).
+  const [comparePeriod, setComparePeriod] = useState("3y");
+  const [benchmarkOverride, setBenchmarkOverride] = useState(null);
+  const [benchmarkLoading, setBenchmarkLoading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -1890,7 +2036,29 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   const [compareError, setCompareError] = useState(null);
   const [compareBuilderOpen, setCompareBuilderOpen] = useState(false);
   const [compareMode, setCompareMode] = useState("asset"); // "asset" | "portfolio" | "custom"
-  const masterDates = pfMetrics?.benchmark?.dates || [];
+
+  // Кнопки периода над графиком «Сравнение» (1М/3М/6М/1Г/3Г/Весь период) —
+  // pfMetrics всегда несёт бенчмарк дефолтного окна бэка (3г); для остальных
+  // периодов рефетчим ЛЁГКИЙ /metrics?period=... и держим отдельно, не трогая
+  // pfMetrics (риск-метрики/ставки должны остаться на фиксированном 3-летнем
+  // окне — см. explainCtx.period, который читает ИМЕННО pfMetrics.benchmark).
+  useEffect(() => {
+    if (!activePortfolioId || !token || comparePeriod === "3y") { setBenchmarkOverride(null); return; }
+    setBenchmarkLoading(true);
+    fetch(`${apiUrl}/api/portfolios/${activePortfolioId}/metrics?period=${comparePeriod}`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => setBenchmarkOverride(m?.benchmark ?? null))
+      .catch(() => setBenchmarkOverride(null))
+      .finally(() => setBenchmarkLoading(false));
+  }, [comparePeriod, activePortfolioId, token, reloadKey]);
+  const activeBenchmark = benchmarkOverride || pfMetrics?.benchmark;
+  const masterDates = activeBenchmark?.dates || [];
+  // Смена периода меняет длину/сетку дат бенчмарка — ранее добавленные линии
+  // сравнения были выровнены на СТАРУЮ сетку и потеряли бы синхронизацию по
+  // индексу (не по дате). Честно сбрасываем их при смене периода, а не
+  // рисуем молча смещённые числа — пользователь добавляет их заново под
+  // новое окно (стоимость этого дешевле, чем тихая рассинхронизация).
+  useEffect(() => { setCompareLines([]); }, [comparePeriod]);
 
   // Добавленная линия сравнения нормализована к СВОЕЙ истории (её "+0%" —
   // самая ранняя дата, которая у НЕЁ есть, а не первая дата мастер-сетки
@@ -1925,6 +2093,28 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       setCompareTickerInput("");
     } catch {
       setCompareError("Не удалось загрузить данные по тикеру");
+    }
+  };
+
+  // Пресет «отраслевой индекс» (чипы в «+Добавить сравнение») — ТОТ ЖЕ путь
+  // данных, что и ручной ввод тикера (addCompareAsset): тот же эндпоинт
+  // /api/market/compare-asset, тот же rebaseToMasterStart, тот же массив
+  // compareLines. Разница только в человеческой подписи по названию сектора,
+  // а не по сырому коду индекса (MEOGTR и т.п.) — не дублирует логику.
+  const addSectorPreset = async (sectorLabel, trTicker) => {
+    setCompareError(null);
+    const key = `asset:${trTicker}`;
+    if (compareLines.some((l) => l.key === key)) return;
+    try {
+      const r = await fetch(`${apiUrl}/api/market/compare-asset?ticker=${encodeURIComponent(trTicker)}`);
+      if (!r.ok) { setCompareError(`Отраслевой индекс «${sectorLabel}» пока недоступен для сравнения`); return; }
+      const data = await r.json();
+      if (!data?.dates?.length) { setCompareError(`Недостаточно истории по индексу «${sectorLabel}»`); return; }
+      const byDate = Object.fromEntries(data.dates.map((d, i) => [d, data.cum_pct[i]]));
+      const values = rebaseToMasterStart(byDate);
+      setCompareLines((prev) => [...prev, { key, label: `${sectorLabel} (отраслевой индекс)`, values }]);
+    } catch {
+      setCompareError(`Не удалось загрузить индекс «${sectorLabel}»`);
     }
   };
 
@@ -2097,6 +2287,7 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       instrument_type: p.instrument_type, secid: p.secid,
       isin: p.isin, issuer_ticker: p.issuer_ticker,
       shares: p.quantity ?? 0, avgPrice: p.avg_buy_price ?? 0, currentPrice: p.price ?? 0,
+      priceAsOf: p.price_as_of ?? null,
       value: p.value ?? 0, weight: p.weight_pct ?? 0,
       profitRub: p.value != null && p.avg_buy_price != null ? p.value - (p.quantity ?? 0) * p.avg_buy_price : 0,
       profitPct: p.avg_buy_price ? ((p.price ?? p.avg_buy_price) / p.avg_buy_price - 1) * 100 : 0,
@@ -2222,6 +2413,8 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       parts.push(`P/E ист. — по ${w.pe_historical.n} из ${w.pe_historical.m}`);
     if (w.div_yield && w.div_yield.n < w.div_yield.m)
       parts.push(`дивдоходность — по ${w.div_yield.n} из ${w.div_yield.m}`);
+    if (w.upside_to_fair_pct && w.upside_to_fair_pct.n < w.upside_to_fair_pct.m)
+      parts.push(`апсайд к цели — по ${w.upside_to_fair_pct.n} из ${w.upside_to_fair_pct.m} (только акции с законченным анализом справедливой стоимости)`);
     return parts.length ? `Строка «Портфель» — средневзвешенное по долям; ${parts.join("; ")} (у остальных метрика не рассчитана).` : null;
   }, [pfMetrics]);
 
@@ -2234,7 +2427,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         ...p, weight,
         pe: m.pe_current, peHist: m.pe_historical, divYield: m.div_yield,
         return3y: m.return_total_3y ?? m.return_3y,
-        yourReturn: m.your_return_pct,
         capm: m.capm_expected, alpha: m.alpha_3y,
         sortino: m.sortino_3y, sharpe: m.sharpe_3y,
         volatility: m.volatility, downsideVol: m.downside_vol, beta: m.beta,
@@ -2243,12 +2435,22 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         maxDrawdown: m.max_drawdown, riskContributionPct: m.risk_contribution_pct,
         shortHistory: m.short_history,
         periodLabel: fmtHistoryPeriod(m.history_years),
-      } : { ...p, weight, return3y: null, yourReturn: null, volatility: null, beta: p.beta ?? null };
+        // Хвостовой риск (VaR/CVaR 95%/99%, дневной + годовой) — переключатели
+        // над таблицей «Риск» решают, какое из этих полей показывать в общей
+        // колонке VaR/CVaR (см. makeRiskVarCvarColumns).
+        var99: m.var_99, cvar95: m.cvar_95, cvar99: m.cvar_99,
+        var95Annual: m.var_95_annual, cvar95Annual: m.cvar_95_annual,
+        var99Annual: m.var_99_annual, cvar99Annual: m.cvar_99_annual,
+        // Апсайд к справедливой цене Basis (только акции) — суждение, см.
+        // METRIC_EXPLANATIONS.upside_to_fair_pct + VALUATION_FLAG_META.
+        upsideToFair: m.upside_to_fair_pct ?? null,
+        valuationFlag: m.valuation_flag ?? null,
+        fairValueAsOf: m.fair_value_as_of ?? null,
+      } : { ...p, weight, return3y: null, volatility: null, beta: p.beta ?? null };
     }),
     {
       ticker: "Портфель", _isTotal: true, weight: 100,
       return3y: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
-      yourReturn: pfMetrics?.portfolio?.your_return_pct?.value ?? null,
       capm: pfMetrics?.portfolio?.capm ?? null,
       alpha: pfMetrics?.portfolio?.alpha ?? null,
       sortino: pfMetrics?.portfolio?.sortino ?? null,
@@ -2257,6 +2459,13 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
       downsideVol: pfMetrics?.portfolio?.downside_vol ?? null,
       var95: pfMetrics?.portfolio?.var_95 ?? null,
+      var99: pfMetrics?.portfolio?.var_99 ?? null,
+      cvar95: pfMetrics?.portfolio?.cvar_95 ?? null,
+      cvar99: pfMetrics?.portfolio?.cvar_99 ?? null,
+      var95Annual: pfMetrics?.portfolio?.var_95_annual ?? null,
+      cvar95Annual: pfMetrics?.portfolio?.cvar_95_annual ?? null,
+      var99Annual: pfMetrics?.portfolio?.var_99_annual ?? null,
+      cvar99Annual: pfMetrics?.portfolio?.cvar_99_annual ?? null,
       rSquared: pfMetrics?.portfolio?.r_squared ?? null,
       beta: pfMetrics?.portfolio?.beta?.value ?? null,
       pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
@@ -2265,6 +2474,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
       earningsYield: pfMetrics?.portfolio?.earnings_yield ?? null,
       maxDrawdown: pfMetrics?.portfolio?.max_drawdown ?? null,
       riskContributionPct: 100,
+      upsideToFair: pfMetrics?.portfolio?.upside_to_fair_pct?.value ?? null,
+      upsideToFairCoverage: pfMetrics?.portfolio?.upside_to_fair_pct
+        ? `по ${pfMetrics.portfolio.upside_to_fair_pct.n} из ${pfMetrics.portfolio.upside_to_fair_pct.m}`
+        : null,
     },
   ]), [displayPositions, metricByTicker, pfMetrics]);
 
@@ -2282,7 +2495,10 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   const assetColumn = useMemo(() => makeAssetColumn(onOpenCompany), [onOpenCompany]);
 
   const explainCtx = {
-    rf: pfMetrics?.rates?.risk_free_1y ?? null,
+    // CAPM/Шарп/Сортино/альфа теперь считаются от ОФЗ ~10 лет (реальный вход в
+    // модель), а не от ОФЗ ~1 год — та ставка осталась только контекстом/для
+    // облигаций (rates.risk_free_1y). Владелец 2026-07-23: методологический фикс.
+    rf: pfMetrics?.rates?.risk_free_10y ?? null,
     period: pfMetrics?.benchmark?.period_years
       ? `${String(pfMetrics.benchmark.period_years).replace(".", ",")} г`
       : "период расчёта",
@@ -2386,7 +2602,20 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                     </td>
                     <td>{fmtNumber(r.shares)}</td>
                     <td>{formatMoney(r.avgPrice, { decimals: 1 })}</td>
-                    <td>{formatMoney(r.currentPrice, { decimals: 1 })}</td>
+                    <td>
+                      {formatMoney(r.currentPrice, { decimals: 1 })}
+                      {r.instrument_type && r.instrument_type !== "equity" && r.priceAsOf && (() => {
+                        const stale = _daysSince(r.priceAsOf) > 5;
+                        return (
+                          <div
+                            style={{ fontSize: "10.5px", marginTop: "2px", color: stale ? "var(--warning)" : "var(--pf-ink-3)", fontWeight: stale ? 700 : 400 }}
+                            title={stale ? "Цена не обновлялась дольше обычного T+1 лага для облигаций/фондов" : "Облигации/фонды обновляются раз в день (T+1), а не в реальном времени, как акции"}
+                          >
+                            на {_dmy(r.priceAsOf)}
+                          </div>
+                        );
+                      })()}
+                    </td>
                     <td>{formatMoney(r.value, { decimals: 0 })}</td>
                     <td>
                       <div className="pf-pos-weight">
@@ -2655,6 +2884,17 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
 
   // ---- Панель «Сравнение» ----
   const pfCompare = () => {
+    const bm = activeBenchmark;
+    const periodLabelText = PERIOD_LABEL_TEXT[bm?.period] || PERIOD_LABEL_TEXT[comparePeriod] || "выбранный период";
+    // Разложение «секторы vs бумаги» — самая ценная идея этого блока (владелец
+    // 2026-07-23): разница «Портфель vs Индекс» против «Смешанный vs Индекс»
+    // отделяет эффект выбора СЕКТОРОВ (allocation) от выбора БУМАГ (selection).
+    const selectionVsIndex = bm?.portfolio_total_pct != null && bm?.benchmark_total_pct != null
+      ? bm.portfolio_total_pct - bm.benchmark_total_pct : null;                                  // X
+    const allocationEffect = bm?.sector_blend_total_pct != null && bm?.benchmark_total_pct != null
+      ? bm.sector_blend_total_pct - bm.benchmark_total_pct : null;                                // Y
+    const pureSelectionEffect = bm?.portfolio_total_pct != null && bm?.sector_blend_total_pct != null
+      ? bm.portfolio_total_pct - bm.sector_blend_total_pct : null;                                 // X − Y
     return (
       <div className="pf-panel">
         <div className="pf-sec-head">
@@ -2663,27 +2903,78 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         </div>
         <p className="tw-text-[13px] tw-text-text-secondary tw-mb-5 tw-max-w-2xl">
           Как портфель вёл себя на фоне рынка — и любых ориентиров, которые вы захотите сравнить:
-          другая бумага или другой ваш портфель.
+          другая бумага, другой ваш портфель или отраслевой индекс.
         </p>
         <AppearGroup gate={appearGate.current} groupId="pf-compare" className="tw-flex tw-flex-col tw-gap-3">
-          {pfMetrics?.benchmark?.dates?.length > 1 ? (
+          <div className="pf-card" style={{ padding: "16px 26px" }}>
+            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--pf-ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "10px" }}>
+              Период
+            </div>
+            <div className="pf-seg" role="group" aria-label="Период сравнения">
+              {PERIOD_BUTTONS.map((p) => (
+                <button
+                  key={p.id} type="button" onClick={() => setComparePeriod(p.id)}
+                  className={`pf-seg-opt${comparePeriod === p.id ? " pf-seg-opt--on" : ""}`}
+                  aria-pressed={comparePeriod === p.id}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {benchmarkLoading ? (
+            <div className="pf-card" style={{ padding: "24px 26px" }}>
+              <div style={{ fontSize: "13px", color: "var(--pf-ink-3)" }}>Пересчитываем график под новый период…</div>
+            </div>
+          ) : bm?.dates?.length > 1 ? (
             <div className="pf-card" style={{ padding: "24px 26px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "10px", marginBottom: "6px" }}>
                 <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>
-                  Если бы держали этот портфель {String(pfMetrics.benchmark.period_years).replace(".", ",")} г
+                  Портфель против рынка — {periodLabelText}
                 </h3>
                 <div style={{ display: "flex", gap: "16px", fontSize: "13px" }}>
-                  <span>Портфель: <b className="tw-font-mono" style={{ color: pfMetrics.benchmark.portfolio_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct, { sign: true })}</b></span>
-                  <span>MCFTR: <b className="tw-font-mono" style={{ color: pfMetrics.benchmark.benchmark_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
-                  <span>Разница: <b className="tw-font-mono" style={{ color: (pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct) >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(pfMetrics.benchmark.portfolio_total_pct - pfMetrics.benchmark.benchmark_total_pct, { sign: true })}</b></span>
+                  <span>Портфель: <b className="tw-font-mono" style={{ color: bm.portfolio_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.portfolio_total_pct, { sign: true })}</b></span>
+                  <span>Индекс МосБиржи: <b className="tw-font-mono" style={{ color: bm.benchmark_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.benchmark_total_pct, { sign: true })}</b></span>
+                  <span>Разница: <b className="tw-font-mono" style={{ color: (bm.portfolio_total_pct - bm.benchmark_total_pct) >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.portfolio_total_pct - bm.benchmark_total_pct, { sign: true })}</b></span>
                 </div>
               </div>
-              <BenchmarkChart series={pfMetrics.benchmark} extraSeries={compareLines.map((l) => ({ ...l, onRemove: () => removeCompareLine(l.key) }))} />
-              <p style={{ fontSize: "12px", color: "var(--pf-ink-3)", marginTop: "8px" }}>
-                Базовые кривые — полная доходность (портфель с дивидендами против индекса полной доходности MCFTR); IMOEX — ценовой, для справки.
-                {pfMetrics.benchmark.limited_by && ` Период ограничен историей ${pfMetrics.benchmark.limited_by}.`}
-                {" "}{pfMetrics.benchmark.note}.
+              <BenchmarkChart series={bm} extraSeries={compareLines.map((l) => ({ ...l, onRemove: () => removeCompareLine(l.key) }))} />
+              <p style={{ fontSize: "12px", color: "var(--pf-ink-3)", marginTop: "8px", maxWidth: "64ch" }}>
+                Сравниваем с индексом МосБиржи полной доходности — это то же самое, что «вложить в рынок целиком, с реинвестированием
+                дивидендов». Второй, тонкий — тот же индекс, но БЕЗ дивидендов, для справки: разница между линиями — это и есть вклад дивидендов.
+                {bm.limited_by && ` Период ограничен историей ${bm.limited_by}.`}
+                {bm.note && ` ${bm.note}.`}
               </p>
+
+              {bm.sector_blend && (
+                <div style={{ marginTop: "18px" }}>
+                  <h4 style={{ fontFamily: "var(--pf-serif)", fontSize: "15px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    Что сделало результат: секторы или бумаги?
+                    <span className="pf-tag-estimate">оценка</span>
+                  </h4>
+                  <p style={{ fontSize: "13px", color: "var(--pf-ink-2)", lineHeight: 1.6, margin: "0 0 10px", maxWidth: "68ch" }}>
+                    «Ваши секторы» на графике — гипотетический бенчмарк: рынок в тех же пропорциях по секторам, что и ваш реальный
+                    портфель, но без выбора конкретных бумаг внутри них. Разница между «Портфель vs Индекс МосБиржи» и «Портфель vs
+                    Ваши секторы» разделяет ДВА разных источника результата: удачный/неудачный выбор САМИХ СЕКТОРОВ и удачный/
+                    неудачный выбор БУМАГ внутри них.
+                  </p>
+                  {selectionVsIndex != null && allocationEffect != null && pureSelectionEffect != null && (
+                    <KeyTakeaway tone="info" title="Разложение результата">
+                      Портфель {selectionVsIndex >= 0 ? "обогнал" : "отстал от"} индекс МосБиржи на {fmtPercent(Math.abs(selectionVsIndex))}.
+                      Из них ваши секторы сами по себе {allocationEffect >= 0 ? "обогнали" : "отстали от"} индекс на {fmtPercent(Math.abs(allocationEffect))}
+                      {" "}— это вклад <b>выбора секторов</b>. Оставшиеся {fmtPercent(Math.abs(pureSelectionEffect))} — вклад <b>выбора конкретных бумаг</b> внутри секторов.
+                    </KeyTakeaway>
+                  )}
+                  <p style={{ fontSize: "11.5px", color: "var(--pf-ink-3)", marginTop: "10px", maxWidth: "68ch" }}>
+                    Индекс покрывает {fmtPercent(bm.sector_blend_coverage_pct, { decimals: 0 })} стоимости акций портфеля
+                    {bm.sector_blend_covered_sectors?.length > 0 && <> ({bm.sector_blend_covered_sectors.join(", ")})</>}.
+                    {bm.sector_blend_excluded_sectors?.length > 0 && (
+                      <> Не учтены (нет отраслевого индекса или недостаточно данных): {bm.sector_blend_excluded_sectors.join(", ")}.</>
+                    )}
+                  </p>
+                </div>
+              )}
 
               <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--pf-line)" }}>
                 <Button variant="secondary" onClick={() => setCompareBuilderOpen((v) => !v)}>
@@ -2708,12 +2999,37 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
                     </div>
 
                     {compareMode === "asset" && (
-                      <div className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
-                        <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 220 }}>
-                          <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Тикер или название (любая бумага рынка)</label>
-                          <TickerInput value={compareTickerInput} onChange={setCompareTickerInput} placeholder="напр. LKOH или Лукойл" />
+                      <div className="tw-flex tw-flex-col tw-gap-3">
+                        <div className="tw-flex tw-items-end tw-gap-2 tw-flex-wrap">
+                          <div className="tw-flex tw-flex-col tw-gap-1" style={{ width: 220 }}>
+                            <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary">Тикер или название (любая бумага рынка)</label>
+                            <TickerInput value={compareTickerInput} onChange={setCompareTickerInput} placeholder="напр. LKOH или Лукойл" />
+                          </div>
+                          <Button variant="secondary" onClick={() => addCompareAsset(compareTickerInput)}>+ Добавить</Button>
                         </div>
-                        <Button variant="secondary" onClick={() => addCompareAsset(compareTickerInput)}>+ Добавить</Button>
+                        <div>
+                          <label className="tw-text-[11px] tw-font-semibold tw-text-text-tertiary tw-block tw-mb-1.5">
+                            Или быстро — отраслевой индекс МосБиржи полной доходности
+                          </label>
+                          <div className="pf-filterbar">
+                            {SECTOR_TR_PRESETS.map((s) => {
+                              const active = compareLines.some((l) => l.key === `asset:${s.ticker}`);
+                              return (
+                                <button
+                                  key={s.ticker}
+                                  type="button"
+                                  className={`pf-chip${active ? " pf-chip--active" : ""}`}
+                                  onClick={() => addSectorPreset(s.sector, s.ticker)}
+                                  disabled={active}
+                                  aria-pressed={active}
+                                  title={active ? `${s.sector} уже добавлен` : `Добавить индекс сектора «${s.sector}»`}
+                                >
+                                  {s.sector}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     )}
 
@@ -2863,10 +3179,11 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         </div>
         <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
         <MetricExplainers
-          metricKeys={["return_total", "capm", "div_yield", "pe", "pe_hist", "earnings_yield"]}
+          metricKeys={["return_total", "capm", "upside_to_fair_pct", "div_yield", "pe", "pe_hist", "earnings_yield"]}
           values={{
             return_total: pfMetrics?.portfolio?.return_total_3y?.value ?? null,
             capm: pfMetrics?.portfolio?.capm ?? null,
+            upside_to_fair_pct: pfMetrics?.portfolio?.upside_to_fair_pct?.value ?? null,
             div_yield: pfMetrics?.portfolio?.div_yield?.value ?? null,
             pe: pfMetrics?.portfolio?.pe_current?.value ?? null,
             pe_hist: pfMetrics?.portfolio?.pe_historical?.value ?? null,
@@ -2880,22 +3197,64 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
   );
 
   // ---- Панель «Риск» ----
-  const pfRisk = () => (
+  const pfRisk = () => {
+    const varCvarCols = makeRiskVarCvarColumns(riskConfidence, riskHorizon);
+    const horizonNounLabel = riskHorizon === "annual" ? "За год" : "В обычный день";
+    const totalValue = pfMetrics?.portfolio?.total_value ?? grandTotalValue;
+    const var95Annual = pfMetrics?.portfolio?.var_95_annual ?? null;
+    const cvar99Annual = pfMetrics?.portfolio?.cvar_99_annual ?? null;
+    return (
     <div className="pf-panel">
       <div className="pf-sec-head">
         <span className="pf-sec-eyebrow">Доходность и риск</span>
         <h2 className="pf-sec-title">Риск</h2>
       </div>
       <AppearGroup gate={appearGate.current} groupId="pf-risk" className="tw-flex tw-flex-col tw-gap-3">
+        <div className="pf-card" style={{ padding: "16px 26px" }}>
+          <div className="tw-flex tw-flex-wrap tw-gap-6">
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--pf-ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>
+                Доверительный уровень
+              </div>
+              <div className="pf-seg" role="group" aria-label="Доверительный уровень VaR/CVaR">
+                {[95, 99].map((c) => (
+                  <button
+                    key={c} type="button" onClick={() => setRiskConfidence(c)}
+                    className={`pf-seg-opt${riskConfidence === c ? " pf-seg-opt--on" : ""}`}
+                    aria-pressed={riskConfidence === c}
+                  >
+                    {c}%
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--pf-ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px" }}>
+                Горизонт
+              </div>
+              <div className="pf-seg" role="group" aria-label="Горизонт VaR/CVaR">
+                {[{ id: "daily", label: "Дневной" }, { id: "annual", label: "Годовой" }].map((h) => (
+                  <button
+                    key={h.id} type="button" onClick={() => setRiskHorizon(h.id)}
+                    className={`pf-seg-opt${riskHorizon === h.id ? " pf-seg-opt--on" : ""}`}
+                    aria-pressed={riskHorizon === h.id}
+                  >
+                    {h.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="pf-card" style={{ padding: "24px 26px" }}>
           <PfMetricTable
             columns={[
-              assetColumn, RISK_COLUMNS[0], RISK_COLUMNS[1],
+              assetColumn, RISK_COLUMNS[0], ...varCvarCols,
               {
                 key: "maxDrawdown", label: "Макс. просадка",
                 render: (v) => v == null ? "—" : <span style={{ color: "var(--pf-down)" }} title="Самое глубокое падение от исторического максимума до последующего минимума">{fmtPercent(v)}</span>,
               },
-              ...RISK_COLUMNS.slice(2),
+              ...RISK_COLUMNS.slice(1),
               {
                 key: "riskContributionPct", label: "Вклад в риск",
                 render: (v) => v == null ? "—" : <span title="Доля бумаги в ОБЩЕЙ волатильности портфеля (не в стоимости!) — сумма даёт 100%">{fmtPercent(v, { decimals: 0 })}</span>,
@@ -2903,16 +3262,30 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             ]}
             rows={analyticRows}
           />
-          <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "11.5px", color: "var(--pf-ink-3)" }}>
-            <span>Окно риск-метрик — 3 года дневных данных. VaR 95% — дневной горизонт. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.</span>
-            {pfMetrics?.rates?.risk_free_1y != null && (
-              <span>
-                Безрисковая ставка: ОФЗ ~1 г {fmtPercent(pfMetrics.rates.risk_free_1y)} на {pfMetrics.rates.risk_free_as_of} (кривая ZCYC МосБиржи).
-                Рынок (MCFTR, 3 г): {fmtPercent(pfMetrics.rates.market_return_3y)}; премия: {fmtPercent(pfMetrics.rates.market_premium, { sign: true })}.
+          <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "6px", fontSize: "11.5px" }}>
+            <span style={{ color: "var(--pf-ink-3)" }}>
+              Окно риск-метрик — 3 года дневных данных, независимо от периода на вкладке «Сравнение». VaR/CVaR — {riskHorizon === "annual" ? "годовой (перекрывающиеся 252-дневные окна)" : "дневной"} горизонт, {riskConfidence}%. Beta: ᴹ — данные Мосбиржи, ᴮ — расчёт Basis.
+            </span>
+            {pfMetrics?.rates?.risk_free_10y != null && (
+              <span style={{ color: "var(--pf-ink)" }}>
+                <b>В модели (CAPM/Шарп/Сортино/альфа):</b> безрисковая ставка — ОФЗ ~10 лет {fmtPercent(pfMetrics.rates.risk_free_10y)} на {pfMetrics.rates.risk_free_as_of}; премия за риск рынка акций (ERP, по Дамодарану) — {fmtPercent(pfMetrics.rates.erp_pct)}.
+              </span>
+            )}
+            {pfMetrics?.rates?.market_return_3y != null && (
+              <span style={{ color: "var(--pf-ink-3)" }}>
+                <b>Для контекста (не вход в модель):</b> рынок (MCFTR) фактически заработал за 3 года {fmtPercent(pfMetrics.rates.market_return_3y)} — это НЕ то же самое, что ERP выше: историческая доходность индекса — шумный ориентир, ERP — структурная оценка.
               </span>
             )}
           </div>
         </div>
+        {totalValue > 0 && var95Annual != null && cvar99Annual != null && (
+          <KeyTakeaway tone="caution" title="Что это значит в рублях">
+            Ваш портфель — {formatMoney(totalValue, { decimals: 0 })}. В обычный плохой год (1 из 20) вы можете правдоподобно оказаться на уровне
+            {" "}≈{formatMoney(totalValue * (1 - var95Annual / 100), { decimals: 0 })} (VaR 95% годовой). Если случится тот самый редкий провал
+            {" "}(1 из 100) — глубина потерь в среднем внутри этого хвоста — ≈{formatMoney(totalValue * (1 - cvar99Annual / 100), { decimals: 0 })} (CVaR 99% годовой).
+            Числа ориентировочные — основаны на истории котировок за 3 года, не на прогнозе.
+          </KeyTakeaway>
+        )}
         <KeyTakeaway tone="info" title="Почему многие риск-метрики сейчас выглядят слабо">
           {RISK_REGIME_NOTE}
         </KeyTakeaway>
@@ -2932,10 +3305,15 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
         })()}
         <h4 className="tw-text-[15px] tw-font-semibold tw-text-text-primary tw-m-0 tw-mt-2">Что значат эти метрики</h4>
         <MetricExplainers
-          metricKeys={["volatility", "var_95", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
+          metricKeys={["volatility", "var_95", "var_99", "cvar_95", "cvar_99", "downside_vol", "beta", "r_squared", "sharpe", "alpha", "sortino"]}
           values={{
             volatility: pfMetrics?.portfolio?.volatility?.value ?? null,
-            var_95: pfMetrics?.portfolio?.var_95 ?? null,
+            // Значения следуют переключателю «Горизонт» выше — иначе текст
+            // объяснения сказал бы «за год», а число осталось бы дневным.
+            var_95: (riskHorizon === "annual" ? pfMetrics?.portfolio?.var_95_annual : pfMetrics?.portfolio?.var_95) ?? null,
+            var_99: (riskHorizon === "annual" ? pfMetrics?.portfolio?.var_99_annual : pfMetrics?.portfolio?.var_99) ?? null,
+            cvar_95: (riskHorizon === "annual" ? pfMetrics?.portfolio?.cvar_95_annual : pfMetrics?.portfolio?.cvar_95) ?? null,
+            cvar_99: (riskHorizon === "annual" ? pfMetrics?.portfolio?.cvar_99_annual : pfMetrics?.portfolio?.cvar_99) ?? null,
             downside_vol: pfMetrics?.portfolio?.downside_vol ?? null,
             beta: pfMetrics?.portfolio?.beta?.value ?? null,
             r_squared: pfMetrics?.portfolio?.r_squared ?? null,
@@ -2943,11 +3321,12 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             alpha: pfMetrics?.portfolio?.alpha ?? null,
             sortino: pfMetrics?.portfolio?.sortino ?? null,
           }}
-          ctx={explainCtx}
+          ctx={{ ...explainCtx, horizonLabel: horizonNounLabel }}
         />
       </AppearGroup>
     </div>
-  );
+    );
+  };
 
   // ---- Панель «Матрица корреляций» ----
   const pfCorrelation = () => {
