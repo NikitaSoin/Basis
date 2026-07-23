@@ -1387,6 +1387,7 @@ const METRIC_EXPLANATIONS = {
   },
   var_95: {
     title: "VaR 95% (стоимость под риском)",
+    type: "estimate", icon: "📉",
     what: "Оценка «плохого, но не катастрофического» периода: с вероятностью 95% убыток не превысит этой величины. В худших 5% случаев потери могут быть и больше.",
     reading: (v, ctx = {}) => v == null ? null
       : `${ctx.horizonLabel || "В обычный день"} (19 случаев из 20) потери не превышают ${_pct(v)}. Но в худшие 5% случаев убыток может оказаться глубже, и насколько, VaR не говорит.`,
@@ -1395,6 +1396,7 @@ const METRIC_EXPLANATIONS = {
   },
   var_99: {
     title: "VaR 99% (редкий плохой день)",
+    type: "estimate", icon: "📉",
     what: "Оценка настоящего плохого дня (1 к 100), а не рядового: с вероятностью 99% потери не превышают эту величину.",
     reading: (v, ctx = {}) => v == null ? null
       : `${ctx.horizonLabel || "В этом горизонте"} с вероятностью 99% потери не превышают ${_pct(v)} — это более редкий и глубокий хвост, чем VaR 95%. Смотрите оба вместе, чтобы увидеть, как быстро растёт потенциальная потеря при переходе от «плохого» к «очень плохому».`,
@@ -1403,6 +1405,7 @@ const METRIC_EXPLANATIONS = {
   },
   cvar_95: {
     title: "CVaR 95% (глубина потерь внутри хвоста)",
+    type: "estimate", icon: "🌊",
     what: "Не просто ГРАНИЦА плохого хвоста (это VaR) — а средняя потеря ВНУТРИ него. Отвечает на вопрос «а если я всё-таки попал в те самые 5%, насколько плохо там внутри».",
     reading: (v, ctx = {}) => v == null ? null
       : `${ctx.horizonLabel || "В этом горизонте"}, если случился один из худших 5% дней, средняя глубина потери внутри этого хвоста — ${_pct(v)}. Это глубже самого VaR 95% — VaR называет только границу, а CVaR усредняет всё, что за ней.`,
@@ -1411,6 +1414,7 @@ const METRIC_EXPLANATIONS = {
   },
   cvar_99: {
     title: "CVaR 99% (глубина потерь в редком хвосте)",
+    type: "estimate", icon: "🌊",
     what: "Средняя потеря внутри самого редкого и глубокого хвоста (худший 1% дней) — самая консервативная из риск-метрик на этой странице.",
     reading: (v, ctx = {}) => v == null ? null
       : `${ctx.horizonLabel || "В этом горизонте"} средняя глубина потери внутри худшего 1% дней — ${_pct(v)}. Это самый мрачный, но и самый редкий ориентир из всех риск-метрик здесь.`,
@@ -1619,7 +1623,10 @@ function scrollToPfMetric(key) {
   void el.offsetWidth;
   el.classList.add("pf-flash");
 }
-const pfColLabel = (metricKey, text) => (
+// tagClass — опционально: класс эпистемического чипа (pf-tag-judgment/pf-tag-estimate/
+// pf-tag-fact) под подписью колонки, для метрик-моделей/оценок (см. design constitution:
+// эпистемические теги обязательны на каждом аналитическом утверждении).
+const pfColLabel = (metricKey, text, tagClass) => (
   <span className="tw-inline-flex tw-flex-col tw-items-end tw-gap-1">
     <button
       type="button"
@@ -1631,6 +1638,9 @@ const pfColLabel = (metricKey, text) => (
       i
     </button>
     <span>{text}</span>
+    {tagClass && <span className={tagClass} style={{ fontSize: "9px", padding: "2px 6px" }}>
+      {tagClass === "pf-tag-judgment" ? "суждение" : tagClass === "pf-tag-estimate" ? "оценка" : "факт"}
+    </span>}
   </span>
 );
 
@@ -1680,7 +1690,7 @@ const RETURN_COLUMNS = [
               ),
             },
             {
-              key: "capm", label: pfColLabel("capm", "CAPM (модель)"),
+              key: "capm", label: pfColLabel("capm", "CAPM (модель)", "pf-tag-judgment"),
               render: (v) => v == null ? "—" : (
                 <span className="tw-text-text-tertiary" title="Модельная forward-оценка: Rf(ОФЗ ~10 лет) + β×ERP(Дамодаран). Оценка, не факт и не прогноз">
                   {fmtPercent(v, { sign: true })}
@@ -1695,21 +1705,7 @@ const RETURN_COLUMNS = [
               // выдаём за свежий факт. Владелец 2026-07-23: заменяет мёртвую
               // «Ваша доходность» (см. правку выше).
               key: "upsideToFair",
-              label: (
-                <span className="tw-inline-flex tw-flex-col tw-items-end tw-gap-1">
-                  <button
-                    type="button"
-                    onClick={() => scrollToPfMetric("upside_to_fair_pct")}
-                    className="pf-info-icon"
-                    aria-label="Подробнее про метрику «Апсайд к справедливой цене»"
-                    title="Подробнее"
-                  >
-                    i
-                  </button>
-                  <span>Апсайд к цели</span>
-                  <span className="pf-tag-judgment" style={{ fontSize: "9px", padding: "2px 6px" }}>суждение</span>
-                </span>
-              ),
+              label: pfColLabel("upside_to_fair_pct", "Апсайд к цели", "pf-tag-judgment"),
               render: (v, row) => {
                 if (row?._isTotal) {
                   return v == null ? "—" : (
@@ -3246,6 +3242,14 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             </div>
           </div>
         </div>
+        {totalValue > 0 && var95Annual != null && cvar99Annual != null && (
+          <KeyTakeaway tone="caution" title="Что это значит в рублях">
+            Ваш портфель — {formatMoney(totalValue, { decimals: 0 })}. В обычный плохой год (1 из 20) вы можете правдоподобно оказаться на уровне
+            {" "}≈{formatMoney(totalValue * (1 - var95Annual / 100), { decimals: 0 })} (VaR 95% годовой). Если случится тот самый редкий провал
+            {" "}(1 из 100) — глубина потерь в среднем внутри этого хвоста — ≈{formatMoney(totalValue * (1 - cvar99Annual / 100), { decimals: 0 })} (CVaR 99% годовой).
+            Числа ориентировочные — основаны на истории котировок за 3 года, не на прогнозе.
+          </KeyTakeaway>
+        )}
         <div className="pf-card" style={{ padding: "24px 26px" }}>
           <PfMetricTable
             columns={[
@@ -3278,14 +3282,6 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             )}
           </div>
         </div>
-        {totalValue > 0 && var95Annual != null && cvar99Annual != null && (
-          <KeyTakeaway tone="caution" title="Что это значит в рублях">
-            Ваш портфель — {formatMoney(totalValue, { decimals: 0 })}. В обычный плохой год (1 из 20) вы можете правдоподобно оказаться на уровне
-            {" "}≈{formatMoney(totalValue * (1 - var95Annual / 100), { decimals: 0 })} (VaR 95% годовой). Если случится тот самый редкий провал
-            {" "}(1 из 100) — глубина потерь в среднем внутри этого хвоста — ≈{formatMoney(totalValue * (1 - cvar99Annual / 100), { decimals: 0 })} (CVaR 99% годовой).
-            Числа ориентировочные — основаны на истории котировок за 3 года, не на прогнозе.
-          </KeyTakeaway>
-        )}
         <KeyTakeaway tone="info" title="Почему многие риск-метрики сейчас выглядят слабо">
           {RISK_REGIME_NOTE}
         </KeyTakeaway>

@@ -547,6 +547,10 @@
   border-color: var(--pf-copper);
   color: #fff;
 }
+.pf-info-icon:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 
 /* =============================================================
    PILL / CHIP / SEGMENT CONTROL — буквальные значения из прототипа
