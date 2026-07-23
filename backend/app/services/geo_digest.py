@@ -17,9 +17,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 from datetime import date, datetime, timedelta
 from email.utils import parsedate_to_datetime
+from urllib.parse import urlsplit, urlunsplit
 from xml.etree import ElementTree as ET
 
 import httpx
@@ -83,6 +85,28 @@ def _parse_date(raw: str | None) -> date | None:
         return None
 
 
+# Egress-релей через Cloudflare Worker для источников, которые Timeweb режет на уровне
+# TLS/SNI (TCP проходит, TLS-хендшейк виснет по таймауту — та же болезнь, что была у
+# DeepSeek/FRED, см. память deepseek-fred-egress-blocked). re-russia.net подтверждён
+# 2026-07-24 через /api/debug/trace: TCP ok, TLS FAIL с самого инстанса, при этом сайт
+# живой (прямой запрос с внешнего узла отдаёт свежий RSS). RERUSSIA_BASE_URL — тот же
+# паттерн host-swap реверс-прокси, что MINFIN_BASE_URL/DEEPSEEK_BASE_URL/FRED_BASE_URL;
+# пусто/не задано — источник фетчится напрямую (безопасный no-op).
+_RELAY_ENV_BY_SOURCE = {
+    "rerussia": "RERUSSIA_BASE_URL",
+}
+
+
+def _relay_url(src: dict, url: str) -> str:
+    env_name = _RELAY_ENV_BY_SOURCE.get(src.get("key"))
+    relay = env_name and os.environ.get(env_name)
+    if not relay:
+        return url
+    relay_parts = urlsplit(relay.rstrip("/"))
+    parts = urlsplit(url)
+    return urlunsplit((relay_parts.scheme, relay_parts.netloc, parts.path, parts.query, parts.fragment))
+
+
 # ----------------------------- ПАРСЕР ИСТОЧНИКОВ (с URL для дедупа) -----------------------------
 def _fetch_wp_json(src: dict) -> list[dict]:
     r = httpx.get(src["url"], params=src.get("params"), timeout=30, headers=_HTTP, follow_redirects=True)
@@ -104,7 +128,7 @@ def _fetch_wp_json(src: dict) -> list[dict]:
 
 
 def _fetch_rss(src: dict) -> list[dict]:
-    r = httpx.get(src["url"], timeout=30, headers=_HTTP, follow_redirects=True, verify=False)
+    r = httpx.get(_relay_url(src, src["url"]), timeout=30, headers=_HTTP, follow_redirects=True, verify=False)
     r.raise_for_status()
     out = []
     try:
