@@ -1889,23 +1889,37 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // суверенитетом) — choropleth-легенду и тег контроля показываем только если сами
   // данные очага реально несут control_legend, не по умолчанию для любого театра.
   const hasControlLegend = Object.keys(controlLegend).length > 0;
-  const activeHasControl = !onRussiaMap && hasControlLegend;
 
   const regionsFC = activeBaseMap?.regions_geojson || GEOMAP_EMPTY_FC;
-  const waypointsFC = activeBaseMap?.waypoints_geojson || GEOMAP_EMPTY_FC;
+  // Линия фронта — отдельная явная линия (не только заливка регионов статусом
+  // контроля): реконструирована как граница между агрегированной зоной ru+contested
+  // и зоной ua (см. backend, shapely boundary intersection по районам до слияния в
+  // области) — «где именно проходит» видно отдельно от «чей регион в целом».
+  const frontlineFC = (!onRussiaMap && activeBaseMap?.frontline_geojson) || GEOMAP_EMPTY_FC;
 
   const regionsBySlug = useMemo(() => {
     const m = {};
     regionsFC.features.forEach((f) => { m[f.properties.slug] = f.properties; });
     return m;
   }, [regionsFC]);
+  // Маркеры событий (в т.ч. ударов вглубь России) показываем ВСЕГДА, не только
+  // после переключения на «Россия целиком» (владелец: «без нажатия кнопки должны
+  // отображаться удары вглубь») — переключатель ниже теперь влияет только на то,
+  // какой набор РЕГИОНОВ (закраска очага vs субъекты РФ) активен, реальная карта
+  // не заперта «режимами», события/маркеры доступны панорамированием как на
+  // обычной карте. Комбинируем waypoints и events обоих наборов (слаги не
+  // пересекаются между театром и Россией целиком).
   const waypointsBySlug = useMemo(() => {
     const m = {};
-    waypointsFC.features.forEach((f) => { m[f.properties.slug] = { ...f.properties, coords: f.geometry.coordinates }; });
+    (data?.base_map?.waypoints_geojson?.features || []).forEach((f) => { m[f.properties.slug] = { ...f.properties, coords: f.geometry.coordinates }; });
+    (russiaMap?.base_map?.waypoints_geojson?.features || []).forEach((f) => { m[f.properties.slug] = { ...f.properties, coords: f.geometry.coordinates }; });
     return m;
-  }, [waypointsFC]);
+  }, [data, russiaMap]);
 
-  const events = Array.isArray(onRussiaMap ? russiaMap?.events : data?.events) ? (onRussiaMap ? russiaMap.events : data.events) : [];
+  const events = useMemo(
+    () => [...(Array.isArray(data?.events) ? data.events : []), ...(Array.isArray(russiaMap?.events) ? russiaMap.events : [])],
+    [data, russiaMap]
+  );
   const onMapEvents = useMemo(
     () => events.filter((e) => e.waypoint && waypointsBySlug[e.waypoint]),
     [events, waypointsBySlug]
@@ -1948,8 +1962,19 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // подписи слоя "place" из тайлов и полагаемся только на свои waypoints
       // (уже на русском) — для Ближнего Востока/АТР такого риска нет, оставляем.
       if (GEOMAP_SUPPRESS_TILE_LABELS.has(theaterKey)) {
+        // Не глушим слой подписей целиком (владелец: «городов очень мало, ты не
+        // можешь спарсить города?») — у тайлов OpenMapTiles/OSM ЕСТЬ отдельное
+        // поле name:ru почти для всех городов/посёлков/сёл (проверено: 95-100%
+        // покрытие по классам city/town/village) — переключаем сами подписи на
+        // него вместо name/name:nonlatin (украинская кириллица) и добавляем
+        // фильтр "есть name:ru" — там, где поля нет (редкое исключение), место
+        // просто не подписывается, а не подставляется украинское название.
         map.getStyle().layers.forEach((l) => {
-          if (l["source-layer"] === "place") map.setLayoutProperty(l.id, "visibility", "none");
+          if (l["source-layer"] === "place") {
+            map.setLayoutProperty(l.id, "text-field", ["get", "name:ru"]);
+            const existingFilter = l.filter || ["all"];
+            map.setFilter(l.id, ["all", existingFilter, ["has", "name:ru"]]);
+          }
         });
         // OSM/OpenMapTiles рисуют границу Крыма и новых территорий отдельным
         // пунктирным слоем boundary_disputed (свойство disputed=1 в исходных
@@ -1965,7 +1990,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
 
       map.addSource("regions", { type: "geojson", data: GEOMAP_EMPTY_FC });
       map.addSource("regions-active", { type: "geojson", data: GEOMAP_EMPTY_FC });
-      map.addSource("waypoints", { type: "geojson", data: GEOMAP_EMPTY_FC });
+      map.addSource("frontline", { type: "geojson", data: GEOMAP_EMPTY_FC });
 
       // Choropleth статуса контроля — факт «чья территория», не рыночный сигнал
       // good/bad (легитимное применение --danger/--warning к данным, см. конституцию).
@@ -1974,30 +1999,18 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // кликабельной областью для подписи региона в детали-панели.
       map.addLayer({ id: "regions-fill", type: "fill", source: "regions", paint: { "fill-color": "#888", "fill-opacity": 0 } });
       map.addLayer({ id: "regions-line", type: "line", source: "regions", paint: { "line-color": "#888", "line-opacity": 0, "line-width": 1.1 } });
+      // Линия фронта — САМА линия боевого соприкосновения, отдельно от заливки
+      // регионов (владелец: «где линия фронта? сейчас просто регионы закрашены»).
+      // Двухслойная линия (подложка толще+бледнее, поверх тоньше+ярче) — читаемый
+      // приём для «зазубренной» боевой линии на карте, не сливается с дорогами тайла.
+      map.addLayer({ id: "frontline-casing", type: "line", source: "frontline", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": colors.ru, "line-opacity": 0.35, "line-width": 5 } });
+      map.addLayer({ id: "frontline-line", type: "line", source: "frontline", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": colors.ru, "line-width": 2, "line-dasharray": [2, 1.4] } });
       map.addLayer({ id: "regions-active-line", type: "line", source: "regions-active", paint: { "line-color": colors.accent, "line-width": 2.4 } });
-      map.addLayer({
-        id: "waypoints-dot", type: "circle", source: "waypoints",
-        paint: {
-          "circle-radius": ["case", ["boolean", ["get", "muted"], false], 3, 4.5],
-          "circle-color": ["case", ["boolean", ["get", "muted"], false], "#9a9a9a", colors.textSecondary],
-          "circle-stroke-color": colors.bgElevated,
-          "circle-stroke-width": ["case", ["boolean", ["get", "muted"], false], 0, 1.4],
-        },
-      });
-      map.addLayer({
-        id: "waypoints-label", type: "symbol", source: "waypoints",
-        layout: {
-          "text-field": ["get", "label"],
-          "text-font": ["Noto Sans Regular"],
-          "text-size": ["case", ["boolean", ["get", "muted"], false], 10.5, 12],
-          "text-offset": [0, 1],
-          "text-anchor": "top",
-          "text-allow-overlap": false,
-          "text-optional": true,
-          "symbol-sort-key": ["case", ["boolean", ["get", "muted"], false], 2, 1],
-        },
-        paint: { "text-color": colors.textPrimary, "text-halo-color": colors.bgElevated, "text-halo-width": 1.3 },
-      });
+      // Свои waypoints-dot/label слои убраны (2026-07-23) — у тайла (после
+      // переключения на name:ru выше) уже полное покрытие городов/сёл на
+      // русском лучше, чем наш ручной набор из ~20 точек; waypoints остаются
+      // только JS-справочником координат для маркеров событий, без своего
+      // визуального слоя (не дублируем подписи тайла).
 
       map.on("mouseenter", "regions-fill", () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", "regions-fill", () => { map.getCanvas().style.cursor = ""; });
@@ -2026,26 +2039,24 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     const map = mapRef.current;
     if (!map || !styleLoaded) return;
     map.getSource("regions")?.setData(regionsFC);
-    map.getSource("waypoints")?.setData(waypointsFC);
-    const fillColor = activeHasControl
-      ? ["match", ["get", "control"], "ru", colors.ru, "contested", colors.contested, "#888"]
-      : "#888";
-    const fillOpacity = activeHasControl
-      ? ["match", ["get", "control"], "ru", 0.22, "contested", 0.26, 0]
-      : 0;
-    const lineOpacity = activeHasControl
-      ? ["match", ["get", "control"], "ru", 0.7, "contested", 0.7, 0]
-      : 0;
+    map.getSource("frontline")?.setData(frontlineFC);
+    // Красим ПО ФИЧЕ (control: ru/contested), не блоком «весь набор регионов
+    // либо красим, либо нет» — на карте «Россия целиком» у большинства регионов
+    // control нет вовсе (нейтральны), но у Крыма/ДНР/ЛНР/новых областей он ЕСТЬ
+    // ("ru") — владелец: «границы проведены как будто эти регионы украинские,
+    // надо чтобы было видно, что российские» — сплошная закраска снимает
+    // двусмысленность независимо от того, как тайл рисует границу под низом.
+    const fillColor = ["match", ["get", "control"], "ru", colors.ru, "contested", colors.contested, "#888"];
+    const fillOpacity = ["match", ["get", "control"], "ru", 0.3, "contested", 0.26, 0];
+    const lineOpacity = ["match", ["get", "control"], "ru", 0.85, "contested", 0.7, 0];
     map.setPaintProperty("regions-fill", "fill-color", fillColor);
     map.setPaintProperty("regions-fill", "fill-opacity", fillOpacity);
     map.setPaintProperty("regions-line", "line-color", fillColor);
     map.setPaintProperty("regions-line", "line-opacity", lineOpacity);
     map.setPaintProperty("regions-active-line", "line-color", colors.accent);
-    map.setPaintProperty("waypoints-dot", "circle-color", ["case", ["boolean", ["get", "muted"], false], "#9a9a9a", colors.textSecondary]);
-    map.setPaintProperty("waypoints-dot", "circle-stroke-color", colors.bgElevated);
-    map.setPaintProperty("waypoints-label", "text-color", colors.textPrimary);
-    map.setPaintProperty("waypoints-label", "text-halo-color", colors.bgElevated);
-  }, [styleLoaded, regionsFC, waypointsFC, activeHasControl, colors]);
+    map.setPaintProperty("frontline-casing", "line-color", colors.ru);
+    map.setPaintProperty("frontline-line", "line-color", colors.ru);
+  }, [styleLoaded, regionsFC, frontlineFC, colors]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
   // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
@@ -2278,7 +2289,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             {/* "context" — регионы вроде Краснодарского края (даёт географический контекст
                 событию рядом, но сам не часть вопроса контроля территории СВО) — тег статуса
                 для них не показываем вовсе, а не подсовываем ложное "под контролем Украины". */}
-            {!onRussiaMap && hasControlLegend && ["ru", "contested", "ua"].includes(selectedRegion.control) && (
+            {hasControlLegend && ["ru", "contested", "ua"].includes(selectedRegion.control) && (
               <>
                 <span className={`obs-geomap-region-tag obs-geomap-region-tag--${selectedRegion.control}`}>
                   {controlLegend[selectedRegion.control] || selectedRegion.control}
@@ -2294,7 +2305,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
             )}
           </div>
           <h4 className="obs-geomap-detail-title">{selectedRegion.name_ru}</h4>
-          {!onRussiaMap && selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
+          {selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
         </div>
       )}
 
