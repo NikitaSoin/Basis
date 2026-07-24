@@ -2157,6 +2157,151 @@ function ObsGeoTerritorialChart({ history }) {
   );
 }
 
+// Содержимое речевого пузыря деталей клика по карте очага (событие / регион /
+// заявлено-не-подтверждено ISW / ячейка временной реконструкции) — раньше это
+// были 4 отдельных JSX-блока, рендерившихся УСЛОВНО в потоке документа ниже
+// карты (владелец: «маркеры съезжают, приходится скроллить, чтобы увидеть
+// информацию»). Разметка 1:1 перенесена сюда без изменений — меняется только
+// КОНТЕЙНЕР: теперь это DOM-содержимое maplibregl.Popup, привязанного к точке
+// клика (см. попап-эффект в ObsGeoTheaterMap ниже), а не блок под картой.
+function ObsGeomapPopupBody({
+  kind, event, region, claimed, capture,
+  hasControlLegend, controlLegend, controlLegendKeys, controlPaintOverrides, colors,
+  onClose,
+}) {
+  if (kind === "event" && event) {
+    const M = GEOMAP_TYPE_META[event.type]?.icon || AlertTriangle;
+    return (
+      <div className="obs-geomap-detail" role="region" aria-label="Детали события на карте">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <M size={15} aria-hidden="true" />
+          <span className="obs-geomap-detail-type">{GEOMAP_TYPE_META[event.type]?.label || event.type}</span>
+          <span className={event.epistemic === "оценка" ? "obs-tag-estimate" : "obs-tag-fact"}>
+            {event.epistemic || "факт"}
+          </span>
+          {event.confidence && (
+            <span className="obs-geomap-confidence">confidence {event.confidence}</span>
+          )}
+          {event.stale && (
+            <span className="obs-geomap-stale-badge"><AlertTriangle size={11} aria-hidden="true" />нет свежих данных</span>
+          )}
+        </div>
+        <h4 className="obs-geomap-detail-title">{event.label}</h4>
+        {event.description && <p className="obs-geomap-detail-desc">{event.description}</p>}
+        {event.note && <p className="obs-geomap-detail-note">{event.note}</p>}
+        <div className="obs-geomap-detail-foot">
+          {event.date && <span>{event.date}</span>}
+          {event.source && (
+            event.source_url
+              ? <a href={event.source_url} target="_blank" rel="noreferrer">{event.source} ↗</a>
+              : <span>{event.source}</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === "region" && region) {
+    return (
+      <div className="obs-geomap-detail" role="region" aria-label="Детали региона на карте">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <Layers size={15} aria-hidden="true" />
+          {/* "context" — регионы вроде Краснодарского края (даёт географический контекст
+              событию рядом, но сам не часть вопроса контроля территории СВО) — тег статуса
+              для них не показываем вовсе, а не подсовываем ложное "под контролем Украины".
+              Условие смотрит на РЕАЛЬНЫЙ набор ключей control_legend очага (не на зашитую
+              тройку "ru"/"contested"/"ua") — Ближний Восток отдаёт тег и для
+              "primary_adversary"/"us_base_host" тоже. */}
+          {hasControlLegend && Object.prototype.hasOwnProperty.call(controlLegend, region.control) && (
+            <>
+              <span
+                className="obs-geomap-region-tag"
+                style={controlTagStyle(colors, region.control, controlLegendKeys, controlPaintOverrides)}
+              >
+                {controlLegend[region.control] || region.control}
+              </span>
+              {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
+                  data_flags: Луганск и др. — предмет спора сторон) — эпистемический тег
+                  обязателен на каждом аналитическом утверждении, как у событий выше. */}
+              <span className="obs-tag-estimate">оценка</span>
+              {region.control_confidence && (
+                <span className="obs-geomap-confidence">confidence {region.control_confidence}</span>
+              )}
+            </>
+          )}
+        </div>
+        <h4 className="obs-geomap-detail-title">{region.name_ru}</h4>
+        {region.control_note && <p className="obs-geomap-detail-desc">{region.control_note}</p>}
+      </div>
+    );
+  }
+
+  if (kind === "claimed" && claimed) {
+    return (
+      <div className="obs-geomap-detail obs-geomap-detail--claimed" role="region" aria-label="Детали заявленного, не подтверждённого взятия пункта">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <CircleHelp size={15} aria-hidden="true" />
+          <span className="obs-geomap-detail-type">Заявлено, не подтверждено</span>
+          {/* Ключевая информация, не сноска — эпистемический тег ровно из данных
+              (claimed.epistemic), не хардкод, но с заведомо тем же смыслом. */}
+          <span className="obs-tag-claimed">{claimed.epistemic || "заявлено, не подтверждено ISW"}</span>
+        </div>
+        <h4 className="obs-geomap-detail-title">
+          {claimed.name}{claimed.oblast ? `, ${claimed.oblast}` : ""}
+        </h4>
+        {claimed.source_note && <p className="obs-geomap-detail-desc">{claimed.source_note}</p>}
+        <div className="obs-geomap-detail-foot">
+          {claimed.claimed_date && <span>{_obsDateRu(claimed.claimed_date)}</span>}
+          {claimed.source && (
+            claimed.source_url
+              ? <a href={claimed.source_url} target="_blank" rel="noreferrer">{claimed.source} ↗</a>
+              : <span>{claimed.source}</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === "capture" && capture) {
+    return (
+      <div className="obs-geomap-detail" role="region" aria-label="Детали ячейки исторической реконструкции линии фронта">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <History size={15} aria-hidden="true" />
+          <span className="obs-geomap-detail-type">Реконструкция по дате взятия</span>
+          <span className="obs-tag-estimate">оценка</span>
+        </div>
+        <h4 className="obs-geomap-detail-title">
+          {capture.settlement}{capture.oblast ? `, ${capture.oblast}` : ""}
+        </h4>
+        <p className="obs-geomap-detail-desc">
+          Взято: {_obsDateRu(capture.capture_date)}
+          {capture.date_precision && capture.date_precision !== "day" && (
+            <> · точность даты — {capture.date_precision === "month" ? "месяц" : "год"}, показана условная дата</>
+          )}
+        </p>
+        <p className="obs-geomap-method-note">
+          <Info size={11} aria-hidden="true" />
+          Ячейка на карте — не граница на дату взятия ЭТОГО пункта, а ближайшая зона диаграммы Вороного вокруг него; названия — по латинской транслитерации источника (Wikipedia).
+        </p>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, directionColor }) {
   const [status, setStatus] = useState("loading"); // loading | ready | empty
   const [data, setData] = useState(null);
@@ -2178,6 +2323,13 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // источник данных (не events), свой эффект создания/очистки ниже, см.
   // claimedCapturesFC/claimedCapturesList.
   const claimedMarkersRef = useRef([]); // [{ id, marker, root, el }]
+  // Речевой пузырь деталей клика — один экземпляр maplibregl.Popup на карту,
+  // живёт между кликами (обновляем lngLat/контент, не пересоздаём), React-root
+  // рендерит в него ObsGeomapPopupBody. Раньше деталь-панель рендерилась блоком
+  // ниже карты в обычном React-потоке — теперь это DOM-нода, которой владеет
+  // сам MapLibre (не React-дерево компонента), поэтому свой root, как у маркеров.
+  const popupRef = useRef(null);
+  const popupRootRef = useRef(null);
   // MapLibre-квирк: маркер-кнопка лежит поверх канваса, но у САМОГО ПЕРВОГО клика
   // после загрузки карты браузер иногда резолвит mousedown на канвас, а mouseup —
   // уже на кнопку; итоговый синтетический "click" достаётся их общему предку
@@ -2344,23 +2496,29 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
 
   const typeOk = (t) => activeType === "all" || activeType === t;
 
+  // Каждый select* теперь несёт ещё и lngLat точки клика — она же станет
+  // якорем речевого пузыря (см. попап-эффект ниже). Для маркеров (событие/
+  // заявлено) это координаты самого маркера (уже известны в замыкании при
+  // клике); для региона/ячейки реконструкции (полигоны, не точки) — реальная
+  // географическая точка КЛИКА (e.lngLat из обработчика слоя), у полигона нет
+  // единственной «своей» точки-якоря.
   const selectEvent = useCallback(
-    (id) => setSelected((prev) => (prev?.kind === "event" && prev.key === id ? null : { kind: "event", key: id })),
+    (id, lngLat) => setSelected((prev) => (prev?.kind === "event" && prev.key === id ? null : { kind: "event", key: id, lngLat })),
     []
   );
   const selectRegion = useCallback(
-    (slug) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug })),
+    (slug, lngLat) => setSelected((prev) => (prev?.kind === "region" && prev.key === slug ? null : { kind: "region", key: slug, lngLat })),
     []
   );
   const selectClaimed = useCallback(
-    (id) => setSelected((prev) => (prev?.kind === "claimed" && prev.key === id ? null : { kind: "claimed", key: id })),
+    (id, lngLat) => setSelected((prev) => (prev?.kind === "claimed" && prev.key === id ? null : { kind: "claimed", key: id, lngLat })),
     []
   );
   const selectCapture = useCallback(
-    (id) => setSelected((prev) => (prev?.kind === "capture" && prev.key === id ? null : { kind: "capture", key: id })),
+    (id, lngLat) => setSelected((prev) => (prev?.kind === "capture" && prev.key === id ? null : { kind: "capture", key: id, lngLat })),
     []
   );
-  const closeDetail = () => setSelected(null);
+  const closeDetail = useCallback(() => setSelected(null), []);
 
   const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
   const selectedRegion = selected?.kind === "region" ? regionsBySlug[selected.key] : null;
@@ -2392,6 +2550,27 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     mapRef.current = map;
+
+    // Речевой пузырь деталей клика — один Popup + один React-root на всё время
+    // жизни карты, см. попап-эффект ниже (обновляет lngLat/содержимое по
+    // `selected`, addTo/remove по наличию выбора). closeButton/closeOnClick
+    // выключены у самой библиотеки — закрытие ведёт React-состояние `selected`
+    // (крестик → closeDetail(); клик мимо интерактивных слоёв → отдельный
+    // обработчик "click" ниже), иначе встроенное закрытие MapLibre и наш toggle
+    // по повторному клику маркера могли бы разойтись между собой.
+    const popupEl = document.createElement("div");
+    const popupRoot = createRoot(popupEl);
+    const popup = new maplibregl.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      focusAfterOpen: false,
+      className: "obs-geomap-popup",
+      maxWidth: "300px",
+      offset: 14,
+    });
+    popup.setDOMContent(popupEl);
+    popupRef.current = popup;
+    popupRootRef.current = popupRoot;
 
     map.on("load", () => {
       // Тайлы (OpenStreetMap/OpenMapTiles) подписывают населённые пункты в т.ч.
@@ -2494,14 +2673,29 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         // клик открывал бы сразу ДВЕ детали-панели.
         if (isHistoricRef.current) return;
         const slug = e.features?.[0]?.properties?.slug;
-        if (slug) selectRegion(slug);
+        // Регион — полигон, не точка: якорем пузыря берём реальную точку клика
+        // (e.lngLat), у полигона нет единственной «своей» координаты.
+        if (slug) selectRegion(slug, e.lngLat);
       });
       map.on("mouseenter", "capture-isochrone-fill", () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", "capture-isochrone-fill", () => { map.getCanvas().style.cursor = ""; });
       map.on("click", "capture-isochrone-fill", (e) => {
         if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
         const fid = e.features?.[0]?.id;
-        if (fid !== undefined) selectCapture(`iso-${fid}`);
+        if (fid !== undefined) selectCapture(`iso-${fid}`, e.lngLat);
+      });
+      // Клик «мимо» — по фону карты, не по кликабельному слою (регион/ячейка
+      // реконструкции; маркеры событий/заявленного сюда не попадают вовсе — они
+      // отдельные DOM-элементы поверх канваса, не часть рендер-слоёв MapLibre,
+      // клик по ним не долетает до этого генерик-обработчика) — закрывает
+      // открытый пузырь (владелец, п.4: «клик вне поповера»). Регистрируем
+      // ПОСЛЕДНИМ и перепроверяем hit-test сами (queryRenderedFeatures), а не
+      // полагаемся на порядок регистрации слоевых обработчиков выше — так клик
+      // ПО региону/ячейке всегда доходит и до selectRegion/selectCapture, и до
+      // этой проверки, но она увидит попадание в слой и промолчит.
+      map.on("click", (e) => {
+        const hits = map.queryRenderedFeatures(e.point, { layers: ["regions-fill", "capture-isochrone-fill"] });
+        if (hits.length === 0) closeDetail();
       });
     });
 
@@ -2520,10 +2714,50 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       markersRef.current = [];
       claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
       claimedMarkersRef.current = [];
+      popupRef.current?.remove();
+      popupRootRef.current?.unmount();
+      popupRef.current = null;
+      popupRootRef.current = null;
       map.remove();
       mapRef.current = null;
     };
   }, [status, theaterKey]);
+
+  // --- Речевой пузырь деталей клика: открывает/двигает/закрывает и перерисовывает
+  // содержимое ЕДИНОГО Popup по актуальному `selected` — без пересоздания на
+  // каждый клик (только setLngLat + root.render). Закрывается тем же путём, что
+  // и открывается (popup.remove()), когда `selected` становится null — будь то
+  // крестик, повторный клик по тому же элементу (toggle в select*), клик мимо
+  // (генерик-обработчик выше) или смена фильтра/театра/карты России (эти места
+  // уже сбрасывают `selected` явно) — единая точка правды, залипших пузырей не
+  // остаётся ни при одном из путей закрытия/смены выбора.
+  useEffect(() => {
+    const map = mapRef.current;
+    const popup = popupRef.current;
+    const root = popupRootRef.current;
+    if (!map || !styleLoaded || !popup || !root) return;
+    if (!selected || !selected.lngLat) { popup.remove(); return; }
+    root.render(
+      <ObsGeomapPopupBody
+        kind={selected.kind}
+        event={selectedEvent}
+        region={selectedRegion}
+        claimed={selectedClaimed}
+        capture={selectedCapture}
+        hasControlLegend={hasControlLegend}
+        controlLegend={controlLegend}
+        controlLegendKeys={controlLegendKeys}
+        controlPaintOverrides={controlPaintOverrides}
+        colors={colors}
+        onClose={closeDetail}
+      />
+    );
+    popup.setLngLat(selected.lngLat);
+    if (!popup.isOpen()) popup.addTo(map);
+  }, [
+    styleLoaded, selected, selectedEvent, selectedRegion, selectedClaimed, selectedCapture,
+    hasControlLegend, controlLegend, controlLegendKeys, controlPaintOverrides, colors, closeDetail,
+  ]);
 
   // --- Синхронизация данных источников + раскраски при смене очага/России/фильтра/темы.
   useEffect(() => {
@@ -2643,11 +2877,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         el.addEventListener("pointerup", (evt) => {
           suppressNextRegionClickRef.current = true;
           evt.stopPropagation();
-          selectEvent(ev.id);
+          selectEvent(ev.id, wp.coords);
         });
         el.addEventListener("click", (evt) => {
           evt.stopPropagation();
-          if (evt.detail === 0) selectEvent(ev.id);
+          if (evt.detail === 0) selectEvent(ev.id, wp.coords);
         });
         const root = createRoot(el);
         root.render(<Icon size={13} aria-hidden="true" />);
@@ -2683,11 +2917,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       el.addEventListener("pointerup", (evt) => {
         suppressNextRegionClickRef.current = true;
         evt.stopPropagation();
-        selectClaimed(c.id);
+        selectClaimed(c.id, c.coords);
       });
       el.addEventListener("click", (evt) => {
         evt.stopPropagation();
-        if (evt.detail === 0) selectClaimed(c.id);
+        if (evt.detail === 0) selectClaimed(c.id, c.coords);
       });
       const root = createRoot(el);
       root.render(<CircleHelp size={13} aria-hidden="true" />);
@@ -2921,129 +3155,11 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
 
       {!onRussiaMap && data.black_sea_fleet_summary && <p className="obs-geomap-prose">{data.black_sea_fleet_summary}</p>}
 
-      {selectedEvent && (
-        <div className="obs-geomap-detail" role="region" aria-label="Детали события на карте">
-          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
-            <X size={14} />
-          </button>
-          <div className="obs-geomap-detail-head">
-            {(() => {
-              const M = GEOMAP_TYPE_META[selectedEvent.type]?.icon || AlertTriangle;
-              return <M size={15} aria-hidden="true" />;
-            })()}
-            <span className="obs-geomap-detail-type">{GEOMAP_TYPE_META[selectedEvent.type]?.label || selectedEvent.type}</span>
-            <span className={selectedEvent.epistemic === "оценка" ? "obs-tag-estimate" : "obs-tag-fact"}>
-              {selectedEvent.epistemic || "факт"}
-            </span>
-            {selectedEvent.confidence && (
-              <span className="obs-geomap-confidence">confidence {selectedEvent.confidence}</span>
-            )}
-            {selectedEvent.stale && (
-              <span className="obs-geomap-stale-badge"><AlertTriangle size={11} aria-hidden="true" />нет свежих данных</span>
-            )}
-          </div>
-          <h4 className="obs-geomap-detail-title">{selectedEvent.label}</h4>
-          {selectedEvent.description && <p className="obs-geomap-detail-desc">{selectedEvent.description}</p>}
-          {selectedEvent.note && <p className="obs-geomap-detail-note">{selectedEvent.note}</p>}
-          <div className="obs-geomap-detail-foot">
-            {selectedEvent.date && <span>{selectedEvent.date}</span>}
-            {selectedEvent.source && (
-              selectedEvent.source_url
-                ? <a href={selectedEvent.source_url} target="_blank" rel="noreferrer">{selectedEvent.source} ↗</a>
-                : <span>{selectedEvent.source}</span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {selectedRegion && (
-        <div className="obs-geomap-detail" role="region" aria-label="Детали региона на карте">
-          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
-            <X size={14} />
-          </button>
-          <div className="obs-geomap-detail-head">
-            <Layers size={15} aria-hidden="true" />
-            {/* "context" — регионы вроде Краснодарского края (даёт географический контекст
-                событию рядом, но сам не часть вопроса контроля территории СВО) — тег статуса
-                для них не показываем вовсе, а не подсовываем ложное "под контролем Украины".
-                Условие теперь смотрит на РЕАЛЬНЫЙ набор ключей control_legend очага (не на
-                зашитую тройку "ru"/"contested"/"ua") — Ближний Восток отдаёт тег и для
-                "primary_adversary"/"us_base_host" тоже. */}
-            {hasControlLegend && Object.prototype.hasOwnProperty.call(controlLegend, selectedRegion.control) && (
-              <>
-                <span
-                  className="obs-geomap-region-tag"
-                  style={controlTagStyle(colors, selectedRegion.control, controlLegendKeys, controlPaintOverrides)}
-                >
-                  {controlLegend[selectedRegion.control] || selectedRegion.control}
-                </span>
-                {/* Статус контроля — классификация Basis, не всегда бесспорный факт (см.
-                    data_flags: Луганск и др. — предмет спора сторон) — эпистемический тег
-                    обязателен на каждом аналитическом утверждении, как у событий выше. */}
-                <span className="obs-tag-estimate">оценка</span>
-                {selectedRegion.control_confidence && (
-                  <span className="obs-geomap-confidence">confidence {selectedRegion.control_confidence}</span>
-                )}
-              </>
-            )}
-          </div>
-          <h4 className="obs-geomap-detail-title">{selectedRegion.name_ru}</h4>
-          {selectedRegion.control_note && <p className="obs-geomap-detail-desc">{selectedRegion.control_note}</p>}
-        </div>
-      )}
-
-      {selectedClaimed && (
-        <div className="obs-geomap-detail obs-geomap-detail--claimed" role="region" aria-label="Детали заявленного, не подтверждённого взятия пункта">
-          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
-            <X size={14} />
-          </button>
-          <div className="obs-geomap-detail-head">
-            <CircleHelp size={15} aria-hidden="true" />
-            <span className="obs-geomap-detail-type">Заявлено, не подтверждено</span>
-            {/* Ключевая информация, не сноска — эпистемический тег ровно из данных
-                (claimed.epistemic), не хардкод, но с заведомо тем же смыслом. */}
-            <span className="obs-tag-claimed">{selectedClaimed.epistemic || "заявлено, не подтверждено ISW"}</span>
-          </div>
-          <h4 className="obs-geomap-detail-title">
-            {selectedClaimed.name}{selectedClaimed.oblast ? `, ${selectedClaimed.oblast}` : ""}
-          </h4>
-          {selectedClaimed.source_note && <p className="obs-geomap-detail-desc">{selectedClaimed.source_note}</p>}
-          <div className="obs-geomap-detail-foot">
-            {selectedClaimed.claimed_date && <span>{_obsDateRu(selectedClaimed.claimed_date)}</span>}
-            {selectedClaimed.source && (
-              selectedClaimed.source_url
-                ? <a href={selectedClaimed.source_url} target="_blank" rel="noreferrer">{selectedClaimed.source} ↗</a>
-                : <span>{selectedClaimed.source}</span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {selectedCapture && (
-        <div className="obs-geomap-detail" role="region" aria-label="Детали ячейки исторической реконструкции линии фронта">
-          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
-            <X size={14} />
-          </button>
-          <div className="obs-geomap-detail-head">
-            <History size={15} aria-hidden="true" />
-            <span className="obs-geomap-detail-type">Реконструкция по дате взятия</span>
-            <span className="obs-tag-estimate">оценка</span>
-          </div>
-          <h4 className="obs-geomap-detail-title">
-            {selectedCapture.settlement}{selectedCapture.oblast ? `, ${selectedCapture.oblast}` : ""}
-          </h4>
-          <p className="obs-geomap-detail-desc">
-            Взято: {_obsDateRu(selectedCapture.capture_date)}
-            {selectedCapture.date_precision && selectedCapture.date_precision !== "day" && (
-              <> · точность даты — {selectedCapture.date_precision === "month" ? "месяц" : "год"}, показана условная дата</>
-            )}
-          </p>
-          <p className="obs-geomap-method-note">
-            <Info size={11} aria-hidden="true" />
-            Ячейка на карте — не граница на дату взятия ЭТОГО пункта, а ближайшая зона диаграммы Вороного вокруг него; названия — по латинской транслитерации источника (Wikipedia).
-          </p>
-        </div>
-      )}
+      {/* Деталь клика (событие/регион/заявлено/ячейка реконструкции) больше НЕ
+          рендерится здесь блоком в потоке документа — см. ObsGeomapPopupBody +
+          попап-эффект выше: содержимое идёт в maplibregl.Popup, привязанный к
+          точке клика прямо на карте (владелец: не должен быть нужен скролл,
+          чтобы увидеть информацию после клика по маркеру/региону). */}
 
       <ObsBaroCaveat flags={data.data_flags} />
     </div>

@@ -4700,19 +4700,42 @@ details[open] > summary .obs-inst-chev,
    контроля поверх) вместо прежней рукописной SVG-проекции: реальные города/дороги/
    реки видны из коробки, зум/пан — нативные жесты библиотеки, не ручная математика.
    aspect-ratio — инлайном (theater-агностично: разные очаги/карты имеют разный охват). */
+/* overflow:hidden убран (был здесь ради скруглённых углов у карты) — речевой
+   пузырь деталей клика (maplibregl.Popup) физически рождается ВНУТРИ этого же
+   контейнера (MapLibre сам вешает его на map.getContainer()), и любой clip на
+   .obs-geomap-frame обрезал бы попап, когда он открывается у самого верхнего/
+   бокового края карты (крестик «закрыть» реально уезжал под обрезку — поймано
+   Playwright'ом: elementsFromPoint в точке кнопки вообще не находил ни попап,
+   ни кнопку — они физически не рисовались там, клик проваливался на шапку
+   сайта позади). Скруглённые углы карты теперь даёт border-radius НАПРЯМУЮ на
+   canvas ниже (canvas — replaced-элемент, как <img>, свой border-radius
+   клипует именно его собственные пиксели тайлов, без overflow:hidden на
+   родителе, который заодно резал бы и попап). */
 .obs-geomap-frame {
   position: relative;
   width: 100%;
   background: var(--bg-base);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  overflow: hidden;
 }
+/* Второй (настоящий) источник того же клипа — БАЗОВЫЙ стиль самой библиотеки
+   (maplibre-gl.css): `.maplibregl-map { overflow: hidden; ... }` вешается на
+   ТОТ ЖЕ элемент, что мы передали в `container` конструктора карты (он же
+   map.getContainer(), куда MapLibre добавляет DOM попапа) — снятия clip'а
+   только с .obs-geomap-frame было НЕДОСТАТОЧНО, попап резался уже здесь.
+   Переопределяем в visible; двухклассовый селектор специфичнее однoклассового
+   правила библиотеки, порядок подключения CSS роли не играет. */
 .obs-geomap-maplibre {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+.obs-geomap-maplibre.maplibregl-map {
+  overflow: visible;
+}
+.obs-geomap-maplibre canvas.maplibregl-canvas {
+  border-radius: var(--radius-md);
 }
 /* Атрибуция тайлов (OpenStreetMap/OpenMapTiles) — обязательна по лицензии,
    держим компактной и монохромной, не спорит с хромом карты. */
@@ -5046,4 +5069,64 @@ details[open] > summary .obs-inst-chev,
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-soft);
   border-radius: 2px;
+}
+
+/* Речевой пузырь деталей клика по карте — .obs-geomap-detail теперь рендерится
+   ВНУТРИ maplibregl.Popup (владелец: маркеры «съезжают», раньше приходилось
+   скроллить ниже карты, чтобы увидеть панель) вместо блока в потоке документа.
+   Сама .obs-geomap-detail не меняется (стили выше) — здесь только глушим
+   белый фон/паддинг/тень MapLibre по умолчанию у обёртки попапа, красим
+   треугольник-«хвостик» под цвет карточки и даём лёгкое появление. */
+/* z-index выше липкой верхней шапки (App.js — tw-z-40), иначе попап, открытый
+   у верхнего края карты, визуально рисуется поверх шапки, но клики по кнопке
+   «закрыть» перехватывает прозрачное поле поиска в шапке (оно физически лежит
+   выше в стеке несмотря на DOM-порядок) — подтверждено кликом «мимо» через
+   elementFromPoint. Ниже мобильного нижнего таббара (mobile-nav.css, z-index:100),
+   чтобы попап никогда не перекрывал его на телефоне. */
+.obs-geomap-popup {
+  z-index: 45;
+}
+.obs-geomap-popup .maplibregl-popup-content {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  pointer-events: auto;
+}
+.obs-geomap-popup .obs-geomap-detail {
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  box-shadow: var(--shadow-md);
+}
+/* Треугольник-хвостик — та же геометрия, что у библиотеки (border-трюк), только
+   цвет заменён с хардкод-белого на var(--bg-base) карточки (обе темы). Селекторы
+   зеркалят maplibregl-gl.css 1:1 (anchor-класс библиотека сама переключает по
+   тому, с какой стороны попап уместился на карте — низ/верх/бок экрана). */
+.obs-geomap-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-top-left .maplibregl-popup-tip { border-bottom-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip { border-top-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--bg-base); }
+.obs-geomap-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--bg-base); }
+
+/* Короткое, ненавязчивое появление (120-200мс, конституция) — анимируем
+   `scale`-СВОЙСТВО (не transform), потому что transform самого .maplibregl-popup
+   уже занят инлайн-позиционированием библиотеки (translate под координаты
+   клика); анимация transform столкнулась бы с ним и «прыгала» бы в угол на
+   время анимации. `scale` — отдельное CSS-свойство, уже используется в этом
+   файле у .obs-geomap-marker:hover, конфликта нет. */
+@media (prefers-reduced-motion: no-preference) {
+  .obs-geomap-popup .obs-geomap-detail {
+    animation: obsGeomapPopupIn 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center;
+  }
+}
+@keyframes obsGeomapPopupIn {
+  from { opacity: 0; scale: 0.96; }
+  to { opacity: 1; scale: 1; }
+}
+@media (max-width: 480px) {
+  .obs-geomap-popup .obs-geomap-detail { width: 240px; }
 }
