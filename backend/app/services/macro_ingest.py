@@ -84,7 +84,18 @@ def upsert_point(db: Session, code: str, as_of: date, metric: str, value, *,
                  ingested_via: str | None = None, commit: bool = True) -> str:
     """Вставить/обновить точку ряда. Уникальность (code, as_of, metric).
     Лента НЕ перезаписывает официальную точку (приоритет источника).
-    Возвращает 'insert' | 'revise' | 'same' | 'skip' | 'kept'."""
+    Возвращает 'insert' | 'revise' | 'same' | 'skip' | 'kept'.
+
+    ЦЕНТРАЛЬНАЯ защита от дат из будущего (на бою 2026-07-25: news-экстрактор записал
+    прогноз РБК «инфляция по итогам года» как факт на 2026-12-31 — у sync_inflation()
+    такая защита уже была локально, у news_pipeline.extract_macro_points() не было;
+    точка данных Макрообзора ВСЕГДА про уже случившийся период — прогнозы живут в
+    MacroForecast, не здесь). Защита тут одна на ВСЕ каналы (file/cbr/fred/news/minfin),
+    а не в каждом источнике отдельно — новый источник не сможет тихо завести тот же баг."""
+    if as_of > date.today():
+        logger.warning("upsert_point: отброшена дата из будущего %s=%s@%s (%s)",
+                       code, metric, as_of, ingested_via or source)
+        return "skip"
     try:
         val = Decimal(str(value))
     except (InvalidOperation, TypeError, ValueError):

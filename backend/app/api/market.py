@@ -758,6 +758,32 @@ def _digest_dict(a) -> dict:
             "published_at": a.published_at.isoformat() if a.published_at else None}
 
 
+def _cap_by_source(rows: list, limit: int, max_share: float = 0.4) -> list:
+    """Не даёт одному высокочастотному источнику (MarketTwits кидает десятки коротких
+    заметок в день) вытеснить редкие-но-содержательные источники (Carnegie/re:russia/
+    Economist) из окна limit. Владелец, 2026-07-25: «markettwits слишком много, карнеги
+    и re:russia не видно». rows уже отсортированы вызывающим кодом (по published_at/
+    created_at) — здесь просто НЕ пропускаем более max_share*limit подряд идущих из
+    одного source_key, остальные от этого источника уходят в хвост (не теряются
+    совсем — если после капа других источников не хватило добить limit, хвост
+    подмешивается назад, сохраняя порядок)."""
+    cap = max(3, int(limit * max_share))
+    counts: dict[str, int] = {}
+    kept, overflow = [], []
+    for r in rows:
+        key = r.source_key or ""
+        if counts.get(key, 0) < cap:
+            kept.append(r)
+            counts[key] = counts.get(key, 0) + 1
+        else:
+            overflow.append(r)
+        if len(kept) >= limit:
+            break
+    if len(kept) < limit:
+        kept.extend(overflow[:limit - len(kept)])
+    return kept[:limit]
+
+
 @router.get("/market/geopolitics/{region}/digest")
 def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depends(get_db)):
     """Отдельные статьи-карточки по региону (не слитый синтез geo_blocks) — подробный
@@ -765,12 +791,14 @@ def market_geopolitics_digest(region: str, limit: int = 15, db: Session = Depend
     geo_digest.py). Сортировка по created_at (когда МЫ сохранили), не published_at:
     у re:russia (no_pubdate) published_at — синтетическая метка "сегодня" для всего
     бэклога, будь сортировка по ней — свежие статьи других источников тонут за старым
-    бэклогом re:russia с той же датой."""
+    бэклогом re:russia с той же датой. Пул шире limit — нужен запас, чтобы
+    _cap_by_source() было из чего выбирать помимо MarketTwits."""
     from app.models.geo_digest import GeoDigestArticle, GEO_DIGEST_TARGETS
     if region not in GEO_DIGEST_TARGETS or region in ("institutions", "macro"):
         raise HTTPException(status_code=404, detail="Неизвестный регион")
-    rows = (db.query(GeoDigestArticle).filter_by(target=region)
-           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
+    pool = (db.query(GeoDigestArticle).filter_by(target=region)
+           .order_by(GeoDigestArticle.created_at.desc()).limit(limit * 4).all())
+    rows = _cap_by_source(pool, limit)
     return {"region": region, "articles": [_digest_dict(a) for a in rows]}
 
 
@@ -779,8 +807,9 @@ def market_institutions_digest(limit: int = 15, db: Session = Depends(get_db)):
     """Дайджест статей институциональной среды с экономической проекцией —
     дополняет статичный барометр (market_institutions) живой лентой."""
     from app.models.geo_digest import GeoDigestArticle
-    rows = (db.query(GeoDigestArticle).filter_by(target="institutions")
-           .order_by(GeoDigestArticle.created_at.desc()).limit(limit).all())
+    pool = (db.query(GeoDigestArticle).filter_by(target="institutions")
+           .order_by(GeoDigestArticle.created_at.desc()).limit(limit * 4).all())
+    rows = _cap_by_source(pool, limit)
     return {"articles": [_digest_dict(a) for a in rows]}
 
 
@@ -795,10 +824,11 @@ def market_macro_digest(limit: int = Query(30, ge=1, le=100), db: Session = Depe
     МЫ сохранили) — фронт показывает статьи вперемешку с записками ЦБ/ЦМАКП в
     одной ленте, отсортированной по дате, и created_at ломал бы порядок."""
     from app.models.geo_digest import GeoDigestArticle
-    rows = (db.query(GeoDigestArticle).filter_by(target="macro")
+    pool = (db.query(GeoDigestArticle).filter_by(target="macro")
            .order_by(GeoDigestArticle.published_at.desc().nullslast(),
                      GeoDigestArticle.created_at.desc())
-           .limit(limit).all())
+           .limit(limit * 4).all())
+    rows = _cap_by_source(pool, limit)
     return {"articles": [_digest_dict(a) for a in rows]}
 
 

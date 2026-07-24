@@ -323,6 +323,32 @@ async def _macro_job():
         logger.exception("Ошибка ингеста Макрообзора: %s", e)
 
 
+async def _macro_rate_watch_job():
+    """Лёгкая ПОЧАСОВАЯ проверка ставки/прогноза ЦБ — отдельно от тяжёлого _macro_job
+    (06:30, раз в сутки). Заседания ЦБ проходят днём (пресс-конференция обычно
+    ~13:30 МСК) — суточный крон в 06:30 УЖЕ ПРОШЁЛ к этому моменту, следующий только
+    через сутки. Найдено на бою 2026-07-25: заседание 24 июля, решение и на следующий
+    день не подтянулось — карточка ставки показывала предыдущее заседание (19 июня)
+    целые сутки. sync_rate_meeting/sync_forecast — один лёгкий фетч страницы + один
+    LLM-вызов (Flash) каждая, дёшево гонять почасово весь день (не только в окно
+    заседания — точный час пресс-конференции от заседания к заседанию плавает)."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_cb_sync import sync_rate_meeting, sync_forecast
+        db = SessionLocal()
+        try:
+            rate = sync_rate_meeting(db)
+            forecast = sync_forecast(db)
+            return {"rate": rate, "forecast": forecast}
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("Почасовая проверка ставки ЦБ: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка почасовой проверки ставки ЦБ: %s", e)
+
+
 _EARNINGS_SEED = ["LKOH", "ROSN", "GAZP", "NVTK", "TATN", "SIBN", "PHOR", "GMKN",
                   "MGNT", "MTSS", "YDEX", "PLZL", "CHMF", "NLMK", "MOEX", "AFLT",
                   "RTKM", "MAGN", "SNGS", "ALRS"]
@@ -778,6 +804,7 @@ async def lifespan(app: FastAPI):
     else:
         scheduler.add_job(_with_heartbeat("news_feed", _news_job), "cron", minute=5, id="news_feed")  # каждый час
         scheduler.add_job(_with_heartbeat("macro_ingest", _macro_job), "cron", hour=6, minute=30, id="macro_ingest")
+        scheduler.add_job(_with_heartbeat("macro_rate_watch", _macro_rate_watch_job), "cron", minute=20, id="macro_rate_watch")  # почасово — ловит заседание ЦБ в тот же день
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour=20, minute=45, id="report_watch")

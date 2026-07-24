@@ -531,6 +531,43 @@ def debug_purge_future_macro():
         db.close()
 
 
+@router.post("/debug/purge-implausible-macro-news")
+def debug_purge_implausible_macro_news():
+    """Разовая чистка: точки macro_data_points (ingested_via='news') вне диапазона
+    min/max текущего config/macro_indicators.json → news_extract. Конфиг мог
+    ужесточиться ПОСЛЕ того, как точка уже сохранена (напр. inflation_weekly
+    [-2,5]→[-1,2] после бага 2026-07-25: LLM записал рост цены САХАРА за неделю
+    (2,6%) как общую недельную инфляцию — реальная была 0,17%) — upsert_point не
+    переоценивает уже сохранённые точки заново, только новые вставки/ревизии.
+    Трогает ТОЛЬКО ingested_via='news' (официальные точки ЦБ/Росстат/Минфин через
+    этот путь не идут вообще, их валидируют свои синки)."""
+    from app.db.session import SessionLocal
+    from app.models.macro import MacroDataPoint
+    from app.services.macro_ingest import load_macro_config
+    db = SessionLocal()
+    try:
+        targets = load_macro_config().get("news_extract", {})
+        rows = db.query(MacroDataPoint).filter(MacroDataPoint.ingested_via == "news").all()
+        deleted = []
+        for r in rows:
+            spec = targets.get(r.indicator_code)
+            if not spec:
+                continue
+            val = float(r.value)
+            if not (spec["min"] <= val <= spec["max"]):
+                deleted.append({"code": r.indicator_code, "metric": r.metric,
+                                "as_of": str(r.as_of), "value": val, "source": r.source})
+                db.delete(r)
+        db.commit()
+        return {"deleted_count": len(deleted), "deleted": deleted}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug purge-implausible-macro-news: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-risk-free-rate")
 def debug_trigger_risk_free_rate():
     """Ручной запуск update_risk_free_rate() (ОФЗ-1г + ОФЗ-10л → market_params)
