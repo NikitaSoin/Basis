@@ -2273,27 +2273,22 @@ function ObsGeomapPopupBody({
 
   if (kind === "capture" && capture) {
     return (
-      <div className="obs-geomap-detail" role="region" aria-label="Детали ячейки исторической реконструкции линии фронта">
+      <div className="obs-geomap-detail" role="region" aria-label="Детали исторической реконструкции линии фронта">
         <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
           <X size={14} />
         </button>
         <div className="obs-geomap-detail-head">
           <History size={15} aria-hidden="true" />
-          <span className="obs-geomap-detail-type">Реконструкция по дате взятия</span>
+          <span className="obs-geomap-detail-type">Реконструкция по датам взятия</span>
           <span className="obs-tag-estimate">оценка</span>
         </div>
         <h4 className="obs-geomap-detail-title">
-          {capture.settlement}{capture.oblast ? `, ${capture.oblast}` : ""}
+          На {_obsDateRu(capture.month_end)}
         </h4>
         <p className="obs-geomap-detail-desc">
-          Взято: {_obsDateRu(capture.capture_date)}
-          {capture.date_precision && capture.date_precision !== "day" && (
-            <> · точность даты — {capture.date_precision === "month" ? "месяц" : "год"}, показана условная дата</>
-          )}
-        </p>
-        <p className="obs-geomap-method-note">
-          <Info size={11} aria-hidden="true" />
-          Ячейка на карте — не граница на дату взятия ЭТОГО пункта, а ближайшая зона диаграммы Вороного вокруг него; названия — по латинской транслитерации источника (Wikipedia).
+          {capture.settlements_count} {ruPluralPunkt(capture.settlements_count)} взято к этому месяцу (по датированным
+          источникам, Wikipedia). Граница — оценка (диаграмма Вороного по датированным пунктам, объединённая и
+          сглаженная по месяцу), не точная историческая линия на этот день.
         </p>
       </div>
     );
@@ -2463,14 +2458,23 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     [isochroneFC]
   );
   const hasIsochrone = isochroneList.length > 0;
-  // Эпоха ползунка — САМАЯ РАННЯЯ дата взятия в реальных данных (не хардкод
+  // Бэкенд теперь отдаёт ПОМЕСЯЧНЫЕ снапшоты (один полигон на месяц, поле
+  // "month_end" = последний день месяца, "settlements_count" = накоплено
+  // датированных точек к этому месяцу) вместо континуального набора ячеек
+  // с capture_date на каждой — Вороной без слияния соседей одного статуса
+  // давал несвязные "котлы", переделано на гибрид (см. backend
+  // geo_svo_capture_isochrone.py, 2026-07-25). Слайдер по дням СНЭПИТ к
+  // ближайшему <= выбранной дате месяцу — движение слайдера остаётся
+  // плавным (по дням), но реально показывает один из ~54 готовых снапшотов.
+  const sortedIsochroneMonths = useMemo(
+    () => [...isochroneList].sort((a, b) => (a.month_end < b.month_end ? -1 : a.month_end > b.month_end ? 1 : 0)),
+    [isochroneList]
+  );
+  // Эпоха ползунка — САМАЯ РАННЯЯ дата в реальных данных (не хардкод
   // 2014-02-27): если бэкенд когда-нибудь дособерёт точки раньше или позже —
   // фронтенд не нужно трогать. Фолбэк на начало вторжения, если изохроны нет
   // вовсе (слайдер всё равно не рендерится в этом случае, см. hasIsochrone).
-  const earliestCaptureIso = useMemo(() => {
-    if (!isochroneList.length) return SVO_INVASION_START_ISO;
-    return isochroneList.reduce((min, c) => (c.capture_date < min ? c.capture_date : min), isochroneList[0].capture_date);
-  }, [isochroneList]);
+  const earliestCaptureIso = sortedIsochroneMonths.length ? sortedIsochroneMonths[0].month_end : SVO_INVASION_START_ISO;
   const showCrimeaToggle = earliestCaptureIso < SVO_INVASION_START_ISO;
   const sliderEpochMs = geomapIsoToUtcDayMs(earliestCaptureIso);
   const sliderInvasionIdx = Math.max(0, Math.round((geomapIsoToUtcDayMs(SVO_INVASION_START_ISO) - sliderEpochMs) / GEOMAP_MS_PER_DAY));
@@ -2479,10 +2483,19 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   const effectiveSliderDayIdx = Math.min(sliderTotalDays, Math.max(sliderMinIdx, sliderDayIdx ?? sliderTotalDays));
   const sliderDateIso = geomapUtcDayMsToIso(sliderEpochMs + effectiveSliderDayIdx * GEOMAP_MS_PER_DAY);
   const isHistoric = hasIsochrone && effectiveSliderDayIdx < sliderTotalDays;
-  const capturedCount = useMemo(
-    () => (hasIsochrone ? isochroneList.filter((c) => c.capture_date <= sliderDateIso).length : 0),
-    [hasIsochrone, isochroneList, sliderDateIso]
-  );
+  // Ближайший снапшот-месяц К выбранной дате слайдера, НЕ ПОЗЖЕ её (последний
+  // month_end <= sliderDateIso) — если слайдер левее самого раннего снапшота,
+  // берём его же (первый доступный месяц), не оставляем карту пустой.
+  const activeMonthSnapshot = useMemo(() => {
+    if (!sortedIsochroneMonths.length) return null;
+    let candidate = sortedIsochroneMonths[0];
+    for (const m of sortedIsochroneMonths) {
+      if (m.month_end <= sliderDateIso) candidate = m;
+      else break;
+    }
+    return candidate;
+  }, [sortedIsochroneMonths, sliderDateIso]);
+  const capturedCount = activeMonthSnapshot?.settlements_count ?? 0;
   const toggleCrimea2014 = useCallback(() => {
     setIncludeCrimea2014((prev) => {
       const next = !prev;
@@ -2817,9 +2830,12 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !styleLoaded || !hasIsochrone) return;
-    if (isHistoric) {
-      map.setFilter("capture-isochrone-fill", ["<=", ["get", "capture_date"], sliderDateIso]);
-      map.setFilter("capture-isochrone-line", ["<=", ["get", "capture_date"], sliderDateIso]);
+    if (isHistoric && activeMonthSnapshot) {
+      // Один снапшот = один полигон-фича с "month" — показываем РОВНО его,
+      // не диапазон (снапшоты уже кумулятивны с начала вторжения по построению
+      // на бэкенде, см. geo_svo_capture_isochrone.py).
+      map.setFilter("capture-isochrone-fill", ["==", ["get", "month"], activeMonthSnapshot.month]);
+      map.setFilter("capture-isochrone-line", ["==", ["get", "month"], activeMonthSnapshot.month]);
     }
     const vis = (on) => (on ? "visible" : "none");
     map.setLayoutProperty("capture-isochrone-fill", "visibility", vis(isHistoric));
@@ -2828,7 +2844,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setLayoutProperty("control-fill-line", "visibility", vis(!isHistoric));
     map.setLayoutProperty("frontline-casing", "visibility", vis(!isHistoric));
     map.setLayoutProperty("frontline-line", "visibility", vis(!isHistoric));
-  }, [styleLoaded, hasIsochrone, isHistoric, sliderDateIso]);
+  }, [styleLoaded, hasIsochrone, isHistoric, activeMonthSnapshot]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
   // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
@@ -3037,10 +3053,10 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
               </div>
               <p className="obs-geomap-timeslider-caveat">
                 Граница восстановлена по датам взятия ближайших населённых пунктов
-                (диаграмма Вороного, {isochroneList.length} датированных точек) — это
-                НЕ точная историческая линия фронта на выбранную дату, а огрубление
-                для ощущения динамики. Точная граница ISW — только в положении
-                «сегодня» (крайнее правое).
+                (диаграмма Вороного, {sortedIsochroneMonths.length ? sortedIsochroneMonths[sortedIsochroneMonths.length - 1].settlements_count : 0} датированных
+                точек, объединено и сглажено по месяцам) — это НЕ точная историческая
+                линия фронта на выбранную дату, а огрубление для ощущения динамики.
+                Точная граница ISW — только в положении «сегодня» (крайнее правое).
               </p>
             </div>
           </div>
