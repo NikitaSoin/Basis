@@ -87,6 +87,35 @@ def _point_buffer_km(lat: float, lon: float, radius_km: float):
     return Point(lon, lat).buffer(deg)
 
 
+def _connect_to_mass(running_mass, lat: float, lon: float, radius_km: float,
+                      corridor_half_width_km: float = 1.3):
+    """Возвращает (settlement_circle, connected_shape). Точка-оверрайд (Рыбарь/
+    МО РФ подтверждают взятие/оспаривание, а живой ISW-полигон ещё не дошёл
+    до этого пункта) часто лежит в неск. км от края текущего массива —
+    голый Point.buffer() тогда рисуется ИЗОЛИРОВАННЫМ островом, никак не
+    похожим на сплошную линию фронта Рыбаря (владелец, 2026-07-25, после
+    живой проверки карты: «линию фронта не сдвинул» — потому что Часов Яр/
+    Гуляйполе/Константиновка/Купянск были именно такими непримкнувшими
+    островами в 7-17 км от массива, почти невидимыми при обычном зуме).
+    Если точка уже касается/внутри массива — коридор не нужен, возвращаем
+    голый круг. Иначе тянем перемычку (буферизованный отрезок) от БЛИЖАЙШЕЙ
+    точки текущего массива до поселения — тот же принцип, что реальный
+    коридор снабжения на карте Рыбаря (см. заметку по Купянску в
+    geo_svo_manual_overrides.json: сплошной контроль с севера, спорный центр
+    города — перемычка соединяет именно оттуда)."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import nearest_points, unary_union
+
+    circle = _point_buffer_km(lat, lon, radius_km)
+    if running_mass is None or running_mass.is_empty or running_mass.intersects(circle):
+        return circle, circle
+    settlement_point = Point(lon, lat)
+    nearest_on_mass, _ = nearest_points(running_mass, settlement_point)
+    corridor = LineString([nearest_on_mass, settlement_point]).buffer(
+        corridor_half_width_km / _KM_PER_DEG_LAT, cap_style=2, join_style=1)
+    return circle, unary_union([circle, corridor])
+
+
 def _query_geojson(url: str, params: dict) -> dict:
     r = httpx.get(url, params={**params, "f": "geojson"}, timeout=_HTTP_TIMEOUT, follow_redirects=True)
     r.raise_for_status()
@@ -203,32 +232,44 @@ def _smooth_polygon(poly, dist: float = 0.0035):
     return opened.buffer(0)
 
 
-def _contested_zone_geojson(contested_overrides: list[dict]) -> dict:
-    """Отдельный (оранжевый на фронте) слой «оспаривается» — НЕ входит в
-    ru_control/control_fill (это не подтверждённый контроль ни ISW, ни
-    Рыбарём решительно — сам Рыбарь на своих картах держит эти зоны
-    ШТРИХОВКОЙ, не сплошной заливкой)."""
+def _contested_zone_geojson(contested_circles: list[tuple[dict, object]], ru_control) -> dict:
+    """Оранжевый штрихованный слой «оспаривается» — владелец (2026-07-25,
+    живая проверка): «спорные части НЕ отдельным красным кружком, а ВНУТРИ
+    большой красной зоны оранжевым/штриховкой» (та же логика, что у Рыбаря —
+    штриховка ложится НА заливку, не рядом с ней отдельным пятном). Поэтому
+    клипуем пятно поселения по финальной (уже сглаженной, с примкнувшими
+    коридорами) ru_control-массе — фронтенд рисует этот слой ПОВЕРХ
+    control-fill (см. ObsPanels.jsx addLayer-порядок), геометрия должна
+    физически лежать внутри неё, не торчать сбоку отдельным островом."""
     from shapely.geometry import mapping
 
     features = []
-    for o in contested_overrides:
-        geom = _point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3))
+    for o, circle in contested_circles:
+        clipped = circle.intersection(ru_control)
+        if clipped.is_empty:
+            continue
         features.append({
             "type": "Feature",
             "properties": {"name": o["name"], "oblast": o.get("oblast"),
                             "source": o.get("source"), "note": o.get("note")},
-            "geometry": mapping(geom),
+            "geometry": mapping(clipped),
         })
     return {"type": "FeatureCollection", "features": features}
 
 
-def _compute_frontline(control_fc: dict, ukraine_boundary, confirmed_overrides: list[dict] | None = None
-                        ) -> tuple[dict, dict]:
-    """Возвращает (frontline_geojson, control_fill_geojson). confirmed_overrides —
-    см. _load_manual_overrides()["confirmed"] — точки, которые Рыбарь/владелец
-    подтверждают решительно взятыми РАНЬШЕ, чем это отразилось в живом слое
-    ISW; сливаются в ru_control ДО сглаживания (получают то же morphological
-    smoothing, что и основной полигон — не торчат острым инородным кругом)."""
+def _compute_frontline(control_fc: dict, ukraine_boundary, confirmed_overrides: list[dict] | None = None,
+                        contested_overrides: list[dict] | None = None) -> tuple[dict, dict, dict]:
+    """Возвращает (frontline_geojson, control_fill_geojson, contested_zone_geojson).
+    confirmed_overrides — см. _load_manual_overrides()["confirmed"] — точки,
+    которые Рыбарь/владелец подтверждают решительно взятыми РАНЬШЕ, чем это
+    отразилось в живом слое ISW; contested_overrides — оспариваемые (тоже
+    входят в ru_control, чтобы физически лежать «внутри большой красной
+    зоны» — штриховка накладывается сверху, см. _contested_zone_geojson).
+    Обе группы примыкают к массиву ЧЕРЕЗ _connect_to_mass (коридор-перемычка,
+    если голый круг не касается текущего массива) и получают то же
+    morphological smoothing, что основной полигон — не торчат отдельным
+    островом/острым инородным кругом (владелец, 2026-07-25, живая проверка
+    карты: «линию фронта не сдвинул», «спорные части не отдельным кружком»)."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
     from shapely.ops import unary_union, linemerge
 
@@ -236,13 +277,26 @@ def _compute_frontline(control_fc: dict, ukraine_boundary, confirmed_overrides: 
                 if f.get("geometry")]
     if not ru_polys:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
+    running_mass = unary_union(ru_polys)
+
     for o in (confirmed_overrides or []):
-        ru_polys.append(_point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)))
+        _circle, connected = _connect_to_mass(running_mass, o["lat"], o["lon"], o.get("radius_km", 3))
+        ru_polys.append(connected)
+        running_mass = unary_union(ru_polys)
+
+    contested_circles = []
+    for o in (contested_overrides or []):
+        circle, connected = _connect_to_mass(running_mass, o["lat"], o["lon"], o.get("radius_km", 3))
+        ru_polys.append(connected)
+        running_mass = unary_union(ru_polys)
+        contested_circles.append((o, circle))
+
     ru_control = unary_union(ru_polys).buffer(0)
     ru_control = _smooth_polygon(ru_control)
     ukraine_boundary = ukraine_boundary.buffer(0)
 
     control_fill = _control_fill_geojson(ru_control)
+    contested_zone = _contested_zone_geojson(contested_circles, ru_control)
 
     rest_of_ukraine = ukraine_boundary.difference(ru_control)
     raw = ru_control.boundary.intersection(rest_of_ukraine.boundary)
@@ -289,7 +343,7 @@ def _compute_frontline(control_fc: dict, ukraine_boundary, confirmed_overrides: 
         "type": "FeatureCollection",
         "features": [{"type": "Feature", "properties": {}, "geometry": mapping(ln)} for ln in simplified],
     }
-    return frontline_fc, control_fill
+    return frontline_fc, control_fill, contested_zone
 
 
 def sync_isw_frontline(db: Session) -> dict:
@@ -311,11 +365,11 @@ def sync_isw_frontline(db: Session) -> dict:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
         overrides = _load_manual_overrides()
-        frontline_fc, control_fill_fc = _compute_frontline(
-            control_fc, ukraine_boundary, confirmed_overrides=overrides["confirmed"])
+        frontline_fc, control_fill_fc, contested_zone_fc = _compute_frontline(
+            control_fc, ukraine_boundary, confirmed_overrides=overrides["confirmed"],
+            contested_overrides=overrides["contested"])
         if not frontline_fc["features"]:
             raise ValueError("Пересчитанная линия фронта пуста")
-        contested_zone_fc = _contested_zone_geojson(overrides["contested"])
 
         row.frontline_geojson = frontline_fc
         row.control_fill_geojson = control_fill_fc

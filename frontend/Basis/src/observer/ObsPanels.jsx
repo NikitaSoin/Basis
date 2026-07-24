@@ -2210,6 +2210,16 @@ function ObsGeoTerritorialChart({ history }) {
   );
 }
 
+// Надёжность источника H/M/L → русский ярлык (тот же словарь, что уже
+// используется рядом в текстовой подписи временного ползунка, "надёжность
+// оценки: высокая/средняя/низкая" — см. hoverEntry.confidence выше). Раньше
+// оба места ниже (event.confidence / region.control_confidence) выводили
+// сырое "confidence H" английским текстом прямо в попапе — заметно при ОТК
+// 2026-07-25 как утечка сырых данных в пользовательский интерфейс.
+function _geomapConfidenceRu(c) {
+  return c === "H" ? "высокая" : c === "M" ? "средняя" : c === "L" ? "низкая" : c;
+}
+
 // Содержимое речевого пузыря деталей клика по карте очага (событие / регион /
 // заявлено-не-подтверждено ISW / ячейка временной реконструкции) — раньше это
 // были 4 отдельных JSX-блока, рендерившихся УСЛОВНО в потоке документа ниже
@@ -2243,7 +2253,7 @@ function ObsGeomapPopupBody({
             {event.epistemic || "факт"}
           </span>
           {event.confidence && (
-            <span className="obs-geomap-confidence">confidence {event.confidence}</span>
+            <span className="obs-geomap-confidence">надёжность: {_geomapConfidenceRu(event.confidence)}</span>
           )}
           {event.stale && (
             <span className="obs-geomap-stale-badge"><AlertTriangle size={11} aria-hidden="true" />нет свежих данных</span>
@@ -2292,7 +2302,7 @@ function ObsGeomapPopupBody({
                   обязателен на каждом аналитическом утверждении, как у событий выше. */}
               <span className="obs-tag-estimate">оценка</span>
               {region.control_confidence && (
-                <span className="obs-geomap-confidence">confidence {region.control_confidence}</span>
+                <span className="obs-geomap-confidence">надёжность: {_geomapConfidenceRu(region.control_confidence)}</span>
               )}
             </>
           )}
