@@ -655,6 +655,8 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                 payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
             if row.capture_isochrone_geojson:
                 payload["base_map"]["capture_isochrone_geojson"] = row.capture_isochrone_geojson
+            if row.contested_zone_geojson:
+                payload["base_map"]["contested_zone_geojson"] = row.contested_zone_geojson
 
         # Заявленные (Минобороны РФ/Рыбарь), но ЕЩЁ не подтверждённые ISW захваты —
         # отдельный эпистемический ярус поверх зазора, пока живой фид ISW отстаёт

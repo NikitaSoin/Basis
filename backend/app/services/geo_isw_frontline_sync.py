@@ -57,6 +57,34 @@ _SVO_MAP_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "config", "geo_map_svo.json",
 )
+_OVERRIDES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_svo_manual_overrides.json",
+)
+_KM_PER_DEG_LAT = 111.0  # грубая константа для конверсии radius_km→градусы на широте Украины
+
+
+def _load_manual_overrides() -> dict:
+    """Ручные оверрайды поверх ISW (владелец, 2026-07-24: «Рыбарь достаточно
+    точно надёжный» — ISW отстаёт на дни, Рыбарь/МО РФ дают более свежую
+    картину для конкретных пунктов). См. докстринг файла и
+    config/geo_svo_manual_overrides.json. Честная деградация — файла нет
+    или он битый → пустые списки, синк линии не падает из-за побочной фичи."""
+    if not os.path.exists(_OVERRIDES_PATH):
+        return {"confirmed": [], "contested": []}
+    try:
+        with open(_OVERRIDES_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return {"confirmed": data.get("confirmed", []), "contested": data.get("contested", [])}
+    except Exception as e:  # noqa: BLE001
+        logger.warning("geo_svo_manual_overrides.json не прочитан: %s", e)
+        return {"confirmed": [], "contested": []}
+
+
+def _point_buffer_km(lat: float, lon: float, radius_km: float):
+    from shapely.geometry import Point
+    deg = radius_km / _KM_PER_DEG_LAT
+    return Point(lon, lat).buffer(deg)
 
 
 def _query_geojson(url: str, params: dict) -> dict:
@@ -175,8 +203,32 @@ def _smooth_polygon(poly, dist: float = 0.0035):
     return opened.buffer(0)
 
 
-def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
-    """Возвращает (frontline_geojson, control_fill_geojson)."""
+def _contested_zone_geojson(contested_overrides: list[dict]) -> dict:
+    """Отдельный (оранжевый на фронте) слой «оспаривается» — НЕ входит в
+    ru_control/control_fill (это не подтверждённый контроль ни ISW, ни
+    Рыбарём решительно — сам Рыбарь на своих картах держит эти зоны
+    ШТРИХОВКОЙ, не сплошной заливкой)."""
+    from shapely.geometry import mapping
+
+    features = []
+    for o in contested_overrides:
+        geom = _point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3))
+        features.append({
+            "type": "Feature",
+            "properties": {"name": o["name"], "oblast": o.get("oblast"),
+                            "source": o.get("source"), "note": o.get("note")},
+            "geometry": mapping(geom),
+        })
+    return {"type": "FeatureCollection", "features": features}
+
+
+def _compute_frontline(control_fc: dict, ukraine_boundary, confirmed_overrides: list[dict] | None = None
+                        ) -> tuple[dict, dict]:
+    """Возвращает (frontline_geojson, control_fill_geojson). confirmed_overrides —
+    см. _load_manual_overrides()["confirmed"] — точки, которые Рыбарь/владелец
+    подтверждают решительно взятыми РАНЬШЕ, чем это отразилось в живом слое
+    ISW; сливаются в ru_control ДО сглаживания (получают то же morphological
+    smoothing, что и основной полигон — не торчат острым инородным кругом)."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
     from shapely.ops import unary_union, linemerge
 
@@ -184,6 +236,8 @@ def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
                 if f.get("geometry")]
     if not ru_polys:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
+    for o in (confirmed_overrides or []):
+        ru_polys.append(_point_buffer_km(o["lat"], o["lon"], o.get("radius_km", 3)))
     ru_control = unary_union(ru_polys).buffer(0)
     ru_control = _smooth_polygon(ru_control)
     ukraine_boundary = ukraine_boundary.buffer(0)
@@ -256,12 +310,16 @@ def sync_isw_frontline(db: Session) -> dict:
     try:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
-        frontline_fc, control_fill_fc = _compute_frontline(control_fc, ukraine_boundary)
+        overrides = _load_manual_overrides()
+        frontline_fc, control_fill_fc = _compute_frontline(
+            control_fc, ukraine_boundary, confirmed_overrides=overrides["confirmed"])
         if not frontline_fc["features"]:
             raise ValueError("Пересчитанная линия фронта пуста")
+        contested_zone_fc = _contested_zone_geojson(overrides["contested"])
 
         row.frontline_geojson = frontline_fc
         row.control_fill_geojson = control_fill_fc
+        row.contested_zone_geojson = contested_zone_fc if contested_zone_fc["features"] else None
         row.as_of = as_of
         row.source = "ISW Assessed Control of Terrain in Ukraine (CC BY)"
         row.status = "ok"
