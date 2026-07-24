@@ -251,6 +251,17 @@ def sync_isw_frontline(db: Session) -> dict:
         row.status = "ok"
         row.error_note = None
 
+        # Изохрона «когда взято» — пересчитывается на каждом синке (дёшево,
+        # чистая геометрия без сети), т.к. зависит от СВЕЖЕЙ формы
+        # control_fill_fc; список дат меняется редко (см. модуль). Честная
+        # деградация — при отсутствии исходных данных/сбое просто не
+        # обновляем поле, не роняем весь синк линии из-за побочной фичи.
+        try:
+            from app.services.geo_svo_capture_isochrone import compute_isochrone
+            row.capture_isochrone_geojson = compute_isochrone(control_fill_fc)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Изохрона СВО: пересчёт не удался (не блокирует синк линии): %s", e)
+
         today = datetime.now(timezone.utc).date().isoformat()
         snap = db.query(GeoFrontlineSnapshot).filter_by(theater="svo", snapshot_date=today).first()
         if snap is None:

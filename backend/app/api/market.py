@@ -653,6 +653,8 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             payload["base_map"]["frontline_synced_at"] = row.synced_at.isoformat() if row.synced_at else None
             if row.control_fill_geojson:
                 payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
+            if row.capture_isochrone_geojson:
+                payload["base_map"]["capture_isochrone_geojson"] = row.capture_isochrone_geojson
 
         # Заявленные (Минобороны РФ/Рыбарь), но ЕЩЁ не подтверждённые ISW захваты —
         # отдельный эпистемический ярус поверх зазора, пока живой фид ISW отстаёт
