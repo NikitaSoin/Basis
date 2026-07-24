@@ -61,6 +61,12 @@ def _fetch_text(url: str, limit: int = 14000) -> str | None:
         return None
     text = re.sub(r"<script.*?</script>|<style.*?</style>", " ", html, flags=re.S | re.I)
     text = re.sub(r"<[^>]+>", " ", text)
+    # &minus;/&ndash;/&mdash; → реальный "-" ДО общей зачистки именованных сущностей:
+    # найдено 2026-07-25 на бюллетене ИБК — cbr.ru отдаёт знак минус то буквальным "-",
+    # то сущностью &minus; (непоследовательно в одном и том же тексте), а общий regex
+    # ниже стирал ИМЕНОВАННЫЕ сущности в пробел — минус у отрицательного значения
+    # молча пропадал (значение читалось как положительное, знак терялся, а не число).
+    text = re.sub(r"&(?:minus|ndash|mdash);", "-", text)
     text = re.sub(r"&[a-z]+;", " ", text)
     return re.sub(r"\s+", " ", text).strip()[:limit]
 
@@ -375,35 +381,72 @@ _CREDIT_M2_SYS = (
 )
 
 
+def _expectations_from_pdf_fallback(db: Session) -> tuple | None:
+    """Резервный путь: XLSX-индекс (Infl_exp_YY-MM.xlsx) публикуется ПОЗЖЕ, чем сам
+    PDF-бюллетень («inFOM_YY-MM.pdf») — на бою 2026-07-25 разрыв был больше недели
+    (PDF был доступен 24 июля, XLSX за июль так и не появился к этому моменту). PDF
+    того же месяца уже находит macro_analytics.py (отдельный конвейер для вкладки
+    «Обзор» Макроэкономики, MacroAnalyticsDoc) — переиспользуем его находку вместо
+    того, чтобы искать PDF заново. Возвращает (as_of, expectation, url) | None."""
+    from app.models.macro import MacroAnalyticsDoc
+    from app.services.macro_analytics import _pdf_text
+    doc = (db.query(MacroAnalyticsDoc)
+           .filter(MacroAnalyticsDoc.source == "cbr",
+                   MacroAnalyticsDoc.doc_type.ilike("%инфляционные ожидания%"))
+           .order_by(MacroAnalyticsDoc.published_at.desc()).first())
+    if not doc or not doc.published_at or not doc.source_url:
+        return None
+    d = _month_end(f"{doc.published_at.year}-{doc.published_at.month:02d}")
+    if d is None:
+        return None
+    text = _pdf_text(doc.source_url)
+    if not text:
+        return None
+    try:
+        out = llm.complete(_EXP_SYS + f"\nМесяц бюллетеня: {doc.published_at.year}-{doc.published_at.month:02d}.",
+                           text, json_mode=True, max_tokens=600)
+        exp = float(out.get("expectation"))
+    except (llm.LLMError, TypeError, ValueError):
+        return None
+    if not (0 <= exp <= 40):
+        return None
+    return (d, exp, doc.source_url)
+
+
 def sync_expectations(db: Session) -> dict:
-    """Инфляционные ожидания населения (год вперёд) с бюллетеня ЦБ → inflation_expectations."""
+    """Инфляционные ожидания населения (год вперёд) с бюллетеня ЦБ → inflation_expectations.
+    Основной путь — XLSX-индекс; фолбэк на PDF-бюллетень (_expectations_from_pdf_fallback),
+    если XLSX ещё не опубликован за месяц, который PDF уже покрывает. Из двух результатов
+    берётся более СВЕЖИЙ месяц (не «предпочитаем XLSX» — предпочитаем более новые данные)."""
+    xlsx_result = None
     try:
         r = httpx.Client(timeout=25, headers=_HTTP, follow_redirects=True).get(_EXP_INDEX)
         r.raise_for_status()
         links = re.findall(r'href="([^"]*Infl_exp_\d{2}-\d{2}[^"]*)"', r.text)
     except Exception as e:  # noqa: BLE001
         logger.warning("CB-sync: индекс ожиданий недоступен: %s", type(e).__name__)
-        return {"error": "index"}
-    if not links:
-        return {"error": "no links"}
-    latest = sorted(links, key=lambda u: re.search(r"(\d{2}-\d{2})", u).group(1))[-1]
-    url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
-    mm = re.search(r"(\d{2})-(\d{2})", url)  # месяц берём из URL (надёжно)
-    d = _month_end(f"20{mm.group(1)}-{mm.group(2)}") if mm else None
-    text = _fetch_text(url)
-    if not text or d is None:
-        return {"error": "page"}
-    try:
-        out = llm.complete(_EXP_SYS + f"\nМесяц бюллетеня: 20{mm.group(1)}-{mm.group(2)}.",
-                           text, json_mode=True, max_tokens=600)
-    except llm.LLMError:
-        return {"error": "llm"}
-    try:
-        exp = float(out.get("expectation"))
-    except (TypeError, ValueError):
-        exp = None
-    if exp is None or not (0 <= exp <= 40):
-        return {"error": "parse"}
+        links = []
+    if links:
+        latest = sorted(links, key=lambda u: re.search(r"(\d{2}-\d{2})", u).group(1))[-1]
+        url = latest if latest.startswith("http") else "https://www.cbr.ru" + latest
+        mm = re.search(r"(\d{2})-(\d{2})", url)  # месяц берём из URL (надёжно)
+        d = _month_end(f"20{mm.group(1)}-{mm.group(2)}") if mm else None
+        text = _fetch_text(url)
+        if text and d is not None:
+            try:
+                out = llm.complete(_EXP_SYS + f"\nМесяц бюллетеня: 20{mm.group(1)}-{mm.group(2)}.",
+                                   text, json_mode=True, max_tokens=600)
+                exp = float(out.get("expectation"))
+                if 0 <= exp <= 40:
+                    xlsx_result = (d, exp, url)
+            except (llm.LLMError, TypeError, ValueError):
+                pass
+
+    pdf_result = _expectations_from_pdf_fallback(db)
+    candidates = [c for c in (xlsx_result, pdf_result) if c]
+    if not candidates:
+        return {"error": "no data"}
+    d, exp, url = max(candidates, key=lambda c: c[0])
     upsert_point(db, "inflation_expectations", d, "level", exp, unit="%", source="ЦБ РФ (инФОМ)",
                  source_url=url, ingested_via="cbr")
     return {"month": str(d), "expectation": exp}
@@ -489,6 +532,48 @@ def sync_credit_m2(db: Session, months_back: int = 1) -> dict:
     return out if months_back > 1 else next(iter(out.values()), {"error": "empty"})
 
 
+_IBC_SYS = (
+    "Это бюллетень Банка России «Мониторинг предприятий» за конкретный месяц. Извлеки "
+    "значение Индикатора бизнес-климата (ИБК) ЗА ЭТОТ МЕСЯЦ (не за предыдущий месяц "
+    "сравнения, который обычно указан рядом в скобках). Верни строго JSON "
+    "{\"value\": <число>}. ИБК может быть ОТРИЦАТЕЛЬНЫМ — знак минус обязательно сохраняй. "
+    "Число через точку (не запятую). Только из текста, без выдумок. Без текста вне JSON."
+)
+
+
+def sync_business_climate(db: Session) -> dict:
+    """Индикатор бизнес-климата (ИБК) — ежемесячный опросный индекс Банка России
+    («Мониторинг предприятий», опрос >15 тыс. компаний), предсказуемый URL по месяцу:
+    /analytics/dkp/monitoring/MMYY/ (напр. 0726 = июль 2026). Пробуем текущий месяц,
+    при неудаче — 1-2 месяца назад (бюллетень публикуется в начале месяца ПОСЛЕ
+    отчётного, текущий календарный месяц может быть ещё не готов)."""
+    today = date.today()
+    for offset in (0, 1, 2):
+        y, m = today.year, today.month - offset
+        while m <= 0:
+            m += 12
+            y -= 1
+        mmyy = f"{m:02d}{y % 100:02d}"
+        url = f"https://www.cbr.ru/analytics/dkp/monitoring/{mmyy}/"
+        text = _fetch_text(url)
+        if not text or "бизнес-клим" not in text.lower():
+            continue
+        try:
+            out = llm.complete(_IBC_SYS, text, json_mode=True, max_tokens=300)
+            val = float(str(out.get("value")).replace(",", "."))
+        except (llm.LLMError, TypeError, ValueError):
+            continue
+        if not (-50 <= val <= 50):
+            continue
+        d = _month_end(f"{y}-{m:02d}")
+        if d is None:
+            continue
+        upsert_point(db, "business_climate_indicator", d, "level", val, unit="п",
+                     source="ЦБ РФ (мониторинг предприятий)", source_url=url, ingested_via="cbr")
+        return {"month": str(d), "value": val, "url": url}
+    return {"error": "not found"}
+
+
 def sync_cb(db: Session) -> dict:
     """Изоляция ошибок ПО КАЖДОЙ подзадаче: раньше необработанное исключение в
     одной (напр. упавшая транзакция БД) прерывало весь словарь — остальные
@@ -499,7 +584,7 @@ def sync_cb(db: Session) -> dict:
         ("rate", sync_rate_meeting), ("forecast", sync_forecast),
         ("forecast_annual", sync_forecast_annual), ("expert_survey", sync_expert_survey),
         ("inflation", sync_inflation), ("expectations", sync_expectations),
-        ("credit_m2", sync_credit_m2),
+        ("credit_m2", sync_credit_m2), ("business_climate", sync_business_climate),
     ):
         try:
             out[key] = fn(db)
