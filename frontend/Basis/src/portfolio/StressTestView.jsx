@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FlaskConical, Send, RotateCcw, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { Card, Badge, Delta } from "../design/primitives";
 import { CompanyLogo } from "../design/CompanyLogo";
 import "../styles/stress-test.css";
 
@@ -18,7 +17,7 @@ import "../styles/stress-test.css";
 // прислал, не выдумываем координаты на фронте). Пресеты — качественная
 // факторная модель (санкции/конфликт/спрос), у неё нет числовых
 // ставка/курс/нефть эквивалентов в движке — не пытаемся натянуть их на
-// слайдеры, остаются отдельным результатом (QualTable), как раньше.
+// слайдеры, остаются отдельным результатом (DirectionCompass), как раньше.
 //
 // v4.1 (владелец, 2026-07-24, по живому демо в Клод-дизайне):
 // — Слайдеры считают МГНОВЕННО локально в JS (companyImpact/computeAllImpacts
@@ -35,6 +34,18 @@ import "../styles/stress-test.css";
 // — Плитки/строки — имя компании первично, тикер вторично (мельче/mono), клик
 //   открывает карточку компании (onOpenCompany, тот же паттерн, что у
 //   PortfolioV2/AssistantView в App.js).
+//
+// v5 (design-critic review 2026-07-25, «Консоль → Досье»): всё, что рендерится
+// ПОСЛЕ .st-console, больше не тёмное продолжение приборной панели — это
+// сознательный переход на светлую «бумагу» (--bs-surface/--bs-card/--bs-copper),
+// собранную как ОДНА глава-досье (заголовок-вердикт → доказательства →
+// компас направления → «Спросите ещё»), а не три несвязанные карточки на
+// легаси-примитивах (Card/Badge/Delta из design/primitives.jsx, NEO-токены
+// --success/--danger). Метафора: тёмная консоль — приборная панель, которую
+// «включаешь» и двигаешь рычаги; светлая бумага ниже — распечатанный отчёт по
+// итогам прогона, который откладывается и перечитывается. Новые компоненты —
+// DossierHead/ShieldSide/ExpertDossier/FinancialTable/DirectionCompass/
+// NextQuestionStrip, стили — конец stress-test.css (секция «Досье»).
 
 const BUCKETS = [
   { min: 8, label: "▲▲", cls: "bs-wind-up", title: "сильно позитивно" },
@@ -110,7 +121,7 @@ function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentU
 }
 
 // Вся вселенная → результат в ТОЙ ЖЕ форме, что /numeric (companies[] с metrics),
-// поэтому ConsoleHeadline/MarketMap/Boards/NumericTable принимают его без
+// поэтому ConsoleHeadline/MarketMap/Boards/FinancialTable принимают его без
 // изменений — независимо от того, посчитан он сервером (ask/preset) или
 // локально (слайдеры).
 function computeAllImpacts(coefficients, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot) {
@@ -152,20 +163,6 @@ const ECHELON_OPTIONS = [
 function filterByEchelon(companies, echelonFilter) {
   if (echelonFilter === "all") return companies;
   return companies.filter((c) => (c.echelon ?? 3) === echelonFilter);
-}
-
-function DeltaCell({ m }) {
-  if (!m || m.delta_bn == null) return <span className="tw-text-text-tertiary">—</span>;
-  return (
-    <span className="tw-inline-flex tw-items-baseline tw-gap-1.5">
-      <Delta value={m.delta_bn} suffix="млрд ₽" decimals={1} />
-      {m.pct_of_base != null && (
-        <span className="tw-text-[11px] tw-text-text-tertiary">
-          ({m.pct_of_base > 0 ? "+" : ""}{m.pct_of_base}%)
-        </span>
-      )}
-    </span>
-  );
 }
 
 // Ранжирование «кто пострадает/выиграет сильнее всего» — сигнальный слой ПЕРЕД
@@ -396,167 +393,216 @@ function dedupeByIssuer(companies) {
   return [...seen.values()];
 }
 
-function NumericTable({ numeric, onOpenCompany }) {
-  const [showAll, setShowAll] = useState(false);
-  const deduped = dedupeByIssuer(numeric.companies);
-  const list = showAll ? deduped : deduped.slice(0, 20);
+const STRENGTH = { 1: "слабо", 2: "заметно", 3: "сильно" };
+
+// Сила эффекта — визуальный код (точки), не только слово мелким шрифтом
+// (design-critic, 2026-07-25, пункт 5). aria-label/title держат словесную
+// формулировку для читалок экрана и hover.
+function Intensity({ n, tone }) {
   return (
-    <Card header={<span className="tw-flex tw-items-center tw-gap-2">
-      Эффект на финансовые показатели (за год, к базе последнего отчётного года)
-      <span className="bs-tag-estimate">оценка</span>
-    </span>}>
-      <div className="tw-overflow-x-auto">
-        <table className="tw-w-full tw-text-[13px]">
-          <thead>
-            <tr className="tw-text-text-tertiary tw-text-[11px] tw-uppercase tw-tracking-wide">
-              <th className="tw-text-left tw-font-semibold tw-pb-2">Компания</th>
-              <th className="tw-text-right tw-font-semibold tw-pb-2">Δ Выручка</th>
-              <th className="tw-text-right tw-font-semibold tw-pb-2">Δ EBITDA</th>
-              <th className="tw-text-right tw-font-semibold tw-pb-2">Δ Чистая прибыль</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((c) => (
-              <tr key={c.ticker} className={`tw-border-t tw-border-border-subtle${onOpenCompany ? " tw-cursor-pointer hover:tw-bg-bg-hover" : ""}`}
-                onClick={() => onOpenCompany?.(c.ticker)}>
-                <td className="tw-py-2">
-                  <span className="tw-inline-flex tw-items-center tw-gap-2">
-                    <CompanyLogo ticker={c.ticker} name={c.name} size={22} />
-                    <span>
-                      {c.is_blue_chip && <Badge tone="neutral" className="tw-mr-1.5 tw-text-[10px]">ГФ</Badge>}
-                      <span className="tw-text-text-primary tw-font-medium">{c.name}</span>
-                      <span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-ml-2">
-                        {c.ticker}{c._also?.length > 0 && <span className="tw-text-[10px] tw-ml-1">= {c._also.join(", ")}</span>}
-                      </span>
-                      <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-2">{c.sector}</span>
-                    </span>
-                  </span>
-                </td>
-                <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.revenue} /></td>
-                <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.ebitda} /></td>
-                <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.net_profit} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {deduped.length > 20 && (
-        <button type="button" onClick={() => setShowAll(!showAll)}
-          className="tw-mt-3 tw-text-[13px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
-          {showAll ? "Свернуть ▴" : `Показать все ${deduped.length} компаний ▾`}
-        </button>
-      )}
-      <div className="tw-mt-3 tw-text-[11.5px] tw-text-text-tertiary tw-leading-relaxed">{numeric.semantics}</div>
-    </Card>
+    <span className="st-intensity" role="img" aria-label={STRENGTH[n] || ""} title={STRENGTH[n] || ""}>
+      {[1, 2, 3].map((i) => (
+        <i key={i} className={`st-int-dot${i <= n ? ` st-int-on-${tone}` : ""}`} />
+      ))}
+    </span>
   );
 }
 
-const STRENGTH = { 1: "слабо", 2: "заметно", 3: "сильно" };
+// Заголовок-досье — вердикт ПОВЕРХ доказательств (конституция: «4 слоя
+// чтения», голая таблица/список без интерпретации не считается готовым
+// экраном). Стоит НАД таблицей/компасом, не после.
+function DossierHead({ eyebrow, title, lede, tag }) {
+  return (
+    <div className="st-dossier-head">
+      <span className="st-dossier-eyebrow">{eyebrow}</span>
+      <h3 className="st-dossier-title">{title}</h3>
+      {tag}
+      {lede && <p className="st-dossier-lede">{lede}</p>}
+    </div>
+  );
+}
 
-const Side = ({ title, sectors, companies, positive }) => {
+function ShieldSide({ title, tone, sectors, companies }) {
   const [showAll, setShowAll] = useState(false);
   const total = sectors.length + companies.length;
-  const capped = !showAll && total > 6;
-  const sList = capped ? sectors.slice(0, Math.max(0, 6 - companies.length)) : sectors;
-  const cList = capped ? companies.slice(0, Math.max(0, 6 - sList.length)) : companies;
+  const capped = !showAll && total > 5;
+  const sList = capped ? sectors.slice(0, Math.max(0, 5 - companies.length)) : sectors;
+  const cList = capped ? companies.slice(0, Math.max(0, 5 - sList.length)) : companies;
   return (
-    <div>
-      <div className={`tw-text-[12px] tw-font-bold tw-uppercase tw-tracking-wide tw-mb-2 ${positive ? "tw-text-success" : "tw-text-danger"}`}>{title}</div>
+    <div className={`st-shield-col st-shield-${tone}`}>
+      <h3>{title}</h3>
       {sList.map((s, i) => (
-        <div key={`s${i}`}
-          className="tw-mb-2 tw-pl-3 tw-border-l-2"
-          style={{ borderColor: positive ? "var(--bs-up)" : "var(--bs-down)", opacity: s.strength === 1 ? 0.75 : 1 }}>
-          <div className="tw-text-[13.5px] tw-font-semibold tw-text-text-primary">
-            {s.sector}
-            <span className={`bs-wind-tag ${positive ? "bs-wind-up" : "bs-wind-down"} tw-ml-2`}>{STRENGTH[s.strength] || ""}</span>
+        <div key={`s${i}`} className="st-shield-card">
+          <div className="st-shield-row">
+            <span className="st-shield-sector">{s.sector}</span>
+            <Intensity n={s.strength} tone={tone} />
           </div>
-          <div className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug">{s.why}</div>
+          <p>{s.why}</p>
         </div>
       ))}
-      {cList.length > 0 && (
-        <div className="tw-mt-3 tw-flex tw-flex-col tw-gap-1.5">
-          {cList.map((c, i) => (
-            <div key={`c${i}`}
-              className="tw-text-[12.5px] tw-text-text-secondary tw-leading-snug tw-pl-3 tw-border-l-2"
-              style={{ borderColor: positive ? "var(--bs-up)" : "var(--bs-down)" }}>
-              <span className="tw-font-mono tw-font-semibold tw-text-text-primary">{c.ticker}</span> — {c.why}
-            </div>
-          ))}
+      {cList.map((c, i) => (
+        <div key={`c${i}`} className="st-shield-card st-shield-card-co">
+          <span className="st-shield-ticker">{c.ticker}</span>
+          <p>{c.why}</p>
         </div>
-      )}
-      {!sectors.length && !companies.length && <div className="tw-text-[12.5px] tw-text-text-tertiary">—</div>}
-      {total > 6 && (
-        <button type="button" onClick={() => setShowAll(!showAll)}
-          className="tw-mt-2 tw-text-[12px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
+      ))}
+      {!sectors.length && !companies.length && <p className="st-shield-empty">Явных факторов не выделено.</p>}
+      {total > 5 && (
+        <button type="button" className="st-more-btn" onClick={() => setShowAll(!showAll)}>
           {showAll ? "Свернуть ▴" : `Показать все ${total} ▾`}
         </button>
       )}
     </div>
   );
-};
+}
 
-function ExpertBlock({ e }) {
+function ExpertDossier({ e }) {
   return (
-    <Card header={<span className="tw-flex tw-items-center tw-gap-2">
-      Разбор эксперта (ИИ на базе знаний платформы)
-      <span className="bs-tag-judgment">суждение</span>
-    </span>}>
-      <div className="tw-text-[14px] tw-text-text-primary tw-leading-relaxed tw-mb-4">{e.summary}</div>
+    <div className="bs-card st-dossier-card">
+      <div className="st-dossier-card-head">
+        <h3>Механика сценария</h3>
+        <span className="bs-tag-judgment">суждение</span>
+      </div>
+      <p className="st-dossier-summary">{e.summary}</p>
       {e.channels?.length > 0 && (
-        <div className="tw-mb-4">
-          <div className="tw-text-[11px] tw-font-bold tw-uppercase tw-tracking-wide tw-text-text-tertiary tw-mb-1.5">Каналы влияния</div>
-          <ul className="tw-m-0 tw-pl-5 tw-text-[13px] tw-text-text-secondary tw-leading-relaxed">
-            {e.channels.map((ch, i) => <li key={i}>{ch}</li>)}
-          </ul>
-        </div>
+        <ol className="st-channels">
+          {e.channels.map((ch, i) => (
+            <li key={i}><span className="st-channel-n">{i + 1}</span>{ch}</li>
+          ))}
+        </ol>
       )}
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-6 tw-mb-4">
-        <Side title="Потенциальные бенефициары" sectors={e.sector_winners || []} companies={e.company_winners || []} positive />
-        <Side title="Потенциально под давлением" sectors={e.sector_losers || []} companies={e.company_losers || []} positive={false} />
+      <div className="st-shield-grid">
+        <ShieldSide title="Потенциальные бенефициары" tone="up" sectors={e.sector_winners || []} companies={e.company_winners || []} />
+        <ShieldSide title="Потенциально под давлением" tone="down" sectors={e.sector_losers || []} companies={e.company_losers || []} />
       </div>
       {e.caveats?.length > 0 && (
-        <div className="tw-p-3 tw-rounded-md tw-bg-bg-surface tw-text-[12.5px] tw-text-text-secondary tw-leading-relaxed">
-          <b className="tw-text-text-primary">Оговорки:</b> {e.caveats.join(" · ")}
+        <div className="bs-callout" style={{ marginTop: 18 }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" /></svg>
+          <p><b>Оговорки.</b> {e.caveats.join(" · ")}</p>
         </div>
       )}
-      <div className="tw-mt-3 tw-text-[11.5px] tw-text-text-tertiary">{e.kb_note}</div>
-    </Card>
+      {e.kb_note && <p className="st-dossier-note">{e.kb_note}</p>}
+    </div>
   );
 }
 
-function QualTable({ qual }) {
-  const [showAll, setShowAll] = useState(false);
-  const rows = [...(qual.winners || []), ...(qual.losers || [])]
-    .sort((a, b) => b.reaction_pct - a.reaction_pct);
-  const list = showAll ? rows : rows.slice(0, 16);
+function FinDelta({ m }) {
+  if (!m || m.delta_bn == null) return <span className="st-fd-empty">—</span>;
+  const up = m.delta_bn > 0, flat = m.delta_bn === 0;
+  const color = flat ? "var(--bs-ink-3)" : up ? "var(--bs-up)" : "var(--bs-down)";
+  const glyph = flat ? "•" : up ? "▲" : "▼";
   return (
-    <Card header="Направление эффекта (качественные факторы: санкции / конфликт / налоги / спрос / ставка)">
-      <div className="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-x-8">
-        {list.map((r) => {
-          const b = bucketOf(r.reaction_pct);
+    <span className="st-fd" style={{ color }}>
+      <span aria-hidden="true">{glyph}</span>
+      {Math.abs(m.delta_bn).toFixed(1)} млрд ₽
+      {m.pct_of_base != null && <span className="st-fd-pct"> ({m.pct_of_base > 0 ? "+" : ""}{m.pct_of_base}%)</span>}
+    </span>
+  );
+}
+
+function FinancialTable({ numeric, onOpenCompany }) {
+  const [showAll, setShowAll] = useState(false);
+  const deduped = dedupeByIssuer(numeric.companies);
+  const list = showAll ? deduped : deduped.slice(0, 8);
+  return (
+    <div className="bs-card st-dossier-card">
+      <div className="st-dossier-card-head">
+        <h3>Эффект на финансовые показатели</h3>
+        <span className="bs-tag-estimate">оценка</span>
+      </div>
+      <p className="st-dossier-summary" style={{ marginBottom: 14 }}>За год, к базе последнего отчётного года.</p>
+      <div className="st-ftable-wrap">
+        <table className="st-ftable">
+          <thead>
+            <tr>
+              <th className="st-fth-l">Компания</th>
+              <th>Δ Выручка</th><th>Δ EBITDA</th><th>Δ Чистая прибыль</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((c) => (
+              <tr key={c.ticker} className={onOpenCompany ? "st-fr-clickable" : ""} onClick={() => onOpenCompany?.(c.ticker)}>
+                <td className="st-fth-l">
+                  <span className="st-fco">
+                    <CompanyLogo ticker={c.ticker} name={c.name} size={22} />
+                    <span className="st-fco-txt">
+                      <span className="st-fco-name">
+                        {c.is_blue_chip && <span className="st-fco-bf">ГФ</span>}
+                        {c.name}
+                      </span>
+                      <span className="st-fco-meta">
+                        {c.ticker}{c._also?.length > 0 && ` = ${c._also.join(", ")}`} · {c.sector}
+                      </span>
+                    </span>
+                  </span>
+                </td>
+                <td><FinDelta m={c.metrics.revenue} /></td>
+                <td><FinDelta m={c.metrics.ebitda} /></td>
+                <td><FinDelta m={c.metrics.net_profit} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {deduped.length > 8 && (
+        <button type="button" className="st-more-btn" onClick={() => setShowAll(!showAll)}>
+          {showAll ? "Свернуть ▴" : `Показать все ${deduped.length} компаний ▾`}
+        </button>
+      )}
+      <p className="st-dossier-note">{numeric.semantics}</p>
+    </div>
+  );
+}
+
+const BUCKET_ORDER = ["▲▲", "▲", "─", "▼", "▼▼"];
+
+function DirectionCompass({ qual, onOpenCompany }) {
+  const [showAll, setShowAll] = useState(false);
+  const rows = [...(qual.winners || []), ...(qual.losers || [])];
+  const groups = new Map(BUCKET_ORDER.map((l) => [l, []]));
+  for (const r of rows) groups.get(bucketOf(r.reaction_pct).label).push(r);
+  return (
+    <div className="bs-card st-dossier-card">
+      <div className="st-dossier-card-head">
+        <h3>Компас сценария</h3>
+        <span className="bs-tag-judgment">суждение</span>
+      </div>
+      <p className="st-dossier-summary" style={{ marginBottom: 16 }}>
+        Только направление — величину этих эффектов мы числом не оцениваем (в отличие от финансовой
+        таблицы выше). Сигнал: {qual.companies_with_signal} из {qual.total_companies} компаний.
+      </p>
+      <div className="st-compass">
+        {BUCKET_ORDER.map((label) => {
+          const items = groups.get(label);
+          if (!items.length) return null;
+          const b = BUCKETS.find((x) => x.label === label);
+          const list = showAll ? items : items.slice(0, 10);
           return (
-            <div key={r.ticker} className="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-py-1.5 tw-border-b tw-border-border-subtle">
-              <div className="tw-min-w-0 tw-truncate">
-                <span className="tw-font-mono tw-text-[12px] tw-text-text-tertiary tw-mr-2">{r.ticker}</span>
-                <span className="tw-text-[13px] tw-text-text-primary">{r.name}</span>
+            <div key={label} className="st-compass-row">
+              <div className="st-compass-lbl">
+                <span className={`bs-wind-tag ${b.cls}`}>{label}</span>
+                <span className="st-compass-title">{b.title}</span>
+                <span className="st-compass-count">{items.length}</span>
               </div>
-              <span className={`bs-wind-tag tw-flex-shrink-0 ${b.cls}`} title={b.title}>{b.label}</span>
+              <div className="st-compass-chips">
+                {list.map((r) => (
+                  <button key={r.ticker} type="button" className="st-compass-chip"
+                    onClick={() => onOpenCompany?.(r.ticker)} title={r.name}>
+                    <span className="st-cc-ticker">{r.ticker}</span>{r.name}
+                  </button>
+                ))}
+                {!showAll && items.length > 10 && <span className="st-compass-more-hint">+{items.length - 10}</span>}
+              </div>
             </div>
           );
         })}
       </div>
-      {rows.length > 16 && (
-        <button type="button" onClick={() => setShowAll(!showAll)}
-          className="tw-mt-3 tw-text-[13px] tw-font-semibold tw-text-accent tw-bg-transparent tw-border-0 tw-cursor-pointer">
-          {showAll ? "Свернуть ▴" : "Показать больше ▾"}
+      {rows.length > 30 && (
+        <button type="button" className="st-more-btn" onClick={() => setShowAll(!showAll)}>
+          {showAll ? "Свернуть ▴" : "Показать все компании ▾"}
         </button>
       )}
-      <div className="tw-mt-3 tw-text-[11.5px] tw-text-text-tertiary tw-leading-relaxed">
-        ▲▲ сильно позитивно · ▲ позитивно · ─ нейтрально · ▼ негативно · ▼▼ сильно негативно.
-        Только направление по факторной разметке карточек — величину этих эффектов мы числом не оцениваем
-        (в отличие от таблицы финансовых показателей выше). Сигнал: {qual.companies_with_signal} из {qual.total_companies} компаний.
-      </div>
-    </Card>
+    </div>
   );
 }
 
@@ -568,6 +614,23 @@ const SLIDER_RANGE = {
   fx_usdrub: { min: 50, max: 150, step: 1, label: "Курс ₽/$", unit: "₽", fmtBase: (v) => `сейчас ≈ ${Math.round(v)} ₽/$` },
   oil_brent_usd: { min: 20, max: 120, step: 1, label: "Нефть Brent", unit: "$", fmtBase: (v) => `сейчас ≈ $${Math.round(v)}/барр.` },
 };
+
+// «Спросите ещё» (блок в конце досье) — эскалация ТЕКУЩЕГО значения слайдера
+// на шаг дальше в ТУ ЖЕ сторону, куда он уже сдвинут от базы; если ещё не
+// сдвинут (|diff| меньше 20% шага) — по умолчанию идём вверх. Клэмп в диапазон
+// слайдера, чтобы кнопка никогда не предлагала невалидное значение.
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+function escalate(field, base, current, step) {
+  const cfg = SLIDER_RANGE[field];
+  let next;
+  if (base == null || current == null) next = current + step;
+  else {
+    const diff = current - base;
+    next = Math.abs(diff) < step * 0.2 ? current + step : current + Math.sign(diff) * step;
+  }
+  next = clamp(next, cfg.min, cfg.max);
+  return field === "key_rate_pct" ? round1(next) : Math.round(next);
+}
 
 // Пресеты — качественная факторная модель backend'а (stress_scenarios.py),
 // без эмодзи в данных; глиф — чисто визуальный, подобран по смыслу сценария
@@ -600,6 +663,49 @@ function Slider({ field, value, onChange, pulsing, base }) {
   );
 }
 
+// «Спросите ещё» — конец досье, не косметика: три чипа-продолжения, вычисленные
+// из РЕАЛЬНЫХ текущих значений слайдеров (не изобретённые текстом сценарии),
+// клик двигает соответствующий слайдер и скроллит обратно к консоли — сценарии
+// естественно нанизываются один на другой (design-critic, 2026-07-25).
+const NEXT_LEDE = {
+  idle: "Сценарии складываются один из другого — попробуйте пойти дальше по той же логике.",
+  expert: "Хотите увидеть, что будет, если пойти ещё дальше в ту же сторону?",
+  qualitative: "Эти факторы работают до определённого предела — сдвиньте рычаги сильнее и посмотрите на цифры.",
+  preset: "У этого сценария нет числового аналога — но вот те же рычаги в количественной модели.",
+};
+
+function NextQuestionStrip({ levels, baseLevels, onEscalate, context = "idle" }) {
+  if (!levels) return null;
+  const rateNext = escalate("key_rate_pct", baseLevels?.key_rate_pct, levels.key_rate_pct, 5);
+  const oilNext = escalate("oil_brent_usd", baseLevels?.oil_brent_usd, levels.oil_brent_usd, 15);
+  const fxNext = escalate("fx_usdrub", baseLevels?.fx_usdrub, levels.fx_usdrub, 15);
+  const rateDir = rateNext >= levels.key_rate_pct ? "выше" : "ниже";
+  const oilDir = oilNext >= levels.oil_brent_usd ? "выше" : "ниже";
+  const fxDir = fxNext >= levels.fx_usdrub ? "слабее" : "крепче";
+  return (
+    <div className="st-next">
+      <div>
+        <span className="st-next-eyebrow">Спросите ещё</span>
+        <p className="st-next-lede">{NEXT_LEDE[context]}</p>
+      </div>
+      <div className="st-next-chips">
+        <button type="button" className="st-next-chip" onClick={() => onEscalate("key_rate_pct", rateNext)}>
+          Ставка ещё {rateDir} → <span>{rateNext}%</span>
+        </button>
+        <button type="button" className="st-next-chip" onClick={() => onEscalate("oil_brent_usd", oilNext)}>
+          Нефть ещё {oilDir} → <span>${oilNext}</span>
+        </button>
+        <button type="button" className="st-next-chip" onClick={() => onEscalate("fx_usdrub", fxNext)}>
+          Рубль {fxDir} → <span>{fxNext} ₽/$</span>
+        </button>
+        <button type="button" className="st-next-chip st-next-chip-ghost" onClick={() => onEscalate(null)}>
+          Или опишите свой сценарий ↑
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function StressTestView({ onOpenCompany }) {
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -613,6 +719,12 @@ export default function StressTestView({ onOpenCompany }) {
   const [levelsIsFallback, setLevelsIsFallback] = useState(false);
   const [pulsingFields, setPulsingFields] = useState(new Set());
   const skipRecomputeRef = useRef(false);
+
+  // Досье → консоль: рефы для моста «Спросите ещё» (NextQuestionStrip ниже
+  // консоли) — клик по чипу-продолжению двигает слайдер И скроллит обратно к
+  // консоли, чтобы пользователь увидел новую карту, не просто число в кнопке.
+  const consoleRef = useRef(null);
+  const askInputRef = useRef(null);
 
   // Сырые коэффициенты чувствительности по всей вселенной — грузятся ОДИН раз,
   // дальше слайдеры считают локально (см. companyImpact/computeAllImpacts
@@ -685,6 +797,23 @@ export default function StressTestView({ onOpenCompany }) {
   const resetLevels = () => {
     if (!baseLevels) return;
     setLevels({ ...baseLevels });
+  };
+
+  // Клик по чипу «Спросите ещё» (или по ghost-чипу «опишите сами», field=null) —
+  // двигает слайдер на эскалированное значение и всегда скроллит назад к
+  // консоли, чтобы результат (индекс/карта) был виден сразу, не за скроллом.
+  // scrollIntoView({behavior:"smooth"}) безопасен под prefers-reduced-motion —
+  // глобальный гард в tokens.css форсит scroll-behavior:auto !important.
+  const handleEscalate = (field, value) => {
+    if (!field) {
+      consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => askInputRef.current?.focus(), 400);
+      return;
+    }
+    setField(field, value);
+    setPulsingFields(new Set([field]));
+    setTimeout(() => setPulsingFields(new Set()), 900);
+    consoleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const ask = () => {
@@ -811,7 +940,7 @@ export default function StressTestView({ onOpenCompany }) {
         </p>
       </div>
 
-      <div className="st-console">
+      <div className="st-console" ref={consoleRef}>
         <div className="st-ask">
           <div className="st-ask-row">
             <input
@@ -819,6 +948,7 @@ export default function StressTestView({ onOpenCompany }) {
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") ask(); }}
               placeholder="Опишите сценарий своими словами — «нефть падает до $45 и держится там»"
+              ref={askInputRef}
             />
             <button type="button" onClick={ask} disabled={askLoading}>
               <Send size={14} /> Спросить
@@ -902,14 +1032,15 @@ export default function StressTestView({ onOpenCompany }) {
               // происходит» — пресет реально считался (winners/losers), но
               // headline/карта (числовой контур) вообще не реагируют — у пресетов
               // нет числового эквивалента (см. шапку файла), а результат
-              // (QualTable) рендерится далеко внизу страницы. Явно показываем
-              // здесь, ГДЕ смотрит пользователь, что клик подействовал.
+              // (DirectionCompass) рендерится далеко внизу страницы. Явно показываем
+              // здесь, ГДЕ смотрит пользователь, что клик подействовал — БЕЗ полного
+              // описания (оно, плюс заголовок, уже даёт DossierHead в досье ниже,
+              // v5 2026-07-25 — было дословное дублирование текста дважды подряд).
               <div className="st-preset-active">
                 <div className="st-preset-active-lbl">Показан сценарий «{presetResult.scenario?.label}»</div>
-                <p className="st-preset-active-desc">{presetResult.scenario?.description}</p>
                 <div className="st-preset-active-hint">
                   У этого сценария нет точных числовых уровней ставки/курса/нефти — количественная карта
-                  здесь недоступна. Направление эффекта по компаниям — в таблице ниже ↓
+                  здесь недоступна. Направление эффекта по компаниям — в досье ниже ↓
                 </div>
               </div>
             ) : numResult && !numResult.error ? (
@@ -947,31 +1078,73 @@ export default function StressTestView({ onOpenCompany }) {
         {numResult && !numResult.error && !presetResult && <Boards numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
       </div>
 
-      {numResult && !numResult.error && !presetResult && <NumericTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />}
+      {/* ============================================================
+          «Досье» — всё после консоли. Светлая бумага (--bs-surface/--bs-card),
+          НЕ продолжение тёмной консоли (см. комментарий v5 в шапке файла).
+          Одна глава: вердикт → доказательства → компас → «спросите ещё».
+          ============================================================ */}
+      <div className="st-dossier">
+        {/* Базовое состояние (ни ask, ни пресет не запущены) — просто текущий
+            слайдерный расчёт, свежий всегда (numResult синхронен со слайдерами). */}
+        {!askResult && !presetResult && numResult && !numResult.error && (
+          <>
+            <FinancialTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />
+            <NextQuestionStrip levels={levels} baseLevels={baseLevels} onEscalate={handleEscalate} context="idle" />
+          </>
+        )}
 
-      {askResult?.expert && <ExpertBlock e={askResult.expert} />}
-      {askResult?.qualitative && <QualTable qual={askResult.qualitative} />}
-      {askResult?.no_signal && (
-        <Card><div className="tw-text-[13.5px] tw-text-text-secondary">{askResult.note}</div></Card>
-      )}
-      {askResult?.error === "network" && (
-        <Card><div className="tw-text-[13.5px] tw-text-danger">Не удалось получить ответ — попробуйте ещё раз.</div></Card>
-      )}
+        {/* Ответ на свободный вопрос — эксперт/качественный компас/числа могут
+            приходить в любой комбинации (backend пробует все три независимо,
+            см. stress_ask.py). Показываем финтаблицу ТОЛЬКО когда ЭТОТ ask
+            реально принёс свежие числа (askResult.numeric) — иначе рискуем
+            выдать устаревшую таблицу от предыдущего расчёта под чужим вердиктом. */}
+        {askResult && !askResult.no_signal && !askResult.error &&
+          (askResult.expert || askResult.qualitative || (askResult.numeric && !askResult.numeric.error)) && (
+          <>
+            <DossierHead
+              eyebrow="Разбор сценария"
+              title={askResult.expert ? "Победители и проигравшие сценария"
+                : askResult.qualitative ? "Направление эффекта по компаниям"
+                : "Эффект на финансовые показатели"}
+              lede={askResult.understood}
+              tag={askResult.expert || askResult.qualitative
+                ? <span className="bs-tag-judgment">суждение</span>
+                : <span className="bs-tag-estimate">оценка</span>}
+            />
+            {askResult.numeric && !askResult.numeric.error && (
+              <FinancialTable numeric={displayNumeric} onOpenCompany={onOpenCompany} />
+            )}
+            {askResult.expert && <ExpertDossier e={askResult.expert} />}
+            {askResult.qualitative && <DirectionCompass qual={askResult.qualitative} onOpenCompany={onOpenCompany} />}
+            <NextQuestionStrip levels={levels} baseLevels={baseLevels} onEscalate={handleEscalate}
+              context={askResult.expert ? "expert" : askResult.qualitative ? "qualitative" : "idle"} />
+          </>
+        )}
+        {askResult?.no_signal && (
+          <div className="bs-card st-dossier-card"><p className="st-dossier-summary">{askResult.note}</p></div>
+        )}
+        {askResult?.error === "network" && (
+          <div className="bs-card st-dossier-card">
+            <p className="st-dossier-summary" style={{ color: "var(--bs-down)" }}>Не удалось получить ответ — попробуйте ещё раз.</p>
+          </div>
+        )}
 
-      {presetResult && !presetResult.error && (
-        <>
-          <Card header={<span className="tw-flex tw-items-center tw-gap-2">
-            Как мы поняли сценарий
-            <span className="bs-tag-fact">пресет</span>
-          </span>}>
-            <div className="tw-text-[14px] tw-text-text-primary tw-leading-relaxed">{presetResult.scenario?.description}</div>
-          </Card>
-          <QualTable qual={presetResult} />
-        </>
-      )}
-      {presetResult?.error && (
-        <Card><div className="tw-text-[13.5px] tw-text-danger">Не удалось посчитать сценарий — попробуйте ещё раз.</div></Card>
-      )}
+        {/* Пресет — качественная факторная модель, нет числового контура (см.
+            шапку файла) — компас, без финтаблицы. */}
+        {presetResult && !presetResult.error && (
+          <>
+            <DossierHead eyebrow="Пресет" title={presetResult.scenario?.label}
+              lede={presetResult.scenario?.description} tag={<span className="bs-tag-fact">пресет</span>} />
+            <DirectionCompass qual={presetResult} onOpenCompany={onOpenCompany} />
+            <NextQuestionStrip levels={levels} baseLevels={baseLevels} onEscalate={handleEscalate} context="preset" />
+          </>
+        )}
+        {presetResult?.error && (
+          <div className="bs-card st-dossier-card">
+            <p className="st-dossier-summary" style={{ color: "var(--bs-down)" }}>Не удалось посчитать сценарий — попробуйте ещё раз.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
