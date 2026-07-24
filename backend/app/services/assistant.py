@@ -120,10 +120,39 @@ def _company_context(db: Session, ticker: str) -> dict | None:
         "SELECT q.close, q.date FROM quotes q JOIN companies c ON c.id = q.company_id "
         "WHERE c.ticker = :t ORDER BY q.date DESC LIMIT 1"
     ), {"t": ticker}).first()
+    price = float(price_row.close) if price_row and price_row.close is not None else None
+    price_date = price_row.date.isoformat() if price_row else None
+
+    # Живые мультипликаторы от ТЕКУЩЕЙ цены — тот же приём, что в
+    # portfolio.py:515-524 (eps_implied/dps_implied меняются редко, цена —
+    # каждый день). Без этого поля ассистент цитировал P/E из
+    # financials_summary.md, который пишется аналитиком на дату СНЭПШОТА
+    # цены (иногда двухмесячной давности) — владелец поймал расхождение
+    # (спросил P/E Сбербанка, получил устаревшие 4,28 вместо живых ~3,49).
+    from app.models.company_metrics import CompanyMetrics
+    m = db.query(CompanyMetrics).filter(CompanyMetrics.ticker == ticker).first()
+    live_multiples = None
+    if m:
+        eps = float(m.eps_implied) if m.eps_implied is not None else None
+        dps = float(m.dps_implied) if m.dps_implied is not None else None
+        pe_live = round(price / eps, 2) if price and eps and eps > 0 else (
+            round(float(m.pe_current), 2) if m.pe_current is not None else None)
+        dy_live = round(dps / price * 100, 2) if price and dps else (
+            round(float(m.div_yield), 2) if m.div_yield is not None else None)
+        if pe_live is not None or dy_live is not None:
+            live_multiples = {
+                "pe": pe_live, "div_yield_pct": dy_live, "as_of_price_date": price_date,
+                "note": ("посчитано от ТЕКУЩЕЙ цены (см. as_of_price_date) — это "
+                         "приоритетный источник по P/E и дивдоходности; числа в "
+                         "текстах ниже (financials_summary и др.) могли считаться "
+                         "на другую, более старую дату цены"),
+            }
+
     return {
         "ticker": row.ticker, "name": row.name, "sector": row.sector,
-        "price": float(price_row.close) if price_row and price_row.close is not None else None,
-        "price_date": price_row.date.isoformat() if price_row else None,
+        "price": price,
+        "price_date": price_date,
+        "live_multiples": live_multiples,
         "business_model": _read_md(ticker, "business_model.md", 2500),
         "financials_summary": _read_md(ticker, "financials_summary.md", 2500),
         "macro_summary": _read_md(ticker, "macro_summary.md", 1800),
@@ -204,6 +233,11 @@ _ANSWER_FRAMEWORK = (
     "СТРОГО ЗАПРЕЩЕНО: рекомендации «покупать/продавать», целевые цены как совет, "
     "прогнозы будущей цены. Справедливую цену/апсайд из контекста подавай как "
     "оценку/модель Basis, а не факт и не сигнал.\n\n"
+    "Если у компании в контексте есть поле live_multiples (P/E, дивдоходность) — "
+    "именно эти числа приоритетны для ответа про текущий P/E/дивдоходность, а НЕ "
+    "числа, упомянутые в текстах business_model/financials_summary/market_summary: "
+    "эти тексты пишутся по снэпшоту на дату анализа и могут расходиться с текущей "
+    "ценой. live_multiples посчитан от цены на as_of_price_date — сошлись на эту дату.\n\n"
     "Каждое численное утверждение — с явной пометкой (факт с датой / оценка Basis / "
     "суждение), коротко в скобках. Тон — спокойный, по делу, как у грамотного "
     "аналитика, а не рекламный. Отвечай на русском, markdown, без воды."
