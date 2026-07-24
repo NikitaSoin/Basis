@@ -157,18 +157,38 @@ def _extract_html(text: str, max_chars: int) -> str:
 def fetch_document(url: str, max_chars: int = 12000) -> dict:
     """Открыть URL и вернуть его ТЕКСТ (PDF → pypdf, HTML → очистка тегов).
     Демонстрирует «пришёл PDF отчётности — агент его разобрал». Ограничение по
-    символам, чтобы не раздуть контекст."""
+    символам, чтобы не раздуть контекст.
+
+    ПРЯМОЙ запрос первым, релей — только фолбэком. Раньше здесь БЕЗУСЛОВНО
+    заворачивали через via_proxy(), скопировав паттерн DeepSeek/FRED/t.me —
+    но у severstal.com (найдено на живом инциденте 2026-07-25, владелец
+    заметил регрессию агентского разбора) прямой TCP+TLS с бэкенда Timeweb
+    проходит МГНОВЕННО (`/api/debug/trace?host=severstal.com` — 29мс), а вот
+    Cloudflare-воркер к нему сам виснет (проверено — таймаут даже на его
+    голой главной странице). Egress-блок Timeweb — свойство КОНКРЕТНОГО
+    хоста (DeepSeek/FRED/t.me — да, режется; произвольный внешний URL из
+    агентского режима — как правило нет), не общее правило «весь egress
+    сломан» — раньше в этом файле подразумевалось обратное. fetch_document
+    открывает ЛЮБЫЕ ссылки пользователя, поэтому: пробуем напрямую, и только
+    если это упало — пробуем через релей (если он настроен) — на случай
+    хоста, у которого TLS-блок всё же есть, как у DeepSeek/FRED."""
     if not re.match(r"^https?://", url or ""):
         return {"error": "bad_url"}
-    try:
-        with _client() as c:
-            r = c.get(via_proxy(url), headers=_UA, follow_redirects=True)
-            r.raise_for_status()
-            ctype = (r.headers.get("content-type") or "").lower()
-            content = r.content
-    except Exception as e:  # noqa: BLE001
-        logger.warning("fetch_document fail %s: %s", url, type(e).__name__)
-        return {"error": "fetch_failed", "detail": type(e).__name__,
+    last_err: Exception | None = None
+    for target in ([url] + ([via_proxy(url)] if via_proxy(url) != url else [])):
+        try:
+            with _client() as c:
+                r = c.get(target, headers=_UA, follow_redirects=True)
+                r.raise_for_status()
+                ctype = (r.headers.get("content-type") or "").lower()
+                content = r.content
+            break
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+            logger.warning("fetch_document fail (%s) %s: %s",
+                           "direct" if target == url else "relay", url, type(e).__name__)
+    else:
+        return {"error": "fetch_failed", "detail": type(last_err).__name__,
                 "note": "Документ с сервера не открылся (вероятно egress-ограничение хостинга)."}
     is_pdf = "application/pdf" in ctype or url.lower().endswith(".pdf") or content[:5] == b"%PDF-"
     try:
