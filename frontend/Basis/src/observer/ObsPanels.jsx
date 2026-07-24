@@ -2421,6 +2421,20 @@ function ObsGeomapPopupBody({
   return null;
 }
 
+// Демонтаж React-root маркера (createRoot на каждый maplibregl.Marker, см.
+// ObsGeoWorldMap ниже) — отложен на микротаск, НЕ синхронно в теле эффекта.
+// Обнаружено Playwright-прогоном 2026-07-25 при слиянии трёх карт в одну:
+// когда маркеры ВСЕХ трёх очагов пересобираются в одном эффекте (раньше это
+// было 3 независимых эффекта на 3 независимых React-деревьях — здесь один
+// общий проход, unmount() у потенциально десятков маркеров сразу), консоль
+// иногда ловит React-предупреждение "Attempted to synchronously unmount a
+// root while React was already rendering" — сам маркер (marker.remove())
+// демонтируется как и раньше сразу же (визуально ничего не меняется), только
+// сам React-root, который держал его SVG-иконку, unmount-ится чуть позже.
+function unmountMarkerRoot(root) {
+  queueMicrotask(() => root.unmount());
+}
+
 // Суммарный bounding box нескольких MapLibre bounds ([[minLon,minLat],[maxLon,maxLat]]) —
 // нужен как bounds по умолчанию для ОДНОЙ общей карты (см. ObsGeoWorldMap ниже):
 // объединяем bounds всех загруженных очагов, чтобы на старте были видны все сразу.
@@ -2715,10 +2729,21 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   // --- Камера: чипы «Весь мир» / очаг / «Карта России целиком» перелетают к
   // нужным bounds, но НИКОГДА не трогают данные/слои — все три очага остаются
   // отрисованными всегда, просто не всегда в кадре (владелец, п.5).
+  // prefers-reduced-motion: раньше (один очаг на карту) камера ни разу не
+  // "перелетала" сама по себе — zoomIn/zoomOut/resetView были единственными
+  // движениями камеры и уже без анимации-гейта (та же пре-существующая
+  // прореха). Теперь camera fly — центральный, часто используемый механизм
+  // (чипы зума, слайдер с авто-фокусом, переключатель России) — единая точка
+  // flyToBounds добавлена именно чтобы закрыть это одним местом сразу для
+  // всех вызовов, а не оставлять дальше плодить прореху.
+  const prefersReducedMotion = useMemo(
+    () => (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) || false,
+    []
+  );
   const flyToBounds = useCallback((bounds, opts) => {
     const map = mapRef.current;
-    if (map && bounds) map.fitBounds(bounds, { padding: 24, duration: 600, ...opts });
-  }, []);
+    if (map && bounds) map.fitBounds(bounds, { padding: 24, duration: prefersReducedMotion ? 0 : 600, ...opts });
+  }, [prefersReducedMotion]);
   const goWorld = useCallback(() => { setFocus("world"); setSelected(null); flyToBounds(unionBounds, { padding: 28 }); }, [flyToBounds, unionBounds]);
   const goTheater = useCallback((key) => {
     setFocus(key);
@@ -2754,6 +2779,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     mapRef.current = map;
+    if (typeof window !== "undefined") window.__obsWorldMapDebug = map;
 
     const popupEl = document.createElement("div");
     const popupRoot = createRoot(popupEl);
@@ -2854,11 +2880,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     map.once("idle", () => setStyleLoaded(true));
 
     return () => {
-      markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      markersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
       markersRef.current = [];
-      claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      claimedMarkersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
       claimedMarkersRef.current = [];
-      strikeMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      strikeMarkersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
       strikeMarkersRef.current = [];
       popupRef.current?.remove();
       popupRootRef.current?.unmount();
@@ -2976,7 +3002,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !styleLoaded) return;
-    markersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    markersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
     markersRef.current = [];
 
     theaters.forEach((t) => {
@@ -3024,7 +3050,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !styleLoaded) return;
-    claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    claimedMarkersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
     claimedMarkersRef.current = [];
 
     theaters.forEach((t) => {
@@ -3060,7 +3086,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !styleLoaded) return;
-    strikeMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    strikeMarkersRef.current.forEach(({ marker, root }) => { unmountMarkerRoot(root); marker.remove(); });
     strikeMarkersRef.current = [];
 
     const StrikeIcon = GEOMAP_TYPE_META.strike?.icon || Zap;
@@ -3132,8 +3158,8 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     });
   }, [styleLoaded, theaters, selected, theaterStates]);
 
-  const zoomIn = () => mapRef.current?.zoomIn({ duration: 200 });
-  const zoomOut = () => mapRef.current?.zoomOut({ duration: 200 });
+  const zoomIn = () => mapRef.current?.zoomIn({ duration: prefersReducedMotion ? 0 : 200 });
+  const zoomOut = () => mapRef.current?.zoomOut({ duration: prefersReducedMotion ? 0 : 200 });
   const resetView = () => {
     if (focus === "world") { flyToBounds(unionBounds, { padding: 28 }); return; }
     if (focus === svoKey && onRussiaMap) { flyToBounds(russiaMap?.base_map?.bounds); return; }
@@ -5275,25 +5301,29 @@ function ObsAiReview({ token, onSelectCompany }) {
       </div>
 
       {/* Глубина, Тема, «Сгенерировать отчёт» — каждый в своём полноширинном
-         ряду (НЕ side-by-side): «Тема» — 5 вариантов, при совместном ряду с
-         «Глубиной» ей оставалось слишком мало ширины и однословные подписи
-         («Макроэкономика») наезжали друг на друга — своя строка снимает
-         конкуренцию за ширину независимо от вьюпорта/сайдбара. Кнопки «Тема»
-         теперь визуально того же семейства (карточка .obs-ai-plan), что и
-         «Глубина» — не мельче/крупнее. */}
+         ряду (НЕ side-by-side, см. история ниже). Кнопки — овальные пилюли
+         (.obs-ai-pill-toggle + .obs-cal-seg-opt), ТОТ ЖЕ паттерн, что уже
+         используется в остальном Обозревателе (Список/Календарь на вкладке
+         «Календарь», класс активов на «Карте рынка» — .obs-asset-toggle).
+         Владелец, 2026-07-25 (третий заход): «кнопки должны быть овальными,
+         как в любом другом разделе Обозревателя» — карточный стиль
+         (.obs-ai-plan, был здесь в предыдущей версии) отменён, это была моя
+         ошибка интерпретации на предыдущем заходе. Раздельные строки
+         остаются (см. коммит a09f37e90/d5f046dd3) — «Тема» на 5 вариантов
+         не помещалась в общий ряд с «Глубиной», однословные подписи
+         («Макроэкономика») наезжали друг на друга. */}
       <div className="obs-ai-controls-row">
 
         {/* Глубина */}
         <div>
           <div className="obs-ai-section-label">Глубина</div>
-          <div className="obs-ai-plan-grid" role="group" aria-label="Глубина анализа">
+          <div className="obs-ai-pill-toggle" role="group" aria-label="Глубина анализа">
             {Object.entries(_OBS_DEPTH_META).map(([id, m]) => (
               <button key={id}
-                className={`obs-ai-plan${depth === id ? " obs-ai-plan--on" : ""}`}
+                className={`obs-cal-seg-opt${depth === id ? " obs-cal-seg-opt--on" : ""}`}
                 onClick={() => setDepth(id)}
                 aria-pressed={depth === id}>
-                <span className="obs-ai-plan-label">{m.label}</span>
-                <span className="obs-ai-plan-horizon">{m.horizon}</span>
+                {m.label} <span className="obs-ai-pill-sub">· {m.horizon}</span>
               </button>
             ))}
           </div>
@@ -5302,14 +5332,14 @@ function ObsAiReview({ token, onSelectCompany }) {
         {/* Тема */}
         <div>
           <div className="obs-ai-section-label">Тема</div>
-          <div className="obs-ai-topic-seg" role="group" aria-label="Тема анализа">
+          <div className="obs-ai-pill-toggle" role="group" aria-label="Тема анализа">
             {Object.entries(_OBS_TOPIC_META).map(([id, m]) => (
               <button key={id}
-                className={`obs-ai-plan obs-ai-topic-opt${topic === id ? " obs-ai-plan--on" : ""}`}
+                className={`obs-cal-seg-opt${topic === id ? " obs-cal-seg-opt--on" : ""}`}
                 onClick={() => setTopic(id)}
                 aria-pressed={topic === id}>
-                <m.icon size={16} aria-hidden="true" />
-                <span className="obs-ai-plan-label">{m.label}</span>
+                <m.icon size={14} aria-hidden="true" />
+                {m.label}
               </button>
             ))}
           </div>

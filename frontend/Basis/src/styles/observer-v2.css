@@ -2272,100 +2272,29 @@
   margin-top: 20px;
 }
 
-/* Тема — своя ПОЛНОШИРИННАЯ строка (не делит ряд с «Глубиной»): при
-   совместном ряду 5 колонкам не хватало ширины и однословные подписи
-   («Макроэкономика» — 14 букв без пробелов, переносить нечем) наезжали
-   друг на друга. На всю ширину строки колонка ~той же ширины, что у карточек
-   «Глубины» (max-width подобран так, чтобы 5 колонок с gap:10px давали
-   колонку ~150px — как 3 колонки в .obs-ai-plan-grid при max-width:480px).
-   auto-fit/minmax вместо фиксированного числа колонок + брейкпоинта по
-   viewport — колонки подстраиваются под РЕАЛЬНУЮ ширину контейнера (при
-   пристыкованном сайдбаре 260px контентная колонка уже сама по себе не
-   равна viewport, media (max-width) по вьюпорту это не видит и не спасает
-   среднюю зону ширины). */
-.obs-ai-topic-seg {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  max-width: 800px;
-}
-
-/* Кнопки «Тема» — то же карточное семейство, что .obs-ai-plan («Глубина»),
-   но иконка+подпись в РЯД по центру (не подпись+горизонт столбцом) — сама
-   карточка (рамка/радиус/паддинг/фон/hover/on-состояние) наследуется от
-   .obs-ai-plan, здесь только оверрайд направления и центровки контента.
-   Составной селектор (не одиночный .obs-ai-topic-opt) — нужна специфичность
-   ВЫШЕ .obs-ai-plan, иначе побеждает порядок объявления в файле (при равной
-   специфичности одиночных классов) и column-направление .obs-ai-plan
-   перебивает row здесь же. */
-.obs-ai-plan.obs-ai-topic-opt {
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-}
-.obs-ai-topic-opt svg { flex-shrink: 0; pointer-events: none; }
-.obs-ai-topic-opt .obs-ai-plan-label {
-  overflow-wrap: anywhere; /* страховка: однословные подписи не наезжают, если места всё же не хватит */
-}
-
-/* Depth plan cards grid */
-.obs-ai-plan-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  max-width: 480px;
-}
-
-/* Single depth plan card */
-.obs-ai-plan {
-  border: 1.5px solid var(--border-strong);
-  border-radius: 11px;
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease;
-  background: var(--bg-elevated);
-  text-align: left;
+/* Глубина/Тема — овальные пилюли, ТОТ ЖЕ паттерн, что и .obs-asset-toggle
+   («Карта рынка») / .obs-cal-seg («Календарь»): круглый контейнер-таблетка,
+   внутри — .obs-cal-seg-opt (уже определён выше в файле, используется в
+   нескольких местах Обозревателя — переиспользуем, не форкаем). Отдельный
+   класс контейнера (не буквально .obs-asset-toggle) — тот же вид, но с
+   flex-wrap: wrap на случай узкой контентной колонки (сайдбар пристыкован +
+   5 вариантов «Темы» с длинными подписями типа «Макроэкономика»); менять
+   поведение самого .obs-asset-toggle в других местах сайта не хочу. */
+.obs-ai-pill-toggle {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  /* Общая мин-высота для всех карточек этого семейства («Глубина» — 2 строки
-     текста, «Тема» — иконка+подпись в 1 строку) — без неё карточки «Тема»
-     получались заметно ниже «Глубины» при том же border-radius:11px, и на
-     низкой коробке скругление визуально доминирует — читается как
-     пилюля/овал, а не как та же квадратистая карточка (владелец, 2026-07-25:
-     «кнопки кругловатые/овальные, не квадратные, другого размера»). */
-  min-height: 64px;
+  flex-wrap: wrap;
+  background: var(--bg-base);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
 }
 
-.obs-ai-plan:hover {
-  border-color: var(--accent);
-}
-
-.obs-ai-plan:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.obs-ai-plan--on {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.obs-ai-plan-label {
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--text-primary);
-  pointer-events: none;
-}
-
-.obs-ai-plan-horizon {
+.obs-ai-pill-sub {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-tertiary);
+  opacity: 0.75;
   font-variant-numeric: tabular-nums;
-  pointer-events: none;
 }
 
 /* Generate button */
@@ -4706,6 +4635,19 @@ details[open] > summary .obs-inst-chev,
   margin-left: auto;
 }
 
+/* Чипы зума единой мировой карты (Весь мир / СВО / Ближний Восток / АТР) —
+   добавлено 2026-07-25 при слиянии трёх отдельных карт в одну: та же пилюля-
+   грамматика .obs-chip/.obs-geomap-filterbar, просто с иконкой очага внутри
+   (display:inline-flex, иначе SVG+текст съезжают на разные базовые линии). */
+.obs-geomap-zoomchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.obs-geomap-zoomchips {
+  margin-bottom: 2px;
+}
+
 /* Настоящая картографическая подложка (MapLibre GL + открытые тайлы OpenFreeMap,
    стиль "positron" — светлый/приглушённый, не спорит с нашей раскраской статуса
    контроля поверх) вместо прежней рукописной SVG-проекции: реальные города/дороги/
@@ -4746,6 +4688,34 @@ details[open] > summary .obs-inst-chev,
   overflow: visible;
 }
 .obs-geomap-maplibre canvas.maplibregl-canvas {
+  border-radius: var(--radius-md);
+}
+/* Добавлено 2026-07-25 (слияние трёх карт в одну): маркеры (.maplibregl-marker)
+   и канвас живут в СВОЁМ собственном узле .maplibregl-canvas-container — попап
+   же (см. комментарий выше) вешается на .obs-geomap-maplibre НАПРЯМУЮ, как
+   СОСЕДНИЙ узел, а не внутрь canvas-container. Значит клип именно
+   canvas-container (не всего .obs-geomap-maplibre) обрезает маркеры по рамке
+   карты, но НИКАК не резрает попап — то, ради чего родительский overflow:visible
+   вообще понадобился, не откатывается. Нужно на общей мировой карте: летящая
+   камера при фокусе на конкретный очаг (fitBounds внутри ЗАФИКСИРОВАННого
+   аспект-рейшо рамки, см. aspect в ObsGeoWorldMap) иногда показывает больше
+   периферии по бокам, чем у самого очага — маркер соседнего очага у самого
+   края мог всплыть НАД рамкой, перекрывая чипы фильтра/шапку сайта (поймано
+   Playwright'ом: клик по чипу «АТР» перехватывался маркером СВО). */
+.obs-geomap-maplibre .maplibregl-canvas-container {
+  /* position:relative обязателен — без него canvas-container остаётся
+     position:static (проверено computed style: библиотека НЕ задаёт ему
+     позиционирование в своём base CSS), а маркеры (.maplibregl-marker,
+     position:absolute) в этом случае вычисляют containing block, "перепрыгивая"
+     canvas-container, сразу до .obs-geomap-maplibre (родителя canvas-container,
+     он ужЕ position:absolute) — overflow:hidden на НЕпозиционированном предке
+     тогда не клипует их (стандартная CSS-ловушка: overflow:hidden не
+     обрезает position:absolute потомка, если сам не задаёт containing block).
+     Подтверждено эмпирически 2026-07-25: без этой строки маркеры продолжали
+     всплывать над рамкой картой поверх чипов зума/шапки сайта несмотря на
+     overflow:hidden ниже. */
+  position: relative;
+  overflow: hidden;
   border-radius: var(--radius-md);
 }
 /* Атрибуция тайлов (OpenStreetMap/OpenMapTiles) — обязательна по лицензии,
@@ -4999,6 +4969,20 @@ details[open] > summary .obs-inst-chev,
   flex-shrink: 0;
 }
 
+/* Название очага перед его группой swatch-ей в легенде общей карты (добавлено
+   2026-07-25) — ОБЯЗАТЕЛЬНО по конституции: цвет "ru"/"contested"/"ua" в
+   СВО/Ближнем Востоке/АТР означает РАЗНОЕ (Россия-как-территория vs «ось
+   Ирана» vs «ось Китая»), один и тот же цвет без подписи очага рядом на общей
+   карте был бы неоднозначен — цвет в данных ВСЕГДА с подписью, никогда голый. */
+.obs-geomap-legend-theater-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  margin-right: 2px;
+}
+
 .obs-geomap-detail {
   position: relative;
   background: var(--bg-base);
@@ -5058,6 +5042,24 @@ details[open] > summary .obs-inst-chev,
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--text-secondary);
+}
+
+/* Название очага в шапке речевого пузыря (добавлено 2026-07-25, слияние трёх
+   карт в одну) — пузырь больше не сидит на карте ровно одного очага, эта
+   приглушённая пилюля рядом с типом снимает неоднозначность «откуда этот
+   клик» (см. ObsGeomapPopupBody). Отдельная лёгкая заливка — не спутать с
+   .obs-geomap-confidence (та же роль "второстепенный контекст", но чтобы не
+   читаться слитно с соседним confidence-текстом при их одновременном показе). */
+.obs-geomap-detail-theater {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-tertiary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
 }
 
 .obs-geomap-stale-badge {
