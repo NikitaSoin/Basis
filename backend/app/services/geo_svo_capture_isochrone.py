@@ -50,6 +50,10 @@ _DATED_SETTLEMENTS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "config", "geo_svo_dated_settlements.json",
 )
+_SVO_MAP_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_map_svo.json",
+)
 
 # Сглаживание помесячного среза (град.) — крупнее, чем у самой ISW-линии
 # (geo_isw_frontline_sync._smooth_polygon, ~0.0035°): здесь изначально
@@ -100,6 +104,37 @@ def _smooth_and_clean(poly):
     if not kept:
         kept = parts  # если ВСЁ мельче порога — честнее показать как есть, чем стереть целиком
     return unary_union(kept)
+
+
+def _crimea_landmass(control_union):
+    """Крым фактически под контролем РФ с аннексии 2014 — ДО начала войны
+    2022, которую описывает вся эта временная реконструкция (датированные
+    точки — из статьи Wikipedia про войну 2022+, там лишь горстка крымских
+    городов с датой "2014-02-27" для контекста, без плотного покрытия).
+    Без спецкейса редкая датированная точка у Керченского перешейка с
+    ПОЗДНЕЙ (2024+) датой образует Вороного-клин, который на карте
+    искусственно ОТРЕЗАЕТ Крым от остального массива на годы, пока её
+    собственная дата не наступит — придуманный "котёл", которого не было
+    (владелец, 2026-07-25, живая проверка: «странные котлы, которых не
+    было» — проверено: именно так и было видно на скриншоте от 2024 года,
+    который владелец прикладывал как пример бага в прошлый раз). Честная
+    деградация — не нашли регион в статике/geometry невалидна → None,
+    просто не подмешиваем спецкейс, остальная реконструкция не падает."""
+    try:
+        with open(_SVO_MAP_PATH, encoding="utf-8") as f:
+            static_map = json.load(f)
+        from shapely.geometry import shape as _shape
+        from shapely.ops import unary_union as _unary_union
+        polys = [_shape(feat["geometry"]).buffer(0)
+                 for feat in static_map["base_map"]["regions_geojson"]["features"]
+                 if feat["properties"].get("slug") in ("crimea", "sevastopol")]
+        if not polys:
+            return None
+        crimea = _unary_union(polys).buffer(0)
+        return crimea.intersection(control_union)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Изохрона СВО: спецкейс Крыма не применён (%s)", type(e).__name__)
+        return None
 
 
 def compute_isochrone(control_fill_geojson: dict) -> dict | None:
@@ -154,15 +189,19 @@ def compute_isochrone(control_fill_geojson: dict) -> dict | None:
     cell_owner_date.sort(key=lambda t: t[1])
     dated_sorted_dates = [t[1] for t in cell_owner_date]
     today_iso = date.today().isoformat()
+    crimea_mass = _crimea_landmass(control_union)
 
     features = []
     idx = 0  # сколько ячеек (по возрастанию даты) уже включено
     for y, m, month_end_iso in _iter_months(_MONTH_START[0], _MONTH_START[1], today_iso):
         while idx < len(cell_owner_date) and dated_sorted_dates[idx] <= month_end_iso:
             idx += 1
-        if idx == 0:
+        parts = [g for g, _ in cell_owner_date[:idx]]
+        if crimea_mass is not None and not crimea_mass.is_empty:
+            parts.append(crimea_mass)
+        if not parts:
             continue
-        region = unary_union([g for g, _ in cell_owner_date[:idx]])
+        region = unary_union(parts)
         region = _smooth_and_clean(region)
         # финальная обрезка по control_fill — сглаживание могло чуть "вылезти" за край
         region = region.intersection(control_union)
