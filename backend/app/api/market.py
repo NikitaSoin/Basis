@@ -764,24 +764,25 @@ def _cap_by_source(rows: list, limit: int, max_share: float = 0.4) -> list:
     Economist) из окна limit. Владелец, 2026-07-25: «markettwits слишком много, карнеги
     и re:russia не видно». rows уже отсортированы вызывающим кодом (по published_at/
     created_at) — здесь просто НЕ пропускаем более max_share*limit подряд идущих из
-    одного source_key, остальные от этого источника уходят в хвост (не теряются
-    совсем — если после капа других источников не хватило добить limit, хвост
-    подмешивается назад, сохраняя порядок)."""
+    одного source_key.
+
+    НЕ подмешиваем излишек назад, даже если это недобирает limit: первая версия
+    (2026-07-25) добивала до limit хвостом того же переполненного источника, когда
+    остальных источников в пуле было мало (напр. только 6 не-MarketTwits на пул в
+    120) — итог 24 MarketTwits из 30, кап фактически не работал. Лучше честно
+    показать меньше карточек, чем разбавленных разнообразием, чем набить лентой
+    одного источника до заданного числа."""
     cap = max(3, int(limit * max_share))
     counts: dict[str, int] = {}
-    kept, overflow = [], []
+    kept = []
     for r in rows:
         key = r.source_key or ""
         if counts.get(key, 0) < cap:
             kept.append(r)
             counts[key] = counts.get(key, 0) + 1
-        else:
-            overflow.append(r)
         if len(kept) >= limit:
             break
-    if len(kept) < limit:
-        kept.extend(overflow[:limit - len(kept)])
-    return kept[:limit]
+    return kept
 
 
 @router.get("/market/geopolitics/{region}/digest")
