@@ -1011,8 +1011,12 @@
    классификация), а буквально «одна сторона заявляет, независимый источник ещё не
    подтвердил» — принципиально иной эпистемический уровень, см. карта СВО
    claimed_captures_geojson в ObsPanels.jsx. Ключевая информация, поэтому пилюля,
-   не мелкий серый текст сноской. */
-.obs-tag-claimed {
+   не мелкий серый текст сноской.
+   .obs-tag-contested — тот же --warning тон (оба «предупреждение о
+   неопределённости»), но РАЗНЫЙ смысл: не «источник не подтвердил», а «сама
+   ситуация на местности не решена» (активные бои, contested_zone_geojson) —
+   отдельный класс намеренно (разная семантика тега), общий визуальный язык. */
+.obs-tag-claimed, .obs-tag-contested {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -4877,6 +4881,42 @@ details[open] > summary .obs-inst-chev,
   color: var(--warning);
 }
 
+/* Маркеры «Удары» (Слой 2, strike_events_geojson) — живой автопоток,
+   ПРИНЦИПИАЛЬНО другой источник от курируемых событий выше (те держат
+   нейтральный .obs-geomap-marker без цвета в базовом состоянии). significance
+   различает крупный/второстепенный удар размером + насыщенностью цвета
+   (Иконка тоже разного размера — не полагаемся на один только цвет, см.
+   конституцию доступности): "major" — крупнее, --danger (значимый удар это
+   такой же факт-на-карте, что и control-fill/линия фронта, тот же токен);
+   "minor" — заметно мельче и приглушённее нейтрального маркера события. */
+.obs-geomap-marker--strike-major {
+  width: 30px;
+  height: 30px;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.obs-geomap-marker--strike-major:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.obs-geomap-marker--strike-major.obs-geomap-marker--active {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.obs-geomap-marker--strike-minor {
+  width: 20px;
+  height: 20px;
+  opacity: 0.75;
+}
+.obs-geomap-marker--strike-minor:hover {
+  opacity: 1;
+}
+.obs-geomap-marker--strike-minor.obs-geomap-marker--active {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .obs-geomap-marker { transition: none; }
   .obs-geomap-marker:hover { scale: 1; }
@@ -4912,6 +4952,29 @@ details[open] > summary .obs-inst-chev,
 /* Иконка легенды в тон маркеру --warning (см. .obs-geomap-marker--claimed) —
    визуально связывает образец в легенде с реальным стилем маркера на карте. */
 .obs-geomap-legend-item--claimed svg { color: var(--warning); }
+
+/* Штрихованный образец легенды «Оспаривается» — тот же диагональный узор, что
+   реальная заливка на карте (см. buildContestedHatchImage в ObsPanels.jsx),
+   но здесь чистым CSS (repeating-linear-gradient) — легенда не обязана
+   переиспользовать WebGL-текстуру, только совпадать по смыслу (диагональная
+   штриховка = «территория боевых действий», язык карт Рыбаря). */
+.obs-geomap-legend-hatch {
+  width: 14px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+  background-color: var(--warning-soft);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--warning) 0px,
+    var(--warning) 1.5px,
+    transparent 1.5px,
+    transparent 5px
+  );
+  border: 1px solid var(--warning);
+  opacity: 0.9;
+}
 
 .obs-geomap-legend-dot {
   width: 6px;
@@ -4949,8 +5012,10 @@ details[open] > summary .obs-inst-chev,
 
 /* Деталь-панель заявленного, не подтверждённого пункта — тонкий warning-акцент
    слева, тот же сигнал «под вопросом», что у маркера/тега/легенды, без смены
-   формы всей карточки (не конкурирует с деталью события/региона рядом). */
-.obs-geomap-detail--claimed {
+   формы всей карточки (не конкурирует с деталью события/региона рядом).
+   .obs-geomap-detail--contested — тот же приём для «Оспаривается» (см.
+   .obs-tag-contested выше про разницу в смысле, не в цвете). */
+.obs-geomap-detail--claimed, .obs-geomap-detail--contested {
   border-left: 3px solid var(--warning);
 }
 
@@ -5012,6 +5077,35 @@ details[open] > summary .obs-inst-chev,
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+/* Значимость удара (Слой 2, strike_events_geojson.significance) в детали-
+   панели — та же пилюльная форма, что и соседние теги, но НЕ эпистемический
+   тег (это не про достоверность факта, а про важность события) — держим
+   визуально рядом с .obs-tag-fact, не вместо него. --major переиспользует
+   --danger (значимый удар — такой же факт-на-карте, что control-fill/линия
+   фронта); --minor — нейтральный, приглушённый (тот же язык, что "второстепенный"
+   маркер на карте, см. .obs-geomap-marker--strike-minor). */
+.obs-geomap-strike-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.obs-geomap-strike-badge--major {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.obs-geomap-strike-badge--minor {
+  background: var(--bg-base);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
 }
 
 /* Тег статуса контроля в панели деталей региона, в формате пилюли, как соседние

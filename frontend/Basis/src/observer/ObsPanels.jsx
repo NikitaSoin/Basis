@@ -52,6 +52,7 @@ import {
   ZoomOut,
   Maximize2,
   History,
+  Flame,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1931,6 +1932,48 @@ function useBasisMapColors() {
   return colors;
 }
 
+// --- Штрихованная текстура для слоя «Оспаривается» (contested_zone_geojson,
+// см. ObsGeoTheaterMap ниже) — MapLibre `fill-pattern` умеет ТОЛЬКО ссылку на
+// растр, добавленный через map.addImage(), готового CSS/SVG diagonal-hatch
+// для заливки WebGL-полигона не существует. Рисуем диагональные полосы сами
+// через canvas (без внешнего SVG-файла) — тот же визуальный язык, что карты
+// Рыбаря (штриховка = «территория боевых действий», решённый контроль ни за
+// кем НЕ закреплён), которые владелец держит эталоном именно для этого слоя.
+// pixelRatio 2 — резкость на retina; логическая плитка 16×16 достаточно
+// плотная на типичном масштабе карты очага (не размывается в кашу и не
+// редкие отдельные чёрточки).
+function buildContestedHatchImage(hexColor) {
+  const size = 16;
+  const ratio = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size * ratio;
+  canvas.height = size * ratio;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = hexColor;
+  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let x = -size; x <= size * 2; x += 6) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + size, size);
+  }
+  ctx.stroke();
+  return ctx.getImageData(0, 0, size * ratio, size * ratio);
+}
+
+// Пересоздаёт/обновляет текстуру штриховки под текущий цвет темы (пересчёт
+// цвета — см. useBasisMapColors выше) — addImage при первом появлении слоя,
+// updateImage при смене темы (тот же id "contested-hatch", чтобы fill-pattern
+// не мигал пустотой между remove/add одного и того же кадра).
+function ensureContestedHatchImage(map, hexColor) {
+  if (!map || typeof map.hasImage !== "function") return;
+  const id = "contested-hatch";
+  const image = buildContestedHatchImage(hexColor);
+  if (map.hasImage(id)) map.updateImage(id, image);
+  else map.addImage(id, image, { pixelRatio: 2 });
+}
+
 function geomapAspect(bounds) {
   if (!bounds) return 1.5;
   const [[minLon, minLat], [maxLon, maxLat]] = bounds;
@@ -2165,7 +2208,7 @@ function ObsGeoTerritorialChart({ history }) {
 // КОНТЕЙНЕР: теперь это DOM-содержимое maplibregl.Popup, привязанного к точке
 // клика (см. попап-эффект в ObsGeoTheaterMap ниже), а не блок под картой.
 function ObsGeomapPopupBody({
-  kind, event, region, claimed, capture,
+  kind, event, region, claimed, capture, strike, contested,
   hasControlLegend, controlLegend, controlLegendKeys, controlPaintOverrides, colors,
   onClose,
 }) {
@@ -2294,6 +2337,65 @@ function ObsGeomapPopupBody({
     );
   }
 
+  // «Оспаривается» (Слой 1, contested_zone_geojson) — ТРЕТИЙ эпистемический
+  // ярус, отдельный и от подтверждённого control-fill (там факт ISW), и от
+  // claimed-точек (там «источник ещё не подтвердил») — здесь сама ситуация НА
+  // МЕСТНОСТИ прямо сейчас не решена (активные бои), поэтому тег «оспаривается»,
+  // а не «оценка»: это не про огрубление данных, это про реальную обстановку.
+  if (kind === "contested" && contested) {
+    return (
+      <div className="obs-geomap-detail obs-geomap-detail--contested" role="region" aria-label="Детали оспариваемой территории">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <Flame size={15} aria-hidden="true" />
+          <span className="obs-geomap-detail-type">Оспаривается</span>
+          <span className="obs-tag-contested">оспаривается</span>
+        </div>
+        <h4 className="obs-geomap-detail-title">
+          {contested.name}{contested.oblast ? `, ${contested.oblast}` : ""}
+        </h4>
+        {contested.note && <p className="obs-geomap-detail-desc">{contested.note}</p>}
+        {contested.source && <p className="obs-geomap-detail-foot"><span>{contested.source}</span></p>}
+      </div>
+    );
+  }
+
+  // «Удары» (Слой 2, strike_events_geojson) — ЖИВОЙ, автоматически извлечённый
+  // слой из geo_digest-пайплайна (LLM разбирает ленту Обозревателя), НЕ то же
+  // самое, что курируемый статический GEOMAP_TYPE_META.strike ("событие" выше)
+  // — источник (source_key/source_url) уже назван, поэтому «факт», не «оценка».
+  if (kind === "strike" && strike) {
+    const isMajor = strike.significance === "major";
+    const StrikeIcon = GEOMAP_TYPE_META.strike?.icon || AlertTriangle;
+    return (
+      <div className="obs-geomap-detail" role="region" aria-label="Детали удара">
+        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
+          <X size={14} />
+        </button>
+        <div className="obs-geomap-detail-head">
+          <StrikeIcon size={15} aria-hidden="true" />
+          <span className="obs-geomap-detail-type">Удар</span>
+          <span className={`obs-geomap-strike-badge${isMajor ? " obs-geomap-strike-badge--major" : " obs-geomap-strike-badge--minor"}`}>
+            {isMajor ? "значимый" : "второстепенный"}
+          </span>
+          <span className="obs-tag-fact">факт</span>
+        </div>
+        <h4 className="obs-geomap-detail-title">{strike.label}</h4>
+        {strike.target_type && <p className="obs-geomap-detail-desc">{strike.target_type}</p>}
+        <div className="obs-geomap-detail-foot">
+          {strike.event_date && <span>{_obsDateRu(strike.event_date)}</span>}
+          {strike.source_key && (
+            strike.source_url
+              ? <a href={strike.source_url} target="_blank" rel="noreferrer">{strike.source_key} ↗</a>
+              : <span>{strike.source_key}</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
 
@@ -2318,6 +2420,10 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // источник данных (не events), свой эффект создания/очистки ниже, см.
   // claimedCapturesFC/claimedCapturesList.
   const claimedMarkersRef = useRef([]); // [{ id, marker, root, el }]
+  // Маркеры «Удары» (Слой 2, strike_events_geojson) — свой ref-массив, тот же
+  // паттерн HTML/React-иконки через maplibregl.Marker, но ПРИНЦИПИАЛЬНО другой
+  // источник данных (живой geo_digest-пайплайн, не куратор events/waypoints).
+  const strikeMarkersRef = useRef([]); // [{ id, marker, root, el }]
   // Речевой пузырь деталей клика — один экземпляр maplibregl.Popup на карту,
   // живёт между кликами (обновляем lngLat/контент, не пересоздаём), React-root
   // рендерит в него ObsGeomapPopupBody. Раньше деталь-панель рендерилась блоком
@@ -2409,6 +2515,22 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // сам полигон Вороного огрублён между датированными точками, это "оценка",
   // не факт (см. .obs-geomap-timeslider-caveat в разметке ниже).
   const isochroneFC = (!onRussiaMap && activeBaseMap?.capture_isochrone_geojson) || GEOMAP_EMPTY_FC;
+  // «Оспаривается» (Слой 1, Рыбарь-штриховка, см. buildContestedHatchImage
+  // выше) — площади, где сама ситуация на местности НЕ решена прямо сейчас
+  // (активные бои): не подтверждённый control-fill (сплошной РФ-контроль ISW)
+  // и не claimed-точки (там «источник заявил, независимый ещё не
+  // подтвердил»). Только СВО, только очаг (как control-fill/isochrone выше —
+  // «Россия целиком» этого понятия не несёт).
+  const contestedZoneFC = (!onRussiaMap && activeBaseMap?.contested_zone_geojson) || GEOMAP_EMPTY_FC;
+  // «Удары» (Слой 2, strike_events_geojson) — ЖИВОЙ автоматический слой из
+  // geo_digest-пайплайна, ПРИНЦИПИАЛЬНО отдельный источник от курируемых
+  // events/GEOMAP_TYPE_META.strike (статический geo_map_<theater>.json) — не
+  // смешиваем. Бэкенд отдаёт его на ВСЕХ трёх театрах (не только СВО) и
+  // ТОЛЬКО в корневом base_map (не в russia_wide_map.base_map) — читаем
+  // напрямую из data, не из activeBaseMap, показываем независимо от
+  // переключателя «очаг ↔ Россия целиком» (как маркеры событий выше: реальные
+  // координаты, не привязка к «активной» подложке).
+  const strikeEventsFC = data?.base_map?.strike_events_geojson || GEOMAP_EMPTY_FC;
 
   const regionsBySlug = useMemo(() => {
     const m = {};
@@ -2458,6 +2580,24 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     [isochroneFC]
   );
   const hasIsochrone = isochroneList.length > 0;
+  // Зоны «Оспаривается» для детали-панели по клику — тот же паттерн, что у
+  // ячеек изохроны выше (у фич нет собственного id, source создан с
+  // generateId: true, индекс массива стабилен и матчится на MapLibre feature-id).
+  const contestedZoneList = useMemo(
+    () => (contestedZoneFC.features || []).map((f, i) => ({ id: `contested-${i}`, ...f.properties })),
+    [contestedZoneFC]
+  );
+  // Точки «Удары» — координаты идут прямо в фиче (Point), не через waypoints-
+  // справочник (это не наш куратор точек, а сырой автопоток с бэкенда), id
+  // строим по индексу, как у claimedCapturesList выше.
+  const strikeEventsList = useMemo(
+    () => (strikeEventsFC.features || []).map((f, i) => ({
+      id: `strike-${i}`,
+      coords: f.geometry.coordinates,
+      ...f.properties,
+    })),
+    [strikeEventsFC]
+  );
   // Бэкенд теперь отдаёт ПОМЕСЯЧНЫЕ снапшоты (один полигон на месяц, поле
   // "month_end" = последний день месяца, "settlements_count" = накоплено
   // датированных точек к этому месяцу) вместо континуального набора ячеек
@@ -2531,12 +2671,22 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     (id, lngLat) => setSelected((prev) => (prev?.kind === "capture" && prev.key === id ? null : { kind: "capture", key: id, lngLat })),
     []
   );
+  const selectContested = useCallback(
+    (id, lngLat) => setSelected((prev) => (prev?.kind === "contested" && prev.key === id ? null : { kind: "contested", key: id, lngLat })),
+    []
+  );
+  const selectStrike = useCallback(
+    (id, lngLat) => setSelected((prev) => (prev?.kind === "strike" && prev.key === id ? null : { kind: "strike", key: id, lngLat })),
+    []
+  );
   const closeDetail = useCallback(() => setSelected(null), []);
 
   const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
   const selectedRegion = selected?.kind === "region" ? regionsBySlug[selected.key] : null;
   const selectedClaimed = selected?.kind === "claimed" ? claimedCapturesList.find((c) => c.id === selected.key) : null;
   const selectedCapture = selected?.kind === "capture" ? isochroneList.find((c) => c.id === selected.key) : null;
+  const selectedContested = selected?.kind === "contested" ? contestedZoneList.find((c) => c.id === selected.key) : null;
+  const selectedStrike = selected?.kind === "strike" ? strikeEventsList.find((s) => s.id === selected.key) : null;
 
   // isHistoricRef — тот же isHistoric, но в ref, для обработчика клика по
   // "regions-fill" внутри map.on("load", ...) ниже (регистрируется ОДИН раз
@@ -2628,6 +2778,9 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // достаточно, чтобы клик по ячейке (feature.id) детерминированно матчился
       // на iso-<index> в isochroneList, т.к. порядок массива фич не меняется.
       map.addSource("capture-isochrone", { type: "geojson", data: GEOMAP_EMPTY_FC, generateId: true });
+      // Тот же generateId-паттерн — у зон «Оспаривается» тоже нет собственного
+      // стабильного id, см. contestedZoneList выше.
+      map.addSource("contested-zone", { type: "geojson", data: GEOMAP_EMPTY_FC, generateId: true });
 
       // Choropleth статуса контроля — факт «чья территория», не рыночный сигнал
       // good/bad (легитимное применение --danger/--warning к данным, см. конституцию).
@@ -2646,6 +2799,23 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // события по слою через queryRenderedFeatures, не по видимому z-order).
       map.addLayer({ id: "control-fill", type: "fill", source: "control-fill", paint: { "fill-color": colors.ru, "fill-opacity": 0.6 } });
       map.addLayer({ id: "control-fill-line", type: "line", source: "control-fill", paint: { "line-color": colors.ru, "line-opacity": 0.9, "line-width": 0.8 } });
+      // «Оспаривается» (Слой 1, contested_zone_geojson) — ТРЕТИЙ эпистемический
+      // ярус поверх control-fill (там подтверждённый control ISW) и claimed-точек
+      // ниже (там «источник заявил, независимый ещё не подтвердил») — про
+      // ПЛОЩАДЬ, где сама ситуация на местности не решена прямо сейчас (активные
+      // бои). Намеренно НЕ сплошной цвет control-fill и НЕ дизайн claimed-точек:
+      // полупрозрачная базовая заливка + штрихованный паттерн (текстура —
+      // ensureContestedHatchImage, addImage перед addLayer ниже, MapLibre не
+      // умеет CSS/SVG-паттерн напрямую) + яркая пунктирная обводка — тот же
+      // визуальный язык, что диагональная штриховка «территория боевых
+      // действий» на картах Рыбаря (владелец держит их эталоном для слоя).
+      // Рендерится ПОСЛЕ control-fill (выше по z-order) — «перебивает» сплошную
+      // РФ-заливку там, где Рыбарь фиксирует незавершённые бои внутри уже как
+      // бы занятого пункта (напр. окраины Константиновки).
+      ensureContestedHatchImage(map, colors.contested);
+      map.addLayer({ id: "contested-zone-fill", type: "fill", source: "contested-zone", paint: { "fill-color": colors.contested, "fill-opacity": 0.22 } });
+      map.addLayer({ id: "contested-zone-hatch", type: "fill", source: "contested-zone", paint: { "fill-pattern": "contested-hatch", "fill-opacity": 1 } });
+      map.addLayer({ id: "contested-zone-line", type: "line", source: "contested-zone", paint: { "line-color": colors.contested, "line-opacity": 0.9, "line-width": 1.4, "line-dasharray": [2, 1.3] } });
       // Изохрона «взято к дате X» (диаграмма Вороного) — временной ползунок ниже
       // переключает СРАЗУ два слоя (control-fill выше ↔ этот): изохрона видна
       // ТОЛЬКО пока ползунок не в крайнем правом положении ("сегодня" — тогда
@@ -2685,6 +2855,13 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         // каждому слою независимо от видимого z-order), без этой проверки один
         // клик открывал бы сразу ДВЕ детали-панели.
         if (isHistoricRef.current) return;
+        // «Оспаривается» сидит ГЕОГРАФИЧЕСКИ поверх обычного choropleth региона
+        // в тех же точках (Константиновка/Купянск) — если клик заодно попадает
+        // и в contested-zone-fill, приоритет у неё (свой обработчик ниже),
+        // иначе клик по оспариваемой зоне открывал бы «обычную» деталь региона
+        // вместо более точной детали оспариваемой территории.
+        const contestedHit = map.queryRenderedFeatures(e.point, { layers: ["contested-zone-fill"] });
+        if (contestedHit.length > 0) return;
         const slug = e.features?.[0]?.properties?.slug;
         // Регион — полигон, не точка: якорем пузыря берём реальную точку клика
         // (e.lngLat), у полигона нет единственной «своей» координаты.
@@ -2697,17 +2874,25 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         const fid = e.features?.[0]?.id;
         if (fid !== undefined) selectCapture(`iso-${fid}`, e.lngLat);
       });
+      map.on("mouseenter", "contested-zone-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "contested-zone-fill", () => { map.getCanvas().style.cursor = ""; });
+      map.on("click", "contested-zone-fill", (e) => {
+        if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
+        if (isHistoricRef.current) return;
+        const fid = e.features?.[0]?.id;
+        if (fid !== undefined) selectContested(`contested-${fid}`, e.lngLat);
+      });
       // Клик «мимо» — по фону карты, не по кликабельному слою (регион/ячейка
-      // реконструкции; маркеры событий/заявленного сюда не попадают вовсе — они
-      // отдельные DOM-элементы поверх канваса, не часть рендер-слоёв MapLibre,
-      // клик по ним не долетает до этого генерик-обработчика) — закрывает
-      // открытый пузырь (владелец, п.4: «клик вне поповера»). Регистрируем
-      // ПОСЛЕДНИМ и перепроверяем hit-test сами (queryRenderedFeatures), а не
-      // полагаемся на порядок регистрации слоевых обработчиков выше — так клик
-      // ПО региону/ячейке всегда доходит и до selectRegion/selectCapture, и до
-      // этой проверки, но она увидит попадание в слой и промолчит.
+      // реконструкции/зона «Оспаривается»; маркеры событий/заявленного/ударов
+      // сюда не попадают вовсе — они отдельные DOM-элементы поверх канваса, не
+      // часть рендер-слоёв MapLibre, клик по ним не долетает до этого генерик-
+      // обработчика) — закрывает открытый пузырь (владелец, п.4: «клик вне
+      // поповера»). Регистрируем ПОСЛЕДНИМ и перепроверяем hit-test сами
+      // (queryRenderedFeatures), а не полагаемся на порядок регистрации слоевых
+      // обработчиков выше — так клик ПО региону/ячейке/зоне всегда доходит и до
+      // select*(), и до этой проверки, но она увидит попадание в слой и промолчит.
       map.on("click", (e) => {
-        const hits = map.queryRenderedFeatures(e.point, { layers: ["regions-fill", "capture-isochrone-fill"] });
+        const hits = map.queryRenderedFeatures(e.point, { layers: ["regions-fill", "capture-isochrone-fill", "contested-zone-fill"] });
         if (hits.length === 0) closeDetail();
       });
     });
@@ -2727,6 +2912,8 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       markersRef.current = [];
       claimedMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
       claimedMarkersRef.current = [];
+      strikeMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+      strikeMarkersRef.current = [];
       popupRef.current?.remove();
       popupRootRef.current?.unmount();
       popupRef.current = null;
@@ -2757,6 +2944,8 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         region={selectedRegion}
         claimed={selectedClaimed}
         capture={selectedCapture}
+        strike={selectedStrike}
+        contested={selectedContested}
         hasControlLegend={hasControlLegend}
         controlLegend={controlLegend}
         controlLegendKeys={controlLegendKeys}
@@ -2769,6 +2958,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     if (!popup.isOpen()) popup.addTo(map);
   }, [
     styleLoaded, selected, selectedEvent, selectedRegion, selectedClaimed, selectedCapture,
+    selectedStrike, selectedContested,
     hasControlLegend, controlLegend, controlLegendKeys, controlPaintOverrides, colors, closeDetail,
   ]);
 
@@ -2780,6 +2970,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.getSource("frontline")?.setData(frontlineFC);
     map.getSource("control-fill")?.setData(controlFillFC);
     map.getSource("capture-isochrone")?.setData(isochroneFC);
+    map.getSource("contested-zone")?.setData(contestedZoneFC);
     // Красим ПО ФИЧЕ (control: <ключ>), не блоком «весь набор регионов либо
     // красим, либо нет» — на карте «Россия целиком» у большинства регионов
     // control нет вовсе (нейтральны), но у Крыма/ДНР/ЛНР/новых областей он ЕСТЬ
@@ -2818,7 +3009,13 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setPaintProperty("capture-isochrone-line", "line-color", colors.ru);
     map.setPaintProperty("frontline-casing", "line-color", colors.ru);
     map.setPaintProperty("frontline-line", "line-color", colors.ru);
-  }, [styleLoaded, regionsFC, frontlineFC, controlFillFC, isochroneFC, colors, controlLegendKeys, controlPaintOverrides]);
+    map.setPaintProperty("contested-zone-fill", "fill-color", colors.contested);
+    map.setPaintProperty("contested-zone-line", "line-color", colors.contested);
+    // Текстура штриховки завязана на цвет темы — пересоздаём/обновляем её тем
+    // же id ("contested-hatch"), чтобы смена светлая↔тёмная тема не оставляла
+    // штриховку прежнего (уже неактуального) оттенка.
+    ensureContestedHatchImage(map, colors.contested);
+  }, [styleLoaded, regionsFC, frontlineFC, controlFillFC, isochroneFC, contestedZoneFC, colors, controlLegendKeys, controlPaintOverrides]);
 
   // --- Временной ползунок «как менялась линия фронта»: переключает СРАЗУ два
   // слоя (владелец, п.3 задачи) — крайнее правое положение ("сегодня") = точная
@@ -2844,6 +3041,12 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setLayoutProperty("control-fill-line", "visibility", vis(!isHistoric));
     map.setLayoutProperty("frontline-casing", "visibility", vis(!isHistoric));
     map.setLayoutProperty("frontline-line", "visibility", vis(!isHistoric));
+    // «Оспаривается» — тоже «прямо сейчас», не историческая реконструкция:
+    // прячем вместе с control-fill/линией фронта, той же логике (у исторической
+    // даты нет своей «оспариваемой зоны», это была бы неверная проекция назад).
+    map.setLayoutProperty("contested-zone-fill", "visibility", vis(!isHistoric));
+    map.setLayoutProperty("contested-zone-hatch", "visibility", vis(!isHistoric));
+    map.setLayoutProperty("contested-zone-line", "visibility", vis(!isHistoric));
   }, [styleLoaded, hasIsochrone, isHistoric, activeMonthSnapshot]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
@@ -2946,6 +3149,45 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     });
   }, [styleLoaded, claimedCapturesList, selectClaimed]);
 
+  // --- Маркеры «Удары» (Слой 2, strike_events_geojson) — отдельный ЖИВОЙ слой
+  // от курируемых событий выше (markersRef, GEOMAP_TYPE_META), свой ref-массив
+  // и свой эффект, тот же паттерн HTML/React-иконки через maplibregl.Marker.
+  // Показываем ВСЕГДА (как курируемые события), не подчиняется activeType (не
+  // одна из статических категорий-фильтров) — размер+насыщенность иконки
+  // кодируют significance ("major" крупнее/ярче --danger, "minor" мельче/
+  // приглушённее, см. .obs-geomap-marker--strike-major/-minor).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded) return;
+    strikeMarkersRef.current.forEach(({ marker, root }) => { root.unmount(); marker.remove(); });
+    strikeMarkersRef.current = [];
+
+    const StrikeIcon = GEOMAP_TYPE_META.strike?.icon || Zap;
+    strikeEventsList.forEach((s) => {
+      const isMajor = s.significance === "major";
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = `obs-geomap-marker obs-geomap-marker--strike${isMajor ? " obs-geomap-marker--strike-major" : " obs-geomap-marker--strike-minor"}`;
+      const label = `Удар${isMajor ? ", значимый" : ""}: ${s.label}`;
+      el.setAttribute("aria-label", label);
+      el.setAttribute("aria-pressed", "false");
+      el.title = label;
+      el.addEventListener("pointerup", (evt) => {
+        suppressNextRegionClickRef.current = true;
+        evt.stopPropagation();
+        selectStrike(s.id, s.coords);
+      });
+      el.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        if (evt.detail === 0) selectStrike(s.id, s.coords);
+      });
+      const root = createRoot(el);
+      root.render(<StrikeIcon size={isMajor ? 14 : 10} aria-hidden="true" />);
+      const marker = new maplibregl.Marker({ element: el }).setLngLat(s.coords).addTo(map);
+      strikeMarkersRef.current.push({ id: s.id, marker, root, el });
+    });
+  }, [styleLoaded, strikeEventsList, selectStrike]);
+
   // --- Визуальное состояние «выбрано» — маркер события (класс на элементе,
   // без пересборки) и контур области (отдельный источник regions-active).
   useEffect(() => {
@@ -2958,6 +3200,13 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   useEffect(() => {
     claimedMarkersRef.current.forEach(({ id, el }) => {
       const active = selected?.kind === "claimed" && selected.key === id;
+      el.classList.toggle("obs-geomap-marker--active", active);
+      el.setAttribute("aria-pressed", String(active));
+    });
+  }, [selected]);
+  useEffect(() => {
+    strikeMarkersRef.current.forEach(({ id, el }) => {
+      const active = selected?.kind === "strike" && selected.key === id;
       el.classList.toggle("obs-geomap-marker--active", active);
       el.setAttribute("aria-pressed", String(active));
     });
@@ -3161,6 +3410,22 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
           {claimedCapturesList.length > 0 && (
             <span className="obs-geomap-legend-item obs-geomap-legend-item--claimed">
               <CircleHelp size={12} aria-hidden="true" />Заявлено, не подтверждено
+            </span>
+          )}
+          {/* «Оспаривается» (Слой 1) — так же честно, пункт легенды только когда
+              contested_zone_geojson реально есть у очага (сейчас — только СВО,
+              и только пока живой ISW-синк успешно отработал хотя бы раз). */}
+          {contestedZoneList.length > 0 && (
+            <span className="obs-geomap-legend-item obs-geomap-legend-item--contested">
+              <span className="obs-geomap-legend-hatch" aria-hidden="true" />Оспаривается
+            </span>
+          )}
+          {/* «Удары» (Слой 2, живой автопоток) — та же честная деградация: пусто
+              в данных (пайплайн только запущен или ещё не нашёл событий) — пункт
+              легенды сам не появляется, никакой "пустой" категории на экране. */}
+          {strikeEventsList.length > 0 && (
+            <span className="obs-geomap-legend-item obs-geomap-legend-item--strike-auto">
+              <Zap size={12} aria-hidden="true" />Удары (авто, из ленты)
             </span>
           )}
           <span className="obs-geomap-legend-item obs-geomap-legend-item--muted">
