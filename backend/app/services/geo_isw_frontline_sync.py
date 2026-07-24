@@ -160,6 +160,21 @@ def _control_fill_geojson(ru_control) -> dict:
     }
 
 
+def _smooth_polygon(poly, dist: float = 0.0035):
+    """Морфологическое сглаживание (closing → opening с круглыми стыками) —
+    убирает «дёрганость»/зубчатость на границе полигонов ISW (владелец,
+    2026-07-24: «местами коряво и не ровно линии проведены, вблизи видны
+    дёрганости»). closing (buffer+/buffer-) сглаживает выпуклые зубцы,
+    opening (buffer-/buffer+) — вогнутые зазубрины; join_style=1 (round) —
+    скруглённые, не острые стыки при обоих проходах. dist ~0.0035° (~350м на
+    широте Украины) — тот же порядок, что порог фильтра шума линии
+    (MIN_SEGMENT_DEG), достаточно, чтобы убрать шум вершин ISW-полигонов, но
+    не срезать реальные небольшие выступы/котлы величиной в насел. пункт."""
+    closed = poly.buffer(dist, join_style=1).buffer(-dist, join_style=1)
+    opened = closed.buffer(-dist, join_style=1).buffer(dist, join_style=1)
+    return opened.buffer(0)
+
+
 def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
     """Возвращает (frontline_geojson, control_fill_geojson)."""
     from shapely.geometry import mapping, shape, LineString, MultiLineString
@@ -170,6 +185,7 @@ def _compute_frontline(control_fc: dict, ukraine_boundary) -> tuple[dict, dict]:
     if not ru_polys:
         raise ValueError("ISW control layer вернул 0 полигонов — не с чем считать линию")
     ru_control = unary_union(ru_polys).buffer(0)
+    ru_control = _smooth_polygon(ru_control)
     ukraine_boundary = ukraine_boundary.buffer(0)
 
     control_fill = _control_fill_geojson(ru_control)

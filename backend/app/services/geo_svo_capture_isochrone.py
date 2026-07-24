@@ -2,39 +2,47 @@
 ползунок (владелец, 2026-07-24: «идёшь по сообщениям, знаешь какие города
 когда взяты — отматываешь линию фронта за эти города»).
 
-Метод (диаграмма Вороного, не попытка восстановить точную историческую
-геометрию — см. отклонённый путь через архив Wayback в work-journal
-2026-07-24, там дыра в архиве на 14 месяцев и системная неточность именно
-на "недавно взятых" точках):
-  1. Датированный список «нас. пункт → дата взятия РФ» — из истории правок
-     статьи Wikipedia "Territorial control during the Russo-Ukrainian war"
-     (+ подстатьи по Донецкой обл.), которая сама агрегирует ISW/DeepState/
-     новости построчно с цитатами — см. scripts/geo_svo_wikipedia_dates.py
-     (разовый/периодический скрипт сбора, НЕ гоняется на каждый синк — это
-     медленно меняющиеся исторические данные, не сегодняшняя сводка).
-     Результат зафиксирован в config/geo_svo_dated_settlements.json
-     (265 точек на 2026-07-24, ISW landmarks вроде Авдеевки/Бахмута/
-     Мариуполя/Соледара/Марьинки/Угледара проверены вручную на корректность
-     дат при сборе).
-  2. Диаграмма Вороного (shapely) вокруг датированных точек, обрезанная по
-     ТЕКУЩЕМУ (живому, из ISW) control_fill_geojson — у каждой ячейки
-     "дата взятия" её датированного соседа. Пересчитывается заново на
-     каждом ISW-синке (дёшево — чистая геометрия, без сети), т.к. сама
-     форма контролируемой зоны меняется, а список дат — почти нет.
-  3. Фронтенд фильтрует эту ОДНУ выданную геометрию по capture_date <=
-     значение ползунка (MapLibre filter-выражение) — без обращений к
-     серверу при движении ползунка.
+Источник дат — история правок статьи Wikipedia "Territorial control during
+the Russo-Ukrainian war" (+ подстатья по Донецкой обл.), которая сама
+агрегирует ISW/DeepState/новости построчно с цитатами — см.
+scripts/geo_svo_wikipedia_dates.py (разовый/периодический скрипт сбора, НЕ
+гоняется на каждый синк — это медленно меняющиеся исторические данные).
+Результат — config/geo_svo_dated_settlements.json (265 точек на 2026-07-24).
 
-Огрубление, а не точная историческая линия — эпистемически это "оценка"
-уровня отдельных ячеек, не факт (реальная линия на дату X не была
-полигоном Вороного). Особенно грубо там, где датированные точки редки
-(между кластерами Крым/Донбасс/Запорожье) — ячейки там огромные и
-малоинформативны, это ожидаемо и не скрывается."""
+Метод построения геометрии — ГИБРИД Вороного + помесячная сборка (первая
+версия — чистый Вороной без объединения соседних ячеек — давала несвязные
+"котлы"/"полукотлы", владелец забраковал как недостоверную; версия на
+фиксированных буферах вокруг точек — недооценивала area там, где точки
+редкие относительно площади, напр. интерьер Крыма почти без покрытия
+между немногими датированными городами; см. work-journal 2026-07-24 про
+оба пивота):
+  1. Диаграмма Вороного (shapely) вокруг ВСЕХ датированных точек, обрезанная
+     по ТЕКУЩЕМУ control_fill_geojson — гарантирует ПОЛНОЕ покрытие площади
+     (у каждой точки территории control_fill есть "ближайший датированный
+     сосед"), в отличие от буферов фиксированного радиуса.
+  2. Для каждого месяца M — берём ячейки, чей сосед датирован <= конец M,
+     СЛИВАЕМ их в одно тело (unary_union — внутренние швы между соседними
+     ячейками одного статуса исчезают), затем closing→opening сглаживание
+     убирает рваные Вороного-грани и мелкие дыры-артефакты (единичная
+     "не по времени" ячейка внутри уже взятого массива), микро-островки-
+     шум отсеиваются по площади.
+  3. Дискретные помесячные снапшоты (не continuous filter по точке) —
+     фронтенд снэпит слайдер к ближайшему <= выбранной дате месяцу, без
+     похода на сервер (все месяцы в одном ответе).
+
+Пересчитывается заново на каждом ISW-синке (дёшево — Вороной строится один
+раз, дальше на каждый месяц только union+buffer, без сети), т.к. форма
+control_fill меняется, а список дат — почти нет.
+
+Огрубление, а не точная историческая линия — эпистемически это "оценка".
+Особенно грубо там, где датированные точки редки (между кластерами Крым/
+Донбасс/Запорожье) — это ожидаемо и не скрывается (дисклеймер на фронте)."""
 from __future__ import annotations
 
 import json
 import logging
 import os
+from datetime import date, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +51,64 @@ _DATED_SETTLEMENTS_PATH = os.path.join(
     "config", "geo_svo_dated_settlements.json",
 )
 
+# Сглаживание помесячного среза (град.) — крупнее, чем у самой ISW-линии
+# (geo_isw_frontline_sync._smooth_polygon, ~0.0035°): здесь изначально
+# грубая/оценочная реконструкция по Вороного-ячейкам, нужно заметно сильнее
+# сгладить рваные грани и залатать единичные "не по времени" дыры-ячейки.
+_SMOOTH_DEG = 0.03
+# Порог отсева микро-островков после сглаживания (град.²).
+_MIN_ISLAND_AREA_DEG2 = 0.0008
+_MONTH_START = (2022, 2)
+
+
+def _month_end(year: int, month: int) -> str:
+    if month == 12:
+        nxt = date(year + 1, 1, 1)
+    else:
+        nxt = date(year, month + 1, 1)
+    return (nxt - timedelta(days=1)).isoformat()
+
+
+def _iter_months(start_year: int, start_month: int, end_iso: str):
+    y, m = start_year, start_month
+    while True:
+        me = _month_end(y, m)
+        yield y, m, me
+        if me >= end_iso:
+            break
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+
+
+def _smooth_and_clean(poly):
+    """closing→opening (сглаживание рваных Вороного-граней + латание мелких
+    дыр-артефактов) + отсев микро-островков-шума."""
+    from shapely.geometry import MultiPolygon
+    from shapely.ops import unary_union
+
+    if poly.is_empty:
+        return poly
+    closed = poly.buffer(_SMOOTH_DEG, join_style=1).buffer(-_SMOOTH_DEG, join_style=1)
+    opened = closed.buffer(-_SMOOTH_DEG, join_style=1).buffer(_SMOOTH_DEG, join_style=1)
+    opened = opened.buffer(0)
+    if opened.is_empty:
+        return opened
+    parts = list(opened.geoms) if isinstance(opened, MultiPolygon) else [opened]
+    kept = [p for p in parts if p.area >= _MIN_ISLAND_AREA_DEG2]
+    if not kept:
+        kept = parts  # если ВСЁ мельче порога — честнее показать как есть, чем стереть целиком
+    return unary_union(kept)
+
 
 def compute_isochrone(control_fill_geojson: dict) -> dict | None:
-    """control_fill_geojson — тот же формат, что GeoFrontlineSync.control_fill_geojson
-    (FeatureCollection полигонов ISW-подтверждённого контроля). Возвращает
-    FeatureCollection полигонов с properties {settlement, oblast, capture_date,
-    date_precision} — ячейка Вороного датированной точки, обрезанная по
-    текущей зоне контроля. None, если исходных данных нет (честная деградация,
-    не 500)."""
+    """control_fill_geojson — тот же формат, что GeoFrontlineSync.control_fill_geojson.
+    Возвращает FeatureCollection полигонов, ОДИН на месяц, с properties
+    {month: "YYYY-MM", month_end: "YYYY-MM-DD", settlements_count: N} — N
+    накопленных датированных точек к концу месяца (для подписи "N пунктов
+    взято к этой дате"). None при отсутствии исходных данных — честная
+    деградация, не 500."""
     if not os.path.exists(_DATED_SETTLEMENTS_PATH):
         return None
     with open(_DATED_SETTLEMENTS_PATH, encoding="utf-8") as f:
@@ -68,14 +126,15 @@ def compute_isochrone(control_fill_geojson: dict) -> dict | None:
 
     pts = [Point(d["lon"], d["lat"]) for d in dated]
     mp = MultiPoint(pts)
-
     try:
         vd = voronoi_diagram(mp, envelope=control_union.buffer(2.0))
     except Exception as e:  # noqa: BLE001
         logger.warning("Изохрона СВО: voronoi_diagram упал: %s", e)
         return None
 
-    features = []
+    # Каждой ячейке — её датированный сосед (владелец cell), обрезка по control_fill
+    # СРАЗУ (не при каждом месяце — дорогая операция intersection делается один раз).
+    cell_owner_date: list[tuple] = []  # (clipped_geom, capture_date)
     for cell in vd.geoms:
         owner = None
         for i, p in enumerate(pts):
@@ -87,16 +146,36 @@ def compute_isochrone(control_fill_geojson: dict) -> dict | None:
         clipped = cell.intersection(control_union)
         if clipped.is_empty:
             continue
-        d = dated[owner]
+        cell_owner_date.append((clipped, dated[owner]["capture_date"]))
+
+    if not cell_owner_date:
+        return None
+
+    cell_owner_date.sort(key=lambda t: t[1])
+    dated_sorted_dates = [t[1] for t in cell_owner_date]
+    today_iso = date.today().isoformat()
+
+    features = []
+    idx = 0  # сколько ячеек (по возрастанию даты) уже включено
+    for y, m, month_end_iso in _iter_months(_MONTH_START[0], _MONTH_START[1], today_iso):
+        while idx < len(cell_owner_date) and dated_sorted_dates[idx] <= month_end_iso:
+            idx += 1
+        if idx == 0:
+            continue
+        region = unary_union([g for g, _ in cell_owner_date[:idx]])
+        region = _smooth_and_clean(region)
+        # финальная обрезка по control_fill — сглаживание могло чуть "вылезти" за край
+        region = region.intersection(control_union)
+        if region.is_empty:
+            continue
         features.append({
             "type": "Feature",
             "properties": {
-                "settlement": d["name"],
-                "oblast": d["oblast"],
-                "capture_date": d["capture_date"],
-                "date_precision": d["date_precision"],
+                "month": f"{y:04d}-{m:02d}",
+                "month_end": month_end_iso,
+                "settlements_count": idx,
             },
-            "geometry": mapping(clipped),
+            "geometry": mapping(region),
         })
 
     if not features:
