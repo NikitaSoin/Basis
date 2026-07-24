@@ -11,7 +11,7 @@ import csv
 import json
 import logging
 import os
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from xml.etree import ElementTree as ET
 
@@ -91,9 +91,19 @@ def upsert_point(db: Session, code: str, as_of: date, metric: str, value, *,
     такая защита уже была локально, у news_pipeline.extract_macro_points() не было;
     точка данных Макрообзора ВСЕГДА про уже случившийся период — прогнозы живут в
     MacroForecast, не здесь). Защита тут одна на ВСЕ каналы (file/cbr/fred/news/minfin),
-    а не в каждом источнике отдельно — новый источник не сможет тихо завести тот же баг."""
-    if as_of > date.today():
-        logger.warning("upsert_point: отброшена дата из будущего %s=%s@%s (%s)",
+    а не в каждом источнике отдельно — новый источник не сможет тихо завести тот же баг.
+
+    ГРЕЙС-ОКНО 14 дней (не строго "> сегодня"): sync_expectations() и
+    macro_yahoo_commodities_sync() НАМЕРЕННО метят точку концом месяца-периода (условность
+    отчётности, «опрос/срез за июль» = 2026-07-31), а публикуются НЕДЕЛЕЙ-ДВУМЯ раньше
+    конца месяца — при первой версии этой защиты (строгая ">") такие точки просто
+    переставали сохраняться на последние ~1-2 недели каждого месяца (regression, найдено
+    сразу же после первого деплоя фикса: purge-future-macro удалил их как «будущие»,
+    хотя данные настоящие, просто месяц ещё не кончился на календаре). 14 дней отделяет
+    этот легитимный случай (дни) от бага, который чиним (месяцы — прогноз на 2026-12-31
+    из статьи в июле, это +159 дней)."""
+    if as_of > date.today() + timedelta(days=14):
+        logger.warning("upsert_point: отброшена дата далеко из будущего %s=%s@%s (%s)",
                        code, metric, as_of, ingested_via or source)
         return "skip"
     try:

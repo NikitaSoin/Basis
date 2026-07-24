@@ -508,16 +508,22 @@ async def debug_ping():
 
 @router.post("/debug/purge-future-macro")
 def debug_purge_future_macro():
-    """Удаляет точки macro_data_points с as_of в будущем (баг: LLM-извлечение
+    """Удаляет точки macro_data_points с as_of далеко в будущем (баг: LLM-извлечение
     иногда путает прогнозную строку на странице ЦБ с фактическим месячным
-    значением — see sync_inflation future-date guard). Разовая очистка уже
-    накопленного мусора, не гонять регулярно."""
-    from datetime import date
+    значением — see sync_inflation / upsert_point future-date guard). Разовая очистка
+    уже накопленного мусора, не гонять регулярно.
+
+    Порог — те же +14 дней, что в upsert_point() (НЕ строго "> сегодня"): 2026-07-25
+    этот эндпоинт со строгим порогом снёс заодно 3 ЛЕГИТИМНЫЕ точки (inflation_expectations
+    + 2 yahoo-commodities), которые намеренно метятся концом месяца-периода, а публикуются
+    за 1-2 недели до конца месяца — см. докстринг upsert_point. Держим оба порога в синхроне."""
+    from datetime import date, timedelta
     from app.db.session import SessionLocal
     from app.models.macro import MacroDataPoint
     db = SessionLocal()
     try:
-        rows = db.query(MacroDataPoint).filter(MacroDataPoint.as_of > date.today()).all()
+        cutoff = date.today() + timedelta(days=14)
+        rows = db.query(MacroDataPoint).filter(MacroDataPoint.as_of > cutoff).all()
         deleted = [{"code": r.indicator_code, "metric": r.metric, "as_of": str(r.as_of), "value": float(r.value)} for r in rows]
         for r in rows:
             db.delete(r)
