@@ -42,10 +42,24 @@ def _portfolio(db: Session, user_id: int) -> tuple[set[str], set[str]]:
 # строк (у каждой — небольшой ненулевой вес на «не свою» причинную ось) даны
 # 0.2/0.2 — достаточно, чтобы всплыл ГЛАВНЫЙ драйвер каждой оси, не растворяя
 # фокус на бизнесе.
+# 🔴 "macro" news-вес поднят 0.5→1.0 (2026-07-25): владелец запросил отчёт по
+# теме «Макроэкономика» в день заседания ЦБ (ставку снизили, была пресс-конф.) —
+# отчёт решение вообще не упомянул. Причина: на express n_news = round(4×0.5)=2
+# (см. _gather ниже, ORDER BY published_at DESC LIMIT n_news) — в дни высокой
+# новостной плотности (а день заседания ЦБ — ровно такой) первые 2 позиции по
+# published_at легко занимают более поздние комментарии/разборы, и САМА новость
+# о решении вылетает за пределы окна, при том что _macro_snapshot даёт только
+# голое число ставки без нарратива «сегодня снизили, вот пресс-конференция» —
+# это разряд контента, который несёт именно НОВОСТЬ, а не структурные данные.
+# У темы, буквально называющейся «Макроэкономика», окно новостей ýже не должно
+# быть, чем у «Смешанного» — подняли до 1.0 (было отдельным умыслом «фокус через
+# структуру, не через ленту», но это не должно значить «не видеть макрособытие
+# дня»). Другие узкие темы (biz/geo/institutions) не трогал — жалоба была именно
+# про macro; тот же паттерн можно перепроверить точечно, если всплывёт там же.
 _TOPIC_WEIGHT = {
     #           news  earnings  calendar  macro  geo   institutions
     "biz":         (0.6,  1.5,     0.8,     0.2,  0.2,  0.0),
-    "macro":       (0.5,  0.0,     0.6,     1.5,  0.3,  0.0),
+    "macro":       (1.0,  0.0,     0.6,     1.5,  0.3,  0.0),
     "geo":         (0.5,  0.0,     0.4,     0.3,  1.5,  0.0),
     "institutions":(0.3,  0.0,     0.3,     0.2,  0.5,  1.5),
     "mixed":       (1.0,  1.0,     1.0,     1.0,  1.0,  1.0),
@@ -203,13 +217,23 @@ def _maps_snapshot(db: Session, pf_tickers: set[str]) -> dict:
     try:
         from app.services import market_maps
         data = market_maps.valuation(db, tickers_filter=None)
+        # Пост-обработка (сортировка/срезы) раньше не была защищена — это
+        # единственное реальное отличие topic=biz от остальных узких тем:
+        # valuation_map собирается для biz на ЛЮБОЙ глубине (для macro/geo/
+        # institutions — только на deep), значит любой будущий сбой формы
+        # data (напр. сектор без ключа "tiles") стреляет чаще именно здесь.
+        # На проде такого не воспроизвели (см. probe_biz.py, 0 исключений
+        # на реальных данных) — но раз этот путь самый «открытый», защищаем
+        # тем же try/except, что и сам вызов valuation() выше.
+        tiles = [t for s in data.get("sectors", []) for t in (s.get("tiles") or [])]
+        tiles.sort(key=lambda t: t.get("upside_pct") or 0)
+        over = [{"ticker": t.get("ticker"), "upside_pct": t.get("upside_pct")} for t in tiles[:5]]
+        under = [{"ticker": t.get("ticker"), "upside_pct": t.get("upside_pct")} for t in tiles[-5:][::-1]]
+        pf = [{"ticker": t.get("ticker"), "upside_pct": t.get("upside_pct")}
+              for t in tiles if t.get("ticker") in pf_tickers]
     except Exception:  # noqa: BLE001
+        logger.warning("_maps_snapshot: сбой пост-обработки valuation_map", exc_info=True)
         return {}
-    tiles = [t for s in data.get("sectors", []) for t in s["tiles"]]
-    tiles.sort(key=lambda t: t.get("upside_pct", 0))
-    over = [{"ticker": t["ticker"], "upside_pct": t["upside_pct"]} for t in tiles[:5]]
-    under = [{"ticker": t["ticker"], "upside_pct": t["upside_pct"]} for t in tiles[-5:][::-1]]
-    pf = [{"ticker": t["ticker"], "upside_pct": t["upside_pct"]} for t in tiles if t["ticker"] in pf_tickers]
     return {"note": "Апсайд к МОДЕЛЬНОЙ справедливой цене (оценка Basis), не сигнал",
             "most_overvalued": over, "most_undervalued": under, "portfolio": pf[:8]}
 

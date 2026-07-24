@@ -35,7 +35,10 @@ risks до 5. Если текст не похож на осмысленный д
 def analyze_document(url: str, question: str | None = None, max_chars: int = 14000) -> dict:
     doc = fetch_document(url, max_chars=max_chars)
     if doc.get("error"):
-        return {"error": doc["error"], "note": doc.get("note"),
+        # detail (тип исключения — ReadTimeout/ConnectError/...) раньше терялся
+        # здесь — диагностика egress-сбоя требовала внешнего curl к прод-API,
+        # чтобы увидеть точную причину. Пробрасываем дальше.
+        return {"error": doc["error"], "detail": doc.get("detail"), "note": doc.get("note"),
                 "hint": "Если это server-egress — документ можно проверить локально; на проде может требоваться релей."}
     text = doc.get("text") or ""
     user = (f"URL: {url}\nТип: {doc.get('kind')}\nДлина текста: {doc.get('chars')} символов.\n"
