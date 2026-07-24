@@ -4552,6 +4552,124 @@ details[open] > summary .obs-inst-chev,
 .obs-geomap-claimed-banner svg { color: var(--warning); flex-shrink: 0; }
 .obs-geomap-claimed-banner strong { color: var(--warning); font-weight: 700; }
 
+/* Временной ползунок «как менялась линия фронта» (карта СВО, capture_isochrone_geojson,
+   owner 2026-07-24) — целый блок-карточка, не мелкая строка: слайдер переключает
+   ДВА слоя карты (control-fill ↔ изохрона Вороного), это заметное изменение
+   поведения карты, дисклеймер обязан быть виден, не сноской. Тот же --info-тон,
+   что .obs-tag-estimate (эпистемически «оценка Basis», не «заявлено» warning). */
+.obs-geomap-timeslider {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.obs-geomap-timeslider-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.obs-geomap-timeslider-banner > svg { color: var(--info); flex-shrink: 0; margin-top: 1px; }
+.obs-geomap-timeslider-bannertext {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.obs-geomap-timeslider-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.obs-geomap-timeslider-caveat {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+
+/* Слайдер — тот же кросс-браузерный паттерн трека/thumb, что у стресс-теста
+   (st-sl input[type=range]), но нейтральный градиент трека (не bull/bear
+   красный↔зелёный — здесь ось это ВРЕМЯ, не риск/доходность) и медный thumb
+   (--accent, единственный интерактивный акцент в хроме карты). */
+.obs-geomap-timeslider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--border-strong) 0%, var(--accent-soft) 100%);
+  outline: none;
+  cursor: pointer;
+}
+.obs-geomap-timeslider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2.5px solid var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+}
+.obs-geomap-timeslider-input:active::-webkit-slider-thumb { cursor: grabbing; }
+.obs-geomap-timeslider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2.5px solid var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+}
+.obs-geomap-timeslider-input::-moz-range-track {
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--border-strong) 0%, var(--accent-soft) 100%);
+}
+.obs-geomap-timeslider-input:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.obs-geomap-timeslider-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.obs-geomap-timeslider-date {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.obs-geomap-timeslider-count {
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.obs-geomap-timeslider-count strong {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+.obs-geomap-timeslider-toggle {
+  margin-left: auto;
+  padding: 6px 11px;
+  font-size: 10.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obs-geomap-timeslider-input { transition: none; }
+}
+
 .obs-geomap-filterbar {
   display: flex;
   flex-wrap: wrap;

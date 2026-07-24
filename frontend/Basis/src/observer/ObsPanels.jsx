@@ -51,6 +51,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  History,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1960,6 +1961,28 @@ function ruPluralPunkt(n) {
 }
 
 const GEOMAP_EMPTY_FC = { type: "FeatureCollection", features: [] };
+
+// --- Временной ползунок «как менялась линия фронта» (только СВО, см.
+// capture_isochrone_geojson) — начало полномасштабного вторжения, дефолтная
+// левая граница диапазона (владелец: Крым/Донбасс-2014 стабильны и менее
+// релевантны для "прочувствовать динамику", доступны через тумблер «с 2014»).
+const SVO_INVASION_START_ISO = "2022-02-24";
+// Один день в мс — вся арифметика ползунка идёт в ЦЕЛЫХ днях UTC (не сырых
+// мс Date.now()), чтобы правый край диапазона (min/max/step все целые) был
+// ГАРАНТИРОВАННО достижим перетаскиванием до упора — сырые мс с step=1 день
+// почти никогда не делятся нацело на (max-min), браузер может не долистать
+// ползунок ровно до "сегодня".
+const GEOMAP_MS_PER_DAY = 86400000;
+
+function geomapIsoToUtcDayMs(iso) {
+  // Date.parse на "YYYY-MM-DD" ГАРАНТИРОВАННО читает как полночь UTC (ISO 8601
+  // date-only) — та же логика на выходе (toISOString().slice(0,10)) даёт
+  // обратно ТУ ЖЕ календарную дату без сдвига часовым поясом браузера.
+  return Date.parse(iso);
+}
+function geomapUtcDayMsToIso(ms) {
+  return new Date(ms).toISOString().slice(0, 10);
+}
 // Общий стабильный fallback для control_legend/control_paint_opacity, когда их
 // нет в данных очага — ОДИН и тот же объект-ссылка на каждом рендере (не новый
 // {} каждый раз), иначе useMemo/useEffect ниже, завязанные на его identity,
@@ -2163,6 +2186,22 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // маркер сам обрабатывает через надёжный pointerup, а не через "click").
   const suppressNextRegionClickRef = useRef(false);
   const prevActiveMapRef = useRef(activeMap);
+  // Временной ползунок «как менялась линия фронта» (только СВО, см.
+  // capture_isochrone_geojson ниже) — держит "сегодня" зафиксированным на
+  // МОМЕНТ МОНТИРОВАНИЯ этой карты (а не пересчитывает Date.now() на каждый
+  // рендер), иначе крайняя правая позиция ползунка молча "уезжала" бы вперёд
+  // при любом ре-рендере компонента в течение дня.
+  const todayUtcDayMs = useMemo(() => {
+    const d = new Date();
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  }, []);
+  const [sliderDayIdx, setSliderDayIdx] = useState(null); // null пока эпоха ползунка не посчитана из данных (после загрузки)
+  const [includeCrimea2014, setIncludeCrimea2014] = useState(false);
+  // isHistoric считается по значению ползунка, но требует знать эпоху/индекс
+  // "сегодня" — оба зависят от isochroneFC (данные ещё не загружены на первом
+  // рендере), см. присвоение sliderDayIdx в эффекте ниже, после того как
+  // isochroneList уже объявлен.
+  const isHistoricRef = useRef(false);
   const colors = useBasisMapColors();
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -2215,6 +2254,14 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
   // никогда визуально не путать с закрашенным control-fill. Только СВО, только очаг.
   const claimedCapturesFC = (!onRussiaMap && activeBaseMap?.claimed_captures_geojson) || GEOMAP_EMPTY_FC;
   const claimedCapturesCoversSince = (!onRussiaMap && activeBaseMap?.claimed_captures_covers_since) || null;
+  // Изохрона взятия н.п. (диаграмма Вороного вокруг ~265 датированных точек,
+  // обрезанная по текущей зоне контроля) — задел временного ползунка «как
+  // менялась линия фронта». Только СВО (бэкенд отдаёт поле только для этого
+  // очага), только очаг (не «Россия целиком» — там понятие неприменимо, как и
+  // у control-fill выше). ПРИНЦИПИАЛЬНО менее точный слой, чем control-fill —
+  // сам полигон Вороного огрублён между датированными точками, это "оценка",
+  // не факт (см. .obs-geomap-timeslider-caveat в разметке ниже).
+  const isochroneFC = (!onRussiaMap && activeBaseMap?.capture_isochrone_geojson) || GEOMAP_EMPTY_FC;
 
   const regionsBySlug = useMemo(() => {
     const m = {};
@@ -2254,6 +2301,47 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     })),
     [claimedCapturesFC]
   );
+  // Ячейки изохроны для детали-панели по клику (см. эффект клика на слое
+  // "capture-isochrone-fill" ниже) — как и claimedCapturesList выше, у фич
+  // нет собственного id, строим по индексу; тот же индекс используется как
+  // MapLibre feature-id (source создан с generateId: true), поэтому клик по
+  // ячейке на карте напрямую матчится на элемент этого списка.
+  const isochroneList = useMemo(
+    () => (isochroneFC.features || []).map((f, i) => ({ id: `iso-${i}`, ...f.properties })),
+    [isochroneFC]
+  );
+  const hasIsochrone = isochroneList.length > 0;
+  // Эпоха ползунка — САМАЯ РАННЯЯ дата взятия в реальных данных (не хардкод
+  // 2014-02-27): если бэкенд когда-нибудь дособерёт точки раньше или позже —
+  // фронтенд не нужно трогать. Фолбэк на начало вторжения, если изохроны нет
+  // вовсе (слайдер всё равно не рендерится в этом случае, см. hasIsochrone).
+  const earliestCaptureIso = useMemo(() => {
+    if (!isochroneList.length) return SVO_INVASION_START_ISO;
+    return isochroneList.reduce((min, c) => (c.capture_date < min ? c.capture_date : min), isochroneList[0].capture_date);
+  }, [isochroneList]);
+  const showCrimeaToggle = earliestCaptureIso < SVO_INVASION_START_ISO;
+  const sliderEpochMs = geomapIsoToUtcDayMs(earliestCaptureIso);
+  const sliderInvasionIdx = Math.max(0, Math.round((geomapIsoToUtcDayMs(SVO_INVASION_START_ISO) - sliderEpochMs) / GEOMAP_MS_PER_DAY));
+  const sliderTotalDays = Math.max(sliderInvasionIdx, Math.round((todayUtcDayMs - sliderEpochMs) / GEOMAP_MS_PER_DAY));
+  const sliderMinIdx = includeCrimea2014 ? 0 : sliderInvasionIdx;
+  const effectiveSliderDayIdx = Math.min(sliderTotalDays, Math.max(sliderMinIdx, sliderDayIdx ?? sliderTotalDays));
+  const sliderDateIso = geomapUtcDayMsToIso(sliderEpochMs + effectiveSliderDayIdx * GEOMAP_MS_PER_DAY);
+  const isHistoric = hasIsochrone && effectiveSliderDayIdx < sliderTotalDays;
+  const capturedCount = useMemo(
+    () => (hasIsochrone ? isochroneList.filter((c) => c.capture_date <= sliderDateIso).length : 0),
+    [hasIsochrone, isochroneList, sliderDateIso]
+  );
+  const toggleCrimea2014 = useCallback(() => {
+    setIncludeCrimea2014((prev) => {
+      const next = !prev;
+      // Выключаем «с 2014» — если ползунок сейчас стоит где-то в 2014-2022,
+      // подтягиваем его обратно к началу вторжения (иначе значение осталось
+      // бы "невалидным" относительно нового min слайдера).
+      if (!next) setSliderDayIdx((d) => Math.max(d ?? sliderTotalDays, sliderInvasionIdx));
+      return next;
+    });
+  }, [sliderInvasionIdx, sliderTotalDays]);
+
   const typeOk = (t) => activeType === "all" || activeType === t;
 
   const selectEvent = useCallback(
@@ -2268,11 +2356,26 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     (id) => setSelected((prev) => (prev?.kind === "claimed" && prev.key === id ? null : { kind: "claimed", key: id })),
     []
   );
+  const selectCapture = useCallback(
+    (id) => setSelected((prev) => (prev?.kind === "capture" && prev.key === id ? null : { kind: "capture", key: id })),
+    []
+  );
   const closeDetail = () => setSelected(null);
 
   const selectedEvent = selected?.kind === "event" ? events.find((e) => e.id === selected.key) : null;
   const selectedRegion = selected?.kind === "region" ? regionsBySlug[selected.key] : null;
   const selectedClaimed = selected?.kind === "claimed" ? claimedCapturesList.find((c) => c.id === selected.key) : null;
+  const selectedCapture = selected?.kind === "capture" ? isochroneList.find((c) => c.id === selected.key) : null;
+
+  // isHistoricRef — тот же isHistoric, но в ref, для обработчика клика по
+  // "regions-fill" внутри map.on("load", ...) ниже (регистрируется ОДИН раз
+  // при инициализации карты, замыкание держало бы значение isHistoric на
+  // момент монтирования навсегда): пока активна историческая изохрона, клик
+  // по подложке региона игнорируется — приоритет клика у самой изохроны
+  // (см. обработчик "capture-isochrone-fill"), иначе один клик открывал бы
+  // ДВЕ детали-панели одновременно (обе основаны на честном MapLibre
+  // hit-test, не на видимом z-order).
+  useEffect(() => { isHistoricRef.current = isHistoric; }, [isHistoric]);
 
   // --- Инициализация MapLibre: один раз, когда данные готовы и контейнер смонтирован.
   useEffect(() => {
@@ -2327,6 +2430,12 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       map.addSource("regions-active", { type: "geojson", data: GEOMAP_EMPTY_FC });
       map.addSource("frontline", { type: "geojson", data: GEOMAP_EMPTY_FC });
       map.addSource("control-fill", { type: "geojson", data: GEOMAP_EMPTY_FC });
+      // generateId: true — у Вороного-ячеек изохроны нет собственного стабильного
+      // id в свойствах (см. isochroneList выше), MapLibre сам присваивает id по
+      // порядковому индексу фичи в FeatureCollection на каждый setData — этого
+      // достаточно, чтобы клик по ячейке (feature.id) детерминированно матчился
+      // на iso-<index> в isochroneList, т.к. порядок массива фич не меняется.
+      map.addSource("capture-isochrone", { type: "geojson", data: GEOMAP_EMPTY_FC, generateId: true });
 
       // Choropleth статуса контроля — факт «чья территория», не рыночный сигнал
       // good/bad (легитимное применение --danger/--warning к данным, см. конституцию).
@@ -2345,6 +2454,22 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       // события по слою через queryRenderedFeatures, не по видимому z-order).
       map.addLayer({ id: "control-fill", type: "fill", source: "control-fill", paint: { "fill-color": colors.ru, "fill-opacity": 0.6 } });
       map.addLayer({ id: "control-fill-line", type: "line", source: "control-fill", paint: { "line-color": colors.ru, "line-opacity": 0.9, "line-width": 0.8 } });
+      // Изохрона «взято к дате X» (диаграмма Вороного) — временной ползунок ниже
+      // переключает СРАЗУ два слоя (control-fill выше ↔ этот): изохрона видна
+      // ТОЛЬКО пока ползунок не в крайнем правом положении ("сегодня" — тогда
+      // видна точная control-fill), см. эффект синхронизации ниже. Заметно менее
+      // насыщенная заливка + пунктирная граница — визуально сразу читается как
+      // "менее точный/реконструированный" слой, не спутать с control-fill.
+      map.addLayer({
+        id: "capture-isochrone-fill", type: "fill", source: "capture-isochrone",
+        layout: { visibility: "none" },
+        paint: { "fill-color": colors.ru, "fill-opacity": 0.4 },
+      });
+      map.addLayer({
+        id: "capture-isochrone-line", type: "line", source: "capture-isochrone",
+        layout: { visibility: "none" },
+        paint: { "line-color": colors.ru, "line-opacity": 0.5, "line-width": 0.6, "line-dasharray": [1, 1.4] },
+      });
       // Линия фронта — САМА линия боевого соприкосновения, отдельно от заливки
       // регионов (владелец: «где линия фронта? сейчас просто регионы закрашены»).
       // Двухслойная линия (подложка толще+бледнее, поверх тоньше+ярче) — читаемый
@@ -2362,8 +2487,21 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
       map.on("mouseleave", "regions-fill", () => { map.getCanvas().style.cursor = ""; });
       map.on("click", "regions-fill", (e) => {
         if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
+        // Пока активна историческая изохрона — приоритет клика у неё (см.
+        // isHistoricRef выше и обработчик "capture-isochrone-fill" ниже): оба
+        // слоя кликабельны на одной и той же точке (MapLibre матчит клик по
+        // каждому слою независимо от видимого z-order), без этой проверки один
+        // клик открывал бы сразу ДВЕ детали-панели.
+        if (isHistoricRef.current) return;
         const slug = e.features?.[0]?.properties?.slug;
         if (slug) selectRegion(slug);
+      });
+      map.on("mouseenter", "capture-isochrone-fill", () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", "capture-isochrone-fill", () => { map.getCanvas().style.cursor = ""; });
+      map.on("click", "capture-isochrone-fill", (e) => {
+        if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
+        const fid = e.features?.[0]?.id;
+        if (fid !== undefined) selectCapture(`iso-${fid}`);
       });
     });
 
@@ -2394,6 +2532,7 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.getSource("regions")?.setData(regionsFC);
     map.getSource("frontline")?.setData(frontlineFC);
     map.getSource("control-fill")?.setData(controlFillFC);
+    map.getSource("capture-isochrone")?.setData(isochroneFC);
     // Красим ПО ФИЧЕ (control: <ключ>), не блоком «весь набор регионов либо
     // красим, либо нет» — на карте «Россия целиком» у большинства регионов
     // control нет вовсе (нейтральны), но у Крыма/ДНР/ЛНР/новых областей он ЕСТЬ
@@ -2428,9 +2567,34 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
     map.setPaintProperty("regions-active-line", "line-color", colors.accent);
     map.setPaintProperty("control-fill", "fill-color", colors.ru);
     map.setPaintProperty("control-fill-line", "line-color", colors.ru);
+    map.setPaintProperty("capture-isochrone-fill", "fill-color", colors.ru);
+    map.setPaintProperty("capture-isochrone-line", "line-color", colors.ru);
     map.setPaintProperty("frontline-casing", "line-color", colors.ru);
     map.setPaintProperty("frontline-line", "line-color", colors.ru);
-  }, [styleLoaded, regionsFC, frontlineFC, controlFillFC, colors, controlLegendKeys, controlPaintOverrides]);
+  }, [styleLoaded, regionsFC, frontlineFC, controlFillFC, isochroneFC, colors, controlLegendKeys, controlPaintOverrides]);
+
+  // --- Временной ползунок «как менялась линия фронта»: переключает СРАЗУ два
+  // слоя (владелец, п.3 задачи) — крайнее правое положение ("сегодня") = точная
+  // control-fill (ISW), линия фронта и заявленные-не-подтверждённые точки видны
+  // как обычно; любое движение влево = историческая изохрона по MapLibre filter
+  // (без обращений к серверу, данные уже все на клиенте), control-fill и линия
+  // фронта скрыты (у исторической даты нет "своей" точной линии, показ текущей
+  // линии поверх реконструкции выглядел бы нелепо — см. задачу, п.3).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !styleLoaded || !hasIsochrone) return;
+    if (isHistoric) {
+      map.setFilter("capture-isochrone-fill", ["<=", ["get", "capture_date"], sliderDateIso]);
+      map.setFilter("capture-isochrone-line", ["<=", ["get", "capture_date"], sliderDateIso]);
+    }
+    const vis = (on) => (on ? "visible" : "none");
+    map.setLayoutProperty("capture-isochrone-fill", "visibility", vis(isHistoric));
+    map.setLayoutProperty("capture-isochrone-line", "visibility", vis(isHistoric));
+    map.setLayoutProperty("control-fill", "visibility", vis(!isHistoric));
+    map.setLayoutProperty("control-fill-line", "visibility", vis(!isHistoric));
+    map.setLayoutProperty("frontline-casing", "visibility", vis(!isHistoric));
+    map.setLayoutProperty("frontline-line", "visibility", vis(!isHistoric));
+  }, [styleLoaded, hasIsochrone, isHistoric, sliderDateIso]);
 
   // --- Перелёт к новым bounds при переключении «очаг ↔ Россия целиком» (не на
   // самой первой загрузке стиля — тот перелёт уже сделан конструктором карты).
@@ -2628,6 +2792,55 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
         </div>
       )}
 
+      {!onRussiaMap && hasIsochrone && (
+        <div className="obs-geomap-timeslider">
+          <div className="obs-geomap-timeslider-banner">
+            <History size={14} aria-hidden="true" />
+            <div className="obs-geomap-timeslider-bannertext">
+              <div className="obs-geomap-timeslider-title">
+                Как менялась линия фронта
+                <span className="obs-tag-estimate">оценка</span>
+              </div>
+              <p className="obs-geomap-timeslider-caveat">
+                Граница восстановлена по датам взятия ближайших населённых пунктов
+                (диаграмма Вороного, {isochroneList.length} датированных точек) — это
+                НЕ точная историческая линия фронта на выбранную дату, а огрубление
+                для ощущения динамики. Точная граница ISW — только в положении
+                «сегодня» (крайнее правое).
+              </p>
+            </div>
+          </div>
+
+          <input
+            type="range"
+            className="obs-geomap-timeslider-input"
+            min={sliderMinIdx}
+            max={sliderTotalDays}
+            step={1}
+            value={effectiveSliderDayIdx}
+            onChange={(e) => { setSliderDayIdx(Number(e.target.value)); setSelected(null); }}
+            aria-label="Дата реконструкции линии фронта"
+            aria-valuetext={isHistoric ? `Реконструкция на ${_obsDateRu(sliderDateIso)}` : "Сегодня, точная заливка ISW"}
+          />
+
+          <div className="obs-geomap-timeslider-foot">
+            <span className="obs-geomap-timeslider-date">
+              {isHistoric ? <>Реконструкция на <strong>{_obsDateRu(sliderDateIso)}</strong></> : "Сегодня — точная заливка ISW"}
+            </span>
+            <span className="obs-geomap-timeslider-count">
+              <strong>{capturedCount}</strong> {ruPluralPunkt(capturedCount)} взято к этой дате
+            </span>
+            {showCrimeaToggle && (
+              <button
+                type="button"
+                className={`obs-chip obs-geomap-timeslider-toggle${includeCrimea2014 ? " obs-chip--active" : ""}`}
+                onClick={toggleCrimea2014}
+              >С 2014 года</button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="obs-geomap-filterbar">
         <button
           type="button"
@@ -2803,6 +3016,32 @@ function ObsGeoTheaterMap({ theaterKey, regionLabel, token, direction, direction
                 : <span>{selectedClaimed.source}</span>
             )}
           </div>
+        </div>
+      )}
+
+      {selectedCapture && (
+        <div className="obs-geomap-detail" role="region" aria-label="Детали ячейки исторической реконструкции линии фронта">
+          <button type="button" className="obs-geomap-detail-close" onClick={closeDetail} aria-label="Закрыть детали">
+            <X size={14} />
+          </button>
+          <div className="obs-geomap-detail-head">
+            <History size={15} aria-hidden="true" />
+            <span className="obs-geomap-detail-type">Реконструкция по дате взятия</span>
+            <span className="obs-tag-estimate">оценка</span>
+          </div>
+          <h4 className="obs-geomap-detail-title">
+            {selectedCapture.settlement}{selectedCapture.oblast ? `, ${selectedCapture.oblast}` : ""}
+          </h4>
+          <p className="obs-geomap-detail-desc">
+            Взято: {_obsDateRu(selectedCapture.capture_date)}
+            {selectedCapture.date_precision && selectedCapture.date_precision !== "day" && (
+              <> · точность даты — {selectedCapture.date_precision === "month" ? "месяц" : "год"}, показана условная дата</>
+            )}
+          </p>
+          <p className="obs-geomap-method-note">
+            <Info size={11} aria-hidden="true" />
+            Ячейка на карте — не граница на дату взятия ЭТОГО пункта, а ближайшая зона диаграммы Вороного вокруг него; названия — по латинской транслитерации источника (Wikipedia).
+          </p>
         </div>
       )}
 
