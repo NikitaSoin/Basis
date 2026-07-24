@@ -87,12 +87,13 @@ def record_trade(db: Session, portfolio_id: int, position_id: int, data: TradeCr
     портфеля той же валюты (заводит её, если нет) — без этого проданный актив
     просто исчезал из «Состава» без следа, и суммарная стоимость портфеля
     молча «проседала» на всю стоимость проданного (владелец, 2026-07-25).
-    Покупка НАМЕРЕННО не списывает кэш симметрично — портфель часто заводят
-    задним числом («у меня уже есть эти акции»), автосписание несуществующего
-    кэша создало бы более странное поведение (уход в минус/непрошеная кэш-
-    позиция), чем то, что чинится здесь. Если нужно «купил на вырученные
-    деньги» — пользователь уменьшает кэш вручную (уже есть в UI: правка
-    денежной позиции)."""
+    Покупка симметрично СПИСЫВАЕТ стоимость (quantity×price + fee) с денежной
+    позиции той же валюты, если она существует (владелец подтвердил, 2026-07-
+    25 продолжение) — но НЕ уходит в минус и НЕ заводит кэш-позицию из
+    ничего: `_credit_cash` клампит на 0, если кэша не хватает/не заведён
+    вовсе. Портфель часто заводят задним числом («у меня уже есть эти
+    акции») — молчаливое отсутствие кэш-позиции в такой ситуации просто
+    ничего не списывает, не создаёт непрошеную отрицательную позицию."""
     position = (
         db.query(PortfolioPosition)
         .filter(PortfolioPosition.id == position_id, PortfolioPosition.portfolio_id == portfolio_id)
@@ -106,6 +107,9 @@ def record_trade(db: Session, portfolio_id: int, position_id: int, data: TradeCr
         new_qty = old_qty + data.quantity
         position.avg_buy_price = (old_qty * old_avg + data.quantity * data.price) / new_qty
         position.quantity = new_qty
+        if position.instrument_type != "cash":
+            cost = data.quantity * data.price + data.fee
+            _credit_cash(db, portfolio_id, position.currency, -cost)
     else:
         if data.quantity > old_qty:
             raise ValueError(f"Нельзя продать {data.quantity} — в позиции только {old_qty}")

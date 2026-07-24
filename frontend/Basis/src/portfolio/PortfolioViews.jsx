@@ -688,18 +688,21 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) }),
     "сохранить позицию"
   );
-  // Продажа — ЧЕРЕЗ /trades (record_trade), не delete+recreate: (1) зачисляет
-  // выручку на денежную позицию (владелец, 2026-07-25: «продаёшь — деньги не
-  // появляются, стоимость портфеля проседает»), (2) не плодит фиктивную
-  // "buy"-транзакцию на остаток (delete+post каждый раз заводил НОВУЮ открывающую
-  // сделку — портилась история для P&L/дивидендов). Покупка через delete+recreate
-  // ниже НЕ трогаем — отдельный, не заявленный сейчас вопрос.
-  const sell = async (positionId, qty, prc) => check(
+  // Сделка (buy/sell) НА СУЩЕСТВУЮЩЕЙ позиции — ЧЕРЕЗ /trades (record_trade),
+  // не delete+recreate: (1) продажа зачисляет выручку на денежную позицию,
+  // покупка симметрично списывает (владелец, 2026-07-25), (2) не плодит
+  // фиктивную "buy"-транзакцию на остаток (delete+post каждый раз заводил
+  // НОВУЮ открывающую сделку — портилась история для P&L/дивидендов). Только
+  // для ДОБАВЛЕНИЯ К СУЩЕСТВУЮЩЕЙ позиции — создание НОВОЙ (первое "куплено")
+  // по-прежнему через post(): это декларация владения, не обязательно
+  // сделка прямо сейчас (портфель часто заводят задним числом), кэш её не
+  // должен касаться.
+  const trade = async (positionId, side, qty, prc) => check(
     await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${positionId}/trades`, {
       method: "POST", headers: authHeaders,
-      body: JSON.stringify({ side: "sell", quantity: qty, price: prc, fee: 0, trade_date: new Date().toISOString().slice(0, 10) }),
+      body: JSON.stringify({ side, quantity: qty, price: prc, fee: 0, trade_date: new Date().toISOString().slice(0, 10) }),
     }),
-    "продать"
+    side === "sell" ? "продать" : "купить"
   );
 
   const handleSubmitEquity = async () => {
@@ -713,18 +716,15 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     const existing = existingPositions.find(p => p.instrument_type === "equity" && p.company_id === company.id);
     // Бэк отдаёт Decimal строками — приводим к числам ДО сравнений
     const exQty = existing ? parseFloat(existing.quantity) : 0;
-    const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
 
     if (side === "sell") {
       if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
       if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
       if (!prc) throw new Error("Укажите цену продажи — по ней считается выручка на денежную позицию");
-      await sell(existing.id, qty, prc);
+      await trade(existing.id, "sell", qty, prc);
     } else if (existing) {
-      const newQty = exQty + qty;
-      const newAvg = (exQty * exAvg + qty * prc) / newQty;
-      await del(existing.id);
-      await post({ company_id: company.id, instrument_type: "equity", quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
+      if (!prc) throw new Error("Укажите цену покупки — по ней считается списание с денежной позиции");
+      await trade(existing.id, "buy", qty, prc);
     } else {
       await post({ company_id: company.id, instrument_type: "equity", quantity: qty, avg_buy_price: prc });
     }
@@ -737,18 +737,15 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     if (!secid) throw new Error("Выберите бумагу из списка");
     const existing = existingPositions.find(p => p.instrument_type === instrumentType && p.secid === secid);
     const exQty = existing ? parseFloat(existing.quantity) : 0;
-    const exAvg = existing ? parseFloat(existing.avg_buy_price) : 0;
 
     if (side === "sell") {
       if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
       if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
       if (!prc) throw new Error("Укажите цену продажи — по ней считается выручка на денежную позицию");
-      await sell(existing.id, qty, prc);
+      await trade(existing.id, "sell", qty, prc);
     } else if (existing) {
-      const newQty = exQty + qty;
-      const newAvg = (exQty * exAvg + qty * prc) / newQty;
-      await del(existing.id);
-      await post({ instrument_type: instrumentType, secid, quantity: newQty, avg_buy_price: parseFloat(newAvg.toFixed(4)) });
+      if (!prc) throw new Error("Укажите цену покупки — по ней считается списание с денежной позиции");
+      await trade(existing.id, "buy", qty, prc);
     } else {
       await post({ instrument_type: instrumentType, secid, quantity: qty, avg_buy_price: prc });
     }
