@@ -69,18 +69,27 @@ function round1(v) {
   return Math.round(v * 10) / 10;
 }
 
-function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot) {
+function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot,
+  baseKeyRatePct, baseFxUsdrub) {
   const sectorL = (sector || "").toLowerCase();
   const factorDeltas = {};
 
-  if (keyRatePct != null && spot.key_rate_pct != null && coefs.rate) {
-    const d = keyRatePct - spot.key_rate_pct;
+  // rate/fx — Δ от ЕДИНОГО текущего уровня рынка (baseKeyRatePct/baseFxUsdrub =
+  // те же /current-levels, что стартовая позиция слайдеров), НЕ от spot.*
+  // (дата макро-разбора ЭТОЙ компании) — владелец, 2026-07-25: «дельта 0, откуда
+  // ты взял у Полюса 15 процентов, это бред» — держать синхронно с
+  // _company_numeric_impact() в stress_numeric.py (см. докстринг там).
+  if (keyRatePct != null && baseKeyRatePct != null && coefs.rate) {
+    const d = keyRatePct - baseKeyRatePct;
     if (Math.abs(d) > 1e-9) factorDeltas.rate = d;
   }
-  if (fxUsdrub != null && spot.fx_usdrub != null && coefs.fx) {
-    const d = fxUsdrub - spot.fx_usdrub;
+  if (fxUsdrub != null && baseFxUsdrub != null && coefs.fx) {
+    const d = fxUsdrub - baseFxUsdrub;
     if (Math.abs(d) > 1e-9) factorDeltas.fx = d;
   }
+  // Commodity — ИСКЛЮЧЕНИЕ: spot.commodity_usd легитимно СВОЙ у каждой компании
+  // (золото/Urals/алюминий и т.п.), это множитель относительного шага Brent, не
+  // точка отсчёта времени — не трогать, не тот же баг, что rate/fx выше.
   if (oilBrentUsd != null && brentSpot && OIL_SECTOR_TOKENS.some((t) => sectorL.includes(t)) &&
       spot.commodity_usd != null && coefs.commodity) {
     const rel = oilBrentUsd / brentSpot - 1;
@@ -124,11 +133,12 @@ function companyImpact(coefs, spot, fin, sector, keyRatePct, fxUsdrub, oilBrentU
 // поэтому ConsoleHeadline/MarketMap/Boards/FinancialTable принимают его без
 // изменений — независимо от того, посчитан он сервером (ask/preset) или
 // локально (слайдеры).
-function computeAllImpacts(coefficients, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot) {
+function computeAllImpacts(coefficients, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot,
+  baseKeyRatePct, baseFxUsdrub) {
   const companies = [];
   for (const c of coefficients) {
     const impact = companyImpact(c.coefficients || {}, c.macro_spot || {}, c.financials || {},
-      c.sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot);
+      c.sector, keyRatePct, fxUsdrub, oilBrentUsd, brentSpot, baseKeyRatePct, baseFxUsdrub);
     if (!impact) continue;
     companies.push({
       ticker: c.ticker, name: c.name, sector: c.sector,
@@ -789,8 +799,10 @@ export default function StressTestView({ onOpenCompany }) {
     if (skipRecomputeRef.current) { skipRecomputeRef.current = false; return; }
     setAskResult(null); setPresetResult(null);
     setNumResult(computeAllImpacts(coefficients, levels.key_rate_pct, levels.fx_usdrub,
-      levels.oil_brent_usd, baseLevels?.oil_brent_usd));
-  }, [coefficients, levels?.key_rate_pct, levels?.fx_usdrub, levels?.oil_brent_usd, baseLevels?.oil_brent_usd]);
+      levels.oil_brent_usd, baseLevels?.oil_brent_usd,
+      baseLevels?.key_rate_pct, baseLevels?.fx_usdrub));
+  }, [coefficients, levels?.key_rate_pct, levels?.fx_usdrub, levels?.oil_brent_usd,
+    baseLevels?.oil_brent_usd, baseLevels?.key_rate_pct, baseLevels?.fx_usdrub]);
 
   const setField = (field, value) => setLevels((prev) => ({ ...prev, [field]: value }));
 
@@ -905,11 +917,9 @@ export default function StressTestView({ onOpenCompany }) {
           нелинейна: демпферы, прогрессивные налоги, хеджи). Интерпретация свободного сценария — ИИ, может
           понять вас неточно (мы показываем «как мы поняли» — проверяйте). Точечные события одной компании
           (адресный налог, смена собственника) модель не считает.
-          {" "}<b>Даже без движения ползунков некоторые компании могут показывать не ноль:</b> у каждой свой
-          «спот» (курс/ставка/цена сырья) на МОМЕНТ её макро-разбора — если с тех пор курс или ставка реально
-          изменились, «текущие уровни» на слайдере уже отличаются от спота компании, и модель честно показывает
-          эту накопившуюся разницу, а не «эффект сценария». Разбор карточки может быть свежее или старше, чем у
-          соседней — единой даты обновления по всем компаниям пока нет.
+          {" "}Ставка и курс считаются от ЕДИНОГО текущего уровня рынка — при нулевом сдвиге ползунка Δ
+          строго 0 у всех компаний. Нефть — относительно (у каждой нефтяной компании свой ориентир: Urals
+          с дисконтом, у золотодобытчиков — золото и т.п.), поэтому один и тот же сдвиг Brent даёт разный %.
         </div>
       </details>
 
@@ -1057,13 +1067,20 @@ export default function StressTestView({ onOpenCompany }) {
                     ))}
                   </div>
                 </div>
-                {echelonFilter !== 1 && (
-                  <div className="st-echelon-note">
-                    {echelonFilter === "all"
-                      ? "Показаны все компании, включая 2-й/3-й эшелон — у мелких и средних бумаг реакция обычно резче, а данных по ним меньше."
-                      : "Средние и малые компании — реакция обычно резче, чем у голубых фишек, и данных по ним меньше."}
-                  </div>
-                )}
+                <div className="st-echelon-note">
+                  {echelonFilter === 1
+                    // Владелец, 2026-07-25: «1-й эшелон маленький, а во 2-м компании,
+                    // которые по идее тоже 1-й» — данные корректны (сверено с реальным
+                    // составом MOEXBC на 2026-07-25), путаница от разных метрик: 1-й
+                    // эшелон = состав РЕАЛЬНОГО биржевого индекса (вес по ликвидности/
+                    // free-float), 2-й/3-й — по капитализации. Крупная по капитализации,
+                    // но низколиквидная компания (низкий free-float) может оказаться
+                    // во 2-м эшелоне — это не ошибка данных, а разные критерии.
+                    ? "1-й эшелон = состав индекса МосБиржи голубых фишек (MOEXBC, 15 бумаг, по ликвидности/free-float, пересматривается раз в квартал) — НЕ топ по капитализации. Поэтому крупная по капитализации, но менее ликвидная компания может оказаться во 2-м эшелоне."
+                    : echelonFilter === "all"
+                    ? "Показаны все компании, включая 2-й/3-й эшелон — у мелких и средних бумаг реакция обычно резче, а данных по ним меньше."
+                    : "2-й/3-й эшелон — по капитализации (не по составу индекса, как 1-й). Средние и малые компании — реакция обычно резче, чем у голубых фишек, и данных по ним меньше."}
+                </div>
                 <ConsoleHeadline numeric={displayNumeric} />
                 <MarketMap numeric={displayNumeric} onOpenCompany={onOpenCompany} />
               </>

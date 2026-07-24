@@ -326,7 +326,11 @@
 }
 
 .pf-sec-title {
-  font-family: var(--font-sans);
+  /* Канон/эталон (docs/portfolio-analytics.html: `.sec-head h2{font-family:var(--serif)}`)
+     — заголовки секций Fraunces, не Inter. Было --font-sans (владелец, 2026-07-25:
+     «верхушка сайта тоже в старых шрифтах» — про Стресс-тестирование, но класс общий
+     на весь Портфель, фикс применяется везде, где используется .pf-sec-title). */
+  font-family: var(--font-display);
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);

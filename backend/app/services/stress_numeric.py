@@ -9,6 +9,20 @@
     текущих ~14,25 — чистая прибыль компании ориентировочно изменится на N млрд ₽
     (±M% от базы года)».
 
+    «Спот» для ставки/курса — ЕДИНЫЙ актуальный уровень по рынку (get_current_levels()
+    ниже), ОДИН И ТОТ ЖЕ для всех компаний, НЕ дата анализа конкретной карточки.
+    Владелец, 2026-07-25 (повторно, после честной оговорки о «споте компании» в UI не
+    хватило — «дельта 0, откуда ты взял у Полюса 15 процентов, это бред полнейший»):
+    раньше rate/fx мерились от `macro_spot` КАЖДОЙ компании (дата её собственного
+    макро-разбора) — если с тех пор ставка/курс реально изменились, «текущие уровни»
+    слайдера расходились со спотом компании, и при НУЛЕВОМ движении слайдера дельта
+    была не 0, а показывала эту накопившуюся разницу. Раз слайдер стартует от
+    get_current_levels() (реального текущего уровня), а не от спота компании — меряем
+    и Δ от ТОГО ЖЕ уровня: при движении слайдера на 0 факт-дельта строго 0 для ВСЕХ
+    компаний, без исключений. Commodity-канал НЕ затронут: там спот компании
+    (spot_commodity_компании) — легитимно СВОЙ ориентир (золото/Urals/алюминий,
+    разный по смыслу), это множитель относительного шага, не точка отсчёта времени.
+
 Источник коэффициентов — `macro.json → quant_inputs.coefficients` каждой компании:
 их положил аналитик (Opus) с явными допущениями (поле assumption), арифметику
 считает код — ровно та же философия, что в macro_quant.py («модель ненадёжна в
@@ -76,6 +90,37 @@ def _echelon_map(rows: list) -> dict[str, int]:
     return out
 
 
+def get_current_levels(db: Session) -> dict:
+    """Реальные текущие ориентиры (ставка/курс/нефть) — ЕДИНЫЙ источник для (а)
+    стартовой позиции слайдеров на фронте (`/stress-test/current-levels`) и (б)
+    точки отсчёта Δ в `_company_numeric_impact()` ниже (rate/fx-каналы). Было
+    продублировано инлайн в app/api/stress.py — вынесено сюда, чтобы обе точки
+    использования гарантированно смотрели на одно и то же число (см. докстринг
+    файла, 2026-07-25). Любое поле может быть None, если источник временно
+    недоступен — вызывающий код обязан честно деградировать, не выдавать None
+    за число."""
+    from datetime import date
+    from sqlalchemy import text as _text
+    from app.models.macro import MacroDataPoint
+    from app.models.future import Future
+
+    rate_row = (db.query(MacroDataPoint)
+                .filter_by(indicator_code="key_rate", metric="level")
+                .order_by(MacroDataPoint.as_of.desc()).first())
+    fx_row = db.execute(_text(
+        "SELECT last_price FROM spot_assets WHERE secid = 'USD000UTSTOM'")).first()
+    today = date.today()
+    oil_f = (db.query(Future)
+             .filter(Future.asset_code == "BR",
+                     (Future.expiration_date.is_(None)) | (Future.expiration_date >= today))
+             .order_by(Future.expiration_date.asc().nullslast()).first())
+    return {
+        "key_rate_pct": float(rate_row.value) if rate_row else None,
+        "fx_usdrub": float(fx_row[0]) if fx_row and fx_row[0] is not None else None,
+        "oil_brent_usd": float(oil_f.last_price) if oil_f and oil_f.last_price is not None else None,
+    }
+
+
 def _load_quant(ticker: str) -> dict | None:
     path = COMPANIES_DIR / ticker.upper() / "macro.json"
     if not path.exists():
@@ -91,7 +136,9 @@ def _company_numeric_impact(qi: dict, sector: str | None,
                             key_rate_pct: float | None,
                             fx_usdrub: float | None,
                             oil_brent_usd: float | None,
-                            brent_spot: float | None) -> dict | None:
+                            brent_spot: float | None,
+                            base_key_rate_pct: float | None = None,
+                            base_fx_usdrub: float | None = None) -> dict | None:
     """Δ метрик компании (млрд ₽ и % от базы) при целевых условиях. Внутри метрик:
     0 — честный ноль (ни один текущий фактор компанию не касается, но у нас ЕСТЬ
     её коэффициенты); None — фактор задействован, но коэффициент именно на эту
@@ -108,24 +155,29 @@ def _company_numeric_impact(qi: dict, sector: str | None,
     fin = qi.get("financials") or {}
     sector_l = (sector or "").lower()
 
-    # Δ по каждому задействованному фактору в ЕДИНИЦАХ коэффициента
+    # Δ по каждому задействованному фактору в ЕДИНИЦАХ коэффициента.
+    # rate/fx мерятся от ЕДИНОГО текущего уровня (base_key_rate_pct/base_fx_usdrub —
+    # get_current_levels(), см. докстринг файла), НЕ от macro_spot ЭТОЙ компании —
+    # иначе при нулевом движении слайдера дельта была не 0, а показывала разницу
+    # между датой чужого макро-разбора и реальным текущим уровнем (владелец,
+    # 2026-07-25: «откуда ты взял у Полюса 15 процентов, это бред»).
     factor_deltas: dict[str, float] = {}
     applied: list[dict] = []
 
-    if key_rate_pct is not None and _num(spot.get("key_rate_pct")) is not None and "rate" in coefs:
-        d = key_rate_pct - float(spot["key_rate_pct"])
+    if key_rate_pct is not None and base_key_rate_pct is not None and "rate" in coefs:
+        d = key_rate_pct - base_key_rate_pct
         if abs(d) > 1e-9:
             factor_deltas["rate"] = d
             applied.append({"factor": "rate", "label": "Ключевая ставка",
-                            "from": float(spot["key_rate_pct"]), "to": key_rate_pct,
+                            "from": base_key_rate_pct, "to": key_rate_pct,
                             "assumption": (coefs["rate"] or {}).get("assumption")})
 
-    if fx_usdrub is not None and _num(spot.get("fx_usdrub")) is not None and "fx" in coefs:
-        d = fx_usdrub - float(spot["fx_usdrub"])
+    if fx_usdrub is not None and base_fx_usdrub is not None and "fx" in coefs:
+        d = fx_usdrub - base_fx_usdrub
         if abs(d) > 1e-9:
             factor_deltas["fx"] = d
             applied.append({"factor": "fx", "label": "Курс USD/RUB",
-                            "from": float(spot["fx_usdrub"]), "to": fx_usdrub,
+                            "from": base_fx_usdrub, "to": fx_usdrub,
                             "assumption": (coefs["fx"] or {}).get("assumption")})
 
     if (oil_brent_usd is not None and brent_spot and
@@ -177,14 +229,11 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
                    oil_brent_usd: float | None) -> dict:
     """По всей вселенной компаний. Сортировка: голубые фишки первыми (владелец),
     внутри группы — по |Δ чистой прибыли в % от базы|."""
-    # спот Brent — живой ближний фьючерс (тот же источник, что market/drivers)
-    brent_spot = None
-    row = db.execute(text(
-        "SELECT last_price FROM futures WHERE (asset_code ILIKE 'BR%' OR secid ILIKE 'BR%') "
-        "AND last_price IS NOT NULL AND expiration_date >= now()::date "
-        "ORDER BY expiration_date ASC LIMIT 1")).first()
-    if row and row[0]:
-        brent_spot = float(row[0])
+    # Единый текущий уровень — тот же источник, что стартовая позиция слайдеров
+    # на фронте (get_current_levels() выше) — rate/fx-каналы меряют Δ от НЕГО,
+    # не от спота карточки компании (см. докстринг файла и _company_numeric_impact).
+    current = get_current_levels(db)
+    brent_spot = current.get("oil_brent_usd")
 
     rows = db.execute(text("""
         SELECT c.ticker, c.name, c.sector, c.market_cap FROM companies c
@@ -198,7 +247,9 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
         qi = _load_quant(ticker)
         if not qi or not (qi.get("coefficients") or {}):
             continue
-        impact = _company_numeric_impact(qi, sector, key_rate_pct, fx_usdrub, oil_brent_usd, brent_spot)
+        impact = _company_numeric_impact(qi, sector, key_rate_pct, fx_usdrub, oil_brent_usd, brent_spot,
+                                          base_key_rate_pct=current.get("key_rate_pct"),
+                                          base_fx_usdrub=current.get("fx_usdrub"))
         if not impact:
             continue
         np_metric = impact["metrics"].get("net_profit") or {}
@@ -233,8 +284,11 @@ def numeric_impact(db: Session, key_rate_pct: float | None, fx_usdrub: float | N
             "Δ — оценка изменения ГОДОВОЙ метрики (к базе последнего отчётного года) при условии, "
             "что заданные уровни станут СРЕДНИМИ за год, при линейном переносе по коэффициентам "
             "чувствительности из макро-разбора компании (свои у каждой компании, с допущениями). "
-            "Спот-ориентиры (от чего считается Δ) у каждой компании свои — из её карточки. "
-            "Не прогноз цены акции и не таргет — иллюстрация чувствительности финансовых показателей."
+            "Ставка/курс считаются от ЕДИНОГО текущего уровня рынка (один и тот же для всех "
+            "компаний) — при нулевом сдвиге ползунка Δ строго 0. Нефть — относительно (свой "
+            "commodity-ориентир компании: золото/Urals/алюминий и т.п.), поэтому один и тот же "
+            "сдвиг Brent даёт разный % у разных компаний. Не прогноз цены акции и не таргет — "
+            "иллюстрация чувствительности финансовых показателей."
         ),
         "is_demo": True,
     }

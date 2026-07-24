@@ -21,27 +21,11 @@ def stress_test_current_levels(db: Session = Depends(get_db)):
     слайдеров на фронте (не хардкод, живые последние значения тех же источников,
     что уже используются в Обозревателе). Любое поле может быть null, если
     источник временно недоступен — фронт честно деградирует на приблизительный
-    дефолт, не выдаёт null за число."""
-    from datetime import date
-    from sqlalchemy import text
-    from app.models.macro import MacroDataPoint
-    from app.models.future import Future
-
-    rate_row = (db.query(MacroDataPoint)
-                .filter_by(indicator_code="key_rate", metric="level")
-                .order_by(MacroDataPoint.as_of.desc()).first())
-    fx_row = db.execute(text(
-        "SELECT last_price FROM spot_assets WHERE secid = 'USD000UTSTOM'")).first()
-    today = date.today()
-    oil_f = (db.query(Future)
-             .filter(Future.asset_code == "BR",
-                     (Future.expiration_date.is_(None)) | (Future.expiration_date >= today))
-             .order_by(Future.expiration_date.asc().nullslast()).first())
-    return {
-        "key_rate_pct": float(rate_row.value) if rate_row else None,
-        "fx_usdrub": float(fx_row[0]) if fx_row and fx_row[0] is not None else None,
-        "oil_brent_usd": float(oil_f.last_price) if oil_f and oil_f.last_price is not None else None,
-    }
+    дефолт, не выдаёт null за число. Та же функция — источник Δ=0-при-старте в
+    numeric_impact() (см. stress_numeric.py, 2026-07-25): держать ОДНУ реализацию,
+    не дублировать запрос второй раз с риском разъехаться."""
+    from app.services.stress_numeric import get_current_levels
+    return get_current_levels(db)
 
 
 @router.get("/stress-test/impact")
