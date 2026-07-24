@@ -275,19 +275,21 @@ function ConsoleHeadline({ numeric }) {
 // другой») — половина насыщенности на тех же данных. 18 — точное значение
 // макета, тоже единственное, что владелец просил «перекопировать» дословно.
 const MAP_MAX_PCT = 18;
-// Нейтральная база тайла — var(--st-deep-surface), НЕ светлый --bg-hover:
-// владелец, 2026-07-24, указал точно на цвет фона секции «03/04 · Погружение
-// второе» в docs/design_baza.html (--l3-bg/--l3-surface) как искомый тон —
-// карта рынка теперь тёмная «deep»-зона (см. .st-main в stress-test.css),
-// тайлы должны сидеть на ЕЁ фоне, не на светлом.
+// Нейтральная база тайла — var(--st-surface-2) (следует за темой сайта, см.
+// определение в stress-test.css: navy в тёмной теме — тот самый тон из
+// docs/design_baza.html, бумага в светлой). БЫЛО var(--st-deep-surface) —
+// токен переименован при унификации темы консоли/досье (2026-07-25), эти два
+// inline-вызова остались на старом имени и тихо ломали color-mix (несуще-
+// ствующая CSS-переменная → плитки теряли красный/зелёный тон на бою —
+// владелец, 2026-07-25: «плитки компаний цвет потеряли»).
 function mapColorFor(pct) {
   const m = Math.max(-MAP_MAX_PCT, Math.min(MAP_MAX_PCT, pct)) / MAP_MAX_PCT;
   const tone = m >= 0 ? "var(--bs-up)" : "var(--bs-down)";
-  return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--st-deep-surface))`;
+  return `color-mix(in srgb, ${tone} ${Math.round(Math.abs(m) * 85)}%, var(--st-surface-2))`;
 }
 function mapTextColorFor(pct) {
   const strength = Math.min(1, Math.abs(pct) / MAP_MAX_PCT);
-  if (strength < 0.08) return "var(--st-deep-ink-2)"; // почти нейтральная плитка на тёмном фоне
+  if (strength < 0.08) return "var(--st-ink-2)"; // почти нейтральная плитка
   if (strength < 0.35) return pct >= 0 ? "var(--bs-up)" : "var(--bs-down)"; // бледная плитка — цветной текст читается
   return "#fff"; // сильно закрашенная плитка — текст того же тона на ней сливается, нужен контраст
 }
