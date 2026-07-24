@@ -3,9 +3,9 @@
 GeoBlock — синтез на регион×вкладку (обзор/глубокая аналитика) по geo_methodology.md.
 Источники живут в конфиге config/geo_sources.json (не в БД, не в выдаче).
 """
-from datetime import datetime, timezone
+from datetime import date as date_type, datetime, timezone
 
-from sqlalchemy import DateTime, String, Text, UniqueConstraint
+from sqlalchemy import Date, DateTime, Float, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -86,5 +86,68 @@ class GeoFrontlineSnapshot(Base):
     frontline_geojson: Mapped[dict | None] = mapped_column(JSONB)
     control_fill_geojson: Mapped[dict | None] = mapped_column(JSONB)
     as_of: Mapped[str | None] = mapped_column(String(32))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class GeoStrikeEvent(Base):
+    """Удары/атаки, извлечённые АВТОМАТИЧЕСКИ из geo_digest-пайплайна (см.
+    app/services/geo_digest.py — тот же LLM-проход, что уже классифицирует
+    статьи Рыбаря/ISW/др. по региону, теперь ДОПОЛНИТЕЛЬНО достаёт из текста
+    структурированные события удара). Владелец, 2026-07-24: «удары вглубь
+    России и вглубь Украины — нужно чтобы помечалось кругляшками
+    автоматически... из потока который поступает на платформу».
+
+    Retention: expires_at — малозначимые удары со временем УДАЛЯЮТСЯ (не
+    засоряют карту), значимые держатся в разы дольше (см.
+    _RETENTION_DAYS в geo_digest.py). Это НЕ архив истории ударов — только
+    «что сейчас видно на карте», старое естественно вымывается."""
+    __tablename__ = "geo_strike_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    theater: Mapped[str] = mapped_column(String(16))  # svo|middle_east|atr
+    location_name: Mapped[str] = mapped_column(String(200))
+    lat: Mapped[float | None] = mapped_column(Float)
+    lon: Mapped[float | None] = mapped_column(Float)
+    target_type: Mapped[str | None] = mapped_column(String(120))  # напр. "НПЗ", "склад БПЛА", "военный аэродром"
+    significance: Mapped[str] = mapped_column(String(16))  # major|minor
+    label: Mapped[str] = mapped_column(String(300))
+    note: Mapped[str | None] = mapped_column(Text)
+    event_date: Mapped[date_type | None] = mapped_column(Date)
+    source_key: Mapped[str | None] = mapped_column(String(32))
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class GeoTerritorialClaim(Base):
+    """Заявления о смене контроля насел. пункта, извлечённые АВТОМАТИЧЕСКИ
+    из geo_digest-пайплайна (Рыбарь/ISW/МО РФ-производные статьи) — питает
+    третий эпистемический ярус карты СВО (contested/claimed, см.
+    geo_isw_frontline_sync.py и config/geo_svo_claimed_captures.json,
+    которые пока заполняются вручную/облачной роутиной; эта таблица —
+    задел на то, чтобы то же самое собиралось автоматически из общего
+    потока Обозревателя, не только выделенного скрипта). status:
+    "ru_control" (решительно взято, по формулировке источника) |
+    "contested" (бои идут / заявлено, но не подтверждено закраской на
+    карте источника). Upsert по (settlement, oblast) — статус может
+    меняться со временем (сначала contested, потом ru_control)."""
+    __tablename__ = "geo_territorial_claims"
+    __table_args__ = (UniqueConstraint("settlement", "oblast", name="uq_geo_territorial_claim_settlement"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    settlement: Mapped[str] = mapped_column(String(200))
+    oblast: Mapped[str | None] = mapped_column(String(120))
+    lat: Mapped[float | None] = mapped_column(Float)
+    lon: Mapped[float | None] = mapped_column(Float)
+    status: Mapped[str] = mapped_column(String(16))  # ru_control|contested
+    note: Mapped[str | None] = mapped_column(Text)
+    claimed_date: Mapped[date_type | None] = mapped_column(Date)
+    source_key: Mapped[str | None] = mapped_column(String(32))
+    source_url: Mapped[str | None] = mapped_column(String(1000))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

@@ -681,6 +681,35 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             payload["base_map"]["claimed_captures_covers_since"] = claims.get("covers_since")
             payload["base_map"]["claimed_captures_generated_at"] = claims.get("generated_at")
 
+    # Удары, извлечённые автоматически из geo_digest (Рыбарь/ISW/др. источники
+    # Обозревателя) — см. app/services/geo_digest.py. Ретеншен уже применён на
+    # уровне БД (просроченные строки удаляются в geo_digest.cleanup_expired_strikes,
+    # здесь просто не показываем то, что формально ещё не удалено, но уже истекло).
+    from datetime import datetime as _datetime, timezone as _timezone
+    from app.models.geo import GeoStrikeEvent
+    now = _datetime.now(_timezone.utc)
+    strikes = (db.query(GeoStrikeEvent)
+               .filter(GeoStrikeEvent.theater == theater, GeoStrikeEvent.expires_at >= now,
+                       GeoStrikeEvent.lat.isnot(None), GeoStrikeEvent.lon.isnot(None))
+               .order_by(GeoStrikeEvent.event_date.desc()).limit(200).all())
+    if strikes:
+        payload["base_map"]["strike_events_geojson"] = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "location": s.location_name, "target_type": s.target_type,
+                        "significance": s.significance, "label": s.label,
+                        "event_date": s.event_date.isoformat() if s.event_date else None,
+                        "source_key": s.source_key, "source_url": s.source_url,
+                    },
+                    "geometry": {"type": "Point", "coordinates": [s.lon, s.lat]},
+                }
+                for s in strikes
+            ],
+        }
+
     return JSONResponse(content=payload)
 
 

@@ -254,10 +254,30 @@ _DIGEST_SYS = (
     "главное содержание, выведи только экономический итог, без деталей интриги.\n"
     "6. investor_relevance — отдельно, 1-2 фразы: зачем инвестору это знать (на что обратить "
     "внимание, какой актив/сектор может быть затронут). Без рекомендаций «покупать/продавать».\n\n"
+    "ДОПОЛНИТЕЛЬНО (только для target=\"svo\"/\"middle_east\"/\"atr\") — извлеки СТРУКТУРИРОВАННЫЕ "
+    "события, если они ЯВНО и КОНКРЕТНО описаны в статье (не выдумывай, не притягивай — если "
+    "неясно/абстрактно, просто не включай):\n"
+    "- strike_events — КОНКРЕТНЫЙ удар/атака по КОНКРЕТНОЙ цели/локации (не общие фразы вида "
+    "«обстрелы продолжаются» без места). Каждый: {\"location\": \"<название места/города, как в "
+    "тексте>\", \"target_type\": \"<что поражено — НПЗ/склад/аэродром/энергообъект/др., если "
+    "указано, иначе null>\", \"significance\": \"major\"|\"minor\" (major — стратегический объект: "
+    "НПЗ, крупный склад/арсенал, военная база, энергоинфраструктура, порт; minor — точечный/"
+    "локальный, без явного стратегического значения), \"label\": \"<короткая подпись на русском "
+    "3-8 слов>\"}.\n"
+    "- territorial_claims (ТОЛЬКО target=\"svo\") — КОНКРЕТНЫЙ насел. пункт, про который статья "
+    "явно говорит, что он взят/освобождён/оспаривается ПРЯМО СЕЙЧАС (не общие фразы про "
+    "«продвижение», не абстрактные направления). Каждый: {\"settlement\": \"<название>\", "
+    "\"oblast\": \"<область, если понятно из контекста, иначе null>\", \"status\": "
+    "\"ru_control\"|\"contested\" (ru_control — статья утверждает решительное взятие РФ; "
+    "contested — бои идут / заявлено, но источник сам не подтверждает решительно), \"note\": "
+    "\"<1 короткое предложение сути на русском>\"}.\n"
+    "Если в статье нет ни одного такого события — не включай ключи strike_events/"
+    "territorial_claims вовсе (не пустые списки, просто опусти ключ).\n\n"
     'Верни JSON {"items": [{"i": <индекс>, "target": "svo"|"middle_east"|"atr"|"institutions"'
     '|"macro"|null, "title": "<заголовок на русском>", "summary": "<подробный пересказ 4-7 '
     'предложений на русском>", "key_takeaways": ["<тезис 1>", "<тезис 2>", ...], '
-    '"investor_relevance": "<1-2 фразы>"}]}. Для target=null остальные поля можно опустить. '
+    '"investor_relevance": "<1-2 фразы>", "strike_events": [...], "territorial_claims": [...]}]}. '
+    "Для target=null остальные поля можно опустить. "
     "Верни ровно один элемент items на каждую входную статью."
 )
 
@@ -273,6 +293,112 @@ def _digest_batch(articles: list[dict]) -> list[dict]:
     except LLMError as e:
         logger.warning("GEO-дайджест: LLM недоступен (%s) — батч пропущен", e)
         return []
+
+
+# ----------------------------- Гео-события (удары / territorial claims) -----------------------------
+# Retention удара на карте — владелец, 2026-07-24: «малозначимые удары через
+# какое-то время удалять, у значимых retention в разы больше».
+_STRIKE_RETENTION_DAYS = {"major": 60, "minor": 14}
+_geocode_cache: dict[str, tuple[float, float] | None] = {}
+
+
+def _geocode_place(name: str) -> tuple[float, float] | None:
+    """Лёгкий геокодинг через Wikipedia API (тот же паттерн, что
+    scripts/geo_svo_wikipedia_dates.py использовал офлайн) — best-effort, не
+    блокирует пайплайн при неудаче. Кэш на время процесса — карта Обозревателя
+    упоминает одни и те же города многократно за прогон."""
+    if not name:
+        return None
+    if name in _geocode_cache:
+        return _geocode_cache[name]
+    result = None
+    try:
+        r = httpx.get("https://ru.wikipedia.org/w/api.php", params={
+            "action": "query", "titles": name, "prop": "coordinates",
+            "format": "json", "redirects": 1,
+        }, timeout=10, headers={"User-Agent": "BasisPlatform/1.0 (https://inbasis.ru) geo_digest"})
+        pages = r.json().get("query", {}).get("pages", {})
+        for page in pages.values():
+            co = page.get("coordinates")
+            if co:
+                result = (co[0]["lat"], co[0]["lon"])
+                break
+    except Exception as e:  # noqa: BLE001
+        logger.debug("geo_digest: геокодинг '%s' не удался: %s", name, type(e).__name__)
+    _geocode_cache[name] = result
+    return result
+
+
+def _persist_strike_events(db: Session, theater: str, events: list, event_date, source_key: str | None,
+                            source_url: str | None) -> int:
+    from app.models.geo import GeoStrikeEvent
+    saved = 0
+    for ev in events:
+        if not isinstance(ev, dict) or not ev.get("location"):
+            continue
+        significance = ev.get("significance") if ev.get("significance") in ("major", "minor") else "minor"
+        coords = _geocode_place(ev["location"])
+        row = GeoStrikeEvent(
+            theater=theater, location_name=ev["location"][:200],
+            lat=coords[0] if coords else None, lon=coords[1] if coords else None,
+            target_type=(ev.get("target_type") or None), significance=significance,
+            label=(ev.get("label") or ev["location"])[:300], note=None,
+            event_date=event_date, source_key=source_key, source_url=source_url,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=_STRIKE_RETENTION_DAYS[significance]),
+        )
+        db.add(row)
+        try:
+            db.commit()
+            saved += 1
+        except Exception as e:  # noqa: BLE001
+            db.rollback()
+            logger.warning("geo_digest: удар не сохранён (%s): %s", ev.get("location"), type(e).__name__)
+    return saved
+
+
+def _persist_territorial_claims(db: Session, claims: list, claimed_date, source_key: str | None,
+                                 source_url: str | None) -> int:
+    from app.models.geo import GeoTerritorialClaim
+    saved = 0
+    for cl in claims:
+        if not isinstance(cl, dict) or not cl.get("settlement") or cl.get("status") not in ("ru_control", "contested"):
+            continue
+        settlement = cl["settlement"][:200]
+        oblast = (cl.get("oblast") or None)
+        row = (db.query(GeoTerritorialClaim)
+               .filter_by(settlement=settlement, oblast=oblast).first())
+        coords = _geocode_place(settlement)
+        if row is None:
+            row = GeoTerritorialClaim(settlement=settlement, oblast=oblast)
+            db.add(row)
+        row.status = cl["status"]
+        row.note = (cl.get("note") or None)
+        row.claimed_date = claimed_date
+        row.source_key = source_key
+        row.source_url = source_url
+        if coords:
+            row.lat, row.lon = coords
+        try:
+            db.commit()
+            saved += 1
+        except Exception as e:  # noqa: BLE001
+            db.rollback()
+            logger.warning("geo_digest: territorial_claim не сохранён (%s): %s", settlement, type(e).__name__)
+    return saved
+
+
+def cleanup_expired_strikes(db: Session) -> int:
+    """Ретеншен — вызывать периодически (тот же крон, что refresh()).
+    Малозначимые удары исчезают с карты через _STRIKE_RETENTION_DAYS['minor']
+    дней, значимые — через ['major'] (владелец: «в разы дольше»)."""
+    from app.models.geo import GeoStrikeEvent
+    now = datetime.now(timezone.utc)
+    removed = (db.query(GeoStrikeEvent).filter(GeoStrikeEvent.expires_at < now)
+               .delete(synchronize_session=False))
+    db.commit()
+    if removed:
+        logger.info("geo_digest: удалено %d просроченных ударов с карты", removed)
+    return removed
 
 
 # ----------------------------- ПАЙПЛАЙН -----------------------------
@@ -294,6 +420,7 @@ def cleanup_old(db: Session, days: int = _KEEP_DAYS) -> int:
 def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     """Полный прогон: фетч → дедуп по URL → батч-классификация+пересказ LLM → сохранение."""
     cleanup_old(db)
+    cleanup_expired_strikes(db)
     cfg = load_config()
     raw, blind = fetch_all(cfg)
     if blind:
@@ -355,6 +482,26 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
                 db.rollback()
                 logger.warning("GEO-дайджест: пропуск дубля/конфликта при сохранении %s: %s",
                                art["url"], type(e).__name__)
+                continue
+
+            # Автоизвлечение карточных событий (владелец, 2026-07-24) — только
+            # для театров карты (не institutions/macro), не блокирует сохранение
+            # самой статьи дайджеста при сбое.
+            if target in ("svo", "middle_east", "atr"):
+                try:
+                    strikes = it.get("strike_events")
+                    if isinstance(strikes, list) and strikes:
+                        _persist_strike_events(db, target, strikes, pub, art["src"], art["url"])
+                except Exception as e:  # noqa: BLE001
+                    logger.warning("geo_digest: strike_events для %s не обработаны: %s", art["url"], type(e).__name__)
+                if target == "svo":
+                    try:
+                        claims = it.get("territorial_claims")
+                        if isinstance(claims, list) and claims:
+                            _persist_territorial_claims(db, claims, pub, art["src"], art["url"])
+                    except Exception as e:  # noqa: BLE001
+                        logger.warning("geo_digest: territorial_claims для %s не обработаны: %s",
+                                       art["url"], type(e).__name__)
 
     # Промоут свежих статей в аналитическую летопись (постоянная память агентов) —
     # теги одним батч-вызовом. Отдельно от сохранения дайджеста, не роняет его.
