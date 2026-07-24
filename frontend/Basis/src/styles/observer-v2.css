@@ -4660,10 +4660,13 @@ details[open] > summary .obs-inst-chev,
   color: var(--text-secondary);
   font-weight: 700;
 }
+/* Тот же паттерн/размер, что .obs-geomap-filterbar .obs-chip (padding
+   подобран так, чтобы тач-таргет оставался ≥24px, WCAG 2.5.8) — не изобретаем
+   ещё более мелкий вариант. */
 .obs-geomap-timeslider-toggle {
   margin-left: auto;
-  padding: 6px 11px;
-  font-size: 10.5px;
+  padding: 7px 12px;
+  font-size: 11px;
 }
 
 @media (prefers-reduced-motion: reduce) {
