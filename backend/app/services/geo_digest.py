@@ -19,7 +19,7 @@ import json
 import logging
 import os
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit, urlunsplit
 from xml.etree import ElementTree as ET
