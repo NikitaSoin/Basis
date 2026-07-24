@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FlaskConical, Send, RotateCcw } from "lucide-react";
+import { FlaskConical, Send, RotateCcw, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Card, Badge, Delta } from "../design/primitives";
+import { CompanyLogo } from "../design/CompanyLogo";
 import "../styles/stress-test.css";
 
 // StressTestView v4 — «Стресс-тестирование» как инструмент, не анкета (владелец,
@@ -216,15 +217,22 @@ function ConsoleHeadline({ numeric }) {
   return (
     <div className="st-headline">
       <div className="st-headline-num">
-        <span className="st-hl-lbl">Индекс рынка (взвеш. по весу компаний) <span className="bs-tag-estimate">оценка</span></span>
+        <span className="st-hl-lbl">Индекс рынка <span className="bs-tag-estimate">модель</span></span>
         <span className="st-hl-val" style={{ color: headline >= 0 ? "var(--bs-up)" : "var(--bs-down)" }}>
           {headline >= 0 ? "+" : ""}{headline.toFixed(1)}%
         </span>
         {/* Владелец, 2026-07-24: «плюс/минус проценты — это что, цена акции?» —
             эти % НИКОГДА не про котировку, только про прогнозную чистую прибыль.
-            Раньше это было видно только в hover-title тайла — делаем постоянно
-            видимым рядом с главным числом. */}
-        <span className="st-hl-clarify">% — изменение прогнозной чистой прибыли за год, НЕ цена акции</span>
+            Владелец, 2026-07-25: явно проговорить, что это МОДЕЛИРУЕТСЯ (не факт,
+            не готовый прогноз), и объяснить методологию веса — «по весам индекса
+            Мосбиржи, по капитализации, по чему?» — это НИ то, ни другое: грубая
+            эвристика Basis (голубые фишки ×3), явно раскрыта здесь, не только
+            мелким текстом внизу карты. */}
+        <span className="st-hl-clarify">
+          Смоделировано: изменение прогнозной чистой прибыли за год, НЕ цена акции.
+          Вес в индексе — эвристика Basis (голубые фишки ×3, остальные ×1), НЕ вес
+          индекса Мосбиржи и НЕ капитализация.
+        </span>
       </div>
       <div className="st-headline-meta">
         <div className="st-hm">
@@ -318,7 +326,10 @@ function MarketMap({ numeric, onOpenCompany }) {
                     onClick={() => onOpenCompany?.(c.ticker)}
                     onKeyDown={(e) => { if (onOpenCompany && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onOpenCompany(c.ticker); } }}
                   >
-                    <span className="st-tile-nm">{c.name}</span>
+                    <span className="st-tile-nm-row">
+                      <CompanyLogo ticker={c.ticker} name={c.name} size={weight <= 1 ? 14 : 16} className="st-tile-logo" />
+                      <span className="st-tile-nm">{c.name}</span>
+                    </span>
                     <span className="st-tile-pc">{pct >= 0 ? "▲" : "▼"} {Math.abs(pct).toFixed(1)}%</span>
                   </div>
                 );
@@ -342,7 +353,10 @@ function BoardRow({ c, maxAbs, onOpenCompany }) {
       role={onOpenCompany ? "button" : undefined} tabIndex={onOpenCompany ? 0 : undefined}
       onClick={() => onOpenCompany?.(c.ticker)}
       onKeyDown={(e) => { if (onOpenCompany && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onOpenCompany(c.ticker); } }}>
-      <span className="st-brow-nm">{c.name}</span>
+      <span className="st-brow-nm-wrap">
+        <CompanyLogo ticker={c.ticker} name={c.name} size={18} className="st-brow-logo" />
+        <span className="st-brow-nm">{c.name}</span>
+      </span>
       <div className="st-brow-bar"><i style={{ width: `${width}%` }} /></div>
       <span className="st-brow-pc">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</span>
     </div>
@@ -406,12 +420,17 @@ function NumericTable({ numeric, onOpenCompany }) {
               <tr key={c.ticker} className={`tw-border-t tw-border-border-subtle${onOpenCompany ? " tw-cursor-pointer hover:tw-bg-bg-hover" : ""}`}
                 onClick={() => onOpenCompany?.(c.ticker)}>
                 <td className="tw-py-2">
-                  {c.is_blue_chip && <Badge tone="neutral" className="tw-mr-1.5 tw-text-[10px]">ГФ</Badge>}
-                  <span className="tw-text-text-primary tw-font-medium">{c.name}</span>
-                  <span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-ml-2">
-                    {c.ticker}{c._also?.length > 0 && <span className="tw-text-[10px] tw-ml-1">= {c._also.join(", ")}</span>}
+                  <span className="tw-inline-flex tw-items-center tw-gap-2">
+                    <CompanyLogo ticker={c.ticker} name={c.name} size={22} />
+                    <span>
+                      {c.is_blue_chip && <Badge tone="neutral" className="tw-mr-1.5 tw-text-[10px]">ГФ</Badge>}
+                      <span className="tw-text-text-primary tw-font-medium">{c.name}</span>
+                      <span className="tw-font-mono tw-text-[11px] tw-text-text-tertiary tw-ml-2">
+                        {c.ticker}{c._also?.length > 0 && <span className="tw-text-[10px] tw-ml-1">= {c._also.join(", ")}</span>}
+                      </span>
+                      <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-2">{c.sector}</span>
+                    </span>
                   </span>
-                  <span className="tw-text-[11px] tw-text-text-tertiary tw-ml-2">{c.sector}</span>
                 </td>
                 <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.revenue} /></td>
                 <td className="tw-py-2 tw-text-right"><DeltaCell m={c.metrics.ebitda} /></td>
@@ -605,6 +624,10 @@ export default function StressTestView({ onOpenCompany }) {
   // вход на карту) по рекомендации product-analyst-biz, 2026-07-24.
   const [echelonFilter, setEchelonFilter] = useState(1);
 
+  // Сворачивание рельса (пресеты+слайдеры) — владелец, 2026-07-25: чтобы карта
+  // могла занять всю ширину консоли.
+  const [railCollapsed, setRailCollapsed] = useState(false);
+
   const [question, setQuestion] = useState("");
   const [askResult, setAskResult] = useState(null);
   const [askLoading, setAskLoading] = useState(false);
@@ -753,6 +776,11 @@ export default function StressTestView({ onOpenCompany }) {
           нелинейна: демпферы, прогрессивные налоги, хеджи). Интерпретация свободного сценария — ИИ, может
           понять вас неточно (мы показываем «как мы поняли» — проверяйте). Точечные события одной компании
           (адресный налог, смена собственника) модель не считает.
+          {" "}<b>Даже без движения ползунков некоторые компании могут показывать не ноль:</b> у каждой свой
+          «спот» (курс/ставка/цена сырья) на МОМЕНТ её макро-разбора — если с тех пор курс или ставка реально
+          изменились, «текущие уровни» на слайдере уже отличаются от спота компании, и модель честно показывает
+          эту накопившуюся разницу, а не «эффект сценария». Разбор карточки может быть свежее или старше, чем у
+          соседней — единой даты обновления по всем компаниям пока нет.
         </div>
       </details>
 
@@ -817,8 +845,14 @@ export default function StressTestView({ onOpenCompany }) {
           )}
         </div>
 
-        <div className="st-console-top">
+        <div className={`st-console-top${railCollapsed ? " st-rail-collapsed" : ""}`}>
+          <button type="button" className="st-rail-expand-tab" onClick={() => setRailCollapsed(false)} title="Показать пресеты и слайдеры" aria-label="Показать панель">
+            <PanelLeftOpen size={13} />
+          </button>
           <div className="st-rail">
+            <button type="button" className="st-rail-collapse-btn" onClick={() => setRailCollapsed(true)} title="Скрыть панель — карта займёт всю ширину" aria-label="Скрыть панель">
+              <PanelLeftClose size={13} />
+            </button>
             {presets.length > 0 && (
               <div className="st-presets-compact">
                 {presets.map((p) => (

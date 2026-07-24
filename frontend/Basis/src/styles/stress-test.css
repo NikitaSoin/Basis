@@ -18,6 +18,7 @@
   --st-deep-surface: #343849;
   --st-deep-ink: #EFEDE6;
   --st-deep-ink-2: #9B9BAE;
+  --st-deep-line: rgba(255,255,255,.1);
 }
 
 /* ---------- шапка секции (владелец, 2026-07-24: «шапка бедновата по
@@ -99,116 +100,157 @@
    и цвета из Клод-дизайна» — v4). Оболочка без своих отступов: каждая
    секция (ask / rail+main / boards) красит и отбивает себя сама, как в
    прототипе — это даёт full-bleed лидерборд с 1px «линией»-разделителем.
-   ============================================================ */
+
+   v4.2 (владелец, 2026-07-25): «левую панель тоже этим сине/тёмным цветом
+   сделать» — вся консоль (ask/rail/main/boards) теперь ЕДИНАЯ тёмная
+   «deep»-зона (--st-deep-*), НЕЗАВИСИМО от общей темы сайта. Раньше рельс/
+   ask/boards сидели на тема-зависимых токенах (--bg-surface и т.п.) — в
+   тёмной теме сайта это давало ДРУГОЙ (более серый) оттенок тёмного рядом с
+   фиксированным navy карты — два разных «тёмных» встык, что и выглядело
+   несостыкованным. ============================================================ */
 .st-console {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
+  background: var(--st-deep-bg);
+  color: var(--st-deep-ink);
+  border: 1px solid var(--st-deep-line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
-.st-ask { padding: 20px 26px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface); }
+.st-ask { padding: 20px 26px; border-bottom: 1px solid var(--st-deep-line); }
 .st-ask-row { display: flex; gap: 8px; }
 .st-ask-row input {
   flex: 1; padding: 10px 14px; border-radius: var(--radius-md);
-  border: 1px solid var(--border-strong); background: var(--bg-base);
-  color: var(--text-primary); font-size: 14px; font-family: inherit;
+  border: 1px solid var(--st-deep-line); background: var(--st-deep-surface);
+  color: var(--st-deep-ink); font-size: 14px; font-family: inherit;
 }
-.st-ask-row input:focus { outline: none; border-color: var(--accent); }
+.st-ask-row input::placeholder { color: var(--st-deep-ink-2); }
+.st-ask-row input:focus { outline: none; border-color: var(--bs-copper, var(--accent)); }
 .st-ask-row button {
-  padding: 0 16px; border-radius: var(--radius-md); border: none; background: var(--accent);
+  padding: 0 16px; border-radius: var(--radius-md); border: none; background: var(--bs-copper, var(--accent));
   color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer;
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
   transition: background .15s;
 }
-.st-ask-row button:hover { background: var(--accent-hover, var(--accent)); }
+.st-ask-row button:hover { background: var(--bs-copper-deep, var(--accent-hover)); }
 .st-ask-row button:disabled { opacity: .6; cursor: default; }
 
 .st-ask-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .st-chip {
-  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-subtle);
-  background: var(--bg-base); color: var(--text-secondary); font-size: 12px; cursor: pointer;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--st-deep-line);
+  background: var(--st-deep-surface); color: var(--st-deep-ink-2); font-size: 12px; cursor: pointer;
 }
-.st-chip:hover { border-color: var(--border-hover, var(--accent)); }
+.st-chip:hover { border-color: var(--bs-copper, var(--accent)); color: var(--st-deep-ink); }
 
+/* Владелец, 2026-07-25: «Интерпретация ИИ на тёмном фоне хреново видна
+   (остаётся в светлой теме)» — фон держался на --bs-copper-soft (нет тёмного
+   варианта, известный пробел канона), текст — на тема-зависимом --text-primary
+   → в тёмной теме сайта получался светлый текст на СВЕТЛОМ залипшем фоне.
+   Теперь консоль всегда тёмная (см. правку выше) — фон и текст берём из
+   --st-deep-* напрямую, независимо от темы, медный оттенок — через color-mix
+   поверх --st-deep-surface (не завязан на --bs-copper-soft). */
 .st-interp {
-  margin: 18px 26px 0; background: var(--bs-copper-soft, var(--bg-hover)); border-radius: var(--radius-md);
-  padding: 12px 16px; border: 1px solid var(--border-subtle);
+  margin: 18px 26px 0; background: color-mix(in srgb, var(--bs-copper, #C97A4A) 16%, var(--st-deep-surface));
+  border-radius: var(--radius-md); padding: 12px 16px; border: 1px solid var(--st-deep-line);
 }
 .st-interp-tag {
   font-family: var(--bs-mono); font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--bs-copper-deep, var(--accent)); display: block; margin-bottom: 6px;
+  text-transform: uppercase; color: var(--bs-copper, var(--accent)); display: block; margin-bottom: 6px;
 }
-.st-interp p { margin: 0; font-size: 13.5px; color: var(--text-primary); line-height: 1.55; }
-.st-interp-horizon { font-size: 11.5px; color: var(--text-tertiary); margin-top: 6px; }
+.st-interp p { margin: 0; font-size: 13.5px; color: var(--st-deep-ink); line-height: 1.55; }
+.st-interp-horizon { font-size: 11.5px; color: var(--st-deep-ink-2); margin-top: 6px; }
 
 /* ---------- rail (пресеты + слайдеры) | main (индекс + карта) ---------- */
-.st-console-top { display: grid; grid-template-columns: 340px 1fr; border-bottom: 1px solid var(--border-subtle); }
+.st-console-top { display: grid; grid-template-columns: 340px 1fr; border-bottom: 1px solid var(--st-deep-line); position: relative; }
 @media (max-width: 860px) { .st-console-top { grid-template-columns: 1fr; } }
+/* auto, не 0px: .st-rail получает display:none в свёрнутом состоянии и выходит
+   из грида, .st-rail-expand-tab становится ПЕРВЫМ реальным элементом грида и
+   занимает колонку 1 — auto даёт ей ужаться до своей intrinsic-ширины (18px),
+   не 0 (иначе таб сжимался в невидимую/некликабельную полоску). */
+.st-console-top.st-rail-collapsed { grid-template-columns: auto 1fr; }
+@media (max-width: 860px) { .st-console-top.st-rail-collapsed { grid-template-columns: 1fr; } }
 
-.st-rail { padding: 26px 24px; border-right: 1px solid var(--border-subtle); background: var(--bg-surface); }
-@media (max-width: 860px) { .st-rail { border-right: none; border-bottom: 1px solid var(--border-subtle); } }
+/* Владелец, 2026-07-25: сворачивание рельса, чтобы карта могла занять всю
+   ширину — тонкая всегда видимая полоска-таб слева от .st-main, клик
+   разворачивает обратно. */
+.st-rail-collapsed .st-rail { display: none; }
+.st-rail-expand-tab {
+  display: none; align-items: center; justify-content: center;
+  width: 18px; align-self: stretch; flex-shrink: 0;
+  background: var(--st-deep-surface); color: var(--st-deep-ink-2);
+  border: none; border-right: 1px solid var(--st-deep-line); cursor: pointer; padding: 0;
+}
+.st-rail-collapsed .st-rail-expand-tab { display: flex; }
+.st-rail-expand-tab:hover { color: var(--bs-copper); background: color-mix(in srgb, var(--bs-copper) 14%, var(--st-deep-surface)); }
+@media (max-width: 860px) { .st-rail-expand-tab { display: none !important; } .st-rail-collapsed .st-rail { display: block; } }
+
+.st-rail { padding: 26px 24px; border-right: 1px solid var(--st-deep-line); position: relative; }
+@media (max-width: 860px) { .st-rail { border-right: none; border-bottom: 1px solid var(--st-deep-line); } }
+
+.st-rail-collapse-btn {
+  position: absolute; top: 22px; right: 20px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center; border-radius: 6px;
+  background: none; border: 1px solid var(--st-deep-line); color: var(--st-deep-ink-2); cursor: pointer; padding: 0;
+}
+.st-rail-collapse-btn:hover { color: var(--bs-copper); border-color: var(--bs-copper); }
+@media (max-width: 860px) { .st-rail-collapse-btn { display: none; } }
 
 .st-presets-compact { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
 .st-preset-compact {
   font-family: var(--bs-sans, inherit); font-size: 12px; font-weight: 600; text-align: left; line-height: 1.3;
-  padding: 10px 11px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); background: var(--bg-base);
-  color: var(--text-secondary); cursor: pointer; transition: transform .12s ease, border-color .15s, background .15s, color .15s;
+  padding: 10px 11px; border-radius: var(--radius-md); border: 1px solid var(--st-deep-line); background: var(--st-deep-surface);
+  color: var(--st-deep-ink-2); cursor: pointer; transition: transform .12s ease, border-color .15s, background .15s, color .15s;
 }
-.st-preset-compact:hover { border-color: var(--bs-copper, var(--accent)); color: var(--text-primary); }
+.st-preset-compact:hover { border-color: var(--bs-copper, var(--accent)); color: var(--st-deep-ink); }
 .st-preset-compact:active { transform: scale(.96); }
 .st-preset-compact:disabled { opacity: .6; cursor: default; transform: none; }
 .st-preset-g { display: block; font-size: 15px; margin-bottom: 2px; }
 
 .st-rail-label {
   display: flex; align-items: center; justify-content: space-between;
-  font-size: 11.5px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 14px;
+  font-size: 11.5px; font-weight: 600; color: var(--st-deep-ink-2); margin-bottom: 14px;
 }
 
 .st-slider-group { display: flex; flex-direction: column; gap: 20px; }
-.st-sliders-loading { padding: 10px 0; color: var(--text-tertiary); font-size: 13px; }
+.st-sliders-loading { padding: 10px 0; color: var(--st-deep-ink-2); font-size: 13px; }
 
 .st-sl { display: flex; flex-direction: column; gap: 7px; border-radius: var(--radius-md); transition: background .3s; }
-.st-sl-pulse { background: var(--bs-copper-soft, var(--bg-hover)); }
+.st-sl-pulse { background: color-mix(in srgb, var(--bs-copper, #C97A4A) 18%, var(--st-deep-surface)); }
 .st-sl-label { display: flex; justify-content: space-between; align-items: baseline; }
-.st-sl-name { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
+.st-sl-name { font-size: 12.5px; color: var(--st-deep-ink-2); font-weight: 600; }
 .st-sl-val {
-  font-family: var(--bs-mono); font-size: 15px; font-weight: 600; color: var(--text-primary);
+  font-family: var(--bs-mono); font-size: 15px; font-weight: 600; color: var(--st-deep-ink);
   font-variant-numeric: tabular-nums;
 }
-.st-sl-unit { font-size: 11px; color: var(--text-tertiary); font-weight: 400; margin-left: 2px; }
+.st-sl-unit { font-size: 11px; color: var(--st-deep-ink-2); font-weight: 400; margin-left: 2px; }
 
 .st-sl input[type="range"] {
   -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px;
-  background: linear-gradient(90deg, var(--bs-down) 0%, var(--border-strong) 50%, var(--bs-up) 100%);
+  background: linear-gradient(90deg, var(--bs-down) 0%, var(--st-deep-line) 50%, var(--bs-up) 100%);
   outline: none; cursor: pointer;
 }
 .st-sl input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%;
-  background: var(--text-primary); border: 3px solid var(--bg-elevated);
-  box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: grab;
+  background: var(--st-deep-ink); border: 3px solid var(--st-deep-bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: grab;
 }
 .st-sl input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; }
 .st-sl input[type="range"]::-moz-range-thumb {
-  width: 17px; height: 17px; border-radius: 50%; background: var(--text-primary);
-  border: 3px solid var(--bg-elevated); box-shadow: 0 1px 4px rgba(0,0,0,.3); cursor: grab;
+  width: 17px; height: 17px; border-radius: 50%; background: var(--st-deep-ink);
+  border: 3px solid var(--st-deep-bg); box-shadow: 0 1px 4px rgba(0,0,0,.4); cursor: grab;
 }
-.st-sl input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--bs-copper-soft, var(--bg-hover)); }
-.st-sl-base { font-size: 10.5px; color: var(--text-tertiary); font-family: var(--bs-mono); }
+.st-sl input[type="range"]:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--bs-copper, #C97A4A) 30%, transparent); }
+.st-sl-base { font-size: 10.5px; color: var(--st-deep-ink-2); font-family: var(--bs-mono); }
 
-.st-reset-row { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--border-subtle); }
-.st-levels-note { font-size: 11.5px; color: var(--text-tertiary); margin-top: 14px; line-height: 1.5; }
+.st-reset-row { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--st-deep-line); }
+.st-levels-note { font-size: 11.5px; color: var(--st-deep-ink-2); margin-top: 14px; line-height: 1.5; }
 .st-reset {
   display: inline-flex; align-items: center; gap: 5px; background: none; border: none;
-  color: var(--text-tertiary); font-size: 11.5px; cursor: pointer; padding: 0;
+  color: var(--st-deep-ink-2); font-size: 11.5px; cursor: pointer; padding: 0;
 }
 .st-reset:hover { color: var(--bs-copper, var(--accent)); }
 
-/* ---------- headline index + карта (main, справа от рельса) — тёмная
-   «deep»-зона (см. токены --st-deep-* вверху файла). Рельс (слайдеры/пресеты)
-   остаётся светлым — контраст «светлая панель управления / тёмный визуальный
-   холст» намеренный, тот же принцип погружения, что в design_baza.html. ---------- */
+/* ---------- headline index + карта (main, справа от рельса) ---------- */
 .st-main { display: flex; flex-direction: column; min-width: 0; background: var(--st-deep-bg); color: var(--st-deep-ink); }
 .st-main-loading { padding: 40px 24px; text-align: center; color: var(--st-deep-ink-2); font-size: 13px; }
 
@@ -260,9 +302,10 @@
 }
 .st-tile:hover { transform: scale(1.035); z-index: 2; box-shadow: var(--shadow-md); }
 .st-tile:focus-visible { outline: 2px solid var(--bs-copper, var(--accent)); outline-offset: 1px; }
+.st-tile-nm-row { display: flex; align-items: center; gap: 5px; min-width: 0; }
 .st-tile-nm {
   font-weight: 700; font-size: 12px; letter-spacing: -.005em; line-height: 1.2;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .st-tile-pc { font-family: var(--bs-mono); font-weight: 600; font-size: 11px; font-variant-numeric: tabular-nums; opacity: .92; }
 .st-tile-small .st-tile-nm { font-size: 10.5px; }
@@ -281,28 +324,37 @@
 .st-preset-active-hint { font-size: 12px; line-height: 1.5; color: var(--st-deep-ink-2); }
 
 /* ---------- лидерборд (full-bleed, 1px «линия»-разделитель) ---------- */
-.st-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-subtle); }
+.st-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--st-deep-line); }
 @media (max-width: 700px) { .st-boards { grid-template-columns: 1fr; } }
-.st-board { background: var(--bg-elevated); padding: 20px 24px 24px; }
+.st-board { background: var(--st-deep-bg); color: var(--st-deep-ink); padding: 20px 24px 24px; }
 .st-board h3 {
   font-family: var(--bs-mono); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
   margin: 0 0 14px; display: flex; align-items: center; gap: 7px;
 }
 .st-board-worse h3 { color: var(--bs-down); }
 .st-board-better h3 { color: var(--bs-up); }
-.st-board-empty { font-size: 12.5px; color: var(--text-tertiary); }
+.st-board-empty { font-size: 12.5px; color: var(--st-deep-ink-2); }
 .st-brow { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-radius: 6px; }
 .st-brow-clickable { cursor: pointer; }
-.st-brow-clickable:hover { background: var(--bg-hover); }
+.st-brow-clickable:hover { background: var(--st-deep-surface); }
 .st-brow-clickable:focus-visible { outline: 2px solid var(--bs-copper, var(--accent)); outline-offset: 1px; }
 .st-brow-nm {
   font-size: 12.5px; font-weight: 600; width: 40%; flex-shrink: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.st-brow-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--bg-hover); position: relative; overflow: hidden; }
+.st-brow-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--st-deep-surface); position: relative; overflow: hidden; }
 .st-brow-bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; transition: width .25s ease; }
 .st-board-worse .st-brow-bar i { right: 0; background: var(--bs-down); }
 .st-board-better .st-brow-bar i { left: 0; background: var(--bs-up); }
 .st-brow-pc { font-family: var(--bs-mono); font-size: 12px; font-weight: 600; width: 56px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .st-board-worse .st-brow-pc { color: var(--bs-down); }
 .st-board-better .st-brow-pc { color: var(--bs-up); }
+
+/* Логотипы компаний рядом с названием (плитка/строка/лидерборд) — владелец,
+   2026-07-25: «нужно чтобы были лого/картинки». Переиспользует существующий
+   CompanyLogo (design/CompanyLogo.jsx), тот же компонент, что везде на
+   платформе (поиск/карточка/портфель) — не изобретаем новый источник картинок. */
+.st-tile-logo { flex-shrink: 0; }
+.st-brow-logo { flex-shrink: 0; }
+.st-brow-nm-wrap { display: flex; align-items: center; gap: 7px; width: 40%; flex-shrink: 0; min-width: 0; }
+.st-brow-nm-wrap .st-brow-nm { width: auto; }
