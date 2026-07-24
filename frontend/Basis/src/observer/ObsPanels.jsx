@@ -2779,7 +2779,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     mapRef.current = map;
-    if (typeof window !== "undefined") window.__obsWorldMapDebug = map;
 
     const popupEl = document.createElement("div");
     const popupRoot = createRoot(popupEl);

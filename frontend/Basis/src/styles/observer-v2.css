@@ -4711,10 +4711,16 @@ details[open] > summary .obs-inst-chev,
      он ужЕ position:absolute) — overflow:hidden на НЕпозиционированном предке
      тогда не клипует их (стандартная CSS-ловушка: overflow:hidden не
      обрезает position:absolute потомка, если сам не задаёт containing block).
-     Подтверждено эмпирически 2026-07-25: без этой строки маркеры продолжали
-     всплывать над рамкой картой поверх чипов зума/шапки сайта несмотря на
-     overflow:hidden ниже. */
+     width/height:100% ТОЖЕ обязательны — canvas-container сам по себе не несёт
+     явных размеров ни от библиотеки, ни от JS (только canvas.maplibregl-canvas
+     внутри — сам position:absolute, поэтому НЕ вносит вклад в обычную высоту
+     родителя), без этой строки box был бы 0×ширина — overflow:hidden тогда
+     клипует буквально ВСЁ (канвас, маркеры) в ноль (проверено Playwright'ом:
+     после добавления overflow:hidden клики по карте вообще перестали долетать
+     до слоёв/маркеров — попадали мимо, в фон позади). */
   position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: var(--radius-md);
 }
