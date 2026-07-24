@@ -153,7 +153,12 @@ def debug_env():
     import re
     keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
             "ANTHROPIC_API_KEY", "ANTHROPIC_PROXY_URL", "DEEPSEEK_API_KEY", "FRED_API_KEY",
-            "LLM_PROVIDER", "RUN_STARTUP_JOBS", "MINFIN_BASE_URL"]
+            "LLM_PROVIDER", "RUN_STARTUP_JOBS", "MINFIN_BASE_URL",
+            # Релеи egress-заблокированных хостов (см. agent_web.py/llm.py) — добавлены
+            # сюда 2026-07-25 при отладке "агентский разбор документа падает на
+            # severstal.com": без них здесь нельзя было удалённо проверить, реально ли
+            # применилась переменная, добавленная в панели Timeweb, без failing-теста.
+            "WEB_FETCH_PROXY_URL", "DEEPSEEK_BASE_URL", "FRED_BASE_URL"]
     out = {}
     for k in keys:
         v = os.environ.get(k)

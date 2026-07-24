@@ -31,7 +31,12 @@ logger = logging.getLogger(__name__)
 COMPANIES_DIR = Path(__file__).parent.parent.parent / "companies"
 
 _MAX_HISTORY_MESSAGES = 8  # сколько последних сообщений диалога подмешиваем в контекст
-_MAX_TICKERS_PER_TURN = 4  # не даём одному вопросу утянуть контекст на пол-рынка
+_MAX_TICKERS_PER_TURN = 8  # не даём одному вопросу утянуть контекст на пол-рынка
+# Было 4 — владелец попросил сравнить мультипликаторы банков, LLM-экстрактор
+# честно нашёл 13 тикеров (SBER/SBERP/VTBR/BSPB/BSPBP/CBOM/...), код обрезал до
+# 4 → ВТБ/Т-Технологии выпали из детального контекста и в ответе появилось
+# «данных нет», хотя карточка компании их показывает. 8 — компромисс: покрывает
+# типичные «сравни топ-N» вопросы, не раздувает контекст на весь сектор целиком.
 
 
 # ----------------------------- Список компаний (кэш) -----------------------------
@@ -40,15 +45,19 @@ _TICKER_LIST_TTL = 3600.0
 
 
 def _ticker_list_text(db: Session) -> str:
-    """Стабильный (кэшируемый провайдером) список 'TICKER: Имя' — по одному на
-    строку, отсортирован. Меняется редко (только когда добавляются компании),
-    поэтому системный промпт распознавания остаётся стабильным между вызовами
-    (см. заметку про DeepSeek prefix-cache в llm.py)."""
+    """Стабильный (кэшируемый провайдером) список 'TICKER: Имя (Сектор)' — по
+    одному на строку, отсортирован. Сектор добавлен (2026-07-25) — без него
+    LLM не смогла опознать «Т-Технологии» как банк по одному имени (в вопросе
+    «сравни банки» тикер T не попал в список вовсе, хотя это T-Банк) — с
+    сектором «Финансы» рядом у модели есть за что зацепиться. Список меняется
+    редко (только когда добавляются компании), поэтому системный промпт
+    распознавания остаётся стабильным между вызовами (см. заметку про
+    DeepSeek prefix-cache в llm.py)."""
     now = time.time()
     if _TICKER_LIST_CACHE["text"] and now - _TICKER_LIST_CACHE["ts"] < _TICKER_LIST_TTL:
         return _TICKER_LIST_CACHE["text"]
-    rows = db.execute(text("SELECT ticker, name FROM companies ORDER BY ticker")).all()
-    txt = "\n".join(f"{r.ticker}: {r.name}" for r in rows)
+    rows = db.execute(text("SELECT ticker, name, sector FROM companies ORDER BY ticker")).all()
+    txt = "\n".join(f"{r.ticker}: {r.name}" + (f" ({r.sector})" if r.sector else "") for r in rows)
     _TICKER_LIST_CACHE["text"] = txt
     _TICKER_LIST_CACHE["ts"] = now
     return txt
