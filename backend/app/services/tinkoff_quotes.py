@@ -38,6 +38,11 @@ _ticker_to_logo: dict[str, str] = {}
 # картинка в Т-Инвестициях, раз мы это тянем оттуда — почему бы не подтянуть»).
 _isin_to_logo: dict[str, str] = {}
 _secid_to_logo: dict[str, str] = {}
+# ISIN → Tinkoff instrument uid — для живой цены облигаций (тот же вызов
+# InstrumentsService/Bonds, что уже используется для логотипов; не отдельный
+# запрос). НЕ персистится в БД — тот же паттерн, что и логотипы: 24ч-кэш
+# в памяти достаточен, отдельная миграция/колонка не нужна.
+_isin_to_uid: dict[str, str] = {}
 _other_instruments_ts: float = 0.0
 
 # Время последнего обновления инструментов (кэшируем на 24ч)
@@ -162,11 +167,17 @@ def _load_other_instruments() -> bool:
             for item in resp.get("instruments", []):
                 key = item.get(key_field, "")
                 logo_name = (item.get("brand") or {}).get("logoName") or ""
-                if not key or not logo_name:
-                    continue
-                base = logo_name.rsplit(".", 1)[0]
-                target[key] = f"https://invest-brands.cdn-tinkoff.ru/{base}x160.png"
-                count += 1
+                if key and logo_name:
+                    base = logo_name.rsplit(".", 1)[0]
+                    target[key] = f"https://invest-brands.cdn-tinkoff.ru/{base}x160.png"
+                    count += 1
+                # Bonds: заодно сохраняем isin→uid из ТОГО ЖЕ ответа (для живой
+                # цены, refresh_bond_last_prices) — не завязано на наличие лого.
+                if method == "Bonds":
+                    isin = item.get("isin", "")
+                    uid = item.get("uid", "") or item.get("figi", "")
+                    if isin and uid:
+                        _isin_to_uid[isin] = uid
             ok = True
         except Exception as e:  # noqa: BLE001
             logger.error("Tinkoff: ошибка загрузки логотипов (%s): %s", method, e)
@@ -191,7 +202,71 @@ def get_instrument_logos() -> dict[str, str]:
     return merged
 
 
+def get_bond_uid_map() -> dict[str, str]:
+    """{ISIN: Tinkoff instrument uid} — для живой цены облигаций
+    (refresh_bond_last_prices). Инструменты кэшируются 24ч."""
+    try:
+        if not TINKOFF_TOKEN:
+            return {}
+        _load_other_instruments()
+    except Exception:  # noqa: BLE001
+        pass
+    return dict(_isin_to_uid)
+
+
 # ─── обновление цен ────────────────────────────────────────────────────────
+
+
+def _fetch_last_prices(uids: list[str]) -> dict[str, float]:
+    """{uid: сырая цена} с MarketDataService/GetLastPrices — БЕЗ интерпретации
+    единиц (акции — ₽, облигации — % от номинала; это решает вызывающий код).
+    Общий низкоуровневый вызов, переиспользуемый и для акций (refresh_prices),
+    и для облигаций (refresh_bond_last_prices)."""
+    out: dict[str, float] = {}
+    if not uids:
+        return out
+    resp = _post(
+        "tinkoff.public.invest.api.contract.v1.MarketDataService/GetLastPrices",
+        {"instrumentId": uids},
+    )
+    for lp in resp.get("lastPrices", []):
+        uid = lp.get("instrumentUid", "") or lp.get("figi", "")
+        price = _quotation_to_float(lp.get("price"))
+        if uid and price is not None:
+            out[uid] = price
+    return out
+
+
+def refresh_bond_last_prices(isins: list[str]) -> dict[str, float]:
+    """{ISIN: живая цена, % от номинала} через Tinkoff — та же единица
+    измерения, что MOEX ISS кладёт в bonds.last_price (см. moex_bonds.py,
+    "% от номинала"), поэтому вызывающий код (asset_data.py) может писать
+    результат прямо в ту же колонку без конвертации. Покрытие облигаций у
+    Tinkoff НЕПОЛНОЕ (не все ~3100 бумаг MOEX там торгуются) — ISIN без
+    найденного uid просто отсутствуют в ответе, честная деградация, не
+    ошибка. Владелец 2026-07-25: «из Тинька разве нельзя как у акций живую
+    цену тянуть» — раньше облигации обновлялись ТОЛЬКО раз в сутки с MOEX
+    ISS (asset_data_refresh); эта функция даёт живой срез для покрытых
+    бумаг, вызывается из quotes_updater вместе с акциями (та же 5-минутка
+    в торговые часы)."""
+    if not TINKOFF_TOKEN or not isins:
+        return {}
+    uid_map = get_bond_uid_map()  # isin -> uid
+    uid_to_isin = {}
+    uids = []
+    for isin in isins:
+        uid = uid_map.get(isin)
+        if uid:
+            uid_to_isin[uid] = isin
+            uids.append(uid)
+    if not uids:
+        return {}
+    try:
+        by_uid = _fetch_last_prices(uids)
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Tinkoff: ошибка живой цены облигаций: %s", e)
+        return {}
+    return {uid_to_isin[uid]: price for uid, price in by_uid.items() if uid in uid_to_isin}
 
 def refresh_prices(prev_close_map: dict[str, float | None] | None = None) -> bool:
     """

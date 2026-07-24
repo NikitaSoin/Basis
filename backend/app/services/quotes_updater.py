@@ -126,6 +126,16 @@ def _update_from_tinkoff() -> None:
         _last_update = datetime.now(timezone.utc)
         logger.info("Scheduler: Tinkoff обновил %d котировок (МСК %s)",
                     updated, datetime.now(MSK).strftime("%H:%M"))
+        # Живая цена облигаций — та же 5-минутка, отдельный try: сбой здесь
+        # НЕ должен ронять уже успешно записанные котировки акций выше.
+        try:
+            from app.services.asset_data import refresh_bond_live_prices
+            n_bonds = refresh_bond_live_prices(db)
+            if n_bonds:
+                logger.info("Scheduler: Tinkoff обновил живую цену %d облигаций", n_bonds)
+        except Exception as e:
+            logger.warning("Scheduler: живая цена облигаций пропущена: %s", e)
+            db.rollback()
     except Exception as e:
         logger.exception("Scheduler: ошибка Tinkoff обновления: %s", e)
         db.rollback()

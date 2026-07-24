@@ -52,6 +52,52 @@ def refresh_bonds(db: Session, sleep: float = 0.3, limit: int | None = None) -> 
     return n
 
 
+def refresh_bond_live_prices(db: Session) -> int:
+    """Живая цена облигаций через Tinkoff (GetLastPrices) — обновляет ТОЛЬКО
+    bonds.last_price/updated_at у уже известных бумаг (метаданные/купоны/
+    рейтинги по-прежнему раз в сутки через refresh_bonds, MOEX ISS — дёшево
+    здесь только цена, ~секунды на сотни бумаг, можно звать каждые 5 мин
+    вместе с акциями, см. quotes_updater.py).
+
+    Барьер здравого смысла (тот же приём, что live_wacc.py для справедливой
+    стоимости): если живая цена отличается от последней известной больше чем
+    в 1.5 раза — НЕ пишем, это скорее баг сопоставления единиц/инструмента,
+    чем реальное движение цены облигации за 5 минут. Лучше остаться на
+    вчерашней (честной) цене, чем показать испорченную "живую"."""
+    from app.services import tinkoff_quotes
+    if not tinkoff_quotes.TINKOFF_TOKEN:
+        return 0
+    rows = db.execute(text("SELECT secid, isin, last_price FROM bonds WHERE isin IS NOT NULL")).all()
+    if not rows:
+        return 0
+    isin_to_row = {r.isin: r for r in rows}
+    try:
+        live = tinkoff_quotes.refresh_bond_last_prices(list(isin_to_row))
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Живая цена облигаций: ошибка Tinkoff: %s", e)
+        return 0
+    updated = 0
+    for isin, price in live.items():
+        row = isin_to_row.get(isin)
+        if not row or price is None or price <= 0:
+            continue
+        prev = float(row.last_price) if row.last_price is not None else None
+        if prev and prev > 0:
+            ratio = price / prev
+            if ratio < (1 / 1.5) or ratio > 1.5:
+                logger.warning("Живая цена облигации %s отклонилась слишком сильно (%.2f → %.2f) — пропуск", row.secid, prev, price)
+                continue
+        db.execute(
+            text("UPDATE bonds SET last_price = :p, updated_at = now() WHERE secid = :s"),
+            {"p": price, "s": row.secid},
+        )
+        updated += 1
+    db.commit()
+    if updated:
+        logger.info("Живая цена облигаций (Tinkoff): обновлено %d из %d покрытых", updated, len(live))
+    return updated
+
+
 def refresh_futures(db: Session) -> int:
     """Все контракты FORTS (один запрос)."""
     from app.services.moex_futures import fetch_futures, upsert_future

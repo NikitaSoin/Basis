@@ -55,10 +55,44 @@ def add_position(db: Session, portfolio_id: int, data: PositionCreate) -> Portfo
     return position
 
 
+def _credit_cash(db: Session, portfolio_id: int, currency: str, amount: Decimal) -> None:
+    """Зачисляет/списывает amount на денежную позицию портфеля (currency) —
+    заводит позицию, если её ещё нет. amount может быть отрицательным
+    (защита от ухода в минус — клампим на 0, не показываем отрицательный кэш,
+    которого физически не может быть)."""
+    if amount == 0:
+        return
+    cash = (
+        db.query(PortfolioPosition)
+        .filter(PortfolioPosition.portfolio_id == portfolio_id,
+                PortfolioPosition.instrument_type == "cash",
+                PortfolioPosition.currency == currency)
+        .first()
+    )
+    if cash:
+        cash.quantity = max(cash.quantity + amount, Decimal("0"))
+    elif amount > 0:
+        db.add(PortfolioPosition(
+            portfolio_id=portfolio_id, instrument_type="cash", currency=currency,
+            quantity=amount, avg_buy_price=Decimal("1"),
+        ))
+
+
 def record_trade(db: Session, portfolio_id: int, position_id: int, data: TradeCreate) -> PortfolioPosition | None:
     """Совершить сделку (buy/sell) — средневзвешенная цена на покупке,
     средняя НЕ меняется на продаже (реализованный P&L считается отдельно,
-    из истории сделок, см. compute_position_pnl)."""
+    из истории сделок, см. compute_position_pnl).
+
+    Продажа ЗАЧИСЛЯЕТ выручку (quantity×price − fee) на денежную позицию
+    портфеля той же валюты (заводит её, если нет) — без этого проданный актив
+    просто исчезал из «Состава» без следа, и суммарная стоимость портфеля
+    молча «проседала» на всю стоимость проданного (владелец, 2026-07-25).
+    Покупка НАМЕРЕННО не списывает кэш симметрично — портфель часто заводят
+    задним числом («у меня уже есть эти акции»), автосписание несуществующего
+    кэша создало бы более странное поведение (уход в минус/непрошеная кэш-
+    позиция), чем то, что чинится здесь. Если нужно «купил на вырученные
+    деньги» — пользователь уменьшает кэш вручную (уже есть в UI: правка
+    денежной позиции)."""
     position = (
         db.query(PortfolioPosition)
         .filter(PortfolioPosition.id == position_id, PortfolioPosition.portfolio_id == portfolio_id)
@@ -77,6 +111,9 @@ def record_trade(db: Session, portfolio_id: int, position_id: int, data: TradeCr
             raise ValueError(f"Нельзя продать {data.quantity} — в позиции только {old_qty}")
         position.quantity = old_qty - data.quantity
         # avg_buy_price не меняется при продаже
+        if position.instrument_type != "cash":
+            proceeds = data.quantity * data.price - data.fee
+            _credit_cash(db, portfolio_id, position.currency, proceeds)
 
     db.add(PortfolioTransaction(
         position_id=position.id, side=data.side, quantity=data.quantity,

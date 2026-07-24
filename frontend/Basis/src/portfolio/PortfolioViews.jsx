@@ -688,6 +688,19 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions`, { method: "POST", headers: authHeaders, body: JSON.stringify(body) }),
     "сохранить позицию"
   );
+  // Продажа — ЧЕРЕЗ /trades (record_trade), не delete+recreate: (1) зачисляет
+  // выручку на денежную позицию (владелец, 2026-07-25: «продаёшь — деньги не
+  // появляются, стоимость портфеля проседает»), (2) не плодит фиктивную
+  // "buy"-транзакцию на остаток (delete+post каждый раз заводил НОВУЮ открывающую
+  // сделку — портилась история для P&L/дивидендов). Покупка через delete+recreate
+  // ниже НЕ трогаем — отдельный, не заявленный сейчас вопрос.
+  const sell = async (positionId, qty, prc) => check(
+    await fetch(`${apiUrl}/api/portfolios/${portfolioId}/positions/${positionId}/trades`, {
+      method: "POST", headers: authHeaders,
+      body: JSON.stringify({ side: "sell", quantity: qty, price: prc, fee: 0, trade_date: new Date().toISOString().slice(0, 10) }),
+    }),
+    "продать"
+  );
 
   const handleSubmitEquity = async () => {
     const qty = parseFloat(quantity), prc = parseFloat(price);
@@ -705,9 +718,8 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     if (side === "sell") {
       if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
       if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
-      const newQty = exQty - qty;
-      await del(existing.id);
-      if (newQty > 1e-9) await post({ company_id: company.id, instrument_type: "equity", quantity: newQty, avg_buy_price: exAvg });
+      if (!prc) throw new Error("Укажите цену продажи — по ней считается выручка на денежную позицию");
+      await sell(existing.id, qty, prc);
     } else if (existing) {
       const newQty = exQty + qty;
       const newAvg = (exQty * exAvg + qty * prc) / newQty;
@@ -730,9 +742,8 @@ const AddPositionModal = ({ portfolioId, existingPositions, token, onClose, onSu
     if (side === "sell") {
       if (!existing) throw new Error("Такой позиции нет в портфеле — нечего продавать");
       if (qty > exQty) throw new Error(`Нельзя продать больше чем есть (${exQty} шт.)`);
-      const newQty = exQty - qty;
-      await del(existing.id);
-      if (newQty > 1e-9) await post({ instrument_type: instrumentType, secid, quantity: newQty, avg_buy_price: exAvg });
+      if (!prc) throw new Error("Укажите цену продажи — по ней считается выручка на денежную позицию");
+      await sell(existing.id, qty, prc);
     } else if (existing) {
       const newQty = exQty + qty;
       const newAvg = (exQty * exAvg + qty * prc) / newQty;

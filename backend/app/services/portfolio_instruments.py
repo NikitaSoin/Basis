@@ -109,9 +109,23 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
             b = bonds.get(p.secid)
             h = hist.get(p.secid)
             price = clean = accrued = None
-            if b and b.face_value and h and h.close is not None:
+            price_as_of = None
+            accrued = round(float(h.accrued_int), 2) if h and h.accrued_int is not None else 0.0
+            # Предпочитаем ЖИВУЮ чистую цену (bonds.last_price, тянется через
+            # Tinkoff каждые 5 мин в торговые часы для покрытых бумаг — см.
+            # asset_data.refresh_bond_live_prices), если она СВЕЖЕЕ дневного
+            # среза MOEX ISS (instrument_history, T+1). НКД по-прежнему из
+            # instrument_history — у Tinkoff нет отдельного накопленного
+            # купонного дохода в этом ответе, а он меняется предсказуемо
+            # день в день, дневной точности достаточно.
+            if b and b.face_value and b.last_price is not None and b.updated_at is not None \
+                    and (not h or b.updated_at.date() >= h.date):
+                clean = round(float(b.last_price) / 100 * float(b.face_value), 2)
+                price_as_of = b.updated_at.date().isoformat()
+            elif b and b.face_value and h and h.close is not None:
                 clean = round(float(h.close) / 100 * float(b.face_value), 2)
-                accrued = round(float(h.accrued_int), 2) if h.accrued_int is not None else 0.0
+                price_as_of = h.date.isoformat()
+            if clean is not None:
                 price = clean + accrued
             qty = float(p.quantity)
             out.append({
@@ -130,7 +144,7 @@ def value_non_equity_positions(db: Session, positions: list[PortfolioPosition]) 
                 # для честного разбора на фронте, price_clean не заменяет price.
                 "price_clean": clean,
                 "accrued_interest": accrued,
-                "price_as_of": h.date.isoformat() if h else None,
+                "price_as_of": price_as_of,
                 "data_flag": None if price is not None else "нет актуальной цены облигации",
             })
 
