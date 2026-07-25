@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { CompanyLogo } from "../design/CompanyLogo";
 import { money, num } from "../screener/ScreenerNeo";
-import { ObsLineChart } from "../observer/ObsPanels";
+import ChartPro from "./ChartPro";
 import "../styles/indices.css";
 
 // =============================================================
@@ -10,21 +10,20 @@ import "../styles/indices.css";
 // (референс — конкурент Инвестминт: хаб индексов, drill-down в отдельный
 // индекс с графиком по периодам, gauge для индекса страха и жадности).
 // Данные: /api/market/indices (IMOEX/MCFTR/RTSI — полная история),
-// /api/market/indices/{ticker}/detail?period= (график, добавлен для этой
-// задачи), /api/market/pulse (секторные индексы + индекс страха и жадности,
-// уже существовали), /api/screener/scored (компании для таблиц).
+// /api/market/indices/{ticker}/detail?period=3y (шапка + смена за месяц/год/
+// объём + смена за 3 года — close-only, не зависит от графика), /api/market/pulse
+// (секторные индексы + индекс страха и жадности, уже существовали),
+// /api/screener/scored (компании для таблиц). График для IMOEX/MCFTR/RTSI —
+// ChartPro (задание владельца 2026-07-25: те же свечи/таймфреймы/индикаторы,
+// что у акций/облигаций/фьючерсов/фондов) на /api/market/candles/index/{ticker} —
+// у него СВОИ таймфреймы (грануляция баров), поэтому старый переключатель
+// периодов 1мес/6мес/YTD/1год/3года для close-only /detail убран целиком —
+// два похожих переключателя над одним графиком путали бы, какой из них что
+// делает. Смена за 3 года осталась текстовой цифрой в идентификатор-строке.
 // =============================================================
 
 const apiBase = () => process.env.REACT_APP_API_URL || "http://localhost:8000";
 const MAIN_TICKERS = ["IMOEX", "MCFTR", "RTSI"];
-
-const TIMEFRAMES = [
-  { id: "1m", label: "1 мес" },
-  { id: "6m", label: "6 мес" },
-  { id: "ytd", label: "С начала года" },
-  { id: "1y", label: "1 год" },
-  { id: "3y", label: "3 года" },
-];
 
 // Коды секторных индексов MOEX -> внутренняя классификация Basis (Company.sector).
 // ДВЕ РАЗНЫЕ таксономии (официальная MOEX vs внутренняя Basis) — совпадают не
@@ -192,22 +191,24 @@ export function IndexHubView({ onBack, onSelectIndex, onOpenFearGreed, onBackToO
 // =============================================================
 export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOverview }) {
   const isMain = MAIN_TICKERS.includes(ticker);
-  const [period, setPeriod] = useState("3y");
   const [detail, setDetail] = useState(null);
   const [pulse, setPulse] = useState(null);
   const [scored, setScored] = useState(null);
 
-  useEffect(() => { setDetail(null); setPeriod("3y"); }, [ticker]);
+  useEffect(() => { setDetail(null); }, [ticker]);
 
   useEffect(() => {
     if (!isMain) return;
     const api = apiBase();
     let alive = true;
-    fetch(`${api}/api/market/indices/${ticker}/detail?period=${period}`)
+    // period фиксирован на 3y — это только смена за 3 года в шапке (см. ниже),
+    // сам график теперь ChartPro со своими таймфреймами (грануляция баров),
+    // выбор диапазона у пользователя — там.
+    fetch(`${api}/api/market/indices/${ticker}/detail?period=3y`)
       .then((r) => (r.ok ? r.json() : null)).catch(() => null)
       .then((d) => { if (alive) setDetail(d); });
     return () => { alive = false; };
-  }, [ticker, period, isMain]);
+  }, [ticker, isMain]);
 
   useEffect(() => {
     const api = apiBase();
@@ -292,30 +293,12 @@ export function IndexDetailView({ ticker, onOpenHub, onSelectCompany, onBackToOv
           <div className="idx-panel idx-stats-row" style={{ marginTop: -1 }}>
             <div><div className="idx-stat-l">За месяц</div><div className={"idx-stat-v " + (detail.month_change_pct >= 0 ? "idx-pos" : "idx-neg")}>{fmtDelta(detail.month_change_pct)}</div></div>
             <div><div className="idx-stat-l">За год</div><div className={"idx-stat-v " + (detail.year_change_pct >= 0 ? "idx-pos" : "idx-neg")}>{fmtDelta(detail.year_change_pct)}</div></div>
+            <div><div className="idx-stat-l">За 3 года</div><div className={"idx-stat-v " + (detail.period_change_pct >= 0 ? "idx-pos" : "idx-neg")}>{fmtDelta(detail.period_change_pct)}</div></div>
             <div><div className="idx-stat-l">Объём за день</div><div className="idx-stat-v">{detail.volume_today != null ? money(detail.volume_today) : "—"}</div></div>
           </div>
 
-          <div className="idx-tf-row">
-            <div className="idx-tf-tabs">
-              {TIMEFRAMES.map((t) => (
-                <button key={t.id} className={"idx-tf-opt" + (period === t.id ? " idx-tf-opt--on" : "")} onClick={() => setPeriod(t.id)}>{t.label}</button>
-              ))}
-            </div>
-            {detail.period_change_pct != null && (
-              <span className={detail.period_change_pct >= 0 ? "idx-pos" : "idx-neg"} style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700 }}>
-                {detail.period_change_pct >= 0 ? "+" : ""}{num(detail.period_change_pct, 1)}% за период
-              </span>
-            )}
-          </div>
           <div className="idx-panel idx-chart-wrap">
-            <ObsLineChart
-              unit=""
-              series={[{
-                name,
-                color: (detail.period_change_pct ?? 0) >= 0 ? "var(--success)" : "var(--danger)",
-                points: (detail.points || []).map((p) => ({ as_of: p.date, value: p.close })),
-              }]}
-            />
+            <ChartPro assetClass="index" secid={ticker} height={340} />
           </div>
 
           {drivers.length > 0 && (

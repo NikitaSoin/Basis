@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createChart, AreaSeries, LineSeries, LineStyle, createSeriesMarkers } from "lightweight-charts";
 import {
   AlertTriangle,
   ArrowRightLeft,
@@ -1137,154 +1138,286 @@ const PERIOD_LABEL_TEXT = {
   "1y": "1 год", "3y": "3 года", max: "весь доступный период",
 };
 
+// Читает резолвленный цвет CSS-токена в рантайме (тема-зависимо) — тот же
+// приём, что и readColors() в market/ChartPro.jsx: canvas lightweight-charts
+// не понимает var(--token), поэтому цвет резолвится один раз при построении
+// графика и заново — при смене темы (см. MutationObserver ниже).
+function _pfColor(el, token, fallback) {
+  const v = getComputedStyle(el).getPropertyValue(token).trim();
+  return v || fallback;
+}
+// hex → rgba(...,alpha) для градиентной заливки области героя (портфеля).
+// Токены Basis для --pf-copper всегда hex в обеих темах; если резолвится
+// что-то другое (например, уже rgba) — возвращаем как есть без альфы.
+function _hexToRgba(hex, alpha) {
+  const h = (hex || "").replace("#", "");
+  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+  const r = parseInt(full.slice(0, 2), 16), g = parseInt(full.slice(2, 4), 16), b = parseInt(full.slice(4, 6), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return hex;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+// Токены доп. линий сравнения (extraSeries, до 4) — те же цвета, что и раньше,
+// но через var(--token) вместо хардкод-hex (было "#1F5FC4"/"#8A4A26" — те же
+// значения, что и --pf-estimate/--pf-copper-deep, просто вручную вписаны).
+const BENCH_EXTRA_TOKENS = ["--pf-estimate", "--pf-copper-deep", "--cat-4", "--cat-6"];
+
 // Сравнение накопленной доходности портфеля с бенчмарком (Этап 3).
-// Мультилинейный SVG: портфель и MCFTR — основные, IMOEX — тонкая справочная.
+// Движок — lightweight-charts (та же библиотека, что даёт свечи в
+// market/ChartPro.jsx): единый тултип/сетка/шрифт из коробки вместо
+// самодельного SVG с 10px нечитаемым текстом на --text-tertiary.
+//
+// Иерархия по продуктовому разбору (владелец, задача 2026-07-25): дефолт —
+// ГЕРОЙ (портфель, area-заливка медью) + ОДИН нейтральный бенчмарк (MCFTR,
+// индекс полной доходности). «Без дивидендов» (IMOEX) и «Ваши секторы»
+// (гипотетический бенчмарк — оценка) — тумблеры, выключены по умолчанию:
+// до 7 равнонасыщенных линий разом создавали шум, глаз не цеплял «обогнал
+// я рынок или нет». Доп. сравнения (extraSeries, до 4) — тоньше остальных,
+// добавляются явно пользователем через «+Добавить сравнение» ниже.
 const BenchmarkChart = ({ series, extraSeries = [] }) => {
   const { dates = [], portfolio = [], mcftr = [], imoex = [], sector_blend: sectorBlend = null } = series || {};
-  const svgRef = useRef(null);
-  const [hover, setHover] = useState(null);   // индекс точки под курсором
-  if (!dates.length) return null;
-  const W = 640, H = 220, padL = 44, padR = 12, padT = 12, padB = 24;
-  // Доп. линии сравнения (произвольный актив/портфель) выровнены на дату по
-  // мастер-сетке `dates` вызывающей стороной — здесь только рисуем разрывы,
-  // если для какой-то даты значения нет (молодая бумага/несовпадающий календарь).
-  const all = [...portfolio, ...mcftr, ...imoex, ...(sectorBlend || []), ...(extraSeries || []).flatMap((s) => s.values)].filter((v) => typeof v === "number");
-  const max = Math.max(...all, 0), min = Math.min(...all, 0), span = (max - min) || 1;
   const n = dates.length;
-  const xAt = (i) => padL + (n <= 1 ? 0 : (i * (W - padL - padR)) / (n - 1));
-  const yAt = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
-  const line = (arr) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
-  const lineWithGaps = (arr) => {
-    let d = "";
-    arr.forEach((v, i) => {
-      if (typeof v !== "number") return;
-      d += `${d === "" ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)} `;
+  const wrapRef = useRef(null);
+  const [showImoex, setShowImoex] = useState(false);
+  const [showSectorBlend, setShowSectorBlend] = useState(false);
+  const [hover, setHover] = useState(null); // {idx, x}
+
+  const sectorBlendAvailable = Array.isArray(sectorBlend) && sectorBlend.some((v) => typeof v === "number");
+  const lastNum = (arr) => {
+    if (!Array.isArray(arr)) return null;
+    for (let i = arr.length - 1; i >= 0; i--) if (typeof arr[i] === "number") return arr[i];
+    return null;
+  };
+  // Вклад дивидендов = разница между индексом полной доходности и им же без
+  // выплат — показываем ОДНИМ числом в подписи тумблера, пока линия IMOEX
+  // не включена явно (см. рекомендацию продуктового разбора).
+  const mcftrLast = lastNum(mcftr), imoexLast = lastNum(imoex);
+  const dividendContribution = mcftrLast != null && imoexLast != null ? mcftrLast - imoexLast : null;
+
+  // Отпечаток содержимого extraSeries (не ссылка!) — вызывающая сторона
+  // передаёт `compareLines.map(...)` заново на КАЖДЫЙ рендер родителя (даже
+  // просто от набора текста в соседнем поле «Тикер»), так что raw-ссылка
+  // меняется постоянно без реального изменения данных. Держим это как
+  // отдельный примитив, чтобы ниже НЕ пересобирать canvas-график впустую.
+  const extraSig = useMemo(
+    () => (extraSeries || []).map((s) => `${s.key || s.label}:${(s.values || []).map((v) => (v == null ? "" : v.toFixed(2))).join(",")}`).join("|"),
+    [extraSeries]
+  );
+
+  // Единый список видимых серий — источник и для canvas-графика, и для
+  // тултипа, и для управляющего ряда над графиком (легенда-как-контрол,
+  // а не легенда-стена из 7 равных пунктов).
+  const visible = useMemo(() => {
+    const list = [
+      { key: "portfolio", label: "Портфель", token: "--pf-copper", width: 2.5, values: portfolio, hero: true },
+      { key: "mcftr", label: "Индекс МосБиржи, полная доходность", token: "--pf-ink-3", width: 1.75, values: mcftr },
+    ];
+    if (showImoex) {
+      list.push({ key: "imoex", label: "Индекс МосБиржи, без дивидендов", token: "--pf-ink-3", width: 1, dashed: true, values: imoex });
+    }
+    if (showSectorBlend && sectorBlendAvailable) {
+      list.push({ key: "sector_blend", label: "Ваши секторы (оценка)", token: "--cat-3", width: 1.75, values: sectorBlend });
+    }
+    (extraSeries || []).forEach((s, i) => list.push({
+      key: s.key || s.label, label: s.label, token: BENCH_EXTRA_TOKENS[i % BENCH_EXTRA_TOKENS.length],
+      width: 1.25, values: s.values, removable: true, onRemove: s.onRemove,
+    }));
+    return list;
+    // Зависимость — extraSig (отпечаток-по-значению), а не extraSeries (ссылка меняется
+    // каждый рендер родителя без реального изменения данных) — см. комментарий выше.
+  }, [portfolio, mcftr, imoex, sectorBlend, showImoex, showSectorBlend, sectorBlendAvailable, extraSig]);
+
+  const fmtFullD = (iso) => { const [y, m, d] = (iso || "").split("-"); return d ? `${d}.${m}.${y}` : "—"; };
+  const pctFmt = (v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || !n) return undefined;
+
+    const colors = {
+      axisText: _pfColor(el, "--pf-ink-2", "#5C574A"),   // НЕ ink-3 — самый бледный тон нечитаем на оси
+      grid: _pfColor(el, "--pf-line", "#DCD5C2"),
+      border: _pfColor(el, "--pf-line-2", "#CFC6AC"),
+      copper: _pfColor(el, "--pf-copper", "#C97A4A"),
+    };
+
+    const chart = createChart(el, {
+      width: el.clientWidth,
+      height: 260,
+      autoSize: true,
+      layout: {
+        background: { color: "transparent" },
+        textColor: colors.axisText,
+        fontFamily: "'IBM Plex Mono', monospace",
+        fontSize: 11,
+      },
+      grid: { vertLines: { color: colors.grid }, horzLines: { color: colors.grid } },
+      rightPriceScale: { borderColor: colors.border },
+      timeScale: { borderColor: colors.border, timeVisible: false },
+      crosshair: { mode: 0 },
+      localization: { locale: "ru-RU", priceFormatter: pctFmt },
     });
-    return d;
-  };
-  const zeroY = yAt(0);
-  const fmtD = (iso) => { const [y, m] = iso.split("-"); return `${m}.${y.slice(2)}`; };
-  // Равномерные X-подписи дат (как в ObsLineChart — было ТОЛЬКО первая/
-  // последняя точка без промежуточных меток, жалоба «ось X без пометок»)
-  const xTickEvery = Math.max(1, Math.ceil(n / 6));
-  const gridN = 4;
-  const EXTRA_COLORS = ["#1F5FC4", "#8A4A26", "var(--cat-4)", "var(--cat-6)"];
-  const LINES = [
-    { key: "portfolio", d: line(portfolio), color: "var(--pf-copper)", w: 2.5, label: "Портфель", values: portfolio },
-    { key: "mcftr", d: line(mcftr), color: "var(--cat-1)", w: 1.75, label: "Индекс МосБиржи, полная доходность", values: mcftr },
-    { key: "imoex", d: line(imoex), color: "var(--cat-8)", w: 1.5, label: "Индекс МосБиржи (без дивидендов, справочно)", values: imoex },
-    ...(sectorBlend ? [{
-      key: "sector_blend", d: lineWithGaps(sectorBlend), color: "var(--cat-3)", w: 1.75,
-      label: "Ваши секторы (в рыночных пропорциях)", values: sectorBlend,
-    }] : []),
-    ...(extraSeries || []).map((s, i) => ({
-      key: s.key || s.label, d: lineWithGaps(s.values), color: EXTRA_COLORS[i % EXTRA_COLORS.length], w: 1.75,
-      label: s.label, values: s.values, removable: true, onRemove: s.onRemove,
-    })),
-  ];
-  // Тултип: ближайшая точка по X под курсором
-  const handleMove = (e) => {
-    const el = svgRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const xSvg = ((e.clientX - rect.left) / rect.width) * W;
-    const i = Math.round(((xSvg - padL) / (W - padL - padR)) * (n - 1));
-    setHover(i >= 0 && i < n ? i : null);
-  };
-  const fmtFullD = (iso) => { const [y, m, d] = iso.split("-"); return `${d}.${m}.${y}`; };
+
+    const seriesEntries = []; // [{ api, meta }] — для перекраски при смене темы
+    let markersApi = null;
+
+    visible.forEach((m) => {
+      const color = _pfColor(el, m.token, colors.copper);
+      const pts = dates
+        .map((d, i) => (typeof m.values?.[i] === "number" ? { time: d, value: m.values[i] } : null))
+        .filter(Boolean);
+
+      if (m.hero) {
+        const api = chart.addSeries(AreaSeries, {
+          lineColor: color, lineWidth: m.width,
+          topColor: _hexToRgba(color, 0.26), bottomColor: _hexToRgba(color, 0),
+          priceFormat: { type: "custom", minMove: 0.1, formatter: pctFmt },
+          lastValueVisible: true, priceLineVisible: true, crosshairMarkerVisible: true,
+        });
+        api.setData(pts);
+        api.createPriceLine({ price: 0, color: colors.border, lineWidth: 1, lineStyle: LineStyle.Solid, axisLabelVisible: false });
+        // Прямая подпись «сейчас +X%» на конце линии портфеля — не только легенда/ось.
+        const lastIdx = (() => { for (let i = portfolio.length - 1; i >= 0; i--) if (typeof portfolio[i] === "number") return i; return -1; })();
+        if (lastIdx >= 0) {
+          markersApi = createSeriesMarkers(api, [{
+            time: dates[lastIdx], position: "aboveBar", shape: "circle", color,
+            text: `сейчас ${pctFmt(portfolio[lastIdx])}`,
+          }]);
+        }
+        seriesEntries.push({ api, meta: m });
+      } else {
+        const api = chart.addSeries(LineSeries, {
+          color, lineWidth: m.width, lineStyle: m.dashed ? LineStyle.Dashed : LineStyle.Solid,
+          priceFormat: { type: "custom", minMove: 0.1, formatter: pctFmt },
+          lastValueVisible: !m.removable, priceLineVisible: !m.removable, crosshairMarkerVisible: true,
+        });
+        api.setData(pts);
+        seriesEntries.push({ api, meta: m });
+      }
+    });
+
+    chart.timeScale().fitContent();
+
+    chart.subscribeCrosshairMove((param) => {
+      if (!param.point || param.logical == null) { setHover(null); return; }
+      const idx = Math.round(param.logical);
+      setHover(idx >= 0 && idx < n ? { idx, x: param.point.x } : null);
+    });
+
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth) chart.applyOptions({ width: el.clientWidth });
+    });
+    ro.observe(el);
+
+    // Смена темы: график императивный, палитра резолвится в JS один раз при
+    // создании — при .dark/.light на <html> резолвим заново и applyOptions.
+    const mo = new MutationObserver(() => {
+      const c2 = {
+        axisText: _pfColor(el, "--pf-ink-2", "#5C574A"),
+        grid: _pfColor(el, "--pf-line", "#DCD5C2"),
+        border: _pfColor(el, "--pf-line-2", "#CFC6AC"),
+      };
+      chart.applyOptions({
+        layout: { background: { color: "transparent" }, textColor: c2.axisText },
+        grid: { vertLines: { color: c2.grid }, horzLines: { color: c2.grid } },
+        rightPriceScale: { borderColor: c2.border },
+        timeScale: { borderColor: c2.border },
+      });
+      seriesEntries.forEach(({ api, meta }) => {
+        const color = _pfColor(el, meta.token, colors.copper);
+        if (meta.hero) {
+          api.applyOptions({ lineColor: color, topColor: _hexToRgba(color, 0.26), bottomColor: _hexToRgba(color, 0) });
+          if (markersApi) {
+            const lastIdx = (() => { for (let i = portfolio.length - 1; i >= 0; i--) if (typeof portfolio[i] === "number") return i; return -1; })();
+            if (lastIdx >= 0) markersApi.setMarkers([{ time: dates[lastIdx], position: "aboveBar", shape: "circle", color, text: `сейчас ${pctFmt(portfolio[lastIdx])}` }]);
+          }
+        } else {
+          api.applyOptions({ color });
+        }
+      });
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class"] });
+
+    return () => { ro.disconnect(); mo.disconnect(); chart.remove(); };
+  }, [dates, portfolio, mcftr, imoex, sectorBlend, n, visible]);
+
+  if (!n) return null;
 
   return (
-    <div className="tw-relative">
-      {hover != null && (
-        <div
-          className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-lg tw-shadow-lg tw-px-3.5 tw-py-2.5 tw-text-[12px]"
-          style={{ left: `${(xAt(hover) / W) * 100}%`, top: 0, transform: xAt(hover) > W * 0.6 ? "translateX(-105%)" : "translateX(8px)", minWidth: 150 }}
+    <div>
+      {/* Ряд-легенда-как-контрол: дефолтная пара — статичные ярлыки (нельзя
+          выключить), IMOEX/секторы — тумблеры, доп. сравнения — чипы с ×.
+          Меньше зависимости от плоской легенды-стены под графиком. */}
+      <div className="tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-2 tw-mb-3">
+        <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[12.5px] tw-font-medium" style={{ color: "var(--pf-ink-2)" }}>
+          <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full" style={{ background: "var(--pf-copper)" }} />Портфель
+        </span>
+        <span className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[12.5px]" style={{ color: "var(--pf-ink-2)" }}>
+          <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full" style={{ background: "var(--pf-ink-3)" }} />Индекс МосБиржи, полная доходность
+        </span>
+        <span className="tw-w-px tw-h-4" style={{ background: "var(--pf-line)" }} aria-hidden="true" />
+        <button
+          type="button" className={`pf-chip${showImoex ? " pf-chip--active" : ""}`} style={{ fontSize: "12.5px", padding: "5px 12px" }}
+          aria-pressed={showImoex} onClick={() => setShowImoex((v) => !v)}
         >
-          <div className="tw-text-text-tertiary tw-font-mono tw-mb-1.5 tw-pb-1.5" style={{ borderBottom: "1px solid var(--border-subtle)" }}>{fmtFullD(dates[hover])}</div>
-          <div className="tw-flex tw-flex-col tw-gap-1">
-            {LINES.map((l) => (
-              typeof l.values?.[hover] === "number" ? (
-                <div key={l.key} className="tw-flex tw-items-center tw-gap-1.5">
-                  <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full tw-shrink-0" style={{ background: l.color }} />
-                  <span className="tw-truncate tw-text-text-secondary" style={{ maxWidth: 150 }}>{l.label}</span>
-                  <b className="tw-font-mono tw-tabular-nums tw-shrink-0 tw-ml-auto tw-pl-2" style={{ color: l.values[hover] >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
-                    {fmtPercent(l.values[hover], { sign: true })}
-                  </b>
-                </div>
-              ) : null
-            ))}
-          </div>
-        </div>
-      )}
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }} role="img" aria-label="Портфель против бенчмарка"
-        onMouseMove={handleMove} onMouseLeave={() => setHover(null)}>
-        {Array.from({ length: gridN + 1 }, (_, g) => min + (span * g) / gridN).map((v, k) => (
-          <g key={k}>
-            <line x1={padL} x2={W - padR} y1={yAt(v)} y2={yAt(v)} stroke="var(--border-subtle)" strokeWidth="1" strokeDasharray={Math.abs(v) < 0.01 ? undefined : "2 6"} />
-            <text x={padL - 8} y={yAt(v) + 3.5} textAnchor="end" fontSize="10" fill="var(--text-tertiary)" fontFamily="monospace">{v.toFixed(1)}%</text>
-          </g>
-        ))}
-        {min < 0 && max > 0 && <line x1={padL} x2={W - padR} y1={zeroY} y2={zeroY} stroke="var(--border-strong)" strokeWidth="1.25" />}
-        {/* Градиентная заливка под линией портфеля — как в прототипе (медь, 0.26→0 прозрачности) */}
-        <defs>
-          <linearGradient id="pfBenchFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--pf-copper)" stopOpacity="0.26" />
-            <stop offset="100%" stopColor="var(--pf-copper)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {portfolio.length > 0 && (
-          <polygon
-            points={`${xAt(0)},${padT + (H - padT - padB)} ${portfolio.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ")} ${xAt(n - 1)},${padT + (H - padT - padB)}`}
-            fill="url(#pfBenchFill)"
-          />
+          Без дивидендов (IMOEX){!showImoex && dividendContribution != null && ` · вклад дивидендов ${fmtPercent(dividendContribution, { sign: true })}`}
+        </button>
+        {sectorBlendAvailable && (
+          <button
+            type="button" className={`pf-chip${showSectorBlend ? " pf-chip--active" : ""}`}
+            style={{ fontSize: "12.5px", padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: "6px" }}
+            aria-pressed={showSectorBlend} onClick={() => setShowSectorBlend((v) => !v)}
+          >
+            Ваши секторы <span className="pf-tag-estimate">оценка</span>
+          </button>
         )}
-        {LINES.map((l) => <path key={l.key} d={l.d} fill="none" stroke={l.color} strokeWidth={l.w} strokeLinejoin="round" strokeLinecap="round" />)}
-        {/* Точка-маркер + подпись «сейчас +X%» на конце линии портфеля */}
-        {portfolio.length > 0 && typeof portfolio[portfolio.length - 1] === "number" && (() => {
-          const lastV = portfolio[portfolio.length - 1];
-          const cx = xAt(n - 1), cy = yAt(lastV);
-          const sign = lastV >= 0 ? "+" : "";
-          const labelX = Math.max(cx - 120, padL);
-          return (
-            <g>
-              <circle cx={cx} cy={cy} r="4.5" fill="var(--pf-copper)" stroke="var(--bg-elevated)" strokeWidth="2.5" />
-              <text x={labelX} y={Math.max(cy - 12, 16)} fontFamily="Inter, system-ui, sans-serif" fontSize="12.5" fontWeight="700" fill="var(--pf-copper-deep)">
-                сейчас {sign}{lastV.toFixed(1)}%
-              </text>
-            </g>
-          );
-        })()}
-        {hover != null && (
-          <g>
-            <line x1={xAt(hover)} x2={xAt(hover)} y1={padT} y2={H - padB} stroke="var(--border-strong)" strokeWidth="1" strokeDasharray="3 3" />
-            {LINES.map((l) => (
-              typeof l.values?.[hover] === "number" ? (
-                <circle key={l.key} cx={xAt(hover)} cy={yAt(l.values[hover])} r="3.5" fill={l.color} stroke="var(--bg-elevated)" strokeWidth="1.5" />
-              ) : null
-            ))}
-          </g>
-        )}
-        {dates.map((d, i) => (
-          i % xTickEvery !== 0 && i !== n - 1 ? null : (
-            <text
-              key={i} x={xAt(i)} y={H - 8}
-              textAnchor={i === 0 ? "start" : i === n - 1 ? "end" : "middle"}
-              fontSize="10" fill="var(--text-tertiary)" fontFamily="monospace"
+        {(extraSeries || []).map((s, i) => (
+          <span
+            key={s.key || s.label}
+            className="tw-inline-flex tw-items-center tw-gap-1.5 tw-text-[12.5px] tw-pl-2.5 tw-pr-1.5 tw-py-1"
+            style={{ border: "1px solid var(--pf-line)", borderRadius: "999px", color: "var(--pf-ink-2)" }}
+          >
+            <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full" style={{ background: `var(${BENCH_EXTRA_TOKENS[i % BENCH_EXTRA_TOKENS.length]})` }} />
+            {s.label}
+            <button
+              type="button" onClick={s.onRemove} aria-label={`Убрать «${s.label}» из сравнения`}
+              className="tw-bg-transparent tw-border-0 tw-cursor-pointer tw-font-bold tw-px-1 hover:tw-text-danger"
+              style={{ color: "var(--pf-ink-3)" }}
             >
-              {fmtD(d)}
-            </text>
-          )
-        ))}
-      </svg>
-      <div className="tw-flex tw-flex-wrap tw-gap-4 tw-mt-2 tw-text-[12px] tw-text-text-secondary">
-        {LINES.map((l) => (
-          <span key={l.label} className="tw-inline-flex tw-items-center tw-gap-1.5">
-            <span className="tw-inline-block tw-w-4 tw-h-0.5 tw-rounded-pill" style={{ background: l.color, height: l.w }} />{l.label}
-            {l.removable && (
-              <button type="button" onClick={l.onRemove} className="tw-bg-transparent tw-border-0 tw-p-0 tw-cursor-pointer tw-text-text-tertiary hover:tw-text-danger tw-font-bold" title="Убрать из сравнения">×</button>
-            )}
+              ×
+            </button>
           </span>
         ))}
+      </div>
+
+      <div className="tw-relative">
+        {hover != null && (() => {
+          const contW = wrapRef.current ? wrapRef.current.clientWidth : 640;
+          const flip = hover.x > contW * 0.62;
+          return (
+            <div
+              className="tw-absolute tw-z-10 tw-pointer-events-none tw-bg-bg-overlay tw-border tw-border-border-subtle tw-rounded-lg tw-shadow-lg tw-px-3.5 tw-py-2.5 tw-text-[12px]"
+              style={{ left: hover.x, top: 8, transform: flip ? "translateX(-105%)" : "translateX(10px)", minWidth: 170 }}
+            >
+              <div className="tw-font-mono tw-mb-1.5 tw-pb-1.5" style={{ color: "var(--pf-ink-3)", borderBottom: "1px solid var(--border-subtle)" }}>
+                {fmtFullD(dates[hover.idx])}
+              </div>
+              <div className="tw-flex tw-flex-col tw-gap-1">
+                {visible.map((m) => (
+                  typeof m.values?.[hover.idx] === "number" ? (
+                    <div key={m.key} className="tw-flex tw-items-center tw-gap-1.5">
+                      <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full tw-shrink-0" style={{ background: `var(${m.token})` }} />
+                      <span className="tw-truncate" style={{ maxWidth: 150, color: "var(--pf-ink-2)" }}>{m.label}</span>
+                      <b className="tw-font-mono tw-tabular-nums tw-shrink-0 tw-ml-auto tw-pl-2" style={{ color: m.values[hover.idx] >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                        <span aria-hidden="true">{m.values[hover.idx] >= 0 ? "▲" : "▼"}</span> {fmtPercent(m.values[hover.idx], { sign: true })}
+                      </b>
+                    </div>
+                  ) : null
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+        <div ref={wrapRef} style={{ width: "100%", height: 260 }} role="img" aria-label="Портфель против бенчмарка" />
       </div>
     </div>
   );
@@ -2988,20 +3121,35 @@ const PortfolioV2 = ({ token, onAuthRequired, onOpenCompany, forceSection }) => 
             </div>
           ) : bm?.dates?.length > 1 ? (
             <div className="pf-card" style={{ padding: "24px 26px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "10px", marginBottom: "6px" }}>
-                <h3 style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: 0 }}>
-                  Портфель против рынка — {periodLabelText}
-                </h3>
-                <div style={{ display: "flex", gap: "16px", fontSize: "13px" }}>
-                  <span>Портфель: <b className="tw-font-mono" style={{ color: bm.portfolio_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.portfolio_total_pct, { sign: true })}</b></span>
-                  <span>Индекс МосБиржи: <b className="tw-font-mono" style={{ color: bm.benchmark_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.benchmark_total_pct, { sign: true })}</b></span>
-                  <span>Разница: <b className="tw-font-mono" style={{ color: (bm.portfolio_total_pct - bm.benchmark_total_pct) >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>{fmtPercent(bm.portfolio_total_pct - bm.benchmark_total_pct, { sign: true })}</b></span>
+              {/* Вердикт поверх данных (4 слоя чтения: идентичность → сигнал):
+                  одна фраза «обогнал/отстал», а не только таблица чисел рядом. */}
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--pf-ink-3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "6px" }}>
+                  Портфель против рынка · {periodLabelText}
                 </div>
+                {selectionVsIndex != null ? (
+                  <p style={{ fontFamily: "var(--pf-serif)", fontSize: "21px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 8px", lineHeight: 1.3 }}>
+                    Портфель {selectionVsIndex >= 0 ? "обогнал" : "отстал от"} рынка на {fmtPercent(Math.abs(selectionVsIndex))}
+                  </p>
+                ) : (
+                  <p style={{ fontFamily: "var(--pf-serif)", fontSize: "18px", fontWeight: 600, color: "var(--pf-ink)", margin: "0 0 8px" }}>
+                    Пока недостаточно данных, чтобы сравнить портфель с рынком
+                  </p>
+                )}
+                <p style={{ fontSize: "12.5px", color: "var(--pf-ink-3)", margin: 0 }}>
+                  Портфель <b className="tw-font-mono" style={{ color: bm.portfolio_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                    <span aria-hidden="true">{bm.portfolio_total_pct >= 0 ? "▲" : "▼"}</span> {fmtPercent(bm.portfolio_total_pct, { sign: true })}
+                  </b>
+                  {" "}· Индекс МосБиржи, полная доходность <b className="tw-font-mono" style={{ color: bm.benchmark_total_pct >= 0 ? "var(--pf-up)" : "var(--pf-down)" }}>
+                    <span aria-hidden="true">{bm.benchmark_total_pct >= 0 ? "▲" : "▼"}</span> {fmtPercent(bm.benchmark_total_pct, { sign: true })}
+                  </b>
+                  {" "}— <span className="pf-tag-fact">факт</span> расчёт по котировкам биржи, не оценка.
+                </p>
               </div>
               <BenchmarkChart series={bm} extraSeries={compareLines.map((l) => ({ ...l, onRemove: () => removeCompareLine(l.key) }))} />
               <p style={{ fontSize: "12px", color: "var(--pf-ink-3)", marginTop: "8px", maxWidth: "64ch" }}>
                 Сравниваем с индексом МосБиржи полной доходности — это то же самое, что «вложить в рынок целиком, с реинвестированием
-                дивидендов». Второй, тонкий — тот же индекс, но БЕЗ дивидендов, для справки: разница между линиями — это и есть вклад дивидендов.
+                дивидендов». Кнопка «Без дивидендов» над графиком добавляет тот же индекс, но без выплат, — разница между ними и есть вклад дивидендов.
                 {bm.limited_by && ` Период ограничен историей ${bm.limited_by}.`}
                 {bm.note && ` ${bm.note}.`}
               </p>

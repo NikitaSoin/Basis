@@ -72,13 +72,13 @@
 .idx-stat-l { font-size: 10.5px; color: var(--text-tertiary); margin-bottom: 3px; }
 .idx-stat-v { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text-primary); }
 
-.idx-tf-row { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 10px; flex-wrap: wrap; gap: 8px; }
-.idx-tf-tabs { display: inline-flex; background: var(--bg-hover); border-radius: 999px; padding: 4px; gap: 2px; }
-.idx-tf-opt { padding: 6px 13px; font-size: 11.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; border-radius: 999px; border: none; background: transparent; font: inherit; }
-.idx-tf-opt:not(.idx-tf-opt--on):hover { background: color-mix(in srgb, var(--text-primary) 5%, transparent); }
-.idx-tf-opt--on { background: var(--accent); color: var(--on-accent, #fff); box-shadow: 0 3px 10px -2px var(--accent-soft); }
-.idx-tf-opt:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
-.idx-chart-wrap { padding: 18px 20px 8px; }
+/* Графики индексов (IMOEX/MCFTR/RTSI) — ChartPro (свечи/таймфреймы/индикаторы,
+   тот же движок, что у акций/облигаций/фьючерсов/фондов). Свой переключатель
+   таймфреймов/выбор свечи-линии/индикаторы — внутри компонента (см. chartpro.css,
+   классы .cpro-*), поэтому здесь только внешний отступ панели-контейнера;
+   отдельного .idx-tf-* переключателя периода над графиком больше нет — старый
+   ряд табов 1мес/6мес/YTD/1год/3года дублировал бы таймфреймы ChartPro. */
+.idx-chart-wrap { padding: 18px 20px 20px; margin-top: 22px; }
 
 .idx-drivers { padding: 18px 20px; margin: 18px 0; }
 .idx-driver-row { display: grid; grid-template-columns: 150px 1fr 64px; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px dashed var(--border-subtle); font-size: 12.5px; color: var(--text-primary); }
