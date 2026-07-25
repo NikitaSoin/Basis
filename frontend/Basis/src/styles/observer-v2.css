@@ -1011,12 +1011,8 @@
    классификация), а буквально «одна сторона заявляет, независимый источник ещё не
    подтвердил» — принципиально иной эпистемический уровень, см. карта СВО
    claimed_captures_geojson в ObsPanels.jsx. Ключевая информация, поэтому пилюля,
-   не мелкий серый текст сноской.
-   .obs-tag-contested — тот же --warning тон (оба «предупреждение о
-   неопределённости»), но РАЗНЫЙ смысл: не «источник не подтвердил», а «сама
-   ситуация на местности не решена» (активные бои, contested_zone_geojson) —
-   отдельный класс намеренно (разная семантика тега), общий визуальный язык. */
-.obs-tag-claimed, .obs-tag-contested {
+   не мелкий серый текст сноской. */
+.obs-tag-claimed {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -4600,6 +4596,31 @@ details[open] > summary .obs-inst-chev,
   color: var(--text-secondary);
   font-weight: 700;
 }
+/* Площадь под контролем России на выбранную дату + дельта за месяц
+   (area_km2/delta_km2 из capture_isochrone_geojson, владелец 2026-07-25 —
+   именно ради этой метрики переделана реконструкция, раньше нигде не была
+   видна). Честная деградация: если бэкенд ещё не досчитал area_km2 для этого
+   среза, весь блок просто не рендерится (см. Number.isFinite в JSX) — не
+   показываем "0 км²" как факт. Дельта может быть нулевой (два месяца подряд
+   без изменений) — тогда стрелку/цвет не показываем вовсе, только площадь. */
+.obs-geomap-timeslider-area {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.obs-geomap-timeslider-area strong {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+.obs-geomap-timeslider-delta {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.obs-geomap-timeslider-delta--up { color: var(--success); }
+.obs-geomap-timeslider-delta--down { color: var(--danger); }
 /* Тот же паттерн/размер, что .obs-geomap-filterbar .obs-chip (padding
    подобран так, чтобы тач-таргет оставался ≥24px, WCAG 2.5.8) — не изобретаем
    ещё более мелкий вариант. */
@@ -4957,29 +4978,6 @@ details[open] > summary .obs-inst-chev,
    визуально связывает образец в легенде с реальным стилем маркера на карте. */
 .obs-geomap-legend-item--claimed svg { color: var(--warning); }
 
-/* Штрихованный образец легенды «Оспаривается» — тот же диагональный узор, что
-   реальная заливка на карте (см. buildContestedHatchImage в ObsPanels.jsx),
-   но здесь чистым CSS (repeating-linear-gradient) — легенда не обязана
-   переиспользовать WebGL-текстуру, только совпадать по смыслу (диагональная
-   штриховка = «территория боевых действий», язык карт Рыбаря). */
-.obs-geomap-legend-hatch {
-  width: 14px;
-  height: 11px;
-  border-radius: 3px;
-  display: inline-block;
-  flex-shrink: 0;
-  background-color: var(--warning-soft);
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--warning) 0px,
-    var(--warning) 1.5px,
-    transparent 1.5px,
-    transparent 5px
-  );
-  border: 1px solid var(--warning);
-  opacity: 0.9;
-}
-
 .obs-geomap-legend-dot {
   width: 6px;
   height: 6px;
@@ -5030,10 +5028,8 @@ details[open] > summary .obs-inst-chev,
 
 /* Деталь-панель заявленного, не подтверждённого пункта — тонкий warning-акцент
    слева, тот же сигнал «под вопросом», что у маркера/тега/легенды, без смены
-   формы всей карточки (не конкурирует с деталью события/региона рядом).
-   .obs-geomap-detail--contested — тот же приём для «Оспаривается» (см.
-   .obs-tag-contested выше про разницу в смысле, не в цвете). */
-.obs-geomap-detail--claimed, .obs-geomap-detail--contested {
+   формы всей карточки (не конкурирует с деталью события/региона рядом). */
+.obs-geomap-detail--claimed {
   border-left: 3px solid var(--warning);
 }
 

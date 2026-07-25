@@ -52,7 +52,6 @@ import {
   ZoomOut,
   Maximize2,
   History,
-  Flame,
 } from "lucide-react";
 import { Disclosure, ANALYST_MD } from "../design/textblocks";
 import { CompanyLogo } from "../design/CompanyLogo";
@@ -1825,7 +1824,7 @@ const GEOMAP_TILE_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 function readBasisMapColors() {
   const fallback = {
-    ru: "#BE123C", contested: "#B45309", accent: "#C97A4A",
+    ru: "#BE123C", accent: "#C97A4A",
     textPrimary: "#1a1a1a", textSecondary: "#4a4a4a", bgElevated: "#ffffff",
   };
   if (typeof window === "undefined") return { ...fallback, token: (name, fb) => fb || "#888" };
@@ -1833,7 +1832,6 @@ function readBasisMapColors() {
   const pick = (name, fb) => { const v = cs.getPropertyValue(name); return v && v.trim() ? v.trim() : fb; };
   return {
     ru: pick("--danger", fallback.ru),
-    contested: pick("--warning", fallback.contested),
     accent: pick("--accent", fallback.accent),
     textPrimary: pick("--text-primary", fallback.textPrimary),
     textSecondary: pick("--text-secondary", fallback.textSecondary),
@@ -1849,9 +1847,9 @@ function readBasisMapColors() {
 // --- Choropleth-раскраска статуса control региона: раньше жёстко на 3 значения
 // ("ru"/"contested"/"ua"), теперь по РЕАЛЬНОМУ набору ключей в
 // base_map.control_legend конкретного очага — компонент остаётся
-// театр-агностичным (СВО — 3 ключа, Ближний Восток — 5 после добавления
-// "primary_adversary"/"us_base_host", следующий очаг — сколько угодно, без
-// правки кода).
+// театр-агностичным (СВО — 4 ключа с 2026-07-25: ru/dnr_disputed/ru_claimed/ua,
+// Ближний Восток — 5 после добавления "primary_adversary"/"us_base_host",
+// следующий очаг — сколько угодно, без правки кода).
 //
 // Базовая тройка (ru/contested/ua) держит курируемые токены — ru/contested это
 // уже устоявшееся легитимное применение семантики --danger/--warning к ФАКТУ на
@@ -1863,14 +1861,25 @@ function readBasisMapColors() {
 // стоят РЯДОМ, одинаковый синий стёр бы разницу; (2) не --cat-8 (серый) — на
 // белом фоне светлой темы контраст текста серый-на-белом ниже AA (~2.8:1),
 // --text-secondary тут ощутимо контрастнее (>7:1) и это уже основной «нейтральный
-// текст» токен продукта. Доп. ключи БВ курированы отдельно (пурпурный/бирюзовый —
-// заведомо разные и от красно-жёлтой пары, и от серого/синего). Любой
-// НЕИЗВЕСТНЫЙ ключ будущего очага детерминированно получает следующий свободный
-// слот categorical Okabe-Ito палитры (--cat-*, colorblind-safe) — легитимное
-// применение категориальной палитры: control региона — данные (категория), не хром.
+// текст» токен продукта. "contested" — control-ключ ТОЛЬКО Ближнего Востока/АТР
+// (у СВО с 2026-07-25 его больше нет в control_legend, слой contested_zone_geojson
+// упразднён владельцем — не путать со СВО-ключами ниже). У СВО вместо старой
+// тройки — 4 ключа: "ru_claimed" (территория России вне её контроля — та же
+// семантика/тот же --warning, что был у старого "contested") и "dnr_disputed"
+// (основной территориальный спор сейчас — НЕ --warning/--danger, чтобы не
+// путать с ru_claimed/ru: приглушённый пурпурный --cat-7, тот же токен, что
+// уже занят под "primary_adversary" БВ — коллизии нет, разные очаги никогда не
+// делят один legend одновременно). Доп. ключи БВ курированы отдельно
+// (пурпурный/бирюзовый — заведомо разные и от красно-жёлтой пары, и от
+// серого/синего). Любой НЕИЗВЕСТНЫЙ ключ будущего очага детерминированно
+// получает следующий свободный слот categorical Okabe-Ito палитры (--cat-*,
+// colorblind-safe) — легитимное применение категориальной палитры: control
+// региона — данные (категория), не хром.
 const CONTROL_COLOR_CURATED = {
   ru: "danger",
   contested: "warning",
+  ru_claimed: "warning",
+  dnr_disputed: "cat-7",
   ua: "text-secondary",
   primary_adversary: "cat-7",
   us_base_host: "cat-3",
@@ -1895,12 +1904,16 @@ function controlSoftColorHex(colors, key, allKeys) {
 
 // --- Fill/line-opacity по ключу control: дефолт красит ЛЮБОЙ ключ (~0.3 заливка
 // /~0.85 линия — как раньше у "ru"), кроме явно обнулённых в
-// base_map.control_paint_opacity очага (сейчас — только "ua" в СВО: регионы «под
-// контролем Украины» сознательно не красим, юр./редакционное решение владельца,
-// см. комментарий у paint-эффекта). ru/contested держат исторические точные числа
-// (0.3/0.26 заливка, 0.85/0.7 линия), чтобы не менять уже принятый вид карты СВО.
-const CONTROL_FILL_OPACITY_DEFAULTS = { ru: 0.3, contested: 0.26 };
-const CONTROL_LINE_OPACITY_DEFAULTS = { ru: 0.85, contested: 0.7 };
+// base_map.control_paint_opacity очага (сейчас — "ua"/"context" — регионы «под
+// контролем Украины»/географический контекст сознательно не красим, юр./
+// редакционное решение владельца, см. комментарий у paint-эффекта). ru/contested
+// держат исторические точные числа (0.3/0.26 заливка, 0.85/0.7 линия), чтобы не
+// менять уже принятый вид карты. ru_claimed — прямой преемник старого "contested"
+// у СВО (та же роль «территория России вне её контроля»), держит те же 0.26/0.7 —
+// dnr_disputed сознательно БЕЗ явного числа, красится дефолтом наравне с "ru"
+// (это сейчас основной спор, не приглушённый фон).
+const CONTROL_FILL_OPACITY_DEFAULTS = { ru: 0.3, contested: 0.26, ru_claimed: 0.26 };
+const CONTROL_LINE_OPACITY_DEFAULTS = { ru: 0.85, contested: 0.7, ru_claimed: 0.7 };
 const CONTROL_FILL_OPACITY_FALLBACK = 0.3;
 const CONTROL_LINE_OPACITY_FALLBACK = 0.85;
 
@@ -1940,48 +1953,6 @@ function useBasisMapColors() {
     return () => obs.disconnect();
   }, []);
   return colors;
-}
-
-// --- Штрихованная текстура для слоя «Оспаривается» (contested_zone_geojson,
-// см. ObsGeoWorldMap ниже) — MapLibre `fill-pattern` умеет ТОЛЬКО ссылку на
-// растр, добавленный через map.addImage(), готового CSS/SVG diagonal-hatch
-// для заливки WebGL-полигона не существует. Рисуем диагональные полосы сами
-// через canvas (без внешнего SVG-файла) — тот же визуальный язык, что карты
-// Рыбаря (штриховка = «территория боевых действий», решённый контроль ни за
-// кем НЕ закреплён), которые владелец держит эталоном именно для этого слоя.
-// pixelRatio 2 — резкость на retina; логическая плитка 16×16 достаточно
-// плотная на типичном масштабе карты очага (не размывается в кашу и не
-// редкие отдельные чёрточки).
-function buildContestedHatchImage(hexColor) {
-  const size = 16;
-  const ratio = 2;
-  const canvas = document.createElement("canvas");
-  canvas.width = size * ratio;
-  canvas.height = size * ratio;
-  const ctx = canvas.getContext("2d");
-  ctx.scale(ratio, ratio);
-  ctx.strokeStyle = hexColor;
-  ctx.globalAlpha = 0.6;
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  for (let x = -size; x <= size * 2; x += 6) {
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x + size, size);
-  }
-  ctx.stroke();
-  return ctx.getImageData(0, 0, size * ratio, size * ratio);
-}
-
-// Пересоздаёт/обновляет текстуру штриховки под текущий цвет темы (пересчёт
-// цвета — см. useBasisMapColors выше) — addImage при первом появлении слоя,
-// updateImage при смене темы (тот же id "contested-hatch", чтобы fill-pattern
-// не мигал пустотой между remove/add одного и того же кадра).
-function ensureContestedHatchImage(map, hexColor) {
-  if (!map || typeof map.hasImage !== "function") return;
-  const id = "contested-hatch";
-  const image = buildContestedHatchImage(hexColor);
-  if (map.hasImage(id)) map.updateImage(id, image);
-  else map.addImage(id, image, { pixelRatio: 2 });
 }
 
 function geomapAspect(bounds) {
@@ -2234,7 +2205,7 @@ function _geomapConfidenceRu(c) {
 // того, что очаги географически не пересекаются и в реальности спутать клик
 // физически нельзя — это про явность, не про устранение реального бага.
 function ObsGeomapPopupBody({
-  kind, event, region, claimed, capture, strike, contested,
+  kind, event, region, claimed, capture, strike,
   hasControlLegend, controlLegend, controlLegendKeys, controlPaintOverrides, colors,
   theaterLabel, onClose,
 }) {
@@ -2314,6 +2285,15 @@ function ObsGeomapPopupBody({
   }
 
   if (kind === "claimed" && claimed) {
+    // in_control_fill различает ДВЕ разные ситуации расхождения источников
+    // (владелец, 2026-07-25 — раньше подпись была одна на оба случая, врала
+    // про степень расхождения): true — пункт МО РФ/Рыбарь УЖЕ красят взятым
+    // (влит в красную зону control-fill), просто ISW ещё не подтвердил;
+    // false — заявление, которое даже Рыбарь не даёт сплошной заливкой, в
+    // красную зону НЕ входит — расхождение шире, чем в первом случае.
+    const claimedTypeLabel = claimed.in_control_fill
+      ? "Взято по донесениям, ISW не подтвердил"
+      : "Заявлено, подтверждения нет";
     return (
       <div className="obs-geomap-detail obs-geomap-detail--claimed" role="region" aria-label="Детали заявленного, не подтверждённого взятия пункта">
         <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
@@ -2321,15 +2301,20 @@ function ObsGeomapPopupBody({
         </button>
         <div className="obs-geomap-detail-head">
           <CircleHelp size={15} aria-hidden="true" />
-          <span className="obs-geomap-detail-type">Заявлено, не подтверждено</span>
+          <span className="obs-geomap-detail-type">{claimedTypeLabel}</span>
           {theaterLabel && <span className="obs-geomap-detail-theater">{theaterLabel}</span>}
           {/* Ключевая информация, не сноска — эпистемический тег ровно из данных
               (claimed.epistemic), не хардкод, но с заведомо тем же смыслом. */}
-          <span className="obs-tag-claimed">{claimed.epistemic || "заявлено, не подтверждено ISW"}</span>
+          <span className="obs-tag-claimed">{claimed.epistemic || (claimed.in_control_fill ? "взято по данным МО РФ/Рыбаря, ISW не подтвердил" : "заявлено, не подтверждено ISW")}</span>
         </div>
         <h4 className="obs-geomap-detail-title">
           {claimed.name}{claimed.oblast ? `, ${claimed.oblast}` : ""}
         </h4>
+        <p className="obs-geomap-detail-desc">
+          {claimed.in_control_fill
+            ? "Уже включён в закрашенную зону контроля на карте (по данным Минобороны РФ/Рыбаря) — независимого подтверждения ISW пока нет."
+            : "В закрашенную зону контроля на карте НЕ включён — заявление, которое пока не подтверждает ни один независимый источник."}
+        </p>
         {claimed.source_note && <p className="obs-geomap-detail-desc">{claimed.source_note}</p>}
         <div className="obs-geomap-detail-foot">
           {claimed.claimed_date && <span>{_obsDateRu(claimed.claimed_date)}</span>}
@@ -2351,7 +2336,7 @@ function ObsGeomapPopupBody({
         </button>
         <div className="obs-geomap-detail-head">
           <History size={15} aria-hidden="true" />
-          <span className="obs-geomap-detail-type">Реконструкция по датам взятия</span>
+          <span className="obs-geomap-detail-type">Реконструкция по хронологии контроля</span>
           {theaterLabel && <span className="obs-geomap-detail-theater">{theaterLabel}</span>}
           <span className="obs-tag-estimate">оценка</span>
         </div>
@@ -2359,36 +2344,14 @@ function ObsGeomapPopupBody({
           На {_obsDateRu(capture.month_end)}
         </h4>
         <p className="obs-geomap-detail-desc">
-          {capture.settlements_count} {ruPluralPunkt(capture.settlements_count)} взято к этому месяцу (по датированным
-          источникам, Wikipedia). Граница — оценка (диаграмма Вороного по датированным пунктам, объединённая и
-          сглаженная по месяцу), не точная историческая линия на этот день.
+          {capture.settlements_count} {ruPluralPunkt(capture.settlements_count)} под контролем России к этому месяцу
+          {Number.isFinite(capture.area_km2) && <> · <strong style={{ fontFamily: "var(--font-mono)" }}>{capture.area_km2.toLocaleString("ru-RU")} км²</strong></>}
+          {Number.isFinite(capture.delta_km2) && capture.delta_km2 !== 0 && (
+            <> ({capture.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(capture.delta_km2).toLocaleString("ru-RU")} за месяц)</>
+          )}
+          . Граница — оценка по хронологии переходов контроля (включая обратные), огрубление, не точная
+          историческая линия на этот день.
         </p>
-      </div>
-    );
-  }
-
-  // «Оспаривается» (Слой 1, contested_zone_geojson) — ТРЕТИЙ эпистемический
-  // ярус, отдельный и от подтверждённого control-fill (там факт ISW), и от
-  // claimed-точек (там «источник ещё не подтвердил») — здесь сама ситуация НА
-  // МЕСТНОСТИ прямо сейчас не решена (активные бои), поэтому тег «оспаривается»,
-  // а не «оценка»: это не про огрубление данных, это про реальную обстановку.
-  if (kind === "contested" && contested) {
-    return (
-      <div className="obs-geomap-detail obs-geomap-detail--contested" role="region" aria-label="Детали оспариваемой территории">
-        <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
-          <X size={14} />
-        </button>
-        <div className="obs-geomap-detail-head">
-          <Flame size={15} aria-hidden="true" />
-          <span className="obs-geomap-detail-type">Оспаривается</span>
-          {theaterLabel && <span className="obs-geomap-detail-theater">{theaterLabel}</span>}
-          <span className="obs-tag-contested">оспаривается</span>
-        </div>
-        <h4 className="obs-geomap-detail-title">
-          {contested.name}{contested.oblast ? `, ${contested.oblast}` : ""}
-        </h4>
-        {contested.note && <p className="obs-geomap-detail-desc">{contested.note}</p>}
-        {contested.source && <p className="obs-geomap-detail-foot"><span>{contested.source}</span></p>}
       </div>
     );
   }
@@ -2625,7 +2588,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
       const controlFillFC = (!isSvoRussia && activeBaseMap?.control_fill_geojson) || GEOMAP_EMPTY_FC;
       const claimedCapturesFC = (!isSvoRussia && activeBaseMap?.claimed_captures_geojson) || GEOMAP_EMPTY_FC;
       const isochroneFC = (!isSvoRussia && activeBaseMap?.capture_isochrone_geojson) || GEOMAP_EMPTY_FC;
-      const contestedZoneFC = (!isSvoRussia && activeBaseMap?.contested_zone_geojson) || GEOMAP_EMPTY_FC;
       const strikeEventsFC = data.base_map?.strike_events_geojson || GEOMAP_EMPTY_FC;
 
       const regionsBySlug = {};
@@ -2655,7 +2617,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
         id: `claimed-${i}`, coords: f.geometry.coordinates, ...f.properties,
       }));
       const isochroneList = (isochroneFC.features || []).map((f, i) => ({ id: `iso-${i}`, ...f.properties }));
-      const contestedZoneList = (contestedZoneFC.features || []).map((f, i) => ({ id: `contested-${i}`, ...f.properties }));
       const strikeEventsList = (strikeEventsFC.features || []).map((f, i) => ({
         id: `strike-${i}`, coords: f.geometry.coordinates, ...f.properties,
       }));
@@ -2663,9 +2624,9 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
       out[t.key] = {
         meta: t, data, activeBaseMap,
         controlLegend, controlLegendKeys, hasControlLegend, controlPaintOverrides,
-        regionsFC, frontlineFC, controlFillFC, isochroneFC, contestedZoneFC, strikeEventsFC,
+        regionsFC, frontlineFC, controlFillFC, isochroneFC, strikeEventsFC,
         regionsBySlug, waypointsBySlug, events, onMapEvents,
-        claimedCapturesList, isochroneList, contestedZoneList, strikeEventsList,
+        claimedCapturesList, isochroneList, strikeEventsList,
       };
     });
     return out;
@@ -2721,8 +2682,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     (prev?.kind === "claimed" && prev.theaterKey === theaterKey && prev.key === id) ? null : { kind: "claimed", theaterKey, key: id, lngLat }), []);
   const selectCapture = useCallback((theaterKey, id, lngLat) => setSelected((prev) =>
     (prev?.kind === "capture" && prev.theaterKey === theaterKey && prev.key === id) ? null : { kind: "capture", theaterKey, key: id, lngLat }), []);
-  const selectContested = useCallback((theaterKey, id, lngLat) => setSelected((prev) =>
-    (prev?.kind === "contested" && prev.theaterKey === theaterKey && prev.key === id) ? null : { kind: "contested", theaterKey, key: id, lngLat }), []);
   const selectStrike = useCallback((theaterKey, id, lngLat) => setSelected((prev) =>
     (prev?.kind === "strike" && prev.theaterKey === theaterKey && prev.key === id) ? null : { kind: "strike", theaterKey, key: id, lngLat }), []);
   const closeDetail = useCallback(() => setSelected(null), []);
@@ -2733,7 +2692,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   const selectedRegion = selected?.kind === "region" ? selectedTheaterState?.regionsBySlug[selected.key] : null;
   const selectedClaimed = selected?.kind === "claimed" ? selectedTheaterState?.claimedCapturesList.find((c) => c.id === selected.key) : null;
   const selectedCapture = selected?.kind === "capture" ? selectedTheaterState?.isochroneList.find((c) => c.id === selected.key) : null;
-  const selectedContested = selected?.kind === "contested" ? selectedTheaterState?.contestedZoneList.find((c) => c.id === selected.key) : null;
   const selectedStrike = selected?.kind === "strike" ? selectedTheaterState?.strikeEventsList.find((s) => s.id === selected.key) : null;
 
   // --- Камера: чипы «Весь мир» / очаг / «Карта России целиком» перелетают к
@@ -2815,8 +2773,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
         if (l.id === "boundary_disputed") map.setLayoutProperty(l.id, "visibility", "none");
       });
 
-      ensureContestedHatchImage(map, colors.contested);
-
       theaters.forEach((t) => {
         const key = t.key;
         map.addSource(`${key}-regions`, { type: "geojson", data: GEOMAP_EMPTY_FC });
@@ -2824,15 +2780,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
         map.addSource(`${key}-frontline`, { type: "geojson", data: GEOMAP_EMPTY_FC });
         map.addSource(`${key}-control-fill`, { type: "geojson", data: GEOMAP_EMPTY_FC });
         map.addSource(`${key}-capture-isochrone`, { type: "geojson", data: GEOMAP_EMPTY_FC, generateId: true });
-        map.addSource(`${key}-contested-zone`, { type: "geojson", data: GEOMAP_EMPTY_FC, generateId: true });
 
         map.addLayer({ id: `${key}-regions-fill`, type: "fill", source: `${key}-regions`, paint: { "fill-color": "#888", "fill-opacity": 0 } });
         map.addLayer({ id: `${key}-regions-line`, type: "line", source: `${key}-regions`, paint: { "line-color": "#888", "line-opacity": 0, "line-width": 1.1 } });
         map.addLayer({ id: `${key}-control-fill`, type: "fill", source: `${key}-control-fill`, paint: { "fill-color": colors.ru, "fill-opacity": 0.6 } });
         map.addLayer({ id: `${key}-control-fill-line`, type: "line", source: `${key}-control-fill`, paint: { "line-color": colors.ru, "line-opacity": 0.9, "line-width": 0.8 } });
-        map.addLayer({ id: `${key}-contested-zone-fill`, type: "fill", source: `${key}-contested-zone`, paint: { "fill-color": colors.contested, "fill-opacity": 0.22 } });
-        map.addLayer({ id: `${key}-contested-zone-hatch`, type: "fill", source: `${key}-contested-zone`, paint: { "fill-pattern": "contested-hatch", "fill-opacity": 1 } });
-        map.addLayer({ id: `${key}-contested-zone-line`, type: "line", source: `${key}-contested-zone`, paint: { "line-color": colors.contested, "line-opacity": 0.9, "line-width": 1.4, "line-dasharray": [2, 1.3] } });
         map.addLayer({
           id: `${key}-capture-isochrone-fill`, type: "fill", source: `${key}-capture-isochrone`,
           layout: { visibility: "none" }, paint: { "fill-color": colors.ru, "fill-opacity": 0.4 },
@@ -2854,8 +2806,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
           // клик по региону другого очага не должен блокироваться слайдером
           // СВО, даже если тот в этот момент активен.
           if (isHistoricRef.current && key === svoKey) return;
-          const contestedHit = map.queryRenderedFeatures(e.point, { layers: [`${key}-contested-zone-fill`] });
-          if (contestedHit.length > 0) return;
           const slug = e.features?.[0]?.properties?.slug;
           if (slug) selectRegion(key, slug, e.lngLat);
         });
@@ -2866,21 +2816,13 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
           const fid = e.features?.[0]?.id;
           if (fid !== undefined) selectCapture(key, `iso-${fid}`, e.lngLat);
         });
-        map.on("mouseenter", `${key}-contested-zone-fill`, () => { map.getCanvas().style.cursor = "pointer"; });
-        map.on("mouseleave", `${key}-contested-zone-fill`, () => { map.getCanvas().style.cursor = ""; });
-        map.on("click", `${key}-contested-zone-fill`, (e) => {
-          if (suppressNextRegionClickRef.current) { suppressNextRegionClickRef.current = false; return; }
-          if (isHistoricRef.current && key === svoKey) return;
-          const fid = e.features?.[0]?.id;
-          if (fid !== undefined) selectContested(key, `contested-${fid}`, e.lngLat);
-        });
       });
 
       // Клик «мимо» любого кликабельного слоя ЛЮБОГО очага — закрывает пузырь
       // (тот же генерик-приём, что был у одного очага, теперь layers — плоский
       // список namespaced id по всем очагам).
       map.on("click", (e) => {
-        const layers = theaters.flatMap((t) => [`${t.key}-regions-fill`, `${t.key}-capture-isochrone-fill`, `${t.key}-contested-zone-fill`]);
+        const layers = theaters.flatMap((t) => [`${t.key}-regions-fill`, `${t.key}-capture-isochrone-fill`]);
         const hits = map.queryRenderedFeatures(e.point, { layers });
         if (hits.length === 0) closeDetail();
       });
@@ -2922,7 +2864,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
         claimed={selectedClaimed}
         capture={selectedCapture}
         strike={selectedStrike}
-        contested={selectedContested}
         hasControlLegend={!!selectedTheaterState?.hasControlLegend}
         controlLegend={selectedTheaterState?.controlLegend || GEOMAP_EMPTY_OBJ}
         controlLegendKeys={selectedTheaterState?.controlLegendKeys || []}
@@ -2935,7 +2876,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     if (!popup.isOpen()) popup.addTo(map);
   }, [
     styleLoaded, selected, selectedEvent, selectedRegion, selectedClaimed, selectedCapture,
-    selectedStrike, selectedContested, selectedTheaterState, selectedTheaterMeta, colors, closeDetail,
+    selectedStrike, selectedTheaterState, selectedTheaterMeta, colors, closeDetail,
   ]);
 
   // --- Синхронизация данных источников + раскраски по каждому очагу — прямой
@@ -2951,7 +2892,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
       map.getSource(`${key}-frontline`)?.setData(st.frontlineFC);
       map.getSource(`${key}-control-fill`)?.setData(st.controlFillFC);
       map.getSource(`${key}-capture-isochrone`)?.setData(st.isochroneFC);
-      map.getSource(`${key}-contested-zone`)?.setData(st.contestedZoneFC);
 
       let fillColor = "#888", fillOpacity = 0, lineOpacity = 0;
       if (st.controlLegendKeys.length) {
@@ -2976,10 +2916,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
       map.setPaintProperty(`${key}-capture-isochrone-line`, "line-color", colors.ru);
       map.setPaintProperty(`${key}-frontline-casing`, "line-color", colors.ru);
       map.setPaintProperty(`${key}-frontline-line`, "line-color", colors.ru);
-      map.setPaintProperty(`${key}-contested-zone-fill`, "fill-color", colors.contested);
-      map.setPaintProperty(`${key}-contested-zone-line`, "line-color", colors.contested);
     });
-    ensureContestedHatchImage(map, colors.contested);
   }, [styleLoaded, theaters, theaterStates, colors]);
 
   // --- Временной ползунок — переключает видимость СЛОЁВ ТОЛЬКО у очага с
@@ -3000,9 +2937,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     map.setLayoutProperty(`${key}-control-fill-line`, "visibility", vis(!isHistoric));
     map.setLayoutProperty(`${key}-frontline-casing`, "visibility", vis(!isHistoric));
     map.setLayoutProperty(`${key}-frontline-line`, "visibility", vis(!isHistoric));
-    map.setLayoutProperty(`${key}-contested-zone-fill`, "visibility", vis(!isHistoric));
-    map.setLayoutProperty(`${key}-contested-zone-hatch`, "visibility", vis(!isHistoric));
-    map.setLayoutProperty(`${key}-contested-zone-line`, "visibility", vis(!isHistoric));
   }, [styleLoaded, hasIsochrone, isHistoric, activeMonthSnapshot, svoKey]);
 
   // --- Маркеры событий (в т.ч. ударов вглубь России) — по ВСЕМ очагам сразу
@@ -3081,7 +3015,9 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
         const el = document.createElement("button");
         el.type = "button";
         el.className = "obs-geomap-marker obs-geomap-marker--claimed";
-        const label = `Заявлено, не подтверждено ISW: ${c.name}${c.oblast ? `, ${c.oblast}` : ""}`;
+        // in_control_fill различает две ситуации расхождения источников — см.
+        // тот же разбор у попапа (ObsGeomapPopupBody, kind==="claimed").
+        const label = `${c.in_control_fill ? "Взято по донесениям, ISW не подтвердил" : "Заявлено, подтверждения нет"}: ${c.name}${c.oblast ? `, ${c.oblast}` : ""}`;
         el.setAttribute("aria-label", label);
         el.setAttribute("aria-pressed", "false");
         el.title = label;
@@ -3198,11 +3134,9 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
   if (!unionBounds) return null;
 
   // Агрегаты по всем очагам — только для того, чтобы легенда «Заявлено»/
-  // «Оспаривается»/«Удары (авто)» показывалась, если хоть у ОДНОГО очага
-  // реально есть такие точки (та же честная деградация, что раньше была
-  // на уровне одного очага).
+  // «Удары (авто)» показывалась, если хоть у ОДНОГО очага реально есть такие
+  // точки (та же честная деградация, что раньше была на уровне одного очага).
   const aggClaimedCount = theaters.reduce((n, t) => n + (theaterStates[t.key]?.claimedCapturesList.length || 0), 0);
-  const aggContestedCount = theaters.reduce((n, t) => n + (theaterStates[t.key]?.contestedZoneList.length || 0), 0);
   const aggStrikeCount = theaters.reduce((n, t) => n + (theaterStates[t.key]?.strikeEventsList.length || 0), 0);
 
   return (
@@ -3294,11 +3228,6 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
               <CircleHelp size={12} aria-hidden="true" />Заявлено, не подтверждено
             </span>
           )}
-          {aggContestedCount > 0 && (
-            <span className="obs-geomap-legend-item obs-geomap-legend-item--contested">
-              <span className="obs-geomap-legend-hatch" aria-hidden="true" />Оспаривается
-            </span>
-          )}
           {aggStrikeCount > 0 && (
             <span className="obs-geomap-legend-item obs-geomap-legend-item--strike-auto">
               <Zap size={12} aria-hidden="true" />Удары (авто, из ленты)
@@ -3328,11 +3257,14 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
                 <span className="obs-tag-estimate">оценка</span>
               </div>
               <p className="obs-geomap-timeslider-caveat">
-                Относится только к очагу СВО. Граница восстановлена по датам взятия ближайших
-                населённых пунктов (диаграмма Вороного, {sortedIsochroneMonths.length ? sortedIsochroneMonths[sortedIsochroneMonths.length - 1].settlements_count : 0} датированных
-                точек, объединено и сглажено по месяцам) — это НЕ точная историческая
-                линия фронта на выбранную дату, а огрубление для ощущения динамики.
-                Точная граница ISW — только в положении «сегодня» (крайнее правое).
+                Относится только к очагу СВО. Граница восстановлена по хронологии переходов
+                контроля между сторонами — включая ОБРАТНЫЕ (осенью 2022 Россия оставила
+                Харьковскую область и правобережье Херсона, поэтому площадь по месяцам иногда
+                снижается). Это по-прежнему огрубление, а не точная линия фронта на дату —
+                точная граница ISW доступна только в положении «сегодня» (крайнее правое).
+                Северная группировка 2022 года (Киевская, Черниговская, Сумская области) на
+                карте не закрашена: контроль там был коридорным, а не сплошным, закрасить
+                области целиком было бы неточно.
               </p>
             </div>
           </div>
@@ -3360,6 +3292,17 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
             <span className="obs-geomap-timeslider-count">
               <strong>{capturedCount}</strong> {ruPluralPunkt(capturedCount)} взято к этой дате
             </span>
+            {Number.isFinite(activeMonthSnapshot?.area_km2) && (
+              <span className="obs-geomap-timeslider-area">
+                <strong>{activeMonthSnapshot.area_km2.toLocaleString("ru-RU")} км²</strong>
+                {Number.isFinite(activeMonthSnapshot.delta_km2) && activeMonthSnapshot.delta_km2 !== 0 && (
+                  <span className={`obs-geomap-timeslider-delta${activeMonthSnapshot.delta_km2 > 0 ? " obs-geomap-timeslider-delta--up" : " obs-geomap-timeslider-delta--down"}`}>
+                    {activeMonthSnapshot.delta_km2 > 0 ? "▲" : "▼"} {Math.abs(activeMonthSnapshot.delta_km2).toLocaleString("ru-RU")}
+                  </span>
+                )}
+                <span> за месяц</span>
+              </span>
+            )}
             {showCrimeaToggle && (
               <button
                 type="button"
