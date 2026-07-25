@@ -689,6 +689,13 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
     ticker = item["ticker"]
     pub_date = item["published_at"]
     text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
+    # Заголовочный blob фиксируем ДО обогащения полным текстом — период отчёта
+    # и report_type определяются по НЕМУ (заголовок新ости практически всегда несёт
+    # период: «за первое полугодие», «за 1П 2026»), а не по полному тексту статьи:
+    # на перепрогоне 2026-07-26 период MAGN определился как «2025 год» — парсер
+    # зацепил «за 2025 год» из СЕРЕДИНЫ статьи (сравнение с прошлым годом), а не
+    # реальный период отчёта.
+    headline_blob = text_blob
     # 🔴 Обогащение ПОЛНЫМ текстом статьи-источника (владелец 2026-07-26: разбор
     # ММК жаловался «отсутствие данных о выручке/EBITDA/долге», хотя статья Ъ и
     # пресс-релиз компании их содержат): title+summary из Ленты — 2-3 предложения,
@@ -730,12 +737,23 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         k in blob_l for k in ("операцион", "пассажиропоток", "добыч", "производств", "выпуск"))
     standard = "МСФО" if "мсфо" in blob_l else "РСБУ" if "рсбу" in blob_l else (
         "операционные результаты" if is_operational else "отчётность")
-    m = re.search(r"за\s+(\d+М|\d+\s*кв(?:артал)?|\d{4}(?:\s*год)?|первое полугодие|полугодии)",
-                 text_blob, re.IGNORECASE)
+    # Период — ТОЛЬКО из заголовка (headline_blob), не из полного текста статьи
+    # (см. комментарий выше). Паттерн расширен: «в первом полугодии» / «за 1П» /
+    # «в I полугодии» — реальный заголовок Северстали «Прибыль... снизилась на 89%
+    # в первом полугодии» раньше не матчился (требовался предлог «за») и период
+    # падал в сырую дату публикации.
+    m = re.search(r"(?:за|в)\s+(\d+М|\d+\s*кв(?:артал)?[а-я]*|\d{4}(?:\s*год)?|"
+                  r"перво[ем]\s+полугоди[ие]|I\s+полугоди[ие]|1П\s*\d{4}|полугодии)",
+                  headline_blob, re.IGNORECASE)
     period = m.group(1).strip() if m else pub_date.isoformat()
+    # Нормализация: «первом полугодии»/«I полугодии» → «1П<год публикации>» —
+    # единый вид с остальными путями (и уникальный индекс (ticker, period,
+    # standard) начинает реально дедупить одинаковые полугодия).
+    if re.match(r"(?:перво|I\s)", period, re.IGNORECASE):
+        period = f"1П{pub_date.year}"
     report_type = "operating" if is_operational else (
-        "annual" if re.search(r"\bгод(?:а)?\b", text_blob, re.IGNORECASE)
-        and not re.search(r"\d+\s*(?:М|кв)", text_blob, re.IGNORECASE) else "quarter")
+        "annual" if re.search(r"\bгод(?:а)?\b", headline_blob, re.IGNORECASE)
+        and not re.search(r"\d+\s*(?:М|кв|П)", headline_blob, re.IGNORECASE) else "quarter")
     report = EarningsReport(
         ticker=ticker, period=period, standard=standard, report_type=report_type,
         published_at=pub_date, source="market_updates", source_url=None,
