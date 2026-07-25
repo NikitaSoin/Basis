@@ -655,29 +655,55 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                 payload["base_map"]["control_fill_geojson"] = row.control_fill_geojson
             if row.capture_isochrone_geojson:
                 payload["base_map"]["capture_isochrone_geojson"] = row.capture_isochrone_geojson
-            if row.contested_zone_geojson:
-                payload["base_map"]["contested_zone_geojson"] = row.contested_zone_geojson
 
-        # Заявленные (Минобороны РФ/Рыбарь), но ЕЩЁ не подтверждённые ISW захваты —
-        # отдельный эпистемический ярус поверх зазора, пока живой фид ISW отстаёт
-        # (см. config/geo_svo_claimed_captures.json, докстринг там же). НЕ мешаем с
-        # control_fill_geojson (тот — только ISW-подтверждённое).
+        # Кружки «взято по данным МО РФ/Рыбаря, но ISW контроль ещё НЕ подтвердил» —
+        # единственный оставшийся способ показать расхождение источников (ярус
+        # «оспаривается» с оранжевой штриховкой владелец упразднил 2026-07-25:
+        # «оранжевым ничем помечать не будем, можно просто оставить кружок»).
+        # Два источника точек: (1) geo_svo_claimed_captures.json — заявления, по
+        # которым САМ Рыбарь тоже не даёт сплошной заливки (в красную зону НЕ
+        # входят); (2) geo_svo_manual_overrides.json — пункты, которые Рыбарь/МО
+        # красят взятыми и которые УЖЕ влиты в красную зону, но у ISW их нет —
+        # кружок здесь честно помечает именно это расхождение.
+        claimed_features = []
         claims_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
             os.path.abspath(__file__)))), "config", "geo_svo_claimed_captures.json")
+        claims = {}
         if os.path.exists(claims_path):
             with open(claims_path, encoding="utf-8") as f:
                 claims = _json.load(f)
+            claimed_features += [
+                {
+                    "type": "Feature",
+                    "properties": {**{k: v for k, v in p.items() if k not in ("lat", "lon")},
+                                    "in_control_fill": False},
+                    "geometry": {"type": "Point", "coordinates": [p["lon"], p["lat"]]},
+                }
+                for p in claims.get("points", []) if p.get("lat") is not None and p.get("lon") is not None
+            ]
+        try:
+            from app.services.geo_isw_frontline_sync import load_manual_overrides
+            claimed_features += [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": o["name"], "oblast": o.get("oblast"),
+                        "epistemic": "взято по данным МО РФ/Рыбаря, ISW не подтвердил",
+                        "source": o.get("source"), "note": o.get("note"),
+                        "in_control_fill": True,
+                    },
+                    "geometry": {"type": "Point", "coordinates": [o["lon"], o["lat"]]},
+                }
+                for o in load_manual_overrides()
+                if not o.get("isw_confirmed") and o.get("lat") is not None and o.get("lon") is not None
+            ]
+        except Exception:  # noqa: BLE001 — побочный слой не должен ронять карту
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "geo-map svo: оверрайд-кружки не собраны", exc_info=True)
+        if claimed_features:
             payload["base_map"]["claimed_captures_geojson"] = {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "properties": {k: v for k, v in p.items() if k not in ("lat", "lon")},
-                        "geometry": {"type": "Point", "coordinates": [p["lon"], p["lat"]]},
-                    }
-                    for p in claims.get("points", []) if p.get("lat") is not None and p.get("lon") is not None
-                ],
-            }
+                "type": "FeatureCollection", "features": claimed_features}
             payload["base_map"]["claimed_captures_covers_since"] = claims.get("covers_since")
             payload["base_map"]["claimed_captures_generated_at"] = claims.get("generated_at")
 

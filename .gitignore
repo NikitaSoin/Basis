@@ -10,3 +10,6 @@ venv/
 backend/companies/*/sources/
 docs/*.zip
 docs/*.pdf
+
+# Кэш Natural Earth admin-1 (39 МБ) — качается скриптом geo_svo_rebuild_regions.py по нужде
+backend/scripts/.ne_admin1_cache.geojson
