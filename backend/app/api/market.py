@@ -665,6 +665,11 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
         # входят); (2) geo_svo_manual_overrides.json — пункты, которые Рыбарь/МО
         # красят взятыми и которые УЖЕ влиты в красную зону, но у ISW их нет —
         # кружок здесь честно помечает именно это расхождение.
+        # in_control_fill теперь ВСЕГДА true: с 2026-07-25 в красную зону вливаются
+        # все пункты, которые МО РФ/Рыбарь считают взятыми (см. absorb_candidates),
+        # включая заявленные. Различает их claim_strength — СИЛА СВИДЕТЕЛЬСТВА, а
+        # не факт попадания в заливку: "reported" — источник даёт сплошную заливку,
+        # "claimed" — только заявление, сплошной заливки не даёт даже Рыбарь.
         claimed_features = []
         claims_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
             os.path.abspath(__file__)))), "config", "geo_svo_claimed_captures.json")
@@ -676,7 +681,7 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                 {
                     "type": "Feature",
                     "properties": {**{k: v for k, v in p.items() if k not in ("lat", "lon")},
-                                    "in_control_fill": False},
+                                    "in_control_fill": True, "claim_strength": "claimed"},
                     "geometry": {"type": "Point", "coordinates": [p["lon"], p["lat"]]},
                 }
                 for p in claims.get("points", []) if p.get("lat") is not None and p.get("lon") is not None
@@ -690,7 +695,7 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
                         "name": o["name"], "oblast": o.get("oblast"),
                         "epistemic": "взято по данным МО РФ/Рыбаря, ISW не подтвердил",
                         "source": o.get("source"), "note": o.get("note"),
-                        "in_control_fill": True,
+                        "in_control_fill": True, "claim_strength": "reported",
                     },
                     "geometry": {"type": "Point", "coordinates": [o["lon"], o["lat"]]},
                 }
@@ -916,6 +921,33 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
         tickers, _ = _portfolio_filter(db, user)
         q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)
     rows = q.limit(limit).all()
+
+    # 🔴 Витринная дедупликация одного события (владелец 2026-07-26: у Северстали
+    # 2-3 карточки одного отчёта): разные пути детекта (smartlab-календарь /
+    # news-путь) легитимно создают записи с разными standard («отчётность» без
+    # цифр vs «МСФО» с полным разбором) — в БД обе нужны для идемпотентности
+    # путей, но на витрине событие должно быть ОДНОЙ карточкой. Записи одного
+    # тикера с |published_at| ≤ 4 дней считаем одним событием и оставляем лучшую:
+    # приоритет по стандарту (МСФО/РСБУ > прочее), затем по богатству разбора
+    # (есть digest.highlights > нет).
+    def _quality(row):
+        r, dg, fig, _ = row
+        std_rank = 2 if (r.standard or "").upper() in ("МСФО", "РСБУ") else \
+                   0 if "операцион" in (r.standard or "").lower() else 1
+        rich = 1 if (dg is not None and dg.highlights is not None) else 0
+        return (std_rank, rich)
+
+    deduped = []
+    for row in rows:  # rows уже отсортированы по published_at DESC
+        r = row[0]
+        dup_idx = next((i for i, kept in enumerate(deduped)
+                        if kept[0].ticker == r.ticker
+                        and abs((kept[0].published_at - r.published_at).days) <= 4), None)
+        if dup_idx is None:
+            deduped.append(row)
+        elif _quality(row) > _quality(deduped[dup_idx]):
+            deduped[dup_idx] = row
+    rows = deduped
 
     def _yoy_pct(now, prev):
         if now is None or prev is None or float(prev) == 0:

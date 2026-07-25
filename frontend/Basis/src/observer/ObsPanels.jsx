@@ -2300,15 +2300,19 @@ function ObsGeomapPopupBody({
   }
 
   if (kind === "claimed" && claimed) {
-    // in_control_fill различает ДВЕ разные ситуации расхождения источников
-    // (владелец, 2026-07-25 — раньше подпись была одна на оба случая, врала
-    // про степень расхождения): true — пункт МО РФ/Рыбарь УЖЕ красят взятым
-    // (влит в красную зону control-fill), просто ISW ещё не подтвердил;
-    // false — заявление, которое даже Рыбарь не даёт сплошной заливкой, в
-    // красную зону НЕ входит — расхождение шире, чем в первом случае.
-    const claimedTypeLabel = claimed.in_control_fill
+    // Различаем СИЛУ СВИДЕТЕЛЬСТВА (claim_strength), а НЕ факт попадания в
+    // заливку: с 2026-07-25 в красную зону вливаются все пункты, которые МО РФ/
+    // Рыбарь считают взятыми, поэтому in_control_fill у всех true и различать
+    // им больше нечего. "reported" — источник даёт сплошную заливку, ISW ещё
+    // нет; "claimed" — только заявление, сплошной заливки не даёт даже Рыбарь
+    // (расхождение шире). Старое поведение по in_control_fill — фолбэк на
+    // случай ответа бэкенда без нового поля.
+    const claimStrength = claimed.claim_strength
+      || (claimed.in_control_fill ? "reported" : "claimed");
+    const isReported = claimStrength === "reported";
+    const claimedTypeLabel = isReported
       ? "Взято по донесениям, ISW не подтвердил"
-      : "Заявлено, подтверждения нет";
+      : "Заявлено, независимого подтверждения нет";
     return (
       <div className="obs-geomap-detail obs-geomap-detail--claimed" role="region" aria-label="Детали заявленного, не подтверждённого взятия пункта">
         <button type="button" className="obs-geomap-detail-close" onClick={onClose} aria-label="Закрыть детали">
@@ -2320,15 +2324,15 @@ function ObsGeomapPopupBody({
           {theaterLabel && <span className="obs-geomap-detail-theater">{theaterLabel}</span>}
           {/* Ключевая информация, не сноска — эпистемический тег ровно из данных
               (claimed.epistemic), не хардкод, но с заведомо тем же смыслом. */}
-          <span className="obs-tag-claimed">{claimed.epistemic || (claimed.in_control_fill ? "взято по данным МО РФ/Рыбаря, ISW не подтвердил" : "заявлено, не подтверждено ISW")}</span>
+          <span className="obs-tag-claimed">{claimed.epistemic || (isReported ? "взято по данным МО РФ/Рыбаря, ISW не подтвердил" : "заявлено, не подтверждено ISW")}</span>
         </div>
         <h4 className="obs-geomap-detail-title">
           {claimed.name}{claimed.oblast ? `, ${claimed.oblast}` : ""}
         </h4>
         <p className="obs-geomap-detail-desc">
-          {claimed.in_control_fill
-            ? "Уже включён в закрашенную зону контроля на карте (по данным Минобороны РФ/Рыбаря) — независимого подтверждения ISW пока нет."
-            : "В закрашенную зону контроля на карте НЕ включён — заявление, которое пока не подтверждает ни один независимый источник."}
+          {isReported
+            ? "Включён в закрашенную зону контроля на карте по данным Минобороны РФ/Рыбаря — независимого подтверждения ISW пока нет."
+            : "Включён в закрашенную зону по заявлению Минобороны РФ/Рыбаря, но сплошной заливкой этот пункт не даёт даже Рыбарь — расхождение источников здесь шире обычного."}
         </p>
         {claimed.source_note && <p className="obs-geomap-detail-desc">{claimed.source_note}</p>}
         <div className="obs-geomap-detail-foot">
