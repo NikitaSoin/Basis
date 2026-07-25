@@ -889,13 +889,29 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
     Feb-Apr 2026 (реальные даты сдачи годовой отчётности) — вся эта старая пачка легла
     поверх ленты, вытеснив свежие отчёты. Сортировка по реальной дате события чинит это:
     записи без published_at (часть ручного financials.json-пути) деградируют на created_at."""
+    from datetime import date as _date, timedelta as _timedelta
     from app.models.earnings import EarningsReport, EarningsDigest, EarningsFigures
+    # 🔴 Окно свежести (жалоба владельца 2026-07-25: «в Отчётах старые отчёты за
+    # 2024/2025 — не нужны, только свежевышедшие»): лента — про НЕДАВНО ВЫШЕДШУЮ
+    # отчётность, не архив.
+    # - published_at IS NULL — не событие публикации, а разбор годовых данных
+    #   карточки (путь earnings.py source=smartlab+card) — им место в карточке
+    #   компании, не в ленте «вышло сейчас»;
+    # - будущие published_at — артефакт earnings.py._published_at (брал дату
+    #   БУДУЩЕГО события календаря — реальный кейс SPBE published_at=2026-08-07,
+    #   висел на самом верху ленты);
+    # - старше 45 дней — архив (сюда попадала пачка ГИР БО-записей с
+    #   published_at Feb-Apr, см. комментарий про сортировку выше).
+    _today = _date.today()
     q = (db.query(EarningsReport, EarningsDigest, EarningsFigures, Company.sector)
          .outerjoin(EarningsDigest, EarningsDigest.report_id == EarningsReport.id)
          .outerjoin(EarningsFigures, EarningsFigures.report_id == EarningsReport.id)
          .outerjoin(Company, Company.ticker == EarningsReport.ticker)
-         .filter(EarningsReport.status == "processed")
-         .order_by(func.coalesce(EarningsReport.published_at, EarningsReport.created_at).desc()))
+         .filter(EarningsReport.status == "processed",
+                 EarningsReport.published_at.isnot(None),
+                 EarningsReport.published_at >= _today - _timedelta(days=45),
+                 EarningsReport.published_at <= _today + _timedelta(days=1))
+         .order_by(EarningsReport.published_at.desc()))
     if portfolio_only:
         tickers, _ = _portfolio_filter(db, user)
         q = q.filter(EarningsReport.ticker.in_(tickers) if tickers else False)

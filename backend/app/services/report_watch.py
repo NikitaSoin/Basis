@@ -86,6 +86,21 @@ _REPORT_KEYWORDS_RE = re.compile(
     r"добыч|производств|выпуск",
     re.IGNORECASE)
 
+# 🔴 ДЕТЕКТ ≠ РАНЖИРОВАНИЕ (найдено на бою 2026-07-25, жалоба владельца «в Отчётах
+# мусорные новости»): _REPORT_KEYWORDS_RE выше задуман как РАНЖИРУЮЩИЙ (что ближе к
+# началу пула текстов в _from_market_updates — см. комментарий там), но
+# _due_news_reports использовал его как ЕДИНСТВЕННЫЙ фильтр детекта «новость = отчёт»
+# — и «дивиденд»/«производств»/«добыч»/«финанс» пропускали в Отчёты что угодно:
+# «СД рекомендовал дивиденды», «Добыча газа в РФ», «Производство пива в РФ»,
+# «Индекс снизился из-за дивидендных отсечек». Хуже того — мусорная запись потом
+# БЛОКИРОВАЛА реальный отчёт через дедуп ±4 дня (кейс НОВАТЭКа: «Добыча газа в РФ»
+# 22.07 не пустила настоящий МСФО-отчёт 24.07). Для детекта — СТРОГИЙ паттерн:
+# только формулировки, которыми деловые СМИ анонсируют именно вышедшую отчётность.
+_NEWS_REPORT_DETECT_RE = re.compile(
+    r"отчита|отч[её]тность|финансовые результаты|операционные результаты|"
+    r"результаты (?:за|по) |мсфо|рсбу|чистая прибыль|чистый убыток|ebitda",
+    re.IGNORECASE)
+
 
 # ----------------------------- источник 0: собственный RSS компании (высший приоритет) -----------------------------
 # Официальный первоисточник — когда есть, качественнее новостного пересказа: у Роснефти
@@ -388,20 +403,32 @@ _FIN_SPEC = (
     'Формат JSON: {"revenue": число|null, "revenue_yoy_pct": число|null, '
     '"ebitda": число|null, "ebitda_yoy_pct": число|null, '
     '"net_profit": число|null, "net_profit_yoy_pct": число|null, '
-    '"net_debt": число|null, "has_figures": true|false}. '
-    'has_figures=false, если в тексте нет ни одного числового финансового показателя.'
+    '"net_debt": число|null, "has_figures": true|false, "is_company_report": true|false}. '
+    'has_figures=false, если в тексте нет ни одного числового финансового показателя. '
+    'is_company_report=true ТОЛЬКО если текст — корпоративная отчётность/релиз/'
+    'результаты ИМЕННО названной компании; false — если это отраслевая, страновая '
+    'или общерыночная новость (напр. «добыча газа в РФ», «производство в отрасли», '
+    '«индекс снизился»), даже если компания в ней упоминается.'
 )
 
 
-def _extract_financial(text_blob: str) -> dict | None:
+def _extract_financial(text_blob: str, company_name: str | None = None) -> dict | None:
     from app.services.llm import complete, LLMError
+    # Гейт релевантности живёт В ТОМ ЖЕ вызове экстракции (не отдельный LLM-запрос):
+    # цифры «есть» и в отраслевой статистике («Производство лекарств в РФ выросло на
+    # 13,9%») — has_figures сам по себе мусор не отсекает (найдено на бою 2026-07-25).
+    user = (f"КОМПАНИЯ, по которой ищем отчётность: {company_name}\n\n{text_blob[:6000]}"
+            if company_name else text_blob[:6000])
     try:
-        res = complete(_FIN_SYS + "\n" + _FIN_SPEC, text_blob[:6000], json_mode=True,
+        res = complete(_FIN_SYS + "\n" + _FIN_SPEC, user, json_mode=True,
                        max_tokens=600, temperature=0.1)
     except LLMError as e:
         logger.warning("report_watch: LLM извлечение (финансы) недоступно: %s", e)
         return None
     if not isinstance(res, dict) or not res.get("has_figures"):
+        return None
+    if company_name and res.get("is_company_report") is False:
+        logger.info("report_watch: текст отклонён гейтом релевантности (%s, финансы)", company_name)
         return None
     return res
 
@@ -413,22 +440,33 @@ _OPS_SYS = (
     "ЗАПРЕЩЕНО придумывать числа. Тон фактический, без советов «купить/продать». Верни JSON."
 )
 _OPS_SPEC = (
-    'Формат JSON: {"has_figures": true|false, "one_liner": "суть одной строкой (<=120 симв)", '
+    'Формат JSON: {"has_figures": true|false, "is_company_report": true|false, '
+    '"one_liner": "суть одной строкой (<=120 симв)", '
     '"kpis": ["маркеры с ✅/❌/❗️ — 2-5 пунктов, каждый с конкретным числом/%"], '
     '"summary": "1-2 фразы фактического резюме"}. '
-    'has_figures=false, если в тексте нет ни одного конкретного числа/показателя.'
+    'has_figures=false, если в тексте нет ни одного конкретного числа/показателя. '
+    'is_company_report=true ТОЛЬКО если текст — операционный релиз/результаты ИМЕННО '
+    'названной компании; false — если это отраслевая/страновая/рыночная статистика '
+    '(напр. «добыча газа в РФ», «производство пива в России»), даже если компания '
+    'в тексте упоминается.'
 )
 
 
-def _extract_operational(text_blob: str) -> dict | None:
+def _extract_operational(text_blob: str, company_name: str | None = None) -> dict | None:
     from app.services.llm import complete, LLMError
+    # См. комментарий в _extract_financial — гейт релевантности в том же вызове.
+    user = (f"КОМПАНИЯ, по которой ищем операционный релиз: {company_name}\n\n{text_blob[:6000]}"
+            if company_name else text_blob[:6000])
     try:
-        res = complete(_OPS_SYS + "\n" + _OPS_SPEC, text_blob[:6000], json_mode=True,
+        res = complete(_OPS_SYS + "\n" + _OPS_SPEC, user, json_mode=True,
                        max_tokens=700, temperature=0.2)
     except LLMError as e:
         logger.warning("report_watch: LLM извлечение (операционка) недоступно: %s", e)
         return None
     if not isinstance(res, dict) or not res.get("has_figures"):
+        return None
+    if company_name and res.get("is_company_report") is False:
+        logger.info("report_watch: текст отклонён гейтом релевантности (%s, операционка)", company_name)
         return None
     return res
 
@@ -538,12 +576,12 @@ def _store_report(db: Session, report: EarningsReport, company: Company, text_bl
     # не предварительный ярлык. fig_override (ГИР БО, гарантированно финансовый
     # структурированный источник) — без пробы, доверяем классификации как раньше.
     if fig_override is None and text_blob:
-        opd = _extract_operational(text_blob) if is_operational else None
-        fig_raw = None if is_operational else _extract_financial(text_blob)
+        opd = _extract_operational(text_blob, company.name) if is_operational else None
+        fig_raw = None if is_operational else _extract_financial(text_blob, company.name)
         if is_operational and not opd:
-            fig_raw = _extract_financial(text_blob)
+            fig_raw = _extract_financial(text_blob, company.name)
         elif not is_operational and not fig_raw:
-            opd = _extract_operational(text_blob)
+            opd = _extract_operational(text_blob, company.name)
         if opd:
             db.add(report); db.flush()
             db.add(EarningsFigures(report_id=report.id, extracted_fields=opd))
@@ -647,6 +685,8 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
         return "exists"
     ticker = item["ticker"]
     pub_date = item["published_at"]
+    text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
+    blob_l = text_blob.lower()
     nearby = (db.query(EarningsReport)
               .filter(EarningsReport.ticker == ticker,
                       EarningsReport.published_at.isnot(None),
@@ -654,9 +694,19 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
                       EarningsReport.published_at <= pub_date + timedelta(days=4))
               .first())
     if nearby:
-        return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
-    text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
-    blob_l = text_blob.lower()
+        # 🔴 Дедуп ±4 дня НЕ должен считать операционную/мусорную запись эквивалентом
+        # ФИНАНСОВОГО отчёта (найдено на бою 2026-07-25): у НОВАТЭКа запись
+        # «операционные результаты» от 22.07 (на деле — мусор от общестрановой
+        # новости «Добыча газа в РФ») заблокировала настоящий МСФО-отчёт от 24.07;
+        # у Северстали smart-lab-запись «операционные результаты» блокировала
+        # МСФО-версию. Если новый кандидат несёт явный финансовый стандарт
+        # (МСФО/РСБУ), а существующая рядом запись — НЕ финансовая, пропускаем его
+        # дальше: страховка от реального дубля остаётся на уникальном индексе
+        # (ticker, period, standard) — IntegrityError ниже.
+        cand_is_financial = "мсфо" in blob_l or "рсбу" in blob_l
+        nearby_is_financial = (nearby.standard or "").upper() in ("МСФО", "РСБУ")
+        if not (cand_is_financial and not nearby_is_financial):
+            return "exists"  # то же событие уже накрыто MOEX-путём (process_event)
     # 🔴 Найдено на бою 2026-07-14: явный финансовый стандарт (МСФО/РСБУ) должен
     # ПЕРЕВЕШИВАТЬ операционные ключевые слова — релиз Роснефти «РЕЗУЛЬТАТЫ... ПО МСФО»
     # содержит «ДОБЫЧА» как попутный контекст, но это финотчёт с выручкой/EBITDA/прибылью
@@ -1020,9 +1070,19 @@ def _due_news_reports(db: Session, companies: dict, days_back: int) -> list[dict
     out = []
     for r in rows:
         blob = f"{r.title} {r.summary or ''}"
-        if not _REPORT_KEYWORDS_RE.search(blob):
+        # Строгий детект-паттерн, НЕ ранжирующий _REPORT_KEYWORDS_RE — см. комментарий
+        # у _NEWS_REPORT_DETECT_RE (мусор из-за «дивиденд»/«добыч»/«производств»).
+        if not _NEWS_REPORT_DETECT_RE.search(blob):
             continue
-        for t in (r.affected_tickers or []):
+        tickers = r.affected_tickers or []
+        # Отчёт — событие ОДНОЙ компании. Отраслевые/страновые/рыночные обзоры
+        # («Brent подорожала», «Добыча газа в РФ») тегируются десятками тикеров
+        # (реальный пример с боя: 23 тикера) — и раньше каждый из них получал
+        # свою мусорную запись в Отчёты. Порог 2 покрывает легитимный случай
+        # обычка+преф одного эмитента (SBER/SBERP, TATN/TATNP).
+        if len(tickers) > 2:
+            continue
+        for t in tickers:
             if t in companies:
                 out.append({"market_update_id": r.id, "ticker": t, "published_at": r.published_at.date(),
                             "title": r.title, "summary": r.summary, "impact_comment": r.impact_comment})

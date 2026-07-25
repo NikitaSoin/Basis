@@ -511,6 +511,24 @@ async def debug_ping():
     return {"pong": True}
 
 
+@router.post("/debug/trigger-macro-verification")
+def debug_trigger_macro_verification():
+    """Ручной запуск «ОТК данных» (macro_verification.run_verification) синхронно,
+    без ожидания вечернего крона (18:30) — для проверки после фикса/деплоя.
+    Без LLM (детерминированные парсеры + пара сетевых запросов) — дёшево."""
+    from app.db.session import SessionLocal
+    from app.services.macro_verification import run_verification
+    db = SessionLocal()
+    try:
+        return run_verification(db)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-macro-verification: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/seed-fixed-capital-investment-q1-2026")
 def debug_seed_fixed_capital_investment_q1_2026():
     """Разовый сид: fixed_capital_investment (новый индикатор, 2026-07-25) заведён
@@ -765,6 +783,42 @@ def debug_purge_girbo_backlog(period: str | None = "2025"):
         n = q.delete()
         db.commit()
         return {"deleted": n}
+    finally:
+        db.close()
+
+
+@router.post("/debug/purge-news-junk-reports")
+def debug_purge_news_junk_reports(dry_run: bool = True):
+    """Ретроактивная чистка мусорных «отчётов», созданных news-путём report_watch до
+    ужесточения детекта (2026-07-25, жалоба владельца: в «Отчётах» дивиденды/отраслевые
+    новости вместо отчётности). Применяет НОВЫЙ детект (_NEWS_REPORT_DETECT_RE + порог
+    ≤2 тикеров у исходной новости) к записям source='market_updates': не проходит —
+    запись удаляется (figures/digest уйдут каскадом). Это разблокирует и настоящие
+    отчёты: мусорная запись держала дедуп ±4 дня (кейс НОВАТЭКа). dry_run=True (дефолт)
+    — только показать, что будет удалено; запускать боевое удаление с dry_run=false,
+    затем POST /debug/trigger-report-watch для пересоздания реальных отчётов."""
+    from app.db.session import SessionLocal
+    from app.models.earnings import EarningsReport
+    from app.models.market import MarketUpdate
+    from app.services.report_watch import _NEWS_REPORT_DETECT_RE
+    db = SessionLocal()
+    try:
+        rows = (db.query(EarningsReport, MarketUpdate)
+                .join(MarketUpdate, MarketUpdate.id == EarningsReport.market_update_id)
+                .filter(EarningsReport.source == "market_updates").all())
+        junk = []
+        for rep, mu in rows:
+            blob = f"{mu.title} {mu.summary or ''}"
+            ok = _NEWS_REPORT_DETECT_RE.search(blob) and len(mu.affected_tickers or []) <= 2
+            if not ok:
+                junk.append((rep, mu.title))
+        out = [{"id": r.id, "ticker": r.ticker, "period": r.period, "standard": r.standard,
+                "news_title": t[:120]} for r, t in junk]
+        if not dry_run:
+            for r, _ in junk:
+                db.delete(r)  # ORM-delete — каскад figures/digest из relationship
+            db.commit()
+        return {"dry_run": dry_run, "matched": len(out), "reports": out}
     finally:
         db.close()
 
