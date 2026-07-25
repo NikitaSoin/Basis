@@ -13,6 +13,7 @@ dividend_yield = сумма/текущая цена. Для флоатеров/�
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date, datetime, timedelta
 
 from sqlalchemy import text
@@ -437,6 +438,59 @@ _SUBTYPE_LABEL = {"report": "отчётность", "board": "совет дир�
                   "meeting": "собрание акционеров", "ipo": "IPO/размещение"}
 
 
+_LEGAL_FORMS = ("МКПАО", "ПАО", "ОАО", "ЗАО", "НАО", "ООО", "ПАТ", "АО")
+_LEAD_RE = re.compile(r"^([^:]+?)(?::|\s-\s)\s*(.*)$", re.S)
+
+
+def _core_name(name: str) -> str:
+    """Название компании без организационно-правовой формы (ПАО/АО/МКПАО и
+    т.п.) — "Сбербанк ПАО" → "Сбербанк", "МКПАО Яндекс" → "Яндекс". Общий
+    «костяк» для сопоставления с сырым текстом источников, где название
+    встречается то с ОПФ, то без, то в другом порядке."""
+    n = name
+    for form in _LEGAL_FORMS:
+        n = re.sub(rf"(^|\s){re.escape(form)}(\s|$)", " ", n)
+    return re.sub(r"\s+", " ", n).strip()
+
+
+def _match_ticker_and_split(desc: str, companies: dict, core_names: dict) -> tuple[str | None, str | None, str]:
+    """Тикер компании из сырого текста smart-lab — формат ИСТОЧНИКА непостоянный,
+    видели все три варианта: "SBER: текст" (тикер+двоеточие — большинство
+    случаев), "Сбербанк: текст" (название компании, не тикер) и "SVCB - текст"/
+    вовсе без разделителя ("Финансовые результаты Яндекса за..."). Раньше
+    парсился ТОЛЬКО первый формат (`desc.split(":")`) — остальные молча
+    оставались без тикера → без лого в календаре и без сектора/фильтра
+    (владелец, 2026-07-25: «у Сбера и Яндекса логотипы не отображаются»).
+
+    Пробуем от строгого к мягкому, первое совпадение побеждает:
+    1) ведущий токен до ":" или " - " — валидный ТИКЕР?
+    2) тот же ведущий токен — совпадает с core-именем компании (без ОПФ)?
+    3) core-имя КАК ПОДСТРОКА где угодно в тексте — переживает русские
+       падежные окончания (стем "Яндекс" — подстрока в "Яндекса"), минимум
+       5 символов защищает от случайных коротких совпадений. Принимается
+       ТОЛЬКО при ЕДИНСТВЕННОМ совпадении — при неоднозначности лучше без
+       тикера, чем присвоить не той компании.
+
+    Возвращает (ticker|None, lead-префикс|None если был разделитель, rest —
+    текст ПОСЛЕ префикса, либо весь desc, если разделителя не было) — rest
+    используется вызывающим кодом, чтобы подставить полное название компании
+    вместо тикера/сокращения в заголовке события."""
+    m = _LEAD_RE.match(desc)
+    lead, rest = (m.group(1).strip(), m.group(2)) if m else (None, desc)
+    if lead:
+        if lead in companies:
+            return lead, lead, rest
+        lead_low = lead.lower()
+        hits = [t for t, core in core_names.items() if core == lead_low]
+        if len(hits) == 1:
+            return hits[0], lead, rest
+    low = desc.lower()
+    hits = [t for t, core in core_names.items() if len(core) >= 5 and core in low]
+    if len(hits) == 1:
+        return hits[0], lead, rest
+    return None, lead, rest
+
+
 def build_corporate(db: Session, max_pages: int = 5) -> list[dict]:
     """Будущие корпсобытия из smart-lab (календарь акций ММВБ): отчётности (МСФО/РСБУ/
     операционные), заседания СД, собрания акционеров (ГОСА/ВОСА), IPO, БУДУЩИЕ дивиденды
@@ -460,6 +514,7 @@ def build_corporate(db: Session, max_pages: int = 5) -> list[dict]:
     import httpx, re, hashlib
     out: list[dict] = []
     companies = {c.ticker: c for c in db.query(Company).all()}
+    core_names = {t: _core_name(c.name).lower() for t, c in companies.items()}
     sectors = {t: c.sector for t, c in companies.items()}
     closes = _latest_closes(db)
     div_amount_re = re.compile(r"([\d]+[.,]\d+|\d+)\s*(?:руб|\$|USD|₽)", re.I)
@@ -493,8 +548,7 @@ def build_corporate(db: Session, max_pages: int = 5) -> list[dict]:
         kind = _classify_corp(desc)
         if kind == "other":
             continue  # не классифицируем — не событие для карточки
-        ticker = desc.split(":")[0].strip() if ":" in desc else None
-        ticker = ticker if (ticker and ticker in companies) else None
+        ticker, _lead, rest = _match_ticker_and_split(desc, companies, core_names)
         if kind == "dividend":
             if not ticker:
                 continue  # без тикера нельзя посчитать доходность/добавить в портфельный фильтр
@@ -529,10 +583,15 @@ def build_corporate(db: Session, max_pages: int = 5) -> list[dict]:
         # МСФО/РСБУ/операционные — иначе на витрине неотличимая «отчётность» тонет в
         # частых РСБУ/операционных публикациях (см. _classify_report_kind).
         status = _classify_report_kind(desc) if kind == "report" else _SUBTYPE_LABEL.get(kind)
+        # Полное название компании вместо тикера/сокращения в заголовке —
+        # тикеры знают не все инвесторы (владелец, 2026-07-25). rest — текст
+        # ПОСЛЕ отрезанного ведущего "TICKER:"/"Название:"/"TICKER - "
+        # префикса (или весь desc, если такого префикса не было вовсе).
+        title = f"{companies[ticker].name}: {rest}"[:300] if ticker else desc[:300]
         out.append({
             "event_type": ev_type, "event_date": ev_date, "event_time": None,
             "ticker": ticker, "sector": sectors.get(ticker) if ticker else None,
-            "title": desc[:300], "status": status,
+            "title": title, "status": status,
             "source": "smartlab", "source_url": _SMARTLAB_CAL,
             "payload": {"subtype": kind},
             "dedup_key": f"{ev_type}:{ev_date.isoformat()}:{h}",
