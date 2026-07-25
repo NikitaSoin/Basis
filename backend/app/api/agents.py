@@ -6,6 +6,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.auth import get_current_user_optional
 from app.db.session import get_db
 
 router = APIRouter()
@@ -116,16 +117,40 @@ def trigger_bond_review(secid: str, force: bool = False, db: Session = Depends(g
 # ─────────── Разбор документа по ссылке (PDF/HTML) + веб-поиск ───────────
 
 @router.post("/agents/analyze-document")
-def analyze_document_endpoint(payload: dict):
+def analyze_document_endpoint(payload: dict, db: Session = Depends(get_db),
+                              user=Depends(get_current_user_optional)):
     """Открыть документ по URL (PDF-отчётность МСФО/РСБУ или веб-страница) и
     вернуть структурный разбор — демонстрация «файл приходит агенту, он его
     анализирует». Egress-нюанс: на проде внешний хост может быть недоступен без
-    релея (см. agent_web.py) — тогда честная ошибка, не падение."""
-    from app.services.document_analyst import analyze_document
+    релея (см. agent_web.py) — тогда честная ошибка, не падение.
+
+    Если запрос авторизован — разбор СОХРАНЯЕТСЯ в историю диалогов ассистента
+    (владелец 2026-07-26: раньше разбор жил только в локальном состоянии панели
+    и терялся при уходе со вкладки). Для неавторизованных работает как раньше,
+    просто без сохранения. Сохранение — best-effort: его сбой не роняет разбор."""
+    from app.services.document_analyst import analyze_document, analysis_to_markdown
     url = str(payload.get("url", "")).strip()
     if not url:
         return {"error": "no_url"}
-    return analyze_document(url, question=(payload.get("question") or None))
+    res = analyze_document(url, question=(payload.get("question") or None))
+    if not res.get("error") and user:
+        try:
+            from datetime import datetime, timezone
+            from app.models.assistant import Conversation, Message
+            conv = Conversation(user_id=user.id,
+                                title=f"Разбор документа: {url[:90]}")
+            db.add(conv); db.flush()
+            db.add(Message(conversation_id=conv.id, role="user",
+                           content=f"Разбери документ по ссылке: {url}"))
+            db.add(Message(conversation_id=conv.id, role="assistant",
+                           content=analysis_to_markdown(res, url),
+                           source_refs=[{"kind": "document", "url": url}]))
+            conv.updated_at = datetime.now(timezone.utc)
+            db.commit()
+            res["conversation_id"] = conv.id
+        except Exception:  # noqa: BLE001
+            db.rollback()
+    return res
 
 
 @router.get("/agents/web-search")

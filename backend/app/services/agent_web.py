@@ -129,21 +129,36 @@ def web_search(query: str, max_results: int = 5) -> dict:
 
 # ─────────────────────────── документы ───────────────────────────
 
-def _extract_pdf(content: bytes, max_chars: int) -> str:
+def _extract_pdf(content: bytes, max_chars: int) -> tuple[str, dict]:
+    """Текст PDF + метаданные извлечения. У реальных отчётностей часть страниц —
+    таблицы-ИЗОБРАЖЕНИЯ без текстового слоя (подтверждено на боевых кейсах
+    2026-07-25: у Северстали страница P&L, у НОВАТЭКа страница баланса — pypdf
+    отдаёт по ним пусто). Раньше это терялось молча → LLM-разборщик честно писал
+    «выручка не раскрыта в тексте», а пользователь читал это как «компания не
+    раскрыла выручку» (неправда — она на странице-картинке). Метаданные
+    (какие страницы пустые) отдаём вызывающему, чтобы разборщик явно говорил
+    «не извлеклось из PDF», а не «не раскрыто компанией»."""
     from pypdf import PdfReader
     reader = PdfReader(io.BytesIO(content))
     parts = []
+    empty_pages = []
     total = 0
-    for page in reader.pages:
+    truncated = False
+    for idx, page in enumerate(reader.pages, 1):
         try:
             t = page.extract_text() or ""
         except Exception:  # noqa: BLE001
             t = ""
+        if len(t.strip()) < 20:  # практически пустой текстовый слой
+            empty_pages.append(idx)
         parts.append(t)
         total += len(t)
         if total > max_chars:
+            truncated = True
             break
-    return re.sub(r"[ \t]+", " ", "\n".join(parts)).strip()[:max_chars]
+    meta = {"pages_total": len(reader.pages), "pages_read": len(parts),
+            "pages_no_text_layer": empty_pages, "truncated": truncated}
+    return re.sub(r"[ \t]+", " ", "\n".join(parts)).strip()[:max_chars], meta
 
 
 def _extract_html(text: str, max_chars: int) -> str:
@@ -191,11 +206,15 @@ def fetch_document(url: str, max_chars: int = 12000) -> dict:
         return {"error": "fetch_failed", "detail": type(last_err).__name__,
                 "note": "Документ с сервера не открылся (вероятно egress-ограничение хостинга)."}
     is_pdf = "application/pdf" in ctype or url.lower().endswith(".pdf") or content[:5] == b"%PDF-"
+    extraction: dict = {}
     try:
-        text = _extract_pdf(content, max_chars) if is_pdf else _extract_html(r.text, max_chars)
+        if is_pdf:
+            text, extraction = _extract_pdf(content, max_chars)
+        else:
+            text = _extract_html(r.text, max_chars)
     except Exception as e:  # noqa: BLE001
         return {"error": "extract_failed", "detail": type(e).__name__}
     if not text:
         return {"error": "empty_text", "note": "Документ открылся, но текст не извлёкся (возможно скан/картинки в PDF)."}
     return {"url": url, "kind": "pdf" if is_pdf else "html",
-            "chars": len(text), "text": text}
+            "chars": len(text), "text": text, "extraction": extraction}

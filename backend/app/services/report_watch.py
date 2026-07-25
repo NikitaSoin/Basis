@@ -69,6 +69,7 @@ from app.models.calendar_event import CalendarEvent
 from app.models.company import Company
 from app.models.earnings import EarningsReport, EarningsFigures, EarningsDigest
 from app.services import tinkoff_quotes
+from app.services.agent_web import fetch_document
 from app.services.earnings import _digest, _multiples  # переиспользуем прежний шаблон
 
 logger = logging.getLogger(__name__)
@@ -688,6 +689,16 @@ def process_news_item(db: Session, item: dict, company: Company, market_cap: flo
     ticker = item["ticker"]
     pub_date = item["published_at"]
     text_blob = f"{item['title']}\n{item.get('summary') or ''}\n{item.get('impact_comment') or ''}".strip()
+    # 🔴 Обогащение ПОЛНЫМ текстом статьи-источника (владелец 2026-07-26: разбор
+    # ММК жаловался «отсутствие данных о выручке/EBITDA/долге», хотя статья Ъ и
+    # пресс-релиз компании их содержат): title+summary из Ленты — 2-3 предложения,
+    # экстракторы и _digest_rich видели ТОЛЬКО их. Если у новости есть source_url —
+    # качаем полный текст статьи (fetch_document уже умеет direct-first + релей).
+    # Деградация честная: не скачалось — работаем по заголовку, как раньше.
+    if item.get("source_url"):
+        full = fetch_document(item["source_url"], max_chars=10000)
+        if not full.get("error") and (full.get("chars") or 0) > len(text_blob) + 200:
+            text_blob = f"{text_blob}\n\n=== ПОЛНЫЙ ТЕКСТ ИСТОЧНИКА ===\n{full['text']}"
     blob_l = text_blob.lower()
     nearby = (db.query(EarningsReport)
               .filter(EarningsReport.ticker == ticker,
@@ -1087,7 +1098,8 @@ def _due_news_reports(db: Session, companies: dict, days_back: int) -> list[dict
         for t in tickers:
             if t in companies:
                 out.append({"market_update_id": r.id, "ticker": t, "published_at": r.published_at.date(),
-                            "title": r.title, "summary": r.summary, "impact_comment": r.impact_comment})
+                            "title": r.title, "summary": r.summary, "impact_comment": r.impact_comment,
+                            "source_url": r.source_url})
     return out
 
 

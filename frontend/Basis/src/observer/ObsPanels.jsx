@@ -449,7 +449,8 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
       {!loading && filtered.length > 0 && (
         <div className="obs-rep-list">
           {filtered.map((r, i) => {
-            const hasDetail = (r.positives && r.positives.length > 0)
+            const hasDetail = (r.facts && r.facts.length > 0)
+              || (r.positives && r.positives.length > 0)
               || (r.risks && r.risks.length > 0)
               || r.conclusion || r.data_gaps;
             const isOpen = !!openCards[i];
@@ -507,6 +508,20 @@ function ObsReports({ token, portfolioOnly, onSelectCompany }) {
                       {isOpen ? "Свернуть ▴" : "Читать разбор ▾"}
                     </button>
                     <div className={`obs-rep-detail${isOpen ? " open" : ""}`}>
+                      {/* facts — НЕЙТРАЛЬНЫЕ ключевые факты богатого разбора
+                         (LLM возвращает «главное из текста», не позитив) —
+                         раньше рендерились под лейблом «Позитив», из-за чего
+                         «Чистый убыток 19,1 млрд» оказывался в Позитиве
+                         (владелец, 2026-07-26, кейс ММК). Секция «Главное» —
+                         нейтральный стиль, без зелёной семантики. */}
+                      {r.facts && r.facts.length > 0 && (
+                        <div className="obs-rep-section">
+                          <div className="obs-rep-section-title">Главное</div>
+                          {r.facts.map((b, j) => (
+                            <div key={j} className="obs-rep-bullet">{b}</div>
+                          ))}
+                        </div>
+                      )}
                       {r.positives && r.positives.length > 0 && (
                         <div className="obs-rep-section">
                           <div className="obs-rep-section-title positive">Позитив</div>

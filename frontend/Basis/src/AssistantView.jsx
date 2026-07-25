@@ -65,7 +65,10 @@ function DocAnalyzeResult({ res }) {
 // inline — компактная строка ввода для композера режима «Агент» (владелец,
 // 2026-07-23): результат уходит наверх через onResult и рендерится в ленте
 // как обычная карточка ответа, а не внутри самой панели.
-function DocAnalyzePanel({ inline = false, onResult }) {
+// token — если передан, бэкенд сохраняет разбор в историю диалогов ассистента
+// (владелец 2026-07-26: раньше разбор терялся при уходе со вкладки);
+// onSaved(conversation_id) — сигнал родителю обновить список диалогов.
+function DocAnalyzePanel({ inline = false, onResult, token, onSaved }) {
   const [url, setUrl] = useState("");
   const [res, setRes] = useState(null);
   const [state, setState] = useState("idle"); // idle | loading | error
@@ -78,11 +81,16 @@ function DocAnalyzePanel({ inline = false, onResult }) {
     setState("loading"); setRes(null);
     onResult?.(null, "loading");
     fetch(`${API}/api/agents/analyze-document`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST",
+      headers: { "Content-Type": "application/json",
+                 ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ url: url.trim() }),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { setRes(d); setState(d.error ? "error" : "done"); onResult?.(d); })
+      .then((d) => {
+        setRes(d); setState(d.error ? "error" : "done"); onResult?.(d);
+        if (d.conversation_id) onSaved?.(d.conversation_id);
+      })
       .catch(() => { const errRes = { error: "network" }; setRes(errRes); setState("error"); onResult?.(errRes); });
   };
 
@@ -611,7 +619,8 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
                 <span>Агент</span>
               </button>
               {agentMode ? (
-                <DocAnalyzePanel inline onResult={handleDocResult} />
+                <DocAnalyzePanel inline onResult={handleDocResult} token={token}
+                  onSaved={() => loadConversations()} />
               ) : (
                 <>
                   <textarea

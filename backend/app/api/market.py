@@ -927,8 +927,16 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
         # Богатый разбор (report_watch._digest_rich, реальный текст источника) —
         # предпочитаем, если есть; иначе деградируем на узкий путь (маркеры ✅/❌/❗️
         # только по 3 цифрам — Path A из financials.json, или LLM-сбой богатого пути).
+        # 🔴 dg.highlights — НЕЙТРАЛЬНЫЕ ключевые факты (промпт _RICH_SPEC: «факт/тезис
+        # ИЗ ТЕКСТА»), не позитив: раньше они отдавались в поле positives и витрина
+        # подписывала их «Позитив» — «Чистый убыток 19,1 млрд» оказывался в Позитиве
+        # (владелец, 2026-07-26, кейс ММК). Теперь факты — отдельное поле facts
+        # (секция «Главное» на фронте), а positives — только реально позитивные
+        # ✅-маркеры узкого пути.
+        facts: list = []
         if dg and dg.highlights is not None:
-            positives, risks = dg.highlights, (dg.risks_or_caveats or [])
+            facts, risks = dg.highlights, (dg.risks_or_caveats or [])
+            positives = []
         else:
             positives, risks = _split_markers(dg.what_report_showed if dg else None)
         prev = (fig.prev or {}) if fig else {}
@@ -939,6 +947,7 @@ def market_earnings(portfolio_only: bool = False, limit: int = 60,
             "sector": sector,
             "one_liner": dg.one_liner if dg else None,
             "importance": dg.importance if dg else None,
+            "facts": facts,
             "positives": positives,
             "risks": risks,
             "conclusion": (dg.summary if dg else None),
