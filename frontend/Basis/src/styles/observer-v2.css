@@ -4793,13 +4793,35 @@ details[open] > summary .obs-inst-chev,
 }
 .obs-geomap-method-note svg { flex-shrink: 0; margin-top: 2px; }
 
-/* Маркеры событий — DOM-элемент внутри обёртки maplibregl.Marker (сама
-   библиотека держит позицию/офсет в px синхронно с паном/зумом, здесь только
-   визуальный хром, без position/transform — тот занят обёрткой библиотеки). */
+/* Маркеры событий — ДВА вложенных узла внутри обёртки maplibregl.Marker:
+   `.obs-geomap-marker` (сама кнопка el, ЕЁ transform библиотека переписывает
+   на КАЖДЫЙ пересчёт позиции — position:absolute;top:0;left:0 в
+   maplibregl-gl.css + JS translate(pos.x,pos.y) поверх anchor-центрирования)
+   и вложенный `.obs-geomap-marker-visual` (обычный span, transform которого
+   библиотекой не трогается). ВЕСЬ визуальный хром (круг/цвет/тень/hover-
+   scale) — НА ВНУТРЕННЕМ span. Раньше он был на самой кнопке el — рабочий
+   баг (владелец, 2026-07-25: «кружки при наведении смещаются вправо»):
+   т.к. transform-origin для el считается от НЕпреобразованного положения
+   (top:0;left:0, т.е. угол карты), scale на el домножал уже готовый
+   translate(x,y) библиотеки — маркер визуально «улетал» от точки на карте на
+   величину, растущую с расстоянием от угла карты (подтверждено на бою:
+   getBoundingClientRect до/после hover — сдвиг центра на ~17×13px у
+   маркера в правой части карты, у маркеров возле (0,0) сдвига почти нет —
+   это и есть отпечаток бага). Фикс — стандартный паттерн MapLibre/Mapbox:
+   hover-эффекты, трогающие scale/rotate/translate, ВСЕГДА на дочернем узле,
+   никогда на элементе, который передан в `new maplibregl.Marker({element})`. */
 .obs-geomap-marker {
   width: 26px;
   height: 26px;
   padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.obs-geomap-marker-visual {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4807,21 +4829,22 @@ details[open] > summary .obs-inst-chev,
   background: var(--bg-elevated);
   border: 1.5px solid var(--border-strong);
   color: var(--text-secondary);
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: border-color 150ms ease, color 150ms ease, background 150ms ease, scale 150ms ease;
 }
-.obs-geomap-marker:hover {
+.obs-geomap-marker:hover .obs-geomap-marker-visual {
   border-color: var(--accent);
   color: var(--accent);
   scale: 1.12;
 }
 .obs-geomap-marker:focus-visible {
   outline: none;
+}
+.obs-geomap-marker:focus-visible .obs-geomap-marker-visual {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
-.obs-geomap-marker--active {
+.obs-geomap-marker--active .obs-geomap-marker-visual {
   background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent-hover, var(--accent));
@@ -4839,18 +4862,18 @@ details[open] > summary .obs-inst-chev,
    (подтверждённый факт) и НЕ с --accent (обычный выбор/hover маркера события).
    Иконка-вопрос (CircleHelp) — дополнительный, не только цветовой, сигнал
    «под вопросом» (не полагаемся на один цвет, см. конституцию доступности). */
-.obs-geomap-marker--claimed {
+.obs-geomap-marker--claimed .obs-geomap-marker-visual {
   background: var(--bg-elevated);
   border-style: dashed;
   border-color: var(--warning);
   color: var(--warning);
 }
-.obs-geomap-marker--claimed:hover {
+.obs-geomap-marker--claimed:hover .obs-geomap-marker-visual {
   border-color: var(--warning);
   color: var(--warning);
   background: var(--warning-soft);
 }
-.obs-geomap-marker--claimed.obs-geomap-marker--active {
+.obs-geomap-marker--claimed.obs-geomap-marker--active .obs-geomap-marker-visual {
   background: var(--warning-soft);
   border-style: dashed;
   border-color: var(--warning);
@@ -4864,19 +4887,24 @@ details[open] > summary .obs-inst-chev,
    (Иконка тоже разного размера — не полагаемся на один только цвет, см.
    конституцию доступности): "major" — крупнее, --danger (значимый удар это
    такой же факт-на-карте, что и control-fill/линия фронта, тот же токен);
-   "minor" — заметно мельче и приглушённее нейтрального маркера события. */
+   "minor" — заметно мельче и приглушённее нейтрального маркера события.
+   Размер (width/height) остаётся на внешней кнопке — это влияет на anchor-
+   центрирование библиотеки (maplibregl-marker-anchor-center), а НЕ на
+   transform, поэтому здесь безопасен. */
 .obs-geomap-marker--strike-major {
   width: 30px;
   height: 30px;
+}
+.obs-geomap-marker--strike-major .obs-geomap-marker-visual {
   border-color: var(--danger);
   color: var(--danger);
 }
-.obs-geomap-marker--strike-major:hover {
+.obs-geomap-marker--strike-major:hover .obs-geomap-marker-visual {
   border-color: var(--danger);
   color: var(--danger);
   background: var(--danger-soft);
 }
-.obs-geomap-marker--strike-major.obs-geomap-marker--active {
+.obs-geomap-marker--strike-major.obs-geomap-marker--active .obs-geomap-marker-visual {
   background: var(--danger-soft);
   border-color: var(--danger);
   color: var(--danger);
@@ -4894,8 +4922,8 @@ details[open] > summary .obs-inst-chev,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .obs-geomap-marker { transition: none; }
-  .obs-geomap-marker:hover { scale: 1; }
+  .obs-geomap-marker-visual { transition: none; }
+  .obs-geomap-marker:hover .obs-geomap-marker-visual { scale: 1; }
   .obs-geomap-detail-close { transition: none; }
 }
 

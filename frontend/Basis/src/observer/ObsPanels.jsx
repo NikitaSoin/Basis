@@ -3044,7 +3044,19 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
             evt.stopPropagation();
             if (evt.detail === 0) selectEvent(t.key, ev.id, wp.coords);
           });
-          const root = createRoot(el);
+          // Визуальный хром (круг/цвет/hover-scale) — на ВНУТРЕННЕМ span, НЕ на
+          // самой кнопке `el`: maplibregl.Marker пишет position-transform
+          // (translate) напрямую в el.style.transform, и если hover-стиль тоже
+          // трогает transform/scale на el, transform-origin считается от
+          // непреобразованного (top:0;left:0 у maplibregl-marker) положения —
+          // получается, что scale домножает уже готовый translate и маркер
+          // «улетает» от точки на карте (воспроизведено и измерено на бою:
+          // getBoundingClientRect до/после hover). Внутренний span transform
+          // библиотекой не трогается — scale на нём безопасен.
+          const visual = document.createElement("span");
+          visual.className = "obs-geomap-marker-visual";
+          el.appendChild(visual);
+          const root = createRoot(visual);
           root.render(<Icon size={13} aria-hidden="true" />);
           const marker = new maplibregl.Marker({ element: el, offset: [offsetX, 0] }).setLngLat(wp.coords).addTo(map);
           markersRef.current.push({ id: `${t.key}:${ev.id}`, theaterKey: t.key, key: ev.id, marker, root, el });
@@ -3082,7 +3094,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
           evt.stopPropagation();
           if (evt.detail === 0) selectClaimed(t.key, c.id, c.coords);
         });
-        const root = createRoot(el);
+        // Визуал — на внутреннем span, не на el (см. пояснение у маркеров событий выше).
+        const visual = document.createElement("span");
+        visual.className = "obs-geomap-marker-visual";
+        el.appendChild(visual);
+        const root = createRoot(visual);
         root.render(<CircleHelp size={13} aria-hidden="true" />);
         const marker = new maplibregl.Marker({ element: el }).setLngLat(c.coords).addTo(map);
         claimedMarkersRef.current.push({ id: `${t.key}:${c.id}`, theaterKey: t.key, key: c.id, marker, root, el });
@@ -3120,7 +3136,11 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
           evt.stopPropagation();
           if (evt.detail === 0) selectStrike(t.key, s.id, s.coords);
         });
-        const root = createRoot(el);
+        // Визуал — на внутреннем span, не на el (см. пояснение у маркеров событий выше).
+        const visual = document.createElement("span");
+        visual.className = "obs-geomap-marker-visual";
+        el.appendChild(visual);
+        const root = createRoot(visual);
         root.render(<StrikeIcon size={isMajor ? 14 : 10} aria-hidden="true" />);
         const marker = new maplibregl.Marker({ element: el }).setLngLat(s.coords).addTo(map);
         strikeMarkersRef.current.push({ id: `${t.key}:${s.id}`, theaterKey: t.key, key: s.id, marker, root, el });
