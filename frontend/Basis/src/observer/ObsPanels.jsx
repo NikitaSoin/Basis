@@ -5762,6 +5762,7 @@ function ObsEconomy({ token, forceIndicator }) {
   const [rateChart, setRateChart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fcScIdx, setFcScIdx] = useState(0);
+  const [dq, setDq] = useState(null); // «ОТК данных» — результат автопроверки (macro_verification)
 
   // ── detail chart state ──
   const [detailInd, setDetailInd] = useState(null);
@@ -5789,7 +5790,9 @@ function ObsEconomy({ token, forceIndicator }) {
       fetch(`${apiUrl}/api/market/macro`, { headers: h }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
       fetch(`${apiUrl}/api/market/macro/forecast`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`${apiUrl}/api/market/macro/expert-survey`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([rt, inds, fc, sv]) => {
+      fetch(`${apiUrl}/api/market/macro/data-quality`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([rt, inds, fc, sv, dqRes]) => {
+      setDq(dqRes);
       setRate(rt);
       const arr = Array.isArray(inds) ? inds : [];
       setIndicators(arr);
@@ -5910,8 +5913,52 @@ function ObsEconomy({ token, forceIndicator }) {
   const fcInds = [...new Set(fcRows.map((r) => r.indicator))];
   const fcCell = (ind, year) => fcRows.find((r) => r.indicator === ind && r.year === year);
 
+  // «ОТК данных» (вариант «б» владельца, 2026-07-25): результат ежедневной
+  // автопроверки данных прямо на витрине. Всё ок → тихая строка «сверено»;
+  // есть расхождения/пропуски → заметный callout со списком. Цвет — только в
+  // статусе (это данные, не хром). status=unavailable не пугает пользователя
+  // (сеть моргнула — не проблема данных), но и не даёт зелёного «сверено».
+  const dqProblems = (dq?.checks || []).filter((c) => c.status === "warn" || c.status === "fail");
+  const dqHasFail = dqProblems.some((c) => c.status === "fail");
+  const dqRunStr = dq?.run_at
+    ? new Date(dq.run_at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+    : null;
+  const dqPlural = (n) => (n % 10 === 1 && n % 100 !== 11 ? "замечание"
+    : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "замечания" : "замечаний");
+
   return (
     <div>
+      {/* ──────────── 0. «ОТК ДАННЫХ» ──────────── */}
+      {dq?.run_at && dqProblems.length === 0 && (
+        <div style={{ fontSize: 12, color: "var(--text-tertiary)", margin: "0 0 12px",
+                      display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ color: "var(--success)" }} aria-hidden="true">●</span>
+          <span>Данные сверены с первоисточниками (ЦБ РФ, Мосбиржа) · {dqRunStr} · факт</span>
+        </div>
+      )}
+      {dq?.run_at && dqProblems.length > 0 && (
+        <div style={{ border: "1px solid var(--border-subtle)",
+                      borderLeft: `3px solid var(${dqHasFail ? "--danger" : "--warning"})`,
+                      borderRadius: 10, padding: "10px 14px", margin: "0 0 16px", fontSize: 13 }}>
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>
+            Автопроверка данных: {dqProblems.length} {dqPlural(dqProblems.length)}
+            <span style={{ fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 8, fontSize: 12 }}>
+              {dqRunStr} · показатели с замечаниями могут быть неточны, мы уже разбираемся
+            </span>
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {dqProblems.map((c) => (
+              <li key={c.key} style={{ marginBottom: 3 }}>
+                <span style={{ color: `var(${c.status === "fail" ? "--danger" : "--warning"})` }}>
+                  {c.status === "fail" ? "✕" : "!"}
+                </span>{" "}
+                <b>{c.title}:</b> {c.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* ──────────── 1. HERO RATE ──────────── */}
       {rate?.key_rate && (
         <div className="obs-hero-rate">

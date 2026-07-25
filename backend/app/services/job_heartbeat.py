@@ -31,6 +31,7 @@ EXPECTED_INTERVAL_SEC: dict[str, int] = {
     "geo_digest": 3 * 3600,              # каждый час
     "macro_ingest": 60 * 3600,           # ежедневно
     "macro_interpretation": 60 * 3600,
+    "macro_verification": 60 * 3600,     # «ОТК данных» — ежедневно 18:30
     "earnings_digest": 60 * 3600,
     "report_watch": 60 * 3600,
     "geopolitics": 60 * 3600,

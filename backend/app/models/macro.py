@@ -156,3 +156,34 @@ class MacroInterpretation(Base):
     )
     model_used: Mapped[str | None] = mapped_column(String(64))
     source_snapshot: Mapped[dict | None] = mapped_column(JSONB)  # срез данных, по которым построено
+
+
+# Статусы одной проверки «ОТК данных» (macro_verification.py)
+MACRO_VERIFY_STATUSES = ("ok", "warn", "fail", "unavailable")
+
+
+class MacroVerification(Base):
+    """Результат ОДНОЙ проверки «ОТК данных» (владелец, 2026-07-25: «надо чтобы не я
+    вручную замечал баги... отдельная проверка — а правильно ли данные загрузились»).
+
+    Пайплайн macro_verification.py ежедневно прогоняет набор проверок трёх типов:
+    calendar (обновились ли данные после ожидаемого события — заседание ЦБ, среда
+    недельной инфляции), cross (значение в БД сверено с НЕЗАВИСИМЫМ источником —
+    другая страница/парсер, чем при загрузке) и delta (значение не прыгнуло
+    неправдоподобно за один шаг). Каждый прогон пишет ПОЛНЫЙ набор строк (по одной
+    на проверку); витрина берёт строки последнего прогона (max run_at). История
+    прогонов сохраняется — по ней видно, когда проверка начала краснеть."""
+    __tablename__ = "macro_verifications"
+    __table_args__ = (Index("ix_macro_verifications_run_at", "run_at"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    run_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    check_key: Mapped[str] = mapped_column(String(64), nullable=False)   # "cross_key_rate", "calendar_rate_meeting", ...
+    check_type: Mapped[str] = mapped_column(String(16), nullable=False)  # calendar | cross | delta
+    title: Mapped[str] = mapped_column(String(200), nullable=False)      # человекочитаемое имя проверки (RU)
+    status: Mapped[str] = mapped_column(String(16), nullable=False)      # ok | warn | fail | unavailable
+    message: Mapped[str | None] = mapped_column(Text)                    # что именно не так (RU, для витрины)
+    details: Mapped[dict | None] = mapped_column(JSONB)                  # db_value / ref_value / source_url / ...
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )

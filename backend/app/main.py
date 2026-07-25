@@ -349,6 +349,30 @@ async def _macro_rate_watch_job():
         logger.exception("Ошибка почасовой проверки ставки ЦБ: %s", e)
 
 
+async def _macro_verification_job():
+    """«ОТК данных» Макрообзора (владелец, 2026-07-25): ежедневная проверка, что
+    данные верные и свежие — календарь заседаний ЦБ, кросс-сверка с независимыми
+    источниками (hd_base-таблицы ЦБ, MOEX ISS, пресс-релиз, PDF инФОМ), лимиты
+    скачков. Только сигналит (пишет macro_verifications → плашка в Обозревателе),
+    данные НЕ правит. Вечером — после всех дневных синков (06:30 macro_ingest,
+    почасовой macro_rate_watch). Без LLM — дёшево."""
+    def _run():
+        from app.db.session import SessionLocal
+        from app.services.macro_verification import run_verification
+        db = SessionLocal()
+        try:
+            return run_verification(db)
+        finally:
+            db.close()
+    try:
+        res = await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("ОТК данных: %s", res)
+    except Exception as e:
+        logger.exception("Ошибка ОТК данных: %s", e)
+        from app.services.job_heartbeat import hb_err
+        hb_err("macro_verification", e)
+
+
 _EARNINGS_SEED = ["LKOH", "ROSN", "GAZP", "NVTK", "TATN", "SIBN", "PHOR", "GMKN",
                   "MGNT", "MTSS", "YDEX", "PLZL", "CHMF", "NLMK", "MOEX", "AFLT",
                   "RTKM", "MAGN", "SNGS", "ALRS"]
@@ -805,6 +829,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(_with_heartbeat("news_feed", _news_job), "cron", minute=5, id="news_feed")  # каждый час
         scheduler.add_job(_with_heartbeat("macro_ingest", _macro_job), "cron", hour=6, minute=30, id="macro_ingest")
         scheduler.add_job(_with_heartbeat("macro_rate_watch", _macro_rate_watch_job), "cron", minute=20, id="macro_rate_watch")  # почасово — ловит заседание ЦБ в тот же день
+        scheduler.add_job(_with_heartbeat("macro_verification", _macro_verification_job), "cron", hour=18, minute=30, id="macro_verification")  # «ОТК данных» — вечером, после всех синков
         scheduler.add_job(_with_heartbeat("macro_interpretation", _macro_interpretation_job), "cron", hour=7, minute=15, id="macro_interpretation")
         scheduler.add_job(_with_heartbeat("earnings_digest", _earnings_job), "cron", hour=20, minute=30, id="earnings_digest")
         scheduler.add_job(_with_heartbeat("report_watch", _report_watch_job), "cron", hour=20, minute=45, id="report_watch")

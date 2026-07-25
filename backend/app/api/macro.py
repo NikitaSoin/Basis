@@ -223,6 +223,17 @@ def macro_interpretation_post(db: Session = Depends(get_db), user=Depends(get_cu
             "model_used": row.model_used}
 
 
+@router.get("/market/macro/data-quality")
+def macro_data_quality(db: Session = Depends(get_db)):
+    """«ОТК данных» для плашки в Обозревателе (Экономическая статистика): результат
+    последнего прогона автопроверок (календарь заседаний ЦБ / кросс-сверка с
+    независимыми источниками / лимиты скачков). Витринная честность платформы:
+    зелёная строка «данные сверены» или жёлтый/красный callout с деталями.
+    См. app/services/macro_verification.py."""
+    from app.services.macro_verification import latest_results
+    return latest_results(db)
+
+
 @router.get("/market/macro/{code}/series")
 def macro_series(code: str, metric: str = "level",
                  from_: str | None = Query(None, alias="from"), to: str | None = None,
