@@ -1026,6 +1026,25 @@ def debug_trigger_geo_frontline_sync():
         db.close()
 
 
+@router.post("/debug/trigger-geo-digest-backfill-strikes")
+def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
+    """Разовый догоняющий прогон geo_digest.backfill_strike_events() по уже
+    сохранённым статьям последних `days` дней — закрывает пробел для статей,
+    сохранённых ДО того, как основной пайплайн стал извлекать strike_events/
+    territorial_claims (или пока фикс NameError ещё не был на бою), а дедуп
+    по source_url не даёт им повторно пройти через refresh()."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import backfill_strike_events
+    db = SessionLocal()
+    try:
+        return backfill_strike_events(db, days=days)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-geo-digest-backfill-strikes: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-chronicle-backfill")
 def debug_trigger_chronicle_backfill():
     """Разовый/периодический бэкфилл аналитической летописи из обоих источников

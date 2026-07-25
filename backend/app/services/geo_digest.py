@@ -412,6 +412,80 @@ def cleanup_expired_strikes(db: Session) -> int:
     return removed
 
 
+_BACKFILL_SYS = (
+    "Тебе дан список уже готовых пересказов статей геополитического дайджеста "
+    "(заголовок+summary, СВОИМИ СЛОВАМИ, уже опубликованы). Извлеки из каждого "
+    "СТРУКТУРИРОВАННЫЕ события, ТОЛЬКО если они ЯВНО и КОНКРЕТНО описаны в "
+    "тексте (не выдумывай, не притягивай — если неясно/абстрактно, просто не "
+    "включай ключ вовсе):\n"
+    "- strike_events — КОНКРЕТНЫЙ удар/атака по КОНКРЕТНОЙ цели/локации (не "
+    "общие фразы вида «обстрелы продолжаются» без места). Каждый: "
+    "{\"location\": \"<название места/города, как в тексте>\", \"target_type\": "
+    "\"<что поражено — НПЗ/склад/аэродром/энергообъект/логистический центр/др., "
+    "если указано, иначе null>\", \"significance\": \"major\"|\"minor\" (major — "
+    "стратегический объект или крупный ущерб/жертвы, minor — точечный/локальный), "
+    "\"label\": \"<короткая подпись на русском 3-8 слов>\"}.\n"
+    "- territorial_claims (ТОЛЬКО у статей с target=\"svo\") — КОНКРЕТНЫЙ насел. "
+    "пункт, взятый/освобождённый/оспариваемый ПРЯМО СЕЙЧАС (не общие фразы про "
+    "«продвижение»). Каждый: {\"settlement\": \"<название>\", \"oblast\": "
+    "\"<область, если понятно, иначе null>\", \"status\": \"ru_control\"|"
+    "\"contested\", \"note\": \"<1 короткое предложение на русском>\"}.\n"
+    'Верни JSON {"items": [{"i": <индекс>, "strike_events": [...], '
+    '"territorial_claims": [...]}]}, включай только индексы, где реально есть '
+    "хотя бы одно событие — для остальных просто не создавай элемент items."
+)
+
+
+def backfill_strike_events(db: Session, days: int = 7, limit: int = 80) -> dict:
+    """Догоняющий прогон по УЖЕ сохранённым статьям (owner, 2026-07-25: реальный
+    пример — удары по складам Wildberries 18-24.07.2026 — статьи Рыбаря/
+    MarketTwits об этом УЖЕ есть в geo_digest_articles, но strike_events для них
+    остались пустыми, т.к. основной пайплайн извлекает структуру ТОЛЬКО у
+    заново обнаруженных статей (дедуп по source_url — уже известный URL второй
+    раз не проходит через LLM). Разовый/периодический догон по хвосту последних
+    `days` дней закрывает этот пробел, не трогая основной пайплайн refresh()."""
+    from app.services.llm import complete, LLMError
+
+    cutoff = date.today() - timedelta(days=days)
+    rows = (db.query(GeoDigestArticle)
+            .filter(GeoDigestArticle.target.in_(("svo", "middle_east", "atr")))
+            .filter(GeoDigestArticle.published_at >= cutoff)
+            .order_by(GeoDigestArticle.published_at.desc())
+            .limit(limit).all())
+    if not rows:
+        return {"scanned": 0, "strikes_saved": 0, "claims_saved": 0}
+
+    payload = {"articles": [{"i": i, "target": r.target, "title": r.title, "summary": r.summary}
+                            for i, r in enumerate(rows)]}
+    try:
+        res = complete(_BACKFILL_SYS, json.dumps(payload, ensure_ascii=False),
+                       json_mode=True, max_tokens=8000, temperature=0.2)
+        items = res.get("items", []) if isinstance(res, dict) else []
+    except LLMError as e:
+        logger.warning("geo_digest backfill: LLM недоступен (%s)", e)
+        return {"scanned": len(rows), "strikes_saved": 0, "claims_saved": 0, "error": str(e)}
+
+    strikes_saved = 0
+    claims_saved = 0
+    for it in items:
+        idx = it.get("i")
+        if not isinstance(idx, int) or not (0 <= idx < len(rows)):
+            continue
+        row = rows[idx]
+        strikes = it.get("strike_events")
+        if isinstance(strikes, list) and strikes:
+            strikes_saved += _persist_strike_events(db, row.target, strikes, row.published_at,
+                                                      row.source_key, row.source_url)
+        if row.target == "svo":
+            claims = it.get("territorial_claims")
+            if isinstance(claims, list) and claims:
+                claims_saved += _persist_territorial_claims(db, claims, row.published_at,
+                                                              row.source_key, row.source_url)
+    logger.info("geo_digest backfill: просмотрено %d статей, %d ударов, %d territorial_claims",
+                len(rows), strikes_saved, claims_saved)
+    return {"scanned": len(rows), "strikes_saved": strikes_saved, "claims_saved": claims_saved}
+
+
 # ----------------------------- ПАЙПЛАЙН -----------------------------
 def _known_urls(db: Session) -> set[str]:
     return {u for (u,) in db.query(GeoDigestArticle.source_url).all()}
