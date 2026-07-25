@@ -142,6 +142,8 @@ const SUGGESTION_POOL = [
    "Самые дешёвые акции по P/E прямо сейчас", "Какие компании сектора металлов сейчас интересны?"],
   ["Как санкции влияют на экспортёров?", "Что с институциональными рисками у госкомпаний?",
    "Что сейчас в ленте новостей по рынку?", "Какие компании больше всего зависят от геополитики?"],
+  ["Сделай экспресс-обзор рынка", "Сделай подробный отчёт по макроэкономике",
+   "Что такое полосы Боллинджера?", "Объясни, что такое дюрация облигации"],
 ];
 function pickSuggestions() {
   return SUGGESTION_POOL.map((group) => group[Math.floor(Math.random() * group.length)]);
@@ -445,12 +447,16 @@ export default function AssistantView({ token, onAuthRequired, onOpenCompany }) 
     <div className="asst-wrap-outer">
       {mobileDrawerOpen && <MobileDrawerBackdrop onClose={() => setMobileDrawerOpen(false)} />}
       <div className={`asst-shell${sidebarCollapsed ? " collapsed" : ""}`}>
-        {/* История диалогов — на ≤760px это msd-drawer (overlay), на десктопе
-            обычная колонка, которую сворачивает .collapsed (grid-column). */}
+        {/* История диалогов — тёмный рельс единого семейства с сайдбарами
+            Рынка/Обозревателя/Портфеля (styles/assistant.css, --asst-deep-*).
+            На ≤760px это msd-drawer (overlay), на десктопе обычная колонка,
+            которую сворачивает .collapsed (grid-column). */}
         <aside
           className={`asst-side msd-drawer${mobileDrawerOpen ? " msd-drawer--open" : ""}`}
+          aria-label="История диалогов"
           inert={(drawerNarrow ? !mobileDrawerOpen : sidebarCollapsed) || undefined}
         >
+          <div className="asst-side-depth" aria-hidden="true" />
           <button type="button" className="asst-new" onClick={startNew}>
             <Plus size={15} /> Новый диалог
           </button>

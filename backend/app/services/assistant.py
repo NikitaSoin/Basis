@@ -76,8 +76,22 @@ _EXTRACT_SYSTEM_PREFIX = (
     "- wants_macro: true, если вопрос про макроэкономику РФ в целом (ставка, инфляция, "
     "курс) без привязки к конкретной компании.\n"
     "- wants_news: true, если вопрос про свежие новости/события.\n"
+    "- wants_report: true, если пользователь просит СГЕНЕРИРОВАТЬ ОТЧЁТ/сводку/обзор "
+    "рынка или портфеля («сделай отчёт», «дай сводку по рынку», «ИИ-обзор», «утренний "
+    "обзор») — не просто вопрос, а запрос готового структурного обзора.\n"
+    "- report_topic: если wants_report — тема из списка: \"biz\" (бизнес/отчётности "
+    "компаний), \"macro\" (макроэкономика), \"geo\" (геополитика), \"institutions\" "
+    "(институциональная среда), \"mixed\" (общий/не уточнил). Иначе null.\n"
+    "- report_depth: если wants_report — глубина: \"express\" (короткая сводка, "
+    "по умолчанию), \"detailed\" (подробный, неделя), \"deep\" (глубокий, месяц). "
+    "Иначе null.\n"
+    "- scope: область вопроса — \"platform\" (про конкретные компании/цифры/данные "
+    "платформы), \"general\" (общие знания: что такое индикатор/термин, как работает "
+    "инструмент, внешняя политика, мировые рынки, история — БЕЗ запроса конкретных "
+    "текущих цифр наших компаний), \"mixed\" (и то и то).\n"
     "Верни строго JSON: {\"tickers\": [...], \"wants_screener\": bool, "
-    "\"wants_macro\": bool, \"wants_news\": bool}\n\n"
+    "\"wants_macro\": bool, \"wants_news\": bool, \"wants_report\": bool, "
+    "\"report_topic\": str|null, \"report_depth\": str|null, \"scope\": str}\n\n"
     "СПИСОК КОМПАНИЙ ПЛАТФОРМЫ (тикер: имя):\n"
 )
 
@@ -88,22 +102,31 @@ def _extract_entities(db: Session, user_message: str, history_text: str) -> dict
     user_content = (f"Недавний диалог (для контекста, если вопрос ссылается на "
                     f"предыдущий):\n{history_text}\n\nВопрос: {user_message}") if history_text else \
                    f"Вопрос: {user_message}"
+    _FALLBACK = {"tickers": [], "wants_screener": False, "wants_macro": False,
+                 "wants_news": False, "wants_report": False, "report_topic": None,
+                 "report_depth": None, "scope": "platform"}
     try:
         result = complete(system, user_content, json_mode=True, thinking=False,
                           max_tokens=400, temperature=0.0)
     except LLMError:
         logger.exception("Ассистент: распознавание намерения не удалось")
-        return {"tickers": [], "wants_screener": False, "wants_macro": False, "wants_news": False}
+        return dict(_FALLBACK)
     if not isinstance(result, dict):
-        return {"tickers": [], "wants_screener": False, "wants_macro": False, "wants_news": False}
+        return dict(_FALLBACK)
     tickers = result.get("tickers") or []
     if not isinstance(tickers, list):
         tickers = []
+    topic = result.get("report_topic")
+    depth = result.get("report_depth")
     return {
         "tickers": [str(t).upper() for t in tickers[:_MAX_TICKERS_PER_TURN] if t],
         "wants_screener": bool(result.get("wants_screener")),
         "wants_macro": bool(result.get("wants_macro")),
         "wants_news": bool(result.get("wants_news")),
+        "wants_report": bool(result.get("wants_report")),
+        "report_topic": topic if topic in ("biz", "macro", "geo", "institutions", "mixed") else "mixed",
+        "report_depth": depth if depth in ("express", "detailed", "deep") else "express",
+        "scope": result.get("scope") if result.get("scope") in ("platform", "general", "mixed") else "platform",
     }
 
 
@@ -233,12 +256,24 @@ def _news_context(db: Session, tickers: list[str] | None, limit: int = 8) -> lis
 # ----------------------------- Шаг 3: синтез ответа -----------------------------
 _ANSWER_FRAMEWORK = (
     "Ты — ИИ-ассистент инвестиционной платформы Basis для частного инвестора на "
-    "российском рынке. Отвечай на вопрос ТОЛЬКО на основе данных в переданном "
-    "контексте (JSON ниже) — НИКОГДА не используй цифры из своей памяти, даже если "
-    "уверен в них: если нужного числа нет в контексте, честно скажи «этих данных "
-    "нет на платформе», не досочиняй. Если контекст пустой или не по теме — прямо "
-    "скажи, что не нашёл в контуре Basis данных по этому вопросу, и предложи "
-    "переформулировать (например, назвать тикер/компанию).\n\n"
+    "российском рынке: грамотный, эрудированный аналитик-собеседник.\n\n"
+    "ДВА СЛОЯ ЗНАНИЙ — строго различай:\n"
+    "1. ДАННЫЕ ПЛАТФОРМЫ (JSON-контекст ниже) — единственный источник ЦИФР по "
+    "конкретным компаниям/рынку: цены, P/E, дивиденды, справедливые цены, новости. "
+    "Цифры такого рода из своей памяти НЕ бери НИКОГДА, даже если уверен: нет числа "
+    "в контексте — скажи «этой цифры нет в переданных данных платформы».\n"
+    "2. ОБЩИЕ ЗНАНИЯ (твоя эрудиция) — РАЗРЕШЕНЫ и приветствуются для всего "
+    "остального: что такое финансовый индикатор/термин (полосы Боллинджера, дюрация, "
+    "P/E), как работают инструменты и рынки, макроэкономические механизмы, "
+    "геополитический и внешнеэкономический контекст, история рынков, общемировые "
+    "компании и сектора. На такие вопросы давай ТОЛКОВЫЙ, исчерпывающий ответ — "
+    "образованный собеседник, а не «этих данных нет на платформе». Числа-константы "
+    "общих знаний (формулы, типовые пороги индикаторов) — можно; «текущие» рыночные "
+    "цифры из памяти (курс сегодня, цена акции сейчас) — НЕЛЬЗЯ, если их нет в "
+    "контексте: скажи, что за живой цифрой — к данным платформы.\n"
+    "Если ответ смешанный — сначала данные платформы, затем общий контекст; "
+    "помечай, где что: цифры платформы — (факт, дата), общие знания — просто "
+    "нормальным текстом, а где уместно — (общие знания, не данные Basis).\n\n"
     "СТРОГО ЗАПРЕЩЕНО: рекомендации «покупать/продавать», целевые цены как совет, "
     "прогнозы будущей цены. Справедливую цену/апсайд из контекста подавай как "
     "оценку/модель Basis, а не факт и не сигнал.\n\n"
@@ -311,9 +346,52 @@ def ask(db: Session, user_id: int, user_message: str, conversation_id: int | Non
     db.add(user_msg)
 
     entities = _extract_entities(db, user_message, history_text)
+
+    # Генерация ИИ-отчёта прямо из чата (владелец 2026-07-26: «все ИИ-функции
+    # платформы должны быть доступны из ассистента») — переиспользуем ТОТ ЖЕ
+    # генератор, что у Обозревателя (observer_report.generate): отчёт попадает
+    # и в чат (полным текстом), и в историю отчётов Обозревателя (generate сам
+    # сохраняет ObserverReport). RAG-синтез в этой ветке не гоняем — пользователь
+    # просил отчёт, не ответ на вопрос.
+    if entities.get("wants_report"):
+        from app.services.observer_report import generate as generate_report
+        depth = entities["report_depth"]
+        topic = entities["report_topic"]
+        try:
+            rep = generate_report(db, user_id, depth, topic)
+            _topic_ru = {"biz": "бизнес", "macro": "макроэкономика", "geo": "геополитика",
+                         "institutions": "институциональная среда", "mixed": "смешанный"}
+            _depth_ru = {"express": "экспресс", "detailed": "подробный", "deep": "глубокий"}
+            answer_text = (f"**ИИ-отчёт** ({_depth_ru.get(depth, depth)} · "
+                           f"{_topic_ru.get(topic, topic)}) — также сохранён в "
+                           f"Обозреватель → ИИ-обзор → История отчётов.\n\n---\n\n"
+                           f"{rep.content}")
+            refs = [{"kind": "observer_report", "id": rep.id,
+                     "title": f"ИИ-отчёт {depth}/{topic}"}]
+        except LLMError:
+            logger.exception("Ассистент: генерация отчёта не удалась")
+            answer_text = ("Не получилось сгенерировать отчёт (генератор временно "
+                           "недоступен) — попробуйте ещё раз через минуту или через "
+                           "Обозреватель → ИИ-обзор.")
+            refs = []
+        assistant_msg = Message(conversation_id=conv.id, role="assistant",
+                                content=answer_text, source_refs=refs)
+        db.add(assistant_msg)
+        conv.updated_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(conv)
+        return conv
+
     ctx, refs = _build_context(db, entities)
 
+    # scope от экстрактора — подсказка синтезу, какой слой знаний ведущий
+    # (general → образованный ответ из эрудиции; platform → строго контекст).
+    _scope_hint = {"general": "Вопрос ОБЩЕГО характера — отвечай из эрудиции (слой 2), "
+                              "данные платформы подключай только если реально дополняют.",
+                   "mixed": "Вопрос смешанный — сначала данные платформы, затем общий контекст.",
+                   "platform": "Вопрос про данные платформы — цифры строго из контекста."}
     user_content = ((f"Недавний диалог:\n{history_text}\n\n" if history_text else "") +
+                    f"Область вопроса: {_scope_hint.get(entities.get('scope'), '')}\n"
                     f"Вопрос: {user_message}\n\nКонтекст (JSON):\n{json.dumps(ctx, ensure_ascii=False)}")
     try:
         answer_text = complete(_ANSWER_FRAMEWORK, user_content, json_mode=False,
