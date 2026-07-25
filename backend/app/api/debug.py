@@ -817,7 +817,7 @@ def debug_purge_girbo_backlog(period: str | None = "2025"):
 
 @router.post("/debug/purge-news-junk-reports")
 def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = None,
-                                  list_all: bool = False):
+                                  list_all: bool = False, ticker: str | None = None):
     """Ретроактивная чистка мусорных «отчётов», созданных news-путём report_watch до
     ужесточения детекта (2026-07-25, жалоба владельца: в «Отчётах» дивиденды/отраслевые
     новости вместо отчётности). Применяет НОВЫЙ детект (_NEWS_REPORT_DETECT_RE + порог
@@ -846,6 +846,21 @@ def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = 
                 db.delete(rep)
                 db.commit()
             return {"dry_run": dry_run, "matched": 1, "reports": out}
+        # ticker — удалить ВСЕ записи одного тикера (любого source, включая
+        # smartlab/ir-пути без market_update_id): для чистого ПЕРЕПРОГОНА разбора
+        # после улучшения пайплайна (владелец 2026-07-26: «перепрогнать НОВАТЭК/
+        # Северсталь/ММК — посмотреть, как будет выглядеть»). После удаления —
+        # POST /debug/trigger-report-watch пересоздаст записи новым кодом.
+        if ticker:
+            reps = (db.query(EarningsReport)
+                    .filter(EarningsReport.ticker == ticker.upper()).all())
+            out = [{"id": r.id, "ticker": r.ticker, "period": r.period,
+                    "standard": r.standard, "news_title": None} for r in reps]
+            if not dry_run:
+                for r in reps:
+                    db.delete(r)  # ORM-delete — каскад figures/digest
+                db.commit()
+            return {"dry_run": dry_run, "matched": len(out), "reports": out}
         rows = (db.query(EarningsReport, MarketUpdate)
                 .join(MarketUpdate, MarketUpdate.id == EarningsReport.market_update_id)
                 .filter(EarningsReport.source == "market_updates").all())
