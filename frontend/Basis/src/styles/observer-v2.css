@@ -4630,8 +4630,95 @@ details[open] > summary .obs-inst-chev,
   font-size: 11px;
 }
 
+/* График «км²/мес» под ползунком (capture_isochrone_geojson, delta_km2 —
+   владелец 2026-07-25: «динамика км²/мес — график, не только текст, без
+   непрерывностей и супер-приближенностей»). Диверг. столбцы вверх/вниз от
+   нулевой линии на signed-sqrt шкале (см. ObsGeoIsochroneDeltaChart в
+   ObsPanels.jsx для математики) — ОДНА ось Y, не две: обвалы 2022 года
+   (десятки тысяч км²) и почти статичные месяцы 2023-го (десятки км²) честно
+   умещаются рядом без утопления одного масштаба в другом. Цвет — --bs-up/
+   --bs-down (дельта-токены, канон конституции), не тема-зависимые --success/
+   --danger, которыми выше говорит только текстовая дельта под слайдером —
+   намеренное расхождение по прямому указанию владельца (та же пара уже
+   используется так же в st-* стресс-теста, см. stress-test.css). */
+.obs-geomap-isochart-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+.obs-geomap-isochart-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.obs-geomap-isochart-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.obs-geomap-isochart-title > svg { flex-shrink: 0; }
+.obs-geomap-isochart-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+/* Легенда — цветной свотч + нейтральный текст (dataviz-конституция: «текст
+   никогда не носит цвет данных», identity живёт в маркере/свотче рядом с
+   текстом, не в цвете самой прозы) — контраст --bs-up/--bs-down к поверхности
+   графика достаточен для заливки/свотча (≥3:1), но недостаточен для мелкого
+   текста (AA 4.5:1), поэтому текст легенды остаётся на --text-secondary. */
+.obs-geomap-isochart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.obs-geomap-isochart-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.obs-geomap-isochart-legend-dot--up { background: var(--bs-up); }
+.obs-geomap-isochart-legend-dot--down { background: var(--bs-down); }
+
+.obs-geomap-isochart { position: relative; }
+.obs-geomap-isochart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.obs-geomap-isochart-bar {
+  transition: opacity 120ms ease, stroke-opacity 120ms ease;
+}
+.obs-geomap-isochart-hit { cursor: pointer; }
+.obs-geomap-isochart-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.obs-geomap-isochart-caveat {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+  max-width: 74ch;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .obs-geomap-timeslider-input { transition: none; }
+  .obs-geomap-timeslider-input,
+  .obs-geomap-isochart-bar { transition: none; }
 }
 
 .obs-geomap-filterbar {

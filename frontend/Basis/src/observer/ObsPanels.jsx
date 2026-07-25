@@ -2196,6 +2196,239 @@ function ObsGeoTerritorialChart({ history }) {
   );
 }
 
+// --- График «изменение площади по месяцам» (capture_isochrone_geojson,
+// delta_km2) — под временным ползунком СВО (владелец, 2026-07-25: «динамика
+// км²/мес — ты не можешь график нормальный сделать, чтобы не было
+// непрерывностей и супер приближенностей»). Три требования сразу:
+// (1) delta_km2 ЗНАКОВАЯ — осенью 2022/весной 2023 бывают месяцы отступления,
+//     диверг. столбцы вверх/вниз от нуля, а не одноцветный бар-чарт;
+// (2) все 54 месяца подряд на РАВНОМЕРНОЙ оси времени, включая месяцы с
+//     delta=0 — они всё равно занимают свой слот, не схлопываются;
+// (3) обвалы 2022 года (десятки тысяч км²) и почти статичные месяцы 2023-го
+//     (десятки км²) на ОДНОЙ оси Y (вторая ось запрещена конституцией
+//     dataviz) — решение: signed-sqrt шкала (sign(v)*sqrt(|v|), общий
+//     коэффициент масштаба k выше и ниже нуля), НЕ две оси и НЕ линейная
+//     шкала, которая утопила бы 2023-й в нулевой толщине столбца.
+function _obsIsoMonthParts(monthStr) {
+  const [y, m] = String(monthStr || "").split("-").map(Number);
+  return { year: y, monthIdx0: (m || 1) - 1 };
+}
+function _obsMonthFullRu(monthStr) {
+  const { year, monthIdx0 } = _obsIsoMonthParts(monthStr);
+  return `${OBS_MONTH_NAMES[monthIdx0] || "—"} ${year || ""}`.trim();
+}
+function _obsMonthShortRu(monthStr) {
+  const { year, monthIdx0 } = _obsIsoMonthParts(monthStr);
+  return `${TERR_MONTH_ABBR[monthIdx0] || "—"} ${String(year || "").slice(2)}`;
+}
+// sign(v)*sqrt(|v|) — монотонная, непрерывная, определена в нуле (в отличие
+// от log — поэтому именно она, а не symlog: нет искусственного «линейного
+// порога» около нуля, который пришлось бы объяснять/подбирать).
+function _obsSignedSqrt(v) {
+  return v < 0 ? -Math.sqrt(-v) : Math.sqrt(v);
+}
+// Столбец: скруглён на «конце данных» (дальше от нулевой линии), квадратный
+// на нулевой линии (marks-and-anatomy: «rounded data-end, square at the
+// baseline») — SVG path, а не rect с общим rx на все 4 угла.
+function _obsIsoBarPath(x, y, w, h, r, roundTop) {
+  if (h <= 0.1) return "";
+  const rr = Math.max(0, Math.min(r, w / 2, h));
+  if (roundTop) {
+    return `M${x},${y + h} L${x},${y + rr} Q${x},${y} ${x + rr},${y} L${x + w - rr},${y} Q${x + w},${y} ${x + w},${y + rr} L${x + w},${y + h} Z`;
+  }
+  return `M${x},${y} L${x + w},${y} L${x + w},${y + h - rr} Q${x + w},${y + h} ${x + w - rr},${y + h} L${x + rr},${y + h} Q${x},${y + h} ${x},${y + h - rr} Z`;
+}
+// «Круглые» km² для сетки/подписей оси — из фиксированного набора-кандидата,
+// берём максимум 3 на сторону (владелец плюс marks-and-anatomy: «round to
+// clean numbers», не десяток тиков). Набор общий на оба знака — положительная
+// и отрицательная стороны могут показать разные тики, т.к. их максимумы
+// (posMax/negMax) обычно сильно разные по величине.
+const OBS_ISO_NICE_KM2 = [50, 100, 250, 500, 1000, 2500, 5000, 10000, 20000, 30000, 50000, 75000, 100000, 150000];
+function _obsIsoPickTicks(maxV) {
+  if (!(maxV > 0)) return [];
+  const within = OBS_ISO_NICE_KM2.filter((v) => v <= maxV * 1.03);
+  if (!within.length) return [];
+  if (within.length <= 3) return within;
+  const lo = within[0], hi = within[within.length - 1];
+  const midTarget = Math.log(lo) + (Math.log(hi) - Math.log(lo)) / 2;
+  let mid = within[0], bestDiff = Infinity;
+  within.forEach((v) => { const d = Math.abs(Math.log(v) - midTarget); if (d < bestDiff) { bestDiff = d; mid = v; } });
+  return Array.from(new Set([lo, mid, hi])).sort((a, b) => a - b);
+}
+
+function ObsGeoIsochroneDeltaChart({ months, activeMonth, onSelectMonth }) {
+  const [hoverIdx, setHoverIdx] = useState(null);
+  const barRefs = useRef([]);
+  const n = months.length;
+  const activeIdx = useMemo(() => months.findIndex((m) => m.month === activeMonth), [months, activeMonth]);
+  const [rovingIdx, setRovingIdx] = useState(activeIdx >= 0 ? activeIdx : 0);
+  useEffect(() => { if (activeIdx >= 0) setRovingIdx(activeIdx); }, [activeIdx]);
+
+  if (!n) return null;
+
+  const posMax = Math.max(0, ...months.map((m) => (m.delta_km2 > 0 ? m.delta_km2 : 0)));
+  const negMax = Math.max(0, ...months.map((m) => (m.delta_km2 < 0 ? -m.delta_km2 : 0)));
+  const HEADROOM = 1.18;
+  const tPos = Math.sqrt(posMax) * HEADROOM;
+  const tNeg = Math.sqrt(negMax) * HEADROOM;
+  const tTotal = Math.max(tPos + tNeg, 1);
+
+  const viewW = 1040, viewH = 224;
+  const padL = 46, padR = 8, padT = 12, padB = 22;
+  const plotW = viewW - padL - padR, plotH = viewH - padT - padB;
+  const topH = tTotal > 0 ? (plotH * tPos) / tTotal : plotH / 2;
+  const zeroY = padT + topH;
+  const kPx = tTotal > 0 ? plotH / tTotal : 0;
+  const slot = plotW / n;
+  const xAt = (i) => padL + i * slot;
+  const yFor = (v) => zeroY - _obsSignedSqrt(v) * kPx;
+
+  const posTicks = _obsIsoPickTicks(posMax);
+  const negTicks = _obsIsoPickTicks(negMax);
+  const tickEvery = Math.max(1, Math.ceil(n / 9));
+
+  const focusIdx = (idx) => {
+    const clamped = Math.max(0, Math.min(n - 1, idx));
+    setRovingIdx(clamped);
+    barRefs.current[clamped]?.focus();
+  };
+  const onBarKeyDown = (e, idx) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); focusIdx(idx + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); focusIdx(idx - 1); }
+    else if (e.key === "Home") { e.preventDefault(); focusIdx(0); }
+    else if (e.key === "End") { e.preventDefault(); focusIdx(n - 1); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectMonth(months[idx].month_end); }
+  };
+
+  const hoverEntry = hoverIdx != null ? months[hoverIdx] : null;
+  const hoverCx = hoverIdx != null ? xAt(hoverIdx) + slot / 2 : 0;
+  const tipPct = hoverIdx != null ? (hoverCx / viewW) * 100 : 0;
+  const tipRight = tipPct > 58;
+
+  return (
+    <div className="obs-geomap-isochart">
+      {hoverEntry && (
+        <div
+          className="obs-chart-tooltip"
+          style={{ left: tipRight ? undefined : `${tipPct}%`, right: tipRight ? `${100 - tipPct}%` : undefined, top: "0px" }}
+        >
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)", marginBottom: "4px" }}>
+            {_obsMonthFullRu(hoverEntry.month)}
+          </div>
+          <div style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 700, color: "var(--text-primary)" }}>
+            {Number.isFinite(hoverEntry.area_km2) ? `${hoverEntry.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}
+          </div>
+          <div
+            style={{
+              fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", fontSize: "12px", fontWeight: 600, marginTop: "2px",
+              color: hoverEntry.delta_km2 == null || hoverEntry.delta_km2 === 0 ? "var(--text-tertiary)" : hoverEntry.delta_km2 > 0 ? "var(--bs-up)" : "var(--bs-down)",
+            }}
+          >
+            {hoverEntry.delta_km2 == null
+              ? "старт реконструкции — нет предыдущего месяца"
+              : hoverEntry.delta_km2 === 0
+              ? "без изменений за месяц"
+              : `${hoverEntry.delta_km2 > 0 ? "▲" : "▼"} ${Math.abs(hoverEntry.delta_km2).toLocaleString("ru-RU")} км² за месяц`}
+          </div>
+          {Number.isFinite(hoverEntry.settlements_count) && (
+            <div style={{ fontSize: "10.5px", color: "var(--text-tertiary)", marginTop: "4px" }}>
+              {hoverEntry.settlements_count} {ruPluralPunkt(hoverEntry.settlements_count)} под контролем
+            </div>
+          )}
+        </div>
+      )}
+      <svg
+        viewBox={`0 0 ${viewW} ${viewH}`}
+        className="obs-geomap-isochart-svg"
+        role="group"
+        aria-label="Изменение площади под контролем России по месяцам, км² в месяц. Реконструкция, стрелками влево/вправо — по месяцам."
+      >
+        {[...negTicks.map((v) => -v), 0, ...posTicks].map((v) => {
+          const y = yFor(v);
+          return (
+            <g key={`grid-${v}`} aria-hidden="true">
+              <line x1={padL} x2={viewW - padR} y1={y} y2={y} stroke={v === 0 ? "var(--border-strong)" : "var(--border-subtle)"} strokeWidth={v === 0 ? 1.4 : 1} />
+              <text x={padL - 6} y={y + 3.5} textAnchor="end" fontSize="9" fontFamily="var(--font-mono)" fill="var(--text-tertiary)">
+                {v === 0 ? "0" : v > 0 ? v.toLocaleString("ru-RU") : `−${Math.abs(v).toLocaleString("ru-RU")}`}
+              </text>
+            </g>
+          );
+        })}
+        {months.map((m, i) => (i % tickEvery === 0 || i === n - 1) && (
+          <text
+            key={`tick-${m.month}`}
+            x={Math.min(viewW - padR - 16, Math.max(padL + 16, xAt(i) + slot / 2))}
+            y={viewH - 5}
+            textAnchor="middle"
+            fontSize="9"
+            fontFamily="var(--font-mono)"
+            fill="var(--text-tertiary)"
+            aria-hidden="true"
+          >
+            {_obsMonthShortRu(m.month)}
+          </text>
+        ))}
+        {months.map((m, i) => {
+          const v = m.delta_km2;
+          const isNull = v == null;
+          const isZero = v === 0;
+          const isActive = i === activeIdx;
+          const isHovered = i === hoverIdx;
+          const bx = xAt(i) + 1;
+          const bw = Math.max(1, slot - 2);
+          const barFill = isNull || isZero ? "var(--border-strong)" : v > 0 ? "var(--bs-up)" : "var(--bs-down)";
+          let barPath = "";
+          if (!isNull && !isZero) {
+            const yv = yFor(v);
+            barPath = v > 0
+              ? _obsIsoBarPath(bx, yv, bw, zeroY - yv, 2.5, true)
+              : _obsIsoBarPath(bx, zeroY, bw, yv - zeroY, 2.5, false);
+          }
+          const label = `${_obsMonthFullRu(m.month)}: ${
+            isNull ? "старт реконструкции, нет предыдущего месяца" : isZero ? "без изменений" : `${v > 0 ? "рост" : "отступ"} ${Math.abs(v).toLocaleString("ru-RU")} км²`
+          }, площадь ${Number.isFinite(m.area_km2) ? `${m.area_km2.toLocaleString("ru-RU")} км²` : "н/д"}${isActive ? ", выбранный месяц" : ""}`;
+          return (
+            <g key={m.month}>
+              {isActive && <rect x={xAt(i)} y={padT} width={slot} height={plotH} fill="var(--accent-soft)" aria-hidden="true" />}
+              {!isActive && isHovered && <rect x={xAt(i)} y={padT} width={slot} height={plotH} fill="var(--bg-hover)" opacity="0.6" aria-hidden="true" />}
+              {isZero && <rect x={bx} y={zeroY - 1} width={bw} height={2} rx="1" fill="var(--border-strong)" aria-hidden="true" pointerEvents="none" />}
+              {isNull && <circle cx={bx + bw / 2} cy={zeroY} r="3" fill="var(--bg-surface)" stroke="var(--text-tertiary)" strokeWidth="1.4" aria-hidden="true" pointerEvents="none" />}
+              {barPath && (
+                <path
+                  d={barPath}
+                  fill={barFill}
+                  opacity={isActive ? 1 : 0.86}
+                  stroke={isActive ? "var(--accent)" : "none"}
+                  strokeWidth={isActive ? 1.4 : 0}
+                  className="obs-geomap-isochart-bar"
+                  aria-hidden="true"
+                  pointerEvents="none"
+                />
+              )}
+              <rect
+                ref={(el) => { barRefs.current[i] = el; }}
+                x={xAt(i)} y={padT} width={slot} height={plotH}
+                fill="transparent"
+                className="obs-geomap-isochart-hit"
+                role="button"
+                tabIndex={i === rovingIdx ? 0 : -1}
+                aria-label={label}
+                aria-pressed={isActive}
+                onPointerEnter={() => setHoverIdx(i)}
+                onPointerLeave={() => setHoverIdx((h) => (h === i ? null : h))}
+                onFocus={() => { setRovingIdx(i); setHoverIdx(i); }}
+                onBlur={() => setHoverIdx((h) => (h === i ? null : h))}
+                onClick={() => onSelectMonth(m.month_end)}
+                onKeyDown={(e) => onBarKeyDown(e, i)}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 // Надёжность источника H/M/L → русский ярлык (тот же словарь, что уже
 // используется рядом в текстовой подписи временного ползунка, "надёжность
 // оценки: высокая/средняя/низкая" — см. hoverEntry.confidence выше). Раньше
@@ -2747,6 +2980,20 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
     });
   }, [flyToBounds, russiaMap, dataByTheater, svoKey]);
 
+  // Переставить ползунок на конкретный день/месяц — общий путь для перетаскивания
+  // input[type=range] И клика/клавиатуры по столбцу графика км²/мес ниже
+  // (ObsGeoIsochroneDeltaChart): оба должны вести себя одинаково (перелёт камеры
+  // к СВО, если пользователь смотрел на другой очаг/весь мир — иначе движение
+  // было бы невидимым эффектом где-то вне кадра, см. комментарий выше про camera fly).
+  const selectSliderDayIdx = useCallback((idx) => {
+    setSliderDayIdx(Math.min(sliderTotalDays, Math.max(sliderMinIdx, idx)));
+    setSelected(null);
+    if (svoKey && focus !== svoKey) goTheater(svoKey);
+  }, [sliderTotalDays, sliderMinIdx, svoKey, focus, goTheater]);
+  const selectSliderMonth = useCallback((monthEndIso) => {
+    selectSliderDayIdx(Math.round((geomapIsoToUtcDayMs(monthEndIso) - sliderEpochMs) / GEOMAP_MS_PER_DAY));
+  }, [selectSliderDayIdx, sliderEpochMs]);
+
   // --- Инициализация MapLibre: ОДИН раз на весь компонент (не на очаг) —
   // данные всех загруженных очагов уже готовы к моменту монтирования (родитель
   // ObsGeoTheaters рендерит этот компонент только после того, как все фетчи
@@ -3295,11 +3542,7 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
             max={sliderTotalDays}
             step={1}
             value={effectiveSliderDayIdx}
-            onChange={(e) => {
-              setSliderDayIdx(Number(e.target.value));
-              setSelected(null);
-              if (svoKey && focus !== svoKey) goTheater(svoKey);
-            }}
+            onChange={(e) => selectSliderDayIdx(Number(e.target.value))}
             aria-label="Дата реконструкции линии фронта СВО"
             aria-valuetext={isHistoric ? `Реконструкция на ${_obsDateRu(sliderDateIso)}` : "Сегодня, точная заливка ISW"}
           />
@@ -3330,6 +3573,43 @@ function ObsGeoWorldMap({ theaters, dataByTheater }) {
               >С 2014 года</button>
             )}
           </div>
+
+          {sortedIsochroneMonths.length > 1 && (
+            <div className="obs-geomap-isochart-block">
+              <div className="obs-geomap-isochart-head">
+                <span className="obs-geomap-isochart-title">
+                  <BarChart2 size={12} aria-hidden="true" />
+                  Динамика по месяцам, км²
+                  <span className="obs-tag-estimate">оценка</span>
+                </span>
+                <span className="obs-geomap-isochart-legend">
+                  <span className="obs-geomap-isochart-legend-item">
+                    <span className="obs-geomap-isochart-legend-dot obs-geomap-isochart-legend-dot--up" aria-hidden="true" />
+                    рост площади
+                  </span>
+                  <span className="obs-geomap-isochart-legend-item">
+                    <span className="obs-geomap-isochart-legend-dot obs-geomap-isochart-legend-dot--down" aria-hidden="true" />
+                    отступ
+                  </span>
+                </span>
+              </div>
+              <ObsGeoIsochroneDeltaChart
+                months={sortedIsochroneMonths}
+                activeMonth={activeMonthSnapshot?.month}
+                onSelectMonth={selectSliderMonth}
+              />
+              <p className="obs-geomap-isochart-caveat">
+                Шкала по вертикали НЕЛИНЕЙНАЯ (сжата к краям) — иначе обвалы 2022 года (десятки
+                тысяч км²) и почти статичные месяцы 2023-го (десятки км²) не поместились бы честно
+                на одной оси: либо 2023-й выглядел бы плоской линией, либо 2022-й пришлось бы
+                срезать. Точные цифры — в подсказке при наведении/фокусе на столбец и на шкале
+                слева, не на глаз по высоте. Северная группировка весны 2022 года (Киевская,
+                Черниговская, Сумская области) не закрашивалась как «занято» — контроль там был
+                коридорным, не сплошным, — поэтому отход оттуда не проявляется отдельным провалом
+                на графике; по внешним оценкам (не Basis) он составлял ориентировочно 20–30 тыс. км².
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
