@@ -13,3 +13,7 @@ docs/*.pdf
 
 # Кэш Natural Earth admin-1 (39 МБ) — качается скриптом geo_svo_rebuild_regions.py по нужде
 backend/scripts/.ne_admin1_cache.geojson
+# Кэш границ OSM/Overpass — качается geo_svo_rebuild_regions.py по нужде
+backend/scripts/.osm_admin4_cache.json
+# Кэш контура суши Natural Earth — там же
+backend/scripts/.ne_land_cache.geojson

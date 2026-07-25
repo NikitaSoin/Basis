@@ -86,6 +86,78 @@ def load_manual_overrides() -> list[dict]:
         return []
 
 
+_CLAIMED_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_svo_claimed_captures.json",
+)
+_TIMELINE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_svo_control_timeline.json",
+)
+
+
+def absorb_candidates(ukraine_boundary=None) -> list[dict]:
+    """ВСЕ пункты, которые по данным МО РФ/Рыбаря сейчас под контролем РФ, —
+    из трёх источников сразу:
+      1) geo_svo_manual_overrides.json — ручные оверрайды (с явным radius_km);
+      2) geo_svo_control_timeline.json — пункты, чей ПОСЛЕДНИЙ переход = RF
+         (сюда попадает, напр., Волчанск: МО заявляло освобождение в декабре
+         2025, а живой слой ISW его не включает);
+      3) geo_svo_claimed_captures.json — заявленные захваты.
+
+    Владелец (2026-07-25): «у тебя немало кружочков с комментариями это под
+    контролем России, но не подтверждено, но линия фронта не проходит через
+    них, как будто под контролем Украины». То есть карта противоречила
+    собственным подписям. Теперь источник один: если наши данные говорят
+    «под РФ» — пункт и в красной зоне, и с кружком «ISW не подтвердил».
+
+    Точки ВНЕ контура Украины отбрасываются (Суджа, Юнаковка и прочее
+    приграничье РФ): слой описывает контроль внутри Украины, российская
+    территория в него не входит по определению."""
+    from shapely.geometry import Point
+
+    seen: set[tuple] = set()
+    out: list[dict] = []
+
+    def add(name, oblast, lat, lon, radius_km):
+        if lat is None or lon is None:
+            return
+        key = (round(lat, 3), round(lon, 3))
+        if key in seen:
+            return
+        if ukraine_boundary is not None and not ukraine_boundary.contains(Point(lon, lat)):
+            return
+        seen.add(key)
+        out.append({"name": name, "oblast": oblast, "lat": lat, "lon": lon,
+                    "radius_km": radius_km})
+
+    for o in load_manual_overrides():
+        add(o.get("name"), o.get("oblast"), o.get("lat"), o.get("lon"), o.get("radius_km", 3))
+
+    today = datetime.now(timezone.utc).date().isoformat()
+    for path, reader in ((_TIMELINE_PATH, "timeline"), (_CLAIMED_PATH, "claimed")):
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception as e:  # noqa: BLE001 — побочный источник не роняет синк
+            logger.warning("%s не прочитан: %s", os.path.basename(path), type(e).__name__)
+            continue
+        if reader == "timeline":
+            for e in data.get("settlements", []):
+                holder = None
+                for t in sorted(e.get("transitions", []), key=lambda t: t["date"]):
+                    if t["date"] <= today:
+                        holder = t["holder"]
+                if holder == "RF":
+                    add(e.get("name"), e.get("oblast"), e.get("lat"), e.get("lon"), 3)
+        else:
+            for p in data.get("points", []):
+                add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3)
+    return out
+
+
 def _point_buffer_km(lat: float, lon: float, radius_km: float):
     from shapely.geometry import Point
     deg = radius_km / _KM_PER_DEG_LAT
@@ -341,7 +413,7 @@ def sync_isw_frontline(db: Session) -> dict:
     try:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
-        overrides = load_manual_overrides()
+        overrides = absorb_candidates(ukraine_boundary)
         frontline_fc, control_fill_fc = _compute_frontline(
             control_fc, ukraine_boundary, overrides=overrides)
         if not frontline_fc["features"]:

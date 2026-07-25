@@ -69,6 +69,10 @@ _CONTROL_TIMELINE_PATH = os.path.join(
 # последним месяцем: 0.3°→76%, 0.5°→92%, 0.7°→96%, 1.0°→97% (дальше плато, а
 # разлёт ячеек в оставленных зонах растёт) — берём 0.7° как точку насыщения.
 _POINT_INFLUENCE_DEG = 0.70
+# Упрощение выходной геометрии месяца (град.). ~0.006° ≈ 600 м — заведомо ниже
+# уровня сглаживания самой реконструкции (_SMOOTH_DEG, ~3 км), поэтому вида не
+# меняет, но режет вес ответа карты в разы.
+_OUTPUT_SIMPLIFY_DEG = 0.006
 _KM2_PER_DEG2 = 111.0 * 111.0 * 0.67  # грубо, для широты Украины
 
 # Сглаживание помесячного среза (град.) — крупнее, чем у самой ISW-линии
@@ -284,8 +288,17 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
                 break
         if owner is None:
             continue
-        clipped = (cell.intersection(clip_to)
+        # Ограничитель влияния действует ТОЛЬКО за пределами сегодняшнего
+        # контроля. Внутри него ячейки Вороного покрывают площадь без остатка —
+        # если резать их и там, внутри контролируемой зоны остаются НЕПОКРЫТЫЕ
+        # пустоты (владелец, 2026-07-25: «какие пустоты появляются в ЛНР, ДНР и
+        # везде — это бред»; замерено до фикса: 4024 км², крупнейшая 1927 км²
+        # в Луганской области). Снаружи ограничитель нужен: там он не даёт
+        # ячейке редкой точки расползтись по территории, которой РФ не держала.
+        in_control = cell.intersection(control_union)
+        outside = (cell.intersection(clip_to).difference(control_union)
                        .intersection(geom_pts[owner].buffer(_POINT_INFLUENCE_DEG)))
+        clipped = unary_union([g for g in (in_control, outside) if not g.is_empty])
         if not clipped.is_empty:
             cells.append((owner, clipped))
     if not cells:
@@ -295,6 +308,20 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
     crimea_mass = _crimea_landmass(control_union)
     rf_today = {i for i in range(len(points)) if _holder_at(points[i], today_iso) == "RF"}
 
+    # «Необъяснённый» остаток: части СЕГОДНЯШНЕЙ зоны контроля, которые не
+    # покрывает ни одна ячейка пункта, удерживаемого РФ сегодня. Данных о том,
+    # когда они перешли, у нас нет вовсе — по составу это долго удерживаемая
+    # территория и захваты первых суток, отсутствующие в источниках. Показывать
+    # их незакрашенными во ВСЕХ месяцах нельзя: получаются ровно те «пустоты в
+    # ЛНР/ДНР и везде», которые владелец забраковал (2026-07-25) — площадь
+    # годами не меняется, что само по себе выдаёт артефакт, а не движение
+    # фронта. Поэтому относим их к удерживаемым с начала окна — как Крым.
+    today_cells = [c for i, c in cells if i in rf_today]
+    unexplained = (control_union.difference(unary_union(today_cells)).buffer(0)
+                   if today_cells else None)
+    if unexplained is not None and unexplained.is_empty:
+        unexplained = None
+
     features = []
     prev_area_km2 = None
     for y, m, month_end_iso in _iter_months(_MONTH_START[0], _MONTH_START[1], today_iso):
@@ -302,6 +329,8 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
         parts = [c for i, c in cells if i in rf_idx]
         if crimea_mass is not None and not crimea_mass.is_empty:
             parts.append(crimea_mass)
+        if unexplained is not None:
+            parts.append(unexplained)
         if not parts:
             continue
         # Огибающая месяца: сегодняшний контроль ПЛЮС то, что РФ держала тогда,
@@ -319,6 +348,14 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
         if region.is_empty:
             continue
         area_km2 = round(region.area * _KM2_PER_DEG2)
+        # Упрощение ПОСЛЕ подсчёта площади (чтобы цифра считалась по полной
+        # геометрии). 54 месяца по контуру ISW дают 227 тыс. вершин и 3.6 МБ
+        # gzip в ответе — при том, что реконструкция и так сглажена на 3 км и
+        # честно помечена как огрубление, детализация ниже полукилометра в ней
+        # не несёт смысла, только вес.
+        simplified = region.simplify(_OUTPUT_SIMPLIFY_DEG, preserve_topology=True)
+        if not simplified.is_empty:
+            region = simplified
         features.append({
             "type": "Feature",
             "properties": {

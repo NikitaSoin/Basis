@@ -58,6 +58,21 @@
    ]
   },
   {
+   "name": "Алчевск",
+   "name_lat": "Alchevsk",
+   "oblast": "Луганская",
+   "lat": 48.47777778,
+   "lon": 38.79777778,
+   "transitions": [
+    {
+     "date": "2014-05-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Алёшки",
    "name_lat": "Oleshky",
    "oblast": "Херсонская",
@@ -69,6 +84,21 @@
      "holder": "RF",
      "precision": "день",
      "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Антрацит",
+   "name_lat": "Antratsyt",
+   "oblast": "Луганская",
+   "lat": 48.11916667,
+   "lon": 39.09,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -199,6 +229,21 @@
    ]
   },
   {
+   "name": "Брянка",
+   "name_lat": "Brianka",
+   "oblast": "Луганская",
+   "lat": 48.51333333,
+   "lon": 38.64305556,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Васильевка",
    "name_lat": "Vasylivka",
    "oblast": "Запорожская",
@@ -301,6 +346,21 @@
    ]
   },
   {
+   "name": "Горловка",
+   "name_lat": "Horlivka",
+   "oblast": "Донецкая",
+   "lat": 48.3,
+   "lon": 38.05,
+   "transitions": [
+    {
+     "date": "2014-04-14",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Горняк",
    "name_lat": "Hirnyk",
    "oblast": "Донецкая",
@@ -376,6 +436,21 @@
    ]
   },
   {
+   "name": "Дебальцево",
+   "name_lat": "Debaltseve",
+   "oblast": "Донецкая",
+   "lat": 48.33333333,
+   "lon": 38.4,
+   "transitions": [
+    {
+     "date": "2015-02-18",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Димитров (Мирноград)",
    "name_lat": "Myrnohrad",
    "oblast": "Донецкая",
@@ -402,6 +477,36 @@
      "holder": "RF",
      "precision": "день",
      "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Донецк",
+   "name_lat": "Donetsk",
+   "oblast": "Донецкая",
+   "lat": 48.0158,
+   "lon": 37.8028,
+   "transitions": [
+    {
+     "date": "2014-04-07",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
+   "name": "Енакиево",
+   "name_lat": "Yenakiieve",
+   "oblast": "Донецкая",
+   "lat": 48.21666667,
+   "lon": 38.2,
+   "transitions": [
+    {
+     "date": "2014-04-13",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -517,6 +622,21 @@
    ]
   },
   {
+   "name": "Кировск",
+   "name_lat": "Holubivka",
+   "oblast": "Луганская",
+   "lat": 49.7513573,
+   "lon": 37.6319955,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Клещеевка",
    "name_lat": "Klishchiivka",
    "oblast": "Донецкая",
@@ -579,6 +699,36 @@
      "holder": "RF",
      "precision": "день",
      "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Краснодон",
+   "name_lat": "Sorokyne",
+   "oblast": "Луганская",
+   "lat": 48.3,
+   "lon": 39.73333333,
+   "transitions": [
+    {
+     "date": "2014-04-29",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
+   "name": "Красный Луч",
+   "name_lat": "Khrustalnyi",
+   "oblast": "Луганская",
+   "lat": 48.13333333,
+   "lon": 38.93333333,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -685,6 +835,21 @@
    ]
   },
   {
+   "name": "Луганск",
+   "name_lat": "Luhansk",
+   "oblast": "Луганская",
+   "lat": 48.56777778,
+   "lon": 39.30305556,
+   "transitions": [
+    {
+     "date": "2014-04-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Макаровка",
    "name_lat": "Makarivka",
    "oblast": "Донецкая",
@@ -696,6 +861,21 @@
      "holder": "UA",
      "precision": "день",
      "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Макеевка",
+   "name_lat": "Makiivka",
+   "oblast": "Донецкая",
+   "lat": 48.05555556,
+   "lon": 37.96111111,
+   "transitions": [
+    {
+     "date": "2014-04-13",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -790,6 +970,21 @@
    ]
   },
   {
+   "name": "Новоазовск",
+   "name_lat": "Novoazovsk",
+   "oblast": "Донецкая",
+   "lat": 47.11166667,
+   "lon": 38.0825,
+   "transitions": [
+    {
+     "date": "2014-08-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Новогродовка",
    "name_lat": "Novohrodivka",
    "oblast": "Донецкая",
@@ -835,6 +1030,21 @@
    ]
   },
   {
+   "name": "Новотроицкое",
+   "name_lat": "Novotroitske",
+   "oblast": "Херсонская",
+   "lat": 47.71722222,
+   "lon": 37.57611111,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Охотничье",
    "name_lat": "Okhotnyche",
    "oblast": "Запорожская",
@@ -861,6 +1071,21 @@
      "holder": "RF",
      "precision": "оценка",
      "source": "ISW (МО РФ — 21.04)"
+    }
+   ]
+  },
+  {
+   "name": "Перевальск",
+   "name_lat": "Perevalsk",
+   "oblast": "Луганская",
+   "lat": 48.43333333,
+   "lon": 38.81666667,
+   "transitions": [
+    {
+     "date": "2014-05-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -976,6 +1201,21 @@
    ]
   },
   {
+   "name": "Ровеньки",
+   "name_lat": "Rovenky",
+   "oblast": "Луганская",
+   "lat": 48.07111111,
+   "lon": 39.34277778,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Родинское",
    "name_lat": "Rodynske",
    "oblast": "Донецкая",
@@ -1017,6 +1257,21 @@
      "holder": "RF",
      "precision": "день",
      "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Свердловск",
+   "name_lat": "Dovzhansk",
+   "oblast": "Луганская",
+   "lat": 48.07777778,
+   "lon": 39.64722222,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -1132,6 +1387,21 @@
    ]
   },
   {
+   "name": "Снежное",
+   "name_lat": "Snizhne",
+   "oblast": "Донецкая",
+   "lat": 48.02827778,
+   "lon": 38.76561111,
+   "transitions": [
+    {
+     "date": "2014-04-13",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Снигирёвка",
    "name_lat": "Snihurivka",
    "oblast": "Николаевская",
@@ -1192,6 +1462,21 @@
    ]
   },
   {
+   "name": "Стаханов",
+   "name_lat": "Kadiivka",
+   "oblast": "Луганская",
+   "lat": 48.56805556,
+   "lon": 38.65861111,
+   "transitions": [
+    {
+     "date": "2014-04-30",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Суджа",
    "name_lat": "Sudzha",
    "oblast": "Курская (РФ)",
@@ -1239,6 +1524,21 @@
      "holder": "RF",
      "precision": "день",
      "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Торез",
+   "name_lat": "Torez",
+   "oblast": "Донецкая",
+   "lat": 48.02194444,
+   "lon": 38.62638889,
+   "transitions": [
+    {
+     "date": "2014-04-16",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
@@ -1324,6 +1624,21 @@
    ]
   },
   {
+   "name": "Харцызск",
+   "name_lat": "Khartsyzk",
+   "oblast": "Донецкая",
+   "lat": 48.04277778,
+   "lon": 38.1425,
+   "transitions": [
+    {
+     "date": "2014-04-13",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Херсон",
    "name_lat": "Kherson",
    "oblast": "Херсонская",
@@ -1345,6 +1660,21 @@
    ]
   },
   {
+   "name": "Чаплинка",
+   "name_lat": "Chaplynka",
+   "oblast": "Херсонская",
+   "lat": 46.362875,
+   "lon": 33.5302028,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
+    }
+   ]
+  },
+  {
    "name": "Часов Яр",
    "name_lat": "Chasiv Yar",
    "oblast": "Донецкая",
@@ -1356,6 +1686,21 @@
      "holder": "RF",
      "precision": "день",
      "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Шахтёрск",
+   "name_lat": "Shakhtarsk",
+   "oblast": "Донецкая",
+   "lat": 48.04694444,
+   "lon": 38.46861111,
+   "transitions": [
+    {
+     "date": "2014-04-16",
+     "holder": "RF",
+     "precision": "день",
+     "source": "опорный пункт до 02.2022"
     }
    ]
   },
