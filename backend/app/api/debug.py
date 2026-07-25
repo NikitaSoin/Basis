@@ -816,7 +816,7 @@ def debug_purge_girbo_backlog(period: str | None = "2025"):
 
 
 @router.post("/debug/purge-news-junk-reports")
-def debug_purge_news_junk_reports(dry_run: bool = True):
+def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = None):
     """Ретроактивная чистка мусорных «отчётов», созданных news-путём report_watch до
     ужесточения детекта (2026-07-25, жалоба владельца: в «Отчётах» дивиденды/отраслевые
     новости вместо отчётности). Применяет НОВЫЙ детект (_NEWS_REPORT_DETECT_RE + порог
@@ -831,6 +831,20 @@ def debug_purge_news_junk_reports(dry_run: bool = True):
     from app.services.report_watch import _NEWS_REPORT_DETECT_RE
     db = SessionLocal()
     try:
+        # report_id — точечное удаление ОДНОЙ записи по id, минуя детект-эвристику:
+        # для пограничных кейсов, которые прошли и строгий детект, и LLM-гейт
+        # (реальный пример: рыночный дайджест «акции Полюса +10,73%» с отчётными
+        # словами в summary). ORM-delete — каскад figures/digest.
+        if report_id is not None:
+            rep = db.get(EarningsReport, report_id)
+            if not rep:
+                return {"dry_run": dry_run, "matched": 0, "reports": []}
+            out = [{"id": rep.id, "ticker": rep.ticker, "period": rep.period,
+                    "standard": rep.standard, "news_title": None}]
+            if not dry_run:
+                db.delete(rep)
+                db.commit()
+            return {"dry_run": dry_run, "matched": 1, "reports": out}
         rows = (db.query(EarningsReport, MarketUpdate)
                 .join(MarketUpdate, MarketUpdate.id == EarningsReport.market_update_id)
                 .filter(EarningsReport.source == "market_updates").all())
