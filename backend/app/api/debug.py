@@ -556,6 +556,34 @@ def debug_seed_fixed_capital_investment_q1_2026():
         db.close()
 
 
+@router.post("/debug/seed-weekly-inflation-jul20-2026")
+def debug_seed_weekly_inflation_jul20_2026():
+    """Разовый сид: недельная инфляция за 14-20 июля 2026 (0,17%). Пробел создала
+    моя же чистка 2026-07-25 (purge-implausible-macro-news снёс бракованную точку
+    «2,6%» с as_of=2026-07-20 — то был рост цены САХАРА, не инфляция), а корректное
+    значение взамен не встало: источник-статья уже в дедупе news-пайплайна.
+    ПОЙМАНО ПЕРВЫМ ЖЕ ПРОГОНОМ «ОТК данных» (calendar_weekly_inflation, warn) —
+    система заработала как задумано. Значение из первоисточника (interfax.ru/
+    business/1104895, 22 июля: «Инфляция в России с 14 по 20 июля составила
+    0,17%») — проверено вручную при разборе исходного бага."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services.macro_ingest import upsert_point
+    db = SessionLocal()
+    try:
+        res = upsert_point(db, "inflation_weekly", _date(2026, 7, 20), "wow", 0.17,
+                           unit="%", source="Росстат (via interfax)",
+                           source_url="https://www.interfax.ru/business/1104895",
+                           ingested_via="news")
+        return {"result": res}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug seed-weekly-inflation-jul20-2026: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/purge-future-macro")
 def debug_purge_future_macro():
     """Удаляет точки macro_data_points с as_of далеко в будущем (баг: LLM-извлечение
