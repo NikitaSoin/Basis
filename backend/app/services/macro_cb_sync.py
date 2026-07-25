@@ -381,13 +381,63 @@ _CREDIT_M2_SYS = (
 )
 
 
+_INFOM_MONTHS = ("янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек")
+
+
+def _parse_infom_chart(text: str) -> float | None:
+    """Парсит «Рис. 1» бюллетеня инФОМ (3 ряда — наблюдаемая / ожидаемая через год /
+    ожидаемая через 5 лет — с одинаковым числом месяцев) БЕЗ LLM.
+
+    НАЙДЕНО НА БОЮ 2026-07-25 (владелец поймал руками, сверив с вебсёрчем): PyPDF
+    склеивает числа графика и подписи месяцев в один run-on текст БЕЗ пробелов
+    («...14,712,913,113,4...июл.26годовая наблюдаемая инфляция...»), метки серий —
+    только в самом конце. И macro_analytics.py (выжимка для вкладки «Обзор»), И
+    ПЕРВАЯ версия этого фолбэка (LLM по тексту) НЕЗАВИСИМО ошиблись на ЭТОМ ЖЕ
+    бюллетене — оба решили, что «ожидаемая через год» это 13,0-13,6%, хотя
+    ПЕРВОИСТОЧНИК (сверено вручную по числам ниже) и 5+ независимых СМИ (РИА,
+    1prime, Fontanka — «выросли до 14,7% С 12,4% в июне») сходятся на 14,7%.
+    Значит для ЭТОГО конкретного формата LLM-извлечение из текста систематически
+    ненадёжно (93 склеенных числа без разделителей — гадание, не чтение) — считаем
+    программно: находим ВСЕ числа под «Данные в % годовых», ВСЕ месяцы вида
+    «мар.26», делим числа на 3 РАВНЫЕ группы (порядок = порядок легенды, что
+    подтверждено вручную) — вторая группа = «ожидаемая через год», её ПОСЛЕДНЕЕ
+    значение = самый свежий месяц. Строгая проверка: количество чисел ДОЛЖНО быть
+    ровно 3×(число месяцев), иначе возвращаем None (не гадаем при несовпадении
+    структуры — вдруг вёрстка бюллетеня поменялась)."""
+    m = re.search(r"Данные в % годовых((?:\d{1,2},\d\s*)+)", text)
+    if not m:
+        return None
+    nums = re.findall(r"\d{1,2},\d", m.group(1))
+    month_re = "|".join(_INFOM_MONTHS)
+    # Месяцы ищем ТОЛЬКО как СПЛОШНОЙ забег токенов СРАЗУ после чисел (re.match на
+    # хвосте текста, не re.search/findall по всему документу) — у бюллетеня ДАЛЬШЕ
+    # по тексту идут ЕЩЁ такие же чарты (Рис. 3/4/5, те же 31 месяц каждый); глобальный
+    # findall посчитал бы месяцы из НЕСКОЛЬКИХ чартов сразу и завысил n (найдено на
+    # бою 2026-07-25: первая версия дала n=61 вместо 31 из-за этого).
+    months_m = re.match(rf"(?:(?:{month_re})\.\d{{2}})+", text[m.end():])
+    if not months_m:
+        return None
+    n = len(re.findall(rf"(?:{month_re})\.\d{{2}}", months_m.group(0)))
+    if n == 0 or len(nums) != n * 3:
+        return None
+    series_expected_1y = nums[n:n * 2]
+    try:
+        return float(series_expected_1y[-1].replace(",", "."))
+    except ValueError:
+        return None
+
+
 def _expectations_from_pdf_fallback(db: Session) -> tuple | None:
     """Резервный путь: XLSX-индекс (Infl_exp_YY-MM.xlsx) публикуется ПОЗЖЕ, чем сам
     PDF-бюллетень («inFOM_YY-MM.pdf») — на бою 2026-07-25 разрыв был больше недели
     (PDF был доступен 24 июля, XLSX за июль так и не появился к этому моменту). PDF
     того же месяца уже находит macro_analytics.py (отдельный конвейер для вкладки
     «Обзор» Макроэкономики, MacroAnalyticsDoc) — переиспользуем его находку вместо
-    того, чтобы искать PDF заново. Возвращает (as_of, expectation, url) | None."""
+    того, чтобы искать PDF заново. Возвращает (as_of, expectation, url) | None.
+
+    Парсинг ДЕТЕРМИНИРОВАННЫЙ (_parse_infom_chart), НЕ LLM — см. её докстринг про
+    баг 2026-07-25. Если структура бюллетеня не совпала с ожидаемой — None (честно
+    ничего не возвращаем, а не гадаем через LLM снова)."""
     from app.models.macro import MacroAnalyticsDoc
     from app.services.macro_analytics import _pdf_text
     doc = (db.query(MacroAnalyticsDoc)
@@ -402,13 +452,8 @@ def _expectations_from_pdf_fallback(db: Session) -> tuple | None:
     text = _pdf_text(doc.source_url)
     if not text:
         return None
-    try:
-        out = llm.complete(_EXP_SYS + f"\nМесяц бюллетеня: {doc.published_at.year}-{doc.published_at.month:02d}.",
-                           text, json_mode=True, max_tokens=600)
-        exp = float(out.get("expectation"))
-    except (llm.LLMError, TypeError, ValueError):
-        return None
-    if not (0 <= exp <= 40):
+    exp = _parse_infom_chart(text)
+    if exp is None or not (0 <= exp <= 40):
         return None
     return (d, exp, doc.source_url)
 
