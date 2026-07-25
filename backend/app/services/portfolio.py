@@ -891,6 +891,74 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
                     full_im.append(imoex[d])
             portfolio_row["max_drawdown"] = round(max_dd * 100, 2)
 
+            # «Весь период» (compare_period == "max") — владелец, 2026-07-25:
+            # «нажимаешь весь период — всё равно за 3 года». Причина: since ВЫШЕ
+            # (window_start(), фикс. 3 года) — единственное окно, для которого
+            # вообще ЗАГРУЖЕНЫ цены/индексы в этой функции; _PERIOD_DAYS["max"]
+            # тоже None (та же «без обрезки», что у "3y"), поэтому «весь период»
+            # молча совпадал с «3Г» — обрезать было нечего, дальше 3 лет данных
+            # просто не было в памяти. Для max — отдельно, ТОЛЬКО когда реально
+            # запрошено (не на каждый вызов), перегружаем цены/индексы с гораздо
+            # более ранней даты и пересобираем накопленную кривую; риск-метрики
+            # выше (волатильность/Шарп/VaR/Сортино/R²) намеренно НЕ трогаем —
+            # они остаются на фиксированном 3-летнем окне независимо от
+            # compare_period (см. докстринг функции).
+            if compare_period == "max":
+                since_max = date_cls(2010, 1, 1)  # раньше реальных данных любого тикера — интервал сам обрежется пересечением дат
+                returns_max: dict[str, dict] = {}
+                for p in valued:
+                    t = p["ticker"]
+                    cid = next((i for i, c in companies.items() if c.ticker == t), None)
+                    if cid is None:
+                        continue
+                    rets = log_returns(load_price_series(db, cid, since_max))
+                    if rets:
+                        returns_max[t] = rets
+                common_max = None
+                for rets in returns_max.values():
+                    ds = set(rets)
+                    common_max = ds if common_max is None else (common_max & ds)
+                common_max = sorted(common_max or [])
+                if len(common_max) >= 60:
+                    w_max = {t: weights[t] / sum(weights[t2] for t2 in returns_max) for t in returns_max if t in weights}
+                    div_addon_max: dict = {}
+                    for p in valued:
+                        t = p["ticker"]
+                        if t not in returns_max:
+                            continue
+                        cid = next((i for i, c in companies.items() if c.ticker == t), None)
+                        series = load_price_series(db, cid, since_max) if cid else {}
+                        sdates = sorted(series)
+                        for d, amount in load_dividends_map(db, t).items():
+                            if not sdates or d < sdates[0] or d > sdates[-1]:
+                                continue
+                            pd_ = [x for x in sdates if x <= d]
+                            price = series[pd_[-1]] if pd_ else None
+                            if price and 0 < amount / price < 1:
+                                div_addon_max[(t, pd_[-1])] = div_addon_max.get((t, pd_[-1]), 0.0) + amount / price
+                    pf_daily_max = [
+                        sum(w_max[t] * (math.exp(returns_max[t][d]) - 1 + div_addon_max.get((t, d), 0.0))
+                            for t in returns_max if t in w_max)
+                        for d in common_max
+                    ]
+                    mcftr_max = load_index_series(db, "MCFTR", since_max)
+                    imoex_max = load_index_series(db, "IMOEX", since_max)
+                    fd_max, fa_max, fm_max, fi_max = [], [], [], []
+                    acc_max = 1.0
+                    for d, r in zip(common_max, pf_daily_max):
+                        acc_max *= (1 + r)
+                        if d in mcftr_max and d in imoex_max:
+                            fd_max.append(d); fa_max.append(acc_max)
+                            fm_max.append(mcftr_max[d]); fi_max.append(imoex_max[d])
+                    if fd_max:
+                        # Секторный бенчмарк (full_sb ниже) считается ПОСЛЕ этой
+                        # правки уже от расширенных full_dates — если покрытие
+                        # отраслевых индексов (since ВЫШЕ, фикс. 3г) окажется <90%
+                        # от расширенного диапазона, «Ваши секторы» честно
+                        # исключится сам (та же уже существующая проверка coverage
+                        # ниже) — отдельно ничего глушить не нужно.
+                        full_dates, full_acc, full_mc, full_im = fd_max, fa_max, fm_max, fi_max
+
             # ── Смешанный бенчмарк «по весам портфеля» (секторный, Brinson-style) ──
             # Изолирует эффект выбора БУМАГ от эффекта выбора СЕКТОРОВ: "портфель
             # vs MCFTR" не отвечает, обогнал ли портфель рынок из-за удачных бумаг
