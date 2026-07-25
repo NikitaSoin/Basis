@@ -113,6 +113,29 @@ def sync_rate_meeting(db: Session) -> dict:
         upsert_point(db, "key_rate", dd, "level", rate_val, unit="%", source="ЦБ РФ",
                      source_url=_RATE_PAGE, ingested_via="cbr", commit=False)
     db.commit()
+
+    # Форекаст-таблица (диапазоны ставки/инфляции/ВВП на 2-3 года вперёд) иногда
+    # встроена ПРЯМО В ТЕКСТ пресс-релиза решения, не только в отдельный
+    # «comment_DDMMYYYY» документ (тот публикуется НЕДЕЛИ спустя — sync_forecast()
+    # ищет именно его). На «опорных» заседаниях (см. cbr.ru/dkp/cal_mp/, тег
+    # «Среднесрочный прогноз» у даты заседания в календаре) ЦБ даёт обновлённые
+    # диапазоны прямо в пресс-релизе в день решения. Найдено на бою 2026-07-25:
+    # владелец сверил платформу с Interfax за 24 июля — платформа отставала на
+    # 2.5 месяца, т.к. «comment_» для июльского заседания выходит только 5 августа,
+    # хотя сами цифры уже были в тексте, который мы и так уже фетчили для ставки.
+    # Переиспользуем ТОТ ЖЕ text (без лишнего сетевого запроса) с УЖЕ существующим
+    # _FC_SYS (используется sync_forecast/sync_forecast_annual) — если заседание НЕ
+    # несёт обновлённого прогноза (большинство — не опорные), LLM просто не найдёт
+    # таблицу и вернёт пустой scenarios (безопасно, "включай ТОЛЬКО... не выдумывай"
+    # — то же правило, что уже проверено на sync_forecast).
+    try:
+        fc_out = llm.complete(_FC_SYS, text, json_mode=True, max_tokens=2000)
+        if fc_out.get("scenarios"):
+            _save_forecast_scenarios(db, fc_out, _RATE_PAGE)
+    except llm.LLMError as e:
+        logger.warning("CB-sync: форекаст из пресс-релиза ставки не извлечён (не критично, "
+                       "sync_forecast — резервный путь): %s", e)
+
     return {"action": action, "decision_date": str(dd), "rate": rate_val}
 
 
