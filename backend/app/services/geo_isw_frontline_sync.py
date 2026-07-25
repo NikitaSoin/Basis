@@ -364,7 +364,8 @@ def sync_isw_frontline(db: Session) -> dict:
         # обновляем поле, не роняем весь синк линии из-за побочной фичи.
         try:
             from app.services.geo_svo_capture_isochrone import compute_isochrone
-            row.capture_isochrone_geojson = compute_isochrone(control_fill_fc)
+            row.capture_isochrone_geojson = compute_isochrone(
+                control_fill_fc, ukraine_boundary=ukraine_boundary)
         except Exception as e:  # noqa: BLE001
             logger.warning("Изохрона СВО: пересчёт не удался (не блокирует синк линии): %s", e)
 

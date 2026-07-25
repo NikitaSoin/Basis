@@ -54,6 +54,22 @@ _SVO_MAP_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "config", "geo_map_svo.json",
 )
+# Хронология контроля с ОБРАТНЫМИ переходами (см. scripts/geo_svo_build_control_timeline.py
+# и docs/svo-conflict-history.md). Перекрывает одиночные даты старого датасета.
+_CONTROL_TIMELINE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_svo_control_timeline.json",
+)
+
+# Ограничитель «радиуса влияния» одной точки (град.). Нужен, чтобы ячейка
+# Вороного редкой точки не расползалась на сотни км по территории, которую РФ
+# в тот момент не держала (в первую очередь — в зонах, оставленных позже:
+# именно там огибающая месяца шире сегодняшнего контроля, см. lost_since).
+# 0.70° ≈ 78 км подобран калибровкой по покрытию ФАКТИЧЕСКОЙ площади контроля
+# последним месяцем: 0.3°→76%, 0.5°→92%, 0.7°→96%, 1.0°→97% (дальше плато, а
+# разлёт ячеек в оставленных зонах растёт) — берём 0.7° как точку насыщения.
+_POINT_INFLUENCE_DEG = 0.70
+_KM2_PER_DEG2 = 111.0 * 111.0 * 0.67  # грубо, для широты Украины
 
 # Сглаживание помесячного среза (град.) — крупнее, чем у самой ISW-линии
 # (geo_isw_frontline_sync._smooth_polygon, ~0.0035°): здесь изначально
@@ -175,89 +191,148 @@ def _crimea_landmass(control_union):
         return None
 
 
-def compute_isochrone(control_fill_geojson: dict) -> dict | None:
-    """control_fill_geojson — тот же формат, что GeoFrontlineSync.control_fill_geojson.
-    Возвращает FeatureCollection полигонов, ОДИН на месяц, с properties
-    {month: "YYYY-MM", month_end: "YYYY-MM-DD", settlements_count: N} — N
-    накопленных датированных точек к концу месяца (для подписи "N пунктов
-    взято к этой дате"). None при отсутствии исходных данных — честная
-    деградация, не 500."""
-    if not os.path.exists(_DATED_SETTLEMENTS_PATH):
-        return None
-    with open(_DATED_SETTLEMENTS_PATH, encoding="utf-8") as f:
-        dated = json.load(f)
-    if not dated:
-        return None
+def _load_timeline_points() -> list[dict]:
+    """Единый список точек с ХРОНОЛОГИЕЙ владения: [{lat, lon, transitions:
+    [(date, "RF"|"UA")]}]. Склейка двух датасетов, хронология ПЕРЕКРЫВАЕТ
+    одиночную дату по совпадению координат.
 
+    Зачем перекрывать: geo_svo_dated_settlements.json (265 точек Wikipedia)
+    содержит ТОЛЬКО переходы к РФ — ни одного отката. Пока источник был
+    единственным, реконструкция была математически ОБЯЗАНА расти монотонно:
+    ни харьковский откат сентября-2022, ни оставление правобережья Херсона
+    показать было нечем, а «км²/месяц» не могла стать отрицательной ни разу.
+    geo_svo_control_timeline.json (из docs/svo-conflict-history.md) даёт
+    переходы в обе стороны — см. scripts/geo_svo_build_control_timeline.py."""
+    points: dict[tuple, dict] = {}
+    if os.path.exists(_DATED_SETTLEMENTS_PATH):
+        with open(_DATED_SETTLEMENTS_PATH, encoding="utf-8") as f:
+            for d in json.load(f):
+                if d.get("lat") is None or not d.get("capture_date"):
+                    continue
+                points[(round(d["lat"], 4), round(d["lon"], 4))] = {
+                    "lat": d["lat"], "lon": d["lon"],
+                    "transitions": [(d["capture_date"], "RF")],
+                }
+    if os.path.exists(_CONTROL_TIMELINE_PATH):
+        try:
+            with open(_CONTROL_TIMELINE_PATH, encoding="utf-8") as f:
+                for e in json.load(f).get("settlements", []):
+                    if e.get("lat") is None or not e.get("transitions"):
+                        continue
+                    points[(round(e["lat"], 4), round(e["lon"], 4))] = {
+                        "lat": e["lat"], "lon": e["lon"],
+                        "transitions": sorted((t["date"], t["holder"]) for t in e["transitions"]),
+                    }
+        except Exception as e:  # noqa: BLE001 — без хронологии работаем на старом датасете
+            logger.warning("Изохрона СВО: хронология контроля не прочитана (%s)", type(e).__name__)
+    return list(points.values())
+
+
+def _holder_at(point: dict, month_end_iso: str) -> str | None:
+    """Владелец пункта на конец месяца — по ПОСЛЕДНЕМУ переходу не позже даты.
+    None = пункта ещё не касалась война (считаем украинским)."""
+    holder = None
+    for when, who in point["transitions"]:
+        if when > month_end_iso:
+            break
+        holder = who
+    return holder
+
+
+def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict | None:
+    """Помесячная реконструкция линии фронта. Возвращает FeatureCollection —
+    ОДИН полигон на месяц, properties {month, month_end, settlements_count,
+    area_km2, delta_km2}. None при отсутствии исходных данных (честная
+    деградация, не 500).
+
+    ukraine_boundary — контур Украины; если передан, ячейки обрезаются по нему,
+    а НЕ по сегодняшнему control_fill. Это принципиально: обрезка по
+    сегодняшнему контролю физически не давала показать территории, которые РФ
+    держала в 2022-м и оставила (Харьковская область, правобережье Херсона) —
+    их просто нет в сегодняшнем контуре. Без параметра поведение прежнее."""
     from shapely.geometry import shape, mapping, MultiPoint, Point
     from shapely.ops import voronoi_diagram, unary_union
+
+    points = _load_timeline_points()
+    if not points:
+        return None
 
     control_polys = [shape(f["geometry"]) for f in control_fill_geojson.get("features", [])]
     if not control_polys:
         return None
     control_union = unary_union(control_polys).buffer(0)
+    clip_to = ukraine_boundary.buffer(0) if ukraine_boundary is not None else control_union
 
-    pts = [Point(d["lon"], d["lat"]) for d in dated]
-    mp = MultiPoint(pts)
+    geom_pts = [Point(p["lon"], p["lat"]) for p in points]
     try:
-        vd = voronoi_diagram(mp, envelope=control_union.buffer(2.0))
+        vd = voronoi_diagram(MultiPoint(geom_pts), envelope=clip_to.buffer(2.0))
     except Exception as e:  # noqa: BLE001
         logger.warning("Изохрона СВО: voronoi_diagram упал: %s", e)
         return None
 
-    # Каждой ячейке — её датированный сосед (владелец cell), обрезка по control_fill
-    # СРАЗУ (не при каждом месяце — дорогая операция intersection делается один раз).
-    cell_owner_date: list[tuple] = []  # (clipped_geom, capture_date)
-    for cell in vd.geoms:
+    # ВАЖНО: vd.geoms отдаёт НОВЫЕ объекты на каждом обращении — материализуем
+    # список один раз и работаем по индексу. Иначе любая попытка запомнить
+    # соответствие «ячейка → точка» по id() рассыпается (проверено: соответствие
+    # находилось для ~1% ячеек, реконструкция вырождалась в пару пятен).
+    vcells = list(vd.geoms)
+    cells: list[tuple[int, object]] = []  # (индекс точки, обрезанная ячейка)
+    for cell in vcells:
         owner = None
-        for i, p in enumerate(pts):
-            if cell.contains(p) or cell.distance(p) < 1e-9:
+        for i, gp in enumerate(geom_pts):
+            if cell.contains(gp) or cell.distance(gp) < 1e-9:
                 owner = i
                 break
         if owner is None:
             continue
-        clipped = cell.intersection(control_union)
-        if clipped.is_empty:
-            continue
-        cell_owner_date.append((clipped, dated[owner]["capture_date"]))
-
-    if not cell_owner_date:
+        clipped = (cell.intersection(clip_to)
+                       .intersection(geom_pts[owner].buffer(_POINT_INFLUENCE_DEG)))
+        if not clipped.is_empty:
+            cells.append((owner, clipped))
+    if not cells:
         return None
 
-    cell_owner_date.sort(key=lambda t: t[1])
-    dated_sorted_dates = [t[1] for t in cell_owner_date]
     today_iso = date.today().isoformat()
     crimea_mass = _crimea_landmass(control_union)
+    rf_today = {i for i in range(len(points)) if _holder_at(points[i], today_iso) == "RF"}
 
     features = []
-    idx = 0  # сколько ячеек (по возрастанию даты) уже включено
+    prev_area_km2 = None
     for y, m, month_end_iso in _iter_months(_MONTH_START[0], _MONTH_START[1], today_iso):
-        while idx < len(cell_owner_date) and dated_sorted_dates[idx] <= month_end_iso:
-            idx += 1
-        parts = [g for g, _ in cell_owner_date[:idx]]
+        rf_idx = {i for i in range(len(points)) if _holder_at(points[i], month_end_iso) == "RF"}
+        parts = [c for i, c in cells if i in rf_idx]
         if crimea_mass is not None and not crimea_mass.is_empty:
             parts.append(crimea_mass)
         if not parts:
             continue
-        region = unary_union(parts)
-        region = _smooth_and_clean(region)
-        # финальная обрезка по control_fill — сглаживание могло чуть "вылезти" за край
-        region = region.intersection(control_union)
-        # Заделка «котлов» — ПОСЛЕ обрезки: сам control_fill содержит дыры
-        # (реальные очаги внутри линии ISW), и они бы вернулись в реконструкцию
-        # уже после любой ранней очистки. См. _fill_holes_and_drop_islands.
+        # Огибающая месяца: сегодняшний контроль ПЛЮС то, что РФ держала тогда,
+        # но уже не держит (Харьковская область, правобережье Херсона). Так
+        # «сегодня» совпадает с фактической линией ISW (реконструкция не толще
+        # правды), а прошлые месяцы всё равно могут выйти за её пределы —
+        # ровно там, где это исторически и было.
+        lost_since = [c for i, c in cells if i in rf_idx and i not in rf_today]
+        envelope = unary_union([control_union, *lost_since]) if lost_since else control_union
+        region = _smooth_and_clean(unary_union(parts))
+        region = region.intersection(envelope)
+        # Заделка «котлов» — ПОСЛЕ обрезки: сам контур обрезки содержит дыры,
+        # и они бы вернулись в реконструкцию после любой более ранней очистки.
         region = _fill_holes_and_drop_islands(region)
         if region.is_empty:
             continue
+        area_km2 = round(region.area * _KM2_PER_DEG2)
         features.append({
             "type": "Feature",
             "properties": {
                 "month": f"{y:04d}-{m:02d}",
                 "month_end": month_end_iso,
-                "settlements_count": idx,
+                "settlements_count": len(rf_idx),
+                "area_km2": area_km2,
+                # Может быть ОТРИЦАТЕЛЬНОЙ — это не баг: осень-2022 РФ оставила
+                # Харьковскую область и правобережье Херсона.
+                "delta_km2": None if prev_area_km2 is None else area_km2 - prev_area_km2,
             },
             "geometry": mapping(region),
         })
+        prev_area_km2 = area_km2
 
     if not features:
         return None

@@ -1,0 +1,1393 @@
+{
+ "note": "Хронология контроля населённых пунктов: по каждому — СПИСОК переходов (дата → владелец RF/UA), а не одна дата. Собрано скриптом scripts/geo_svo_build_control_timeline.py из docs/svo-conflict-history.md (Часть 2). В отличие от geo_svo_dated_settlements.json (265 точек Wikipedia, ТОЛЬКО переходы к РФ), здесь есть ОБРАТНЫЕ переходы — без них историческая реконструкция не могла показать откат сентября-2022 и оставление правобережья Херсона, а «км²/месяц» не могла быть отрицательной.",
+ "aggregate_events": [
+  {
+   "name": "Киевская обл. (север, целиком)",
+   "oblast": "Киевская",
+   "date": "2022-04-02",
+   "holder": "UA",
+   "precision": "день",
+   "source": "МОУ"
+  },
+  {
+   "name": "Черниговская обл. (целиком)",
+   "oblast": "Черниговская",
+   "date": "2022-04-04",
+   "holder": "UA",
+   "precision": "день",
+   "source": "МОУ"
+  },
+  {
+   "name": "Сумская обл. (целиком)",
+   "oblast": "Сумская",
+   "date": "2022-04-08",
+   "holder": "UA",
+   "precision": "оценка",
+   "source": "МОУ"
+  }
+ ],
+ "settlements": [
+  {
+   "name": "Авдеевка",
+   "name_lat": "Avdiivka",
+   "oblast": "Донецкая",
+   "lat": 48.14527778,
+   "lon": 37.745,
+   "transitions": [
+    {
+     "date": "2024-02-17",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Алексеевка",
+   "name_lat": "Oleksiivka",
+   "oblast": "Сумская",
+   "lat": 48.01861111,
+   "lon": 36.94972222,
+   "transitions": [
+    {
+     "date": "2025-05-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Алёшки",
+   "name_lat": "Oleshky",
+   "oblast": "Херсонская",
+   "lat": 46.61666667,
+   "lon": 32.71666667,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Артёмово",
+   "name_lat": "Artemove",
+   "oblast": "Донецкая",
+   "lat": 48.37083,
+   "lon": 37.8855,
+   "transitions": [
+    {
+     "date": "2024-08-19",
+     "holder": "RF",
+     "precision": "день",
+     "source": "RUX"
+    }
+   ]
+  },
+  {
+   "name": "Артёмовск (Бахмут)",
+   "name_lat": "Bakhmut",
+   "oblast": "Донецкая",
+   "lat": 48.59472222,
+   "lon": 38.00083333,
+   "transitions": [
+    {
+     "date": "2023-05-20",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Балаклея",
+   "name_lat": "Balakliia",
+   "oblast": "Харьковская",
+   "lat": 49.46583333,
+   "lon": 36.86777778,
+   "transitions": [
+    {
+     "date": "2022-03-03",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "WIKI"
+    },
+    {
+     "date": "2022-09-08",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    }
+   ]
+  },
+  {
+   "name": "Белицкое",
+   "name_lat": "Bilytske",
+   "oblast": "Донецкая",
+   "lat": 48.4,
+   "lon": 37.18333333,
+   "transitions": [
+    {
+     "date": "2026-07-23",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Бердянск",
+   "name_lat": "Berdiansk",
+   "oblast": "Запорожская",
+   "lat": 46.75555556,
+   "lon": 36.78888889,
+   "transitions": [
+    {
+     "date": "2022-02-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Берислав",
+   "name_lat": "Beryslav",
+   "oblast": "Херсонская",
+   "lat": 46.83333333,
+   "lon": 33.41666667,
+   "transitions": [
+    {
+     "date": "2022-11-11",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    }
+   ]
+  },
+  {
+   "name": "Благодатное",
+   "name_lat": "Blahodatne",
+   "oblast": "Донецкая",
+   "lat": 48.6925,
+   "lon": 38.01333333,
+   "transitions": [
+    {
+     "date": "2023-06-11",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Бородянка",
+   "name_lat": "Borodianka",
+   "oblast": "Киевская",
+   "lat": 50.64388889,
+   "lon": 29.93388889,
+   "transitions": [
+    {
+     "date": "2022-04-01",
+     "holder": "UA",
+     "precision": "оценка",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Васильевка",
+   "name_lat": "Vasylivka",
+   "oblast": "Запорожская",
+   "lat": 47.44305556,
+   "lon": 35.28194444,
+   "transitions": [
+    {
+     "date": "2022-03-02",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Великая Новосёлка",
+   "name_lat": "Velyka Novosilka",
+   "oblast": "Донецкая",
+   "lat": 47.83833333,
+   "lon": 36.835,
+   "transitions": [
+    {
+     "date": "2025-01-26",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Вербовое",
+   "name_lat": "Verbove",
+   "oblast": "Днепропетровская",
+   "lat": 48.06472222,
+   "lon": 35.31944444,
+   "transitions": [
+    {
+     "date": "2025-10-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Волноваха",
+   "name_lat": "Volnovakha",
+   "oblast": "Донецкая",
+   "lat": 47.60222222,
+   "lon": 37.49194444,
+   "transitions": [
+    {
+     "date": "2022-03-11",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Волчанск",
+   "name_lat": "Vovchansk",
+   "oblast": "Харьковская",
+   "lat": 50.28777778,
+   "lon": 36.94277778,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "WIKI"
+    },
+    {
+     "date": "2022-09-11",
+     "holder": "UA",
+     "precision": "оценка",
+     "source": "ISW"
+    },
+    {
+     "date": "2025-12-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Геническ",
+   "name_lat": "Henichesk",
+   "oblast": "Херсонская",
+   "lat": 46.16666667,
+   "lon": 34.8,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Горняк",
+   "name_lat": "Hirnyk",
+   "oblast": "Донецкая",
+   "lat": 48.05,
+   "lon": 37.36666667,
+   "transitions": [
+    {
+     "date": "2024-10-29",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Горское",
+   "name_lat": "Hirske",
+   "oblast": "Луганская",
+   "lat": 48.75194444,
+   "lon": 38.495,
+   "transitions": [
+    {
+     "date": "2022-06-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Гостомель",
+   "name_lat": "Hostomel",
+   "oblast": "Киевская",
+   "lat": 50.56916667,
+   "lon": 30.26527778,
+   "transitions": [
+    {
+     "date": "2022-04-01",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Гуляйполе",
+   "name_lat": "Huliaipole",
+   "oblast": "Запорожская",
+   "lat": 47.65,
+   "lon": 36.26666667,
+   "transitions": [
+    {
+     "date": "2025-12-28",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "МО РФ (фактический контроль — к 06.2026)"
+    }
+   ]
+  },
+  {
+   "name": "Гуляйполе (фактический контроль)",
+   "name_lat": "Huliaipole",
+   "oblast": "Запорожская",
+   "lat": 47.65,
+   "lon": 36.26666667,
+   "transitions": [
+    {
+     "date": "2026-06-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "оценка по сводкам"
+    }
+   ]
+  },
+  {
+   "name": "Димитров (Мирноград)",
+   "name_lat": "Myrnohrad",
+   "oblast": "Донецкая",
+   "lat": 48.29111111,
+   "lon": 37.26805556,
+   "transitions": [
+    {
+     "date": "2025-12-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Днепрорудное",
+   "name_lat": "Dniprorudne",
+   "oblast": "Запорожская",
+   "lat": 47.38633333,
+   "lon": 34.99702778,
+   "transitions": [
+    {
+     "date": "2022-03-04",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Змеиный остров",
+   "name_lat": "Zmiinyi Island",
+   "oblast": "Одесская",
+   "lat": 45.255,
+   "lon": 30.20416667,
+   "transitions": [
+    {
+     "date": "2022-06-30",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Золотое",
+   "name_lat": "Zolote",
+   "oblast": "Луганская",
+   "lat": 48.69277778,
+   "lon": 38.51944444,
+   "transitions": [
+    {
+     "date": "2022-06-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Иванков",
+   "name_lat": "Ivankiv",
+   "oblast": "Киевская",
+   "lat": 50.93277778,
+   "lon": 29.90472222,
+   "transitions": [
+    {
+     "date": "2022-04-02",
+     "holder": "UA",
+     "precision": "оценка",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Изюм",
+   "name_lat": "Izium",
+   "oblast": "Харьковская",
+   "lat": 49.21277778,
+   "lon": 37.25694444,
+   "transitions": [
+    {
+     "date": "2022-04-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    },
+    {
+     "date": "2022-09-10",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    }
+   ]
+  },
+  {
+   "name": "Ирпень",
+   "name_lat": "Irpin",
+   "oblast": "Киевская",
+   "lat": 50.51666667,
+   "lon": 30.25,
+   "transitions": [
+    {
+     "date": "2022-03-28",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Каменка-Днепровская",
+   "name_lat": "Kamianka-Dniprovska",
+   "oblast": "Запорожская",
+   "lat": 47.46277778,
+   "lon": 34.40611111,
+   "transitions": [
+    {
+     "date": "2022-03-02",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Каховка",
+   "name_lat": "Kakhovka",
+   "oblast": "Херсонская",
+   "lat": 46.79777778,
+   "lon": 33.475,
+   "transitions": [
+    {
+     "date": "2022-02-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Клещеевка",
+   "name_lat": "Klishchiivka",
+   "oblast": "Донецкая",
+   "lat": 48.528056,
+   "lon": 37.958333,
+   "transitions": [
+    {
+     "date": "2023-09-17",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    },
+    {
+     "date": "2024-05-22",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Константиновка",
+   "name_lat": "Kostiantynivka",
+   "oblast": "Донецкая",
+   "lat": 48.53333333,
+   "lon": 37.71666667,
+   "transitions": [
+    {
+     "date": "2026-07-04",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ (РИА — 03.07)"
+    }
+   ]
+  },
+  {
+   "name": "Красноармейск (Покровск)",
+   "name_lat": "Pokrovsk",
+   "oblast": "Донецкая",
+   "lat": 48.28277778,
+   "lon": 37.18277778,
+   "transitions": [
+    {
+     "date": "2025-12-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ (сводка — 02.12)"
+    }
+   ]
+  },
+  {
+   "name": "Красногоровка",
+   "name_lat": "Krasnohorivka",
+   "oblast": "Донецкая",
+   "lat": 48.00666667,
+   "lon": 37.51277778,
+   "transitions": [
+    {
+     "date": "2024-09-10",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Кременная",
+   "name_lat": "Kreminna",
+   "oblast": "Луганская",
+   "lat": 49.05,
+   "lon": 38.2167,
+   "transitions": [
+    {
+     "date": "2022-04-18",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Крынки (ликвидация плацдарма)",
+   "name_lat": "Krynky",
+   "oblast": "Херсонская",
+   "lat": 46.7375,
+   "lon": 33.0925,
+   "transitions": [
+    {
+     "date": "2024-07-17",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Крынки (плацдарм)",
+   "name_lat": "Krynky",
+   "oblast": "Херсонская",
+   "lat": 46.7375,
+   "lon": 33.0925,
+   "transitions": [
+    {
+     "date": "2023-11-28",
+     "holder": "UA",
+     "precision": "месяц",
+     "source": "ISW"
+    }
+   ]
+  },
+  {
+   "name": "Купянск",
+   "name_lat": "Kupiansk",
+   "oblast": "Харьковская",
+   "lat": 49.71666667,
+   "lon": 37.58333333,
+   "transitions": [
+    {
+     "date": "2022-02-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    },
+    {
+     "date": "2022-09-10",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    },
+    {
+     "date": "2025-11-20",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "МО РФ (подтверждение — 27.12.2025)"
+    }
+   ]
+  },
+  {
+   "name": "Курахово",
+   "name_lat": "Kurakhove",
+   "oblast": "Донецкая",
+   "lat": 47.98333333,
+   "lon": 37.26666667,
+   "transitions": [
+    {
+     "date": "2025-01-06",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Лисичанск",
+   "name_lat": "Lysychansk",
+   "oblast": "Луганская",
+   "lat": 48.91666667,
+   "lon": 38.4,
+   "transitions": [
+    {
+     "date": "2022-07-03",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Макаровка",
+   "name_lat": "Makarivka",
+   "oblast": "Донецкая",
+   "lat": 47.77805556,
+   "lon": 36.80138889,
+   "transitions": [
+    {
+     "date": "2023-06-11",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Мариуполь",
+   "name_lat": "Mariupol",
+   "oblast": "Донецкая",
+   "lat": 47.09583333,
+   "lon": 37.54944444,
+   "transitions": [
+    {
+     "date": "2022-05-20",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Марьинка",
+   "name_lat": "Marinka",
+   "oblast": "Донецкая",
+   "lat": 47.94194444,
+   "lon": 37.50361111,
+   "transitions": [
+    {
+     "date": "2023-12-25",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Мелитополь",
+   "name_lat": "Melitopol",
+   "oblast": "Запорожская",
+   "lat": 46.84888889,
+   "lon": 35.3675,
+   "transitions": [
+    {
+     "date": "2022-02-25",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Нескучное",
+   "name_lat": "Neskuchne",
+   "oblast": "Донецкая",
+   "lat": 47.82,
+   "lon": 36.80888889,
+   "transitions": [
+    {
+     "date": "2023-06-11",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Николаево-Дарьино",
+   "name_lat": "Mykolaievo-Darino",
+   "oblast": "Курская (РФ)",
+   "lat": 51.24209,
+   "lon": 34.994447,
+   "transitions": [
+    {
+     "date": "2024-08-06",
+     "holder": "UA",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Новая Каховка",
+   "name_lat": "Nova Kakhovka",
+   "oblast": "Херсонская",
+   "lat": 46.755,
+   "lon": 33.375,
+   "transitions": [
+    {
+     "date": "2022-02-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Новогродовка",
+   "name_lat": "Novohrodivka",
+   "oblast": "Донецкая",
+   "lat": 48.2,
+   "lon": 37.33944444,
+   "transitions": [
+    {
+     "date": "2024-09-08",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Новодружеск",
+   "name_lat": "Novodruzhesk",
+   "oblast": "Луганская",
+   "lat": 48.963397,
+   "lon": 38.3519615,
+   "transitions": [
+    {
+     "date": "2022-07-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Новониколаевка",
+   "name_lat": "Novomykolaivka",
+   "oblast": "Запорожская",
+   "lat": 51.15555556,
+   "lon": 34.90444444,
+   "transitions": [
+    {
+     "date": "2025-10-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Охотничье",
+   "name_lat": "Okhotnyche",
+   "oblast": "Запорожская",
+   "lat": 44.47638889,
+   "lon": 34.06944444,
+   "transitions": [
+    {
+     "date": "2025-10-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Очеретино",
+   "name_lat": "Ocheretyne",
+   "oblast": "Донецкая",
+   "lat": 48.24277778,
+   "lon": 37.61055556,
+   "transitions": [
+    {
+     "date": "2024-04-28",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "ISW (МО РФ — 21.04)"
+    }
+   ]
+  },
+  {
+   "name": "Писанцы",
+   "name_lat": "Pysantsi",
+   "oblast": "Днепропетровская",
+   "lat": 47.94910004,
+   "lon": 36.18864255,
+   "transitions": [
+    {
+     "date": "2026-06-28",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Пологи",
+   "name_lat": "Polohy",
+   "oblast": "Запорожская",
+   "lat": 47.48333333,
+   "lon": 36.25,
+   "transitions": [
+    {
+     "date": "2022-03-07",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Попасная",
+   "name_lat": "Popasna",
+   "oblast": "Луганская",
+   "lat": 48.63333333,
+   "lon": 38.38,
+   "transitions": [
+    {
+     "date": "2022-05-07",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Привольe",
+   "name_lat": "Pryvillia",
+   "oblast": "Луганская",
+   "lat": 49,
+   "lon": 38.3,
+   "transitions": [
+    {
+     "date": "2022-07-01",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Приморск",
+   "name_lat": "Prymorsk",
+   "oblast": "Запорожская",
+   "lat": 46.73333333,
+   "lon": 36.35,
+   "transitions": [
+    {
+     "date": "2022-02-28",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Пятихатки",
+   "name_lat": "Piatykhatky",
+   "oblast": "Запорожская",
+   "lat": 47.507889,
+   "lon": 35.461482,
+   "transitions": [
+    {
+     "date": "2023-06-19",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Работино",
+   "name_lat": "Robotyne",
+   "oblast": "Запорожская",
+   "lat": 47.44305556,
+   "lon": 35.82611111,
+   "transitions": [
+    {
+     "date": "2023-08-28",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    },
+    {
+     "date": "2024-05-15",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "МО РФ (участок оставался спорным)"
+    }
+   ]
+  },
+  {
+   "name": "Родинское",
+   "name_lat": "Rodynske",
+   "oblast": "Донецкая",
+   "lat": 48.35305556,
+   "lon": 37.21,
+   "transitions": [
+    {
+     "date": "2025-12-27",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Рубежное",
+   "name_lat": "Rubizhne",
+   "oblast": "Луганская",
+   "lat": 49.01,
+   "lon": 38.37138889,
+   "transitions": [
+    {
+     "date": "2022-05-12",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Сватово",
+   "name_lat": "Svatove",
+   "oblast": "Луганская",
+   "lat": 49.415,
+   "lon": 38.155,
+   "transitions": [
+    {
+     "date": "2022-03-06",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Светлодарск",
+   "name_lat": "Svitlodarsk",
+   "oblast": "Донецкая",
+   "lat": 48.43333333,
+   "lon": 38.21666667,
+   "transitions": [
+    {
+     "date": "2022-05-24",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Святогорск",
+   "name_lat": "Sviatohirsk",
+   "oblast": "Донецкая",
+   "lat": 49.0358,
+   "lon": 37.5658,
+   "transitions": [
+    {
+     "date": "2022-06-09",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    },
+    {
+     "date": "2022-09-12",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    }
+   ]
+  },
+  {
+   "name": "Северодонецк",
+   "name_lat": "Sievierodonetsk",
+   "oblast": "Луганская",
+   "lat": 48.94805556,
+   "lon": 38.49333333,
+   "transitions": [
+    {
+     "date": "2022-06-25",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI/МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Северск",
+   "name_lat": "Siversk",
+   "oblast": "Донецкая",
+   "lat": 48.86305556,
+   "lon": 38.09722222,
+   "transitions": [
+    {
+     "date": "2025-12-11",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Селидово",
+   "name_lat": "Selydove",
+   "oblast": "Донецкая",
+   "lat": 48.15,
+   "lon": 37.30388889,
+   "transitions": [
+    {
+     "date": "2024-10-30",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "RUX (часть сводок — 28.10)"
+    }
+   ]
+  },
+  {
+   "name": "Скадовск",
+   "name_lat": "Skadovsk",
+   "oblast": "Херсонская",
+   "lat": 46.11666667,
+   "lon": 32.91666667,
+   "transitions": [
+    {
+     "date": "2022-03-09",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Славутич",
+   "name_lat": "Slavutych",
+   "oblast": "Киевская",
+   "lat": 51.52055556,
+   "lon": 30.75694444,
+   "transitions": [
+    {
+     "date": "2022-04-02",
+     "holder": "UA",
+     "precision": "оценка",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Снигирёвка",
+   "name_lat": "Snihurivka",
+   "oblast": "Николаевская",
+   "lat": 47.07361111,
+   "lon": 32.8,
+   "transitions": [
+    {
+     "date": "2022-11-10",
+     "holder": "UA",
+     "precision": "день",
+     "source": "ISW/МОУ"
+    }
+   ]
+  },
+  {
+   "name": "Соледар",
+   "name_lat": "Soledar",
+   "oblast": "Донецкая",
+   "lat": 48.69527778,
+   "lon": 38.0675,
+   "transitions": [
+    {
+     "date": "2023-01-16",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "WIKI (МО РФ — 13.01; RUX — 12.01)"
+    }
+   ]
+  },
+  {
+   "name": "Старобельск",
+   "name_lat": "Starobilsk",
+   "oblast": "Луганская",
+   "lat": 49.2775,
+   "lon": 38.92416667,
+   "transitions": [
+    {
+     "date": "2022-02-26",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Старомайорское",
+   "name_lat": "Staromaiorske",
+   "oblast": "Донецкая",
+   "lat": 47.75277778,
+   "lon": 36.79361111,
+   "transitions": [
+    {
+     "date": "2023-07-27",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Суджа",
+   "name_lat": "Sudzha",
+   "oblast": "Курская (РФ)",
+   "lat": 51.1914,
+   "lon": 35.2706,
+   "transitions": [
+    {
+     "date": "2024-08-08",
+     "holder": "UA",
+     "precision": "оценка",
+     "source": "WIKI/ISW"
+    },
+    {
+     "date": "2025-03-13",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Счастье",
+   "name_lat": "Shchastia",
+   "oblast": "Луганская",
+   "lat": 48.7333,
+   "lon": 39.2333,
+   "transitions": [
+    {
+     "date": "2022-02-26",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Токмак",
+   "name_lat": "Tokmak",
+   "oblast": "Запорожская",
+   "lat": 47.25555556,
+   "lon": 35.70555556,
+   "transitions": [
+    {
+     "date": "2022-03-07",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Торецк (Дзержинск)",
+   "name_lat": "Toretsk",
+   "oblast": "Донецкая",
+   "lat": 48.39166667,
+   "lon": 37.87333333,
+   "transitions": [
+    {
+     "date": "2025-02-07",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Тростянец",
+   "name_lat": "Trostianets",
+   "oblast": "Сумская",
+   "lat": 50.46666667,
+   "lon": 34.95,
+   "transitions": [
+    {
+     "date": "2022-03-26",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Угледар",
+   "name_lat": "Vuhledar",
+   "oblast": "Донецкая",
+   "lat": 47.77916667,
+   "lon": 37.24833333,
+   "transitions": [
+    {
+     "date": "2024-10-02",
+     "holder": "RF",
+     "precision": "оценка",
+     "source": "МО РФ (RUX — 04.10)"
+    }
+   ]
+  },
+  {
+   "name": "Украинск",
+   "name_lat": "Ukrainsk",
+   "oblast": "Донецкая",
+   "lat": 48.1,
+   "lon": 37.38333333,
+   "transitions": [
+    {
+     "date": "2024-09-26",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ/RUX"
+    }
+   ]
+  },
+  {
+   "name": "Урожайное",
+   "name_lat": "Urozhaine",
+   "oblast": "Донецкая",
+   "lat": 47.74861111,
+   "lon": 36.81916667,
+   "transitions": [
+    {
+     "date": "2023-08-16",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МОУ/ISW"
+    },
+    {
+     "date": "2024-07-28",
+     "holder": "RF",
+     "precision": "месяц",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Херсон",
+   "name_lat": "Kherson",
+   "oblast": "Херсонская",
+   "lat": 46.6425,
+   "lon": 32.625,
+   "transitions": [
+    {
+     "date": "2022-03-02",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI/МО РФ"
+    },
+    {
+     "date": "2022-11-11",
+     "holder": "UA",
+     "precision": "день",
+     "source": "МО РФ/ISW"
+    }
+   ]
+  },
+  {
+   "name": "Часов Яр",
+   "name_lat": "Chasiv Yar",
+   "oblast": "Донецкая",
+   "lat": 48.58844167,
+   "lon": 37.83588333,
+   "transitions": [
+    {
+     "date": "2025-07-31",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  },
+  {
+   "name": "Энергодар",
+   "name_lat": "Enerhodar",
+   "oblast": "Запорожская",
+   "lat": 47.49888889,
+   "lon": 34.65583333,
+   "transitions": [
+    {
+     "date": "2022-03-04",
+     "holder": "RF",
+     "precision": "день",
+     "source": "WIKI"
+    }
+   ]
+  },
+  {
+   "name": "Юнаковка",
+   "name_lat": "Yunakivka",
+   "oblast": "Сумская",
+   "lat": 51.12,
+   "lon": 35.03916667,
+   "transitions": [
+    {
+     "date": "2025-09-26",
+     "holder": "RF",
+     "precision": "день",
+     "source": "МО РФ"
+    }
+   ]
+  }
+ ]
+}
