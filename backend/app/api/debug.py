@@ -858,7 +858,7 @@ def debug_trigger_macro_sync():
     from app.services.macro_ingest import seed_indicators
     from app.services.macro_cb_sync import (sync_rate_meeting, sync_forecast, sync_forecast_annual,
                                              sync_expert_survey, sync_inflation, sync_expectations,
-                                             sync_credit_m2)
+                                             sync_credit_m2, sync_business_climate)
     from app.services.macro_minfin_sync import sync_gov_spending
     from app.services.macro_rosstat import sync_ppi
     from app.services.macro_hh_sync import sync_hh_index
@@ -885,6 +885,7 @@ def debug_trigger_macro_sync():
             ("expert_survey", lambda: sync_expert_survey(db, force=True)),
             ("inflation", lambda: sync_inflation(db)), ("expectations", lambda: sync_expectations(db)),
             ("credit_m2", lambda: sync_credit_m2(db, months_back=12)),
+            ("business_climate", lambda: sync_business_climate(db)),
             ("gov_spending", lambda: sync_gov_spending(db, months_back=4)),
             ("ppi", lambda: sync_ppi(db, months_back=6)),
             ("hh_index", lambda: sync_hh_index(db, months_back=18)),
