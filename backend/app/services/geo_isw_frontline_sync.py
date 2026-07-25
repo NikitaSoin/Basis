@@ -282,7 +282,18 @@ def _ukraine_boundary_from_static_map():
         # прошлых правках), unary_union на невалидном наборе падает с
         # TopologyException ещё до самого объединения.
         polys.append(shape(feat["geometry"]).buffer(0))
-    return unary_union(polys), static_map
+    # Заделываем внутренние «дыры-воду». Полигоны областей обрезаны по контуру
+    # суши (иначе заливка уходила бы в море), из-за чего Днепр, Каховское
+    # водохранилище и лиманы стали дырами ВНУТРИ страны. Для расчёта контроля
+    # это неверно: река — часть территории, а не пропуск в ней. Практический
+    # эффект бага, на который наткнулся: Херсон стоит вплотную к Днепру, его
+    # координата попадала в вырезанную «воду», ячейка города оставалась пустой
+    # и город не отображался занятым ни в одном месяце весны-осени 2022.
+    from shapely.geometry import Polygon as _Polygon
+    merged = unary_union(polys)
+    parts = list(merged.geoms) if hasattr(merged, "geoms") else [merged]
+    filled = [_Polygon(p.exterior) for p in parts if p.geom_type == "Polygon"]
+    return (unary_union(filled).buffer(0) if filled else merged), static_map
 
 
 def _control_fill_geojson(ru_control) -> dict:
