@@ -1174,7 +1174,10 @@ const BENCH_EXTRA_TOKENS = ["--pf-estimate", "--pf-copper-deep", "--cat-4", "--c
 // я рынок или нет». Доп. сравнения (extraSeries, до 4) — тоньше остальных,
 // добавляются явно пользователем через «+Добавить сравнение» ниже.
 const BenchmarkChart = ({ series, extraSeries = [] }) => {
-  const { dates = [], portfolio = [], mcftr = [], imoex = [], sector_blend: sectorBlend = null } = series || {};
+  const {
+    dates = [], portfolio = [], mcftr = [], imoex = [], sector_blend: sectorBlend = null,
+    sector_blend_coverage_pct: sectorBlendCoveragePct = null,
+  } = series || {};
   const n = dates.length;
   const wrapRef = useRef(null);
   const [showImoex, setShowImoex] = useState(false);
@@ -1361,15 +1364,25 @@ const BenchmarkChart = ({ series, extraSeries = [] }) => {
         >
           Без дивидендов (IMOEX){!showImoex && dividendContribution != null && ` · вклад дивидендов ${fmtPercent(dividendContribution, { sign: true })}`}
         </button>
-        {sectorBlendAvailable && (
-          <button
-            type="button" className={`pf-chip${showSectorBlend ? " pf-chip--active" : ""}`}
-            style={{ fontSize: "12.5px", padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: "6px" }}
-            aria-pressed={showSectorBlend} onClick={() => setShowSectorBlend((v) => !v)}
-          >
-            Ваши секторы <span className="pf-tag-estimate">оценка</span>
-          </button>
-        )}
+        {/* Владелец, 2026-07-25: «секторный индекс нельзя включить» на «Весь
+            период» — кнопка раньше просто ИСЧЕЗАЛА, если покрытие отраслевых
+            индексов МосБиржи <90% выбранного диапазона (у секторных TR-индексов
+            история короче, чем у портфеля/MCFTR/IMOEX — не то же самое, что «баг»,
+            но выглядело как один). Теперь кнопка ВСЕГДА видна; если недоступна —
+            задизейблена и честно объясняет почему в title, а не пропадает молча. */}
+        <button
+          type="button" className={`pf-chip${showSectorBlend ? " pf-chip--active" : ""}`}
+          style={{
+            fontSize: "12.5px", padding: "5px 12px", display: "inline-flex", alignItems: "center", gap: "6px",
+            opacity: sectorBlendAvailable ? 1 : 0.55, cursor: sectorBlendAvailable ? "pointer" : "not-allowed",
+          }}
+          aria-pressed={showSectorBlend} disabled={!sectorBlendAvailable}
+          onClick={() => sectorBlendAvailable && setShowSectorBlend((v) => !v)}
+          title={sectorBlendAvailable ? undefined
+            : `Недоступно для этого диапазона — у отраслевых индексов МосБиржи история короче портфеля (покрытие ${Math.round(sectorBlendCoveragePct ?? 0)}% нужного периода, нужно ≥90%).`}
+        >
+          Ваши секторы <span className="pf-tag-estimate">оценка</span>
+        </button>
         {(extraSeries || []).map((s, i) => (
           <span
             key={s.key || s.label}
@@ -1402,8 +1415,15 @@ const BenchmarkChart = ({ series, extraSeries = [] }) => {
                 {fmtFullD(dates[hover.idx])}
               </div>
               <div className="tw-flex tw-flex-col tw-gap-1">
-                {visible.map((m) => (
-                  typeof m.values?.[hover.idx] === "number" ? (
+                {/* Владелец, 2026-07-25: «водишь бегунок... удобно чтобы первый шёл
+                    тот, кто больше по доходности, а не фиксированно портфель первый»
+                    — сортируем СТРОКИ ТУЛЬТИПА по значению В ЭТОЙ ТОЧКЕ (не по
+                    фиксированному порядку легенды выше, тот порядок не трогаем —
+                    он про «что можно включить/выключить», не про ранжирование). */}
+                {visible
+                  .filter((m) => typeof m.values?.[hover.idx] === "number")
+                  .sort((a, b) => b.values[hover.idx] - a.values[hover.idx])
+                  .map((m) => (
                     <div key={m.key} className="tw-flex tw-items-center tw-gap-1.5">
                       <span className="tw-inline-block tw-w-2.5 tw-h-2.5 tw-rounded-full tw-shrink-0" style={{ background: `var(${m.token})` }} />
                       <span className="tw-truncate" style={{ maxWidth: 150, color: "var(--pf-ink-2)" }}>{m.label}</span>
@@ -1411,8 +1431,7 @@ const BenchmarkChart = ({ series, extraSeries = [] }) => {
                         <span aria-hidden="true">{m.values[hover.idx] >= 0 ? "▲" : "▼"}</span> {fmtPercent(m.values[hover.idx], { sign: true })}
                       </b>
                     </div>
-                  ) : null
-                ))}
+                  ))}
               </div>
             </div>
           );

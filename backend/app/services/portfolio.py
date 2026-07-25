@@ -903,8 +903,8 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
             # выше (волатильность/Шарп/VaR/Сортино/R²) намеренно НЕ трогаем —
             # они остаются на фиксированном 3-летнем окне независимо от
             # compare_period (см. докстринг функции).
+            since_max = date_cls(2010, 1, 1)  # раньше реальных данных любого тикера — интервал сам обрежется пересечением дат; вынесено из-под if ниже — нужна и секторному бенчмарку (см. следующий блок)
             if compare_period == "max":
-                since_max = date_cls(2010, 1, 1)  # раньше реальных данных любого тикера — интервал сам обрежется пересечением дат
                 returns_max: dict[str, dict] = {}
                 for p in valued:
                     t = p["ticker"]
@@ -951,12 +951,6 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
                             fd_max.append(d); fa_max.append(acc_max)
                             fm_max.append(mcftr_max[d]); fi_max.append(imoex_max[d])
                     if fd_max:
-                        # Секторный бенчмарк (full_sb ниже) считается ПОСЛЕ этой
-                        # правки уже от расширенных full_dates — если покрытие
-                        # отраслевых индексов (since ВЫШЕ, фикс. 3г) окажется <90%
-                        # от расширенного диапазона, «Ваши секторы» честно
-                        # исключится сам (та же уже существующая проверка coverage
-                        # ниже) — отдельно ничего глушить не нужно.
                         full_dates, full_acc, full_mc, full_im = fd_max, fa_max, fm_max, fi_max
 
             # ── Смешанный бенчмарк «по весам портфеля» (секторный, Brinson-style) ──
@@ -969,6 +963,14 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
             # <90% (обнаружено на METLTR/Телеком — MOEX перестал публиковать с марта
             # 2026) честно исключаются, веса перенормированы на покрытые, доля
             # покрытия раскрыта в ответе, не скрыта.
+            #
+            # Владелец, 2026-07-25: «секторный индекс нельзя включить» на «Весь
+            # период» — full_dates выше уже расширен (see since_max), но отраслевые
+            # индексы грузились со старым фикс. since → coverage относительно
+            # длинного диапазона проваливалась ниже 90%, «Ваши секторы» тихо
+            # пропадали. Грузим отраслевые индексы тем же расширенным окном, что и
+            # full_dates — since_max для "max", since (3г) для остальных периодов.
+            since_for_sectors = since_max if compare_period == "max" else since
             from app.services.moex_history import SECTOR_TR_TICKERS
             sector_equity_value: dict[str, float] = {}
             for p in valued:
@@ -981,7 +983,7 @@ def compute_portfolio_metrics(db: Session, portfolio_id: int, compare_period: st
                     ticker = SECTOR_TR_TICKERS.get(s)
                     if not ticker:
                         continue
-                    series = load_index_series(db, ticker, since)
+                    series = load_index_series(db, ticker, since_for_sectors)
                     coverage = len(set(series) & set(full_dates)) / len(full_dates)
                     if coverage >= 0.9:
                         usable_sectors[s] = (v, series)
