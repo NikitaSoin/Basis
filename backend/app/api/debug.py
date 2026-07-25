@@ -816,7 +816,8 @@ def debug_purge_girbo_backlog(period: str | None = "2025"):
 
 
 @router.post("/debug/purge-news-junk-reports")
-def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = None):
+def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = None,
+                                  list_all: bool = False):
     """Ретроактивная чистка мусорных «отчётов», созданных news-путём report_watch до
     ужесточения детекта (2026-07-25, жалоба владельца: в «Отчётах» дивиденды/отраслевые
     новости вместо отчётности). Применяет НОВЫЙ детект (_NEWS_REPORT_DETECT_RE + порог
@@ -848,6 +849,13 @@ def debug_purge_news_junk_reports(dry_run: bool = True, report_id: int | None = 
         rows = (db.query(EarningsReport, MarketUpdate)
                 .join(MarketUpdate, MarketUpdate.id == EarningsReport.market_update_id)
                 .filter(EarningsReport.source == "market_updates").all())
+        # list_all=true — показать ВСЕ market_updates-записи с id (ничего не удаляя):
+        # чтобы найти id пограничной записи для точечного report_id-удаления
+        # (детект её пропускает, а глазами по заголовку новости мусор виден сразу).
+        if list_all:
+            return {"dry_run": True, "matched": len(rows), "reports": [
+                {"id": r.id, "ticker": r.ticker, "period": r.period, "standard": r.standard,
+                 "news_title": (mu.title or "")[:120]} for r, mu in rows]}
         junk = []
         for rep, mu in rows:
             blob = f"{mu.title} {mu.summary or ''}"
