@@ -86,6 +86,44 @@ def _iter_months(start_year: int, start_month: int, end_iso: str):
             y += 1
 
 
+def _fill_holes_and_drop_islands(geom):
+    """Убирает НЕФИЗИЧНЫЕ артефакты реконструкции: внутренние дыры («котлы») и
+    мелкие оторванные островки.
+
+    Владелец (2026-07-25, повторно, со скриншотом за 2024 год): «у ЛНР на
+    юго-западе типо котел, в запорожской и днр тоже типа какие котлы — это
+    бред». Замерено на реальных данных до фикса: дыра 3219 км² держалась с
+    марта-2022 по октябрь-2024, вторая 935 км² — с декабря-2023 по ноябрь-2024,
+    плюс мелочь 188-644 км².
+
+    Природа дыры — чисто алгоритмическая: ячейка Вороного, чей «владелец»
+    датирован ПОЗЖЕ окружения, остаётся невключённой и выглядит окружённым
+    котлом, хотя никакого котла в реальности не было. Реальных долгоживущих
+    окружений такого размера в этой войне не было ни у одной из сторон,
+    поэтому дыры закрываем ВСЕ (реконструкция и так честно помечена как
+    «оценка»/огрубление, точная линия ISW доступна в положении «сегодня»).
+
+    Крупные ОТДЕЛЬНЫЕ массивы, наоборот, оставляем: до открытия сухопутного
+    коридора (весна 2022) Крым физически не был связан с донбасской группой —
+    это исторический факт, а не артефакт. Режем только мелочь-шум."""
+    from shapely.geometry import MultiPolygon, Polygon
+    from shapely.ops import unary_union
+
+    if geom.is_empty:
+        return geom
+    parts = list(geom.geoms) if isinstance(geom, MultiPolygon) else [geom]
+    rebuilt = []
+    for p in parts:
+        if p.geom_type != "Polygon":
+            continue
+        if p.area < _MIN_ISLAND_AREA_DEG2:
+            continue  # микро-островок — шум Вороного, не территория
+        rebuilt.append(Polygon(p.exterior))  # внешнее кольцо без дыр
+    if not rebuilt:
+        return geom  # честнее показать как есть, чем стереть целиком
+    return unary_union(rebuilt).buffer(0)
+
+
 def _smooth_and_clean(poly):
     """closing→opening (сглаживание рваных Вороного-граней + латание мелких
     дыр-артефактов) + отсев микро-островков-шума."""
@@ -205,6 +243,10 @@ def compute_isochrone(control_fill_geojson: dict) -> dict | None:
         region = _smooth_and_clean(region)
         # финальная обрезка по control_fill — сглаживание могло чуть "вылезти" за край
         region = region.intersection(control_union)
+        # Заделка «котлов» — ПОСЛЕ обрезки: сам control_fill содержит дыры
+        # (реальные очаги внутри линии ISW), и они бы вернулись в реконструкцию
+        # уже после любой ранней очистки. См. _fill_holes_and_drop_islands.
+        region = _fill_holes_and_drop_islands(region)
         if region.is_empty:
             continue
         features.append({
