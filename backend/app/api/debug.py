@@ -511,6 +511,33 @@ async def debug_ping():
     return {"pong": True}
 
 
+@router.post("/debug/seed-fixed-capital-investment-q1-2026")
+def debug_seed_fixed_capital_investment_q1_2026():
+    """Разовый сид: fixed_capital_investment (новый индикатор, 2026-07-25) заведён
+    ТОЛЬКО через news_extract (нет официального синка — fedstat.ru заблокирован WAF,
+    XLS Росстата не льётся LLM-текстом) — без этого сида показывал бы «нет данных»
+    до следующего квартального релиза (Q2, ожидается ~сентябрь), хотя Q1 2026 уже
+    опубликован и известен. Значение проверено напрямую по первоисточнику
+    (interfax.ru/business/1093663, 3 июня 2026): «Инвестиции в основной капитал в РФ
+    в I квартале 2026 года упали на 14,3% в годовом выражении» — Росстат. Разовый вызов,
+    не гонять регулярно; дальнейшие кварталы должны приходить через news_extract."""
+    from datetime import date as _date
+    from app.db.session import SessionLocal
+    from app.services.macro_ingest import upsert_point
+    db = SessionLocal()
+    try:
+        res = upsert_point(db, "fixed_capital_investment", _date(2026, 3, 31), "yoy", -14.3,
+                           unit="%", source="Росстат", is_preliminary=True,
+                           source_url="https://www.interfax.ru/business/1093663", ingested_via="rosstat")
+        return {"result": res}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug seed-fixed-capital-investment-q1-2026: %s", e)
+        db.rollback()
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/purge-future-macro")
 def debug_purge_future_macro():
     """Удаляет точки macro_data_points с as_of далеко в будущем (баг: LLM-извлечение
