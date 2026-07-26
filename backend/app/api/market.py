@@ -5,7 +5,7 @@ from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 from anthropic import Anthropic
 from app.db.session import get_db
-from app.auth import get_current_user_optional
+from app.auth import get_current_user_optional, require_ops_token
 from app.models.market import MarketUpdate, OverviewType
 from app.models.company import Company
 from app.models.portfolio import Portfolio, PortfolioPosition
@@ -369,7 +369,7 @@ def get_news_endpoint(item_id: int, db: Session = Depends(get_db)):
     return row
 
 
-@router.post("/market/updates", response_model=MarketUpdateResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/market/updates", response_model=MarketUpdateResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def create_update_endpoint(data: MarketUpdateCreate, db: Session = Depends(get_db)):
     return create_update(db, data)
 
@@ -379,7 +379,7 @@ def list_updates_endpoint(db: Session = Depends(get_db)):
     return get_all_updates(db)
 
 
-@router.post("/market/overviews", response_model=MarketOverviewResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/market/overviews", response_model=MarketOverviewResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def create_overview_endpoint(data: MarketOverviewCreate, db: Session = Depends(get_db)):
     return create_overview(db, data)
 
@@ -389,7 +389,7 @@ def list_overviews_endpoint(type: OverviewType | None = None, db: Session = Depe
     return get_all_overviews(db, overview_type=type)
 
 
-@router.post("/market/overviews/generate", response_model=MarketOverviewResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/market/overviews/generate", response_model=MarketOverviewResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def generate_overview_endpoint(
     type: OverviewType = OverviewType.express,
     current_user=Depends(get_current_user_optional),

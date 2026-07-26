@@ -1223,6 +1223,53 @@ def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
         db.close()
 
 
+@router.post("/debug/sanitize-analyst-notes")
+def debug_sanitize_analyst_notes(dry_run: bool = True):
+    """Комплаенс-свип (аудит 2026-07-26, персона нашла на карточке SBER
+    «Базовая рекомендация — держать/покупать на просадках ниже 270 руб.»):
+    вычищает из analyst_note (таблица company_analyses) ПРЕДЛОЖЕНИЯ с
+    рекомендательной лексикой — конституция Basis запрещает «купить/продать»,
+    это же ограничение закона об инвестсоветниках. Генератор ai_analysis.py
+    уже исправлен (жёсткий запрет в промпте) — это догон по уже записанному.
+    dry_run=true (дефолт) — только показать, что будет вырезано."""
+    import re as _re
+    from app.db.session import SessionLocal
+    from app.models.company import CompanyAnalysis, Company
+
+    # Лексика ИМЕННО рекомендаций-действий; дисклеймеры («не является
+    # рекомендацией купить/продать») НЕ должны попадать — их выделяет
+    # отрицание рядом, проверяем и его.
+    rec = _re.compile(r"рекоменд|покупа|докупа|продава|держать|фиксир\w* прибыл|"
+                       r"входить в позици|просадк", _re.IGNORECASE)
+    neg = _re.compile(r"не являє|не являетс|не рекоменда|без рекоменда|нет рекоменда",
+                      _re.IGNORECASE)
+    db = SessionLocal()
+    try:
+        touched = []
+        for row, ticker in (db.query(CompanyAnalysis, Company.ticker)
+                            .join(Company, Company.id == CompanyAnalysis.company_id).all()):
+            note = row.analyst_note or ""
+            if not note or not rec.search(note):
+                continue
+            sentences = _re.split(r"(?<=[.!?])\s+", note)
+            kept = [s for s in sentences if not (rec.search(s) and not neg.search(s))]
+            new_note = " ".join(kept).strip() or None
+            if new_note != note:
+                touched.append({"ticker": ticker, "removed":
+                                [s for s in sentences if s not in kept]})
+                if not dry_run:
+                    row.analyst_note = new_note
+        if not dry_run:
+            db.commit()
+        return {"dry_run": dry_run, "touched": len(touched), "details": touched[:50]}
+    except Exception as e:  # noqa: BLE001
+        db.rollback()
+        logger.exception("sanitize-analyst-notes: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-news-strikes")
 def debug_trigger_news_strikes(hours: int = 48):
     """Ручной прогон extract_strikes_from_news() — извлечение ударов из ОБЩЕЙ

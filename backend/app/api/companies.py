@@ -19,6 +19,7 @@ def _safe(name: str) -> str:
         raise HTTPException(status_code=404, detail="Not found")
     return name
 from app.db.session import get_db
+from app.auth import require_ops_token
 from app.models.company_profile import CompanyProfile
 from app.schemas.company import (
     CompanyCreate, CompanyResponse,
@@ -210,7 +211,7 @@ def realtime_quotes_endpoint():
         raise HTTPException(status_code=503, detail=f"Котировки недоступны: {e}")
 
 
-@router.post("/companies", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/companies", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def create_company_endpoint(data: CompanyCreate, db: Session = Depends(get_db)):
     if get_company_by_ticker(db, data.ticker):
         raise HTTPException(status_code=409, detail="Ticker already exists")
@@ -234,7 +235,7 @@ def get_company_endpoint(company_id: int, db: Session = Depends(get_db)):
     return company
 
 
-@router.post("/companies/{company_id}/analysis", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/companies/{company_id}/analysis", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def add_analysis_endpoint(company_id: int, data: AnalysisCreate, db: Session = Depends(get_db)):
     if not get_company_by_id(db, company_id):
         raise HTTPException(status_code=404, detail="Company not found")
@@ -248,7 +249,7 @@ def list_analyses_endpoint(company_id: int, db: Session = Depends(get_db)):
     return get_analyses(db, company_id)
 
 
-@router.post("/companies/{company_id}/quotes", response_model=QuoteResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/companies/{company_id}/quotes", response_model=QuoteResponse, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_ops_token)])
 def add_quote_endpoint(company_id: int, data: QuoteCreate, db: Session = Depends(get_db)):
     if not get_company_by_id(db, company_id):
         raise HTTPException(status_code=404, detail="Company not found")

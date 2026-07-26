@@ -2,7 +2,7 @@ import os
 import bcrypt
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -20,6 +20,19 @@ if SECRET_KEY == "changeme-use-env-in-production":
         "подделываемы. Задайте JWT_SECRET_KEY в окружении НЕМЕДЛЕННО.")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
+
+# Опциональный ops-токен (та же переменная, что закрывает /api/debug/*):
+# защищает легаси-эндпоинты записи (POST /companies*, /market/updates|overviews),
+# которые фронтенд не использует, но которые до аудита 2026-07-26 позволяли
+# анониму ВПИСЫВАТЬ контент в платформу (заметки аналитика, котировки, новости).
+# Переменная не задана → открыто как раньше (деплой ничего не ломает);
+# задана → каждый запрос обязан нести X-Debug-Token.
+_OPS_TOKEN = os.environ.get("DEBUG_API_TOKEN", "").strip()
+
+
+async def require_ops_token(request: Request):
+    if _OPS_TOKEN and request.headers.get("X-Debug-Token", "") != _OPS_TOKEN:
+        raise HTTPException(status_code=403, detail="X-Debug-Token обязателен")
 
 _bearer = HTTPBearer(auto_error=False)
 
