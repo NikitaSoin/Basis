@@ -369,6 +369,20 @@ async def get_financials_json(ticker: str, db: Session = Depends(get_db)):
     return JSONResponse(content=fin)
 
 
+@router.get("/companies/by-ticker/{ticker}/financial-model")
+def get_financial_model_endpoint(ticker: str, db: Session = Depends(get_db)):
+    """Прогнозная финмодель (пилот, методика docs/financial-model-methodology.md):
+    сценарии база/бык/медведь, драйверы с живыми значениями (Brent/курс/ставка
+    подтягиваются на каждый запрос — см. services/financial_model.py), форвардные
+    мультипликаторы и апсайд от живой цены, мост прибыли, чувствительность.
+    404 — модели нет (не пилотная компания)."""
+    from app.services.financial_model import get_financial_model
+    model = get_financial_model(db, _safe(ticker).upper())
+    if model is None:
+        raise HTTPException(status_code=404, detail="Financial model not found")
+    return JSONResponse(content=model)
+
+
 @router.get("/companies/by-ticker/{ticker}/earnings/latest")
 def get_latest_earnings(ticker: str, db: Session = Depends(get_db)):
     """Разбор последнего отчёта для карточки (Направление 3): метрики + блок «Разбор отчёта».
