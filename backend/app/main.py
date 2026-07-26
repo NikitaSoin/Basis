@@ -638,6 +638,20 @@ async def _geo_job():
         logger.exception("Ошибка обновления геополитики: %s", e)
 
 
+async def _company_metrics_job():
+    """company_metrics (скринер) ← файлы financials.json. Идемпотентно
+    (ON CONFLICT DO UPDATE), чистое чтение файлов + upsert, без сети."""
+    def _run():
+        from scripts.sync_company_metrics import main as _sync
+        _sync()
+        return {"status": "ok"}
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, _run)
+        logger.info("company_metrics синхронизированы из файлов аналитики")
+    except Exception as e:
+        logger.exception("Ошибка синка company_metrics: %s", e)
+
+
 async def _geo_digest_job():
     """Дайджест отдельных статей (Рыбарь/re:russia/Economist → карточки по региону
     геополитики + институциональная среда). Часто (в отличие от _geo_job) —
@@ -816,6 +830,13 @@ async def lifespan(app: FastAPI):
     # История: раз в день после закрытия торгов (19:30 МСК) докачиваем
     # пропущенные дни и финализируем live-снапшоты официальными свечами.
     scheduler.add_job(_with_heartbeat("history_catchup", _history_job), "cron", hour=19, minute=30, id="history_catchup")
+    # Синк company_metrics (скринер) из файлов financials.json — аудит
+    # 2026-07-26 нашёл, что скрипт существовал ТОЛЬКО в ручном запуске и не
+    # вызывался никем с июня: скринер расходился с карточкой по справедливой
+    # цене у 95% компаний (медиана 32%). Раз в сутки после history_catchup +
+    # прогон при старте (файлы аналитики приезжают с каждым деплоем).
+    scheduler.add_job(_with_heartbeat("company_metrics_sync", _company_metrics_job),
+                      "cron", hour=19, minute=50, id="company_metrics_sync")
     # Официальные беты MOEX — раз в неделю (файл обновляется нерегулярно)
     scheduler.add_job(_with_heartbeat("moex_coefficients", _coefficients_job), "cron", day_of_week="mon", hour=8, minute=30, id="moex_coefficients")
     # Данные классов активов (облигации/фьючерсы/фонды) — ежедневное обновление
@@ -866,6 +887,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(_risk_metrics_startup())
     asyncio.create_task(_selftest_startup())
     asyncio.create_task(_geo_frontline_sync_startup())
+    asyncio.create_task(_company_metrics_job())  # файлы приезжают с деплоем — скринер сразу в ногу с карточками
 
     # Облигации/фьючерсы/фонды — БЕЗ страховки на рестарт (в отличие от акций
     # выше) молча отставали на T+1..T+N: их крон (asset_data_refresh, 06:00 МСК)
