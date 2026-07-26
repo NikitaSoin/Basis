@@ -1,4 +1,18 @@
-"""Диагностические эндпоинты — только для отладки."""
+"""Диагностические эндпоинты — только для отладки.
+
+🔴 БЕЗОПАСНОСТЬ (аудит 2026-07-26, docs/audit-2026-07/02-backend-security.md):
+весь этот роутер исторически был ОТКРЫТ без авторизации — аноним мог стирать
+прод-данные (purge/reset), жечь LLM-бюджет (trigger-*) и читать инфраструктуру
+(env/connectivity). Теперь роутер защищён опциональным токеном:
+
+  - переменная окружения DEBUG_API_TOKEN ЗАДАНА → каждый запрос обязан нести
+    заголовок `X-Debug-Token: <значение>` (иначе 403);
+  - переменная НЕ задана → поведение прежнее (открыто) + громкое предупреждение
+    в лог при старте. Так деплой фикса ничего не ломает, а включение защиты —
+    одна переменная в панели Timeweb (действие владельца).
+
+После включения все ручные вызовы (curl из сессий Claude) должны добавлять
+`-H "X-Debug-Token: $DEBUG_API_TOKEN"`."""
 import json
 import logging
 import os
@@ -6,10 +20,24 @@ import ssl
 import urllib.request
 import urllib.error
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
-router = APIRouter()
 logger = logging.getLogger(__name__)
+
+_DEBUG_TOKEN = os.environ.get("DEBUG_API_TOKEN", "").strip()
+if not _DEBUG_TOKEN:
+    logger.warning("🔓 /api/debug/* ОТКРЫТ БЕЗ АВТОРИЗАЦИИ: задайте DEBUG_API_TOKEN "
+                   "в окружении, чтобы закрыть (см. докстринг app/api/debug.py)")
+
+
+async def _debug_guard(request: Request):
+    if _DEBUG_TOKEN and request.headers.get("X-Debug-Token", "") != _DEBUG_TOKEN:
+        raise HTTPException(status_code=403, detail="X-Debug-Token обязателен")
+
+
+from fastapi import Depends as _Depends  # noqa: E402 — рядом с местом использования
+
+router = APIRouter(dependencies=[_Depends(_debug_guard)])
 
 TINKOFF_TOKEN = os.environ.get("TINKOFF_API_TOKEN", "").strip()
 _API = "https://invest-public-api.tinkoff.ru/rest"
@@ -151,7 +179,8 @@ def debug_env():
     имени переменной, DATABASE_URL под этот паттерн не попадал). Теперь такие URL-секреты
     маскируются отдельно (регэксп на userinfo часть), не просто по суффиксу имени ключа."""
     import re
-    keys = ["TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
+    keys = ["JWT_SECRET_KEY", "DEBUG_API_TOKEN",  # только «задан/не задан» — значения маскируются ниже
+            "TINKOFF_API_TOKEN", "MOEX_USERNAME", "MOEX_PASSWORD", "DATABASE_URL",
             "ANTHROPIC_API_KEY", "ANTHROPIC_PROXY_URL", "DEEPSEEK_API_KEY", "FRED_API_KEY",
             "LLM_PROVIDER", "RUN_STARTUP_JOBS", "MINFIN_BASE_URL",
             # Релеи egress-заблокированных хостов (см. agent_web.py/llm.py) — добавлены
@@ -462,7 +491,9 @@ async def debug_echo(kb: int = 10):
     Случайные байты → GZip их не ужмёт, размер на проводе = реальный. async, без БД."""
     import os as _os
     from fastapi.responses import Response
-    n = max(1, min(kb, 5000))
+    # Кап 256 КБ (было 5000): аудит 2026-07-26 пометил как DoS-усилитель —
+    # для замера порога прокси 256 КБ хватает с запасом.
+    n = max(1, min(kb, 256))
     return Response(content=_os.urandom(n * 1024), media_type="application/octet-stream")
 
 

@@ -9,6 +9,15 @@ from app.db.session import get_db
 from app.models.user import User
 
 SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "changeme-use-env-in-production")
+if SECRET_KEY == "changeme-use-env-in-production":
+    # 🔴 Аудит 2026-07-26: с дефолтным секретом ЛЮБОЙ может подделать JWT и
+    # войти под любым пользователем. Не роняем прод (вдруг это как раз бой без
+    # переменной — падение хуже), но кричим в лог на каждом старте. Действие
+    # владельца: задать JWT_SECRET_KEY в панели Timeweb (случайные 64+ символа).
+    import logging as _logging
+    _logging.getLogger(__name__).critical(
+        "🔓 JWT_SECRET_KEY НЕ ЗАДАН — используется публичный дефолт, токены "
+        "подделываемы. Задайте JWT_SECRET_KEY в окружении НЕМЕДЛЕННО.")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 30
 
