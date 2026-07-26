@@ -1270,6 +1270,27 @@ def debug_sanitize_analyst_notes(dry_run: bool = True):
         db.close()
 
 
+@router.post("/debug/trigger-situation-overlay")
+def debug_trigger_situation_overlay(window_days: int = 10):
+    """Ручной прогон оверлея «текущая ситуация по ленте» (гео 3 очага +
+    институты). Fail-closed: результат с published=false означает, что
+    комплаенс-фильтр/пустая лента заблокировали выпуск — это НЕ ошибка."""
+    from app.db.session import SessionLocal
+    from app.services.situation_overlay import generate
+    db = SessionLocal()
+    try:
+        row = generate(db, window_days=window_days)
+        return {"id": row.id, "published": row.published,
+                "blocked_reason": row.blocked_reason,
+                "scopes": list((row.blocks or {}).keys()),
+                "source_snapshot": row.source_snapshot}
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-situation-overlay: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-news-strikes")
 def debug_trigger_news_strikes(hours: int = 48):
     """Ручной прогон extract_strikes_from_news() — извлечение ударов из ОБЩЕЙ

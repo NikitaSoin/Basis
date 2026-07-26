@@ -151,3 +151,27 @@ class GeoTerritorialClaim(Base):
         onupdate=lambda: datetime.now(timezone.utc))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class SituationOverlay(Base):
+    """Оперативный слой-ОВЕРЛЕЙ «текущая ситуация по ленте» поверх экспертного
+    барометра (владелец 2026-07-27: у макро ситуация авто-обновляется, у гео и
+    институтов — нет). НЕ заменяет экспертный якорь (geo_barometer.json /
+    institutional_barometer.json) — аннотирует его дельтой по свежим статьям
+    geo_digest. Один ряд = один суточный прогон; blocks — по scope
+    (svo|middle_east|atr|institutions), у каждого alignment ∈
+    {подтверждает|сдвигает|противоречит} + атомарные тезисы. Балльные оценки/
+    направление якоря НЕ трогает (advisor 2026-07-27). Версионируется по дате —
+    бесплатный аудит-трейл для авто-генерируемого контента про войну/санкции.
+    published=False → комплаенс-фильтр заблокировал выпуск (fail-closed:
+    фронт отдаёт последний published-ряд, не этот)."""
+    __tablename__ = "situation_overlays"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    blocks: Mapped[dict | None] = mapped_column(JSONB)  # {svo:{alignment,theses,...}, ...}
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    model_used: Mapped[str | None] = mapped_column(String(64))
+    source_snapshot: Mapped[dict | None] = mapped_column(JSONB)  # счётчики статей по scope, окно дней
+    published: Mapped[bool] = mapped_column(default=True)
+    blocked_reason: Mapped[str | None] = mapped_column(Text)  # почему fail-closed (для лога/аудита)

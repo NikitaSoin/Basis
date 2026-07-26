@@ -618,6 +618,22 @@ def market_geo_barometer():
         return JSONResponse(content=_json.load(f))
 
 
+@router.get("/market/situation-overlay")
+def market_situation_overlay(db: Session = Depends(get_db)):
+    """Оперативный слой «текущая ситуация по ленте» поверх экспертных барометров
+    гео/институтов (владелец 2026-07-27: у макро ситуация авто-обновляется, у
+    гео/институтов — нет). Дельта к якорю по свежим статьям geo_digest, отдельно
+    по svo/middle_east/atr + institutions. Отдаётся последний ОПУБЛИКОВАННЫЙ
+    выпуск (fail-closed: заблокированные комплаенс-фильтром не показываются).
+    Фронт рисует поверх статичных региональных карточек барометра."""
+    from app.services.situation_overlay import get_latest_published
+    row = get_latest_published(db)
+    if row is None:
+        return {"blocks": {}, "generated_at": None, "available": False}
+    return {"blocks": row.blocks or {}, "generated_at": row.generated_at.isoformat(),
+            "model_used": row.model_used, "available": True}
+
+
 @router.get("/market/geo-map/{theater}")
 def market_geo_map(theater: str, db: Session = Depends(get_db)):
     """Интерактивная карта очага (Обозреватель, «Оценка ситуации» → карта): линия
