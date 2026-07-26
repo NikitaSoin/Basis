@@ -60,6 +60,15 @@ _CONTROL_TIMELINE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "config", "geo_svo_control_timeline.json",
 )
+# РЕАЛЬНЫЕ архивные карты ISW (помесячные срезы из таймлапс-сервисов ArcGIS,
+# ежедневные 2022-2024 + помесячные 2025-2026; см. scripts/geo_svo_fetch_real_history.py).
+# Главный источник истории с 2026-07-26 — владелец забраковал реконструкцию по
+# точкам («красные кривые пятна, как будто котлы») и попросил реальные карты.
+# Вороной ниже остаётся ТОЛЬКО аварийным фолбэком, если файла нет/он битый.
+_REAL_HISTORY_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "config", "geo_svo_real_history.json",
+)
 
 # Ограничитель «радиуса влияния» одной точки (град.). Нужен, чтобы ячейка
 # Вороного редкой точки не расползалась на сотни км по территории, которую РФ
@@ -243,6 +252,90 @@ def _holder_at(point: dict, month_end_iso: str) -> str | None:
     return holder
 
 
+def _spherical_km2(geom) -> float:
+    """Площадь на сфере (сферический избыток) — та же формула, что в скрипте
+    сборки реальной истории; планарная area*111² на этих широтах врёт на ~10%."""
+    import math
+    R = 6371.0088
+
+    def ring_area(coords):
+        s = 0.0
+        for i in range(len(coords) - 1):
+            l1, p1 = math.radians(coords[i][0]), math.radians(coords[i][1])
+            l2, p2 = math.radians(coords[i + 1][0]), math.radians(coords[i + 1][1])
+            s += (l2 - l1) * (2 + math.sin(p1) + math.sin(p2))
+        return abs(s * R * R / 2.0)
+
+    total = 0.0
+    for p in (list(geom.geoms) if hasattr(geom, "geoms") else [geom]):
+        if p.geom_type != "Polygon":
+            continue
+        total += ring_area(list(p.exterior.coords))
+        for r in p.interiors:
+            total -= ring_area(list(r.coords))
+    return total
+
+
+def _isochrone_from_real_history(control_fill_geojson: dict) -> dict | None:
+    """История из РЕАЛЬНЫХ архивных карт ISW (geo_svo_real_history.json):
+    каждый месяц — фактический срез оценённого контроля, не реконструкция.
+    Правый край (текущий месяц) подменяется ЖИВОЙ линией текущего пайплайна —
+    она включает поправки МО РФ/Рыбаря, которых в чистом ISW-архиве нет, и
+    ползунок в положении «сегодня» совпадает с картой один в один."""
+    from shapely.geometry import shape, mapping
+    from shapely.ops import unary_union
+
+    with open(_REAL_HISTORY_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    months = data.get("months") or []
+    if not months:
+        return None
+
+    today_iso = date.today().isoformat()
+    cur_month = today_iso[:7]
+    try:
+        points = _load_timeline_points()
+    except Exception:  # noqa: BLE001 — счётчик пунктов вторичен
+        points = []
+
+    entries = []  # (month, month_end, area_km2, geometry_geojson, source_tag)
+    for m in months:
+        if m["month"] >= cur_month:
+            continue  # текущий месяц добавляем живым ниже
+        entries.append((m["month"], m["month_end"], m.get("area_km2"), m["geometry"], "isw_archive"))
+
+    live_polys = [shape(f["geometry"]) for f in control_fill_geojson.get("features", [])]
+    if live_polys:
+        live = _fill_holes_and_drop_islands(unary_union(live_polys).buffer(0))
+        live_area = round(_spherical_km2(live))
+        live = live.simplify(_OUTPUT_SIMPLIFY_DEG, preserve_topology=True)
+        entries.append((cur_month, today_iso, live_area, mapping(live), "live"))
+    else:
+        for m in months:  # живой линии нет — честно берём архивный срез текущего месяца
+            if m["month"] == cur_month:
+                entries.append((m["month"], m["month_end"], m.get("area_km2"), m["geometry"], "isw_archive"))
+
+    if not entries:
+        return None
+    features = []
+    prev_area = None
+    for month, month_end, area, geometry, tag in entries:
+        n = sum(1 for p in points if _holder_at(p, month_end) == "RF") if points else None
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "month": month, "month_end": month_end,
+                "settlements_count": n,
+                "area_km2": area,
+                "delta_km2": None if (prev_area is None or area is None) else area - prev_area,
+                "history_source": tag,
+            },
+            "geometry": geometry,
+        })
+        prev_area = area if area is not None else prev_area
+    return {"type": "FeatureCollection", "features": features}
+
+
 def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict | None:
     """Помесячная реконструкция линии фронта. Возвращает FeatureCollection —
     ОДИН полигон на месяц, properties {month, month_end, settlements_count,
@@ -253,7 +346,19 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
     а НЕ по сегодняшнему control_fill. Это принципиально: обрезка по
     сегодняшнему контролю физически не давала показать территории, которые РФ
     держала в 2022-м и оставила (Харьковская область, правобережье Херсона) —
-    их просто нет в сегодняшнем контуре. Без параметра поведение прежнее."""
+    их просто нет в сегодняшнем контуре. Без параметра поведение прежнее.
+
+    ГЛАВНЫЙ ПУТЬ — реальные архивные карты ISW (_isochrone_from_real_history);
+    реконструкция Вороного ниже — аварийный фолбэк, если файла истории нет."""
+    try:
+        if os.path.exists(_REAL_HISTORY_PATH):
+            fc = _isochrone_from_real_history(control_fill_geojson)
+            if fc is not None:
+                return fc
+    except Exception:  # noqa: BLE001 — фолбэк ниже отработает
+        logger.warning("Изохрона: реальная история ISW не собралась — фолбэк на реконструкцию",
+                       exc_info=True)
+
     from shapely.geometry import shape, mapping, MultiPoint, Point
     from shapely.ops import voronoi_diagram, unary_union
 
