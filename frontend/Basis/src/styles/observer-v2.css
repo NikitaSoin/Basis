@@ -2999,6 +2999,82 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   font-variant-numeric: tabular-nums;
 }
 
+/* Индекс страха/жадности — hero-grid (график IMOEX-импульса слева, дуговой
+   гейдж справа); заменяет старую компоновку, где hero-note стояла рядом со
+   счётом — теперь hero-note переехала под .obs-fg-comps, во всю ширину
+   (дизайн-ревью 2026-07-26, владелец — «доведи до глубины Стресс-теста»). */
+.obs-fg-hero-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 16px;
+}
+@media (max-width: 800px) { .obs-fg-hero-grid { grid-template-columns: 1fr; } }
+
+.obs-fg-idx-col { display: flex; flex-direction: column; }
+.obs-fg-idx-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.obs-fg-idx-val-row { display: flex; align-items: baseline; gap: 10px; margin: 6px 0; }
+.obs-fg-idx-num {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.obs-fg-idx-delta { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.obs-momentum-chart { display: block; width: 100%; height: 118px; overflow: visible; }
+.obs-fg-chart-legend { display: flex; gap: 14px; margin-top: 6px; font-size: 10.8px; color: var(--text-tertiary); }
+.obs-fg-chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.obs-fg-chart-legend i { width: 11px; height: 2px; display: inline-block; border-radius: 2px; background: var(--success); }
+.obs-fg-chart-legend i.obs-fg-legend-dash { background: none; height: 0; border-top: 2px dashed var(--text-tertiary); }
+
+.obs-fg-gauge-col { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.obs-fg-gauge-col > .obs-hero-label { align-self: flex-start; }
+.obs-fg-gauge-wrap { position: relative; width: 100%; max-width: 196px; margin: 2px auto 0; }
+.obs-fg-gauge-svg { display: block; width: 100%; height: auto; }
+.obs-fg-gauge-num { position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); }
+
+/* Секторальные индексы MOEX — диаграмма-торнадо вместо obs-grid8: направление
+   и сила разброса читаются сразу, не как 10 отдельных чисел в сетке.
+   Отсортировано по величине движения (не по фиксированному SECTOR_ORDER бэка). */
+.obs-tornado {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.obs-tornado-row {
+  display: grid;
+  grid-template-columns: 168px 1fr 60px;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-elevated);
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+}
+.obs-tornado-row:hover { background: var(--bg-base); }
+.obs-tornado-nm { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obs-tornado-track { position: relative; height: 14px; background: var(--bg-base); border: 1px solid var(--border-subtle); border-radius: 4px; }
+.obs-tornado-zero { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--border-strong); }
+.obs-tornado-bar { position: absolute; top: 1.5px; bottom: 1.5px; border-radius: 3px; }
+.obs-tornado-val { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; text-align: right; }
+@media (max-width: 640px) {
+  .obs-tornado-row { grid-template-columns: 108px 1fr 52px; gap: 8px; }
+  .obs-tornado-nm { font-size: 11px; }
+}
+
 /* Дизайн-ревью 2026-07-12 — IMOEX (главное число экрана) выносится в
    hero-строку рядом с индексом страха и жадности, вместо плитки среди
    ставок/золота. Ширина рынка + драйверы — перенос смысла с «Рынка»
@@ -3107,21 +3183,18 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   font-family: inherit;
 }
 .obs-mover-row:hover { background: var(--bg-elevated); }
-.obs-mover-id { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.obs-mover-id b { font-size: 13px; color: var(--text-primary); }
+.obs-mover-id { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 3px; }
+.obs-mover-id b { font-size: 13px; color: var(--text-primary); font-weight: 600; }
 .obs-mover-n {
   font-size: 11px;
   color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.obs-mover-px {
   font-family: var(--font-mono);
-  font-size: 12.5px;
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
 }
+.obs-mover-bar-track { height: 3px; border-radius: 2px; background: var(--border-subtle); overflow: hidden; }
+.obs-mover-bar { display: block; height: 100%; border-radius: 2px; }
 .obs-mover-chg {
   font-family: var(--font-mono);
   font-size: 12.5px;

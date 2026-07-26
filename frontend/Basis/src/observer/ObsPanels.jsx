@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef, useId } from "react";
 import { createRoot } from "react-dom/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5749,7 +5749,77 @@ const OBS_FG_COMP_LABELS = {
   risk_appetite: "Спрос на риск (акции vs гособлигации, 20 дн.)",
 };
 
-function ObsFearGreedCard({ fg, onOpenDetail }) {
+// IMOEX за последние ~30 дней (item.spark из /api/market/pulse) + пунктирная
+// линия MA125 (fg.components.momentum.detail.ma — тот же расчёт, что даёт сам
+// компонент «импульс» индекса страха/жадности, не отдельная величина) —
+// делает вердикт «импульс = 0» наглядным, а не голым числом компонента.
+function ObsMomentumChart({ spark, ma }) {
+  const gradId = useId();
+  if (!spark || spark.length < 2) return null;
+  const W = 480, H = 118, padL = 4, padR = 4, padT = 8, padB = 8;
+  const all = ma != null ? [...spark, ma] : spark;
+  const min = Math.min(...all) * 0.998, max = Math.max(...all) * 1.002;
+  const span = (max - min) || 1;
+  const n = spark.length;
+  const xAt = (i) => padL + (i / (n - 1)) * (W - padL - padR);
+  const yAt = (v) => padT + (1 - (v - min) / span) * (H - padT - padB);
+  const d = spark.map((v, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+  const area = `M${xAt(0)},${H - padB} ` + spark.map((v, i) => `L${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ") + ` L${xAt(n - 1)},${H - padB} Z`;
+  const lastX = xAt(n - 1), lastY = yAt(spark[n - 1]);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="obs-momentum-chart" aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--success)" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="var(--success)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {ma != null && (
+        <line x1={padL} y1={yAt(ma).toFixed(1)} x2={W - padR} y2={yAt(ma).toFixed(1)} stroke="var(--text-tertiary)" strokeWidth="1.5" strokeDasharray="5 4" />
+      )}
+      <path d={area} fill={`url(#${gradId})`} />
+      <path d={d} fill="none" stroke="var(--success)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx={lastX.toFixed(1)} cy={lastY.toFixed(1)} r="3.5" fill="var(--success)" stroke="var(--bg-elevated)" strokeWidth="2" />
+    </svg>
+  );
+}
+
+// Дуговой измеритель страха/жадности — заменяет плоское число (owner: «доведи
+// до глубины Стресс-теста»). Сегменты — фиксированная шкала 0..100, стрелка —
+// текущий счёт; не пересчитывает ничего, чисто визуализация fg.score.
+function ObsArcGauge({ score }) {
+  const cx = 98, cy = 98, r = 78;
+  const angFor = (s) => Math.PI + (s / 100) * -Math.PI;
+  const arcPath = (sFrom, sTo) => {
+    const aFrom = angFor(sFrom), aTo = angFor(sTo);
+    const x1 = cx + r * Math.cos(aFrom), y1 = cy - r * Math.sin(aFrom);
+    const x2 = cx + r * Math.cos(aTo), y2 = cy - r * Math.sin(aTo);
+    return `M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)}`;
+  };
+  const segs = [
+    { from: 0, to: 20, color: "var(--danger)" },
+    { from: 20, to: 40, color: "color-mix(in srgb, var(--danger) 55%, var(--text-tertiary))" },
+    { from: 40, to: 60, color: "var(--text-tertiary)" },
+    { from: 60, to: 80, color: "color-mix(in srgb, var(--success) 55%, var(--text-tertiary))" },
+    { from: 80, to: 100, color: "var(--success)" },
+  ];
+  const clamped = Math.max(0, Math.min(100, score));
+  const needleAng = angFor(clamped);
+  const nx = cx + (r - 13) * Math.cos(needleAng), ny = cy - (r - 13) * Math.sin(needleAng);
+  return (
+    <svg viewBox="0 0 196 118" className="obs-fg-gauge-svg" aria-hidden="true">
+      {segs.map((s) => (
+        <path key={s.from} d={arcPath(s.from, s.to)} stroke={s.color} strokeWidth="12" fill="none" />
+      ))}
+      <line x1={cx} y1={cy} x2={nx.toFixed(1)} y2={ny.toFixed(1)} stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r="5" fill="var(--text-primary)" />
+      <text x={cx - r + 2} y={cy + 16} fontFamily="var(--font-mono)" fontSize="9.5" fill="var(--text-tertiary)">страх</text>
+      <text x={cx + r - 2} y={cy + 16} textAnchor="end" fontFamily="var(--font-mono)" fontSize="9.5" fill="var(--text-tertiary)">жадность</text>
+    </svg>
+  );
+}
+
+function ObsFearGreedCard({ fg, imoex, onOpenDetail, onSelectIndex }) {
   if (!fg || fg.score == null) {
     return (
       <div className="obs-hero-rate">
@@ -5764,24 +5834,57 @@ function ObsFearGreedCard({ fg, onOpenDetail }) {
     : score < 60 ? "var(--text-tertiary)"
     : score < 80 ? "color-mix(in srgb, var(--success) 55%, var(--text-tertiary))"
     : "var(--success)";
+  const ma = fg.components?.momentum?.detail?.ma;
   return (
     <div className="obs-hero-rate">
-      <div className="obs-hero-topline">
-        <div>
-          <div className="obs-hero-label">Индекс страха и жадности Basis</div>
-          <div className="obs-hero-num" style={{ color }}>{Math.round(score)}</div>
-          <div className="obs-hero-meta">{fg.label} · охват {fg.coverage}</div>
+      <div className="obs-fg-hero-grid">
+        <div className="obs-fg-idx-col">
+          <div className="obs-fg-idx-top">
+            <span className="obs-hero-label">Индекс МосБиржи · импульс к 125-дн. средней</span>
+            {onSelectIndex && (
+              <button type="button" className="obs-tile-link" style={{ margin: 0 }} onClick={() => onSelectIndex("IMOEX")}>
+                Открыть график →
+              </button>
+            )}
+          </div>
+          {imoex ? (
+            <>
+              <div className="obs-fg-idx-val-row">
+                <span className="obs-fg-idx-num">{imoex.level != null ? imoex.level.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"}</span>
+                {imoex.change_pct != null && (
+                  <span className={"obs-fg-idx-delta " + (imoex.change_pct > 0 ? "obs-d-good" : imoex.change_pct < 0 ? "obs-d-bad" : "obs-d-neutral")}>
+                    {imoex.change_pct > 0 ? "▲" : imoex.change_pct < 0 ? "▼" : "▬"} {Math.abs(imoex.change_pct).toFixed(2)}%
+                  </span>
+                )}
+              </div>
+              <ObsMomentumChart spark={imoex.spark} ma={ma} />
+              <div className="obs-fg-chart-legend">
+                <span><i />IMOEX, 30 дней</span>
+                {ma != null && <span><i className="obs-fg-legend-dash" />125-дн. средняя</span>}
+              </div>
+            </>
+          ) : (
+            <div className="obs-hero-meta">Нет данных индекса.</div>
+          )}
+        </div>
+
+        <div className="obs-fg-gauge-col">
+          <span className="obs-hero-label">Индекс страха и жадности Basis</span>
+          <div className="obs-fg-gauge-wrap">
+            <ObsArcGauge score={score} />
+            <div className="obs-fg-gauge-num">
+              <div className="obs-hero-num" style={{ color, fontSize: 36 }}>{Math.round(score)}</div>
+              <div className="obs-hero-meta" style={{ marginTop: 2 }}>{fg.label} · охват {fg.coverage}</div>
+            </div>
+          </div>
           {onOpenDetail && (
-            <button type="button" className="obs-rep-toggle" style={{ fontSize: "12.5px", fontWeight: 600, marginTop: 8 }} onClick={onOpenDetail}>
+            <button type="button" className="obs-rep-toggle" style={{ fontSize: "12.5px", fontWeight: 600, marginTop: 10 }} onClick={onOpenDetail}>
               Подробный разбор →
             </button>
           )}
         </div>
-        <div className="obs-hero-note">
-          {fg.methodology_note}
-          <div className="obs-tag-judgment">оценка/модель Basis</div>
-        </div>
       </div>
+
       <div className="obs-fg-comps">
         {Object.entries(fg.components || {}).map(([key, c]) => (
           <div key={key} className="obs-fg-comp">
@@ -5789,6 +5892,11 @@ function ObsFearGreedCard({ fg, onOpenDetail }) {
             <span className="obs-fg-comp-val">{c.score != null ? Math.round(c.score) : "—"}</span>
           </div>
         ))}
+      </div>
+
+      <div className="obs-hero-note" style={{ marginTop: 14 }}>
+        {fg.methodology_note}
+        <div className="obs-tag-judgment">оценка/модель Basis</div>
       </div>
     </div>
   );
@@ -5841,15 +5949,52 @@ function ObsTickerMarquee({ stocks, onSelectCompany }) {
   );
 }
 
-function ObsMoversRow({ s, onSelectCompany }) {
+function ObsMoversRow({ s, onSelectCompany, maxAbsChg }) {
+  const dCls = s.chg > 0 ? "obs-d-good" : s.chg < 0 ? "obs-d-bad" : "obs-d-neutral";
+  const barColor = s.chg > 0 ? "var(--success)" : s.chg < 0 ? "var(--danger)" : "var(--text-tertiary)";
+  const pct = maxAbsChg ? Math.min(100, (Math.abs(s.chg) / maxAbsChg) * 100) : 0;
   return (
     <button className="obs-mover-row" onClick={() => onSelectCompany && onSelectCompany(s.t)}>
-      <span className="obs-mover-id"><b>{s.t}</b><span className="obs-mover-n">{s.n}</span></span>
-      <span className="obs-mover-px">{s.price != null ? s.price.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
-      <span className={"obs-mover-chg " + (s.chg > 0 ? "obs-d-good" : s.chg < 0 ? "obs-d-bad" : "obs-d-neutral")}>
+      <CompanyLogo ticker={s.t} name={s.n} size={28} />
+      <span className="obs-mover-id">
+        <b>{s.n}</b>
+        <span className="obs-mover-n">{s.t} · {s.price != null ? s.price.toLocaleString("ru-RU", { maximumFractionDigits: 2 }) : "—"} ₽</span>
+        <span className="obs-mover-bar-track"><span className="obs-mover-bar" style={{ width: `${pct}%`, background: barColor }} /></span>
+      </span>
+      <span className={"obs-mover-chg " + dCls}>
         {s.chg > 0 ? "▲" : s.chg < 0 ? "▼" : "▬"} {Math.abs(s.chg).toFixed(2)}%
       </span>
     </button>
+  );
+}
+
+// Секторальные индексы MOEX — диаграмма-торнадо (owner: довести до глубины
+// Стресс-теста) вместо плитки obs-grid8: направление+сила разброса важнее,
+// чем 10 отдельных чисел в сетке; отсортировано по величине движения, не по
+// фиксированному алфавитному/тикерному порядку SECTOR_ORDER бэкенда.
+function ObsSectorTornado({ sectors, onSelectIndex }) {
+  const sorted = [...(sectors || [])].sort((a, b) => (b.change_pct ?? -Infinity) - (a.change_pct ?? -Infinity));
+  const maxAbs = Math.max(...sorted.map(s => Math.abs(s.change_pct || 0)), 0.0001);
+  return (
+    <div className="obs-tornado">
+      {sorted.map(s => {
+        const chg = s.change_pct;
+        const isUp = chg != null && chg >= 0;
+        const pct = chg == null ? 0 : Math.min(46, (Math.abs(chg) / maxAbs) * 46);
+        const cls = chg > 0 ? "obs-d-good" : chg < 0 ? "obs-d-bad" : "obs-d-neutral";
+        const barStyle = isUp
+          ? { left: "50%", width: `${pct}%`, background: "var(--success)" }
+          : { right: "50%", width: `${pct}%`, background: "var(--danger)" };
+        return (
+          <button key={s.ticker} type="button" className="obs-tornado-row"
+            onClick={onSelectIndex ? () => onSelectIndex(s.ticker) : undefined}>
+            <span className="obs-tornado-nm">{s.name}</span>
+            <span className="obs-tornado-track"><span className="obs-tornado-zero" />{chg != null && <span className="obs-tornado-bar" style={barStyle} />}</span>
+            <span className={"obs-tornado-val " + cls}>{chg == null ? "—" : `${chg >= 0 ? "+" : ""}${chg.toFixed(2)}%`}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -5903,6 +6048,8 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, drive
   const withChg = stocks.filter(s => s.chg != null);
   const sorted = [...withChg].sort((a, b) => b.chg - a.chg);
   const gain = sorted.slice(0, 5), lose = [...sorted].reverse().slice(0, 5);
+  const maxAbsChg = Math.max(...[...gain, ...lose].map(s => Math.abs(s.chg)), 0.0001);
+  const imoexItem = pulse.indices.find(idx => idx.ticker === "IMOEX");
 
   return (
     <div>
@@ -5939,7 +6086,7 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, drive
 
       <ObsTickerMarquee stocks={stocks} onSelectCompany={onSelectCompany} />
 
-      <ObsFearGreedCard fg={pulse.fear_greed} onOpenDetail={onOpenFearGreed} />
+      <ObsFearGreedCard fg={pulse.fear_greed} imoex={imoexItem} onOpenDetail={onOpenFearGreed} onSelectIndex={onSelectIndex} />
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Индексы</div>
       <div className="obs-grid8">
@@ -5955,11 +6102,11 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, drive
         <div className="obs-movers-grid">
           <div>
             <div className="obs-movers-eyebrow obs-d-good">↑ Лидеры роста</div>
-            {gain.map(s => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} />)}
+            {gain.map(s => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} maxAbsChg={maxAbsChg} />)}
           </div>
           <div>
             <div className="obs-movers-eyebrow obs-d-bad">↓ Лидеры падения</div>
-            {lose.map(s => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} />)}
+            {lose.map(s => <ObsMoversRow key={s.t} s={s} onSelectCompany={onSelectCompany} maxAbsChg={maxAbsChg} />)}
           </div>
         </div>
       ) : (
@@ -5967,11 +6114,7 @@ function ObsMarketPulse({ onSelectCompany, onSelectIndex, onOpenFearGreed, drive
       )}
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Секторальные индексы MOEX</div>
-      <div className="obs-grid8">
-        {pulse.sectors.map(s => (
-          <ObsPulseCard key={s.ticker} item={s} onClick={onSelectIndex ? () => onSelectIndex(s.ticker) : undefined} />
-        ))}
-      </div>
+      <ObsSectorTornado sectors={pulse.sectors} onSelectIndex={onSelectIndex} />
 
       <div className="obs-content-eyebrow" style={{ margin: "22px 0 10px" }}>Ставки денежного рынка · сырьё · металлы</div>
       <div className="obs-grid8">
