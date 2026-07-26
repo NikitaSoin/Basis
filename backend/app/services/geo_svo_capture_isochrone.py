@@ -276,12 +276,19 @@ def _spherical_km2(geom) -> float:
     return total
 
 
-def _isochrone_from_real_history(control_fill_geojson: dict) -> dict | None:
+def _isochrone_from_real_history(control_fill_geojson: dict,
+                                  isw_area_km2: int | None = None) -> dict | None:
     """История из РЕАЛЬНЫХ архивных карт ISW (geo_svo_real_history.json):
     каждый месяц — фактический срез оценённого контроля, не реконструкция.
-    Правый край (текущий месяц) подменяется ЖИВОЙ линией текущего пайплайна —
-    она включает поправки МО РФ/Рыбаря, которых в чистом ISW-архиве нет, и
-    ползунок в положении «сегодня» совпадает с картой один в один."""
+    Правый край (текущий месяц): ГЕОМЕТРИЯ — живая линия текущего пайплайна
+    (с поправками МО РФ/Рыбаря, ползунок «сегодня» совпадает с картой), но
+    ПЛОЩАДЬ/ДЕЛЬТА — по единой методике чистого ISW, как у всех прошлых
+    месяцев. Иначе в дельту последнего месяца попадает ШОВ ДВУХ МЕТОДИК
+    (~+2.3 тыс. км² поправок Рыбаря + смыкание), а не движение фронта —
+    владелец (2026-07-26): «в реальности дельты июля 2494 км нет, темпы
+    наступления до 100 км² [в месяц]» — фактическое движение ISW май→июль
+    и есть +157 км². isw_area_km2 — площадь чистой ISW-массы от вызывающего
+    (фолбэк, если в архиве нет текущего месяца)."""
     from shapely.geometry import shape, mapping
     from shapely.ops import unary_union
 
@@ -307,7 +314,14 @@ def _isochrone_from_real_history(control_fill_geojson: dict) -> dict | None:
     live_polys = [shape(f["geometry"]) for f in control_fill_geojson.get("features", [])]
     if live_polys:
         live = _fill_holes_and_drop_islands(unary_union(live_polys).buffer(0))
-        live_area = round(_spherical_km2(live))
+        # Площадь текущего месяца — ЕДИНАЯ методика ISW, не площадь нарисованной
+        # линии (см. докстринг: иначе дельта = шов методик, а не движение фронта).
+        # Приоритет: срез текущего месяца из архива (тот же скрипт, что и прошлые
+        # месяцы) → isw_area_km2 от вызывающего → площадь живой линии (крайний
+        # фолбэк, честно шире на величину поправок Рыбаря).
+        archive_cur = next((m.get("area_km2") for m in months if m["month"] == cur_month), None)
+        live_area = archive_cur if archive_cur is not None else (
+            isw_area_km2 if isw_area_km2 is not None else round(_spherical_km2(live)))
         live = live.simplify(_OUTPUT_SIMPLIFY_DEG, preserve_topology=True)
         entries.append((cur_month, today_iso, live_area, mapping(live), "live"))
     else:
@@ -336,7 +350,8 @@ def _isochrone_from_real_history(control_fill_geojson: dict) -> dict | None:
     return {"type": "FeatureCollection", "features": features}
 
 
-def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict | None:
+def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None,
+                       isw_area_km2: int | None = None) -> dict | None:
     """Помесячная реконструкция линии фронта. Возвращает FeatureCollection —
     ОДИН полигон на месяц, properties {month, month_end, settlements_count,
     area_km2, delta_km2}. None при отсутствии исходных данных (честная
@@ -352,7 +367,7 @@ def compute_isochrone(control_fill_geojson: dict, ukraine_boundary=None) -> dict
     реконструкция Вороного ниже — аварийный фолбэк, если файла истории нет."""
     try:
         if os.path.exists(_REAL_HISTORY_PATH):
-            fc = _isochrone_from_real_history(control_fill_geojson)
+            fc = _isochrone_from_real_history(control_fill_geojson, isw_area_km2=isw_area_km2)
             if fc is not None:
                 return fc
     except Exception:  # noqa: BLE001 — фолбэк ниже отработает

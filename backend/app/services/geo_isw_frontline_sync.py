@@ -551,9 +551,20 @@ def sync_isw_frontline(db: Session) -> dict:
         # деградация — при отсутствии исходных данных/сбое просто не
         # обновляем поле, не роняем весь синк линии из-за побочной фичи.
         try:
-            from app.services.geo_svo_capture_isochrone import compute_isochrone
+            from app.services.geo_svo_capture_isochrone import (
+                compute_isochrone, _spherical_km2, _fill_holes_and_drop_islands)
+            # Площадь ЧИСТОЙ ISW-массы (клип по Украине + заделка дыр) — для
+            # ряда площадей истории по единой методике (см. докстринг
+            # _isochrone_from_real_history: без этого дельта последнего месяца
+            # мерила шов методик, а не движение фронта).
+            try:
+                pure_isw_area = round(_spherical_km2(_fill_holes_and_drop_islands(
+                    isw_mass.intersection(ukraine_boundary).buffer(0))))
+            except Exception:  # noqa: BLE001
+                pure_isw_area = None
             row.capture_isochrone_geojson = compute_isochrone(
-                control_fill_fc, ukraine_boundary=ukraine_boundary)
+                control_fill_fc, ukraine_boundary=ukraine_boundary,
+                isw_area_km2=pure_isw_area)
         except Exception as e:  # noqa: BLE001
             logger.warning("Изохрона СВО: пересчёт не удался (не блокирует синк линии): %s", e)
 
