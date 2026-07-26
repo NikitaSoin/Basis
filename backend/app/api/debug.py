@@ -1192,6 +1192,25 @@ def debug_trigger_geo_digest_backfill_strikes(days: int = 7):
         db.close()
 
 
+@router.post("/debug/trigger-news-strikes")
+def debug_trigger_news_strikes(hours: int = 48):
+    """Ручной прогон extract_strikes_from_news() — извлечение ударов из ОБЩЕЙ
+    Ленты новостей (market_updates) за последние `hours` часов. Основной кейс:
+    догон пропущенных событий (Тюменский НПЗ, 2026-07-25 — был в ленте РБК/
+    Интерфакса, но не в гео-источниках дайджеста). Дедуп на persist-слое —
+    повторный вызов дубли не плодит."""
+    from app.db.session import SessionLocal
+    from app.services.geo_digest import extract_strikes_from_news
+    db = SessionLocal()
+    try:
+        return extract_strikes_from_news(db, hours=hours, limit=80)
+    except Exception as e:  # noqa: BLE001
+        logger.exception("debug trigger-news-strikes: %s", e)
+        return {"error": f"{type(e).__name__}: {e}"}
+    finally:
+        db.close()
+
+
 @router.post("/debug/trigger-chronicle-backfill")
 def debug_trigger_chronicle_backfill():
     """Разовый/периодический бэкфилл аналитической летописи из обоих источников

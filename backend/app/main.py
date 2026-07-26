@@ -645,10 +645,27 @@ async def _geo_digest_job():
     статьи новыми до синтеза."""
     def _run():
         from app.db.session import SessionLocal
-        from app.services.geo_digest import refresh
+        from app.services.geo_digest import refresh, extract_strikes_from_news
         db = SessionLocal()
         try:
-            return refresh(db)
+            out = refresh(db)
+            # Удары из ОБЩЕЙ ленты новостей (РБК/Интерфакс/Коммерсант) — гео-
+            # источники дайджеста их не покрывают (кейс Тюменского НПЗ,
+            # владелец 2026-07-26). Дедуп на persist-слое.
+            try:
+                out["news_strikes"] = extract_strikes_from_news(db, hours=3)
+            except Exception:  # noqa: BLE001
+                logger.warning("news-strikes проход не удался", exc_info=True)
+            # «Взяли город — линия фронта сдвинулась»: если дайджест извлёк
+            # новые territorial_claims, сразу пересинк линии, не ждём кронового
+            # тика 8:15/20:15 (absorb_candidates читает claims из БД).
+            if out.get("claims_saved"):
+                try:
+                    from app.services.geo_isw_frontline_sync import sync_isw_frontline
+                    out["frontline_resync"] = sync_isw_frontline(db).get("status")
+                except Exception:  # noqa: BLE001
+                    logger.warning("пересинк линии после новых claims не удался", exc_info=True)
+            return out
         finally:
             db.close()
     try:

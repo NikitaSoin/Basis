@@ -706,6 +706,36 @@ def market_geo_map(theater: str, db: Session = Depends(get_db)):
             import logging as _logging
             _logging.getLogger(__name__).warning(
                 "geo-map svo: оверрайд-кружки не собраны", exc_info=True)
+        # Живые авто-взятия из ленты (geo_digest → geo_territorial_claims):
+        # тот же кружок «ISW не подтвердил», что у ручных оверрайдов — источник
+        # другой (автоматика), эпистемика та же. Дедуп по координатам против
+        # уже собранных точек (город может быть и в ручном файле, и в БД).
+        try:
+            from app.models.geo import GeoTerritorialClaim
+            seen_pts = {(round(f["geometry"]["coordinates"][1], 3),
+                         round(f["geometry"]["coordinates"][0], 3)) for f in claimed_features}
+            for rcl in (db.query(GeoTerritorialClaim)
+                        .filter(GeoTerritorialClaim.status == "ru_control",
+                                GeoTerritorialClaim.lat.isnot(None)).all()):
+                key = (round(rcl.lat, 3), round(rcl.lon, 3))
+                if key in seen_pts:
+                    continue
+                seen_pts.add(key)
+                claimed_features.append({
+                    "type": "Feature",
+                    "properties": {
+                        "name": rcl.settlement, "oblast": rcl.oblast,
+                        "epistemic": "взято по сообщениям ленты (авто), ISW не подтвердил",
+                        "note": rcl.note, "source": rcl.source_key, "source_url": rcl.source_url,
+                        "claimed_date": rcl.claimed_date.isoformat() if rcl.claimed_date else None,
+                        "in_control_fill": True, "claim_strength": "reported",
+                    },
+                    "geometry": {"type": "Point", "coordinates": [rcl.lon, rcl.lat]},
+                })
+        except Exception:  # noqa: BLE001
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "geo-map svo: авто-claims из БД не собраны", exc_info=True)
         if claimed_features:
             payload["base_map"]["claimed_captures_geojson"] = {
                 "type": "FeatureCollection", "features": claimed_features}

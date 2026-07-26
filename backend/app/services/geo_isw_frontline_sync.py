@@ -96,7 +96,7 @@ _TIMELINE_PATH = os.path.join(
 )
 
 
-def absorb_candidates(ukraine_boundary=None) -> list[dict]:
+def absorb_candidates(ukraine_boundary=None, db=None) -> list[dict]:
     """ВСЕ пункты, которые по данным МО РФ/Рыбаря сейчас под контролем РФ, —
     из трёх источников сразу:
       1) geo_svo_manual_overrides.json — ручные оверрайды (с явным radius_km);
@@ -155,6 +155,21 @@ def absorb_candidates(ukraine_boundary=None) -> list[dict]:
         else:
             for p in data.get("points", []):
                 add(p.get("name"), p.get("oblast"), p.get("lat"), p.get("lon"), 3)
+
+    # 4-й источник — ЖИВОЙ: territorial_claims, автоматически извлечённые
+    # LLM-пайплайном geo_digest из ленты (Рыбарь/МО РФ и др.). Владелец
+    # (2026-07-26): «взяли войска такой город — линия фронта сдвинулась» —
+    # именно это звено раньше отсутствовало: claims писались в БД, но геометрия
+    # их не читала, автообновления линии не было.
+    if db is not None:
+        try:
+            from app.models.geo import GeoTerritorialClaim
+            for r in (db.query(GeoTerritorialClaim)
+                      .filter(GeoTerritorialClaim.status == "ru_control",
+                              GeoTerritorialClaim.lat.isnot(None)).all()):
+                add(r.settlement, r.oblast, r.lat, r.lon, 3)
+        except Exception:  # noqa: BLE001 — живой источник не роняет синк
+            logger.warning("absorb_candidates: territorial_claims из БД не подмешаны", exc_info=True)
     return out
 
 
@@ -424,7 +439,7 @@ def sync_isw_frontline(db: Session) -> dict:
     try:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
-        overrides = absorb_candidates(ukraine_boundary)
+        overrides = absorb_candidates(ukraine_boundary, db=db)
         frontline_fc, control_fill_fc = _compute_frontline(
             control_fc, ukraine_boundary, overrides=overrides)
         if not frontline_fc["features"]:

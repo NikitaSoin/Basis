@@ -273,7 +273,9 @@ _DIGEST_SYS = (
     "указано, иначе null>\", \"significance\": \"major\"|\"minor\" (major — стратегический объект: "
     "НПЗ, крупный склад/арсенал, военная база, энергоинфраструктура, порт; minor — точечный/"
     "локальный, без явного стратегического значения), \"label\": \"<короткая подпись на русском "
-    "3-8 слов>\"}.\n"
+    "3-8 слов>\"}. Удары ВГЛУБЬ ТЫЛА любой из сторон (НПЗ, склады, аэродромы, энергетика, "
+    "порты, ВПК — хоть по России, хоть по Украине) — ВСЕГДА включай, даже из MarketTwits: "
+    "к состоявшимся ударам планка значимости источника не применяется.\n"
     "- territorial_claims (ТОЛЬКО target=\"svo\") — КОНКРЕТНЫЙ насел. пункт, про который статья "
     "явно говорит, что он взят/освобождён/оспаривается ПРЯМО СЕЙЧАС (не общие фразы про "
     "«продвижение», не абстрактные направления). Каждый: {\"settlement\": \"<название>\", "
@@ -342,13 +344,39 @@ def _geocode_place(name: str) -> tuple[float, float] | None:
 
 def _persist_strike_events(db: Session, theater: str, events: list, event_date, source_key: str | None,
                             source_url: str | None) -> int:
+    """Сохранение ударов с ДЕДУПЛИКАЦИЕЙ: одна и та же атака приходит из
+    нескольких источников (Рыбарь + РБК + Интерфакс + MarketTwits) и из
+    повторных прогонов — совпадение по координатам (±0.05° ≈ 5 км) и дате
+    (±2 дня) считается тем же событием и не плодит дубль-маркеры."""
     from app.models.geo import GeoStrikeEvent
+    now = datetime.now(timezone.utc)
+    existing = [(e.lat, e.lon, e.event_date, (e.location_name or "").lower())
+                for e in db.query(GeoStrikeEvent)
+                .filter(GeoStrikeEvent.theater == theater, GeoStrikeEvent.expires_at >= now).all()]
+
+    def _is_dup(lat, lon, name, ev_date):
+        for elat, elon, edate, ename in existing:
+            same_date = (edate is None or ev_date is None
+                         or abs((edate - ev_date).days) <= 2)
+            if not same_date:
+                continue
+            if lat is not None and elat is not None:
+                if abs(elat - lat) < 0.05 and abs(elon - lon) < 0.05:
+                    return True
+            elif name and ename and name == ename:
+                return True
+        return False
+
     saved = 0
     for ev in events:
         if not isinstance(ev, dict) or not ev.get("location"):
             continue
         significance = ev.get("significance") if ev.get("significance") in ("major", "minor") else "minor"
         coords = _geocode_place(ev["location"])
+        _lat, _lon = (coords if coords else (None, None))
+        if _is_dup(_lat, _lon, ev["location"].lower(), event_date):
+            continue
+        existing.append((_lat, _lon, event_date, ev["location"].lower()))
         row = GeoStrikeEvent(
             theater=theater, location_name=ev["location"][:200],
             lat=coords[0] if coords else None, lon=coords[1] if coords else None,
@@ -486,6 +514,90 @@ def backfill_strike_events(db: Session, days: int = 7, limit: int = 80) -> dict:
     return {"scanned": len(rows), "strikes_saved": strikes_saved, "claims_saved": claims_saved}
 
 
+# ----------------------- Удары из ОБЩЕЙ новостной ленты -----------------------
+# Владелец (2026-07-26): «недавно новость была про Тюмень, что там что-то
+# ударили — а на карте я этого не увидел». Разбор показал: удар по Тюменскому
+# НПЗ был в ленте новостей (market_updates: РБК, Интерфакс — три заметки), но
+# экстракция ударов слушала ТОЛЬКО источники гео-дайджеста (Рыбарь/Economist/
+# ISW/MarketTwits) — общая лента в неё не попадала вовсе. Этот проход закрывает
+# дыру: дешёвый префильтр по ключевым словам → один LLM-вызов на батч →
+# геокодинг → _persist_strike_events (там дедуп, поэтому событие, пришедшее и
+# из Рыбаря, и из РБК, не плодит дубль-маркеры).
+_NEWS_STRIKE_KEYWORDS = ("бпла", "дрон", "удар", "атак", "ракет", "обстрел",
+                          "взрыв", "прилет", "прилёт", "беспилотн", "бэк")
+_NEWS_STRIKE_SYS = (
+    "Тебе даны заголовки и выжимки новостей рыночной ленты. Найди среди них "
+    "КОНКРЕТНЫЕ СОСТОЯВШИЕСЯ военные удары/атаки (БПЛА, ракеты, безэкипажные "
+    "катера, диверсии) с КОНКРЕТНЫМ местом. НЕ включай: планы/угрозы/учения, "
+    "перехваты без поражения цели, общие фразы без места, повторные новости о "
+    "ликвидации последствий БЕЗ самого факта атаки в тексте — ВКЛЮЧАЙ, если "
+    "факт атаки в тексте назван («пожар после атаки БПЛА» — это удар).\n"
+    "theater: \"svo\" — конфликт России и Украины, удары по территории ЛЮБОЙ из "
+    "сторон, включая глубокий тыл (НПЗ, склады, аэродромы, порты, энергетика — "
+    "Тюмень, Киров, Киев, Одесса и т.п.); \"middle_east\" — Иран/США/Израиль и "
+    "регион; \"atr\" — Азиатско-Тихоокеанский регион.\n"
+    "significance: \"major\" — стратегический объект (НПЗ, крупный склад/"
+    "логистический хаб, военная база/аэродром, энергетика, порт, ВПК) или "
+    "жертвы/крупный ущерб; \"minor\" — точечный/локальный.\n"
+    'Верни JSON {"items": [{"i": <индекс>, "theater": "svo"|"middle_east"|"atr", '
+    '"strike_events": [{"location": "<место, как в тексте>", "target_type": '
+    '"<что поражено или null>", "significance": "major"|"minor", "label": '
+    '"<подпись на русском 3-8 слов>"}]}]} — только элементы, где удар реально '
+    "есть; остальные индексы не включай вовсе."
+)
+
+
+def extract_strikes_from_news(db: Session, hours: int = 3, limit: int = 40) -> dict:
+    """Проход по свежим записям Ленты новостей (market_updates) — извлечение
+    ударов для карты. Дешёвый: префильтр по словам, один LLM-вызов, дедуп на
+    persist-слое. Вызывается ежечасным кроном гео-дайджеста (main.py) и
+    вручную через /debug/trigger-news-strikes (hours побольше — догон)."""
+    from app.models.market import MarketUpdate
+    from app.services.llm import complete, LLMError
+
+    since = datetime.now(timezone.utc) - timedelta(hours=hours)
+    rows = (db.query(MarketUpdate)
+            .filter(MarketUpdate.status == "published", MarketUpdate.published_at >= since)
+            .order_by(MarketUpdate.published_at.desc()).limit(300).all())
+    cand = []
+    for r in rows:
+        text = f"{r.title or ''} {r.summary or ''}".lower()
+        if any(k in text for k in _NEWS_STRIKE_KEYWORDS):
+            cand.append(r)
+    cand = cand[:limit]
+    if not cand:
+        return {"scanned": 0, "strikes_saved": 0}
+
+    payload = {"items": [{"i": i, "title": r.title,
+                           "summary": (r.summary or r.content or "")[:600]}
+                          for i, r in enumerate(cand)]}
+    try:
+        res = complete(_NEWS_STRIKE_SYS, json.dumps(payload, ensure_ascii=False),
+                       json_mode=True, max_tokens=4000, temperature=0.2)
+        items = res.get("items", []) if isinstance(res, dict) else []
+    except LLMError as e:
+        logger.warning("news-strikes: LLM недоступен (%s)", e)
+        return {"scanned": len(cand), "strikes_saved": 0, "error": str(e)}
+
+    saved = 0
+    for it in items:
+        idx = it.get("i")
+        if not isinstance(idx, int) or not (0 <= idx < len(cand)):
+            continue
+        theater = it.get("theater")
+        strikes = it.get("strike_events")
+        if theater not in ("svo", "middle_east", "atr") or not isinstance(strikes, list) or not strikes:
+            continue
+        r = cand[idx]
+        pub = r.published_at.date() if r.published_at else date.today()
+        try:
+            saved += _persist_strike_events(db, theater, strikes, pub, r.source, r.source_url)
+        except Exception:  # noqa: BLE001 — одна битая новость не роняет проход
+            logger.warning("news-strikes: не сохранён удар из %s", r.source_url, exc_info=True)
+    logger.info("news-strikes: кандидатов %d, сохранено ударов %d", len(cand), saved)
+    return {"scanned": len(cand), "strikes_saved": saved}
+
+
 # ----------------------------- ПАЙПЛАЙН -----------------------------
 def _known_urls(db: Session) -> set[str]:
     return {u for (u,) in db.query(GeoDigestArticle.source_url).all()}
@@ -529,6 +641,8 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
     fresh.sort(key=lambda a: a["_pub"], reverse=True)  # свежее — в приоритете за прогон
     fresh = fresh[:max_new]
     saved = 0
+    strikes_saved = 0  # счётчики для цепочки «нашли взятие → сразу пересинк линии» (main.py)
+    claims_saved = 0
     saved_rows: list = []  # для промоута в летопись
     for i in range(0, len(fresh), _BATCH):
         chunk = fresh[i:i + _BATCH]
@@ -576,14 +690,14 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
                 try:
                     strikes = it.get("strike_events")
                     if isinstance(strikes, list) and strikes:
-                        _persist_strike_events(db, target, strikes, pub, art["src"], art["url"])
+                        strikes_saved += _persist_strike_events(db, target, strikes, pub, art["src"], art["url"])
                 except Exception as e:  # noqa: BLE001
                     logger.warning("geo_digest: strike_events для %s не обработаны: %s", art["url"], type(e).__name__)
                 if target == "svo":
                     try:
                         claims = it.get("territorial_claims")
                         if isinstance(claims, list) and claims:
-                            _persist_territorial_claims(db, claims, pub, art["src"], art["url"])
+                            claims_saved += _persist_territorial_claims(db, claims, pub, art["src"], art["url"])
                     except Exception as e:  # noqa: BLE001
                         logger.warning("geo_digest: territorial_claims для %s не обработаны: %s",
                                        art["url"], type(e).__name__)
@@ -597,6 +711,7 @@ def refresh(db: Session, max_new: int = _MAX_PER_RUN) -> dict:
             chronicled = ingest_geo_articles(db, saved_rows)
         except Exception as e:  # noqa: BLE001
             logger.warning("GEO-дайджест→chronicle: %s", type(e).__name__)
-    res = {"discovered": len(fresh), "saved": saved, "chronicled": chronicled, "blind": blind}
+    res = {"discovered": len(fresh), "saved": saved, "chronicled": chronicled,
+           "strikes_saved": strikes_saved, "claims_saved": claims_saved, "blind": blind}
     logger.info("GEO-дайджест: %s", res)
     return res
