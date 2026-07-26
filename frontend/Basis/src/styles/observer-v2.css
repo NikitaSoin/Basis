@@ -3615,6 +3615,134 @@ details[open] > summary.obs-ai-section-heading .obs-ai-section-chev {
   box-shadow: 0 0 0 2px var(--bg-elevated);
 }
 
+/* =============================================================
+   SITUATION OVERLAY — obs-overlay-* (владелец 2026-07-27: «текущая
+   ситуация» у Гео/Институтов не обновлялась вслед за лентой, у Макро —
+   обновляется). ДЕЛЬТА-слой поверх экспертного барометра — не вторая
+   оценка, аннотация. Общий для ObsGeopolitics (по очагам, внутри
+   .obs-region-card) и ObsInstitutions (единый блок, своя .obs-inst-card
+   обёртка → nested=false, без верхнего разделителя). Цвет только в
+   alignment-бейдже/противоречит-плашке (данные), остальное монохром. */
+.obs-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.obs-overlay--nested {
+  border-top: 1px dashed var(--border-subtle);
+  margin-top: 6px;
+  padding-top: 12px;
+}
+
+.obs-overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.obs-overlay-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.obs-overlay-date svg { flex-shrink: 0; }
+
+/* Alignment — единственный цвет в этом блоке, это ДАННЫЕ (направление
+   дельты к якорю), не декор хрома. подтверждает — нейтрально-приглушённо;
+   сдвигает — медь-акцент (заметно, но не тревожно); противоречит — warning
+   (заметная плашка ниже дублирует смысл, бейдж — только маркер). */
+.obs-overlay-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.obs-overlay-badge.obs-overlay-align--confirm {
+  color: var(--text-tertiary);
+  border-color: var(--border-strong);
+  background: transparent;
+}
+.obs-overlay-badge.obs-overlay-align--shift {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.obs-overlay-badge.obs-overlay-align--conflict {
+  color: var(--warning);
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.obs-overlay-conflict-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 9px 12px;
+  background: var(--warning-soft);
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.obs-overlay-conflict-banner svg { color: var(--warning); flex-shrink: 0; margin-top: 1px; }
+
+.obs-overlay-headline {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.obs-overlay-theses {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obs-overlay-thesis {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.obs-overlay-thesis-body { min-width: 0; }
+
+.obs-overlay-thesis-claim {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.obs-overlay-thesis-detail {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.obs-overlay-foot {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
 /* ---- Generic card shell (все секции ниже hero) ---- */
 .obs-inst-card {
   background: var(--bg-elevated);

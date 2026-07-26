@@ -1420,6 +1420,88 @@ function ObsBaroCaveat({ flags }) {
   );
 }
 
+// =========================
+// OBS SITUATION OVERLAY — «текущая ситуация по ленте», ДЕЛЬТА-СЛОЙ поверх
+// экспертных барометров Геополитики/Институтов (GET /api/market/situation-overlay).
+// НЕ вторая оценка и не пересмотр баллов якоря — только аннотация: как свежая
+// лента (10 дней, geo_digest) соотносится с экспертным барометром. Общий для
+// ObsGeopolitics (по очагам svo/middle_east/atr, внутри .obs-region-card) и
+// ObsInstitutions (единый блок institutions, своя обёртка .obs-inst-card).
+// Цвет — ТОЛЬКО в alignment-бейдже/плашке (это данные — направление дельты),
+// не в хроме. anchor as_of ВСЕГДА показан рядом, чтобы не создавать иллюзию,
+// что весь барометр целиком свежий (advisor-ревью 2026-07-27).
+// =========================
+const OBS_OVERLAY_ALIGN_CLASS = {
+  "подтверждает": "obs-overlay-align--confirm",
+  "сдвигает": "obs-overlay-align--shift",
+  "противоречит": "obs-overlay-align--conflict",
+};
+
+function ObsOverlayThesis({ t }) {
+  if (!t || !t.claim) return null;
+  const isFact = t.tag === "факт из ленты";
+  return (
+    <div className="obs-overlay-thesis">
+      <span className={isFact ? "obs-tag-fact" : "obs-tag-estimate"}>{t.tag || (isFact ? "факт из ленты" : "оценка")}</span>
+      <div className="obs-overlay-thesis-body">
+        <div className="obs-overlay-thesis-claim">{t.claim}</div>
+        {t.detail && <div className="obs-overlay-thesis-detail">{t.detail}</div>}
+      </div>
+    </div>
+  );
+}
+
+// block — overlay.blocks[<scope>] (alignment/headline/theses), уже прошёл
+// комплаенс-фильтр на бэкенде. generatedAt — overlay.generated_at (когда
+// собран ДЕЛЬТА-слой). anchorAsOf — дата ЭКСПЕРТНОГО барометра (может быть
+// заметно старше generatedAt — это ожидаемо и должно быть видно, не скрыто).
+// nested — рисовать ли верхний разделитель (true внутри узкой region-card,
+// false когда вызывающий уже даёт свою карточку-обёртку, напр. Институты).
+function ObsSituationOverlay({ block, generatedAt, anchorAsOf, nested = true }) {
+  if (!block) return null;
+  const alignCls = OBS_OVERLAY_ALIGN_CLASS[block.alignment] || OBS_OVERLAY_ALIGN_CLASS["подтверждает"];
+  const genDate = generatedAt
+    ? new Date(generatedAt).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })
+    : null;
+  const isConflict = block.alignment === "противоречит";
+  const theses = Array.isArray(block.theses) ? block.theses.filter((t) => t && t.claim) : [];
+
+  return (
+    <div className={`obs-overlay${nested ? " obs-overlay--nested" : ""}`}>
+      <div className="obs-overlay-head">
+        {genDate && (
+          <span className="obs-overlay-date"><Newspaper size={11} />По ленте на {genDate}</span>
+        )}
+        {block.alignment && (
+          <span className={`obs-overlay-badge ${alignCls}`}>{block.alignment}</span>
+        )}
+      </div>
+
+      {isConflict && (
+        <div className="obs-overlay-conflict-banner">
+          <AlertTriangle size={14} />
+          <span>
+            Лента расходится с экспертной оценкой{anchorAsOf ? ` от ${anchorAsOf}` : ""}, ждёт пересмотра.
+          </span>
+        </div>
+      )}
+
+      {block.headline && <p className="obs-overlay-headline">{block.headline}</p>}
+
+      {theses.length > 0 && (
+        <div className="obs-overlay-theses">
+          {theses.map((t, i) => <ObsOverlayThesis key={i} t={t} />)}
+        </div>
+      )}
+
+      <div className="obs-overlay-foot">
+        Оценка Basis по ленте новостей, не факт и не индивидуальная инвестиционная рекомендация
+        {anchorAsOf ? ` · экспертный барометр — от ${anchorAsOf}` : ""}
+      </div>
+    </div>
+  );
+}
+
 const INSTITUTIONS_CLUSTERS = [
   { name: "Власть и право", icon: Gavel, keys: ["M1", "M2", "M4"] },
   { name: "Экономика и бюджет", icon: Coins, keys: ["M3", "M6", "M8", "M12"] },
@@ -3683,6 +3765,7 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
   const [digestLoading, setDigestLoading] = useState({});
   const [baro, setBaro] = useState(null);
   const [baroLoading, setBaroLoading] = useState(true);
+  const [overlay, setOverlay] = useState(null); // «текущая ситуация по ленте» — дельта-слой поверх baro
   const [geoHorizon, setGeoHorizon] = useState("6m"); // 6m | 18m — переключатель горизонта сценариев
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
@@ -3693,6 +3776,12 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
       .then((d) => setBaro(d))
       .catch(() => setBaro(null))
       .finally(() => setBaroLoading(false));
+    // Один запрос на весь экран (не по региону в цикле) — бэкенд отдаёт все
+    // scope сразу; available:false/пустые blocks → слой просто не рисуем.
+    fetch(`${apiUrl}/api/market/situation-overlay`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setOverlay(d && d.available && d.blocks ? d : null))
+      .catch(() => setOverlay(null));
   }, [apiUrl]);
 
   // Лента материалов (Рыбарь/Carnegie/re:russia/Economist/ISW) по региону — грузим лениво,
@@ -3950,6 +4039,13 @@ function ObsGeopolitics({ token, portfolioOnly, onSelectCompany }) {
                                     </div>
                                   </div>
                                 )}
+                                {overlay?.blocks?.[key] && (
+                                  <ObsSituationOverlay
+                                    block={overlay.blocks[key]}
+                                    generatedAt={overlay.generated_at}
+                                    anchorAsOf={r.as_of || baro.as_of}
+                                  />
+                                )}
                               </div>
                             );
                           })}
@@ -4115,6 +4211,7 @@ function ObsInstitutions({ token }) {
   const [digestLoading, setDigestLoading] = useState(true);
   const [baro, setBaro] = useState(null);
   const [baroLoading, setBaroLoading] = useState(true);
+  const [overlay, setOverlay] = useState(null); // «текущая ситуация по ленте» — дельта-слой поверх baro
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:8000";
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
@@ -4129,6 +4226,10 @@ function ObsInstitutions({ token }) {
       .then((d) => setBaro(d))
       .catch(() => setBaro(null))
       .finally(() => setBaroLoading(false));
+    fetch(`${apiUrl}/api/market/situation-overlay`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setOverlay(d && d.available && d.blocks ? d : null))
+      .catch(() => setOverlay(null));
   }, [apiUrl]);
 
   return (
@@ -4211,6 +4312,22 @@ function ObsInstitutions({ token }) {
                     </div>
                   )}
                 />
+
+                {overlay?.blocks?.institutions && (
+                  <div className="obs-inst-card">
+                    <div className="obs-inst-card-title"><Newspaper size={16} />Что изменилось по ленте</div>
+                    <div className="obs-inst-card-sub">
+                      Дельта-слой поверх барометра выше — не пересматривает баллы M1–M13, аннотирует
+                      свежими статьями за последние дни.
+                    </div>
+                    <ObsSituationOverlay
+                      block={overlay.blocks.institutions}
+                      generatedAt={overlay.generated_at}
+                      anchorAsOf={baro.as_of}
+                      nested={false}
+                    />
+                  </div>
+                )}
 
                 {baro.crp_floor_rationale && (
                   <div className="obs-inst-card">
