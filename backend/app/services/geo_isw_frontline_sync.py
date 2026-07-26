@@ -96,7 +96,40 @@ _TIMELINE_PATH = os.path.join(
 )
 
 
-def absorb_candidates(ukraine_boundary=None, db=None) -> list[dict]:
+# Максимальное удаление кандидата от фактической массы ISW-контроля, при
+# котором мы вообще готовы поверить во «взятие». Владелец (2026-07-26, после
+# бага с пятном в глубине Запорожской и «взятым» пунктом в глубине
+# Днепропетровской): «населённый пункт может быть взят, если он рядом с линией
+# фронта, а не в глубине». Механика бага: деревень-тёзок много (Вольное,
+# Благодатное, Новосёловка есть в нескольких областях), Wikipedia-геокодинг
+# берёт не ту, и _absorb_overrides затягивает клин красной зоны к точке за
+# десятки км от фронта. Порог 25 км: реальные подтверждённые Рыбарём города
+# лежали в 7-17 км от массы ISW (максимум — Константиновка, 17), ложные
+# тёзки — в 50-100+ км.
+_MAX_FRONT_DISTANCE_KM = 25.0
+
+
+def _load_oblast_shapes() -> list[tuple[str, object]]:
+    """(первое слово name_ru, shapely-геометрия) по регионам статической карты —
+    для проверки «координата лежит в заявленной области». Сортировка по длине
+    слова убывающе, чтобы «Киевская» матчилась раньше «Киев» (город)."""
+    from shapely.geometry import shape
+    with open(_SVO_MAP_PATH, encoding="utf-8") as f:
+        static_map = json.load(f)
+    out = []
+    for feat in static_map["base_map"]["regions_geojson"]["features"]:
+        name = (feat["properties"].get("name_ru") or "").strip()
+        if not name:
+            continue
+        try:
+            out.append((name.split()[0], shape(feat["geometry"]).buffer(0.05)))
+        except Exception:  # noqa: BLE001 — одна битая геометрия не рушит проверку
+            continue
+    out.sort(key=lambda t: -len(t[0]))
+    return out
+
+
+def absorb_candidates(ukraine_boundary=None, db=None, control_mass=None) -> list[dict]:
     """ВСЕ пункты, которые по данным МО РФ/Рыбаря сейчас под контролем РФ, —
     из трёх источников сразу:
       1) geo_svo_manual_overrides.json — ручные оверрайды (с явным radius_km);
@@ -170,6 +203,57 @@ def absorb_candidates(ukraine_boundary=None, db=None) -> list[dict]:
                 add(r.settlement, r.oblast, r.lat, r.lon, 3)
         except Exception:  # noqa: BLE001 — живой источник не роняет синк
             logger.warning("absorb_candidates: territorial_claims из БД не подмешаны", exc_info=True)
+
+    # --- ВАЛИДАЦИЯ КАНДИДАТОВ (владелец, 2026-07-26; см. _MAX_FRONT_DISTANCE_KM) ---
+    from shapely.geometry import Point
+
+    # Правило 1: координата обязана лежать в ЗАЯВЛЕННОЙ области — ловит тёзок,
+    # геокоженных не туда («Благодатное» не той области и т.п.).
+    try:
+        oblasts = _load_oblast_shapes()
+    except Exception:  # noqa: BLE001
+        logger.warning("absorb_candidates: контуры областей не загрузились — проверка области пропущена")
+        oblasts = []
+    if oblasts:
+        kept = []
+        for o in out:
+            stated = (o.get("oblast") or "").strip()
+            region = next((g for w, g in oblasts if w and w in stated), None) if stated else None
+            if region is not None and not region.contains(Point(o["lon"], o["lat"])):
+                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» — координата (%.3f, %.3f) не в "
+                               "заявленной области «%s» (вероятно, тёзка при геокодинге)",
+                               o["name"], o["lat"], o["lon"], stated)
+                continue
+            kept.append(o)
+        out = kept
+
+    # Правило 2: пункт может быть «взят», только если он РЯДОМ С ФРОНТОМ —
+    # не дальше _MAX_FRONT_DISTANCE_KM от фактической массы ISW-контроля.
+    if control_mass is not None and not control_mass.is_empty:
+        kept = []
+        for o in out:
+            d_km = control_mass.distance(Point(o["lon"], o["lat"])) * _KM_PER_DEG_LAT
+            if d_km > _MAX_FRONT_DISTANCE_KM:
+                logger.warning("absorb_candidates: ОТКЛОНЁН «%s» (%s) — %.0f км от линии фронта "
+                               "(порог %.0f), взятие в глубине тыла неправдоподобно",
+                               o["name"], o.get("oblast"), d_km, _MAX_FRONT_DISTANCE_KM)
+                continue
+            kept.append(o)
+        out = kept
+
+        # Правило 3: пункт УЖЕ ВНУТРИ линии ISW → вливать нечего, выкидываем.
+        # Это не только экономия: морфологическое смыкание (_absorb_overrides)
+        # надувает линию в окрестности КАЖДОГО пункта, даже глубоко тылового —
+        # замерено 2026-07-26: 93 кандидата (большинство — давно взятые города
+        # из хронологии: Донецк, Мелитополь, Мариуполь...) раздували красную
+        # зону на ~6 000 км² чистой «подушки» вдоль всей линии. Владелец увидел
+        # это как «за июль +7000 км²». Остаются только пункты, которых у ISW
+        # ещё НЕТ — ровно те, ради которых оверрайды и существуют.
+        inside = [o["name"] for o in out if control_mass.contains(Point(o["lon"], o["lat"]))]
+        if inside:
+            logger.info("absorb_candidates: %d пунктов уже внутри линии ISW — в геометрию не идут (%s%s)",
+                        len(inside), ", ".join(inside[:8]), "…" if len(inside) > 8 else "")
+            out = [o for o in out if not control_mass.contains(Point(o["lon"], o["lat"]))]
     return out
 
 
@@ -439,7 +523,13 @@ def sync_isw_frontline(db: Session) -> dict:
     try:
         control_fc, as_of = _fetch_control_polygons()
         ukraine_boundary, _static_map = _ukraine_boundary_from_static_map()
-        overrides = absorb_candidates(ukraine_boundary, db=db)
+        # Масса фактического ISW-контроля — для правила «взятие только рядом с
+        # фронтом» в absorb_candidates (защита от тёзок-деревень при геокодинге).
+        from shapely.geometry import shape as _shape
+        from shapely.ops import unary_union as _uu
+        isw_mass = _uu([_shape(f["geometry"]).buffer(0)
+                        for f in control_fc.get("features", []) if f.get("geometry")])
+        overrides = absorb_candidates(ukraine_boundary, db=db, control_mass=isw_mass)
         frontline_fc, control_fill_fc = _compute_frontline(
             control_fc, ukraine_boundary, overrides=overrides)
         if not frontline_fc["features"]:
