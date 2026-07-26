@@ -1,4 +1,10 @@
-FROM python:3.11-slim
+# 🔴 Кодовое имя Debian ЗАКРЕПЛЕНО (-bookworm), не голый -slim: тег -slim
+# алиасится на новейший стабильный Debian, и после выхода Debian 13 (Trixie)
+# сборка на билдере Timeweb стала падать — репозитории Trixie оттуда
+# недоступны (apt-get update: Network is unreachable → exit code 100;
+# инцидент 2026-07-26, диагноз саппорта Timeweb). Bookworm (Debian 12) —
+# стабильный и доступный; при будущем апгрейде Python тоже сохранять суффикс.
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
