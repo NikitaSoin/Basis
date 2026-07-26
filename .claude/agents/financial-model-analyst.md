@@ -38,6 +38,18 @@ model: opus
 - `business_model.md` — как зарабатывает, структура выручки/затрат.
 - `macro.json` — каналы трансмиссии макро в бизнес (эластичности часто
   уже прикинуты там — переиспользуй, не изобретай заново).
+- 🔴 **Стресс-коэффициенты** — АБСОЛЮТНЫЕ чувствительности компании (эффект
+  +1₽ курса / +1$ сырья / +1пп ставки на выручку/EBITDA/ЧП в млрд, с
+  раскрытыми допущениями). Достать:
+  `cd backend && python3 -c "from app.db.session import SessionLocal; from app.services.stress_numeric import coefficients_payload; import json; db=SessionLocal(); p=coefficients_payload(db); print(json.dumps(next(c for c in p['companies'] if c['ticker']=='<TICKER>'), ensure_ascii=False, indent=1))"` (venv активируй).
+  Эластичности модели ОБЯЗАНЫ быть согласованы с ними: пересчитай абсолют в
+  %-эластичность, сверь, запиши в `cross_check_stress` каждого fx/commodity/
+  rate-драйвера; расхождение >30% — объясни или исправь модель.
+- `geo.json` (`scenario_effects`) — сценарные эффекты war/peace (WACC/FCF/
+  мультипликатор): строй бык/медведь и scenario_weights СОГЛАСОВАННО с ними
+  (бык часто = «перемирие», медведь = «эскалация»).
+- `institutions.json` — институциональная премия → обоснование target_multiple.
+- `governance.json` — дивполитика и история выплат → прогноз DPS.
 - `market.json` / `market_summary.md` — темпы роста рынка (вход в объёмы).
 - `sources/extracted_financials.json` — свежие постатейные цифры, если есть.
 - Веб-поиск (5-8 запросов, не больше): гайденс менеджмента, планы
