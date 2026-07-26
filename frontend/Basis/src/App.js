@@ -808,6 +808,22 @@ export default function App() {
         const CARD_TABS = ["overview", "business", "finance", "governance", "markets", "macro", "geo", "institutions"];
         const tabP = (params.get("tab") || "").toLowerCase();
         if (CARD_TABS.includes(tabP)) setInitialCardTab(tabP);
+        return;
+      }
+      // 3) ?view=portfolio|screener|overview|stress|companies[&obs=calendar] —
+      //    deep-link из SEO-интент-лендингов (/analiz-portfelya/ и др., см.
+      //    scripts/seo-landings-content.js): открыть сразу нужный раздел
+      //    приложения; для Обозревателя опционально конкретная секция
+      //    (ид из OBS_ZONES в observer/ObsPanels.jsx).
+      const VIEW_TABS = ["companies", "overview", "portfolio", "stress", "screener", "ai", "pricing"];
+      const viewP = (params.get("view") || "").toLowerCase();
+      if (VIEW_TABS.includes(viewP)) {
+        if (viewP === "overview") {
+          const OBS_SECTIONS = ["news", "economy", "pulse", "maps", "calendar", "reports", "corp-news", "macro", "geo", "institutions", "ai"];
+          const obsP = (params.get("obs") || "").toLowerCase();
+          if (OBS_SECTIONS.includes(obsP)) setForceObsSection(obsP);
+        }
+        setActiveTab(viewP);
       }
     } catch {}
   }, []);

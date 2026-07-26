@@ -30,6 +30,14 @@
  * года); live-метрики (цена/апсайд/мультипликаторы) в статику НЕ пекутся —
  * прямо написано «считаются в приложении».
  *
+ * v3 (2026-07-27, SEO-задача №1 владельца — «находить по задачам, не по названию»):
+ *   + интент-лендинги разделов (/analiz-portfelya/, /skrining-aktsiy/, /kak-vybrat-ofz/
+ *     и др.) — тексты в scripts/seo-landings-content.js, рендер — landingPage();
+ *   + тайтлы карточек под поисковый интент («анализ акций, справедливая цена X ₽»,
+ *     «разбор отчётности», «дивиденды {год}», «риски») — canonical/структура не тронуты;
+ *   + честный lastmod в sitemap: дата последнего коммита данных компании (git),
+ *     фолбэк — mtime файлов; раньше все 1577 URL получали дату сборки (аудит п.5).
+ *
  * ПОЧЕМУ Node, а не Python: билд-окружение Timeweb выполняет `npm run build`,
  * там гарантирован только Node (python3 нет — падало на бою). Только built-in
  * модули. Запускается ПОСЛЕ `craco build` (см. package.json), пишет в build/.
@@ -37,6 +45,8 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
+const LANDINGS = require("./seo-landings-content");
 
 const _ROOT = path.resolve(__dirname, "..", "..", "..");
 const _COMPANIES_DIR = path.join(_ROOT, "backend", "companies");
@@ -44,6 +54,7 @@ const _RATES_CSV = path.join(_ROOT, "rates.csv");
 const _BUILD_DIR = path.join(__dirname, "..", "build");
 const _SITE = "https://inbasis.ru";
 const _TODAY = new Date().toISOString().slice(0, 10);
+const _YEAR = new Date().getFullYear();
 
 /* ----------------------------- утилиты ----------------------------- */
 
@@ -292,6 +303,48 @@ function mdFirstSentence(md, cap) {
 function readJson(p) { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } }
 function readText(p) { try { return fs.readFileSync(p, "utf8"); } catch { return null; } }
 
+/* --------- честный lastmod (аудит 2026-07-26 п.5: «sitemap врёт») --------- */
+// Дата последнего коммита каждого файла backend/companies — ОДНИМ git-вызовом
+// (0,2 с локально). mtime как единственный источник не годится: на билд-окружении
+// Timeweb файлы получают mtime момента чекаута, т.е. снова «дата сборки». Если
+// git недоступен/история неполная (shallow clone) — честно деградируем к mtime.
+function loadGitFileDates() {
+  try {
+    const out = execSync("git log --format=%x01%cs --name-only -- backend/companies", {
+      cwd: _ROOT, encoding: "utf8", maxBuffer: 128 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"],
+    });
+    const dates = {};
+    let cur = null;
+    for (const line of out.split("\n")) {
+      if (line.charCodeAt(0) === 1) { cur = line.slice(1).trim(); continue; }
+      const f = line.trim();
+      // git log идёт от новых коммитов к старым — первая встреча файла = последний коммит
+      if (f && cur && !(f in dates)) dates[f] = cur;
+    }
+    return Object.keys(dates).length ? dates : null;
+  } catch { return null; }
+}
+
+const COMPANY_SRC_FILES = ["financials.json", "governance.json", "business_model.md", "macro_summary.md", "geo_summary.md"];
+// max(дата последнего изменения) по файлам-источникам страниц компании → YYYY-MM-DD | null.
+function companyLastmod(ticker, gitDates) {
+  let latest = null;
+  for (const f of COMPANY_SRC_FILES) {
+    let d = gitDates ? gitDates[`backend/companies/${ticker}/${f}`] : null;
+    if (!d) {
+      try { d = fs.statSync(path.join(_COMPANIES_DIR, ticker, f)).mtime.toISOString().slice(0, 10); }
+      catch { d = null; }
+    }
+    if (d && (!latest || d > latest)) latest = d;
+  }
+  // будущих дат и дат позже сборки быть не должно (грязный mtime) — зажимаем
+  return latest && latest < _TODAY ? latest : _TODAY;
+}
+
+function fileLastmod(p) {
+  try { return fs.statSync(p).mtime.toISOString().slice(0, 10); } catch { return _TODAY; }
+}
+
 // Пути реального бандла приложения (для progressive takeover, см. pageShell) —
 // craco build уже отработал (см. package.json: build = craco build && this script),
 // asset-manifest.json существует. files["main.js"/"main.css"] уже с ведущим "/"
@@ -415,7 +468,12 @@ ${css}
 <script defer src="${assets.js}"></script>`;
 }
 
-function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets }) {
+const DEFAULT_NOTE = `Basis — независимый аналитический слой, не брокер и не даёт сигналов
+«купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
+обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
+считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.`;
+
+function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, assets, note }) {
   const url = _SITE + canonicalPath;
   const crumbsHtml = breadcrumbs
     .map((b, i) => (i < breadcrumbs.length - 1 && b.href ? `<a href="${b.href}">${escapeHtml(b.label)}</a>` : escapeHtml(b.label)))
@@ -461,10 +519,7 @@ function pageShell({ title, desc, canonicalPath, breadcrumbs, bodyHtml, jsonLd, 
 <div id="seo-static">
 <nav class="crumbs">${crumbsHtml}</nav>
 ${bodyHtml}
-<p class="note">Basis — независимый аналитический слой, не брокер и не даёт сигналов
-«купить/продать». Числа на этой странице — из годовой отчётности на дату последнего
-обновления разбора; живые показатели (цена, мультипликаторы, апсайд к справедливой цене)
-считаются в приложении. Материал не является индивидуальной инвестиционной рекомендацией.</p>
+<p class="note">${note || DEFAULT_NOTE}</p>
 </div>${appMountHtml(assets)}
 </body>
 </html>`;
@@ -534,7 +589,9 @@ const TAB_PAGES = [
   {
     slug: "finance", appTab: "finance", label: "Финансы и оценка",
     has: (c) => finRows(c).length > 0,
-    title: (c) => `Финансы ${titleName(c)} (${c.ticker}): выручка, прибыль, оценка | Basis`,
+    // Имя-первым (как в хабе): «Разбор отчётности {Имя-в-именительном}» не
+    // склоняется автоматически — «Разбор отчётности Сбербанк» безграмотно.
+    title: (c) => `${titleName(c)} (${c.ticker}): разбор отчётности — выручка, прибыль, оценка | Basis`,
     desc: (c) => {
       const np = lastValue(c, "net_profit");
       const rv = lastValue(c, c.profile === "bank" ? "net_interest_income" : "revenue");
@@ -559,7 +616,9 @@ const TAB_PAGES = [
   {
     slug: "dividends", appTab: "governance", label: "Дивиденды",
     has: (c) => Boolean(c.dividends && ((c.dividends.history || []).length || c.dividends.policy_text)),
-    title: (c) => `Дивиденды ${titleName(c)} (${c.ticker}): история и политика выплат | Basis`,
+    // Год в тайтле — под массовый запрос «дивиденды X 2026» (аудит п.7); при
+    // пересборке в новом году подставится актуальный. Имя-первым — см. finance.
+    title: (c) => `${titleName(c)} (${c.ticker}): дивиденды ${_YEAR} — история выплат и политика | Basis`,
     desc: (c) => {
       const d = c.dividends || {};
       const yrs = (d.history || []).map((h) => h.year).filter(Boolean);
@@ -579,7 +638,7 @@ const TAB_PAGES = [
   {
     slug: "macro", appTab: "macro", label: "Макроэкономика",
     has: (c) => Boolean(c.macroMd),
-    title: (c) => `${titleName(c)} (${c.ticker}) и макро: ставка, инфляция, курс | Basis`,
+    title: (c) => `${titleName(c)} (${c.ticker}) и макро: влияние ставки ЦБ, инфляции, курса — Basis`,
     desc: (c) => truncate(`Макро и ${c.short} (${c.ticker}): ${mdFirstSentence(c.macroMd, 300) ||
       "как ключевая ставка, инфляция и курс рубля влияют на компанию — разбор Basis."}`, 200),
     content: (c) => mdExcerpt(c.macroMd, 3000),
@@ -587,7 +646,7 @@ const TAB_PAGES = [
   {
     slug: "geo", appTab: "geo", label: "Геополитика",
     has: (c) => Boolean(c.geoMd),
-    title: (c) => `Геополитические риски ${titleName(c)} (${c.ticker}) | Basis`,
+    title: (c) => `${titleName(c)} (${c.ticker}): риски — геополитика и санкции | Basis`,
     desc: (c) => truncate(`Геополитика и ${c.short} (${c.ticker}): ${mdFirstSentence(c.geoMd, 300) ||
       "санкционная экспозиция, сценарии, влияние на оценку — разбор Basis."}`, 200),
     content: (c) => mdExcerpt(c.geoMd, 3000),
@@ -598,6 +657,24 @@ const TAB_PAGES = [
 // Имя для <title>: длинные официальные названия режем по слову (~40 симв.),
 // иначе title уезжает за 75 символов (аудит tech-seo: максимум был 126).
 function titleName(c) { return truncate(c.short, 40); }
+
+// Справедливая цена (base из valuation.fair_value_range) для тайтла-интента.
+// Это ДАТИРОВАННАЯ оценка из financials.json (единый источник чисел карточки),
+// НЕ живая котировка — в статику её печь можно (у 262/264 компаний есть).
+// Значение всегда в ₽ за акцию (MOEX), даже когда отчётная валюта USD/EUR.
+function fairPriceRub(c) {
+  const v = c.fin && c.fin.valuation && c.fin.valuation.fair_value_range
+    ? c.fin.valuation.fair_value_range.base : null;
+  if (typeof v !== "number" || !isFinite(v) || v <= 0) return null;
+  const abs = Math.abs(v);
+  const rounded = abs >= 100 ? Math.round(v)
+    : abs >= 10 ? Math.round(v * 10) / 10
+    : abs >= 1 ? Math.round(v * 100) / 100
+    : Math.round(v * 10000) / 10000;
+  const [int, frac] = String(rounded).split(".");
+  const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, " "); // 15894 → «15 894»
+  return frac ? `${grouped},${frac}` : grouped;
+}
 
 function hubDescription(c) {
   const bits = [];
@@ -613,7 +690,12 @@ function hubDescription(c) {
 }
 
 function hubPage(c, tabsWritten, sectorPeers, assets) {
-  const title = `${titleName(c)} (${c.ticker}) — аналитика: финансы, дивиденды, оценка | Basis`;
+  // Тайтл под поисковый интент (владелец, 2026-07-27): «анализ акций X»,
+  // «справедливая цена X» — реальные запросы; цифра из financials.json датирована.
+  const fp = fairPriceRub(c);
+  const title = fp
+    ? `${titleName(c)} (${c.ticker}): анализ акций, справедливая цена ${fp} ₽, дивиденды — Basis`
+    : `${titleName(c)} (${c.ticker}): анализ акций, отчётность, дивиденды, риски — Basis`;
   const desc = hubDescription(c);
   const parts = [];
   parts.push(`<p class="tag">${escapeHtml(c.sectorFull || c.sector)} · MOEX: ${c.ticker}</p>`);
@@ -715,6 +797,8 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
 <div class="grid">${bySector[s]
     .sort((a, b) => a.short.localeCompare(b.short, "ru"))
     .map((c) => `<a class="chip" href="/company/${c.ticker}/">${escapeHtml(c.short)} (${c.ticker})</a>`).join("")}</div>`).join("\n")}
+<h2>Инструменты и методики Basis</h2>
+<div class="grid">${LANDINGS.map((l) => `<a class="chip" href="/${l.slug}/">${escapeHtml(l.crumb)}</a>`).join("")}</div>
 <a class="cta" href="/">Открыть приложение Basis →</a>`;
   return pageShell({
     title: `Аналитика по ${companies.length} компаниям Мосбиржи — разборы Basis`,
@@ -723,6 +807,60 @@ ${sectors.map((s) => `<h2>${escapeHtml(s)} <span style="color:var(--faint);font-
     breadcrumbs: [{ label: "Basis", href: "/" }, { label: "Компании" }],
     bodyHtml: body,
     jsonLd: [],
+  });
+}
+
+/* ------------------------- интент-лендинги ------------------------- */
+// Статические страницы под информационные запросы («проанализировать портфель»,
+// «скринер облигаций», «как выбрать ОФЗ»...) — тексты и правила текстов в
+// scripts/seo-landings-content.js. Это ЧИСТАЯ статика БЕЗ бандла приложения:
+// progressive takeover заточен под карточки компаний (basis:company-ready), а на
+// этих путях SPA отрисовал бы свою главную ПОД статикой — двойная страница.
+// Вместо этого — CTA-ссылка в нужный раздел (?view=..., обработчик в App.js).
+function landingPage(l) {
+  const faqHtml = l.faq && l.faq.length
+    ? `<h2>Частые вопросы</h2>\n` + l.faq.map((f) =>
+        `<h3>${escapeHtml(f.q)}</h3>\n<p>${escapeHtml(f.a)}</p>`).join("\n")
+    : "";
+  const others = LANDINGS.filter((x) => x.slug !== l.slug);
+  const relatedHtml = `<h2>Инструменты и методики Basis</h2><div class="grid">${
+    others.map((x) => `<a class="chip" href="/${x.slug}/">${escapeHtml(x.crumb)}</a>`).join("")
+  }<a class="chip" href="/company/">Разборы 264 компаний</a></div>`;
+  const body = `
+<p class="tag">Basis · инструменты инвестора</p>
+<h1>${escapeHtml(l.h1)}</h1>
+<p class="sub">${escapeHtml(l.lead)}</p>
+${l.body}
+${faqHtml}
+<a class="cta" href="${escapeHtml(l.appHref)}">${escapeHtml(l.appLabel)} →</a>
+${relatedHtml}`;
+  const ld = [{
+    "@type": "WebPage",
+    name: l.title,
+    description: l.description,
+    url: `${_SITE}/${l.slug}/`,
+    inLanguage: "ru",
+    isPartOf: { "@type": "WebSite", name: "Basis", url: _SITE },
+  }];
+  if (l.faq && l.faq.length) {
+    ld.push({
+      "@type": "FAQPage",
+      mainEntity: l.faq.map((f) => ({
+        "@type": "Question", name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
+  return pageShell({
+    title: l.title, desc: l.description,
+    canonicalPath: `/${l.slug}/`,
+    breadcrumbs: [{ label: "Basis", href: "/" }, { label: l.crumb }],
+    bodyHtml: body,
+    jsonLd: ld,
+    note: `Basis — независимый аналитический слой для частного инвестора, не брокер:
+не проводит сделок и не даёт сигналов «купить/продать». Материалы страницы — рамка
+оценки и описание инструментов платформы; они не являются индивидуальной
+инвестиционной рекомендацией.`,
   });
 }
 
@@ -757,10 +895,13 @@ function shortRedirectPage(c) {
 
 /* --------------------------- sitemap --------------------------- */
 
+// lastmod у каждого URL свой (дата последнего изменения ДАННЫХ, не сборки) —
+// аудит 2026-07-26 п.5: одинаковый lastmod=дата сборки у всех URL подрывает
+// доверие поисковиков к sitemap и ломает приоритет переобхода.
 function writeSitemap(urls) {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${_TODAY}</lastmod><changefreq>${u.freq}</changefreq><priority>${u.pri}</priority></url>`).join("\n")}
+${urls.map((u) => `  <url><loc>${u.loc}</loc><lastmod>${u.lastmod || _TODAY}</lastmod><changefreq>${u.freq}</changefreq><priority>${u.pri}</priority></url>`).join("\n")}
 </urlset>
 `;
   fs.writeFileSync(path.join(_BUILD_DIR, "sitemap.xml"), xml, "utf8");
@@ -792,7 +933,11 @@ function main() {
   ];
   let tabPagesCount = 0;
 
+  const gitDates = loadGitFileDates();
+  if (!gitDates) console.log("⚠️  git-история недоступна — lastmod из mtime файлов");
+
   for (const c of companies) {
+    const lastmod = companyLastmod(c.ticker, gitDates);
     // какие таб-страницы реально есть у этой компании
     const tabsWritten = [];
     const rendered = [];
@@ -812,18 +957,28 @@ function main() {
     const hubDir = path.join(_BUILD_DIR, "company", c.ticker);
     fs.mkdirSync(hubDir, { recursive: true });
     fs.writeFileSync(path.join(hubDir, "index.html"), hubPage(c, tabsWritten, peers, assets), "utf8");
-    urls.push({ loc: `${_SITE}/company/${c.ticker}/`, freq: "weekly", pri: "0.8" });
+    urls.push({ loc: `${_SITE}/company/${c.ticker}/`, freq: "weekly", pri: "0.8", lastmod });
 
     for (const [spec, content] of rendered) {
       const dir = path.join(hubDir, spec.slug);
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "index.html"), tabPage(c, spec, content, tabsWritten, assets), "utf8");
-      urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6" });
+      urls.push({ loc: `${_SITE}/company/${c.ticker}/${spec.slug}/`, freq: "monthly", pri: "0.6", lastmod });
       tabPagesCount++;
     }
   }
 
   fs.writeFileSync(path.join(_BUILD_DIR, "company", "index.html"), indexPage(companies), "utf8");
+
+  // Интент-лендинги разделов (v3, SEO-задача №1): /analiz-portfelya/ и др.
+  // lastmod — mtime файла текстов: правка текста = реальное обновление страницы.
+  const landingLastmod = fileLastmod(path.join(__dirname, "seo-landings-content.js"));
+  for (const l of LANDINGS) {
+    const dir = path.join(_BUILD_DIR, l.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "index.html"), landingPage(l), "utf8");
+    urls.push({ loc: `${_SITE}/${l.slug}/`, freq: "monthly", pri: "0.7", lastmod: landingLastmod });
+  }
 
   // Короткие URL /TICKER/ — редирект на канонический /company/TICKER/ (п.7 задачи).
   let shortUrlCount = 0;
@@ -837,7 +992,7 @@ function main() {
   }
 
   writeSitemap(urls);
-  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} страниц разделов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
+  console.log(`SEO-страницы: ${companies.length} хабов + ${tabPagesCount} страниц разделов + ${LANDINGS.length} интент-лендингов + каталог; sitemap.xml — ${urls.length} URL; пропущено (нет financials.json): ${skipped.length}`);
   console.log(`Короткие редиректы /TICKER/: ${shortUrlCount}${shortUrlSkipped.length ? `; пропущены (конфликт с зарезервированным путём): ${shortUrlSkipped.join(", ")}` : ""}`);
   if (skipped.length) console.log("пропущены:", skipped.slice(0, 20).join(", "), skipped.length > 20 ? "..." : "");
 }
